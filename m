@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbUKBN6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbUKBOC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbUKBN6G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 08:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbUKBN5z
+	id S261237AbUKBOC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 09:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUKBOAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 08:57:55 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:63649 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262247AbUKBMvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 07:51:12 -0500
-Date: Tue, 2 Nov 2004 13:52:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
+	Tue, 2 Nov 2004 09:00:36 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:60558 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261237AbUKBNkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 08:40:41 -0500
+Message-ID: <41878E47.5090805@kolivas.org>
+Date: Wed, 03 Nov 2004 00:40:23 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH] optional non-interactive mode for cpu scheduler
-Message-ID: <20041102125218.GH15290@elte.hu>
-References: <41871BA7.6070300@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41871BA7.6070300@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <41871BA7.6070300@kolivas.org> <20041102125218.GH15290@elte.hu> <4187854C.6000803@kolivas.org> <20041102131105.GA17535@elte.hu>
+In-Reply-To: <20041102131105.GA17535@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig876D3A8CC5895CEC0E591A27"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig876D3A8CC5895CEC0E591A27
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+Ingo Molnar wrote:
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> 
+>>However the non-interactive mode addresses a number of different needs 
+>>that seem to have come up. Specifically:
+>>I have had users report great success with such a mode on my own 
+>>scheduler in multiple X session setups where very choppy behaviour 
+>>occurs in mainline.
+> 
+> 
+> since SCHED_CPUBOUND would be inherited across fork(), it should be
+> rather easy to start an X session with all tasks as SCHED_CPUBOUND.
+> 
+> but i think the above rather points in the direction of some genuine
+> weakness in the interactivity code (i know, for which the fix is
+> staircase ;) which would be nice to debug.
 
-> optional non-interactive mode for cpu scheduler
+Heh I wasnt implying we should move to staircase to fix our problems 
+(then I'd have nothing special for -ck would I?). I was simply trying to 
+reproduce that behaviour with a similar mode. As for the choppiness, the 
+reports were that it would go away if X was run nice+19 which implies no 
+dynamic priority adjustment was the answer.
 
-i think the following scheme would work better:
+>>Many high performance computing people do not wish interactivity code
+>>modifying their choice of latency/distribution - admittedly this is a
+>>soft one.
+> 
+> 
+> well, SCHED_CPUBOUND would solve their needs too, right?
 
- - introduce a new SCHED_CPUBOUND policy
- - return ->static_prio + 5 for such tasks
- - keep their timeslice based off ->static_prio
+Assuming they wanted to run everything SCHED_CPUBOUND, yes.
 
-the point is this: such tasks would thus be automatically and
-perpetually considered 'CPU hogs'. Applications cannot abuse this
-mechanism because they get the maximum 'penalty'.
+Your solution has quite some merit to it :)
 
-and as a bonus, no magic sysctl and inherently more flexibility.
+I'll look into coding it later this week (thanks for suggesting I do it 
+btw). This ordeal has left me seriously sleep deprived :P
 
-(note that this scheme has advantages above nice +5 because nice +5
-still has the interactivity stuff on which can create priority
-fluctuations and may thus affect workloads.)
+Since we're considering providing a special cpu policy for high latency 
+high cpu usage, does that mean we can now talk about other policies like 
+batch, isochronous etc? And in the medium to long term future, gang and 
+group?
 
-if you agree with this scheme, would you be interested in implementing
-this?
+Regards,
+Con
 
-	Ingo
+--------------enig876D3A8CC5895CEC0E591A27
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBh45HZUg7+tp6mRURAglCAJ0WwOvo/uyzyvMB4N21Bu8hNsXZAQCeNuci
+r60OevYKBL/IU9pyPPM9dOs=
+=O46K
+-----END PGP SIGNATURE-----
+
+--------------enig876D3A8CC5895CEC0E591A27--

@@ -1,61 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265437AbSLBHT6>; Mon, 2 Dec 2002 02:19:58 -0500
+	id <S265647AbSLBH0N>; Mon, 2 Dec 2002 02:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbSLBHTd>; Mon, 2 Dec 2002 02:19:33 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45574 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265543AbSLBHSR>;
-	Mon, 2 Dec 2002 02:18:17 -0500
-Date: Mon, 2 Dec 2002 00:26:08 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] PCI Hotplug changes for 2.5.50
-Message-ID: <20021202082608.GD12121@kroah.com>
-References: <20021202082443.GA12121@kroah.com> <20021202082525.GB12121@kroah.com> <20021202082543.GC12121@kroah.com>
+	id <S265650AbSLBH0N>; Mon, 2 Dec 2002 02:26:13 -0500
+Received: from are.twiddle.net ([64.81.246.98]:13460 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265647AbSLBH0J>;
+	Mon, 2 Dec 2002 02:26:09 -0500
+Date: Sun, 1 Dec 2002 23:33:09 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Bjoern Brauel <bjb@gentoo.org>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: patch: linux-2.4.20 alpha broken cia(rev1) fix
+Message-ID: <20021201233309.A32203@twiddle.net>
+Mail-Followup-To: Bjoern Brauel <bjb@gentoo.org>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+References: <3DE7A5F4.5030503@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021202082543.GC12121@kroah.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DE7A5F4.5030503@gentoo.org>; from bjb@gentoo.org on Fri, Nov 29, 2002 at 06:37:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.924.3.2, 2002/11/30 01:18:05-08:00, adam@yggdrasil.com
+On Fri, Nov 29, 2002 at 06:37:56PM +0100, Bjoern Brauel wrote:
+> The attached patch fixes the initialization for CIA revision 1 chips 
+> that can be found on most Alcor machines. As it is impossible to boot 
+> such a box together with the Qlogic ISP SCSI controller without this 
+> patch I believe it is important to include it in the official kernel.
 
-[PATCH] Patch/resubmit(2.5.50): Eliminate pci_dev.driver_data
-
-	To review, this patch deletes pci_dev.driver_data, using the
-existing pci_dev.device.driver_data field instead, thereby shrinking
-struct pci_dev by four bytes on 32-bit machines.  The few device
-drivers that attempted to directly reference pci_dev.driver_data were
-fixed in a patch of mine that Jeff Garzik got into 2.5.45.  Also,
-making this change should help with memory allocation improvements in
-the future, although that's a separate issue.
+Try this version instead.  Control structures should not be
+replicated in different functions like that.  It's a sure
+recipie for one of them getting out of sync.
 
 
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Sun Dec  1 23:26:24 2002
-+++ b/include/linux/pci.h	Sun Dec  1 23:26:24 2002
-@@ -344,7 +344,6 @@
- 	u8		rom_base_reg;	/* which config register controls the ROM */
- 
- 	struct pci_driver *driver;	/* which driver has allocated this device */
--	void		*driver_data;	/* data private to the driver */
- 	u64		dma_mask;	/* Mask of the bits of bus address this
- 					   device implements.  Normally this is
- 					   0xffffffff.  You only need to change
-@@ -753,12 +752,12 @@
-  */
- static inline void *pci_get_drvdata (struct pci_dev *pdev)
- {
--	return pdev->driver_data;
-+	return pdev->dev.driver_data;
+r~
+
+
+
+===== arch/alpha/kernel/core_cia.c 1.6 vs edited =====
+--- 1.6/arch/alpha/kernel/core_cia.c	Mon Feb  4 23:52:51 2002
++++ edited/arch/alpha/kernel/core_cia.c	Sun Dec  1 23:26:06 2002
+@@ -370,7 +370,7 @@
  }
  
- static inline void pci_set_drvdata (struct pci_dev *pdev, void *data)
+ static inline void
+-cia_prepare_tbia_workaround(void)
++cia_prepare_tbia_workaround(int window)
  {
--	pdev->driver_data = data;
-+	pdev->dev.driver_data = data;
+ 	unsigned long *ppte, pte;
+ 	long i;
+@@ -382,10 +382,10 @@
+ 	for (i = 0; i < CIA_BROKEN_TBIA_SIZE / sizeof(unsigned long); ++i)
+ 		ppte[i] = pte;
+ 
+-	*(vip)CIA_IOC_PCI_W1_BASE = CIA_BROKEN_TBIA_BASE | 3;
+-	*(vip)CIA_IOC_PCI_W1_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
+-				    & 0xfff00000;
+-	*(vip)CIA_IOC_PCI_T1_BASE = virt_to_phys(ppte) >> 2;
++	*(vip)CIA_IOC_PCI_Wn_BASE(window) = CIA_BROKEN_TBIA_BASE | 3;
++	*(vip)CIA_IOC_PCI_Wn_MASK(window)
++	  = (CIA_BROKEN_TBIA_SIZE*1024 - 1) & 0xfff00000;
++	*(vip)CIA_IOC_PCI_Tn_BASE(window) = virt_to_phys(ppte) >> 2;
  }
+ 
+ static void __init
+@@ -605,8 +605,7 @@
+ do_init_arch(int is_pyxis)
+ {
+ 	struct pci_controller *hose;
+-	int temp;
+-	int cia_rev;
++	int temp, cia_rev, tbia_window;
+ 
+ 	cia_rev = *(vip)CIA_IOC_CIA_REV & CIA_REV_MASK;
+ 	printk("pci: cia revision %d%s\n",
+@@ -715,8 +714,20 @@
+ 	   are compared against W_DAC.  We can, however, directly map 4GB,
+ 	   which is better than before.  However, due to assumptions made
+ 	   elsewhere, we should not claim that we support DAC unless that
+-	   4GB covers all of physical memory.  */
+-	if (is_pyxis || max_low_pfn > (0x100000000 >> PAGE_SHIFT)) {
++	   4GB covers all of physical memory.
++
++	   On CIA rev 1, apparently W1 and W2 can't be used for SG.
++	   At least, there are reports that it doesn't work for Alcor.
++	   In that case, we have no choice but to use W3 for the TBIA
++	   workaround, which means we can't use DAC at all.  */
++
++	tbia_window = 1;
++	if (is_pyxis) {
++		*(vip)CIA_IOC_PCI_W3_BASE = 0;
++	} else if (cia_rev == 1) {
++		*(vip)CIA_IOC_PCI_W1_BASE = 0;
++		tbia_window = 3;
++	} else if (max_low_pfn > (0x100000000 >> PAGE_SHIFT)) {
+ 		*(vip)CIA_IOC_PCI_W3_BASE = 0;
+ 	} else {
+ 		*(vip)CIA_IOC_PCI_W3_BASE = 0x00000000 | 1 | 8;
+@@ -728,7 +739,7 @@
+ 	}
+ 
+ 	/* Prepare workaround for apparently broken tbia. */
+-	cia_prepare_tbia_workaround();
++	cia_prepare_tbia_workaround(tbia_window);
+ }
+ 
+ void __init
+===== include/asm-alpha/core_cia.h 1.4 vs edited =====
+--- 1.4/include/asm-alpha/core_cia.h	Mon Feb  4 23:55:11 2002
++++ edited/include/asm-alpha/core_cia.h	Sun Dec  1 20:23:23 2002
+@@ -202,6 +202,10 @@
+ #define CIA_IOC_PCI_W3_MASK		(IDENT_ADDR + 0x8760000740UL)
+ #define CIA_IOC_PCI_T3_BASE		(IDENT_ADDR + 0x8760000780UL)
+ 
++#define CIA_IOC_PCI_Wn_BASE(N)	  (IDENT_ADDR + 0x8760000400UL + (N)*0x100)
++#define CIA_IOC_PCI_Wn_MASK(N)	  (IDENT_ADDR + 0x8760000440UL + (N)*0x100)
++#define CIA_IOC_PCI_Tn_BASE(N)	  (IDENT_ADDR + 0x8760000480UL + (N)*0x100)
++
+ #define CIA_IOC_PCI_W_DAC		(IDENT_ADDR + 0x87600007C0UL)
  
  /*

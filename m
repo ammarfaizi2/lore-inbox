@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265088AbUFWBkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265958AbUFWBqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265088AbUFWBkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 21:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUFWBkQ
+	id S265958AbUFWBqo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 21:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUFWBqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 21:40:16 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:30695 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265088AbUFWBkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 21:40:11 -0400
-Message-ID: <40D8DF60.1090803@linux.jf.intel.com>
-Date: Tue, 22 Jun 2004 20:39:44 -0500
-From: James Ketrenos <jketreno@linux.jf.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Andrew Morton <akpm@osdl.org>, Joshua Kwan <jkwan@rackable.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: What happened to linux/802_11.h?
-References: <pan.2004.06.21.22.25.18.591967@triplehelix.org> <20040621173827.0403618b.akpm@osdl.org> <20040622004813.GA12334@bougret.hpl.hp.com>
-In-Reply-To: <20040622004813.GA12334@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 21:46:44 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:44521 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265958AbUFWBqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 21:46:42 -0400
+Date: Wed, 23 Jun 2004 10:47:58 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [PATCH 2/4]Diskdump Update
+In-reply-to: <20040622121201.GA1820@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <EBC458C41C138Bindou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.55
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <20040622121201.GA1820@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
+On Tue, 22 Jun 2004 13:12:01 +0100, Christoph Hellwig wrote:
 
->On Mon, Jun 21, 2004 at 05:38:27PM -0700, Andrew Morton wrote:
->  
+>On Tue, Jun 22, 2004 at 09:01:43PM +0900, Takao Indoh wrote:
+>> On Thu, 17 Jun 2004 14:39:06 +0100, Christoph Hellwig wrote:
+>> 
+>> >> >please make it not a module of it's own but part of the
+>> >> >scsi code, 
+>> >> 
+>> >> Do you mean scsi_dump module should be merged with sd_mod.o or 
+>> >> scsi_mod.o?
+>> >
+>> >scsi_mod.o.
+>> 
+>> It is difficult because disk_dump and scsi_dump try to check checksum of
+>> itself using check_crc_module so as to confirm whether module is
+>> compromised or not.
 >
->>Joshua Kwan <jkwan@rackable.com> wrote:
->>    
->>
->>>The IPW2100 driver
->>>(http://ipw2100.sourceforge.net) uses its definitions and now won't build
->>>against -bk or -mm kernel source.
->>>      
->>>
->>Jean, should we restore 802_11.h, or is there some alternative file which
->>that driver should be using?
->>    
->>
 >
->	Well, Jeff explicitely said that we should not care about
->drivers outside the kernel ;-)
->	Seriously, I see three solutions :
->	1) Convert ipw2100 to using drivers/net/wireless/ieee802_11.h,
->extend this header as necessary
->  
+>> Therefore, scsi_dump need to be always compiled as independent module.
+>> If scsi_dump is merged with scsi_mod, scsi_mod is not able to be
+>> compiled statically.
 >
-This is the path I was planning to take when I read about 802_11.h 
-possibly going away a while ago.  The file finally going away will just 
-raise the priority of that effort a bit :)  Changing the code to use the 
-headers in drivers/net/wireless isn't a big task -- I'll put the change 
-into the next snapshot of ipw2100.
+>So check if it's a module and otherwise not.
 
-Thanks,
-James
-(of ipw2100.sf.net)
+It means checksum is not used when scsi_mod is compiled statically.
+I think it is very important to check the checksum before dump starts.
+
+The most serious problem of dumping to the disk is that dumping may 
+overwrite parts of filesystem and destroy user data. This problem
+happens when data structures or codes which is used during dumping are
+broken.
+
+Diskdump solves this problem by the following methods.
+a) Using module checksum, check whether codes (and data) are broken.
+b) Confirm whether the target device is really dump device, by checking
+   that target device is rightly formatted.
+
+Therefore, checking the checksum is necessary before dumping. scsi_dump
+always needs to be compiled as module. So I said it is difficult to
+merge scsi_dump with scsi_mod.
+
+Best Regards,
+Takao Indoh

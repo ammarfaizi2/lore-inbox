@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280703AbRKYEvc>; Sat, 24 Nov 2001 23:51:32 -0500
+	id <S280718AbRKYFWU>; Sun, 25 Nov 2001 00:22:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280709AbRKYEvW>; Sat, 24 Nov 2001 23:51:22 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:517 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S280703AbRKYEvQ>; Sat, 24 Nov 2001 23:51:16 -0500
-Date: Sat, 24 Nov 2001 20:49:21 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-In-Reply-To: <9tp6tg$mge$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10111242046590.2927-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S280727AbRKYFWK>; Sun, 25 Nov 2001 00:22:10 -0500
+Received: from quattro-eth.sventech.com ([205.252.89.20]:3081 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S280718AbRKYFVw>; Sun, 25 Nov 2001 00:21:52 -0500
+Date: Sun, 25 Nov 2001 00:21:48 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: torvalds@transmeta.com
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, greg@kroah.com,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: USB Maintainer
+Message-ID: <20011125002148.P2199@sventech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Nov 2001, H. Peter Anvin wrote:
+Due to a small misscommunication between myself and Greg, he sent you
+all a patch to change the USB maintainer contact information to himself.
+I had intended to send you the patch myself along with a brief
+explanation.
 
-> Followup to:  <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
-> By author:    Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-> In newsgroup: linux.dev.kernel
-> > 
-> > > However, if it's really true that DTLA drives and their successor
-> > > corrupt blocks (generate bad blocks) on power loss during block writes,
-> > > these drives are crap.
-> > 
-> > They do, even IBM admits that (on
-> > 
-> >         http://www.cooling-solutions.de/dtla-faq
-> > 
-> > you find a quote from IBM confirming this).  IBM says it's okay, you
-> > have to expect this to happen.  So much for their expertise in making
-> > hard disks.  This makes me feel rather dizzy (lots of IBM drives in
-> > use).
-> > 
-> 
-> No sh*t.  I have always been favouring IBM drives, and I had a RAID
-> system with these drives bought.  It will be a LONG time before I buy
-> another IBM drive, that's for sure.  I can't believe they don't even
-> have the decency of saying "we fucked".
+Anyway, with my job change a couple of months ago and some other changes
+in my life, I haven't been able to put the work people expect out of the
+USB maintainer.
 
-Peter,
+Greg has graciously stepped up to fill in for me for a bit but I don't
+see things getting any better for me, while Greg has been given more
+time to put into the USB project.
 
-Remember my soon to be famous quote.
-Everything about storage is a LIE, and that is the only true I stand by.
+It just makes so much sense that Greg take over the maintainer position
+since he has the time and know how.
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+I won't stop development for Linux or USB and will continue to maintain
+some of the drivers I have maintained in the past, but Greg will handle
+all of the patches and more importantly, head up the direction for the
+Linux USB code.
 
+Thanks for the help and I wish Greg luck!
+
+JE
 

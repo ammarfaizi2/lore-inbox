@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266091AbTLISvB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbTLISvA
+	id S266067AbTLISx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbTLISx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:51:00 -0500
-Received: from imap.gmx.net ([213.165.64.20]:43221 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266091AbTLISuw (ORCPT
+	Tue, 9 Dec 2003 13:53:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50098 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266067AbTLISxv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:50:52 -0500
-Date: Tue, 9 Dec 2003 19:50:51 +0100 (MET)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: State of devfs in 2.6?
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <22780.1070995851@www60.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Tue, 9 Dec 2003 13:53:51 -0500
+Date: Tue, 9 Dec 2003 10:53:15 -0800
+From: cliff white <cliffw@osdl.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: lm@bitmover.com, hannal@us.ibm.com, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Minutes from OSDL talk at LSE call today
+Message-Id: <20031209105315.6a2b4ab7.cliffw@osdl.org>
+In-Reply-To: <20031204234454.GA15799@work.bitmover.com>
+References: <189470000.1070500829@w-hlinder>
+	<20031204033535.GA2370@work.bitmover.com>
+	<20031204134517.0c7a4ec4.cliffw@osdl.org>
+	<20031204234454.GA15799@work.bitmover.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi sorry for using this kind of reply,
-but i'm not subscribed to lkml
-/* it would be nice if you CC me :-) */
+On Thu, 4 Dec 2003 15:44:54 -0800
+Larry McVoy <lm@bitmover.com> wrote:
 
------- original e-mail -----------
-On Mon, Dec 08, 2003 at 11:26:17PM -0600, Rob Landley wrote:
+> On Thu, Dec 04, 2003 at 01:45:17PM -0800, cliff white wrote:
+> > On Wed, 3 Dec 2003 19:35:35 -0800
+> > Larry McVoy <lm@bitmover.com> wrote:
+> > 
+> > > On Wed, Dec 03, 2003 at 05:20:29PM -0800, Hanna Linder wrote:
+> > > > The Mozilla Tinderbox is based on CVS and can do fancy things with
+> > > > triggers. The kernel one is not as fancy because they are still
+> > > > working out issues with BK.
+> > > 
+> > > If we could get a list of these issues we'll try and see what we can do
+> > > to help.  My response has been a bit spotty lately, I've needed to take
+> > > some personal time, so pinging support@bitmover.com is more likely to
+> > > get you help.
+> > 
+> > We've exchanged some email with support@bitmover.com, and they've been
+> > a great help.  Really, there are two things.
+> > 
+> > The first is triggers. The Mozilla tinderbox is driven by triggers from
+> > CVS commits.  I believe that triggers are resevered for the commercial
+> > version of BK.
 > 
-> Is there a big rollup patch against that adds all the sys/*/dev entries
-for 
-> people who want to try udev?
+> That's not true.  Trigger support is identical in both versions.
+> 
+> > However, unlike CVS, BK has a nice way of asking the remote repository
+> > if new changes exist, so we really don't need a trigger to tell us when
+> > to start a build.  
+> 
+> Right.  Your problem is deciding which trees you want to track.  There is 
+> Linus/Marcelo trees but there are probably another 200+ trees of the kernel
+> on bkbits.net and who knows how many elsewhere (we've counted over 10,000
+> before we stopped counting).  Obviously you don't want to track all of those
+> but some of them might be interesting.
+> 
+> > The main issue here is finding the proper syntax for the bkweb url so
+> > we get all of the changesets included in the commit. We've recieved a
+> > few examples from your support people, and we're using one currently.
+> 
+> So are there any open issues?  The call implied there were.
 
-After I get finished catching up on USB patches that people sent me for
-the last month, I'll generate this and post it to lkml.
+I don't think there are any open issues for BK. The tinderbox crew still has some 
+work to do.
+cliffw
 
-thanks,
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> 
 
-greg k-h
--------end original e-mail -----
-
-Greg could you please post them splited,
-i'm having some issues with the one that adds
-misc devices -- oopses in early boot as described in
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107097871212256&w=2
-
-i managed to find 4 of the patches, but i'm still missing
-the ones for sound, input, parport
-
-the ones i found are available from the mandrake ml :-)
-eg http://marc.theaimsgroup.com/?l=mandrake-cooker&m=107099351100451&w=2
-( mem, vcs, fb , misc devices support)
-
-best,
-
-svetljo
 
 -- 
-+++ GMX - die erste Adresse für Mail, Message, More +++
-Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
-
-
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

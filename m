@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285972AbRLYXhN>; Tue, 25 Dec 2001 18:37:13 -0500
+	id <S286111AbRLZBBU>; Tue, 25 Dec 2001 20:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285986AbRLYXhD>; Tue, 25 Dec 2001 18:37:03 -0500
-Received: from white.pocketinet.com ([12.17.167.5]:37838 "EHLO
-	white.pocketinet.com") by vger.kernel.org with ESMTP
-	id <S285972AbRLYXgn>; Tue, 25 Dec 2001 18:36:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <nknight@pocketinet.com>
-Reply-To: nknight@pocketinet.com
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        "James Stevenson" <mistral@stev.org>, <linux-kernel@vger.kernel.org>,
-        <netfilter-devel@lists.samba.org>
-Subject: Re: file names ?
-Date: Tue, 25 Dec 2001 15:36:46 -0800
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <000701c18d82$57158ea0$0801a8c0@Stev.org> <E16IyNw-0003UO-00@phalynx>
-In-Reply-To: <E16IyNw-0003UO-00@phalynx>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <WHITEGlOVj8P8F7xztz000005f3@white.pocketinet.com>
-X-OriginalArrivalTime: 25 Dec 2001 23:35:06.0081 (UTC) FILETIME=[C8780D10:01C18D9C]
+	id <S286143AbRLZBBK>; Tue, 25 Dec 2001 20:01:10 -0500
+Received: from pop.gmx.de ([213.165.64.20]:61190 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S286140AbRLZBBB>;
+	Tue, 25 Dec 2001 20:01:01 -0500
+Date: Wed, 26 Dec 2001 01:59:50 +0100
+From: Christian Ohm <chr.ohm@gmx.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: file corruption in 2.4.16/17
+Message-ID: <20011226005950.GB3970@moongate.thevoid.net>
+In-Reply-To: <20011224010450.GB1482@moongate.thevoid.net> <Pine.LNX.4.33.0112232355540.5312-100000@coffee.psychology.mcmaster.ca> <20011225003901.GA3752@moongate.thevoid.net> <01122510384005.01845@manta>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01122510384005.01845@manta>
+User-Agent: Mutt/1.3.24i
+Organization: theVoid
+X-Operating-System: Linux moongate 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 December 2001 12:41 pm, Ryan Cumming wrote:
-> On December 25, 2001 12:25, James Stevenson wrote:
-> > a small example is a smallish ext2 / filesystem
-> > and the rest being a fat filesystem to that
-> > it can be accessed from both windows and linux.
-> > and there is not enough space on the ext2 to compile a kernel
-> > anymore.
->
-> Case-insensitivity is not your only problem. 'ln -s' is used multiple
-> times during the kernel build process, I'd like to see a FAT
-> filesystem try to handle that. I haven't checked, but the compile
-> might also depend on the executable bit actually working, and being
-> able to rename and unlink files in use. Even with filenames that do
-> not collide in a case-insensitive namespace, the build will fail.
->
-> The kernel compile requires a POSIX filesystem, which is a completely
-> sane demand. I'd go as far as saying that all 'real' filesystems are
-> POSIX compliant, and that non-POSIX filesystems should only be used
-> for simple data file storage.
->
+> Force Athlon bug stomper to be executed at startup (look into pci-pc.c).
+> Your kernel thinks you don't need it. It may be wrong.
+> Please report back.
 
-Actually there should be *no* problem at all. Just enable UMSDOS and 
-the UMSDOS filesystem will take care of ensuring that the FAT 
-filesystem supports the links, and the same filenames. Just don't try 
-to extract the files anywhere but in Linux with UMSDOS enabled.
+like i said, i don't really think this is hardware related, unless someone
+convinces me of the opposite. anyway, first i'll try to reproduce it to be
+sure 2.4.17 still behaves this way. then comes the fun part: searching for
+the cause...
 
-Err, and don't run scandisk or anything similar on the drives while in 
-DOS/Windows....
+bye
+christian ohm

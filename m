@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVDCGyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVDCHKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVDCGyM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 01:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVDCGyM
+	id S261572AbVDCHKh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 03:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVDCHKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 01:54:12 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:29313 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261558AbVDCGyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 01:54:07 -0500
-Date: Sat, 2 Apr 2005 23:53:56 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Paul Jackson'" <pj@engr.sgi.com>, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-Message-ID: <20050403065356.GV1753@schnapps.adilger.int>
-Mail-Followup-To: David Lang <david.lang@digitalinsight.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	'Paul Jackson' <pj@engr.sgi.com>, mingo@elte.hu,
-	nickpiggin@yahoo.com.au, torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200504020205.j32256g05369@unix-os.sc.intel.com> <Pine.LNX.4.62.0504022228080.5402@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504022228080.5402@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Sun, 3 Apr 2005 03:10:36 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:36804 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261572AbVDCHKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 03:10:30 -0400
+Message-ID: <424F96DD.2070307@colorfullife.com>
+Date: Sun, 03 Apr 2005 09:10:21 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack size
+References: <424EFD2A.6060305@colorfullife.com> <1112480132.27149.55.camel@localhost.localdomain>
+In-Reply-To: <1112480132.27149.55.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 02, 2005  22:36 -0800, David Lang wrote:
-> On Fri, 1 Apr 2005, Chen, Kenneth W wrote:
-> >To run this "industry db benchmark", assuming you have a 32-way numa box,
-> >I recommend buying the following:
-> >
-> >512 GB memory
-> >1500 73 GB 15k-rpm fiber channel disks
-> >50 hardware raid controllers, make sure you get the top of the line model
-> >  (the one has 1GB memory in the controller).
-> >25 fiber channel controllers
-> >4  gigabit ethernet controllers.
-> >12 rack frames
-> 
-> Ken, given that you don't have the bandwidth to keep all of those disks 
-> fully utilized, do you have any idea how big a performance hit you would 
-> take going to larger, but slower SATA drives?
-> 
-> given that this would let you get the same storage with about 1200 fewer 
-> drives (with corresponding savings in raid controllers, fiberchannel 
-> controllers and rack frames) it would be interesting to know how close it 
-> would be (for a lot of people the savings, which probably are within 
-> spitting distance of $1M could be work the decrease in performance)
+Steven Rostedt wrote:
 
-For benchmarks like these, the issue isn't the storage capacity, but
-rather the ability to have lots of heads seeking concurrently to
-access the many database tables.  At one large site I used to work at,
-the database ran on hundreds of 1, 2, and 4GB disks long after they
-could be replaced by many fewer, larger disks...
+>>Have you benchmarked your own memory manager?
+>>kmalloc(1024, GFP_KERNEL) is something like 17 instructions on i386 
+>>uniprocessor.
+>>    
+>>
+>
+>Where did you get that? I'm looking at the assembly of it right now and
+>it's much larger than 17 instructions. Not to mention that it calls the
+>slab functions which might have to invoke the buddy system.
+>
+>  
+>
+Have you looked at kmem_cache_alloc? kmalloc(1024, GFP_KERNEL) is 
+compile-time replaced with the appropriate kmem_cache_alloc call. And 
+the fast path within kmem_cache_alloc is 17 instructions long. Best 
+case: uniprocessor, no regparams. Unfortunately with cli and popfd, thus 
+something like 35 cpu cycles on an Athlon 64.
 
-Cheers, Andreas
+> I haven't clocked the speed of sem compared to kmalloc.
+>But I would think that the sem functions are still quicker.
+>
+>  
+>
+Yes - sem or spin locks are quicker as long as no cache line transfers 
+are necessary. If the semaphore is accessed by multiple cpus, then 
+kmalloc would be faster: slab tries hard to avoid taking global locks. 
+I'm not speaking about contention, just the cache line ping pong for 
+acquiring a free semaphore.
+
 --
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+    Manfred

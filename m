@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbSLSLnk>; Thu, 19 Dec 2002 06:43:40 -0500
+	id <S267619AbSLSLzK>; Thu, 19 Dec 2002 06:55:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267647AbSLSLnk>; Thu, 19 Dec 2002 06:43:40 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:20031 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S267646AbSLSLnj>;
-	Thu, 19 Dec 2002 06:43:39 -0500
-Date: Thu, 19 Dec 2002 12:51:23 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: jiri.wichern@hccnet.nl, "" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: kernel 2.4.20 option CONFIG_BLK_STATS breaks /proc/partitons so "mount" can't mount devices by UUID.
-Message-ID: <20021219115123.GA12670@win.tue.nl>
-References: <3DFE6ED2.7174.1395ABF@localhost> <20021217005539.GA11900@win.tue.nl> <Pine.LNX.4.50L.0212181330100.3431-100000@freak.distro.conectiva>
+	id <S267621AbSLSLzK>; Thu, 19 Dec 2002 06:55:10 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:39319 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267619AbSLSLzJ>; Thu, 19 Dec 2002 06:55:09 -0500
+Date: Thu, 19 Dec 2002 13:03:07 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133 Promise ctrlr, or...
+Message-ID: <20021219120307.GE17201@louise.pinerecords.com>
+References: <20021219111450.GD17201@louise.pinerecords.com> <Pine.LNX.4.10.10212190314260.8350-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L.0212181330100.3431-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.10.10212190314260.8350-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 01:31:44PM -0200, Marcelo Tosatti wrote:
+> > > > > > So.  I /think/ that somehow the Promise controller isn't being
+> > > > > > initialized properly by the Linux kernel, UNLESS the mobo's BIOS
+> > > > > > inits it first?
+> > > > >
+> > > > > In some situations yes. The BIOS does stuff including fixups we mere
+> > > > > mortals arent permitted to know about.
+> > > > 
+> > > > OTOH mere mortals are allowed to make full dump of PCI config ;)
+> > > > 
+> > > > "D.A.M. Revok" <marvin@synapse.net>, can you send lspci -vvvxxx
+> > > > outputs when you boot with BIOS enabled and BIOS disabled?
+> > > 
+> > > Promise knows this point.
+> > > Thus they moved the setting to a push/pull in the vendor space in the
+> > > dma_base+1 and dma_base+3 respectively.
+> > > 
+> > > lspci -vvvxxx fails when the content is located in bar4 io space.
+> > 
+> > Clearly Promise is the one storage vendor whose products are best avoided.
+> 
+> I would not say this is the case.  What is going on is people are wanting
+> to migrate to more of an internal hidden operation.
+> 
+> Think about it from their side.
+> They want to make it easier to program the card.
 
-> Could you please expand on the "sporadically" so we can inform the user in
-> a better way when he should not use CONFIG_BLK_STATS ?
+The result of their attempts has seemed to be the exact opposite
+so far, so I'd say they're either hiding a bit too much or the
+hardware doesn't cut it.
 
-He should never use it.
+Anyway, what are the chances of the 2.4.21-pre PDC driver getting
+fixed up so it works like it did in 2.4.18?
 
-We had extensive discussion a few months ago, and I gave you
-these Bugzilla references. Maybe you were confused because this
-CONFIG_BLK_STATS code also was buggy, but that is unrelated.
+> Linux is an OS that like to know what is going on all the time,
+> and the two clash.
 
-Older versions of mount, fdisk and also the lvmutils, fail
-because they expect the original format.
+Are you suggesting something to the point of Windows not having
+to cope with the same issues?  There has to be some kind of fundamental
+difference given Promise themselves successfully hosed the Linux driver
+the instant they touched it, while the Windows one just works. :)
 
-Later versions of mount and fdisk - I don't know about lvmutils -
-just parse the start of a line, and hence can cope with additional
-stuff at the end of the line.
-
-But there is something else. One of the problems with statistics
-in /proc/partitions is that the file changes dynamically - some
-statistic can go from 99 to 100 and take a position more. A program
-reading it will get bad data if it reads a buffer and then the next,
-and between the two reads the contents shifts.
-
-So far two solutions have been proposed:
-A user side one: Tell stdio to use a very large buffer, in the hope
-that all will be read at once. (This is what RedHat does.)
-And a kernel side one: Make sure the kernel generates constant
-length output.
-
-[But it is really ridiculous to put ugly hacks in lots of programs -
-Why? In order to avoid changing a single filename in sar?
-Break mount in order not to break sar?
-I still hope you remove this garbage again.]
-
-Andries
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUJ3TLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUJ3TNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbUJ3TLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 15:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbUJ3TLI
+	id S261256AbUJ3TNS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 15:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUJ3TNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 15:11:08 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:49886 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261275AbUJ3TKK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 15:10:10 -0400
-Message-ID: <4183E711.9030708@verizon.net>
-Date: Sat, 30 Oct 2004 15:10:09 -0400
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Sat, 30 Oct 2004 15:13:12 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:41612 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261256AbUJ3TLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 15:11:44 -0400
+Message-ID: <4183E775.3090701@namesys.com>
+Date: Sat, 30 Oct 2004 12:11:49 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>,
-       kernel-janitors@lists.osdl.org
-Subject: Re: [KJ] [PATCH] floppy: change MODULE_PARM to module_param in drivers/block/floppy.c
-References: <20041030134246.23710.45693.84191@localhost.localdomain> <4183BF5B.5000303@osdl.org> <200410301303.45161.dtor_core@ameritech.net>
-In-Reply-To: <200410301303.45161.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Timo Sirainen <tss@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: readdir loses renamed files
+References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi> <20041025123722.GA5107@thunk.org> <20041028093426.GB15050@merlin.emma.line.org> <20041028114413.GL1343@schnapps.adilger.int> <4182B2FF.9040902@namesys.com> <Pine.LNX.4.53.0410292326300.8389@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410292326300.8389@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.211.53] at Sat, 30 Oct 2004 14:10:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Saturday 30 October 2004 11:20 am, Randy.Dunlap wrote:
-> 
->>james4765@verizon.net wrote:
->>
->>>Replace MODULE_PARM with module_param in drivers/block/floppy.c.  Compile tested.
->>>
->>>Signed-off-by: James Nelson <james4765@gmail.com>
->>>
->>>diff -urN --exclude='*~' linux-2.6.9-original/drivers/block/floppy.c linux-2.6.9/drivers/block/floppy.c
->>>--- linux-2.6.9-original/drivers/block/floppy.c	2004-10-18 17:53:22.000000000 -0400
->>>+++ linux-2.6.9/drivers/block/floppy.c	2004-10-30 09:16:04.856720081 -0400
->>>@@ -180,6 +180,7 @@
->>> #include <linux/devfs_fs_kernel.h>
->>> #include <linux/device.h>
->>> #include <linux/buffer_head.h>	/* for invalidate_buffers() */
->>>+#include <linux/moduleparam.h>
->>> 
->>> /*
->>>  * PS/2 floppies have much slower step rates than regular floppies.
->>>@@ -4623,9 +4624,9 @@
->>> 	wait_for_completion(&device_release);
->>> }
->>> 
->>>-MODULE_PARM(floppy, "s");
->>>-MODULE_PARM(FLOPPY_IRQ, "i");
->>>-MODULE_PARM(FLOPPY_DMA, "i");
->>>+module_param(floppy, charp, 0);
->>>+module_param(FLOPPY_IRQ, int, 0);
->>>+module_param(FLOPPY_DMA, int, 0);
->>> MODULE_AUTHOR("Alain L. Knaff");
->>> MODULE_SUPPORTED_DEVICE("fd");
->>> MODULE_LICENSE("GPL");
->>
->>Please check Andrew's 2.6.10-rc1-mm2 for a large MODULE_PARAM
->>patch, and then convert drivers that are not yet converted...
->>
->>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/broken-out/convert-module_parm-to-module_param-family.patch
->>
+Jan Engelhardt wrote:
 
-Sorry - that was a quickie w/o checking to see if someone else had already done 
-it.  See below.
+>>Matthias is right.  readdir is badly architected, and no one has fixed
+>>it for ~30 years.
+>>    
+>>
+>
+>As long as M$ windows has the same problem, it's justified that we have that
+>problem for 30 years now.
+>
+>  
+>
+>>It should be possible to perform an atomic readdir if that is what you
+>>want to do and if you have space in your process to stuff the result.
+>>    
+>>
+>
+>How much would it cost to always append the new name into the directory rather
+>than modifying it in place?
+>
+Forgive me, what does the sentence above mean?  Paste it out of order?
 
-> 
-> 
-> Actually it would be nice if drivers were converted "intelligently"
-> instead of basic find-and-replace - I really find parameter names
-> like floppy.floppy= or floppy.floppy_dma= ugly.
-> 
-Hmm.  I can tak a look at that a little bit later - just got done with a *huge* 
-cleanup of floppy.c - just gotta do the diffs and send them.
+Better to fix the API.
 
-Jim
+> OTOH, especially Reiserfs does not use linear file
+>lists, so it would get tricky.
+>
+>
+>
+>  
+>
+We use sorted directories.

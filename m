@@ -1,136 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292656AbSCGWhs>; Thu, 7 Mar 2002 17:37:48 -0500
+	id <S310564AbSCGWi2>; Thu, 7 Mar 2002 17:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310564AbSCGWhj>; Thu, 7 Mar 2002 17:37:39 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:12940 "EHLO q-ag.de")
-	by vger.kernel.org with ESMTP id <S292656AbSCGWhR>;
-	Thu, 7 Mar 2002 17:37:17 -0500
-Message-ID: <3C87EBA0.8DD34D29@colorfullife.com>
-Date: Thu, 07 Mar 2002 23:37:20 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.5-pre1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
-Content-Type: multipart/mixed;
- boundary="------------A34EF5A159A2645ACB765DB0"
+	id <S310565AbSCGWiT>; Thu, 7 Mar 2002 17:38:19 -0500
+Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:21712 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S310564AbSCGWiE>;
+	Thu, 7 Mar 2002 17:38:04 -0500
+Date: Thu, 7 Mar 2002 22:15:27 +0100
+To: linux-kernel@vger.kernel.org
+Cc: irda-users@lists.sourceforge.net, jt@bougret.hpl.hp.com,
+        torvalds@transmeta.com
+Subject: [PATCH] make irtty.c compile again
+Message-ID: <20020307211527.GA7597@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A34EF5A159A2645ACB765DB0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-> Maybe Alan will mutter something about sysvipc.
-> Roughly speaking there are only advantages, especially since
-> I think we'll have to do this sooner or later, and in such cases
-> sooner is better.
+irtty.c includes irqueue.h which includes linux/cache.h (via
+asm/processor.h <- asm/thread_info.h <- linux/thread_info.h <-
+linux/spinlock.h)
 
-The sysvipc situation isn't that bad. The new interfaces added for
-32-bit uids also contain 32-bit pid values.
-The semaphore code contains a stupid hack that assumes 16-bit uids,
-appart from that apps linked against new glibc version should run fine.
+both irqueue.h and cache.h defines a ALIGN (for different
+purposes). 
 
-[patch vs. 2.5.6-pre2 attached, but untested].
+This patch renames ALIGN in irqueue.h to IRDA_ALIGN.
 
---
-	Manfred
---------------A34EF5A159A2645ACB765DB0
-Content-Type: text/plain; charset=us-ascii;
- name="patch-sem"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-sem"
+Guess i'll go grepping for more places ALIGN might be defined.
 
---- 2.5/ipc/sem.c	Sun Mar  3 12:04:00 2002
-+++ build-2.5/ipc/sem.c	Thu Mar  7 23:33:02 2002
-@@ -251,39 +251,39 @@
- 	for (sop = sops; sop < sops + nsops; sop++) {
- 		curr = sma->sem_base + sop->sem_num;
- 		sem_op = sop->sem_op;
--
--		if (!sem_op && curr->semval)
-+		result = curr->semval;
-+  
-+		if (!sem_op && result)
- 			goto would_block;
+-- 
+
+//anders/g
+
+--- linux-2.5.6-pre3/include/net/irda/irda.h	Thu Mar  7 19:13:01 2002
++++ linux-2.5.6-pre3-mekk/include/net/irda/irda.h	Thu Mar  7 21:24:18 2002
+@@ -54,8 +54,8 @@
+ #define IRDA_MIN(a, b) (((a) < (b)) ? (a) : (b))
+ #endif
  
--		curr->sempid = (curr->sempid << 16) | pid;
--		curr->semval += sem_op;
--		if (sop->sem_flg & SEM_UNDO)
--		{
-+		result += sem_op;
-+		if (result < 0)
-+			goto would_block;
-+		if (result > SEMVMX)
-+			goto out_of_range;
-+		if (sop->sem_flg & SEM_UNDO) {
- 			int undo = un->semadj[sop->sem_num] - sem_op;
- 			/*
- 	 		 *	Exceeding the undo range is an error.
- 			 */
- 			if (undo < (-SEMAEM - 1) || undo > SEMAEM)
--			{
--				/* Don't undo the undo */
--				sop->sem_flg &= ~SEM_UNDO;
- 				goto out_of_range;
--			}
--			un->semadj[sop->sem_num] = undo;
- 		}
--		if (curr->semval < 0)
--			goto would_block;
--		if (curr->semval > SEMVMX)
--			goto out_of_range;
-+		curr->semval = result;
- 	}
+-#ifndef ALIGN
+-#  define ALIGN __attribute__((aligned))
++#ifndef IRDA_ALIGN
++#  define IRDA_ALIGN __attribute__((aligned))
+ #endif
+ #ifndef PACK
+ #  define PACK __attribute__((packed))
+diff -ru linux-2.5.6-pre3/include/net/irda/irqueue.h linux-2.5.6-pre3-mekk/include/net/irda/irqueue.h
+--- linux-2.5.6-pre3/include/net/irda/irqueue.h	Thu Mar  7 19:39:58 2002
++++ linux-2.5.6-pre3-mekk/include/net/irda/irqueue.h	Thu Mar  7 21:24:18 2002
+@@ -49,8 +49,8 @@
+ #define HASHBIN_SIZE   8
+ #define HASHBIN_MASK   0x7
  
--	if (do_undo)
--	{
--		sop--;
-+	if (do_undo) {
- 		result = 0;
- 		goto undo;
- 	}
--
-+	sop--;
-+	while (sop >= sops) {
-+		sma->sem_base[sop->sem_num].sempid = pid;
-+		if (sop->sem_flg & SEM_UNDO)
-+			un->semadj[sop->sem_num] -= sop->sem_op;
-+		sop--;
-+	}
-+	
- 	sma->sem_otime = CURRENT_TIME;
- 	return 0;
+-#ifndef ALIGN 
+-#define ALIGN __attribute__((aligned))
++#ifndef IRDA_ALIGN 
++#define IRDA_ALIGN __attribute__((aligned))
+ #endif
  
-@@ -298,13 +298,9 @@
- 		result = 1;
+ #define Q_NULL { NULL, NULL, "", 0 }
+@@ -75,8 +75,8 @@
+ 	__u32      magic;
+ 	int        hb_type;
+ 	int        hb_size;
+-	spinlock_t hb_mutex[HASHBIN_SIZE] ALIGN;
+-	irda_queue_t   *hb_queue[HASHBIN_SIZE] ALIGN;
++	spinlock_t hb_mutex[HASHBIN_SIZE] IRDA_ALIGN;
++	irda_queue_t   *hb_queue[HASHBIN_SIZE] IRDA_ALIGN;
  
- undo:
-+	sop--;
- 	while (sop >= sops) {
--		curr = sma->sem_base + sop->sem_num;
--		curr->semval -= sop->sem_op;
--		curr->sempid >>= 16;
--
--		if (sop->sem_flg & SEM_UNDO)
--			un->semadj[sop->sem_num] += sop->sem_op;
-+		sma->sem_base[sop->sem_num].semval -= sop->sem_op;
- 		sop--;
- 	}
- 
-@@ -624,7 +620,7 @@
- 		err = curr->semval;
- 		goto out_unlock;
- 	case GETPID:
--		err = curr->sempid & 0xffff;
-+		err = curr->sempid;
- 		goto out_unlock;
- 	case GETNCNT:
- 		err = count_semncnt(sma,semnum);
-
---------------A34EF5A159A2645ACB765DB0--
-
+ 	irda_queue_t* hb_current;
+ } hashbin_t;

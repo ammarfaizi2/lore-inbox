@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbTDFOjh (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262988AbTDFOjh (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:39:37 -0400
-Received: from mail-7.tiscali.it ([195.130.225.153]:53185 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id S262987AbTDFOjd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 10:39:33 -0400
-Date: Sun, 6 Apr 2003 16:51:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <20030406145105.GO1326@dualathlon.random>
-References: <12880000.1049508832@flay> <20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com> <20030405040614.66511e1e.akpm@digeo.com> <20030405163003.GD1326@dualathlon.random> <20030405132406.437b27d7.akpm@digeo.com> <20030405220621.GG1326@dualathlon.random> <20030405143138.27003289.akpm@digeo.com> <20030405231008.GI1326@dualathlon.random> <20030406073836.GE1828@holomorphy.com>
+	id S262996AbTDFOpX (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbTDFOpW (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:45:22 -0400
+Received: from main.gmane.org ([80.91.224.249]:37784 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262996AbTDFOpV (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 10:45:21 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicholas Wourms <nwourms@myrealbox.com>
+Subject: Re: 2.4.21-pre7 and ac97_code.c compilation problem
+Date: Sun, 06 Apr 2003 10:52:54 -0400
+Message-ID: <3E903F46.9080700@myrealbox.com>
+References: <3E8E8AA4.3070302@yahoo.com> <1049560971.25758.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030406073836.GE1828@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 05, 2003 at 11:38:36PM -0800, William Lee Irwin III wrote:
-> On Sun, Apr 06, 2003 at 01:10:08AM +0200, Andrea Arcangeli wrote:
-> > I still think we shouldn't associate any metadata with the nonlinear.
-> > nonlinaer should be enabled via a sysctl and have it run at true full
-> > speed, it's a bypass for the VM so you can mangle the pagetables from
-> > userspace.
-> > As soon as you start associating metadata to nonlinar, it's not the
-> > "raw fast" thing anymore and it increases the complexity.
+Alan Cox wrote:
+> On Sad, 2003-04-05 at 08:49, Lars wrote:
 > 
-> One of the big reasons why it's desirable is to reduce the metadata,
-> so I agree here.
+>>It seems prepatch 2.4.21-pre7 changes ac97_codec.c without making
+>>matching changes in ac97_codec.h... Just a heads up.
+>>
+>>The changes to ac97_codec.c are isolated enough so that I could easily
+>>reverse that part of the patch to get it to work.
+>>
+>>I'm not subscribed to this list, please CC me on any responses.
 > 
 > 
-> On Sun, Apr 06, 2003 at 01:10:08AM +0200, Andrea Arcangeli wrote:
-> > running bochs after echoing 1 into a sysctl should be fine, like also
-> > uml should echoing 1 into a sysctl to get revirtualized vsyscalls
-> > (unless we make it a prctl but that'll be more complex and slower).
-> > When bochs starts and runs the mmap(VM_NONLINEAR) it will get -EPERM and
-> > it will fall into the mmap mode (for 2.4 anyways). Or they can as well
-> > require the echoing so they won't need to maintain two modes.
-> > the nonlinear should work only in a separate special vma, its current
-> > api is very unclean since it can mix with original linear stuff into the
-> > same linear vma, and it doesn't allow more than one file into the same
-> > nonlinear vma. I still reccomend all my points that I posted yesterday
-> > to change the API to something much more approriate.
+> Marcelo applied a random subset of the changes I sent him. Grab the -ac
+> tree
 > 
-> This is an unusual idea; I'd expect capable(CAP_IPC_LOCK) to suffice
-> to provide the privilege checks for direct mlocking as well as other
-> operations that lock memory (please don't look at hugetlbfs for this...).
 
-that would be enough if you could ask any capability to those apps.
-Still you could override the sysctl check and allow the
-mmap(VM_NONLINEAR) to work even w/ the sysctl, iff CAP_IPC_LOCK is set,
-that's certainly safe, I don't mind about it.
+Will you be releasing an -ac patch for pre7?
 
-so it could be an additional way to gain access to such functionalty,
-but it doesn't obviate the need of the sysctl IMHO.
+Cheers,
+Nicholas
 
-Andrea
+

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312759AbSCVREU>; Fri, 22 Mar 2002 12:04:20 -0500
+	id <S312588AbSCVRae>; Fri, 22 Mar 2002 12:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312760AbSCVREL>; Fri, 22 Mar 2002 12:04:11 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:56269 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S312759AbSCVRDu>; Fri, 22 Mar 2002 12:03:50 -0500
-Subject: [PATCH] 2.5.7-dj1, add 4 help texts to drivers/s390/Config.help
-From: Steven Cole <elenstev@mesatop.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 22 Mar 2002 10:01:02 -0700
-Message-Id: <1016816462.2266.56.camel@spc.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S312764AbSCVRaY>; Fri, 22 Mar 2002 12:30:24 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:26499 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S312588AbSCVRaI>; Fri, 22 Mar 2002 12:30:08 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 22 Mar 2002 09:35:06 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Bill Davidsen <davidsen@tmr.com>
+cc: David Schwartz <davids@webmaster.com>, <joeja@mindspring.com>,
+        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
+Subject: Re: max number of threads on a system
+In-Reply-To: <Pine.LNX.3.96.1020322103236.22096C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0203220934110.1434-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds four help texts to drivers/s390/Config.help.
-The texts were obtained from ESR's v2.97 Configure.help.
+On Fri, 22 Mar 2002, Bill Davidsen wrote:
 
-Steven
+> On Thu, 21 Mar 2002, Davide Libenzi wrote:
+>
+> > On Thu, 21 Mar 2002, David Schwartz wrote:
+> >
+> > >
+> > >
+> > > On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
+> > > >What limits the number of threads one can have on a Linux system?
+> > >
+> > > 	Common sense, one would hope.
+> > >
+> > > >I have a simple program that creates an array of threads and it locks up at
+> > > >the creation of somewhere between 250 and 275 threads.
+> >
+> > $ ulimit -u
+>
+> /proc/sys/kernel/threads-max is the system limit. And "locks up" is odd
+> unless the application is really poorly written to handle errors. Should
+> time out and whine ;-)
 
---- linux-2.5.7-dj1/drivers/s390/Config.help.orig	Fri Mar 22 09:43:48 2002
-+++ linux-2.5.7-dj1/drivers/s390/Config.help	Fri Mar 22 09:54:14 2002
-@@ -321,6 +321,18 @@
- CONFIG_DASD_FBA
-   FBA devices are currently unsupported.
- 
-+CONFIG_DASD_AUTO_DIAG
-+  Enable this option if you want your DIAG discipline module loaded
-+  on DASD driver startup.
-+
-+CONFIG_DASD_AUTO_ECKD
-+  Enable this option if you want your ECKD discipline module loaded
-+  on DASD driver startup.
-+
-+CONFIG_DASD_AUTO_FBA
-+  Enable this option if you want your FBA discipline module loaded
-+  on DASD driver startup.
-+
- CONFIG_TN3215
-   Include support for IBM 3215 line-mode terminals.
- 
-@@ -342,6 +354,15 @@
- CONFIG_HWC_CONSOLE
-   Include support for using an IBM HWC line-mode terminal as the Linux
-   system console.
-+
-+CONFIG_HWC_CPI
-+  This option enables the hardware console interface for system
-+  identification This is commonly used for workload management and
-+  gives you a nice name for the system on the service element.
-+  Please select this option as a module since built-in operation is
-+  completely untested. 
-+  You should only select this option if you know what you are doing,
-+  need this feature and intend to run your kernel in LPAR.
- 
- CONFIG_S390_TAPE
-   Select this option if you want to access channel-attached tape
+Around 250 was the old limit for max user processes ( non root ), if i
+remember well.
 
 
+
+- Davide
 
 

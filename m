@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266674AbRGJRFf>; Tue, 10 Jul 2001 13:05:35 -0400
+	id <S266665AbRGJRYg>; Tue, 10 Jul 2001 13:24:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266683AbRGJRFZ>; Tue, 10 Jul 2001 13:05:25 -0400
-Received: from web14502.mail.yahoo.com ([216.136.224.65]:45578 "HELO
-	web14502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266674AbRGJRFR>; Tue, 10 Jul 2001 13:05:17 -0400
-Message-ID: <20010710170518.38491.qmail@web14502.mail.yahoo.com>
-Date: Tue, 10 Jul 2001 10:05:18 -0700 (PDT)
-From: Hunt Kent <kenthunt@yahoo.com>
-Subject: ACPI oddities with Presario laptop
-To: lk <linux-kernel@vger.kernel.org>
+	id <S266667AbRGJRYR>; Tue, 10 Jul 2001 13:24:17 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:62215 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S266665AbRGJRYJ>; Tue, 10 Jul 2001 13:24:09 -0400
+Date: Tue, 10 Jul 2001 10:24:00 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] starfire net driver update
+In-Reply-To: <3B4B3209.40F5519F@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0107101022180.13462-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Presario 1700 17XL4W laptop. 
-Are these explainable?
+On Tue, 10 Jul 2001, Jeff Garzik wrote:
 
-2.2.19 with no APM in the kernel:
-        Fn-F3 controls the video output
-                toggles LCD only, LCD+videoout,
-videoout only
-        Fn-F4 suspends to memory
-        Fn-F7 and Fn-F8 controls brightness of LCD
+> Ion Badulescu wrote:
+> > +       unregister_netdev(dev);                 /* Will also free np!! */
+> > +       iounmap((char *)dev->base_addr);
+> > +       pci_release_regions(pdev);
+> > 
+> >         pci_set_drvdata(pdev, NULL);
+> > +       kfree(dev);
+> 
+> no problem with the patch, this comment is wrong though.  kfree frees
+> np.
 
-2.4.6 with ACPI and no APM in the kernel:
-        Fn-F3 is inoperative
-        Fn-F4 is correctly reported by acpid (no
-action in the driver yet)
-        Fn-F7 and Fn-F8 controls brightness of LCD    
- 
+True, the comment should be moved 5 lines down. I'll fix it in the next 
+version.
 
-2.4.6 without ACPI in the kernel:
-        Fn-F3 controls the video output as in 2.2.19
-        Fn-F4 is inoperative
-        Fn-F7 and Fn-F8 controls brightness of LCD    
- 
+Thanks,
+Ion
 
-So it seems that I lose Fn-F3 if I use 2.4.6 with
-ACPI. But I don't lose 
-Fn-F[7-8]. Also 2.4.6 without ACPI is not identical as
-2.2.19 without APM since
-Fn-F4 doesn't work.
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287359AbSA3Akx>; Tue, 29 Jan 2002 19:40:53 -0500
+	id <S287493AbSA3Anx>; Tue, 29 Jan 2002 19:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287493AbSA3Akp>; Tue, 29 Jan 2002 19:40:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62727 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287359AbSA3Akc>; Tue, 29 Jan 2002 19:40:32 -0500
-Date: Tue, 29 Jan 2002 16:39:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Rob Landley <landley@trommello.org>, Skip Ford <skip.ford@verizon.net>,
-        <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33L.0201292205370.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0201291610020.1747-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287508AbSA3Ano>; Tue, 29 Jan 2002 19:43:44 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:2572 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S287493AbSA3An1>; Tue, 29 Jan 2002 19:43:27 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
+In-Reply-To: Your message of "Tue, 29 Jan 2002 18:20:44 MDT."
+             <Pine.LNX.4.44.0201291813110.25443-100000@waste.org> 
+Date: Wed, 30 Jan 2002 11:44:02 +1100
+Message-Id: <E16Vir4-0005rs-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <Pine.LNX.4.44.0201291813110.25443-100000@waste.org> you write:
+> Yes, obviously.
 
-On Tue, 29 Jan 2002, Rik van Riel wrote:
->
-> That's fine with me, but _who_ do I send VM patches to if
-> I can't send them to you ?
+Um... if it was so "obvious" why did you suggest it in the first
+place? 8)
 
-The VM stuff right now seems to be Andrea, Dave or you yourself (right now
-I just wish you would split up your patches like Andrea does, that way I
-can cherry-pick).
+> Nearly as good would be replacing the current logic for figuring out the
+> current processor id through current with logic to access the per-cpu
+> data. The primary use of that id is indexing that data anyway.
 
-> There is no maintainer for mm/* or kernel/*, it's just you.
+And if you'd been reading this thread, you would have already seen
+this idea, and if you'd read the x86 code, you'd have realised that
+the tradeoff is arch-specific.
 
-As to kernel/ there are actually maintainers for some sub-areas, the most
-noticeable being Ingo on the scheduler. The rest of kernel/ hasn't ever
-been much of a problem, really.
+But thanks anyway: what this list really needs is more armchair kernel
+hackers discussing code they haven't really thought about.
 
-The VM is a big issue, of course. And that one isn't likely to go away
-anytime soon as a point of contention. And it's not easy to modularize,
-apart from the obvious pieces (ie "filemap.c" vs the rest).
-
-You may not believe me when I say so, but I personally _really_ hope your
-rmap patches will work out. I may not have believed in your patches in a
-2.4.x kind of timeframe, but for 2.6.x I'm more optimistic. As to how to
-actually modularize it better to make points of contention smaller, I
-don't know how.
-
-At the same time, while I can understand your personal pain, I don't think
-most of the problems have been with the VM (maintenance-wise, that is.
-Most of the _technical_ problems really have been with the VM, it's just
-the most complex piece).
-
-		Linus
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

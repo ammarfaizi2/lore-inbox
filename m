@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129440AbRCHRwz>; Thu, 8 Mar 2001 12:52:55 -0500
+	id <S129344AbRCHSAp>; Thu, 8 Mar 2001 13:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129417AbRCHRwp>; Thu, 8 Mar 2001 12:52:45 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:30689 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129399AbRCHRwm>; Thu, 8 Mar 2001 12:52:42 -0500
-Message-Id: <5.0.2.1.2.20010308174629.00a89ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 08 Mar 2001 17:53:08 +0000
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: RE: Microsoft begining to open source Windows 2000?
-Cc: Venkatesh Ramamurthy <Venkateshr@ami.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0103081733420.13093-100000@dax.joh.cam.ac.uk
- >
-In-Reply-To: <5.0.2.1.2.20010308162515.00a63a80@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129363AbRCHSAg>; Thu, 8 Mar 2001 13:00:36 -0500
+Received: from pcsalo.cern.ch ([137.138.213.103]:46094 "EHLO pcsalo.cern.ch")
+	by vger.kernel.org with ESMTP id <S129344AbRCHSAP>;
+	Thu, 8 Mar 2001 13:00:15 -0500
+Message-ID: <3AA7C88B.78BCFE5E@cern.ch>
+Date: Thu, 08 Mar 2001 17:59:39 +0000
+From: Fons Rademakers <Fons.Rademakers@cern.ch>
+Organization: CERN
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: andrea@suse.de
+CC: linux-kernel@vger.kernel.org
+Subject: Server tuning for maximum I/O performance...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:36 08/03/2001, James A. Sutherland wrote:
->On Thu, 8 Mar 2001, Anton Altaparmakov wrote:
-> > At 16:04 08/03/01, Venkatesh Ramamurthy wrote:
-> > It is a "look but don't touch" license which is as far away from the ideas
-> > of the GPL as you can possibly get.
->
->Is it? Going from "totally closed" to "we might let you see the code if
->you grovel" is a step in the right direction, at least.
+Hi Andrea,
 
-It would be except there is no big change. Microsoft was already doing 
-that, as you say below yourself, except that it is now broadening the 
-number of people that are allowed to see the code.
+   we are trying to build Linux disk servers. We have the following setup:
 
-> > Even submitting them a patch is technically violating their license as a
-> > patch implies that you have modified their code already, which is 
-> forbidden!
->
->Hmm... Perhaps. I doubt they'd object, particularly if the patch worked :P
+- L440GX+ intel mobo, 133MHz PCI bus
+- 2 dual PIII 700 MHz, 512 MB ECC
+- 2 system disks 15 GB mirrored in hw
+- 20 data disks IBM 75 GB nominal datarate between 20 and 34 MB/s
+  (seq accesses) used in 10 mirrored hw file systems
+  thus ~ 750 GB available on each system
+- Each disk has its own EIDE channel
+- 3x 8 port 3ware 6800 boards (total 24 channels)
+- 1 GB eth NIC
+- kernel 2.2.18
 
-Well, there is that of course. But if they wanted to, they could shoot you 
-down for it in accordance with the license.
+The machines are used to receive large data files. When the local disks
+get to full files are migrated to tape via a remote tape server. The
+only processes running are several remote file I/O daemons to receive
+the data from GB eth and several migration daemons to send the data
+over GB eth to the tape servers (no interactive users or other processes
+are running on these machines).
 
-> > The only change from before that I can see is that Microsoft is going to
-> > make even more money now, because they will collect the money from ~1000
-> > instead of ~10 people. No other news there.
->
->They do already license the source to a few trusted companies (Executive
->Software used to ship modified NTFS drivers for NT 3.51 as part of
->Diskeeper, IIRC). They are inching ever so slowly towards letting human
->beings (cf MS drones) read their code...
+Operating in this setup we observe the following behaviour:
 
-Exactly my point. Only a slight change in numbers, nothing more, nothing less.
+# write streams   # read streams     write performance/stream (MB/s)
+--------------------------------------------------------------------
+1                 0                  25
+2                 0                  14.5
+3                 0                  9.3
+1                 1                  13.6
+1                 2                  8.8
+1                 3                  6.3
+2                 1                  9.3
+2                 2                  6.5
+2                 3                  5.1
 
-Anton
+As you can see the write performance is severely reduced as soon as
+a process starts reading. All write and read streams are to separate
+spindles, never will a single disk server more than one stream.
 
+Aggregate datarate for the whole box is only 30-40 MB/s from disk to
+network or vice versa. Although network alone can go up to 60 MB/s (full
+duplex) and disk alone goes up to 100 MB/s, combining the two drops to 
+max 30-40 MB/s.
+
+Are this numbers you expect from the Linux kernel? Are they compatible
+with the current PC hardware architecture? To get better performance
+what would you advice changing (software, hardware, tuning)?
+
+Thanks for any suggestions.
+
+
+Cheers, Fons.
 
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Org:    CERN, European Laboratory for Particle Physics.
+Mail:   1211 Geneve 23, Switzerland
+E-Mail: Fons.Rademakers@cern.ch              Phone: +41 22 7679248
+WWW:    http://root.cern.ch/~rdm/            Fax:   +41 22 7677910

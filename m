@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135273AbRAYAoX>; Wed, 24 Jan 2001 19:44:23 -0500
+	id <S129444AbRAYApd>; Wed, 24 Jan 2001 19:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135276AbRAYAoN>; Wed, 24 Jan 2001 19:44:13 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:57608
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129444AbRAYAnz>; Wed, 24 Jan 2001 19:43:55 -0500
-Date: Wed, 24 Jan 2001 16:43:40 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: mirabilos <eccesys@topmail.de>
-cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: when is overriding idebus safe?
-In-Reply-To: <015b01c08656$1b0d4da0$0100a8c0@homeip.net>
-Message-ID: <Pine.LNX.4.10.10101241643140.15294-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S135301AbRAYApS>; Wed, 24 Jan 2001 19:45:18 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:6408 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S135276AbRAYApK>; Wed, 24 Jan 2001 19:45:10 -0500
+Date: Wed, 24 Jan 2001 18:45:00 -0600
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "Justin T . Gibbs" <gibbs@scsiguy.com>
+Subject: Re: warning in 2.4.1pre10
+Message-ID: <20010124184500.B6941@cadcamlab.org>
+In-Reply-To: <20010125004454.C930@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010125004454.C930@werewolf.able.es>; from jamagallon@able.es on Thu, Jan 25, 2001 at 12:44:54AM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Because you do not have IDE_PCI enabled.
+[J. A. Magallon]
+> It is harmless, 'cause the last sentence in the funtion is a panic,
+> but it is good to add the 'return 0', just to shut up the compiler.
 
-On Wed, 24 Jan 2001, mirabilos wrote:
+The correct fix is __attribute__((noreturn)) in the panic() prototype.
+As it happens, this has already been done....
 
-> I get:
-> 
-> ide: Assuming 40 MHz system bus speed for PIO modes; override with idebus=xx
-> 
-> ??? you all say it's 33 hardcoded...
-> 
-> -----BEGIN GEEK CODE BLOCK-----
-> Version: 3.12+custom(^=href;C-style-comments)
-> GO/S dx@ s--: a--->---- C++ UL++++ P--- L++$(-^lang) E----/joe W+(++)
-> N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv!----
-> b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM, GW-BASIC, C */
-> ------END GEEK CODE BLOCK------
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Peter
 
-Andre Hedrick
-Linux ATA Development
-
+--- 2.3.99pre4pre2/include/linux/raid/md_k.h~	Thu Feb 24 22:02:59 2000
++++ 2.3.99pre4pre2/include/linux/raid/md_k.h	Wed Jan 24 18:40:28 2001
+@@ -15,6 +15,8 @@
+ #ifndef _MD_K_H
+ #define _MD_K_H
+ 
++#include <linux/kernel.h>	// for panic()
++
+ #define MD_RESERVED       0UL
+ #define LINEAR            1UL
+ #define STRIPED           2UL
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

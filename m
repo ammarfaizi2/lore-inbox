@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266925AbRGMDAL>; Thu, 12 Jul 2001 23:00:11 -0400
+	id <S266767AbRGMDvG>; Thu, 12 Jul 2001 23:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266926AbRGMDAB>; Thu, 12 Jul 2001 23:00:01 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:19923 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S266925AbRGMC7y>; Thu, 12 Jul 2001 22:59:54 -0400
-Message-ID: <3B4E6468.414EF6B5@uow.edu.au>
-Date: Fri, 13 Jul 2001 13:00:56 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lance Larsh <llarsh@oracle.com>
-CC: Brian Strand <bstrand@switchmanagement.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-In-Reply-To: <3B4CE556.9000608@switchmanagement.com> <Pine.LNX.4.31.0107120749520.21040-100000@llarsh-pc2.us.oracle.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266926AbRGMDu4>; Thu, 12 Jul 2001 23:50:56 -0400
+Received: from muggy.gg.caltech.edu ([131.215.129.14]:64517 "EHLO
+	muggy.gg.caltech.edu") by vger.kernel.org with ESMTP
+	id <S266767AbRGMDuj>; Thu, 12 Jul 2001 23:50:39 -0400
+Message-Id: <200107130350.UAA28646@muggy.gg.caltech.edu>
+Reply-to: monty@druggist.gg.caltech.edu
+X-Secret: Congratulations, you found the secret message.
+X-URL: http://www.gg.caltech.edu/~monty/monty.shtml
+X-PGP-Fingerprint: E4 EA 6D B1 82 46 DB A1  B0 FF 60 B9 F9 5D 5C F7 
+X-Face: ;XP1'D'Y7hP0IDW,()+Au)M`LZuSzXBcB1OJaU"gRtYuy<Yc40d\k#A3q<M
+ d55~Md==Nf6-rRKS<en?8|JeAQ@F:V*]r[$$s4"LhXLuq--dsbXz^PK;*Y^]tk*&]&
+ \T1x['z^6=zq/c~[Bth9i<%nmq|uC!%KP*)n)Zf"6(aKukQ{y%(C+z|vq<sio1xd40
+ *D14qG<5u-*Lgo8z)'wiwsl$p?c}4[,pUg0e9kk
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.6 mount behavior changed (graft_tree in fs/super.c)
+Date: Thu, 12 Jul 2001 20:50:38 -0700
+From: Mark Montague <monty@gg.caltech.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lance Larsh wrote:
-> 
-> And while we're talking about comparing configurations, I'll mention that
-> I'm currently trying to compare raw and ext2 (no lvm in either case).
+For some reason, NFS has traditionally been happy mounting a plain
+file on a directory, but hasn't liked mount points that aren't
+directories. Although I have no idea why this is, I've been using it
+to mount just one file from an NFS server.
 
-It would be interesting to see some numbers for ext3 with full
-data journalling.
+The vfs changes in 2.4.6 now will *only* mount a file on a file, and a
+directory on a directory, which, although it kinda makes more sense,
+doesn't agree with mount(2):
 
-Some preliminary testing by Neil Brown shows that ext3 is 1.5x faster
-than ext2 when used with knfsd, mounted synchronously.  (This uses
-O_SYNC internally).
+       ENOTDIR
+              The second argument, or a prefix of the first argu
+              ment, is not a directory.
 
-The reason is that all the data and metadata are written to a
-contiguous area of the disk: no seeks apart from the seek to the
-journal are needed.  Once the metadata and data are committed to
-the journal, the O_SYNC (or fsync()) caller is allowed to continue.
-Checkpointing of the data and metadata into the main fileystem is
-allowed to proceed via normal writeback.
+For what it's worth, HPUX 10.20's, IRIX 6.5's, and SunOS 5.7's
+mount(2)s agree with the man page. I don't know if the change breaks
+POSIXly-correctness, but for consistency with other OSes, it seems
+like the old behavior, while bizarre, is desirable.
 
-Make sure that you're using a *big* journal though.   Use the
-`-J size=400' option with tune2fs or mke2fs.
+I'm not supplying a real patch because I suspect that the fact that
+graft_tree is called from two contexts makes fiddling there fraught
+with peril, and I don't have time to test it right now, but I think
+this patch will return mount to its old behavior (and will do
+something random and possibly horrible to loopback mounts, and may not
+be consistent with NFS, and probably causes cancer):
 
--
+--- super.c.orig        Thu Jul 12 20:42:08 2001
++++ super.c     Thu Jul 12 20:47:51 2001
+@@ -422,8 +422,7 @@
+
+ static int graft_tree(struct vfsmount *mnt, struct nameidata *nd)
+ {
+-       if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
+-             S_ISDIR(mnt->mnt_root->d_inode->i_mode))
++       if ((!S_ISDIR(nd->dentry->d_inode->i_mode))
+                return -ENOTDIR;
+
+        down(&nd->dentry->d_inode->i_zombie);
+
+			shrug
+
+					- M
+--
+Mark "Monty" Montague | monty@gg.caltech.edu  | I don't do Windows(tm)
+		 main(){printf("I am self-aware\\n");}
+	  <URL:http://www.gg.caltech.edu/~monty/monty.shtml>
+ X-PGP-Fingerprint: E4 EA 6D B1 82 46 DB A1  B0 FF 60 B9 F9 5D 5C F7
+

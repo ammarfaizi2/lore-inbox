@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266397AbUHCN37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUHCNbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266397AbUHCN37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 09:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUHCN37
+	id S266381AbUHCNbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 09:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUHCNbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 09:29:59 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:22443 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266397AbUHCN36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 09:29:58 -0400
-Date: Tue, 3 Aug 2004 14:26:19 +0100
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	Tue, 3 Aug 2004 09:31:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51107 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266381AbUHCNbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 09:31:15 -0400
+Date: Tue, 3 Aug 2004 15:30:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Steve Snyder <swsnyder@insightbb.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL (fwd)
-Message-ID: <20040803132619.GC12571@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040802225951.GR2746@fs.tum.de> <20040802162846.3929e463.akpm@osdl.org> <20040803004509.GW2746@fs.tum.de> <1091490958.1647.25.camel@localhost.localdomain> <20040803131339.GB2746@fs.tum.de>
+Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
+Message-ID: <20040803133034.GM23504@suse.de>
+References: <200408021602.34320.swsnyder@insightbb.com> <20040802220521.GA2179@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040803131339.GB2746@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040802220521.GA2179@ip68-4-98-123.oc.oc.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 03:13:39PM +0200, Adrian Bunk wrote:
+On Mon, Aug 02 2004, Barry K. Nathan wrote:
+> On Mon, Aug 02, 2004 at 04:02:34PM -0500, Steve Snyder wrote:
+> > There seems to be a controversy about the use of the CONFIG_HIGHMEM4G  
+> > kernel configuration.  After reading many posts on the subject, I still 
+> > don't know which setting is best for me.
+> 
+> On my own desktop system with 1GB RAM, any highmem slowdown seems to be
+> outweighed by the fact that more disk data stays cached in RAM (so I hit
+> the disk much less often).
 
- > > So put && !4KSTACKS in the XFS configuration ?
- > I originally did this additionally (including moving 4KSTACKS
- > above  XFS).
- > 
- > But independent of the XFS problem, 4kb stacks currently risk additional 
- > breakage without real benefits for most users.
+There's also the option of moving the mapping only slightly, so that all
+of the 1G fits in low memory. That's the best option for 1G desktop
+machines, imho. Changing PAGE_OFFSET from 0xc0000000 to 0xb0000000 would
+probably be enough.
 
-Just before the Fedora kernel got 4K stacks (which was before mainline),
-in stress testing, I was hitting memory allocation bugs far sooner than
-I was hitting stack overflows, so I don't think this claim has any bearing on reality.
-It was far more commonplace for the kernel to struggle to find a free pair
-of contiguous pages under extreme load.  And as already mentioned,
-those overflows _can_ be hit with an 8KB stack too, you just have to
-try harder.
+Then you can have your cake and eat it too.
 
-The 'real benefits' you aren't seeing are lots of failing order-1 allocations
-under moderate to heavy load. You don't even need big iron boxes to see this,
-(in fact, its easier to hit this problem on smaller underpowered boxes).
-
-		Dave
+-- 
+Jens Axboe
 

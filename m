@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264861AbTFVLTs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 07:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbTFVLTs
+	id S264888AbTFVL2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 07:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbTFVL2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 07:19:48 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42188
+	Sun, 22 Jun 2003 07:28:15 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43212
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264861AbTFVLTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 07:19:47 -0400
-Subject: Re: gcc 3.3: largest *and* smallest kernels (was Re: [PATCH]
-	Isapnp warning)
+	id S264888AbTFVL2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 07:28:14 -0400
+Subject: Re: [patch] SiS IRQ router 96x detection (2.5.69) ...
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>, cw@f00f.org,
-       Linus Torvalds <torvalds@transmeta.com>, geert@linux-m68k.org,
-       perex@suse.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030622053909.GA5044@ip68-101-124-193.oc.oc.cox.net>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com>
-	 <Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com>
-	 <20030622001101.GB10801@conectiva.com.br>
-	 <20030622014102.GB29661@dingdong.cryptoapps.com>
-	 <20030622014345.GD10801@conectiva.com.br>
-	 <20030621191705.3c1dbb16.akpm@digeo.com>
-	 <20030622053909.GA5044@ip68-101-124-193.oc.oc.cox.net>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Davide Libenzi'" <davidel@xmailserver.org>,
+       "'Thomas Winischhofer'" <twini@xfree86.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <00b201c33897$e36378b0$2101a8c0@witbe>
+References: <00b201c33897$e36378b0$2101a8c0@witbe>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1056281475.2075.15.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1056282008.2070.23.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Jun 2003 12:31:17 +0100
+Date: 22 Jun 2003 12:40:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-22 at 06:39, Barry K. Nathan wrote:
-> On Sat, Jun 21, 2003 at 07:17:05PM -0700, Andrew Morton wrote:
-> > Compared to 2.95.3, gcc-3.3 takes 1.5x as long to compile, and produces a
-> > kernel which is 200k larger.
-> > 
-> > It is simply worthless.
+On Sul, 2003-06-22 at 09:25, Paul Rolland wrote:
+> Hello,
 > 
-> gcc 2.95.3 does compile faster than 3.3, but I don't think 3.3 is simply
-> worthless:
+> > didn't work. I did spend a few hours on the patch and I was willing to
+> > spend another one to see the kernel fixed. But if he does not 
+> > care, why
+> > should I ?
+> 
+> Maybe because some others *do* appreciate the work you did, and the
+> patch being available...
 
-With 2.95 people did benchmarks a long time back and -Os was outperforming
--O2 on some platforms at least. I'd bet the same is true with 3.3 on a
-celeron too
+Don't get me wrong - I am glad he's done a lot of detective work on this
+and on other stuff. That isn't the only problem however - we have cases
+where there are entire ranges of PCI idents that have one driver and
+others requiring more care that we dont handle well right now either (eg
+440GX).
+
+Another problem is that the table entries get used which means the
+table itself cannot be __init.
+
+That makes me wonder if we should in fact have a set of detect functions
+that fill in a struct irq_router * and remove most of the array while fixing
+the other stuff. That cleans up the detect, removes the 440GX ifdefs properly
+with some care, removes the 440GX bios dmi table entries, and fixes SiS.
+
+It isnt that Davide's patch makes it too ugly, its already too ugly, Davide and
+also 440GX just hit the places that make it rather obvious it wants a proper
+clean up
+
+Alan
 

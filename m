@@ -1,44 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132219AbRCVWVJ>; Thu, 22 Mar 2001 17:21:09 -0500
+	id <S132223AbRCVWVT>; Thu, 22 Mar 2001 17:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132224AbRCVWVA>; Thu, 22 Mar 2001 17:21:00 -0500
-Received: from fe040.world-online.no ([213.142.64.154]:58023 "HELO
-	mail.world-online.no") by vger.kernel.org with SMTP
-	id <S132219AbRCVWUr>; Thu, 22 Mar 2001 17:20:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Gerry <gerry@c64.org>
-To: linux-kernel@vger.kernel.org
-Subject: supermount ?
-Date: Thu, 22 Mar 2001 23:21:07 +0100
-X-Mailer: KMail [version 1.2]
+	id <S132224AbRCVWVK>; Thu, 22 Mar 2001 17:21:10 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:55814 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S132223AbRCVWUz>; Thu, 22 Mar 2001 17:20:55 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <Pine.LNX.4.33.0103220951460.1667-100000@mikeg.weiden.de>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Mike Galbraith's message of "Thu, 22 Mar 2001 10:04:28 +0100 (CET)"
+Date: 22 Mar 2001 16:19:56 -0600
+Message-ID: <vba1yrp30qb.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Message-Id: <01032223210703.00829@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded my kernel to version 2.4.2, with no problems at all, 
-except one: supermount. I guess you already know that supermount haven't been 
-upgraded to support 2.4.2 or even 2.4 yet, and i guess there's nothing to do 
-about that but wait. But that's not why i'm writing this.
+Mike Galbraith <mikeg@wen-online.de> writes:
+> 
+> 2.4.2.ac20.virgin   2.4.3-pre6
+> real    11m0.708s   11m58.617s
+> user    15m8.720s   7m29.970s
+> sys     1m31.410s   0m41.590s
+> 
+> It looks like ac20 is doing some double accounting.
 
-Supermount sounds to me like a very important part of linux, at least for us 
-who like our cds/dvds/etc. to work as easily as in fx. windows. For linux to 
-be popular among "normal" users, it should be present at every system with 
-local removable drives. So, my question is; why isn't supermount a standard 
-part of the kernel, or at least a module ?
+Alan:
 
-Right now i have to use autofs to manage automounting, but there's several 
-problems with that (as it's aimed at use with network devices): Fx, it locks 
-my dvd/cdrw-drives every time they get mounted, so that eject isn't possible 
-until it gets unmounted. Floppy disks aren't updated until they're remounted. 
-Setting low timeouts doesn't help at this, since it doesn't seem to work that 
-well with local devices for some reason..
+In "2.4.2-ac20", the check in "apic.c" in the "APIC_init_uniprocessor"
+function to avoid initializing the APIC is:
 
-So, supermount is required even if autofs is included in the kernel, from my 
-point of view anyway. I'm sure there's many people out there like me :)
+        if (!smp_found_config && !cpu_has_apic)
+                return -1;
 
-Any chance supermount will be a standard kernel module in the future ?
+However, in "arch/i386/time.c", we use the following check:
 
-Gerry
+        if (!smp_found_config)
+                smp_local_timer_interrupt(regs);
+
+to see if we need to emulate an smp_local_timer_interrupt from
+"do_timer_interrupt".
+
+In Mike's case, I think we have smp_found_config == 0 but cpu_has_apic
+== 1, so we're telling the CPU APIC to generate smp_local_timer_interrupts,
+and then we're also emulating them on normal timer ticks.  That
+doubles the rate at which "smp_local_timer_interrupt" is called,
+doubling the process user and system time accounting.
+
+Mike, would you like to try out the following (untested) patch against
+vanilla ac20 to see if it does the trick?
+
+Kevin <buhr@stat.wisc.edu>
+
+                        *       *       *
+
+diff -ru linux-2.4.2-ac20/arch/i386/kernel/apic.c linux-2.4.2-ac20-local/arch/i386/kernel/apic.c
+--- linux-2.4.2-ac20/arch/i386/kernel/apic.c	Thu Mar 22 12:36:02 2001
++++ linux-2.4.2-ac20-local/arch/i386/kernel/apic.c	Thu Mar 22 15:59:08 2001
+@@ -30,6 +30,9 @@
+ #include <asm/mpspec.h>
+ #include <asm/pgalloc.h>
+ 
++/* Using APIC to generate smp_local_timer_interrupt? */
++int using_apic_timer = 0;
++
+ int prof_multiplier[NR_CPUS] = { 1, };
+ int prof_old_multiplier[NR_CPUS] = { 1, };
+ int prof_counter[NR_CPUS] = { 1, };
+@@ -884,6 +887,8 @@
+ 
+ 	/* and update all other cpus */
+ 	smp_call_function(setup_APIC_timer, (void *)calibration_result, 1, 1);
++
++	using_apic_timer = 1;
+ }
+ 
+ /*
+diff -ru linux-2.4.2-ac20/arch/i386/kernel/time.c linux-2.4.2-ac20-local/arch/i386/kernel/time.c
+--- linux-2.4.2-ac20/arch/i386/kernel/time.c	Thu Mar 22 12:36:03 2001
++++ linux-2.4.2-ac20-local/arch/i386/kernel/time.c	Thu Mar 22 16:03:02 2001
+@@ -422,7 +422,7 @@
+ 	if (!user_mode(regs))
+ 		x86_do_profile(regs->eip);
+ #else
+-	if (!smp_found_config)
++	if (!using_apic_timer)
+ 		smp_local_timer_interrupt(regs);
+ #endif
+ 
+diff -ru linux-2.4.2-ac20/include/asm-i386/smp.h linux-2.4.2-ac20-local/include/asm-i386/smp.h
+--- linux-2.4.2-ac20/include/asm-i386/smp.h	Sun Mar  4 21:35:03 2001
++++ linux-2.4.2-ac20-local/include/asm-i386/smp.h	Thu Mar 22 16:07:28 2001
+@@ -34,6 +34,7 @@
+ extern unsigned long cpu_online_map;
+ extern volatile unsigned long smp_invalidate_needed;
+ extern int pic_mode;
++extern int using_apic_timer;
+ extern void smp_flush_tlb(void);
+ extern void smp_message_irq(int cpl, void *dev_id, struct pt_regs *regs);
+ extern void smp_send_reschedule(int cpu);

@@ -1,43 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265244AbUFMSlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUFMTKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265244AbUFMSlS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 14:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUFMSlS
+	id S265248AbUFMTKe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 15:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFMTKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 14:41:18 -0400
-Received: from web25105.mail.ukl.yahoo.com ([217.12.10.53]:43700 "HELO
-	web25105.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S265244AbUFMSlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 14:41:17 -0400
-Message-ID: <20040613184116.76173.qmail@web25105.mail.ukl.yahoo.com>
-Date: Sun, 13 Jun 2004 19:41:16 +0100 (BST)
-From: =?iso-8859-1?q?Shaun=20Colley?= <shaunige@yahoo.co.uk>
-Subject: RE: i2c device driver bugs
-To: linux-kernel@vger.kernel.org
+	Sun, 13 Jun 2004 15:10:34 -0400
+Received: from web90108.mail.scd.yahoo.com ([66.218.94.79]:5822 "HELO
+	web90108.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S265248AbUFMTK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 15:10:29 -0400
+Message-ID: <20040613191029.85026.qmail@web90108.mail.scd.yahoo.com>
+Date: Sun, 13 Jun 2004 12:10:29 -0700 (PDT)
+From: Tisheng Chen <tishengchen@yahoo.com>
+Subject: Re: Solution to the "1802: Unauthorized network card" problem in recent thinkpad systems
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040613112051.GA1416@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hehe, forgot to specify which kernel source I read
-this from.  Well, the first issue seems to be present
-in all of the 2.4 kernels, and 2.5 -- I haven't
-checked 2.6 yet.
+In linux, there is only 114 bytes in /dev/nvram, not
+128. The correct address is not 0x6a, but 0x5c. You
+can try it with "inb" and "outb".
 
-The second bug seems to be fixed in 2.4.9 (and maybe
-lower) and 2.5, and probably 2.6, therefore.
+In T30, the original value of the control byte is
+0x01, which needs to be set to 0x81.
+
+And "data &= ~0x80;" is incorrect. It should be "data
+|=0x80" or "data^=0x80", I think.
+
+Somebody did succeed with a X31. 
+As I know, it should works for T30,R40,X31,R40E at
+least.
+
+Tisheng
+
+--- Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sun, Jun 13, 2004 at 12:39:50AM -0700, Tisheng
+> Chen wrote:
+> 
+> > In recent IBM thinkpad systems, there is a limit
+> to
+> > allowed MiniPCI wireless cards. When an
+> unauthorized
+> > card is plugged in, the system doesn't boot and
+> > halt with an error message like:
+> > 
+> > ERROR
+> > 1802: Unauthorized network card is plugged in
+> > Power off and remove the miniPCI network card.
+> 
+> [snip]
+> 
+> > The other way is unbelievably simple. There is a
+> byte
+> > in CMOS which controls whether an "unauthorized"
+> card
+> > is allowed or not. That's 0x6a, actually only
+> > the bit 0x80. The program to unlock the
+> authorization
+> > mechanism is like (asm):
+> > 
+> > MOV     DX,0070
+> > MOV     AL,6A
+> > OUT     DX,AL
+> > MOV     DX,0071
+> > IN      AL,DX
+> > OR      AL,80
+> > OUT     DX,AL
+> > MOV     AX,4C00
+> > INT     21
+> > 
+> > The program can be downloaded from:
+> >   http://jcnp.pku.edu.cn/~shadow/1802/no-1802.com
+> > To use this program, you need to boot to DOS.
+> > 
+> > The CMOS solution is safe, but I'm not sure that
+> it
+> > works for all recent thinkpads and all cards. The
+> BIOS
+> > crack sure does, however it is difficult
+> > and dangerous.
+> 
+> Well, here is a version for Linux:
+> 
+>
+------------------------------------------------------------
+> 
+> #include <stdio.h>
+> #include <sys/types.h>
+> #include <unistd.h>
+> #include <sys/stat.h>
+> #include <fcntl.h>
+> 
+> int main(void)
+> {
+> 	int fd;
+> 	unsigned char data;
+> 
+> 	printf("Disabling WiFi whitelist check.\n");
+> 	fd = open("/dev/nvram", O_RDWR);
+> 	lseek(fd, 0x6a, SEEK_SET);
+> 	read(fd, &data, 1);
+> 	printf("CMOS address 0x6a: %02x->", data);
+> 	data &= ~0x80;
+> 	printf("%02x\n", data);
+> 	lseek(fd, 0x6a, SEEK_SET);
+> 	write(fd, &data, 1);
+> 	close(fd);
+> 	printf("Done.\n");
+> }
+> 
+>
+------------------------------------------------------------
+> 
+> I've tried it on my ThinkPad X31, but it doesn't
+> work at all. The CMOS
+> has a value 0xfa at the offset 0x6a, so the most
+> upper bit is already
+> set.
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> 
 
 
-If anymore info is needed, let me know.
 
 
-
-Thank you for your time.
-Shaun.
-
-
-	
 	
 		
-___________________________________________________________ALL-NEW Yahoo! Messenger - sooooo many all-new ways to express yourself http://uk.messenger.yahoo.com
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

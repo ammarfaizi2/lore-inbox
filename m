@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUHOUyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUHOU6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUHOUyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266897AbUHOUyN
+	id S266897AbUHOU6x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbUHOU6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:54:13 -0400
-Received: from AGrenoble-152-1-30-171.w82-122.abo.wanadoo.fr ([82.122.148.171]:11976
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S266891AbUHOUyL convert rfc822-to-8bit (ORCPT
+	Sun, 15 Aug 2004 16:58:53 -0400
+Received: from zero.aec.at ([193.170.194.10]:40197 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266897AbUHOU6w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:54:11 -0400
-Subject: Re: Linux SATA RAID FAQ
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092520163.27405.11.camel@localhost.localdomain>
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com>
-	 <411BA940.5000300@pobox.com>
-	 <1092520163.27405.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1092603242.7421.6.camel@nomade>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 15 Aug 2004 22:54:02 +0200
-Content-Transfer-Encoding: 8BIT
+	Sun, 15 Aug 2004 16:58:52 -0400
+To: Danny van Dyk <kugelfang@gentoo.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Microcode Update Driver for AMD K8 CPUs
+References: <2tvqK-3rv-7@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 15 Aug 2004 22:58:48 +0200
+In-Reply-To: <2tvqK-3rv-7@gated-at.bofh.it> (Danny van Dyk's message of
+ "Sun, 15 Aug 2004 17:50:06 +0200")
+Message-ID: <m3n00wktiv.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le sam 14/08/2004 à 23:49, Alan Cox a écrit :
-> > > * Caching
-> 
-> Is it battery backed ? If it is battery backed then its useful, if not
-> then it becomes less useful although not always. The i2o drivers have
-> some ioctls so you can turn on writeback caching even without battery
-> backup. While this is suicidal for filesytems its just great for swap..
+Danny van Dyk <kugelfang@gentoo.org> writes:
 
-Isn't sufficient to have it do ordered writes ? If you power your
-machine off, you'll have things half-written anyway, the only thing
-important with journaled filesystems (and raid5 arrays) is to have
-writes staying between barriers.
+> I recently found some piece of code [1] to perform a microcode update
+> on AMD's K8 CPUs. It included some update blocks hardcoded into the
+> module.
 
-	Xav
+Several people found this code (including me). But I don't think
+it's a good idea right now to merge because it is better to leave
+these things to the BIOS. It's unlikely that AMD will regularly
+release "open" microcode updates anyways, and moving them
+between BIOSes seems a bit dangerous to me (often you likely
+need to change some magic MSRs too or you could have some 
+side effects). Overall it seems to be too dangerous to 
+do in a standard kernel. 
+
+Also I suspect the driver won't work very well on SMP. 
+
+-Andi
 

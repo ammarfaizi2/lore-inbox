@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSGIAdt>; Mon, 8 Jul 2002 20:33:49 -0400
+	id <S315988AbSGIAoU>; Mon, 8 Jul 2002 20:44:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSGIAds>; Mon, 8 Jul 2002 20:33:48 -0400
-Received: from ns.suse.de ([213.95.15.193]:24581 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315784AbSGIAdr>;
-	Mon, 8 Jul 2002 20:33:47 -0400
-Date: Tue, 9 Jul 2002 02:36:28 +0200
+	id <S316047AbSGIAoT>; Mon, 8 Jul 2002 20:44:19 -0400
+Received: from revdns.flarg.info ([213.152.47.18]:44721 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S315988AbSGIAoT>;
+	Mon, 8 Jul 2002 20:44:19 -0400
+Date: Tue, 9 Jul 2002 01:46:43 +0100
 From: Dave Jones <davej@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-Message-ID: <20020709023628.A1697@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.25-dj1
+Message-ID: <20020709004643.GA21880@suse.de>
 Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <20020709001135.GA21383@suse.de> <22345.1026174631@ocs3.intra.ocs.com.au>
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <22345.1026174631@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Tue, Jul 09, 2002 at 10:30:31AM +1000
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 10:30:31AM +1000, Keith Owens wrote:
- > > > The valid combination of CONFIG_NET=n, CONFIG_LLC undefined incorrectly
- > >And this breaks the valid combination of CONFIG_NET=y, CONFIG_LLC undef'd
+Resync against latest Linus release, and start folding in some of
+the bits that have accumulated whilst I've been at conferences.
+I dropped the input layer changes, as the ones in my tree already
+are known to be 'almost good'. They should just fall out over time
+in the same way as the framebuffer changes.
 
- > ??? That is the bug that I reported.  My patch fixes that bug.
+As usual,..
 
-Same bug maybe, but triggered in different ways.
-Note the CONFIG_NET change between your report and mine.
+Patch against 2.5.25 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-With mainline kbuild this isn't an issue, but your fix breaks it.
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
 
-*shrug*
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
 
-        Dave
+ -- Davej.
+
+2.5.25-dj1
+o   Fix negative memcpy issue in orinoco driver.	(Russell King)
+o   Improvements to i386 machine check handler.		(Andi Kleen)
+o   Fix various bitops to use unsigned long's.		(Geert Uytterhoeven)
+o   Various network driver init_etherdev cleanups.	(Crutcher Dunnavant)
+o   Improved list handling in dcache.c			(Matthew Wilcox)
+o   Convert various i2c drivers to new interface.	(Frank Davis,
+							 Albert Cranford)
+o   Consistent usage of static in keyboard maps.	(Keith Owens)
+o   Various typo fixes in ipsysctl docs.		(Edward J. Huff)
+o   Region handling cleanup in boardergo isdn.		(William Stinson)
+o   Region handling cleanup in baycom hamradio driver.	(William Stinson)
+o   PCI DMA update for roadrunner HIPPI driver.		(Francois Romieu)
+o   RPC recieve cleanup.				(Trond Myklebust)
+o   Fix potential O_DIRECT oops.			(Andrew Morton)
+o   Fix module creation off-by-one's.			(Peter Oberparleiter)
+o   airo, aztcd & sonycd compile fixes.			(Martin Dalecki)
+o   Fix misleading tlb flush comment.			(Manik Raina)
+o   PCI DMA update for tlan (and misc cleanup)		(Francois Romieu)
+o   Cleanup suspend code not to need prototypes.	(Pavel Machek)
+o   Numerous pci_enable_device() cleanups.		(Michael G. Janicki)
+o   Fix garbage in /proc/partitions.			(Peter Chubb)
+o   agpgart compile fix.				(Manfred Spraul)
+o   fatfs crapectomy.					(Christoph Hellwig)
+o   Don't advise to make dep when not needed.		(Christoph Hellwig)
 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264098AbTCXEnP>; Sun, 23 Mar 2003 23:43:15 -0500
+	id <S264102AbTCXEvr>; Sun, 23 Mar 2003 23:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264099AbTCXEnP>; Sun, 23 Mar 2003 23:43:15 -0500
-Received: from f159.pav2.hotmail.com ([64.4.37.159]:16395 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264098AbTCXEnO>;
-	Sun, 23 Mar 2003 23:43:14 -0500
-X-Originating-IP: [129.219.25.77]
-X-Originating-Email: [bhushan_vadulas@hotmail.com]
-From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
-To: ips@ece.cmu.edu, linux-kernel@vger.kernel.org
-Subject: Assinging IP sin_addr in kernel space
-Date: Mon, 24 Mar 2003 04:54:16 +0000
+	id <S264103AbTCXEvr>; Sun, 23 Mar 2003 23:51:47 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:33993 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264102AbTCXEvr>;
+	Sun, 23 Mar 2003 23:51:47 -0500
+Date: Sun, 23 Mar 2003 21:00:34 -0800 (PST)
+Message-Id: <20030323.210034.35199604.davem@redhat.com>
+To: sfr@canb.auug.org.au
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, bcrl@redhat.com
+Subject: Re: [PATCH][COMPAT] cleanups in net/compat.c and related files
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030324153239.520f43c7.sfr@canb.auug.org.au>
+References: <20030323.010026.18275919.davem@redhat.com>
+	<20030324113626.3267fb08.sfr@canb.auug.org.au>
+	<20030324153239.520f43c7.sfr@canb.auug.org.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F159GPDcHO6YrKpRODr0000c019@hotmail.com>
-X-OriginalArrivalTime: 24 Mar 2003 04:54:16.0843 (UTC) FILETIME=[6C572DB0:01C2F1C1]
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-This is a very basic doubt I suppose, but I am not able to figure out.
+   From: Stephen Rothwell <sfr@canb.auug.org.au>
+   Date: Mon, 24 Mar 2003 15:32:39 +1100
 
-If I want to send a message to IP addrs 158.168.1.1 using sockets, how to 
-assign sock_data.sin_addr.s_addrs with the above IP, if I am assigning this 
-in a kernel module, where functions like gethostbyname() is not avaliable to 
-me.
+   Here is the rediffed patch but you still need linus to apply the previous
+   patch which defines compat_uptr_t ...
 
-Your help will very valuable.
+Thanks Stephen, I'll apply this once Linus takes your other
+patch.
 
-Thanking You
-Shesha
-
-
-
-_________________________________________________________________
-Get more buddies in your list. Win prizes http://messenger.msn.co.in/promo
-
+Thanks again.

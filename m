@@ -1,115 +1,210 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271334AbRIFQcH>; Thu, 6 Sep 2001 12:32:07 -0400
+	id <S271332AbRIFQY0>; Thu, 6 Sep 2001 12:24:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271347AbRIFQb5>; Thu, 6 Sep 2001 12:31:57 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:62984 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S271334AbRIFQbn>;
-	Thu, 6 Sep 2001 12:31:43 -0400
-Message-ID: <20010906203854.A23109@castle.nmd.msu.ru>
-Date: Thu, 6 Sep 2001 20:38:54 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Wietse Venema <wietse@porcupine.org>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-In-Reply-To: <20010906173534.A21874@castle.nmd.msu.ru> <20010906140444.75DC1BC06C@spike.porcupine.org> <20010906162124.D29583@maggie.dt.e-technik.uni-dortmund.de> <20010906193750.B22187@castle.nmd.msu.ru> <20010906180130.H29583@maggie.dt.e-technik.uni-dortmund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010906180130.H29583@maggie.dt.e-technik.uni-dortmund.de>; from "Matthias Andree" on Thu, Sep 06, 2001 at 06:01:30PM
+	id <S271333AbRIFQYR>; Thu, 6 Sep 2001 12:24:17 -0400
+Received: from whiterose.net ([64.65.220.94]:29189 "HELO whiterose.net")
+	by vger.kernel.org with SMTP id <S271332AbRIFQYN>;
+	Thu, 6 Sep 2001 12:24:13 -0400
+Date: Thu, 6 Sep 2001 12:18:34 -0400 (EDT)
+From: M Sweger <mikesw@ns1.whiterose.net>
+To: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Linux 2.2.20pre9 problems with menuconfig.
+Message-ID: <Pine.BSF.4.21.0109061156070.88489-100000@ns1.whiterose.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 06:01:30PM +0200, Matthias Andree wrote:
-> On Thu, 06 Sep 2001, Andrey Savochkin wrote:
-> 
-> > Of course, SIOCGIFCONF isn't even close to provide the list of local
-> > addresses.
-> > Obvious example: it doesn't enlist all addresses 127.0.0.1, 127.0.0.2 etc.
-> > on common systems.  If you handle 127.0.0.2 as local, you apply side
-> > knowledge about properties of loopback interface.
-> 
-> Well, 127.0.0.2 isn't a local address on my systems. It happens to pong
-> if you ping, but that's a matter of its netmask (/255.0.0.0) and the
-> "bounce all traffic" feature.
 
-Hell, how else could you define the notion of a local address as not the
-address which responds to pings without external network, the address for
-which
-	telnet 127.0.0.2 25
-will give you the greeting of your MTA if you happen to have it listening on
-INADDR_ANY and so on?
-It _is_ local, and there are no other IP address being "less" local than
-127.0.0.2.
-All 127.0.0.0/8 addresses are local to the same extent.
+Mec,
+   Here is a list of problems and a solution to get
+   "make menuconfig" to work in some menu selections
+   that worked previously, but have been broken for awhile.
+   I have located the problem and have included the
+   solution for you to patch the 2.2.20pre patches
+   and above along with possibly the 2.4.x kernels.
 
-> > Less obvious example: routes added to `local' table.
-> > SIOCGIFCONF can never show them.
-> 
-> We're not talking about routes and rules, we're still talking about
-> network addresses and the corresponding subnet masks. Don't digress to
-> complicate things.
+   In addition, although this problem and solution was
+   for linux 2.2.19 and below, the original problem
+   disappeared with 2.2.20pre9 which included modifications
+   to the lxdialog subidr code. BUT, it introduced
+   new problems which aren't as severe as the 2.2.19 problem.
 
-You are missing my point.
-Local addresses do not exist at all, there are no such entity in the physical
-world.
-The only thing that exists is rules.
-The rules defining how packets are processed.
-According to the rules, some packets are handled locally, i.e. for them a
-socket lookup is performed, the host answers by ICMP and so on.
-If a class of packets with the same destination IP address is handled locally
-independently of other circumstances such as source address, incoming
-interface and so on, that destination IP address is the first approximation
-to what may be called "local IP address".
-But I couldn't help to repeat myself: those IP addresses do not exist as
-objects, there are no data structures representing local IP addresses, and so
-on, the property of being local is just a conclusion from the rules.
-Packet handling rules (represented in FIB rules, FIB info structures and
-netfilter data structures) are the only real universe.
+   Here is a breakdown.
 
-> > On Thu, Sep 06, 2001 at 04:17:49PM +0200, Matthias Andree wrote:
-> > > I'm not sure where and why you deduce the idea this is about MTA loop
-> > > detection or peer recognition.
-> > 
-> > All other reasons are absolutely artificial.
-> 
-> Well, Postfix itself uses netmasks to obtain DEFAULT values. You can
-> override these, so there is absolutely no point in discussing this.
 
-My point is that you use wrong terms to represent any security policy.
+Problem:
 
-> > The language of that section is amazing:
-> >          An SMTP MUST accept and recognize a domain literal for any of
-> > 	 its own IP addresses.
-> > What might be ``own IP addresses'' of ``an SMTP''?..
-> > Does SMTP server have ``own IP addresses'' at all?
-> 
-> Please stop these harassments. We're talking about broken or
-> non-portable SIOCGIFNETMASK behaviour and not ranting about anything
-> else, particularly not about Internet Standards.
+   A). pertains to 2.2.19 and below kernels.
 
-What Andi was thinking about and I continued is to bring the question whether
-you looked for what you wanted and needed.
+   when selecting menu options "Processor family" or
+   "Maximum Physical Memory" under menuconfig, the menu
+    structure for each of these selections is displayed
+    partially missing. What is displayed is the following:
+    a). a blue background, b). the title for kernel config,
+    c). a partial menu with a gray background but the grey
+        box doesn't contain the title (in yellow) nor the
+        text message at the top of the grey box, "Use arrow
+        keys....." and the Select/help text. 
 
-It looks like you're looking for a non-existing thing.
-I still don't understand what you expect to get from SIOCGIFNETMASK if there
-are multiple address/mask pairs with different masks.
-I don't understand why you want to prevent mail loops and handle mail
-destined to user@[127.0.0.1] and don't want even to prevent loops on
-[127.0.0.2].
+        The part of the menu that is displayed is from the
+        top of the menu down to the location where the
+        menu box that is checked with an X is at. So if the
+        first menu selection is checked, that is all you see.
+        If the last menu selection is checked, then you see
+        the whole menu. If a menu selection in the middle is
+        checked, then only from the beginning to that menu
+        option is shown.
 
-My advice is to re-consider your terms.
-If I were involved in the development of postfix or a similar system, I would
-immediately drop attempts to auto-configure local addresses and remove
-"local networks" as a way to express access policy.
+     d). If the up/down cursor is moved a couple of menu
+         selections up or down, then the display
+         will refresh and display properly until you exit
+         and reenter the menu option viewed and then
+         item (c) reoccurs.
 
-Being realistic, I consider the chances of you following my advice as very
-low.  However, I hope that you at least understand my points and realize that
-you have serious terminology problems in this area in general, and
-the results of your SIOCG* calls do not have real-world sense, at least on
-Linux.  SIOCG* calls just show what was previously set by SIOCS* calls, and
-it has little to do with the real world, network configuration, packet
-handling and so on.
+Problem #2:
 
-	Andrey
+      A). pertains to 2.2.19 and 2.2.20pre9 kernels.
+
+      a). I guess you know that when the letters "S" and "E" are
+          used as possible one character selection in the menu
+          list, it overrides the capability associated with
+          "Select" and "Exit". I.E. see the main menu since 
+           "Scsi support" has "S" and so does "Select", but
+           "Scsi support" is selected when "S" is typed, and
+           not "Select" no matter how many times "S" is entered.
+
+	   However, the arrow keys still work to make selection.
+
+Problem #3:
+ 
+       A). pertains to 2.2.20pre9 kernels.
+
+         a).   when selecting menu options "Processor family" or
+              "Maximum Physical Memory" under menuconfig, the menu
+              structure for each of these selections is displayed
+              as follows:
+
+	      1). The "Select" option is highlighted.(ok!)
+              2). The "Exit" button option is MISSING.(Broke!)
+                  All other screens have it.
+              3). The menu selection currently checked
+                  is highlighted. HOWEVER, the cursor
+                  on the screen isn't placed on the selection
+                  checked but is put on the "Help" option. (Broke!)
+                  All other screens always highlight
+                  the first menu option since there are multiple
+                  selections with data instead of multiple
+                  selections with just one option.(this is OK!).
+
+
+
+
+What changed:
+ 
+       History: In kernel version 2.2.1 to 2.2.19pre7 the above
+                problem #1 didn't exist, but when the kernel
+                patch to 2.2.19pre8 was applied that changed
+                the "C" software code that dealt with
+	        "make menuconfig", the above problem started
+                occuring and is still occuring with the latest
+                2.2 kernels. I didn't complain about it since
+                I thought it would be eventually fixed -- it hasn't
+                been. Therefore, I started investigating the
+                cause.
+
+       What changed in patch:
+                  a). a couple of statements
+                              wmove(....)
+                              wrefresh(...)/wnoutrefresh(...)
+			      wgetch(...)
+
+	          b). some code logic in,
+
+		      menubox.c
+		      checklist.c
+
+		      that added "If(selected)" .... statements.
+
+		   c). some code commented out in,
+
+                       checklist.c
+
+  
+Solution to Problem #1 (2.2.19 and below):
+
+ a). in the pre-patch-2.2.19-8 you commented out two lines in
+     the file checklist.c. The lines are,
+
+            wmove(dialog,y, x+1+ 14*selected):
+            wrefresh(dialog);
+
+       in the function print_buttons(...)
+
+    These lines *must* be uncommented to correct my problem so that
+    I don't have to move the cursor to get the screen to refresh
+    and display the screen properly.
+
+    My argument is if you were to grep for "selected" in all of the
+    "C" files in the lxdialog directory, you would see other "C"
+     programs that use similar statements (except the 14 is a
+     different number). If the above statements caused some type
+     of problem, then I'd expect all of the other routines, which
+     are similar, to have similar types of problems: yet they aren't
+      commented out. See the print_buttons() function in menubox.c
+      yesno.c    etc. If you can't recreate this problem, then comment
+      all lines in the "C" code in the subdir lxdialog that look
+      similar to the above two statements but may have different numbers.
+      Then do "make menuconfig" and start selecting things.
+
+     The second part of my argument is that alot of the "C" programs
+     have the same function name i.e. print_buttons(..) that have
+     the same parameter list, but different variables, and do the
+     same type of processing, but with different data. I suggest
+     that *alot* of the redundancy of the functions be eliminated
+     to ease code maintenance and prevent s/w functionality from
+     being broke. I realize that some function calls with the
+     same name have a few more parameters than the other, but NULLs
+     could be passed as dummy data for example.
+
+     The third part of my argument is that all print_item(..) functions
+     defs *have* the "if (selected)" logic added and are consistent, thus
+     all routines which are similar (see argument #2) should be the same.
+     In this example, they are the same/consistent and justifies my
+     argument in #2 about the commented out statements. see "C" programs
+     checklist.c and menubox.c.
+
+Solution to Problems #2 and #3: unknown!
+
+System:
+    I have Linux 2.2.19 (and now 2.2.20pre9) with egcs v1.1.2 and libc
+    v2.0.6 and ncurses v5.0beta1 (this has never been a problem since I
+    compiled it for  linux 2.2.1 and up, along with other apps using
+    it. Thus this version *isn't* the issue with the above problem). 
+
+    Hardware: Dell 333mhz intel Optiplex.
+
+Conclusion:
+      a). Uncomment the code mentioned above.
+      b). Restructure the lxdialog code based around a common
+          set of function calls to eliminate redundancy, but called
+          with the necessary parameters to implement the necessary
+          functionality. Eases s/w maintenance and establishes
+          consistency in programming logic. IMHO.
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+

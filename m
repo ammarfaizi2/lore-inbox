@@ -1,114 +1,381 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbTBFUOQ>; Thu, 6 Feb 2003 15:14:16 -0500
+	id <S267611AbTBFULV>; Thu, 6 Feb 2003 15:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267617AbTBFUOQ>; Thu, 6 Feb 2003 15:14:16 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:56991 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267612AbTBFUOO>;
-	Thu, 6 Feb 2003 15:14:14 -0500
-Subject: [ANNOUNCE] LTP-20030206
+	id <S267617AbTBFULT>; Thu, 6 Feb 2003 15:11:19 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:7296 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267612AbTBFULM>; Thu, 6 Feb 2003 15:11:12 -0500
+Date: Thu, 6 Feb 2003 14:20:57 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF9C3B195A.22785F3A-ON85256CC5.006F874E-86256CC5.00705061@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Thu, 6 Feb 2003 14:23:03 -0600
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 02/06/2003 03:23:41 PM
+Subject: possible partition corruption
+Message-ID: <Pine.LNX.4.44.0302061351380.998-200000@localhost.localdomain>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-751445179-1044562857=:998"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite LTP-20030206.tgz has been released. Visit
-our website (http://ltp.sourceforge.net) to download the latest version of
-the testsuite that contains
-950+ tests for the Linux OS.  The site also contains other information such
-as: test results, a Linux test tools matrix, technical papers and HowTos on
-Linux testing, and a code coverage analysis tool.  There is also a list of
-test cases that are expected to fail, located at
-(http://ltp.sourceforge.net/expected-errors.php)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The highlights of this release are:
+--8323328-751445179-1044562857=:998
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
- - New options added to 'pan'.
-   - quiet mode to reduce output ( -q )
-   - pretty mode to format logfile output ( -p ).
- - New options added and changes made to "runalltests.sh".
-   - network tests can be run from runalltests (-N).
-   - Optional cpu (-c), memory (-m), i/o (-i), and network (-n)
-     load generation.
-   - default result log directory is now /results.
- - New tests added that cover:
-   - hyperthreading
-   - stressing mmap()
-   - libmm
-   - commands such as: cpio, ln, and cp
- - Inclusion of all submitted and accepted patches/fixes through 02/05/03.
+I have run into an apparent anomaly while compiling/testing 2.5.59-bk.  My 
+normal mode of operation is to do a daily bk pull to get the latest csets 
+and do a compile/boot run.  After yesterday's I started seeing problems on 
+reboot.  During the reboot I would get the OK booting the kernel followed 
+by a system freeze.  After a forced reboot into a stock RedHat 8.0 2.4 
+kernel I would see the system misidentify my boot partiton as an ext2 
+partition and the following messages would appear:
 
-We encourage the community to post results, patches, or new tests on our
-mailing list, and to use the CVS bug tracking facility to report problems
-that you might encounter. More details available at our web-site.
+EXT2-fs: ide0(3,8): couldn't mount because of unsupported optional feature 
+(4).
+Kernel panic: VFS: Unable to mount root fs on 08:08
 
+Following this I rebooted using my rescue CD and did an fsck on the 
+partition.  It reported recovering the journal, but found no other 
+apparent corruption.  Upon rebooting, the fsck noted an unclean shutdown, 
+but found the partition clean after checking it.  No other anomalies were 
+noted.
 
-ChangeLog
----------
-- Applied cross-compiler patch for top-level      ( V.R. Sundar )
-  Makefile.
-- Added additional runtime options to the         ( Manoj Iyer &
-  "runalltests.sh" script.                          Robbie Williamson )
-- Corrected runalltests.sh -l option to require   ( Paul Larson )
-  an absolute path.
-- Added additional runtime and output options     ( Manoj Iyer )
-  to `pan`.
-- Added hyperthreading tests.                     ( Sonic Zhang )
-- Added ftruncate04 tests.                  ( Robbie Williamson )
-- Changed top-level Makefiles to not require      ( Robbie Williamson )
-  updating everytime a directory is added.
-- Applied s390/64-bit enablement patch.           ( Susanne Wintenberger )
-- Applied 64bit patch to stress_cd.         ( Jay Turner )
-- Applied optimization patches (-O2).             ( Mikael Starvik &
-                                        V.R. Sundar )
-- Added mmapstress testsuite.               ( Ananda Venkataraman )
-- Added new testcases to test shared library      ( Manoj Iyer )
-  libmm.
-- Applied patch to mem01 to allow test to run     ( Jacky Malcles )
-  on 2.4 and 2.5 kernels.
-- Changed sched_stress testsuite from using       ( Robbie Williamson )
-  the bootfile, to generating its' own
-  datafile.
-- Corrected cleanup section of abort01 test.      ( Robbie Williamson )
-- Added code to acct(2) tests to check for        ( Robbie Williamson )
-  BSD accounting before execution.
-- Corrected description of flock03.               ( Robbie Williamson )
-- Added code to handle formatting issues with     ( Robbie Williamson )
-  gethostid01 test.
-- Applied patch to ioperm(2) & iopl(2) tests to   ( V.R. Sundar )
-  check for IA32 architecture before executing.
-- Added code to msgctl08 and msgctl09 to ensure   ( Robbie Williamson )
-  correct and better execution with respect to
-  message queue limits.
-- Fix recvfrom01 & recvmsg01 to test for the      ( Paul Larson )
-  correct expected errors and their associated
-  returns.
-- Applied patch to sendfile02 to allow the test   ( V.R. Sundar )
-  to function correctly and keep track of its'
-  children.
-- Applied patch to setrlimit01 to test for        ( V.R. Sundar )
-  SIGXFSZ
-- Applied patch to swapoff02 and swapon02 to      ( Susanne Wintenberger )
-  allow the test to use /dev/tty, instead of
-  /dev/mouse.
-- Applied buffer overflow patch to swapon02.      ( Chris Dearman )
-- Added code to fptest03 to check endianess       ( Robbie Williamson )
-  before defining unions.
-- Added testsuite for multi-threaded core dump    ( Guo Min )
-  kernel patch.
-- Added netpipe as a network traffic generator    ( Robbie Williamson )
-  tool.
-- Added `cpio` command test.                ( Manoj Iyer )
-- Added `ln` command test.                  ( Manoj Iyer )
-- Added `cp` command test.                  ( Manoj Iyer )
-- Added `mkdir` command test.               ( Manoj Iyer )
-- Added `mv` command test.                  ( Manoj Iyer )
+However, the same thing happened this morning, so I did some investigating 
+and found that now, whenever I compile and boot from any 2.5.59 kernel I 
+get the above-described behaviour.  I've even tried downloading a stock 
+tarball and using a default configuration.  I've made the configuration 
+almost as simple as I could and still get the above behaviour.  
+
+At this point, I'm looking at my description and seeing there is very 
+little data I can provide that might be useful.  My stuff is backed up, 
+and I can reformat and try again if necessary.  I'm including some data 
+which seems relevant.  The configuration file I used is attached.  Nothing 
+interesting gets logged to /var/log/messages.
+
+If someone wants to look into this, I'll keep things as they are.  
+Otherwise, I'll wipe and restart.
+
+[root@dad scripts]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1343.085
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2680.42
 
 
+[root@dad scripts]# /sbin/lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 
+03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 40)
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master 
+IDE (rev 06)
+00:04.2 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:04.3 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:04.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+40)
+00:0a.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E 
+Audio Controller]
+00:0d.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 
+08)
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
+(rev 02)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
+1X/2X (rev 5c)
+
+hda: WDC WD300BB-00AUA1, ATA DISK drive
+hdb: MDT MD100EB-00BHF0, ATA DISK drive
+hdc: LG CD-RW CED-8080B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 58633344 sectors (30020 MB) w/2048KiB Cache, CHS=3649/255/63, 
+UDMA(100)
+hdb: 19541088 sectors (10005 MB) w/2048KiB Cache, CHS=1216/255/63, 
+UDMA(100)
+ide-floppy driver 0.99.newide
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 >
+ hdb: hdb1 hdb2
+
+
+--8323328-751445179-1044562857=:998
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=".config"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0302061420570.998@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=".config"
+
+Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
+J3QgZWRpdA0KIw0KQ09ORklHX1g4Nj15DQpDT05GSUdfTU1VPXkNCkNPTkZJ
+R19TV0FQPXkNCkNPTkZJR19VSUQxNj15DQpDT05GSUdfR0VORVJJQ19JU0Ff
+RE1BPXkNCg0KIw0KIyBDb2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMNCiMN
+CkNPTkZJR19FWFBFUklNRU5UQUw9eQ0KDQojDQojIEdlbmVyYWwgc2V0dXAN
+CiMNCkNPTkZJR19TWVNWSVBDPXkNCkNPTkZJR19CU0RfUFJPQ0VTU19BQ0NU
+PXkNCkNPTkZJR19TWVNDVEw9eQ0KQ09ORklHX0xPR19CVUZfU0hJRlQ9MTQN
+Cg0KIw0KIyBMb2FkYWJsZSBtb2R1bGUgc3VwcG9ydA0KIw0KIyBDT05GSUdf
+TU9EVUxFUyBpcyBub3Qgc2V0DQoNCiMNCiMgUHJvY2Vzc29yIHR5cGUgYW5k
+IGZlYXR1cmVzDQojDQpDT05GSUdfWDg2X1BDPXkNCiMgQ09ORklHX1g4Nl9W
+T1lBR0VSIGlzIG5vdCBzZXQNCiMgQ09ORklHX1g4Nl9OVU1BUSBpcyBub3Qg
+c2V0DQojIENPTkZJR19YODZfU1VNTUlUIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1g4Nl9CSUdTTVAgaXMgbm90IHNldA0KIyBDT05GSUdfTTM4NiBpcyBub3Qg
+c2V0DQojIENPTkZJR19NNDg2IGlzIG5vdCBzZXQNCiMgQ09ORklHX001ODYg
+aXMgbm90IHNldA0KIyBDT05GSUdfTTU4NlRTQyBpcyBub3Qgc2V0DQojIENP
+TkZJR19NNTg2TU1YIGlzIG5vdCBzZXQNCiMgQ09ORklHX002ODYgaXMgbm90
+IHNldA0KIyBDT05GSUdfTVBFTlRJVU1JSSBpcyBub3Qgc2V0DQojIENPTkZJ
+R19NUEVOVElVTUlJSSBpcyBub3Qgc2V0DQojIENPTkZJR19NUEVOVElVTTQg
+aXMgbm90IHNldA0KIyBDT05GSUdfTUs2IGlzIG5vdCBzZXQNCkNPTkZJR19N
+Szc9eQ0KIyBDT05GSUdfTUs4IGlzIG5vdCBzZXQNCiMgQ09ORklHX01FTEFO
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX01DUlVTT0UgaXMgbm90IHNldA0KIyBD
+T05GSUdfTVdJTkNISVBDNiBpcyBub3Qgc2V0DQojIENPTkZJR19NV0lOQ0hJ
+UDIgaXMgbm90IHNldA0KIyBDT05GSUdfTVdJTkNISVAzRCBpcyBub3Qgc2V0
+DQojIENPTkZJR19NQ1lSSVhJSUkgaXMgbm90IHNldA0KQ09ORklHX1g4Nl9D
+TVBYQ0hHPXkNCkNPTkZJR19YODZfWEFERD15DQpDT05GSUdfWDg2X0wxX0NB
+Q0hFX1NISUZUPTYNCkNPTkZJR19SV1NFTV9YQ0hHQUREX0FMR09SSVRITT15
+DQpDT05GSUdfWDg2X1dQX1dPUktTX09LPXkNCkNPTkZJR19YODZfSU5WTFBH
+PXkNCkNPTkZJR19YODZfQlNXQVA9eQ0KQ09ORklHX1g4Nl9QT1BBRF9PSz15
+DQpDT05GSUdfWDg2X1RTQz15DQpDT05GSUdfWDg2X0dPT0RfQVBJQz15DQpD
+T05GSUdfWDg2X1VTRV9QUFJPX0NIRUNLU1VNPXkNCkNPTkZJR19YODZfVVNF
+XzNETk9XPXkNCiMgQ09ORklHX0hVR0VUTEJfUEFHRSBpcyBub3Qgc2V0DQoj
+IENPTkZJR19TTVAgaXMgbm90IHNldA0KIyBDT05GSUdfUFJFRU1QVCBpcyBu
+b3Qgc2V0DQojIENPTkZJR19YODZfVVBfQVBJQyBpcyBub3Qgc2V0DQpDT05G
+SUdfWDg2X01DRT15DQojIENPTkZJR19YODZfTUNFX05PTkZBVEFMIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1RPU0hJQkEgaXMgbm90IHNldA0KIyBDT05GSUdf
+SThLIGlzIG5vdCBzZXQNCiMgQ09ORklHX01JQ1JPQ09ERSBpcyBub3Qgc2V0
+DQojIENPTkZJR19YODZfTVNSIGlzIG5vdCBzZXQNCiMgQ09ORklHX1g4Nl9D
+UFVJRCBpcyBub3Qgc2V0DQojIENPTkZJR19FREQgaXMgbm90IHNldA0KQ09O
+RklHX05PSElHSE1FTT15DQojIENPTkZJR19ISUdITUVNNEcgaXMgbm90IHNl
+dA0KIyBDT05GSUdfSElHSE1FTTY0RyBpcyBub3Qgc2V0DQojIENPTkZJR19N
+QVRIX0VNVUxBVElPTiBpcyBub3Qgc2V0DQpDT05GSUdfTVRSUj15DQoNCiMN
+CiMgUG93ZXIgbWFuYWdlbWVudCBvcHRpb25zIChBQ1BJLCBBUE0pDQojDQpD
+T05GSUdfUE09eQ0KIyBDT05GSUdfU09GVFdBUkVfU1VTUEVORCBpcyBub3Qg
+c2V0DQoNCiMNCiMgQUNQSSBTdXBwb3J0DQojDQpDT05GSUdfQUNQST15DQpD
+T05GSUdfQUNQSV9CT09UPXkNCkNPTkZJR19BQ1BJX0FDPXkNCkNPTkZJR19B
+Q1BJX0JBVFRFUlk9eQ0KQ09ORklHX0FDUElfQlVUVE9OPXkNCkNPTkZJR19B
+Q1BJX0ZBTj15DQpDT05GSUdfQUNQSV9QUk9DRVNTT1I9eQ0KQ09ORklHX0FD
+UElfVEhFUk1BTD15DQojIENPTkZJR19BQ1BJX1RPU0hJQkEgaXMgbm90IHNl
+dA0KQ09ORklHX0FDUElfREVCVUc9eQ0KQ09ORklHX0FDUElfQlVTPXkNCkNP
+TkZJR19BQ1BJX0lOVEVSUFJFVEVSPXkNCkNPTkZJR19BQ1BJX0VDPXkNCkNP
+TkZJR19BQ1BJX1BPV0VSPXkNCkNPTkZJR19BQ1BJX1BDST15DQpDT05GSUdf
+QUNQSV9TWVNURU09eQ0KQ09ORklHX0FQTT15DQojIENPTkZJR19BUE1fSUdO
+T1JFX1VTRVJfU1VTUEVORCBpcyBub3Qgc2V0DQojIENPTkZJR19BUE1fRE9f
+RU5BQkxFIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FQTV9DUFVfSURMRSBpcyBu
+b3Qgc2V0DQojIENPTkZJR19BUE1fRElTUExBWV9CTEFOSyBpcyBub3Qgc2V0
+DQojIENPTkZJR19BUE1fUlRDX0lTX0dNVCBpcyBub3Qgc2V0DQojIENPTkZJ
+R19BUE1fQUxMT1dfSU5UUyBpcyBub3Qgc2V0DQojIENPTkZJR19BUE1fUkVB
+TF9NT0RFX1BPV0VSX09GRiBpcyBub3Qgc2V0DQojIENPTkZJR19DUFVfRlJF
+USBpcyBub3Qgc2V0DQoNCiMNCiMgQnVzIG9wdGlvbnMgKFBDSSwgUENNQ0lB
+LCBFSVNBLCBNQ0EsIElTQSkNCiMNCkNPTkZJR19QQ0k9eQ0KIyBDT05GSUdf
+UENJX0dPQklPUyBpcyBub3Qgc2V0DQojIENPTkZJR19QQ0lfR09ESVJFQ1Qg
+aXMgbm90IHNldA0KQ09ORklHX1BDSV9HT0FOWT15DQpDT05GSUdfUENJX0JJ
+T1M9eQ0KQ09ORklHX1BDSV9ESVJFQ1Q9eQ0KIyBDT05GSUdfU0N4MjAwIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1BDSV9MRUdBQ1lfUFJPQyBpcyBub3Qgc2V0
+DQpDT05GSUdfUENJX05BTUVTPXkNCiMgQ09ORklHX0lTQSBpcyBub3Qgc2V0
+DQojIENPTkZJR19NQ0EgaXMgbm90IHNldA0KIyBDT05GSUdfSE9UUExVRyBp
+cyBub3Qgc2V0DQoNCiMNCiMgRXhlY3V0YWJsZSBmaWxlIGZvcm1hdHMNCiMN
+CkNPTkZJR19LQ09SRV9FTEY9eQ0KIyBDT05GSUdfS0NPUkVfQU9VVCBpcyBu
+b3Qgc2V0DQpDT05GSUdfQklORk1UX0FPVVQ9eQ0KQ09ORklHX0JJTkZNVF9F
+TEY9eQ0KQ09ORklHX0JJTkZNVF9NSVNDPXkNCg0KIw0KIyBNZW1vcnkgVGVj
+aG5vbG9neSBEZXZpY2VzIChNVEQpDQojDQojIENPTkZJR19NVEQgaXMgbm90
+IHNldA0KDQojDQojIFBhcmFsbGVsIHBvcnQgc3VwcG9ydA0KIw0KIyBDT05G
+SUdfUEFSUE9SVCBpcyBub3Qgc2V0DQoNCiMNCiMgUGx1ZyBhbmQgUGxheSBz
+dXBwb3J0DQojDQojIENPTkZJR19QTlAgaXMgbm90IHNldA0KDQojDQojIEJs
+b2NrIGRldmljZXMNCiMNCkNPTkZJR19CTEtfREVWX0ZEPXkNCiMgQ09ORklH
+X0JMS19DUFFfREEgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0NQUV9DSVNT
+X0RBIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfREFDOTYwIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX0JMS19ERVZfVU1FTSBpcyBub3Qgc2V0DQojIENP
+TkZJR19CTEtfREVWX0xPT1AgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RF
+Vl9SQU0gaXMgbm90IHNldA0KIyBDT05GSUdfTEJEIGlzIG5vdCBzZXQNCg0K
+Iw0KIyBBVEEvQVRBUEkvTUZNL1JMTCBkZXZpY2Ugc3VwcG9ydA0KIw0KQ09O
+RklHX0lERT15DQoNCiMNCiMgSURFLCBBVEEgYW5kIEFUQVBJIEJsb2NrIGRl
+dmljZXMNCiMNCkNPTkZJR19CTEtfREVWX0lERT15DQoNCiMNCiMgUGxlYXNl
+IHNlZSBEb2N1bWVudGF0aW9uL2lkZS50eHQgZm9yIGhlbHAvaW5mbyBvbiBJ
+REUgZHJpdmVzDQojDQojIENPTkZJR19CTEtfREVWX0hEX0lERSBpcyBub3Qg
+c2V0DQojIENPTkZJR19CTEtfREVWX0hEIGlzIG5vdCBzZXQNCkNPTkZJR19C
+TEtfREVWX0lERURJU0s9eQ0KQ09ORklHX0lERURJU0tfTVVMVElfTU9ERT15
+DQojIENPTkZJR19JREVESVNLX1NUUk9LRSBpcyBub3Qgc2V0DQpDT05GSUdf
+QkxLX0RFVl9JREVDRD15DQojIENPTkZJR19CTEtfREVWX0lERUZMT1BQWSBp
+cyBub3Qgc2V0DQojIENPTkZJR19JREVfVEFTS19JT0NUTCBpcyBub3Qgc2V0
+DQoNCiMNCiMgSURFIGNoaXBzZXQgc3VwcG9ydC9idWdmaXhlcw0KIw0KQ09O
+RklHX0JMS19ERVZfQ01ENjQwPXkNCiMgQ09ORklHX0JMS19ERVZfQ01ENjQw
+X0VOSEFOQ0VEIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVWX0lERVBDST15
+DQpDT05GSUdfQkxLX0RFVl9HRU5FUklDPXkNCkNPTkZJR19JREVQQ0lfU0hB
+UkVfSVJRPXkNCkNPTkZJR19CTEtfREVWX0lERURNQV9QQ0k9eQ0KIyBDT05G
+SUdfQkxLX0RFVl9JREVfVENRIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19E
+RVZfT0ZGQk9BUkQgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9JREVE
+TUFfRk9SQ0VEIGlzIG5vdCBzZXQNCkNPTkZJR19JREVETUFfUENJX0FVVE89
+eQ0KIyBDT05GSUdfSURFRE1BX09OTFlESVNLIGlzIG5vdCBzZXQNCkNPTkZJ
+R19CTEtfREVWX0lERURNQT15DQojIENPTkZJR19JREVETUFfUENJX1dJUCBp
+cyBub3Qgc2V0DQpDT05GSUdfQkxLX0RFVl9BRE1BPXkNCiMgQ09ORklHX0JM
+S19ERVZfQUVDNjJYWCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0FM
+STE1WDMgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9BTUQ3NFhYIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfQ01ENjRYIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0JMS19ERVZfVFJJRkxFWCBpcyBub3Qgc2V0DQojIENPTkZJ
+R19CTEtfREVWX0NZODJDNjkzIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19E
+RVZfQ1M1NTIwIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfSFBUMzRY
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfSFBUMzY2IGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0JMS19ERVZfU0MxMjAwIGlzIG5vdCBzZXQNCkNPTkZJ
+R19CTEtfREVWX1BJSVg9eQ0KIyBDT05GSUdfQkxLX0RFVl9OUzg3NDE1IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfT1BUSTYyMSBpcyBub3Qgc2V0
+DQojIENPTkZJR19CTEtfREVWX1BEQzIwMlhYX09MRCBpcyBub3Qgc2V0DQoj
+IENPTkZJR19CTEtfREVWX1BEQzIwMlhYX05FVyBpcyBub3Qgc2V0DQpDT05G
+SUdfQkxLX0RFVl9SWjEwMDA9eQ0KIyBDT05GSUdfQkxLX0RFVl9TVldLUyBp
+cyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1NJSU1BR0UgaXMgbm90IHNl
+dA0KIyBDT05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX0JMS19ERVZfU0xDOTBFNjYgaXMgbm90IHNldA0KIyBDT05GSUdfQkxL
+X0RFVl9UUk0yOTAgaXMgbm90IHNldA0KQ09ORklHX0JMS19ERVZfVklBODJD
+WFhYPXkNCkNPTkZJR19JREVETUFfQVVUTz15DQojIENPTkZJR19JREVETUFf
+SVZCIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVWX0lERV9NT0RFUz15DQoN
+CiMNCiMgU0NTSSBkZXZpY2Ugc3VwcG9ydA0KIw0KIyBDT05GSUdfU0NTSSBp
+cyBub3Qgc2V0DQoNCiMNCiMgTXVsdGktZGV2aWNlIHN1cHBvcnQgKFJBSUQg
+YW5kIExWTSkNCiMNCiMgQ09ORklHX01EIGlzIG5vdCBzZXQNCg0KIw0KIyBG
+dXNpb24gTVBUIGRldmljZSBzdXBwb3J0DQojDQoNCiMNCiMgSUVFRSAxMzk0
+IChGaXJlV2lyZSkgc3VwcG9ydCAoRVhQRVJJTUVOVEFMKQ0KIw0KIyBDT05G
+SUdfSUVFRTEzOTQgaXMgbm90IHNldA0KDQojDQojIEkyTyBkZXZpY2Ugc3Vw
+cG9ydA0KIw0KIyBDT05GSUdfSTJPIGlzIG5vdCBzZXQNCg0KIw0KIyBOZXR3
+b3JraW5nIHN1cHBvcnQNCiMNCiMgQ09ORklHX05FVCBpcyBub3Qgc2V0DQoN
+CiMNCiMgQW1hdGV1ciBSYWRpbyBzdXBwb3J0DQojDQojIENPTkZJR19IQU1S
+QURJTyBpcyBub3Qgc2V0DQoNCiMNCiMgSVNETiBzdWJzeXN0ZW0NCiMNCg0K
+Iw0KIyBUZWxlcGhvbnkgU3VwcG9ydA0KIw0KIyBDT05GSUdfUEhPTkUgaXMg
+bm90IHNldA0KDQojDQojIElucHV0IGRldmljZSBzdXBwb3J0DQojDQpDT05G
+SUdfSU5QVVQ9eQ0KDQojDQojIFVzZXJsYW5kIGludGVyZmFjZXMNCiMNCkNP
+TkZJR19JTlBVVF9NT1VTRURFVj15DQpDT05GSUdfSU5QVVRfTU9VU0VERVZf
+UFNBVVg9eQ0KQ09ORklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9YPTEwMjQN
+CkNPTkZJR19JTlBVVF9NT1VTRURFVl9TQ1JFRU5fWT03NjgNCiMgQ09ORklH
+X0lOUFVUX0pPWURFViBpcyBub3Qgc2V0DQojIENPTkZJR19JTlBVVF9UU0RF
+ViBpcyBub3Qgc2V0DQojIENPTkZJR19JTlBVVF9FVkRFViBpcyBub3Qgc2V0
+DQojIENPTkZJR19JTlBVVF9FVkJVRyBpcyBub3Qgc2V0DQoNCiMNCiMgSW5w
+dXQgSS9PIGRyaXZlcnMNCiMNCiMgQ09ORklHX0dBTUVQT1JUIGlzIG5vdCBz
+ZXQNCkNPTkZJR19TT1VORF9HQU1FUE9SVD15DQpDT05GSUdfU0VSSU89eQ0K
+Q09ORklHX1NFUklPX0k4MDQyPXkNCiMgQ09ORklHX1NFUklPX1NFUlBPUlQg
+aXMgbm90IHNldA0KIyBDT05GSUdfU0VSSU9fQ1Q4MkM3MTAgaXMgbm90IHNl
+dA0KDQojDQojIElucHV0IERldmljZSBEcml2ZXJzDQojDQpDT05GSUdfSU5Q
+VVRfS0VZQk9BUkQ9eQ0KQ09ORklHX0tFWUJPQVJEX0FUS0JEPXkNCiMgQ09O
+RklHX0tFWUJPQVJEX1NVTktCRCBpcyBub3Qgc2V0DQojIENPTkZJR19LRVlC
+T0FSRF9YVEtCRCBpcyBub3Qgc2V0DQojIENPTkZJR19LRVlCT0FSRF9ORVdU
+T04gaXMgbm90IHNldA0KQ09ORklHX0lOUFVUX01PVVNFPXkNCkNPTkZJR19N
+T1VTRV9QUzI9eQ0KIyBDT05GSUdfTU9VU0VfU0VSSUFMIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0lOUFVUX0pPWVNUSUNLIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0lOUFVUX1RPVUNIU0NSRUVOIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lOUFVU
+X01JU0MgaXMgbm90IHNldA0KDQojDQojIENoYXJhY3RlciBkZXZpY2VzDQoj
+DQojIENPTkZJR19WVCBpcyBub3Qgc2V0DQojIENPTkZJR19TRVJJQUxfTk9O
+U1RBTkRBUkQgaXMgbm90IHNldA0KDQojDQojIFNlcmlhbCBkcml2ZXJzDQoj
+DQpDT05GSUdfU0VSSUFMXzgyNTA9eQ0KIyBDT05GSUdfU0VSSUFMXzgyNTBf
+Q09OU09MRSBpcyBub3Qgc2V0DQojIENPTkZJR19TRVJJQUxfODI1MF9FWFRF
+TkRFRCBpcyBub3Qgc2V0DQoNCiMNCiMgTm9uLTgyNTAgc2VyaWFsIHBvcnQg
+c3VwcG9ydA0KIw0KQ09ORklHX1NFUklBTF9DT1JFPXkNCkNPTkZJR19VTklY
+OThfUFRZUz15DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYNCg0KIw0K
+IyBJMkMgc3VwcG9ydA0KIw0KIyBDT05GSUdfSTJDIGlzIG5vdCBzZXQNCg0K
+Iw0KIyBJMkMgSGFyZHdhcmUgU2Vuc29ycyBNYWluYm9hcmQgc3VwcG9ydA0K
+Iw0KDQojDQojIEkyQyBIYXJkd2FyZSBTZW5zb3JzIENoaXAgc3VwcG9ydA0K
+Iw0KDQojDQojIE1pY2UNCiMNCiMgQ09ORklHX0JVU01PVVNFIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1FJQzAyX1RBUEUgaXMgbm90IHNldA0KDQojDQojIElQ
+TUkNCiMNCiMgQ09ORklHX0lQTUlfSEFORExFUiBpcyBub3Qgc2V0DQoNCiMN
+CiMgV2F0Y2hkb2cgQ2FyZHMNCiMNCiMgQ09ORklHX1dBVENIRE9HIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX0lOVEVMX1JORyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19BTURfUk5HIGlzIG5vdCBzZXQNCiMgQ09ORklHX05WUkFNIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1JUQyBpcyBub3Qgc2V0DQojIENPTkZJR19HRU5fUlRD
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0RUTEsgaXMgbm90IHNldA0KIyBDT05G
+SUdfUjM5NjQgaXMgbm90IHNldA0KIyBDT05GSUdfQVBQTElDT00gaXMgbm90
+IHNldA0KIyBDT05GSUdfU09OWVBJIGlzIG5vdCBzZXQNCg0KIw0KIyBGdGFw
+ZSwgdGhlIGZsb3BweSB0YXBlIGRldmljZSBkcml2ZXINCiMNCiMgQ09ORklH
+X0ZUQVBFIGlzIG5vdCBzZXQNCkNPTkZJR19BR1A9eQ0KIyBDT05GSUdfQUdQ
+MyBpcyBub3Qgc2V0DQpDT05GSUdfQUdQX0lOVEVMPXkNCkNPTkZJR19BR1Bf
+VklBPXkNCiMgQ09ORklHX0FHUF9BTUQgaXMgbm90IHNldA0KIyBDT05GSUdf
+QUdQX1NJUyBpcyBub3Qgc2V0DQojIENPTkZJR19BR1BfQUxJIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX0FHUF9TV09SS1MgaXMgbm90IHNldA0KIyBDT05GSUdf
+QUdQX0FNRF84MTUxIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RSTSBpcyBub3Qg
+c2V0DQojIENPTkZJR19NV0FWRSBpcyBub3Qgc2V0DQojIENPTkZJR19SQVdf
+RFJJVkVSIGlzIG5vdCBzZXQNCg0KIw0KIyBNdWx0aW1lZGlhIGRldmljZXMN
+CiMNCiMgQ09ORklHX1ZJREVPX0RFViBpcyBub3Qgc2V0DQoNCiMNCiMgRmls
+ZSBzeXN0ZW1zDQojDQojIENPTkZJR19RVU9UQSBpcyBub3Qgc2V0DQojIENP
+TkZJR19BVVRPRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfQVVUT0ZTNF9G
+UyBpcyBub3Qgc2V0DQojIENPTkZJR19SRUlTRVJGU19GUyBpcyBub3Qgc2V0
+DQojIENPTkZJR19BREZTX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX0FGRlNf
+RlMgaXMgbm90IHNldA0KIyBDT05GSUdfSEZTX0ZTIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX0JFRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfQkZTX0ZTIGlz
+IG5vdCBzZXQNCkNPTkZJR19FWFQzX0ZTPXkNCkNPTkZJR19FWFQzX0ZTX1hB
+VFRSPXkNCkNPTkZJR19FWFQzX0ZTX1BPU0lYX0FDTD15DQpDT05GSUdfSkJE
+PXkNCiMgQ09ORklHX0pCRF9ERUJVRyBpcyBub3Qgc2V0DQpDT05GSUdfRkFU
+X0ZTPXkNCkNPTkZJR19NU0RPU19GUz15DQpDT05GSUdfVkZBVF9GUz15DQoj
+IENPTkZJR19FRlNfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfQ1JBTUZTIGlz
+IG5vdCBzZXQNCkNPTkZJR19UTVBGUz15DQpDT05GSUdfUkFNRlM9eQ0KQ09O
+RklHX0lTTzk2NjBfRlM9eQ0KQ09ORklHX0pPTElFVD15DQojIENPTkZJR19a
+SVNPRlMgaXMgbm90IHNldA0KIyBDT05GSUdfSkZTX0ZTIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX01JTklYX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZYRlNf
+RlMgaXMgbm90IHNldA0KIyBDT05GSUdfTlRGU19GUyBpcyBub3Qgc2V0DQoj
+IENPTkZJR19IUEZTX0ZTIGlzIG5vdCBzZXQNCkNPTkZJR19QUk9DX0ZTPXkN
+CiMgQ09ORklHX0RFVkZTX0ZTIGlzIG5vdCBzZXQNCkNPTkZJR19ERVZQVFNf
+RlM9eQ0KIyBDT05GSUdfUU5YNEZTX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1JPTUZTX0ZTIGlzIG5vdCBzZXQNCkNPTkZJR19FWFQyX0ZTPXkNCkNPTkZJ
+R19FWFQyX0ZTX1hBVFRSPXkNCiMgQ09ORklHX0VYVDJfRlNfUE9TSVhfQUNM
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NZU1ZfRlMgaXMgbm90IHNldA0KIyBD
+T05GSUdfVURGX0ZTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1VGU19GUyBpcyBu
+b3Qgc2V0DQojIENPTkZJR19YRlNfRlMgaXMgbm90IHNldA0KQ09ORklHX0ZT
+X01CQ0FDSEU9eQ0KQ09ORklHX0ZTX1BPU0lYX0FDTD15DQoNCiMNCiMgUGFy
+dGl0aW9uIFR5cGVzDQojDQojIENPTkZJR19QQVJUSVRJT05fQURWQU5DRUQg
+aXMgbm90IHNldA0KQ09ORklHX01TRE9TX1BBUlRJVElPTj15DQpDT05GSUdf
+TkxTPXkNCg0KIw0KIyBOYXRpdmUgTGFuZ3VhZ2UgU3VwcG9ydA0KIw0KQ09O
+RklHX05MU19ERUZBVUxUPSJpc284ODU5LTEiDQpDT05GSUdfTkxTX0NPREVQ
+QUdFXzQzNz15DQojIENPTkZJR19OTFNfQ09ERVBBR0VfNzM3IGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV83NzUgaXMgbm90IHNldA0KIyBD
+T05GSUdfTkxTX0NPREVQQUdFXzg1MCBpcyBub3Qgc2V0DQojIENPTkZJR19O
+TFNfQ09ERVBBR0VfODUyIGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RF
+UEFHRV84NTUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1
+NyBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODYwIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjEgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MiBpcyBub3Qgc2V0DQojIENPTkZJ
+R19OTFNfQ09ERVBBR0VfODYzIGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19D
+T0RFUEFHRV84NjQgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdF
+Xzg2NSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODY2IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjkgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzkzNiBpcyBub3Qgc2V0DQojIENP
+TkZJR19OTFNfQ09ERVBBR0VfOTUwIGlzIG5vdCBzZXQNCiMgQ09ORklHX05M
+U19DT0RFUEFHRV85MzIgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzk0OSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODc0
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5XzggaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzEyNTAgaXMgbm90IHNldA0KIyBD
+T05GSUdfTkxTX0NPREVQQUdFXzEyNTEgaXMgbm90IHNldA0KQ09ORklHX05M
+U19JU084ODU5XzE9eQ0KIyBDT05GSUdfTkxTX0lTTzg4NTlfMiBpcyBub3Qg
+c2V0DQojIENPTkZJR19OTFNfSVNPODg1OV8zIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX05MU19JU084ODU5XzQgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lT
+Tzg4NTlfNSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV82IGlz
+IG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5XzcgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkxTX0lTTzg4NTlfOSBpcyBub3Qgc2V0DQojIENPTkZJR19O
+TFNfSVNPODg1OV8xMyBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1
+OV8xNCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV8xNSBpcyBu
+b3Qgc2V0DQojIENPTkZJR19OTFNfS09JOF9SIGlzIG5vdCBzZXQNCiMgQ09O
+RklHX05MU19LT0k4X1UgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX1VURjgg
+aXMgbm90IHNldA0KDQojDQojIEdyYXBoaWNzIHN1cHBvcnQNCiMNCiMgQ09O
+RklHX0ZCIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ZJREVPX1NFTEVDVCBpcyBu
+b3Qgc2V0DQoNCiMNCiMgQ29uc29sZSBkaXNwbGF5IGRyaXZlciBzdXBwb3J0
+DQojDQpDT05GSUdfVkdBX0NPTlNPTEU9eQ0KIyBDT05GSUdfTURBX0NPTlNP
+TEUgaXMgbm90IHNldA0KQ09ORklHX0RVTU1ZX0NPTlNPTEU9eQ0KDQojDQoj
+IFNvdW5kDQojDQojIENPTkZJR19TT1VORCBpcyBub3Qgc2V0DQoNCiMNCiMg
+VVNCIHN1cHBvcnQNCiMNCiMgQ09ORklHX1VTQiBpcyBub3Qgc2V0DQoNCiMN
+CiMgUHJvZmlsaW5nIHN1cHBvcnQNCiMNCiMgQ09ORklHX1BST0ZJTElORyBp
+cyBub3Qgc2V0DQoNCiMNCiMgS2VybmVsIGhhY2tpbmcNCiMNCiMgQ09ORklH
+X0RFQlVHX0tFUk5FTCBpcyBub3Qgc2V0DQpDT05GSUdfS0FMTFNZTVM9eQ0K
+Q09ORklHX0RFQlVHX1NQSU5MT0NLX1NMRUVQPXkNCkNPTkZJR19GUkFNRV9Q
+T0lOVEVSPXkNCg0KIw0KIyBTZWN1cml0eSBvcHRpb25zDQojDQojIENPTkZJ
+R19TRUNVUklUWSBpcyBub3Qgc2V0DQoNCiMNCiMgQ3J5cHRvZ3JhcGhpYyBv
+cHRpb25zDQojDQojIENPTkZJR19DUllQVE8gaXMgbm90IHNldA0KDQojDQoj
+IExpYnJhcnkgcm91dGluZXMNCiMNCiMgQ09ORklHX0NSQzMyIGlzIG5vdCBz
+ZXQNCkNPTkZJR19YODZfQklPU19SRUJPT1Q9eQ0K
+--8323328-751445179-1044562857=:998--

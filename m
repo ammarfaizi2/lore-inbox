@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288662AbSADPHJ>; Fri, 4 Jan 2002 10:07:09 -0500
+	id <S288669AbSADPIu>; Fri, 4 Jan 2002 10:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288668AbSADPG7>; Fri, 4 Jan 2002 10:06:59 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:7848 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S288662AbSADPGq>;
-	Fri, 4 Jan 2002 10:06:46 -0500
-Message-Id: <200201041504.g04F4oc108294@westrelay03.boulder.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Paul Larson <plars@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] fix compile error in serial.c
-Date: Fri, 4 Jan 2002 09:04:13 -0600
-X-Mailer: KMail [version 1.3.1]
-Cc: torvalds@transmeta.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288667AbSADPIk>; Fri, 4 Jan 2002 10:08:40 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:25217 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S288666AbSADPIZ>;
+	Fri, 4 Jan 2002 10:08:25 -0500
+Date: Fri, 4 Jan 2002 16:08:23 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201041508.QAA12387@harpo.it.uu.se>
+To: macro@ds2.pg.gda.pl
+Subject: Re: [PATCH] 2.4.17/2.5.1 apic.c LVTERR fixes
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I havn't seen a patch for this yet, so here it is.  Sorry for the duplicate 
-if someone's already done it and I just didn't see it yet.
+On Fri, 4 Jan 2002 13:12:44 +0100 (MET), Maciej W. Rozycki wrote:
+>  Still the
+>APIC looks insane for me -- it should really signal an error only once an
+>interrupt is received, like it does for interrupts from remote sources.
 
-Thanks,
-Paul Larson
+But a remote interrupt source supplies a vector, doesn't it? If we
+assume that the local APIC checks the vector on arrival _of_the_vector_,
+then it does make some sense that it also flags a null vector written
+to one of the LVT entries as an error. The bug really is that it forgets
+to take the mask bit into account. However, the behaviour _is_ there and
+we have to avoid triggering it.
 
---- linux-2.5.2-pre7/drivers/char/serial.c	Fri Jan  4 09:13:22 2002
-+++ linux-new/drivers/char/serial.c	Fri Jan  4 10:01:03 2002
-@@ -5827,7 +5827,7 @@
- 
- static kdev_t serial_console_device(struct console *c)
- {
--	return MKDEV(TTY_MAJOR, 64 + c->index);
-+	return mk_kdev(TTY_MAJOR, 64 + c->index);
- }
- 
- /*
+>> +		if (maxlvt > 3)		/* Due to Pentium errata 3AP and 11AP. */
+>> +			apic_write(APIC_ESR, 0);
+>
+> Use apic_write_around() instead as the 11AP workaround -- it was
+>introduced specifically for this purpose.  Using anything else doesn't
+>guarantee no back-to-back APIC writes due to interrupts (specifically
+>writes to the EOI register).
+
+I disagree. The write doesn't occur on P5s, so 11AP doesn't apply.
+If I had used an unconditional write_around() instead, then someone
+would complain that I'm violating erratum 3AP (even though it doesn't
+matter in this case). The test as written unambiguously handles both
+3AP and 11AP, and is identical to the "clear ESR" code in
+setup_local_APIC() around line 385.
+
+/Mikael

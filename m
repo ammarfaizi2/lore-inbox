@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUFCRKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUFCRLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUFCRKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 13:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUFCRKW
+	id S265227AbUFCRLG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 13:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUFCRKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 13:10:22 -0400
-Received: from main.gmane.org ([80.91.224.249]:50891 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264260AbUFCRJp (ORCPT
+	Thu, 3 Jun 2004 13:10:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39391 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264253AbUFCRJY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 13:09:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: [PATCH] Symlinks for building external modules
-Date: Thu, 03 Jun 2004 19:09:42 +0200
-Message-ID: <yw1x8yf44lgp.fsf@kth.se>
-References: <200406031858.09178.agruen@suse.de>
+	Thu, 3 Jun 2004 13:09:24 -0400
+Date: Thu, 3 Jun 2004 10:08:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Export swapper_space
+Message-Id: <20040603100826.2fd235c8.akpm@osdl.org>
+In-Reply-To: <20040603170137.E8244@flint.arm.linux.org.uk>
+References: <20040603161909.D8244@flint.arm.linux.org.uk>
+	<20040603153727.GA17798@infradead.org>
+	<20040603170137.E8244@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:kAFb7Z8lNcp6dG7QkQp4nM3NBKQ=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> writes:
-
-> Hi Sam,
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 >
-> modules not in the kernel source tree need to locate both the source
-> tree and the object tree (O=). Currently, the /lib/modules/$(uname
-> -r)/build symlink is the only reference we have; it historically
-> points to the source tree from 2.4 times. The following patch
-> changes this as follows (this is what we have in the current SUSE
-> tree now):
->
-> 	/lib/modules/$(uname -r)/source ==> source tree
-> 	/lib/modules/$(uname -r)/build ==> object tree
+> > Please not.  This seems to be some cache-flushing magic on the stranger
+>  > architectures again :)  Can you check how they're using it in the end
+>  > and hopefully fix it by uninlining something?
+> 
+>  extern struct address_space swapper_space;
+>  static inline struct address_space *page_mapping(struct page *page)
+>  {
+>          struct address_space *mapping = NULL;
+>   
+>          if (unlikely(PageSwapCache(page)))
+>                  mapping = &swapper_space;
+>          else if (likely(!PageAnon(page)))
+>                  mapping = page->mapping;
+>          return mapping;
+>  }
 
-This will break the building of all external modules until they are
-updated, and break updated modules building against older kernels
-unless they check the kernel version in the makefiles..  I suggest
-leaving the 'build' link as is, and using a difference name for the
-build directory, perhaps 'object'.  This might look confusing, so we
-could have a 'source' link as well and remove the 'build' link when
-most external modules have been updated.
+Christoph means "can arm uninline flush_dcache_page()"?
 
--- 
-Måns Rullgård
-mru@kth.se
-
+It looks like that would be the best approach - it's quite a large function.

@@ -1,103 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263675AbUDPUPY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 16:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUDPUPX
+	id S263636AbUDPUS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 16:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbUDPUSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 16:15:23 -0400
-Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:451 "EHLO
-	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id S263675AbUDPULw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 16:11:52 -0400
-From: Axel Weiss <aweiss@informatik.hu-berlin.de>
-Organization: Humboldt-Universitaet zu Berlin
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: compiling external modules
-Date: Fri, 16 Apr 2004 22:09:56 +0200
-User-Agent: KMail/1.5.4
-References: <200404161741.07824.aweiss@informatik.hu-berlin.de> <20040416165420.GA2387@mars.ravnborg.org>
-In-Reply-To: <20040416165420.GA2387@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 16 Apr 2004 16:18:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8142 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263756AbUDPUQo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 16:16:44 -0400
+Date: Fri, 16 Apr 2004 13:16:33 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Paul Rolland" <rol@witbe.net>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [2.6.5] Bad scheduling while atomic
+Message-Id: <20040416131633.1bfbfa4c@dell_ss3.pdx.osdl.net>
+In-Reply-To: <200404161551.i3GFpD124970@tag.witbe.net>
+References: <200404161551.i3GFpD124970@tag.witbe.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404162209.56651.aweiss@informatik.hu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 16. April 2004 18:54 schrieb Sam Ravnborg:
-> On Fri, Apr 16, 2004 at 05:41:07PM +0200, Axel Weiss wrote:
-> What about testing for the precense of Rules.make.
-> If present we know it is 2.4, if not it's 2.6.
->
-> Something like:
-> KERNEL_26 := $(if $(wildcard $(TOPDIR)/Rules.make),0,1)
-> Much simpler than all the above.
+Bring up/down network devices with lapbether causes scheduling while
+atomic (if preempt enabled).
 
-Sure, but compilation with 2.6.5 would fail again, missing export-objs.
-If I got you right, we should simplify things so that 2.6 means >= 2.6.6?
+The calls to rcu_read_lock are unnecessary since lapb_device_event 
+is called from notifier with the rtnetlink semaphore held, it is
+already protected from the labp_devices list changing.
 
-So, the following is tested on 2.6.6-rc1 and suse-2.4.21-199:
+Patch against 2.6.6-rc1
 
-#  Template Makefile for external module compilation
-
-KDIR      := /lib/modules/$(shell uname -r)/build
-PWD       := $(shell pwd)
-KERNEL_24 := $(if $(wildcard $(KDIR)/Rules.make),1,0)
-
-ifneq ($(KERNELRELEASE),)
-
-obj-m                    := <mod-name>.o
-<mod-name>-objs := <mod-object-list>
-
-endif  # ifneq ($(KERNELRELEASE),)
-
-.PHONY: all clean
-
-ifeq ($(KERNEL_24),1)
-ifneq ($(KERNELRELEASE),)
-
-export-objs := <mod-export-list>
-
-include $(KDIR)/Rules.make
-adc64_bm.o: $(<mod-name>-objs)
-	$(Q)$(LD) $(LD_RFLAG) -r -o $@ $(<mod-name>-objs)
-else  # ifneq ($(KERNELRELEASE),)
-all:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-clean:
-	rm -f *.ko *.o .*.cmd .*.o.flags *.mod.c
-endif # ifneq ($(KERNELRELEASE),)
-
-else  #################### ifeq ($(KERNEL_24),1)
-
-ifeq ($(KERNELRELEASE),)
-all:
-	$(MAKE) -C $(KDIR) M=$(PWD)
-clean:
-	$(MAKE) -C $(KDIR) M=$(PWD) $@
-endif # ifeq ($(KERNELRELEASE),)
-
-endif #################### ifeq ($(KERNEL_24),1)
-
-# end of Makefile Template
-
-I reordered the cases a bit so that
-1. kernel-version dependend branches stay together
-2. <mod-object-list> needs only be written once
-
-Now everything fits on a single screen-page :)
-
-Sam, please note two things:
-1. the clean rule must be explicit to be recognized (GNU Make 3.80).
-2. 2.6 compilation requires root privileges for compilation, 2.4 does not. 
-Can we relax some file accesses (e.g. $(KDIR)/.__modpost.cmd and the
-local .tmp_versions) to allow non-privileged users to compile external
-modules and to be able to make clean?
-
-Regards,
-Axel
-
-
+diff -Nru a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+--- a/drivers/net/wan/lapbether.c	Fri Apr 16 11:00:35 2004
++++ b/drivers/net/wan/lapbether.c	Fri Apr 16 11:00:35 2004
+@@ -392,6 +392,8 @@
+ 
+ /*
+  *	Handle device status changes.
++ *
++ * Called from notifier with RTNL held.
+  */
+ static int lapbeth_device_event(struct notifier_block *this,
+ 				unsigned long event, void *ptr)
+@@ -402,7 +404,6 @@
+ 	if (!dev_is_ethdev(dev))
+ 		return NOTIFY_DONE;
+ 
+-	rcu_read_lock();
+ 	switch (event) {
+ 	case NETDEV_UP:
+ 		/* New ethernet device -> new LAPB interface	 */
+@@ -422,7 +423,6 @@
+ 			lapbeth_free_device(lapbeth);
+ 		break;
+ 	}
+-	rcu_read_unlock();
+ 
+ 	return NOTIFY_DONE;
+ }

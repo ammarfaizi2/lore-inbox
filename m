@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUIAXAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUIAXD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267435AbUIAXAM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIAVBl
+	id S267494AbUIAXD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIAXA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:01:41 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:30177 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267994AbUIAU53
+	Wed, 1 Sep 2004 19:00:59 -0400
+Received: from smtp07.auna.com ([62.81.186.17]:38615 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S267497AbUIAXAE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:57:29 -0400
-Subject: [patch 20/25]  ec3104: replace schedule_timeout() with 	msleep()
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:57:28 +0200
-Message-ID: <E1C2cAa-0007TW-JF@sputnik>
+	Wed, 1 Sep 2004 19:00:04 -0400
+Date: Wed, 01 Sep 2004 22:59:57 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Module unloading policy (should be killed from .config ?)
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.2.4
+Message-Id: <1094079597l.8614l.0l@werewolf.able.es>
+X-Balsa-Fcc: file:///home/magallon/mail/sentbox
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all...
+
+Since 2.6.8.1-mm3, my system hangs when I modprobe -r ipt_MASQUERADE
+(yup, you guessed, its an SMP box). Just locks hard.
+
+A kernel build without module unloading seems to work. I heard about
+module unloading not being safe, but this is the first time it hits me
+seriously. If it is so dangerous and deprecated, why is still in Kconfig ?
+Could you kill it and remove the code completely ? Because I suppose that
+the idea is not to fix drivers...
+
+But I guess this is going to break a lot of distros. At least Mandrake
+initscripts is plenty of <modprobe, test, rmmod | modprobe -r> snippets.
+Do not know if this is going to break cases like
+modprobe -r xxxx || do_more
+
+Could modprobe at least return 0 to the shell when removing ?
+
+What is going on ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Beta 1) for i586
+Linux 2.6.8.1-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #8
 
 
-
-
-
-
-I would appreciate any comments from the janitor@sternweltens list. This is one (of
-a few) places where I had to make a decision to set the state before the
-call to
-
-schedule_timeout();
-
-This of course affected any decision to replace the code with msleep()
-or not. Please inform if the other state from the one I used is desired.
-
-Thanks,
-Nish
-
-
-
-Description: Uses msleep() instead of schedule_timeout() to guarantee
-the task delays at least the desired time amount.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/ec3104_keyb.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/char/ec3104_keyb.c~msleep-drivers_char_ec3104_keyb drivers/char/ec3104_keyb.c
---- linux-2.6.9-rc1-bk7/drivers/char/ec3104_keyb.c~msleep-drivers_char_ec3104_keyb	2004-09-01 19:34:45.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/ec3104_keyb.c	2004-09-01 19:34:45.000000000 +0200
-@@ -412,7 +412,7 @@ static void ec3104_keyb_clear_state(void
- 	k->last_msr = 0;
- 
- 	for (;;) {
--		schedule_timeout(HZ/10);
-+		msleep(100);
- 
- 		msr = ctrl_inb(EC3104_SER4_MSR);
- 	
-
-_

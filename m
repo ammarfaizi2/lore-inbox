@@ -1,83 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUASAND (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 19:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbUASAND
+	id S264300AbUASARc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 19:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUASARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 19:13:03 -0500
-Received: from mail1.nmu.edu ([198.110.192.44]:56329 "EHLO mail1.nmu.edu")
-	by vger.kernel.org with ESMTP id S264288AbUASAMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 19:12:51 -0500
-Message-ID: <400B2BCF.7090003@nmu.edu>
-Date: Sun, 18 Jan 2004 19:58:55 -0500
-From: Randy Appleton <rappleto@nmu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 18 Jan 2004 19:17:32 -0500
+Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:45537 "EHLO
+	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
+	id S264300AbUASAR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 19:17:26 -0500
+Date: Sun, 18 Jan 2004 16:25:49 -0800
+To: David Schwartz <davids@webmaster.com>
+Subject: Re: License question
+References: <MDEHLPKNGKAHNMBLJOLKKEFLJKAA.davids@webmaster.com>
+From: Misshielle Wong <mwl@bajoo.net>
+Message-ID: <opr1zx5bb8q5eh14@localhost>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEFLJKAA.davids@webmaster.com>
+User-Agent: Opera7.23/Linux M2 build 518
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; format=flowed; charset=utf-8
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unneeded Code Found??
-References: <3FFF3931.4030202@nmu.edu> <4006B998.5040403@tmr.com>
-In-Reply-To: <4006B998.5040403@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Hello
 
-> Randy Appleton wrote:
+On Sun, 18 Jan 2004 15:47:22 -0800, David Schwartz <davids@webmaster.com> 
+wrote:
+
 >
->> I think I have found some useless code in the Linux kernel
->> in the block request functions.
->>                                                                                         
+>> Hi
+>
+> 	Hello.
+>
+>> > 	It doesn't "ask" for anything. It states a license requirement. And
+>> > yes, it does restrict rights, it removes your right to remove that
+>> > notice. Any license clause that prohibits you from making particular
+>> > modifications to the source code is a restriction. The only issue is
+>> > whether it's a "further restriction" for purposes of clause 6 of the
+>> > GPL. As I read the GPL, a restriction is a "further restriction" if it
+>> > is imposed in addition to those stated in the GPL.
+>
+>> Blah blah blah. You can't remove copyright notices in GPL'ed software
+>> either, so it is no additional restriction.
+>
+> 	I'm not sure what section of the GPL you're referring to. 2c does not 
+> impose such a restriction.
+>
+>> >> Summarizing this
+>> >> license, it ends up like this: "Copyright bla bla bla. Keep 'em 
+>> goddamn
+>> >> copyrights and disclaimer or else you have no rights to copy, modify,
+>> >> sublicense, redistribute, sublicense bla bla bla. Software provided 
+>> 'as
+>> >> is'. Clear?"
+>> >
+>> > 	Yep, that's what it says.
+>> >
+>> >> GPL is ok with that.
+>> >
+>> > 	No, GPL is "you may modify however you please". It imposes only a
+>> > specific set of restrictions and specifically prohibits the imposition
+>> > of additional restrictions. These are *exactly* the type of additional
+>> > restrictions the GPL was carefully worded to prohibit!
+>> >
 >>
->> I have modified the __make_request function in ll_rw_blk.c.
->> Now every request for a block off the hard drive is logged.
->>                                                                                         
+>> Blah blah blah. Read the GPL section 1 and 2.
 >>
->> The function __make_request has code to attempt to merge the current
->> block request with some contigious existing request for better
->> performance. This merge function keeps a one-entry cache pointing to the
->> last block request made.  An attempt is made to merge the current
->> request with the last request, and if that is not possible then
->> a search of the whole queue is done, looking at merger possibililites.
->>                                                                                         
+>> =====
+>> 1. You may copy and distribute verbatim copies of the Program's source
+>> code as you receive it, in any medium, provided that you
+>> conspicuously and
+>> appropriately publish on each copy an appropriate copyright notice and
+>> disclaimer of warranty; keep intact all the notices that refer to this
+>> License and to the absence of any warranty; and give any other 
+>> recipients
+>> of the Program a copy of this License along with the Program.
+>
+> 	This does not prohibit you from removing anything. Please show me the 
+> section that says you can't remove a copyright notice. And notice that 
+> these restrictions are only on copying and distributing. The license we 
+> are talking about imposes such restrictions upon use.
+>
+
+No, you misunderstand. It says you have to include the appropriate 
+copyright notice in order to distribute it. "Appropriate copyright notice" 
+means "Copyright from ALL copyright holders", because that's the 
+"appropriate" thing to do. Failure to include all copyright notices is 
+plagiarism and you can be sued for that.
+
+
+>> You may charge a fee for the physical act of transferring a copy, and 
+>> you
+>> may at your option offer warranty protection in exchange for a fee.
 >>
->> Looking at the data from my logs, I notice that over 50% of all requests
->> can be merged.  However, a merge only ever happens between the
->> current request and the previous one.  It never happens between the
->> current request and any other request that might be in the queue (for
->> more than 50,000 requests examined).
->>                                                                                         
->>
->> This is true for several test runs, including "daily usage" and doing
->> two kernel compiles at the same time.  I have only tested on a
->> single-CPU machine.
->>                                                                                         
->>
->> I wonder if the code (and CPU time) used to search the entire request
->> queue is actually useful.  Would this be a reasonable candidate for code
->> elimination?
+>> 2. You may modify your copy or copies of the Program or any
+>> portion of it,
+>> thus forming a work based on the Program, and copy and distribute such
+>> modifications or work under the terms of Section 1 above, provided that
+>> you also meet all of these conditions:
+>> ...
+>> =====
+>
+>> See? Must keep the appropriate copyright notice and disclaimer of
+>> warranty
+>> in each copy.
+>
+> 	It doesn't say you have to keep anything. Please, show me the section 
+> that says so. It only says you must attach a copyright somewhere, not 
+> that you can't remove existing copyright notices. It also only requires 
+> you to keep intact notices that refer to "this license", that is, the 
+> GPL.
+>
+
+Blah blah blah. It clearly states that you have to include the appropriate 
+copyright notices. As I stated before, "appropriate" means "ALL of them" 
+in this case.
+
+
+> 	I'm sorry, the license is not GPL compatible. The GPL was carefully 
+> constructed to make it impossible for people to put things in the source 
+> code that others could not remove (other than the GPL itself).
+>
+
+Blah blah blah. Go do your homework and stop arguing about something you 
+don't understand.
+
+Start by visiting the following URL: 
+http://www.gnu.org/licenses/license-list.html
+
+The license in question is an hybrid between "The modified BSD license" 
+and "The X11 license". No additions were made, just inserted something  
+ from one license into the other. All insertions are therefore GPL 
+compatible.
+
+
+=====
+The modified BSD license. http://www.xfree86.org/3.3.6/COPYRIGHT2.html#5
+(Note: on the preceding link, the modified BSD license is listed in the 
+"General" section.)
+
+This is the original BSD license, modified by removal of the advertising 
+clause. It is a simple, permissive non-copyleft free software license, 
+compatible with the GNU GPL.
+
+If you want a simple, permissive non-copyleft free software license, the 
+modified BSD license is a reasonable choice. However, it is risky to 
+recommend use of ``the BSD license'', because confusion could easily occur 
+and lead to use of the flawed original BSD license. To avoid this risk, 
+you can suggest the X11 license instead. The X11 license and the revised 
+BSD license are more or less equivalent.
+=====
+
+
+=====
+The X11 license. http://www.x.org/Downloads_terms.html
+This is a simple, permissive non-copyleft free software license, 
+compatible with the GNU GPL. XFree86 uses the same license. This is 
+sometimes called the "MIT" license, but that term is misleading since MIT 
+has used many licenses for software.
+=====
+
+> 	DS
 >
 >
-> If you never get a hit, it means either (a) your test load actually 
-> doesn't have one, or (b) the code isn't correctly finding them.
+>
 
 
-It might be buggy code on my part, but it looks pretty solid to me.   
-I'd be happy to show anyone interested.
-My load ought to find such a merge, if they happen with any freqency at 
-all.  Compiling two kernels
-at the same time and "general running" are my two current loads.  The 
-disk queue gets to over 70
-entries, which is rather high for a personal workstation, and I'm 
-searching tens of thousands to accesses
-in total.
 
-Does anyone know that this code is actualy useful?  Has anyone ever seen 
-it actually do a merge of consecutive
-data accesses for requests that were not issued themselves consequtively?
-
-
+-- 
+Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/

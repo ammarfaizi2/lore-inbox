@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316182AbSHRIao>; Sun, 18 Aug 2002 04:30:44 -0400
+	id <S293203AbSHRInw>; Sun, 18 Aug 2002 04:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318873AbSHRIao>; Sun, 18 Aug 2002 04:30:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:57054 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316182AbSHRIan>;
-	Sun, 18 Aug 2002 04:30:43 -0400
-Date: Sun, 18 Aug 2002 10:35:43 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Gabriel Paubert <paubert@iram.es>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch 
-In-Reply-To: <200208172234.g7HMY2o05554@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208181034220.2143-100000@localhost.localdomain>
+	id <S311749AbSHRInw>; Sun, 18 Aug 2002 04:43:52 -0400
+Received: from dsl-213-023-021-254.arcor-ip.net ([213.23.21.254]:60117 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S293203AbSHRInw>;
+	Sun, 18 Aug 2002 04:43:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] New PC-Speaker driver
+Date: Sun, 18 Aug 2002 10:49:58 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: vda@port.imtp.ilyichevsk.odessa.ua
+References: <3D5A8C2C.9010700@yahoo.com> <200208151137.g7FBbNp20417@Port.imtp.ilyichevsk.odessa.ua> <3D5BBC06.D1BA147E@aitel.hist.no>
+In-Reply-To: <3D5BBC06.D1BA147E@aitel.hist.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17gLl1-0002yD-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 15 August 2002 16:34, Helge Hafting wrote:
+> The senseless cpu usage for something as simple as sound
+> is worse.
 
-On Sat, 17 Aug 2002, James Bottomley wrote:
+Sound is simple?  Okaaaay....
 
-> I fixed this as part of my cleanups, but it doesn't actually make a
-> difference to the voyagers.  What kills them is either gdt not 8 bytes
-> aligned in setup.S or %cs above about 0x30 when going from real to
-> protected mode (once in protected mode, it will happily accept arbitrary
-> descriptor values).
+I first coded this technique up on a 20 MHz 386, running with a 20 KHz 
+interrupt.  My current machine is more than 1,000 times faster.
 
-the later we cannot fix sensibly, it introduces a dependency on our main
-GDT. And it's good to have a small GDT in the boot sector anyway - so your
-patch definitely looks good to me.
+If you can spare the 3-5% cpu anyway, who cares?  And finally, nobody is
+forcing anybody to configure this driver.
 
-	Ingo
-
+-- 
+Daniel

@@ -1,54 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270433AbRHNEdc>; Tue, 14 Aug 2001 00:33:32 -0400
+	id <S270436AbRHNEfW>; Tue, 14 Aug 2001 00:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270436AbRHNEdW>; Tue, 14 Aug 2001 00:33:22 -0400
-Received: from chinook.Stanford.EDU ([171.64.93.186]:21888 "EHLO
-	chinook.stanford.edu") by vger.kernel.org with ESMTP
-	id <S270433AbRHNEdG>; Tue, 14 Aug 2001 00:33:06 -0400
-Date: Mon, 13 Aug 2001 21:33:19 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-pre1 NFS problem
-Message-ID: <20010813213319.A2253@chinook.stanford.edu>
-In-Reply-To: <20010813114636.A4641@chinook.stanford.edu> <200108131933.f7DJXjX20270@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200108131933.f7DJXjX20270@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
-X-Mailer: Mutt http://www.mutt.org/
-From: Max Kamenetsky <maxk@chinook.stanford.edu>
+	id <S270439AbRHNEfM>; Tue, 14 Aug 2001 00:35:12 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1245 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270436AbRHNEfG>;
+	Tue, 14 Aug 2001 00:35:06 -0400
+Date: Tue, 14 Aug 2001 00:35:18 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (1/11) fs/super.c fixes
+In-Reply-To: <Pine.GSO.4.21.0108140023480.10579-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108140033100.10579-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds <torvalds@transmeta.com> [08/13/01 18:40] wrote:
-> In article <20010813114636.A4641@chinook.stanford.edu> you write:
-> >It looks like 2.4.9-pre1 breaks the NFS server.  Directories still get
-> >exported and clients can mount them fine, but the ls command on the
-> >client fails to report any files.  Filename completion also doesn't
-> >work.  However, files can still be viewed if you know the exact file
-> >name.
-> 
-> Yes, there's a missing off_t -> loff_t change in pre1, and the compile
-> will even warn about it...
-> 
-> >The same problem happens with 2.4.9-pre2.
-> 
-> ..but I thought I fixed it in pre2. 
-> 
-> HOWEVER - there are a few others that I missed because the NFSD layer is
-> doing ugly casts of function pointers (don't ask me why - it should have
-> the right type in 'filldir_t' already but wants to use its own type), so
-> the compiler can't warn about it. 
-> 
-> Let's hear it for type safety and avoiding ugly casts.
-> 
-> Anyway, here's the patch - does this fix it for you?
 
-[snip patch]
 
-I didn't try the patch, but 2.4.9-pre3 fixes the problem.  I'm
-assuming the patch is in that kernel version.
+On Tue, 14 Aug 2001, Alexander Viro wrote:
+ 
+> Cleanup: we move decrementing ->s_active into put_super(). Callers updated.
 
-Max
+... and that line in description is also bogus, indeed (same reasons -
+description from 11/11). Self-LART applied...
 

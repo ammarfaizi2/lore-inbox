@@ -1,215 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267797AbTBRNSj>; Tue, 18 Feb 2003 08:18:39 -0500
+	id <S267803AbTBRNSH>; Tue, 18 Feb 2003 08:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267793AbTBRNSj>; Tue, 18 Feb 2003 08:18:39 -0500
-Received: from [212.122.164.10] ([212.122.164.10]:31134 "EHLO
-	pechkin.minfin.bg") by vger.kernel.org with ESMTP
-	id <S267805AbTBRNSg>; Tue, 18 Feb 2003 08:18:36 -0500
-Reply-To: <larry@minfin.bg>
-From: "Kostadin Karaivanov" <larry@minfin.bg>
-To: <linux-kernel@vger.kernel.org>
-Subject: XFS problem 2.5.6{0,1,2}
-Date: Tue, 18 Feb 2003 15:28:32 +0200
-Message-ID: <002c01c2d751$a279a880$1504a8c0@minfin.bg>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S267805AbTBRNSH>; Tue, 18 Feb 2003 08:18:07 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:59038 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S267803AbTBRNSF>;
+	Tue, 18 Feb 2003 08:18:05 -0500
+Date: Tue, 18 Feb 2003 15:28:03 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Mark J Roberts <mjr@znex.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Annoying /proc/net/dev rollovers.
+Message-ID: <20030218132803.GB1073@mea-ext.zmailer.org>
+References: <20030217103553.GH1073@mea-ext.zmailer.org> <Pine.LNX.4.44.0302172057170.656-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302172057170.656-100000@dlang.diginsite.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oftenly I get errors something like ...
-"In memory data corruption ..... shuting down filesystem ide(0,3)" and
-linux halts. Reboot fixes the things.
-Sorry can't paste the proper error output.
-It happens when I try to erase a lots of small files or on shutdown.
-I can't reproduce this, but it happens for at least once a day.
-My whole linux partition is on XFS.
-As long as I can tell this is not present in 2.5.5{7,8,9}
+On Mon, Feb 17, 2003 at 08:58:40PM -0800, David Lang wrote:
+> don't forget that 10G ethernet is starting to leak out of the labs into
+> the real world. I don't know of any linux support yet, but it will come
+> and then you will be able to overflow 32bit bitcounters multiple times per
+> second.
 
-my .config is as follows
+A machine capable to support full data speed of 10G ether needs ...
+around 1.3 GB/sec I/O speed both ways for the card, which at
+64-bit PCI-X 533 -- is at most 4.3 GB/sec.  In reality one can't
+quite get the theorethical maximum out of the hardware.
+One full-speed full-duplex 10G ether is barely doable with that new
+version of PCI-X.
 
-root@larry:/usr/src/linux-2.5.62# grep ^CONFIG .config
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_INET_ECN=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_XFRM_USER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_ECN=y
-CONFIG_IP_NF_MATCH_DSCP=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_ECN=y
-CONFIG_IP_NF_TARGET_DSCP=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_ULOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_SIS=y
-CONFIG_DRM=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_RAMFS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_XFS_FS=y
-CONFIG_XFS_POSIX_ACL=y
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_1251=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_2=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_CS46XX=y
-CONFIG_SND_CS46XX_NEW_DSP=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRC32=y
-CONFIG_X86_BIOS_REBOOT=y
+A giga-ether interface (or two) can be done in current generation 
+hardware, and even some usefull things can be done to fill the pipe.
 
+I do suppose that at the time we are also using 64-bit processors,
+in which incrementing 64-bit counter variables uninterruptably is
+trivial. 
+
+I leave it as a thought excercise, as to why non-irq-blocking spinlock
+is not a good idea to ensure data update monotonicity.
+
+
+There are algorithmic ways to handle interruptible two-fetch
+consistency problem in current 32-bit hardware.  None of those
+are being used, as far as I know:
+
+irq-context:
+   add to less-significant-long
+   add carry to more-significant-long
+
+reader context:
+   read less-significant-long into ax
+   read more-significant-long into bx
+   compare less-significant-long with ax
+    if differ, start from begin
+   compare more-significant-long with bx
+    if differ, start from begin
+   return ax,bx
+
+That way the reader need not worry interrupting,
+but implementation is -- likely -- assembly.
+
+
+No spinlocks, no irq-blocking...
+
+
+> David Lang
+
+  /Matti Aarnio
+
+
+>  On Mon, 17 Feb 2003, Matti Aarnio wrote:
+> 
+> > Date: Mon, 17 Feb 2003 12:35:53 +0200
+> > From: Matti Aarnio <matti.aarnio@zmailer.org>
+> > To: Mark J Roberts <mjr@znex.org>, linux-kernel@vger.kernel.org
+> > Subject: Re: Annoying /proc/net/dev rollovers.
+> >
+> > On Sun, Feb 16, 2003 at 08:21:56PM -0800, Chris Wedgwood wrote:
+> > > On Sun, Feb 16, 2003 at 08:46:05PM -0600, Mark J Roberts wrote:
+> > > > When the windows box behind my NAT is using all of my 640kbit/sec
+> > > > downstream to download movies, it takes a little over 14 hours to
+> > > > download four gigabytes and roll over the byte counter.
+> > >
+> > > Therefore userspace needs to check the counters more often... say ever
+> > > 30s or so and detect rollover.  Most of this could be simply
+> > > encapsulated in a library and made transparent to the upper layers.
+> >
+> >   Some of my colleques complained once, that at full tilt
+> >   the fiber-channel fabric overflowed its SNMP bitcounters
+> >   every 2 seconds.
+> >
+> >   "we need to do polling more rapidly, than the poller can do"
+> >
+> >   The SNMP pollers do handle gracefully 32-bit unsigned overlow,
+> >   they just need to get snapshots in increments a bit under 2G...
+> >   (Hmm.. perhaps I remember that wrong, a bit under 4G should be ok.)
+> >
+> > >   --cw
+> >
+> > /Matti Aarnio

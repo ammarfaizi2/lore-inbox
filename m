@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316423AbSFPROL>; Sun, 16 Jun 2002 13:14:11 -0400
+	id <S316446AbSFPRZU>; Sun, 16 Jun 2002 13:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316431AbSFPROK>; Sun, 16 Jun 2002 13:14:10 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:39442 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S316423AbSFPROK>; Sun, 16 Jun 2002 13:14:10 -0400
-Date: Sun, 16 Jun 2002 19:13:03 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.enlightnet.local
-To: Erik McKee <camhanaich99@yahoo.com>
-cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [ERROR][PATCH] smbfs compilation in 2.5.21
-In-Reply-To: <20020616162402.32079.qmail@web14201.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0206161831390.6294-100000@cola.enlightnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316456AbSFPRZT>; Sun, 16 Jun 2002 13:25:19 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:16903 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S316446AbSFPRZS>; Sun, 16 Jun 2002 13:25:18 -0400
+Message-Id: <200206161725.g5GHP6S23020@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: David Brownell <david-b@pacbell.net>
+cc: Andries.Brouwer@cwi.nl, garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map 
+In-Reply-To: Message from David Brownell <david-b@pacbell.net> 
+   of "Sun, 16 Jun 2002 10:05:49 PDT." <3D0CC56D.9050805@pacbell.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 16 Jun 2002 12:25:06 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jun 2002, Erik McKee wrote:
+Since we already have a huge long list of different ways to identify different 
+devices, I don't think coding any one or even a set of such methods into the 
+kernel would satisfy everyone.
 
-> THis is from the bk tree.  It's gcc 2.95.3.  That solution might be a bettr one
-> after all ;)  However, would the stringifying done here to get the function
-> name in there mess that up?
+What about a different approach:
 
-stringifying?
+We already (nearly) have the scsimon patches to do hot plug events on SCSI 
+devices incorporated.  Any identification could be done from the scsi device 
+hotplug script (i.e. if you see it's USB, get the GID, if it's enterprise 
+storage get the WWN, try the filesystem UUID etc).  Then all the hotplug 
+script does is plug this device into some type of volume idenfication scheme 
+like /dev/volume/<name>.
 
-The whole point of the original change was to not do any string
-concatenation of __FUNCTION__, but it is a string already.
+Any application needing to always know where the device is would refer to it 
+by name, and since there's no prescription at all about what the <name> is, 
+you could even alias horribly unfriendly things like the WWN to more palatable 
+names using a user specified translation table.
 
+This implementation doesn't even depend on SCSI, so it could potentially be 
+used by any subsystem (IDE, block devices).
 
-However, could you try this change instead:
+The only component that doesn't exist is the configurable /dev/volume piece.  
+Since the name would be a property of the device node, it probably makes sense 
+to place this into the new driverfs somehow.
 
--# define PARANOIA(f, a...) printk(KERN_NOTICE "%s: " f, __FUNCTION__, ## a)
-+# define PARANOIA(f, a...) printk(KERN_NOTICE "%s: " f, __FUNCTION__ , ## a)
+James
 
-Apparently an extra space before the comma before ## is supposed to
-matter. Several of the macros I pointed at before already do that.
-
-See also
-http://gcc.gnu.org/onlinedocs/gcc-3.1/cpp/Variadic-Macros.html
-
-/Urban
 

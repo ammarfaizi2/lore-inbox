@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266978AbSKSQYB>; Tue, 19 Nov 2002 11:24:01 -0500
+	id <S266983AbSKSQYh>; Tue, 19 Nov 2002 11:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbSKSQYB>; Tue, 19 Nov 2002 11:24:01 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:11743 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S266978AbSKSQYA>; Tue, 19 Nov 2002 11:24:00 -0500
-Date: Tue, 19 Nov 2002 09:31:00 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RESEND] Don't ask about "Enhanced Real Time Clock Support" on some archs
-Message-ID: <20021119163100.GC779@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266986AbSKSQYg>; Tue, 19 Nov 2002 11:24:36 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11535 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S266983AbSKSQYf>; Tue, 19 Nov 2002 11:24:35 -0500
+Date: Tue, 19 Nov 2002 11:30:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dan Kegel <dank@kegel.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>, john slee <indigoid@higherplane.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why can't Johnny compile?
+In-Reply-To: <1037661151.7486.44.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1021119112734.32451A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds an explicit no list of arches who do not want
-to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
-adds PPC32 (who for a long time had their own 'generic' RTC driver, and
-then have adopted the genrtc driver) and PARISC (who have always used
-the genrtc driver).
+On 18 Nov 2002, Alan Cox wrote:
 
-The problem is that on some archs there is no hope of this driver
-working, and having it compiled into the kernel can cause many different
-problems.  On the other hand, there are some arches for whom that driver
-does work, on some platforms.  So having an explicit yes list would
-result in some rather ugly statements.
+> 
+> > OBSOLETE - the code in question provides either support for a no longer
+> > easily available hardware, or better software to support the hardware (or
+> > feature) is available. It does not mean that the feature is known not to
+> > work, just that there are alternatives.
+> 
+> Currently (2.4) it means driver code which has not been updated to
+> current kernel APIs
+
+If we add a BROKEN category, would you agree that it is a more accurate
+description of the status? I'm not asking that this be back-ported to 2.4,
+but I think of OBSOLETE describing the nec pre-symbios drivers or similar
+things. Or the aha152x driver which I still can't get going in 2.5 :-(
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-===== drivers/char/Kconfig 1.1 vs edited =====
---- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
-+++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
-@@ -1053,6 +1053,7 @@
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
-+	depends on PPC32 != y && PARISC != y
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you

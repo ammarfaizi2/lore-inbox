@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbUDEXxA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbUDEXxA
+	id S263542AbUDEX5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUDEX5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:53:00 -0400
-Received: from pxy5allmi.all.mi.charter.com ([24.247.15.44]:30353 "EHLO
-	proxy5-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S263519AbUDEXw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:52:58 -0400
-Message-ID: <4071F07E.2040307@quark.didntduck.org>
-Date: Mon, 05 Apr 2004 19:49:18 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] Drop exported symbols list if !modules
-References: <20040405205539.GG6248@waste.org> <1081205099.15272.7.camel@bach> <20040405230723.GK6248@waste.org>
-In-Reply-To: <20040405230723.GK6248@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Apr 2004 19:57:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12235 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263542AbUDEX5q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:57:46 -0400
+Date: Mon, 5 Apr 2004 16:59:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PTS alocation problem with 2.6.4/2.6.5
+Message-Id: <20040405165957.5f8ab8dc.akpm@osdl.org>
+In-Reply-To: <200404052253.i35Mr6k6011170@green.mif.pg.gda.pl>
+References: <200404052253.i35Mr6k6011170@green.mif.pg.gda.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Tue, Apr 06, 2004 at 08:45:01AM +1000, Rusty Russell wrote:
-> 
->>On Tue, 2004-04-06 at 06:55, Matt Mackall wrote:
->>
->>>Drop ksyms if we've built without module support
->>>
->>>From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
->>>Subject: Re: 2.6.1-rc1-tiny2
->>
->>Other than saving a little compile time, does this actually do anything?
->>
->>I'm not against it, I just don't think I see the point.
-> 
-> 
-> Well it obviously saves memory and image size too; I'm in the process
-> of merging bits from my -tiny tree. As bloat has a way of being
-> well-distributed across the code base, it's going to take many small
-> trimmings to cut it back. Most of the 150 or so patches I've got now
-> save between 1 and 8k. Doesn't sound like much, but it adds up.
-> 
+Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl> wrote:
+>
+> I noticed serious problem with PTS alocation on kernels 2.6.4 and 2.6.5:
+> It seems that once alocated /dev/pts entries are never reused, leading to
+> pty alocation errors. The testing system is fully compiled with kernel 2.2.x
+> headers (including glibc), but informations from my coleagues using systems
+> compiled on 2.4/2.6 headers seems to behave similarily.
+> The testcase and used kernel configuration are shown below.
+> Kernel 2.6.3 does not have this problem.
+> Is it bug or feature (and I am doing sth wrong) ?
 
-EXPORT_SYMBOL() is a no-op when modules are disabled:
-$ size arch/i386/kernel/i386_ksyms.o
-    text    data     bss     dec     hex filename
-       0       0       0       0       0 arch/i386/kernel/i386_ksyms.o
+You need a glibc upgrade - we broke things for really old glibc's.  We're
+(slowly) working on fixing it up.
 
-Although, what really should be done is to move the exports to the 
-appropriate files instead of keeping them lumped together.
-
---
-				Brian Gerst

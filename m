@@ -1,111 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266717AbSLJGjp>; Tue, 10 Dec 2002 01:39:45 -0500
+	id <S266665AbSLJGqI>; Tue, 10 Dec 2002 01:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266718AbSLJGjp>; Tue, 10 Dec 2002 01:39:45 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:1749 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266717AbSLJGjm>;
-	Tue, 10 Dec 2002 01:39:42 -0500
-Date: Tue, 10 Dec 2002 17:47:15 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: ralf@gnu.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] consolidate sys32_times - mips64
-Message-Id: <20021210174715.2d5e3dd6.sfr@canb.auug.org.au>
-In-Reply-To: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
-References: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S266678AbSLJGqI>; Tue, 10 Dec 2002 01:46:08 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6412 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266665AbSLJGqH>;
+	Tue, 10 Dec 2002 01:46:07 -0500
+Date: Mon, 9 Dec 2002 22:52:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Miles Lane <miles.lane@attbi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sound/built-in.o: In function `snd_complete_urb': undefined reference to `usb_submit_urb'
+Message-ID: <20021210065247.GA4248@kroah.com>
+References: <1039501666.7838.4.camel@bellybutton.attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039501666.7838.4.camel@bellybutton.attbi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ralf,
+On Mon, Dec 09, 2002 at 10:27:47PM -0800, Miles Lane wrote:
+> #
+> # Advanced Linux Sound Architecture
+> #
+> CONFIG_SND=y
+> CONFIG_SND_SEQUENCER=y
+> # CONFIG_SND_SEQ_DUMMY is not set
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=y
+> CONFIG_SND_PCM_OSS=y
+> CONFIG_SND_SEQUENCER_OSS=y
+> # CONFIG_SND_RTCTIMER is not set
+> CONFIG_SND_VERBOSE_PRINTK=y
+> CONFIG_SND_DEBUG=y
+> # CONFIG_SND_DEBUG_MEMORY is not set
+> CONFIG_SND_DEBUG_DETECT=y
+> CONFIG_SND_EMU10K1=y
+> 
+> CONFIG_SND_USB_AUDIO=y
+> 
+> #
+> # USB support
+> #
+> CONFIG_USB=m
 
-The mips64 patch ...
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Change this to "y" and it should fix your problem.
 
-diff -ruN 2.5.51-32bit.base/arch/mips64/kernel/linux32.c 2.5.51-32bit.1/arch/mips64/kernel/linux32.c
---- 2.5.51-32bit.base/arch/mips64/kernel/linux32.c	2002-12-10 15:46:41.000000000 +1100
-+++ 2.5.51-32bit.1/arch/mips64/kernel/linux32.c	2002-12-10 17:00:58.000000000 +1100
-@@ -1125,35 +1125,6 @@
- }
- 
- 
--struct tms32 {
--	int tms_utime;
--	int tms_stime;
--	int tms_cutime;
--	int tms_cstime;
--};
--
--extern asmlinkage long sys_times(struct tms * tbuf);
--asmlinkage long sys32_times(struct tms32 *tbuf)
--{
--	struct tms t;
--	long ret;
--	mm_segment_t old_fs = get_fs();
--	int err;
--
--	set_fs(KERNEL_DS);
--	ret = sys_times(tbuf ? &t : NULL);
--	set_fs(old_fs);
--	if (tbuf) {
--		err = put_user (t.tms_utime, &tbuf->tms_utime);
--		err |= __put_user (t.tms_stime, &tbuf->tms_stime);
--		err |= __put_user (t.tms_cutime, &tbuf->tms_cutime);
--		err |= __put_user (t.tms_cstime, &tbuf->tms_cstime);
--		if (err)
--			ret = -EFAULT;
--	}
--	return ret;
--}
--
- extern asmlinkage int sys_setsockopt(int fd, int level, int optname,
- 				     char *optval, int optlen);
- 
-diff -ruN 2.5.51-32bit.base/arch/mips64/kernel/scall_o32.S 2.5.51-32bit.1/arch/mips64/kernel/scall_o32.S
---- 2.5.51-32bit.base/arch/mips64/kernel/scall_o32.S	2002-12-10 15:46:41.000000000 +1100
-+++ 2.5.51-32bit.1/arch/mips64/kernel/scall_o32.S	2002-12-10 17:02:02.000000000 +1100
-@@ -276,7 +276,7 @@
- 	sys	sys_rmdir	1			/* 4040 */
- 	sys	sys_dup		1
- 	sys	sys_pipe	0
--	sys	sys32_times	1
-+	sys	compat_sys_times	1
- 	sys	sys_ni_syscall	0
- 	sys	sys_brk		1			/* 4045 */
- 	sys	sys_setgid	1
-diff -ruN 2.5.51-32bit.base/include/asm-mips64/compat.h 2.5.51-32bit.1/include/asm-mips64/compat.h
---- 2.5.51-32bit.base/include/asm-mips64/compat.h	2002-12-10 15:46:42.000000000 +1100
-+++ 2.5.51-32bit.1/include/asm-mips64/compat.h	2002-12-10 16:37:59.000000000 +1100
-@@ -5,9 +5,12 @@
-  */
- #include <linux/types.h>
- 
-+#define COMPAT_USER_HZ	100
-+
- typedef u32		compat_size_t;
- typedef s32		compat_ssize_t;
- typedef s32		compat_time_t;
-+typedef s32		compat_clock_t;
- 
- struct compat_timespec {
- 	compat_time_t	tv_sec;
-diff -ruN 2.5.51-32bit.base/include/asm-mips64/posix_types.h 2.5.51-32bit.1/include/asm-mips64/posix_types.h
---- 2.5.51-32bit.base/include/asm-mips64/posix_types.h	2002-12-10 15:46:42.000000000 +1100
-+++ 2.5.51-32bit.1/include/asm-mips64/posix_types.h	2002-12-10 15:42:41.000000000 +1100
-@@ -58,9 +58,6 @@
- typedef int		__kernel_ipc_pid_t32;
- typedef int		__kernel_uid_t32;
- typedef int		__kernel_gid_t32;
--typedef int		__kernel_ptrdiff_t32;
--typedef int		__kernel_suseconds_t32;
--typedef int		__kernel_clock_t32;
- typedef int		__kernel_daddr_t32;
- typedef unsigned int	__kernel_caddr_t32;
- typedef __kernel_fsid_t	__kernel_fsid_t32;
+thanks,
+
+greg k-h

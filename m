@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbUJYEpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUJYEr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbUJYEpb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 00:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUJYEpb
+	id S261366AbUJYEr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 00:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUJYEr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 00:45:31 -0400
-Received: from ozlabs.org ([203.10.76.45]:13700 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261360AbUJYEpZ (ORCPT
+	Mon, 25 Oct 2004 00:47:59 -0400
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:22407 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261366AbUJYErz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 00:45:25 -0400
-Subject: Re: [RFC/PATCH] Per-device parameter support (4/16)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tejun Heo <tj@home-tj.org>
-Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041023042550.GE3456@home-tj.org>
-References: <20041023042550.GE3456@home-tj.org>
-Content-Type: text/plain
-Date: Mon, 25 Oct 2004 14:45:20 +1000
-Message-Id: <1098679520.8098.20.camel@localhost.localdomain>
+	Mon, 25 Oct 2004 00:47:55 -0400
+Date: Mon, 25 Oct 2004 00:49:12 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: [BK PATCH] PnP Fixes for 2.6.10-rc1
+Message-ID: <20041025044912.GC3989@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 13:25 +0900, Tejun Heo wrote:
->  dp_04_module_param_ranged.diff
-> 
->  This is the 4th patch of 16 patches for devparam.
-> 
->  This patch implements module_param_flag() and module_param_invflag().
-> They appear as boolean parameter to the outside, and bitwise OR the
-> specified flag to flags when the specified boolean value is 1 and 0
-> respectively.
+Hi,
 
-Comment is wrong, of course: this patch adds range to the kernel_param
-structure.  But I'm not convinced that it's a great idea.  It could be
-added using the same method (kp->arg) used to extend the others instead.
+This changeset contains a few small fixes.
 
-(Same logic applied to spinlocking param variants).
+Please Pull from: bk://linux-pnp.bkbits.net/pnp-stable
 
-It comes down to usage: currently there are few range-needing users, but
-maybe that's because MODULE_PARM didn't support it.  So I would drop
-this or implement it as a wrapper, and later we can add it when it takes
-over the world.  Although I'd probably just add args to
-module_param_call: I like having it as the "base".
+Thanks,
+Adam
 
-The other thing is the min=1 max=0 case: I'd prefer INT_MAX, INT_MIN
-etc. instead I think so there's no special cases.
+*note: this bk address is different from the previous one.
 
-Thanks!
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+ drivers/pnp/pnpbios/core.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+-------
 
+<nacc:us.ibm.com>:
+  o [PNPBIOS] use msleep_interruptible()
+
+Adam Belay:
+  o [PNPBIOS] acpi compile fix
+  o [PNPBIOS] disable if ACPI is active

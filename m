@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313206AbSDOUZx>; Mon, 15 Apr 2002 16:25:53 -0400
+	id <S313205AbSDOUZ1>; Mon, 15 Apr 2002 16:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313207AbSDOUZw>; Mon, 15 Apr 2002 16:25:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:11272 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313206AbSDOUZu>;
-	Mon, 15 Apr 2002 16:25:50 -0400
-Date: Mon, 15 Apr 2002 22:25:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>, Dominik Kubla <kubla@sciobyte.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-Message-ID: <20020415222549.A25140@wotan.suse.de>
-In-Reply-To: <20020409184605.A13621@cecm.usp.br.suse.lists.linux.kernel> <200204100041.g3A0fSj00928@saturn.cs.uml.edu.suse.lists.linux.kernel> <20020410092807.GA4015@duron.intern.kubla.de.suse.lists.linux.kernel> <p73adsbpdaz.fsf@oldwotan.suse.de> <20020408203515.B540@toy.ucw.cz>
-Mime-Version: 1.0
+	id <S313206AbSDOUZ1>; Mon, 15 Apr 2002 16:25:27 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:19973
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313205AbSDOUZZ>; Mon, 15 Apr 2002 16:25:25 -0400
+Date: Mon, 15 Apr 2002 13:18:09 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rex Tsai <chihchun@kalug.linux.org.tw>
+cc: linux-kernel@vger.kernel.org, Andy Jeffries <lkml@andyjeffries.co.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: HPT372A with DMA support ?
+In-Reply-To: <Pine.LNX.4.10.10204151854270.25849-100000@kalug>
+Message-ID: <Pine.LNX.4.10.10204151317360.1699-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08, 2002 at 08:35:16PM +0000, Pavel Machek wrote:
-> Hi
+
+Thanks, I missed that message.
+I have a 372 but not tested it yet.
+
+Cheer,
+
+On Mon, 15 Apr 2002, Rex Tsai wrote:
+
 > 
-> > > The background  fsck capability, just  like journalling or  logging, are
-> > > typically only in needed in 24/7 systems (sure, they are nice to have in
-> > > your home  system, but do  you _REALLY_ need  them? i don't!)  and those
-> > > system  typically are  run on  proven  hardware which  is operated  well
-> > > within the specs. So please don't construct these kinds of arguments.
-> > 
-> > You can already do background fsck on a linux system today. Just do it on
-> > a LVM/EVMS snapshot.
+> Hi, I have a HighPoint RocketRAID 133 with HPT372A chipset. 
+> (firmware revision is 2.31)
 > 
-> How do you fix errors you find by such background fsck?
+> My currect kernel version is 2.4.19-pre5-ac3, this version contains 
+> HighPoint "366", "366",  "368", "370", "370A", "372", "374" support.
+> 
+> When booting with this kernel I get "hde lost interrupt",  I tried
+> hacking the ide drivers myself a little. Now, it works without DMA
+> support, I submit my patch to linux kernel mailing list. here is the
+> patch http://marc.theaimsgroup.com/?l=linux-kernel&m=101848841720406&w=2
+> 
+> I still trying to improve on DMA support. Can you offer me 
+> any help ? ex. data sheet, manual, driver source code, etc ? 
+> 
+> Best Regards, 
+> Rex Tsai, <chihchun_at_kalug.linux.org.tw>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-You umount the file system (that is the best you can do with a random
-error anyways, BSD doesn't do any better except in the special case
-of lost blocks in the bitmap) and fsck it again on the real volume.
+Andre Hedrick
+LAD Storage Consulting Group
 
-In theory you could build a mechanism to pass some state from the 
-first fsck to the second to speed the second up, but it is probably not 
-worth it.
-
-
--Andi

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbTFIVAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTFIVAP
+	id S262030AbTFIVEx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTFIVEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:00:15 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:53226 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262023AbTFIVAH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:00:07 -0400
-Date: Mon, 9 Jun 2003 14:15:20 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Pavel Machek <pavel@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] New system device API
-In-Reply-To: <20030609210706.GA508@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306091412440.11379-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jun 2003 17:04:53 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:47760 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262030AbTFIVEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:04:51 -0400
+Date: Mon, 9 Jun 2003 22:18:23 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Dan Carpenter <dcarpenter@penguincomputing.com>
+Cc: linux-kernel@vger.kernel.org, ppokorny@penguincomputing.com
+Subject: Re: memtest86 on the opteron
+Message-ID: <20030609211823.GA2182@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Dan Carpenter <dcarpenter@penguincomputing.com>,
+	linux-kernel@vger.kernel.org, ppokorny@penguincomputing.com
+References: <Pine.LNX.4.33.0306091320500.2640-100000@ddcarpen1.penguincompting.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0306091320500.2640-100000@ddcarpen1.penguincompting.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 09, 2003 at 01:26:37PM -0700, Dan Carpenter wrote:
+ > --- init.c.orig	Mon Jun  9 10:23:10 2003
+ > +++ init.c	Mon Jun  9 10:25:44 2003
+ > @@ -402,6 +402,16 @@
+ >  			}
+ >  			l1_cache = cpu_id.cache_info[3];
+ >  			l1_cache += cpu_id.cache_info[7];
+ > +                case 15:
+ > +                        switch(cpu_id.model) {
+ > +                        case 5:
+ > +				cprint(LINE_CPU, 0, "AMD Opteron");
+ > +				off = 11;
+ > +				l1_cache = cpu_id.cache_info[3];
+ > +				l1_cache += cpu_id.cache_info[7];
+ > +				l2_cache = (cpu_id.cache_info[11] << 8);
+ > +				l2_cache += cpu_id.cache_info[10];
+ > +                        }
+ >  		}
 
-> Okay, but you should keep "new" functions as similar to existing ones
-> as possible. That means 3 parameters for suspend functions, and as
-> similar semantics to existing callbacks as possible.
+Any reason to restrict it to a single stepping ?
+This means you have to upgrade memtest every time a new model
+is released, which seems a bit of a pain.
 
-Did you read the earlier posts? They are similar, and simplified because 
-they don't need the level, since all suspend/resume is expected to happen 
-with interrupts disabled. The semantics are obvious, the deviation 
-trivial, and this thread a dead horse. 
+Chances are it'll work fine on subsequent family 15 AMD CPUs.
 
-Please present a case in which that will not work and I will change the
-semantics.
-
-> > So? A keyboard controller is not classified as a system device.
-> 
-> Its not on pci, I guess it would end up as a system device...
-
-Huh? Since when is everything that's not PCI a system device? Please read 
-the documentation, esp. WRT system and platform devices.
-
-Thanks,
-
-
-	-pat
+		Dave
 

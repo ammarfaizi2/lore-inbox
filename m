@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTGKOsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 10:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTGKOsa
+	id S262710AbTGKOx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 10:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTGKOx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 10:48:30 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9144
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262601AbTGKOs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 10:48:29 -0400
+	Fri, 11 Jul 2003 10:53:27 -0400
+Received: from raq465.uk2net.com ([213.239.56.46]:30729 "EHLO
+	mail.truemesh.com") by vger.kernel.org with ESMTP id S262710AbTGKOxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 10:53:22 -0400
+Date: Fri, 11 Jul 2003 16:02:21 +0100
+From: Paul Nasrat <pauln@truemesh.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5 'what to expect'
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030711144617.GK10217@louise.pinerecords.com>
+Message-ID: <20030711150220.GG28359@raq465.uk2net.com>
+Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 References: <20030711140219.GB16433@suse.de>
-	 <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-	 <20030711144617.GK10217@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057935630.20637.19.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 16:00:33 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711140219.GB16433@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 15:46, Tomas Szepe wrote:
-> > > - gcc 3.2.2-5 as shipped by Red Hat generates incorrect code in the
-> > >   kmalloc optimisation introduced in 2.5.71
-> > >   See http://linus.bkbits.net:8080/linux-2.5/cset@1.1410
-> > 
-> > This URL appears wrong!
-> 
-> Nahh, that's just the same old annoying bkbits bug.  Try with lynx...
+On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
+ 
+> Known gotchas.
+> ~~~~~~~~~~~~~~
+> Certain known bugs are being reported over and over. Here are the
+> workarounds.
+> - Blank screen after decompressing kernel?
+>   Make sure your .config has
+>   CONFIG_INPUT=y, CONFIG_VT=y, CONFIG_VGA_CONSOLE=y and CONFIG_VT_CONSOLE=y
+>   A lot of people have discovered that taking their .config from 2.4 and
+>   running make oldconfig to pick up new options leads to problems, notably
+>   with CONFIG_VT not being set.
 
-I did - it references a changeset unrelayed to kmalloc
+You might want to mention the synaptics touchpad driver/event for
+XFree86, as I'm sure that will be a FAQ amongst laptop users
 
+http://w1.894.telia.com/~u89404340/touchpad/
+
+Paul

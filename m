@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVCTVFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVCTVZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVCTVFh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 16:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVCTVFh
+	id S261267AbVCTVZf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 16:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVCTVZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 16:05:37 -0500
-Received: from eth0-0.arisu.projectdream.org ([194.158.4.191]:13292 "EHLO
-	b.mx.projectdream.org") by vger.kernel.org with ESMTP
-	id S261260AbVCTVF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 16:05:29 -0500
-Date: Sun, 20 Mar 2005 22:05:48 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PKT_SCHED]: Extended Matches API
-Message-ID: <20050320210548.GY3086@postel.suug.ch>
-References: <200503070214.j272EWfo024708@hera.kernel.org> <Pine.LNX.4.62.0503202157350.27963@gorilla.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503202157350.27963@gorilla.sonytel.be>
+	Sun, 20 Mar 2005 16:25:35 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:52674 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261267AbVCTVZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 16:25:27 -0500
+Date: Sun, 20 Mar 2005 22:29:58 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11.2][0/2] printk with anti-cluttering-feature
+In-Reply-To: <Pine.LNX.4.58.0503201425080.2886@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
+References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <423D6353.5010603@tls.msk.ru>
+ <Pine.LNX.4.58.0503201425080.2886@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Geert Uytterhoeven <Pine.LNX.4.62.0503202157350.27963@gorilla.sonytel.be> 2005-03-20 21:58
-> On Tue, 15 Feb 2005, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1982.66.2, 2005/02/15 12:13:15-08:00, davem@nuts.davemloft.net
-> > 
-> > 	[PKT_SCHED]: Extended Matches API
-> 
-> 
-> > --- a/net/sched/Kconfig	2005-03-06 18:14:44 -08:00
-> > +++ b/net/sched/Kconfig	2005-03-06 18:14:44 -08:00
-> 
-> > +config NET_EMATCH_STACK
-> > +	int "Stack size"
-> > +	depends on NET_EMATCH
-> > +	default "32"
-> > +	---help---
-> > +	  Size of the local stack variable used while evaluating the tree of
-> > +	  ematches. Limits the depth of the tree, i.e. the number of
-> > +	  encapsulated precedences. Every level requires 4 bytes of addtional
->                                                                     ^^^^^^^^^
-> 								    additional
-> > +	  stack space.
-> > +
-> 
-> Gr{oetje,eeting}s,
+These patches address the issue of dmesg being slowly spammed with 
+repeated warnings.
 
-Fixed it in the ematch tree submit it in the next patchset. Thanks.
+Some parts of the kernel want to notify the user about deprecated or 
+invalid calls or parameters. These messages will slowly fill dmesg and 
+hinder you from seing the boot messages.
+
+Examples are:
+atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+ (I'm using a keyboard switch and a IBM PS/2 keyboard)
+
+program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
+ (I'll use the latest version as soon as I need to)
+
+tuner: TV freq (0.00) out of range (44-958)
+ (I'll update zapping later)
+
+This is prevented by introducing printk_nospam(), which takes an
+additional magic value to identify the last one who printk-ed something.
+If the current magic matches the one of the last successfull caller,
+nothing will be printed. The normal printk will reset the magic to 0,
+which ensures that if a messages indicating a current problem won't be
+hidden just because it occured before.
+
+Additionally, all these messages will be rate-limited, since they are
+usurally triggered by userspace and thereby a way to DoS the machine.
+Without the rate-limit, the user could repeatedly call two functions that
+cause a printk in order to spam the log.
+
+(The rate limit alone is not sufficient to prevent repeated warnings, 
+since they would be allowed by the burst limit or by being slow.)
+
+This patch uses an uint, which can be read and written atomically by most
+architectures. On architectures not supporting atomic reads to ints, the
+message may be dropped or printed twice. I think it's OK, since dropping
+for being racy is unlikely (especially compared to hitting the rate
+limit), and a double line won't hurt.
+
+
+
+The first patch will introduce the printk_nospam function.
+The second patch will update the three printks causing my examples.
+
+Since the TV freq message can be triggered by UID != 0, I'll send a hotfix
+patch for the 2.6.11.x line, too. This patch is only compile-tested.

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261616AbSJQBaB>; Wed, 16 Oct 2002 21:30:01 -0400
+	id <S261615AbSJQB3b>; Wed, 16 Oct 2002 21:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261617AbSJQBaB>; Wed, 16 Oct 2002 21:30:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1719 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261616AbSJQBaA>;
-	Wed, 16 Oct 2002 21:30:00 -0400
-Date: Wed, 16 Oct 2002 18:28:14 -0700 (PDT)
-Message-Id: <20021016.182814.23034875.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one
- record per call
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15790.4803.492885.687276@notabene.cse.unsw.edu.au>
-References: <20021017011108.GT7541@conectiva.com.br>
-	<20021016.181550.88499112.davem@redhat.com>
-	<15790.4803.492885.687276@notabene.cse.unsw.edu.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261616AbSJQB3b>; Wed, 16 Oct 2002 21:29:31 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:38158 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261615AbSJQB3a>; Wed, 16 Oct 2002 21:29:30 -0400
+Date: Wed, 16 Oct 2002 22:35:22 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one record per call
+Message-ID: <20021017013522.GU7541@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021017010135.GR7541@conectiva.com.br> <20021016.175809.28811497.davem@redhat.com> <20021017011108.GT7541@conectiva.com.br> <20021016.181550.88499112.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021016.181550.88499112.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Thu, 17 Oct 2002 11:30:43 +1000
-   
-   I use seq->private for private state for /proc/fs/nfs/exports.
-   It works nicely.
-   You need to define an 'open' the sets it up, and a 'release' to
-   tear it down, rather than doing it in start/stop.
-   See fs/nfsd/fnsctl.c:exports_open
+Em Wed, Oct 16, 2002 at 06:15:50PM -0700, David S. Miller escreveu:
+>    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+>    Date: Wed, 16 Oct 2002 22:11:08 -0300
+> 
+>    That would be nice, yes, bastardizing pos for this is, humm, ugly, and
+>    it isn't accessible at show time (pun intended 8) ).
+> 
+> Can you remind me what the original objection was to
+> just using seq->private?  Is it used, or planned to
+> be used, by something else?
 
-Hmmm, Arnaldo? :-)
+lemme get my logs... here it is:
+
+Quoting Al:
+
+"You're free to use, but keep in mind that it's assumed to be constant over
+->start/->stop/->next/->show more accurately, there's no sane way to use it as
+part of iterator state it's for "which of iterators with similar code it is?"
+e.g. /proc/<pid>/mounts uses the same iterator over different namespaces -
+depending on pid.  take a look at the way /proc/ksyms is done"
+
+- Arnaldo

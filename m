@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264608AbRFPKr2>; Sat, 16 Jun 2001 06:47:28 -0400
+	id <S264607AbRFPKis>; Sat, 16 Jun 2001 06:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264609AbRFPKrS>; Sat, 16 Jun 2001 06:47:18 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:40650 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S264608AbRFPKrA>;
-	Sat, 16 Jun 2001 06:47:00 -0400
-Message-Id: <m15BDai-000OrcC@amadeus.home.nl>
-Date: Sat, 16 Jun 2001 11:46:08 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: pavel@suse.cz (Pavel Machek)
-Subject: Re: Changing CPU Speed while running Linux
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010614131220.A36@toy.ucw.cz>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S264608AbRFPKih>; Sat, 16 Jun 2001 06:38:37 -0400
+Received: from mx6.port.ru ([194.67.23.42]:27151 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S264607AbRFPKiW>;
+	Sat, 16 Jun 2001 06:38:22 -0400
+From: Olga Georgieva <olga_georg@mail.ru>
+Subject: Hi!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1251
+Message-Id: <E15BDSd-000IjK-00@smtp6.port.ru>
+Date: Sat, 16 Jun 2001 14:37:48 +0400
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010614131220.A36@toy.ucw.cz> you wrote:
->> and does the right thing wrt udelay / bogomips etc..
->> I can dig it out if you want.. sounds like this should be a more generic
->> thing.
 
-> Can you dig that out? I'd like to take a look.
+Hi! Excuse me for my reference to you, I simply do not have other output from my
+problem. My child dies, at him a heart disease and to him operation is urgently necessary,
+but I do not have money for this operation. Please, help me though something. I shall be
+glad even to the small sum of money, you see it will help to rescue life of my son. I hope
+that with your help I shall collect the necessary sum of money. Beforehand to you it is
+grateful!
 
-> [Of course, problem is *not* solved: you still have short time when
-> kernel runs with wrong bogomips.]
+Olga Georgieva
 
-But the kernel controls that time ..... It's not perfect, and it might be
-aleviated by going in small steps at a time.
-Disabling interrupts isn't fun as the bogomips code kind of needs that ;)
+If you have decided to help me, let the smallest money, transfer them to my purse in
+payment system WEBMONEY
 
-Greetings,
-   Arjan van de Ven
+Purse Z 207698943068
+
+Once again excuse me, I hope you understand my emotional condition.

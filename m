@@ -1,81 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313194AbSEIOkm>; Thu, 9 May 2002 10:40:42 -0400
+	id <S313202AbSEIOla>; Thu, 9 May 2002 10:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSEIOk3>; Thu, 9 May 2002 10:40:29 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:20905 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313194AbSEIOkX>;
-	Thu, 9 May 2002 10:40:23 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Evms-announce] [ANNOUNCE] EVMS Release 1.0.1
-To: Andrew Clausen <clausen@gnu.org>
-Cc: "Kevin M Corry" <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
-Message-ID: <OFDE4879C8.491FA45A-ON85256BB4.004CD1A5@pok.ibm.com>
-From: "Steve Pratt" <slpratt@us.ibm.com>
-Date: Thu, 9 May 2002 09:37:56 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 |March 28, 2002) at
- 05/09/2002 10:40:03 AM
+	id <S313217AbSEIOl2>; Thu, 9 May 2002 10:41:28 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29194 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313202AbSEIOk5>; Thu, 9 May 2002 10:40:57 -0400
+Subject: Re: [PATCH] 2.5.14 IDE 56
+To: ltd@cisco.com (Lincoln Dale)
+Date: Thu, 9 May 2002 15:58:48 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        torvalds@transmeta.com (Linus Torvalds),
+        padraig@antefacto.com (Padraig Brady),
+        aia21@cantab.net (Anton Altaparmakov),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <5.1.0.14.2.20020509122919.01645ff0@mira-sjcm-3.cisco.com> from "Lincoln Dale" at May 09, 2002 12:37:07 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175pNZ-0003tT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> doing the same test thru the block-layer was basically capped at around 
+> 135mbyte/sec.  (simultaneous "dd if=/dev/sdX of=/dev/null bs=512 count=35M").
 
-Andrew Clausen:
->It would be nice if the jfs fsim linked against libjfs, rather than
->exec()ing mkfs & friends.
-
->(mkfs should be a frontend of libjfs)
-
-As Christoph points out in a later note, libjfs really isn't the complete
-utilities.
-
->Notice you have no error handling, etc. now?
-
-Do you mean message handling or error reporting.  Forking JFS mkfs gives me
-just as many return codes as libparted (pass/fail) and other than possibly
-some messages, this is all EVMS requires.
-
->Also, the "total system" seems more complicated now.  (For example: how
-are you going >to interface the resizer, so you can find out the min/max
-sizes, etc?)
-
-I agree that not everything fits well into fork/exec and it was not my
-first choice, but it lets the fsim work with existing JFS utilities.  When
-JFS implements expand (soon) they will have to deal with this.
-
->Also, while I'm at it: you didn't like my idea for interfacing
->the parted exception system with evms properly?  I even wrote the code
->for you (without testing it)... I didn't see a reply to my mail...
->you(s) didn't like it?
-
-Not that we didn't like it, just have way to many things to do.
-
->BTW: what do you think of how libparted interfaces with libreiserfs?
->There has been a lot of work, and it has all been merged properly now.
->I think EVMS should do something similar.  Have a look in
->libparted/fs_reiserfs.
-
-I saw mention that you had done this.  Do you actually allow options to be
-passed to the reiserfs utils, or is it still limited to defaults.  Last
-time I looked the APIs in libparted didn't provide for this.  Without this
-support the whole thing is rather uninteresting to us.
-
-Steve
-
-_______________________________________________________________
-
-Have big pipes? SourceForge.net is looking for download mirrors. We supply
-the hardware. You get the recognition. Email Us: bandwidth@sourceforge.net
-_______________________________________________
-Evms-announce mailing list
-Evms-announce@lists.sourceforge.net
-To subscribe/unsubscribe, please visit:
-https://lists.sourceforge.net/lists/listinfo/evms-announce
-
-
-
-
+Tweak your dd to use O_DIRECT and use an O_DIRECT capable fs - that tells
+you if its copy overhead or disk side stuff.

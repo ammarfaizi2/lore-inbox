@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbTABF6P>; Thu, 2 Jan 2003 00:58:15 -0500
+	id <S265689AbTABF4Y>; Thu, 2 Jan 2003 00:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbTABF6O>; Thu, 2 Jan 2003 00:58:14 -0500
-Received: from auto-matic.ca ([216.209.85.42]:35343 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265705AbTABF6I>;
-	Thu, 2 Jan 2003 00:58:08 -0500
-Date: Thu, 2 Jan 2003 01:14:30 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Paul Jakma <paul@clubi.ie>, Rik van Riel <riel@conectiva.com.br>,
-       Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030102061430.GA23276@mark.mielke.cc>
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org>
+	id <S265700AbTABF4Y>; Thu, 2 Jan 2003 00:56:24 -0500
+Received: from rth.ninka.net ([216.101.162.244]:48281 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265689AbTABF4X>;
+	Thu, 2 Jan 2003 00:56:23 -0500
+Subject: Re: [PATCH] TCP Zero Copy for mmapped files
+From: "David S. Miller" <davem@redhat.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Thomas Ogrisegg <tom@rhadamanthys.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20021230012937.GC5156@work.bitmover.com>
+References: <20021230010953.GA17731@window.dhis.org> 
+	<20021230012937.GC5156@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Jan 2003 22:37:01 -0800
+Message-Id: <1041489421.3703.6.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102055859.GA3991@gnuppy.monkey.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GPL aside (it could be argued forever...):
+On Sun, 2002-12-29 at 17:29, Larry McVoy wrote:
+> How about putting this into a different function?  It's a lot to add
+> inline for a special case.
 
-I regularly use several kernel modules that provide a GPL component that
-interfaces the module to the kernel, and a closed source object file that
-is dynamically loaded as a kernel module at run time.
+This patch also has a ton of other problems:
 
-If I did not have these modules, I would not be able to use Linux as my
-host operating system.
+1) Does not handle writes that straddle multiple VMAs
+2) We do not want to encourage people to use this mmap
+   scheme anyways.  The mmap way consumes precious VM
+   space, whereas the sendfile scheme does not.
+3) Finally, I'm very dubious about the "this is faster than
+   TUX claim".  Firstly because you've not provided your
+   self-made HTTP server so that others can try to reproduce
+   your benchmark.  And secondly because you haven't indicated
+   if your self-made HTTP server is as full featured as TUX or
+   not.  And thirdly you haven't indicated what happens if in
+   parallel clients ask to be served more files than you could
+   mmap fit into the HTTP server processes address space (ie. see
+   #2)
 
-So... to those (Hell.Surfers especially it seems) who believe that they
-are doing good by making a scene... realize that while you may succeed
-in improving the integrity of the GPL, you will also succeed in convincing
-companies that it may be more expensive than it is worth to provide their
-hardware or software for Linux. That may mean that I will be forced to
-stop using Linux at work, and possibly forced to stop using Linux at home.
-
-Perhaps I am a minority. Are you willing to bet the future of Linux on it?
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+So I think this patch stinks :)
 

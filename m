@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282868AbRK0IpP>; Tue, 27 Nov 2001 03:45:15 -0500
+	id <S282876AbRK0Iup>; Tue, 27 Nov 2001 03:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282867AbRK0IpF>; Tue, 27 Nov 2001 03:45:05 -0500
-Received: from [195.157.147.30] ([195.157.147.30]:8722 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S282868AbRK0Iow>; Tue, 27 Nov 2001 03:44:52 -0500
-Date: Tue, 27 Nov 2001 08:42:24 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Robert Love <rml@tech9.net>
-Cc: Linux maillist account <l-k@mindspring.com>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: a nohup-like interface to cpu affinity
-Message-ID: <20011127084224.C6481@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Robert Love <rml@tech9.net>,
-	Linux maillist account <l-k@mindspring.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com> <E16744i-0004zQ-00@localhost> <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain> <1006472754.1336.0.camel@icbm> <E16744i-0004zQ-00@localhost> <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com> <5.0.2.1.2.20011127011901.009ebd30@pop.mindspring.com> <1006843191.838.19.camel@phantasy>
-Mime-Version: 1.0
+	id <S282880AbRK0Iud>; Tue, 27 Nov 2001 03:50:33 -0500
+Received: from web9207.mail.yahoo.com ([216.136.129.40]:61714 "HELO
+	web9207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S282876AbRK0Itf>; Tue, 27 Nov 2001 03:49:35 -0500
+Message-ID: <20011127084934.11076.qmail@web9207.mail.yahoo.com>
+Date: Tue, 27 Nov 2001 00:49:34 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: 2.4.16 alsa 0.5.12 mixer ioctl problem
+To: riesen@synopsys.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1006843191.838.19.camel@phantasy>; from rml@tech9.net on Tue, Nov 27, 2001 at 01:39:50AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 01:39:50AM -0500, Robert Love wrote:
-> On Tue, 2001-11-27 at 01:32, Linux maillist account wrote:
-> 
-> > It's isn't quite the same..the biggest difference is races.
-> 
-> Then you can set the affinity on your shell before executing the
-> process. :)
+Yeah, they changed/broke (depending on your point of view) the file fs/proc/inode.c in the kernel
+source.
+You're the third person to post about this problem.
 
-Surely 
+There's a work-around for the problem. (I'm currently running ALSA 0.9beta9, so the file contents
+may not exactly match up): in the ALSA driver source, edit the file kernel/info.c. Look for the
+following lines
 
-#!/bin/sh
+if (p) {
+	snd_info_device_entry_prepare(p,entry);
+#ifdef LINUX_2_3
+	p->proc_fops = &snd_fops;
+#else
+	p->ops = &snd_info_device_inode_operations;
+#endif
+	} else {
+		up(&info_mutex);
+		snd_info_free_entry(entry);
+		return NULL;
+	}
+}
 
-echo $1 > /proc/self/affinity
-shift
-exec $@
+they should be near line 890 or so.
 
-...would be just fine 'n dandy as a wrapper.
+Next, comment out the line 
+	p->proc_fops = &snd_fops;
 
+Rebuild. Everything should work now.
 
-Sean
+Hope this helps.
+-Alex
+
+Alex Reisen wrote
+Hi, all
+
+just tried to compile the mentioned alsa drivers under 2.4.16. Mixer doesnt work, yes. It
+compiles, installs, loads. And
+any program trying to open mixer (through libasound) get EINVAL.
+
+All is compiled with gcc-2.95.3,
+single CPU, with APIC (is any sense to enable it on
+uniprocessors?).
+
+Does anybody know what to do about it?
+
+-alex
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

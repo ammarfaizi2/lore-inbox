@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSHGVex>; Wed, 7 Aug 2002 17:34:53 -0400
+	id <S313638AbSHGVlA>; Wed, 7 Aug 2002 17:41:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSHGVex>; Wed, 7 Aug 2002 17:34:53 -0400
-Received: from zeke.inet.com ([199.171.211.198]:46302 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S313070AbSHGVew>;
-	Wed, 7 Aug 2002 17:34:52 -0400
-Message-ID: <3D519357.7070904@inet.com>
-Date: Wed, 07 Aug 2002 16:38:31 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S313711AbSHGVlA>; Wed, 7 Aug 2002 17:41:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:28947 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S313638AbSHGVk7>; Wed, 7 Aug 2002 17:40:59 -0400
+Date: Wed, 7 Aug 2002 18:44:23 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jesse Barnes <jbarnes@sgi.com>
+cc: linux-kernel@vger.kernel.org, <jmacd@namesys.com>, <phillips@arcor.de>,
+       <rml@tech9.net>
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+In-Reply-To: <20020807213949.GA27258@sgi.com>
+Message-ID: <Pine.LNX.4.44L.0208071842060.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Idle curiosity: Acting as a SCSI target
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on a conversation I had recently, my curiosity got piqued...
+On Wed, 7 Aug 2002, Jesse Barnes wrote:
 
-I'm not really sure how to query google on this, and didn't turn up what 
-I was looking for because of that, so here's the random question:
+> > The MUST_NOT_HOLD basically means the kernel will OOPS the
+> > moment the lock is contended.
+>
+> I think those macros were intended to enforce lock ordering in the
+> scsi layer (though I'm not sure).
 
-Is there a way to make a Linux machine with a scsi controller act like a 
-scsi device (is the correct term 'target'?) (such as a disk) using a 
-local block device as storage?
+If you can prove that a MUST_NOT_HOLD(foolock) will never
+trigger because it is already protected by other locks,
+then what's the point of having that foolock in the first
+place ?   (since the region is already protected...)
 
-I'm not sure it would be of general use, but I can see uses in weird or 
-remote prototyping situations...
+If the foolock is actually protecting something, then by
+definition lock contention is possible and the kernel will
+Oops in MUST_NOT_HOLD(foolock).
 
-Like the subject says, just idle curiosity; I don't see having much use 
-for it, but I was intrigued by the idea.
+> > If you want to detect lock recursion on the same CPU, I'd
+> > suggest the following:
+> > ...
+>
+> Of course, that's what the lockmetering code does, IIRC, but I think
+> that's a feature for a seperate patch.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Agreed.
+
+Btw, the MUST_HOLD macro _is_ straightforward and extremely
+useful. IMHO it'd be a shame to have only the SCSI code use it ;)
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

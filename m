@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281599AbRK0RE5>; Tue, 27 Nov 2001 12:04:57 -0500
+	id <S281541AbRK0REX>; Tue, 27 Nov 2001 12:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281609AbRK0REo>; Tue, 27 Nov 2001 12:04:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19972 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281599AbRK0REb>; Tue, 27 Nov 2001 12:04:31 -0500
-Date: Tue, 27 Nov 2001 08:58:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <rwhron@earthlink.net>
-cc: <linux-kernel@vger.kernel.org>, <ltp-list@lists.sourceforge.net>,
-        <andrea@suse.de>
-Subject: Re: VM tests on 5 recent kernels
-In-Reply-To: <20011127021513.A228@earthlink.net>
-Message-ID: <Pine.LNX.4.33.0111270853460.1860-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281663AbRK0REP>; Tue, 27 Nov 2001 12:04:15 -0500
+Received: from perax14-110.dialup.optusnet.com.au ([210.49.104.110]:3850 "EHLO
+	bajor.dyndns.org") by vger.kernel.org with ESMTP id <S281541AbRK0RDz>;
+	Tue, 27 Nov 2001 12:03:55 -0500
+Subject: Re: "spurious 8259A interrupt: IRQ7"
+From: bart <bart@istnet.net.au>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 28 Nov 2001 01:03:30 +0800
+Message-Id: <1006880612.3708.0.camel@fathom.bajor.dyndns.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 27 Nov 2001 rwhron@earthlink.net wrote:
-> 2.4.16		mp3 played 312 of 371 seconds 84%
-> 2.5.1-pre1		mp3 played 361 of 365 seconds 99%
+Iv seen this on a Intel BX chipset Pentium2 266 box, and on a VIA KT266A
+1ghz Athlon box.
 
-Interesting. I thought those two were basically identical VM-wise, so the
-variance seems to be due to variance in the VM itself, not so much between
-VM's.
+BaRT
 
-The other numbers (ie total time etc) are fairly close, but the mp3
-playing percentage seems to be inherently "unstable". Which is really
-interesting in itself.
 
-What happens to the MP3 numbers if you run it a few times on the exact
-same kernel?
-
-		Linus
 

@@ -1,100 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264580AbTDPUkK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 16:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264581AbTDPUkK
+	id S264130AbTDPUmu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 16:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbTDPUmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 16:40:10 -0400
-Received: from h002.c000.snv.cp.net ([209.228.32.66]:59083 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S264580AbTDPUkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 16:40:08 -0400
-X-Sent: 16 Apr 2003 20:52:01 GMT
-Message-ID: <006a01c3045a$037f54b0$6901a8c0@athialsinp4oc1>
-From: "Brien" <admin@brien.com>
-To: "John Bradford" <john@grabjohn.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <200304161928.h3GJSopS001481@81-2-122-30.bradfords.org.uk>
-Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
-Date: Wed, 16 Apr 2003 16:51:53 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 16 Apr 2003 16:42:50 -0400
+Received: from mail.hometree.net ([212.34.181.120]:471 "EHLO mail.hometree.net")
+	by vger.kernel.org with ESMTP id S264130AbTDPUms (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 16:42:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: How to identify contents of /lib/modules/*
+Date: Wed, 16 Apr 2003 20:54:40 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b7kfug$4ao$1@tangens.hometree.net>
+References: <45B36A38D959B44CB032DA427A6E1064045133AB@cceexc18.americas.cpqcorp.net> <1050508885.28727.137.camel@dhcp22.swansea.linux.org.uk>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1050526480 4440 212.34.181.4 (16 Apr 2003 20:54:40 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 16 Apr 2003 20:54:40 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK...  Do you get the same locations failing with one pair of DIMMs as
-> with another identical pair of DIMMs, or is it just randomly flakey?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-never seems to be the same
-(maybe a few are, but they've never all been the same--I'd have to look
-closely to match any addresses)
+>Only --force allows the same file to be owned by two packages. Otherwise
 
-> Are you sure it's not the power supply?  If the voltages are only just
-> within spec, you could concievably get the behavior you describe.
+No. Look at this:
 
-well, I have a 450 watt power supply that's rated for more than I'm
-using--it very rarely even becomes warm after hours of use
+% rpm -qf /usr/lib/libamanda-2.4.4.so
+amanda-client-2.4.4-2t
+amanda-server-2.4.4-2t
 
-the voltages go much higher than they need to; I've also tried adjusting
-them and had the same problem
+%  rpm -ql amanda-client | grep libamanda
+/usr/lib/libamanda-2.4.4.so
+/usr/lib/libamanda.so
+% rpm -ql amanda-server | grep libamanda
+/usr/lib/libamanda-2.4.4.so
+/usr/lib/libamanda.so
 
-> I wouldn't even bothing trying to run anything on a machine until it
-> runs Memtest86 for a couple of hours successfully.
+rpm allows this if both rpms supply an identical file. Which they do
+(they're cut from the same SRPM). It's not nice but it definitely
+works without --force. I never use --force on rpm.
 
-I can with single modules, but not with 2..
+This is on RedHat 7.3 with rpm-4.0.4-7x.18
 
-I don't know what to do...
-
-thanks for all of the comments/suggestions
-
------ Original Message -----
-From: "John Bradford" <john@grabjohn.com>
-To: "Brien" <admin@brien.com>
-Cc: "John Bradford" <john@grabjohn.com>; <linux-kernel@vger.kernel.org>
-Sent: Wednesday, April 16, 2003 3:28 PM
-Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+	Regards
+		Henning
 
 
-> > I've now tried running the following configurations
->
-> [snip]
->
-> > and all of them have the same problem: black screen after kernel loads
-> > they all do seem to test with errors when ran with another module, but
-they
-> > also DO NOT test as errors when they're alone
->
-> OK...  Do you get the same locations failing with one pair of DIMMs as
-> with another identical pair of DIMMs, or is it just randomly flakey?
->
-> > I'm starting to think it's a problem with my motherboard rather than
-with
-> > the RAM, because I've tried so many different ways and with different
-RAM
-> > modules.. but I don't know for sure..
->
-> Are you sure it's not the power supply?  If the voltages are only just
-> within spec, you could concievably get the behavior you describe.
->
-> > basically every time I try to run any linux distribution, even if I
-> > type (mem=XXXM), it just doesn't work...
->
-> I wouldn't even bothing trying to run anything on a machine until it
-> runs Memtest86 for a couple of hours successfully.
->
-> John.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

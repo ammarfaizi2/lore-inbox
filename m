@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTE0Wnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264403AbTE0Wnm
+	id S264326AbTE0Wjz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTE0Wjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:43:42 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:30415 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S264398AbTE0Wnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:43:40 -0400
-Date: Tue, 27 May 2003 15:54:32 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I report for 2.5.70
-Message-ID: <20030527225432.GK32128@ca-server1.us.oracle.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 27 May 2003 18:39:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:49814 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264326AbTE0Wjx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:39:53 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16083.60374.284044.751867@nanango.paulus.ozlabs.org>
+Date: Wed, 28 May 2003 08:51:02 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Proposed patch to kernel.h
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WimMark I report for 2.5.70
+Linus,
 
-Runs:  1005.78 958.80 947.23
+PowerPC has a conditional trap instruction that I would like to use
+for BUG_ON.  I would like to make BUG_ON for ppc look like this:
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.  The
-runs all do ramp-up work to populate caches and the like.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.  A bigger number
-is a better number.  All things being equal, a delta <50 is close to
-unimportant, and a delta < 20 is very identical.
-	This benchmark is sensitive to random system events.  I run
-three runs because of this.  If two runs are nearly identical and the
-remaining run is way off, that run should probably be ignored (it is
-often a low number, signifying that something on the system impacted
-the benchmark).
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
-	WimMark I run results are archived at
-http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
+#define BUG_ON(x) do {						\
+	__asm__ __volatile__(					\
+		"1:	twnei %0,0\n"				\
+		".section __bug_table,\"a\"\n"			\
+		"	.long 1b,%1,%2\n"			\
+		".previous"					\
+		: : "r" (x), "i" (__LINE__), "i" (__FILE__));	\
+} while (0)
 
--- 
+This avoids a conditional branch and is nice and compact.  (The twnei
+instruction takes an exception if the register operand is not equal
+to the immediate operand - trap word not equal immediate.)
 
-"I almost ran over an angel
- He had a nice big fat cigar.
- 'In a sense,' he said, 'You're alone here
- So if you jump, you'd best jump far.'"
+However, at the moment BUG_ON is unconditionally defined in kernel.h.
+The patch below is the simplest way I can see to make it possible for
+architectures to supply their own BUG_ON.  Please apply.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Thanks,
+Paul.
+
+diff -urN linux-2.5/include/linux/kernel.h pmac-2.5/include/linux/kernel.h
+--- linux-2.5/include/linux/kernel.h	2003-05-21 08:27:25.000000000 +1000
++++ pmac-2.5/include/linux/kernel.h	2003-05-26 22:01:54.000000000 +1000
+@@ -228,7 +228,9 @@
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
+ 
++#ifndef BUG_ON
+ #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++#endif
+ #define WARN_ON(condition) do { \
+ 	if (unlikely((condition)!=0)) { \
+ 		printk("Badness in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \

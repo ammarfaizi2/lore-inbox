@@ -1,43 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267028AbSLQWsH>; Tue, 17 Dec 2002 17:48:07 -0500
+	id <S267020AbSLQWv2>; Tue, 17 Dec 2002 17:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbSLQWsH>; Tue, 17 Dec 2002 17:48:07 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:42446 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267028AbSLQWsG>; Tue, 17 Dec 2002 17:48:06 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Anu <avaidya@unity.ncsu.edu>
-Date: Wed, 18 Dec 2002 09:55:45 +1100
+	id <S266690AbSLQWv2>; Tue, 17 Dec 2002 17:51:28 -0500
+Received: from mailnw.centurytel.net ([209.206.160.237]:761 "EHLO
+	mailnw.centurytel.net") by vger.kernel.org with ESMTP
+	id <S267020AbSLQWv0>; Tue, 17 Dec 2002 17:51:26 -0500
+Message-ID: <3E001D07.5010006@centurytel.net>
+Date: Wed, 18 Dec 2002 00:00:23 -0700
+From: eric lin <fsshl@centurytel.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: James Simmons <jsimmons@infradead.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.52 compile error
+References: <Pine.LNX.4.44.0212172152350.24589-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0212172152350.24589-100000@phoenix.infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15871.43889.537411.835220@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: detecting layout in RAID
-In-Reply-To: message from Anu on Thursday December 12
-References: <20021211183059.A19030@light-brigade.mit.edu>
-	<Pine.GSO.4.44.0212121507430.3980-100000@sun.cesr.ncsu.edu>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday December 12, avaidya@unity.ncsu.edu wrote:
-> hello,
-> 	I am trying to detect layouts of the RAID configuration (I have a
-> software RAID set up. ) Mine is currently left symmetric and the way I am
-> trying to detect layout is to reaad consecutive blocks and look for
-> whether there is a big dp when it has to move all the way across..
+James Simmons wrote:
+>>All of these options are modules in my config file, *must* they be built
+>>into the kernel in order to compile?
+> 
+> 
+> Yes!!! I have a patch for fixing this issue.
+> 
+> You can import this changeset into BK by piping this whole message to:
+> '| bk receive [path to repository]' or apply the patch as usual.
+> 
+> ===================================================================
+> 
+> 
+> ChangeSet@1.868, 2002-12-10 12:07:45-08:00, jsimmons@kozmo.(none)
+>   The VT tty layer depends on the input api now. Fixed this dependency.
+> 
+> 
+>  Kconfig |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> 
+> diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
+> --- a/drivers/char/Kconfig	Tue Dec 10 12:16:48 2002
+> +++ b/drivers/char/Kconfig	Tue Dec 10 12:16:48 2002
+> @@ -6,6 +6,7 @@
+> 
+>  config VT
+>  	bool "Virtual terminal"
+> +	depends on INPUT=y
+>  	---help---
+>  	  If you say Y here, you will get support for terminal devices with
+>  	  display and keyboard devices. These are called "virtual" because you
+> 
+> ===================================================================
+> 
+> 
+> This BitKeeper patch contains the following changesets:
+I copied this piece as patch1.tar.gz
+--------------------------------------------------------------
+> +
+> ## Wrapped with gzip_uu ##
+> 
+> 
+> begin 664 bkpatch6044
+> M'XL(`+!+]CT``]54VVH;,1!]MKYB("\MQ;NZ[,T+6]RFEX24UKA.7TH?A';L
+> MW=@KF97L9,-^?&6[N1!,H*5]J"X(9H;#F3D'G<"EQ38?7-FZ:8RVY`3.C'7Y
+> M8&EN&Q.\T$;C2Q^<&N.#X<:VH6U5N*KUYF98Z_7&$9^=2*<JV&)K\P$+Q'W$
+> M=6O,!]/W'R\_O9D24A1P6DF]P*_HH"B(,^U6KDH[EJY:&1VX5FK;H).!,DU_
+> M7]IS2KG?,4L%C9.>)31*>\5*QF3$L*0\RI*(W+4P?DS]"0KCC+)1%,6C7B24
+> M"?(.6)`E&5`>,G\H,)[3-(_B(<UR2N$H*+QB,*3D+?S=!DZ)@EF%\&T&SG6P
+> MDAVV4.(:=6G!:'`^MQ\YR'4-VEP'\*&^P=(G:ONK$+7J`B`7(.(TC<CD8>!D
+> M^)N+$"HI>0VW]7J-J_%!\B;)EH%I%]_O6O_1EVV]4SY4E6S#"V7TO%X<ADT%
+> MI9'@/.LYIUG6BU0D*.99R>>E$!R/3_<90`_IWY1Y]40<97M'':O>F>O?T2:E
+> MW.+56)D2/?DE=COD8+-\!I)Q?^/$JR[8B!]L)YZ:CHW^>]/M5?D"P_9Z?[R)
+> L)D<%^@,SGF?`R.`1L_//D\M9T3W\/ZI"M;2;IE!2\7B$2'X"W[RZ@MX$````
+> `
+> end
+> 
+-------------------------------------------------------------------
+then in my /linux-2.5.52/
 
-What exactly do you mean by "move all the way across"?
-The only things that move are the drive which spins and the heads
-which move back and forth.
+fsshl@www:~/linux-2.5.52$ gzip -cd patch1.tar.gz | patch -p1
+patch: **** Only garbage was found in the patch input.
 
-I suspect that the way to detect differences in layout is to do lots
-of random reads of different block sizes and look for different
-throughput. 
+Please help
 
-NeilBrown
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+-- 
+Sincere Eric
+www.linuxspice.com
+linux pc for sale
+

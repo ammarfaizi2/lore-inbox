@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287204AbSBCN64>; Sun, 3 Feb 2002 08:58:56 -0500
+	id <S287200AbSBCN70>; Sun, 3 Feb 2002 08:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287200AbSBCN6q>; Sun, 3 Feb 2002 08:58:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45834 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287189AbSBCN6a>; Sun, 3 Feb 2002 08:58:30 -0500
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-To: ralf@uni-koblenz.de (Ralf Baechle)
-Date: Sun, 3 Feb 2002 13:40:16 +0000 (GMT)
-Cc: ebiederm@xmission.com (Eric W. Biederman),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        davem@redhat.com (David S. Miller), vandrove@vc.cvut.cz,
-        torvalds@transmeta.com, garzik@havoc.gtf.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com
-In-Reply-To: <20020203080134.C19813@dea.linux-mips.net> from "Ralf Baechle" at Feb 03, 2002 08:01:35 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287208AbSBCN7R>; Sun, 3 Feb 2002 08:59:17 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:59271 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S287200AbSBCN7E>; Sun, 3 Feb 2002 08:59:04 -0500
+Message-ID: <3C5D41AB.2080207@wanadoo.fr>
+Date: Sun, 03 Feb 2002 14:56:59 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Francois-Xavier 'FiX' KOWALSKI" 
+	<francois-xavier.kowalski@club-internet.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4.17 kills processes in shrink_cache
+In-Reply-To: <lvelk23edc.fsf@fuerteventura.fxk.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16XMsS-0004TM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it really worth the effort?  During the past year the average size of
-> embedded systems that people want to use for seems to have increased
-> dramatically.  In case of the MIPS port the core activity is about to
-> move away from the 32-bit to 64-bit kernel.
+Francois-Xavier 'FiX' KOWALSKI wrote:
+> I encounter the following kernel error using stock kernel.org 2.4.17:
+> kernel BUG at vmscan.c:360!
+..snip..
+> Looking on various linux-kernel ML archives, I found that the VM is
+> having some troubles, but no failure with the same backtrace as the
+> one I have, whereas I always have exactly the same one, at least on
+> the 2 lowest levels:
 
-Embedded system and fancy handheld toys are not really the same thing. One
-subset of the market gets cheaper the other gets flashier and more high
-powered.
+Many problems were reported with 2.4.17: kswapd/swapper, ext2 
+corruption, devfs bug... Couldn't you upgrade to 2.4.18-pre7 ?
 
-Mips is now dead in the handheld market if windows ce drops it.
+
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

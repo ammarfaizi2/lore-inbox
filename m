@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbUCJWIV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 17:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbUCJWIV
+	id S262854AbUCJWJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 17:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUCJWJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 17:08:21 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:229 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262854AbUCJWIS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 17:08:18 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Thomas Horsten <thomas@horsten.com>
-Subject: Re: [PATCH] 2.4.x Linux Medley RAID Version 7
-Date: Wed, 10 Mar 2004 23:14:18 +0100
-User-Agent: KMail/1.5.3
-Cc: Christoph Hellwig <hch@infradead.org>, <andre@linux-ide.org>,
-       <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.40.0403101917170.2582-100000@jehova.dsm.dk>
-In-Reply-To: <Pine.LNX.4.40.0403101917170.2582-100000@jehova.dsm.dk>
+	Wed, 10 Mar 2004 17:09:23 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:15510 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262854AbUCJWJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 17:09:19 -0500
+Message-ID: <404F8FDE.3050305@acm.org>
+Date: Wed, 10 Mar 2004 15:59:58 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Possible race in signal handling
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403102314.18449.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 of March 2004 21:11, Thomas Horsten wrote:
-> On Wed, 10 Mar 2004, Bartlomiej Zolnierkiewicz wrote:
-> > Patch for inclusion should have this cleaned up.
->
-> I have cleaned up the code according to your and Christoph's comments +
-> CodingStyle (and some other cleanups now I was at it).
+I'm hoping I am wrong, but I think I have found a race in signal 
+handling.  I believe this can only happen in an SMP system or a system 
+with preempt on.  I'll use 2.6 for the example, but I think it applies 
+to 2.4, too.
 
-Ok, thanks.
+In arch/i386/signal.c, in the do_signal() function, it calls 
+get_signal_to_deliver() which returns the signal number to deliver 
+(along with siginfo).  get_signal_to_deliver() grabs and releases the 
+lock, so the signal handler lock is not held in do_signal().  Then the 
+do_signal() calls handle_signal(), which uses the signal number to 
+extract the sa_handler, etc.
 
-> > The similar thing here - ie. I would like to replug drives to on-board
-> > Intel. When Linux is driving RAID purely in software it shouldn't matter
-> > what controller we are using.
->
-> I have not changed this. There is simply no reliable way to detect the
-> Medley superblock without comparing these magic words with the PCI values.
+Since no lock is held, it seems like another thread with the same signal 
+handler set can come in and call sigaction(), it can change sa_handler 
+between the call to get_signal_to_deliver() and fetching the value of 
+sa_handler.  If the sigaction() call set it to SIG_IGN, SIG_DFL, or some 
+other fundamental change, that bad things can happen.
 
-There is still a checksum.
+Am I correct here, or am I missing something?
 
-> My Medley solution for 2.6 will be completely userspace (using dm), and
-> there it will be possible to "force detect" an array with non-matching PCI
-> ID by passing the devices as command line arguments, unfortunately it's
-> not that easy in 2.4 (the whole ataraid is a hack anyway, but a useful one
-> until something better is in place).
-
-Yep, device-mapper is the way to go.
-
-> Patch below.
-
-I will submit it to Marcelo soon...
-
-Regards,
-Bartlomiej
+-Corey
 

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317928AbSGWM5n>; Tue, 23 Jul 2002 08:57:43 -0400
+	id <S317935AbSGWM7S>; Tue, 23 Jul 2002 08:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317935AbSGWM5n>; Tue, 23 Jul 2002 08:57:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:29450 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317928AbSGWM5m>;
-	Tue, 23 Jul 2002 08:57:42 -0400
-Date: Tue, 23 Jul 2002 15:00:45 +0200
-From: Dave Jones <davej@suse.de>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Marcel Holtmann <marcel@holtmann.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Maksim Krasnyanskiy <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] Bluetooth Subsystem PC Card drivers for 2.5.27
-Message-ID: <20020723150045.D14323@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Ingo Molnar <mingo@elte.hu>, Marcel Holtmann <marcel@holtmann.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Maksim Krasnyanskiy <maxk@qualcomm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0207231424380.9226-100000@localhost.localdomain> <Pine.LNX.4.44.0207230628500.3200-100000@hawkeye.luckynet.adm>
+	id <S318049AbSGWM7S>; Tue, 23 Jul 2002 08:59:18 -0400
+Received: from bru-cse-369.cisco.com ([144.254.12.31]:33256 "EHLO
+	bru-cse-369.cisco.com") by vger.kernel.org with ESMTP
+	id <S317935AbSGWM7R>; Tue, 23 Jul 2002 08:59:17 -0400
+Date: Tue, 23 Jul 2002 15:02:21 +0200
+From: Marc Duponcheel <mduponch@cisco.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19rc2 -> 2.4.19rc3 : no more eth
+Message-ID: <20020723130221.GF29367@cisco.com>
+Reply-To: Marc Duponcheel <mduponch@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207230628500.3200-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Tue, Jul 23, 2002 at 06:29:38AM -0600
+User-Agent: Mutt/1.4i
+Organization: Cisco Systems
+X-uname: SunOS 5.8 sun4u
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 06:29:38AM -0600, Thunder from the hill wrote:
+Dear kernel crew.
 
- > Because once it became standard, we want to remove it somewhen. It's 
- > sometimes a bit ridiculous when you read it...
+I follow the stable kernel and run 2.4.18 just fine on 3 machines.
 
-Completely removing it means driver maintainers need to keep
-separate 2.4/2.6 versions of their drivers. The extra EXPORT_NO_SYMBOLS
-is harmless, and allows single source, multi kernel version drivers.
+Recently I thought about trying 2.4.19rc kernels.  That went fine as
+well with one exception.
 
-        Dave
+One machine (with 2 ethernet controllers)
+ Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0c)
+ 3Com Corporation 3c900B-TPO [Etherlink XL TPO] (rev 04)
+will no longer recognise -any- of those.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Note that this 'artifact' only happens with 2.4.19rc3.  The .config
+between 2.4.19rc2 did not change 2.4.19rc3
+
+During boot I see OOPses (which for some reason, my syslog does not
+see).
+
+Because this is a rather severe change [:-)] I wonder if I this rings
+a bell.
+
+Thanks for your valuable time
+
+--
+ Greetings,
+
+Marc Duponcheel     Multicast Development Engineer      Cisco Systems
+email: mduponch@cisco.com tel: +32 2 704 52 40 cell: +32 478 68 10 91

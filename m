@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVAQEuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVAQEyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbVAQEuD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 23:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAQEuD
+	id S262689AbVAQEyV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 23:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAQEyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 23:50:03 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:24860 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262686AbVAQEtj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 23:49:39 -0500
-Date: Mon, 17 Jan 2005 05:49:55 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sparse refuses to work due to stdarg.h
-Message-ID: <20050117044955.GA8092@mars.ravnborg.org>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-References: <20050116224922.GA4454@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050116224922.GA4454@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+	Sun, 16 Jan 2005 23:54:21 -0500
+Received: from fsmlabs.com ([168.103.115.128]:38881 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262693AbVAQEyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 23:54:12 -0500
+Date: Sun, 16 Jan 2005 21:54:23 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Rudolf Usselmann <rudi@asics.ws>
+cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel (64bit) 4GB memory support
+In-Reply-To: <1105767241.5078.1.camel@cpu10>
+Message-ID: <Pine.LNX.4.61.0501162152060.3010@montezuma.fsmlabs.com>
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0> 
+ <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0> 
+ <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com> 
+ <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+  <1102842902.10322.200.camel@cpu0>  <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+  <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org> 
+ <1103213359.31392.71.camel@cpu0>  <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+  <1103646195.3652.196.camel@cpu0>  <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+  <1105637178.5491.167.camel@cpu10>  <Pine.LNX.4.61.0501140751520.4941@montezuma.fsmlabs.com>
+ <1105767241.5078.1.camel@cpu10>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 11:49:22PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> I'm probably doing something wrong, but... how do I force it to work?
-> I'm pretty sure it worked before, I'm not sure what changed in my
-> config.
+On Sat, 15 Jan 2005, Rudolf Usselmann wrote:
 
-kbuild was changed to reliably pick up the stdarg.h for the gcc used.
-Two issues has popped up:
-1) sparse did not support -isystem dir
-	- fixed a few days ago, and fix is at sparse.bkbits.net
-2) misconfigured gcc's that report a wrong directory when using
-gcc -print-file-name=include
-The directory given must include stdarg.h - otherwise gcc config is
-broken.
+> I tried the new kernel, same results. Still can't use the
+> extra memory.
 
-You are hit by 1)
+Thanks for testing that Rudolf, i'll find a system to reproduce on.
 
-	Sam

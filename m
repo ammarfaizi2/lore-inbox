@@ -1,79 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUEBIWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUEBIh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbUEBIWl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 04:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUEBIWl
+	id S262272AbUEBIh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 04:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUEBIh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 04:22:41 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:16906 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262388AbUEBIWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 04:22:36 -0400
-Date: Sun, 2 May 2004 09:22:29 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Konstantin Kletschke <konsti@ku-gbr.de>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at include/linux/list.h:164!
-In-Reply-To: <20040501150308.GB8709@ku-gbr.de>
-Message-ID: <Pine.LNX.4.44.0405020856040.14500-100000@localhost.localdomain>
+	Sun, 2 May 2004 04:37:56 -0400
+Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:39100 "EHLO
+	stud1.fbihome.de") by vger.kernel.org with ESMTP id S262272AbUEBIhw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 04:37:52 -0400
+From: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with USB2.0 and USB-Storage writing to DVD+-R
+Date: Sun, 2 May 2004 10:37:20 +0200
+User-Agent: KMail/1.6.2
+Cc: <linux-usb-devel@lists.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200405021037.34671.vergata@stud.fbi.fh-darmstadt.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 May 2004, Konstantin Kletschke wrote:
-> 
-> May  1 12:03:07 kermit kernel: kernel BUG at include/linux/list.h:164!
-> May  1 12:03:07 kermit kernel: invalid operand: 0000 [#1]
-> May  1 12:03:07 kermit kernel: PREEMPT
-> May  1 12:03:07 kermit kernel: CPU:    0
-> May  1 12:03:07 kermit kernel: EIP:    0060:[exit_rmap+237/272] Not tainted VLI
-> May  1 12:03:07 kermit kernel: EFLAGS: 00010283   (2.6.6-rc2-mm1)
-....
-> 2.6.6-rc2-mm1 with devmapper udm1 patch
-> 
-> Is this dump due to udma1 or not and the error is fixed now?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Probably not - I don't know this udma1 patch, but the error above
-definitely occurs in my rmap area.  Could be due to slab corruption
-from somewhere else, but that would be a poor assumption to make -
-though neither my testing nor anyone else has seen the same (yet).
+Hi list,
 
-I imagine you're limited in the experiments you can do on that server,
-and wouldn't want to run it with CONFIG_SLAB_DEBUG=y, which might show
-up unrelated problems - interesting for us, but troublesome for you.
+I want to report a problem that occured to me.
+I have an USB2.0 DVD Recorder attached to my Laptop.
 
-You're UP but PREEMPT on.  Hmm, there's a suspicious atomic_read
-in exit_rmap: once upon a time I convinced myself it was good, but
-it looks unsafe to me now - could cause a double free of an anonmm,
-which would lead to your BUG if reallocated in between.
+ehci_hcd ist loaded and detect the new device!
 
-Not so likely for me to feel this is definitely the answer, but
-likely enough to be well worth trying.  Please try patch below -
-simple enough not to make your case worse anyway - thanks.
+usb 4-3: new high speed USB device using address 2
+Initializing USB Mass Storage driver...
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: HL-DT-ST  Model: DVDRAM GSA-4081B  Rev: A100
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+USB Mass Storage device found at 2
+drivers/usb/core/usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+sr0: scsi3-mmc drive: 32x/32x writer dvd-ram cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
 
-Hugh
+I can also read the DVD or CD in the device, but writing to the recorder gets 
+an error an after that the kernel oopses.
 
---- 2.6.6-rc2-mm1/mm/rmap.c	2004-04-26 12:39:46.000000000 +0100
-+++ linux/mm/rmap.c	2004-05-02 08:43:38.088319696 +0100
-@@ -103,6 +103,7 @@ void exit_rmap(struct mm_struct *mm)
- {
- 	struct anonmm *anonmm = mm->anonmm;
- 	struct anonmm *anonhd = anonmm->head;
-+	int anonhd_count;
- 
- 	mm->anonmm = NULL;
- 	spin_lock(&anonhd->lock);
-@@ -114,8 +115,9 @@ void exit_rmap(struct mm_struct *mm)
- 		if (atomic_dec_and_test(&anonhd->count))
- 			BUG();
- 	}
-+	anonhd_count = atomic_read(&anonhd->count);
- 	spin_unlock(&anonhd->lock);
--	if (atomic_read(&anonhd->count) == 1) {
-+	if (anonhd_count == 1) {
- 		BUG_ON(anonhd->mm);
- 		BUG_ON(!list_empty(&anonhd->list));
- 		kmem_cache_free(anonmm_cachep, anonhd);
+The RecorderDevice hangs up and remain in the writingoperation on the same 
+position, in the writinglog there is a long wait at position 0,6% at this 
+time the usb is resettet and could not be reinitialised, so the following 
+error occures, after a while and a lot of rejecting I/O the kernel gets an 
+Oops could be that it happens because of Preempt? 
 
+What do you say ? 
+
+Thanx Sergio
+
+scsi0 (0:0): rejecting I/O to dead device
+scsi0 (0:0): rejecting I/O to dead device
+Unable to handle kernel NULL pointer dereference at virtual address 00000034
+ printing eip:
+e190535a
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<e190535a>]    Tainted: P
+EFLAGS: 00210246   (2.6.5)
+EIP is at cdrom_release+0x4a/0x140 [cdrom]
+eax: 00000000   ebx: df1e70d8   ecx: e19dc570   edx: 00000000
+esi: dff50950   edi: 00000000   ebp: 00000000   esp: cf417f3c
+ds: 007b   es: 007b   ss: 0068
+Process growisofs (pid: 12858, threadinfo=cf416000 task=d058d980)
+Stack: dff5090c c015ce59 dff50900 dff50950 da32b4c0 dff5090c c015e01a df1e70d8
+       00000000 00000000 d3e2cf00 00000000 dff54280 dacef914 c015685a dff50900
+       d3e2cf00 dcc899c0 d3e2cf00 00000000 d0f39900 cf416000 c0154eb9 d3e2cf00
+Call Trace:
+ [<c015ce59>] kill_bdev+0x39/0x50
+ [<c015e01a>] blkdev_put+0x17a/0x1a0
+ [<c015685a>] __fput+0x10a/0x120
+ [<c0154eb9>] filp_close+0x59/0x90
+ [<c0154f51>] sys_close+0x61/0xa0
+ [<c010940b>] syscall_call+0x7/0xb
+
+Code: f6 47 34 04 74 30 a1 cc d2 90 e1 85 c0 75 27 83 3d c8 d2 90
+
+
+
+sergio@sandokan:~$ growisofs -dvd-compat -Z /dev/sr0=iso/DVD.iso
+Executing 'builtin_dd if=iso/DVD.iso of=/dev/sr0 obs=32k seek=0'
+/dev/sr0: "Current Write Speed" is 4.1x1385KBps.
+   1245184/4126703616 ( 0.0%) @0.3x, remaining 331:18
+   1245184/4126703616 ( 0.0%) @0.0x, remaining 496:58
+   2686976/4126703616 ( 0.1%) @0.3x, remaining 332:32
+  12386304/4126703616 ( 0.3%) @2.1x, remaining 88:34
+  24510464/4126703616 ( 0.6%) @2.6x, remaining 52:59
+  24510464/4126703616 ( 0.6%) @0.0x, remaining 64:09
+.......................
+  24510464/4126703616 ( 0.6%) @0.0x, remaining 72:31
+  24510464/4126703616 ( 0.6%) @0.0x, remaining 407:15
+  37552128/4126703616 ( 0.9%) @2.8x, remaining 270:25
+.....................
+4080861184/4126703616 (98.9%) @15.6x, remaining 0:03
+builtin_dd: 2014992*2KB out @ average 8.7x1385KBps
+/dev/sr0: flushing cache
+/dev/sr0: closing track
+/dev/sr0: closing disc
+Segmentation fault
+
+
+/var/log/syslog
+May  1 15:34:33 sandokan kernel: scsi: Device offlined - not ready after error 
+recovery: host 0 channel 0 id 0 lun 0
+May  1 15:34:33 sandokan kernel: SCSI error : <0 0 0 0> return code = 0x50000
+May  1 15:34:33 sandokan kernel: scsi0 (0:0): rejecting I/O to offline device
+May  1 15:34:34 sandokan last message repeated 40 times
+May  1 15:34:34 sandokan kernel: usb 4-3: USB disconnect, address 2
+May  1 15:34:34 sandokan kernel: scsi0 (0:0): rejecting I/O to dead device
+
+
+- -- 
+Microsoft is to operating systems & security ....
+             .... what McDonalds is to gourmet cooking
+
+PGP-Key http://vergata.it/GPG/F17FDB2F.asc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAlLNKVP5w5vF/2y8RAnF3AJ4w5mOQt8H0L595UfezA5qG5we44gCeLJrl
+SHV5D9fmxHW0kLn3DPhaaNM=
+=louG
+-----END PGP SIGNATURE-----

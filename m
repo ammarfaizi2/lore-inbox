@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292895AbSBVPU3>; Fri, 22 Feb 2002 10:20:29 -0500
+	id <S292899AbSBVPUj>; Fri, 22 Feb 2002 10:20:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292898AbSBVPUT>; Fri, 22 Feb 2002 10:20:19 -0500
-Received: from trained-monkey.org ([209.217.122.11]:62727 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S292895AbSBVPUN>; Fri, 22 Feb 2002 10:20:13 -0500
-From: Jes Sorensen <jes@trained-monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15478.25001.512565.628500@trained-monkey.org>
-Date: Fri, 22 Feb 2002 10:20:09 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Troy Benjegerdes <hozer@drgw.net>,
-        wli@holomorphy.com, torvalds@transmeta.com,
+	id <S292898AbSBVPU3>; Fri, 22 Feb 2002 10:20:29 -0500
+Received: from grisu.bik-gmbh.de ([194.233.237.82]:43280 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
+	id <S292899AbSBVPUX>; Fri, 22 Feb 2002 10:20:23 -0500
+Date: Fri, 22 Feb 2002 16:21:54 +0100
+From: Florian Hars <florian@hars.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "vojtech@suse.cz" <VojtechPavlik@bik-gmbh.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-In-Reply-To: <3C7660F5.FC238A7E@mandrakesoft.com>
-In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
-	<20020207234555.N17426@altus.drgw.net>
-	<5.1.0.14.2.20020208181656.03862ec0@pop.cus.cam.ac.uk>
-	<d37kp5v9y5.fsf@lxplus050.cern.ch>
-	<3C7660F5.FC238A7E@mandrakesoft.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Subject: Re: VIA Southbridges in 2.4.18-rc3
+Message-ID: <20020222152154.GA10285@bik-gmbh.de>
+In-Reply-To: <20020222143640.GA22031@bik-gmbh.de> <Pine.LNX.4.21.0202221128270.29093-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0202221128270.29093-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Marcelo Tosatti wrote:
+> On Fri, 22 Feb 2002, Florian Hars wrote:
+> > Right now I am running a 2.4.18-pre9 with a slightly modified
+> > drivers/ide/(timing.h|via82xxx.c) from 2.5.2, and it works with
+> > my vt8233a and an UDMA-100 disk, but this is of course not a 
+> > conservative change. Maybe the patch by Vojtech Pavlik mentioned
+> > in the message I referred to above is less radical.
+> 
+> Could you please send me this patch ?
 
-Jeff> Jes Sorensen wrote:
->> __mc68000__ is the correct define, I don't know who put in
->> CONFIG_M68K but it doesn't belong there.
+I don't have it, I use the kludge with files copied from 2.5. I Cc this
+message to Vojtech Pavlik, maybe he can send the patch he sent to
+Jens Axboe to you, too.
 
-Jeff> I disagree -- look at arch/*/config.in.
-
-Jeff> Each arch needs to define a CONFIG_$ARCH.
-
-Why? CONFIG_$ARCH only makes sense if you can enable two architectures
-in the same build. What does CONFIG_M68K give you that __mc68000__
-doesn't provide?
-
-Jes
+Yours, Florian

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281768AbRKUMQr>; Wed, 21 Nov 2001 07:16:47 -0500
+	id <S281773AbRKUMTh>; Wed, 21 Nov 2001 07:19:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281763AbRKUMQh>; Wed, 21 Nov 2001 07:16:37 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:12049 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S281758AbRKUMQZ>; Wed, 21 Nov 2001 07:16:25 -0500
-Date: Wed, 21 Nov 2001 15:15:55 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@redhat.com>
-Cc: Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org
-Subject: Re: [alpha] cleanup opDEC workaround
-Message-ID: <20011121151555.A20128@jurassic.park.msu.ru>
-In-Reply-To: <20011119232355.C16091@redhat.com> <20011120133150.A9033@jurassic.park.msu.ru> <20011120090818.A16366@redhat.com> <20011120205105.A15395@jurassic.park.msu.ru> <20011120104748.B16422@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011120104748.B16422@redhat.com>; from rth@redhat.com on Tue, Nov 20, 2001 at 10:47:48AM -0800
+	id <S281766AbRKUMT1>; Wed, 21 Nov 2001 07:19:27 -0500
+Received: from ns.suse.de ([213.95.15.193]:36105 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281763AbRKUMTN>;
+	Wed, 21 Nov 2001 07:19:13 -0500
+Date: Wed, 21 Nov 2001 13:19:12 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
+In-Reply-To: <20011121130838.D9978@suse.de>
+Message-ID: <Pine.LNX.4.33.0111211316220.4080-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 10:47:48AM -0800, Richard Henderson wrote:
-> In the working case, we'll enter entIF with pc==cmpteq.  Add 8 gives
-> stt, subtract 4 gives addt, which is engineered to be a noop.
+On Wed, 21 Nov 2001, Jens Axboe wrote:
 
-Argh. I was thinking too much about dummy_emul case and missed the fact
-that instruction at pc-4 is actually executed in alpha_fp_emul()...
+> Strange, I was pretty sure that earlier 2.4.x got it right. Oh well.
 
-> Hmm.  If fp emulation isn't compiled in, we shouldn't bother
-> testing this, I think.  Means you can't debug fp emulation via
-> modules on Multia, but I'm pretty sure I don't care.
+*shrug* As we don't do any setting of this string, all I can guess
+at is that the new seqfile based /proc/cpuinfo code is stricter
+about getting the info from the right CPU than the older code was.
 
-Yes, making opDEC_check stuff `#ifdef CONFIG_MATHEMU' would be
-reasonable.
+Though I'm not sure why, as the older code just read from the
+per-CPU structs anyway.  Most odd.
 
-> I suppose the other alternative to get the testing code out of
-> the normal entIF is to create a custom entIF that is installed
-> only during opDEC testing.  Seems too much work...
+regards,
+Dave.
 
-Agreed. Alternatively, it's possible to hack dummy_emul(), which
-doesn't affect the normal case.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-static long dummy_emul(unsigned long pc)
-{
-	if (opDEC_fix != 8)
-		return 0;
-	/* Trap in opDEC_check() */
-	if (*(u32 *)pc == 0x5bff141f)	/* addt $f31, $f31, $f31 */
-		return 1;		/* SRM updates PC correctly */
-	/* Broken SRM. "Emulate" cmpteq in opDEC_check() */
-	__asm__ __volatile__("cmpteq $f31, $f31, $f0\n");
-	return 1;
-}
-
-Ivan.

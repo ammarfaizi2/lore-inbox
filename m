@@ -1,48 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267347AbTACAOB>; Thu, 2 Jan 2003 19:14:01 -0500
+	id <S267344AbTACAZN>; Thu, 2 Jan 2003 19:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTACAOA>; Thu, 2 Jan 2003 19:14:00 -0500
-Received: from holomorphy.com ([66.224.33.161]:51398 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267347AbTACAN6>;
-	Thu, 2 Jan 2003 19:13:58 -0500
-Date: Thu, 2 Jan 2003 16:22:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: __NR_exit_group for 2.4-O(1)
-Message-ID: <20030103002219.GW9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030103001522.GA1539@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030103001522.GA1539@werewolf.able.es>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267351AbTACAZN>; Thu, 2 Jan 2003 19:25:13 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:50373 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S267344AbTACAZJ>; Thu, 2 Jan 2003 19:25:09 -0500
+Date: Thu, 02 Jan 2003 16:39:57 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: 2.5.54 -- ohci-dbg.c: 358: In function `show_list': `data1'
+ undeclared (first use in this function)
+To: Miles Lane <miles.lane@attbi.com>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       usb devel <linux-usb-devel@lists.sourceforge.net>
+Message-id: <3E14DBDD.4080907@pacbell.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_GdTic//VLmsx1OesE4Dyvg)"
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <1041487926.11532.83.camel@bellybutton.attbi.com>
+ <3E145998.6020607@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 01:15:22AM +0100, J.A. Magallon wrote:
-> Hi all...
-> I am running glibc-2.3.1 on top of a hacked 2.4.21-pre2+aa, and all programs
-> show a curious message at exit when straced:
-> strace ls:
-> ...
-> SYS_252(0, 0x1000, 0x156ad360, 0x156ae824, 0) = -1 ENOSYS (Function not implemented)
-> _exit(0)                                = ?
-> 252 is __NR_exit_group. I can not recover anything about this on MARC, is there
-> any pointer to that for 2.4 ? Is it in -ac kernels ?
-> BTW: I remember to see some posts about this, but _how_ can I make the search
-> engine in MARC to do _not_ convert underscores to spaces ("exit_group" ->
-> "exit group", and results not be half the posts in LKML) ???
+This is a multi-part message in MIME format.
 
-This is probably threading-related. They're trying to exit the program
-as a whole so exit_group() (by divination) would appear to be something
-that exits an entire thread group instead of that task alone.
+--Boundary_(ID_GdTic//VLmsx1OesE4Dyvg)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
 
-It's probably somewhere in 2.5.x kernel source.
+The attached patch just reverts the "always provide sysfs debug files"
+part of Greg's patch.  Gets rid of that compile error as well as
+keeping the driver object size smaller.
 
-Bill
+If we want to have debug files without CONFIG_USB_DEBUG, I'd rather
+have them controlled by some other Kconfig option.
+
+- Dave
+
+
+--Boundary_(ID_GdTic//VLmsx1OesE4Dyvg)
+Content-type: text/plain; name=ohci-0102.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=ohci-0102.patch
+
+--- ./drivers/usb-dist/host/ohci-dbg.c	Thu Jan  2 13:18:42 2003
++++ ./drivers/usb/host/ohci-dbg.c	Thu Jan  2 15:04:38 2003
+@@ -318,6 +318,10 @@
+ 	}
+ }
+ 
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,32)
++#	define DRIVERFS_DEBUG_FILES
++#endif
++
+ #else
+ static inline void ohci_dump (struct ohci_hcd *controller, int verbose) {}
+ 
+@@ -325,6 +329,8 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++#ifdef DRIVERFS_DEBUG_FILES
++
+ static ssize_t
+ show_list (struct ohci_hcd *ohci, char *buf, size_t count, struct ed *ed)
+ {
+@@ -522,5 +528,12 @@
+ 	device_remove_file (bus->hcd.controller, &dev_attr_periodic);
+ }
+ 
++#else /* empty stubs for creating those files */
++
++static inline void create_debug_files (struct ohci_hcd *bus) { }
++static inline void remove_debug_files (struct ohci_hcd *bus) { }
++
++#endif /* DRIVERFS_DEBUG_FILES */
++
+ /*-------------------------------------------------------------------------*/
+ 
+
+--Boundary_(ID_GdTic//VLmsx1OesE4Dyvg)--

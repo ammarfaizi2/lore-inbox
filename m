@@ -1,111 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbUJXS76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbUJXTLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbUJXS76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 14:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUJXS76
+	id S261587AbUJXTLC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 15:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbUJXTLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 14:59:58 -0400
-Received: from pop-a065c32.pas.sa.earthlink.net ([207.217.121.247]:18078 "EHLO
-	pop-a065c32.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S261586AbUJXS7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 14:59:48 -0400
-From: Eric Bambach <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Netlink Implementation.
-Date: Sun, 24 Oct 2004 13:59:55 -0500
-User-Agent: KMail/1.6.2
-References: <200410202017.08654.eric@cisu.net> <200410221751.30798.eric@cisu.net>
-In-Reply-To: <200410221751.30798.eric@cisu.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 24 Oct 2004 15:11:01 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:9352 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261587AbUJXTKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 15:10:53 -0400
+Subject: Linux 2.6.9-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410241359.55369.eric@cisu.net>
+Message-Id: <1098641287.24540.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 24 Oct 2004 19:08:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LKML,
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
 
-	Here is my post from Linux-net. I am re-posting here because it's appropriate 
-and I have not met with a resolution on linux-net :(
+2.6.9-ac4
+o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
+o	Delkin Cardbus IDE support			(Mark Lord)
+o	Fix SMP hang with IDE unregister		(Mark Lord)
+o	Fix proc file removal with IDE unregister	(Mark Lord)
+o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
+	spew
+o	First take at HPT372N problem fixing		(Alan Cox)
 
-Hello again code gurus :)
+2.6.9-ac3
+o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
+o	Fix broken parport_pc unload			(Andrea Arcangeli)
+o	Security fix for smbfs leak/overrun		(Urban Widmark)
+o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
+o	Fix cpia/module tools deadlock			(Peter Pregler)
+o	Fix missing suid_dumpable export		(Alan Cox)
 
-	Yes another fight in my netlink saga. Thanks to all who have replied before 
-and I have learned alot from the rfc's and zebra/iproute and have contructed 
-a much more robust implementation. I have sent the kernel a message defined 
-as below. However I have not learned what exactly I should be expecting from 
-the kernel. That is, my message gets a reply from the kernel about eth0, 
-however on my machine i have eth0,1,2,ppp0 and I would like information about 
-them all. I have NLM_F_ROOT set on the packet as I was under the impression 
-that this would dump information about all the interfaces. I have also tried 
-incrementing   msg.info.ifi_index to 0,1,2,3 etc. No matter what these values 
-I always recieve this output form my program.
-#./nl_test_prog
-Found device: eth0 - 1
-Found address:             <--(Dont care about blank yet, main problem is only
-					    1 if shows. This is minor)
-Received end of msg.
+2.6.9-ac2
+o	Fix invalid kernel version stupidity		(Adrian Bunk)
+o	Compiler ICE workaround/fixup			(Linus Torvalds)
+o	Fix network DoS bug in 2.6.9			(Herbert Xu)
+	| Suggested by Sami Farin
+o	Flash lights on panic as in 2.4			(Andi Kleen)
 
--Am I wrong to expect the kernel to send me data about all the interfaces? 
--Am I calling this wrong?
--What can I do to query all the interfaces?
+2.6.9-ac1
 
- I do loop through all the rta messages and I receive only 1 nlmsg packet from 
-the kernel when calling recvmsg(). I have also tried without OR'ing 
-NLM_F_MATCH. I have run it through a debugger and confirmed although there 
-are multiple RTA atributes in my netlink packet but they all refer to eth0.
+Security Fixes
+o	Set VM_IO on areas that are temporarily		(Alan Cox)
+	marked PageReserved (Serious bug)
+o	Lock ide-proc against driver unload		(Alan Cox)
+	(very low severity)
 
--Should I be expecting multiple packets (NLM_F_MULTI)?
+Bug Fixes
+o	Working IDE locking				(Alan Cox)
+	| And a great deal of review by Bartlomiej
+o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
+	
+Functionality
+o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
+	on systems with broken IRQ tables.
+o	Support for setuid core dumping in some		(Alan Cox)
+	environments (off by default)
+o	Support for drives that don't report geometry
+o	IT8212 support (raid and passthrough)		(Alan Cox)
+o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
+	devices (boot with "all-generic-ide")
+o	Restore PWC driver				(Luc Saillard)
 
-Here is my nl_packet construction.
+Other
+o	Small pending tty clean-up to moxa		(Alan Cox)
+o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
 
-  msg.hdr.nlmsg_len = sizeof(msg);
-  msg.hdr.nlmsg_type = RTM_GETLINK;
-  msg.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_MATCH; 
-  msg.hdr.nlmsg_pid = getpid();
-  msg.hdr.nlmsg_seq = seq++; 
-  msg.info.ifi_family = AF_UNSPEC; //AF_UNSPEC for ipv4
-  msg.info.ifi_type = NETLINK_ROUTE;
-  msg.info.ifi_index = 0;
-  msg.info.ifi_change =  (0-1); 
-
-----------------Looping over the attributes later in code--------------
-/* Loop over the attributes in this message */
-    while(RTA_OK(rta, len))
-    {
-      switch(rta->rta_type)
-      {
-      case IFLA_IFNAME:
-        cout << "Found device: " << (char *)RTA_DATA(rta)<< " - " <<  
-info->ifi_index << endl;
-        break;
-      case IFLA_ADDRESS:
-        cout << "Found address: " << (char *)RTA_DATA(rta) << endl;
-        break;
-      }
-      rta = RTA_NEXT(rta, len);
-      /* We hit the next packet */
-    }// Packet Looping while()
-
-
-More info/code available upon request.
-
-Any help would be appreciated.
-
-----------------------------------------
-EB
-
-> All is fine except that I can reliably "oops" it simply by trying to read
-> from /proc/apm (e.g. cat /proc/apm).
-> oops output and ksymoops-2.3.4 output is attached.
-> Is there anything else I can contribute?
-
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
-
-		--Alan Cox 2000-12-08 
-
-----------------------------------------

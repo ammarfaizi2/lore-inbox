@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbUCRVCS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUCRVAp
+	id S262961AbUCRVGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUCRVGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:00:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:63981 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262954AbUCRVAa (ORCPT
+	Thu, 18 Mar 2004 16:06:06 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:31873 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262962AbUCRVFm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:00:30 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Chris Mason <mason@suse.com>
-To: Peter Zaitsev <peter@mysql.com>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079642801.2447.369.camel@abyss.local>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-Content-Type: text/plain
-Message-Id: <1079643740.11057.16.camel@watt.suse.com>
+	Thu, 18 Mar 2004 16:05:42 -0500
+Date: Thu, 18 Mar 2004 22:06:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: sched_setaffinity usability
+Message-ID: <20040318210632.GA11529@elte.hu>
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org> <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org> <20040318182407.GA1287@elte.hu> <Pine.LNX.4.58.0403181248440.4976@dlang.diginsite.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Mar 2004 16:02:20 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403181248440.4976@dlang.diginsite.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 15:46, Peter Zaitsev wrote:
-> On Thu, 2004-03-18 at 12:33, Chris Mason wrote:
-> 
-> > Some suse 8.2 kernels had write barriers for IDE, some did not.  If
-> > you're running any kind of recent suse kernel, you're doing cache
-> > flushes on fsync with ext3.
-> 
-> I have this kernel:
-> 
-> 
-> Linux abyss 2.4.20-4GB #1 Sat Feb 7 02:07:16 UTC 2004 i686 unknown
-> unknown GNU/Linux
-> 
-> I believe it is reasonably  recent one from Hubert's kernels.
-> 
-> The thing is the performance is different if file grows or it does not.
-> If it does - we have some 25 fsync/sec. IF we're writing to existing
-> one, we have some 1600 fsync/sec 
-> 
-> In the former case cache is surely not flushed. 
-> 
-Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
-when you commit.  ext3 always commits on fsync and reiser only commits
-when you've changed metadata.
 
-Thanks to Jens, the 2.6 barrier patch has a nice clean way to allow
-barriers on fsync, O_SYNC, O_DIRECT, etc, so we can make IDE drives much
-safer than the 2.4 code did.  
+* David Lang <david.lang@digitalinsight.com> wrote:
 
-I had a patch to make fsync always generate the barriers in 2.4, but it
-was tricky since it had to figure out the last buffer it was going to
-write before it wrote it.  The 2.6 code is much better.
+> Doesn't /proc/config.gz answer this question?
 
-> 2.4 does flush in one case but not in other. 2.6 does not do it in ether
-> case.
-> 
-> I was also surprised to see this simple test case has so different
-> performance with default and "deadline" IO scheduler   -  1.6 vs 0.5 sec
-> per 1000 fsync's.
+no. /proc as an interface has the same disadvantages as the /etc
+approach.
 
-Not sure on that one, both cases are generating tons of unplugs, the
-drive is just responding insanely fast.
+(there was talk about something like /proc/vdso.so - but in this special
+case the kernel is much better at mapping the vdso pages: why spend
+three syscalls and a pagefault on something that can be done zero-cost.)
 
--chris
+99.9% of userspace code is modularized around the concept of ELF DSOs.
+They are well-understood and have a history of providing good control of
+backwards and forwards compatibility. They are flexible and they dont
+really have any baggage that affects performance. A DSO is the ideal
+interface to attach the kernel to glibc. Code and constant data can
+reside in this DSO just fine. (even non-constant data can reside in the
+DSO.) I'd really not want to reinvent the wheel and put yet another
+concept of a dynamic shared object into the kernel (and make that
+per-platform too).
 
-
+	Ingo

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbTFZRp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 13:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTFZRp0
+	id S262257AbTFZRz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 13:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbTFZRz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 13:45:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:35229 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262252AbTFZRpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 13:45:25 -0400
-Date: Fri, 27 Jun 2003 03:55:54 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] irq handling code consolidation (common part)
-Message-ID: <20030626175554.GA22089@krispykreme>
-References: <20030626110247.GT9679@pazke>
+	Thu, 26 Jun 2003 13:55:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65238 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262257AbTFZRy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 13:54:57 -0400
+Date: Thu, 26 Jun 2003 19:09:09 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] BINFMT_ZFLAT can't be a module
+Message-ID: <20030626180909.GP451@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030626110247.GT9679@pazke>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> the irq handling consolidation patch returns from the dead !
-> Now with runaway irq detection code included !
-> 
-> This patch (against 2.5.73) contains common part of it.
+BINFMT_ZFLAT is an attribute of BINFMT_FLAT not a distinct option in
+its own right.  So the test in lib/Kconfig has to be changed to something
+like this:
 
-Great! Well it wasnt dead, I was also keeping it up to date and sending
-it on to akpm :)
+Index: lib/Kconfig
+===================================================================
+RCS file: /var/cvs/linux-2.5/lib/Kconfig,v
+retrieving revision 1.4
+diff -u -p -r1.4 Kconfig
+--- lib/Kconfig	8 Apr 2003 15:20:57 -0000	1.4
++++ lib/Kconfig	26 Jun 2003 18:07:41 -0000
+@@ -17,8 +17,8 @@ config CRC32
+ #
+ config ZLIB_INFLATE
+ 	tristate
+-	default y if CRAMFS=y || PPP_DEFLATE=y || JFFS2_FS=y || ZISOFS_FS=y || BINFMT_ZFLAT=y || CRYPTO_DEFLATE=y
+-	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || BINFMT_ZFLAT=m || CRYPTO_DEFLATE=m
++	default y if CRAMFS=y || PPP_DEFLATE=y || JFFS2_FS=y || ZISOFS_FS=y || CRYPTO_DEFLATE=y || (BINFMT_FLAT=y && BINFMT_ZFLAT=y)
++	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || CRYPTO_DEFLATE=m || (BINFMT_FLAT=m && BINFMT_ZFLAT=y)
+ 
+ config ZLIB_DEFLATE
+ 	tristate
 
-I have two suggestions that will help in my crusade to kill NR_IRQS.
-
-1. define irq_desc, irq_valid, for_each_irq in include/linux/irq.h if
-HAVE_ARCH_IRQ_DESC isnt defined (instead of in each architecture).
-Basically I want to start using these macros in a few places and dont
-want to break every architecture that hasnt converted to the new scheme.
-
-On the other hand if we decide to move the irq descriptor definition
-into each arch as hch suggested, this wont be necessary as all archs
-will break anyway :)
-
-2. define irq_atoi that converts an irq into a printable string. We have
-a bunch of #ifdef CONFIG_SPARC stuff we can then get rid of, and other
-archs can start using it if wanted (eg on ppc64 I can subtract our
-software offset so the irqs printed match the hardware)
-
-Anton
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

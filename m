@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263498AbTIAS1P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 14:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbTIAS1O
+	id S263668AbTIAScj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 14:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTIAScf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 14:27:14 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:10398 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S263498AbTIAS0l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 14:26:41 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org, zaitcev@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfyt3x6.fsf@trained-monkey.org>
-	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
-	<20030819095547.2bf549e3.davem@redhat.com>
-	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
-	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
-	<20030824060057.7b4c0190.davem@redhat.com>
-	<m365kmltdy.fsf@defiant.pm.waw.pl> <m365kex2rp.fsf@defiant.pm.waw.pl>
-	<20030830185007.5c61af71.davem@redhat.com>
-	<1062334374.31861.32.camel@dhcp23.swansea.linux.org.uk>
-	<20030831222233.1bd41f01.davem@redhat.com>
-	<m37k4tj71h.fsf@defiant.pm.waw.pl>
-	<20030901004308.477f8cc8.davem@redhat.com>
-	<m3ptikctx5.fsf@defiant.pm.waw.pl>
-	<20030901102808.1d27f537.davem@redhat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 01 Sep 2003 20:24:51 +0200
-In-Reply-To: <20030901102808.1d27f537.davem@redhat.com>
-Message-ID: <m3he3wcqoc.fsf@defiant.pm.waw.pl>
+	Mon, 1 Sep 2003 14:32:35 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:12188 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263670AbTIASbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 14:31:53 -0400
+Date: Mon, 01 Sep 2003 11:31:14 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v10
+Message-ID: <6860000.1062441073@[10.10.2.4]>
+In-Reply-To: <3F52A546.9020608@cyberone.com.au>
+References: <3F5044DC.10305@cyberone.com.au> <1806700000.1062361257@[10.10.2.4]> <1807550000.1062362498@[10.10.2.4]> <3F52A546.9020608@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+>>> Kernbench: (make -j vmlinux, maximal tasks)
+>>>                              Elapsed      System        User         CPU
+>>>              2.6.0-test4       45.87      116.92      571.10     1499.00
+>>>       2.6.0-test4-nick10       46.91      114.03      584.16     1489.25
+>>> 
+>> 
+>> Actually, now looks like you have significantly more idle time, so perhaps
+>> the cross-cpu (or cross-node) balancing isn't agressive enough:
+>> 
+> 
+> Yeah, there is a patch for this in mm that is not in mine. It should
+> help both mine and mainline though...
 
-> Umm, come on, this is inaccurate.
+Not convinced of that - mm performs worse than mainline for me.
+ 
+> Looks like mine is still context switching a bit more by the increased
+> user time but its probably nearly acceptable now.
 
-I tried to make it accurate. I might be missing something, though.
-What exactly do you think is inaccurate?
+Yeah, is odd, you have more user time, but also more idle time. schedstats
+should measure context switch rates, balances, etc.
 
->  But this is unrelated to
-> the consistent DMA issues.
+M.
 
-Hmm... What do you mean?
-
-BTW: consistent_dma_mask and dma_mask names are misleading: they are
-(in theory) related to allocation vs mapping requests mainly -
-the consistent vs non-consistent thing is secondary.
--- 
-Krzysztof Halasa, B*FH

@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSFCD32>; Sun, 2 Jun 2002 23:29:28 -0400
+	id <S313867AbSFCDtt>; Sun, 2 Jun 2002 23:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSFCD31>; Sun, 2 Jun 2002 23:29:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10501 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313773AbSFCD30>; Sun, 2 Jun 2002 23:29:26 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: KBuild 2.5 Impressions
-Date: Mon, 3 Jun 2002 03:28:37 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <adenp5$1d9$1@penguin.transmeta.com>
-In-Reply-To: <3CFAD94B.F848897B@kegel.com>
-X-Trace: palladium.transmeta.com 1023074953 18859 127.0.0.1 (3 Jun 2002 03:29:13 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 3 Jun 2002 03:29:13 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S314077AbSFCDts>; Sun, 2 Jun 2002 23:49:48 -0400
+Received: from matrix.seed.net.tw ([192.72.81.219]:35600 "EHLO
+	mail.seed.net.tw") by vger.kernel.org with ESMTP id <S313867AbSFCDts>;
+	Sun, 2 Jun 2002 23:49:48 -0400
+Message-ID: <01bd01c20ab1$ece95900$c0cca8c0@promise.com.tw>
+From: "Hank Yang" <hanky@promise.com.tw>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <andre@linuxdiskcert.org>,
+        <marcelo@conectiva.com.br>
+Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        <arjanv@redhat.com>, "Linus Chen" <linusc@promise.com.tw>,
+        "Crimson Hung" <crimsonh@promise.com.tw>,
+        "Jenny Liang" <jennyl@promise.com.tw>, <jordanr@promise.com>
+In-Reply-To: <E16lBmI-0006nf-00@the-village.bc.nu> <039701c20892$3940ca30$c0cca8c0@promise.com.tw> <1022855592.4124.415.camel@irongate.swansea.linux.org.uk>
+Subject: Re: [PATCH] 2.4.19pre9 in pdc202xx.c bug
+Date: Mon, 3 Jun 2002 11:51:19 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3CFAD94B.F848897B@kegel.com>, Dan Kegel  <dank@kegel.com> wrote:
->
->Linus sees Kai as being the most promising fellow to
->integrate kbuild2.5 right now [...]
+Dears.
 
-Side note, just to explain _why_ I prefer it done this way, so that
-people can understand - even if they don't necessarily have to agree
-with - why this is my preferred approach.
+    There is something wrong in drivers/ide/pdc202xx.c ide driver.
+Andre Hedrick has merged ide stuff to 2.4.18 kernel that released for
+RedHat 7.3, SuSE 8.0 and Mandrake 8.2. That has a bug inside to
+harmful our company.
 
-There's actually several reasons:
+First, in pdc202xx_dmaproc() function.
 
- - I always hate "flag day" patches. Do they happen? Sure. Some people
-   have already given examples of such big flag-day patches, the ALSA
-   merge being one prime example.  That doesn't mean that I like them
-   any more for that.
+Our source code is:
+unsigned long atapi_port =high_16+ 0x20 + (hwif->channel ? 0x04 : 0x00);
 
-   In short: if at all possible, I _much_ prefer gradual merges, where
-   "gradual" really means that features are added one-by-one (and that
-   does _not_ mean "build up the infrastructure slowly, so that the
-   final 'flag-day' patch itself is small but has large ramifications")
+2.4.19pre8(RedHat 7.3, SuSE 8.0 and Mandrake 8.2) is:
+unsigned long atapi_reg = high_16 + (hwif->channel ? 0x24 : 0x00);
 
- - Kai has already shown that he can merge with me easily, and actually
-   took one traditional flag-day-project (ISDN: every single merge was a
-   flag-day merge), and has turned that into a very easy gradual merge
-   for me. I used to dread ISDN merges, these days I don't even have to
-   think about them.
+The Primary channel get wrong address, So this cause our PDC20265/67
+couldn't
+work on Primary channel with LBA48 drives.
+Andre, I think this is your mistake, Could you please kind to fix it?
 
- - Kai obviously already knows the build system, as he has been doing a
-   lot of incremental stuff on it already.
+Second, our PDC20262 controller do not support LBA48 with hardware48hack
+function. Please fix it in pdc202xx_dmaproc() function also.
 
- - Kai isn't an enthusiastic kbuild-2.5 supporter. In fact, he tends to
-   be a bit down on some of it. Which is a plus in my book: it means
-   that whatever Kai tries to push my way I'll feel just that much more
-   comfortable with as having had critical review.
+Third, I told Alan before.
+In pdc202xx_new_tune_chipset() function.
+We need to set timing for only ATA133 drives exist on both channel.
+If not ATA133 drives exists, we do not need to set timing here.
+Please update this function also.
 
-So let's see how it works out.  Maybe it won't, but this would seem
-workable at least in theory. 
+Fourth.
+I hope can add quirk drives list to pdc202xx.c below
+"QUANTUM FIREBALLP KA9.1"
+"QUANTUM FIREBALLP KX13.6"
+please append these if you are in available.
 
-		Linus
+The last.
+I hope you guys could help us to notice RedHat, SuSE, Mandrake and
+etc to fix this bug as soon as possible.
+
+Thanks in advance and sincerely
+Hank Yang
+
+
+

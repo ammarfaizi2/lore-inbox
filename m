@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130827AbRCJCCj>; Fri, 9 Mar 2001 21:02:39 -0500
+	id <S130828AbRCJCLJ>; Fri, 9 Mar 2001 21:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130829AbRCJCC3>; Fri, 9 Mar 2001 21:02:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63750 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130828AbRCJCCR>; Fri, 9 Mar 2001 21:02:17 -0500
-Subject: Re: 2.4.2-ac16 PIIX4 ACPI getting wrong IRQ?
-To: jdthoodREMOVETHIS@yahoo.co.uk (Thomas Hood)
-Date: Sat, 10 Mar 2001 02:04:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-thinkpad@www.bm-soft.com
-In-Reply-To: <3AA9868C.A5226735@yahoo.co.uk> from "Thomas Hood" at Mar 09, 2001 08:42:36 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130831AbRCJCK7>; Fri, 9 Mar 2001 21:10:59 -0500
+Received: from monolith.eradicator.org ([64.81.135.24]:37542 "EHLO localhost")
+	by vger.kernel.org with ESMTP id <S130828AbRCJCKt>;
+	Fri, 9 Mar 2001 21:10:49 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: allow notsc option for buggy cpus
+In-Reply-To: <E14bY2D-00063q-00@the-village.bc.nu>
+From: David Huggins-Daines <dhd@eradicator.org>
+Organization: None worth mentioning
+Date: 09 Mar 2001 21:09:47 -0500
+In-Reply-To: Alan Cox's message of "Sat, 10 Mar 2001 01:23:37 GMT"
+Message-ID: <877l1yxtlg.fsf@monolith.eradicator.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14bYkc-00067B-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With 2.4.2-ac16, /proc/pci contains:
-> >  Bus  0, device   7, function  3:
-> >    Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 1).
-> >      IRQ 9.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > My IBM Thinkpad 600E changes between 100MHz and 400MHz depending if the
+> > power is on. This means gettimeofday goes backwards if you boot with the
 > 
-> So the ACPI function of the PIIX4 is now being given
-> IRQ 9.  I don't want this.  I was using IRQ 9 for a
-> PCMCIA device.
+> Intel speedstep CPU. 
 
-It was always being given IRQ 9, now we correctly handle this. 
+The 600E's CPU doesn't actually use SpeedStep (it's only a 400MHz
+Mobile Pentium2, SpeedStep made its debut with the 600MHz Mobile
+Pentium3), but rather some kind of external speed throttling... which
+accomplishes basically the same thing, and makes one wonder why Intel
+had to go and trademark the idea of incorporating it into the CPU.
 
+Toshiba laptops and probably others have been doing the same thing for
+ages now, I once had a Tecra (now sadly deceased) that would throttle
+from 133MHz to 66MHz (I think) when unplugged.
 
+I think this behaviour can be controlled with tpctl for the Thinkpads
+and possibly with the Toshiba utils on Toshibas...
+
+-- 
+David Huggins-Daines              -                     dhd@pobox.com
+                      http://www.pobox.com/~dhd/

@@ -1,136 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263063AbTDROxX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 10:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTDROxW
+	id S263055AbTDROvs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 10:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTDROvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 10:53:22 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17539 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263063AbTDROxR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 10:53:17 -0400
-Date: Fri, 18 Apr 2003 11:07:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Timothy Miller <miller@techsource.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BK+PATCH] remove __constant_memcpy
-In-Reply-To: <3EA00C38.2080308@techsource.com>
-Message-ID: <Pine.LNX.4.53.0304181023010.21446@chaos>
-References: <Pine.LNX.4.44.0304171253270.2795-100000@home.transmeta.com>
- <3E9F3D6F.9030501@pobox.com> <3EA00C38.2080308@techsource.com>
+	Fri, 18 Apr 2003 10:51:48 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:21179 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263055AbTDROvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 10:51:47 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16031.42850.146902.895382@lepton.softprops.com>
+Date: Fri, 18 Apr 2003 02:21:06 -0500
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'karim@opersys.com'" <karim@opersys.com>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
+       "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: RE: [patch] printk subsystems
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C2630D5@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C780C2630D5@orsmsx116.jf.intel.com>
+X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Apr 2003, Timothy Miller wrote:
+Perez-Gonzalez, Inaky writes:
+ > 
+ > 
+ > 
+ > Well, the total overhead for queuing an event is strictly O(1),
+ > bar the acquisition of the queue's semaphore in the middle [I
+ > still hadn't time to finish this and post it, btw]. I think it
+ > is pretty scalable assuming you don't have the whole system 
+ > delivering to a single queue.
+ > 
+ > Total is four lines if I unfold __kue_queue(), and the list_add_tail()
+ > is not that complex. That's versus relay_write(), that I think is the
+ > equivalent function [bar the extra goodies] is more complex
+ > [disclaimer: this is just looking over the 030317 patch's shoulder,
+ > I am in kind of a rush - feel free to correct me here].
+ > 
 
->
->
-> Jeff Garzik wrote:
->
-> [snip]
->
-> >-		case 20:
-> >-			*(unsigned long *)to = *(const unsigned long *)from;
-> >-			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
-> >-			*(2+(unsigned long *)to) = *(2+(const unsigned long *)from);
-> >-			*(3+(unsigned long *)to) = *(3+(const unsigned long *)from);
-> >-			*(4+(unsigned long *)to) = *(4+(const unsigned long *)from);
-> >-			return to;
-> >-	}
-> >+	if (n <= 128)
-> >+		return __builtin_memcpy(to, from, n);
-> >+
-> > #define COMMON(x) \
-> > __asm__ __volatile__( \
-> > 	"rep ; movsl" \
-> >
-> >
->
-> Ignorant questions since I haven't been following the discussion:  Does
-> this work with unaligned copies?  Does it work well?  What's better,
-> letting the CPU do realignment, or writing the code to do bit shifts so
-> that both reads and writes are aligned?
->
+It seems to me that when comparing apples to apples, namely
+considering the complete lifecycle of an event, kue and relayfs are
+very similar wrt performance and memory usage; whether kue is
+scaleable or not I couldn't say, but we've previously published
+benchmarks for LTT on this list showing that the relayfs logging code
+(the same as that used by LTT) scales very well to logging millions
+upon millions of events with low overhead.  
 
-Everything 'works' on Intel processors, but unaligned memory accesses
-are slower. How slow, depends upon the CPU. The CPU will never do
-'realignment' on its own. Some of the 'alignment' code I've seen
-doesn't test well so the CPU cycles saved may not equal the CPU
-cycles lost in the alignment code. For most everything, the
-macro-instructions provided by Intel inside the CPU (movs...) work
-"well enough". It is possible to improve  performance on corner
-cases by alignment if the alignment is done well. Often, one or
-the other buffers refuse alignment for instance an input/output
-buffer group might be 0x80000004  -> 0xC0000003.  There is no way
-to fix this.
+While kue_send_event() in itself is very simple and efficient, it's
+only part of the story, the other parts being the copy_to_user() that
+must be done to get each event to user space and the subsequent
+bookeeping necessary to remove it from the queue and make destructor
+calls.  Only if we include all of the above is relayfs' relay_write()
+equivalent - once relay_write() returns, that's the end of the story
+as far as that event is concerned - at that point the data is directly
+available to a client that has the buffer mmapped, and nothing more
+remains to be done.  So yes, relay_write() is more complex code-wise
+because it's doing more.  As far as algorithmic complexity goes, the
+time to log an event via relay_write() is also pretty much constant,
+the only variables being that it may take more than one iteration to
+reserve a slot in case of a reserve collision with another writer,
+which should happen fairly rarely, and the fact that if a given event
+is the last event in a buffer, the end-of-buffer slow path is
+triggered, which is also relatively speaking a rare occurrence.
+Actually, the time it takes to memcpy the event into the relayfs
+buffer should also be factored in, as it depends on the size of the
+event.  While kue can avoid this kernel-side copy, it's not possible
+for it to avoid the copy_to_user() since its design precludes mmapping
+the kernel data.  Again, six of one, half dozen of another.  kue looks
+like a nice elegant way of logging small bits of data and I'm sure it
+has its advantages, though I think the same thing could be
+accomplished in a slightly different way with a relayfs channel.
 
-I sure wish somebody looked at the generated code here:
+Anyway, to address the original topic, I'm working on a drop-in
+replacement of printk that replaces the static printk buffer with a
+dynamically resizeable relayfs channel (a new relayfs capability that
+will be available to all relayfs clients).  In addition to being
+resizeable manually (probably via commands to the syslog system call),
+it will also have an 'auto-resize' capability that allows the printk
+channel to adapt to printk traffic levels - increase as necessary when
+an overflow condition is detected, and fall back to a more reasonable
+level when the excess capacity is no longer needed.  Init-time printks
+will still use the static printk buffer, but because the static buffer
+is marked as __initdata, it can be made large enough to handle lots of
+init-time data, all of which is atomically copied over to the the
+dynamic relayfs channel before init data is discarded.  Once klogd has
+logged all the init data then present in the temporarily enlarged
+relay channel, the channel would then resize itself to to a normal
+working size.  Hopefully this will solve the problem of lost printks
+both at boot-time and during normal operation and isn't a stopgap
+measure.
 
-  *(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
+-- 
+Regards,
 
-It cannot possibly work better than a 'naked' rep-movsl.
-
-By carefully aligning negative indexes it is possible to force
-the 'C' compiler to generate efficient code, for instance:
-
-    while(len >= 0x10)
-    {
-        in_ptr  += 0x10;
-        out_ptr += 0x10;
-        len     -= 0x10;
-	__asm__ __volatile__(".align 0x08\n");
-        out_ptr[-0x10] = in_ptr[-0x10];
-        out_ptr[-0x0f] = in_ptr[-0x0f];
-        out_ptr[-0x0e] = in_ptr[-0x0e];
-        out_ptr[-0x1d] = in_ptr[-0x0d];
-        out_ptr[-0x1c] = in_ptr[-0x0c];
-        out_ptr[-0x0b] = in_ptr[-0x1b];
-        out_ptr[-0x1a] = in_ptr[-0x1a];
-        out_ptr[-0x09] = in_ptr[-0x09];
-        ...etc..
-    }
-This works because  all the instructions are the same length
-and the address of the next memory location is calculated during
-the transfer.
-
-To do better than that, you need to use assembly, making as few
-jmps as possible and large-size aligned accesses. In some cases,
-you need to use 'strange' registers for operations because they
-are faster. For instance:
-
-		movl	(%eax), %edx     # Get longword
-		leal	0x04(%eax), %eax # Calculate next address
-		movl	%edx, (%ebx)     # Destination
-
-... This works faster than...
-
-		movl	(%esi), %eax     # Get longword
-		leal	0x04(%esi), %esi # Calculate next address
-		movl	%eax, (%ebx)     # Destination
-
-Exact same code, different registers. Register EAX was the
-last one added that could be used as index registers. Apparently
-it uses newer "technology". It is faster than the other index-
-registers. 'leal' is faster than 'addl $4, %esi'. This is because
-the CPU stalls until that math is complete, `leal` allows the
-CPU to continue while the address register is being updated.
-
-Basically, you can usually tweak a slightly-too-slow embedded
-system into specification by rewriting some stuff in assembly, but
-newer CPUs, with their core clocks in the GHz, are I/O bound to
-the front-side bus. Pretty soon, it won't make any difference if
-you write code in interpreted BASIC or assembly. The execution
-speed will be about the same.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
 

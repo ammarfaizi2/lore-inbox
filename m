@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRKYXx6>; Sun, 25 Nov 2001 18:53:58 -0500
+	id <S281215AbRKYXzI>; Sun, 25 Nov 2001 18:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281215AbRKYXxt>; Sun, 25 Nov 2001 18:53:49 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47863
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281214AbRKYXxb>; Sun, 25 Nov 2001 18:53:31 -0500
-Date: Sun, 25 Nov 2001 15:53:23 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Dominik Kubla <kubla@sciobyte.de>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
-Message-ID: <20011125155323.D30336@mikef-linux.matchmail.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Dominik Kubla <kubla@sciobyte.de>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.23i
+	id <S281224AbRKYXy6>; Sun, 25 Nov 2001 18:54:58 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:49594 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S281215AbRKYXy4>; Sun, 25 Nov 2001 18:54:56 -0500
+Message-ID: <3C01D737.5020308@free.fr>
+Date: Mon, 26 Nov 2001 00:46:31 -0500
+From: FORT David <popo.enlighted@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011121
+X-Accept-Language: fr, en-us
+MIME-Version: 1.0
+To: Peter Zaitsev <pz@spylog.ru>
+CC: Anton Petrusevich <casus@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: threads & /proc
+In-Reply-To: <20011123233857.A25084@casus.tx> <97219676688.20011124111155@spylog.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 10:17:15AM -0800, Linus Torvalds wrote:
-> 
-> On Sun, 25 Nov 2001, Stephan von Krawczynski wrote:
-> >
-> > The "problem" effectively arises from _fast_ releasing "stable" versions.
-> 
-> Actually, I think that is just the _symptom_ of the basic issue: I do not
-> like being a maintainer.
-> 
+Peter Zaitsev wrote:
 
-Ok, here's *another* suggestion for future working of stable and development
-kernels...
+>Hello Anton,
+>
+>Saturday, November 24, 2001, 8:38:57 AM, you wrote:
+>
+>
+>I would confirm the problem exists from the first 2.4.x kernels. Also
+>programs "w","vmstat","snmpd" hangs.  It seems to happen both for
+>UP/SMP kernels. I have seen this only on High Memory (1-2G), therefore
+>I do not have much low memory machines loaded.  The workload seems to
+>be the thing to affect this - I do not remember any hang on low VM
+>load system (for example Web Server) therefore it's offen happens
+>then there are a lot of I/O  and swapping goes (i.e Mysql Server).
+>Often this happens after appearing some of new __order allocation
+>failed errors.
+>
+>
+>
+>
+>Other issue which looks like connected to this - a thread hangs in
+>"D" state forever and it's unable to be killed in this case even
+>reboot -f does not work.
+>
+>AP> Hi Guys,
+>
+>AP> Well, I'm a bit surprised that nobody asked it yet. Do we have sound
+>AP> thread support? I am able to put my linux-2.4.15-pre{1,7} --
+>AP> definitely, and if I remember right, 2.4.14-pre{7,8} too in some strange
+>AP> state, when any program like top, killall or ps that wanna get some
+>AP> information from /proc (even midnight commander if you are trying to
+>AP> look at state of any process) blocks indefinitely. It goes to unclean
+>AP> shutdown, for example. kill doesn block, but do nothing. (I tried to
+>AP> kill processes from ls /proc list). And I see it only after several
+>AP> [unsuccessful] runs of my multithreaded program. Well, I can't say 
+>AP> it's a correctly written program, I am still looking for bugs there. 
+>AP> I don't have 100% way to get into this state, but I suspect some locking
+>AP> issues with /proc. 
+>
+>
+>
+I've also seen the case on a UP, ps was locking. And i had launched a
+lot of multi-threaded processes(but i don't know if it's related).
+I can had that i had also launched a lot of gdb on the multi-threaded
+program. The program i was debugging is forking a process in a thread
+that dies after the fork.
 
-Linus,
+-- 
+%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
+%  -datamining <-/                        |   .~.                         %
+%  -networking/PHP/java/JSPs              |   /V\        L  I  N  U  X    %
+%  -opensource                            |  // \\     >Fear the Penguin< %
+%  -GNOME/enlightenment/GIMP              | /(   )\                       %
+%           feel enlightened....          |  ^^-^^                        %
+%                              HomePage: http://www.enlightened-popo.net  %
+%---------- -- This was sent by Djinn running Linux 2.4.13 -- ------------%
 
-You admit that you do not like to maintain.  We have seen that, and
-unfortunately for 2.4 it is true.
 
-Personally, I think that 2.4 was released too early.  It was when the
-Internet hype was going full force, and nobody (including myself) could be
-faulted for getting swept up in the wave that it was.
 
-I'd like to suggest two possibilities.
-
-1) Develop 2.5 until it is ready to be 2.6 and immediately give it over to
-a maintainer, and start 2.7.
-
-2) Develop 2.5 until it has the features you want to go into 2.6, and give
-it over to the future 2.6 maintainer to stabalize and release it.  (there
-would be two develoment kernel at the same time for a short period with this)
-
-With both you would get to do what you like and won't get bored with, and
-let people share their latest code for many to see.
-
-Linus, can you say if you plan to do anything like this?
-
-MF

@@ -1,116 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262539AbRENWVX>; Mon, 14 May 2001 18:21:23 -0400
+	id <S262534AbRENWZD>; Mon, 14 May 2001 18:25:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbRENWVE>; Mon, 14 May 2001 18:21:04 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:31504 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S262537AbRENWUn>;
-	Mon, 14 May 2001 18:20:43 -0400
-Date: Mon, 14 May 2001 16:20:11 -0600
-From: Val Henson <val@nmt.edu>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: Theodore Tso <tytso@valinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/char/serial.c bug in ST16C654 detection
-Message-ID: <20010514162010.G5060@boardwalk>
-In-Reply-To: <20010511182723.M18959@boardwalk> <033101c0dcaf$10557f40$294b82ce@connecttech.com>
-Mime-Version: 1.0
+	id <S262532AbRENWYx>; Mon, 14 May 2001 18:24:53 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41994 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262528AbRENWYo>; Mon, 14 May 2001 18:24:44 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Mon, 14 May 2001 23:21:00 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        torvalds@transmeta.com (Linus Torvalds), viro@math.psu.edu
+In-Reply-To: <3B003FB0.9D12436A@transmeta.com> from "H. Peter Anvin" at May 14, 2001 01:27:28 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <033101c0dcaf$10557f40$294b82ce@connecttech.com>; from stuartm@connecttech.com on Mon, May 14, 2001 at 03:50:01PM -0400
-Favorite-Color: Polka dot
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zQi4-0001YI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 03:50:01PM -0400, Stuart MacDonald wrote:
+> It's not so much about hardcoding the names as hardcoding the *STRUCTURE*
+> of the names.  For example, the current devfs has /dev/misc/* which is
+> completely bogus -- it exposes an implementation detail (using the
 
-> What version of serial.c? I'm assuming 5.05.
+The fact kernel space touches on naming directly is itself bogus. devfsd doing
+it is nice, devfs doing naming - well it could be done.
 
-Serial driver version 5.05a (2001-03-20) with MANY_PORTS SHARE_IRQ
-SERIAL_PCI enabled
+> miscdev API as opposed to the charmajor API) which should be hidden; in
+> fact a number of drivers have started their lives as miscdev devices and
+> changed over time.
 
-> Define "go kablooey". We haven't noticed any problems, and we supplied
-> this bit of code.
+IHMO We have three types of namespaces
 
-"Go kablooey" means that all serial output stops and the kernel never
-finishes booting.  This patch makes it correctly detect the
-controller, continue to produce serial output, and finish booting.
+1.	Kernel interface namespace. Policy set by the kernel. Mappings
+	constant and well defined where the underlying objects are well
+	defined
 
-> The size_fifo() routine supplies its own baud rate divisor, and
-> on any rs_open() change_speed() sets the baud rate properly.
-> I can't figure what you might be seeing.
+	- inodes, dev_t
 
-I don't know why it doesn't work the way you describe.  If I comment
-out the section of code that sets the baud rate to 0, everything works
-fine.  Otherwise, it doesn't even finish booting.  The Exar datasheet
-at http://www.exar.com/products/st16c654.pdf doesn't define what
-happens if you set the baud rate registers to 0.
+	You can make it a string if you like but at the end of the day 
+	has to be an opaque handle. For constant devices it also has to be
+	a constant name. Otherwise the /dev file I archived with the corporate
+	backup system turns out to be a different device when I restore the 
+	box after a problem and I reformat the wrong disk...
 
-> This isn't necessary. The revision field is only checked
-> for 950s, so setting it here doesn't harm anything. If the
-> current (only) example of checking it is followed as normal
-> procedure, the port type will always be checked first, before
-> checking the revision, ensuring only valid revisions are
-> referenced.
+	And yes some stuff really is dynamic. Trying to talk about USB
+	devices in a constant way is kind of hard. 
 
-It's just sloppy programming.  There's no benefit from setting an
-invalid revision for the Exar and if the usage of state->revision
-changes it may introduce a bug.
+	We could re-encode these as strings. In fact thats how AmigaOS and
+	VMS seem to do it. But we have the standards that are based on
+	numbers and people who do like to assume they have meaning (eg
+	hdparm, some scsi tools, ...). At best the string is a variable length
+	encoding of a cookie.
 
-> Only saving the revision for 850s is probably wrong. It should
-> be saved for all the 85x uarts.
+	Another real horror we have is trademarks. We've already had people
+	force changes on the name of kernel modules by threatening/asking 
+	because names have trademark value and they argue module names 
+	could be confusing.
 
-The comment above it should also be changed then.  If someone knows
-for sure whether the revision should be saved for the XR16C854 then
-the comment can be made clearer.  See patch below.
+	*NOBODY* at the 2.5 kernel summit had an answer to that problem.
 
--VAL
+2.	User namespaces. Language dependant. Policy dependant.
+	Can be dynamic, can be static, can be arbitary. Not set by kernel
+	policy
 
---- linux-2.4.5-pre1/drivers/char/serial.c	Thu Apr 19 00:26:34 2001
-+++ linux/drivers/char/serial.c	Tue May 15 03:19:08 2001
-@@ -3507,7 +3507,7 @@
- 				      struct serial_state *state,
- 				      unsigned long flags)
- {
--	unsigned char scratch, scratch2, scratch3;
-+	unsigned char scratch, scratch2, scratch3, scratch4;
- 
- 	/*
- 	 * First we check to see if it's an Oxford Semiconductor UART.
-@@ -3548,20 +3548,33 @@
- 	 * then reading back DLL and DLM.  If DLM reads back 0x10,
- 	 * then the UART is a XR16C850 and the DLL contains the chip
- 	 * revision.  If DLM reads back 0x14, then the UART is a
--	 * XR16C854.
--	 * 
-+	 * XR16C854 and the DLL may or may not contain the revision.
- 	 */
-+
-+	/* Save the DLL and DLM */
-+
- 	serial_outp(info, UART_LCR, UART_LCR_DLAB);
-+	scratch3 = serial_inp(info, UART_DLL);
-+	scratch4 = serial_inp(info, UART_DLM);
-+
- 	serial_outp(info, UART_DLL, 0);
- 	serial_outp(info, UART_DLM, 0);
--	state->revision = serial_inp(info, UART_DLL);
-+	scratch2 = serial_inp(info, UART_DLL);
- 	scratch = serial_inp(info, UART_DLM);
- 	serial_outp(info, UART_LCR, 0);
-+
- 	if (scratch == 0x10 || scratch == 0x14) {
-+		state->revision = scratch2;
- 		state->type = PORT_16850;
- 		return;
- 	}
- 
-+	/* Restore the DLL and DLM */
-+
-+	serial_outp(info, UART_LCR, UART_LCR_DLAB);
-+	serial_outp(info, UART_DLL, scratch3);
-+	serial_outp(info, UART_DLM, scratch4);
-+	serial_outp(info, UART_LCR, 0);
- 	/*
- 	 * We distinguish between the '654 and the '650 by counting
- 	 * how many bytes are in the FIFO.  I'm using this for now,
+		/dev/foo
+
+	Generally has to be centrally managed to put an order on the
+	name spaces.
+
+3.	Enumeration spaces
+
+	Things like /dev/disc on devfs. Spaces that allow you to walk across
+	all devices with a given property. A device can be in many
+
+I don't care how #2 is implemented.  I care that I can implement #2 any way
+I like. I care that I can implement #2 compatibly with my existing apps and
+my existing backup system. I care that people who dont speak a word of English
+can internationalise it.
+
+

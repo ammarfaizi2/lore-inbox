@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbTETACt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTETACt
+	id S262445AbTETAF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTETAF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:02:49 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:38131 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261994AbTETACs
+	Mon, 19 May 2003 20:05:26 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7583 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262445AbTETAEA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:02:48 -0400
-Date: Mon, 19 May 2003 17:15:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: usbserial OOPS in 2.5.69-bk4
-Message-ID: <20030520001520.GA28148@kroah.com>
-References: <1053380614.1141.44.camel@torrey.et.myrio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053380614.1141.44.camel@torrey.et.myrio.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 May 2003 20:04:00 -0400
+Date: Tue, 20 May 2003 02:16:18 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Corey Minyard <cminyard@mvista.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add boot command line parsing for the e100 driver
+In-Reply-To: <3EC90E92.4030507@mvista.com>
+Message-ID: <Pine.SOL.4.30.0305200215130.28757-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 02:43:34PM -0700, Torrey Hoffman wrote:
-> I got a non-fatal oops while trying to hotsync my Handspring Visor. 
-> My system is still running as I send this email, but the hotsync didn't
-> work.
 
-Can you try with the latest -bk tree?  I can successfully sync using it,
-but did have some problems with a few of the older revs.
+On Mon, 19 May 2003, Corey Minyard wrote:
 
-thanks,
+> Jeff Garzik wrote:
+>
+> >>instead of adding such horrible cruft Corey did it should just use the
+> >>proper API.
+> >>
+> >>
+> >
+> >An API already exists, and it is source compatible between 2.4 and 2.5:
+> >ethX=.... on the kernel command line.
+> >
+> >The proper patch would pick up options from there.
+> >
+> Can you tell me where this is?  I found the "ether=xxx" and
+> "netdev=xxx", but they are not suitible.  I also could not find
+> "module_parame" anywhere on google or in the kernel.
+>
+> -Corey
 
-greg k-h
+:-) module_parm(), look at include/linux/moduleparam.h
+and scsi for usage examples
+
+--
+Bartlomiej
+

@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbRETUd7>; Sun, 20 May 2001 16:33:59 -0400
+	id <S262237AbRETUdk>; Sun, 20 May 2001 16:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262238AbRETUdt>; Sun, 20 May 2001 16:33:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:182 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262235AbRETUdi>;
-	Sun, 20 May 2001 16:33:38 -0400
-Date: Sun, 20 May 2001 16:33:36 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <E151ZTj-0002pT-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0105201615530.8940-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262236AbRETUdT>; Sun, 20 May 2001 16:33:19 -0400
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:30745 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S262235AbRETUdK>; Sun, 20 May 2001 16:33:10 -0400
+Subject: sqrt in kernel?
+From: Robert "M." Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 20 May 2001 16:33:20 -0400
+Message-Id: <990390802.1002.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
+is there a sqrt function in the kernel? any other math functions?
 
-On Sun, 20 May 2001, Alan Cox wrote:
+i tried finding/grepping around, and found some various arch-specific
+stuff for fpu emulation... is there a general sqrt function?  is there a
+single file to look through with the various math functions?
 
-> > Linus, as much as I'd like to agree with you, you are hopeless optimist.
-> > 90% of drivers contain code written by stupid gits.
-                   ^^^^^^^
-> 
-> I think thats a very arrogant and very mistaken view of the problem. 90%
-> of the driver are written by people who are
+thanks,
 
-written by != contain code written by. Stuff initally written by sane
-people tends to get all sorts of crap into it. Unfortunately.
-
-The problem being: very few people actually read the code in drivers/*.
-And crap accumulates. The messier it is, the faster it gets shitted.
-
-So relying on the people finding crappy ->write() instances and ridiculing
-the authors in public is... well, somewhat naive. There's more than enough
-crap already and that simply doesn't happen. It _can_ be done, but it will
-take more than just having the code sitting there.
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 

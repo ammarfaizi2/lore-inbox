@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265328AbRFVEZR>; Fri, 22 Jun 2001 00:25:17 -0400
+	id <S265334AbRFVFHO>; Fri, 22 Jun 2001 01:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265330AbRFVEZH>; Fri, 22 Jun 2001 00:25:07 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22003 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S265328AbRFVEYy>; Fri, 22 Jun 2001 00:24:54 -0400
-Date: Fri, 22 Jun 2001 13:24:50 +0900
-Message-ID: <1yodnnu5.wl@nisaaru.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: raf@raf.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bugreport: poll() timeout always takes 10ms too long
-In-Reply-To: <20010622115212.A8681@eccles.raf.org>
-In-Reply-To: <20010622115212.A8681@eccles.raf.org>
-User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is
- short) SLIM/1.14.7 (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE
- XEmacs/21.2 (beta46) (Urania) (i386-kondara-linux)
+	id <S265335AbRFVFGy>; Fri, 22 Jun 2001 01:06:54 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:13572 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265334AbRFVFGw>; Fri, 22 Jun 2001 01:06:52 -0400
+Message-ID: <20010622050651.28491.qmail@web10401.mail.yahoo.com>
+Date: Fri, 22 Jun 2001 15:06:51 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: ACPI or Advanced power ...
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
- Hello,
+I need an advice, my machine is i810 chipset and using
+ACPI bios, but not sure which one i should use in the
+kernel config. Now I use APM with kernel kapm-idle .
 
-At Fri, 22 Jun 2001 11:52:12 +1000,
-raf@raf.org wrote:
-> 
-> [1.] One line summary of the problem:    
-> 
-> poll() timeout always takes 10ms too long
-> 
-> [2.] Full description of the problem/report:
-> 
-> Select() timeouts work fine. A timeout between 10n-9 and 10n ms times
-> out after 10n ms on average. Poll() timeouts between 10n-9 and 10n ms,
-> on the other hand, time out after 10(n+1) ms on average. It's always a
-> jiffy too long. This means it's impossible to set a 10ms timeout using
-> poll() even though it's possible using select(). The programs and their
-> output below [6] demonstrate this. The same behavious occurs with
-> linux-2.2 and linux-2.4.
+thank you very much
 
 
-  I think this is correct behavior. The Single UNIX Specification
-describes about the timeout parameter of poll() as follows,
 
-	If none of the defined events have occurred on any selected
-	file descriptor, poll() waits at least timeout milliseconds
-	for an event to occur on any of the selected file descriptors.
+=====
+S.KIEU
 
-  On the other hand, select(),
-
-	If the specified condition is false for all of the specified
-	file descriptors, select() blocks, up to the specified timeout
-	interval, until the specified condition is true for at least
-	one of the specified file descriptors.
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265375AbTLHLXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 06:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbTLHLXV
+	id S265378AbTLHL2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 06:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265380AbTLHL2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 06:23:21 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:37345 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265375AbTLHLXR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 06:23:17 -0500
-Date: Mon, 8 Dec 2003 09:06:02 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Tim Timmerman <Tim.Timmerman@asml.com>
-Cc: Mark Symonds <mark@symonds.net>, <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-In-Reply-To: <16340.9329.913657.900605@asml.com>
-Message-ID: <Pine.LNX.4.44.0312080845120.30140-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Mon, 8 Dec 2003 06:28:30 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:10393 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265378AbTLHL22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 06:28:28 -0500
+Subject: Re: partially encrypted filesystem
+From: David Woodhouse <dwmw2@infradead.org>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <3FCF7AD5.4050501@lougher.demon.co.uk>
+References: <1070485676.4855.16.camel@nucleon>
+	 <20031203214443.GA23693@wohnheim.fh-wedel.de>
+	 <Pine.LNX.4.58.0312031600460.2055@home.osdl.org>
+	 <20031204141725.GC7890@wohnheim.fh-wedel.de>
+	 <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
+	 <20031204172653.GA12516@wohnheim.fh-wedel.de>
+	 <3FCF7AD5.4050501@lougher.demon.co.uk>
+Content-Type: text/plain
+Message-Id: <1070882901.31993.72.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
+Date: Mon, 08 Dec 2003 11:28:22 +0000
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-12-04 at 18:20 +0000, Phillip Lougher wrote:
+> Considering that Jffs2 is the only writeable compressed filesystem, yes. 
+>   What should be borne in mind is compressed filesystems never expect 
+> the data after compression to be bigger than the original data.
 
+In fact that assumption is fairly trivial to remove, if you can put an
+upper bound on the growth. Adding encryption of data to JFFS2 would
+actually be fairly trivial; encryption of metadata would be harder. 
 
-On Mon, 8 Dec 2003, Tim Timmerman wrote:
+You could do it without touching or grokking the core of JFFS2 at all --
+just poke at fs/jffs2/compr.c and note that you're expected to eat as
+much of the input as will fit into the output buffer, returning success
+even if it didn't all fit.
 
-> >>>>> "Mark" == Mark Symonds <mark@symonds.net> writes:
-> 
-> Mark> Hi,
-> 
-> >> 
-> >> The first oops looks like:
-> >> 
-> >> Unable to handle kernel NULL pointer
-> >> dereference at virtual address: 00000000
-> >> 
-> Mark> [...]
-> 
-> Mark> I'm using ipchains compatability in there, looks like 
-> Mark> this is a possible cause - getting a patch right now,
-> Mark> will test and let y'all know (and then switch to 
-> Mark> iptables, finally). 
->       Let me just add a me-too here. 
-> 
->       Haven't got the oops on my desk, here, but from what I could
->       see, the error occurred in find_appropriate_src, somewhere in
->       ipchains.  
-> 
->       Further, possibly irrelevant datapoint: ABIT BP6, ne2k-pci and
->       3Com590 network cards. When the oops occurs, everything locks,
->       capslock and scrolllock are lit. 
-> 
->       I can reproduce the error by letting a second system ping the
->       first, on the internal network. Sometimes it doesn't even
->       complete a full boot. 
->       
->       I'll try and capture more detail tonight. 
-
-Tim,
-
-Please try the updated 2.4 BK tree (you can use -bk5, 
-http://www.kernel.org/pub/linux/kernel/v2.4/snapshots/patch-2.4.23-bk5.bz2).
-
-It contains a fix for a known bug in the netfilter which might what you're 
-hitting.
-
+-- 
+dwmw2
 

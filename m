@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbUBEFS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 00:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbUBEFS5
+	id S265188AbUBEFXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 00:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUBEFXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 00:18:57 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:56993 "EHLO
-	omta06.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S264359AbUBEFSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 00:18:55 -0500
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 00:23:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19136 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265188AbUBEFXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 00:23:10 -0500
+Date: Wed, 4 Feb 2004 21:24:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: mikem@beardog.cca.cpqcorp.net
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: cciss updates for 2.6 [9 of 11]
+Message-Id: <20040204212452.64620e38.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402041817280.18320@beardog.cca.cpqcorp.net>
+References: <Pine.LNX.4.58.0402041817280.18320@beardog.cca.cpqcorp.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Wed, 4 Feb 2004 21:17:36 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: US/KS performance question
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.187.247]
-Message-Id: <20040205051736.89307CF33@sitemail.everyone.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CC me all replies.
+mikem@beardog.cca.cpqcorp.net wrote:
+>
+> +		vol_sz = drv->nr_blocks/ENG_GIG_FACTOR;
+> +		vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
 
-I'm doing a little work on ACLs.  Instead of a LSM, I'm writing up a little bit
-of code and some hooks to allow a userspace daemon to do the decision making.
+This causes problems with CONFIG_LBD=y on ia32.
 
-The plan is as follows:
+drivers/built-in.o: In function `cciss_proc_get_info':
+/tmp/distcc_1108/drivers/block/cciss.c:217: undefined reference to `__udivdi3'
+/tmp/distcc_1108/drivers/block/cciss.c:218: undefined reference to `__umoddi3'
+/tmp/distcc_1108/drivers/block/cciss.c:218: undefined reference to `__udivdi3'
 
- - acld connects to kernel, sleeps.
- - Kernel needs to ask something of acld, ques request in US
- - Kernel wakes acld up
- - Kernel puts the requesting thread to sleep
- - acld processes requests
- - Each request processed is followed by a syscall to the kernel with the result
- - Kernel takes the result, finds the thread that wanted it, wakes thread up
- - When there's no more requests, acld sleeps
+I'll include the below fix - could you please test it?  With both
+CONFIG_LBD=y and CONFIG_LBD=n?
 
-Now, I have two major bottlenecks:
- - Userspace acld MAC daemon has to make a syscall and pass data from US to KS
- - Kernel has to sometimes wake up acld and always has to wake up the requesting
-   thread after getting the result back from acld
+Thanks.
 
-Any ideas on how much overhead this could add?  If it takes only a few more
-microseconds to wake up acld, sleep the process, process the syscall, and finally
-wake the process; as opposed to calling a kernel function to make the decision,
-then it should be okay.  If it's going to be some 10 or 20 miliseconds per request,
-I might have problems.  If it's going to take more than 100 mS for this, I need
-a redesign.
 
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/
+diff -puN drivers/block/cciss.c~cciss-64-bit-divide-fix drivers/block/cciss.c
+--- 25/drivers/block/cciss.c~cciss-64-bit-divide-fix	2004-02-04 21:15:48.000000000 -0800
++++ 25-akpm/drivers/block/cciss.c	2004-02-04 21:15:48.000000000 -0800
+@@ -211,11 +211,27 @@ static int cciss_proc_get_info(char *buf
+         pos += size; len += size;
+ 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
+ 	for(i=0; i<h->highest_lun; i++) {
++		sector_t tmp;
++
+                 drv = &h->drv[i];
+ 		if (drv->block_size == 0)
+ 			continue;
+-		vol_sz = drv->nr_blocks/ENG_GIG_FACTOR;
+-		vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
++		vol_sz = drv->nr_blocks;
++		sector_div(vol_sz, ENG_GIG_FACTOR);
++
++		/*
++		 * Awkwardly do this:
++		 * vol_sz_frac =
++		 *     (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
++		 */
++		tmp = drv->nr_blocks;
++		vol_sz_frac = sector_div(tmp, ENG_GIG_FACTOR);
++
++		/* Now, vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR) */
++
++		vol_sz_frac *= 100;
++		sector_div(vol_sz_frac, ENG_GIG_FACTOR);
++
+ 		if (drv->raid_level > 5)
+ 			drv->raid_level = RAID_UNKNOWN;
+ 		size = sprintf(buffer+len, "cciss/c%dd%d:"
+
+_
+

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313442AbSC2Nzj>; Fri, 29 Mar 2002 08:55:39 -0500
+	id <S313445AbSC2N43>; Fri, 29 Mar 2002 08:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313443AbSC2Nz3>; Fri, 29 Mar 2002 08:55:29 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:39441 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313442AbSC2NzS>; Fri, 29 Mar 2002 08:55:18 -0500
-Message-ID: <3CA471E6.8070506@evision-ventures.com>
-Date: Fri, 29 Mar 2002 14:53:42 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313444AbSC2N4Y>; Fri, 29 Mar 2002 08:56:24 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:45699 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313443AbSC2N4M>; Fri, 29 Mar 2002 08:56:12 -0500
+Date: Fri, 29 Mar 2002 13:56:11 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+cc: "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-ntfs-dev@lists.sourceforge.net" 
+	<linux-ntfs-dev@lists.sourceforge.net>,
+        Padraig Brady <padraig@antefacto.com>
+Subject: Re: Re[2]: ANN: NTFS 2.0.1 for kernel 2.5.7 released
+In-Reply-To: <ISPFE11z1aiG4HHZM9I000037fa@mail.takas.lt>
+Message-ID: <Pine.SOL.3.96.1020329134328.18653B-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: Vojtech Pavlik <vojtech@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.7 IDE 26
-In-Reply-To: <3CA2E282.7070906@evision-ventures.com> <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com> <3CA2E282.7070906@evision-ventures.com> <5.1.0.14.2.20020328205406.00aec720@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> At 20:34 28/03/02, Vojtech Pavlik wrote:
+On Fri, 29 Mar 2002, Nerijus Baliunas wrote:
+> On Fri, 29 Mar 2002 12:57:07 +0000 (GMT) Anton Altaparmakov <aia21@cus.cam.ac.uk> wrote:
+> AA> > To have all files executable breaks stuff like:
+> AA> > midnight commander (won't open executable files)
+> AA> 
+> AA> Ouch, that is plain stupid... mc should be fixed. I open executables all
+> AA> the time and mc should automatically fire up a hexeditor.
 > 
->> On Thu, Mar 28, 2002 at 10:29:38AM +0100, Martin Dalecki wrote:
->> > Wed Mar 20 23:17:06 CET 2002 ide-clean-26
->> >
->> > - Mark all members of structures, which get jiffies assigned or 
->> involved in
->> >    ugly timeout calculations with the prefix PADAM_  for easy 
->> spotting. This is
->> >    Polish for "I'm falling down" or "This brings me to the knees" or 
->> slag
->> >    comment for "What a sh..". Please be assured that it doesn't 
->> sound vulgar.
->>
->> In Czech, too. :)
-> 
-> 
-> <AOL> In Bulgarian, too. (-: </AOL>
-> 
-> And same in <place your favourite slavic eastern european language here>...
+> You probably misunderstood the problem - I cannot enter archive files (.tgz, .zip)
+> in mc if these files are marked as executable - mc just tries to execute them.
 
-I hope it's clear that the intention is to replace them
-by proper timeout handler callbacks.
+Ah, that is a bad thing. (I don't use mc as you may have guessed...)
+
+> AA> I guess if more people complain I can change the default fmask to be 0177
+> AA> instead of 0077 but I want to see more complaints first. I personally find
+> AA> the being able to execute behaviour better as I run things off the ntfs
+> AA> partitions...
+> 
+> People using Linux usually keep data files on fat and ntfs permissions, not
+> executables (IMHO).
+
+Depends what you are doing and whether you use wine or not... I have no
+idea what the percentages are...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265438AbUAMVuj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 16:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265385AbUAMVuj
+	id S265800AbUAMVyH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265807AbUAMVyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 16:50:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30395 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265438AbUAMVuh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 16:50:37 -0500
-Date: Tue, 13 Jan 2004 13:51:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Haakon Riiser <haakon.riiser@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
-Message-Id: <20040113135152.3ed26b85.akpm@osdl.org>
-In-Reply-To: <20040113210923.GA955@s.chello.no>
-References: <20040113210923.GA955@s.chello.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 13 Jan 2004 16:54:06 -0500
+Received: from debian4.unizh.ch ([130.60.73.144]:16785 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S265800AbUAMVyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 16:54:01 -0500
+Date: Tue, 13 Jan 2004 22:53:55 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: modprobe failed: digest_null
+Message-ID: <20040113215355.GA3882@piper.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-piper i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haakon Riiser <haakon.riiser@fys.uio.no> wrote:
->
-> The entire output from strace is available for download from
-> <http://home.chello.no/~hakonrk/2.6.1.strace.out>, but I think
-> only this line is interesting:
-> 
->   5083  16:00:30.714309 write(5, "\0", 1) = 1 <1.637019>
-> 
-> This the only write() to file descriptor 5 issued by qmail-queue,
-> right before it exists, and this is what causes the delay.
-> Notice that writing this single NUL-byte takes almost 1.64 seconds
-> (the number in the angle brackets at the end of the line is the
-> time spent in the system call, given by the -T flag to strace).
-> Furthermore, the kernel appears to be busy-waiting in this system
-> call, because the CPU usage quickly jumps to 100%.
 
-Odd.
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-5083  16:00:30.714217 open("lock/trigger", O_WRONLY|O_NONBLOCK) = 5 <0.000013>
-5083  16:00:30.714260 fcntl64(5, F_GETFL) = 0x801 (flags O_WRONLY|O_NONBLOCK) <0.000004>
-5083  16:00:30.714287 fcntl64(5, F_SETFL, O_WRONLY|O_NONBLOCK) = 0 <0.000004>
-5083  16:00:30.714309 write(5, "\0", 1) = 1 <1.637019>
-5083  16:00:32.351378 close(5)          = 0 <0.000005>
+I am seeing many messages like
 
-Seems innocuous.  What filesystem type is lock/trigger on?
+  kernel: request_module: failed /sbin/modprobe -- digest_null. error =3D 2=
+56
 
-Can you generate a kernel profile of this activity?
+in my logs. What's the nature of these?
 
-Boot with `profile=1', copy this:
+Thanks,
 
-SM=/boot/System.map
-TIMEFILE=/tmp/prof.time
-sudo readprofile -r
-sudo readprofile -M10
-time $@
-readprofile -n -v -m $SM | sort -n +2 | tail -40 | tee $TIMEFILE >&2
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"it's time for the human race to enter the solar system."=20
+                                                      - george w. bush
 
-into /tmp/foo and do
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-	/tmp/foo whatever-command-you-were-using
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Thanks.
+iD8DBQFABGjzIgvIgzMMSnURAh2+AJ9surxD8B0VpBxwYIlQNYEBpKJ6fQCgmsem
+oJ+w8okelZzkuaTogLx2vXU=
+=Qb+8
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbTABEvt>; Wed, 1 Jan 2003 23:51:49 -0500
+	id <S265636AbTABEq3>; Wed, 1 Jan 2003 23:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbTABEvt>; Wed, 1 Jan 2003 23:51:49 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:8408 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S265643AbTABEvq>; Wed, 1 Jan 2003 23:51:46 -0500
-Date: Thu, 2 Jan 2003 00:00:07 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54 - OHCI-HCD build fails
-Message-ID: <20030102050007.GB1464@Master.Wizards>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com> <20030102045245.GA1464@Master.Wizards>
+	id <S265683AbTABEq3>; Wed, 1 Jan 2003 23:46:29 -0500
+Received: from are.twiddle.net ([64.81.246.98]:2691 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265636AbTABEq1>;
+	Wed, 1 Jan 2003 23:46:27 -0500
+Date: Wed, 1 Jan 2003 20:54:04 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>, ak@suse.de,
+       davem@redhat.com, paulus@samba.org, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] Modules 3/3: Sort sections
+Message-ID: <20030101205404.B30272@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, ak@suse.de,
+	davem@redhat.com, paulus@samba.org, rmk@arm.linux.org.uk
+References: <20030102030044.D066C2C05E@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030102045245.GA1464@Master.Wizards>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030102030044.D066C2C05E@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Jan 02, 2003 at 02:00:27PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 11:52:45PM -0500, Murray J. Root wrote:
-> On Wed, Jan 01, 2003 at 07:43:40PM -0800, Linus Torvalds wrote:
-> > 
-> > Happy new year to you all, hopefully most of you are back from the dead 
-> > and the hangovers are all long gone.  And if not, I'm told reading a large 
-> > kernel patch is _just_ the medication for whatever ails you.
-> > 
-> > The 2.5.54 patch is largely mainly a big collection of various small
-> > things, all over the place (diffstat shows a long list of small changes,
-> > with some noticeable activity in UML, the MPT fusion driver and some of
-> > the fbcon drivers).
-> > 
-> > Various module updates (deprecated functions, updated loaders etc), usb, 
-> > m68k, x86-64 updates, kbuild stuff etc etc.
-> 
-> Build error:
-> 
-> In file included from drivers/usb/host/ohci-hcd.c:137:
-> drivers/usb/host/ohci-dbg.c: In function `show_list':
-> drivers/usb/host/ohci-dbg.c:358: `data1' undeclared (first use in this function)
-> drivers/usb/host/ohci-dbg.c:358: (Each undeclared identifier is reported only once
-> drivers/usb/host/ohci-dbg.c:358: for each function it appears in.)
-> drivers/usb/host/ohci-dbg.c:358: `data0' undeclared (first use in this function)
-> make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
-> 
+On Thu, Jan 02, 2003 at 02:00:27PM +1100, Rusty Russell wrote:
+> +	/* Find .plt and .pltinit sections */
 
-checking "USB verbose debug nessages" lets it build
-not what I wanted, but better than no ohci-hcd
+Typo.
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker
-  #cooker = moderated Mandrake Cooker
+> +/* Make empty sections for module_frob_arch_sections to expand. */
+> +#ifdef MODULE
+> +asm(".section .plt,\"aws\",@nobits; .align 3; .previous");
+> +asm(".section .plt.init,\"aws\",@nobits; .align 3; .previous");
 
+Should use "ax", do make the plt sections executable,
+since the plt section contains code that branches.
+Additionally, this will place the .plt section next
+to .text, which improves icache usage, and minimizes
+the branch distance.
+
+Incidentally, why do we do strstr(name, ".init") instead
+of strncmp(name, ".init", 5)?  Is there any particular
+need for the .init to come at the end?
+
+
+r~

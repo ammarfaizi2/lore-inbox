@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbTLZJOl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 04:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTLZJOl
+	id S265063AbTLZJWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 04:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTLZJWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 04:14:41 -0500
-Received: from 24-205-10-106.mpk-eres.charterpipeline.net ([24.205.10.106]:8467
-	"EHLO Z") by vger.kernel.org with ESMTP id S265105AbTLZJOk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 04:14:40 -0500
-Reply-To: "VNDial Communication" <mrcongtu@yahoo.com>
-From: "VNDial Communication" <mrcongtu@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: International long-distance for under 3 cents/min
-Date: Fri, 26 Dec 2003 01:14:40 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-Id: <S265105AbTLZJOk/20031226091440Z+15900@vger.kernel.org>
+	Fri, 26 Dec 2003 04:22:55 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:43648 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265063AbTLZJWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 04:22:53 -0500
+Subject: Re: Page aging broken in 2.6
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, riel@surriel.com
+In-Reply-To: <20031225234023.20396cbc.akpm@osdl.org>
+References: <1072423739.15458.62.camel@gaston>
+	 <20031225234023.20396cbc.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WFhY2CBHumPBK4toubMJ"
+Organization: Red Hat, Inc.
+Message-Id: <1072430500.5222.2.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 26 Dec 2003 10:21:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://www.vndial.net
-International long-distance as low as 2.9 cents/min
-One minute rounding
-No monthly fee
-No connection fee
-You only pay for the minutes you talk
+--=-WFhY2CBHumPBK4toubMJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Please come and visit us at http://www.vndial.net
-VNDial International PCToPhone
 
-If you do not wish to receive this letter in the future,
-please reply to this email with the subject REMOVE
+> > And we never flush the TLB entry.=20
+> >=20
+> > I don't know if x86 (or other archs really using page tables) will
+> > actually set the referenced bit again in the PTE if it's already set
+> > in the TLB, if not, then x86 needs a flush too.
+>=20
+> x86 needs a flush_tlb_page(), yes.
+
+it does? Are you 100% sure ?
+
+Afaik x86 is very very slow in setting the A and D bits (like 2000 to
+3000 cycles) *because* it doesn't need a TLB flush....
+
+
+
+
+--=-WFhY2CBHumPBK4toubMJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/6/2kxULwo51rQBIRAiWnAJ4/K1GSl2QXV443FbHTFEQAeG09WACgkqTj
+4wyRLgeq+JS9N1qIZAErWPM=
+=jZ22
+-----END PGP SIGNATURE-----
+
+--=-WFhY2CBHumPBK4toubMJ--

@@ -1,124 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263544AbUDVGjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263612AbUDVG47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUDVGjW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 02:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbUDVGjW
+	id S263612AbUDVG47 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 02:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUDVG47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 02:39:22 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:35205 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263544AbUDVGjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 02:39:06 -0400
+	Thu, 22 Apr 2004 02:56:59 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:27254 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263612AbUDVG4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 02:56:45 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Subject: Re: /dev/psaux-Interface
-Date: Thu, 22 Apr 2004 01:39:00 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 17/15] New set of input patches: serio open/close optional
+Date: Thu, 22 Apr 2004 01:56:40 -0500
 User-Agent: KMail/1.6.1
-Cc: Kim Holviala <kim@holviala.com>, linux-kernel@vger.kernel.org,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>
-References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <200404210151.06636.dtor_core@ameritech.net> <xb7smexg5sm.fsf@savona.informatik.uni-freiburg.de>
-In-Reply-To: <xb7smexg5sm.fsf@savona.informatik.uni-freiburg.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+References: <200404210049.17139.dtor_core@ameritech.net>
+In-Reply-To: <200404210049.17139.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404220139.02775.dtor_core@ameritech.net>
+Message-Id: <200404220156.42083.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 April 2004 02:15 am, Sau Dan Lee wrote:
-> >>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
-> 
-> 
->     >> Adding the complexity of various devices and protocols into
->     >> kernelspace is insane.
-> 
->     Dmitry> The thing is that processing in kernel space is not that
->     Dmitry> complex.
-> 
-> Even so,  it's not easy to  get it right.  In  kernel programming, you
-> have to take  care of many issues, such as whether  you have a process
-> context, when to  use spinlock, wait queues, etc.  I  even had to care
-> about fasync() when developing the psaux module, even though it's just
-> copying a few lines of sample code from the kernel hacking guide.
->
 
-OK, here you go. It is the first cut. The driver creates an absolute device
-for the touchscreen and a fake pass-through port to for the pointing device
-which works in relative mode. All fancy stuff can be done in userspace via
-evdev.
- 
-Hopefully I got Y-axis direction correctly and init sequence may need some
-work. It also hijacks proto=imsp parameter until I merge Kim's protocol
-selection changes. I wish I could test it but I do not have a Lifebook so
-comments and suggestions are welcome.
+===================================================================
 
-Apply on top of patches in:
-http://www.geocities.com/dt_or/input/2.6.6-rc2/
 
--- 
-Dmitry
+ChangeSet@1.1928, 2004-04-22 01:55:04-05:00, dtor_core@ameritech.net
+  Input: make open and close serio methods optional
 
-===== drivers/input/mouse/Makefile 1.9 vs edited =====
---- 1.9/drivers/input/mouse/Makefile	Wed Mar  3 11:17:04 2004
-+++ edited/drivers/input/mouse/Makefile	Thu Apr 22 00:20:31 2004
-@@ -15,4 +15,4 @@
- obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
- obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
- 
--psmouse-objs  := psmouse-base.o logips2pp.o synaptics.o
-+psmouse-objs  := psmouse-base.o lbtouch.o logips2pp.o synaptics.o
-===== drivers/input/mouse/psmouse-base.c 1.57 vs edited =====
---- 1.57/drivers/input/mouse/psmouse-base.c	Tue Apr 20 23:59:36 2004
-+++ edited/drivers/input/mouse/psmouse-base.c	Thu Apr 22 00:59:31 2004
-@@ -21,6 +21,7 @@
- #include "psmouse.h"
- #include "synaptics.h"
- #include "logips2pp.h"
-+#include "lbtouch.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("PS/2 mouse driver");
-@@ -53,7 +54,7 @@
- __obsolete_setup("psmouse_resetafter=");
- __obsolete_setup("psmouse_rate=");
- 
--static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
-+static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2", "LBPS/2" };
- 
- /*
-  * psmouse_process_byte() analyzes the PS/2 data stream and reports
-@@ -414,6 +415,15 @@
- 			      unsigned int max_proto, int set_properties)
- {
- 	int synaptics_hardware = 0;
-+
-+	if (max_proto == PSMOUSE_IMEX && lbtouch_init(psmouse, set_properties)) {
-+		if (set_properties) {
-+			psmouse->vendor = "Fujitsu";
-+			psmouse->name = "Lifebook Touchscreen";
-+		}
-+
-+		return PSMOUSE_LBTOUCH;
-+	}
- 
- /*
-  * Try Synaptics TouchPad
-===== drivers/input/mouse/psmouse.h 1.10 vs edited =====
---- 1.10/drivers/input/mouse/psmouse.h	Tue Apr 20 17:42:10 2004
-+++ edited/drivers/input/mouse/psmouse.h	Thu Apr 22 00:14:52 2004
-@@ -72,6 +72,7 @@
- #define PSMOUSE_IMPS		5
- #define PSMOUSE_IMEX		6
- #define PSMOUSE_SYNAPTICS 	7
-+#define PSMOUSE_LBTOUCH 	8
- 
- int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
- int psmouse_sliced_command(struct psmouse *psmouse, unsigned char command);
-===== drivers/input/mouse/lbtouch.c 1.0 vs 1.1 =====
---- /dev/null	Fri Aug 30 18:31:37 2002
-+++ 1.1/drivers/input/mouse/lbtouch.c	Thu Apr 22 01:21:26 2004
+
+ mouse/lbtouch.c   |  203 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ mouse/lbtouch.h   |   16 ++++
+ mouse/synaptics.c |   11 --
+ serio/parkbd.c    |   11 --
+ serio/q40kbd.c    |   11 --
+ serio/serio.c     |    5 -
+ serio/serport.c   |   10 --
+ 7 files changed, 224 insertions(+), 43 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/mouse/lbtouch.c b/drivers/input/mouse/lbtouch.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/input/mouse/lbtouch.c	Thu Apr 22 01:55:34 2004
 @@ -0,0 +1,203 @@
 +/*
 + *  Copyright (c) 2004 Dmitry Torokhov <dtor@mail.ru>
@@ -323,9 +255,9 @@ Dmitry
 +
 +	return 1;
 +}
-===== drivers/input/mouse/lbtouch.h 1.0 vs 1.1 =====
---- /dev/null	Fri Aug 30 18:31:37 2002
-+++ 1.1/drivers/input/mouse/lbtouch.h	Thu Apr 22 01:21:29 2004
+diff -Nru a/drivers/input/mouse/lbtouch.h b/drivers/input/mouse/lbtouch.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/input/mouse/lbtouch.h	Thu Apr 22 01:55:34 2004
 @@ -0,0 +1,16 @@
 +/*
 + * Fujistsu Lifebook PS/2 touchscreen driver header
@@ -343,3 +275,145 @@ Dmitry
 +int lbtouch_init(struct psmouse *psmouse, int set_properties);
 +
 +#endif
+diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+--- a/drivers/input/mouse/synaptics.c	Thu Apr 22 01:55:34 2004
++++ b/drivers/input/mouse/synaptics.c	Thu Apr 22 01:55:34 2004
+@@ -212,15 +212,6 @@
+ /*****************************************************************************
+  *	Synaptics pass-through PS/2 port support
+  ****************************************************************************/
+-static int synaptics_pt_open(struct serio *port)
+-{
+-	return 0;
+-}
+-
+-static void synaptics_pt_close(struct serio *port)
+-{
+-}
+-
+ static int synaptics_pt_write(struct serio *port, unsigned char c)
+ {
+ 	struct psmouse *parent = port->driver;
+@@ -282,8 +273,6 @@
+ 	port->serio.name = "Synaptics pass-through";
+ 	port->serio.phys = "synaptics-pt/serio0";
+ 	port->serio.write = synaptics_pt_write;
+-	port->serio.open = synaptics_pt_open;
+-	port->serio.close = synaptics_pt_close;
+ 	port->serio.driver = psmouse;
+ 
+ 	port->activate = synaptics_pt_activate;
+diff -Nru a/drivers/input/serio/parkbd.c b/drivers/input/serio/parkbd.c
+--- a/drivers/input/serio/parkbd.c	Thu Apr 22 01:55:34 2004
++++ b/drivers/input/serio/parkbd.c	Thu Apr 22 01:55:34 2004
+@@ -86,20 +86,9 @@
+ 	return 0;
+ }
+ 
+-static int parkbd_open(struct serio *port)
+-{
+-	return 0;
+-}
+-
+-static void parkbd_close(struct serio *port)
+-{
+-}
+-
+ static struct serio parkbd_port =
+ {
+ 	.write	= parkbd_write,
+-	.open	= parkbd_open,
+-	.close	= parkbd_close,
+ 	.name	= parkbd_name,
+ 	.phys	= parkbd_phys,
+ };
+diff -Nru a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
+--- a/drivers/input/serio/q40kbd.c	Thu Apr 22 01:55:34 2004
++++ b/drivers/input/serio/q40kbd.c	Thu Apr 22 01:55:34 2004
+@@ -47,23 +47,12 @@
+ MODULE_DESCRIPTION("Q40 PS/2 keyboard controller driver");
+ MODULE_LICENSE("GPL");
+ 
+-
+-static int q40kbd_open(struct serio *port)
+-{
+-	return 0;
+-}
+-static void q40kbd_close(struct serio *port)
+-{
+-}
+-
+ static struct serio q40kbd_port =
+ {
+ 	.type	= SERIO_8042,
+ 	.name	= "Q40 kbd port",
+ 	.phys	= "Q40",
+ 	.write	= NULL,
+-	.open	= q40kbd_open,
+-	.close	= q40kbd_close,
+ };
+ 
+ static irqreturn_t q40kbd_interrupt(int irq, void *dev_id,
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	Thu Apr 22 01:55:34 2004
++++ b/drivers/input/serio/serio.c	Thu Apr 22 01:55:34 2004
+@@ -293,7 +293,7 @@
+ int serio_open(struct serio *serio, struct serio_dev *dev)
+ {
+ 	serio->dev = dev;
+-	if (serio->open(serio)) {
++	if (serio->open && serio->open(serio)) {
+ 		serio->dev = NULL;
+ 		return -1;
+ 	}
+@@ -303,7 +303,8 @@
+ /* called from serio_dev->connect/disconnect methods under serio_sem */
+ void serio_close(struct serio *serio)
+ {
+-	serio->close(serio);
++	if (serio->close)
++		serio->close(serio);
+ 	serio->dev = NULL;
+ }
+ 
+diff -Nru a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+--- a/drivers/input/serio/serport.c	Thu Apr 22 01:55:34 2004
++++ b/drivers/input/serio/serport.c	Thu Apr 22 01:55:34 2004
+@@ -48,11 +48,6 @@
+ 	return -(serport->tty->driver->write(serport->tty, 0, &data, 1) != 1);
+ }
+ 
+-static int serport_serio_open(struct serio *serio)
+-{
+-        return 0;
+-}
+-
+ static void serport_serio_close(struct serio *serio)
+ {
+ 	struct serport *serport = serio->driver;
+@@ -87,7 +82,6 @@
+ 
+ 	serport->serio.type = SERIO_RS232;
+ 	serport->serio.write = serport_serio_write;
+-	serport->serio.open = serport_serio_open;
+ 	serport->serio.close = serport_serio_close;
+ 	serport->serio.driver = serport;
+ 
+@@ -135,7 +129,7 @@
+ }
+ 
+ /*
+- * serport_ldisc_read() just waits indefinitely if everything goes well. 
++ * serport_ldisc_read() just waits indefinitely if everything goes well.
+  * However, when the serio driver closes the serio port, it finishes,
+  * returning 0 characters.
+  */
+@@ -165,7 +159,7 @@
+ static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsigned int cmd, unsigned long arg)
+ {
+ 	struct serport *serport = (struct serport*) tty->disc_data;
+-	
++
+ 	if (cmd == SPIOCSTYPE)
+ 		return get_user(serport->serio.type, (unsigned long *) arg);
+ 

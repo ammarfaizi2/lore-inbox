@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261656AbSI0HYm>; Fri, 27 Sep 2002 03:24:42 -0400
+	id <S261659AbSI0H37>; Fri, 27 Sep 2002 03:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261655AbSI0HYm>; Fri, 27 Sep 2002 03:24:42 -0400
-Received: from beppo.feral.com ([192.67.166.79]:58127 "EHLO beppo.feral.com")
-	by vger.kernel.org with ESMTP id <S261650AbSI0HYk>;
-	Fri, 27 Sep 2002 03:24:40 -0400
-Date: Fri, 27 Sep 2002 00:29:53 -0700 (PDT)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Jens Axboe <axboe@suse.de>
-cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing file
- transfers
-In-Reply-To: <20020927072441.GT5646@suse.de>
-Message-ID: <Pine.BSF.4.21.0209270029280.18144-100000@beppo>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261661AbSI0H37>; Fri, 27 Sep 2002 03:29:59 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17103 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261659AbSI0H36>; Fri, 27 Sep 2002 03:29:58 -0400
+Date: Fri, 27 Sep 2002 03:35:07 -0400
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+Cc: "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Distributing drivers independent of the kernel source tree
+Message-ID: <20020927033507.A18387@devserv.devel.redhat.com>
+References: <A9713061F01AD411B0F700D0B746CA6802FC14D7@vacho6misge.cho.ge.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC14D7@vacho6misge.cho.ge.com>; from Daniel.Heater@gefanuc.com on Thu, Sep 26, 2002 at 05:16:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 27 Sep 2002, Jens Axboe wrote:
-
-> On Fri, Sep 27 2002, Matthew Jacob wrote:
-> > > 
-> > > So I think the 'more tags the better!' belief is very much bogus, at
-> > > least for the common case.
-> > 
-> > Well, that's one theory.
+On Thu, Sep 26, 2002 at 05:16:03PM -0400, Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
 > 
-> Numbers talk, theory spinning walks
-> 
-> Both Andrew and I did latency numbers for even small depths of tagging,
-> and the result was not pretty. Sure this is just your regular plaino
-> SCSI drives, however that's also what I care most about. People with
-> big-ass hardware tend to find a way to tweak them as well, I'd like the
-> typical systems to run fine out of the box though.
-> 
+> That's true for installing modules, but I'm wondering about getting a
+> standalone module compiled. I.e., what is a reliable method for locating the
+> include files for the kernel?
 
-Fair enough. 
+as I said
 
-
-
+/lib/modules/`uname -r`/build/include
 

@@ -1,102 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266578AbSKGUw0>; Thu, 7 Nov 2002 15:52:26 -0500
+	id <S266397AbSKGU43>; Thu, 7 Nov 2002 15:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266579AbSKGUw0>; Thu, 7 Nov 2002 15:52:26 -0500
-Received: from smtp.orcon.net.nz ([210.55.12.4]:60569 "EHLO smtp.orcon.net.nz")
-	by vger.kernel.org with ESMTP id <S266578AbSKGUwY>;
-	Thu, 7 Nov 2002 15:52:24 -0500
-Message-ID: <019901c286a0$64ea9620$6df058db@PC2>
-From: "Craig Whitmore" <lennon@orcon.net.nz>
-To: <linux-kernel@vger.kernel.org>
-Subject: ACPI Errors on Intel Server Board SHG2
-Date: Fri, 8 Nov 2002 09:58:16 +1300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S266563AbSKGU43>; Thu, 7 Nov 2002 15:56:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62482 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266397AbSKGU41>; Thu, 7 Nov 2002 15:56:27 -0500
+Date: Thu, 7 Nov 2002 21:03:04 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Templates and tweaks (for size performance and more)
+Message-ID: <20021107210304.C11437@flint.arm.linux.org.uk>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <20021107190910.GC6164@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021107190910.GC6164@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Nov 07, 2002 at 12:09:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having troubles with a few errors with ACPI when booting up on a Intel
-SHG2 Motherboard (Dual Xeon2.4 with HT) (and SC5200 Chassis)  Are these
-becuase its not totally supported yet in Linux?
+On Thu, Nov 07, 2002 at 12:09:10PM -0700, Tom Rini wrote:
+> The following is vs current 2.5 BK and has been lightly tested on PPC
+> (and compiled on i386).  This creates the default files for all current
+> arches, and adapts ARM and ia64 as well to show how to override a
+> generic param with an arch-specific one (and removes
+> CONFIG_FORCE_MAX_ZONEORDER).
 
-Thanks
-Craig Whitmore
-Also someone might want to idenify and put in the kernel the labels for the
-unidentified hardware if they can..
+This isn't a "tweak" on ARM as in a user-adjustable value.  It needs to
+specifically be reduced to prevent things from blowing up.
 
-00:00.0 Host bridge: ServerWorks: Unknown device 0012 (rev 13)
-00:00.1 Host bridge: ServerWorks: Unknown device 0012
-00:00.2 Host bridge: ServerWorks: Unknown device 0000
-00:02.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
-0d)
-00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB Controller (rev 05)
-00:0f.3 Host bridge: ServerWorks: Unknown device 0225
-00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-01:04.0 Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet Controller
-(rev 02)
-02:08.0 PCI bridge: Distributed Processing Technology PCI Bridge (rev 01)
-02:08.1 I2O: Distributed Processing Technology SmartRAID V Controller (rev
-01)
+So, when SA1111-type machines are selected, the max zone order _must_
+(no ifs or buts) be set to 9 or below.
 
+> +/* This is the number of free areas per zone to manage, but the max
+> + * number determines the maximum order of a page allocation request
+> + * as well. */
+> +/* Default: 11 */
+> +#if defined(ASSABET_NEPONSET0) || defined(SA1100_ADSBITSY) || 		\
+> +	defined(SA1100_BADGE4) || defined(SA1100_CONSUS) || 		\
+> +	defined(SA1100_GRAPHICSMASTER) || defined(SA1100_JORNADA720) ||	\
+> +	defined(ARCH_LUBBOCK) || defined(SA1100_PFS168) ||		\
+> +	defined(SA1100_PT_SYSTEM3) || defined(SA1100_XP860)
+> +#undef TWEAK_MAX_ORDER
+> +#define TWEAK_MAX_ORDER		9
+> +#endif
 
-----------------------------------------------------------------------------
----
+And the reason we have it in the configuration rather than the code is
+to get rid of crap like the above.
 
-
- tbxface-0099 [01] Acpi_load_tables      : ACPI Tables successfully loaded
-Parsing
-Methods:....................................................................
-................................................
-............................................................................
-..........................................
-234 Control Methods found and parsed (565 nodes total)
-ACPI Namespace successfully loaded at root c0400920
-ACPI: Core Subsystem version [20011018]
-evxfevnt-0081 [02] Acpi_enable           : Transition to ACPI mode
-successful
-Executing device _INI
-methods:......................................evregion-0302 [21]
-Ev_address_space_dispa: Region handler: AE_ER
-ROR [PCIConfig]
- dswexec-0392 [12] Ds_exec_end_op        : [LEqual]: Could not resolve
-operands, AE_ERROR
-Ps_execute: method failed - \_SB_.PCI0.LAN1._STA (f7af43a8)
-  uteval-0337 [05] Ut_execute_STA        : _STA on LAN1 failed AE_ERROR
-...............
-53 Devices found: 52 _STA, 0 _INI
-Completing Region and Field initialization:.............
-13/19 Regions, 0/0 Fields initialized (565 nodes total)
-ACPI: Subsystem enabled
-evregion-0302 [20] Ev_address_space_dispa: Region handler: AE_ERROR
-[PCIConfig]
- dswexec-0392 [11] Ds_exec_end_op        : [LEqual]: Could not resolve
-operands, AE_ERROR
-Ps_execute: method failed - \_SB_.PCI0.LAN1._STA (f7af43a8)
-  uteval-0337 [04] Ut_execute_STA        : _STA on LAN1 failed AE_ERROR
-evregion-0302 [22] Ev_address_space_dispa: Region handler: AE_ERROR
-[PCIConfig]
- dswexec-0392 [13] Ds_exec_end_op        : [LEqual]: Could not resolve
-operands, AE_ERROR
-Ps_execute: method failed - \_SB_.PCI0.LAN1._STA (f7af43a8)
-evregion-0302 [25] Ev_address_space_dispa: Region handler: AE_BAD_PARAMETER
-[Embedded_control]
-Ps_execute: method failed - \_SB_.PCI0.ISA0.EC0_._REG (f7af69a8)
-ACPI: System firmware supports S0 S1 S4 S5
-Processor[0]: C0 C1
-Processor[1]: C0 C1
-Processor[2]: C0 C1
-Processor[3]: C0 C1
-ACPI: Power Button (FF) found
-ACPI: Sleep Button (CM) found
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

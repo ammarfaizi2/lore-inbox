@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUFKPQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264034AbUFKPR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUFKPQV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 11:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFKPQV
+	id S264034AbUFKPR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 11:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFKPR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 11:16:21 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:27642 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264045AbUFKPQL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 11:16:11 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] s390: fix "cpu_online" redefined warnings
-Date: Fri, 11 Jun 2004 17:15:35 +0200
-User-Agent: KMail/1.6.2
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+	Fri, 11 Jun 2004 11:17:58 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:52608 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264034AbUFKPRu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 11:17:50 -0400
+Date: Fri, 11 Jun 2004 08:17:40 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>, arjanv@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4]Diskdump Update
+Message-ID: <78040000.1086967058@[10.10.2.4]>
+In-Reply-To: <ABC44FB9B74DDCindou.takao@soft.fujitsu.com>
+References: <1086954645.2731.23.camel@laptop.fenrus.com> <ABC44FB9B74DDCindou.takao@soft.fujitsu.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_XycyAfjiAtvt4ht";
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406111715.35399.arnd@arndb.de>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok, I fix it.
+> 
+> -		page = mem_map + nr;
+> +		page = pfn_to_page(nr);
 
---Boundary-02=_XycyAfjiAtvt4ht
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+That's correct now ...
 
-cpumask-5-10-rewrite-cpumaskh-single-bitmap-based from 2.6.7-rc3-mm1
-causes include2/asm/smp.h:54:1: warning: "cpu_online" redefined
+> I also need fix this.
+> 
+> -	for (nr = 0; nr < max_mapnr; nr++) {
+> +	for (nr = 0; nr < max_pfn; nr++) {
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+... but that's not (at least AFAICS from this snippet). You need to iterate 
+over pgdats, and then over the lmem_map inside each pgdat.
 
-=3D=3D=3D=3D=3D include/asm-s390/smp.h 1.13 vs edited =3D=3D=3D=3D=3D
-=2D-- 1.13/include/asm-s390/smp.h	Thu Feb 26 12:21:54 2004
-+++ edited/include/asm-s390/smp.h	Fri Jun 11 16:31:47 2004
-@@ -31,10 +31,6 @@
-=20
- extern int smp_call_function_on(void (*func) (void *info), void *info,
- 				int nonatomic, int wait, int cpu);
-=2D
-=2Dextern cpumask_t cpu_online_map;
-=2Dextern cpumask_t cpu_possible_map;
-=2D
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
-=20
- /*
-@@ -50,8 +46,6 @@
- #define PROC_CHANGE_PENALTY	20		/* Schedule penalty */
-=20
- #define smp_processor_id() (S390_lowcore.cpu_data.cpu_nr)
-=2D
-=2D#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
-=20
- extern __inline__ __u16 hard_smp_processor_id(void)
- {
+M.
 
---Boundary-02=_XycyAfjiAtvt4ht
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAycyX5t5GS2LDRf4RAt81AJ42c1bxJAJnr1u31/9raGtuN+EYzgCfWQ10
-GBTdVxAlRiU8kJiU8R6a5VE=
-=IpRY
------END PGP SIGNATURE-----
-
---Boundary-02=_XycyAfjiAtvt4ht--

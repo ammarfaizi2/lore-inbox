@@ -1,75 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317359AbSIJRPA>; Tue, 10 Sep 2002 13:15:00 -0400
+	id <S316845AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317398AbSIJRPA>; Tue, 10 Sep 2002 13:15:00 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57258 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317359AbSIJRO6>;
-	Tue, 10 Sep 2002 13:14:58 -0400
-Date: Tue, 10 Sep 2002 13:19:36 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Oleg Drokin <green@namesys.com>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de, andre@linux-ide.org
-Subject: Re: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
-In-Reply-To: <20020910175639.A830@namesys.com>
-Message-ID: <Pine.GSO.4.21.0209101313570.6397-100000@weyl.math.psu.edu>
+	id <S316856AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
+Received: from mailrelay.nefonline.de ([212.114.153.196]:26897 "EHLO
+	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
+	id <S316845AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
+Message-Id: <200209101716.TAA06198@myway.myway.de>
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Andre Hedrick" <andre@linux-ide.org>,
+       "Zwane Mwaikambo" <zwane@mwaikambo.name>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+Date: Tue, 10 Sep 2002 19:16:09 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
+In-Reply-To: <Pine.LNX.4.44.0209101920260.1100-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH]][2.4-ac] opti621 can't do dma
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Sep 2002 19:22:41 +0200 (SAST), Zwane Mwaikambo wrote:
 
+>	afaik the opti621 can't do DMA, also aren't they all addon cards?
 
-On Tue, 10 Sep 2002, Oleg Drokin wrote:
+The Compaq Armada 1530 Notebook has a Opti FireStar chipset with an IDE
+controller which is Ultra DMA capable (but stable only up to MW-DMA
+mode 2). This one *should* be handled by the Linux opti621 driver (I
+don't know if it is).
 
-> Hello!
-> 
->     Starting with yesterday I am seeing kernel BUG at sched.c:944 
->     on 2.5.3[34], I've seen similar report for 2.5.31 in the list with no
->     responces, however 2.5.31 was working fine for me.
-> 
->     Stack trace for the BUG was entirely within idle task (default_idle,
->     rest_init, cpu_idle, ...)
-> 
->     It explodes immediatelly after printing:
->  hda: hda1 hda2 hda3 hda4 < hda5
-> 
->     Then panics trying to kill interrupt handler.
-> 
->     On 2.4 this partition layout looks like this:
->  hda: [PTBL] [7476/255/63] hda1 hda2 hda3 hda4 < hda5 hda6 >
+Ciao,
+  Dani
 
-Interesting.  At that point we are just reading sectors from disk
-using normal IO path.  Had already done two reads and still have
-at least one more to do.  Results of parsing are stored in temporary
-array and partitioning information is yet to be changed - we hadn't
-even started updating it (that would happen after parsing is over).
-
-Basically, the shit hits the fan in the middle of work that is identical
-in 2.5.34 and 2.5.33...
-
->    Box itself is Dual Athlon MP 1700+. IDE only, 1G RAM, highmem enabled.
-> 
->    Other strange thing that caught my attention is this, if in 2.5.31 I had
->    this order or disk detection:
-> <4>hda: IC35L060AVER07-0, ATA DISK drive
-> <4>hdb: IC35L060AVER07-0, ATA DISK drive
-> <4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> <4>hda: host protected area => 1
-> <6>hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
-> <4>hdb: host protected area => 1
-> <6>hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
-> <6> hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-> <6> hdb: hdb1
-> 
->    Now it does it in reverse like this:
-> hdb: host protected area => 1
-> hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
-> hdb: hdb1
-> hda: host protected area => 1
-> hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
-> hda: hda1 hda2 hda3 hda4 < hda5PANIC
-
-Detection happens in the same order.  Attaching to subdrivers doesn't,
-but that's not a problem...
 

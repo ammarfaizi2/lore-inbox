@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263140AbTCSSxV>; Wed, 19 Mar 2003 13:53:21 -0500
+	id <S263099AbTCSTCB>; Wed, 19 Mar 2003 14:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263141AbTCSSxV>; Wed, 19 Mar 2003 13:53:21 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:20386 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263140AbTCSSxV>; Wed, 19 Mar 2003 13:53:21 -0500
-Date: Wed, 19 Mar 2003 19:03:29 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65-mm1: eth0: Transmit error, Tx status register 90
-Message-ID: <20030319190329.GA28277@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrew Morton <akpm@digeo.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	linux-kernel@vger.kernel.org
-References: <20030319013042.19266.qmail@linuxmail.org> <20030318191833.317fa459.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030318191833.317fa459.akpm@digeo.com>
-User-Agent: Mutt/1.5.3i
+	id <S263120AbTCSTCB>; Wed, 19 Mar 2003 14:02:01 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39390 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S263099AbTCSTCB>; Wed, 19 Mar 2003 14:02:01 -0500
+Date: Wed, 19 Mar 2003 16:11:51 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch for initrd on 2.4.21-pre5
+In-Reply-To: <20030313005328.A29160@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.53L.0303191611440.6210@freak.distro.conectiva>
+References: <20030313005328.A29160@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 07:18:33PM -0800, Andrew Morton wrote:
 
- > Is it slow with both scp and NFS?  Or just NFS?
- > 
- > If just NFS then yes, I see this too.  Transferring files 2.5->2.4 over NFS
- > is several times slower than 2.4->2.4 or 2.5->2.5.  Quite repeatable.
 
-You could be hitting the same problems I saw a few weeks back.
-Short: There were a *lot* of bogus UDP packets being transmitted.
-Trond took a look at a tcpdump log of bad traffic and found there
-were all sorts of silly things in there like oversized frames etc.
+On Thu, 13 Mar 2003, Pete Zaitcev wrote:
 
-I've not had time to look into this since then, but also see strange
-effects of this bug like failing md5sums after copying over NFS.
- 
-		Dave
+> The initrd refuses to work for me without the attached patch
+> (actually, initrd works, but nothing else does: console is hosed).
+> I did not see anything on the list. Am I the only one who
+> uses initrd?
 
+Applied.
+
+Danke

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278377AbRJMTcb>; Sat, 13 Oct 2001 15:32:31 -0400
+	id <S278378AbRJMTck>; Sat, 13 Oct 2001 15:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278376AbRJMTcV>; Sat, 13 Oct 2001 15:32:21 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3332 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S278374AbRJMTcE>;
-	Sat, 13 Oct 2001 15:32:04 -0400
-Date: Mon, 8 Oct 2001 12:20:13 +0000
+	id <S278376AbRJMTcc>; Sat, 13 Oct 2001 15:32:32 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4868 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S278375AbRJMTcN>;
+	Sat, 13 Oct 2001 15:32:13 -0400
+Date: Mon, 8 Oct 2001 12:19:11 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederman@uswest.net>
-Cc: Pavel Machek <pavel@Elf.ucw.cz>, Jeremy Elson <jelson@circlemud.org>,
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Eric W. Biederman" <ebiederman@uswest.net>,
+        Pavel Machek <pavel@Elf.ucw.cz>, Jeremy Elson <jelson@circlemud.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
-Message-ID: <20011008122013.B38@toy.ucw.cz>
-In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu> <20011005205136.A1272@elf.ucw.cz> <m1n132x4qg.fsf@frodo.biederman.org>
+Subject: Re: linmodems (was Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices)
+Message-ID: <20011008121911.A38@toy.ucw.cz>
+In-Reply-To: <m1n132x4qg.fsf@frodo.biederman.org> <Pine.LNX.3.96.1011007213223.2882B-100000@mandrakesoft.mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <m1n132x4qg.fsf@frodo.biederman.org>; from ebiederman@uswest.net on Sun, Oct 07, 2001 at 08:09:11PM -0600
+In-Reply-To: <Pine.LNX.3.96.1011007213223.2882B-100000@mandrakesoft.mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, Oct 07, 2001 at 09:37:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Yep. And linmodem driver does signal processing, so it is big and
-> > ugly. And up till now, it had to be in kernel. With your patches, such
-> > drivers could be userspace (where they belong!). Of course, it would be 
-> > very good if your interface did not change...
+> My best guess for a Linux winmodem solution for Linux is three pieces:
+> The existing Lucent (and other) hardware work (by Pavel/Richard/Jamie/others?)
+> Rogier Wolff's user space serial driver code, and
+> A work called "modem" by a now-deceased scientist at SGI(IIRC).  Alan
+> pointed me to the last piece.  'modem' handles up to 14.4k speed, and
+> supports some error correcting protocols we all remember from the BBS
+> days.
 > 
-> I don't see how linmodem drivers apply.  At least not at the low-level
-> because you actually have to driver the hardware, respond to interrupts
-> etc.  On some of this I can see a driver split like there is for the video
+> Just need someone to glue those pieces together... and you have a
+> winmodem driver with the proper portions in userspace, and the proper
+> portions in kernel space.
 
-You don't actually need interrupts -- you *know* when next sample arrives.
-And port io is completely fine with iopl() ;-).
+One of students here was/is working on the glue; it is non-trivial as
+'modem' is obfuscated with coroutines.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

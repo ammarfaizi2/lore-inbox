@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTFOQ0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 12:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTFOQ0h
+	id S262362AbTFOQ1F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 12:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTFOQ1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 12:26:37 -0400
-Received: from lmout01.st1.spray.net ([212.78.202.120]:25582 "EHLO
-	lmout01.st1.spray.net") by vger.kernel.org with ESMTP
-	id S262361AbTFOQ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 12:26:32 -0400
-From: =?ISO-8859-1?Q?=20Jos=E9?= Luis =?ISO-8859-1?Q?=20Alarc=F3n?=
-	  =?ISO-8859-1?Q?=20S=E1nch?= =?ISO-8859-1?Q?ez?= 
-	 <jlas9@lycos.es>
-Message-ID: <1055695221031088@lycos-europe.com>
-X-Mailer: LycosMail 
-X-Originating-IP: [80.58.9.45]
-Mime-Version: 1.0
-Subject: Re: [PATCH] remove superfluous inode superblock check from shmem_mmap
-Date: Sun, 15 Jun 2003 18:40:21 +0100
-Content-Type: multipart/mixed; boundary="=_NextPart_Lycos_0310881055695221_ID"
-To: undisclosed-recipients:;
+	Sun, 15 Jun 2003 12:27:05 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:10192 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262362AbTFOQ1C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 12:27:02 -0400
+Date: Sun, 15 Jun 2003 18:40:46 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ben Collins <bcollins@debian.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: bkSVN live
+In-Reply-To: <20030615133631.GF542@hopper.phunnypharm.org>
+Message-ID: <Pine.GSO.4.21.0306151839170.14609-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+On Sun, 15 Jun 2003, Ben Collins wrote:
+> For those that know SVN, you need a recent (e.g. upcoming 0.24 release
+> of SVN, or current trunk) client. I am using revision r6227. If you need
 
---=_NextPart_Lycos_0310881055695221_ID
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Can you confirm that 0.23.0 (r5962) (from Debian unstable) is too old, or is
+this a PPC-specific problem?
 
->
-> ------- Mensaje Original -------
->
-> DeJames Morris <jmorris@intercode.com.au>
-> FechaMon, 16 Jun 2003 02:14:37 +1000 (EST)
->
->This patch against current 2.5 bk removes a (now) unecessary check 
-for an 
->inode superblock in shmem_mmap().  In the current kernel, all inodes 
-must 
->be associated with a superblock.
->
->- James
->-- 
->James Morris
->
->
->diff -purN -X dontdiff bk.pending/mm/shmem.c bk.w1/mm/shmem.c
->--- bk.pending/mm/shmem.c 2003-06-16 00:56:13.000000000 +1000
->+++ bk.w1/mm/shmem.c 2003-06-16 02:06:55.142303751 +1000
->@@ -1010,7 +1010,7 @@ static int shmem_mmap(struct file *file,
->  struct inode *inode = file->f_dentry->d_inode;
-> 
->  ops = &shmem_vm_ops;
->- if (!inode->i_sb || !S_ISREG(inode->i_mode))
->+ if (!S_ISREG(inode->i_mode))
->   return -EACCES;
->  update_atime(inode);
->  vma->vm_ops = ops;
->
+| callisto$ svn co svn://kernel.bkbits.net/linux-2.5/trunk linux-2.5
+| svn: Malformed network data
+| svn: Malformed network data
+| callisto$
 
-  Can i apply this patch against the 2.5.69 kernel?.
+Gr{oetje,eeting}s,
 
-  Thanks yo very much, in advance.
+						Geert
 
-  Regards.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-  Jose.
-
-http://linuxespana.scripterz.org
-
-FreeBSD RELEASE 4.8.
-Mandrake Linux 9.1 Kernels 2.4.21 & 2.5.69 XFS.
-Registered Linux User #213309.
-Memories..... You are talking about memories. 
-Rick Deckard. Blade Runner.
-
-_________________________________________________________
-Envia tus postales desde Tarjetas Nico. Entra en http://www.tarjetasnico.com/es/index.html?partner=lycoses&nico_usr=premium
-
-
-
---=_NextPart_Lycos_0310881055695221_ID--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

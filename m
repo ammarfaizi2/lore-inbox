@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282998AbRK1AR3>; Tue, 27 Nov 2001 19:17:29 -0500
+	id <S281821AbRK1A1r>; Tue, 27 Nov 2001 19:27:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282989AbRK1ARS>; Tue, 27 Nov 2001 19:17:18 -0500
-Received: from ppp37.adsl88.pacific.net.au ([202.7.88.37]:387 "EHLO
-	mail.xplantechnology.com") by vger.kernel.org with ESMTP
-	id <S282997AbRK1ARB>; Tue, 27 Nov 2001 19:17:01 -0500
-Date: Wed, 28 Nov 2001 11:18:16 +1100 (EST)
-From: Luke <luked@xplantechnology.com>
-X-X-Sender: <luked@oven.xden.xplantechnology.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: threads & /proc
-Message-ID: <Pine.LNX.4.33.0111281047450.1245-100000@oven.xden.xplantechnology.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281818AbRK1A1h>; Tue, 27 Nov 2001 19:27:37 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:21120 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S281821AbRK1A1T>; Tue, 27 Nov 2001 19:27:19 -0500
+Date: Tue, 27 Nov 2001 17:30:59 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: victor1 torres <camel_3@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kdb v1.9 patch fails in main.c 1 of 3 hunks no applied
+Message-ID: <20011127173059.A5880@vger.timpanogas.org>
+In-Reply-To: <F35MjkatwD43oFLaqSO00007bfd@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <F35MjkatwD43oFLaqSO00007bfd@hotmail.com>; from camel_3@hotmail.com on Wed, Nov 28, 2001 at 12:20:22AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's some more data about the problem reported by Anton where "ps",
-"top", "killall", etc block and "kill" doesn't work.
+On Wed, Nov 28, 2001 at 12:20:22AM +0000, victor1 torres wrote:
+> Hi-
+> The Kdb-v1.9-2.4.15-pre5 is for the 2.4.15 kernel not the 2.5.1-pre2 kernel 
+> for this point on anything that has a 2.4x is only based on  the 2.4x Linux 
+> Kernel Series.
+> Victor
+> 
+> -----ORIGINAL TEXT------------
+> kdb-v1.9-2.4.15-pre5 from oss.sgi.com is failing to apply to
+> patch-2.5.1-pre2 in /usr/src/linux/main.c.  1 of 3 hunks failed
+> message.
+> 
+> Jeff
+> 
 
-I have encountered this behaviour with kernels 2.4.14 and 2.4.16 but not
-2.4.13 nor 2.4.7 (although 2.4.13 hung this box in a different way).
+It works against 2.5.1-pre1 but not pre2.  Thought you might like 
+to know.
 
-This was observed on an SMP Pentium III, which does some multithreaded
-computation.
+Jeff
 
-I can't give precise instructions on how to replicate this bug, but
-perhaps it can be repeated simply by exercising kernel threading?
-
-Luke.
-
-
+> 
+> 
+> _________________________________________________________________
+> Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

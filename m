@@ -1,111 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282523AbRL0V3A>; Thu, 27 Dec 2001 16:29:00 -0500
+	id <S282597AbRL0Vel>; Thu, 27 Dec 2001 16:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282276AbRL0V2u>; Thu, 27 Dec 2001 16:28:50 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:49094 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282523AbRL0V2l>; Thu, 27 Dec 2001 16:28:41 -0500
-Date: Thu, 27 Dec 2001 14:28:42 -0700
-Message-Id: <200112272128.fBRLSgW01813@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <Pine.LNX.4.33L.0112271802130.12225-100000@duckman.distro.conectiva>
-In-Reply-To: <200112271957.fBRJvdv00960@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33L.0112271802130.12225-100000@duckman.distro.conectiva>
+	id <S282525AbRL0Vec>; Thu, 27 Dec 2001 16:34:32 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:46682 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S282597AbRL0VeV>; Thu, 27 Dec 2001 16:34:21 -0500
+Posted-Date: Thu, 27 Dec 2001 21:34:15 GMT
+Date: Thu, 27 Dec 2001 21:34:15 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <20011227005236.GB17344@msp-150.man.olsztyn.pl>
+Message-ID: <Pine.LNX.4.21.0112272112450.3044-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
-> On Thu, 27 Dec 2001, Richard Gooch wrote:
-> 
-> > If you get this working nicely, it might even be a generally useful
-> > thing. A set of perl scripts and easy interface commands could prove
-> > popular. I would certainly find it convenient to have a patch
-> > retransmission system that re-sent patches every time a new pre-patch
-> > came out, and emailed me when the patch no longer applies.
-> 
-> ... or compiles, or applies with an offset
+Hi Dominik.
 
-Yes, that was implied. If a patch doesn't apply 100% cleanly with no
-fuzz, it should be de-queued and the patch log sent back to me. I'd
-want to go in manually and see what's changed (harsh, but reduces the
-potential for bit-rot).
+>>> I second this. Being a translator of the file in question, I have to
+>>> deal with ten slightly different versions of "You may also compile
+>>> this as a module...". So I have ten slighlty different translations
+>>> of this text, too, in the name of accuracy.
 
-> > If it could automatically de-queue when the patch is applied, or when
-> > I manually remove it, that would be even better.
-> 
-> ... or when somebody replies to the patch and the reply
-> gets caught by a program invoked from your .procmailrc
+>> I have to admit that I hadn't considered translators, but perhaps it
+>> could be made even simpler for you. How about having the help file
+>> start with a set of standard definitions, such as the following...
+>> 
+>> ===8<=== CUT ===>8===
 
-Yes. But be careful here. I don't want a DoS attack on my queue just
-by having people reply to patch announcements.
+>[cut indeed :-)]
 
-> If Linus replies he has seen the patch, don't keep
-> bombing him.
+8-)
 
-Yes, although it might be hard to classify properly. A message like
-"not now, I'm busy, send it later" shouldn't de-queue.
+>> ===8<=== CUT ===>8===
+>> 
+>> The rules would then reduce to "If the relevant condition applies,
+>> append the text associated with the relevant DEFINE_ symbol to the help
+>> text to be issued" and this could be done with an additional call to the
+>> routine to extract the appropriate help text from the file. In addition,
+>> your translation efforts would be restricted to just the COnfigure.help
+>> file, and you wouldn't have to tweak the various configuration scripts
+>> at the same time - and this would also ensure that the various config
+>> scripts all used exactly the same help text.
 
-> Of course when the patch gets dequeued, the program should
-> send you a mail with the reason.
+> Nice, but - as Eric pointed out - there are many options where the
+> "available as module" text actually contains a module name, which
+> causes problems and makes your proposition insufficient for our needs.
+> A complete solution would require serious changes which Eric doesn't
+> want to introduce into a stable version.
 
-Always. I think I'd also want to be notified every time the patch is
-sent upstream. I like to know things are still working.
+Curiously enough, the changes I proposed are ones that I have already
+implemented for `make config` and have nearly implemented for `make
+menuconfig` at the moment, and I expect to have `make xconfig` ready
+early in the new year. The module name part of it is trivially easy to
+implement once the code to add the basic DEFINE_MODULAR text is there,
+and the only change will be that the module name is always appended to
+the end of the boilerplate rather than sometimes being in the middle and
+sometimes at the end as it is now.
 
-> > And if I make an update to a queued patch, it obsoletes the old one,
-> > that would be good too.
-> 
-> Good one, this needs to be added.
-> 
-> Any more requirements / ideas / volunteers / ... ?
+Because of this, I have no respect for this objection at all, and I have
+to say that I would have expected a much better argument from Eric (for
+or against this proposal) considering his progranmming skills.
 
-I was thinking some more about this in the shower. I'd want some kind
-of hierarchical tree processing, that supports multiple kernel
-versions (and hence upstream maintainers) and multiple patches per
-kernel.
+>>> Although I thought there was an agreement that decimal kilobyte
+>>> is kB, and binary kilobyte is KiB, decimal megabyte is MB, binary
+>>> megabyte is MiB and so on, wasn't there?
 
-$ROOT/
-	MAINTAINER	(file with my email address)
-	v2.4/
-		UPSTREAM-MAINTAINER	(file with email address)
-		official		(symlink to kernel/v2.4)
-		build			(symlink to build tree)
-		configs/		(directory of config files to try)
-		proj1/
-			patch.gz	(symlink elsewhere)
-			.status
-			comment		(file with "Hi, Marcelo, this does...")
-			configs/	(directory of config files to try)
-		proj1/
-			patch.gz	(symlink elsewhere)
-			.status
+>> That's the standard that the IEC has defined, and what this thread
+>> is all about. Whether it'll get anywhere remains to be seen - ask
+>> Ted T'so about the dangers of early adoption of proposed standards,
+>> and he'll probably explain where his surname came from...
 
-	v2.5/
-		UPSTREAM-MAINTAINER	(file with email address)
-		official		(symlink to kernel/v2.5)
-		build			(symlink to build tree)
+> Perhaps I will.
 
-You get the idea. The config files are used to do test compilations,
-and it would be nice if I could tag some config files so that the
-resultant kernel and modules are moved into some other place. Perhaps
-just by invoking a user-specified script. The per-project config files
-supplement the per kernel-version config files.
+He explained that to me some time ago, and it's a similar story to this.
 
-The script which manages this should be lightweight enough to process
-the tree every minute (so that newly queued patches are sent quickly)
-and should be designed to also work with a .procmailrc recipe that is
-called when your local kernel.org mirror is updated.
+> But I still don't understand why you insist on choosing an opposite
+> notation - that is xiB for decimal and xB for binary.
 
-Probably files like MAINTAINER and UPSTREAM-MAINTAINER should be
-scanned for in every directory, so that files further down override
-ones above. Maybe I have a networking patch that I want to send to
-Dave rather than to Linus.
+{Shrug} The exact text is an entry in Configure.help (under the symbol
+DEFINE_UNITS as it happens) so in that sense, the fact that I made a
+mistake as a result of misunderstanding the proposal is irrelevant.
 
-				Regards,
+> If at all, I would change the traditional convention to something
+> exactly opposite, i.e. xiB for binary and xB for decimal, because
+> M(mega),G(giga), etc. are standard SI units.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+No problem - just edit the entries in Configure.help to say whatever
+is consistent with the usage of the acronyms elsewhere in that file.
+
+> PS. Don't Cc: me next time you reply, ok? I'm subscribed to lkml.
+
+Blame the SysAdmin for that - if I choose (R)eply to a message, it
+always addresses it to whoever posted it, and CC's anybody listed
+elsewhere. I don't get the ability to change the "To" field, only the
+"Cc" field, so you will always get a copy of any reply I send to an
+email you've posted.
+
+Best wishes from Riley.
+

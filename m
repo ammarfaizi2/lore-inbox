@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276042AbSIVCqp>; Sat, 21 Sep 2002 22:46:45 -0400
+	id <S276048AbSIVDqr>; Sat, 21 Sep 2002 23:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276045AbSIVCqp>; Sat, 21 Sep 2002 22:46:45 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:21377 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S276042AbSIVCqo>; Sat, 21 Sep 2002 22:46:44 -0400
-Date: Sat, 21 Sep 2002 19:51:36 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020922025136.GA3346@gnuppy.monkey.org>
-References: <20020920234509.GA2810@gnuppy.monkey.org> <Pine.LNX.4.44.0209210649280.2441-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S276069AbSIVDqr>; Sat, 21 Sep 2002 23:46:47 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1271 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S276048AbSIVDqq>;
+	Sat, 21 Sep 2002 23:46:46 -0400
+Message-ID: <3D8D3E4A.94C19E1@mvista.com>
+Date: Sat, 21 Sep 2002 20:51:38 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jos Hulzink <josh@stack.nl>
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: udelay and nanosleep questions
+References: <20020921124235.I46546-100000@toad.stack.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209210649280.2441-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 06:58:15AM +0200, Ingo Molnar wrote:
-> as i've mentioned in the previous mail, 2.5.35+ kernels have a very fast
-> SIGSTOP/SIGCONT implementation, which change was done as part of this
-> project - a few orders faster than throwing/catching SIGUSR1 to every
-> single thread for example.
+Jos Hulzink wrote:
+> 
+> Hi,
+> 
+> Talking about kernel driver programming:
+> 
+> 1) Can I rely on udelay(1) ? i.e. is the resolution high enough to wait at
+> least 1 microsecond given it returns normally ? I know the actual
+> implementation is platform / cpu dependant, so maybe I should ask: Should
+> I be able to rely on udelay(1) ?
+> 
+> 2) With the highspeed CPUs these days, the implementation of sys_nanosleep
+> (in kernel/timer.c) for realtime processes:
+> 
+> sys_nanosleep {udelay ((nsec+999)/1000}
+> 
+> is rather low-res. Time for something new ? sys_nanosleep seems not the
+> call to make for in-kernel accurate delays, for it schedules a timeout
+> instead of doing a busy wait. My driver needs 250 ns delays, is there a
+> more accurate way than udelay(1) ? It is a pity to waste 4x more
+> clockcycli than needed.
+> 
+> 3) Usleep and friends seem not to care about speedstepping technologies.
+> Shouldn't we care, at least for in-kernel and realtime process waits ?
+> True, you are an idiot when running realtime processes on a speedstep
+> enabled CPU, but still...
 
-That's good, but having an explict API for suspending threads is very useful,
-since it can greatly simplify the already complicated signal handling in
-highly threaded systems. It's something that your group should seriously
-consider, since I expect some explicit thread suspension call to be implemented
-in Posix threading standard, via their committee. Mainly, because of the
-advent of heavily threaded language runtimes as standard programming staple.
+You might want to check out the high-res-timers stuff.  We
+will be sending this in soon for 2.5, for 2.4, see the link
+below.
 
-It's a good thing to have regardless.
+-g
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> so right now we first need to get some results back about how big the GC
-> problem is with the new SIGSTOP/SIGCONT implementation. If it's still not
-> fast enough then we still have a number of options.
-
-I'm running out of things to say. ;)
-
-bill
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

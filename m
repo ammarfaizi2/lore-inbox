@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbSK1DDv>; Wed, 27 Nov 2002 22:03:51 -0500
+	id <S265114AbSK1DFi>; Wed, 27 Nov 2002 22:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265111AbSK1DDv>; Wed, 27 Nov 2002 22:03:51 -0500
-Received: from rth.ninka.net ([216.101.162.244]:51378 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S265102AbSK1DDv>;
-	Wed, 27 Nov 2002 22:03:51 -0500
-Subject: Re: [PATCH][2.4] update ref counts on all allocated pages
-From: "David S. Miller" <davem@redhat.com>
-To: Matt Porter <porter@cox.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021127082556.A26524@home.com>
-References: <20021126170723.A23962@home.com>
-	<1038393091.14825.0.camel@rth.ninka.net>  <20021127082556.A26524@home.com>
-Content-Type: text/plain
+	id <S265111AbSK1DFi>; Wed, 27 Nov 2002 22:05:38 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:36027 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S265114AbSK1DFi>; Wed, 27 Nov 2002 22:05:38 -0500
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Nov 2002 19:33:17 -0800
-Message-Id: <1038454397.17075.4.camel@rth.ninka.net>
-Mime-Version: 1.0
+Message-ID: <15845.35413.304242.606651@sofia.bsd2.kbnes.nec.co.jp>
+Date: Thu, 28 Nov 2002 12:15:33 +0900
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/namei.c fix
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-27 at 07:25, Matt Porter wrote:
-> To clarify then, on an order>0 allocation, it is only valid/defined
-> to free the same order of pages.  Is that a true statement?  If so,
-> I'll submit a docs patch and adjust our our local implementation.
+One of Greg KH's security cleanups reversed the sense of a test.
+Without this patch, 2.5.50 oopses at boot.  Please apply.
 
-Yes, this is correct and it's what everyone does.  The exceptions
-mess with the page counts themselves, look at the sparc64
-pmd/pte dual-page allocations for example.
+===== fs/namei.c 1.59 vs edited =====
+--- 1.59/fs/namei.c	Thu Nov 28 08:11:14 2002
++++ edited/fs/namei.c	Thu Nov 28 12:09:53 2002
+@@ -1648,7 +1648,7 @@
+ 		error = -EBUSY;
+ 	else {
+ 		error = security_inode_unlink(dir, dentry);
+-		if (error)
++		if (!error)
+ 			error = dir->i_op->unlink(dir, dentry);
+ 	}
+ 	up(&dentry->d_inode->i_sem);
+
+
 

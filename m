@@ -1,45 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270586AbTGaXMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 19:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaXMM
+	id S270576AbTGaXMI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 19:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaXMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 19:12:12 -0400
-Received: from users.ccur.com ([208.248.32.211]:3250 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S270586AbTGaXMD (ORCPT
+	Thu, 31 Jul 2003 19:12:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7654 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270576AbTGaXLz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 19:12:03 -0400
-Date: Thu, 31 Jul 2003 19:11:55 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rml@tech9.net
-Subject: Re: [PATCH] protect migration/%d etc from sched_setaffinity
-Message-ID: <20030731231154.GB7852@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <20030731224604.GA24887@tsunami.ccur.com> <20030731154740.4e21a6e2.akpm@osdl.org>
+	Thu, 31 Jul 2003 19:11:55 -0400
+Date: Thu, 31 Jul 2003 15:59:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test2: Never using pm_idle (CPU wasting power)
+Message-Id: <20030731155948.1826b9c7.akpm@osdl.org>
+In-Reply-To: <20030731150722.A5938@skunk.physik.uni-erlangen.de>
+References: <20030731150722.A5938@skunk.physik.uni-erlangen.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030731154740.4e21a6e2.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Joe Korty <joe.korty@ccur.com> wrote:
-> >
-> > Lock out users from changing the cpu affinity of those per-cpu system
-> > daemons which cannot survive such a change, such as migration/%d.
+Christian Vogel <vogel@skunk.physik.uni-erlangen.de> wrote:
+>
+> Hi,
 > 
-> Generally we prefer to not add code which purely protects root from making
-> mistakes.  Once the sysadmin has nuked his box he'll learn to not do it
-> again.
+> on a Thinkpad 600X I noticed the CPU getting very hot. It turned
+> out that pm_idle was never called (which invokes the ACPI pm_idle
+> call in this case) and default_idle was used instead.
+> 
+> 	/* arch/i386/kernel/process.c, line 723 */
+> 	void cpu_idle (void)
+> 	{
+> 		/* endless idle loop with no priority at all */
+> 		while (1) {
+> 			void (*idle)(void) = pm_idle;
+> 			if (!idle)
+> 				idle = default_idle; /* once on bootup */
+> 			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+> 			while (!need_resched())
+> 				idle();
+> 			schedule();  /* never reached */
+> 		}
+> 	}
+> 
+> The schedule() is never reached (need_resched() is never 0) and
+> so the idle-variable is not updated. pm_idle is NULL on the
+> first call to cpu_idle on this thinkpad, and so I stay idling
+> in the default_idle()-function.
+> 
+> By moving the "void *idle = pm_idle; if(!idle)..." in the inner
+> while()-loop the notebook calls pm_idle (as it get's updated by ACPI)
+> and stays cool.
 
-I'd like to be able to write shell scrips that operate on the set of
-/proc/[0-9]* without having to know which of the ever-changing list
-of processes need to be avoided and which not.
+Yes, I assume that need_resched() is always false because kernel preemption
+cuts in first.  Can you please confirm that you're using CONFIG_PREEMPT,
+and that the problem goes away if CONFIG_PREEMPT is disabled?
 
-And it's not really root.  It's a SYS_CAP_NICE capability.  All
-realtime apps or their admins will have that capability as a matter
-of course in their normal daily operations.
+The problem which you identify will also invalidate the idle_timestamp
+instrumentation so I think we should move that inside as well.
 
-Joe
+
+diff -puN arch/i386/kernel/process.c~acpi-idle-fix arch/i386/kernel/process.c
+--- 25/arch/i386/kernel/process.c~acpi-idle-fix	Thu Jul 31 15:51:16 2003
++++ 25-akpm/arch/i386/kernel/process.c	Thu Jul 31 15:57:27 2003
+@@ -139,12 +139,15 @@ void cpu_idle (void)
+ {
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+-		void (*idle)(void) = pm_idle;
+-		if (!idle)
+-			idle = default_idle;
+-		irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+-		while (!need_resched())
++		while (!need_resched()) {
++			void (*idle)(void) = pm_idle;
++
++			if (!idle)
++				idle = default_idle;
++
++			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+ 			idle();
++		}
+ 		schedule();
+ 	}
+ }
+
+_
+
+

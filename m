@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUHJGdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUHJGfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUHJGdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 02:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267444AbUHJGdW
+	id S267446AbUHJGfl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 02:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUHJGfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 02:33:22 -0400
-Received: from holomorphy.com ([207.189.100.168]:9702 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267445AbUHJGc5 (ORCPT
+	Tue, 10 Aug 2004 02:35:41 -0400
+Received: from pop.gmx.net ([213.165.64.20]:47782 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267446AbUHJGfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 02:32:57 -0400
-Date: Mon, 9 Aug 2004 23:32:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810063254.GD11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040808152936.1ce2eab8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040808152936.1ce2eab8.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 02:35:32 -0400
+X-Authenticated: #494916
+Message-ID: <4118A534.8050903@gmx.de>
+Date: Tue, 10 Aug 2004 12:36:36 +0200
+From: Peter Schaefer <peter.schaefer@gmx.de>
+Reply-To: peter.schaefer@gmx.de
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roger Luethi <rl@hellgate.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [VIA-RHINE] Timeouts on EP-HDA3+ Motherboard
+References: <41181BF7.6060002@gmx.de> <20040809215424.GA12237@k3.hellgate.ch>
+In-Reply-To: <20040809215424.GA12237@k3.hellgate.ch>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 03:29:36PM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm2/
-> - Added a little patch to the CPU scheduler which disables its array
->   switching.
->   This is purely experimental and will cause high-priority tasks to starve
->   lower-priority tasks indefinitely.  It is here to determine whether it is
->   this aspect of the scheduler which caused the staircase scheduler to exhibit
->   improved throughput in some tests on NUMAq.
+On 09.08.2004 23:54, Roger Luethi wrote:
+> On Tue, 10 Aug 2004 02:51:03 +0200, Peter Schaefer wrote:
+> 
+>>I'm getting reproducable errors when Samba is transferring
+>>large files:
+>>
+>>eth0: Transmit timed out, status 0000, PHY status 786d, resetting...
+> 
+> 
+> What kernel? (my crystal ball is in repair)
 
-This patch can't do what the changelog claims it does; if it did, its
-implementation of yield() would render the yielding process forever
-unrunnable, plus the active/expired reassignment on sched.c:2672 would
-have gone away.  What is it actually meant to do?
+Oops. I'm sorry, i thought the version number of the driver
+might be enough...
+
+The box is currently running 2.6.7 vanilla. I've installed
+it starting with 2.6.1 (as 2.4.x doesn't support the hardware
+proberly) and the problem has existed ever since.
+
+Best regards,
+
+  Peter
 
 
--- wli

@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbUCDS33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 13:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbUCDS33
+	id S261942AbUCDSga (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 13:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUCDSga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 13:29:29 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:61371 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S262068AbUCDS3S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 13:29:18 -0500
-Message-ID: <4047756D.2050402@blue-labs.org>
-Date: Thu, 04 Mar 2004 13:29:01 -0500
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040220
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ACPI battery info failure after some period of time, 2.6.3-x and
- up
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Mar 2004 13:36:30 -0500
+Received: from waste.org ([209.173.204.2]:59560 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261942AbUCDSg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 13:36:28 -0500
+Date: Thu, 4 Mar 2004 12:35:16 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] kpatchup 0.02 kernel patching script
+Message-ID: <20040304183516.GN3883@waste.org>
+References: <20040303022444.GA3883@waste.org> <1078420922.19701.1362.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078420922.19701.1362.camel@nighthawk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-powerix root # cat /proc/acpi/battery/BAT0/state
-present:                 yes
-ERROR: Unable to read battery status
+On Thu, Mar 04, 2004 at 09:22:02AM -0800, Dave Hansen wrote:
+> On Tue, 2004-03-02 at 18:24, Matt Mackall wrote:
+> > This is an alpha release for people to experiment with. Feedback and
+> > patches encouraged. Grab your copy today at:
+> 
+> First of all, very nice script.
+> 
+> But, it doesn't look like it properly handles empty directories.  I
+> tried this command, this morning, and it blew up.  I think it's because
+> this directory http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/ is
+> empty because of last night's 2.6.4-rc2 release.  I don't grok python
+> very well but is the "return p[-1]" there just to cause a fault like
+> this?  Would it be better if it just returned a "no version of that
+> patch right now" message and exited nicely?
 
-powerix root # dmesg -c
-    ACPI-0279: *** Error: Looking up [BST0] in namespace, AE_ALREADY_EXISTS
-    ACPI-1120: *** Error: Method execution failed [\_SB_.BAT0._BST] 
-(Node e7bd7680), AE_ALREADY_EXISTS
+Python does a good job at falling over loudly whenever anything
+unexpected happens. I hadn't noticed that the snapshot directory got
+purged. Hmmm. The right thing is to make it fall back to checking old/
+where the most recent -bk is to be found. Like this:
 
-powerix root # uname -r
-2.6.4-rc1
+$ kpatchup -s 2.6-pre
+2.6.4-rc2
+$ kpatchup -s 2.6-bk
+2.6.4-rc1-bk4
 
-This has been going on since about 2.6.3-rc something.  Some while after 
-reading the /proc files, the ability to read the battery information 
-gets munged.
+New version at http://selenic.com/kpatchup/kpatchup-0.03
+
+I've added a couple other niceties for scripting purposes: a -p option
+which will report the "base" version for a given version, -m which
+will parse Makefile and print the version therein.
+
+> I think your script, combined with Rusty's latest-kernel-version could
+> make me a very happy person.  
+
+I skimmed latest-kernel-version, is it doing something my -s option
+doesn't do yet?
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

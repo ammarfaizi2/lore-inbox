@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265334AbUBAP0C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 10:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUBAP0B
+	id S265377AbUBAPe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 10:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbUBAPe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 10:26:01 -0500
-Received: from quechua.inka.de ([193.197.184.2]:52158 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265334AbUBAPZs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 10:25:48 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: 2.6 input drivers FAQ
-Date: Sun, 01 Feb 2004 16:25:41 +0100
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2004.02.01.15.25.39.951190@dungeon.inka.de>
-References: <20040201100644.GA2201@ucw.cz>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 1 Feb 2004 10:34:27 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:10395 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265377AbUBAPeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 10:34:25 -0500
+Subject: Re: rio500 driver broken in linux 2.6.x
+From: "Yury V. Umanets" <umka@namesys.com>
+To: Florian Engelhardt <dot@dot-matrix.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040128143123.69b6f281@HAL2000>
+References: <20040128143123.69b6f281@HAL2000>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: NAMESYS
+Message-Id: <1075649682.2066.37.camel@firefly>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 01 Feb 2004 17:34:42 +0200
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And what about dell latitude laptops (synaptics touchpad - works fine -
-plus that mouse stick - no reaction at all?
+On Wed, 2004-01-28 at 15:31, Florian Engelhardt wrote:
+> Hello,
+> 
+> the rio500 driver seems to be broken, more and more people are talkin
+> about it. I allready wrote a mail to the maintainer of this dirver but
+> i got no response. The mailinglist which i found in the
+> /usr/src/linux/MAINTAINERS file is dead.
+> The Bug:
+> You con compile the driver without proplems, and when you connect the
+> rio500 to the usb bus, the kernel reports that he found it. But you can
+> not do any operations on it with the rio500 utils from sourceforge.
+> If i try to upload a file, or to create a folder on the rio500 the
+> connection to the player freezes and when i´m not killing the process,
+> the system hangs.
+> Does anyone of you know about this problem?
+> The problem depends on the new kernel, couse with the 2.4.x kernel there
+> are no problems with the rio utils from sourceforge.
+I also have experienced problem with this driver quite ago... in the
+times of last test kernels. I have used it (with trivial changes) for
+accessing my mpio player.
 
-Usualy I'm fine with the touchpad, but some people prefer to use
-the stick or both. Any idea?
+Probably this is not what you are expecting to hear, but seems that this
+driver is going to be obsolete. It does not do something special that
+cannot be done in user-space using libusb. So, probably there is no
+reason to fix it. Somebody should add libusb support to rio user-space
+tools like it was done for mpio ones (mpio.sf.net).
 
-devices: (plus pcspeaker and keyboard):
-I: Bus=0011 Vendor=0002 Product=0007 Version=0000
-N: Name="SynPS/2 Synaptics TouchPad"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event1 
-B: EV=b 
-B: KEY=6420 0 670000 0 0 0 0 0 0 0 0 
-B: ABS=11000003 
-
-I: Bus=0011 Vendor=0002 Product=0001 Version=0000
-N: Name="PS/2 Generic Mouse"
-P: Phys=synaptics-pt/serio0/input0
-H: Handlers=mouse1 event2 
-B: EV=7 
-B: KEY=70000 0 0 0 0 0 0 0 0 
-B: REL=3 
-
-XF86Config:
-Section "InputDevice"
-        Identifier  "Mouse0"
-        Driver      "mouse"
-        Option      "Protocol" "ExplorerPS/2"
-        Option      "Device" "/dev/input/mouse0"
-        Option      "Emulate3Buttons" "on"
-EndSection
-
-config:
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=y
-
-Andreas
+> 
+> Regards
+> 
+> Florian Engelhardt
+-- 
+umka
 

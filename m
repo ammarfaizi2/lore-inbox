@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261247AbRERA0g>; Thu, 17 May 2001 20:26:36 -0400
+	id <S261258AbRERAc5>; Thu, 17 May 2001 20:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261258AbRERA0Q>; Thu, 17 May 2001 20:26:16 -0400
-Received: from radio.protv.ro ([193.230.227.51]:18191 "EHLO radio.protv.ro")
-	by vger.kernel.org with ESMTP id <S261247AbRERA0N>;
-	Thu, 17 May 2001 20:26:13 -0400
-Message-ID: <4085.193.230.227.44.990145565.squirrel@radio.protv.ro>
-Date: Fri, 18 May 2001 03:26:05 +0300 (EEST)
-Subject: Re: Ide Floppy problems
-From: "Mihai Moldovanu" <mihaim@profm.ro>
-To: jari.ruusu@pp.inet.fi
-In-Reply-To: <3B044EE7.B77BA8EA@pp.inet.fi>
-In-Reply-To: <3B044EE7.B77BA8EA@pp.inet.fi>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: mihaim@profm.ro
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S262002AbRERAcr>; Thu, 17 May 2001 20:32:47 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:55695 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S261258AbRERAcg>; Thu, 17 May 2001 20:32:36 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Chris Evans" <chris@scary.beasts.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel bug with UNIX sockets not detecting other end gone?
+Date: Thu, 17 May 2001 17:32:34 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKAEPJPBAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.30.0105180042440.21745-100000@ferret.lmh.ox.ac.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> May 17 05:42:20 m kernel: hdd: lost interrupt
->> May 17 05:42:20 m kernel: ide-floppy: CoD != 0 in idefloppy_pc_intr
->> May 17 05:42:20 m kernel: hdd: ATAPI reset complete
->> May 17 05:43:10 m kernel: hdd: lost interrupt
->> May 17 05:43:10 m kernel: ide-floppy: CoD != 0 in idefloppy_pc_intr
->> May 17 05:43:10 m kernel: hdd: ATAPI reset complete
->> After another 1 minute of this repeated messages I push reset .
->> Any ideeas ?
+
+> Hmm - there's definitely a Linux inconsistency here. With SOCK_DGRAM,
+> read() is blocking but write() is giving ECONNRESET.
 >
-> CONFIG_BLK_DEV_IDEFLOPPY=n
-> CONFIG_BLK_DEV_IDESCSI=y
-> CONFIG_SCSI=y
-> CONFIG_BLK_DEV_SD=y
+> The ECONNRESET makes sense to me (despite this being a datagram socket),
+> because the sockets are anonymous. Once one end goes away, the other end
+> is pretty useless.
 >
-> And, your ZIP drive shows up as SCSI disk. This also has the advantage
-> that you can use ziptool to write protect / unprotect / eject ZIP
-> disks. Ide-floppy never worker properly for me. Ide-scsi has worked
-> without problems.
+> Cheers
+> Chris
 
+	One can justify any behavior, since this is a datagram socket but the
+kernel does know that it has been 'disconnected'. One can even justify the
+inconcsistent behavior -- the write definitely has no place to go (now), but
+the read can't be totally sure that there is no possible way anybody could
+ever find the other end and write to it.	I think it would, however, be
+preferable to have it return ECONNRESET in all cases (read, write, and
+'select'/'poll' should hit on read and write).
 
-Does not work with SCSI drivers. Same kind of error .
-
-May 18 03:10:02 m kernel: hdd: lost interrupt
-May 18 03:10:02 m kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
-May 18 03:10:02 m kernel: hdd: ATAPI reset complete
-May 18 03:10:02 m kernel: hdd: irq timeout: status=0x80 { Busy }
-
--- 
-Mihai Moldovanu
-
-
+	DS
 

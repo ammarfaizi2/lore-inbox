@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317396AbSIEKfK>; Thu, 5 Sep 2002 06:35:10 -0400
+	id <S317399AbSIEKwz>; Thu, 5 Sep 2002 06:52:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317399AbSIEKfK>; Thu, 5 Sep 2002 06:35:10 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3032 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317396AbSIEKfJ>;
-	Thu, 5 Sep 2002 06:35:09 -0400
-Message-Id: <200209051038.g85AchSU184432@westrelay01.boulder.ibm.com>
-User-Agent: Pan/0.11.2 (Unix)
-From: "Suparna Bhattacharya" <suparna@in.ibm.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net, yakker@alcritech.com
-Subject: Re: writing OOPS/panic info to nvram?
-Date: Thu, 05 Sep 2002 16:08:49 +0530
-References: <E471FA7E-C00E-11D6-A20D-000393911DE2@sara.nl> <20020904140856.GA1949@werewolf.able.es> <1031149539.2788.120.camel@irongate.swansea.linux.org.uk>
+	id <S317400AbSIEKwz>; Thu, 5 Sep 2002 06:52:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9960 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317399AbSIEKwz>;
+	Thu, 5 Sep 2002 06:52:55 -0400
+Date: Thu, 05 Sep 2002 03:50:08 -0700 (PDT)
+Message-Id: <20020905.035008.84077522.davem@redhat.com>
+To: green@namesys.com
+Cc: szepe@pinerecords.com, mason@suse.com, reiser@namesys.com,
+       shaggy@austin.ibm.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       linuxjfs@us.ibm.com
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020905135442.A19682@namesys.com>
+References: <20020905054008.GH24323@louise.pinerecords.com>
+	<20020904.223651.79770866.davem@redhat.com>
+	<20020905135442.A19682@namesys.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Sep 2002 20:02:40 +0530, Alan Cox wrote:
+   From: Oleg Drokin <green@namesys.com>
+   Date: Thu, 5 Sep 2002 13:54:42 +0400
+   
+   Ok, since I really like this approach, below is the patch (for 2.4) that
+   demonstrates my solution.
 
-> On Wed, 2002-09-04 at 15:08, J.A. Magallon wrote:
->> Instead of swap, let user specify a partition to raw dump there. If a
->> user wants crash dumps, he has to leave some small disk space free and
->> give an option like "dump=/dev/hda7".
-> 
-> With what will you write it - not the linux block layer thats for sure.
-> Ingo has patches for doing network dumps which are kind of neat
-> 
-> -
+I like it.  Now we just need a JFS version, shouldn't bee too
+hard :-)
 
-
-LKCD for 2.5 (WIP) has a dump driver interface through which different 
-target types can be plugged in. For example Ingo's polled network dump 
-code been integrated as one such dump driver target (generic type),
-block layer based i/o is available as another target (for those
-who chose to use it for their raw partition).Down the line specific
-dump drivers suited for the hardware concerned, e.g Rusty's polled
-IDE driver, could be plugged in as dump target too, as could NECs
-work on converting dump block i/o to polled mode. 
-
-Conceivably, one may perhaps have alternate targets available on the 
-same system and failover to the suitable one based on the situation.
-(If the network interface code is the one in trouble, try to
-dump to the dedicated raw disk or vice versa).
-
-And then, a little later there could be the option of memory save 
-option abstracted as another driver target, to be followed 
-by a soft-reboot (w/o clearing memory) for performing actual dump i/o
-to persistent storage on architectures where this option works out.
-
-Regards
-Suparna
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbUDAO4d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 09:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUDAO4V
+	id S262427AbUDAPDS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 10:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUDAPDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 09:56:21 -0500
-Received: from ida.rowland.org ([192.131.102.52]:4612 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262260AbUDAO4R (ORCPT
+	Thu, 1 Apr 2004 10:03:18 -0500
+Received: from [144.51.25.10] ([144.51.25.10]:20218 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S262427AbUDAPDR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 09:56:17 -0500
-Date: Thu, 1 Apr 2004 09:56:16 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Maneesh Soni <maneesh@in.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       <viro@math.psu.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-In-Reply-To: <20040401051740.GA1291@in.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0404010945210.838-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Apr 2004 10:03:17 -0500
+Subject: [PATCH][SELINUX] Fix struct type
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Chad Hanson <chanson@tcs-sec.com>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1080831765.25431.59.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 10:02:45 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Apr 2004, Maneesh Soni wrote:
+This patch against 2.6.5-rc3 (also applies to 2.6.5-rc3-mm4) fixes the
+type of the ssec pointer in the sk_free_security function.  This has no
+current impact as the magic element is the top of each structure. Thanks
+to Chad Hanson of TCS for discovering the bug and submitting the patch. 
 
-> On Wed, Mar 31, 2004 at 10:11:37AM -0500, Alan Stern wrote:
-> > 
-> > Here's a suggestion.  At the start of check_perm() grab the dentry 
-> > semaphore, then check whether d_fsdata is NULL, if it isn't then do the 
-> > kobject_get(), then unlock the semaphore.
-> > 
-> 
-> I have tried this with no luck. I still get 
-> (Badness in kobject_get at lib/kobject.c:42) which means it is not correct fix.
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.103
+diff -u -r1.103 hooks.c
+--- linux-2.6/security/selinux/hooks.c	25 Mar 2004 17:07:07 -0000	1.103
++++ linux-2.6/security/selinux/hooks.c	31 Mar 2004 19:32:05 -0000
+@@ -271,7 +271,7 @@
+ 
+ static void sk_free_security(struct sock *sk)
+ {
+-	struct task_security_struct *ssec = sk->sk_security;
++	struct sk_security_struct *ssec = sk->sk_security;
+ 
+ 	if (sk->sk_family != PF_UNIX || ssec->magic != SELINUX_MAGIC)
+ 		return;
 
-Did you remember to set dentry->d_fsdata to NULL?  This has to be done in
-sysfs_remove_dir() sometime during the period when dentry->d_inode->i_sem
-is held.  Right now the pointer to the kobject never gets erased.  That 
-Badness message is an indication that you are using a valid pointer to a 
-kobject whose refcount is 0.
-
-Alan Stern
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270075AbRHWTDZ>; Thu, 23 Aug 2001 15:03:25 -0400
+	id <S270011AbRHWTGz>; Thu, 23 Aug 2001 15:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270042AbRHWTDP>; Thu, 23 Aug 2001 15:03:15 -0400
-Received: from jason05.u.washington.edu ([140.142.8.54]:55263 "EHLO
-	jason05.u.washington.edu") by vger.kernel.org with ESMTP
-	id <S270011AbRHWTDG>; Thu, 23 Aug 2001 15:03:06 -0400
-Date: Thu, 23 Aug 2001 12:03:21 -0700 (PDT)
-From: "J. Imlay" <jimlay@u.washington.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: macro conflict
-Message-ID: <Pine.A41.4.33.0108231150110.64144-100000@dante14.u.washington.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270037AbRHWTGp>; Thu, 23 Aug 2001 15:06:45 -0400
+Received: from pk.nord-com.net ([213.168.202.34]:50082 "EHLO pk.nord-com.de")
+	by vger.kernel.org with ESMTP id <S270011AbRHWTGi>;
+	Thu, 23 Aug 2001 15:06:38 -0400
+Date: Thu, 23 Aug 2001 21:02:11 +0200
+From: Roland Bauerschmidt <rb@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823210211.A2212@newton.bauerschmidt.eu.org>
+Mail-Followup-To: Roland Bauerschmidt <rb@debian.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010822030807.N120@pervalidus> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823115506.D25051@sigkill.net> <20010823182934Z16190-32383+1035@humbolt.nl.linux.org> <20010823144406.G25051@sigkill.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010823144406.G25051@sigkill.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IN getting the AFS kernel modules to compile under linux I dicovered that
-the were useing the standard min(x,y) macro that whould evaluate which one
-is smaller. However sometime between 2.4.6 and 2.4.9 a new macro was added
-to linux/kernel.h
+Disconnect wrote:
+> Forth, some form of java runtime.  And after that is python.
 
-this one:
+I disagree that a java runtime environment is more likely to be
+installed than python. I'm not much into Java, but from what I know
+there isn't even a really good java virtual machine for linux that is
+free (kaffe is lacking quite a few features and stuff?).
 
-#define min(type,x,y) \
-        ({ type __x = (x), __y = (y); __x < __y ? __x: __y; })
+Roland
 
-the old one is
-
-#define min(x,y) ( (x)<(y)?(x):(y) )
-
-has been around a lot longer and is in lots of header files.
-
-The problem here with AFS is that it needs the old definition but the old
-definition is being over written by the new one... you guys should know
-all this. But I am just saying that I really think the new macro
-min(type,x,y) should get a new name. like type_min or something.
-
-Thanks,
-
-Josie Imlay
-
+-- 
+Roland Bauerschmidt

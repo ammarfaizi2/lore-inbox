@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264619AbSIVXvA>; Sun, 22 Sep 2002 19:51:00 -0400
+	id <S264627AbSIVXyL>; Sun, 22 Sep 2002 19:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264623AbSIVXvA>; Sun, 22 Sep 2002 19:51:00 -0400
-Received: from bitmover.com ([192.132.92.2]:21948 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264619AbSIVXu7>;
-	Sun, 22 Sep 2002 19:50:59 -0400
-Date: Sun, 22 Sep 2002 16:56:04 -0700
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200209222356.g8MNu4V10172@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: boring BK stats
-Cc: dev@bitmover.com
-X-MailScanner: Found to be clean
+	id <S264626AbSIVXyL>; Sun, 22 Sep 2002 19:54:11 -0400
+Received: from packet.digeo.com ([12.110.80.53]:53749 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264625AbSIVXyK>;
+	Sun, 22 Sep 2002 19:54:10 -0400
+Message-ID: <3D8E5950.B74734FF@digeo.com>
+Date: Sun, 22 Sep 2002 16:59:12 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Michael Sinz <msinz@wgate.com>, mks@sinz.org, marcelo@conectiva.com.br,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+References: <3D8B8CAB.103C6CB8@digeo.com> <Pine.LNX.3.96.1020922145444.7597A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Sep 2002 23:59:12.0977 (UTC) FILETIME=[0CD51C10:01C26294]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should be working on getting the bk-3.0 release done but I'm sick of
-fixing BK-on-windows bugs...
+Bill Davidsen wrote:
+> 
+> On Fri, 20 Sep 2002, Andrew Morton wrote:
+> 
+> > That seems a reasonable thing to want to do.
+> >
+> > > ...
+> > > The following format options are available in that string:
+> > >
+> > >        %P   The Process ID (current->pid)
+> > >        %U   The UID of the process (current->uid)
+> > >        %N   The command name of the process (current->comm)
+> > >        %H   The nodename of the system (system_utsname.nodename)
+> > >        %%   A "%"
+> > >
+> > > For example, in my clusters, I have an NFS R/W mount at /coredumps
+> > > that all nodes have access to. The format string I use is:
+> > >
+> > >         sysctl -w "kernel.core_name_format=/coredumps/%H-%N-%P.core"
+> > >
+> >
+> > Does it need to be this fancy?  Why not just have:
+> >
+> >         if (core_name_format is unset)
+> >                 use "core"
+> >         else
+> >                 use core_name_format/nodename-uid-pid-comm.core
+> 
+> Because this way you can do more things with where you put your dumps,
+> such as using one element of this flexible method to select a directory,
+> where the dump directories for various applications would be on a single
+> NFS server, and dumps for another might be on another server, or all dumps
+> of a certain kind could share a filename, where only the latest dump would
+> be of interest (or take space).
 
-Linus' kernel tree has 13333 revision controlled files in it.  Without
-repository compression, it eats up 280M in an ext2 fs.  With repository
-compression, that drops to 129M.  After checking out all the files, the
-size of the revision history and the checked out files is 317MB when
-the revision history is compressed.  That means the tree without the
-history is 188MB, we get the revision history in less space than the
-checked out tree.  That's pretty cool, by the way, I know of no other
-SCM system which can say that.
-
-Checking out the tree takes 16 seconds.  Doing an integrity check takes 10
-seconds if the repository is uncompressed, 15 seconds if it is compressed.
-That's on 1.3Ghz Athlon w/ PC133 memory running at the slower CAS rate,
-but lots of it, around 900MB.
-
-An integrity check checksums the entire revision history and does a
-checkout into /dev/null to make sure that both the overall and most
-recent delta checksums are valid.
-
-There are about 8600 changesets in the tree.  There have been 76998
-deltas made to the tree since Feb 05 2002.  That's an average of 37
-changesets and 333 deltas per *day* seven days a week.  If you assume
-a 5 day work week then the numbers are 52 csets/day and 466 deltas/day.
-
-Those changerate numbers are pretty zippy.  You guys are rockin'.
-
-As for syncs with bkbits, I dunno, my guess is we're pushing 300,000 pulls
-or so.  We're nowhere near to saturating the T1 line so BK compression
-stuff is working well.
+OK, I'll buy that one.

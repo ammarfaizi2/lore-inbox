@@ -1,162 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263930AbRFEJLT>; Tue, 5 Jun 2001 05:11:19 -0400
+	id <S263931AbRFEJMT>; Tue, 5 Jun 2001 05:12:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263931AbRFEJLJ>; Tue, 5 Jun 2001 05:11:09 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:40719 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S263930AbRFEJKw>;
-	Tue, 5 Jun 2001 05:10:52 -0400
-Date: Tue, 5 Jun 2001 11:09:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: [patch] softirq-2.4.6-B2
-Message-ID: <Pine.LNX.4.33.0106051059220.2633-200000@localhost.localdomain>
+	id <S263932AbRFEJMJ>; Tue, 5 Jun 2001 05:12:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5793 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263931AbRFEJMD>;
+	Tue, 5 Jun 2001 05:12:03 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1564037877-991731865=:2633"
-Content-ID: <Pine.LNX.4.33.0106051107380.2837@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15132.41562.879696.484467@pizda.ninka.net>
+Date: Tue, 5 Jun 2001 02:11:54 -0700 (PDT)
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Chris Wedgwood <cw@f00f.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        bjornw@axis.com, linux-kernel@vger.kernel.org,
+        linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush. 
+In-Reply-To: <25831.991731935@redhat.com>
+In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net>
+	<15132.22933.859130.119059@pizda.ninka.net>
+	<13942.991696607@redhat.com>
+	<3B1C1872.8D8F1529@mandrakesoft.com>
+	<15132.15829.322534.88410@pizda.ninka.net>
+	<20010605155550.C22741@metastasis.f00f.org>
+	<25587.991730769@redhat.com>
+	<25831.991731935@redhat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-1564037877-991731865=:2633
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0106051107381.2837@localhost.localdomain>
+David Woodhouse writes:
+ > What shall we call this function? The intuitive "flush_dcache_range" appears
+ > to have already been taken.
 
+Call it flush_ecache_full() or something.
 
-the attached softirq-2.4.6-B2 patch against 2.4.6-pre1 includes additional
-softirq fixes and cleanups:
+Many architectures need to implement this anyways if they have
+parity error exception handling.  Most platforms sadly do not.
+Sparc64 is one of the exceptions here...
 
- - David S. Miller noticed that 64-bit architectures are broken due to
-   set_bit() on an int. Moved __cpu_raise_softirq into asm/softirq.h,
-   every architecture can now define its fastest way of flipping a bit.
-
- - fixes module exports
-
- - got rid of softirq_mask, because it's completely unused currently, and
-   just causes inlined overhead. There is a clear update path for other
-   architectures: __softirq_mask, __softirq_active is replaced by a single
-   __softirq_pending field. This change also simplified the do_softirq()
-   code.
-
- - a small enable_local_bh() optimization
-
-the patch compiles, boots & works just fine when applied to vanilla
-2.4.6-pre1.
-
-	Ingo
-
---8323328-1564037877-991731865=:2633
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="softirq-2.4.6-B2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0106051104250.2633@localhost.localdomain>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="softirq-2.4.6-B2"
-
-LS0tIGxpbnV4L2tlcm5lbC9rc3ltcy5jLm9yaWcJVHVlIEp1biAgNSAwOTo1
-OTo0NCAyMDAxDQorKysgbGludXgva2VybmVsL2tzeW1zLmMJVHVlIEp1biAg
-NSAxMDowMDoxOCAyMDAxDQpAQCAtNTM1LDYgKzUzNSw5IEBADQogRVhQT1JU
-X1NZTUJPTCh0YXNrbGV0X2luaXQpOw0KIEVYUE9SVF9TWU1CT0wodGFza2xl
-dF9raWxsKTsNCiBFWFBPUlRfU1lNQk9MKF9fcnVuX3Rhc2tfcXVldWUpOw0K
-K0VYUE9SVF9TWU1CT0woZG9fc29mdGlycSk7DQorRVhQT1JUX1NZTUJPTCh0
-YXNrbGV0X3NjaGVkdWxlKTsNCitFWFBPUlRfU1lNQk9MKHRhc2tsZXRfaGlf
-c2NoZWR1bGUpOw0KIA0KIC8qIGluaXQgdGFzaywgZm9yIG1vdmluZyBrdGhy
-ZWFkIHJvb3RzIC0gb3VnaHQgdG8gZXhwb3J0IGEgZnVuY3Rpb24gPz8gKi8N
-CiANCi0tLSBsaW51eC9rZXJuZWwvc29mdGlycS5jLm9yaWcJVHVlIEp1biAg
-NSAxMDowOTowMiAyMDAxDQorKysgbGludXgva2VybmVsL3NvZnRpcnEuYwlU
-dWUgSnVuICA1IDEwOjMxOjU5IDIwMDENCkBAIC01MCw3ICs1MCw3IEBADQog
-YXNtbGlua2FnZSB2b2lkIGRvX3NvZnRpcnEoKQ0KIHsNCiAJaW50IGNwdSA9
-IHNtcF9wcm9jZXNzb3JfaWQoKTsNCi0JX191MzIgYWN0aXZlLCBtYXNrOw0K
-KwlfX3UzMiBwZW5kaW5nOw0KIA0KIAlsb2NhbF9pcnFfZGlzYWJsZSgpOw0K
-IAlpZiAoaW5faW50ZXJydXB0KCkpDQpAQCAtNTgsMzEgKzU4LDMwIEBADQog
-DQogCWxvY2FsX2JoX2Rpc2FibGUoKTsNCiANCi0JbWFzayA9IHNvZnRpcnFf
-bWFzayhjcHUpOw0KLQlhY3RpdmUgPSBzb2Z0aXJxX2FjdGl2ZShjcHUpICYg
-bWFzazsNCisJcGVuZGluZyA9IHNvZnRpcnFfcGVuZGluZyhjcHUpOw0KIA0K
-LQlpZiAoYWN0aXZlKSB7DQorCWlmIChwZW5kaW5nKSB7DQogCQlzdHJ1Y3Qg
-c29mdGlycV9hY3Rpb24gKmg7DQogDQogcmVzdGFydDoNCi0JCS8qIFJlc2V0
-IGFjdGl2ZSBiaXRtYXNrIGJlZm9yZSBlbmFibGluZyBpcnFzICovDQotCQlz
-b2Z0aXJxX2FjdGl2ZShjcHUpICY9IH5hY3RpdmU7DQorCQkvKiBSZXNldCB0
-aGUgcGVuZGluZyBiaXRtYXNrIGJlZm9yZSBlbmFibGluZyBpcnFzICovDQor
-CQlzb2Z0aXJxX3BlbmRpbmcoY3B1KSA9IDA7DQogDQogCQlsb2NhbF9pcnFf
-ZW5hYmxlKCk7DQogDQogCQloID0gc29mdGlycV92ZWM7DQogDQogCQlkbyB7
-DQotCQkJaWYgKGFjdGl2ZSAmIDEpDQorCQkJaWYgKHBlbmRpbmcgJiAxKQ0K
-IAkJCQloLT5hY3Rpb24oaCk7DQogCQkJaCsrOw0KLQkJCWFjdGl2ZSA+Pj0g
-MTsNCi0JCX0gd2hpbGUgKGFjdGl2ZSk7DQorCQkJcGVuZGluZyA+Pj0gMTsN
-CisJCX0gd2hpbGUgKHBlbmRpbmcpOw0KIA0KIAkJbG9jYWxfaXJxX2Rpc2Fi
-bGUoKTsNCiANCi0JCWFjdGl2ZSA9IHNvZnRpcnFfYWN0aXZlKGNwdSkgJiBt
-YXNrOw0KLQkJaWYgKGFjdGl2ZSkNCisJCXBlbmRpbmcgPSBzb2Z0aXJxX3Bl
-bmRpbmcoY3B1KTsNCisJCWlmIChwZW5kaW5nKQ0KIAkJCWdvdG8gcmV0cnk7
-DQogCX0NCiANCkBAIC0xMDAsMjAgKzk5LDEwIEBADQogfQ0KIA0KIA0KLXN0
-YXRpYyBzcGlubG9ja190IHNvZnRpcnFfbWFza19sb2NrID0gU1BJTl9MT0NL
-X1VOTE9DS0VEOw0KLQ0KIHZvaWQgb3Blbl9zb2Z0aXJxKGludCBuciwgdm9p
-ZCAoKmFjdGlvbikoc3RydWN0IHNvZnRpcnFfYWN0aW9uKiksIHZvaWQgKmRh
-dGEpDQogew0KLQl1bnNpZ25lZCBsb25nIGZsYWdzOw0KLQlpbnQgaTsNCi0N
-Ci0Jc3Bpbl9sb2NrX2lycXNhdmUoJnNvZnRpcnFfbWFza19sb2NrLCBmbGFn
-cyk7DQogCXNvZnRpcnFfdmVjW25yXS5kYXRhID0gZGF0YTsNCiAJc29mdGly
-cV92ZWNbbnJdLmFjdGlvbiA9IGFjdGlvbjsNCi0NCi0JZm9yIChpPTA7IGk8
-TlJfQ1BVUzsgaSsrKQ0KLQkJc29mdGlycV9tYXNrKGkpIHw9ICgxPDxucik7
-DQotCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnNvZnRpcnFfbWFza19sb2Nr
-LCBmbGFncyk7DQogfQ0KIA0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgv
-aXJxX2NwdXN0YXQuaC5vcmlnCVR1ZSBKdW4gIDUgMTA6MDk6MzEgMjAwMQ0K
-KysrIGxpbnV4L2luY2x1ZGUvbGludXgvaXJxX2NwdXN0YXQuaAlUdWUgSnVu
-ICA1IDEwOjIxOjE2IDIwMDENCkBAIC0yNiwxNSArMjYsMTEgQEANCiAjZW5k
-aWYJDQogDQogICAvKiBhcmNoIGluZGVwZW5kZW50IGlycV9zdGF0IGZpZWxk
-cyAqLw0KLSNkZWZpbmUgc29mdGlycV9hY3RpdmUoY3B1KQlfX0lSUV9TVEFU
-KChjcHUpLCBfX3NvZnRpcnFfYWN0aXZlKQ0KLSNkZWZpbmUgc29mdGlycV9t
-YXNrKGNwdSkJX19JUlFfU1RBVCgoY3B1KSwgX19zb2Z0aXJxX21hc2spDQor
-I2RlZmluZSBzb2Z0aXJxX3BlbmRpbmcoY3B1KQlfX0lSUV9TVEFUKChjcHUp
-LCBfX3NvZnRpcnFfcGVuZGluZykNCiAjZGVmaW5lIGxvY2FsX2lycV9jb3Vu
-dChjcHUpCV9fSVJRX1NUQVQoKGNwdSksIF9fbG9jYWxfaXJxX2NvdW50KQ0K
-ICNkZWZpbmUgbG9jYWxfYmhfY291bnQoY3B1KQlfX0lSUV9TVEFUKChjcHUp
-LCBfX2xvY2FsX2JoX2NvdW50KQ0KICNkZWZpbmUgc3lzY2FsbF9jb3VudChj
-cHUpCV9fSVJRX1NUQVQoKGNwdSksIF9fc3lzY2FsbF9jb3VudCkNCiAgIC8q
-IGFyY2ggZGVwZW5kZW50IGlycV9zdGF0IGZpZWxkcyAqLw0KICNkZWZpbmUg
-bm1pX2NvdW50KGNwdSkJCV9fSVJRX1NUQVQoKGNwdSksIF9fbm1pX2NvdW50
-KQkJLyogaTM4NiwgaWE2NCAqLw0KLQ0KLSNkZWZpbmUgc29mdGlycV9wZW5k
-aW5nKGNwdSkgXA0KLQkoKHNvZnRpcnFfYWN0aXZlKGNwdSkgJiBzb2Z0aXJx
-X21hc2soY3B1KSkpDQogDQogI2VuZGlmCS8qIF9faXJxX2NwdXN0YXRfaCAq
-Lw0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaW50ZXJydXB0Lmgub3JpZwlU
-dWUgSnVuICA1IDEwOjExOjAyIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xp
-bnV4L2ludGVycnVwdC5oCVR1ZSBKdW4gIDUgMTA6MzM6MTYgMjAwMQ0KQEAg
-LTc0LDEyICs3NCw2IEBADQogYXNtbGlua2FnZSB2b2lkIGRvX3NvZnRpcnEo
-dm9pZCk7DQogZXh0ZXJuIHZvaWQgb3Blbl9zb2Z0aXJxKGludCBuciwgdm9p
-ZCAoKmFjdGlvbikoc3RydWN0IHNvZnRpcnFfYWN0aW9uKiksIHZvaWQgKmRh
-dGEpOw0KIA0KLS8qIExvY2FsbHkgY2FjaGVkIGF0b21pYyB2YXJpYWJsZXMg
-YXJlIGNoZWFwZXIgdGhhbiBjbGkvc3RpICovDQotc3RhdGljIGlubGluZSB2
-b2lkIF9fY3B1X3JhaXNlX3NvZnRpcnEoaW50IGNwdSwgaW50IG5yKQ0KLXsN
-Ci0Jc2V0X2JpdChuciwgJnNvZnRpcnFfYWN0aXZlKGNwdSkpOw0KLX0NCi0N
-CiBzdGF0aWMgaW5saW5lIHZvaWQgcmFpc2Vfc29mdGlycShpbnQgbnIpDQog
-ew0KIAlfX2NwdV9yYWlzZV9zb2Z0aXJxKHNtcF9wcm9jZXNzb3JfaWQoKSwg
-bnIpOw0KLS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvaGFyZGlycS5oLm9y
-aWcJVHVlIEp1biAgNSAxMDoxMDozNSAyMDAxDQorKysgbGludXgvaW5jbHVk
-ZS9hc20taTM4Ni9oYXJkaXJxLmgJVHVlIEp1biAgNSAxMDoyMToxNyAyMDAx
-DQpAQCAtNyw4ICs3LDcgQEANCiANCiAvKiBlbnRyeS5TIGlzIHNlbnNpdGl2
-ZSB0byB0aGUgb2Zmc2V0cyBvZiB0aGVzZSBmaWVsZHMgKi8NCiB0eXBlZGVm
-IHN0cnVjdCB7DQotCXVuc2lnbmVkIGludCBfX3NvZnRpcnFfYWN0aXZlOw0K
-LQl1bnNpZ25lZCBpbnQgX19zb2Z0aXJxX21hc2s7DQorCXVuc2lnbmVkIGlu
-dCBfX3NvZnRpcnFfcGVuZGluZzsNCiAJdW5zaWduZWQgaW50IF9fbG9jYWxf
-aXJxX2NvdW50Ow0KIAl1bnNpZ25lZCBpbnQgX19sb2NhbF9iaF9jb3VudDsN
-CiAJdW5zaWduZWQgaW50IF9fc3lzY2FsbF9jb3VudDsNCi0tLSBsaW51eC9p
-bmNsdWRlL2FzbS1pMzg2L3NvZnRpcnEuaC5vcmlnCVR1ZSBKdW4gIDUgMTA6
-MTY6NTMgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvc29mdGly
-cS5oCVR1ZSBKdW4gIDUgMTA6MzM6MTkgMjAwMQ0KQEAgLTExLDggKzExLDgg
-QEANCiANCiAjZGVmaW5lIGxvY2FsX2JoX2Rpc2FibGUoKQljcHVfYmhfZGlz
-YWJsZShzbXBfcHJvY2Vzc29yX2lkKCkpDQogI2RlZmluZSBfX2xvY2FsX2Jo
-X2VuYWJsZSgpCV9fY3B1X2JoX2VuYWJsZShzbXBfcHJvY2Vzc29yX2lkKCkp
-DQotI2RlZmluZSBsb2NhbF9iaF9lbmFibGUoKQlkbyB7IGlmICghLS1sb2Nh
-bF9iaF9jb3VudChzbXBfcHJvY2Vzc29yX2lkKCkpICYmIHNvZnRpcnFfcGVu
-ZGluZyhzbXBfcHJvY2Vzc29yX2lkKCkpKSB7IGRvX3NvZnRpcnEoKTsgX19z
-dGkoKTsgfSB9IHdoaWxlICgwKQ0KLQ0KKyNkZWZpbmUgbG9jYWxfYmhfZW5h
-YmxlKCkJZG8geyBpbnQgX19jcHUgPSBzbXBfcHJvY2Vzc29yX2lkKCk7IGlm
-ICghLS1sb2NhbF9iaF9jb3VudChfX2NwdSkgJiYgc29mdGlycV9wZW5kaW5n
-KF9fY3B1KSkgeyBkb19zb2Z0aXJxKCk7IF9fc3RpKCk7IH0gfSB3aGlsZSAo
-MCkNCisjZGVmaW5lIF9fY3B1X3JhaXNlX3NvZnRpcnEoY3B1LG5yKSBzZXRf
-Yml0KChuciksICZzb2Z0aXJxX3BlbmRpbmcoY3B1KSk7DQogI2RlZmluZSBp
-bl9zb2Z0aXJxKCkgKGxvY2FsX2JoX2NvdW50KHNtcF9wcm9jZXNzb3JfaWQo
-KSkgIT0gMCkNCiANCiAjZW5kaWYJLyogX19BU01fU09GVElSUV9IICovDQo=
---8323328-1564037877-991731865=:2633--
+Later,
+David S. Miller
+davem@redhat.com

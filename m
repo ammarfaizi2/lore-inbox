@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbTDQRee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDQRed
+	id S261820AbTDQRnR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDQRnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:34:33 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:41906 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S261747AbTDQRed
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:34:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: Randolph Bentson <bentson@grieg.holmsjoen.com>
-Subject: Re: kernel support for non-English user messages
-Date: Thu, 17 Apr 2003 11:49:05 -0700
-User-Agent: KMail/1.4.3
+	Thu, 17 Apr 2003 13:43:17 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:7661 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261820AbTDQRnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:43:16 -0400
+Date: Thu, 17 Apr 2003 10:54:36 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Mads Christensen <mfc@krycek.org>
 Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com> <200304141645.48020.EricAltendorf@orst.edu> <20030417080754.A32133@grieg.holmsjoen.com>
-In-Reply-To: <20030417080754.A32133@grieg.holmsjoen.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304171149.08098.EricAltendorf@orst.edu>
+Subject: Re: cannot boot 2.5.67
+Message-Id: <20030417105436.3c70b895.rddunlap@osdl.org>
+In-Reply-To: <1050601594.1073.1.camel@krycek>
+References: <018401c30505$1a1e6200$6400a8c0@witbe>
+	<1050601594.1073.1.camel@krycek>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 April 2003 08:07, Randolph Bentson wrote:
->
-> That's true if documentation serves only to describe _what_ the
-> code does.  You've ignored the need to describe _why_ the code
-> was written in this way.  For example, documentation can note some
-> feature of the hardware which requires special handling, or it can
-> describe some emergent property which isn't obvious even if all
-> the code is understood.
->
-> That's why local comments should explain non-obvious trickery used,
-> perhaps the exploitation of a poorly documented side-effect of some
-> instruction, and block comments or external documentation should
-> help the reader understand why things are done some particular way.
-> For instance, if the code implements some specific, well documented
-> algorithm, it should reference the algorithm by name.
+There was also a thread about 1 week ago that indicated that
+if CONFIG_LOG_BUF_SHIFT=<some very large number here>,
+the kernel won't boot and won't tell you why.
 
-You're right; this is very true.  I suppose I overlooked that due to 
-my background in other kinds of code bases...  In an "ideal" code 
-base, written from scratch, you'd probably need very very few 
-comments.  If you're interfacing with buggy legacy code or 
-problematic hardware, I can see there'd be a much greater need.
+E.g., if someone sets CONFIG_LOG_BUF_SHIFT to a buffer size in bytes
+(or KB) instead of a shift value, it causes a very large log buffer
+declaration and that's about all she wrote.
 
-Eric
+~Randy
+
+
+On 17 Apr 2003 19:46:34 +0200 Mads Christensen <mfc@krycek.org> wrote:
+
+| You have to get 
+| CONFIG_INPUT=y, CONFIG_VT=y and CONFIG_VT_CONSOLE=y
+| inorder for you to see anything =)
+| 
+| On tor, 2003-04-17 at 19:16, Paul Rolland wrote:
+| > Got the same starting with 2.5.67...
+| > I took the .config from the booting 2.5.66, made a 2.5.67 kernel,
+| > and when booting, booh :-(
+| > 
+| > It was a RH8 base, Lilo... I'll try tonite to find out which option
+| > is responsible of that...
+| > 
+| > Regards,
+| > Paul
+| > 
+| > > I have a rh9 installation, grub is properly configured, and 
+| > > when I select 
+| > > to boot a 2.5 kernel it does not even decompress it. It stops 
+| > > even before 
+| > > printing the kernel version.

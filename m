@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQLQJzu>; Sun, 17 Dec 2000 04:55:50 -0500
+	id <S129733AbQLQKPT>; Sun, 17 Dec 2000 05:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbQLQJzk>; Sun, 17 Dec 2000 04:55:40 -0500
-Received: from mx1.eskimo.com ([204.122.16.48]:42506 "EHLO mx1.eskimo.com")
-	by vger.kernel.org with ESMTP id <S129655AbQLQJzf>;
-	Sun, 17 Dec 2000 04:55:35 -0500
-Date: Sun, 17 Dec 2000 01:25:06 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
-To: linux-kernel@vger.kernel.org
-Subject: klogd -f logname "append to logname" patch
-Message-ID: <Pine.SUN.3.96.1001217011004.16489A-100000@eskimo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130552AbQLQKPJ>; Sun, 17 Dec 2000 05:15:09 -0500
+Received: from p3EE0A7C2.dip.t-dialin.net ([62.224.167.194]:21753 "EHLO
+	mail.plan9.de") by vger.kernel.org with ESMTP id <S129733AbQLQKOx>;
+	Sun, 17 Dec 2000 05:14:53 -0500
+Date: Sun, 17 Dec 2000 10:42:42 +0100
+From: Marc Lehmann <pcg@goof.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: recursive exports && linux nfs
+Message-ID: <20001217104242.B9034@fuji.laendle>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001212103652.A13501@cerebro.laendle> <20001215235446.H9506@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001215235446.H9506@bug.ucw.cz>; from pavel@suse.cz on Fri, Dec 15, 2000 at 11:54:46PM +0100
+X-Operating-System: Linux version 2.2.18 (root@fuji) (gcc version pgcc-2.95.2 19991024 (release)) 
+X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(For anyone else who shares the opinion that
+On Fri, Dec 15, 2000 at 11:54:46PM +0100, Pavel Machek <pavel@suse.cz> wrote:
+> > 2) using: I can do cd /nfs/fs, but the directoy is always empty, and when I
+> >    try to step into a subdirectory I always get "No such file or directory".
+> > 
+> > Thanks a lot for any insights, even if this means "this is not supported"
+> > ;)
+> 
+> This can't be supported, afaict, because nfs handles have limited
+> size.
 
-  klogd -f /var/log/kmsg -x
+Ehrm, did you really read my mail? Most people told me something like
+"recursive exports are not supported" (actually, they are and they work),
+and it seems nobody really read what I wrote :(
 
-should append to its kmsg log file instead of overwriting it.)
+My problem is that autofs doesn't work. Example:
 
--f insulates klogd messages from syslogd bugs (although you can't split
-them up into multiple files the way that /etc/syslog.conf enables). You
-can always solve any klogd-to-syslogd problem *after* you find out what
-is otherwise wrong with your kernel (and lose the -f switch then if that's
-what you prefer or require). But when you are debugging a kernel deadlock
-with no oops, for example, and actually have local persistent storage
-to write to, it helps if the next hard reset doesn't truncate the -f
-pathname when klogd opens it.
+/	reiserfs
+/fs	autofs
+/fs/big	ext2
 
---- klogd.c.orig	Mon Sep 18 00:34:11 2000
-+++ klogd.c	Wed Nov 29 14:06:40 2000
-@@ -1109,7 +1109,7 @@
- 	{
- 		if ( strcmp(output, "-") == 0 )
- 			output_file = stdout;
--		else if ( (output_file = fopen(output, "w")) == (FILE *) 0 )
-+		else if ( (output_file = fopen(output, "a")) == (FILE *) 0 )
- 		{
- 			fprintf(stderr, "klogd: Cannot open output file " \
- 				"%s - %s\n", output, strerror(errno));
+When I exportfs /, /fs AND /fs/big then I can mount /fs on another box,
+but it is always empty, even if something (e.g. /fs/big) is mounted and
+can be accessed fine the whole time. Automounting doesn't work, either, of
+course.
 
-Regards,
+Another (less grave) problem is that exportfs (and/or rpc.nfsd) require
+network access and access to the volume, so they a) mount all automounted
+directories (VERY expensive) and require network access (making all
+clients NOT survive a reboot).
 
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
-
-"Everybody's ignorant, just in different subjects."  Will Rogers
-
-
-
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

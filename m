@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbUCZWc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 17:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbUCZWc3
+	id S261366AbUCZWiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 17:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCZWiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 17:32:29 -0500
-Received: from gprs214-69.eurotel.cz ([160.218.214.69]:17537 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261206AbUCZWc1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 17:32:27 -0500
-Date: Fri, 26 Mar 2004 23:32:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
+	Fri, 26 Mar 2004 17:38:11 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:49589 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261366AbUCZWiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 17:38:06 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [.config] CONFIG_THERM_WINDTUNNEL
-Message-ID: <20040326223217.GH9491@elf.ucw.cz>
-References: <200403180821.44199.michal@roszka.pl> <Pine.LNX.4.58.0403181012300.29633@denise.shiny.it> <20040318112057.GC3686@ibrium.se> <Pine.LNX.4.58.0403181221580.1392@denise.shiny.it> <20040318120311.GD3686@ibrium.se> <20040324001828.GB238@elf.ucw.cz> <20040326183020.GA19610@ibrium.se>
-Mime-Version: 1.0
+Subject: Scheduling proposal
+From: David Kastrup <dak@gnu.org>
+Date: 26 Mar 2004 23:38:04 +0100
+Message-ID: <x5lllndyk3.fsf@lola.goethe.zz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040326183020.GA19610@ibrium.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Is it actually possible to set that hardware to self-destruct?
-> > 
-> > [ACPI notebooks have very simple hardware failsafe: if temperature
-> > exceeds some hard limit, power is simply cut.]
-> 
-> Well, I'm not sure.
-> 
-> I know that the hardware which controls the fan (a separate temperature
-> sensor and a combined sensor/controller) is not connected to any death
-> switch; the available overheat pin serves as a 100% fan override. There
-> might very well be a safety mechanism in the UniNorth bridge though.
-> Something like a forced power off if interrupts are not handled in
-> a timely manner. I'm pretty sure I have seen references to this behavior
-> in conjunction with the PowerBook G4. The dual G4 architecture is not all
-> that different...
+During some 2.5.x phase I already had explained the details of a
+scheduler problem on single CPU machines, exhibited for example by
+running the command
 
-ACPI design seems to have aditional benefit: if your fan fails, you
-can still operate machine safely. You just have to be clever with
-throttling etc :-). [Assuming vendor did set shutdown threshold
-right. HP Omnibook XE3 will kill power at 83C. If you leave it running
-at ~82C for ten hours, you'll fry the disk. Oops.]
+hexdump -v /dev/zero|dd obs=1
 
-Funniest machine in this regard was 300MHz P2 toshiba. On extreme
-overheat (95C), it went to 40MHz no matter what os did. At that point
-it was able to cool itself even without fan. [But I was pretty puzzled
-when I saw that behaviour].
+inside of an xterm: as soon as dd writes one byte into the pipe, xterm
+gets woken to process that byte, and during that time, the completely
+CPU-starved dd will not will the pipe, even though it can do so with
+very little CPU usage.  As a result, the pipe will keep merely a fill
+level of 1 for long periods, resulting in very inefficient operation
+of the pipeline.
 
-> It would be interesting to see what happens if one disables the overheat
-> protection and stops the fan. Anybody volunteering? At least one
-> has an excellent reason why one need one of those new G5 machines
-> if things start to smoke :-).
+It appears that this problem (which will afflict all programs using
+up CPU as a terminal emulator or shell or similar) is still prevalent
+in Linux-2.6.4 and has a considerable impact.
 
-Well, its enough to end the test when CPU starts doing errors. Usually
-CPU stops working at some temperature, and is only physically damaged
-after that. Or you can get datasheets from CPU manufacturer, and call
-the machine's design broken when it exceeds CPU design limits by
-5C... This should be testable without letting magic smoke out.
+I'd propose the following fix to it: regardless of the priority of
+the reader on a pipe, the scheduler will not preempt the writer on
+the pipe before its time slice is over.  This particular priority
+treatment will however
 
-								Pavel
+a) only be made on the CPU that the writer is running on
+b) only be made with regard to the process responsible for the write
+
+In particular, if another process with priority in between the two
+processes would preempt the writer, instead the reader is scheduled
+in.  If another process writes to the same pipe, the priority
+inversion with the original process is canceled as well.
+
+And if the writing processes yields the CPU for any other reason
+(including having used up its time slice), the priority inversion is
+ended, too.
+
+That would tend to keep pipes filled when this is possible with
+reasonable delay.
+
+It is not latency critical: if the writing process has a
+significantly lower priority than the reading process, its data would
+already be expected to arrive with larger delays, so it can't be part
+of a low latency pipeline.  Also, since the priority inversion would
+end the moment the CPU is yielded, it would not have any effect for
+event-driven scenarios, but only for those where the source of the
+data is purely CPU-bound.
+
+This would be useful behavior for pipes, sockets, and pttys.
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+David Kastrup, Kriemhildstr. 15, 44793 Bochum

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316453AbSEUAMC>; Mon, 20 May 2002 20:12:02 -0400
+	id <S316455AbSEUAPc>; Mon, 20 May 2002 20:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316455AbSEUAMB>; Mon, 20 May 2002 20:12:01 -0400
-Received: from [66.105.142.142] ([66.105.142.142]:64263 "EHLO
-	exchange1.FalconStor.Net") by vger.kernel.org with ESMTP
-	id <S316453AbSEUAL7>; Mon, 20 May 2002 20:11:59 -0400
-Message-ID: <E79B8AB303080F4096068F046CD1D89B934C94@exchange1.FalconStor.Net>
-From: Ron Niles <Ron.Niles@falconstor.com>
-To: linux-kernel@vger.kernel.org
-Subject: Oops from local semaphore race condition
-Date: Mon, 20 May 2002 20:11:57 -0400
+	id <S316458AbSEUAPb>; Mon, 20 May 2002 20:15:31 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:41164 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316455AbSEUAPa>;
+	Mon, 20 May 2002 20:15:30 -0400
+Date: Mon, 20 May 2002 17:14:24 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Bug with shared memory.
+Message-ID: <262840000.1021940064@flay>
+In-Reply-To: <20020520234622.GL21806@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> For the memclass_related_bhs() fix in -aa, that's in the testing TODO
+> list of Martin (on the multi giga machines), he also nicely proposed to
+> compare it to the other throw-away-all-bh-regardless patch from Andrew
+> (that I actually didn't seen floating around yet but it's clear how it
+> works, it's a subset of memclass_related_bhs). However the right way to
+> test the memclass_related_bhs vs throw-away-all-bh, is to run a rewrite
+> test that fits in cache, so write,fsync,write,fsync,write,fsync. specweb
+> or any other read-only test will obviously perform exactly the same both
+> ways (actually theoretically a bit cpu-faster in throw-away-all-bh
+> because it doesn't check the bh list).
 
-Many places in the kernel (mostly drivers, like in scsi_error.c,
-scsi_sleep()) have the following construct:
+The only thing that worries me in theory about your approach for this
+Andrea is fragmentation - if we try to shrink only when we're low on
+memory, isn't there a danger that one buffer_head per page of slab
+cache will be in use, and thus no pages are freeable (obviously this
+is extreme, but I can certainly see a situation with lots of partially used
+pages)? 
 
-void function(void)
-{
-	DECLARE_MUTEX_LOCKED(sem);
+With Andrew's approach, keeping things freed as we go, we should
+reuse the partially allocated slab pages, which would seem (to me)
+to result in less fragmentation?
 
-	/* let another thread do the work and up() when done */
-	notify_handler(&sem);
-	down(&sem);
-}
+Thanks,
 
-I have used this construct very often and under stress testing my driver got
-a few Oops in __up_wakeup, as if the semaphore went corrupt. Then I realized
-it can possibly go corrupt, due to a race condition which lets down()
-continue before up() is complete:
-
-down decrements sem->counter to -1
-   up increments sem->counter to 0
-down enters __down, but does not sleep since sem->counter has already been
-incremented
-   up enters __up, tries to wake_up(&sem->wait) but sem is now garbage since
-function has exited.
-
-I think this race is possible only on SMP. This problem seems to show up
-more if I have heavy irq activity which I guess will interrupt down()
-between the --sem->counter and __down(), and also interrupt up() between
-++sem->counter and __up().
-
-I am interested in some opinions:
-(1) does the following up_atomic() function instead of up() indeed fix the
-race condition?
-(2) it is worthwile to put it into semaphore.c and semaphore.h?
-(3) is it worthwhile to fix the condition in scsi modules and other drivers
-that do this?
-
-void up_atomic(struct semaphore *sem)
-{
-	spin_lock_irq(&semaphore_lock);
-	up(sem);		
-	spin_unlock_irq(&semaphore_lock);
-}
+M.
 

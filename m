@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUC1SEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 13:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUC1SEm
+	id S262310AbUC1SI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 13:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUC1SI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 13:04:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60373 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262130AbUC1SEh
+	Sun, 28 Mar 2004 13:08:28 -0500
+Received: from mail.shareable.org ([81.29.64.88]:61842 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262238AbUC1SIX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 13:04:37 -0500
-Message-ID: <406713A8.6040206@pobox.com>
-Date: Sun, 28 Mar 2004 13:04:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 28 Mar 2004 13:08:23 -0500
+Date: Sun, 28 Mar 2004 19:08:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
 To: Jens Axboe <axboe@suse.de>
-CC: Jamie Lokier <jamie@shareable.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <4066191E.4040702@yahoo.com.au> <40662108.40705@pobox.com> <20040328135124.GA32597@mail.shareable.org> <40670A36.3000005@pobox.com> <20040328174013.GJ24370@suse.de> <4067101F.9030606@pobox.com> <20040328175559.GM24370@suse.de>
-In-Reply-To: <20040328175559.GM24370@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040328180809.GB1087@mail.shareable.org>
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406612AA.1090406@yahoo.com.au> <4066156F.1000805@pobox.com> <20040328141014.GE24370@suse.de> <40670BD9.9020707@pobox.com> <20040328173508.GI24370@suse.de> <40670FDB.6080409@pobox.com> <20040328175436.GL24370@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040328175436.GL24370@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Jens Axboe wrote:
-> On Sun, Mar 28 2004, Jeff Garzik wrote:
-> 
->>Jens Axboe wrote:
->>
->>>What would be nice (and I seem to recall that Andre also pushed for
->>>this) would be the FUA bit doubling as an ordered tag indicator when
->>>using TCQ. It's one of those things that keep ATA squarely outside of
->>>the big machine uses. That other OS had a differing opinion of what to
->>>do with that, so...
->>
->>Preach on, brother Jens :)
-> 
-> 
-> I think we already lost this one, I'm afraid :-)
-> 
-> 
->>I agree completely.  Or, the ATA guys could use SCSI's ordered tags / 
->>linked commands.
->>
->>Regardless, there's ATA dain bramage that needs fixing...  Sigh.
-> 
-> 
-> Indeed, and it really hurt that they passed up this oportunity last
-> time, ATA TCQ would have kicked so much more ass... Maybe Eric can beat
-> some sense into his colleagues.
+> Sorry, but I cannot disagree more. You think an artificial limit at
+> the block layer is better than one imposed at the driver end, which
+> actually has a lot more of an understanding of what hardware it is
+> driving?  This makes zero sense to me. Take floppy.c for instance, I
+> really don't want 1MB requests there, since that would take a minute
+> to complete. And I might not want 1MB requests on my Super-ZXY
+> storage, because that beast completes io easily at an iorate of
+> 200MB/sec.
 
+The driver doesn't know how fast the drive is either.
 
-I bet if we can come up with a decent proposal, with technical rationale 
-for the change... that could be presented to the right ATA people :) 
-It's worth a shot.
+Without timing the drive, interface, and for different request sizes,
+neither the block layer _nor_ the driver know a suitable size.
 
-	Jeff
+> I absolutely refuse to put a global block layer 'optimal io
+> size' restriction in, since that is the ugliest of policies and
+> without having _any_ knowledge of what the hardware can do.
 
+But the driver doesn't have _any_ knowledge of what the I/O scheduler
+wants.  1MB requests may be a cut-off above which there is negligable
+throughput gain for SATA, but those requests may be _far_ too large
+for a low-latency I/O scheduling requirement.
 
+If we have a high-level latency scheduling constraint that userspace
+should be able to issue a read and get the result within 50ms, or that
+the average latency for reads should be <500ms, how does the SATA
+driver limiting requests to 1MB help?  It depends on the attached drive.
 
+The fundamental problem here is that neither the driver nor the block
+layer have all the information needed to select optimal or maximum
+request sizes.  That can only be found by timing the device, perhaps
+every time a request is made, and adjusting the I/O scheduling and
+request splitting parameters according to that timing and high-level
+latency requirements.
+
+>From that point of view, the generic block layer is exactly the right
+place to determine those parameters, because the calculation is not
+device-specific.
+
+-- Jamie

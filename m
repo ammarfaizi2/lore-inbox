@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286289AbRLJPlX>; Mon, 10 Dec 2001 10:41:23 -0500
+	id <S286341AbRLJSY2>; Mon, 10 Dec 2001 13:24:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286288AbRLJPlF>; Mon, 10 Dec 2001 10:41:05 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10759 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286289AbRLJPlB>; Mon, 10 Dec 2001 10:41:01 -0500
-Date: Mon, 10 Dec 2001 13:40:31 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <volodya@mindspring.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: mm question
-In-Reply-To: <E16DSFZ-0002KX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0112101340030.4755-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286350AbRLJSYK>; Mon, 10 Dec 2001 13:24:10 -0500
+Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:53253 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S286341AbRLJSX6>;
+	Mon, 10 Dec 2001 13:23:58 -0500
+Date: Mon, 10 Dec 2001 10:45:54 +0000 (/etc/localtime)
+From: <gmack@innerfire.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16 dmesg
+Message-ID: <Pine.LNX.4.21.0112101043580.18938-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001, Alan Cox wrote:
+Hello, 
 
-> > I was hoping for something more elegant, but I am not adverse to writing
-> > my own get_free_page_from_range().
->
-> Thats not a trivial task.
+Can someone tell me what these errors mean and if they are harmfull to
+performance?  I'm trying to locate some user complaints about hung game
+connections etc.
 
-Especially because we never quite know the users of a
-physical page, so moving data around is somewhat hard.
+sending pkt_too_big to self
+sending pkt_too_big to self
+sending pkt_too_big to self
+sending pkt_too_big to self
+sending pkt_too_big to self
 
-cheers,
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+--
+Gerhard Mack
 
-http://www.surriel.com/		http://distro.conectiva.com/
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264759AbRF1WTV>; Thu, 28 Jun 2001 18:19:21 -0400
+	id <S264784AbRF1WUv>; Thu, 28 Jun 2001 18:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbRF1WTL>; Thu, 28 Jun 2001 18:19:11 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:6 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S264759AbRF1WTE>; Thu, 28 Jun 2001 18:19:04 -0400
-Date: 29 Jun 2001 00:01:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <83lrQbz1w-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.33.0106281055410.15199-100000@penguin.transmeta.com>
-Subject: Re: Cosmetic JFFS patch.
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S264745AbRF1WUm>; Thu, 28 Jun 2001 18:20:42 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:33041 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S264780AbRF1WUM>;
+	Thu, 28 Jun 2001 18:20:12 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880AD5@xsj02.sjs.agilent.com> <d33d8kbdel.fsf@lxplus015.cern.ch> <15163.43319.82354.562310@pizda.ninka.net>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 29 Jun 2001 00:20:03 +0200
+In-Reply-To: "David S. Miller"'s message of "Thu, 28 Jun 2001 15:01:27 -0700 (PDT)"
+Message-ID: <d3u2109rho.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <7953.993749740@redhat.com> <Pine.LNX.4.33.0106281055410.15199-100000@penguin.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 28.06.01 in <Pine.LNX.4.33.0106281055410.15199-100000@penguin.transmeta.com>:
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-> On Thu, 28 Jun 2001, David Woodhouse wrote:
-> >
-> > I agree the messages can be ugly. But they don't do any harm either, and
-> > sometimes they're useful.
->
-> I consider them harmful when I start getting annoying patches that start
-> adding more and more of them.
+David> Jes Sorensen writes:
+>>  Because on ia64 you will get back a 64 bit pointer if you use
+>> pci_set_dma_mask() to set a 64 bit mask before calling the pci
+>> functions in question.
 
-Or when there are enough boot messages that the dmesg buffer overflows. My  
-current (2.2.19pre1 or so) system has that problem.
+David> Please note that this is nonstandard and undocumented behavior.
 
-That *is* harm caused by these messages.
+David> This is not a supported API at all, and the way 64-bit DMA will
+David> eventually be done across all platforms is likely to be
+David> different.
 
-MfG Kai
+Well please also note there has been requests for proper 64 bit DMA
+support for over 3 years or so by now.
+
+The interface we use works well, so why should it be changed for other
+architecures? Instead it would make a lot more sense to support it on
+other architectures that can do 64 bit DMA.
+
+Jes

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbUKKXVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbUKKXKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUKKXVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 18:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbUKKXVN
+	id S262438AbUKKXKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 18:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbUKKXJC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 18:21:13 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:23535 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262475AbUKKXTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 18:19:39 -0500
-Date: Fri, 12 Nov 2004 00:19:35 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove if !PARTITION_ADVANCED condition in defaults
-Message-ID: <20041111231935.GC13442@apps.cwi.nl>
-References: <200411112302.iABN2Pu01711@apps.cwi.nl> <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org>
+	Thu, 11 Nov 2004 18:09:02 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:36741 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262292AbUKKXFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 18:05:35 -0500
+Subject: [PATCH 3/3] Fix sysdev time support
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrew Morton <akpm@digeo.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100213485.6031.18.camel@desktop.cunninghams>
+References: <1100213485.6031.18.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1100213867.6031.33.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 12 Nov 2004 09:59:34 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 03:11:00PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 12 Nov 2004 Andries.Brouwer@cwi.nl wrote:
-> > 
-> > So, the below advises people "Say Y here" for MSDOS_PARTITION,
-> > and does not change the default choices when PARTITION_ADVANCED
-> > is selected.
-> 
-> Actually, we should make MSDOS_PARTITION not ask at all, unless 
-> CONFIG_EMBEDDED is set. 
+Fix type of sleep_start, so as to eliminate clock skew due to math errors.
 
-I think that is going too far.
-It must be possible to deselect it on an old non-i386 machine
-without USB, or an old i386 machine with BSD or minix partition
-table, or ...
+diff -ruN 992-old/arch/i386/kernel/time.c 992-new/arch/i386/kernel/time.c
+--- 992-old/arch/i386/kernel/time.c	2004-11-12 09:19:22.219857040 +1100
++++ 992-new/arch/i386/kernel/time.c	2004-11-12 09:13:12.000000000 +1100
+@@ -319,7 +319,8 @@
+ 	return retval;
+ }
+ 
+-static long clock_cmos_diff, sleep_start;
++static long clock_cmos_diff;
++static unsigned long sleep_start;
+ 
+ static int time_suspend(struct sys_device *dev, u32 state)
+ {
 
-> That way PARTITION_ADVANCED really _does_ mean "do you want some
-> additional choices"
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-That is what it means right now (after my patch).
-And one of the additional choices is to deselect MSDOS_PARTITION.
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 
-Andries

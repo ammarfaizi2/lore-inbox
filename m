@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317396AbSGISd0>; Tue, 9 Jul 2002 14:33:26 -0400
+	id <S317369AbSGIST3>; Tue, 9 Jul 2002 14:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317397AbSGISdZ>; Tue, 9 Jul 2002 14:33:25 -0400
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:47515 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S317396AbSGISdZ>; Tue, 9 Jul 2002 14:33:25 -0400
-Date: Tue, 9 Jul 2002 13:36:07 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Michael Gruner <stockraser@yahoo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: freezing afer switching from graphical to console
-Message-ID: <20020709133606.A8202@ksu.edu>
-Mail-Followup-To: Michael Gruner <stockraser@yahoo.de>,
-	linux-kernel@vger.kernel.org
-References: <1026193021.1076.29.camel@highflyer> <200207091227.15957.bernd-schubert@web.de> <1026232702.757.9.camel@highflyer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317371AbSGIST2>; Tue, 9 Jul 2002 14:19:28 -0400
+Received: from 205-158-62-93.outblaze.com ([205.158.62.93]:30864 "HELO
+	ws3-3.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317369AbSGIST1>; Tue, 9 Jul 2002 14:19:27 -0400
+Message-ID: <20020709182205.27952.qmail@email.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: RE: [Re: freezing afer switching from graphical to console]
-X-School: Kansas State University
-X-vi-or-emacs: vi
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: haveblue@us.ibm.com
+Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Date: Tue, 09 Jul 2002 13:22:05 -0500
+Subject: Re: lock_kernel check...
+X-Originating-Ip: 166.90.33.109
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Michael Gruner on Tuesday, 09 July, 2002:
->Hi,
->ok, did it as you say: in the BIOS I switched to Vsync/blank screen.
->Let's see what happens.
->BTW: My graphics card isn't a nvidia as many of you suggested but an ATI
->Rage pro (what did you wrote Bernd? ;-) ).
->Another interesting thing I got back in mind today was: one day my XMMS
->played a mp3 song and I switched to console (oooops...you know what
->happend) but the song kept on playing in a loop that was some
->milliseconds until I powered the box off. I don't know what to think
->about that.
+----- Original Message -----
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Tue, 09 Jul 2002 10:41:01 -0700 
+To: dan carpenter <error27@email.com>
+Subject: Re: lock_kernel check...
 
-I've seen the same thing on my ATI XPert@Play (Rage Pro chipset).  At 
-  2.4.17, it was a risky proposition to switch between X and a text VC.
-  It's better in 2.4.18, although not much (I believe.  I may be wrong).
-  I have happend upon a situation a number of times where, when switching
-  from X to a text VC, the machine "locks up", but CTRL-F7 (the X VC) will
-  get me back to a working X login screen (KDM), at least for a while.  If
-  I keep trying to switch to a text VC (which never works), it eventually
-  fully locks up, to the point where I have to pull the plug, since the on
-  switch is non-responsive.  If I tell it to shut down, it gets *most* of
-  the way through before carping out and locking up fully.
-I don't *believe* I've seen this in 2.5.x, although I may be wrong.
+> dan carpenter wrote:
+>  > Smatch.pm is from the smatch.sf.net scripts page.  Smatch is a
+>  > really unfinished code checker that I've been working on.  It is
+>  > based on reading the papers about the Stanford checker.
+> 
+> There was a time when I was thinking about the same thing.  It kept 
+> scaring me the more I thought about it.
+> 
 
--Joseph
+True.  But someone is going to write a checker at some point.  It's only a couple days work if you know what you are doing.  There doesn't seem to be much advantage in waiting a year or two.
+
+>  > Unfortunately, after a night of sleep I realize that my script is
+>  > broken for 2 reasons. 1)  Smatch.pm is meant to track state changes
+>  > down different code paths.  But unfortunately it wasn't doing that
+>  > in this case; it was just going down the code without taking into
+>  > consideration any if_stmts  etc.  I'm extremely embarassed about
+>  > that.  Sorry.
+> 
+> Don't be sorry.  The script is smarter than the people who caused the 
+> errors.  (once again, probably me)
+> 
+>  > 2)  What the Stanford checker does is print an error
+>  > if one return_stmt is called while the kernel is locked and one is
+>  > called while the kernel is unlocked.  This seems reasonable.
+> 
+> Could you clarify that a bit?
+> 
+
+If someone made a mistake where they always returned under a kernel_lock() they would find the mistake themselves.  
+
+Why would they return under kernel_lock() on error, for example, but not on success?  That would be confusing.  There would still be some false positives but the number of cases is really small.
+
+regards,
+dan carpenter
+
+
 -- 
-Joseph======================================================jap3003@ksu.edu
-"We're moving toward a world where all the capabilities of the Internet are
- reprocessed through a single filter, with Microsoft's business plan behind
- it."  Mozilla's Mitchell Baker, http://news.com.com/2100-1023-941926.html
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
+

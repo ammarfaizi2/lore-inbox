@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316909AbSE1Upy>; Tue, 28 May 2002 16:45:54 -0400
+	id <S316927AbSE1Uyr>; Tue, 28 May 2002 16:54:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316927AbSE1Un6>; Tue, 28 May 2002 16:43:58 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:59292 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316910AbSE1UlX>;
-	Tue, 28 May 2002 16:41:23 -0400
-Date: Tue, 28 May 2002 21:20:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-Message-ID: <20020528192041.GA189@elf.ucw.cz>
-In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com>
+	id <S316919AbSE1UyD>; Tue, 28 May 2002 16:54:03 -0400
+Received: from vger.timpanogas.org ([216.250.140.154]:25767 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S316941AbSE1Uxo>; Tue, 28 May 2002 16:53:44 -0400
+Date: Tue, 28 May 2002 14:21:47 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+Message-ID: <20020528142147.A7353@vger.timpanogas.org>
+In-Reply-To: <zippel@linux-m68k.org> <200205281803.g4SI3vx05013@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > +
-> > +			for(;;) {
-> > +				if(!curr) {
-> > +//					printk("FIXME: this should not happen but it does!!!");
-> > +					break;
-> > +				}
-> > +				if(p != memlist_entry(curr, struct page, list)) {
-> > +					curr = memlist_next(curr);
-> > +					if (curr == head)
-> > +						break;
-> > +					continue;
->                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->                                        deep trouble here and in the if ()
-> 
-> On Wed, May 22, 2002 at 12:28:59AM +0200, Pavel Machek wrote:
-> > +				}
-> > +				return 1 << order;
-> > +			}
-> > +		} while(order--);
-> > +		spin_unlock_irqrestore(&zone->lock, flags);
-> > +
-> > +	}
-> > +	return 0;
-> > +}
-> > +#endif /* CONFIG_SOFTWARE_SUSPEND */
-> 
-> The rest is okay...
-> 
-> I'd try writing it this way, and though I've not tested it, I've walked
-> buddy lists a few times in the past week or two:
 
-It dies with NULL pointer dereference. Perhaps "that should not happen
-but it does?".
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I've been reading all this discussion, and I think the solution
+is pretty simple.  Patents are fairly easy to invalidate if you
+can show prior art.  Novell and these big software companies 
+do it all the time.  When they implement something that infringes
+someone's patent, they wait until litigation is filed, then seek to
+invalidate specific claims in the patent.  There are administrative
+procedures in place wih the USPTO that take this into account.  It's
+expensive and you have to be willing to risk litigation.
+
+Patents describe "methods".  If you alter the methods, however slightly,
+it makes it tougher for the patent holder to win an infringement case.
+Based upon the whirlwind of discussion on this topic, it would seem 
+that there is significant deviation from the patent claims to 
+circumvent the probability that such claims would succeed.  
+
+The bottom line is you can get sued anyway.  Patent cases are pretty
+tough to defend, but the only test will be to implement it, then 
+wait for the patent holder to bring claims in US District Court and 
+attack the basic claims in the patent on the basis of prior art.  
+
+This RTLinux patent appears, at least on the surface, to be another
+software "trash patent".  Microsoft has thousands of such patents,
+and it's questionable they will ever be able to win enforcement on 
+many of them.  Ditto this case.
+
+Jeff
+
+

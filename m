@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263554AbSIQDQb>; Mon, 16 Sep 2002 23:16:31 -0400
+	id <S263570AbSIQD1P>; Mon, 16 Sep 2002 23:27:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263570AbSIQDQb>; Mon, 16 Sep 2002 23:16:31 -0400
-Received: from packet.digeo.com ([12.110.80.53]:59066 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263554AbSIQDQa>;
-	Mon, 16 Sep 2002 23:16:30 -0400
-Message-ID: <3D869FA8.7A50BC91@digeo.com>
-Date: Mon, 16 Sep 2002 20:21:12 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Anton Blanchard <anton@samba.org>, Lev Makhlis <mlev@despammed.com>,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [RFC] [PATCH] [2.5.35] Run Queue Statistics
-References: <20020917025907.GB15189@krispykreme> <Pine.LNX.4.44L.0209170007110.1857-100000@imladris.surriel.com>
+	id <S263576AbSIQD1P>; Mon, 16 Sep 2002 23:27:15 -0400
+Received: from holomorphy.com ([66.224.33.161]:35042 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263570AbSIQD1P>;
+	Mon, 16 Sep 2002 23:27:15 -0400
+Date: Mon, 16 Sep 2002 20:29:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: false NUMA OOM
+Message-ID: <20020917032915.GL3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, akpm@zip.com.au
+References: <20020917025035.GY2179@holomorphy.com> <3D869EAF.663B6EC3@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Sep 2002 03:21:12.0731 (UTC) FILETIME=[464A4EB0:01C25DF9]
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D869EAF.663B6EC3@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Tue, 17 Sep 2002, Anton Blanchard wrote:
-> 
-> > On a semi related note, vmstat wants to know the number of running,
-> > blocked and swapped processes. strace vmstat one day and you will see it
-> > currently opens /proc/*/stat (ie one open for each process) just to get
-> > these stats.  Yet another place where the monitoring utilities disturb
-> > the system way too much.
-> >
-> > Can we get some things in /proc/stat to give us these numbers? Does
-> > "swapped" make any sense on Linux?
+William Lee Irwin III wrote:
++       for (type = classzone - first_classzone; type >= 0; --type)
++               for_each_pgdat(pgdat) {
++                       zone = pgdat->node_zones + type;
 
-Certainly sounds good.  Opening every /proc/<pid>/stat is gross.
+On Mon, Sep 16, 2002 at 08:17:03PM -0700, Andrew Morton wrote:
+> Well you'd want to start with (and prefer) the local node's zones?
+> I'm also wondering whether one shouldn't just poke a remote kswapd
+> and wait.
 
-> Runnable can be done currently, blocked on IO is trivial once
-> Andrew has pushed the iowait stats to Linus.
-> 
+I just sort of rearranged what was already there so it wouldn't die
+quite so blatantly (i.e. minimal fix). Those are also sound methods.
 
-That'll be a while off yet. I'd like to make sure that we have
-all the externally visible changes stable for a week or so,
-/proc/diskstats settled down, userspace updated and tested etc.
 
-Just to minimise the disruption and churn which these changes
-will cause.
+Cheers,
+Bill

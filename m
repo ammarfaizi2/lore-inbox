@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290475AbSBFM1u>; Wed, 6 Feb 2002 07:27:50 -0500
+	id <S290472AbSBFM1U>; Wed, 6 Feb 2002 07:27:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290490AbSBFM1l>; Wed, 6 Feb 2002 07:27:41 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:21439 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S290475AbSBFM1b>;
-	Wed, 6 Feb 2002 07:27:31 -0500
-Date: Wed, 6 Feb 2002 13:27:27 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for eepro100 to support more cards
-Message-ID: <20020206132727.H1735@khan.acc.umu.se>
-In-Reply-To: <20020201080545Z291604-13996+15441@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020201080545Z291604-13996+15441@vger.kernel.org>; from hanno@gmx.de on Fri, Feb 01, 2002 at 09:06:26AM +0100
+	id <S290475AbSBFM1L>; Wed, 6 Feb 2002 07:27:11 -0500
+Received: from [210.212.99.163] ([210.212.99.163]:48537 "EHLO
+	preshak.recjai.ac.in") by vger.kernel.org with ESMTP
+	id <S290472AbSBFM1A>; Wed, 6 Feb 2002 07:27:00 -0500
+Message-ID: <1577.192.168.250.51.1012998970.squirrel@mail.recjai.ac.in>
+Date: Wed, 6 Feb 2002 18:06:10 +0530 (IST)
+Subject: =?iso-8859-1?Q?help_on_sk=5Fbuffer?=
+From: "=?iso-8859-1?Q?Anjaneya_Pal?=" <anjan@recjai.ac.in>
+To: linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 09:06:26AM +0100, Hanno Böck wrote:
-> This patch adds support for the
-> Intel Pro/100 VE
-> Network card to the eepro100.c
-> 
-> This card is installed in my notebook (Sony Vaio PCG-GR114MK). Seems to work 
-> fine.
+hi
 
-Nice!
+i am really stuck up with sk_buff. can anyone tell me how to implement them 
+on linux? and how is it related to mbuf?
 
-[snip]
+thanx in advance
 
-> +#ifndef PCI_DEVICE_ID_INTEL_ID1031	// Support for Intel Pro/100 
-> VE added by Hanno Boeck <hanno@gmx.de>
+-- 
+Anjaneya Pal
+Electronics & Comm. Engg.
+Final Year.
+REC-Jaipur
 
-[snip]
-
-PLEASE put this kind of comments in the changelog or similarly fitting
-place instead of in the code. If everyone had their e-mail address
-in a comment after every line they added, would be bloated beyond
-proportions (some argue that it already is, but let's ignore that for
-now...)
-
-
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

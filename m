@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262835AbRFHIr5>; Fri, 8 Jun 2001 04:47:57 -0400
+	id <S263933AbRFHJCi>; Fri, 8 Jun 2001 05:02:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263932AbRFHIrr>; Fri, 8 Jun 2001 04:47:47 -0400
-Received: from t2.redhat.com ([199.183.24.243]:41980 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S262835AbRFHIri>; Fri, 8 Jun 2001 04:47:38 -0400
-To: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>,
-        Mike Coleman <mkc@mathdogs.com>
+	id <S263935AbRFHJC2>; Fri, 8 Jun 2001 05:02:28 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:31200 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263933AbRFHJCQ>;
+	Fri, 8 Jun 2001 05:02:16 -0400
+Date: Fri, 8 Jun 2001 11:02:11 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106080902.LAA228227.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, COTTE@de.ibm.com, alan@lxorguk.ukuu.org.uk,
+        torvalds@transmeta.com
+Subject: [PATCH] Re: BUG: race-cond with partition-check
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PTRACE_ATTACH breaks wait4() 
-In-Reply-To: Message from Pavel Kankovsky <peak@argo.troja.mff.cuni.cz> 
-   of "Thu, 07 Jun 2001 22:39:43 +0200." <20010607223921.D94.0@argo.troja.mff.cuni.cz> 
-Date: Fri, 08 Jun 2001 09:47:20 +0100
-Message-ID: <28783.991990040@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an idea for getting around this problem, but it's only half implemented
-at the moment (I use it for implementing a Wine server in the kernel). It
-involves having a list things called task ornaments attached to each
-process. Each ornament has a table of event notification methods (so it can be
-informed about fork, execve, signal and exit events). Signal event
-notification methods are able to prevent a signal from propegating further
-down the chain, and the parent's wait handler would be the last element in
-this list. When a process attaches with ptrace(), it would insert another
-ornament into this list, before the parent's ornament. This means (a) the
-process doesn't have to be reparented, and (b) more than one debugger can
-actually attach to a process (eg: strace and gdb both).
+    From COTTE@de.ibm.com Fri Jun  8 09:57:01 2001
 
-This would, however, mean that wait*() would have to not only look at a
-process's list of children, but also it's list of processes it has ornamented
-via ptrace
+    >Well, among the irrelevant details you left out is the fact that
+    >it is not
+    >    blk_size[dev->major] =3D NULL;
+    >but
+    >    if(!dev->sizes)
+    >         blk_size[dev->major] =3D NULL;
 
-David
+    Well, this is absoloutely right, the behaviour to clear blk_size
+    when dev->sizes
+    is NULL looks sensible to me. But seven lines below it says
+    -unconditionaly-:
+         blk_size[dev->major] =3D NULL;
+
+Ah, yes. This second assignment can just be deleted, I suppose.
+
+--- partitions/check.c~	Thu May 31 22:26:56 2001
++++ partitions/check.c	Fri Jun  8 10:44:02 2001
+@@ -418,11 +418,10 @@
+ 		blk_size[dev->major] = NULL;
+ 
+ 	dev->part[first_minor].nr_sects = size;
+-	/* No Such Agen^Wdevice or no minors to use for partitions */
++	/* No such device or no minors to use for partitions */
+ 	if (!size || minors == 1)
+ 		return;
+ 
+-	blk_size[dev->major] = NULL;
+ 	check_partition(dev, MKDEV(dev->major, first_minor), 1 + first_minor);
+ 
+  	/*
+
+[In the good old days it wasn't there. It was added in 1.3.19,
+don't know why, probably as a safeguard to make sure nobody
+used these values while they are being set up. But someone
+was bit by the assignment, since it is not undone if we take
+the return, so in 2.3.48 the assignment was moved past the
+return, with a conditional assignment before it. I believe
+you are right, and we only want the conditional assignment.]
+
+Andries

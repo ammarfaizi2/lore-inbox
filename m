@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281102AbRKDSr4>; Sun, 4 Nov 2001 13:47:56 -0500
+	id <S273305AbRKDSw1>; Sun, 4 Nov 2001 13:52:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280423AbRKDSqr>; Sun, 4 Nov 2001 13:46:47 -0500
-Received: from unthought.net ([212.97.129.24]:51416 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S281103AbRKDSqa>;
-	Sun, 4 Nov 2001 13:46:30 -0500
-Date: Sun, 4 Nov 2001 19:46:28 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104194628.I14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <160Rpw-0rLDCyC@fmrl05.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160Rpw-0rLDCyC@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 07:20:39PM +0100
+	id <S273796AbRKDSwJ>; Sun, 4 Nov 2001 13:52:09 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:2225 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S274789AbRKDSwA>; Sun, 4 Nov 2001 13:52:00 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "=?iso-8859-1?q?G=E9rard?= Roudier" <groudier@free.fr>,
+        Dan Hollis <goemon@anime.net>, John Fremlin <jtf24@cam.ac.uk>,
+        <alsa-devel@alsa-project.org>, <linux-kernel@vger.kernel.org>
+Subject: [POLITICAL] Re: ECS k7s5a audio sound SiS 735 - 7012
+In-Reply-To: <20011103055053.J761-100000@gerard>
+	<E1600Od-0005eG-00@the-village.bc.nu>
+From: John Fremlin <john@fremlin.de>
+In-Reply-To: <E1600Od-0005eG-00@the-village.bc.nu>
+Date: 04 Nov 2001 18:38:19 +0000
+Message-ID: <86elnebcv8.fsf_-_@fremlin.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 07:20:39PM +0100, Tim Jansen wrote:
-> On Sunday 04 November 2001 18:28, Daniel Phillips wrote:
-> > > It needs special parsers and will be almost impossible to access from
-> > > shell scripts.
-> > No, look, he's proposing to put the binary encoding in hidden .files.  The
-> > good old /proc files will continue to appear and operate as they do now.
-> 
-> But as he already said:
-> 2)  As /proc files change, parsers must be changed in userspace
-> 
-> So if only some programs use the 'dot-files' and the other still use the 
-> crappy text interface we still have the old problem for scripts, only with a 
-> much larger effort.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-So we have a gradual transition - nothing breaks more than it does already,
-and applications can migrate to the stable API over time.
+> > > I guess in the mean time SIS board are best avoided. Who knows if they'll
+> > > ever actually deliver
+> > 
+> > Why suggesting to avoid this board that looks pretty fast, stable and is
+> > very cheap? A reasonable and low cost Sound board will fit and will give
+> > far better sound quality for less CPU load.
+> 
+> because so many people have bought things on the promise of vendor support
+> that never appeared or was at best minimal
+
+Indeed. Could you all please hassle SiS for the datasheet for the 7012
+integrated audio controller in the SiS 735?
+
+They say you should contact their marketing people about datasheets
+using a web based form
+
+        http://www.sis.com/contact/salescontact.htm
+
+Alternatively, random people at SiS can be spammed about the lack of
+datasheet or open linux driver. It'd be nice if someone could give
+them a physical telephone call, but I don't have access to a landline
+so it'd be really expensive for me :-( 
+
+>From the SiS website:
+
+China
+Ms. Ellie Yin
+Tel:886+2+29161619 ext.346
+E-mail: ellie@sis.com.tw.
+
+Europe, Taiwan, Japan, Korea:
+Ms. Jessie Lee
+Tel:886+2+29161619 ext.341
+E-mail: jessie@sis.com.tw
+
+North America, Oceania:
+Miss Michele Huang
+Tel:886+2+29161619 ext.345
+E-mail: michele@sis.com.tw.
+
+All other regions(S.E. Asia, India, Middle-East, Latin America, Russia):
+Ms. Ellie Yin
+Tel:886+2+29161619 ext.346
+E-mail: ellie@sis.com.tw
+
+[...]
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+	http://john.fremlin.de

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132585AbQLJBYw>; Sat, 9 Dec 2000 20:24:52 -0500
+	id <S132437AbQLJBiv>; Sat, 9 Dec 2000 20:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132642AbQLJBYm>; Sat, 9 Dec 2000 20:24:42 -0500
-Received: from manos.timpanogas.org ([207.109.151.249]:41988 "EHLO
-	manos.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132585AbQLJBYd>; Sat, 9 Dec 2000 20:24:33 -0500
-Date: Sat, 9 Dec 2000 18:49:48 -0700
-From: root <root@manos.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18-26 pre-patch has error
-Message-ID: <20001209184948.A7029@manos.timpanogas.org>
-Mime-Version: 1.0
+	id <S132466AbQLJBil>; Sat, 9 Dec 2000 20:38:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:776 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132437AbQLJBi2>; Sat, 9 Dec 2000 20:38:28 -0500
+Subject: Re: 2.2.18pre21 oops reading /proc/apm
+To: neale@lowendale.com.au (Neale Banks)
+Date: Sun, 10 Dec 2000 01:09:06 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sfr@linuxcare.com (Stephen Rothwell),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.05.10012101021450.16389-100000@marina.lowendale.com.au> from "Neale Banks" at Dec 10, 2000 10:26:07 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144uzE-00060S-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> OK, I did this (at least I think I got it right: the patch was happy) but
+> I can't see anything resembling DMI strings (even after I removed
 
-Alan,
+Ok your machine probably doesnt have DMI then. That unfortunately means its
+hard to identify the specific machine
 
-Saw the following in the 2.2.18 pre-patch when I attempted to apply it 
-to a 2.2.17 kernel
 
---------------------------
-|diff -u --new-file --recursive --exclude-from /usr/src/exclude v2.2.17/arch/i386/vmlinux.lds linux/arch/i386/vmlinux.lds
-|--- v2.2.17/arch/i386/vmlinux.lds      Wed May  3 21:22:13 2000
-|+++ linux/arch/i386/vmlinux.lds        Sat Dec  9 21:23:21 2000
---------------------------
-File to patch:
-Skip this patch? [y]
-1 out of 1 hunk ignored
-
-Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

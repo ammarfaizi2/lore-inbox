@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQKHRjA>; Wed, 8 Nov 2000 12:39:00 -0500
+	id <S129392AbQKHRmU>; Wed, 8 Nov 2000 12:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129280AbQKHRiu>; Wed, 8 Nov 2000 12:38:50 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:18439 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129210AbQKHRin>; Wed, 8 Nov 2000 12:38:43 -0500
-Date: Wed, 8 Nov 2000 09:37:44 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: axp-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001108093744.D27324@twiddle.net>
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <20001108142513.A5244@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20001108142513.A5244@jurassic.park.msu.ru>
+	id <S129280AbQKHRmK>; Wed, 8 Nov 2000 12:42:10 -0500
+Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:44042 "EHLO
+	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S129190AbQKHRl5>; Wed, 8 Nov 2000 12:41:57 -0500
+Date: Wed, 8 Nov 2000 18:41:39 +0100 (CET)
+From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+To: James Simmons <jsimmons@suse.com>
+cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011080920070.2704-100000@euclid.oak.suse.com>
+Message-ID: <Pine.LNX.4.21.0011081839200.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 02:25:13PM +0300, Ivan Kokshaysky wrote:
-> I relied on DEC^WIntel 21153 datasheet which says that to turn off
-> io/mem window this bridge must be programmed with base > limit
-> values (and the code actually did that).
+On Wed, 8 Nov 2000, James Simmons wrote:
 
-Interesting.  I hadn't known that.  It didn't actually fail with
-the ALI bridge, I just assumed it was a mistake.  Can anyone with
-docs on non-DEC bridges confirm that this is a common thing?
+> 
+> > You didnt read the config, etc. I posted - I dont have DRI - I
+> > have an old P100 with 32Megs of ram and an old ATI Mach64 graphics
+> > card. There really is nothing unusual with my setup - console
+> > garbagling is even without loading the bttv module at all.
+> 
+> Okay. So it is what I thought it was orginally.
 
-Certainly the fact should be commented if the old code goes back
-in to avoid disruption by helpful folks like myself.  :-)
+Okay - so its the console subsystem that gets it wrong? Remember
+that 2.2.X gets it right - with the same X server. I really
+would like to have this fixed in 2.4 - can I do something to
+help fixing this? (I'm not familiar with the console subsystem,
+neither with the X server)
 
+Richard.
 
-r~
+--
+Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+WWW: http://www.anatom.uni-tuebingen.de/~richi/
+The GLAME Project: http://www.glame.de/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

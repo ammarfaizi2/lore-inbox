@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbUAKISW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 03:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUAKISW
+	id S265795AbUAKINO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 03:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUAKINN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 03:18:22 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:9187 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265808AbUAKISF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 03:18:05 -0500
-Date: Sun, 11 Jan 2004 09:00:55 +0100 (CET)
-From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
-Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] Synaptics rate switching
-In-Reply-To: <200401102120.46956.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.53.0401110845100.1177@calcula.uni-erlangen.de>
-References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de>
- <200401100345.17211.dtor_core@ameritech.net> <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
- <200401102120.46956.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
+	Sun, 11 Jan 2004 03:13:13 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:5815 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265795AbUAKIMw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 03:12:52 -0500
+Date: Sun, 11 Jan 2004 09:12:47 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Do not use synaptics extensions by default
+Message-ID: <20040111081247.GB25497@ucw.cz>
+References: <20040110175930.GA1749@elf.ucw.cz> <20040110193039.GA22654@ucw.cz> <20040110194420.GA1212@elf.ucw.cz> <20040110195531.GD22654@ucw.cz> <1073778167.7644.4.camel@mentor.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073778167.7644.4.camel@mentor.gurulabs.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpufreq is deactivated for all tests, but seems not to make problems...
+On Sat, Jan 10, 2004 at 04:42:48PM -0700, Dax Kelson wrote:
 
-ACPI --- Pow... never thought of that... ...But sync losses occour even if
-my labtop doesn't even see the need for switching on the CPU fan. Anyway,
-povray makes the CPU really hot, and doesn't make things worse...
+> On Sat, 2004-01-10 at 12:55, Vojtech Pavlik wrote:
+> > Or, the very nice thing to do would be to port the XFree86 driver to
+> > GPM, so that GPM can understand the event protocol as well.
+> 
+> Already done...
 
-...and the problem occours directly after startup, too... Don't think this
-will be the problem,
+Cool! I forgot. I thought only the regular mouse event protocol was
+added.
 
-	Gunter.
+> # rpm -q gpm
+> gpm-1.20.1-dt8
+> 
+> # ps -e o pid,user,cmd | grep gpm
+>  2068 root     gpm -m /dev/input/event0 -t evdev -o type=synaptics -M -m /dev/input/mice -t imps2
+> 
+> I believe the issue is that /dev/input/event0 can't be opened by
+> multiple things (gpm and X) in 2.4 as can be done in 2.6.
 
-
-On Yesterday, Dmitry Torokhov wrote:
-
->From: Dmitry Torokhov <dtor_core@ameritech.net>
->Date: Sat, 10 Jan 2004 21:20:46 -0500
->To: Gunter Königsmann <gunter.koenigsmann@gmx.de>,
->     Gunter Königsmann <gunter@peterpall.de>
->Cc: Gunter Königsmann <gunter@peterpall.de>, linux-kernel@vger.kernel.org,
->     Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
->Subject: Re: [PATCH 1/2] Synaptics rate switching
->
->On Saturday 10 January 2004 05:05 pm, Gunter Königsmann wrote:
->> Tried it. Doesn't change a thing. Means: I get about half the number of
->> warning messages, but that just corresponds to half the number of
->> packets.
->>
->>
->> What helps a lot, but not to 100% (get bad keypresses anyway) is
->> totally deactivating the ACPI. Killing all processes that access
->> /proc/acpi seems again to help a bit.
->>
->> And The number of Warnings seemingly increases with the labtop
->> temperature... In a really cold room I get nearly no warnings at all.
->> Jitter? Hardware, that is simply broken?
->>
->
->Actually, since you mentioned temperature.. is CPUFREQ active or does
->the ACPI throttle your processor to a lower frequency if it gets hot?
->
->Dmitry
->
+It can be opened by any number of programs on both 2.4 and 2.6. 2.4
+doesn't have the synaptics (or any other ps/2) mouse driver and thus
+it's only used for USB mice.
 
 -- 
-"I don't think they could put him in a mental hospital.  On the other
-hand, if he were already in, I don't think they'd let him out."
-	--fortune(6)
+Vojtech Pavlik
+SuSE Labs, SuSE CR

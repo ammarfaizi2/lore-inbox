@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbTKZRTd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 12:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTKZRTd
+	id S264257AbTKZRLG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 12:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264258AbTKZRLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 12:19:33 -0500
-Received: from holomorphy.com ([199.26.172.102]:63677 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264274AbTKZRTb (ORCPT
+	Wed, 26 Nov 2003 12:11:06 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:10369
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264257AbTKZRLD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 12:19:31 -0500
-Date: Wed, 26 Nov 2003 09:19:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: amanda vs 2.6
-Message-ID: <20031126171925.GR8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200311261212.10166.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311261212.10166.gene.heskett@verizon.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 26 Nov 2003 12:11:03 -0500
+Date: Wed, 26 Nov 2003 12:09:29 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Kai Bankett <kbankett@aol.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] irq_balance does not make sense with HT but single
+ physical CPU
+In-Reply-To: <3FC4D5B8.2010808@aol.com>
+Message-ID: <Pine.LNX.4.58.0311261158230.1683@montezuma.fsmlabs.com>
+References: <3FC4B5C8.6020405@aol.com> <Pine.LNX.4.58.0311261042540.1683@montezuma.fsmlabs.com>
+ <3FC4D5B8.2010808@aol.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 12:12:10PM -0500, Gene Heskett wrote:
-> Greetings everybody, scsi folks in particular;
-> I don't know if I've got a bad, miss-set link thats effecting the 
-> build of amanda, or ???
-> Preconditions:
-> tape drive has magazine, magazine ejected and reloaded, but all tapes 
-> still reside in the magazine carrier.
-> Under a 2.4.22-pre10 boot, a run of amcheck will load the last loaded 
-> slot of the magazine and proceed to search the magazine for the next, 
-> correct tape.
-> Under a 2.6.0test9 or 10 boot, it loads a tape, but then gets a signal 
-> 11 and exits.  A re-run from that point, where it does have a loaded 
-> tape from the first run, proceeds 100% normally in searching the 
-> magazine.
-> Preset the magazine again and run it with gdb, and get this only if 
-> booted to a 2.6 kernel:
+On Wed, 26 Nov 2003, Kai Bankett wrote:
 
-Please retry with:
-echo 1 > /proc/sys/vm/overcommit_memory
+> But anyways if physical_balance is set to 1 that won´t prevent anything
+> from running through/sleeping in the kernel_thread-loop.
+> The kernel_thread(balance_irq ...) later on will be started/will run not
+> matter what physical_balance says.
 
+Yes that only stops balancing across physical packages when there are
+none. But there might be a performance improvement for light (cache
+footprint wise) high frequency interrupt handling which stays affined to
+one logical processor.
 
--- wli
+> Do there exist any cases where smp_siblings are created without
+> HyperThreading ? (As far as I remember it´s only incremented/used on
+> i386 hyperthreaded architectures - but not 100% sure)
+
+This is all i386 specific code so we don't have to care about other
+architectures in here.
+
+> -> At least the if has to look like :
+>
+> ...
+> if (smp_num_siblings > 2 && !cpus_empty(tm))
+>      physical_balance = 1;
+> ...
+
+smp_num_siblings won't be greater than 2 with current i386 processors,
+it's not a total sibling count, but a per physical package count.

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129535AbRCBVlG>; Fri, 2 Mar 2001 16:41:06 -0500
+	id <S129529AbRCBVnq>; Fri, 2 Mar 2001 16:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129537AbRCBVk5>; Fri, 2 Mar 2001 16:40:57 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:54276 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S129535AbRCBVkv>;
-	Fri, 2 Mar 2001 16:40:51 -0500
-Message-Id: <200103022143.NAA29984@milano.cup.hp.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.0 parisc PCI support 
-In-Reply-To: Your message of "Fri, 02 Mar 2001 15:46:12 PST."
-             <3AA00694.7A65A3B2@mandrakesoft.com> 
-Date: Fri, 02 Mar 2001 13:43:55 -0800
-From: Grant Grundler <grundler@cup.hp.com>
+	id <S129550AbRCBVn1>; Fri, 2 Mar 2001 16:43:27 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33209 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129529AbRCBVmt>;
+	Fri, 2 Mar 2001 16:42:49 -0500
+Date: Fri, 2 Mar 2001 16:42:43 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Re: usbdevfs can be mounted multiple times
+In-Reply-To: <Pine.GSO.4.21.0103021617500.15463-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0103021640170.15463-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> IIRC these "assuming transparent" lines were put in to -fix- PCI-PCI
-> bridges on at least some x86 boxes...  I didn't really understand the
-> bridge code well enough at the time to comment one way or the other on
-> its correctness, but it definitely fixed some problems.
 
-Jeff,
-If someone could clarify, I'd be happy to rework/resubmit the patch.
 
-My gut feeling is it was to support something other than a PCI-PCI bridge.
-pci_read_bridge_bases() assumes the device is a PCI-PCI Bridge (layout
-and interpretation of the window registers). Either the code needs to
-be more explicit about the type of bridge being handled or the caller
-(arch specific code) should.
+On Fri, 2 Mar 2001, Alexander Viro wrote:
 
-Only x86 and parisc PCI support call this code in my 2.4.0 tree.
-Maybe the right answer is the "assuming transperent" support in
-pci_read_bridge_bases() move to arch/x86.
+> I.e. replace the last argument in declaration of usbdevfs with FS_SINGLE -
+> without that we get a new instance every time.
 
-I'm pretty sure Alpha and parisc/PAT_PDC systems don't use this
-code since the registers programmed in pci_setup_bridge().
-This makes me think none of the other arches attempt to
-support PCI-PCI bridges. Is that correct?
+Grr... Proper patch follows. Please, apply.
+								Cheers,
+									Al
+--- drivers/usb/inode.c	Fri Feb 16 18:24:31 2001
++++ drivers/usb/inode.c.new	Fri Mar  2 16:39:44 2001
+@@ -596,7 +596,7 @@
+ 	return NULL;
+ }
+ 
+-static DECLARE_FSTYPE(usbdevice_fs_type, "usbdevfs", usbdevfs_read_super, 0);
++static DECLARE_FSTYPE(usbdevice_fs_type, "usbdevfs", usbdevfs_read_super, FS_SINGLE);
+ 
+ /* --------------------------------------------------------------------- */
+ 
+@@ -691,6 +691,7 @@
+ 		return ret;
+ 	if ((ret = register_filesystem(&usbdevice_fs_type)))
+ 		usb_deregister(&usbdevfs_driver);
++	kern_mount(&usbdevice_fs_type);
+ #ifdef CONFIG_PROC_FS		
+ 	/* create mount point for usbdevfs */
+ 	usbdir = proc_mkdir("usb", proc_bus);
+@@ -702,6 +703,7 @@
+ {
+ 	usb_deregister(&usbdevfs_driver);
+ 	unregister_filesystem(&usbdevice_fs_type);
++	kern_umount(usbdevice_fs_type.kern_mnt);
+ #ifdef CONFIG_PROC_FS	
+         if (usbdir)
+                 remove_proc_entry("usb", proc_bus);
 
-thanks,
-grant
-
-Grant Grundler
-parisc-linux {PCI|IOMMU|SMP} hacker
-+1.408.447.7253

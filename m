@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318314AbSIBQOt>; Mon, 2 Sep 2002 12:14:49 -0400
+	id <S318324AbSIBQss>; Mon, 2 Sep 2002 12:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318317AbSIBQOs>; Mon, 2 Sep 2002 12:14:48 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:62481 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S318314AbSIBQOs>;
-	Mon, 2 Sep 2002 12:14:48 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Der Herr Hofrat <der.herr@mail.hofr.at>
-Date: Mon, 2 Sep 2002 18:18:55 +0200
+	id <S318326AbSIBQsr>; Mon, 2 Sep 2002 12:48:47 -0400
+Received: from pD9E237CF.dip.t-dialin.net ([217.226.55.207]:30952 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318324AbSIBQsr>; Mon, 2 Sep 2002 12:48:47 -0400
+Date: Mon, 2 Sep 2002 10:53:14 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Samuel Flory <sflory@rackable.com>, Gerd Knorr <kraxel@bytesex.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre4 depmod errors
+In-Reply-To: <Pine.NEB.4.44.0209021754590.147-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0209021052100.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: kthread execve question
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <A811111E8C@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  2 Sep 02 at 17:03, Der Herr Hofrat wrote:
-> 
->  any hint whats wrong ? any pointers to using kernel threads dosc/examples in 
->  general and how to execute user space apps would be appreciated.
-> 
-> char cmd_path[256] = "/bin/echo";
-> 
-> static int exec_cmd(void * kthread_arg)
-> {
->     static char * envp[] = { "HOME=/", 
->         "TERM=linux", 
->         "PATH=/:/bin:/usr/bin:/usr/bin", 
->         NULL };
->     char *argv[] = { kthread_arg,
->         ">>",
->         "/tmp/kthread_echo", 
+Hi,
 
-'>>' is bash thing. Try executing "/bin/touch" with "/tmp/testfile" instead.
-If /tmp/testfile will appear, you got it.
+On Mon, 2 Sep 2002, Adrian Bunk wrote:
+> > On Mon, 2 Sep 2002, Adrian Bunk wrote:
+> > > > /lib/modules/2.4.20-pre4/kernel/drivers/media/video/bttv.o
+> > > > depmod:         mod_firmware_load_Rsmp_39e3dd23
+> >
+> > Isn't the correct soluion a fresh compile (i.e. from clean sources)?
+> 
+> No, I suspect the problem is the one I describe in [1].
 
-And also do not forget that argv[0] should contain program name, not
-first argument - so in most cases you want
-exec_usermodehelper(argv[0], argv, envp) ...
-                                                    Petr Vandrovec
-                                                    
+The symbol type looks horribly different:
+above: symbol w/version
+below: symbol w/o version
+
+> [1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103097532016257&w=2
+
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

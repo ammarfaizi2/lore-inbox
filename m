@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbTEKMmI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTEKMmI
+	id S261311AbTEKMvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTEKMvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:42:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:56746 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261335AbTEKMmG (ORCPT
+	Sun, 11 May 2003 08:51:09 -0400
+Received: from pop.gmx.net ([213.165.64.20]:169 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261311AbTEKMvI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:42:06 -0400
-Date: Sun, 11 May 2003 05:54:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Jos Hulzink <josh@stack.nl>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: irq balancing: performance disaster
-Message-ID: <20030511125438.GJ8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, Jos Hulzink <josh@stack.nl>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305110118.10136.josh@stack.nl> <7750000.1052619248@[10.10.2.4]> <200305111200.31242.josh@stack.nl> <Pine.LNX.4.50.0305110813140.15337-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0305110813140.15337-100000@montezuma.mastecende.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 11 May 2003 08:51:08 -0400
+Date: Sun, 11 May 2003 15:03:45 +0200 (MEST)
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Andrew McGregor <andrew@indranet.co.nz>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <3191078.1052695705@[192.168.1.249]>
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0007628267@gmx.net
+X-Authenticated-IP: [217.224.154.184]
+Message-ID: <17308.1052658225@www4.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 08:17:53AM -0400, Zwane Mwaikambo wrote:
-> It was a bug in 2.4, fixed in Alan's tree by setting target_cpus to 0xff 
-> (previously cpu_online_map). There is no noirqbalance option in 2.4 
-> because there is no in kernel irq balancer.
+> Try this (which will make no difference to the effectiveness of APM on
+> this 
+> machine):
+> 
+> > CONFIG_PM=y
+> >
+> > CONFIG_APM=y
+> > CONFIG_APM_DO_ENABLE=n
+> > CONFIG_APM_CPU_IDLE=n
+> > CONFIG_APM_DISPLAY_BLANK=y
+> > CONFIG_APM_REAL_MODE_POWER_OFF=y
+> >
+> > CONFIG_CPU_FREQ=n
+> > CONFIG_CPU_FREQ_TABLE=n
+> >
+> > CONFIG_X86_SPEEDSTEP=n
+> 
+> Reasoning:
+> cpufreq and speedstep don't work on Dell P3 laptops anyway, and the 
+> *internal power supplies* of the i8x00 series make wierd noises when APM 
+> tries to idle the CPU.  The board will do this anyway, without making 
 
-I vaguely like this notion because it removes a #ifdef and cleans up
-a tiny bit of its surroundings. But it's not quite a one-liner.
+hmm, at least now I know where that strange sound comes from.
+I'm not quite sure that SpeedStep does not work,
+with SpeedStep disabled in the BIOS the fans turned on again with
+cpu load. this doesn't happen with SpeedStep. so I suppose it works
+to some extent, right?
 
+> noise, so linux need not.
 
--- wli
+so what options should I set?
+as I've already stated it's not bearable to do coding (incl. compiling)
+on this box without "Battery Optimized Mode" as SpeedStep calls it.
+on Linux I did that with a simple tool called speedstep.
+I've seen autospeedstep from Fritz Ganter which seems to use ACPI,
+dunno how that compares to cpufreqd.
 
- smpboot.h |   21 ++++++++++-----------
- 1 files changed, 10 insertions(+), 11 deletions(-)
+anyway, this laptop is not-so-nice anyway, I'm just happy I didn't
+buy it but my employer did ;)
 
-diff -prauN linux-2.4.21-pre7-1/include/asm-i386/smpboot.h zwane-2.4.21-pre7-1/include/asm-i386/smpboot.h
---- linux-2.4.21-pre7-1/include/asm-i386/smpboot.h	Thu Feb  6 07:39:52 2003
-+++ zwane-2.4.21-pre7-1/include/asm-i386/smpboot.h	Sun May 11 05:49:41 2003
-@@ -99,23 +99,22 @@
- #define cpu_to_boot_apicid(cpu) cpu_2_physical_apicid[cpu]
- #endif /* CONFIG_MULTIQUAD */
- 
--#ifdef CONFIG_X86_CLUSTERED_APIC
- static inline int target_cpus(void)
- {
--	static int cpu;
--	switch(clustered_apic_mode){
-+	switch (clustered_apic_mode) {
-+		/* physical broadcast, routed only to local APIC bus */
- 		case CLUSTERED_APIC_NUMAQ:
--			/* Broadcast intrs to local quad only. */
- 			return APIC_BROADCAST_ID_APIC;
--		case CLUSTERED_APIC_XAPIC:
--			/*round robin the interrupts*/
--			cpu = (cpu+1)%smp_num_cpus;
-+		/* round robin the interrupts (physical unicast) */
-+		case CLUSTERED_APIC_XAPIC: {
-+			static int cpu;
-+			cpu = (cpu + 1) % smp_num_cpus;
- 			return cpu_to_physical_apicid(cpu);
-+		}
-+		/* flat logical broadcast */
-+		case CLUSTERED_APIC_NONE:
- 		default:
-+			return 0xFF;
- 	}
--	return cpu_online_map;
- }
--#else
--#define target_cpus() (cpu_online_map)
--#endif
- #endif
+-- 
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
+

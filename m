@@ -1,30 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSIJTCm>; Tue, 10 Sep 2002 15:02:42 -0400
+	id <S318018AbSIJS4W>; Tue, 10 Sep 2002 14:56:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318035AbSIJTCm>; Tue, 10 Sep 2002 15:02:42 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:54802 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318027AbSIJTCm>;
-	Tue, 10 Sep 2002 15:02:42 -0400
-Date: Tue, 10 Sep 2002 12:04:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Bob_Tracy <rct@gherkin.frus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.X config: USB speedtouch driver
-Message-ID: <20020910190424.GA22753@kroah.com>
-References: <m17oq8v-0005khC@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17oq8v-0005khC@gherkin.frus.com>
-User-Agent: Mutt/1.4i
+	id <S318027AbSIJS4V>; Tue, 10 Sep 2002 14:56:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:38019 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S318018AbSIJS4U>;
+	Tue, 10 Sep 2002 14:56:20 -0400
+Date: Tue, 10 Sep 2002 12:00:47 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+In-Reply-To: <20020910114257.A13614@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0209101145550.1032-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 01:53:45PM -0500, Bob_Tracy wrote:
-> Minor nit: the subject driver depends on ATM, so a config-time check to
-> see if ATM support is enabled is appropriate.
 
-Agreed, patch? :)
+On Tue, 10 Sep 2002, Patrick Mansfield wrote:
 
-greg k-h
+> On Tue, Sep 10, 2002 at 10:21:53AM -0700, Patrick Mochel wrote:
+> > 
+> > > > > Generic device naming consistency is a problem if multiple devices
+> > > > > show up with the same id.
+> > > > 
+> > > > Patrick Mochel has an open task to come up with a solution to this.
+> > > 
+> > > I don't think this can be solved if multiple devices show up with the same
+> > > id. If I have five disks that all say I'm disk X, how can there be one
+> > > name or handle for it from user level?
+> > 
+> > Easy: you map the unique identifier of the device to a name in userspace.  
+> > In our utopian future, /sbin/hotplug is called with that unique ID as one
+> > of its parameters. It searches for, and finds names based on the ID is. If
+> > the name(s) already exist, then it doesn't continue.
+> > 
+> > 
+> > 	-pat
+> 
+> But then if the md or volume manager wants to do multi-path IO it
+> will not be able to find all of the names in userspace since the
+> extra ones (second path and on) have been dropped.
+
+Which is it that you want? One canonical name or all the paths? I supplied
+a solution for the former in my repsonse. The latter is solved via the
+exposure of the paths in driverfs, which has been discussed previously.
+
+
+	-pat
+

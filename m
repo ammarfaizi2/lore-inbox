@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUJFEaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUJFEcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUJFEaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUJFEaV
+	id S267180AbUJFEcj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUJFEcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:30:21 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:35199 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267170AbUJFEaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:30:18 -0400
-Message-ID: <416374D5.50200@yahoo.com.au>
-Date: Wed, 06 Oct 2004 14:30:13 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Wed, 6 Oct 2004 00:32:39 -0400
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:58015 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267180AbUJFEch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 00:32:37 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PS2 mouse/kbd problems
+Date: Tue, 5 Oct 2004 23:32:34 -0500
+User-Agent: KMail/1.6.2
+Cc: "J.A. Magallon" <jamagallon@able.es>, Andrew Morton <akpm@osdl.org>
+References: <1096998302l.5347l.0l@werewolf.able.es>
+In-Reply-To: <1096998302l.5347l.0l@werewolf.able.es>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Default cache_hot_time value back to 10ms
-References: <200410060042.i960gn631637@unix-os.sc.intel.com> <20041005205511.7746625f.akpm@osdl.org>
-In-Reply-To: <20041005205511.7746625f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410052332.34837.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+On Tuesday 05 October 2004 12:45 pm, J.A. Magallon wrote:
+> Hi all...
 > 
->>This value was default to 10ms before domain scheduler, why does domain
->> scheduler need to change it to 2.5ms? And on what bases does that decision
->> take place?  We are proposing change that number back to 10ms.
+> I got time to track my ps2 problems. I run 2.6.9-rc2-mm[123] (that was
+> enough).
 > 
+> Results:
+> - mm1: mouse and kbd work ok, both in console and X
+> - mm2: mouse works, no kbd. I had to unplug/plug the keyboard to get it
+>   responding.
+> - mm3: kbd ok, but ps2 mouse is sluggish.
 > 
-> It sounds like this needs to be runtime tunable?
+> In latest -rc3-mm2, behavior is like mm3 and above.
 > 
 
-I'd say it is probably too low level to be a useful tunable (although
-for testing I guess so... but then you could have *lots* of parameters
-tunable).
+What about vanilla -rc3 and vanilla -rc3 with bk-input patch applied (if you
+have some time of course). Do they exibit the same symptoms as -mm tree?
 
-I don't think there was a really good reason why this value is 2.5ms.
+-- 
+Dmitry

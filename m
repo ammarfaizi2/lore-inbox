@@ -1,54 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTKNBVC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 20:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTKNBVC
+	id S264474AbTKNBY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 20:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTKNBY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 20:21:02 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:55480 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264489AbTKNBVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 20:21:00 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 hangs upon echo > /proc/acpi/alarm 
-In-reply-to: Your message of "Fri, 14 Nov 2003 02:24:43 +0800."
-             <200311140224.43459.mhf@linuxmail.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 14 Nov 2003 12:20:03 +1100
-Message-ID: <8828.1068772803@kao2.melbourne.sgi.com>
+	Thu, 13 Nov 2003 20:24:29 -0500
+Received: from pc7.prs.nunet.net ([199.249.167.77]:6671 "HELO
+	patternassociates.com") by vger.kernel.org with SMTP
+	id S264474AbTKNBY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 20:24:28 -0500
+Date: 14 Nov 2003 01:24:26 -0000
+Message-ID: <20031114012426.26647.qmail@patternassociates.com>
+From: rico-linux-kernel@patternassociates.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: serverworks usb under 2.4.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003 02:24:43 +0800, 
-Michael Frank <mhf@linuxmail.org> wrote:
->I have two questions about kdb 3.0, x86 hw on 2.4.22 kernel
+>From:	Brian Beattie <beattie@beattie-home.net>
+>Date:	Thu, 13 Nov 2003 19:17:02 -0500
+>...
+>I've got a system with a Super Micro P3 dual processor board.  This
+>board uses the Serverworks chipset and the 2.4.22 kernel is unable to
+>allocate an IRQ when initializing the USB (usb-ohic) interface.  This
+>board works fine under 2.4.20 and 2.4.21.
 
-kdb 3.0 is ancient, current is kdb v4.3.
-
-> - is there any netpoll interface for kdb for legacy free hw wo serial port.
-
-No netpoll interface.  netpoll is not in the standard kernel, kdb
-patches are only against the standard kernels.
-
-For legacy free hardware, kdb v4.3 has a working USB keyboard polled
-mode.  Build with
-
-CONFIG_USB=y
-CONFIG_USB_UHCI=y (or OHCI)
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_KBD=y
-CONFIG_KDB_USB=y
-
-> - on another non-acpi machine kdb hangs permanently and blinking kbleds stop once 
->    - any key is pressed on the at keyboard 
->    - after about a minute inside kdb (operating via serial port)
-
-Sounds like kdb is itself dying.  Insufficient data to diagnose, in any
-case there have been a lot of bug fixes and enhancements to kdb since
-v3.0.
-
+Transcript of kernel messages...?

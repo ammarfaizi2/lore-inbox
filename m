@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269061AbRHBSPm>; Thu, 2 Aug 2001 14:15:42 -0400
+	id <S269066AbRHBSPc>; Thu, 2 Aug 2001 14:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbRHBSPc>; Thu, 2 Aug 2001 14:15:32 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27917 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269057AbRHBSPU>; Thu, 2 Aug 2001 14:15:20 -0400
-Date: Thu, 2 Aug 2001 19:37:50 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010802193750.B12425@emma1.emma.line.org>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010801170230.B7053@redhat.com> <20010802110341.B17927@emma1.emma.line.org> <01080219261601.00440@starship>
+	id <S269043AbRHBSPW>; Thu, 2 Aug 2001 14:15:22 -0400
+Received: from h24-67-145-239.cc.shawcable.net ([24.67.145.239]:24771 "HELO
+	bradmont.net") by vger.kernel.org with SMTP id <S269029AbRHBSPN>;
+	Thu, 2 Aug 2001 14:15:13 -0400
+Date: Thu, 2 Aug 2001 11:13:09 -0700
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: university studies?
+Message-ID: <20010802111309.A29322@bradmont.net>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010801134647.D662@arthur.ubicom.tudelft.nl> <Pine.LNX.4.33.0108020819090.6003-100000@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
 Content-Disposition: inline
-In-Reply-To: <01080219261601.00440@starship>
-User-Agent: Mutt/1.3.19i
+In-Reply-To: <Pine.LNX.4.33.0108020819090.6003-100000@infradead.org>
+User-Agent: Mutt/1.3.20i
+From: bradmont@bradmont.net (Brad Stewart)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Aug 2001, Daniel Phillips wrote:
 
-[file name must be flushed on fsync()]
-> I don't know why it is hard or inefficient to implement this at the VFS 
-> level, though I'm sure there is a reason or this thread wouldn't 
-> exist.  Stephen, perhaps you could explain for the record why sys_fsync 
-> can't just walk the chain of dentry parent links doing fdatasync?  Does 
-> this create VFS or Ext3 locking problems?  Or maybe it repeats work 
-> that Ext3 is already supposed to have done?
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, the course was that I asked whether ext3 would do synchronous
-directory updates, and some people jumped in and said that one should
-fsync() the parent directory, however, since we figure from SUS, that's
-invalid.
+On Thu, Aug 02, 2001 at 08:24:45AM +0100, Riley Williams wrote:
+> One thing I will add, from long experience: If you learned BASIC
+> first, then learn Pascal BEFORE you try to learn C or C++ as you'll
+> come out a much better programmer than trying to learn C or C++
+> directly after BASIC.
 
-After some forth and back, we finally figured that at least ext2 is
-implementing fsync() improperly.
+This makes me a little bit nervous...  I used to program a fair bit in BASI=
+C ((Q|GW)BASIC mostly), and started learning C++ after that.  Could you ela=
+borate a bit on the reasons?
 
-So this part is covered.
+Thanks
 
-The other thing is, that Linux is the only known system that does
-asynchronous rename/link/unlink/symlink -- people have claimed it might
-not be the only one, but failed to name systems.
+Brad Stewart
+bradmont@bradmont.net
 
-So we need to assume that Linux is the only system that does
-asynchronous rename/link/unlink/symlink, however a directory fsync() is
-believed to be rather expensive.
+--=20
 
-Still, some people object to a dirsync mount option. But this has been
-the actual reason for the thread - MTA authors are refusing to pamper
-Linux and use chattr +S instead which gives unnecessary (premature) sync
-operations on write() - but MTAs know how to fsync().
+PGP/GPG public key: http://bradmont.net/brad_stewart.gpg
 
-> The prescription for symlinks is, if you want them safely on disk you 
-> have to explicitly fsync the containing directory.
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Yes, and it doesn't matter, since MTAs don't use symlinks (symlinks
-waste inodes on most systems).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-Matthias Andree
+iD8DBQE7aZg1b68jzicTYNoRAqaSAJ99mEWVvlLbhDTp0zogv5M7upT25QCgutIy
+f74NdFxyOuwTFBugw0FrDXo=
+=KJ2e
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUBKLyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 06:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUBKLyC
+	id S263963AbUBKMJp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 07:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbUBKMJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 06:54:02 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:11786 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264278AbUBKLxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 06:53:35 -0500
-Date: Wed, 11 Feb 2004 10:10:27 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alex Pankratov <ap@swapped.cc>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.6] [1/2] hlist: replace explicit checks of hlist fields w/ func calls
-Message-ID: <20040211121027.GG13619@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alex Pankratov <ap@swapped.cc>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <4029CB7B.3090409@swapped.cc> <20040213231407.208204c4.ak@suse.de> <4029D267.40307@swapped.cc>
+	Wed, 11 Feb 2004 07:09:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6068 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263963AbUBKMJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 07:09:43 -0500
+Date: Wed, 11 Feb 2004 13:09:37 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Stuart Hayes <Stuart_Hayes@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH (for 2.6.3-rc1) for cdrom driver dvd_read_struct
+Message-ID: <20040211120937.GA19047@suse.de>
+References: <Pine.LNX.4.44.0402101035050.29125-100000@tux.linuxdev.us.dell.com> <20040210171215.GM4109@suse.de> <20040211115123.GB15127@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4029D267.40307@swapped.cc>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040211115123.GB15127@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Feb 10, 2004 at 10:57:43PM -0800, Alex Pankratov escreveu:
+On Wed, Feb 11 2004, Jamie Lokier wrote:
+> Jens Axboe wrote:
+> > On Tue, Feb 10 2004, Stuart Hayes wrote:
+> > > The attached patch will make the "dvd_read_struct" function in cdrom.c 
+> > > check that the DVD drive can currently do the DVD read structure command 
+> > > before sending the command to the drive.  It does this by checking the 
+> > > "dvd read" feature using the "get configuration" command.
+> > > 
+> > > Currently, cdrom.c only checks that the drive is a DVD drive before 
+> > > allowing the dvd read structure command to go to the drive--it does not 
+> > > make sure that the DVD drive has a DVD in it.  Without this patch, if CD 
+> > > medium is in a DVD drive, and the DVD_READ_STRUCT ioctl is used, the drive
+> > > will spew an ugly "illegal request" error (magicdev does this).
+> > 
+> > I'm rather anxious about applying anything like this, in my experience
+> > it's much much safer to simply let the command fail. I don't see
+> > anything technically wrong with your approach, I'd just like it tested
+> > on 100 different dvd drives :)
 > 
+> Meaning that you don't trust the DVD media test to return true on all
+> drives when and only when there's DVD media currently in there?
 > 
-> Andi Kleen wrote:
+> If that's your logic, it follows that userspace programs shouldn't
+> trust the DVD media test either - they should always call
+> DVD_READ_STRUCT if they would like to treat DVDs differently to CDs.
 > 
-> >On Tue, 10 Feb 2004 22:28:11 -0800
-> >Alex Pankratov <ap@swapped.cc> wrote:
-> >
-> >
-> >>Second patch removes if's from hlist_xxx() functions. The idea
-> >>is to terminate the list not with 0, but with a pointer at a
-> >>special 'null' item. Luckily a single 'null' can be shared
-> >>between all hlists _without_ any synchronization, because its
-> >>'next' and 'pprev' fields are never read. In fact, 'next' is
-> >>not accessed at all, and 'pprev' is used only for writing.
-> >
-> >I disagree with this change. The problem is that in a loop
-> >you need a register now to store the terminating element
-> >and compare to it instead of just testing for zero. This can generate 
-> >much worse code  on register starved i386 than having the conditional.
-> 
-> Ugh, yeah, I thought about this. However my understand was that
-> since hlist_null is statically allocated variable, its address
-> will be a known constant at a link time (whether it's a static
-> link or dynamic/run-time link - btw, excuse my lack of proper
-> terminology here). So comparing something to &null would be
-> equivalent to comparing to the constant and not require an
-> extra register.
+> So, can you add a flag to the request meaning "if this
+> DVD_READ_STRUCT request fails with illegal request, don't log it"?
 
-That is why I was going to generate the code to see the instructions
-used with your patch when I was captured by my lovely wife... 8)
+There's the generic cgc->quiet bit for this very purpose. However,
+thinking about this particular issue some more,  the feature check
+really ought to work for all cases. So I think it's worth a shot
+applying the patch as-is. I don't see any better solutions.
 
-- Arnaldo
+-- 
+Jens Axboe
+

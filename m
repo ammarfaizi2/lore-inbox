@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263842AbRFDM3W>; Mon, 4 Jun 2001 08:29:22 -0400
+	id <S264121AbRFDGro>; Mon, 4 Jun 2001 02:47:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264226AbRFDM3N>; Mon, 4 Jun 2001 08:29:13 -0400
-Received: from docs3.abcrs.com ([63.238.77.222]:11784 "EHLO
-	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
-	id <S263842AbRFDM3D>; Mon, 4 Jun 2001 08:29:03 -0400
-Date: Mon, 4 Jun 2001 08:28:46 -0400
-Message-Id: <200106041228.IAA08746@mailer.progressive-comp.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: symlink_prefix
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	id <S264122AbRFDGre>; Mon, 4 Jun 2001 02:47:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34824 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264121AbRFDGrb>; Mon, 4 Jun 2001 02:47:31 -0400
+Subject: Re: [PATCH] fs/devfs/base.c
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 4 Jun 2001 07:44:50 +0100 (BST)
+Cc: rgooch@ras.ucalgary.ca (Richard Gooch), aki.jain@stanford.edu (Akash Jain),
+        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        su.class.cs99q@nntp.stanford.edu
+In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com> from "Linus Torvalds" at Jun 03, 2001 04:55:00 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E156o6c-0005AB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-06-03, Andries.Brouwer@cwi.nl wrote:
+>  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
+>    noticeable portion of it. It doesn't matter if you "know" your caller
 
-> Suppose I have devices /dev/a, /dev/b, /dev/c that contain the
-> /, /usr and /usr/spool filesystems for FOO OS. Now
->         mount /dev/a /mnt -o symlink_prefix=/mnt
->         mount /dev/b /mnt/usr -o symlink_prefix=/mnt
->         mount /dev/c /mnt/usr/spool -o symlink_prefix=/mnt
+Umm Linus on what platform - its 8K or more on all that I can think of
 
-Cool.
+> Ergo: the simple rule of "don't allocate big structures of the stack" is
+> always a good rule, and making excuses for it is bad.
 
-What happens when someone creates new absolute symlinks under /mnt ?
-Will/should the magic /mnt/ header be stripped from any symlink created
-under such a path-translated volume?  The answer is probably 'yes', but
-either one violates POLA :(
+We have a very large number of violators of 1K of stack, and very few of 2K 
+right now.
 
---
-Hank Leininger <hlein@progressive-comp.com> 
-  

@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132555AbRDKLXO>; Wed, 11 Apr 2001 07:23:14 -0400
+	id <S132556AbRDKL14>; Wed, 11 Apr 2001 07:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132556AbRDKLXF>; Wed, 11 Apr 2001 07:23:05 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:6917 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132555AbRDKLWy>;
-	Wed, 11 Apr 2001 07:22:54 -0400
-Date: Wed, 11 Apr 2001 07:22:44 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: <antonpoon@hongkong.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How can I add a function to the kernel initialization
-In-Reply-To: <Eq989588839292.22828@mail2.hongkong.com>
-Message-ID: <Pine.LNX.4.30.0104110718010.31213-100000@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S132557AbRDKL1q>; Wed, 11 Apr 2001 07:27:46 -0400
+Received: from danielle.hinet.hr ([195.29.254.157]:520 "EHLO danielle.hinet.hr")
+	by vger.kernel.org with ESMTP id <S132556AbRDKL1d>;
+	Wed, 11 Apr 2001 07:27:33 -0400
+Date: Wed, 11 Apr 2001 13:27:34 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: Few Qs regarding COMPAQ Proliant 6500
+Message-ID: <20010411132734.B24141@danielle.hinet.hr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-First it does not work because you do not have access to libc in the
-kernel.  Secondly your LCD driver is not available at the time of
-start_kernel so there is no one to listen to the /dev/lcd.
+ - on COMPAQ Proliant 6500 (P11) servers I have an embeded LCD,
+   is there any kernel patch and/or user tools to use it ?
 
-The quickest hack would be to find your lcd driver and modify it to spit
-out the Loading Kernel, after it initializes.
+ - lately one of those servers hangs quite often
 
-B.
+   I've changed hardware parts (mixing from other boxes) and concluded it's
+   definately software, most probably kernel.
+   It's a web and ftp server banged quite hard.
 
-On Wed, 11 Apr 2001, antonpoon@hongkong.com wrote:
+symptoms are complete hang without any suspicious trace in logs except one:
 
-> I have written a driver for a character set LCD module using parallel port. I want to display a message when the kernel is initialized.
->
-> I added the following to start_kernel() in init/main.c
->
-> #include <stdio.h>
->
-> {
->   int i;
->   char line = "Loading Kernel";
->   FILE *ptr;
->   ptr = fopen("/dev/lcd","w");
->
->   for (i=0;i<10;i++)
->   {
->   	fprintf(ptr, "%s\n", line);
->   }
->   fclose(ptr);
-> }
->
-> Error was found, it looks like that it can not include stdio.h in the initialization.
-> How can I do that?
->
-> I wish to be personally CC'ed the answers/comments posted to the list in response to my posting. Thank you.
->
-> Best Regards,
-> Anton
->
->
->
-> ---------------------------------------------
->  Åwªï¨Ï¥ÎHongKong.com¶l¥ó¨t²Î
->  Thank you for using hongkong.com Email system
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+  just before that complete hang logs are filled with for example proftpd entries
+  with exactly _same time_. I even managed once to stay logged in when hang is just about
+  to happen -> date(1) kept showing some exactly the same time in the past whenever invoked
+  but cat /proc/driver/rtc showed the proper time. The box refused any new connections.
+  Few minutes later it hung.
+
+Any pointers ? Patches to apply ?
+
+I tried nmi_watchdog and noapic things, does not help.
 
 -- 
-	WebSig: http://www.jukie.net/~bart/sig/
-
-
+Mario Mikoèeviæ (Mozgy)
+My favourite FUBAR ...

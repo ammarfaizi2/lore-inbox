@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULAOlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbULAOtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbULAOlY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 09:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULAOlY
+	id S261263AbULAOtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 09:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbULAOtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 09:41:24 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:5862 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261265AbULAOlG (ORCPT
+	Wed, 1 Dec 2004 09:49:42 -0500
+Received: from imp.wsdmail.net ([204.113.120.5]:59084 "EHLO imp.wsdmail.net")
+	by vger.kernel.org with ESMTP id S261263AbULAOtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 09:41:06 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: dm-devel@redhat.com
-Subject: Re: [dm-devel] Re: [2.6 patch] dm: remove unused functions (fwd)
-Date: Wed, 1 Dec 2004 08:41:06 -0600
-User-Agent: KMail/1.7.1
-Cc: Alasdair G Kergon <agk@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20041129022940.GQ4390@stusta.de> <20041130230525.GC24233@agk.surrey.redhat.com>
-In-Reply-To: <20041130230525.GC24233@agk.surrey.redhat.com>
+	Wed, 1 Dec 2004 09:49:41 -0500
+Message-ID: <1101913737.41adde8998978@imp.wsdmail.net>
+Date: Wed,  1 Dec 2004 08:08:57 -0700
+From: Michael Thomas Heath <mheath06@wsdmail.net>
+To: linux-kernel@vger.kernel.org
+Cc: Mike.Thomas.Heath@gmail.com
+Subject: INVALID CHECKSUM error (In Linux Video Capture Interface?)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412010841.06954.kevcorry@us.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 204.113.113.59
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 November 2004 5:05 pm, Alasdair G Kergon wrote:
-> On Mon, Nov 29, 2004 at 03:29:40AM +0100, Adrian Bunk wrote:
-> > Please apply or comment on it.
->
-> Please check *why* the functions aren't used first.
->
-> e.g. An alloc function with a corresponding free that
-> never gets called suggests a leak to me...
+I recently underwent the effort to setup an older parallel Colour QuickCam on 
+Linux using the Video4Linux interface. However, when I went to boot, I got 
+an "INVALID CHECKSUM 0005" error:
 
-That one isn't a leak (referring to "kmem_cache_t *exception_cache" in 
-dm-snap.c). Items are allocated from this cache using alloc_exception(). This 
-can happen either when an existing snapshot is activated and it's exception 
-table is read from disk into an in-memory hash-table, or when a copy-on-write 
-completes and a new exception is added to this hash-table. As long as the 
-snapshot is active, this hash-table remains in memory and items cannot be 
-removed from it. When the snapshot is deactivated, we call 
-exit_exception_table() and pass it a pointer to this hash-table and 
-exception_cache. This routine calls kmem_cache_free() directly instead of 
-using the free_exception() routine. The reason it doesn't use 
-free_exception() is that exit_exception_table() is used to tear down two 
-different but somewhat similar hash-tables, each of which uses a different 
-kmem_cache_t.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+0000:00:09.0: 3Com PCI 3c900 Cyclone 10Mbps TPO at 0xd400. Vers LK1.1.19
+ ***INVALID CHECKSUM 0005*** <6>Linux video capture interface: v1.00
+Colour QuickCam for Video4Linux v0.05
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
 
-So, it may be nice to keep the symmetric routines defined (alloc_exception() 
-and free_exception()), but Adrian is correct in that the later is not being 
-used, and it really can't be used without some more significant code changes.
 
-As for bs_bio_init(), it can be safely removed. It was just a duplicate of 
-bio_init() from fs/bio.c. The use of that call in dm-io.c was changed to use 
-bio_init(), but apparently the routine itself was never removed.
+I've never encountered an error like this before; I asked around and people 
+suggested testing my RAM (Which I did, everything was fine), and recompiling 
+my kernel. I recompiled my kernel image, and used dd to copy to avoid errors 
+in the copying of the kernel.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+I'd apreaciate you CC any replies to my home e-
+mail, "Mike.Thomas.Heath@gmail.com" 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSEWM1z>; Thu, 23 May 2002 08:27:55 -0400
+	id <S316467AbSEWM0e>; Thu, 23 May 2002 08:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSEWM1u>; Thu, 23 May 2002 08:27:50 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:42250 "EHLO
+	id <S316475AbSEWM0d>; Thu, 23 May 2002 08:26:33 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:39178 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S316526AbSEWM1L>; Thu, 23 May 2002 08:27:11 -0400
-Date: Thu, 23 May 2002 13:27:05 +0100
+	id <S316467AbSEWM00>; Thu, 23 May 2002 08:26:26 -0400
+Date: Thu, 23 May 2002 13:26:23 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] include buffer_head.h in actual users instead of fs.h (7/10)
-Message-ID: <20020523132705.H24361@infradead.org>
+Subject: [PATCH] include buffer_head.h in actual users instead of fs.h (1/10)
+Message-ID: <20020523132623.B24361@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
@@ -22,58 +22,37 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make the 5 headers in include/linux that need it include buffer_head.h
-directly.
+Now that fs.h grow due to the lock.h removal let's reduce it's overhead
+again:  Instead of penalizing ever user of fs.h with the overhead of the
+buffer head interface let it's users include it directly.
 
+This also shows nicely which parts of the core kernel still depend on the
+buffer head interface, and allows that to be cleaned up properly.
 
---- 1.10/include/linux/amigaffs.h	Mon May 20 16:22:37 2002
-+++ edited/include/linux/amigaffs.h	Thu May 23 13:19:02 2002
-@@ -2,7 +2,7 @@
- #define AMIGAFFS_H
- 
- #include <linux/types.h>
--
-+#include <linux/buffer_head.h>
- #include <asm/byteorder.h>
- 
- /* AmigaOS allows file names with up to 30 characters length.
---- 1.6/include/linux/hfs_sysdep.h	Mon May 20 16:54:06 2002
-+++ edited/include/linux/hfs_sysdep.h	Thu May 23 13:19:03 2002
-@@ -21,6 +21,7 @@
- #include <linux/types.h>
- #include <linux/fs.h>
- #include <linux/sched.h>
-+#include <linux/buffer_head.h>
- 
- #include <asm/byteorder.h>
- #include <asm/unaligned.h>
---- 1.6/include/linux/jbd.h	Sun May 19 13:50:46 2002
-+++ edited/include/linux/jbd.h	Thu May 23 14:21:44 2002
-@@ -25,6 +25,7 @@
- #define jfs_debug jbd_debug
- #else
- 
-+#include <linux/buffer_head.h>
- #include <linux/journal-head.h>
- #include <linux/stddef.h>
- #include <asm/semaphore.h>
---- 1.14/include/linux/msdos_fs.h	Thu Apr 25 03:38:44 2002
-+++ edited/include/linux/msdos_fs.h	Thu May 23 14:27:42 2002
-@@ -4,6 +4,7 @@
- /*
-  * The MS-DOS filesystem constants/structures
+This is the first of ten patches and adds the includes needed by
+buffer_head.h to it and fixes it's inclusion guard.
+
+--- 1.9/include/linux/buffer_head.h	Sun May 19 13:49:49 2002
++++ edited/include/linux/buffer_head.h	Thu May 23 14:18:31 2002
+@@ -4,8 +4,13 @@
+  * Everything to do with buffer_heads.
   */
-+#include <linux/buffer_head.h>
- #include <asm/byteorder.h>
  
- #define SECTOR_SIZE	512		/* sector size (bytes) */
---- 1.30/include/linux/reiserfs_fs.h	Tue May 21 11:12:36 2002
-+++ edited/include/linux/reiserfs_fs.h	Thu May 23 13:19:04 2002
-@@ -20,6 +20,7 @@
- #include <asm/unaligned.h>
- #include <linux/bitops.h>
- #include <linux/proc_fs.h>
-+#include <linux/buffer_head.h>
- #include <linux/reiserfs_fs_i.h>
- #include <linux/reiserfs_fs_sb.h>
- #endif
+-#ifndef BUFFER_FLAGS_H
+-#define BUFFER_FLAGS_H
++#ifndef _LINUX_BUFFER_HEAD_H
++#define _LINUX_BUFFER_HEAD_H
++
++#include <linux/types.h>
++#include <linux/fs.h>
++#include <asm/atomic.h>
++
+ 
+ enum bh_state_bits {
+ 	BH_Uptodate,	/* Contains valid data */
+@@ -297,4 +300,4 @@
+ void __buffer_error(char *file, int line);
+ #define buffer_error() __buffer_error(__FILE__, __LINE__)
+ 
+-#endif		/* BUFFER_FLAGS_H */
++#endif /* _LINUX_BUFFER_HEAD_H */

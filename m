@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268434AbRG3JoU>; Mon, 30 Jul 2001 05:44:20 -0400
+	id <S268442AbRG3KHT>; Mon, 30 Jul 2001 06:07:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268438AbRG3JoB>; Mon, 30 Jul 2001 05:44:01 -0400
-Received: from [195.112.18.51] ([195.112.18.51]:6156 "EHLO mail.shad0w.org.uk")
-	by vger.kernel.org with ESMTP id <S268434AbRG3Jnw>;
-	Mon, 30 Jul 2001 05:43:52 -0400
-Date: Mon, 30 Jul 2001 10:45:35 +0100 (BST)
-From: Chris Crowther <chrisc@shad0w.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <3B64FE86.D94FF344@randomlogic.com>
-Message-ID: <Pine.LNX.4.33.0107301043100.18360-100000@monolith.shad0w.org.uk>
+	id <S268451AbRG3KHK>; Mon, 30 Jul 2001 06:07:10 -0400
+Received: from xsmtp.ethz.ch ([129.132.97.6]:9669 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S268442AbRG3KG7> convert rfc822-to-8bit;
+	Mon, 30 Jul 2001 06:06:59 -0400
+content-class: urn:content-classes:message
+Subject: Re: [PCI] building PCI IDs/drivers DB from Linux kernel sources
+Date: Mon, 30 Jul 2001 12:04:58 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <3B65314A.6060707@debian.org>
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Thread-Topic: [PCI] building PCI IDs/drivers DB from Linux kernel sources
+Thread-Index: AcEY31itZMr6q4TREdWZGwCQJ4nSeQ==
+From: "Giacomo Catenazzi" <cate@debian.org>
+To: <thierry@cri74.org>
+Cc: "Debian boot mailing list" <debian-boot@lists.debian.org>,
+        <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jul 2001 10:07:02.0707 (UTC) FILETIME=[60FD4830:01C118DF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 29 Jul 2001, Paul G. Allen wrote:
+Hello.
 
-> Well The e-mail looks like it may be a variation on SirCam or Code Red
-> (I could be wrong). It appears to have its own mailer attached (from
-> what I saw in the header - I have not opened the attached .zip) and it
-> came from:
+I've already done something and it should be included on kernel 2.5,
+with my
+autoprobe configuration utility.
+The sources are in
+http://people.debian.org/~cate/files/kautoconfigure/autoconfigure/
+(note that autoconfigure.rule is a simple bash script, so you can
+extract
+and transform data in a few shell commands)
 
-	It got caught by my AMaViS scan - apparently it's Worm.Music.
+My format is:
+   check_pci 'PCI_ID' NAME_OF_CONFIG # kernel/file
+where PCI_ID is a regexp of the form:
+   vendor_id, device_id, subvendor_id, subdevice_id; class, interface
+(mail me for further details)
 
-	Erm, appologise to everyone if it send the alert to the list - it
-sends warning to the message sender as well...I think I might need to do
-some modification to how it picks the person to warn.
+Note you should manually enter the devices, because there are a lot of
+exceptions:
+motherboard workaround in drivers,...
 
--- 
-Chris "_Shad0w_" Crowther
-shad0w@shad0w.org.uk
-http://www.shad0w.org.uk/
+
+(I will chek you program and maybe I would stole some of your result, It
+is GPL?)
+
+	giacomo
 

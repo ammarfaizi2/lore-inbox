@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264888AbSKSKZ7>; Tue, 19 Nov 2002 05:25:59 -0500
+	id <S264889AbSKSKaT>; Tue, 19 Nov 2002 05:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264889AbSKSKZ7>; Tue, 19 Nov 2002 05:25:59 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:9167 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S264888AbSKSKZ6>; Tue, 19 Nov 2002 05:25:58 -0500
-Date: Tue, 19 Nov 2002 11:33:00 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: "Karsten 'soohrt' Desler" <linux-kernel@ml.soohrt.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
-Message-ID: <20021119113300.C23008@pc9391.uni-regensburg.de>
-References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
+	id <S264954AbSKSKaT>; Tue, 19 Nov 2002 05:30:19 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:58075 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264889AbSKSKaS> convert rfc822-to-8bit; Tue, 19 Nov 2002 05:30:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: e100 2.1.6 driver from Intel including into the kernel tree 2.2.22
+Date: Tue, 19 Nov 2002 11:37:25 +0100
+User-Agent: KMail/1.4.3
+References: <200211182320.15546.m.c.p@gmx.net>
+In-Reply-To: <200211182320.15546.m.c.p@gmx.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021119102338.GA24510@sit0.ifup.net>; from linux-kernel@ml.soohrt.org on Tue, Nov 19, 2002 at 11:23:38 +0100
-X-Mailer: Balsa 1.2.4
+Message-Id: <200211191137.13027.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19.11.2002   11:23 Karsten 'soohrt' Desler wrote:
-> > I have the same board, and the controller works fine for me in 2.5.4*, as
-> > 2.4-ac doesn't contain xfs suport. I only have one drive attached, but as I
-> 
-> > remember I first had to configure the (raid) controller' BIOS (Ctrl-H at
-> boot
-> > time) (even for just a bunch of disks) before using the drives. But I'm not
-> 
-> > 100%ly sure.
-> 
-> I've "been in" the controller BIOS a few times, but never configured
-> anything because I'm using the linux md driver.
+On Monday 18 November 2002 23:22, Marc-Christian Petersen wrote:
 
-Maybe U would try 2.5.48, just to see if it works then.
-When I'm back home in about 7 hours, I'll check my bios settings, maybe this 
-could help you.
-  
-> > ANother QUestion: Did you ever get the onboard via-rhine NIC working with
-> > IO-APIC (both BIOS and kernel) enabled?
-> 
-> No I didn't.
-> via-rhine.c:v1.10-LK1.1.14  May-3-2002  Written by Donald Becker
->   http://www.scyld.com/network/via-rhine.html
-> eth1: VIA VT6102 Rhine-II at 0xcc00, 00:04:61:43:88:d9, IRQ 16.
-> eth1: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
-> eth1: Setting full-duplex based on MII #1 link partner capability of 45e1.
-> ...
-> eth1: Transmit timed out, status 0003, PHY status 786d, resetting...
-> eth1: reset did not complete in 10 ms.
-> NETDEV WATCHDOG: eth1: transmit timed out
-> 
+Hi all again,
 
-thats just too bad, last I managed to get it working with IO-APICs for the 
-first time, but i simply was too tired to remember what things I did. I can't 
-reproduce it anymore:( this NIC's driving me crazy.
+> e100_phy.o(.modinfo+0x0): multiple definition of `__module_kernel_version'
+> e100_main.o(.modinfo+0x0): first defined here
+> e100_test.o(.modinfo+0x0): multiple definition of `__module_kernel_version'
+> e100_main.o(.modinfo+0x0): first defined here
+> make[3]: *** [e100.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.2.22/drivers/net/e100'
+> make[2]: *** [_modinsubdir_e100] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.2.22/drivers/net'
+> make[1]: *** [_modsubdir_net] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.2.22/drivers'
+> make: *** [_mod_drivers] Error 2
+Ok, I've fixed this for now. Module works.
 
-Christian
+> Static compile succeed but the linker does not link it to the kernel image.
+But I am still stuck with this problem. Does any1 have a hint for me?
+
+Alan, maybe you? I think you have the 2.2 experience I need here :-)
+
+ciao, Marc
+
 

@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVCCT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVCCUAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVCCT4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 14:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCTxW
+	id S262222AbVCCUAN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVCCT40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:53:22 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:24591 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261389AbVCCTtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:49:02 -0500
-Date: Thu, 3 Mar 2005 20:49:34 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: James Chapman <jchapman@katalix.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH: 2.6.11-rc5] i2c chips: ds1337 RTC driver
-Message-Id: <20050303204934.69620667.khali@linux-fr.org>
-In-Reply-To: <422747FB.9020004@katalix.com>
-References: <cIyC5ZN2.1109756623.5808030.khali@localhost>
-	<422747FB.9020004@katalix.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 3 Mar 2005 14:56:26 -0500
+Received: from main.gmane.org ([80.91.229.2]:61665 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261961AbVCCTyQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 14:54:16 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
+Subject: Re: [linux-usb-devel] [2.6 patch] remove drivers/usb/image/hpusbscsi.c
+Date: Thu, 3 Mar 2005 19:48:06 +0000 (UTC)
+Message-ID: <slrnd2eqp4.19r.psavo@varg.dyndns.org>
+References: <20050303133856.GT4608@stusta.de> <200503031613.36758.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
+X-Face: $sk2zxhxVp'QPUj~kr+z:<m>#+84DO\Ab{4Hes1.P>]p=XhgsnwZM^[:"M?W#_x{W5[lu7i bqv7lOL`]5G%fH"Pgd5;+t"w)sOPDg::&T$Z9p#|xSMIb`$Udj6u14lh]imQ\z
+User-Agent: slrn/0.9.8.1 (Debian)
+X-Gmane-MailScanner: Found to be clean
+Cc: linux-usb-devel@lists.sourceforge.net
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+* Oliver Neukum <oliver@neukum.org>:
+> Am Donnerstag, 3. März 2005 14:38 schrieb Adrian Bunk:
+>> USB_HPUSBSCSI was marked as BROKEN in 2.6.11 since libsane is the 
+>> preferred way to access these devices.
+>
+> That is true only if you limit yourself to users of SANE.
+> Other, rarer scan systems like VueScan use it. At least last time
+> somebody mentioned them.
 
-> A revised ds1337 patch addressing all of Jean's comments is attached.
+Vuescan uses libusb these days, didn't need hpusbscsi last time I used
+it.
+I don't know about other (program-) users.
 
-Fine with me except for:
 
-> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-> +				     I2C_FUNC_SMBUS_I2C_BLOCK))
-
-I don't this it is correct. You are using master_xfer, not
-i2c_smbus_{read,write}_i2c_block_data. Adapter which declare themselves
-I2C_FUNC_SMBUS_I2C_BLOCK-capable may not implement master_xfer. You
-really need to check for I2C_FUNC_I2C.
-
-Now I agree that the transfers you do ARE i2c block transfers, and I
-find it highly questionable that our implementation of
-i2c_smbus_read_i2c_block_data will always read 32 bytes of data from the
-chip. It would be much more convenient to allow I2C block reads of
-arbitrary length, (just like we do with I2C block writes) so that
-clients can use this function instead of master_xfer.
-
-It should be a quite simple fix if I correctly remember the i2c-core
-code, with the only drawback that it alters the API. That being said,
-the only kernel user (in kernel) of this function that I could find is
-the eeprom driver (this can be easily explained by the fact that this
-function, as it is now, is essentially useless), so I wouldn't mind the
-risk. The net benefit would be that i2c chip drivers could start using
-this function instead of master_xfer, so they would possibly work with
-more than just the fully I2C-capable adapters (not that many of them,
-see list right below).
-
-i2c-dev might be a problem if we go that way, because we will silently
-change the way I2C block reads requested from userspace are handled. Not
-sure it is a big issue though, because as underlined before, the
-function as it is now is rather useless. I doubt that anything but
-i2cdump uses it in userspace.
-
-Then we would need to fix bus drivers that implement the call by
-themselves (as opposed to emulation), but in fact only a few of them do
-(i2c-amd8111 and i2c-nforce2) so that should be quickly done.
-[Reading the two bus drivers code...]
-
-And it turns out that both bus drivers ALREADY honor the length
-requested by the caller, which is not consistent with the emulated
-variant of the call. Something definitely must be done.
-
-Any thoughts anyone?
-
-Thanks,
 -- 
-Jean Delvare
+   Psi -- <http://www.iki.fi/pasi.savolainen>
+

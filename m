@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVAGA2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVAGAvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVAGA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVAGA0J
+	id S261202AbVAGAvw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAGAuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:26:09 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:15825 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261201AbVAGAXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:23:14 -0500
-Subject: Re: 2.6.10-mm2: swsusp regression
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050106234829.GF28777@elf.ucw.cz>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	 <200501061848.11719.rjw@sisk.pl> <20050106225233.GD2766@elf.ucw.cz>
-	 <200501070041.43023.rjw@sisk.pl>  <20050106234829.GF28777@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1105057470.3254.0.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 07 Jan 2005 11:24:30 +1100
+	Thu, 6 Jan 2005 19:50:01 -0500
+Received: from mailer2-5.key-systems.net ([81.3.43.243]:24552 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S261190AbVAGAre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:47:34 -0500
+Message-ID: <41DDDC22.80009@mathematica.scientia.net>
+Date: Fri, 07 Jan 2005 01:47:30 +0100
+From: Christoph Anton Mitterer <cam@mathematica.scientia.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Questions about the CMD640 and RZ1000 bugfix support options
+References: <41D5D206.1040107@mathematica.scientia.net>	 <1104676209.15004.58.camel@localhost.localdomain>	 <e0qta2-7jr.ln1@kenga.kmv.ru>	 <1105025417.17176.222.camel@localhost.localdomain>	 <hcr0b2-ofr.ln1@kenga.kmv.ru>  <41DDC55B.2030106@mathematica.scientia.net> <1105053558.17176.297.camel@localhost.localdomain>
+In-Reply-To: <1105053558.17176.297.camel@localhost.localdomain>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Alan Cox wrote:
 
-AMD64 doesn't have MTRRs, does it? If it does, I'd bet on an SMP hang.
+ >On Iau, 2005-01-06 at 23:10, Christoph Anton Mitterer wrote:
+ >
+ >>What about the following idea?
+ >>Both stay enabled by default but the help text explains exactly (as
+ >>far as possible) which systems are affected.
+ >>This would help newbies like me to decide if those bugfixes are
+ >>necessary or not.
+ >
+ >
+ >Its the ideal solution. The diff for this is available on your computer
+ >already - its kept in /dev/null 8)
 
-Nigel
+Ok,... so here's my patch which I request for inclusion:
+--- begin of patch ---
 
-On Fri, 2005-01-07 at 10:48, Pavel Machek wrote:
-> Hi!
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm2/
-> > > > > 
-> > > > > - Various minorish updates and fixes
-> > > > 
-> > > > There's an swsusp regression on my box (AMD64) wrt -mm1.  Namely, 
-> > 2.6.10-mm2 
-> > > > does not suspend, but hangs solid right after the critical section, 100% 
-> > of 
-> > > > the time.
-> > > 
-> > > can you comment out device_power_{down,up} from
-> > > swsusp_{suspend,resume} and see what happens?
-> > 
-> > It works just fine.
-> 
-> Ok, problem is that device_power_{down,up} is right thing, and
-> neccessary for many machines to work...
-> 
-> ...so... could you go through sysdev_register()s, one by one,
-> commenting them to see which one causes the regression? That driver
-> then needs to be fixed.
-> 
-> Go after mtrr and time in first places.
-> 								Pavel
-> PS: Probably drop andrew from reply; he probably gets enough mail
-> anyway. I want this one to go to him so that he does not back up the
-> patch, through.
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+--- end of patch ---
+(Ahh,.. my first kernel patch,... *lol* )
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+;-)
 
+
+Seriously,.. I thought about adding something like:
+"Most users of modern computers won't need this, but it is safer to say 
+Y here."
+
+But according to you answer I think that you like the way it's at the 
+moment. =)
+Never mind! But if you think it's ok I could make a (real) patch which 
+adds such a text.
+
+Best wishes,
+cam.

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265835AbTL3WGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbTL3WGY
+	id S265825AbTL3WIs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTL3WG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:06:24 -0500
-Received: from mail.kroah.org ([65.200.24.183]:41665 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265917AbTL3WGW convert rfc822-to-8bit
+	Tue, 30 Dec 2003 17:06:59 -0500
+Received: from mail.kroah.org ([65.200.24.183]:44993 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265832AbTL3WG0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:06:22 -0500
+	Tue, 30 Dec 2003 17:06:26 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.0
-In-Reply-To: <1072821970466@kroah.com>
+In-Reply-To: <10728219722179@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Dec 2003 14:06:10 -0800
-Message-Id: <1072821970727@kroah.com>
+Date: Tue, 30 Dec 2003 14:06:13 -0800
+Message-Id: <10728219731748@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,53 +22,86 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1496.23.2, 2003/12/19 11:37:00-08:00, trini@kernel.crashing.org
+ChangeSet 1.1496.9.3, 2003/12/04 13:41:40-08:00, khali@linux-fr.org
 
-[PATCH] I2C: make i2c-piix4 fix optional
+[PATCH] I2C: sysfs interface documentation
 
-On Thu, Dec 18, 2003 at 10:26:40AM -0800, Greg KH wrote:
+1* No more current hysteresis value. I don't think we ever saw a chip
+   which monitors current, and if we ever do, I would be very, very
+   surprised if it would have an hysteresis value.
+2* Temperature input and max can have 4 values. [from the previous
+   patch]
+3* Split temperature min and hysteresis into two separate files.
+4* New file temp_crit. [from previous patch]
+
+The new file temp_crit is subject to change later as we decide more
+precisely how we want to handle values that are common to more than one
+temperature channels.
 
 
- drivers/i2c/busses/i2c-piix4.c |   21 ++++++++++++++++++---
- 1 files changed, 18 insertions(+), 3 deletions(-)
+ Documentation/i2c/sysfs-interface |   33 ++++++++++++++++++++++-----------
+ 1 files changed, 22 insertions(+), 11 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	Tue Dec 30 12:29:37 2003
-+++ b/drivers/i2c/busses/i2c-piix4.c	Tue Dec 30 12:29:37 2003
-@@ -99,6 +99,13 @@
- 		 "Forcibly enable the PIIX4 at the given address. "
- 		 "EXTREMELY DANGEROUS!");
+diff -Nru a/Documentation/i2c/sysfs-interface b/Documentation/i2c/sysfs-interface
+--- a/Documentation/i2c/sysfs-interface	Tue Dec 30 12:32:18 2003
++++ b/Documentation/i2c/sysfs-interface	Tue Dec 30 12:32:18 2003
+@@ -68,9 +68,7 @@
+ 		Fixed point XXXXX, divide by 1000 to get Amps.
+ 		Read/Write.
  
-+/* If fix_hstcfg is set to anything different from 0, we reset one of the
-+   registers to be a valid value. */
-+static int fix_hstcfg = 0;
-+MODULE_PARM(fix_hstcfg, "i");
-+MODULE_PARM_DESC(fix_hstcfg,
-+		"Fix config register. Needed on some boards (Force CPCI735).");
+-curr_min[1-n]	Current min or hysteresis value.
+-		Preferably a hysteresis value, reported as a absolute
+-		current, NOT a delta from the max value.
++curr_min[1-n]	Current min value.
+ 		Fixed point XXXXX, divide by 1000 to get Amps.
+ 		Read/Write.
+ 
+@@ -144,25 +142,38 @@
+ 		Integers 1,2,3, or thermistor Beta value (3435)
+ 		Read/Write.
+ 
+-temp_max[1-3]	Temperature max value.
++temp_max[1-4]	Temperature max value.
+ 		Fixed point value in form XXXXX and should be divided by
+ 		1000 to get degrees Celsius.
+ 		Read/Write value.
+ 
+-temp_min[1-3]	Temperature min or hysteresis value.
++temp_min[1-3]	Temperature min value.
+ 		Fixed point value in form XXXXX and should be divided by
+-		1000 to get degrees Celsius.  This is preferably a
+-		hysteresis value, reported as a absolute temperature,
+-		NOT a delta from the max value.
++		1000 to get degrees Celsius.
+ 		Read/Write value.
+ 
+-temp_input[1-3] Temperature input value.
++temp_hyst[1-3]	Temperature hysteresis value.
++		Fixed point value in form XXXXX and should be divided by
++		1000 to get degrees Celsius.  Must be reported as an
++		absolute temperature, NOT a delta from the max value.
++		Read/Write value.
 +
- static int piix4_transaction(void);
++temp_input[1-4] Temperature input value.
++		Fixed point value in form XXXXX and should be divided by
++		1000 to get degrees Celsius.
+ 		Read only value.
  
++temp_crit	Temperature critical value, typically greater than all
++		temp_max values.
++		Fixed point value in form XXXXX and should be divided by
++		1000 to get degrees Celsius.
++		Common to all temperature channels.
++		Read/Write value.
++
+ 		If there are multiple temperature sensors, temp_*1 is
+ 		generally the sensor inside the chip itself, generally
+-		reported as "motherboard temperature".  temp_*2 and
+-		temp_*3 are generally sensors external to the chip
++		reported as "motherboard temperature".  temp_*2 to
++		temp_*4 are generally sensors external to the chip
+ 		itself, for example the thermal diode inside the CPU or
+ 		a thermistor nearby.
  
-@@ -164,9 +171,17 @@
- 	/* Some BIOS will set up the chipset incorrectly and leave a register
- 	   in an undefined state (causing I2C to act very strangely). */
- 	if (temp & 0x02) {
--		dev_info(&PIIX4_dev->dev, "Worked around buggy BIOS (I2C)\n");
--		temp = temp & 0xfd;
--		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp);
-+		if (fix_hstcfg) {
-+			dev_info(&PIIX4_dev->dev, "Working around buggy BIOS "
-+					"(I2C)\n");
-+			temp &= 0xfd;
-+			pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp);
-+		} else {
-+			dev_info(&PIIX4_dev->dev, "Unusual config register "
-+					"value\n");
-+			dev_info(&PIIX4_dev->dev, "Try using fix_hstcfg=1 if "
-+					"you experience problems\n");
-+		}
- 	}
-  
- 	/* If force_addr is set, we program the new address here. Just to make
 

@@ -1,45 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <155522-2781>; Fri, 8 Jan 1999 02:56:27 -0500
-Received: from ps.cus.umist.ac.uk ([192.84.78.160]:9295 "EHLO ps.cus.umist.ac.uk" ident: "rhw") by vger.rutgers.edu with ESMTP id <161080-13684>; Thu, 7 Jan 1999 10:13:43 -0500
-Date: Thu, 7 Jan 1999 17:38:08 +0000 (GMT)
-From: Riley Williams <rhw@bigfoot.com>
-To: "B. James Phillippe" <bryan@terran.org>
-cc: Kurt Garloff <K.Garloff@ping.de>, Linux Kernel <linux-kernel@vger.rutgers.edu>
-Subject: Re: [PATCH] HZ change for ix86
-In-Reply-To: <Pine.LNX.4.04.9901052119090.19960-100000@earth.terran.org>
-Message-ID: <Pine.LNX.3.96.990107173432.6687D-100000@ps.cus.umist.ac.uk>
+Received: by vger.rutgers.edu id <160913-2781>; Fri, 8 Jan 1999 03:00:10 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:38921 "EHLO lsmls02.we.mediaone.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <161166-13684>; Thu, 7 Jan 1999 10:33:24 -0500
+Message-ID: <3694F557.FC0B5156@alumni.caltech.edu>
+Date: Thu, 07 Jan 1999 09:56:39 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+X-Mailer: Mozilla 4.5 [de] (Win95; I)
+X-Accept-Language: de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.rutgers.edu
+CC: Egil Kvaleberg <egil@kvaleberg.no>
+Subject: Re: [PATCH] HZ change for ix86
+References: <19990105094830.A17862@kg1.ping.de> <%gPxk2ciEs@draugen.kvaleberg.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi James.
+Egil Kvaleberg schrieb:
+> IMHO, the right thing would be to implement CLK_TCK properly as a true
+> reflection of HZ. Now, it seems to be fixed: e.g. 100 for i386, and 1024
+> for alpha.
+> 
+> The easiest approach would be to make "timebits.h" pick up HZ from the
+> kernel, thus:
+>         #include <asm/param.h>
+>         #define CLK_TCK HZ
+> The downside is of course that programs would need to be recompiled for any
+> change in HZ. 
+> The best thing would be to fix CLK_TCK at runtime. 
+e.g.
+          #define CLK_TCK new_function_to_get_HZ()
+> But could this possibly break anything?
 
- >> I created a patch which changes the values of HZ to 400 and fixed
- >> all places I could spot which report the jiffies value to
- >> userspace. I think I caught all of them. Note that 400 is a nice
- >> value, because we have to divide the values by 4 then, which the
- >> gcc optimizes to shift operations, which can be done in one or two
- >> cycles each and even parallelized on modern CPUs. Integer
- >> divisions are slow on the ix86 (~20 cycles) and the sys_times() 
- >> needs four of them.
+Yes, it would break user programs that were compiled before your change.
+I know of two ways for user code to access system time right now: 
+clock() and times().  Both of these have constants (CLOCKS_PER_SECOND and
+CLK_TCK)
+that can't be changed without breaking user applications.
+IMHO we need to leave those alone.  I don't want to have to recompile my apps
+to move them from 2.0.36 to 2.2.0.  (I do like the idea of changing
+HZ to a power-of-two multiple of CLK_TCK.)
 
- > I don't know anything about it (and my box is an Alpha for which HZ
- > is 1024), but, one ignorant proposal: would it perhaps be
- > worthwhile to have the HZ value higher for faster (x86) systems
- > based on the target picked in make config?
-
- > Say, your 400 for Pentium+ and 100 for 486 or lower..?
-
-If we were going to do this, I'd suggest 400 for Pentium+, 200 for 486
-and 100 for 386 class systems as being more reasonable, and still
-maintaining the shift-optimisation mentioned above...
-
-Best wishes from Riley.
-
----
- * ftp://ps.cus.umist.ac.uk/pub/rhw/Linux
- * http://ps.cus.umist.ac.uk/~rhw/kernel.versions.html
-
+Maybe we should create a new interface for user applications to get the true 
+system time in its native units, with the value of the native tick available 
+at runtime only.  e.g. long sys_ticks(), long sys_ticks_per_second().
+- Dan
+-- 
+Speaking only for myself, not for my employer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

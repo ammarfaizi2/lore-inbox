@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291301AbSBGVEE>; Thu, 7 Feb 2002 16:04:04 -0500
+	id <S291305AbSBGVGy>; Thu, 7 Feb 2002 16:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291307AbSBGVEA>; Thu, 7 Feb 2002 16:04:00 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:18951 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S291301AbSBGVDC>;
-	Thu, 7 Feb 2002 16:03:02 -0500
-Date: Thu, 7 Feb 2002 14:02:19 -0700
-From: yodaiken@fsmlabs.com
-To: Andrew Morton <akpm@zip.com.au>
-Cc: yodaiken@fsmlabs.com, Ingo Molnar <mingo@elte.hu>,
-        Martin Wirth <Martin.Wirth@dlr.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>, rml <rml@tech9.net>,
-        nigel <nigel@nrg.org>
+	id <S291291AbSBGVGj>; Thu, 7 Feb 2002 16:06:39 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:60049 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291305AbSBGVFm>;
+	Thu, 7 Feb 2002 16:05:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: yodaiken@fsmlabs.com
 Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020207140219.B23179@hq.fsmlabs.com>
-In-Reply-To: <20020207125601.A21354@hq.fsmlabs.com> <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain>, <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain>; <20020207133109.B21935@hq.fsmlabs.com> <3C62EA2F.FDA9E241@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C62EA2F.FDA9E241@zip.com.au>; from akpm@zip.com.au on Thu, Feb 07, 2002 at 12:57:19PM -0800
-Organization: FSM Labs
+Date: Thu, 7 Feb 2002 22:10:16 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
+        Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
+        akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, nigel@nrg.org
+In-Reply-To: <3C629F91.2869CB1F@dlr.de> <E16Yvbr-00015i-00@starship.berlin> <20020207140056.A23179@hq.fsmlabs.com>
+In-Reply-To: <20020207140056.A23179@hq.fsmlabs.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Yvo8-00015s-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 12:57:19PM -0800, Andrew Morton wrote:
-> yodaiken@fsmlabs.com wrote:
-> > 
-> >         llseek:
-> >                 atomic_enquee request
-> >                 if no room gotta sleep
-> >                 else if trylock mutex
-> >                         return
-> >                      else
-> >                         do work
-> >                         loop:
-> >                              process any pending requests
-> >                              release lock;
-> >                              if pending_requests && !(trylock mutex) goto loop
-> 
-> This is how printk() works.  It was a very powerful and satisfactory
-> solution to a nasty locking/atomicity problem.  It'd be nice to have
-> a more generic way of expressing that solution.
+On February 7, 2002 10:00 pm, yodaiken@fsmlabs.com wrote:
+> As Ingo points out, you need some actual positive results here, not a plausibility
+> argument.
 
-note how I put in the goto so Ingo would be more happy with it -)
-
-> 
-> -
+Yup.
 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Daniel

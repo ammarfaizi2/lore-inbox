@@ -1,90 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271486AbRIAXaX>; Sat, 1 Sep 2001 19:30:23 -0400
+	id <S271498AbRIAXlS>; Sat, 1 Sep 2001 19:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271487AbRIAXaF>; Sat, 1 Sep 2001 19:30:05 -0400
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:42252
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S271486AbRIAX3p>; Sat, 1 Sep 2001 19:29:45 -0400
-Date: Sat, 1 Sep 2001 16:29:54 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Greg KH <greg@kroah.com>
-Cc: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: USB trouble w/ 2.4.8-ac12
-Message-ID: <20010901162954.B2828@one-eyed-alien.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B916760.1000104@lycosmail.com> <20010901162130.C26407@kroah.com>
+	id <S271487AbRIAXlI>; Sat, 1 Sep 2001 19:41:08 -0400
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:39154 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S271498AbRIAXlC>; Sat, 1 Sep 2001 19:41:02 -0400
+Message-Id: <5.1.0.14.2.20010902003236.03e28740@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 02 Sep 2001 00:41:15 +0100
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [RFC] lazy allocation of struct block_device
+Cc: Andries.Brouwer@cwi.nl, viro@math.psu.edu, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20010901222659.A4089@thefinal.cern.ch>
+In-Reply-To: <200109012042.UAA17644@vlet.cwi.nl>
+ <200109012042.UAA17644@vlet.cwi.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010901162130.C26407@kroah.com>; from greg@kroah.com on Sat, Sep 01, 2001 at 04:21:30PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 22:26 01/09/2001, Jamie Lokier wrote:
+>Andries.Brouwer@cwi.nl wrote:
+> >[...]
+> > However, a union is not so bad. It seems a pity to avoid unions
+> > and waste 4 bytes for every inode with separate i_bdev and i_cdev
+> > instead of a single i_bcdev.
+>
+>Please, a union of different pointer types is much nicer.  You can have
+>i_bdev and i_cdev without wasting any bytes.
+>
+>This form works with GCC 2.96:
+>
+>                 union {
+>                         struct char_device * i_cdev;
+>                         struct block_device * i_bdev;
+>                 };
 
---s/l3CgOIzMHHjg/5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It sure does. One of the nicest new gcc features IMHO!
 
-The Freecom dongle is well supported for Tape drives (the OnStream USB-30,
-in particular), but I haven't gotten it working for other devices yet.
+>If you're using a really old compiler that doesn't support anonymous unions,
+>(GCC 2.95 might be in this category, I'm not sure),
 
-I'm just short on time to work on this.... so if someone is offering to
-help, that would be a good thing.
+GCC 2.95 does NOT support this. I only found out after I had people 
+complain to me that Linux-NTFS userspace tools would not compile for them 
+and it turned out they were using gcc-2.95... and I 2.96. - I have since 
+then verified this myself:
 
-Matt
+egcs and gcc up to 2.95 do not support unnamed structs/unions.
 
-On Sat, Sep 01, 2001 at 04:21:30PM -0700, Greg KH wrote:
-> On Sat, Sep 01, 2001 at 06:55:28PM -0400, Adam Schrotenboer wrote:
-> > Using 2.4.8-ac12, USB modules, and a Philips CDRW400.
-> >=20
-> > I was able to get it to see the CDRW drive once(and that took a minute=
-=20
-> > or three), but mostly it only sees the Freecom USB-IDE bridge.
-> >=20
-> > How do I get the usb code to probe the ATAPI bridge for the devices=20
-> > behind it??
->=20
-> You might try asking on the linux-usb-devel mailing list.  I don't know
-> how well the Freecom bridge device is currently supported in Linux.
->=20
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+gcc-2.96 and gcc-3.0 support them fine.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+>  then you'll need this:
+>
+>         #define i_bdev __i_bcdev_union.i_bdev
+>         #define i_cdev __i_bcdev_union.i_cdev
+>                 union {
+>                         struct char_device * i_cdev;
+>                         struct block_device * i_bdev;
+>                 } __i_bcdev_union;
 
-A:  The most ironic oxymoron wins ...
-DP: "Microsoft Works"
-A:  Uh, okay, you win.
-					-- A.J. & Dust Puppy
-User Friendly, 1/18/1998
+Neat trick! Thanks! I was wondering what to do with NTFS TNG driver (which 
+uses unnamed structs/unions extensively) and this just might solve my 
+problems without having to rewrite half the driver... (-;
 
---s/l3CgOIzMHHjg/5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Best regards,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+         Anton
 
-iD8DBQE7kW9yz64nssGU+ykRAhLkAKCHrpx8w/0FOLGnuokSFQnxbsoGDwCgp5l0
-VnYFlTL2vx0X9x+3A22wc7A=
-=Mv2X
------END PGP SIGNATURE-----
 
---s/l3CgOIzMHHjg/5--
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,120 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132444AbRAPTZG>; Tue, 16 Jan 2001 14:25:06 -0500
+	id <S132570AbRAPT24>; Tue, 16 Jan 2001 14:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132442AbRAPTY4>; Tue, 16 Jan 2001 14:24:56 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:49113 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132444AbRAPTYr>; Tue, 16 Jan 2001 14:24:47 -0500
-Date: Tue, 16 Jan 2001 20:23:59 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Frank de Lange <frank@unternet.org>
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-In-Reply-To: <20010112165104.A22465@unternet.org>
-Message-ID: <Pine.GSO.3.96.1010116191045.5546V-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S132442AbRAPT2r>; Tue, 16 Jan 2001 14:28:47 -0500
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:31214 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S132570AbRAPT2e>; Tue, 16 Jan 2001 14:28:34 -0500
+From: junio@siamese.dhis.twinsun.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1-pre7 raid5syncd oops
+Date: 16 Jan 2001 11:28:28 -0800
+Message-ID: <7vzogr47qb.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Frank de Lange wrote:
 
-[I've cut syslog junk away for clarity -- you could just do `dmesg -s 32768'.]
-> before network hang
-> ===================
-[...]
->  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
-[...]
->  13 0FF 0F  0    1    0   1   0    1    1    99
-[...]
-> printing local APIC contents on CPU#0/0:
-[...]
-> ... APIC TMR field:
-> 0123456789abcdef0123456789abcdef
-[...]
-> 00000000010000000000000001000000
-                           ^
-[...]
-> printing local APIC contents on CPU#1/1:
-[...]
-> ... APIC TMR field:
-> 0123456789abcdef0123456789abcdef
-[...]
-> 00000000000000000000000001000000
-                           ^
-[...]
+Unable to handle kernel NULL pointer dereference at virtual address 00000003
+c01ccf91
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01ccf91>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: ffffffff   ebx: c1490400   ecx: cfdeb000   edx: cfeed13c
+esi: cfdeb000   edi: 00001e29   ebp: 00000013   esp: cfba7e80
+ds: 0018   es: 0018   ss: 0018
+Process raid5syncd (pid: 9, stackpage=cfba7000)
+Stack: c01ccfe0 cfdeb000 c1490400 00000000 c01cd430 c1490400 c1490400 0003c53c 
+       00001e29 00000013 00000000 00000000 cfba6000 00001000 00000000 00000000 
+       00000000 c1490400 c01cf2a8 c1490400 00078a78 00000000 00000000 cfba6000 
+Call Trace: [<c01ccfe0>] [<c01cd430>] [<c01cf2a8>] [<c01d708b>] [<c01cf40f>] [<c01d63cd>] [<c01074b8>] 
+Code: 89 50 04 8b 51 04 8b 01 89 02 c7 41 04 00 00 00 00 c3 8d b6 
 
- Here everything is fine.  Vector 0x99 (the one you are having troubles
-with) is set up as level-triggered (Trig is 1) and the respective bits of
-the Trigger Mode Register (TMR) of the local APIC of both CPUs are set,
-i.e. the last 0x99 IRQ processed was level-triggered as expected.  As a
-part of the ususal inter-APIC handshake for level-triggered interrupts an
-EOI message was sent to the originating I/O APIC (IRR is 0) to inform it,
-it's free to send the IRQ again if still asserted. 
-
-> after network hang
-> ==================
-[...]
-> NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
-[...]
->  13 0FF 0F  0    1    1   1   0    1    1    99
-[...]
-> printing local APIC contents on CPU#1/1:
-[...]
-> ... APIC TMR field:
-> 0123456789abcdef0123456789abcdef
-[...]
-> 00000000000000000000000001000000
-                           ^
-> printing local APIC contents on CPU#0/0:
-[...]
-> ... APIC TMR field:
-> 0123456789abcdef0123456789abcdef
-[...]
-> 00000000010000000000000000000000
-                           ^ Gotcha!
-[...]
-
- Here the last 0x99 IRQ delivered to CPU#1 was fine, just like before. 
-But the last 0x99 IRQ CPU#0 received was apparently delivered as
-edge-triggered -- the respective bits of the Trigger Mode Register (TMR)
-of the local APIC is cleared.  Hence the local APIC decided no EOI message
-is needed for the originating I/O APIC as edge-triggered interrupts are
-always sent by an I/O APIC whenever arriving (it's not possible for
-level-triggered ones as an IRQ storm would result).  Upon receiving an EOI
-command from Linux the local APIC decides everything is finished and the
-I/O APIC is left stuck with the IRR bit set to 1.  It's still waiting for
-an EOI message to arrive for further 0x99 IRQs to send.
-
- How could it happen?  Well, I guess a transmission error could have
-happened that remained unnoticed by the checksumming hardware.  As the
-checksum algorithm is pretty trivial -- a cumulative sum of 2-bit values
--- it might just have happened two bits got toggled.  I believe such
-errors are happening due to marginal hardware -- not every i386 SMP box
-shows this problem, even if a high volume of level-triggered interrupts is
-observed. 
-
- Thank you very much for the log.  I already have an idea how to
-automatically recover from such a situation.  No driver change is required
--- apparently no driver is at fault, it's just a load of the inter-APIC
-bus, I/O APICs (including system bus accesses) or the whole system in
-general. 
-
- I'm hereby asking everyone not to modify drivers just to circumvent APIC
-lock-ups.  Especially if such changes would "punish" perfectly good
-systems.  It won't cure anything -- it might only make it happen less
-frequently due to different conditions.  I hope to have changes ready to
-test by the next week.
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+>>EIP; c01ccf91 <remove_hash+11/30>   <=====
+Trace; c01ccfe0 <get_free_stripe+30/50>
+Trace; c01cd430 <get_active_stripe+260/520>
+Trace; c01cf2a8 <raid5_sync_request+48/e0>
+Trace; c01d708b <md_do_sync+1fb/470>
+Trace; c01cf40f <raid5syncd+2f/70>
+Trace; c01d63cd <md_thread+fd/170>
+Trace; c01074b8 <kernel_thread+28/40>
+Code;  c01ccf91 <remove_hash+11/30>
+00000000 <_EIP>:
+Code;  c01ccf91 <remove_hash+11/30>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c01ccf94 <remove_hash+14/30>
+   3:   8b 51 04                  mov    0x4(%ecx),%edx
+Code;  c01ccf97 <remove_hash+17/30>
+   6:   8b 01                     mov    (%ecx),%eax
+Code;  c01ccf99 <remove_hash+19/30>
+   8:   89 02                     mov    %eax,(%edx)
+Code;  c01ccf9b <remove_hash+1b/30>
+   a:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
+Code;  c01ccfa2 <remove_hash+22/30>
+  11:   c3                        ret    
+Code;  c01ccfa3 <remove_hash+23/30>
+  12:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

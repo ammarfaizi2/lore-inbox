@@ -1,108 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTLFJfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 04:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTLFJfh
+	id S264264AbTLFJlb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 04:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbTLFJla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 04:35:37 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:1439 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S262321AbTLFJfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 04:35:33 -0500
-Date: Sat, 6 Dec 2003 10:31:43 +0100
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Subject: Re: oom killer in 2.4.23
-Message-Id: <20031206103143.027ba4ec.kristian.peters@korseby.net>
-In-Reply-To: <20031205195800.GB2121@dualathlon.random>
-References: <Z6Iv-7O2-29@gated-at.bofh.it>
-	<Z8Ag-3BK-3@gated-at.bofh.it>
-	<Zbyn-23P-29@gated-at.bofh.it>
-	<20031205140520.39289a3a.kristian.peters@korseby.net>
-	<20031205195800.GB2121@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Operating-System: i686 Linux 2.4.23kp1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 6 Dec 2003 04:41:30 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:38928 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S264264AbTLFJl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 04:41:29 -0500
+Message-ID: <3FD1A54F.101@kolumbus.fi>
+Date: Sat, 06 Dec 2003 11:45:51 +0200
+From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: William Lee Irwin III <wli@holomorphy.com>
+Subject: Numaq in 2.4 and 2.6
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 06.12.2003 11:43:28,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 06.12.2003 11:42:38,
+	Serialize complete at 06.12.2003 11:42:38
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> schrieb:
-> what you're complaining is the 'selection of the task to be killed'.
-> That's not solvable. the kernel can't read your brain period. Only if
-> the kernel could read the brain of the adminstrator then you would be
-> happy, there is no way the kernel can know which is the task you really
-> want to have killed first.
+While comparing numaq support in 2.4.23 and 2.6.0-test11 came accross 
+following...
 
-I agree. On a server the most likely application to be killed would be the service with the most pages in memory. And those services tend to be the important ones.
+In 2.4.23 mpparse.c we do :
+    phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
 
-However, for a simple desktop-linux that statistical approach seems to be wrong. Your vm has even killed /sbin/getty sometimes, so that I can't login via a simple console.
-
-Re-enabling the oom-killer gives a good result for me:
-
-Dec  6 09:46:19 adlib kernel: Out of Memory: Killed process 643 (khexedit).
-Dec  6 09:48:42 adlib kernel: Out of Memory: Killed process 645 (khexedit).
-
-What I complain is that your vm kills some processes without mentioning in the logs. How can I determine what processes the kernel has killed ?
+and then launch the cpus using NMI and logical addressing in the order 
+phys_cpu_present_map indicates.
 
 
-I hope that fairly simple patch does things right for all people that want the old behaviour. It's already a year ago I last hacked on the kernel.
+In 2.6.0-test11mpparse.c we do :
+    tmp = apicid_to_cpu_present(apicid);
+    physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
 
-diff -rauN linux-2.4.23/include/linux/sched.h linux-2.4.23-kp1/include/linux/sched.h
---- linux-2.4.23/include/linux/sched.h  Fri Nov 28 19:26:21 2003
-+++ linux-2.4.23-kp1/include/linux/sched.h      Sat Dec  6 09:57:04 2003
-@@ -429,6 +429,7 @@
- #define PF_DUMPCORE    0x00000200      /* dumped core */
- #define PF_SIGNALED    0x00000400      /* killed by a signal */
- #define PF_MEMALLOC    0x00000800      /* Allocating memory */
-+#define PF_MEMDIE      0x00001000      /* Killed for out-of-memory */
- #define PF_FREE_PAGES  0x00002000      /* per process page freeing */
- #define PF_NOIO                0x00004000      /* avoid generating further I/O */
- 
-diff -rauN linux-2.4.23/mm/oom_kill.c linux-2.4.23-kp1/mm/oom_kill.c
---- linux-2.4.23/mm/oom_kill.c  Fri Nov 28 19:26:21 2003
-+++ linux-2.4.23-kp1/mm/oom_kill.c      Fri Dec  5 20:31:39 2003
-@@ -21,8 +21,6 @@
- #include <linux/swapctl.h>
- #include <linux/timex.h>
- 
--#if 0          /* Nothing in this file is used */
--
- /* #define DEBUG */
- 
- /**
-@@ -257,5 +255,3 @@
-        first = now;
-        count = 0;
- }
--
--#endif /* Unused file */
-diff -rauN linux-2.4.23/mm/vmscan.c linux-2.4.23-kp1/mm/vmscan.c
---- linux-2.4.23/mm/vmscan.c    Fri Nov 28 19:26:21 2003
-+++ linux-2.4.23-kp1/mm/vmscan.c        Sat Dec  6 10:21:55 2003
-@@ -649,13 +649,7 @@
-                                failed_swapout = !swap_out(classzone);
-                } while (--tries);
- 
--       if (likely(current->pid != 1))
--               break;
--       if (!check_classzone_need_balance(classzone))
--               break;
--
--       __set_current_state(TASK_RUNNING);
--       yield();
-+       out_of_memory();
-        }
- 
-        return 0;
+where apicid is the result of :
+    static inline int generate_logical_apicid(int quad, int phys_apicid)
+    {
+        return (quad << 4) + (phys_apicid ? phys_apicid << 1 : 1);
+    }
+
+and phys_apicid == m->mpc_apicid
+
+Again we lauch the cpus using NMI and logical addressing.
 
 
+So the the set of apicids fed to do_boot_cpu() in 2.4 and 2.6 must be 
+different using the same mp table. And both use logical addressing. 
+Seems that 2.4 expects mpc_apicid to be something like (quad | cpu) and 
+2.6 only cpu, the quad comes from the translation table.
 
-*Kristian
+The conclusion is that the same mp table can't work in 2.4 and 2.6? No?
 
-     _o)
-     /\\
-    _\_V
+--Mika
+
+

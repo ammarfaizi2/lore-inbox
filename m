@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCOWx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVCOW5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVCOWx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCOWw6
+	id S261205AbVCOW5D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCOWyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:52:58 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:15270 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262117AbVCOWwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:52:19 -0500
-Subject: Re: [PATCH] Add missing refrigerator calls
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110925639.9818.80.camel@pegasus>
-References: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
-	 <1110925639.9818.80.camel@pegasus>
-Content-Type: text/plain
-Message-Id: <1110927223.6454.148.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 16 Mar 2005 09:53:43 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 17:54:01 -0500
+Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:51149 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261205AbVCOWjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:39:49 -0500
+Date: Tue, 15 Mar 2005 15:40:46 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] APM: fix interrupts enabled in device_power_up
+In-Reply-To: <20050315223339.GF11916@fieldses.org>
+Message-ID: <Pine.LNX.4.61.0503151539170.23036@montezuma.fsmlabs.com>
+References: <20050312131143.GA31038@fieldses.org>
+ <Pine.LNX.4.61.0503120806001.17127@montezuma.fsmlabs.com>
+ <20050315223339.GF11916@fieldses.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 15 Mar 2005, J. Bruce Fields wrote:
 
-On Wed, 2005-03-16 at 09:27, Marcel Holtmann wrote:
-> Hi Nigel,
-> 
-> > There are a number of threads that currently have no refrigerator
-> > handling in Linus' tree. This patch addresses part of that issue. The
-> > remainder will be addressed in other patches, following soon.
+> On Sat, Mar 12, 2005 at 08:21:29AM -0700, Zwane Mwaikambo wrote:
+> > On Sat, 12 Mar 2005, J. Bruce Fields wrote:
 > > 
-> > Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
+> > > On APM resume this morning on my Thinkpad X31, I got a "spin_lock is
+> > > already locked" error; see below.  This doesn't happen on every resume,
+> > > though it's happened before.  The kernel is 2.6.11 plus a bunch of
+> > > (hopefully unrelated...) NFS patches.
+> > >
+> > > Mar 12 07:07:31 puzzle kernel: PCI: Setting latency timer of device 0000:00:1f.5 to 64
+> > > Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:179: spin_lock(arch/i386/kernel/time.c:c0603c28) already locked by arch/i386/kernel/time.c/309
+> > > Mar 12 07:07:31 puzzle kernel: arch/i386/kernel/time.c:316: spin_unlock(arch/i386/kernel/time.c:c0603c28) not locked
+> > 
+> > APM was calling device_power_down and device_power_up with interrupts 
+> > enabled, resulting in a few calls to get_cmos_time being done with 
+> > interrupts enabled (rtc_lock needs to be acquired with interrupts 
+> > disabled).
 > 
-> I am fine with the net/bluetooth/rfcomm/ part, but what about the bnep/
-> and cmtp/ and hidp/ part of the Bluetooth subsystem? Do we need this
-> there, too?
+> Thanks, I haven't been following the discussion carefully, but for
+> what's it worth I did apply that patch and now (a few suspend-resume
+> cycles later) haven't seen the spin_lock warning or seen any other ill
+> effects.
+> 
+> Let me know if there's any testing it would be useful for me to do.
 
-I see... someone has added PF_NOFREEZE to all your drivers, so my
-fragment is redundant. NO_FREEZE is fine in my mind - I would be seeking
-to make all network driver threads NO_FREEZE in a while anyway, to allow
-suspending over a network.
+Thanks for testing it, suspend/resume cycles are what i was most 
+interested in.
 
-I'll double check the other fragments too, just in case the same thing
-has happened there.
-
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+	Zwane

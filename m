@@ -1,32 +1,207 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129667AbRCFX2J>; Tue, 6 Mar 2001 18:28:09 -0500
+	id <S129675AbRCFXeJ>; Tue, 6 Mar 2001 18:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbRCFX17>; Tue, 6 Mar 2001 18:27:59 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:2151 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S129667AbRCFX1s>; Tue, 6 Mar 2001 18:27:48 -0500
-Date: Tue, 6 Mar 2001 18:27:21 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <l03130313b6cad51a8439@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.10.10103061450420.24950-100000@coffee.psychology.mcmaster.ca>
+	id <S129699AbRCFXd7>; Tue, 6 Mar 2001 18:33:59 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:37583 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S129675AbRCFXdm>; Tue, 6 Mar 2001 18:33:42 -0500
+Date: Wed, 7 Mar 2001 00:32:20 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>,
+        Michael Kockelkorn <m.kockelkorn@biodata.com>
+Subject: [patch] smbfs: d_add + re-open fixes
+Message-ID: <Pine.LNX.4.30.0103062332560.32667-100000@cola.teststation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> itself is a bad thing, particularly given the amount of CPU overhead that
-> IDE drives demand while attached to the controller (orders of magnitude
-> higher than a good SCSI controller) - the more overhead we can hand off to
 
-I know this is just a troll by a scsi-believer, but I'm biting anyway.
+Hello
 
-on current machines and disks, ide costs a few % CPU, depending on 
-which CPU, disk, kernel, the sustained bandwidth, etc.  I've measured
-this using the now-trendy method of noticing how much the IO costs
-a separate, CPU-bound benchmark: load = 1 - (unloadedPerf / loadedPerf).
-my cheesy duron/600 desktop typically shows ~2% actual cost when running
-bonnie's block IO tests.
+Enough details in the ChangeLog I hope.
+
+Patch vs 2.4.2-ac12 but appears to be clean vs 2.4.3-pre2 and the recently
+released -ac13. Please apply.
+
+/Urban
+
+
+diff -urN -X exclude linux-2.4.2-ac12-orig/fs/smbfs/ChangeLog linux-2.4.2-ac12-smbfs/fs/smbfs/ChangeLog
+--- linux-2.4.2-ac12-orig/fs/smbfs/ChangeLog	Thu Feb 22 20:52:03 2001
++++ linux-2.4.2-ac12-smbfs/fs/smbfs/ChangeLog	Tue Mar  6 23:50:06 2001
+@@ -1,9 +1,22 @@
+ ChangeLog for smbfs.
+ 
++2001-03-06 Urban Widmark <urban@teststation.com>
++
++	* cache.c: d_add on hashed dentries corrupts d_hash list and
++	  causes loops in d_lookup. Inherited bug. :)
++	* inode.c: tail -f fix for non-readonly opened files
++	  (related to the smb_proc_open change).
++	* inode.c: tail -f fix for fast size changes with the same mtime.
++
++2001-03-02 Michael Kockelkorn <m.kockelkorn@biodata.com>
++
++	* proc.c: fix smb_proc_open to allow open being called more than once
++	  with different modes (O_RDONLY -> O_WRONLY) without closing.
++
+ 2001-02-10 Urban Widmark <urban@teststation.com>
+ 
+-	* dir.c: replace non-bigmem safe cache with cache code from ncpfs
+-	  and fix some other bigmem bugs in smbfs.
++	* dir.c, cache.c: replace non-bigmem safe cache with cache code
++	  from ncpfs and fix some other bigmem bugs in smbfs.
+ 	* inode.c: root dentry not properly initialized
+ 	* proc.c, sock.c: adjust max parameters & max data to follow max_xmit
+ 	  lots of servers were having find_next trouble with this.
+diff -urN -X exclude linux-2.4.2-ac12-orig/fs/smbfs/cache.c linux-2.4.2-ac12-smbfs/fs/smbfs/cache.c
+--- linux-2.4.2-ac12-orig/fs/smbfs/cache.c	Thu Feb 22 20:52:03 2001
++++ linux-2.4.2-ac12-smbfs/fs/smbfs/cache.c	Tue Mar  6 23:01:17 2001
+@@ -167,6 +167,7 @@
+ 	struct inode *newino, *inode = dentry->d_inode;
+ 	struct smb_cache_control ctl = *ctrl;
+ 	int valid = 0;
++	int hashed = 0;
+ 	ino_t ino = 0;
+ 
+ 	qname->hash = full_name_hash(qname->name, qname->len);
+@@ -181,9 +182,11 @@
+ 		newdent = d_alloc(dentry, qname);
+ 		if (!newdent)
+ 			goto end_advance;
+-	} else
++	} else {
++		hashed = 1;
+ 		memcpy((char *) newdent->d_name.name, qname->name,
+ 		       newdent->d_name.len);
++	}
+ 
+ 	if (!newdent->d_inode) {
+ 		smb_renew_times(newdent);
+@@ -191,7 +194,9 @@
+ 		newino = smb_iget(inode->i_sb, entry);
+ 		if (newino) {
+ 			smb_new_dentry(newdent);
+-			d_add(newdent, newino);
++			d_instantiate(newdent, newino);
++			if (!hashed)
++				d_rehash(newdent);
+ 		}
+ 	} else
+ 		smb_set_inode_attr(newdent->d_inode, entry);
+diff -urN -X exclude linux-2.4.2-ac12-orig/fs/smbfs/inode.c linux-2.4.2-ac12-smbfs/fs/smbfs/inode.c
+--- linux-2.4.2-ac12-orig/fs/smbfs/inode.c	Tue Mar  6 21:14:31 2001
++++ linux-2.4.2-ac12-smbfs/fs/smbfs/inode.c	Tue Mar  6 23:05:50 2001
+@@ -161,17 +161,15 @@
+ 	struct smb_fattr fattr;
+ 
+ 	error = smb_proc_getattr(dentry, &fattr);
+-	if (!error)
+-	{
++	if (!error) {
+ 		smb_renew_times(dentry);
+ 		/*
+ 		 * Check whether the type part of the mode changed,
+ 		 * and don't update the attributes if it did.
+ 		 */
+-		if ((inode->i_mode & S_IFMT) == (fattr.f_mode & S_IFMT))
++		if ((inode->i_mode & S_IFMT) == (fattr.f_mode & S_IFMT)) {
+ 			smb_set_inode_attr(inode, &fattr);
+-		else
+-		{
++		} else {
+ 			/*
+ 			 * Big trouble! The inode has become a new object,
+ 			 * so any operations attempted on it are invalid.
+@@ -212,18 +210,11 @@
+ 	struct smb_sb_info *s = server_from_dentry(dentry);
+ 	struct inode *inode = dentry->d_inode;
+ 	time_t last_time;
++	loff_t last_sz;
+ 	int error = 0;
+ 
+ 	DEBUG1("smb_revalidate_inode\n");
+-	/*
+-	 * If this is a file opened with write permissions,
+-	 * the inode will be up-to-date.
+-	 */
+ 	lock_kernel();
+-	if (S_ISREG(inode->i_mode) && smb_is_open(inode)) {
+-		if (inode->u.smbfs_i.access != SMB_O_RDONLY)
+-			goto out;
+-	}
+ 
+ 	/*
+ 	 * Check whether we've recently refreshed the inode.
+@@ -236,11 +227,13 @@
+ 
+ 	/*
+ 	 * Save the last modified time, then refresh the inode.
+-	 * (Note: a size change should have a different mtime.)
++	 * (Note: a size change should have a different mtime,
++	 *  or same mtime but different size.)
+ 	 */
+ 	last_time = inode->i_mtime;
++	last_sz   = inode->i_size;
+ 	error = smb_refresh_inode(dentry);
+-	if (error || inode->i_mtime != last_time) {
++	if (error || inode->i_mtime != last_time || inode->i_size != last_sz) {
+ 		VERBOSE("%s/%s changed, old=%ld, new=%ld\n",
+ 			DENTRY_PATH(dentry),
+ 			(long) last_time, (long) inode->i_mtime);
+diff -urN -X exclude linux-2.4.2-ac12-orig/fs/smbfs/proc.c linux-2.4.2-ac12-smbfs/fs/smbfs/proc.c
+--- linux-2.4.2-ac12-orig/fs/smbfs/proc.c	Tue Mar  6 21:14:31 2001
++++ linux-2.4.2-ac12-smbfs/fs/smbfs/proc.c	Tue Mar  6 23:07:39 2001
+@@ -950,7 +950,10 @@
+ #if 0
+ 	/* FIXME: why is this code not in? below we fix it so that a caller
+ 	   wanting RO doesn't get RW. smb_revalidate_inode does some 
+-	   optimization based on access mode. tail -f needs it to be correct. */
++	   optimization based on access mode. tail -f needs it to be correct.
++
++	   We must open rw since we don't do the open if called a second time
++	   with different 'wish'. Is that not supported by smb servers? */
+ 	if (!(wish & (O_WRONLY | O_RDWR)))
+ 		mode = read_only;
+ #endif
+@@ -989,8 +992,6 @@
+ 	/* smb_vwv2 has mtime */
+ 	/* smb_vwv4 has size  */
+ 	ino->u.smbfs_i.access = (WVAL(server->packet, smb_vwv6) & SMB_ACCMASK);
+-	if (!(wish & (O_WRONLY | O_RDWR)))
+-		ino->u.smbfs_i.access = SMB_O_RDONLY;
+ 	ino->u.smbfs_i.open = server->generation;
+ 
+ out:
+@@ -1008,23 +1009,20 @@
+ 	int result;
+ 
+ 	result = -ENOENT;
+-	if (!inode)
+-	{
++	if (!inode) {
+ 		printk(KERN_ERR "smb_open: no inode for dentry %s/%s\n",
+ 		       DENTRY_PATH(dentry));
+ 		goto out;
+ 	}
+ 
+-	if (!smb_is_open(inode))
+-	{
++	if (!smb_is_open(inode)) {
+ 		struct smb_sb_info *server = SMB_SERVER(inode);
+ 		smb_lock_server(server);
+ 		result = 0;
+ 		if (!smb_is_open(inode))
+ 			result = smb_proc_open(server, dentry, wish);
+ 		smb_unlock_server(server);
+-		if (result)
+-		{
++		if (result) {
+ 			PARANOIA("%s/%s open failed, result=%d\n",
+ 				 DENTRY_PATH(dentry), result);
+ 			goto out;
 

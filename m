@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266783AbUFRTxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266743AbUFRTte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266783AbUFRTxX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266779AbUFRTu4
+	id S266743AbUFRTte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUFRTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:50:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15343 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266712AbUFRTqV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:46:21 -0400
-Date: Fri, 18 Jun 2004 21:56:10 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200406190256.i5J2uAdC019667@faith.austin.ibm.com>
-To: kartik_me@hotmail.com
-Subject: Re: RSA
-Cc: linux-kernel@vger.kernel.org, serue@us.ibm.com
+	Fri, 18 Jun 2004 15:48:52 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:55728 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S266552AbUFRTpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:45:44 -0400
+Date: Fri, 18 Jun 2004 20:44:38 +0100
+From: Ian Molton <spyro@f2s.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-Id: <20040618204438.35278560.spyro@f2s.com>
+In-Reply-To: <40D34078.5060909@pacbell.net>
+References: <1087582845.1752.107.camel@mulgrave>
+	<20040618193544.48b88771.spyro@f2s.com>
+	<1087584769.2134.119.camel@mulgrave>
+	<20040618195721.0cf43ec2.spyro@f2s.com>
+	<40D34078.5060909@pacbell.net>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great!! Thanks!  What are you interested in doing?
+On Fri, 18 Jun 2004 12:20:24 -0700
+David Brownell <david-b@pacbell.net> wrote:
 
-Joy
--------------------------------------------------------------
+> For example, if usbaudio uses usb_buffer_alloc to stream data,
+> that eliminates dma bouncing.  That's dma_alloc_coherent at
+> its core ... it should allocate from that 32K region.
 
-
-i would like to contribute.
-
-On Tue, 15 Jun 2004, Joy Latten wrote:
-
-Is anyone working on implementing RSA encryption/decryption into the
-kernel's cryptoapi? If not, I was considering starting such a project.
-
-James wrote:
-
-Not that I know of.  Would you be looking at this in terms of a generic
-asymmetric crypto API?
-
-_________________________________________________________________
-Screensavers for every mood! Jazz up your screen! 
-http://www.msn.co.in/Download/screensaver/ Bring your PC to life!
-
+Agreed.

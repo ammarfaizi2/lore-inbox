@@ -1,71 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264380AbRFNBXT>; Wed, 13 Jun 2001 21:23:19 -0400
+	id <S264366AbRFNBV6>; Wed, 13 Jun 2001 21:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264377AbRFNBXI>; Wed, 13 Jun 2001 21:23:08 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:29570
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S264383AbRFNBXB>; Wed, 13 Jun 2001 21:23:01 -0400
-Date: Wed, 13 Jun 2001 18:23:58 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@gw.soze.net>
-To: Daniel <ddickman@nyc.rr.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
-Message-ID: <Pine.LNX.4.33.0106131805390.19397-100000@gw.soze.net>
+	id <S264377AbRFNBVt>; Wed, 13 Jun 2001 21:21:49 -0400
+Received: from oe50.law3.hotmail.com ([209.185.240.218]:3079 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264366AbRFNBVo>;
+	Wed, 13 Jun 2001 21:21:44 -0400
+X-Originating-IP: [63.169.2.184]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fw: Delivery Status Notification (Failure)
+Date: Wed, 13 Jun 2001 20:19:53 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;	boundary="----=_NextPart_000_0045_01C0F446.34914E80"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-ID: <OE50nuXoKEQpQhQ2Jig0000804e@hotmail.com>
+X-OriginalArrivalTime: 14 Jun 2001 01:21:37.0836 (UTC) FILETIME=[5BB336C0:01C0F470]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001, Daniel wrote:
+This is a multi-part message in MIME format.
 
-> math-emu
-> If support for i386 and i486 is going away, then so should math emulation.
-> Every intel processor since the 486DX has an FPU unit built in. In fact
-> shouldn't FPU support be a userspace responsibility anyway?
+------=_NextPart_000_0045_01C0F446.34914E80
+Content-Type: text/plain;
+	charset="utf-7"
+Content-Transfer-Encoding: 7bit
 
-hmm... what about processors like cris?  The big brother of the processor
-in the cute net-enabled-webcam by axis?  AFAIK it doesn't have an fpu, and
-people put a lot of work into getting support for it into 2.4.
-
-> ISA, MCA, EISA device drivers
-> If support for the buses is gone, there's no point in supporting devices for
-> these buses.
-
-Fine, but can you leave in support for my PAS16?
-
-> all code marked as CONFIG_OBSOLETE
-> Since we're cleaning house we may as well get rid of this stuff.
-
-No real problem there...
-
-> parallel/serial/game ports
-> More controversial to remove this, since they are *still* in pretty wide
-> use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
-
-Wow, thanks for leaving me with no way to console into my netra.
-Incidentally, (As if anyone appropriate is actually READING this thread),
-can people who make distributions PLEASE not assume there are 3 or 4
-serial ports?  I tried installing debian-sparc on my netra and init
-warnings about being unable to open the 3rd serial port make menus
-unreadable.
-
-> I really think doing a clean up is worthwhile. Maybe while looking for stuff
-> to clean up we'll even be able to better comment the existing code. Any
-> other features people would like to get rid of? Any comments or suggestions?
-> I'd love to start a good discussion about this going so please send me your
-> 2 cents.
-
-Yeah, can we please get rid of ext2?  I mean, everyone's using reiserfs
-now, right?  And what about making SMP mandatory?  I mean, who only has
-*ONE* processor in a machine in 2001?  And ide and scsi support... ram is
-so cheap now who needs disk?  get rid of everything except ramdisk.  tape
-drives?  cd burners?  obsolete.  Plus the RIAA doesn't want cd burners
-anyway.  Maybe you can get funding for 2.6 kernel development from them
-with this plan!
+Gee Andre, I guess people who use hotmail don't have an opinion you'd care
+to read?
+----- Original Message -----
+From: +ADw-postmaster+AEA-mail.hotmail.com+AD4-
+To: +ADw-thatlinuxguy+AEA-hotmail.com+AD4-
+Sent: Wednesday, June 13, 2001 8:12 PM
+Subject: Delivery Status Notification (Failure)
 
 
-Justin
++AD4- This is an automatically generated Delivery Status Notification.
++AD4-
++AD4- Delivery to the following recipients failed.
++AD4-
++AD4-        andre+AEA-linux-ide.org
++AD4-
++AD4-
++AD4-
++AD4-
 
+------=_NextPart_000_0045_01C0F446.34914E80
+Content-Type: application/octet-stream;
+	name="ATT00063.dat"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ATT00063.dat"
+
+Reporting-MTA: dns;hotmail.com
+Received-From-MTA: dns;mail.hotmail.com
+Arrival-Date: Wed, 13 Jun 2001 18:11:20 -0700
+
+Final-Recipient: rfc822;andre@linux-ide.org
+Action: failed
+Status: 5.0.0
+Diagnostic-Code: smtp;550 We don't accept mail from spammers
+
+
+------=_NextPart_000_0045_01C0F446.34914E80
+Content-Type: message/rfc822;
+	name="Re+AF8- Eye2Eye a hope for Promise to Join Linux.eml"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Re+AF8- Eye2Eye a hope for Promise to Join Linux.eml"
+
+Received: from mail pickup service by hotmail.com with Microsoft SMTPSVC;
+	 Wed, 13 Jun 2001 18:11:20 -0700
+X-Originating-IP: [63.169.2.184]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>,	<craigl@promise.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <00d301c0f463$de9dd840$bd01a8c0@promise.com>
+Subject: Re: Eye2Eye a hope for Promise to Join Linux
+Date: Wed, 13 Jun 2001 20:09:11 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-ID: <OE327xg8BPq2qJ5hSTG00007f77@hotmail.com>
+X-OriginalArrivalTime: 14 Jun 2001 01:11:20.0610 (UTC) FILETIME=[EBCE0020:01C0F46E]
+
+Dear Mr. Lyons,
+  I think it's very exciting to see someone from promise talking to the
+community.  I think the most important thing to remember is that even if the
+company does not release source, people will reverse engineer the cards
+anyway - possibly not giving the best support to the hardware that could be
+given with GPL'd source.  How does that make the product look?  If I can buy
+a controller that is very well documented (like my Adaptec 2940) and will
+serve my needs, and has source, I (personally) will pick that card over a
+closed source product where I cannot update the binary only driver provided
+by the manufacturer.  While I recognize that sometimes it's hard to get
+"suits" to understand this, I encourage you to try.  :-)
+  Along these lines, I'm wondering what your interest, and Promise's policy
+is about Interviews?  I'm curious to get your companies views on Linux, and
+also yours - I run a small (VERY loose, VERY non-serious) website called
+http://www.geekizoid.com/ and while we mostly cover troll related net humor,
+we also are trying to branch out and do more serious stuff.  The Interview
+(if you would agree to it) would be "Slashdot style" - we'd let the
+readership know you were willing to answer questions, and we'd then forward
+them to you - you would then answer the ones you wanted, and those answers,
+verbatim with no editing, would appear with the questions as asked.
+
+William Scott Lockwood III
+Geekizoid Webmaster
+
+----- Original Message -----
+From: "Craig Lyons" <craigl@promise.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, June 13, 2001 6:52 PM
+Subject: RE: Eye2Eye a hope for Promise to Join Linux
+
+
+> Hi,
+>
+> Andre and I did indeed have a nice conversation on the phone. Thank you
+> again for taking the time to talk with me and offering your assistance. As
+I
+> stated on the phone, we are making a large commitment of resources to
+> supporting Linux by releasing drivers and utilities for our products,
+> including the FastTrak. I know we have plans to release source for our
+Ultra
+> and SuperTrak series cards, but at this point I'm not sure that the way we
+> are going to be supporting FastTrak is what you would like to see. As I
+> said, while I cannot guarantee anything that I don't have the authority to
+> deliver, I will pass on your requests. I will try to be an advocate for
+> Promise in the Linux community, and an advocate for the Linux community to
+> Promise. If the company has concerns, I will let you know what they are,
+and
+> then maybe you can tell us if we are off-base with those concerns or not.
+>
+> I would invite anybody to contact me if you have any suggestions, any
+> requests, whatever. As I told Andre, I won't promise something I can't
+> personally deliver, but I will do whatever I can to help out. I'm also
+> trying to get a technical point of contact so that you don't have to deal
+> with a marketing weenie who doesn't understand half of what you're saying
+> ;).
+>
+> Regards,
+>
+> Craig
+>
+>
+> -----Original Message-----
+> From: Andre Hedrick [mailto:andre@linux-ide.org]
+> Sent: Wednesday, June 13, 2001 2:43 PM
+> To: Craig Lyons
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Eye2Eye a hope for Promise to Join Linux
+>
+>
+>
+> Greetings Craig,
+>
+> I would like to publicly thank you for coming to the table of GNU/GPL with
+> an open perspective.  After 90 minutes on the phone, of which 45 minutes
+> were me pointing out issues promblems and complaints w/ 20 minutes on ways
+> to work on solutions in the near and distant future and the listening to
+> your concerns and questions between my moments of interruption.
+>
+> The next conversion will not have the burst-in moments because it will be
+> in person or my cell battery will be fully charged.
+>
+> Since you have stated "I will not make promise, I can not keep" this is a
+> good thing and it will go a fair way to clean up messes from the past on
+> both sides.
+>
+> I look forward to Promise working with Linux in meaningful and productive
+> ways.
+>
+> Please reply and correct anything that is mistated by me or verify the
+> correctness.  This will show an action of good-faith before all those
+> watching here.
+>
+> Respectfully,
+>
+> Andre Hedrick
+> Linux ATA Development
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+------=_NextPart_000_0045_01C0F446.34914E80--

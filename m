@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTIWXKP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 19:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTIWXKP
+	id S261509AbTIWXJV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 19:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTIWXJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 19:10:15 -0400
-Received: from pop.gmx.net ([213.165.64.20]:13977 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261670AbTIWXKK (ORCPT
+	Tue, 23 Sep 2003 19:09:21 -0400
+Received: from [208.158.5.221] ([208.158.5.221]:12175 "EHLO dalive.com")
+	by vger.kernel.org with ESMTP id S261509AbTIWXJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 19:10:10 -0400
-X-Authenticated: #555711
-From: "Sebastian Piecha" <spi@gmxpro.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Date: Wed, 24 Sep 2003 01:10:18 +0200
+	Tue, 23 Sep 2003 19:09:20 -0400
+Message-ID: <3F70D21A.4010109@flashmail.com>
+Date: Tue, 23 Sep 2003 19:07:06 -0400
+From: DALive Editor <dalive@flashmail.com>
+Reply-To: dalive@flashmail.com
+Organization: Live Corp =?ISO-8859-1?Q?=A9?=
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: How to understand an oops?
-Message-ID: <3F70EEFA.14060.1665A54C@localhost>
-In-reply-to: <20030923111621.5b583d62.rddunlap@osdl.org>
-References: <3F709F7E.28657.152F28ED@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: linux-kernel@vger.kernel.org
+Subject: Possible Kernel 2.4.22 Bug - Please advise
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-...
-> | > Are there a few informative lines missing before the Oops: line below?
-> 
-> I was expecting more like (cut from source code):
-> 
-> 	("Unable to handle kernel NULL pointer dereference");
-> or
-> 	("Unable to handle kernel paging request");
-> and
-> 	(" at virtual address %08lx\n",address);
-> 	(" printing eip:\n");
-> 	("%08lx\n", regs->eip);
-> 	("*pde = %08lx\n", page);
-> 	("*pte = %08lx\n", page);
-> 
+Objective:
 
-No output of that kind. Only the Oops posted.
+To successfully complete my first kernel compilation, thereby upgrading 
+my Kernel to the 2.4.22.
 
-> ... 
-> 
-> In the meantime, you haven't tried the other mailing lists that
-> I suggested....
-> 
 
-In the meantime I did.
+Problem:
 
->...
+After having sorted through literally dozens of problems, most related 
+to my ignorance on the topic, I finally got a booting kernel image. Yet, 
+with my new kernel, the boot sequence always fails to determine ip 
+information, yet this always work with my old, and only working, kernel 
+(except when there are problems with the ISP).
 
-Mit freundlichen Gruessen/Best regards,
-Sebastian Piecha
 
-EMail: spi@gmxpro.de
+Host Setup:
+
+-Red Hat 9.0 Distro
+-Grub as boot loader
+-2 NIC's (different)
+
+
+Please advise
+Thank you.
+
 

@@ -1,65 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135626AbREBQQB>; Wed, 2 May 2001 12:16:01 -0400
+	id <S135628AbREBQSl>; Wed, 2 May 2001 12:18:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135623AbREBQOY>; Wed, 2 May 2001 12:14:24 -0400
-Received: from ludwig-alpha.unil.ch ([192.42.197.33]:33182 "EHLO
-	ludwig-alpha.unil.ch") by vger.kernel.org with ESMTP
-	id <S135618AbREBQOD>; Wed, 2 May 2001 12:14:03 -0400
-Message-Id: <200105021613.SAA22580@ludwig-alpha.unil.ch>
-X-Mailer: exmh version 2.1.1 10/15/1999
+	id <S135625AbREBQSe>; Wed, 2 May 2001 12:18:34 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:40012 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S135628AbREBQSO>; Wed, 2 May 2001 12:18:14 -0400
+Message-ID: <3AF032D2.51D61EF4@sgi.com>
+Date: Wed, 02 May 2001 09:16:18 -0700
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en, en-US, en-GB, fr
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS
-Mime-Version: 1.0
+Subject: 2.4.4 code breaks compile of VMWare network bridging
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 May 2001 18:13:59 +0200
-From: Christian Iseli <chris@ludwig-alpha.unil.ch>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+In 2.4.4, the define, in
+    include/linux/skbuff.h
+and corresponding structure in
+    net/core/skbuff.c
+, "skb_datarefp" disappeared.
 
-I currently fail to compile the 2.4.4-ac3 kernel using latest GCC 3.0 from CVS:
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
- -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
- -mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c sys.c
-sys.c: In function `sys_gethostname':
-/usr/src/linux/include/asm/rwsem.h:152:
- inconsistent operand constraints in an `asm'
+I'm not reporting this as a 'bug' as kernel internal interfaces are subject
+to change, but more as an "FYI".  I haven't had a chance to try to
+debug or figure out the offending bit of code to see exactly what it
+was trying to do, but the offending code snippet follows.  I haven't yet
+reported it to the folks at VMware, but their response to problem reports
+against 2.4.x is "can you duplicate it against 2.2.x, we don't support
+2.4.x yet".  Perhaps someone expert in the 'net/core' area could explain
+what changed and what they shouldn't be doing anymore?
 
-Here is the code exerpt:
+It appears the references:
+#  define KFREE_SKB(skb, type)          kfree_skb(skb)
+#  define DEV_KFREE_SKB(skb, type)      dev_kfree_skb(skb)
+                                        ^^^^^^^^^^^^^^^^^^
+are the offending culprits.
+
+Thanks for any insights...
+-linda
+
 /*
- * unlock after reading
+ *----------------------------------------------------------------------
+ * VNetBridgeReceiveFromDev --
+ *      Receive a packet from a bridged peer device
+ *      This is called from the bottom half.  Must be careful.
+ * Results:
+ *      errno.
+ * Side effects:
+ *      A packet may be sent to the vnet.
+ *----------------------------------------------------------------------
  */
-static inline void __up_read(struct rw_semaphore *sem)
+int
+VNetBridgeReceiveFromDev(struct sk_buff *skb,
+                         struct device *dev,
+                         struct packet_type *pt)
 {
-        __s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
-        __asm__ __volatile__(
-                "# beginning __up_read\n\t"
-LOCK_PREFIX     "  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the old value */
-                "  js        2f\n\t" /* jump if the lock is being waited upon */
-                "1:\n\t"
-                ".section .text.lock,\"ax\"\n"
-                "2:\n\t"
-                "  decw      %%dx\n\t" /* do nothing if still outstanding active readers */
-                "  jnz       1b\n\t"
-                "  pushl     %%ecx\n\t"
-                "  call      rwsem_wake\n\t"
-                "  popl      %%ecx\n\t"
-                "  jmp       1b\n"
-                ".previous\n"
-                "# ending __up_read\n"
-                : "+m"(sem->count), "+d"(tmp)
-                : "a"(sem)
-                : "memory", "cc");
+   VNetBridge *bridge = *(VNetBridge**)&((struct sock *)pt->data)->protinfo;
+   int i;
+
+   if (bridge->dev == NULL) {
+      LOG(3, (KERN_DEBUG "bridge-%s: received %d closed\n",
+              bridge->name, (int) skb->len));
+      DEV_KFREE_SKB(skb, FREE_READ);
+      return -EIO;      // value is ignored anyway
+   }
+
+   // XXX need to lock history
+   for (i = 0; i < VNET_BRIDGE_HISTORY; i++) {
+      struct sk_buff *s = bridge->history[i];
+      if (s != NULL &&
+          (s == skb || SKB_IS_CLONE_OF(skb, s))) {
+         bridge->history[i] = NULL;
+         KFREE_SKB(s, FREE_WRITE);
+         LOG(3, (KERN_DEBUG "bridge-%s: receive %d self %d\n",
+                 bridge->name, (int) skb->len, i));
+         // FREE_WRITE because we did the allocation, it's not used anyway
+         DEV_KFREE_SKB(skb, FREE_WRITE);
+         return 0;
+      }
+   }
+   skb_push(skb, skb->data - skb->mac.raw);
+   VNetSend(&bridge->port.jack, skb);
+
+   return 0;
 }
 
-I'm afraid I know zilch about asm constraints...
-Can anybody spot the trouble (and fix it :) ?
-
-Thanks,
-					Christian
-
-
+--
+The above thoughts and           | They may have nothing to do with
+writings are my own.             | the opinions of my employer. :-)
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
 
 

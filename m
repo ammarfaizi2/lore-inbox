@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSJQR6Z>; Thu, 17 Oct 2002 13:58:25 -0400
+	id <S261772AbSJQR5L>; Thu, 17 Oct 2002 13:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261936AbSJQR6Z>; Thu, 17 Oct 2002 13:58:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16091 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261934AbSJQR6Y>;
-	Thu, 17 Oct 2002 13:58:24 -0400
-Date: Thu, 17 Oct 2002 11:04:26 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.43 disk repartitioning problems
-Message-ID: <20021017110426.D3841@acpi.pdx.osdl.net>
-References: <20021007204414.GD7428@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0210071723200.29030-100000@weyl.math.psu.edu> <20021017105205.C3841@acpi.pdx.osdl.net>
+	id <S261774AbSJQR5L>; Thu, 17 Oct 2002 13:57:11 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:46574 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261772AbSJQR5K>; Thu, 17 Oct 2002 13:57:10 -0400
+Subject: Re: [PATCH] make LSM register functions GPLonly exports
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org,
+       Linux Security Module <linux-security-module@wirex.com>
+In-Reply-To: <3DAEF703.20009@wirex.com>
+References: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com> 
+	<3DAEF703.20009@wirex.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-sqnoNn/UJxy36A8WpWCs"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Oct 2002 20:03:55 +0200
+Message-Id: <1034877846.3006.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021017105205.C3841@acpi.pdx.osdl.net>; from dmo@osdl.org on Thu, Oct 17, 2002 at 10:52:05AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I made a typo in the message below.  The partitioning issue appears
-in linux 2.5.43. (NOT 2.4.3 ..)
+--=-sqnoNn/UJxy36A8WpWCs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2002-10-17 at 19:44, Crispin Cowan wrote:
 
-On Thu, Oct 17, 2002 at 10:52:05AM -0700, Dave Olien wrote:
-> 
-> Al,
-> 
-> I'm working on the Mylex DAC960 device driver, bring in up to date
-> with the new block and dma interfaces.  I've been posting patches on
-> occasion.  I've also noticed you updating the driver when you make changes
-> to the gendisk kernel interfaces.   Those updates are very helpful.
-> 
-> I've noticed in 2.4.3 at least, that some changes to disk partitions
-> aren't noticed until you reboot.  The same problem is seen with aacraid.
-> I don't THINK this is a driver issue.  But, I might have missed something.  
-> 
-> I tried repartitioning two disks.  On the first disk, I used fdisk
-> to split a single large partition into four smaller ones.  Afterwards,
-> the first partition on that drive was still accessible.  But I couldn't
-> access the three new partitions.  I didn't test to see if the first
-> partition had been reduced in size.  Rebooting made the new partitions
-> accessible.
-> 
-> In the second case, I split an unpartitioned drive into four partitions.
-> None of the new partitions were accessible until I rebooted.
-> 
-> Is this still a work in progress, or is there some driver hook I've missed?
-> 
-> Thanks!
-> 
-> Dave Olien
-> Open Source Development Lab
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Note that if we decide that #include of a kernel header file means that=20
+> a work is derived, then we cause another problem: most Linux=20
+> applications come under the GPL.  glibc #includes some kernel header=20
+> files, and most Linux applications #include glibc headers, so most=20
+> applications are #including kernel header files. If #include is the=20
+> basis for declaring a module to be a derived work of the kernel, then=20
+> there is some bad news coming for people who like to use Oracle and DB2=20
+> on Linux ...
+>=20
+difference is that glibc only uses the glibc-kernheaders; which on
+several distros at least are just the data structures and not the
+inlines. (and the inlines are in #ifdef KERNEL anyway and removed by the
+preprocessor for userspace)
+
+--=-sqnoNn/UJxy36A8WpWCs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9rvuLxULwo51rQBIRAoMJAJ9zJtAl+3HVAMTV0WsxI/Uz7gozMwCgnb0L
+OUMwW96K7PKaH5o4FhqJA08=
+=E+5u
+-----END PGP SIGNATURE-----
+
+--=-sqnoNn/UJxy36A8WpWCs--
+

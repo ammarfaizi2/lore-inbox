@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbRFFKFe>; Wed, 6 Jun 2001 06:05:34 -0400
+	id <S261535AbRFFKHO>; Wed, 6 Jun 2001 06:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbRFFKFZ>; Wed, 6 Jun 2001 06:05:25 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:39933 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S261515AbRFFKFK>; Wed, 6 Jun 2001 06:05:10 -0400
-Message-Id: <l0313030bb743b005b65a@[192.168.239.105]>
-In-Reply-To: <20010606102514.E15199@dev.sportingbet.com>
-In-Reply-To: <991818989.30690.2.camel@nomade>; from xavier.bestel@free.fr
- on Wed, Jun 06, 2001 at 11:16:27AM +0200
- <3B1D5ADE.7FA50CD0@illusionary.com>
- <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
- <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com>
- <991815578.30689.1.camel@nomade>
- <20010606095431.C15199@dev.sportingbet.com>
- <991818989.30690.2.camel@nomade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 6 Jun 2001 11:04:22 +0100
-To: Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Break 2.4 VM in five easy steps
-Cc: linux-kernel@vger.kernel.org
+	id <S261547AbRFFKHE>; Wed, 6 Jun 2001 06:07:04 -0400
+Received: from [213.221.172.237] ([213.221.172.237]:38357 "EHLO
+	smtp-relay2.barrysworld.com") by vger.kernel.org with ESMTP
+	id <S261535AbRFFKGu>; Wed, 6 Jun 2001 06:06:50 -0400
+From: "DBs \(ML\)" <dbsml@barrysworld.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Break 2.4 VM in five easy steps
+Date: Wed, 6 Jun 2001 11:06:10 +0100
+Message-ID: <HDEOIOONDALNHDIJADIFAEECFBAA.dbsml@barrysworld.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am waiting patiently for the bug to be fixed. However, it is a real
->embarrasment that we can't run this "stable" kernel in production yet
->because somethign as fundamental as this is so badly broken.
+What happens if the box is full of disk capacity and you cannot add anymore
+spindles?
 
-Rest assured that a fix is in the works.  I'm already seeing a big
-improvement in behaviour on my Athlon (256Mb RAM, but testing using mem=32M
-and mem=48M), and I strongly believe that we're making progress here.
-Maybe some of the more significant improvements will find their way into
-2.4.6.
+Then what?
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Upgrade the whole disk subsystem just to cater for this issue? That would
+turn out to be a bit more expensive in both money terms and downtime/labour
+costs.
 
-The key to knowledge is not to rely on people to teach you it.
+It really annoys me when people just say "Add more of this then....".
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
+Best regards
 
+Antonio Covelli
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Dr S.M. Huen
+> Sent: Wednesday, June 06, 2001 10:58 AM
+> To: Sean Hunter
+> Cc: Xavier Bestel; linux-kernel@vger.kernel.org
+> Subject: Re: Break 2.4 VM in five easy steps
+>
+>
+> On Wed, 6 Jun 2001, Sean Hunter wrote:
+>
+> >
+> > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
+> >
+>
+> Do I understand you correctly?
+> ECC grade SDRAM for your 8GB server costs £335 per GB as 512MB sticks even
+> at today's silly prices (Crucial). Ultra160 SCSI costs £8.93/GB as 73GB
+> drives.
+>
+> It will cost you 19x as much to put the RAM in as to put the
+> developer's recommended amount of swap space to back up that RAM.  The
+> developers gave their reasons for this design some time ago and if the
+> ONLY problem was that it required you to allocate more swap, why should
+> it be a priority item to fix it for those that refuse to do so?   By all
+> means fix it urgently where it doesn't work when used as advised but
+> demanding priority to fixing a problem encountered when a user refuses to
+> use it in the manner specified seems very unreasonable.  If you can afford
+> 4GB RAM, you certainly can afford 8GB swap.
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

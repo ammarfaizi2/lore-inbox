@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290729AbSBGRp1>; Thu, 7 Feb 2002 12:45:27 -0500
+	id <S290677AbSBGRoF>; Thu, 7 Feb 2002 12:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290742AbSBGRpY>; Thu, 7 Feb 2002 12:45:24 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:59912 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S290729AbSBGRoZ>; Thu, 7 Feb 2002 12:44:25 -0500
-Date: Thu, 7 Feb 2002 14:34:20 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@zip.com.au>, Manfred Spraul <manfred@colorfullife.com>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] VM_IO fixes
-In-Reply-To: <Pine.LNX.4.33.0202071259510.5900-100000@serv>
-Message-ID: <Pine.LNX.4.21.0202071433480.17162-100000@freak.distro.conectiva>
+	id <S290708AbSBGRn4>; Thu, 7 Feb 2002 12:43:56 -0500
+Received: from OL10K-24.207.148.94.charter-stl.com ([24.207.148.94]:20364 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id <S290677AbSBGRnh>;
+	Thu, 7 Feb 2002 12:43:37 -0500
+Message-Id: <200202071745.g17HjPE03108@linux.local>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Josh Grebe <squash2@dropnet.net>
+Reply-To: squash2@dropnet.net
+To: Hanno =?iso-8859-1?q?B=F6ck?= <hanno@gmx.de>,
+        David Weinehall <tao@acc.umu.se>
+Subject: Re: Patch for eepro100 to support more cards
+Date: Thu, 7 Feb 2002 11:45:25 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020201080545Z291604-13996+15441@vger.kernel.org> <20020206132727.H1735@khan.acc.umu.se> <20020206144449Z290588-13996+17952@vger.kernel.org>
+In-Reply-To: <20020206144449Z290588-13996+17952@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hanno,
+
+Patches that I had previously sent to add support for other cards were not 
+accepted when I had it done like this. The fix was to ad an entry for the PCI 
+ID into include/linux/pci_ids.h instead of adding defines into eepro100.c.
+You might try changing that and resubmitting, it is a cleaner way to do it 
+anyway.
+
+Josh
 
 
-On Thu, 7 Feb 2002, Roman Zippel wrote:
-
-> Hi,
-> 
-> On Wed, 6 Feb 2002, Andrew Morton wrote:
-> 
-> > Any filesystem which implements its own mmap() method, and which
-> > does not call generic_file_mmap() needs to be changed to clear
-> > VM_IO inside its mmap function.  All in-kernel filesystems are
-> > OK, as is XFS.  And the only breakage this can cause to out-of-kernel
-> > filesystems is failure to include mappings in core files, and
-> > inability to use PEEKUSR.
-> 
-> You forgot shared memory via mm/shmem.c and ipc/shm.c.
-
-Andrew, could you please send me an uptodated patch to fix that ? 
-
-> Another possibility is to test whether the driver provides a nopage
-> function, as i/o areas are usually mapped with io_remap_page_range. 
-
-Eek, thats too kludgy. ;) 
-
+On Wednesday 06 February 2002 08:45, Hanno Böck wrote:
+> Because of some complains and as pre8 is out now, I made it again for the
+> 2.4.18pre8-kernel. I hope it is okay now.
+>
+> I put up a site for the patch: http://www.int21.de/eepro100/
+>
+> The Patch adds definitions for the Intel Pro/100 VE-card to the
+> eepro100-driver.
+>
+> --- linux-2.4.18-pre8/drivers/net/eepro100.c	Wed Feb  6 15:15:16 2002
+> +++ linux/drivers/net/eepro100.c	Wed Feb  6 15:19:14 2002
+> @@ -168,6 +168,9 @@
+>  #ifndef PCI_DEVICE_ID_INTEL_ID1030
+>  #define PCI_DEVICE_ID_INTEL_ID1030 0x1030
+>  #endif
+> +#ifndef PCI_DEVICE_ID_INTEL_ID1031          /* support for Intel Pro/100
+> VE */ +#define PCI_DEVICE_ID_INTEL_ID1031 0x1031
+> +#endif
+>
+>
+>  static int speedo_debug = 1;
+> @@ -2270,6 +2273,8 @@
+>  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1029,
+>  		PCI_ANY_ID, PCI_ANY_ID, },
+>  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1030,
+> +		PCI_ANY_ID, PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1031,     /* support for
+> Intel Pro/100 VE */ PCI_ANY_ID, PCI_ANY_ID, },
+>  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_7,
+>  		PCI_ANY_ID, PCI_ANY_ID, },
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311267AbSCQCus>; Sat, 16 Mar 2002 21:50:48 -0500
+	id <S311268AbSCQCu6>; Sat, 16 Mar 2002 21:50:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311268AbSCQCui>; Sat, 16 Mar 2002 21:50:38 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:5285 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S311263AbSCQCuS>;
-	Sat, 16 Mar 2002 21:50:18 -0500
-Date: Sat, 16 Mar 2002 18:50:04 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Andi Kleen <ak@suse.de>
-Cc: yodaiken@fsmlabs.com, Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020317025004.GA13644@tapu.f00f.org>
-In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020316210504.A24097@wotan.suse.de>
-User-Agent: Mutt/1.3.27i
-X-No-Archive: Yes
+	id <S311263AbSCQCuj>; Sat, 16 Mar 2002 21:50:39 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:50048 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S311267AbSCQCuZ>; Sat, 16 Mar 2002 21:50:25 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 7.52 second kernel compile
+Date: Sat, 16 Mar 2002 18:50:58 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBGENGEJAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.33.0203161834250.1591-100000@penguin.transmeta.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 09:05:04PM +0100, Andi Kleen wrote:
+Well ... along those lines ... I'll settle for my $1500US 5 GFLOP Athlon for
+sound processing instead of the 12 MFLOP FPS AP120B I always dreamed of
+owning :). We've sure come a long way in 20 years, eh?
 
-    On Sat, Mar 16, 2002 at 12:57:11PM -0700, yodaiken@fsmlabs.com
-    wrote:
+M. Edward Borasky
+The COUGAR Project
 
-    >
-    > What about 2M pages?
+znmeb@borasky-research.net
+http://www.borasky-research.com/Cougar.htm
 
-    They are not supported for user space, but used in private
-    mappings for kernel text and direct memory mappings. Generic code
-    never sees them.
+> -----Original Message-----
+> Yeah, at a cost of $2M+, if I'm not mistaken. I think I'll settle for my 2
+> minute time that is actually available to mere mortals at a small fraction
+> of one percent of that ;)
+>
+> 		Linus
 
-Is there any reason we couldn't use them for mapping large
-frame-buffers and similar?
-
-
-
-  --cw

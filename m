@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbUCJTIx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUCJTIx
+	id S262783AbUCJTJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbUCJTJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:08:53 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13784 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262774AbUCJTIu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:08:50 -0500
-Date: Wed, 10 Mar 2004 11:06:48 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Corey Minyard <minyard@acm.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, "Davis, Todd C" <todd.c.davis@intel.com>,
-       sensors@stimpy.netroedge.com, "Simon G. Vogl" <simon@tk.uni-linz.ac.at>
-Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
-Message-ID: <20040310190648.GB18892@kroah.com>
-References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de> <404F3BC3.2090906@acm.org> <20040310185105.GS14833@fs.tum.de>
+	Wed, 10 Mar 2004 14:09:23 -0500
+Received: from open.nlnetlabs.nl ([213.154.224.1]:26127 "EHLO
+	open.nlnetlabs.nl") by vger.kernel.org with ESMTP id S262783AbUCJTJN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:09:13 -0500
+Date: Wed, 10 Mar 2004 20:09:02 +0100
+From: Miek Gieben <miekg@atoom.net>
+To: linux-kernel@vger.kernel.org
+Subject: pts/X counts on
+Message-ID: <20040310190902.GA2226@atoom.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040310185105.GS14833@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+User-Agent: Vim/Mutt/Linux
+X-Home: www.miek.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 07:51:05PM +0100, Adrian Bunk wrote:
-> On Wed, Mar 10, 2004 at 10:01:07AM -0600, Corey Minyard wrote:
-> >...
-> > I have included a patch from Todd Davis at Intel that adds this function 
-> > to the I2C driver.  I believe Todd has been working on getting this in 
-> > through the I2C driver writers, although the patch is fairly non-intrusive.
-> > 
-> > However, I have no real way to test this patch.
-> >...
-> 
-> I can only confirm that it fixes the compilation...
-> 
-> 
-> The patch to i2c-core.c is strange:
+Hello,
 
-And dumb, and incorrect :(
+I'm seeing to following (obscure) thing happening:
 
-thanks,
+I open an xterm, it gets the pseudo term: pts/1
+I close the term and open a new one: pts/2, in stead
+of pts/1.
 
-greg k-h
+Like this:
+
+USER     TTY      FROM   LOGIN@   IDLE   JCPU   PCPU WHAT
+miekg    pts/1    arena  19:57    3.00s  0.24s  0.11s vi bla
+miekg    pts/4    arena  20:03    0.00s  0.06s  0.00s w
+$ logout
+
+login again:
+
+USER     TTY      FROM   LOGIN@   IDLE   JCPU   PCPU WHAT
+miekg    pts/1    arena  19:57    3.00s  0.25s  0.12s vi bla
+miekg    pts/5    arena  20:03    0.00s  0.05s  0.00s w
+        ^^^^^^^
+
+It just counts on.... 
+
+I'm using devfs on 2.6.4-rc3, I first noticed this in 2.6.3.
+(all 2.6.4-rcX have it),
+
+Does anybody know why this is happening?
+
+grtz Miek
+
+[ I'm not on this list, please CC me on replies ]

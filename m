@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264975AbRGAFG3>; Sun, 1 Jul 2001 01:06:29 -0400
+	id <S264984AbRGAFJT>; Sun, 1 Jul 2001 01:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbRGAFGT>; Sun, 1 Jul 2001 01:06:19 -0400
-Received: from vitelus.com ([64.81.36.147]:62724 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S264975AbRGAFGO>;
-	Sun, 1 Jul 2001 01:06:14 -0400
-Date: Sat, 30 Jun 2001 22:06:12 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: linux-kernel@vger.kernel.org, jakub@redhat.com, davem@redhat.com
-Subject: Linux speed on sun4c
-Message-ID: <20010630220612.C14361@vitelus.com>
+	id <S264989AbRGAFJK>; Sun, 1 Jul 2001 01:09:10 -0400
+Received: from lithium.nac.net ([64.21.52.68]:14351 "HELO lithium.nac.net")
+	by vger.kernel.org with SMTP id <S264984AbRGAFIz>;
+	Sun, 1 Jul 2001 01:08:55 -0400
+Date: Sun, 1 Jul 2001 01:08:47 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Freezing bug in all kernels greater than 2.4.5-ac13 *AND* 2.4.6-pre2
+Message-ID: <20010701010846.A685@debian>
+In-Reply-To: <20010623222954.A9031@debian> <20010627203331.B1615@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20010627203331.B1615@debian>
 User-Agent: Mutt/1.3.18i
+From: <tcm@nac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	I'm currently running 2.4.6-pre8 and happy as a clam, the
+problem has been found and reverted, looks from my discussions with
+Linus like the page_launder change introduced into pre3 and also
+included in ac14 was causing the hangs/near freezes.
 
-NetBSD/Sparc's FAQ asserts:
+	I'm not really much of a coder, so I can't say what was wrong
+with it, only what the symptoms were and how to get it to screw up
+whenever I wanted to test for it. (See previous messages for how to do
+this) If Rik van Riel/Marcelo Tosatti/anyone wants to have me gather
+information on what is going on just before/after the kernel dies I'll
+do it - just tell me how to, and I'll push it along :)
 
-    Why is NetBSD so much faster than SparcLinux on sun4c (top) 
-
-        The memory management hardware on sun4c machines (SPARCStation
-        1, 1+, 2, IPC, IPX, SLC, ELC and clones) is not handled particularly
-        well by Linux. Until Linux reworks their MMU code NetBSD will be very
-        much faster on this hardware. 
-
-Was there ever any truth to this statement? It seems to be light on
-technical details. Have these purported issues ever been fixed?
-
-I don't want to be scared into running NetBSD on my SparcStation 2 :D.
+Thanks a bunch Linus,
+Tim

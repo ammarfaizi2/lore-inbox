@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317406AbSGDN1M>; Thu, 4 Jul 2002 09:27:12 -0400
+	id <S317414AbSGDNhV>; Thu, 4 Jul 2002 09:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317407AbSGDN1L>; Thu, 4 Jul 2002 09:27:11 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:52749 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317406AbSGDN1K>; Thu, 4 Jul 2002 09:27:10 -0400
-Date: Thu, 4 Jul 2002 14:29:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24 IDE 97
-Message-ID: <20020704142938.D11601@flint.arm.linux.org.uk>
-References: <Pine.SOL.4.30.0207030021060.27685-200000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.SOL.4.30.0207030021060.27685-200000@mion.elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Wed, Jul 03, 2002 at 12:22:11AM +0200
+	id <S317415AbSGDNhU>; Thu, 4 Jul 2002 09:37:20 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61968 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317414AbSGDNhT>; Thu, 4 Jul 2002 09:37:19 -0400
+Date: Thu, 4 Jul 2002 09:33:19 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Adrian Bunk <bunk@fs.tum.de>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Kernel release management
+In-Reply-To: <20020704130243.A11601@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1020704091340.4082D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 03, 2002 at 12:22:11AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> This patch is a accumulation of ata-hosts-7/8/9/10/11, ata-autodma
-> and ata-ata66_check patches previously posted on LKML.
+On Thu, 4 Jul 2002, Russell King wrote:
 
->From a first review only, it looks like this patch prevents the chipset
-drivers from disabling DMA mode on initialisation.  This is Really Bad(tm)
-since some revisions of some chipsets must _never_ be placed into DMA
-mode due to hardware bugs.  Even if the user selects CONFIG_IDEDMA_AUTO.
+> > The maintainer can alway push really new stuff into 2.7, and Linus can
+> > always refuse to take a feature into 2.7 until something else is fixed in
+> > 2.6.
+> 
+> And you expect Linus to track every single feature and fix that exists in
+> 2.6 and 2.7?
 
-The code in sl82c105.c knows about the chipset revisions that this is
-required for, and it looks like the code in ide-pci.c will override the
-chipset if CONFIG_IDEDMA_AUTO is enabled.
+The maintainer should have a handle on the serious problems in 2.6, and
+should be able to tell Linus who needs to look at a problem before moving
+on. Not having a development kernel didn't work well for 2.2, it didn't
+work well in 2.4, and now some people say "we've always done it that way"
+while others say "we'll do it better this time." It's my feeling that
+trying something else would be a good thing, if 2.6 doesn't get attention
+2.7 could always be frozen after it exists, and you would still avoid
+having totally new featues shoved in 2.6.
+ 
+> If 2.6 and 2.7 come out at the same time, I'll have to ignore one or either
+> of the source trees completely.  As an architecture maintainer, that would
+> be *bad*.
+
+If 2.6 is so buggy that it takes your full time to fix, it should still be
+2.5. And it should take your full time. And that wouldn't be one bit
+different than if 2.7 wasn't out, would it? 
+
+If I understand what you do, it is limited to things related to your
+architecture, and not general bugs like IDE eats the filesystems, stuff
+won't compile as modules, smp locks up under high network multicast load,
+etc. Unless changes in 2.6 break your area, which will be MUCH less likely
+if new features are going in 2.7, I really wouldn't expect it to take all
+your time.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTIKJl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 05:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTIKJlz
+	id S261184AbTIKJiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 05:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbTIKJhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 05:41:55 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:60944 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S261188AbTIKJlw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 05:41:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Jamie Lokier <jamie@shareable.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: nasm over gas?
-Date: Wed, 10 Sep 2003 00:37:59 +0300
-X-Mailer: KMail [version 1.4]
-Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
-       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-References: <20030904104245.GA1823@leto2.endorphin.org> <m18yp0o2mq.fsf@ebiederm.dsl.xmission.com> <20030907193030.GA21936@mail.jlokier.co.uk>
-In-Reply-To: <20030907193030.GA21936@mail.jlokier.co.uk>
+	Thu, 11 Sep 2003 05:37:07 -0400
+Received: from mail.convergence.de ([212.84.236.4]:9137 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261182AbTIKJgy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 05:36:54 -0400
+Message-ID: <3F604230.5030207@convergence.de>
+Date: Thu, 11 Sep 2003 11:36:48 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309100037.59953.insecure@mail.od.ua>
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] video/hexium_orion warning removal
+References: <20030909160245.49e8bddd.shemminger@osdl.org>
+In-Reply-To: <20030909160245.49e8bddd.shemminger@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 September 2003 22:30, Jamie Lokier wrote:
-> Eric W. Biederman wrote:
-> > Actually it is no as simple as that.  With the instruction that uses
-> > %edi following immediately after the instruction that populates it you
-> > cannot execute those two instructions in parallel.  So the code may be
-> > slower.  The exact rules depend on the architecture of the cpu.
->
-> I remember inserting a "nop" into a loop and it went significantly
-> faster on a Pentium Pro :)
+Hello Stephen,
 
-My example in _not_ a loop, far from it. That's the point.
-GCC thinks everything is a loop.
+> The hexium_orion driver in 2.6.0-test5 gets a warning because it defines
+> setup data that is never used.
 
-> > If you concentrate on those handful of places where you need to
-> > optimize that is reasonable.  Beyond that there simply are not the
-> > developer resources to do good assembly.  And things like algorithmic
-> > transformations in assembly are an absolute nightmare.  Where they are
-> > quite simple in C.
->
-> If we had enough developer resources to write the whole thing in good
-> assembly, then for _sure_ we'd have enough to write a perfect compiler!
+Yes, I know. I did not have the time to hack on the Hexium Orion driver 
+recently.
 
-Peace, Jamie. I do _not_ advocate using asm anywhere except speed critical
-code.
--- 
-vda
+> Builds fine if it is deleted; don't have real hardware.
+
+But I do. ;-) Please leave it in. I know it's an annoying warning, but 
+the data will be useful once I've added real input selection support 
+with proper usage of the setup data.
+
+If this patch has already been applied, don't worry -- I'll resend this 
+stuff then...
+
+> diff -Nru a/drivers/media/video/hexium_orion.h b/drivers/media/video/hexium_orion.h
+> --- a/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
+> +++ b/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
+[...]
+
+CU
+Michael.
+

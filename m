@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265379AbSJRWoo>; Fri, 18 Oct 2002 18:44:44 -0400
+	id <S265383AbSJRWot>; Fri, 18 Oct 2002 18:44:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265383AbSJRWoo>; Fri, 18 Oct 2002 18:44:44 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:31916 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S265379AbSJRWon>; Fri, 18 Oct 2002 18:44:43 -0400
-Message-ID: <20021018225039.18607.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+	id <S265384AbSJRWot>; Fri, 18 Oct 2002 18:44:49 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:15593 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265383AbSJRWor>;
+	Fri, 18 Oct 2002 18:44:47 -0400
+Date: Fri, 18 Oct 2002 15:50:46 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Date: Sat, 19 Oct 2002 06:50:39 +0800
-Subject: [BENCHMARK] Unixbench 2.5.43 vs 2.4.19
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+Subject: how to force a task out in SMP?
+Message-ID: <20021018155046.H30560@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-                     INDEX VALUES            
-TEST                                        BASELINE     RESULT      INDEX
+I am developing a kernel performance monitoring (perfmon) subsystem in 
+Linux/ia64 and I need to access the perfmon state of another task that
+is *possibly* running at the same time in a SMP configurations. Unlike 
+debuggers, I don't want to change the behavior of the task. For instance, 
+if it was blocked, then it must stay blocked, i.e., no EINTR.
 
-Arithoh                                    3664143.2  3631331.8       99.1
-C Compiler Throughput                          469.7      460.0       97.9
-Dc: sqrt(2) to 99 decimal places             42687.3    33261.3       77.9
-Double-Precision Whetstone                     417.4      434.6      104.1
-Execl Throughput                               975.8      755.3       77.4
-File Copy 1024 bufsize 2000 maxblocks        80966.0    88047.0      108.7
-File Copy 256 bufsize 500 maxblocks          35210.0    40467.0      114.9
-File Copy 4096 bufsize 8000 maxblocks       105054.0   114034.0      108.5
-File Read 1024 bufsize 2000 maxblocks       196639.0   195062.0       99.2
-File Read 256 bufsize 500 maxblocks         140609.0   127144.0       90.4
-File Read 4096 bufsize 8000 maxblocks       197578.0   196118.0       99.3
-File Write 1024 bufsize 2000 maxblocks      106733.0   127375.0      119.3
-File Write 256 bufsize 500 maxblocks         48994.0    65799.0      134.3
-File Write 4096 bufsize 8000 maxblocks      130220.0   162483.0      124.8
-Pipe-based Context Switching                223573.7   186024.4       83.2
-Process Creation                              9119.5     5835.0       64.0
-Shell Scripts (16 concurrent)                   69.0       89.0      129.0
-System Call Overhead                        409831.4   419304.8      102.3
-                                                                 =========
-     FINAL SCORE                                                     100.2
+I have looked in the lkml archives and found that some people have had
+to deal with the same problem when trying to dump core in a multithreaded
+applications. While their goal is different, what they need is similar.
 
-2.5.43 Process Creation is vey very very slow, does anyone know why ?
+What we want: "a mechanism to force a task out of the CPU, if it is running,
+which also ensures that it will not be scheduled again  until we tell
+it to do so". 
 
-Ciao,
-        Paolo
+There has been several iterations of the multithreaded core dump patch, 
+some for 2.4 and some for 2.5. They used the following techniques:
+
+For 2.4:
+	1/ cpus_allowed
+
+	stop   : force task->cpus_allowed=0, task->need_resched=1 and force a 
+	         reschedule. Then wait until task leaves cpu. 
+	restart: restablish a good task->cpus_allowed and force a resched.
+
+For 2.5 several versions exist:
+
+	1/ SIGSTOP/SIGCONT
+
+	stop   : send SIGSTOP to the other task, wait until it leaves the CPU
+	restart: send SIGCONT.
+
+	2/ Phantom runqueue
+
+	add a runqueue not associated with any CPU (NR_CPUS+1).
+	stop   : move task to phantom runqueue
+	restart: move back to valid queue.
+	
+
+The cpus_allowed is clearly a hack which is not possible in 2.5 (see
+set_cpus_allowed()).
+
+The SIGSTOP/SIGCONT technique is not that good because it is visible to the
+program and possibly others. For instance, your shell gets notified if the
+task is stopped (if was launched from it). Then the job control gets confused.
+
+The shadow runqueue seems interesting but I am wondering if it could not be
+implemented with no extra queue. All that is needed is to get the task out 
+of the queue it is on and then put it back into a queue when we're done. 
+I am no expert in the scheduler code but it seems to have internal routines
+to do just that (deactivate_task() and activate_task()). I wonder if those
+could be used (if made visible outside of sched.c), however I can believe
+that they are called in a specific context and that it may be difficult to
+export them.
+
+My question is then what is the right way of implementing this in 2.5?
+
+Thanks.
+
 -- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+-Stephane

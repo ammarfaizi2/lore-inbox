@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317338AbSGXPRj>; Wed, 24 Jul 2002 11:17:39 -0400
+	id <S317342AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317348AbSGXPRj>; Wed, 24 Jul 2002 11:17:39 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:57736 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317338AbSGXPRi>; Wed, 24 Jul 2002 11:17:38 -0400
-Date: Wed, 24 Jul 2002 17:38:29 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Ian Soboroff <ian.soboroff@nist.gov>
-Cc: Muli Ben-Yehuda <mulix@actcom.co.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Boot problem, 2.4.19-rc3-ac1
-In-Reply-To: <9cffzy95g39.fsf@rogue.ncsl.nist.gov>
-Message-ID: <Pine.LNX.4.44.0207241734320.17209-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317347AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:4788 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id <S317342AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
+Date: Wed, 24 Jul 2002 11:25:48 -0400
+From: Jason Lunz <lunz@reflexsecurity.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DFE-580TX problems you posted on 05-24-02
+Message-ID: <20020724152548.GA3967@reflexsecurity.com>
+References: <20020723203037.GA29459@pobox.com> <3D3DCD2C.1050004@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D3DCD2C.1050004@candelatech.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 2002, Ian Soboroff wrote:
+In gmane.linux.kernel, you wrote:
+> The fix for the DFE-580tx in Linux is to either download the driver
+> from dlink's site (I don't have the exact URL, but you can find it if
+> you look.), or perhaps use Becker's latest driver from www.scyld.com.
 
-> Anyone have a clue on the IDE part of my question? ;-)
+That's not the whole story.
 
-Oh.. yeah that, erm dunno. Hopefully someone with an idea will chime in 
-soon.
+All the drivers I've tried will work if compiled with USE_IO_OPS
+defined, but will behave badly under load. That is, when heavily loaded
+they will lock up and reset after a several-second timeout expires. This
+is true for Becker's 1.09 driver, the latest in-kernel driver, and
+Edward Peng's napi sundance driver. (With the exception that the napi
+driver doesn't recover after it locks up). Peng's driver is at
+http://edward_peng.tripod.com/, and his email address from the dl2k
+driver indicates that he works for Dlink.
 
-Cheers,
-	Zwane
-
-Or.. you can try find the last working -ac
+I looked on dlink's web and ftp sites, but was unable to find any linux
+driver for the DFE-580TX. How did you find it?
 
 -- 
-function.linuxpower.ca
-
-
+Jason Lunz			Reflex Security
+lunz@reflexsecurity.com		http://www.reflexsecurity.com/

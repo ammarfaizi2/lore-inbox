@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbTCCL20>; Mon, 3 Mar 2003 06:28:26 -0500
+	id <S264654AbTCCLq5>; Mon, 3 Mar 2003 06:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbTCCL20>; Mon, 3 Mar 2003 06:28:26 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39176 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263366AbTCCL2Z>; Mon, 3 Mar 2003 06:28:25 -0500
-Date: Mon, 3 Mar 2003 11:38:49 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: roman duka <unixfreak@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:
-Message-ID: <20030303113849.B16365@flint.arm.linux.org.uk>
-Mail-Followup-To: roman duka <unixfreak@ntlworld.com>,
-	linux-kernel@vger.kernel.org
-References: <20030303110737.45d91d6b.unixfreak@ntlworld.com>
-Mime-Version: 1.0
+	id <S264705AbTCCLq5>; Mon, 3 Mar 2003 06:46:57 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:11524 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S264654AbTCCLq4>; Mon, 3 Mar 2003 06:46:56 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303020930.h229U039000440@81-2-122-30.bradfords.org.uk>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+To: hch@infradead.org (Christoph Hellwig)
+Date: Sun, 2 Mar 2003 09:30:00 +0000 (GMT)
+Cc: Pavel@Janik.cz, pavel@ucw.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20030302091130.A11536@infradead.org> from "Christoph Hellwig" at Mar 02, 2003 09:11:30 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030303110737.45d91d6b.unixfreak@ntlworld.com>; from unixfreak@ntlworld.com on Mon, Mar 03, 2003 at 11:07:37AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 11:07:37AM +0000, roman duka wrote:
-> if i go to /usr/src/linux and edit Makefile and replace the line:
-> 
-> ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
-> 
-> with:
-> 
-> ARCH := arm
-> 
-> and then run 'make menuconfig' menuconfig goes into infinite loop and
-> gets killed when it uses up all available memory. any ideas how to fix
-> this problem??
+> But anyway, don't you think Pavel is free to develop whatever free
+> software he likes to develop instead of following you political
+> agenda?
 
-It's probably a known problem that should be fixed in the -rmk patches.
-You don't say what kernel version you're using though, or whether you've
-applied these patches (which you'll need to build for ARM anyway.)
+What is the goal of the BitBucket project, though?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+To develop a version control system, or to annoy Larry?
 
+I haven't seen a single post to the list saying, "If we were designing
+a version control system dedicated to the Linux kernel, what would you
+like to see in it?".  Before I started work on my bug database, I
+spent a week or so discussing it on the list with people.
+
+Why doesn't somebody start working on a dedicated kernel version
+control system?
+
+John.

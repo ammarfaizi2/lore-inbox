@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTF0Hw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 03:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTF0Hw5
+	id S262254AbTF0H6W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 03:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTF0H6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 03:52:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57267 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261769AbTF0Hwz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 03:52:55 -0400
-Date: Fri, 27 Jun 2003 01:00:59 -0700 (PDT)
-Message-Id: <20030627.010059.68039169.davem@redhat.com>
-To: matti.aarnio@zmailer.org
-Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030627075914.GO28900@mea-ext.zmailer.org>
-References: <18330000.1056692768@[10.10.2.4]>
-	<20030626.224739.88478624.davem@redhat.com>
-	<20030627075914.GO28900@mea-ext.zmailer.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 27 Jun 2003 03:58:22 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7690 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262254AbTF0H6V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 03:58:21 -0400
+Message-ID: <3EFBFDD1.4000603@aitel.hist.no>
+Date: Fri, 27 Jun 2003 10:18:25 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler & interactivity improvements
+References: <3EFAC408.4020106@aitel.hist.no> <5.2.0.9.2.20030627071904.00c890e0@pop.gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Matti Aarnio <matti.aarnio@zmailer.org>
-   Date: Fri, 27 Jun 2003 10:59:14 +0300
+Mike Galbraith wrote:
 
-   The problem with "post to the list" is that sometimes things slip
-   thru without anybody catching them.
+> The thought of building/passing "connection" information around in the 
+> scheduler gives me a bad case of the willies.  I can imagine a process 
+> struct containing a list of components and their cpu usage information 
+> as a means to defeat fairness/starvation issues, but I can't imagine how 
+> to do that and retain high speed low drag O(1) scheduling.
+> 
+The idea isn't that complicated.  When a process wakes up, make
+a simple check to see what it woke up from.  Ordinary
+io is handled as today, with a io boost.
 
-It is not a problem, it is a feature.  What will happen is the
-same thing that happens if Linus drops a patch.
+A pipe wakeup can be handled by taking a look at the other end.
+If the other process has interactivity bonus, grab half of
+it.  (And halve the bonus belonging to that process.)
+No bonus is created in this case, so no risk of DOS.
+It is merely redistributed.
 
-It'll get retransmitted if the reporter cares about the
-bug.  If he doesn't, the one of two things:
+And it is simple - there is one thing that woke the
+process up - so only one thing to check.
 
-1) the bug actually isn't that important
-2) it is important, and someone else will report the bug too
+Hard corner cases can be avoided.  Perhaps bunch of pipes,
+files, devices, sockets and page-ins becomes ready
+simultaneosly.  A detailed priority calculation is clearly
+pointless, so just use one of the things - or none.
 
-Therefore important issues tend to keep showing up, even if
-they are not attended to the first time around.  This repeated
-reporting and patch sending may seem like useless work, but this
-is not true, it is actually a form of validation.
+> Until someone demonstrates that the DoS/abuse scenarios I might be 
+> imagining are real, in C, I think I'll do the smart thing: try to stop 
+> worrying about it and stick to very very simple stuff.
 
-   I thought you don't need to login to see things in bugzilla ?
+I thought the Irman thing was what killed the previous attempt
+at redistributing priorities?
 
-That's not the issue.  Asking people who want to help to
-read a list or two, isn't much to ask.  Getting them to click
-around some web site every day adds to the overhead.
+Helge Hafting
+

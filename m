@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132152AbRDCPVX>; Tue, 3 Apr 2001 11:21:23 -0400
+	id <S132127AbRDCPhq>; Tue, 3 Apr 2001 11:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRDCPVN>; Tue, 3 Apr 2001 11:21:13 -0400
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:10756 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S132152AbRDCPU5>; Tue, 3 Apr 2001 11:20:57 -0400
-Message-Id: <m14kSbM-0005khC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Cyrix/mtrr fix missing from 2.4.3
-To: linux-kernel@vger.kernel.org
-Date: Tue, 3 Apr 2001 10:20:12 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S132167AbRDCPh1>; Tue, 3 Apr 2001 11:37:27 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:21510 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132127AbRDCPhT>;
+	Tue, 3 Apr 2001 11:37:19 -0400
+Date: Tue, 3 Apr 2001 11:34:11 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: <Wayne.Brown@altec.com>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <Andries.Brouwer@cwi.nl>, <torvalds@transmeta.com>,
+        <alan@lxorguk.ukuu.org.uk>, <hpa@transmeta.com>,
+        <linux-kernel@vger.kernel.org>, <tytso@MIT.EDU>
+Subject: Re: Larger dev_t
+In-Reply-To: <86256A23.00517DBD.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.4.30.0104031129400.6886-100000@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following fix was omitted from 2.4.3.  It corrects a problem
-where the mtrr code attempts to set up a region twice as large as
-the user requested.
+On Tue, 3 Apr 2001, Wayne.Brown@altec.com wrote:
 
-The original message appeared in linux-kernel on 14 Mar 2001.
+> Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
+>
+> >Yes: Let "mknod /dev/foo [bc] x y" die!
+>
+> I hope this never happens.  Improving the major/minor device scheme is
+> reasonable; abandoning it would be a sad occurrence.  It would make Linux too
+> "un-UNIXish"  (how's THAT for an an ugly neologism!) for my tastes.
 
---Bob Tracy
+I don't know... the command 'mknod' should probably remain for
+compatibility reasons.  But the way that it does create the node can be
+completely different.  For example the call could just be a wrapper to a
+syscall or a write to a proc file.
 
------ Forwarded message from David Wragg -----
->From: David Wragg <dpw@doc.ic.ac.uk>
->Date: 14 Mar 2001 22:57:21 +0000
+I think Ingo had qualms with the process of creating of a device file
+which is totally detached of the kernel's ability to service that device.
 
-Oops, it got broken by the MTRR >32-bit support in 2.4.0-testX.  The
-patch below should fix it.
+But I am with you.  The compatibility between *NIX should not be severed
+so fast.
 
-Joerg, I think this might well fix your Cyrix mtrr problem also.
+B.
 
-Let me know how it goes,
-Dave Wragg
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
 
-diff -uar linux-2.4.2/arch/i386/kernel/mtrr.c linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c
---- linux-2.4.2/arch/i386/kernel/mtrr.c	Thu Feb 22 15:24:53 2001
-+++ linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c	Wed Mar 14 22:28:02 2001
-@@ -538,7 +538,7 @@
-      * Note: shift==0xf means 4G, this is unsupported.
-      */
-     if (shift)
--      *size = (reg < 7 ? 0x1UL : 0x40UL) << shift;
-+      *size = (reg < 7 ? 0x1UL : 0x40UL) << (shift - 1);
-     else
-       *size = 0;
- 
 
------ End of forwarded message from David Wragg -----
+

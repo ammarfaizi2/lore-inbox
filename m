@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264999AbRFUPRx>; Thu, 21 Jun 2001 11:17:53 -0400
+	id <S265005AbRFUPVD>; Thu, 21 Jun 2001 11:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265000AbRFUPRd>; Thu, 21 Jun 2001 11:17:33 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:3845 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S264999AbRFUPR0>; Thu, 21 Jun 2001 11:17:26 -0400
-Date: Thu, 21 Jun 2001 11:16:42 -0400
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>, Stefan.Bader@de.ibm.com
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: correction: fs/buffer.c underlocking async pages
-Message-ID: <470160000.993136602@tiny>
-In-Reply-To: <20010621170813.F29084@athlon.random>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S265006AbRFUPUx>; Thu, 21 Jun 2001 11:20:53 -0400
+Received: from cpe126.netz6.cablesurf.de ([195.206.156.126]:19075 "EHLO
+	idun.neukum.org") by vger.kernel.org with ESMTP id <S265005AbRFUPUs>;
+	Thu, 21 Jun 2001 11:20:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Subject: Re: Is it useful to support user level drivers
+Date: Thu, 21 Jun 2001 17:19:06 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.10.10106212130280.3193032-100000@Sky.inp.nsk.su>
+In-Reply-To: <Pine.SGI.4.10.10106212130280.3193032-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <01062117190601.02209@idun>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, 21. June 2001 16:46, Dmitry A. Fedorov wrote:
+> On Thu, 21 Jun 2001, Oliver Neukum wrote:
+> > > Lastly an IRQ kernel module can disable_irq() from interrupt handler
+> > > and enable it again only on explicit acknowledge from user.
+> >
+> > Unless you need that interrupt to be enabled to deliver the signal or let
+>
+> Need not. Signal and other event delivery mechanisms has nothing
+> common with disable/enable_irq().
 
+And how do you ensure that no interrupt is lost ?
+In fact you now are likely to have a race condition reading device status or 
+the like.
 
-On Thursday, June 21, 2001 05:08:13 PM +0200 Andrea Arcangeli
-<andrea@suse.de> wrote:
+> > userspace reenable the interrupt.
+>
+> "user acknowledge" is mean that.
+>
+> > In addition, how do you handle shared interrupts ?
+>
+> It is impossible, see my another message.
 
-> 
-> It seems we can more simply drop the tmp->b_end_io == end_buffer_io_async
-> check enterely and safely. Possibly we could build a debugging logic to
-> make sure nobody ever lock down a buffer mapped on a pagecache that is
-> under async I/O (which in realty is "sync" I/O, you know the async/sync
-> names of the kernel io callbacks are the opposite of realty ;).
-> 
-> The reason it seems safe to me is that when a pagecache is under async
-> I/O (async in kernel terms) it says locked all the time until the last
-> call of the async I/O callback, and _nobody_ is ever allowed to mess
-> with the anon bh overlapped on the pagecache while the page stays locked
-> down. As far as the async end_io callback is recalled it means the page
-> is still locked down so we know if the end_io callback points to
-> something else it's because of a underlying remapper, nobody else would
-> be allowed to play the bh of a page locked down.
+Which IMHO makes the concept pretty much useless.
+Interrupt sharing is pretty much the norm today. And there is no evidence for 
+this to change in the near future. Rather the opposite seems to happen in 
+fact.
 
-Think of a mixture of fsync_inode_buffers and async i/o on page.  Since
-fsync_inode_buffers uses ll_rw_block, if that end_io handler is the last to
-run the page never gets unlocked.
+Which devices were you thinking of, that need a hardware IRQ and no kernel 
+driver ?
 
--chris
-
+	Regards
+		Oliver

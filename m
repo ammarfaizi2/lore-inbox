@@ -1,37 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVATXYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVATXYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVATXYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 18:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVATXYq
+	id S261634AbVATXYa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 18:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVATXYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 18:24:46 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:13236 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S261267AbVATXYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 18:24:38 -0500
-Message-ID: <41F03D59.3030403@oracle.com>
-Date: Thu, 20 Jan 2005 15:23:05 -0800
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] tracepipe -- event streams, debugfs, and pipe_buffers
-References: <41F0344C.1030404@oracle.com> <41F03CEC.4060207@opersys.com>
-In-Reply-To: <41F03CEC.4060207@opersys.com>
+	Thu, 20 Jan 2005 18:24:30 -0500
+Received: from waste.org ([216.27.176.166]:48076 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261634AbVATXVi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 18:21:38 -0500
+Date: Thu, 20 Jan 2005 15:21:22 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, ajoshi@shell.unixbox.com,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net
+Subject: Radeon framebuffer weirdness in -mm2
+Message-ID: <20050120232122.GF3867@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> Zach Brown wrote:
-> 
->>Thoughts?  I, for one, am tired of writing throw-away per-cpu tracing
->>patches ;)
-> 
-> Have you taken a look at relayfs and ltt?
+I'm seeing radeonfb on my ThinkPad T30 go weird on reboot (lots of
+horizontal lines) and require powercycling to fix. Worked fine with 2.6.10.
 
-Only briefly.  They've always seemed more involved than the sort of
-thing I was after.  I'll try and sit down and investigate in more detail.
+-- 
+Mathematics is the supreme nostalgia of our time.

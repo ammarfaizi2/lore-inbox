@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282988AbRLGQsO>; Fri, 7 Dec 2001 11:48:14 -0500
+	id <S282874AbRLGQpa>; Fri, 7 Dec 2001 11:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282998AbRLGQrp>; Fri, 7 Dec 2001 11:47:45 -0500
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:25098 "EHLO
-	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S283003AbRLGQqv>; Fri, 7 Dec 2001 11:46:51 -0500
-Date: Fri, 7 Dec 2001 16:03:47 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
-Message-ID: <20011207160347.A1404@elf.ucw.cz>
-In-Reply-To: <E16BkER-0006J0-00@wagner> <20011206091836.GA5470@weta.f00f.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011206091836.GA5470@weta.f00f.org>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S282916AbRLGQpV>; Fri, 7 Dec 2001 11:45:21 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:21684 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S282907AbRLGQpJ>; Fri, 7 Dec 2001 11:45:09 -0500
+Message-Id: <200112071645.fB7GjLE03441@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: knfsd and memory usage
+Date: Fri, 7 Dec 2001 11:45:07 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+So I have this new file server (2.4.16), and it's memory looks like
+Mem:    771952K total,   767492K used,     4460K free,    22016K buffers
+Swap:        0K total,        0K used,        0K free,    71848K cached
 
-> On Thu, Dec 06, 2001 at 09:09:35AM +1100, Rusty Russell wrote:
-> 
->     The following patch implements convenient per-cpu areas:
->         DECLARE_PER_CPU(int myvar);
-> 
-> Where or why do we need this?
+So cache, buffers, and free memory account for ~100MB.
+There are a handful of userspace processes taking ~20MB.
 
-DECLARE_PER_CPU(struct task *current). Same for slab quick-alloc
-lists, performance counters,  ...
-							Pavel
--- 
-"I do not steal MS software. It is not worth it."
-                                -- Pavel Kankovsky
+Obviously I expect the kernel to take up some memory, but 650 megs?
+
+Is there I way I can find out where all of that memory went?
+If knfsd is hoarding (no other box has this much unaccounted for), is 
+there a way to tweak it at runtime?  Are there 'safe' things to adjust at 
+compile time?
+
+Thanks
+	-- Brian

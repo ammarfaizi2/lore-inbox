@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317845AbSGVWUb>; Mon, 22 Jul 2002 18:20:31 -0400
+	id <S317861AbSGVW0p>; Mon, 22 Jul 2002 18:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317846AbSGVWUb>; Mon, 22 Jul 2002 18:20:31 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:61110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S317845AbSGVWUa>;
-	Mon, 22 Jul 2002 18:20:30 -0400
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-From: Joe DiMartino <joe@osdl.org>
-To: Rob Landley <landley@trommello.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net>
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Jul 2002 15:23:12 -0700
-Message-Id: <1027376592.15134.52.camel@joe2.pdx.osdl.net>
+	id <S317864AbSGVW0o>; Mon, 22 Jul 2002 18:26:44 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:38405 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S317861AbSGVW0o>; Mon, 22 Jul 2002 18:26:44 -0400
+Date: Mon, 22 Jul 2002 23:29:41 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: using bitkeeper to backport subsystems?
+Message-ID: <20020722232941.A10083@computer-surgery.co.uk>
+References: <20020721233410.GA21907@lukas> <20020722071510.GG16559@boardwalk> <20020722102930.A14802@lst.de> <20020722102705.GB21907@lukas> <20020722152031.GB692@opus.bloom.county>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020722152031.GB692@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Jul 22, 2002 at 08:20:31AM -0700
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 15:33, Rob Landley wrote:
-> I've been sitting on this question for years, hoping I'd come across the 
-> answer, and I STILL don't know what the "i" is short for.  Somebody here has 
-> got to know this. :)
-> 
 
-Two plausible definitions:
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The Magic Garden Explained calls them "information nodes".
+On Mon, Jul 22, 2002 at 08:20:31AM -0700, Tom Rini wrote:
+> Possibly, once bitkeeper allowes ChangeSets to only depend on what they
+> actually need, not every previous ChangeSet in the repository.  IIRC,
+> this was one of the things Linus asked for, so hopefully it will happen.
 
-A really old (1983) Byte Book called Introducing the Unix System has
-this to say:
+While that would be great.
 
-	A file in the UNIX system is described by an object called an
-	"i-node".  We think that the name means "interior node", since
-	the UNIX file-system is (in principle at least) a directed
-	graph.  For every file there is a single i-node that describes
-	that file, and contains pointers to blocks that comprise that
-	file.
+With all due respect to Larry and the bk team, I think you'll
+find determining 'needed changesets' in this case is a _hard_ problem.
 
+How is bk supposed to find that a change depends on a previously
+redefined api declared in a set of files othwerwise untouched by the=20
+changeset being exported.
 
-So, what do you _want_ it to mean? :-)
+Now , bk could make this a little easier by allowing changesets to
+be exported without any dependencies (ala GNU-patch export - but
+with metadata for commit messages).
 
-- Joe DiMartino
+The developer can then use a 'bk undo'  to remove the unnessary changeset
+for his patch , reapply keeping the commit metadata, test and now
+re-export a full bk patch with minimal dependencies.
 
+Unfortuantely I know know way of currently instructing bk to
+do this dependency-less export.
 
+--
+TTFN
+Roger.
+Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)
+GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
 
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE9PIdUqQ3nO4jeCz4RAsRhAKCC/Kpz15sxc6NyTT38NXAKlzExswCfWrBE
+SzAjmbBHkS1b/k02dvKv9Qw=
+=vLfB
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--

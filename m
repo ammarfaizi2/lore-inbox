@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbUKDHBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbUKDHEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbUKDHBs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 02:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUKDHBr
+	id S262118AbUKDHEg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 02:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUKDHEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 02:01:47 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:417 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262117AbUKDGy6 (ORCPT
+	Thu, 4 Nov 2004 02:04:32 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:52384 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262118AbUKDGy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 01:54:58 -0500
-Date: Thu, 4 Nov 2004 15:54:54 +0900
+	Thu, 4 Nov 2004 01:54:28 -0500
+Date: Thu, 4 Nov 2004 15:54:25 +0900
 From: Tejun Heo <tj@home-tj.org>
 To: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1 15/15] driver-model: via-velocity converted to use devparam
-Message-ID: <20041104065454.GO24890@home-tj.org>
+Subject: [PATCH 2.6.10-rc1 14/15] driver-model: devparam documentation
+Message-ID: <20041104065425.GN24890@home-tj.org>
 References: <20041104063532.GA24566@home-tj.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,793 +24,437 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- dp_15_DEVPARAM_via-velocity.patch
+ dp_14_devparam_doc.patch
 
- This is the 15th patch of 15 patches for devparam.
+ This is the 14th patch of 15 patches for devparam.
 
- This patch converts via-velocity driver to use devparam.
+ Devparam document.
 
 
 Signed-off-by: Tejun Heo <tj@home-tj.org>
 
 
-Index: linux-export/drivers/net/via-velocity.c
+Index: linux-export/Documentation/driver-model/devparam.txt
 ===================================================================
---- linux-export.orig/drivers/net/via-velocity.c	2004-11-04 10:25:58.000000000 +0900
-+++ linux-export/drivers/net/via-velocity.c	2004-11-04 11:04:13.000000000 +0900
-@@ -84,7 +84,6 @@
- #include "via-velocity.h"
- 
- 
--static int velocity_nics = 0;
- static int msglevel = MSG_LEVEL_INFO;
- 
- 
-@@ -99,134 +98,106 @@ MODULE_AUTHOR("VIA Networking Technologi
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("VIA Networking Velocity Family Gigabit Ethernet Adapter Driver");
- 
--#define VELOCITY_PARAM(N,D) \
--        static const int N[MAX_UNITS]=OPTION_DEFAULT;\
--        MODULE_PARM(N, "1-" __MODULE_STRING(MAX_UNITS) "i");\
--        MODULE_PARM_DESC(N, D);
--
- #define RX_DESC_MIN     64
- #define RX_DESC_MAX     255
- #define RX_DESC_DEF     64
--VELOCITY_PARAM(RxDescriptors, "Number of receive descriptors");
--
--#define TX_DESC_MIN     16
--#define TX_DESC_MAX     256
--#define TX_DESC_DEF     64
--VELOCITY_PARAM(TxDescriptors, "Number of transmit descriptors");
--
--#define VLAN_ID_MIN     0
--#define VLAN_ID_MAX     4095
--#define VLAN_ID_DEF     0
--/* VID_setting[] is used for setting the VID of NIC.
--   0: default VID.
--   1-4094: other VIDs.
--*/
--VELOCITY_PARAM(VID_setting, "802.1Q VLAN ID");
--
--#define RX_THRESH_MIN   0
--#define RX_THRESH_MAX   3
--#define RX_THRESH_DEF   0
--/* rx_thresh[] is used for controlling the receive fifo threshold.
--   0: indicate the rxfifo threshold is 128 bytes.
--   1: indicate the rxfifo threshold is 512 bytes.
--   2: indicate the rxfifo threshold is 1024 bytes.
--   3: indicate the rxfifo threshold is store & forward.
--*/
--VELOCITY_PARAM(rx_thresh, "Receive fifo threshold");
--
--#define DMA_LENGTH_MIN  0
--#define DMA_LENGTH_MAX  7
--#define DMA_LENGTH_DEF  0
--
--/* DMA_length[] is used for controlling the DMA length
--   0: 8 DWORDs
--   1: 16 DWORDs
--   2: 32 DWORDs
--   3: 64 DWORDs
--   4: 128 DWORDs
--   5: 256 DWORDs
--   6: SF(flush till emply)
--   7: SF(flush till emply)
--*/
--VELOCITY_PARAM(DMA_length, "DMA length");
--
--#define TAGGING_DEF     0
--/* enable_tagging[] is used for enabling 802.1Q VID tagging.
--   0: disable VID seeting(default).
--   1: enable VID setting.
--*/
--VELOCITY_PARAM(enable_tagging, "Enable 802.1Q tagging");
--
--#define IP_ALIG_DEF     0
--/* IP_byte_align[] is used for IP header DWORD byte aligned
--   0: indicate the IP header won't be DWORD byte aligned.(Default) .
--   1: indicate the IP header will be DWORD byte aligned.
--      In some enviroment, the IP header should be DWORD byte aligned,
--      or the packet will be droped when we receive it. (eg: IPVS)
--*/
--VELOCITY_PARAM(IP_byte_align, "Enable IP header dword aligned");
--
--#define TX_CSUM_DEF     1
--/* txcsum_offload[] is used for setting the checksum offload ability of NIC.
--   (We only support RX checksum offload now)
--   0: disable csum_offload[checksum offload
--   1: enable checksum offload. (Default)
--*/
--VELOCITY_PARAM(txcsum_offload, "Enable transmit packet checksum offload");
--
--#define FLOW_CNTL_DEF   1
--#define FLOW_CNTL_MIN   1
--#define FLOW_CNTL_MAX   5
--
--/* flow_control[] is used for setting the flow control ability of NIC.
--   1: hardware deafult - AUTO (default). Use Hardware default value in ANAR.
--   2: enable TX flow control.
--   3: enable RX flow control.
--   4: enable RX/TX flow control.
--   5: disable
--*/
--VELOCITY_PARAM(flow_control, "Enable flow control ability");
--
--#define MED_LNK_DEF 0
--#define MED_LNK_MIN 0
--#define MED_LNK_MAX 4
--/* speed_duplex[] is used for setting the speed and duplex mode of NIC.
--   0: indicate autonegotiation for both speed and duplex mode
--   1: indicate 100Mbps half duplex mode
--   2: indicate 100Mbps full duplex mode
--   3: indicate 10Mbps half duplex mode
--   4: indicate 10Mbps full duplex mode
--
--   Note:
--        if EEPROM have been set to the force mode, this option is ignored
--            by driver.
--*/
--VELOCITY_PARAM(speed_duplex, "Setting the speed and duplex mode");
--
--#define VAL_PKT_LEN_DEF     0
--/* ValPktLen[] is used for setting the checksum offload ability of NIC.
--   0: Receive frame with invalid layer 2 length (Default)
--   1: Drop frame with invalid layer 2 length
--*/
--VELOCITY_PARAM(ValPktLen, "Receiving or Drop invalid 802.3 frame");
--
--#define WOL_OPT_DEF     0
--#define WOL_OPT_MIN     0
--#define WOL_OPT_MAX     7
--/* wol_opts[] is used for controlling wake on lan behavior.
--   0: Wake up if recevied a magic packet. (Default)
--   1: Wake up if link status is on/off.
--   2: Wake up if recevied an arp packet.
--   4: Wake up if recevied any unicast packet.
--   Those value can be sumed up to support more than one option.
--*/
--VELOCITY_PARAM(wol_opts, "Wake On Lan options");
- 
--#define INT_WORKS_DEF   20
--#define INT_WORKS_MIN   10
--#define INT_WORKS_MAX   64
--
--VELOCITY_PARAM(int_works, "Number of packets per interrupt services");
-+#define VELOCITY_INT_PARAM(name, field, min, max, dfl, desc) \
-+	DEVICE_PARAM_NAMED_RANGED(name, field, int, min, max, #dfl, 0444, desc)
-+#define VELOCITY_FLAG_PARAM(name, flag, dfl, desc) \
-+	DEVICE_PARAM_FLAG(name, flags, flag, #dfl, 0444, desc)
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-export/Documentation/driver-model/devparam.txt	2004-11-04 11:04:13.000000000 +0900
+@@ -0,0 +1,419 @@
++Per-Device Parameter
 +
-+static DEFINE_DEVICE_PARAMSET(velocity_paramset_def, struct velocity_opt,
-+	VELOCITY_INT_PARAM(RxDescriptors, numrx, 64, 255, 64,
-+			   "Number of receive descriptors")
++Tejun Heo  <tj@home-tj.org>
 +
-+	VELOCITY_INT_PARAM(TxDescriptors, numtx, 16, 256, 64,
-+			   "Number of transmit descriptors")
++19 October 2004
 +
-+	/* VID_setting is used for setting the VID of NIC.
-+	   0: default VID.
-+	   1-4094: other VIDs. */
-+	VELOCITY_INT_PARAM(VID_setting, vid, 0, 4095, 0, "802.1Q VLAN ID")
 +
-+	/* rx_thresh is used for controlling the receive fifo threshold.
-+	   0: indicate the rxfifo threshold is 128 bytes.
-+	   1: indicate the rxfifo threshold is 512 bytes.
-+	   2: indicate the rxfifo threshold is 1024 bytes.
-+	   3: indicate the rxfifo threshold is store & forward. */
-+	VELOCITY_INT_PARAM(rx_thresh, rx_thresh, 0, 3, 0,
-+			   "Receive fifo threshold")
++ INTRO
++ =====
 +
-+	/* DMA_length is used for controlling the DMA length
-+	   0: 8 DWORDs
-+	   1: 16 DWORDs
-+	   2: 32 DWORDs
-+	   3: 64 DWORDs
-+	   4: 128 DWORDs
-+	   5: 256 DWORDs
-+	   6: SF(flush till emply)
-+	   7: SF(flush till emply) */
-+	VELOCITY_INT_PARAM(DMA_length, DMA_length, 0, 7, 0, "DMA length")
++ Per-device parameter wasn't supported by Linux driver model
++previously.  It was usually done using the moduleparam facility.  As
++the name suggests, moduleparam implements per-module parameters and
++drivers used fixed-size array to implement per-device parameters.
++This results in unnecessary duplication of codes, variation in usage
++and random limits on the number of supported devices or devices which
++users can specify parameters for.  Devparam integrates per-device
++parameter support into the driver model to solve these issues.
 +
-+	/* enable_tagging is used for enabling 802.1Q VID tagging.
-+	   0: disable VID seeting(default).
-+	   1: enable VID setting. */
-+	VELOCITY_FLAG_PARAM(enable_tagging, VELOCITY_FLAGS_TAGGING, 0,
-+			   "Enable 802.1Q tagging")
++ Devparam aims to
 +
-+	/* IP_byte_align is used for IP header DWORD byte aligned
-+	   0: indicate the IP header won't be DWORD byte aligned.(Default) .
-+	   1: indicate the IP header will be DWORD byte aligned.
-+	   In some enviroment, the IP header should be DWORD byte aligned,
-+	   or the packet will be droped when we receive it. (eg: IPVS) */
-+	VELOCITY_FLAG_PARAM(IP_byte_align, VELOCITY_FLAGS_IP_ALIGN, 0,
-+			   "Enable IP header dword aligned")
++ 1. Remove duplicated parameter handling codes from drivers
++ 2. Retain user-visible syntax for converted drivers
++ 3. Remove hard-coded random limits on the number of devices
++    parameters can be specified for
++ 4. Support multiple paramsets
++ 5. Support sysfs access to per-device paramters
 +
-+	/* txcsum_offload is used for setting the checksum offload ability of NIC.
-+	   (We only support RX checksum offload now)
-+	   0: disable csum_offload[checksum offload
-+	   1: enable checksum offload. (Default) */
-+	VELOCITY_FLAG_PARAM(txcsum_offload, VELOCITY_FLAGS_TX_CSUM, 1,
-+			    "Enable transmit packet checksum offload")
 +
-+	/* flow_control is used for setting the flow control ability of NIC.
-+	   1: hardware deafult - AUTO (default). Use Hardware default value in ANAR.
-+	   2: enable TX flow control.
-+	   3: enable RX flow control.
-+	   4: enable RX/TX flow control.
-+	   5: disable */
-+	VELOCITY_INT_PARAM(flow_control, flow_cntl, 1, 5, 1,
-+			   "Enable flow control ability")
++ OVERVIEW
++ ========
 +
-+	/* speed_duplex is used for setting the speed and duplex mode of NIC.
-+	   0: indicate autonegotiation for both speed and duplex mode
-+	   1: indicate 100Mbps half duplex mode
-+	   2: indicate 100Mbps full duplex mode
-+	   3: indicate 10Mbps half duplex mode
-+	   4: indicate 10Mbps full duplex mode
-+	   
-+	   Note:
-+	   if EEPROM have been set to the force mode, this option is ignored
-+	   by driver. */
-+	VELOCITY_INT_PARAM(speed_duplex, spd_dpx, 0, 4, 0,
-+			   "Setting the speed and duplex mode")
++ Parameters are organized into parameter sets or paramsets.  Each
++paramset is represented by a user-defined structure (e.g. struct
++my_dev_paramset).  A paramset definition, or paramset_def, describes
++the paramset to the driver model - what it contains, how to parse each
++parameter and so on.
 +
-+	/* ValPktLen is used for setting the checksum offload ability of NIC.
-+	   0: Receive frame with invalid layer 2 length (Default)
-+	   1: Drop frame with invalid layer 2 length */
-+	VELOCITY_FLAG_PARAM(ValPktLen, VELOCITY_FLAGS_VAL_PKT_LEN, 0,
-+			    "Receiving or Drop invalid 802.3 frame")
++ A device driver passes paramset_defs it wants to use to the driver
++model when registering the driver, and before the driver is attached
++to a device, the driver model parses user supplied parameters and
++fills the paramsets and pass them to the device driver.
 +
-+	/* wol_opts is used for controlling wake on lan behavior.
-+	   0: Wake up if recevied a magic packet. (Default)
-+	   1: Wake up if link status is on/off.
-+	   2: Wake up if recevied an arp packet.
-+	   4: Wake up if recevied any unicast packet.
-+	   Those value can be sumed up to support more than one option. */
-+	VELOCITY_INT_PARAM(wol_opts, wol_opts, 0, 7, 0, "Wake On Lan options")
++ There are two categories of paramsets.
 +
-+	VELOCITY_INT_PARAM(int_works, int_works, 10, 64, 20,
-+			   "Number of packets per interrupt services")
-+);
- 
- static int rx_copybreak = 200;
- MODULE_PARM(rx_copybreak, "i");
-@@ -359,97 +330,6 @@ static void __devexit velocity_remove1(s
- 	pci_disable_device(pdev);
- 	pci_set_drvdata(pdev, NULL);
- 	free_netdev(dev);
--
--	velocity_nics--;
--}
--
--/**
-- *	velocity_set_int_opt	-	parser for integer options
-- *	@opt: pointer to option value
-- *	@val: value the user requested (or -1 for default)
-- *	@min: lowest value allowed
-- *	@max: highest value allowed
-- *	@def: default value
-- *	@name: property name
-- *	@dev: device name
-- *
-- *	Set an integer property in the module options. This function does
-- *	all the verification and checking as well as reporting so that
-- *	we don't duplicate code for each option.
-- */
--
--static void __devinit velocity_set_int_opt(int *opt, int val, int min, int max, int def, char *name, char *devname)
--{
--	if (val == -1)
--		*opt = def;
--	else if (val < min || val > max) {
--		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: the value of parameter %s is invalid, the valid range is (%d-%d)\n",
--					devname, name, min, max);
--		*opt = def;
--	} else {
--		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_INFO "%s: set value of parameter %s to %d\n",
--					devname, name, val);
--		*opt = val;
--	}
--}
--
--/**
-- *	velocity_set_bool_opt	-	parser for boolean options
-- *	@opt: pointer to option value
-- *	@val: value the user requested (or -1 for default)
-- *	@def: default value (yes/no)
-- *	@flag: numeric value to set for true.
-- *	@name: property name
-- *	@dev: device name
-- *
-- *	Set a boolean property in the module options. This function does
-- *	all the verification and checking as well as reporting so that
-- *	we don't duplicate code for each option.
-- */
--
--static void __devinit velocity_set_bool_opt(u32 * opt, int val, int def, u32 flag, char *name, char *devname)
--{
--	(*opt) &= (~flag);
--	if (val == -1)
--		*opt |= (def ? flag : 0);
--	else if (val < 0 || val > 1) {
--		printk(KERN_NOTICE "%s: the value of parameter %s is invalid, the valid range is (0-1)\n", 
--			devname, name);
--		*opt |= (def ? flag : 0);
--	} else {
--		printk(KERN_INFO "%s: set parameter %s to %s\n", 
--			devname, name, val ? "TRUE" : "FALSE");
--		*opt |= (val ? flag : 0);
--	}
--}
--
--/**
-- *	velocity_get_options	-	set options on device
-- *	@opts: option structure for the device
-- *	@index: index of option to use in module options array
-- *	@devname: device name
-- *
-- *	Turn the module and command options into a single structure
-- *	for the current device
-- */
--
--static void __devinit velocity_get_options(struct velocity_opt *opts, int index, char *devname)
--{
--
--	velocity_set_int_opt(&opts->rx_thresh, rx_thresh[index], RX_THRESH_MIN, RX_THRESH_MAX, RX_THRESH_DEF, "rx_thresh", devname);
--	velocity_set_int_opt(&opts->DMA_length, DMA_length[index], DMA_LENGTH_MIN, DMA_LENGTH_MAX, DMA_LENGTH_DEF, "DMA_length", devname);
--	velocity_set_int_opt(&opts->numrx, RxDescriptors[index], RX_DESC_MIN, RX_DESC_MAX, RX_DESC_DEF, "RxDescriptors", devname);
--	velocity_set_int_opt(&opts->numtx, TxDescriptors[index], TX_DESC_MIN, TX_DESC_MAX, TX_DESC_DEF, "TxDescriptors", devname);
--	velocity_set_int_opt(&opts->vid, VID_setting[index], VLAN_ID_MIN, VLAN_ID_MAX, VLAN_ID_DEF, "VID_setting", devname);
--	velocity_set_bool_opt(&opts->flags, enable_tagging[index], TAGGING_DEF, VELOCITY_FLAGS_TAGGING, "enable_tagging", devname);
--	velocity_set_bool_opt(&opts->flags, txcsum_offload[index], TX_CSUM_DEF, VELOCITY_FLAGS_TX_CSUM, "txcsum_offload", devname);
--	velocity_set_int_opt(&opts->flow_cntl, flow_control[index], FLOW_CNTL_MIN, FLOW_CNTL_MAX, FLOW_CNTL_DEF, "flow_control", devname);
--	velocity_set_bool_opt(&opts->flags, IP_byte_align[index], IP_ALIG_DEF, VELOCITY_FLAGS_IP_ALIGN, "IP_byte_align", devname);
--	velocity_set_bool_opt(&opts->flags, ValPktLen[index], VAL_PKT_LEN_DEF, VELOCITY_FLAGS_VAL_PKT_LEN, "ValPktLen", devname);
--	velocity_set_int_opt((int *) &opts->spd_dpx, speed_duplex[index], MED_LNK_MIN, MED_LNK_MAX, MED_LNK_DEF, "Media link mode", devname);
--	velocity_set_int_opt((int *) &opts->wol_opts, wol_opts[index], WOL_OPT_MIN, WOL_OPT_MAX, WOL_OPT_DEF, "Wake On Lan options", devname);
--	velocity_set_int_opt((int *) &opts->int_works, int_works[index], INT_WORKS_MIN, INT_WORKS_MAX, INT_WORKS_DEF, "Interrupt service works", devname);
--	opts->numrx = (opts->numrx & ~3);
- }
- 
- /**
-@@ -478,10 +358,10 @@ static void velocity_init_cam_filter(str
- 	if (vptr->flags & VELOCITY_FLAGS_TAGGING) {
- 		/* If Tagging option is enabled and VLAN ID is not zero, then
- 		   turn on MCFG_RTGOPT also */
--		if (vptr->options.vid != 0)
-+		if (vptr->options->vid != 0)
- 			WORD_REG_BITS_ON(MCFG_RTGOPT, &regs->MCFG);
- 
--		mac_set_cam(regs, 0, (u8 *) & (vptr->options.vid), VELOCITY_VLAN_ID_CAM);
-+		mac_set_cam(regs, 0, (u8 *) & (vptr->options->vid), VELOCITY_VLAN_ID_CAM);
- 		vptr->vCAMmask[0] |= 1;
- 		mac_set_cam_mask(regs, vptr->vCAMmask, VELOCITY_VLAN_ID_CAM);
- 	} else {
-@@ -511,13 +391,13 @@ static void velocity_rx_reset(struct vel
- 	/*
- 	 *	Init state, all RD entries belong to the NIC
- 	 */
--	for (i = 0; i < vptr->options.numrx; ++i)
-+	for (i = 0; i < vptr->options->numrx; ++i)
- 		vptr->rd_ring[i].rdesc0.owner = OWNED_BY_NIC;
- 
--	writew(vptr->options.numrx, &regs->RBRDU);
-+	writew(vptr->options->numrx, &regs->RBRDU);
- 	writel(vptr->rd_pool_dma, &regs->RDBaseLo);
- 	writew(0, &regs->RDIdx);
--	writew(vptr->options.numrx - 1, &regs->RDCSize);
-+	writew(vptr->options->numrx - 1, &regs->RDCSize);
- }
- 
- /**
-@@ -582,8 +462,8 @@ static void velocity_init_registers(stru
- 		 *	clear Pre_ACPI bit.
- 		 */
- 		BYTE_REG_BITS_OFF(CFGA_PACPI, &(regs->CFGA));
--		mac_set_rx_thresh(regs, vptr->options.rx_thresh);
--		mac_set_dma_length(regs, vptr->options.DMA_length);
-+		mac_set_rx_thresh(regs, vptr->options->rx_thresh);
-+		mac_set_dma_length(regs, vptr->options->DMA_length);
- 
- 		writeb(WOLCFG_SAM | WOLCFG_SAB, &regs->WOLCFGSet);
- 		/*
-@@ -609,11 +489,11 @@ static void velocity_init_registers(stru
- 		vptr->int_mask = INT_MASK_DEF;
- 
- 		writel(cpu_to_le32(vptr->rd_pool_dma), &regs->RDBaseLo);
--		writew(vptr->options.numrx - 1, &regs->RDCSize);
-+		writew(vptr->options->numrx - 1, &regs->RDCSize);
- 		mac_rx_queue_run(regs);
- 		mac_rx_queue_wake(regs);
- 
--		writew(vptr->options.numtx - 1, &regs->TDCSize);
-+		writew(vptr->options->numtx - 1, &regs->TDCSize);
- 
- 		for (i = 0; i < vptr->num_txq; i++) {
- 			writel(cpu_to_le32(vptr->td_pool_dma[i]), &(regs->TDBaseLo[i]));
-@@ -693,12 +573,6 @@ static int __devinit velocity_found1(str
- 	struct mac_regs __iomem * regs;
- 	int ret = -ENOMEM;
- 
--	if (velocity_nics >= MAX_UNITS) {
--		printk(KERN_NOTICE VELOCITY_NAME ": already found %d NICs.\n", 
--				velocity_nics);
--		return -ENODEV;
--	}
--
- 	dev = alloc_etherdev(sizeof(struct velocity_info));
- 
- 	if (dev == NULL) {
-@@ -711,7 +585,8 @@ static int __devinit velocity_found1(str
- 	SET_MODULE_OWNER(dev);
- 	SET_NETDEV_DEV(dev, &pdev->dev);
- 	vptr = dev->priv;
--
-+	vptr->options = pdev->dev.paramsets[0];
-+	vptr->options->numrx &= ~3;
- 
- 	if (first) {
- 		printk(KERN_INFO "%s Ver. %s\n", 
-@@ -758,22 +633,19 @@ static int __devinit velocity_found1(str
- 	for (i = 0; i < 6; i++)
- 		dev->dev_addr[i] = readb(&regs->PAR[i]);
- 
--
--	velocity_get_options(&vptr->options, velocity_nics, dev->name);
--
- 	/* 
- 	 *	Mask out the options cannot be set to the chip
- 	 */
- 	 
--	vptr->options.flags &= info->flags;
-+	vptr->options->flags &= info->flags;
- 
- 	/*
- 	 *	Enable the chip specified capbilities
- 	 */
- 	 
--	vptr->flags = vptr->options.flags | (info->flags & 0xFF000000UL);
-+	vptr->flags = vptr->options->flags | (info->flags & 0xFF000000UL);
- 
--	vptr->wol_opts = vptr->options.wol_opts;
-+	vptr->wol_opts = vptr->options->wol_opts;
- 	vptr->flags |= VELOCITY_FLAGS_WOL_ENABLED;
- 
- 	vptr->phy_id = MII_GET_PHY_ID(vptr->mac_regs);
-@@ -814,7 +686,6 @@ static int __devinit velocity_found1(str
- 		spin_unlock_irqrestore(&velocity_dev_list_lock, flags);
- 	}
- #endif
--	velocity_nics++;
- out:
- 	return ret;
- 
-@@ -936,8 +807,8 @@ static int velocity_init_rings(struct ve
- 	 *	Allocate all RD/TD rings a single pool 
- 	 */
- 	 
--	psize = vptr->options.numrx * sizeof(struct rx_desc) + 
--		vptr->options.numtx * sizeof(struct tx_desc) * vptr->num_txq;
-+	psize = vptr->options->numrx * sizeof(struct rx_desc) + 
-+		vptr->options->numtx * sizeof(struct tx_desc) * vptr->num_txq;
- 
- 	/*
- 	 * pci_alloc_consistent() fulfills the requirement for 64 bytes
-@@ -957,7 +828,7 @@ static int velocity_init_rings(struct ve
- 
- 	vptr->rd_pool_dma = pool_dma;
- 
--	tsize = vptr->options.numtx * PKT_BUF_SZ * vptr->num_txq;
-+	tsize = vptr->options->numtx * PKT_BUF_SZ * vptr->num_txq;
- 	vptr->tx_bufs = pci_alloc_consistent(vptr->pdev, tsize, 
- 						&vptr->tx_bufs_dma);
- 
-@@ -968,13 +839,13 @@ static int velocity_init_rings(struct ve
- 		return -ENOMEM;
- 	}
- 
--	memset(vptr->tx_bufs, 0, vptr->options.numtx * PKT_BUF_SZ * vptr->num_txq);
-+	memset(vptr->tx_bufs, 0, vptr->options->numtx * PKT_BUF_SZ * vptr->num_txq);
- 
--	i = vptr->options.numrx * sizeof(struct rx_desc);
-+	i = vptr->options->numrx * sizeof(struct rx_desc);
- 	pool += i;
- 	pool_dma += i;
- 	for (i = 0; i < vptr->num_txq; i++) {
--		int offset = vptr->options.numtx * sizeof(struct tx_desc);
-+		int offset = vptr->options->numtx * sizeof(struct tx_desc);
- 
- 		vptr->td_pool_dma[i] = pool_dma;
- 		vptr->td_rings[i] = (struct tx_desc *) pool;
-@@ -995,12 +866,12 @@ static void velocity_free_rings(struct v
- {
- 	int size;
- 
--	size = vptr->options.numrx * sizeof(struct rx_desc) + 
--	       vptr->options.numtx * sizeof(struct tx_desc) * vptr->num_txq;
-+	size = vptr->options->numrx * sizeof(struct rx_desc) + 
-+	       vptr->options->numtx * sizeof(struct tx_desc) * vptr->num_txq;
- 
- 	pci_free_consistent(vptr->pdev, size, vptr->rd_ring, vptr->rd_pool_dma);
- 
--	size = vptr->options.numtx * PKT_BUF_SZ * vptr->num_txq;
-+	size = vptr->options->numtx * PKT_BUF_SZ * vptr->num_txq;
- 
- 	pci_free_consistent(vptr->pdev, size, vptr->tx_bufs, vptr->tx_bufs_dma);
- }
-@@ -1022,7 +893,7 @@ static inline void velocity_give_many_rx
- 	unusable = vptr->rd_filled & 0x0003;
- 	dirty = vptr->rd_dirty - unusable;
- 	for (avail = vptr->rd_filled & 0xfffc; avail; avail--) {
--		dirty = (dirty > 0) ? dirty - 1 : vptr->options.numrx - 1;
-+		dirty = (dirty > 0) ? dirty - 1 : vptr->options->numrx - 1;
- 		vptr->rd_ring[dirty].rdesc0.owner = OWNED_BY_NIC;
- 	}
- 
-@@ -1047,7 +918,7 @@ static int velocity_rx_refill(struct vel
- 				break;
- 		}
- 		done++;
--		dirty = (dirty < vptr->options.numrx - 1) ? dirty + 1 : 0;	
-+		dirty = (dirty < vptr->options->numrx - 1) ? dirty + 1 : 0;	
- 	} while (dirty != vptr->rd_curr);
- 
- 	if (done) {
-@@ -1071,7 +942,7 @@ static int velocity_init_rd_ring(struct 
- {
- 	int ret = -ENOMEM;
- 	unsigned int rsize = sizeof(struct velocity_rd_info) * 
--					vptr->options.numrx;
-+					vptr->options->numrx;
- 
- 	vptr->rd_info = kmalloc(rsize, GFP_KERNEL);
- 	if(vptr->rd_info == NULL)
-@@ -1105,7 +976,7 @@ static void velocity_free_rd_ring(struct
- 	if (vptr->rd_info == NULL)
- 		return;
- 
--	for (i = 0; i < vptr->options.numrx; i++) {
-+	for (i = 0; i < vptr->options->numrx; i++) {
- 		struct velocity_rd_info *rd_info = &(vptr->rd_info[i]);
- 
- 		if (!rd_info->skb)
-@@ -1138,7 +1009,7 @@ static int velocity_init_td_ring(struct 
- 	struct tx_desc *td;
- 	struct velocity_td_info *td_info;
- 	unsigned int tsize = sizeof(struct velocity_td_info) * 
--					vptr->options.numtx;
-+					vptr->options->numtx;
- 
- 	/* Init the TD ring entries */
- 	for (j = 0; j < vptr->num_txq; j++) {
-@@ -1153,13 +1024,13 @@ static int velocity_init_td_ring(struct 
- 		}
- 		memset(vptr->td_infos[j], 0, tsize);
- 
--		for (i = 0; i < vptr->options.numtx; i++, curr += sizeof(struct tx_desc)) {
-+		for (i = 0; i < vptr->options->numtx; i++, curr += sizeof(struct tx_desc)) {
- 			td = &(vptr->td_rings[j][i]);
- 			td_info = &(vptr->td_infos[j][i]);
- 			td_info->buf = vptr->tx_bufs +
--				(j * vptr->options.numtx + i) * PKT_BUF_SZ;
-+				(j * vptr->options->numtx + i) * PKT_BUF_SZ;
- 			td_info->buf_dma = vptr->tx_bufs_dma +
--				(j * vptr->options.numtx + i) * PKT_BUF_SZ;
-+				(j * vptr->options->numtx + i) * PKT_BUF_SZ;
- 		}
- 		vptr->td_tail[j] = vptr->td_curr[j] = vptr->td_used[j] = 0;
- 	}
-@@ -1208,7 +1079,7 @@ static void velocity_free_td_ring(struct
- 	for (j = 0; j < vptr->num_txq; j++) {
- 		if (vptr->td_infos[j] == NULL)
- 			continue;
--		for (i = 0; i < vptr->options.numtx; i++) {
-+		for (i = 0; i < vptr->options->numtx; i++) {
- 			velocity_free_td_ring_entry(vptr, j, i);
- 
- 		}
-@@ -1266,7 +1137,7 @@ static int velocity_rx_srv(struct veloci
- 		vptr->dev->last_rx = jiffies;
- 
- 		rd_curr++;
--		if (rd_curr >= vptr->options.numrx)
-+		if (rd_curr >= vptr->options->numrx)
- 			rd_curr = 0;
- 	} while (++works <= 15);
- 
-@@ -1494,7 +1365,7 @@ static int velocity_tx_srv(struct veloci
- 
- 	for (qnum = 0; qnum < vptr->num_txq; qnum++) {
- 		for (idx = vptr->td_tail[qnum]; vptr->td_used[qnum] > 0; 
--			idx = (idx + 1) % vptr->options.numtx) {
-+			idx = (idx + 1) % vptr->options->numtx) {
- 
- 			/*
- 			 *	Get Tx Descriptor
-@@ -1557,7 +1428,7 @@ static void velocity_print_link_status(s
- 
- 	if (vptr->mii_status & VELOCITY_LINK_FAIL) {
- 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: failed to detect cable link\n", vptr->dev->name);
--	} else if (vptr->options.spd_dpx == SPD_DPX_AUTO) {
-+	} else if (vptr->options->spd_dpx == SPD_DPX_AUTO) {
- 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: Link autonegation", vptr->dev->name);
- 
- 		if (vptr->mii_status & VELOCITY_SPEED_1000)
-@@ -1573,7 +1444,7 @@ static void velocity_print_link_status(s
- 			VELOCITY_PRT(MSG_LEVEL_INFO, " half duplex\n");
- 	} else {
- 		VELOCITY_PRT(MSG_LEVEL_INFO, KERN_NOTICE "%s: Link forced", vptr->dev->name);
--		switch (vptr->options.spd_dpx) {
-+		switch (vptr->options->spd_dpx) {
- 		case SPD_DPX_100_HALF:
- 			VELOCITY_PRT(MSG_LEVEL_INFO, " speed 100M bps half duplex\n");
- 			break;
-@@ -1623,7 +1494,7 @@ static void velocity_error(struct veloci
- 		struct mac_regs __iomem * regs = vptr->mac_regs;
- 		int linked;
- 
--		if (vptr->options.spd_dpx == SPD_DPX_AUTO) {
-+		if (vptr->options->spd_dpx == SPD_DPX_AUTO) {
- 			vptr->mii_status = check_connection_type(regs);
- 
- 			/*
-@@ -1986,7 +1857,7 @@ static int velocity_xmit(struct sk_buff 
- 	}
- 
- 	if (vptr->flags & VELOCITY_FLAGS_TAGGING) {
--		td_ptr->tdesc1.pqinf.VID = (vptr->options.vid & 0xfff);
-+		td_ptr->tdesc1.pqinf.VID = (vptr->options->vid & 0xfff);
- 		td_ptr->tdesc1.pqinf.priority = 0;
- 		td_ptr->tdesc1.pqinf.CFI = 0;
- 		td_ptr->tdesc1.TCR |= TCR0_VETAG;
-@@ -2009,10 +1880,10 @@ static int velocity_xmit(struct sk_buff 
- 		int prev = index - 1;
- 
- 		if (prev < 0)
--			prev = vptr->options.numtx - 1;
-+			prev = vptr->options->numtx - 1;
- 		td_ptr->tdesc0.owner = OWNED_BY_NIC;
- 		vptr->td_used[qnum]++;
--		vptr->td_curr[qnum] = (index + 1) % vptr->options.numtx;
-+		vptr->td_curr[qnum] = (index + 1) % vptr->options->numtx;
- 
- 		if (AVAIL_TD(vptr, qnum) < 1)
- 			netif_stop_queue(dev);
-@@ -2071,7 +1942,7 @@ static int velocity_intr(int irq, void *
- 		if (isr_status & (ISR_PTXI | ISR_PPTXI))
- 			max_count += velocity_tx_srv(vptr, isr_status);
- 		isr_status = mac_read_isr(vptr->mac_regs);
--		if (max_count > vptr->options.int_works)
-+		if (max_count > vptr->options->int_works)
- 		{
- 			printk(KERN_WARNING "%s: excessive work at interrupt.\n", 
- 				dev->name);
-@@ -2219,14 +2090,20 @@ static int velocity_ioctl(struct net_dev
-  *	uses this to handle all our card discover and plugging
-  */
-  
-+static struct device_paramset_def *paramset_defs[] = {
-+	&velocity_paramset_def,
-+	NULL
-+};
++ I. DEV PARAMSETS
 +
- static struct pci_driver velocity_driver = {
--      .name	= VELOCITY_NAME,
--      .id_table	= velocity_id_table,
--      .probe	= velocity_found1,
--      .remove	= __devexit_p(velocity_remove1),
-+      .name			= VELOCITY_NAME,
-+      .id_table			= velocity_id_table,
-+      .driver.paramset_defs	= paramset_defs,
-+      .probe			= velocity_found1,
-+      .remove			= __devexit_p(velocity_remove1),
- #ifdef CONFIG_PM
--      .suspend	= velocity_suspend,
--      .resume	= velocity_resume,
-+      .suspend			= velocity_suspend,
-+      .resume			= velocity_resume,
- #endif
- };
- 
-@@ -2484,7 +2361,7 @@ static u32 velocity_get_opt_media_mode(s
- {
- 	u32 status = 0;
- 
--	switch (vptr->options.spd_dpx) {
-+	switch (vptr->options->spd_dpx) {
- 	case SPD_DPX_AUTO:
- 		status = VELOCITY_AUTONEG_ENABLE;
- 		break;
-@@ -2539,7 +2416,7 @@ static void mii_set_auto_off(struct velo
- static void set_mii_flow_control(struct velocity_info *vptr)
- {
- 	/*Enable or Disable PAUSE in ANAR */
--	switch (vptr->options.flow_cntl) {
-+	switch (vptr->options->flow_cntl) {
- 	case FLOW_CNTL_TX:
- 		MII_REG_BITS_OFF(ANAR_PAUSE, MII_REG_ANAR, vptr->mac_regs);
- 		MII_REG_BITS_ON(ANAR_ASMDIR, MII_REG_ANAR, vptr->mac_regs);
-@@ -2766,7 +2643,7 @@ static void enable_flow_control_ability(
- 
- 	struct mac_regs __iomem * regs = vptr->mac_regs;
- 
--	switch (vptr->options.flow_cntl) {
-+	switch (vptr->options->flow_cntl) {
- 
- 	case FLOW_CNTL_DEFAULT:
- 		if (BYTE_REG_BITS_IS_ON(PHYSR0_RXFLC, &regs->PHYSR0))
-Index: linux-export/drivers/net/via-velocity.h
-===================================================================
---- linux-export.orig/drivers/net/via-velocity.h	2004-11-04 10:25:58.000000000 +0900
-+++ linux-export/drivers/net/via-velocity.h	2004-11-04 11:04:13.000000000 +0900
-@@ -33,9 +33,6 @@
- 
- #define PKT_BUF_SZ          1540
- 
--#define MAX_UNITS           8
--#define OPTION_DEFAULT      { [0 ... MAX_UNITS-1] = -1}
--
- #define REV_ID_VT6110       (0)
- 
- #define BYTE_REG_BITS_ON(x,p)       do { writeb(readb((p))|(x),(p));} while (0)
-@@ -1193,7 +1190,7 @@ struct velocity_info_tbl {
- 	char *name;
- 	int io_size;
- 	int txqueue;
--	u32 flags;
-+	unsigned flags;
- };
- 
- #define mac_hw_mibs_init(regs) {\
-@@ -1718,7 +1715,7 @@ enum velocity_flow_cntl_type {
- struct velocity_opt {
- 	int numrx;			/* Number of RX descriptors */
- 	int numtx;			/* Number of TX descriptors */
--	enum speed_opt spd_dpx;		/* Media link mode */
-+	int spd_dpx;			/* Media link mode */
- 	int vid;			/* vlan id */
- 	int DMA_length;			/* DMA length */
- 	int rx_thresh;			/* RX_THRESH */
-@@ -1729,7 +1726,7 @@ struct velocity_opt {
- 	int rx_bandwidth_hi;
- 	int rx_bandwidth_lo;
- 	int rx_bandwidth_en;
--	u32 flags;
-+	unsigned flags;
- };
- 
- struct velocity_info {
-@@ -1755,7 +1752,7 @@ struct velocity_info {
- 
- 	u8 rev_id;
- 
--#define AVAIL_TD(p,q)   ((p)->options.numtx-((p)->td_used[(q)]))
-+#define AVAIL_TD(p,q)   ((p)->options->numtx-((p)->td_used[(q)]))
- 
- 	int num_txq;
- 
-@@ -1773,11 +1770,11 @@ struct velocity_info {
- 
- #define GET_RD_BY_IDX(vptr, idx)   (vptr->rd_ring[idx])
- 	u32 mib_counter[MAX_HW_MIB_COUNTER];
--	struct velocity_opt options;
-+	struct velocity_opt *options;
- 
- 	u32 int_mask;
- 
--	u32 flags;
-+	unsigned flags;
- 
- 	int rx_buf_sz;
- 	u32 mii_status;
-@@ -1872,7 +1869,7 @@ static inline void init_flow_control_reg
- 	writew(0xFFFF, &regs->tx_pause_timer);
- 
- 	/* Initialize RBRDU to Rx buffer count. */
--	writew(vptr->options.numrx, &regs->RBRDU);
-+	writew(vptr->options->numrx, &regs->RBRDU);
- }
- 
- 
++ These are device specific parameters used by the driver.  This
++category includes most parameters currently used by drivers.  Examples
++for network drivers would be stuff like the size of tx/rx descriptor
++ring and hardware checksum enable/disable option.
++
++ As the tailing 'S' suggests, drivers can use multiple paramsets.
++Primary usage of multiple paramsets would be for class parameters for
++class devices.  For example, if the input layer wants to accept some
++common set of parameters for each input device, it can define a
++paramset_def and all input device drivers can use it to accept the
++common parameters.  Once modified to use the facility, the content of
++the paramset_def doesn't matter to specific device drivers, so the
++input paramset_def can be modified without changing or even
++recompiling individual device drivers.
++
++ II. BUS PARAMSET
++
++ These are bus specific parameters.  Individual device drivers
++wouldn't care or know about this paramset.  These paramsets are
++defined and used only by bus drivers.  When a bus driver wants to
++accept some common paramters for all devices living on the bus, the
++driver will supply the bus paramset_def and all device drivers for the
++bus will accept bus parameters.  Examples would be PCI command
++register setting, PCIe QoS settings and so on.
++
++
++ USING DEVPARAM
++ ==============
++
++ Paramset definition is defined using DEFINE_DEVICE_PARAMSET[_NS] and
++DEVICE_PARAM_* macros and passed to the driver-model via the
++paramset_def[s] fields of struct device_driver or struct bus_type.
++The usage is very similar to moduleparam; actually, most of devparam
++is built using moduleparam.
++
++- DEFINE_DEVICE_PARAMSET_NS(Name, Type, Namespace, Paramdefs) macro
++
++	Defines a struct device_paramset_def @Name which contains
++	parameters described by @Paramdefs.  Each parameter definition
++	in @Paramdefs describes how to handle a parameter which is
++	contained in a @Type variable.  All parameters defined with
++	this macros has dot-appended @Namespace as their prefixes.
++
++- DEFINE_DEVICE_PARAMSET(Name, Type, Paramdefs) macro
++
++	Identical with the above macro except that there's no prefix
++	to the parameters.
++
++- DEVICE_PARAM_*() macros
++
++	Syntax is almost identical to module_param_*() macros defined
++	in moduleparam.h.  There are three differences.  The first is
++	that instead of referring directly to a variable to be set,
++	the field name inside @Type of enclosing
++	DEFINE_DEVICE_PARAMSET is used.  The second is that there's an
++	extra argument @Dfl which is a string containing the default
++	value to use when the user didn't specify the parameter.
++	The last is the additional argument @Desc which serves the
++	same purpose as MODULE_PARAM_DESC().
++
++
++ When attaching a device, its paramset structures are allocated and
++cleared with zero, and for each defined parameter, set function is
++called with user supplied argument if it's available or the default
++string.  If the default string is also NULL, set function isn't
++called).  (Actually, all parameters are parsed when the device driver
++is initialized and cached inside the device_driver structure, but the
++end result is the same as described above.)
++
++ Device parameters are passed as comma-separated values via
++moduleparam facility (the first value is for the first device which
++gets attached to the driver, the second value for the second device
++and so on).  In parameter strings, '\' escapes the following
++character, so by using "\," strings containing commas or
++comma-separated arrays can be specified.  To ease nested array
++specification, ':' is also accepted as nested array separator.
++
++ It's best explained with examples.  I'll present two examples - one
++simple and the other more complete.  If you're a driver developer just
++wanting to receive per-device parameters for your driver, reading the
++first example should suffice.
++
++
++ A SIMPLE ONE
++ ============
++
++  I'll use an imaginary pci device driver for this example.  Let's
++say it wants to accept the following parameters.
++
++ - One integer parameter named integer_knob which should be in the
++   range [0, 255] and defaults to 16 when none is specified.
++ - One string parameter named string which can be as long as 63
++   characters and defaults to "mung mung".
++ - A boolean parameter named enable_feature0 which, when 1, sets
++   MY_FEATURE0 in flags and defaults to 0.
++
++ First, a paramset structure needs to be defined.
++
++| struct my_drv_paramset {
++|         int integer_knob;
++|         char string[64];
++|         unsigned flags;
++| };
++
++ Then, the corresponding my_drv_paramset_def.
++
++| static DEFINE_DEVICE_PARAMSET(my_drv_paramset_def, struct my_drv_paramset,
++|         DEVICE_PARAM_RANGED(integer_knob, int, 0, 255, "16", 0444,
++|                 "integer_knob does something, [0,255] default 16")
++|         DEVICE_PARAM_STRING(string, "mung mung", 0444,
++|                 "A string is a string")
++|         DEVICE_PARAM_FLAG(enable_feature0, flags, MY_FEATURE0, "0", 0444,
++|                 "Enables feature0. Whatever that is.")
++| );
++
++ We're almost done already.  The only thing left is to register the
++paramset_def.
++
++| static struct device_paramset_def *paramset_defs[] = {
++|         &my_drv_paramset_def,
++|         NULL
++| };
++|
++| static struct pci_driver my_drv = {
++|         .name                    = "my_drv",
++|         .owner                   = THIS_MODULE,
++|         .probe                   = my_probe,
++|         .driver.paramset_defs    = paramset_defs,
++|         ...
++| };
++| 
++| static int __init my_init(void)
++| {
++|         ...
++|         return pci_register_driver(&my_drv);
++| }
++
++ And we can use the paramset however we want to.
++
++| static int __devinit my_probe(struct pci_dev *pdev,
++|                               const struct pci_device_id *ent)
++| {
++|         struct my_drv_paramset *ps = pdev->dev.paramsets[0];
++|         ...
++| }
++
++ Now, let's see how a user can specify those device parameters.  If
++the driver is compiled into the kernel, parameters can be specified in
++the boot options.
++
++> my_drv.integer_knob=32,32,64 my_drv.string="bungga,asdf"
++
++ The results would be...
++
++		integer_knob	string		flags
++ ----------------------------------------------------------
++ 1st dev:	32		"bungga"	0
++ 2st dev:	32		"asdf"		0
++ 3st dev:	64		"mung mung"	0
++ 4th-Nth:	16		"mung mung"	0
++
++ If the module is compiled as a module, parameters can be specified
++like the following.
++
++> modprobe my_drv integer_knob=8,8,32 enable_feature0=1,1
++
++		integer_knob	string		flags
++ ----------------------------------------------------------
++ 1st dev:	 8		"mung mung"	MY_FEATURE0
++ 2st dev:	 8		"mung mung"	MY_FEATURE0
++ 3st dev:	32		"mung mung"	0
++ 4th-Nth:	16		"mung mung"	0
++
++ Note that when a device attaches, the first empty paramset slot is
++used.  For example, let's say there's device A, B, C and D all of
++which are controlled by my_drv, and three paramsets ps0, ps1 and ps2
++of which ps2 is the default paramset.
++
++ Event		Paramset
++ -----------------------
++ A attaches	ps0
++ B attaches	ps1
++ C attaches	ps2
++ B detaches
++ D attaches	ps1
++ B attaches	ps2
++
++ However, as each device gets its own copy of the paramsets, it can
++modify the paramset as needed.  Modifying its paramset won't affect
++other devices attaching later.
++
++
++ A FULL EXAMPLE
++ ==============
++
++ I'll use a pseudo bus, class and driver respectively named dp_bus,
++dp_class and dp_drv for explanation.  A dp_drv lives on dp_bus and a
++dp_drv device implements a class device belonging to dp_class.  All of
++dp_bus, dp_class and dp_drv accept their own sets of parameters.
++
++ Let's look at dp_bus first.
++
++ I. DP_BUS
++
++ dp_bus defines struct dp_driver (just like struct pci_drv) and
++registration unregistration functions (just like
++pci_[un]register_driver() functions).  So, it defines the following
++interface in dp_bus.h.
++
++| struct dp_driver {
++|         int (*probe)(struct device *dev);
++|         void (*remove)(struct device *dev);
++|         struct device_driver driver;
++| };
++| 
++| extern struct bus_type dp_bus_type;
++|
++| int dp_register_driver(struct dp_driver *drv);
++| void dp_unregister_driver(struct dp_driver *drv);
++
++ dp_bus wants to accept the following parameters.
++
++ - Three integer parameters named bus_a, bus_b and bus_c.
++ - An array of intergers which can have 6 elements at maximum.
++
++ So, in dp_bus.c, the following structure is defined.
++
++| struct dp_bus_paramset {
++|         int a, b, c;
++|         int ar[6], ar_cnt;
++| };
++
++ Also corresponding dp_bus_paramset_def.
++
++| static DEFINE_DEVICE_PARAMSET_NS(dp_bus_paramset_def, struct dp_bus_paramset,
++|                                  "dp_bus",
++|         DEVICE_PARAM(a, int, "0", 0444, "mung mung")
++|         DEVICE_PARAM(b, int, "1", 0444, "bungga bungga")
++|         DEVICE_PARAM(c, int, "2", 0444, "OTL OTL OTL OTL OTL OTL")
++|         DEVICE_PARAM_ARRAY(ar, int, ar_cnt, "1,2,3", 0444, "whatever, dude")
++| );
++
++ Note that, we're defining parameters under "dp_bus" namescope.  All
++of above parameters are treated as they have "dp_bus." prefix.  In
++other words, if a user wants to specify the @a parameter, it must be
++specified as "dp_bus.a".
++
++ So, needed data structures are in place now.  All that's left to do
++is to use the appropriate hooks.  First, we need to set paramset_def
++field of bus_type.
++
++| struct bus_type dp_bus_type = {
++|         .name           = "dp",
++|         .match          = dp_bus_match,
++|         .paramset_def   = &dp_dev_paramset_def
++| };
++
++ And, in dp_register_driver(), we hook up probe and remove to dp_probe
++and dp_remove.
++
++| int dp_register_driver(struct dp_driver *drv, struct module *mod)
++| {
++|         drv->driver.bus = &dp_bus_type;
++|         drv->driver.probe = dp_probe;
++|         drv->driver.remove = dp_remove;
++|         printk("dp_bus: registering driver \"%s\"\n", drv->driver.name);
++|         return driver_register(&drv->driver);
++| }
++
++ dp_probe() looks like the folowing.
++
++| static int dp_probe(struct device *dev)
++| {
++|         struct dp_driver *drv;
++|         struct dp_bus_paramset *ps;
++| 
++|         drv = container_of(dev->driver, struct dp_driver, driver);
++|         ps = dev->bus_paramset;
++| 
++|         /* Whatever the bus driver wanna do can come here. */
++| 
++|         return drv->probe(dev);
++| }
++
++ The driver model parses user specified parameter or the default
++parameter supplied with paramset_def and set dev->bus_paramset field
++to the result.  The bus driver is free to read and modify the
++structure as needed.  As dp_bus is a pseudo bus, it doesn't really
++have anything to do, but a real driver could tweak some bus features
++(e.g. PCIe QoS setting) for the device there.
++
++ Above are all the interesting parts of dp_bus implementation.  Now,
++let's look at dp_class.
++
++
++ II. DP_CLASS
++
++ dp_class is a dummy class which doesn't do anything but accepting
++some parameters and getting devices registered to it.  Consequently,
++it has a very simple interface.
++
++| extern struct class dp_class;
++| extern struct device_paramset_def dp_class_paramset_def;
++| struct dp_class_paramset;
++|
++| extern int dp_class_device_register(struct class_device *dev,
++|                                     struct dp_class_paramset *params);
++| void dp_class_device_unregister(struct class_device *dev);
++
++ Note that dp_class_paramset_def is exported.  This wasn't necessary
++for bus parameters but as device-class association is only known by
++the driver of a device, it must be able to access the paramset_defs of
++the classes it's going to register a device to.  Any driver which
++wants to register with dp_class will pass dp_class_paramset_def to the
++driver-model using drv.paramset_defs field and pass the resulting
++paramset to dp_class_device_register().
++
++ The implementation of dp_class isn't very intriguing.
++dp_class_paramset_def is defined just like dp_bus_paramset_def.  The
++only differences are that there's no static qualifier in front of
++DEFINE_DEVICE_PARAMSET() and dp_bus_paramset_def needs to be
++EXPORT_SYMBOL()'d as it's gonna be referenced by drivers living in
++other modules.
++
++
++III. DP_DRV
++
++ Okay, here's dp_drv, where everything comes together.  dp_drv defines
++its own dp_drv_paramset_def just like dp_bus.  dp_drv also defines an
++array of device_paramset_def's which contain pointers to both
++dp_drv_paramset_def and dp_class_paramset_def.
++
++| static struct device_paramset_def *paramset_defs[] = {
++|         &dp_drv_paramset_def,
++|         &dp_class_paramset_def,
++|         NULL
++| };
++
++ And the dp_driver structure looks like the follwing.
++
++| static struct dp_driver my_drv = {
++|         .driver.name            = "babo",
++|	  .driver.owner           = THIS_MODULE,
++|         .probe                  = dp_drv_probe,
++|         .remove                 = dp_drv_remove,
++|         .driver.paramset_defs   = paramset_defs,
++| };
++| 
++| static int __init dp_drv_init(void)
++| {
++|         return dp_register_driver(&my_drv);
++| }
++
++ Paramsets are accessed and passed to dp_class like the following.
++
++| static int dp_drv_probe(struct device *dev)
++| {
++|         struct dp_drv_paramset *ps = dev->paramsets[0];
++|         ...
++|         ret = dp_class_device_register(priv->class, dev->paramsets[1]);
++|         ...
++| }
++
++ Now everyone has its paramset and should be happy and hazy.
++
++ Complete source code for dp_bus, dp_class, dp_drv and dp_dev (dp_dev
++is for creating pseudo devices which attaches to dp_drv) is available
++at the following URL.
++
++ http://home-tj.org/devparam/dptest.tar.gz
++
++ Happy hacking.

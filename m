@@ -1,78 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUEXSco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264391AbUEXShO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbUEXSco (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 14:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUEXSco
+	id S264391AbUEXShO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 14:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUEXShN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 14:32:44 -0400
-Received: from outbound3.mail.tds.net ([216.170.230.93]:58275 "EHLO
-	outbound3.mail.tds.net") by vger.kernel.org with ESMTP
-	id S264358AbUEXScj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 14:32:39 -0400
-Date: Mon, 24 May 2004 14:31:56 -0400 (EDT)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.oppresses.us
-To: Rob Landley <rob@landley.net>
-cc: linux-kernel@vger.kernel.org, rock-user@rocklinux.org
-Subject: Re: Distributions vs kernel development
-In-Reply-To: <200405192059.47056.rob@landley.net>
-Message-ID: <Pine.LNX.4.58.0405241409460.5161@cerberus.oppresses.us>
-References: <409BB334.7080305@pobox.com> <200405121412.00068.rob@landley.net>
- <200405190849.i4J8nqfb000280@81-2-122-30.bradfords.org.uk>
- <200405192059.47056.rob@landley.net>
+	Mon, 24 May 2004 14:37:13 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:49319 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S264391AbUEXShA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 14:37:00 -0400
+Date: Mon, 24 May 2004 20:36:58 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Phy Prabab <phyprabab@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding slow down
+In-Reply-To: <20040524061425.55367.qmail@web90009.mail.scd.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0405242034580.31533-100000@hubble.stokkie.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 May 2004, Rob Landley wrote:
+On Sun, 23 May 2004, Phy Prabab wrote:
 
+> Okay, here we go:
+> ./configure;/usr/bin/time make
+> make[1]: Leaving directory `/var/tmp/bison-1.875'
+> 9.39user 1.18system 0:11.59elapsed 91%CPU
+> (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (0major+147530minor)pagefaults 0swaps
 > 
-> It's not really a distro.  It's an enormous HOWTO.  (Then again, so's Gentoo, 
-> but gentoo does claim to be a distro, which is where I get disappointed...)
+>  0  0      0 8151040  19704  87396    0    0     0  
+> 148 1673  1230  3  6 90  1
+>  0  0      0 8150912  19712  87456    0    0     0    
+> 0 2697  2553 10 13 78  0
+>  0  0      0 8150712  19712  87388    0    0     4    
+> 0 3233  3404 15 19 66  0
+>  1  0      0 8147512  19724  87716    0    0   276    
+> 0 2477  2671 23 15 60  2
+>  1  0      0 8149944  19736  87840    0    0   132    
+> 0 2940  3048 17 17 65  1
+>  1  1      0 8148144  19736  87840    0    0     0   
+> 32 2647  2466 22 16 62  1
+>  1  0      0 8150176  19744  87832    0    0     0  
+> 212 2831  2837 19 17 63  0
+>  1  0      0 8148704  19744  87832    0    0    12    
+> 0 2983  3051 18 18 63  0
+>  1  0      0 8149984  19744  87832    0    0     0    
+> 0 3260  3632 20 22 58  0
+>  1  0      0 8149792  19744  87832    0    0     0    
+> 0 3165  3366 19 22 59  0
+>  0  1      0 8150240  19760  87952    0    0   108   
+> 36 2810  2795 16 17 64  3
+>  1  0      0 8148768  19768  87944    0    0    12  
+> 208 2851  2775 18 15 65  1
+>  1  0      0 8149152  19784  88472    0    0   576  
+> 200 2670  2681 16 15 64  5
+>  1  0      0 8148960  19796  88596    0    0    80    
+> 0 3387  4263 10 20 71  0
+>  1  0      0 8147864  19800  88728    0    0     0    
+> 0 3070  3834 23 16 60  0
+>  0  1      0 8148440  19812  88988    0    0     0  
+> 468 3914  4592  7 18 73  1
+> procs                      memory      swap         
+> io     system         cpu
+>  r  b   swpd   free   buff  cache   si   so    bi   
+> bo   in    cs us sy id wa
+>  1  0      0 8147352  19844  89228    0    0   120  
+> 300 3070  3900 15 17 65  4
+>  1  0      0 8144600  19852  89288    0    0     0  
+> 104 1850  1008 35  8 57  1
+>  1  0      0 8143576  19864  89412    0    0     0    
+> 0 1416   501 43  5 52  0
+> 
+> 
+> A little faster than the result you published,
+> however, it sheds no light for me.  Any thing that
+> seems to point out some issues?
+
+Well you need to do this two times : using 2.6.7p1
+and 2.4.21. and compare the results. Maybe compile a larger 
+gnu software package so the difference in speed is more clear.
+
+Robert
+> 
+> --- "Robert M. Stockmann" <stock@stokkie.net> wrote:
+> > Hi
+> > 
+> > > procs memory swap io system cpu
+> > >
+> > > r b swpd free    buff  cache si so bi bo  in   cs 
+> >  us sy id wa
+> > > 1 0 0    8153848 17000 82348 0  0  0  0   4568
+> > 4028 6  16 78 0
+> > > 0 1 0    8154168 17008 82340 0  0  0  160 4596
+> > 4079 7  17 76 1
+> > > 1 0 0    8153848 17008 82340 0  0  0  0   4511
+> > 3998 7  16 76 0
+> > > 1 0 0    8153912 17008 82340 0  0  0  0   4460
+> > 3952 7  14 79 0
+> > > 1 0 0    8153784 17016 82332 0  0  0  0   4437
+> > 3962 7  16 77 0
+> > > 1 0 0    8153528 17016 82332 0  0  0  0   4444
+> > 3927 7  14 78 0
+> > > 1 1 0    8153784 17024 82392 0  0  0  144 4399
+> > 3895 7  15 77 1
+> > > 0 0 0    8153592 17024 82392 0  0  0  0   4367
+> > 3821 7  15 78 0
+> > > 1 0 0    8153848 17024 82392 0  0  0  0   4393
+> > 3926 6  16 78 0
+> > > 1 0 0    8153528 17024 82460 0  0  0  0   4438
+> > 3960 8  14 78 0
+> > > 1 0 0    8154040 17024 82460 0  0  0  0   4415
+> > 3912 6  15 78 0
+> > > 1 1 0    8153720 17032 82452 0  0  0  140 4457
+> > 3953 7  15 77 1
+> > > 1 0 0    8153784 17032 82452 0  0  0  0   4437
+> > 3889 7  14 79 0
+> > > 0 0 0    8153784 17040 82444 0  0  0  0   4398
+> > 3903 8  15 77 0
+> > > 1 0 0    8153464 17040 82444 0  0  0  0   4398
+> > 3902 7  14 79 0
+> > > 0 0 0    8153528 17040 82444 0  0  0  0   4447
+> > 3922 6  17 77 0
+> > > 0 1 0    8153720 17052 82432 0  0  0  144 4490
+> > 3960 6  16 77 1
+> > > 0 0 0    8153656 17056 82428 0  0  0  0   4449
+> > 3954 7  15 78 0
+> > 
+> > FIELD DESCRIPTION FOR VM MODE
+> >    Procs
+> >        r: The number of processes waiting for run
+> > time.
+> >        b: The number of processes in uninterruptible
+> > sleep.
+> > 
+> > During the 18 seconds of displayed stats, you have
+> > 12 seconds in which
+> > 1 process is waiting for run time. Which process is
+> > that, and where is
+> > it waiting for ?
+> > 
+> > Is your custom excecutable compile project causing
+> > this or does a simple
+> > compile task display the same slowdowns? As a small
+> > bench test with a source
+> > we all can download, try to compile
+> > bison-1.75.tar.bz2 :
+> > 
+> > # ./configure ; time make
+> > ...
+> > make[1]: Leaving directory
+> > `/home/stock/tmp/src/bison-1.75'
+> > 37.33user 3.64system 0:40.66elapsed 100%CPU
+> > (0avgtext+0avgdata 0maxresident)k
+> > 0inputs+0outputs (121059major+64165minor)pagefaults
+> > 0swaps
+> > 
+> > regards,
+> > 
+> > Robert
+> > -- 
+> > Robert M. Stockmann - RHCE
+> > Network Engineer - UNIX/Linux Specialist
+> > crashrecovery.org  stock@stokkie.net
+> > 
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 	
+> 		
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! Domains – Claim yours for only $14.70/year
+> http://smallbusiness.promotions.yahoo.com/offer 
 > 
 
-No less a distribution than, say, Debian. You just type 'emerge' rather 
-than 'apt-get' and get source tarballs rather than binary packages.
+-- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
 
-> 
-> And then there's gentoo, which has a python script talk to a server out on the 
-> net to figure out what to build.  If you're going to even TRIGGER that, you 
-> need to be familiar with their packaging tool.  To take it apart and modify 
-> the build would take a lot of eyeballing.
-> 
-
-Not quite; ebuilds are all on-disk. The only time you talk to a server is 
-to update the on-disk ebuild tree (via rsync) or download a source 
-tarball. Pretty much the same way BSD ports works. Taking apart and 
-modifying the build is pretty trivial thanks to the ebuild(1) tool and the 
-fact that ebuilds are in bash with Portage extensions.
-
-> 
-> Suppose they don't select OpenSSL because they go "this is a desktop system, 
-> not a server", and then they realise later "oh, I need https:// support in 
-> Konqueror/Mozilla"...
-> 
-
-Gentoo solves this problem with USE flags by providing a reasonable 
-default set and letting users fine-tune the support they want prior to 
-building the system.
-
-> 
-> You keep saying that installing from source is better, but it seems to be from 
-> "gee, wouldn't it be nice if" land rather than due to actual experience.  You 
-> _can_ build and install an SRPM into a Red Hat system.  It's too much of a 
-> pain to be worth it to me, but it's been an option for years and years.
-> 
-
-The advantage, in my view, of compiling from source consistently is that 
-you (a) eliminate any potential bugs from the build system being 
-drastically different from the target system and (b) have the flexibility 
-of being able to fine-tune dependencies and build time configuration. 
-Where's the RPM package for Mozilla with encryption, without debugging, 
-with gtk2, with ipv6, without ldap, without the calendar, with mail, 
-without IRC, and without XFT? How about GCC with gcj, without f77, without 
-nls, with objc?
-
-It's certainly not for everybody, but to me that's the most important 
-aspect of always compiling from source.

@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129153AbRBBOHO>; Fri, 2 Feb 2001 09:07:14 -0500
+	id <S129653AbRBBOIe>; Fri, 2 Feb 2001 09:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129212AbRBBOHF>; Fri, 2 Feb 2001 09:07:05 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:20172 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129153AbRBBOGz>;
-	Fri, 2 Feb 2001 09:06:55 -0500
-Date: Fri, 2 Feb 2001 14:04:40 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>, bsuparna@in.ibm.com,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010202140440.W11607@redhat.com>
-In-Reply-To: <20010201193221.D11607@redhat.com> <200102012046.VAA16746@ns.caldera.de> <20010201212508.G11607@redhat.com> <20010202125135.A12245@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010202125135.A12245@caldera.de>; from hch@caldera.de on Fri, Feb 02, 2001 at 12:51:35PM +0100
+	id <S129648AbRBBOIY>; Fri, 2 Feb 2001 09:08:24 -0500
+Received: from www.topmail.de ([212.255.16.226]:2804 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129212AbRBBOII> convert rfc822-to-8bit;
+	Fri, 2 Feb 2001 09:08:08 -0500
+Message-ID: <02b101c08d21$923c5ac0$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com> <20010201193255.A32191@thune.yy.com> <20010202115712.A31607@netppl.fi>
+Subject: Re: spelling of disc (disk) in /devfs
+Date: Fri, 2 Feb 2001 14:07:12 -0000
+Organization: eccesys.net Linux Distribution Development
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oh you English people,
 
-On Fri, Feb 02, 2001 at 12:51:35PM +0100, Christoph Hellwig wrote:
-> > 
-> > If I have a page vector with a single offset/length pair, I can build
-> > a new header with the same vector and modified offset/length to split
-> > the vector in two without copying it.
-> 
-> You just say in the higher-level structure ignore from x to y even if
-> they have an offset in their own vector.
+why do you do it so complicated?
+We even don't need a kernel locale.
 
-Exactly --- and so you end up with something _much_ uglier, because
-you end up with all sorts of combinations of length/offset fields all
-over the place.
+Take the nominations as they are, color/colour,
+disk/disc/diskette/floppy, etc.
 
-This is _precisely_ the mess I want to avoid.
+And if you write by yourself, do it as you spell it.
+I'd even write it German if I wasn't used to speak
+fully English whilst coding.
 
-Cheers,
- Stephen
+And dont bother about names:
+ - Namen sind Schall und Rauch. Was zaehlt, ist das, was drin ist.
+(for tho who can understand it. the others: sorry, it's a cite.)
+
+Does it _actually_ make a prob to use disc in devfs instead
+of the (correct) disk when changing it broke configuration?
+We are _not_ M$, we (usually) _dont_ break old systems.
+And __colour does only matter when you directly access it.
+
+Really, it's inconsistent, but it happened - so...
+You could consider changing it on a two-year solution:
+create a hardlink /dev/disks <-> /dev/discs in the KERNEL(!!)
+and remove /dev/discs in two years.
+Meanwhile everyone reading docu will have upgraded ;-)
+(ref. to the 4-week pause before ECN on vger.kernel.org)
+
+-mirabilos
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
+GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
+N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
+b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
+------END GEEK CODE BLOCK------
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

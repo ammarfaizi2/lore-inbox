@@ -1,95 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131519AbRAEBWf>; Thu, 4 Jan 2001 20:22:35 -0500
+	id <S129962AbRAEBYF>; Thu, 4 Jan 2001 20:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRAEBW0>; Thu, 4 Jan 2001 20:22:26 -0500
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:40176
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S129962AbRAEBWB>; Thu, 4 Jan 2001 20:22:01 -0500
-From: Jesse Pollard <pollard@cats-chateau.net>
-Reply-To: pollard@cats-chateau.net
-To: Gunther.Mayer@t-online.de (Gunther Mayer),
-        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-Date: Thu, 4 Jan 2001 19:13:52 -0600
-X-Mailer: KMail [version 1.0.28]
+	id <S130110AbRAEBXz>; Thu, 4 Jan 2001 20:23:55 -0500
+Received: from jalon.able.es ([212.97.163.2]:49537 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129962AbRAEBXm>;
+	Thu, 4 Jan 2001 20:23:42 -0500
+Date: Fri, 5 Jan 2001 02:23:35 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to Power off with ACPI/APM?
+Message-ID: <20010105022335.E743@werewolf.able.es>
+In-Reply-To: <3A54DC87.5B861B7@goingware.com> <m37l4akdn5.fsf@austin.jhcloos.com> <20010105021623.C743@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Cc: linux-parport@torque.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200101041530.JAA92328@tomcat.admin.navo.hpc.mil> <3A54CD80.4A163381@t-online.de>
-In-Reply-To: <3A54CD80.4A163381@t-online.de>
-MIME-Version: 1.0
-Message-Id: <01010419215503.09343@tabby>
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010105021623.C743@werewolf.able.es>; from jamagallon@able.es on Fri, Jan 05, 2001 at 02:16:23 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Jan 2001, Gunther Mayer wrote:
->Jesse Pollard wrote:
->> Originally, (wayback machine on) this was handled by a pull-up resistor
->> in the parallel interface, on the "off-line" signal. ANY time the printer
->> was powered off, set offline, or cable unplugged, the "off-line" signal
->> was raised by the pull-up. No data lost.
->> 
->> Now the parallel interface is bidirectional, and can have multiple devices
->> attached - this "fix" cannot be used. The interface is now more of a
->> buss than a single attached interface, and signals from a missing device
->> (powered off or disconnected) are floating. They may float high or low,
->> and depending on the environment (and which end of the cable is unplugged)
->> any thing in between.
->
->Not true. Electrical characteristics for parallel port implementations/cards
->differ wildly, nevertheless most implementations have:
->- data lines: bidirectional (see datasheets)
->- signal lines: see datasheets, never floating !
->
->Floating signal lines are a silicon bug/bad engineering and have nothing
->to do with bidirectional interfaces ! 
 
-I didn't mean to imply that it was - just that it is much harder to determine
-if the device is attached or detatched. That depends on the characteristics of
-the interface and the cable (acting as an antenna).
+On 2001.01.05 J . A . Magallon wrote:
+> 
+> > 
+> > Either way you need the userspace daemon running to actually do
+> > anything.  Even my notebook's key for toggling full-screen vs
+> > un-expanded display on the lcd does nothing unless apmd or acpid
+> > as applicable are running....
+> > 
 
->
->Nowadays most integrated chips have internal signal line pull-ups internally, e.g. 
->W83877TF says:
->-BUSY, ACK, PE, SLCT, ERR:
->  TTL level input pin. This pin is pulled high internally.
->-AFD, STB, INIT, SLIN
->  Open-drain output pin with 12 mA sink capability. Pulled up internally.
->-Data lines:
->  TTL level bi-directional with 24 mA source-sink capability.
->
->Of course I would expect add-in cards to exist, with not so sophisticated chipsets
->and makers that have "forgotten" external pull-ups for economical reasons (2 cents :-)
->We should NOT care for broken hardware !!! I haven't seen any of these yet, even.
->
->On the other hand printer implmentations vary wildly, too.
->LJ1100: leave signal lines alone if powered off (0x7f)
->    i.e. signal printer-not-ready ack-active out-of-paper
->DJ500: signal printer-error and off-line when powered off (0x87) !!!
->    => Linux would dump data on this printer, if switched off.
->
->I think the current linux lp code tries to handle exotic/weird printers 
->gracefully and leaves mainstream printers and users alone.
+I forgot it. If you just want to power-off:
+- activate APM in the BIOS
+- activate APM in kernel
 
-It all depends - I've seen printers work perfectly ... and yet others
-completely fail. The Xerox 5700 printers wouldn't work if the cable were
-over 9 feet long. They would if a high signal quality data cable were obtained,
-worked at 15', but no longer than that. Even then, they would not identify
-(and neither would Zerox) what happens when they were powered off (you loose
-data).
-
-And yet no problem with a HP laserjet at 40'.
-
-And the signals do vary if it is unplugged at the printer end and not
-at the host end (major difference - shielded cable works MUCH better).
+I have an SMP box, so APM does not work fully, but just power-off works.
+So if for any reason you box says is not capable of doing APM, add this
+to lilo.conf:
+append="apm=power-off"
+so at least this will work.
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@cats-chateau.net
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
-Any opinions expressed are solely my own.
+Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

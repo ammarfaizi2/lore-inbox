@@ -1,69 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274272AbRIYA0o>; Mon, 24 Sep 2001 20:26:44 -0400
+	id <S274287AbRIYA3o>; Mon, 24 Sep 2001 20:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274277AbRIYA0k>; Mon, 24 Sep 2001 20:26:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19850 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274272AbRIYAZq>;
-	Mon, 24 Sep 2001 20:25:46 -0400
-Date: Mon, 24 Sep 2001 17:26:08 -0700 (PDT)
-Message-Id: <20010924.172608.105430357.davem@redhat.com>
-To: kash@stanford.edu
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] two probable security holes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.31.0109181355560.15933-100000@saga18.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.31.0109181355560.15933-100000@saga18.Stanford.EDU>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S274286AbRIYA3e>; Mon, 24 Sep 2001 20:29:34 -0400
+Received: from rdu26-57-156.nc.rr.com ([66.26.57.156]:50360 "EHLO
+	gateway.house") by vger.kernel.org with ESMTP id <S274285AbRIYA3T>;
+	Mon, 24 Sep 2001 20:29:19 -0400
+Subject: 2.4.10 much better than previous 2.4.x :-)
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 24 Sep 2001 20:29:44 -0400
+Message-Id: <1001377785.1430.7.camel@gromit.house>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ken Ashcraft <kash@stanford.edu>
-   Date: Tue, 18 Sep 2001 14:29:57 -0700 (PDT)
 
-   Watch ifr.ifr_name.
-   
-Hi Ken, I believe there is some bug in your new checker algorithms for
-this case.
+This is mainly a thank you for 2.4.10. It performs much better than
+2.4.7 (RedHat version), from which I upgraded. Interactive performance
+for applications (Gnome, Evolution, Mozilla) is much improved, and my
+swap load is at zero, which is probably where it should be (2.4.7 would
+regularly be using 256MB of swap with the same applications running).
 
-                   struct ifreq ifr;
-                   int err;
-   Start--->
-                   if (copy_from_user(&ifr, (void *)arg, sizeof(ifr)))
-                           return -EFAULT;
-                   ifr.ifr_name[IFNAMSIZ-1] = '\0';
+Thanks!
 
-ifreq copied safely to kernel space, ifr.ifr_name[] is inside the
-struct and NOT a user pointer.
+--Michael
 
-                   err = tun_set_iff(file, &ifr);
-
-Pass address of kernel ifreq.
-
-                   if (*ifr->ifr_name)
-                           name = ifr->ifr_name;
-   
-                   if ((err = dev_alloc_name(&tun->dev, name)) < 0)
-                           goto failed;
-
-Perfectly fine still, name always points to kernel memory.
-   
-   int dev_alloc_name(struct net_device *dev, const char *name)
-   {
- ...
-
-           for (i = 0; i < 100; i++) {
-   Error--->
-   	       sprintf(buf,name,i);
-
-Still fine, as stated "name" is pointing to kernel memory.
-
-Perhaps your code is being confused by "ifreq->if_name" being
-an array.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com

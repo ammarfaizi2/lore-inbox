@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272837AbRIGUgl>; Fri, 7 Sep 2001 16:36:41 -0400
+	id <S272839AbRIGUhv>; Fri, 7 Sep 2001 16:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272839AbRIGUgV>; Fri, 7 Sep 2001 16:36:21 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:11023 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272837AbRIGUgK>; Fri, 7 Sep 2001 16:36:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Martin =?iso-8859-1?q?MOKREJ=3F=20?= <mmokrejs@natur.cuni.cz>
-Subject: Re: __alloc_pages: 0-order allocation failed.
-Date: Fri, 7 Sep 2001 22:43:24 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz>
-In-Reply-To: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010907203628Z16318-26183+197@humbolt.nl.linux.org>
+	id <S272840AbRIGUhl>; Fri, 7 Sep 2001 16:37:41 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:5947 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272839AbRIGUha>; Fri, 7 Sep 2001 16:37:30 -0400
+Subject: Re: Trouble with update Preemptive patch for 2.4.9-ac9
+From: Robert Love <rml@tech9.net>
+To: Stephen Frost <sfrost@snowman.net>
+Cc: Jordan Breeding <ledzep37@home.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010907072357.A11136@ns>
+In-Reply-To: <3B985287.2385275B@home.com> <999839075.865.7.camel@phantasy> 
+	<20010907072357.A11136@ns>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.05.07.08 (Preview Release)
+Date: 07 Sep 2001 16:37:50 -0400
+Message-Id: <999895073.2127.5.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 7, 2001 03:06 pm, Martin MOKREJ? wrote:
-> On Tue, 4 Sep 2001, Daniel Phillips wrote:
-> 
-> > On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
-> > > Hi,
-> > >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
-> > > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
-> > > physically. Althougj I've found many report to linux-kernel list during
-> > > past months, not a real solution. Maybe only:
-> > > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
-> > 
-> > Try 2.4.10-pre4.
-> 
-> 
-> Wow, I've just now realized that I get two types of error message:
-> __alloc_pages: 0-order allocatiocation failed (gfp=0x70/1).
-> __alloc_pages: 0-order allocation failed (gfp=0x70/1).
-> 
-> We are using LVM and ReiserFS, HIGMEM kernel.
-> 
-> Maybe it helps to track it down. Any ideas?
+On Fri, 2001-09-07 at 07:23, Stephen Frost wrote:
+> 	If you need a guinea pig for testing it on SMP I may be willing
+> 	to do that on one of my SMP machines. :)  Let me know, I'll need
+> 	to do some setup work (attaching and setting up a serial
+> 	console, testing the machine without the patch to make sure it's
+> 	mostly happy, etc).
 
-printk has a limited amount of space for buffering messages, a ring buffer 
-(sort of) and will start dropping text when the buffer fills up, so as not
-to slow the kernel down and/or interfere with interrupts.  So that is why
-two lines of output got combined above, they are all the same message.
+I would certainly take you up on that offer.  I honestly don't think the
+patch is ready for SMP, yet -- but we have to start somewhere.
 
-The gfp=0x70/1 identifies the failure as GFP_NOIO, PF_MEMALLOC, which by
-process of eliminate, comes from alloc_bounce_page.  Marcelo's patch for
-bounce buffer allocation is *not* in 2.4.10-pre4, so we haven't proved
-anything yet.
+apply the patch and set CONFIG_SMP and CONFIG_PREEMPT to 'y' and let it
+run.  Any errors, OOPS, etc, pass them this way.
 
-You can get the patch from Marcelo's post on lkml on Aug 22 under the
-subject "Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on
-7899P)".  Note the correction posted in his next message in the thread.
-It applies to 2.4.9.  Please try it and see if these failures go away.
+Unfortunately, if the patch fails, its going to fall hard.  If the
+preemption is imperfect during SMP, certainly you will hardlock.
 
-This patch *should* be in the main tree soon.  Some testing by you would
-help a lot.
+It might help to enable CONFIG_DEBUG_SPINLOCKS and
+CONFIG_DEBUG_BUGVERBOSE -- these are present in the -ac tree.  The NMI
+watchdog might prove useful, too.
 
---
-Daniel
+But honestly, just telling me it locks on boot is useful, so whatever
+you can manage.
+
+I appreciate any help.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUKCNzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbUKCOKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUKCNzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 08:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUKCNzx
+	id S261609AbUKCOKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 09:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUKCOKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 08:55:53 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:9196 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261605AbUKCNzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 08:55:41 -0500
-Message-ID: <4188E35A.1020905@g-house.de>
-Date: Wed, 03 Nov 2004 14:55:38 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: linux-net@vger.kernel.org, pedro_m@yahoo.com
-Subject: Re: 5 compile errors for 2.4-BK
-References: <41879488.10601@g-house.de> <20041102173337.GG4978@stusta.de>
-In-Reply-To: <20041102173337.GG4978@stusta.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 09:10:31 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:63883 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261609AbUKCOK0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 09:10:26 -0500
+Date: Wed, 3 Nov 2004 15:10:01 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 - e1000 - page allocation failed
+Message-ID: <20041103141001.GA27969@mail.muni.cz>
+References: <20041021221622.GA11607@mail.muni.cz> <20041021225825.GA10844@electric-eye.fr.zoreil.com> <20041022025158.7737182c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041022025158.7737182c.akpm@osdl.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Oct 22, 2004 at 02:51:58AM -0700, Andrew Morton wrote:
+> I'd be interested in knowing if this fixes it - I don't expect it will,
+> because that's a zero-order allocation failure.  He's really out of memory.
+> 
+> The e1000 driver has a default rx ring size of 256 which seems a bit nutty:
+> a back-to-back GFP_ATOMIC allocation of 256 skbs could easily exhaust the
+> page allocator pools.
+> 
+> Probably this machine needs to increase /proc/sys/vm/min_free_kbytes.
 
-Adrian Bunk schrieb:
-> Did you manually change your gcc link or are you using gcc 3.3 ?
+However. I have two machines very similar and one opses and one does not.
+I wondered why. I've found out that if I turn whole netfilter to module and
+disable:
+CONFIG_NET_IPGRE=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
 
-well, it's a debian system and /etc/alternatives exist. so /usr/bin/gcc
-points to /etc/alternatives/gcc and this points to /usr/bin/gcc-3.4
-and gcc-3.4 is really gcc-3.4.2:
+Then problem seems to disappeare on both...
 
-evil@sheep:~$ gcc --version
-gcc (GCC) 3.4.2 (Debian 3.4.2-3)
+(I do not use iptables on any machine)
 
-> The interesting thing is the exact error message.
-
-that's why i posted the url with the exact errors, but i can do it here
-too. taken from:
-http://nerdbynature.de/bits/sheep/latest-kernel/make-2.4-i386-BK.log
-
-neighbour.c: In function `neigh_seq_stop':
-neighbour.c:1805: warning: unused variable `tbl'
-neighbour.c: At top level:
-neighbour.c:1901: error: `THIS_MODULE' undeclared here (not in a function)
-neighbour.c:1901: error: initializer element is not constant
-neighbour.c:1901: error: (near initialization for `neigh_stat_seq_fops.owner')
-make[3]: [neighbour.o] Error 1 (ignored)
-
-arp.c:1342: error: `THIS_MODULE' undeclared here (not in a function)
-arp.c:1342: error: initializer element is not constant
-arp.c:1342: error: (near initialization for `arp_seq_fops.owner')
-make[3]: [arp.o] Error 1 (ignored)
-
-> Your 5 errors are actually only two (similar) compile errors.
-
-yes, 2 errors, the other ones were only deduced by them.
-
-thanks,
-Christian.
-- --
-BOFH excuse #437:
-
-crop circles in the corn shell
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBiONZ+A7rjkF8z0wRAtd4AJ9cO2nBMT8Q3Wx5KnlOFF0u/7D9MQCfe47a
-NmEIEq3NXxHeEUt1vSHQbvs=
-=osRi
------END PGP SIGNATURE-----
+-- 
+Luká¹ Hejtmánek

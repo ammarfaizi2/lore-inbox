@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313143AbSDIMIr>; Tue, 9 Apr 2002 08:08:47 -0400
+	id <S313144AbSDIML3>; Tue, 9 Apr 2002 08:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313144AbSDIMIq>; Tue, 9 Apr 2002 08:08:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:56192 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S313143AbSDIMIp>; Tue, 9 Apr 2002 08:08:45 -0400
-Date: Tue, 9 Apr 2002 08:10:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: "T. A." <tkhoadfdsaf@hotmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: C++ and the kernel
-In-Reply-To: <3CB2BA4C.80200@evision-ventures.com>
-Message-ID: <Pine.LNX.3.95.1020409075919.4157A-100000@chaos.analogic.com>
+	id <S313151AbSDIML2>; Tue, 9 Apr 2002 08:11:28 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:62151 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S313144AbSDIML2>; Tue, 9 Apr 2002 08:11:28 -0400
+Date: Tue, 9 Apr 2002 14:11:28 +0200 (CEST)
+From: Petr Kulhavy <brain@artax.karlin.mff.cuni.cz>
+To: Manoj Sharma <manoj.sharma@wipro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Framebuffer documentation
+In-Reply-To: <Pine.LNX.4.33.0204091351550.24749-100000@kaveri>
+Message-ID: <Pine.LNX.4.44.0204091407150.26332-100000@artax.karlin.mff.cuni.cz>
+X-Echelon: GRU Vatutinki Aquarium Khodynka Chodynka Khodinka Putin Suvorov USA Russia Ladygin China Moscow missile reconnaissance agent spetsnaz security tactical target operation military defense spy information attack bomb explode tap intercept plan intelligence war analysis echelon sucks
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Apr 2002, Manoj Sharma wrote:
 
-I would like to rewrite the kernel in FORTRAN because this was
-one of the first languages I learned.
+>
+> You can get the documents at www.linux-fbdev.org
 
-Seriously, the kernel MUST be written in a procedural language.
-It is the mechanism by which something is accomplished that defines
-an operating system kernel.
+That's not a documentation. There's e. g. nothing about colormaps. When I
+set mode with 15, 16 or 24 bits, dark colors are very strange (cyan, red
+or something like that), when I set palette (in 24 bit mode!) the colors
+change.
 
-C++ is an object-oriented language, in fact the opposite of a
-procedural language. It is not suitable.
+"Documentation" says nothing about it.
 
-Many so-called programmers look at kernel code and see that a
-lot is written in 'C'. Then they think; "I can do this better
-because I know C++. Everybody knows that C++ is better than
-plain old C..."
+Brain
 
-If you really knew C++, you wouldn't even joke about putting it
-in the kernel.
+--------------------------------
+Petr `Brain' Kulhavy
+<brain@artax.karlin.mff.cuni.cz>
+http://artax.karlin.mff.cuni.cz/~brain
+Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
 
-Cheers,
-Dick Johnson
+---
+God is dead.
+                 -- Nietzsche
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+Nietzsche is dead.
+                 -- God
 

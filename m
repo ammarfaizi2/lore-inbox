@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282012AbRKVCZi>; Wed, 21 Nov 2001 21:25:38 -0500
+	id <S282013AbRKVCci>; Wed, 21 Nov 2001 21:32:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282013AbRKVCZ2>; Wed, 21 Nov 2001 21:25:28 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:3456 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282012AbRKVCZQ>; Wed, 21 Nov 2001 21:25:16 -0500
-Message-ID: <000d01c172fc$cde53440$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NetWare File System NWFS 2.4.15-pre8 Kernel Patch
-Date: Wed, 21 Nov 2001 19:24:25 -0700
+	id <S282014AbRKVCc3>; Wed, 21 Nov 2001 21:32:29 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:41777 "EHLO
+	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
+	id <S282013AbRKVCcM>; Wed, 21 Nov 2001 21:32:12 -0500
+Message-ID: <3BFC6387.10BFEAB4@starband.net>
+Date: Wed, 21 Nov 2001 21:31:35 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Swap vs No Swap.
+In-Reply-To: <Pine.LNX.4.33.0111211813160.20514-100000@twin.uoregon.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes, I have.
 
-A Kernel patch that integrate the NetWare File System (NWFS) into the
-2.4.15-pre8 kernel has been posted at
-ftp.timpanogas.org:/nwfs/nwfs-2.4.15-pre8-1.bz2 and
-ftp.utah-nac.org:/nwfs/nwfs-2.4.15-pre8-1.bz2
+I have 1024MB of ram.
 
-This patch includes support for the 3Ware RAID Adapter and Linux Software
-RAID.
+When running every X application I have as user + root + etc, I still only use
+600MB out of the 1024MB of ram.
 
-Jeff Merkey
-TRG/Utah NAC
 
 

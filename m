@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264423AbTIIU7f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTIIU7e
+	id S264496AbTIIV07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTIIV0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:59:34 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27153 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264423AbTIIU7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:59:21 -0400
-Date: Tue, 9 Sep 2003 21:59:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
-Message-ID: <20030909215918.R4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030909204803.N4216@flint.arm.linux.org.uk> <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>
+	Tue, 9 Sep 2003 17:26:54 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51079 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264496AbTIIVYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:24:16 -0400
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable
+	data
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030909220452.S4216@flint.arm.linux.org.uk>
+References: <20030909204803.N4216@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>
+	 <20030909220452.S4216@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063142578.30981.22.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Tue, Sep 09, 2003 at 04:02:58PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Tue, 09 Sep 2003 22:22:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 04:02:58PM -0400, Zwane Mwaikambo wrote:
-> On Tue, 9 Sep 2003, Russell King wrote:
+On Maw, 2003-09-09 at 22:04, Russell King wrote:
+> I want this to be foolproof, because its me people bug when their cardbus
+> cards oops when they insert the damned things.  If people are happy to
+> ignore this issue, I'm happy to ignore the bug reports.
 > 
-> > --- orig/drivers/char/watchdog/amd7xx_tco.c	Sat Jun 14 22:33:48 2003
-> > +++ linux/drivers/char/watchdog/amd7xx_tco.c	Tue Sep  9 20:45:16 2003
-> > @@ -294,7 +294,7 @@
-> >  	.fops	= &amdtco_fops
-> >  };
-> >  
-> > -static struct pci_device_id amdtco_pci_tbl[] __initdata = {
-> > +static struct pci_device_id amdtco_pci_tbl[] = {
-> >  	/* AMD 766 PCI_IDs here */
-> >  	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_OPUS_7443, PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ 0, }
+> It basically isn't something I want to deal with, and we need to find a
+> way to stop these stupidities appearing in the first place.
 > 
-> That's not a bug.
-> 
-> > --- orig/drivers/char/watchdog/i810-tco.c	Sun Aug  3 11:21:11 2003
-> > +++ linux/drivers/char/watchdog/i810-tco.c	Tue Sep  9 20:45:16 2003
-> > @@ -301,7 +301,7 @@
-> >   * register a pci_driver, because someone else might one day
-> >   * want to register another driver on the same PCI id.
-> >   */
-> > -static struct pci_device_id i810tco_pci_tbl[] __initdata = {
-> > +static struct pci_device_id i810tco_pci_tbl[] = {
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> >  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0,	PCI_ANY_ID, PCI_ANY_ID, },
-> 
-> Neither is that.
-> 
-> > --- orig/drivers/char/hw_random.c	Sat Jun 14 22:33:46 2003
-> > +++ linux/drivers/char/hw_random.c	Tue Sep  9 20:45:16 2003
-> > @@ -149,7 +149,7 @@
-> >   * register a pci_driver, because someone else might one day
-> >   * want to register another driver on the same PCI id.
-> >   */
-> > -static struct pci_device_id rng_pci_tbl[] __initdata = {
-> > +static struct pci_device_id rng_pci_tbl[] = {
-> >  	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-> >  	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
-> 
-> This too
+> Any ideas?
 
-They're all bugs, plain and simple.  The pci device id tables are scanned
-*whenever* a new pci device is inserted into the system, or the appropriate
-numbers are echoed to the "new_id" driver model entry for the driver.
+You've already got symbols for initdata start and end, just check the 
+pointers in the pci_register code. I guess you want a per platform
 
-It doesn't matter if the driver doesn't care or not.
+BUG_IF_INIT(x)
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+

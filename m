@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVB1RmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVB1Rwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVB1RmA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 12:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVB1RmA
+	id S261595AbVB1Rwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 12:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVB1Rwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 12:42:00 -0500
-Received: from gprs214-130.eurotel.cz ([160.218.214.130]:53403 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261708AbVB1Rlp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 12:41:45 -0500
-Date: Mon, 28 Feb 2005 18:40:15 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Michal Januszewski <spock@gentoo.org>, mls@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050228174015.GB1349@elf.ucw.cz>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Feb 2005 12:52:34 -0500
+Received: from 130.254.39-62.rev.gaoland.net ([62.39.254.130]:4871 "HELO
+	130.254.39-62.rev.gaoland.net") by vger.kernel.org with SMTP
+	id S261593AbVB1Rwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 12:52:31 -0500
+Date: Mon, 28 Feb 2005 09:52:22 -0800
+Message-Id: <AKKS32RWCH1.YEI658CDTY65-NCO412RHU4.KFR9236RVZW8-I58NJC8.MPH471JALXN1@transparent.org>
+From: "Joseph" <Ljsj.Kirkland@usa.net>
+To: linux-kernel-announce@vger.kernel.org
+X-Originating-Email: [Ljsj.Kirkland@usa.net]
+X-Originating-IP: [62.39.254.130]
+Subject: linux-kernel-announce@vger.kernel.org your 3.25 rate has been pre-approved Mon, 28 Feb 2005 09:52:22 -0800
+MIME-Version: 1.0
+Content-Type: text; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Message-flag: Authentic Sender, Elsie: sQqZicyk
 Content-Disposition: inline
-In-Reply-To: <20050219011433.GA5954@spock.one.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > Just in case someone is interested, this is bootsplash for 2.6.11-rc4,
-> > taken from suse kernel. I'll probably try to modify it to work with
-> > radeonfb.
-> > 
-> > Any ideas why bootsplash needs to hack into vesafb? It only uses
-> > vesafb_ops to test against them before some kind of free...
-> 
-> It doesn't really need vesafb for anything. Back in the days of 2.6.7 
-> I used to release a version of bootsplash that had the dep. on vesafb 
-> removed. It worked fine with at least some other fb drivers.
-> 
-> You might also want to save yourself some work and try out an
-> alternative solution called fbsplash [1], which I designed after I got 
-> tired of fixing bootsplash and which I actively maintain. Fbsplash 
-> provides virtually the same functionality, and it has as much code as 
-> possible moved into userspace (no more JPEG decoders in the kernel).
+Did you know?
+You can now get $347,000 for as little as $607 a month!
+Why should you pay more when you can save thousands re-financing at our low rates?
+Remember, that rates are due to jump withint he next few months.
+Bad credit? Doesn't matter, low rates are fixed no matter what!
 
-mls suggested that there were some problems with matroxfb in the
-past. Have you seen something like that?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Use the extra for home additions, improvements, or whatever you could not afford to do before.
+Fill out this 30 sec. form and be approved within the next 24 hours.
+
+http://www.bestlenderz4u.com/x/loan.php?id=a17
+
+Best Regards,
+Elsie Leon
+
+
+
+http://www.bestlenderz4u.com/x/st.html

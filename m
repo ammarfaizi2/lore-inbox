@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291565AbSBAG3A>; Fri, 1 Feb 2002 01:29:00 -0500
+	id <S290534AbSBAGXk>; Fri, 1 Feb 2002 01:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291566AbSBAG2k>; Fri, 1 Feb 2002 01:28:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15747 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291565AbSBAG2d>;
-	Fri, 1 Feb 2002 01:28:33 -0500
-Date: Thu, 31 Jan 2002 22:26:43 -0800 (PST)
-Message-Id: <20020131.222643.85689058.davem@redhat.com>
-To: kaos@ocs.com.au
-Cc: garzik@havoc.gtf.org, alan@lxorguk.ukuu.org.uk, vandrove@vc.cvut.cz,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org, paulus@samba.org,
-        davidm@hpl.hp.com, ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <7245.1012543865@kao2.melbourne.sgi.com>
-In-Reply-To: <20020131.220121.39157969.davem@redhat.com>
-	<7245.1012543865@kao2.melbourne.sgi.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S291566AbSBAGXU>; Fri, 1 Feb 2002 01:23:20 -0500
+Received: from [202.87.41.13] ([202.87.41.13]:48874 "HELO postfix.baazee.com")
+	by vger.kernel.org with SMTP id <S290534AbSBAGXN>;
+	Fri, 1 Feb 2002 01:23:13 -0500
+Message-ID: <005201c1aae9$2215cb00$3c00a8c0@baazee.com>
+From: "Anish Srivastava" <anish@bidorbuyindia.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Java for Linux
+Date: Fri, 1 Feb 2002 11:54:35 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Owens <kaos@ocs.com.au>
-   Date: Fri, 01 Feb 2002 17:11:05 +1100
-   
-   Except my proposal would have put all the initialization order
-   information together, instead of putting some information in the
-   source and some in the Makefiles.
+Can anyone guide me in choosing the appropriate port of Java for Linux
+2.4.17 and glibc-2.2.2-10
+Which is the best of the three?
+Blackdown Java
+IBM JAVA
+Sun Java
 
-NONE OF IT IS IN THE MAKEFILES!  Please change your perspective
-to see this!
+I have heard that Blackdown supports native threads...while IBM and SUN do
+not!!
+Any kind of help will be greatly appreciated.....
 
-If you have a dependency concern, you put yourself in the
-right initcall group.  You don't depend ever on the order within the
-group, thats the whole idea.  You can't depend on that, so you must
-group things correctly.
+If this mailing list id not the right place for the above question....can
+anyone guide me to an appropriate mailing list
 
-Again, if you have some dependency within the initcall group, then
-you're grouping things incorrectly.  If the grouping is selected
-properly, you could link in the total opposite order all the objects
-and it still would work out fine.
+Thanks,
+Anish
 
-I think your complaints are for problems that don't really exist.
+
+
+

@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbULJWHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbULJWJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbULJWHh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbULJWHg
+	id S261841AbULJWJs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbULJWJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:07:36 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:40679 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S261838AbULJWGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:06:34 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-Date: Fri, 10 Dec 2004 16:06:15 -0600
-Message-ID: <OFC6899882.DBD65C9D-ON86256F66.00796C43-86256F66.00796C5C@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/10/2004 04:06:19 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Fri, 10 Dec 2004 17:09:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49614 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261839AbULJWIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 17:08:47 -0500
+Date: Fri, 10 Dec 2004 14:12:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: clameter@sgi.com, torvalds@osdl.org, benh@kernel.crashing.org,
+       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+ performance tests
+Message-Id: <20041210141258.491f3d48.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0412102125210.32422-100000@localhost.localdomain>
+References: <Pine.LNX.4.58.0412101006200.8714@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.44.0412102125210.32422-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is my get_ltrace.sh script (at the end).
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> > > (I do wonder why do_anonymous_page calls mark_page_accessed as well as
+> > > lru_cache_add_active.  The other instances of lru_cache_add_active for
+> > > an anonymous page don't mark_page_accessed i.e. SetPageReferenced too,
+> > > why here?  But that's nothing new with your patch, and although you've
+> > > reordered the calls, the final page state is the same as before.)
+> > 
+> > The mark_page_accessed is likely there avoid a future fault just to set
+> > the accessed bit.
+> 
+> No, mark_page_accessed is an operation on the struct page
+> (and the accessed bit of the pte is preset too anyway).
 
-So I read the preempt_max_latency (to see if its changed) before
-I copy the latency_trace output. I am not so sure that cat is
-really doing an "atomic" read when some of the latency traces
-are over 300 Kbytes in length.
+The point is a good one - I guess that code is a holdover from earlier
+implementations.
 
-Also note that some of the files were empty :-(. I don't think
-I've seen that symptom before.
+This is equivalent, no?
 
-Note that the preempt_max_latency value DID match the last line of
-the trace output in the example I described. It is just the header
-that had some stale data in it.
-
-  --Mark
-
---- get_ltrace.sh ---
-
-#!/bin/sh
-
-let MAX=`cat /proc/sys/kernel/preempt_max_latency`
-let I=0 J=1
-let MP=${1:-1000}
-echo "Current Maximum is $MAX, limit will be $MP."
-while (( I < 100 )) ; do
-    sleep 1s
-    let NOW=`cat /proc/sys/kernel/preempt_max_latency`
-    if (( MAX != NOW )) ; then
-        echo "New trace $I w/ $NOW usec latency."
-        cat /proc/latency_trace > lt.`printf "%02d" $I`
-#       sync ; sync
-        let I++
-        let MAX=NOW
-    elif (( J++ >= 10 )) ; then
-        if (( MAX != MP )) ; then
-            echo "Resetting max latency from $MAX to $MP."
-            echo $MP > /proc/sys/kernel/preempt_max_latency
-            let MAX=$MP
-        else
-            echo "No new latency samples at `date`."
-        fi
-        let J=1
-# else do nothing...
-    fi
-done
+--- 25/mm/memory.c~do_anonymous_page-use-setpagereferenced	Fri Dec 10 14:11:32 2004
++++ 25-akpm/mm/memory.c	Fri Dec 10 14:11:42 2004
+@@ -1464,7 +1464,7 @@ do_anonymous_page(struct mm_struct *mm, 
+ 							 vma->vm_page_prot)),
+ 				      vma);
+ 		lru_cache_add_active(page);
+-		mark_page_accessed(page);
++		SetPageReferenced(page);
+ 		page_add_anon_rmap(page, vma, addr);
+ 	}
+ 
+_
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUGBNIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUGBNMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbUGBNIy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 09:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUGBNIx
+	id S264502AbUGBNMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 09:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUGBNMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 09:08:53 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:60139 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264430AbUGBNIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 09:08:24 -0400
-Date: Fri, 2 Jul 2004 18:48:00 +0530
+	Fri, 2 Jul 2004 09:12:21 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:48024 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264524AbUGBNLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 09:11:06 -0400
+Date: Fri, 2 Jul 2004 18:50:40 +0530
 From: Suparna Bhattacharya <suparna@in.ibm.com>
 To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
 Cc: linux-osdl@osdl.org
-Subject: Re: [PATCH 6/22] FS AIO read
-Message-ID: <20040702131800.GF4374@in.ibm.com>
+Subject: Re: [PATCH 8/22] AIO cancellation fix
+Message-ID: <20040702132040.GH4374@in.ibm.com>
 Reply-To: suparna@in.ibm.com
 References: <20040702130030.GA4256@in.ibm.com>
 Mime-Version: 1.0
@@ -26,6 +26,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
+> Its been a while since I last posted the retry based AIO patches
+> that I've been accumulating. Janet Morgan recently brought
+> the whole patchset up-to to 2.6.7.
+> 
 > The patchset contains modifications and fixes to the AIO core
 > to support the full retry model, an implementation of AIO
 > support for buffered filesystem AIO reads and O_SYNC writes
@@ -42,64 +46,62 @@ On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
 > FS AIO read
 > [5] aio-wait-page.patch
 > [6] aio-fs_read.patch
+> [7] aio-upfront-readahead.patch
+> 
+> AIO for pipes
+> [8] aio-cancel-fix.patch
 
 -- 
 Suparna Bhattacharya (suparna@in.ibm.com)
 Linux Technology Center
 IBM Software Lab, India
 
-------------------------------------------------
-From: Suparna Bhattacharya <suparna@in.ibm.com>
+-----------------------------------
 
-Filesystem aio read
+From: Chris Mason <mason@suse.com>
 
-Converts the wait for page to become uptodate (wait for page lock)
-after readahead/readpage (in do_generic_mapping_read) to a retry
-exit.
+Fix for sys_io_cancel to work properly with retries when a cancel
+method is specified for an iocb. Needed with pipe AIO support. 
+
+There's a bug in my aio cancel patch, aio_complete still makes an event
+for cancelled iocbs.  If nobody asks for this event, we effectively leak
+space in the event ring buffer.  I've attached a new aio_cancel patch
+that just skips the event creation for canceled iocbs.
 
 
- filemap.c |   21 ++++++++++++++++++---
- 1 files changed, 18 insertions(+), 3 deletions(-)
+ aio.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletion(-)
 
---- aio/mm/filemap.c	2004-06-17 15:39:49.866081192 -0700
-+++ aio-fs_read/mm/filemap.c	2004-06-17 15:34:14.042134192 -0700
-@@ -771,7 +771,12 @@ page_ok:
+--- aio/fs/aio.c	2004-06-18 06:10:37.941166456 -0700
++++ aio-cancel-fix/fs/aio.c	2004-06-18 09:24:28.905991040 -0700
+@@ -932,6 +932,13 @@ int fastcall aio_complete(struct kiocb *
+ 	if (iocb->ki_run_list.prev && !list_empty(&iocb->ki_run_list))
+ 		list_del_init(&iocb->ki_run_list);
  
- page_not_up_to_date:
- 		/* Get exclusive access to the page ... */
--		lock_page(page);
++	/*
++	 * cancelled requests don't get events, userland was given one
++	 * when the event got cancelled.
++	 */ 
++	if (kiocbIsCancelled(iocb))
++		goto put_rq;
 +
-+		if (lock_page_wq(page, current->io_wait)) {
-+			pr_debug("queued lock page \n");
-+			error = -EIOCBRETRY;
-+			goto sync_error;
-+		}
+ 	ring = kmap_atomic(info->ring_pages[0], KM_IRQ1);
  
- 		/* Did it get unhashed before we got the lock? */
- 		if (!page->mapping) {
-@@ -793,13 +798,23 @@ readpage:
- 		if (!error) {
- 			if (PageUptodate(page))
- 				goto page_ok;
--			wait_on_page_locked(page);
-+			if (wait_on_page_locked_wq(page, current->io_wait)) {
-+				pr_debug("queued wait_on_page \n");
-+				error = -EIOCBRETRY;
-+				goto sync_error;
-+			}
-+
- 			if (PageUptodate(page))
- 				goto page_ok;
- 			error = -EIO;
- 		}
+ 	tail = info->tail;
+@@ -964,7 +971,7 @@ int fastcall aio_complete(struct kiocb *
+ 		iocb->ki_retried,
+ 		iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes,
+ 		iocb->ki_kicked, iocb->ki_queued, aio_run, aio_wakeups);
+-
++put_rq:
+ 	/* everything turned out well, dispose of the aiocb. */
+ 	ret = __aio_put_req(ctx, iocb);
  
--		/* UHHUH! A synchronous read error occurred. Report it */
-+sync_error:
-+		/* We don't have uptodate data in the page yet */
-+		/* Could be due to an error or because we need to
-+		 * retry when we get an async i/o notification.
-+		 * Report the reason.
-+		 */
- 		desc->error = error;
- 		page_cache_release(page);
- 		break;
+@@ -1611,6 +1618,7 @@ asmlinkage long sys_io_cancel(aio_contex
+ 	if (kiocb && kiocb->ki_cancel) {
+ 		cancel = kiocb->ki_cancel;
+ 		kiocb->ki_users ++;
++		kiocbSetCancelled(kiocb);
+ 	} else
+ 		cancel = NULL;
+ 	spin_unlock_irq(&ctx->ctx_lock);

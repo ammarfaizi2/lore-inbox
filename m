@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUKSJK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUKSJMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUKSJK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 04:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUKSJK2
+	id S261329AbUKSJMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 04:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUKSJKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 04:10:28 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:9140 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261324AbUKSJDp (ORCPT
+	Fri, 19 Nov 2004 04:10:34 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48298 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261325AbUKSJDx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 04:03:45 -0500
-Date: Fri, 19 Nov 2004 14:33:56 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       davem@davemloft.net, prasanna@in.ibm.com, suparna@in.ibm.com
-Subject: Re: [PATCH] Kprobes: wrapper to define jprobe.entry
-Message-ID: <20041119090356.GA10082@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20041118102641.GB8830@in.ibm.com> <20041118144746.7daa9395.akpm@osdl.org> <20041119065258.GA6863@in.ibm.com> <20041118230506.4d20b3c9.akpm@osdl.org>
+	Fri, 19 Nov 2004 04:03:53 -0500
+Date: Fri, 19 Nov 2004 11:05:41 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+Message-ID: <20041119100541.GA28243@elte.hu>
+References: <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <419D13D3.8020409@stud.feec.vutbr.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041118230506.4d20b3c9.akpm@osdl.org>
+In-Reply-To: <419D13D3.8020409@stud.feec.vutbr.cz>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 11:05:06PM -0800, Andrew Morton wrote:
-> Ananth N Mavinakayanahalli <ananth@in.ibm.com> wrote:
-> >
-> > > >
-> >  > > Here is a patch that adds a wrapper for defining jprobe.entry to make
-> >  > > it easy to handle the three dword function descriptors defined by the
-> >  > > PowerPC ELF ABI.
-> >  > > 
-> >  > > Current patch against 2.6.10-rc2-mm1 + kprobes patch for ppc64.
-> >  > 
-> >  > I don't have the kprobes-for-ppc64 patch here.
-> >  > 
-> >  > > Changes for adding this wrapper for x86, ppc64 (tested) and x86_64 
-> >  > > (untested) below. The earlier method of defining jprobe.entry will
-> >  > > continue to work.
-> >  > 
-> >  > So what should I do with this?  I'm inclined to drop it until the x86_64
-> >  > part has been tested and Dave has had a go at the sparc64 version.
-> > 
-> >  I have now tested the patch succesfully on x86_64 and updated it for
-> >  sparc64 too (Dave says the change looks good).
-> 
-> What is the review and testing status of the kprobes-for-ppc64 patch which
-> you sent?
-> 
-The patch was earlier posted on the PPC64 mailing list for comments and 
-Paul had reviewed it. I had to update the patch to take care of the base 
-kprobe changes that were made to accomodate the x86_64 port.
 
-The patch is tested on POWER3 (uni) and POWER4 (lpar).
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-Thanks,
-Ananth
+> Ingo Molnar wrote:
+> >i have released the -V0.7.29-0 Real-Time Preemption patch, 
+> 
+> Hi,
+> is it supposed to work on x86_64? It doesn't compile.
+
+not at the moment - it needs the timer interrupt threading changes.
+
+	Ingo

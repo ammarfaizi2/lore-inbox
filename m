@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264718AbRFUDLZ>; Wed, 20 Jun 2001 23:11:25 -0400
+	id <S264724AbRFUDNz>; Wed, 20 Jun 2001 23:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264724AbRFUDLP>; Wed, 20 Jun 2001 23:11:15 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:55311 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S264718AbRFUDLE>; Wed, 20 Jun 2001 23:11:04 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-cc: Tom Diehl <tdiehl@pil.net>, linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another? 
-In-Reply-To: Your message of "Wed, 20 Jun 2001 14:11:20 CST."
-             <20010620141119.A5660@wintermute.starfire> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 21 Jun 2001 13:10:40 +1000
-Message-ID: <6827.993093040@kao2.melbourne.sgi.com>
+	id <S264730AbRFUDNp>; Wed, 20 Jun 2001 23:13:45 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:50197 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264724AbRFUDNh>; Wed, 20 Jun 2001 23:13:37 -0400
+Date: Wed, 20 Jun 2001 23:13:35 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200106210313.f5L3DZ124717@devserv.devel.redhat.com>
+To: landley@webofficenow.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Threads, inelegance, and Java
+In-Reply-To: <mailman.993083762.1429.linux-kernel2news@redhat.com>
+In-Reply-To: <20010620042544.E24183@vitelus.com> <01062007252301.00776@localhost.localdomain> <20010621000725.A24672@werewolf.able.es> <mailman.993083762.1429.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001 14:11:20 -0600, 
-Maciek Nowacki <maciek@Voyager.powersurfr.com> wrote:
->Change MODLIB in $(TOPDIR)/Makefile (e.g. /usr/src/linux/Makefile). I do this
->to compile the kernel and modules without root priviledges at all. make
->modules_install will fail at the end when trying to run 'depmod', but that's
->okay - you can do that yourself:
+> Then again JavaOS was an abortion on top of Slowaris. [...]
 
-That is not OK, it requires user hacks and causes errors.  Use
-  make INSTALL_MOD_PATH=foo modules_install
-and everything works.  Create $(INSTALL_MOD_PATH)/lib/modules first.
+This is a false statemenet, Rob. It was an abortion, all right,
+but not related to Solaris in any way at all.
 
+JavaOS existed in two flavours minimum, which had very little
+in common. The historically first of them (Luna), was a home-made
+executive with pretty rudimentary abilities. I must admit I am
+not intimately familiar with its genesis. A part of it was related
+to the JavaOS running on Sun 701 chip, but what came first,
+I cannot tell. Second flavour of JavaOS was made on top of
+Chorus, and, _I think_, used large parts of Luna in the the
+JVM department, but it had decent kernel, with such novations
+as a device driver interface :)
+
+> make a DPMI DOS port with an SVGA AWT and say "hey, we're done, and it boots 
+> off a single floppy", I'll never know.
+
+Such a thing existed. I do not remember its proper name,
+but I remember that it booted from hard disk. Floppy
+was too small for it.
+
+> Porting half of Solaris to Power PC for JavaOS has got to be one of the most 
+> peverse things I've seen in my professional career.
+
+I never heard of PPC port of either of JavaOSes, although
+Chorus runs on PPC. Perhaps this is what you mean.
+
+Solaris for PPC existed, but never was widespread.
+It did not have JVM bundled.
+
+> I'm upset that Red Hat 7.1 won't install on that old laptop because it only 
+> has 24 megs of ram and RedHat won't install in that. [...]
+
+You blew adding a swap partition, I suspect...
+
+-- Pete

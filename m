@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293504AbSCERFx>; Tue, 5 Mar 2002 12:05:53 -0500
+	id <S293509AbSCERIB>; Tue, 5 Mar 2002 12:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293508AbSCERFl>; Tue, 5 Mar 2002 12:05:41 -0500
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:30340 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S293504AbSCERFZ>; Tue, 5 Mar 2002 12:05:25 -0500
-Message-ID: <3C84FAB4.7020702@kjellander.com>
-Date: Tue, 05 Mar 2002 18:04:52 +0100
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
+	id <S293520AbSCERHx>; Tue, 5 Mar 2002 12:07:53 -0500
+Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:46253 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S293509AbSCERHm>; Tue, 5 Mar 2002 12:07:42 -0500
+Date: Tue, 05 Mar 2002 12:06:43 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, Oliver.Schersand@BASF-IT-Services.com
+cc: Alessandro Suardi <alessandro.suardi@oracle.com>, use-oracle@suse.com,
+        suse-linux-e@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: Antwort: Re: Kernel Hangs 2.4.16 on heay io Oracle and Tivolie TSM
+Message-ID: <322850000.1015348003@tiny>
+In-Reply-To: <3C838DA7.4050807@namesys.com>
+In-Reply-To: <OFE7517866.AA039B23-ONC1256B72.0027B52F@bcs.de> <3C838DA7.4050807@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-In-Reply-To: <3C8419FF.10103@kjellander.com> <20020305051146.GA7075@kroah.com> <200203051612.g25GCtc23752@fachschaft.cup.uni-muenchen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> Am Dienstag, 5. März 2002 06:11 schrieb Greg KH:
-> 
->>On Tue, Mar 05, 2002 at 02:06:07AM +0100, Carl-Johan Kjellander wrote:
->>
->>>Attached to each one of these is an Philips ToUCam pro which uses the pwc
->>>and pwcx modules. (yes, the kernel becomes tainted by the pwcx module)
->>>
->>As you are using this closed source module, I suggest you take this up
->>with that module's author.
->>
-> 
-> Perhaps you could first ask whether the hang can be reproduced
-> without that module loaded ?
-> Secondly, that module is unlikely to cause that kind of trouble.
-
-The problem can be reproduced on a computer that has not loaded pwcx.o
-after boot. The problem is not caused by pwcx.o at all.
 
 
-/Carl-Johan Kjellander
--- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
+On Monday, March 04, 2002 06:07:19 PM +0300 Hans Reiser <reiser@namesys.com> wrote:
+
+
+> Wasn't 2.4.16 the known unstable vm release of 2.4?  Why do you go to 
+> such effort to stick with a bad kernel?  Go to 2.4.18.
+
+I'm not sure exactly which vm problems you mean, but He's running the 
+suse 2.4.16, which is heavily patched. When your running big production
+databases, upgrading to the kernel of the week isn't an option.
+
+I think we've found the bug, it looks like a race in the proc code.
+
+Oliver, someone will contact you a little later with instructions on
+getting a kernel with the fix.  If you only see this oops during backups,
+make sure you aren't trying to backup /proc.
+
+-chris
 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUDSPmW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 11:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264466AbUDSPmW
+	id S264266AbUDSPnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 11:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264466AbUDSPnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 11:42:22 -0400
-Received: from slip32-106-21-233.fra.de.prserv.net ([32.106.21.233]:12161 "EHLO
-	aj.andaco.de") by vger.kernel.org with ESMTP id S264246AbUDSPmU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 11:42:20 -0400
-Date: Mon, 19 Apr 2004 17:41:37 +0200
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tg3 driver - make use of binary-only firmware optional
-Message-ID: <20040419154137.GA4885@andaco.de>
-References: <20040418135534.GA6142@andaco.de> <20040418180811.0b2e2567.davem@redhat.com> <20040419080439.GB11586@andaco.de> <20040419085809.GA585@wiggy.net>
-Mime-Version: 1.0
+	Mon, 19 Apr 2004 11:43:21 -0400
+Received: from zero.aec.at ([193.170.194.10]:22539 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264266AbUDSPnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 11:43:16 -0400
+To: <stl@nuwen.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Process Creation Speed
+References: <1MFUQ-1zo-3@gated-at.bofh.it> <1MGnU-1U9-19@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 19 Apr 2004 17:43:10 +0200
+In-Reply-To: <1MGnU-1U9-19@gated-at.bofh.it> (Stephan T. Lavavej's message
+ of "Mon, 19 Apr 2004 14:50:10 +0200")
+Message-ID: <m365bwm0s1.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040419085809.GA585@wiggy.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Andreas Jochens <aj@andaco.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04-Apr-19 10:58, Wichert Akkerman wrote:
-> Is there any reason for not using the hotplug firmware infrastructure?
+"Stephan T. Lavavej" <stl@nuwen.net> writes:
+>
+> I changed my measurement strategy, and I now get about 110 microseconds for
+> creation and termination of a do-nothing process (fork() followed by
+> execve()).  Statically linking everything gave a significant speedup, which
+> allowed me to reach that value.  This was on a 2.6.x kernel.  110
+> microseconds is well within my "doesn't suck" range, so I'm happy - CGI will
+> be fast enough for my needs, and I can always turn to FastCGI later if
+> necessary.
 
-I had the hotplug mechanism in mind when I moved the three firmware 
-images from tg3.c to three separate firmware files in my first patch.
-I thought of this as a first step which could be followed by 
-converting the driver to use the hotplug firmware 
-infrastructure and moving the firmware images to user space.
+This just means ld.so is too slow for you. Perhaps you should complain
+to the glibc people about that?
 
-However, since a patch putting the firmware in separate files doesn't 
-seem to be welcome, I doubt that a conversion to use the hotplug 
-mechanism will be accepted because this would separate the firmware 
-and the driver even more.
+-Andi
 
-In any case, making the use of the firmware optional by introducing 
-CONFIG_TIGON3_FIRMWARE seems to make sense. A later conversion to the 
-hotplug firmware mechanism will always be possible.
-
-Regards
-Andreas Jochens

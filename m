@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317791AbSGKItJ>; Thu, 11 Jul 2002 04:49:09 -0400
+	id <S317795AbSGKJAU>; Thu, 11 Jul 2002 05:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317793AbSGKItI>; Thu, 11 Jul 2002 04:49:08 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:13289 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S317791AbSGKItH>; Thu, 11 Jul 2002 04:49:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Jesse Barnes <jbarnes@sgi.com>, Daniel Phillips <phillips@arcor.de>
-Subject: Re: spinlock assertion macros
-Date: Thu, 11 Jul 2002 12:51:38 +0200
-User-Agent: KMail/1.4.2
-Cc: kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SPsV-00028p-00@starship> <20020710233616.GA696482@sgi.com>
-In-Reply-To: <20020710233616.GA696482@sgi.com>
+	id <S317797AbSGKJAT>; Thu, 11 Jul 2002 05:00:19 -0400
+Received: from ftp.realnet.co.sz ([196.28.7.3]:20176 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317795AbSGKJAT>; Thu, 11 Jul 2002 05:00:19 -0400
+Date: Thu, 11 Jul 2002 11:21:06 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: =?iso-8859-1?q?Henning=20Petersen?= <castrolmanden2@yahoo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: unhandled interrupt: 0xff63fc7f crash with emu10k1/soundblaster
+ live value card
+In-Reply-To: <20020711081024.58052.qmail@web20414.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0207111111280.2430-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207111251.38481.arnd@bergmann-dalldorf.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 July 2002 01:36, Jesse Barnes wrote:
+On Thu, 11 Jul 2002, Henning Petersen wrote:
 
-+#define spin_assert_unlocked(lock) if (spin_is_locked(lock)) { printk("lock assertion failure: lock at %s:%d should be unlocked!\n", __FILE__, __LINE__); }
+> > nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2802  Tue Mar  5
+> > 06:26:45 PST 2002
 
-I suppose what would at least be as helpful is to check if _any_ 
-lock is held, e.g. when calling a potentially sleeping function.
+Did your older computer also use the nvdriver? Can you reproduce this 
+using the opensource XFree86 nv driver? You can also try shuffling PCI 
+cards around or changing BIOS settings so that your sound card and video 
+card don't share interrupts (check /proc/interrupts)
 
-Something along these lines:
+Cheers,
+	Zwane
 
-#ifdef CONFIG_DEBUG_SPINLOCK
-extern char *volatile last_spinlock[NR_CPUS];
+-- 
+function.linuxpower.ca
 
-#define spin_assert_unlocked_all() ({ \
-	char *lock = last_spinlock[smp_processor_id()]; \
-	if (lock) { \
-		printk (KERN_CRIT "%s:%d: lock %s is held\n", \
-			__func__, __LINE__, lock); \
-		BUG(); \
-	} \
-})
 
-#define spin_lock(lock) ({ \
-	last_spinlock[smp_processor_id()] = __stringify(lock) "@" \
-		__FILE__ ":" __stringify(__LINE__); \
-	__really_spin_lock(lock); \
-})
-#endif
-
-probably, a per-cpu lock depth should be used to also catch
-spin_lock(foo_lock); 
-spin_lock(bar_lock); 
-spin_unlock(bar_lock);
-spin_assert_unlock_all();
-
-	Arnd <><

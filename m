@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269254AbRHLOnN>; Sun, 12 Aug 2001 10:43:13 -0400
+	id <S269257AbRHLOqd>; Sun, 12 Aug 2001 10:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269257AbRHLOnD>; Sun, 12 Aug 2001 10:43:03 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:6918 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269254AbRHLOms>;
-	Sun, 12 Aug 2001 10:42:48 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: John Levon <moz@compsoc.man.ac.uk>
-cc: linux-kernel@vger.kernel.org, sailer@ife.ee.ethz.ch
-Subject: Re: Gameport & esssolo1 2.4.8 
-In-Reply-To: Your message of "Sun, 12 Aug 2001 12:48:40 +0100."
-             <20010812124840.A26055@compsoc.man.ac.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 Aug 2001 00:42:55 +1000
-Message-ID: <3592.997627375@ocs3.ocs-net>
+	id <S269261AbRHLOqX>; Sun, 12 Aug 2001 10:46:23 -0400
+Received: from ns.skjellin.no ([193.69.71.66]:3266 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id <S269257AbRHLOqL>;
+	Sun, 12 Aug 2001 10:46:11 -0400
+Message-ID: <000f01c1233d$8bbb2700$8405000a@slurv>
+From: "Andre Tomt" <andre@tomt.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Max Schattauer" <smax@smaximum.de>
+In-Reply-To: <3B769CA4.11035.A9DFE2@localhost>
+Subject: Re: tun device: File descriptor in bad state(77)
+Date: Sun, 12 Aug 2001 16:46:18 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2526.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Aug 2001 12:48:40 +0100, 
-John Levon <moz@compsoc.man.ac.uk> wrote:
->esssolo1 uses register_gameport_port() which requires support for it to
->be enabled. Shouldn't there be always-failing register/unregister so I don't have
->to compile in input support and joystick support ?
+> Hi there!
+>
+> I graded up from kernel 2.4.5 to 2.4.8 and now have trouble with
+> vtund 2.5b1 and tun 1.1.
+>
+> vtund[532]: Session st_sm[217.230.44.100:1577] opened
+> vtund[532]: Can't allocate tun device. File descriptor in bad state(77)
+> vtund[532]: Session st_sm closed
 
-AFAIK this was fixed in the -ac trees some time ago.  I have no idea
-why it is not in 2.4.8, maybe Alan Cox is waiting for the input and/or
-joystick maintainer to push it.  No, I am not going to do a 2.4.8
-version of the fix, that is up to the maintainer.
+Try using the included tun 1.4 thats in the kernel source. Vtund might need
+a small patch to work, I'm not sure about your version. Look at this patch:
+http://www.sannes.org/secnet/secnet-1.0d-linux-2.4.diff
+
+It should apply on vtund 2.4 at least (secnetd is just a different "version"
+of vtund with stronger encryption and some bugfixes). If it does not apply,
+try readning it and see what it does (it's nothing big, two additions of
+#includes.)
+
+--
+Regards,
+André Tomt
+andre@tomt.net
 

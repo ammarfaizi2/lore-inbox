@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271679AbRICLGP>; Mon, 3 Sep 2001 07:06:15 -0400
+	id <S271680AbRICLQF>; Mon, 3 Sep 2001 07:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271681AbRICLFz>; Mon, 3 Sep 2001 07:05:55 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:52242 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S271679AbRICLFo>; Mon, 3 Sep 2001 07:05:44 -0400
-Message-ID: <3B935FF8.935244CE@namesys.com>
-Date: Mon, 03 Sep 2001 14:48:24 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S271681AbRICLP4>; Mon, 3 Sep 2001 07:15:56 -0400
+Received: from mustard.heime.net ([194.234.65.222]:62177 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S271680AbRICLPo>; Mon, 3 Sep 2001 07:15:44 -0400
+Date: Mon, 3 Sep 2001 13:16:02 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Page size
+Message-ID: <Pine.LNX.4.30.0109031307070.10886-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-        willy@debian.org, thunder7@xs4all.nl,
-        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc 
- architecture
-In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel> <oup66b0zq9j.fsf@pigdrop.muc.suse.de> <20010903.011530.62340995.davem@redhat.com> <20010903104105.A3398@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, so the sum of this is that Jeff's patches work on the platforms he wrote
-them for, and we need one more fix for PA-RISC.
+hi all
 
-So, we can reasonably send Jeff's patches to Linus, and test and then put the
-PA-RISC patch into the AC tree, any disagreement?
+I don't know if this may be considered already, but after reading a few
+articles about plans for 2.5, I came to think of this.
 
-Hans
+As far as I can see, a page size increase is being discussed, and problems
+are how to allow for small and large pages at the same time.
+
+I came to think of a good old method used by some file systems to reduce
+slack; suballocation. In Novell NetWare's "classic" file system, this is
+done by setting a rather high block size (often 64k), and then splitting
+each block in eight. This way, all reads and writes are done in whole
+blocks, the allocation table is kept quite small, and should you need to
+save a small file, it is saved in one or more slices of a block.
+
+Could this translate to kernel memory allocation with, say, a block size
+of 256k and possibilities for suballocating blocks down to 4 or 8 k (a 32
+or 64 split).
+
+I am not really a kernel hacker, but thought it might be worth mentioning
+the ide.
+
+Please cc: any answers to me, as I'm not on the list.
+
+roy
+

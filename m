@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265258AbUENLku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUENLnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbUENLku (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 07:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUENLku
+	id S265261AbUENLnB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 07:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265262AbUENLnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 07:40:50 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:37322 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S265258AbUENLks
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 07:40:48 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (6/6): network driver.
-Date: Fri, 14 May 2004 13:40:04 +0200
-User-Agent: KMail/1.6.1
-References: <20040513191539.GG2916@mschwid3.boeblingen.de.ibm.com> <20040513204421.A15306@infradead.org>
-In-Reply-To: <20040513204421.A15306@infradead.org>
-Cc: "Frank Pavlic" <pavlic@de.ibm.com>
+	Fri, 14 May 2004 07:43:01 -0400
+Received: from mailhost2.tudelft.nl ([130.161.180.2]:1771 "EHLO
+	mailhost2.tudelft.nl") by vger.kernel.org with ESMTP
+	id S265261AbUENLmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 07:42:53 -0400
+Message-ID: <001001c439b0$db1af1e0$161b14ac@boromir>
+From: "Martijn Sipkema" <m.j.w.sipkema@student.tudelft.nl>
+To: "Jakub Jelinek" <jakub@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>, "Ulrich Drepper" <drepper@redhat.com>,
+       "Roland McGrath" <roland@redhat.com>
+References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com> <000601c439a3$f793af40$161b14ac@boromir> <20040514104012.GE30909@devserv.devel.redhat.com>
+Subject: Re: POSIX message queues should not allocate memory on send
+Date: Fri, 14 May 2004 13:42:02 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_XALpAPllwCf3ubH";
-  charset="iso-8859-1"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405141340.07207.arnd@arndb.de>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Fri, May 14, 2004 at 12:09:46PM +0100, Martijn Sipkema wrote:
+> > You are correct; defaults are indeed needed. The current default value
+> > for mq_msgsize seems rather large considering that mq_msgsize*mq_maxmsg
+> > bytes will have to be allocated on queue creation. If variable sized
+large
+> > payload messages are needed one might consider using shared memory in
+> > combination with a message queue.
+> >
+> > My main point was that mq_send()/mq_timedsend() may not return ENOMEM
+> > and I am positive I did not misread the standard on that.
+>
+> Even that is not clear.
+>
+http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_03.html#tag_02_03
+> "   Implementations may support additional errors not included in this
+list,
+>     may generate errors included in this list under circumstances other
+than
+>     those described here, or may contain extensions or limitations that
+>     prevent some errors from occurring.  The ERRORS section on each
+>     reference page specifies whether an error shall be returned, or
+whether
+>     it may be returned.  Implementations shall not generate a different
+error
+>     number from the ones described here for error conditions described in
+>     this volume of IEEE Std 1003.1-2001, but may generate additional
+errors
+>     unless explicitly disallowed for a particular function."
+>
+> Explicitely disallowed in the general section is only EINTR for the THR
+> option functions unless explitely listed for that function and nothing
+else.
+>
+> I don't see ENOMEM explicitly forbidden for mq_send/mq_timedsend nor
+> any wording in mq_open description which would require the buffers to
+> be preallocated.
 
---Boundary-02=_XALpAPllwCf3ubH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Indeed maybe returning ENOMEM from mq_send() is conforming to the
+standard. Perhaps returning ENOMEM instead of ENOSPC from
+mq_open() to indicate that there is unsufficient space for the creation of
+a new queue isn't; I'm no longer sure.
 
-On Thursday 13 May 2004 21:44, Christoph Hellwig wrote:
-> On Thu, May 13, 2004 at 09:15:39PM +0200, Martin Schwidefsky wrote:
-> > [PATCH] s390: network device driver.
-> >=20
-> > From: Martin Schwidefsky <schwidefsky@de.ibm.com>
->=20
-> Btw, what about the s390/ipv6 releated patch suse is carrying around
-> but which apparently never escaped to a public list?
+What _is_ clear from the standard is that a queue is supposed to be
+allocated on creation, even if it may not be required. Why else would
+ENOSPC be explicitely listed for mq_open() when creating a new
+queue, but not for mq_send()/mq_timedsend()?
 
-I think that must be the support for virtualized ethernet cards
-that was last discussed in early 2003:
+What use is a message queue for a realtime application when on
+mq_send() it may have to wait for memory allocation that may even
+fail?
 
-http://marc.theaimsgroup.com/?t=3D104550859900002&r=3D1&w=3D2
+Even if POSIX allows errors to be returned that are not in the function's
+ERRORS list, I don't think one should do this if it can be avoided.
 
-Something like this required for using ipv6 on Linux in z/VM, but so
-far no one has come up with an implementation that is fit for inclusion.
-If you have a clever idea how to do this in a cleaner way, please tell.
+--ms
 
-	Arnd <><
 
---Boundary-02=_XALpAPllwCf3ubH
-Content-Type: application/pgp-signature
-Content-Description: signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBApLAX5t5GS2LDRf4RAvIlAJ48swshJQnYombvcMabq/PGb2IpJgCdGaqZ
-Hlfbc9P/o3IC2OFX8+28Sl4=
-=DeVh
------END PGP SIGNATURE-----
-
---Boundary-02=_XALpAPllwCf3ubH--

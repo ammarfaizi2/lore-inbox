@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267535AbSKQR60>; Sun, 17 Nov 2002 12:58:26 -0500
+	id <S267541AbSKQSHw>; Sun, 17 Nov 2002 13:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267540AbSKQR60>; Sun, 17 Nov 2002 12:58:26 -0500
-Received: from adsl-65-66-148-247.dsl.kscymo.swbell.net ([65.66.148.247]:23940
-	"EHLO hofmann1.gchofmann.org") by vger.kernel.org with ESMTP
-	id <S267535AbSKQR6Z>; Sun, 17 Nov 2002 12:58:25 -0500
-Subject: 2.5.47-ac5 compile failure: missing linux/iobuf.h
-From: "Glenn C. Hofmann" <ghofmann@pair.com>
-To: linux-kernel@vger.kernel.org
-Cc: Simon Evans <spse@secret.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mZm+yYsEkkt39BoozjS9"
-Organization: 
-Message-Id: <1037556071.12239.13.camel@hofmann1.gchofmann.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 17 Nov 2002 12:05:14 -0600
+	id <S267542AbSKQSHw>; Sun, 17 Nov 2002 13:07:52 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:59602 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267541AbSKQSHv>;
+	Sun, 17 Nov 2002 13:07:51 -0500
+Date: Sun, 17 Nov 2002 20:31:21 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Luca Barbieri <ldb@ldb.ods.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+In-Reply-To: <Pine.LNX.4.44.0211170922020.4425-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0211172024470.11571-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-mZm+yYsEkkt39BoozjS9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sun, 17 Nov 2002, Linus Torvalds wrote:
 
-While trying to compile blkmtd.c it cannot find linux/iobuf.h.  This is
-due to the fact that it isn't there.  Searching the lkml archives, there
-is no mention of this file being removed nor of anybody else having this
-issue, that I can find.
+> First off, a program had better be correctly startable even if the
+> process that does the execve() is _not_ using the new glibc. [...]
 
-Chris
+it most definitely is. Binary compatibility is taken very seriously.
 
---=-mZm+yYsEkkt39BoozjS9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+the SETTID change only affects the fork() case. Ie. there are 4 major ways
+a context can be started:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+  execve(): here we build a process image from scratch. NPTL changes 
+            nothing here, except that if a new NPTL binary is started up,
+            it will call sys_set_tid_address() to get the 'initial thread'
+            set up properly. Old binaries continue to work.
 
-iD8DBQA919lnkPlrlFLq0bIRAo9CAKC95f7T5glwD1pStCC23taAhgjMuACaA/WZ
-yQ2uxRY8FNNq57WUkUn1ZHo=
-=dFSI
------END PGP SIGNATURE-----
+  fork(): here we build a new process image by copying the parent image. 
+          NPTL applications are using sys_clone(CLONE_SETTID) internally, 
+          to set up the initial thread of the new process image. [the 
+          fork() code in glibc also does other cleanup work to get a true
+          initial thread going, even if a threaded application forks, but
+          this is nothing the kernel should worry about.]
 
---=-mZm+yYsEkkt39BoozjS9--
+  pthread_create(): here we create a new thread that shares all sharable 
+                    state with the parent thread. LinuxThreads (old glibc) 
+                    does whatever it always did, NPTL uses all the new 
+                    flags.
+
+  raw clone(): share a subset of the parent thread's resources.
+
+there is no change anywhere due to NPTL. You can start and old glibc
+application from within a new glibc application and vice versa.
+
+	Ingo
+

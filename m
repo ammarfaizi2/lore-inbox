@@ -1,170 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbTJ3Oss (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 09:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTJ3Osr
+	id S262573AbTJ3PGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 10:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJ3PGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 09:48:47 -0500
-Received: from mailgate.zeus.co.uk ([62.254.209.70]:11281 "EHLO
-	mailgate.zeus.co.uk") by vger.kernel.org with ESMTP id S262546AbTJ3Oso
+	Thu, 30 Oct 2003 10:06:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39379 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262573AbTJ3PFx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 09:48:44 -0500
-Date: Thu, 30 Oct 2003 14:48:35 +0000 (GMT)
-From: Ben Mansell <ben@zeus.com>
-X-X-Sender: ben@stones.cam.zeus.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll gives broken results when interrupted with a signal
-In-Reply-To: <Pine.LNX.4.58.0310301102470.1597@stones.cam.zeus.com>
-Message-ID: <Pine.LNX.4.58.0310301425090.1597@stones.cam.zeus.com>
-References: <Pine.LNX.4.58.0310291439110.2982@stones.cam.zeus.com>
- <Pine.LNX.4.56.0310290923100.2049@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0310291729310.2982@stones.cam.zeus.com>
- <Pine.LNX.4.56.0310291121560.973@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0310301102470.1597@stones.cam.zeus.com>
+	Thu, 30 Oct 2003 10:05:53 -0500
+Message-ID: <3FA128C4.5040502@pobox.com>
+Date: Thu, 30 Oct 2003 10:05:40 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanner: exiscan *1AFE6F-0001KZ-00*vcsRl5PCTYc* (Zeus Technology Ltd)
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Post-halloween doc updates.
+References: <20031030141519.GA10700@redhat.com>
+In-Reply-To: <20031030141519.GA10700@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Oct 2003, Ben Mansell wrote:
+Dave Jones wrote:
+> - An additional bug biting some people is that NICs fail to receive packets
+>   (usually notable by a NIC not getting a DHCP lease for eg, despite being
+>    sent one by the server). Booting with "noapic" "acpi=off" or a combination
+>   of both fixes this for most people. Additional breakage reports should go
+>   to Jeff Garzik <jgarzik@pobox.com>
 
-> On Wed, 29 Oct 2003, Davide Libenzi wrote:
->
-> > Can you try the patch below and show me a dmesg when this happen?
->
-> Ok, patch applied. (I changed DEBUG_EPOLL to 10 however, otherwise
-> nothing would be printed). Now, epoll appears to behave perfectly and I
-> can't re-create the problem :(
-
-Got it! I was missing the problem because I had removed some debug
-messages in my own code. Here's another run, this time the
-final epoll_wait() call of the child process brings back 2 events:
- Event 0 fd: 7 events: 17
- Event 1 fd: -2095926561 events: 0
-
-I've added the debug to the end of this message.
-
-If I modify the code so there are several 'child' processes, all
-monitoring the same sockets with their own epolls, they all seem to get
-the same results from epoll_wait().
-
-> > Also, it shouldn't change a whit, but are you able to try on a x86 UP?
-
-On a UP x86, 2.6.0-test9, I can't reproduce the problem at all.
-
-[0000010017126e50] eventpoll: sys_epoll_create(10)
-[0000010017126e50] eventpoll: ep_file_init() ep=0000010008964000
-[0000010017126e50] eventpoll: sys_epoll_create(10) = 4
-[0000010017126e50] eventpoll: close() ep=0000010008964000
-[0000010017126e50] eventpoll: sys_epoll_create(256)
-[0000010017126e50] eventpoll: ep_file_init() ep=0000010008964000
-[0000010017126e50] eventpoll: sys_epoll_create(256) = 4
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 1, 5, 0000007fbffff070)
-[0000010017126e50] eventpoll: ep_find(0000010005e2cc80) -> 0000000000000000
-[0000010017126e50] eventpoll: ep_insert(0000010008964000, 0000010005e2cc80, 5)
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 1, 5, 0000007fbffff070) = 0
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 1, 6, 0000007fbffff290)
-[0000010017126e50] eventpoll: ep_find(000001000402b2c0) -> 0000000000000000
-[0000010017126e50] eventpoll: ep_insert(0000010008964000, 000001000402b2c0, 6)
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 1, 6, 0000007fbffff290) = 0
-[0000010002ba7520] eventpoll: sys_epoll_create(1024)
-[0000010002ba7520] eventpoll: ep_file_init() ep=000001001f928000
-[0000010002ba7520] eventpoll: sys_epoll_create(1024) = 3
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 1, 7, 0000007fbffff1c0)
-[0000010002ba7520] eventpoll: ep_find(00000100099822c0) -> 0000000000000000
-[0000010002ba7520] eventpoll: ep_insert(000001001f928000, 00000100099822c0, 7)
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 1, 7, 0000007fbffff1c0) = 0
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 3, 7, 000000000070fd80)
-[0000010002ba7520] eventpoll: ep_find(00000100099822c0) -> 000001000d9c6a80
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 3, 7, 000000000070fd80) = 0
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 3, 6, 000000000070fd80)
-[0000010017126e50] eventpoll: ep_find(000001000402b2c0) -> 000001000d9c6b40
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 3, 6, 000000000070fd80) = 0
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 3, 5, 000000000070fd80)
-[0000010017126e50] eventpoll: ep_find(0000010005e2cc80) -> 000001000d9c6c00
-[0000010017126e50] eventpoll: sys_epoll_ctl(4, 3, 5, 000000000070fd80) = 0
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 0)
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 0) = 0
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=1
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 1
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 1, 4, 0000007fbfffe850)
-[0000010002ba7520] eventpoll: ep_find(000001000615d980) -> 0000000000000000
-[0000010002ba7520] eventpoll: ep_insert(000001001f928000, 000001000615d980, 4)
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 1, 4, 0000007fbfffe850) = 0
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 3, 4, 000000000070fd80)
-[0000010002ba7520] eventpoll: ep_find(000001000615d980) -> 000001000d9c69c0
-[0000010002ba7520] eventpoll: sys_epoll_ctl(3, 3, 4, 000000000070fd80) = 0
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 3000)
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 3000) = -4
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 2000)
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 0
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000)
-[0000010017126e50] eventpoll: sys_epoll_wait(4, 0000000000734510, 32, 2000) = -4
-[0000010017126e50] eventpoll: poll_callback(000001000615d980) epi=000001000d9c69c0 ep=000001001f928000
-[0000010017126e50] eventpoll: poll_callback(000001000615d980) epi=000001000d9c69c0 ep=000001001f928000
-[0000010017126e50] eventpoll: poll_callback(0000010005e2cc80) epi=000001000d9c6c00 ep=0000010008964000
-[0000010017126e50] eventpoll: poll_callback(0000010005e2cc80) epi=000001000d9c6c00 ep=0000010008964000
-[0000010017126e50] eventpoll: eventpoll_release_file(0000010005e2cc80)
-[0000010017126e50] eventpoll: remove ep=0000010008964000 epi=000001000d9c6c00
-[0000010017126e50] eventpoll: ep_unlink(0000010008964000, 0000010005e2cc80) = 0
-[0000010017126e50] eventpoll: ep_remove(0000010008964000, 0000010005e2cc80) = 0
-[0000010017126e50] eventpoll: eventpoll_release_file(000001000402b2c0)
-[0000010017126e50] eventpoll: remove ep=0000010008964000 epi=000001000d9c6b40
-[0000010017126e50] eventpoll: ep_unlink(0000010008964000, 000001000402b2c0) = 0
-[0000010017126e50] eventpoll: ep_remove(0000010008964000, 000001000402b2c0) = 0
-[0000010017126e50] eventpoll: close() ep=0000010008964000
-[0000010017126e50] eventpoll: poll_callback(00000100099822c0) epi=000001000d9c6a80 ep=000001001f928000
-[0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=17
-[0000010002ba7520] eventpoll: polling file=000001000615d980 ep=000001001f928000 epi=000001000d9c69c0
-[0000010002ba7520] eventpoll: pollres file=000001000615d980 ep=000001001f928000 epi=000001000d9c69c0 events=16
-[0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 2
-[0000010002ba7520] eventpoll: eventpoll_release_file(00000100099822c0)
-[0000010002ba7520] eventpoll: remove ep=000001001f928000 epi=000001000d9c6a80
-[0000010002ba7520] eventpoll: ep_unlink(000001001f928000, 00000100099822c0) = 0
-[0000010002ba7520] eventpoll: ep_remove(000001001f928000, 00000100099822c0) = 0
-[0000010002ba7520] eventpoll: eventpoll_release_file(000001000615d980)
-[0000010002ba7520] eventpoll: remove ep=000001001f928000 epi=000001000d9c69c0
-[0000010002ba7520] eventpoll: ep_unlink(000001001f928000, 000001000615d980) = 0
-[0000010002ba7520] eventpoll: ep_remove(000001001f928000, 000001000615d980) = 0
-[0000010002ba7520] eventpoll: close() ep=000001001f928000
+As this is a symptom of irq routing failure, I dunno if bug reports 
+should necessarily go to me :)
 
 
--- 
-Ben Mansell, <ben@zeus.com>                       Zeus Technology Ltd
-Download the world's fastest webserver!   Universally Serving the Net
-T:+44(0)1223 525000 F:+44(0)1223 525100           http://www.zeus.com
-Zeus House, Cowley Road, Cambridge, CB4 0ZT, ENGLAND
+
+> Stuff needing forward porting from 2.4.
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> - HFSPlus
+
+I think Roman Zippel updated this recently?
+
+
+> - Direct booting from floppy is no longer supported.
+>   You should now use a boot loader program instead.
+
+hmmm, what does this mean?
+
+"make bzdisk" continues to work...  it requires syslinux, however, so 
+that the makefile may install the syslinux bootloader on the floppy.
+
+
+
+> Modules.
+> ~~~~~~~~
+> - For Red Hat users, there's another pitfall in "/etc/rc.sysinit".
+>   During startup, the script sets up the binary used to dynamically load
+>   modules stored at "/proc/sys/kernel/modprobe". The initscript looks
+>   for "/proc/ksyms", but since it doesn't exist in 2.6 kernels, the
+>   binary used is "/sbin/true" instead.
+> 
+>   This, eventually, will keep modules from working. Red Hat users will
+>   have to patch the "/etc/rc.sysinit" script to set
+>   "/proc/sys/kernel/modprobe" to "/sbin/modprobe", even
+>   when "/proc/ksyms" doesn't exist.
+
+Is this all still true?
+
+Bill Nottingham graciously updated modutils to support 2.6.x, and 
+locally all my Red Hat systems (with the updated modutils) work out of 
+the box.
+
+
+> IDE.
+> ~~~~
+> - The IDE code rewrite was subject to much criticism in early 2.5.x, which
+>   put off a lot of people from testing. This work was then subsequently
+>   dropped, and reverted back to a 2.4.18 IDE status.
+>   Since then additional work has occurred, but not to the extent
+>   of the first cleanup attempts.
+> - Known problems with the current IDE code. 
+>   o  Simplex IDE devices (eg Ali15x3) are missing DMA sometimes
+
+I think this is fixed now...  Bart?
+
+
+>   o  Most PCMCIA devices have unload races and may oops on eject
+>   o  Modular IDE does not yet work, modular IDE PCI modules sometimes
+>      oops on loading
+>   o  ide_scsi is completely broken in 2.6 currently. Known problem.
+>      If you need it either use 2.4 or fix it 8)
+
+also perhaps add a mention of new and spiffy Serial ATA drivers :)
+
+
+
+> CD Recording.
+> ~~~~~~~~~~~~~
+> - Jens Axboe added the ability to use DMA for writing CDs on
+>   ATAPI devices. Writing CDs should be much faster than it
+>   was in 2.4, and also less prone to buffer underruns and the like.
+> - With a recent cdrecord, you also no longer need ide-scsi in order to use
+>   an IDE CD writer.
+
+Maybe add a pointer in the IDE section, pointing to this section?  Since 
+they both mention ide-scsi...
+
+
+
+> Generic VFS changes.
+> ~~~~~~~~~~~~~~~~~~~~
+> - Directories can now be marked as synchronous using chattr +S,
+>   so that all changes will be immediately written to disk.
+>   Note, this does not guarantee atomicity, at least not for all filesystems
+>   and for all operations.  You *can* be guaranteed that system calls will
+>   not return until the changes are on disk; note though that this does have
+>   has some significant performance impacts.
+
+Also, too, this is filesystem-specific, right?
+
+
+> devfs.
+> ~~~~~~
+> - devfs got somewhat stripped down and a lot of duplicate functionality
+>   got removed. You now need to enable CONFIG_DEVPTS_FS=y and mount
+>   the devpts filesystem in the same manner you would if you were not
+>   using devfs.
+
+Wasn't this mentioned elsewhere in the document?
+
+
+
+> Improved BIOS table support.
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> - Linux now supports various new BIOS extensions.
+
+This is a bit vague.  Even I have no idea what this refers to :)
+
+
+
+> Power management.
+> ~~~~~~~~~~~~~~~~~
+> - 2.6 contains a more up to date snapshot of the ACPI driver. Should
+>   you experience any problems booting, try booting with the argument
+>   "acpi=off" to rule out any ACPI interaction. ACPI has a much more involved
+>   role in bringing the system up in 2.6 than it did in 2.4
+> - The old "acpismp=force" boot option is now obsolete, and will be ignored
+>   due to the old "mini ACPI" parser being removed.
+> - software suspend is still in development, and in need of more work.
+>   Use with SMP and/or PREEMPT not advised.
+> - The ACPI code will do basic sanity checks on the DMI structure in the BIOS
+>   to determine the date it was written. BIOSes older than year 2000 are
+>   assumed to be broken. In some circumstances, this assumption is wrong.
+>   If you see a message saying ACPI is disabled for this reason, try booting
+>   with acpi=force. If things work fine, send the output of dmidecode
+>   (http://www.nongnu.org/dmidecode/) to acpi-devel@lists.sf.net
+>   with an explanation of why your BIOS shouldn't be blacklisted.
+
+I dunno how much there is to add, but I just have a general feeling that 
+software suspend and ACPI sleep state support has progressed since this 
+was written.
+
+
+
+> Compiler issues.
+> ~~~~~~~~~~~~~~~~
+> - The recommended compiler (for x86) is still 2.95.3.
+
+I'm not sure this is still the case, in practice.  Recent times have 
+seen people breaking 2.95.x, which did not support the C99/C++ style of 
+mixing variable declarations and code.  People would forget this, and we 
+only find out a few days later that the 2.95.x build was broken.
+
+
+
+> Networking.
+> ~~~~~~~~~~~
+> - Some applications may trigger the kernel to spit out warnings about
+>   'process xxx using obsolete setsockopt SO_BSDCOMPAT' .
+>   - Bind 9.2.2 checks for #ifdef SO_BSDCOMPAT in <asm/socket.h> correctly,
+>     so a recompile is all that is needed.
+>   - bind9-host from debian testing triggers, though the 'host' package doesn't.
+>   - process `snmpd' is using obsolete setsockopt SO_BSDCOMPAT
+>   - process `snmptrapd' is using obsolete setsockopt SO_BSDCOMPAT
+>   - ntop uses obsolete (PF_INET,SOCK_PACKET)
+
+Wasn't there a recent lkml thread relating to this?
+
 

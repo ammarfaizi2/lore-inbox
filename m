@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130298AbQKAXyO>; Wed, 1 Nov 2000 18:54:14 -0500
+	id <S131404AbQKAXzf>; Wed, 1 Nov 2000 18:55:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131113AbQKAXxy>; Wed, 1 Nov 2000 18:53:54 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:22029 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131104AbQKAXxp>;
-	Wed, 1 Nov 2000 18:53:45 -0500
-Date: Thu, 2 Nov 2000 00:53:37 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: mdaljeet@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: system call handling
-Message-ID: <20001102005337.A9017@pcep-jamie.cern.ch>
-In-Reply-To: <CA25698A.00434741.00@d73mta05.au.ibm.com> <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>
+	id <S131436AbQKAXzZ>; Wed, 1 Nov 2000 18:55:25 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:63237 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S131404AbQKAXzR>;
+	Wed, 1 Nov 2000 18:55:17 -0500
+Date: Wed, 1 Nov 2000 16:54:18 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: npsimons@fsmlabs.com, garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+Message-ID: <20001101165418.B3444@hq.fsmlabs.com>
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Nov 01, 2000 at 07:44:03AM -0500
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <200011012329.PAA19890@pizda.ninka.net>; from David S. Miller on Wed, Nov 01, 2000 at 03:29:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> If you designed it with just one call-gate, with one entry point,
-> you would have exactly what we have now except you would execute
-> a `call CALL_GATE` instead of `int 0x80`. This turns out to be
-> 6 of one and 1/2 dozen of another when it comes to performance.
+}    Date: Wed, 1 Nov 2000 16:37:52 -0700
+}    From: Nathan Paul Simons <npsimons@fsmlabs.com>
+} 
+} 	   This whole stupid 'kgcc' thing is yet another in a long
+}    line of really dumb things that RedHat has done and it's just
+}    another reason i'm glad i switched from RedHat to Debian.
+} 
+} Please get your facts straight.
+} 
+} The rest of this thread will show you that this is not a "Red Hat
+} thing".  Connectiva, Mandrake, and others do the same thing.  In fact
+} we choose the name "kgcc" to match the convention set by these other
+} distributions.
 
-The final decider is that `int 0x80' is only two bytes long.
+Good to see RedHat isn't a trail-blazer of ingenuity and will follow the
+herd off the cliff.  I'm "kgcc" agnostic, but your argument is weak.
 
--- Jamie
+Since you're setting yourself up as a proponent of this can you explain why
+RedHat includes a compiler that doesn't work with the kernel?  Don't get
+grumpy about who did it first or what the old one is named but be clear
+what I'm asking.  I want to know if the 'gcc' on RedHat 7.0 fixes some
+problems that the older compilers suffered from?  If there's a good reason
+for the new compiler that breaks with the kernel then great, it makes
+sense.  If it wasn't needed, then it's incredibly stupid.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

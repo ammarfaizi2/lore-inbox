@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVAPCTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVAPCXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbVAPCTg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVAPCEN
+	id S262404AbVAPCXv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVAPCUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:04:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27662 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262393AbVAPCBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:01:53 -0500
-Date: Sun, 16 Jan 2005 03:01:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch i386 traps.c: make a function static (fwd)
-Message-ID: <20050116020150.GL4274@stusta.de>
+	Sat, 15 Jan 2005 21:20:01 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:6275 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262395AbVAPCDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 21:03:54 -0500
+Subject: Re: Linux 2.6.10-ac9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sami Farin <7atbggg02@sneakemail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050115050749.GB8456@m.safari.iki.fi>
+References: <1105636996.4644.70.camel@localhost.localdomain>
+	 <20050114030135.GA6032@m.safari.iki.fi>
+	 <1105743716.9839.29.camel@localhost.localdomain>
+	 <20050115050749.GB8456@m.safari.iki.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105831712.15835.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 16 Jan 2005 00:58:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.11-rc1-mm1.
+On Sad, 2005-01-15 at 05:07, Sami Farin wrote:
+> my drives do not support cache flushes, I guess your drives do?
 
-Please apply.
+Probably yes.
 
+> cat /proc/ide/hda/settings does not work, either
+> 
+> cat           D C0572788     0  8016   5187                6044 (NOTLB)
+> cdc97eb0 00000046 cf7f00a0 c0572788 00005699 c01fe93f 000001ad 00000023 
+>        01078345 00005699 cf7f00a0 00000bbb 02ed12c3 00005699 cfec51d8 c04de020 
+>        cfec5080 00000246 cdc97ee8 c0409764 c04de028 00000001 cfec5080 c011ab70 
+> Call Trace:
+>  [<c0409764>] __down+0x64/0xc0
+>  [<c04098ba>] __down_failed+0xa/0x10
+>  [<c0302acf>] .text.lock.ide_proc+0x8b/0x1fc
+>  [<c018c594>] proc_file_read+0xc4/0x260
+>  [<c0158fbf>] vfs_read+0xcf/0x150
+>  [<c01592db>] sys_read+0x4b/0x80
+>  [<c0103163>] syscall_call+0x7/0xb
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Sun, 12 Dec 2004 03:11:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch i386 traps.c: make a function static
-
-The patch below makes a needlessly global function static.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/traps.c.old	2004-12-11 23:51:43.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/traps.c	2004-12-11 23:51:50.000000000 +0100
-@@ -898,7 +898,7 @@
- 	math_error((void __user *)regs->eip);
- }
- 
--void simd_math_error(void __user *eip)
-+static void simd_math_error(void __user *eip)
- {
- 	struct task_struct * task;
- 	siginfo_t info;
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+Duplicated and fixed for -ac10 coming up soon. Thanks for that one,
+thats was a very dumb bug 8)
 

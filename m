@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVAOD5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVAOEJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVAOD5v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 22:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVAOD5v
+	id S262070AbVAOEJj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 23:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVAOEJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 22:57:51 -0500
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:33706 "HELO
-	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262109AbVAOD5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 22:57:45 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org,
-       Matthew Harrell 
-	<mharrell-dated-1106189901.f84b08@bittwiddlers.com>
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Date: Fri, 14 Jan 2005 22:57:43 -0500
-User-Agent: KMail/1.6.2
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <200501142031.10119.dtor_core@ameritech.net> <20050115025818.GA28422@bittwiddlers.com>
-In-Reply-To: <20050115025818.GA28422@bittwiddlers.com>
+	Fri, 14 Jan 2005 23:09:39 -0500
+Received: from mail.joq.us ([67.65.12.105]:19840 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262070AbVAOEJi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 23:09:38 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
+       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050110212019.GG2995@waste.org>
+	<200501111305.j0BD58U2000483@localhost.localdomain>
+	<20050111191701.GT2940@waste.org>
+	<20050111125008.K10567@build.pdx.osdl.net>
+	<20050111205809.GB21308@elte.hu>
+	<20050111131400.L10567@build.pdx.osdl.net>
+	<20050111212719.GA23477@elte.hu> <87fz15j325.fsf@sulphur.joq.us>
+	<20050113063446.GV2940@waste.org> <87is61b0l4.fsf@sulphur.joq.us>
+	<1105735965.7258.24.camel@krustophenia.net>
+	<87zmzb7cb3.fsf@sulphur.joq.us> <41E87DC8.7030401@osdl.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 14 Jan 2005 22:06:49 -0600
+In-Reply-To: <41E87DC8.7030401@osdl.org> (Randy Dunlap's message of "Fri, 14
+ Jan 2005 18:19:52 -0800")
+Message-ID: <87pt07z67a.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501142257.43256.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 January 2005 09:58 pm, Matthew Harrell wrote:
-> : Also, there is a patch my Alan Cox dealing with legacy emulation (but note
-> : that first part (udelay(50)) has already been applied:
-> : 
-> : http://marc.theaimsgroup.com/?l=linux-kernel&m=109096903809223&q=raw
-> 
-> Well acpipnp didn't have any effect.
-> 
-> I tried the patch above but there's an undefined function, pci_find_class,
-> in i8042_spank_usb.  Did it change names?
-> 
+>> Lee Revell <rlrevell@joe-job.com> writes:
+>>>Do you have a link to Roger Larsson's RT watchdog?
 
-I think it supposed to be pci_get_class now.
+> Jack O'Quin wrote:
+>> No official, supported version.  With his permission, I posted a copy
+>> on my home system a year ago for some audio users who had inquired
+>> about it.  That copy is here...
+>>   http://www.joq.us/joq/rt_monitor.tgz
 
-You might want to ask on ACPI list if they have any idea why i8042 is
-dead with ACPI activated.
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
+> Bad URL, not found....
 
+Sorry, that was a typo...
+
+ http://www.joq.us/jack/rt_monitor.tgz
 -- 
-Dmitry
+  joq

@@ -1,80 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUGaI5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267914AbUGaJF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUGaI5U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 04:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUGaI5T
+	id S267914AbUGaJF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 05:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267917AbUGaJF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 04:57:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:18423 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261724AbUGaI5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 04:57:17 -0400
-Date: Sat, 31 Jul 2004 14:24:03 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 31 Jul 2004 05:05:26 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:43015 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S267914AbUGaJFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 05:05:18 -0400
+Date: Sat, 31 Jul 2004 10:57:45 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] RCU - cpu-offline-cleanup [1/3]
-Message-ID: <20040731085402.GA4612@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+Subject: Re: PATCH: VLAN support for 3c59x/3c90x
+Message-ID: <20040731085745.GA24579@alpha.home.local>
+References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <200407310846.i6V8k3qq006659@uai.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200407310846.i6V8k3qq006659@uai.com.br>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Herbert, your mailbox is bouncing back. I hope you'll be able to see this
+right here.
 
-There is a series of patches in my tree and these 3 are the first
-ones that should probably be merged down the road. Descriptions are on 
-top of the patches. Please include them in -mm.
+Cheers,
+Willy
 
-A lot of RCU code will be cleaned up later in order to support
-call_rcu_bh(), the separate RCU interface that considers softirq
-handler completion a quiescent state.
-
-Thanks
-Dipankar
-
-
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-
-Minor cleanup of the hotplug code to remove #ifdef in cpu
-event notifier handler. If CONFIG_HOTPLUG_CPU is not defined,
-CPU_DEAD case will be optimized off.
-
-
- kernel/rcupdate.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN kernel/rcupdate.c~cpu-offline-cleanup kernel/rcupdate.c
---- linux-2.6.8-rc2-rcu/kernel/rcupdate.c~cpu-offline-cleanup	2004-07-29 13:35:18.000000000 +0530
-+++ linux-2.6.8-rc2-rcu-dipankar/kernel/rcupdate.c	2004-07-29 13:41:18.000000000 +0530
-@@ -242,6 +242,12 @@ unlock:
- 	tasklet_kill_immediate(&RCU_tasklet(cpu), cpu);
- }
- 
-+#else
-+
-+static void rcu_offline_cpu(int cpu)
-+{
-+}
-+
- #endif
- 
- void rcu_restart_cpu(int cpu)
-@@ -325,11 +331,9 @@ static int __devinit rcu_cpu_notify(stru
- 	case CPU_UP_PREPARE:
- 		rcu_online_cpu(cpu);
- 		break;
--#ifdef CONFIG_HOTPLUG_CPU
- 	case CPU_DEAD:
- 		rcu_offline_cpu(cpu);
- 		break;
--#endif
- 	default:
- 		break;
- 	}
-
-_
+On Sat, Jul 31, 2004 at 05:46:03AM -0300, Herbert Xu wrote:
+> Erro ao enviar o email para Herbert Xu <herbert@gondor.apana.org.au>
+> A caixa postal do destinatario esta cheia. O email foi recusado
+> 
+> The mailbox is full. The email was rejected.

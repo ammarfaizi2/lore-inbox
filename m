@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313314AbSFEIMY>; Wed, 5 Jun 2002 04:12:24 -0400
+	id <S313558AbSFEILL>; Wed, 5 Jun 2002 04:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313416AbSFEIMX>; Wed, 5 Jun 2002 04:12:23 -0400
-Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:46253 "EHLO
-	albatross.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S313314AbSFEIMV>; Wed, 5 Jun 2002 04:12:21 -0400
-Message-ID: <3CFDC7B1.450B625B@eed.ericsson.se>
-Date: Wed, 05 Jun 2002 10:11:29 +0200
-From: "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>
-Organization: Ericsson EuroLab
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i586)
-X-Accept-Language: en
+	id <S313563AbSFEILK>; Wed, 5 Jun 2002 04:11:10 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:43273 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S313558AbSFEILJ>; Wed, 5 Jun 2002 04:11:09 -0400
+Message-ID: <3CFDC796.C05FC7E2@aitel.hist.no>
+Date: Wed, 05 Jun 2002 10:11:02 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-CC: Andrew Morton <akpm@zip.com.au>, john slee <indigoid@higherplane.net>,
-        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 3c59x driver: card not responding after a while
-In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no> <Pine.LNX.4.44.0206031050170.10836-100000@netfinity.realnet.co.sz> <20020603125752.GE12322@higherplane.net> <3CFBCDBD.DF675D57@zip.com.au> <3CFBFD41.2020505@wanadoo.fr>
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scheduler hints
+In-Reply-To: <1023206034.912.89.camel@sinai>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Robert Love wrote:
+[...]
+> Basically, scheduler hints are a way for a program to give a "hint" to
+> the scheduler about its present behavior in the hopes of the scheduler
+> subsequently making better scheduling decisions.  After all, who knows
+> better than the application what it is about to do?
+> 
+> For example, consider a group of SCHED_RR threads that share a
+> semaphore.  Before one of the threads were to acquire the semaphore, it
+> could give a "hint" to the scheduler to increase its remaining timeslice
+> in order to ensure it could complete its work and drop the semaphore
+> before being preempted.  Since, if it were preempted, it would just end
+> up being rescheduled as the other real-time threads would eventually
+> block on the held semaphore.
+> 
+Seems to me this particular case is covered by increasing
+priority when grabbing the semaphore and normalizing
+priority when releasing.  
 
-> > That driver is solid for SMP.  It's possible that the BP6
-> > is losing its IRQ routing assignments, or the APIC is
-> > getting stuck.  We had extensive problems with that last
-...
-> > It seems to affect network cards most because they typically
-> > generate the most interrupts.
-> > Try booting the machine with the `noapic' option.
-Even on an UP and no-MP-capable K6? IMHO this won't help (at least
-myself).
- 
-> and myself) talked about my 3C905C-TX not willing to share an
-> interrupt with my SBLive!...
-> I've spotted the same problem, this time sharing an interrupt
-> between my 3C905C-TX and an Intel i82559 10/100 ethernet
-> controller (kernel is 2.4.19pre7).
-I forgot to mention that there is only the 3c905 and a gfxcard (AGP) in
-the box, no interrupts shared - I THOUGHT!
-Then a quick lspci -v revealed both sharing IRQ 11. Will try to reassign
-IRQs.
+Only root can do that - but only root does real-time
+anyway. And I guess only rood should be able to increase 
+its timeslice too...
 
-Thank you! :-)
-Hope this is solved.
--- 
-Ronny T. Lampert		email: Ronny.Lampert@eed.ericsson.se
-System Administrator		voice: +49 911 255 1214
-Ericsson Eurolab Deutschland	fax:   +49 911 255 1960
-Nuernberg, Germany
+> Other hints could be "I am interactive" 
+Already shows up as a thread who always ends its timeslice
+blocking for io.  Such threads do get an priority
+boost for the next timeslice.
+
+> or "I am a batch (i.e. cpu hog)
+shows up as a thread who spends its entire timeslice - these
+don't get the above mentioned boost as it is assumed it gets
+"enough cpu" while the interactive threads blocks.
+
+> task" or "I am cache hot: try to keep me on this CPU".
+Perhaps that might be useful.
+
+> The scheduler tries hard to figure out the three qualities and it is
+> usually right, although perhaps it can react quicker to these hints than
+> it can figure things out on its own.  If nothing else, this serves as a
+> useful tool for determining just how accurate our O(1) scheduler is.
+
+Well, hog/interactive is determined in one timeslice already...
+
+The problem is that this may be abused.  Someone nasty could
+write a cpu hog that drops a lot of hints about being
+interactive, starving real interactive programs.
+
+Generally, it degenerates into application programmers
+using _all_ the hints to get performance, so they
+can beat some competitor in benchmarks.  And all
+other programs just get penalized.
+
+Helge Hafting

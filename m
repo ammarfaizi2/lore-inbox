@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265497AbTFRTGY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 15:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265498AbTFRTGY
+	id S265499AbTFRTOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 15:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbTFRTOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 15:06:24 -0400
-Received: from u103n140.hfx.eastlink.ca ([24.222.103.140]:55954 "EHLO
-	home.transpect.net") by vger.kernel.org with ESMTP id S265497AbTFRTGX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 15:06:23 -0400
-Date: Wed, 18 Jun 2003 16:19:56 -0300 (ADT)
-From: Rick Franchuk <rickf@transpect.net>
-X-X-Sender: rickf@gateway.local.net
-To: James Simmons <jsimmons@infradead.org>
-Cc: Luigi Rosa <kernel@mail.hypertrek.info>, <linux-kernel@vger.kernel.org>
-Subject: Re: Sco vs. IBM
-In-Reply-To: <Pine.LNX.4.44.0306181959380.24449-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0306181614260.335-100000@gateway.local.net>
+	Wed, 18 Jun 2003 15:14:09 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:64266 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S265499AbTFRTOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 15:14:05 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: parport_pc does not enable DMA by default (both 2.5.72 and 2.4.21)
+Date: Wed, 18 Jun 2003 23:26:54 +0400
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306182326.54918.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003, James Simmons wrote:
+I have CUSL2 motherboard (i815e based) that allows to select different 
+parallel port modes; for ECP or ECP+EPP I also can choose DMA channel.
 
-> 
-> > MLP> Ok .. here we got us a few more articles about the stuff going on. A
-> > MLP> friend pointed me at these:
-> > 
-> > I think that this one
-> > 
-> > <http://www.forbes.com/2003/06/18/cz_dl_0618linux.html>
-> > 
-> > is very illuminating.
-> 
-> How pathetic!!! He is just like the people who going into stores to stage 
-> accidents and then sue the store.He makes a living by sueing. I dobut he 
-> can sue every big UNIX implementor/user. he has to go again SUN, IBM and 
-> other big names.
+Neither 2.4.21 nor 2.5.72 would enable DMA by default. I have (currently ECP 
+but the same for ECP_EPP)
 
-In other words:
+parport0: PC-style at 0x378 (0x778), irq 7, using FIFO 
+[PCSPP,TRISTATE,COMPAT,ECP]
+parport0: cpp_daisy: aa5500ff(38)
+parport0: assign_addrs: aa5500ff(38)
+parport0: cpp_daisy: aa5500ff(38)
+parport0: assign_addrs: aa5500ff(38)
 
-"Those who can't do, sue."
+and as options
 
-To be fair though, SCO aren't the only ones suing for a living. Check out
-these guys:
+{pts/1}% grep parport /etc/modprobe.conf
+options parport_pc irq=auto dma=auto
 
-http://www.extremetech.com/print_article/0,3998,a=34898,00.asp
+IRQ is correctly autodeteted and it appears it is also correctly configured in 
+BIOS:
 
-Article focuses on the adult industry, but it's easy how this could spill over
-to affect anyone delivering any sort of content online. Gotta love our current 
-IP laws...
+{pts/1}% cat /sys/devices/pnp0/00:01/name
+ECP printer port
+{pts/1}% cat /sys/devices/pnp0/00:01/resources
+mode = auto
+state = active
+io 0x378-0x37f
+io 0x778-0x77f
+irq 7
+dma 3
 
+Is it expected? Any additional info I can provide?
+
+TIA
+
+-andrey

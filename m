@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318698AbSG0FU5>; Sat, 27 Jul 2002 01:20:57 -0400
+	id <S318699AbSG0Fay>; Sat, 27 Jul 2002 01:30:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318699AbSG0FU5>; Sat, 27 Jul 2002 01:20:57 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:45264 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318698AbSG0FU4>;
-	Sat, 27 Jul 2002 01:20:56 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu 
-Cc: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
-       riel@conectiva.com.br
-In-reply-to: Your message of "Fri, 26 Jul 2002 21:45:07 MST."
-             <3D422553.6B126242@zip.com.au> 
-Date: Sat, 27 Jul 2002 14:59:04 +1000
-Message-Id: <20020727052524.C9A514279@lists.samba.org>
+	id <S318700AbSG0Fay>; Sat, 27 Jul 2002 01:30:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54263 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318699AbSG0Fax>;
+	Sat, 27 Jul 2002 01:30:53 -0400
+Date: Sat, 27 Jul 2002 01:34:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Federico Ferreres <fferreres@ojf.com>
+cc: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <1027746635.2155.30.camel@fede>
+Message-ID: <Pine.GSO.4.21.0207270126280.23484-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3D422553.6B126242@zip.com.au> you write:
-> Good.  And will it be possible to iterate across all CPUs
-> without having to iterate across NR_CPUS?
 
-Hmm, define *all cpus* please?  All online cpus?  All possible CPUs?
 
-Interface discussed with DaveM was: first_cpu(), next_cpu(cpu), which
-covers online CPUs, and gives a nice interface for things like irq
-balancers which want to snarf the next online cpu.
+On 27 Jul 2002, Federico Ferreres wrote:
 
-Like it?
+> Yes, that's clear. It's great. You learn, then you contribute back. But
+> that doesn't allow you to pay your bills, does it? The thing is massive
+> amounts of people _don't_ code, never will, are willing to contribute
+> but don't do it, because they are not beign asked for support in the
+> right way. You need them to know they'll put $10 and get $100.000.000
+> worth every year. 
 
-> > Personally, I think that dynamically allocated per-cpu datastructures,
-> > like dynamically-allocated brlocks, are something we might need
-> > eventually, but look at what a certain driver did with the "make it
-> > per-cpu" concept already.  I don't want to rush in that direction.
-> 
-> What driver is that?
+Thank you for taking Economics 101.  Your final score is F-.
+Don't let it discourage you from taking the test next year.
+Pay particular attention to the reasons why pyramid schemes
+are not sustainable.  We wish you a nice summer and hope
+to see you next semester.
 
-NTFS.
-
-> The is pretty much entirely wasted memory, and it will only get
-> worse. Making NR_CPUS compile-time configurable is a lame solution.
-> Wasting the memory is out of the question.
-> 
-> Dynamic allocation is the only thing left, yes?
-
-Um, no!  Here is the plan:
-
-1) change per-cpu data to only allocate data for cpus where
-   cpu_possible(i) (add cache coloring and NUMA allocation as desired).
-
-2) Convert non-modular cases to use per-cpu data (once the interface
-   changes again, <SIGH>).
-
-We'll end up using *less* memory than before.  We're just doing it in
-easy stages.
-
-Feel better now?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

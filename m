@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVA1PuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVA1P4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVA1PuE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 10:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVA1PuE
+	id S261279AbVA1P4a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 10:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVA1P43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 10:50:04 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:62418 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261466AbVA1Pt6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 10:49:58 -0500
-Message-ID: <41FA5F22.5020008@drzeus.cx>
-Date: Fri, 28 Jan 2005 16:49:54 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Fri, 28 Jan 2005 10:56:29 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5649 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261279AbVA1P4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 10:56:11 -0500
+Date: Fri, 28 Jan 2005 15:53:58 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Rik van Riel <riel@redhat.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
+       Bryn Reeves <breeves@redhat.com>
+Subject: Re: don't let mmap allocate down to zero
+In-Reply-To: <Pine.LNX.4.61.0501281036240.28137@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.61.0501281547240.7331@goblin.wat.veritas.com>
+References: <20050127050927.GR10843@holomorphy.com> 
+    <16888.46184.52179.812873@alkaid.it.uu.se> 
+    <20050127125254.GZ10843@holomorphy.com> 
+    <20050127142500.A775@flint.arm.linux.org.uk> 
+    <20050127151211.GB10843@holomorphy.com> 
+    <Pine.LNX.4.61.0501271420070.13927@chimarrao.boston.redhat.com> 
+    <20050127204455.GM10843@holomorphy.com> 
+    <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com> 
+    <20050127211319.GN10843@holomorphy.com> 
+    <Pine.LNX.4.61.0501271626460.13927@chimarrao.boston.redhat.com> 
+    <20050128053036.GO10843@holomorphy.com> 
+    <Pine.LNX.4.61.0501280801070.24304@chimarrao.boston.redhat.com> 
+    <Pine.LNX.4.61.0501281348110.6922@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0501281036240.28137@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: PNP and bus association
-References: <41F95A42.40001@drzeus.cx> <41F97185.6030905@osdl.org>
-In-Reply-To: <41F97185.6030905@osdl.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+On Fri, 28 Jan 2005, Rik van Riel wrote:
+> 
+> The main thing I would really like to preserve is the
+> space used for "near-NULL" pointer detection. That is,
+> detection of trying to access a large index in a NULL
+> pointer array, etc.
+> 
+> I'd be happy to have some arbitrary value for the lower
+> boundary...
 
-> Pierre Ossman wrote:
->
->> I recently tried out adding PNP support to my driver to remove the 
->> hassle of finding the correct parameters for it. This, however, 
->> causes it to show up under the pnp bus, where as it previously was 
->> located under the platform bus.
->>
->> Is the idea that PNP devices should only reside on the PNP bus or is 
->> there some magic available to get the device to appear on several 
->> buses? It's a bit of a hassle to search in two different places in 
->> sysfs depending on if PNP is used or not.
->>
->> Also, the PNP bus doesn't really say that much about where the device 
->> is physically connected. The other bus types usually give a hint 
->> about this.
->
->
-> Not to take away from your question, but:
-> Is there "the PNP bus"?  I've seen an ISA bus that (sort of)
-> supports PNP, PCI PNP, NuBus PNP, USB PNP, IEEE 1394 PNP, etc.
->
-It's not a physical bus but it is a bus as far as the kernel is 
-concerned. And that's really my problem. I want it to support PNP, but 
-also to associate with the physical bus it's connected to.
+Almost everything will still have that not-so-near-NULL pointer
+detection.  It only gets limited to a PAGE_SIZE detection extent
+in the case when the app mmaps as much as it possibly can.
+I think it should be allowed make that tradeoff.
 
-Rgds
-Pierre
+> > arch/ppc64/mm/hugetlbpage.c (odd place to find it) has its own
+> > arch_get_unmapped_area_topdown, should be given a similar fix.
+> 
+> Good point, though a 64 bit architecture is, umm, less
+> likely to run all the way down to zero within our lifetime.
 
-PS. Your outgoing mail server gives the wrong HELO
+I hadn't looked at it that way!
 
+Hugh

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135981AbRD0GGi>; Fri, 27 Apr 2001 02:06:38 -0400
+	id <S135984AbRD0G5U>; Fri, 27 Apr 2001 02:57:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135982AbRD0GG3>; Fri, 27 Apr 2001 02:06:29 -0400
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:18439 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S135981AbRD0GGU>; Fri, 27 Apr 2001 02:06:20 -0400
-To: Yiping Chen <YipingChen@via.com.tw>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: About rebuild 2.4.x kernel to support SMP.
-In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D56B@EXCHANGE2>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Yiping Chen's message of "Thu, 26 Apr 2001 23:36:23 +0800"
-Date: 27 Apr 2001 01:02:27 -0500
-Message-ID: <vbar8yeyj64.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S135985AbRD0G5K>; Fri, 27 Apr 2001 02:57:10 -0400
+Received: from mail.kdt.de ([195.8.224.4]:4361 "EHLO mail.kdt.de")
+	by vger.kernel.org with ESMTP id <S135984AbRD0G4x>;
+	Fri, 27 Apr 2001 02:56:53 -0400
+Mail-Copies-To: never
+To: Sebastien LOISEL <loisel@scylla.math.mcgill.ca>
+Cc: linux-kernel@vger.kernel.org, loisel@math.mcgill.ca
+Subject: Re: FPU and exceptions
+In-Reply-To: <Pine.SGI.3.96.1010426222127.1239514C-100000@scylla.math.mcgill.ca>
+From: Andreas Jaeger <aj@suse.de>
+Date: 27 Apr 2001 08:52:02 +0200
+In-Reply-To: <Pine.SGI.3.96.1010426222127.1239514C-100000@scylla.math.mcgill.ca> (Sebastien LOISEL's message of "Thu, 26 Apr 2001 22:50:53 -0400 (EDT)")
+Message-ID: <u8ae527s31.fsf@gromit.rhein-neckar.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yiping Chen <YipingChen@via.com.tw> writes:
-> 
-> So, I have two question now, 
-> 1. how to determine whether your kernel support SMP?
 
-Type "uname -a", as you did before:
+Send me a small program (10s of lines) that shows the problem.
+Installing a signal handler on SIGFPE should do the right thing.
 
->      Linux lab5-1 2.4.2-2 #1 SMP Wed Apr 25 18:56:05 CST 2001 i686 unknown
-                               ^^^
-SMP appears here if and only if your kernel was compiled as an SMP
-kernel (i.e., with CONFIG_SMP set).  Programmatically, you can get
-this same information from the "uname" system call.  The "version"
-member for the "utsname" structure will be the complete string:
+Btw. I do think this is off-topic to linux-kernel,
 
-        #1 SMP Wed Apr 25 18:56:05 CST 2001
-
-That is, you should be able to reliably determine whether or not the
-kernel is SMP by simply "strstr"ing for " SMP " in the version string.
-
-> 2. I remember in 2.2.x, when I rebuild the kernel which support SMP, the
-> compile
->     argument will include -D__SMP__ , but this time, when I rebuild kernel
-> 2.4.2-2 , it didn't  appear.
->     Why? 
-
-The "__SMP__" preprocessor define has been replaced by the
-"CONFIG_SMP" configuration file variable.
-
-Kevin <buhr@stat.wisc.edu>
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

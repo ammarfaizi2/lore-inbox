@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273163AbRI0OxR>; Thu, 27 Sep 2001 10:53:17 -0400
+	id <S273176AbRI0PAQ>; Thu, 27 Sep 2001 11:00:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273144AbRI0OxG>; Thu, 27 Sep 2001 10:53:06 -0400
-Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:61117 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S273131AbRI0Ow7>; Thu, 27 Sep 2001 10:52:59 -0400
-Date: Thu, 27 Sep 2001 10:53:21 -0400
-To: LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: status of nfs and tcp with 2.4
-Message-ID: <20010927105321.A15128@rochester.rr.com>
-Mime-Version: 1.0
+	id <S273210AbRI0PAG>; Thu, 27 Sep 2001 11:00:06 -0400
+Received: from mail.berlin.de ([195.243.105.33]:49813 "EHLO
+	mailoutvl21.berlin.de") by vger.kernel.org with ESMTP
+	id <S273204AbRI0O7s>; Thu, 27 Sep 2001 10:59:48 -0400
+Message-ID: <3BB33E88.ACD1E426@berlin.de>
+Date: Thu, 27 Sep 2001 16:58:16 +0200
+From: Norbert Roos <n.roos@berlin.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: System hangs during interruptible_sleep_on_timeout() under 2.4.9
+In-Reply-To: <Pine.LNX.4.33.0109261902350.6377-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-From: jstrand1@rochester.rr.com (James D Strandboge)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the status of tcp and nfs with the 2.4 kernel?  The sourceforge
-site (regarding this) has not changed for a while and the NFS FAQ at 
-sourceforge simply states:
-nfsv3 over tcp does not work - the code for 2.4.x is as yet to be merged
+Ingo Molnar wrote:
 
-What progress is being made toward this end?
+> are you sure timer interrupts are processed while you are waiting for the
+> timeout to expire? I'd suggest to put a:
+> 
+>         printk("<%d>", irq);
+> 
+> into arch/i386/kernel/irq.c:do_IRQ().
 
-Thanks,
-Jamie Strandboge
+Until the call of interruptible_sleep_on_timeout(), timer interrupts
+were processed. Right after the call no more output is made.
 
--- 
-Email:                  jstrand1@rochester.rr.com
-GPG/PGP Public Key ID:  26384A3A
-GPG/PGP Fingerprint:    D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
+> So you can see what kind of
+> interrupt traffic there is while the device initializes and you are
+> waiting for it to generate an interrupt.
+
+I use the function only for a short delay (switch on the device's reset,
+wait and switch it off again), so the device even does not generate a
+PCI interrupt.
+
+
+In the time inbetween I have traced the problem: Inside the sleep_on()
+functions there is the macro SLEEP_ON_HEAD containing the call
+wq_write_lock_irqsave(), where the error happens. This is a macro, too,
+which at last expands to
+
+__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
+
+(x ist the variable where the IRQ flags are stored)
+I'm not familiar with x86 assembler; is it possible that something can
+go wrong here?
+
+bye, Norbert

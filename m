@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTI0UYO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 16:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTI0UYN
+	id S262164AbTI0UWN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 16:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTI0UWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 16:24:13 -0400
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:32297 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S262156AbTI0UYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 16:24:10 -0400
-Message-ID: <3F75F1ED.9010307@planet.nl>
-Date: Sat, 27 Sep 2003 22:24:13 +0200
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 27 Sep 2003 16:22:13 -0400
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:50185
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S262164AbTI0UWH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 16:22:07 -0400
+Date: Sat, 27 Sep 2003 22:22:01 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
 To: linux-kernel@vger.kernel.org
-Subject: Onstream DI-30 locks up PC when in use
-References: <1064678738.3578.8.camel@sunshine> <Pine.LNX.4.56.0309271950450.21678@localhost.localdomain> <1064693831.1792.9.camel@sunshine>
-In-Reply-To: <1064693831.1792.9.camel@sunshine>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: bridge@osdl.org
+Subject: bridge breaks loopback on 2.4.22
+Message-ID: <20030927202200.GA612@man.beta.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Dear Everybody,
+Since the change to 2.4.22 I've been experimenting problems here, after
+many tests I have seen what I think is the problem that is causing this.
 
-I'm trying to get my DI-30 Onstream tapedrive to work. Some pacthes were 
-put inot linux 2.6-test5. When I bootup it recognizes the drive :-))) 
-but when I try to use the drive it locks up my PC immediatly.
+The problem I'm seing is the loopback starts loosing packages, I don't know
+if this could also happen on other interfaces. I'm testing this by starting
+a:
+	tcpdump -n -i lo port
+then a:
+	nc -n -l port >/dev/null
+and a:
+	nc localhost port </dev/zero
 
-I've updated the bug on bugzilla 
-"http://bugzilla.kernel.org/show_bug.cgi?id=967"
+If everything is fine my cpu goes to 100% and I see the packages all the way
+in my tcpdump screen, great. But there are sometimes when this doesn't go
+smooth and the tcpdump starts to show only one or two packages each N
+seconds, till it ends up showing the resend of the last package which is
+never acknowledged, you can even see that the timings of this packages that
+are being repeated match those of tcp backoff, my cpu charge is then really
+really low, nc disconnects after a while, ...
 
-but got no reply yet. Are there more people trying to get this drive to 
-work and if yes what are your experiences with this drive and 2.6 test5
+When does this happen?
 
-Cheers
+It took me a while to find this out, but it happens when you have a bridge
+interface and one of the ports of the bridge is told to drop packages, like
+when they detect a loop in the net and an interface is set to a blocking
+state.
 
-Stef
+Of course that the loopback is not a part of any bridge in any of my setups,
+and I've seen this in a couple of machines, one SMP and the other one single
+micro, 2.4.21 worked ok, at least I could not reproduce this on that one. If
+the interfaces have been in a forwarding state all the time since the bridge
+was setup, without being in a blocking state, then this problem does not
+seem to happen.
 
+I believe that the changes the bridge went through from 2.4.21 to 2.4.22 are
+to blame on this one, but this is just a guess.
+
+Hope we can find a fix for this so that it is integrated in 2.4.23 kernel,
+I'll be happy to make any tests you want to track this farther down.
+
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

@@ -1,58 +1,55 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVC0Etl (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 26 Mar 2005 23:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVC0Etl
+	id S261544AbVC0LJL (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 27 Mar 2005 06:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVC0LJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 23:49:41 -0500
-Received: from adsl-179-06.cytanet.com.cy ([213.149.179.6]:21516 "HELO
-	cytanet.com.cy") by vger.kernel.org with SMTP id S261438AbVC0Etj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 23:49:39 -0500
-Message-ID: <46aa01c532d3$8cbcf850$b4f01c79@gewinnservice>
-Reply-To: "Gewinnbenachrichtigung" <gewinnservice@cytanet.com.cy>
-From: "Gewinnbenachrichtigung" <gewinnservice@cytanet.com.cy>
-To: <majordomo@vger.kernel.org>
-Subject: AW: Gewinn
-Date: Sun, 27 Mar 2005 13:47:43 -0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+	Sun, 27 Mar 2005 06:09:11 -0500
+Received: from gamma1.look.ca ([207.136.80.8]:5830 "EHLO gatekeeper.look.ca")
+	by vger.kernel.org with ESMTP id S261544AbVC0LJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 06:09:07 -0500
+From: "Info" <nshop@fastmail.fm>
+To: <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Date: Sun, 27 Mar 2005 06:09:11 -0500
+Message-Id: <E1DFVdf-0006cp-Kj@gatekeeper.look.ca>
+X-SA-Exim-Mail-From: nshop@fastmail.fm
+Subject: Database contains 900,000 Canadian businesses    linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 3.1 (built Tue Feb 24 05:09:27 GMT 2004)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261438AbVC0Etl@vger.kernel.org>
-
-Herzlichen Glückwünsch.
-
-Sie sind einer der glücklichen Menschen denen wir folgendes Super-Angebot
-unterbreiten können:
-Spielen Sie mit beim Casino Royal Las Vegas und freuen Sie sich auf bis zu
-500 $ Extra
-beim ersten Kauf von Chips!!
-Ja Sie lesen richtig - bei Ihrem ersten Chipkauf geben wir ihnen bis zu
-500$ extra - geschenkt ohne Verpflichtungen.
-
-Holen Sie sich das Casino-Game zum bequemen spielen von Zuhause. 
-
-JETZT MIT TOLLEN NEUEN SPIELEN UND GEWINNCHANCEN
-
-Sie können das Spiel auch ohne Geldeinsatz spielen - allerdings können Sie
-dann auch nichts gewinnen. 
-Aufladen können Sie ihr Konto auf den Verschiedensten Wegen - mit
-Kreditkarte. Banküberweisung und und und.
-
-Also worauf warten Sie noch - gehören auch Sie bald zu den glücklichen
-Gewinnern...
-
-http://www.yournews99.com/a22werde/
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261544AbVC0LJL@vger.kernel.org>
 
 
+Canada Books
 
-Mit freundlichem Gruß
+Press Release
+
+The Canadian Business Database 2005 is now available.
+
+This database contains more than 900,000 Canadian based businesses.
+
+It is deemed to be the perfect tool for entrepreneurs and marketing
+professionals to quickly gain access to a wealth of information to 
+start a direct marketing campaign.  
+
+It is fully exportable to suit all your direct marketing needs. You can
+use it with your favorite software such as Avery labelPro, Winfax, Excel,
+Filemaker, Act, Goldmine, MS Office application or any other software 
+or spreadsheet.
+
+Each business includes:
+-Company name
+-Full mailing address
+-Telephone 
+-Fax number (when available)
+
+The database is sold for:  $149.95
+   
+To order please call: 450-224-wcrl(9275) 
 
 
-Das Casino-Team
-
-
+linux-kernel@vger.kernel.org 

@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319638AbSH3SQJ>; Fri, 30 Aug 2002 14:16:09 -0400
+	id <S319641AbSH3SQT>; Fri, 30 Aug 2002 14:16:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319641AbSH3SQJ>; Fri, 30 Aug 2002 14:16:09 -0400
-Received: from mesatop.zianet.com ([216.234.192.105]:35076 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S319638AbSH3SQI>; Fri, 30 Aug 2002 14:16:08 -0400
-Subject: [PATCH] 2.4.20-pre5-ac1 update ver_linux to report version of
-	reiserfsprogs.
-From: Steven Cole <elenstev@mesatop.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 30 Aug 2002 12:18:45 -0600
-Message-Id: <1030731527.20626.17.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S319642AbSH3SQT>; Fri, 30 Aug 2002 14:16:19 -0400
+Received: from dexter.citi.umich.edu ([141.211.133.33]:1664 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S319641AbSH3SQR>; Fri, 30 Aug 2002 14:16:17 -0400
+Date: Fri, 30 Aug 2002 14:20:42 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>
+Subject: [PATCH] sock_writeable not appropriate for TCP sockets, for 2.5.32
+Message-ID: <Pine.LNX.4.44.0208301413500.7274-100000@dexter.citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi linus-
 
-This patch updates the ver_linux script to work with recent 
-versions of reiserfsprogs.
+sock_writeable determines whether there is space in a socket's output
+buffer.  socket write_space callbacks use it to determine whether to wake
+up those that are waiting for more output buffer space.
 
-Reasons for this update are:
+however, sock_writeable is not appropriate for TCP sockets.  because the
+RPC layer's write_space callback uses it for TCP sockets, the RPC layer
+hammers on sock_sendmsg with dozens of write requests that are only a few
+hundred bytes long when it is trying to send a large write RPC request.
+this patch adds logic to the RPC layer's write_space callback that 
+properly handles TCP sockets.
 
-1) Recent versions of reiserfsprogs require the -V option
-   to report the version number.
-2) Very recent reiserfsprogs (3.6.3+) are installed in /usr/local/sbin.
+patch reviewed by Trond and Alexey.  patch forthcoming for 2.4.20-pre.
 
-Old reiserfsprogs which will not respond to -V are deprecated,
-and are covered by "If some fields are empty or look unusual
-you may have an old version."
-
-This updated ver_linux script was tested with reiserfsprogs
-3.x.0j, 3.6.3, and 3.6.4-pre1.
-
-The addition of /usr/local/sbin to $PATH could have some
-side effects, so further testing is welcomed.
-
-This patch was made against 2.4.20-pre5-ac1.
-
-Steven
-
-
---- linux-2.4.20-pre5-ac1/scripts/ver_linux.orig	Fri Aug 30 08:52:50 2002
-+++ linux-2.4.20-pre5-ac1/scripts/ver_linux	Fri Aug 30 09:04:08 2002
-@@ -4,7 +4,7 @@
- # /bin /sbin /usr/bin /usr/sbin /usr/local/bin, but it may
- # differ on your system.
- #
--PATH=/sbin:/usr/sbin:/bin:/usr/bin:$PATH
-+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:$PATH
- echo 'If some fields are empty or look unusual you may have an old version.'
- echo 'Compare to the current minimal requirements in Documentation/Changes.'
- echo ' '
-@@ -33,7 +33,7 @@
- tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
- 'NR==1 {print "e2fsprogs             ", $2}'
+diff -drN -U2 01-lock_write/net/sunrpc/xprt.c 02-write_space/net/sunrpc/xprt.c
+--- 01-lock_write/net/sunrpc/xprt.c	Wed Aug 28 17:09:08 2002
++++ 02-write_space/net/sunrpc/xprt.c	Wed Aug 28 17:18:14 2002
+@@ -957,6 +957,8 @@
  
--reiserfsck 2>&1 | grep reiserfsprogs | awk \
-+reiserfsck -V 2>&1 | grep reiserfsprogs | awk \
- 'NR==1{print "reiserfsprogs         ", $NF}'
+ /*
+- * The following 2 routines allow a task to sleep while socket memory is
+- * low.
++ * Called when more output buffer space is available for this socket.
++ * We try not to wake our writers until they can make "significant"
++ * progress, otherwise we'll waste resources thrashing sock_sendmsg
++ * with a bunch of small requests.
+  */
+ static void
+@@ -972,6 +974,13 @@
  
- cardmgr -V 2>&1| grep version | awk \
+ 	/* Wait until we have enough socket memory */
+-	if (!sock_writeable(sk))
+-		return;
++	if (xprt->stream) {
++		/* from net/ipv4/tcp.c:tcp_write_space */
++		if (tcp_wspace(sk) < tcp_min_write_space(sk))
++			return;
++	} else {
++		/* from net/core/sock.c:sock_def_write_space */
++		if (!sock_writeable(sk))
++			return;
++	}
+ 
+ 	if (!test_and_clear_bit(SOCK_NOSPACE, &sock->flags))
 
+-- 
 
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>
 

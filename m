@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbUKJTb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbUKJTck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbUKJTb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbUKJTb0
+	id S262107AbUKJTck (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUKJTck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:31:26 -0500
-Received: from mail.linicks.net ([217.204.244.146]:9996 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S262102AbUKJTbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:31:23 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel or failing harddisc?
-Date: Wed, 10 Nov 2004 19:31:13 +0000
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Nov 2004 14:32:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:59606 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262107AbUKJTcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:32:31 -0500
+Date: Wed, 10 Nov 2004 13:32:29 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [RFC] [PATCH] [2/6] LSM Stacking: Add stacker LSM
+Message-ID: <20041110193229.GA3480@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <1099609681.2096.16.camel@serge.austin.ibm.com> <20041110174358.32392.qmail@lwn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411101931.13366.nick@linicks.net>
+In-Reply-To: <20041110174358.32392.qmail@lwn.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have a quick read of this thread of mine from smartmontools ML:
+> Unless I've missed it, you never check num_stacked_modules against
+> CONFIG_NUM_LSMS.  If somebody loads too many modules, they risk
+> overflowing all of those void * security arrays you've added to so many
+> kernel data structures, and thus corrupting those structures.  That, in
+> technical terms, would be a bummer.
+> 
+> In stacker_unregister(), you do:
+> 
+> > +	num_stacked_modules--;
+> 
+> What happens if you unload anything other than the last module, then
+> load something else?  When you return num_stacked_modules-1 to the new
+> module, you'll point it to a slot in those security arrays which is
+> already used by another module.  The result seems unlikely to improve
+> security.
+> 
+> Unless I'm simply confused?  It's happened before...
 
-http://sourceforge.net/mailarchive/forum.php?forum_id=12495&style=flat&viewday=11&viewmonth=200406
+No, you're not.  While I sent out all the patches to make the first
+patch useful, the stacker patch was the same one I've been using with
+several other approaches to sharing the void * security arrays.  If
+the first patch turned out to be acceptable, the stacker patch would
+have been tweaked quite a bit.  As Chris Wright pointed out, the list
+of stacked modules would no longer need to be a linked list, and so
+the semaphore guarding that list could be dropped.  And of course
+your points are valid.
 
-In my instance, it was a new IDE cable and reseating everything cured it... 
-but the reply from Mario is enlightening.
+I am working on a new implementation, which I will send first to the
+lsm list and lsm and selinux maintainers.  Lmbench numbers from this
+morning show that with this approach, a kernel with selinux +
+capabilities shows no performance degradation.
 
-Nick
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+thanks,
+-serge

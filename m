@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbUBTUBi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 15:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUBTT5x
+	id S261407AbUBTT5i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 14:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUBTTyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 14:57:53 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:45740
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261369AbUBTTnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 14:43:47 -0500
-Message-ID: <40366344.9010109@redhat.com>
-Date: Fri, 20 Feb 2004 11:43:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040215
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: possible problems with kernel threading code?
-References: <40364D01.9030504@nortelnetworks.com>
-In-Reply-To: <40364D01.9030504@nortelnetworks.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 20 Feb 2004 14:54:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:52620 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261401AbUBTTxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 14:53:52 -0500
+Date: Fri, 20 Feb 2004 11:53:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] PCI update for 2.6.3
+Message-ID: <20040220195348.GA15691@kroah.com>
+References: <20040220190413.GA15063@kroah.com> <10773039771460@kroah.com> <20040220194130.GA25209@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040220194130.GA25209@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not that this is of any interest for this list but what the heck.
+On Fri, Feb 20, 2004 at 07:41:30PM +0000, Dave Jones wrote:
+> On Fri, Feb 20, 2004 at 11:06:17AM -0800, Greg KH wrote:
+>  > ChangeSet 1.1557.58.1, 2004/02/18 11:15:56-08:00, mgreer@mvista.com
+>  > 
+>  > [PATCH] PCI: Changing 'GALILEO' to 'MARVELL'
+>  > 
+>  > I'm working with some Marvell components (formerly Galileo Technologies)
+>  > and noticed that the entries in include/linux/pci_ids.h have become
+>  > dated
+> 
+> I just changed this at pciids.sf.net too, so the pci.ids in the kernel
+> will get updated in the next update.
 
-The problem is your code.
+Nice, thanks for doing this.
 
->  int schedRc = pthread_setschedparam(t1, policy, &schedParam);
-
-There is no guarantee that t1 is filled before you it here in the newly
-created thread.  Only when pthread_create() returns is the thread handle
-guaranteed to be written.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+greg k-h

@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbTBEQsq>; Wed, 5 Feb 2003 11:48:46 -0500
+	id <S261799AbTBEQru>; Wed, 5 Feb 2003 11:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbTBEQsp>; Wed, 5 Feb 2003 11:48:45 -0500
-Received: from pool-68-162-138-43.pitt.east.verizon.net ([68.162.138.43]:52352
-	"EHLO ndeb.net") by vger.kernel.org with ESMTP id <S261836AbTBEQsm>;
-	Wed, 5 Feb 2003 11:48:42 -0500
-Date: Wed, 5 Feb 2003 11:58:23 +0000 (UTC)
-From: Nilmoni Deb <ndeb@ece.cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Monta Vista software license terms
-Message-ID: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>
+	id <S261836AbTBEQru>; Wed, 5 Feb 2003 11:47:50 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:57986 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S261799AbTBEQrt>; Wed, 5 Feb 2003 11:47:49 -0500
+Message-ID: <3E414243.4090303@google.com>
+Date: Wed, 05 Feb 2003 08:56:35 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: alan@redhat.com, Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+References: <20030202161837.010bed14.skraw@ithnet.com>	 <3E3D4C08.2030300@pobox.com> <20030202185205.261a45ce.skraw@ithnet.com>	 <3E3D6367.9090907@pobox.com>  <20030205104845.17a0553c.skraw@ithnet.com> <1044443761.685.44.camel@zion.wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt wrote:
 
-This is about Monta Vista Software, a company that develops software for
-embedded platforms, based on the Linux kernel and (possibly) other GPL
-software.
+>>Okay, I had to watch for it a bit longer and it turns out that the kernel PDC driver has a problem in this shared interrupt setup. When loads get high it seems to run into some timing problem which causes things like:
+>>
+>>Feb  4 01:02:22 admin kernel: hde: dma_intr: status=0xd0 { Busy }
+>>
+>>    
+>>
+Since the busy bit is set, we know the drive must have received a 
+command.  Since dma_intr thought the drive was not busy, an interrupt 
+must have snuck through between the command being issued and the dma 
+being started.  I think in my original patch, I had the dma start 
+outside of the spinlock, that is a bug.  The command to the controller 
+to start the dma must be inside of the spinlock.
 
-In its official FAQ page, http://www.mvista.com/products/faq.html#q9 , it
-says:
+I have not looked at 2.4.21-pre4 at all, so I could be entirely off base 
+here.
 
-"A: The GNU General Public License (GPL) is very specific about the 
-obligations imposed on developers leveraging Open Source. If you 
-deploy/redistribute program binaries derived from source code licensed  
-under the GPL, you must
-
-
- Supply the source code to derived GPL code or Make an offer (good for 3
-years) to supply the source code
- 
- Retain all licensing / header information, copyright notices, etc. in
-those sources
- 
- Redistribute the text of the GPL with the binaries and/or source code
- 
- Note that your obligation is strictly to the recipients of binaries
-(i.e., your customers). You have no responsibility to the "community" at
-large."
-
-
-
-
-
-	Its the last sentence that is of concern. Does this mean no 3rd
-party (who is not a customer) can get the GPL source code part of their
-products ? Seems like a GPL violation of clause 3b in
-http://www.gnu.org/licenses/gpl.html .
-
-In addition:
-
-1. There is no linux kernel source in ftp://ftp.mvista.com/
-
-2. The download page http://www.mvista.com/previewkit/index.html does not
-claim to offer any source code at all.
-
-thanks
-- Nil
+    Ross
 

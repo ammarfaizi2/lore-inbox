@@ -1,63 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbSKEPLg>; Tue, 5 Nov 2002 10:11:36 -0500
+	id <S264720AbSKEPK2>; Tue, 5 Nov 2002 10:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264864AbSKEPLg>; Tue, 5 Nov 2002 10:11:36 -0500
-Received: from vt-williston4b-36.bur.adelphia.net ([24.48.243.36]:49801 "EHLO
-	infocalypse.jimlawson.org") by vger.kernel.org with ESMTP
-	id <S264863AbSKEPLf>; Tue, 5 Nov 2002 10:11:35 -0500
-Date: Tue, 5 Nov 2002 10:18:11 -0500 (EST)
-From: Jim Lawson <jim+linux-kernel@jimlawson.org>
-X-X-Sender: jim@infocalypse.jimlawson.org
+	id <S264863AbSKEPK2>; Tue, 5 Nov 2002 10:10:28 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:52880 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S264720AbSKEPK0>;
+	Tue, 5 Nov 2002 10:10:26 -0500
+Date: Tue, 5 Nov 2002 16:17:02 +0100
+From: bert hubert <ahu@ds9a.nl>
 To: linux-kernel@vger.kernel.org
-Subject: [Q] How to flush disk cache w/read-only filesystem w/o unmount&remount?
- (shared SAN filesystem) 
-Message-ID: <Pine.LNX.4.44.0211051014110.24422-100000@infocalypse.jimlawson.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: tytso@mit.edu
+Subject: naive but spectacular ext3 HTREE+Orlov benchmark
+Message-ID: <20021105151702.GA5894@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org, tytso@mit.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings kernel-hackers -
+On a 192 megabyte 1.1GHz laptop with boring disk, 13G well worn partition -
+this is not a stylized benchmark! Result is repeatable though.
 
-I'm setting up a web farm with a number of Linux machines (ia32) attached
-via FC-AL to a shared SAN.  There are 3 web servers, one of them mounts
-the filesystem read/write, the other 2 read/only.  (Filesystem is
-currently ext3.)
+Summary of HTREE ext3 Orlov vs non-Orlov, in real minute:seconds
 
-Everything works "fine", until of course I try to modify files on the r/w
-server.  Then we start seeing cache incoherency - the r/o systems now have
-"stale" information cached.  Old versions of files and directories are not
-replaced.
+                                2.5.45	2.5.46
+----------------------------------------------
+unpacking kernel tar.bz2:       1:26	1:16
+cold traversal:                 1:01.5  0:42.9
+hot traversal:                  0:51.0  0:34.5
+delete                          0:05.3  <0:02
 
-I'm looking for a way to flush or invalidate the cache on the block
-device/filesystem, so that the system is forced to go all the way to the
-disk.  Unmounting and remounting would accomplish this, of course, but
-that's tough to do in production.
+Congratulations everybody, this is a major result! You can in fact *hear*
+the difference. With the Orlov allocator, seeks are much more higher pitched
+as if they are generally over shorter distances - which they probably are.
 
-This is a "read-mostly" application - I really only need to update the
-filesystem once a day or so - but I'd like to find a nice way to do it,
-without having to use NFS.
+The cold traversal boils down to 4.47 megabytes/second over 13035 files,
+close to 303 files/second which is comfortably more than the number of
+seeks/second I expect this disk to be able to do. Magic is being performed
+here.
 
-More info, if needed: Running Linux 2.4.18 (under Debian woody.)  Using
-the qla2200 driver from Qlogic, although I don't think that matters - it
-looks like the caching happens in the VFS somewhere...
+traverse script:
+#!/bin/sh
+find . -type f | xargs -n 500 cat > /dev/null
 
-I've tried blockdev --flushbufs, which appears to do a BLKFLSBUF, but that
-seems to be equivalent to "sync" - just pushes the dirty buffers to disk,
-which doesn't help me.
+On Linux 2.5.45, ext3+HTREE:
 
-Looking in fs/dcache.c, I see shrink_dcache_sb(struct super_block *),
-which *might* do what I want, but there doesn't seem to be any way to call
-that from user-land.  And that probably just updates the dentries - I
-don't know if that has any effect on the file data.
+# mount /dev/hda3 /mnt
+$ cd mnt
+$ time tar xjf linux-2.5.45.tar.bz2
+real    1m26.640s
+user    0m48.256s
+sys     0m4.592s
 
-Hoping someone with more kernel experience can enlighten me -
-Jim Lawson
+*reboot*
+
+# mount /dev/hda3 /mnt
+$ cd mnt/linux-2.5.45
+$ time ../traverse
+real    1m1.518s
+user    0m0.159s
+sys     0m1.267s
+$ time ../traverse
+real    0m51.007s
+user    0m0.143s
+sys     0m1.236s
+
+$ cd .. ; time rm -rf linux-2.5.45
+real    0m5.248s
+user    0m0.020s
+sys     0m0.440s
+
+Same on Linux 2.5.46, ext3+HTREE+Orlov:
+# mount /dev/hda3 /mnt
+$ cd mnt
+$ time tar xjf linux-2.5.45.tar.bz2
+real    1m16.071s
+user    0m48.291s
+sys     0m4.918s
+
+*reboot*
+
+# mount /dev/hda3 /mnt
+$ cd mnt/linux-2.5.45
+$ time ../traverse
+real    0m42.869s
+user    0m0.148s
+sys     0m1.323s
+$ time ../traverse
+real    0m34.468s
+user    0m0.151s
+sys     0m1.358s
+$ cd .. ; rm -rf linux-2.5.45
+$ 
+
+This last delete wasn't measured but it appeared to be <2 seconds.
 
 
-
-
-
-
-
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

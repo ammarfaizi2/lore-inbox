@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312513AbSDEMbL>; Fri, 5 Apr 2002 07:31:11 -0500
+	id <S312524AbSDEMeB>; Fri, 5 Apr 2002 07:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312524AbSDEMbB>; Fri, 5 Apr 2002 07:31:01 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10502 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312513AbSDEMa6>; Fri, 5 Apr 2002 07:30:58 -0500
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-To: davids@webmaster.com (David Schwartz)
-Date: Fri, 5 Apr 2002 13:48:08 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020405060629.AAA7397@shell.webmaster.com@whenever> from "David Schwartz" at Apr 04, 2002 10:06:28 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312529AbSDEMdv>; Fri, 5 Apr 2002 07:33:51 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:41407 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S312524AbSDEMdh>; Fri, 5 Apr 2002 07:33:37 -0500
+Date: Fri, 5 Apr 2002 14:33:29 +0200 (MEST)
+From: Erich Focht <focht@ess.nec.de>
+To: Andi Kleen <ak@suse.de>
+cc: Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] O(1) scheduler: lockup with set_cpus_allowed
+In-Reply-To: <20020405132149.A16807@wotan.suse.de>
+Message-ID: <Pine.LNX.4.21.0204051430300.10372-100000@sx6.ess.nec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16tT8S-0008Ej-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you really want to argue that someone can add a digital rights management 
-> system into a GPL'd product, distribute it, and nobody else can modify that 
-> digital rights management system?
+On Fri, 5 Apr 2002, Andi Kleen wrote:
 
-Thats not what I said.
+> You could just use get_task_struct/free_task_struct and drop the read lock
+> to make sure the target doesn't go way
 
-The GPL protects your right to do certain things to a work. A digital rights
-mechanism that does not prevent anything the GPL permits doesn't clash with
-the GPL. In other words it can enforce the GPL, it cannot enforce anything
-further. 
+Thanks! That solves my problem. So maybe Ingo just extends the comment to
+set_cpus_allowed() to warn from holding the tasklist_lock such that others
+don't run into the same problem.
 
-> =09You're out of your mind on this one. The GPL gives you the right=
->  to modify 
+Regards,
+Erich
 
-No you just aren't thinking about the larger picture
+

@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbSKRPl0>; Mon, 18 Nov 2002 10:41:26 -0500
+	id <S262800AbSKRPtX>; Mon, 18 Nov 2002 10:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbSKRPl0>; Mon, 18 Nov 2002 10:41:26 -0500
-Received: from [68.96.149.130] ([68.96.149.130]:26341 "EHLO resonant.org")
-	by vger.kernel.org with ESMTP id <S262792AbSKRPlZ>;
-	Mon, 18 Nov 2002 10:41:25 -0500
-Date: Mon, 18 Nov 2002 09:48:21 -0600
-From: Zed Pobre <zed@resonant.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI patches updated (20021111)
-Message-ID: <20021118154821.GA9976@resonant.org>
-Mail-Followup-To: Zed Pobre <zed@resonant.org>,
-	Kernel List <linux-kernel@vger.kernel.org>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A4F9@orsmsx119.jf.intel.com> <1037223183.16635.59.camel@dell_ss3.pdx.osdl.net> <20021115150113.GA18126@resonant.org> <1037399340.984.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <1037399340.984.0.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
-X-GPG-Fingerprint: FF 75 8D 70 57 8D A4 7D  3A DE 6D 2F 25 C3 E6 E7
+	id <S262803AbSKRPtX>; Mon, 18 Nov 2002 10:49:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17670 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262800AbSKRPtX>;
+	Mon, 18 Nov 2002 10:49:23 -0500
+Message-ID: <3DD90D88.9020205@pobox.com>
+Date: Mon, 18 Nov 2002 10:55:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Steinmetz <ast@domdv.de>
+CC: Vergoz Michael <mvergoz@sysdoor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <3DD8AD5D.9010803@pobox.com> <3DD8CC44.9060104@domdv.de>
+In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Steinmetz wrote:
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Nov 15, 2002 at 11:29:00PM +0100, Stian Jordet wrote:
-> fre, 2002-11-15 kl. 16:01 skrev Zed Pobre:
-> >=20
-> >     As a further data point, if ACPI is enabled on my non-SMP test
-> > machine, USB stops working.
+> Jeff,
+> just as a hint: I do have a SiS based UP test system around that
+> misbehaves with IO-APIC enabled.
+> See
+> http://www.msi.com.tw/program/products/slim_pc/slm/pro_slm_detail.php?UID=134&MODEL=MS-6232 
 >
-> Very good to hear I'm not the only one with that problem, though, I have
-> a smp-machine, but it utterly refuses to work with acpi.
+>  for more system details.
+>  From the back of my head: with IO-APIC enabled and 3 RTL8139 (one on
+> board, the other two PCI) the NICs get assigned IRQs 17 and 18 but don't
+> seem to receive any interrupt at all. Without IO-APIC all three NICs
+> share IRQ 11 and do work. Further details on request (very low priority
+> problem for me). Oh, nearly forgot: kernel is 2.4.20rc1.
 
-    Interesting.  As I pointed out in my other reply, my problem was
-being caused by IO-APIC being enabled, but the thread that lead me to
-discovering this implied that it was only buggy for the uniprocessor
-case.  This implies that it might also be buggy for SMP.
 
---=20
-Zed Pobre <zed@debian.org> a.k.a. Zed Pobre <zed@resonant.org>
-PGP key and fingerprint available on finger; encrypted mail welcomed.
+That's not going to be fixed by Michael's patch...  Any IOAPIC-related 
+problems cannot be fixed at the driver level, but must be fixed by a 
+BIOS update (or possibly an IOAPIC code fix).  Sometimes vendors do not 
+bother do even wire the IOAPIC when it is a uniprocessor board :(
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	Jeff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
 
-iQEVAwUBPdkLxR0207zoJUw5AQHQfQf/anU8+bWSk7nBWA2W9ZO9+/EItbcl1Xbh
-vhbR/+zsNnECze48V/2pczA/0/XPfhoy2dXO58VZwKe6CQyDos+7C8+83aot73M5
-5foYoB8JtHJSIQiU6QM2tQX8IksXdIXzeqenoni03LVfHYOoZE12bYijuqdLQOxX
-uNCVRhzY47Z5UM0JJvVCjqnJU8NZFO5inrr/oAWWLk6w/aE3ZAYln4oYkP+4jOWV
-xCB0Cn3PL9jh7yfJhjVWYVfpR4mjh5pGOR9yMz4y5bwV+vTTDjjCmDjLgSs3rlHK
-3trM/xmNyKrONy/K4byiskKh9oRay1aM/QHiVFInWxhGMA2kgyXG1A==
-=59Mz
------END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--

@@ -1,39 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135463AbREGSM2>; Mon, 7 May 2001 14:12:28 -0400
+	id <S135795AbREGSOs>; Mon, 7 May 2001 14:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135489AbREGSMV>; Mon, 7 May 2001 14:12:21 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:47794 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S135463AbREGSMK>; Mon, 7 May 2001 14:12:10 -0400
-Date: Mon, 7 May 2001 20:12:04 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: "Bene, Martin" <Martin.Bene@KPNQwest.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-In-Reply-To: <5F6171E541C8D311B9F200508B63D32801C31F52@ntexgvie01>
-Message-Id: <Pine.LNX.4.31.0105072003210.8083-100000@phobos.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136483AbREGSOj>; Mon, 7 May 2001 14:14:39 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:53778 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S135795AbREGSOa>; Mon, 7 May 2001 14:14:30 -0400
+Date: Mon, 7 May 2001 20:13:57 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
+Subject: [PATCH] kernel-api book should also include kernel/module.c
+Message-ID: <20010507201357.H5208@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, Bene, Martin wrote:
+Hi,
 
-[MCE caused by bad RAM]
+This patch fixes a minor bug the Kernel API book: it should include the
+functions in kernel/module.c as well. The patch is against linux-2.4.4,
+but should work as well against 2.4.5-pre1 and 2.4.4-ac5. Please apply.
 
-> I don't think there is a way a machine check exception can be triggered by
-> software - which it would have to be in order to be caused by bad RAMs.
 
-A MCE is triggered by an ECC error - no software involved. A good trap
-handler will then see if the error is recoverable (one-bit errors are),
-notify userspace (so the admin gets mailed) and move the data out of this
-page.
+Erik
 
-   Simon
+PS: Thanks to Timur Tabi for pointing out this "bug".
+
+Index: Documentation/DocBook/Makefile
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/Documentation/DocBook/Makefile,v
+retrieving revision 1.1.1.25
+diff -u -r1.1.1.25 Makefile
+--- Documentation/DocBook/Makefile	2001/04/26 12:44:59	1.1.1.25
++++ Documentation/DocBook/Makefile	2001/05/07 17:51:15
+@@ -95,6 +98,7 @@
+ 		$(TOPDIR)/kernel/pm.c \
+ 		$(TOPDIR)/kernel/ksyms.c \
+ 		$(TOPDIR)/kernel/kmod.c \
++		$(TOPDIR)/kernel/module.c \
+ 		$(TOPDIR)/kernel/printk.c \
+ 		$(TOPDIR)/kernel/sched.c \
+ 		$(TOPDIR)/kernel/sysctl.c \
+Index: Documentation/DocBook/kernel-api.tmpl
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/Documentation/DocBook/kernel-api.tmpl,v
+retrieving revision 1.1.1.20
+diff -u -r1.1.1.20 kernel-api.tmpl
+--- Documentation/DocBook/kernel-api.tmpl	2001/04/26 12:45:00	1.1.1.20
++++ Documentation/DocBook/kernel-api.tmpl	2001/05/07 17:59:04
+@@ -140,8 +140,13 @@
+   </chapter>
+ 
+   <chapter id="modload">
+-     <title>Module Loading</title>
++     <title>Module Support</title>
++     <sect1><title>Module Loading</title>
+ !Ekernel/kmod.c
++     </sect1>
++     <sect1><title>Inter Module support</title>
++!Ekernel/module.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="hardware">
+
+
 
 -- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

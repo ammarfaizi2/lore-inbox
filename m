@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135762AbRDTAMf>; Thu, 19 Apr 2001 20:12:35 -0400
+	id <S135766AbRDTAQZ>; Thu, 19 Apr 2001 20:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135763AbRDTAMP>; Thu, 19 Apr 2001 20:12:15 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16400 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135762AbRDTAME>; Thu, 19 Apr 2001 20:12:04 -0400
-Date: Thu, 19 Apr 2001 17:11:32 -0700 (PDT)
-From: Patrick Mochel <mochel@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-pm-devel@lists.sourceforge.net
-Subject: Re: [Linux-pm-devel] Re: PCI power management
-In-Reply-To: <3ADEE701.F3726B5B@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10104191708260.7690-100000@nobelium.transmeta.com>
+	id <S135764AbRDTAQH>; Thu, 19 Apr 2001 20:16:07 -0400
+Received: from pop.gmx.net ([194.221.183.20]:44142 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S135763AbRDTAPv>;
+	Thu, 19 Apr 2001 20:15:51 -0400
+Message-ID: <3ADF5A1A.CE914410@gmx.de>
+Date: Thu, 19 Apr 2001 23:35:22 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael Clark <michael@metaparadigm.com>
+CC: Manfred Bartz <md-linux-kernel@logi.cc>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org
+Subject: Re: Real Time Traffic Flow Measurement - anybody working on it?
+In-Reply-To: <HBEEKENFCJOPCENEDAGHOEAECCAA.michael@metaparadigm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> >  - On SMP, we need some way to stop other CPUs in the scheduler
-> > while running the last round of sleep (putting devices to sleep) at least
-> > until all IO layers in Linux can properly handle blocking of IO queues
-> > while the device sleeps.
+Michael Clark wrote:
 > 
-> I think either Rusty or Anton wrote code to enable and disable CPUs...
-> 
-> CPU hotplugging but it would be useful for PM too.
+> An obvious kernel improvement for userspace meters like NeTraMet would
+> be to give libpcap's pcap_read a kernel interface that can return more
+> than one packet at a time (the libpcap interface has this capability).
 
-There's more than that, too. The ACPI spec says that the system must be
-able to handle complete dynamic reconfiguration of the system during
-suspend/resume. Basically an ideal solution would assume that any device
-could have been added or removed while the system was asleep, so it must
-account for it by initializing the device and allocating system resources.
+It's already there - the turbo packet interface (PACKET_RX_RING sockopt).
+Very nice and fast.  Direct transfer to mmapped memory.
 
-Granted CPU hotplugging is a different ballpark, but it's the same league.
+> An additional feature for network devices that could support it (not
+> sure if this is feasible) would be to switch to an 'interrupt when
+> packet buffer full' when in promiscuous mode.
 
-	-pat
+With the RX_RING you can poll a memory location in the mmapped memory
+to detect whether there are new packets.  You basically only perform
+a system call (poll/select) if there's nothing more to do.
+
+Ciao, ET.
 

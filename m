@@ -1,85 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVCQJd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbVCQJiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbVCQJd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 04:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCQJd5
+	id S263027AbVCQJiS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 04:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVCQJiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 04:33:57 -0500
-Received: from ozlabs.org ([203.10.76.45]:65167 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261793AbVCQJdy (ORCPT
+	Thu, 17 Mar 2005 04:38:18 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:29960 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S263027AbVCQJiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 04:33:54 -0500
+	Thu, 17 Mar 2005 04:38:07 -0500
+Message-ID: <42394FF4.60203@tuxrocks.com>
+Date: Thu, 17 Mar 2005 02:37:56 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH 0/5] I8K driver facelift
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com> <4238A76A.3040408@tuxrocks.com> <200503170140.49328.dtor_core@ameritech.net>
+In-Reply-To: <200503170140.49328.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16953.20279.77584.501222@cargo.ozlabs.ibm.com>
-Date: Thu, 17 Mar 2005 20:34:47 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, riel@redhat.com, Ian.Pratt@cl.cam.ac.uk,
-       kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-In-Reply-To: <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
-References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
-	<16952.41973.751326.592933@cargo.ozlabs.ibm.com>
-	<200503161406.01788.jbarnes@engr.sgi.com>
-	<29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keir Fraser writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Yes, Xen will break w/o them, because physical addresses are an 
-> illusory trick that the guest OS plays on itself to give itself the 
-> impression of a contiguous memory map. We use _to_machine and _to_bus 
-> macros to get 'real' physical addresses.
+Dmitry Torokhov wrote:
+| Hrm, can we be a little more explicit and not poke in the sysfs guts right
+| in the driver? What do you think about the patch below athat implements
+| "attribute arrays"? And I am attaching cumulative i8k patch using these
+| arrays so they can be tested.
+|
+| I am CC-ing Greg to see what he thinks about it.
 
-This code needs real physical addresses, which are not the same things
-as bus addresses.  I thought from what Rik said that virt_to_phys
-should give you real physical addresses, while virt_to_pfn would give
-you the contiguous "physical" page numbers - is that the case?
+Well, yes. That would probably be the better way to go about it, though
+I have to admit I was somewhat pleased with myself that I came up with
+something that worked. :)
 
-> For allocating the GATT itself, using dma_alloc_coherent() as done in 
-> my patch certainly seems sane -- the bus base address of that table is 
-> poked into a chipset register, right?
+Your patches work well, with a few minor notes:
 
-Well, a northbridge register.  The northbridge is in a privileged
-position in that it controls the memory and can access all of it
-directly using physical addresses, something which PCI or other
-devices can't.  The address you poke into a register to define the
-base of the table is a physical address.  How could it be a bus
-address, when the whole point of the table is to translate bus
-addresses to physical addresses?  If it was a bus address you would
-have to know where the table was before you could work out where the
-table was.
+1: My Inspiron 9200 (and perhaps others) doesn't seem to respond to the
+I8K_SMM_BIOS_VERSION function call, so it fails the check in i8k_probe.
+~ The check of i8k_get_bios_version doesn't seem critical, and removing
+the return -ENODEV makes it work again for me.  That's the current
+behavior, so perhaps the printk level should just be changed to
+KERN_WARNING rather than KERN_ALERT.
 
-> As for poking entries into the GATT, I guess I'm not sure what ought to 
-> be used. virt_to_phys() doesn't sound right to me: the GART is a bridge 
-> between two buses, so some sort of bus mapping would still be in order 
+2: To compile 2.6.11 cleanly, I needed two hunks from your original
+patch 2 (perhaps you're working from a more up-to-date tree than I am?
+If so, these are probably already addressed.):
 
-No, the GART is a bridge between a bus and memory, and the GATT
-entries are physical addresses.
+- --- dtor.orig/arch/i386/kernel/dmi_scan.c
++++ dtor/arch/i386/kernel/dmi_scan.c
+@@ -416,6 +416,7 @@ static void __init dmi_decode(struct dmi
+~ 			dmi_save_ident(dm, DMI_PRODUCT_VERSION, 6);
+~ 			dmi_printk(("Serial Number: %s\n",
+~ 				dmi_string(dm, data[7])));
++			dmi_save_ident(dm, DMI_PRODUCT_SERIAL, 7);
+~ 			break;
+~ 		case 2:
+~ 			dmi_printk(("Board Vendor: %s\n",
+- --- dtor.orig/include/linux/dmi.h
++++ dtor/include/linux/dmi.h
+@@ -9,6 +9,7 @@ enum dmi_field {
+~ 	DMI_SYS_VENDOR,
+~ 	DMI_PRODUCT_NAME,
+~ 	DMI_PRODUCT_VERSION,
++	DMI_PRODUCT_SERIAL,
+~ 	DMI_BOARD_VENDOR,
+~ 	DMI_BOARD_NAME,
+~ 	DMI_BOARD_VERSION,
 
-> So: I would very much like you to take the patches I made to generic.c 
-> that replace __get_free_pages() calls with dma_alloc_coherent(). For 
 
-This is also wrong - the base address of the GATT is a physical
-address not a bus address.  This change will break agpgart on ppc64
-systems and I won't be able to play bzflag on my G5 any more. :)
-dma_alloc_coherent allocates iommu entries and returns a bus address,
-but the addresses coming out of the GART don't go through a further
-translation through the iommu.
+I also have a question about the structure created using sysfs attribute
+arrays.  Applying it in this case, I get:
+./temp
+./temp/3
+./temp/2
+./temp/1
+./temp/0
+./fan_speed
+./fan_speed/1
+./fan_speed/0
+./fan_state
+./fan_state/1
+./fan_state/0
 
-> now, the patch lines that poke into the GATT I guess stay as they are. 
-> We can maintain an out-of-tree patch for Xen, or perhaps if 
-> virt_to_phys() is not used very much we can override its definition.
+The 'temp' entries make sense, however I'm not sure about the fan_speed
+and fan_state entries.  From the perspective of how the objects are
+ordered, a fan would have 'speed' and 'state' attributes, but a
+'fan_state' attribute wouldn't normally have a fan.  Maybe something
+along these lines would make more sense from that perspective:
 
-It sounds like xen is trying to overload the concepts of physical and
-bus addresses to represent the mapping from "logical" addresses seen
-by the kernel to "absolute" addresses (the "real" physical
-addresses).  IMHO that is a mistake and will only lead to trouble.
+./fan/0
+./fan/0/speed
+./fan/0/state
+./fan/1
+./fan/1/speed
+./fan/1/state
 
-Regards,
-Paul.
+I'm not certain about the best way to do this, so this may just be a
+thought.  It would certainly be more complex to reorder it, and it
+appears usable in its current form.
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD4DBQFCOU/0aI0dwg4A47wRAjgDAJwLsvd14J/qAmgv7JzkXG2xgAmTGwCY6RUc
+Nomk0pwTSfymHtIuF7ylzQ==
+=85eA
+-----END PGP SIGNATURE-----

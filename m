@@ -1,70 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268996AbRIDUnL>; Tue, 4 Sep 2001 16:43:11 -0400
+	id <S268997AbRIDUtD>; Tue, 4 Sep 2001 16:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRIDUnB>; Tue, 4 Sep 2001 16:43:01 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:41106 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S268996AbRIDUmz>; Tue, 4 Sep 2001 16:42:55 -0400
-Date: Tue, 4 Sep 2001 16:43:07 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <20010904164306.A1387@cs.cmu.edu>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010904112629.A27988@cs.cmu.edu> <Pine.LNX.4.33L.0109041320271.7626-100000@imladris.rielhome.conectiva>
+	id <S269041AbRIDUsy>; Tue, 4 Sep 2001 16:48:54 -0400
+Received: from [24.93.67.53] ([24.93.67.53]:57860 "EHLO Mail6.nc.rr.com")
+	by vger.kernel.org with ESMTP id <S268997AbRIDUst>;
+	Tue, 4 Sep 2001 16:48:49 -0400
+Subject: cdrecord with LSI53C1010 and Yamaha CRW2100S
+From: "C. Linus Hicks" <lhicks@nc.rr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 04 Sep 2001 16:48:40 -0400
+Message-Id: <999636520.5244.146.camel@lh2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109041320271.7626-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.20i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 01:27:50PM -0300, Rik van Riel wrote:
-> I've been working on a CPU and memory efficient reverse
-> mapping patch for Linux, one which will allow us to do
-> a bunch of optimisations for later on (infrastructure)
-> and has as its short-term benefit the potential for
-> better page aging.
-> 
-> It seems the balancing FreeBSD does (up aging +3, down
-> aging -1, inactive list in LRU order as extra stage) is
-> working nicely on my laptop now, but I don't think I'll
-> be releasing that as part of the patch ...
-> 
-> 	http://www.surriel.com/patches/2.4/2.4.8-ac12-pmap3
+I have been unsuccessful trying to burn a CD-R since upgrading my
+computer and I'm not sure where to go with this. I decided to try here.
+I suspect a problem with the SYM53C8xx driver, and I think there may
+also be additional problems elsewhere. My old system worked. It was:
 
-I like the fact that it completely removes the vm crawling swap_out
-path. It also does aging more sanely because it now can take everything
-into account. It also works around the problems of anonymous pages that
-aren't aged until they are added to the swap cache.
+RedHat 7.0 with 2.2.19 kernel
+ASUS P2B-DS (440BX chipset) with 2 600MHz Intel processors
+On-board Adaptec AIC-7890 with the new aic7xxx driver
+Add-on Adaptec 2940 PCI adapter (narrow devices attached here)
+Yamaha CRW6416S CD writer
 
-It should also minimize unnecessary minor page faults because the
-unmapping is done for all pte's once the page->age hits zero, and
-frequently used pages should not grabbing and lock down swapspace that
-they won't be able to give up (until the process exits).
+My new system:
 
-The pte_chain allocation stuff looks a bit scary, where did you want to
-reclaim them from when memory runs out, unmap existing pte's?
+RedHat 7.1 with 2.4.8-ac11 kernel
+Tyan Thunder HEsl S2567 (ServerWorks chipset) with 2 1000MHz Intel
+processors
+On-board LSI 53C1010-66 (running at 33MHz) dual channel SCSI
+Add-on LSI21003 with 53C1010-33 (narrow devices here)
+SYM53C8xx driver
+Yamaha CRW2100S CD writer
 
-One thing that might be nice, and showed a lot of promise here is to
-either age down by subtracting instead of dividing to make it less
-aggressive. It is already hard enough for pages to get referenced enough
-to move up the scale.
+I looked for problem reports with the 2100S and didn't see any, rather
+several reports that it worked okay. I updated the firmware to the
+latest - 1.0N and it didn't help.
 
-Or use a similar approach as I have in my patch, age up periodically,
-but only age down when there is memory shortage, This gives a slight
-advantage to processes that were running when there was not much VM
-pressure. When something starts hogging memory, it is penalized a bit
-for disturbing the peace, but the agressive down aging will quickly
-rebalance, typically within about 3 calls to do_try_to_free_pages.
+I have tried several versions of cdrecord including the latest 1.11a05
+with associated tools to no avail.
 
-I might port your patch over to Linus's 2.4.10-pre tree to play with it.
-It could very well be a significant improvement because it does address
-many of the issues that I ran into.
+When I try burning a CD, sometimes I get errors and sometimes it appears
+to work. When I try to mount a CD-R that burned successfully in a
+Toshiba DVD-ROM drive, I get errors like this:
 
-Jan
+[root@lh2 /root]# mount /mnt/cdrom
+mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+       or too many mounted file systems
+[root@lh2 /root]#
+
+And in /var/log/messages:
+
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1:4: ERROR (0:18) (1-21-0)
+(10/30) @ (script 8e8:110007c1).
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: script cmd = 88080000
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: regdump: da 10 c0 30 47 10
+04 0e 80 01 84 21 80 01 01 00 00 b0 d6 37 08 00 00 00.
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: ctest4/sist original
+0x8/0x18  mod: 0x18/0x0
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: restart (scsi reset).
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: handling phase mismatch
+from SCRIPTS.
+Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: Downloading SCSI SCRIPTS.
+Sep  4 16:31:20 LH2 kernel: sym53c1010-33-1-<4,*>: FAST-20 SCSI 20.0
+MB/s (50.0 ns, offset 16)
+Sep  4 16:31:20 LH2 kernel:  I/O error: dev 0b:00, sector 68
+Sep  4 16:31:20 LH2 kernel: isofs_read_super: bread failed, dev=0b:00,
+iso_blknum=17, block=17
+
+I tried replacing the LSI21003 with a 2940 and burned a CD-R. The
+process went smoothly with no errors reported. I mounted the burned CD
+in the Toshiba successfully and listed the contents. I did not think to
+verify the CD with the mastered file. I then switched back to the
+LSI21003 and tried to mount the burned CD-R. I got:
+
+[root@lh2 /root]# mount /mnt/cdrom
+mount: Not a directory
+[root@lh2 /root]#
+
+And in /var/log/messages:
+
+Sep  4 15:15:47 LH2 kernel: scsi : aborting command due to timeout : pid
+0, scsi1, channel 0, id 4, lun 0 Read (10) 00 00 00 00 1c 00 00 01 00
+Sep  4 15:15:47 LH2 kernel: sym53c8xx_abort: pid=0 serial_number=149685
+serial_number_at_timeout=149685
+Sep  4 15:15:48 LH2 kernel: SCSI host 1 abort (pid 0) timed out -
+resetting
+Sep  4 15:15:48 LH2 kernel: SCSI bus is being reset for host 1 channel
+0.
+Sep  4 15:15:48 LH2 kernel: sym53c8xx_reset: pid=0 reset_flags=2
+serial_number=149685 serial_number_at_timeout=149685
+Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: restart (scsi reset).
+Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: handling phase mismatch
+from SCRIPTS.
+Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: Downloading SCSI SCRIPTS.
+Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1-<4,*>: FAST-20 SCSI 20.0
+MB/s (50.0 ns, offset 16)
+Sep  4 15:15:48 LH2 kernel: Device 0b:00 not ready.
+Sep  4 15:15:48 LH2 kernel:  I/O error: dev 0b:00, sector 112
+Sep  4 15:15:49 LH2 kernel: ISOFS: unable to read i-node block
+Sep  4 15:15:49 LH2 kernel: Device 0b:00 not ready.
+Sep  4 15:15:49 LH2 kernel:  I/O error: dev 0b:00, sector 128
+Sep  4 15:15:49 LH2 kernel: ISOFS: unable to read i-node block
+
+Any help would be appreciated, and if anyone needs additional
+information I will be glad to do what I can.
+
+Linus
+
 

@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287734AbSAAEfx>; Mon, 31 Dec 2001 23:35:53 -0500
+	id <S287747AbSAAEkp>; Mon, 31 Dec 2001 23:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287739AbSAAEfn>; Mon, 31 Dec 2001 23:35:43 -0500
-Received: from smtp02.web.de ([217.72.192.151]:36881 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S287734AbSAAEf2>;
-	Mon, 31 Dec 2001 23:35:28 -0500
-Message-ID: <3C314A78.2060808@web.de>
-Date: Tue, 01 Jan 2002 05:34:48 +0000
-From: Todor Todorov <ttodorov@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011230
-X-Accept-Language: en-us
+	id <S287740AbSAAEkd>; Mon, 31 Dec 2001 23:40:33 -0500
+Received: from wiproecmx1.wipro.com ([164.164.31.5]:33238 "EHLO
+	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S287739AbSAAEkV>; Mon, 31 Dec 2001 23:40:21 -0500
+From: "Raghavendra Koushik" <raghavendra.koushik@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Hot swap support in linux?
+Date: Tue, 1 Jan 2002 10:00:36 +0530
+Message-ID: <008001c1927d$0f175840$5408720a@M3NOR67026>
 MIME-Version: 1.0
-To: samson swanson <intellectcrew@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: a great C++ book?
-In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-samson swanson wrote:
 
->
->For a beginner to C++ what is your favorite book? A
->book that goes in depth of teaching the language.
->remeber i am  a beginner, new to c++.
->
-Nicolai Josuttis, Object Oriented Programming in C++, Addison-Wesley 2001
+This is a multi-part message in MIME format.
 
-This guy is on the C++ standartization comitee,the book is intended for 
-complete beginners as for advanced programmers - it starts with the 
-basic concepts and goes smootly into more advanced topics, it's fairly 
-simple to understand and the examples are staright to the point and well 
-explained. Besides this, it describes very good the concepts of OOP.
+------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Greetings,
-Todor
+Does the current linux kernel support hot swap feature for network interface
+cards(NICs). I would be glad if any of you can provide me some pointers or
+documentation regards the same...
+
+Regards
+Koushik
 
 
+
+
+
+
+
+ 
+
+
+
+------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+-----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+------------------------------------------------------------------------------------------------------------------------
+
+------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8--

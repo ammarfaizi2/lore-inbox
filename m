@@ -1,40 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbUDGAPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 20:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUDGAPb
+	id S264040AbUDGA04 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 20:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUDGA04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 20:15:31 -0400
-Received: from mesa.unizar.es ([155.210.11.66]:7043 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S264039AbUDGAPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 20:15:30 -0400
-From: Juan Antonio Magallon <magallon@shiva.cps.unizar.es>
-Message-Id: <200404070015.CAA27941@shiva.cps.unizar.es>
-Subject: Where to ask about problems with vger
+	Tue, 6 Apr 2004 20:26:56 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:53968 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264040AbUDGA0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 20:26:55 -0400
+Date: Wed, 7 Apr 2004 02:26:53 +0200
+From: Jan Killius <jkillius@arcor.de>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 7 Apr 2004 02:15:27 +0200 (DST)
-X-Mailer: ELM [version 2.4 PL24 PGP3 *ALPHA*]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: Oops with cpufreq on 2.6.5-mm1
+Message-ID: <20040407002653.GA13087@gate.unimatrix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5 i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
-
-I seem unable to post from my ISP. I am subscribed and receive the
-list traffic. I can mail from my ISP address to other locations.
-mxverify in vger says I'm ok, and so does autoreplay.
-
-Who should I talk to ?
-
-TIA
-
-(plz, answer to the list or to jamagallon()able!es )
-
+The patch applies cleanly and seems to be working.
 -- 
-Juan Antonio Magallon Lacarta       \              Software is like sex:
-mailto:magallon@unizar.es            \        It's better when it's free
-34-976-762354 - Fax: 34-976-761914    \   -- Linus Torvalds, FSF T-shirt
-Grupo de Informatica Grafica Avanzada: http://giga.cps.unizar.es
+        Jan

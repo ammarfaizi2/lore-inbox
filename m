@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264457AbTLZC6B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 21:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTLZC6B
+	id S264459AbTLZDMl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 22:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLZDMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 21:58:01 -0500
-Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:61374 "HELO
-	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
-	id S264457AbTLZC5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 21:57:55 -0500
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug in reading some files in /proc/PID/
-Date: Fri, 26 Dec 2003 11:54:02 +0900
-User-Agent: KMail/1.5
+	Thu, 25 Dec 2003 22:12:41 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:34794 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264459AbTLZDMk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 22:12:40 -0500
+Date: Fri, 26 Dec 2003 11:12:55 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] clean up fs/devfs/base.c
+In-Reply-To: <20031224103016.37cf5ea3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0312261057100.4600-100000@raven.themaw.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312261154.02338.mita@miraclelinux.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 24 Dec 2003, Andrew Morton wrote:
 
-The following test program could not detect Bad address
-with /proc/<PID>/cmdline, stat, statm, ...
+> 
+> Yup, just whitespace fixes please.  I don't think I have the energy for a
+> big cleanup exercise right now, and it's not really appropriate.
+> 
 
-ex.
+OK. Got side tracked for a while.
 
-    # ./a.out /proc/1/stat
-    Success: 214 
+White space only (just about) patch is on kernel.org at:
 
------
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
+/pub/linux/kernel/perope/raven/devfs/linux-2.6.0-devfs-1.patch
 
-int main(int argc, char **argv)
-{
-    int fd, ret;
+It compiles, links and basic functionality tested OK with devfsd 
+1.3.25, against 2.6.0.
 
-    fd = open(argv[1], O_RDONLY);
-    ret = read(fd, 0, 4*1024); // Bad address
-    printf("%s: %d\n", strerror(errno), ret);
-}
+Ian
 
---- linux-2.4.23/fs/proc/base.c.orig    2003-12-26 11:34:19.000000000 +0900
-+++ linux-2.4.23/fs/proc/base.c 2003-12-26 11:34:41.000000000 +0900
-@@ -357,7 +357,10 @@ static ssize_t proc_info_read(struct fil
-        if (count + *ppos > length)
-                count = length - *ppos;
-        end = count + *ppos;
--       copy_to_user(buf, (char *) page + *ppos, count);
-+       if (copy_to_user(buf, (char *) page + *ppos, count)) {
-+               free_page(page);
-+               return -EFAULT;
-+       }
-        *ppos = end;
-        free_page(page);
-        return count;
+
 

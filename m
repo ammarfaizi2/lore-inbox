@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263667AbTKROOa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 09:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTKROOa
+	id S262787AbTKROEe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 09:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTKROEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 09:14:30 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:32517 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263667AbTKROO2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 09:14:28 -0500
-Date: Tue, 18 Nov 2003 15:14:01 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Pontus Fuchs <pof@users.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-In-Reply-To: <3FBA25CD.5020708@pobox.com>
-Message-ID: <Pine.LNX.4.44.0311181510290.29639-100000@gaia.cela.pl>
+	Tue, 18 Nov 2003 09:04:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5094 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262787AbTKROE3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 09:04:29 -0500
+Message-ID: <3FBA26D1.8050901@pobox.com>
+Date: Tue, 18 Nov 2003 09:04:01 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Catani, Antonio" <Antonio.Catani@seceti.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9-mm3 and enanched IDE mode on p4c800 deluxe
+References: <9E8BE1B970A998468D92381A112AA3EA0140E9@srvrm001.roma.seceti.it>
+In-Reply-To: <9E8BE1B970A998468D92381A112AA3EA0140E9@srvrm001.roma.seceti.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pontus Fuchs wrote:
-> > Please! I don't want to start a flamewar if this is a good thing to do.
-> > I'm just trying to scratch my own itch and I doubt that this project
-> > changes the way Broadcom treats Linux users.
+Catani, Antonio wrote:
+> Hi list, i can non know if my request is in topic or not.
+> I have p4c800 deluxe from asus, and works fine with mm3 patch, but I'v
+> notice a little beat strange thing in bios of this mobo there is a
+> option for setting ide interface in enanched mode, so if I set on the
+> kernel start and in dmesg I see ICH-5 100% native mode but after mount
+> root I get many of disabled irq 169 and the system hangs so to reset
+> hardware.
 > 
-> 
-> Then help us reverse engineer the driver :)
-> 
-> 	Jeff
+> In compatible mode the system works fine, but I see in dmesg ICH-5 not
+> 100% native mode, will probe irq later, someone can explain me the
+> difference about two behavior?
 
-In a way getting it to run under linux (in an pseudo-ndis-emu box) is part
-of getting it reverse engineered - then we set up io-trace and presto we
-know precisely what is going on ;)
 
-Speaking of io-trace has anyone actually done this?  I'm working on a 
-strace patch for io-trace'ing of user processes and have come to the 
-conclusion that this should be at least partially done in kernel-space 
-(you can't attach/detach to a pid without kernel support, you can io-trace 
-a program from start to finish in pure userspace, but as soon as you want 
-to attach to a running Xserver you are basically screwed (although that 
-can be circumvened), however if you want to detach then you are screwed 
-totally (unless you like live auto-patching of the traced program)...
+Are you using Serial ATA?
 
-I'm thinking of rewriteing the patch into the kernel ptrace mechanism 
-(i.e. PTRACE_IO_SYSCALL - stop on IO operations or syscalls)
+	Jeff
 
-Cheers,
-MaZe.
+
 

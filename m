@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265483AbRFVR43>; Fri, 22 Jun 2001 13:56:29 -0400
+	id <S265363AbRFVSCT>; Fri, 22 Jun 2001 14:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265482AbRFVR4J>; Fri, 22 Jun 2001 13:56:09 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10252 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265486AbRFVRz7>; Fri, 22 Jun 2001 13:55:59 -0400
-Subject: Re: For comment: draft BIOS use document for the kernel
-To: randy.dunlap@intel.com (Dunlap, Randy)
-Date: Fri, 22 Jun 2001 18:55:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE38E@orsmsx31.jf.intel.com> from "Dunlap, Randy" at Jun 22, 2001 10:44:34 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265420AbRFVSCK>; Fri, 22 Jun 2001 14:02:10 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:915 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265363AbRFVSB7>;
+	Fri, 22 Jun 2001 14:01:59 -0400
+Message-ID: <XFMail.20010622110507.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15DV9S-0003rJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Fri, 22 Jun 2001 11:05:07 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: linux-kernel@vger.kernel.org
+Subject: signal dequeue ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Didn't you disable DMI scan recently, in favor of userspace
-> DMI tools?
 
-No. We still scan it but we dont print the stuff out
+I'm just trying to figure out the reason why signal must be delivered one at a
+time instead of building a frame with multiple calls with only the last one
+chaining back to the kernel.
+All previous calls instead of calling the stub that jump back to the kernel
+will call a small stub like ( Ix86 ) :
 
-> > should probably provide the $PIR table, even if it does not 
-> > provide non ACPI versions of other services.
-> 
-> Sorry, legacy-free => ACPI, certainly not a $PIR table IMO.
 
-Umm maybe that needs rewording. The point is that if you are building an
-ACPI only setup then it will generally run Linux providing you also add in
-the $PIR table, even though the ACPI OS's certainly won't use it
+stkclean_stub:
+        add $frame_size, %esp
+        cmp %esp, $end_stubs
+        jae $sigreturn_stub
+        ret
+sigreturn_stub:
+        mov __NR_sigreturn, %eax
+        int $0x80
+end_stubs:
 
-> Personally I'd like to explore adding support to Linux for
-> the Simple Boot Flag spec.
-> (http://www.microsoft.com/HWDEV/desinit/simp_bios.htm
+...
+| context1
+* $stkclean_stub
+* sigh1_eip
+| context0
+* $stkclean_stub
+* sigh0_eip
 
-See ac17. Actually its a bit buggy in ac17 but Dave Jones has been fixing it.
-Feel free to assist (arch/i386/kernel/bootflag.c)
 
+When sigh0 return, it'll call stkclean_stub that will clean context0 and if
+we're at the end it'll call the jump-back-to-kernel stub, otherwise the it'll
+execute the  ret  the will call sigh1 handler ... and so on.
+
+
+
+
+
+- Davide
 

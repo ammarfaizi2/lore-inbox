@@ -1,107 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263400AbRFNQ54>; Thu, 14 Jun 2001 12:57:56 -0400
+	id <S263375AbRFNQ6q>; Thu, 14 Jun 2001 12:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbRFNQ5r>; Thu, 14 Jun 2001 12:57:47 -0400
-Received: from squeaker.ratbox.org ([63.216.218.7]:7184 "HELO
-	squeaker.ratbox.org") by vger.kernel.org with SMTP
-	id <S263375AbRFNQ5a>; Thu, 14 Jun 2001 12:57:30 -0400
-Date: Thu, 14 Jun 2001 13:01:24 -0400 (EDT)
-From: Aaron Sethman <androsyn@ratbox.org>
-To: John <cmptradm@bigfoot.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5 kernel on Sparc32
-In-Reply-To: <3B142AE0.20A22175@bigfoot.com>
-Message-ID: <Pine.LNX.4.33.0106141259580.22582-100000@squeaker.ratbox.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263378AbRFNQ6g>; Thu, 14 Jun 2001 12:58:36 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:15064 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263375AbRFNQ62>;
+	Thu, 14 Jun 2001 12:58:28 -0400
+Message-Id: <200106141657.MAA09198@mailhost.eng.mc.xerox.com>
+To: linux-kernel@vger.kernel.org
+Subject: what's the purpose of SYMBOL_NAME()
+Date: Thu, 14 Jun 2001 12:57:33 -0400
+From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen the exact same problem when trying to compile for sparc.  I
-might try and fix it myself, as it doesn't seemed to be fixed in the vger
-cvs tree, or any other patch for that matter.
-
-Regards,
-
-Aaron
 
 
-On Tue, 29 May 2001, John wrote:
+I'm read Bovet's "Understand the Linux Kernel"
+and looked at the assembly routine setup_idt...
 
-> Sorry if this is a repeat.  Can't find anything on it. My guess is that
-> I don't know where to look.  I am trying to build the 2.4.5 kernel on a
-> Sparc LX.  I get numerous error messages when trying to build the
-> kernel:
->
->
-> > make[1]: Entering directory `/usr/src/linux-2.4.5/mm'
-> > make all_targets
-> > make[2]: Entering directory `/usr/src/linux-2.4.5/mm'
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.4.5/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -m32 -pipe -mno-fpu -fcall-used-g5 -fcall-used-g7    -c -o memory.o memory.c
-> > memory.c:183: macro `pmd_alloc' used with too many (3) args
-> > memory.c:204: macro `pte_alloc' used with too many (3) args
-> > memory.c:725: macro `pte_alloc' used with too many (3) args
-> > memory.c:750: macro `pmd_alloc' used with too many (3) args
-> > memory.c:805: macro `pte_alloc' used with too many (3) args
-> > memory.c:832: macro `pmd_alloc' used with too many (3) args
-> > memory.c:1339: macro `pmd_alloc' used with too many (3) args
-> > memory.c:1342: macro `pte_alloc' used with too many (3) args
-> > memory.c:1392: macro `pte_alloc' used with too many (3) args
-> > memory.c: In function `copy_page_range':
-> > memory.c:183: warning: passing arg 1 of `___f_pmd_alloc' from incompatible pointer type
-> > memory.c:183: warning: passing arg 2 of `___f_pmd_alloc' makes integer from pointer without a cast
-> > memory.c:204: warning: passing arg 1 of `___f_pte_alloc' from incompatible pointer type
-> > memory.c:204: warning: passing arg 2 of `___f_pte_alloc' makes integer from pointer without a cast
-> > memory.c: In function `zeromap_pmd_range':
-> > memory.c:725: warning: passing arg 1 of `___f_pte_alloc' from incompatible pointer type
-> > memory.c:725: warning: passing arg 2 of `___f_pte_alloc' makes integer from pointer without a cast
-> > memory.c: In function `zeromap_page_range':
-> > memory.c:750: warning: passing arg 1 of `___f_pmd_alloc' from incompatible pointer type
-> > memory.c:750: warning: passing arg 2 of `___f_pmd_alloc' makes integer from pointer without a cast
-> > memory.c: In function `remap_pmd_range':
-> > memory.c:805: warning: passing arg 1 of `___f_pte_alloc' from incompatible pointer type
-> > memory.c:805: warning: passing arg 2 of `___f_pte_alloc' makes integer from pointer without a cast
-> > memory.c: In function `remap_page_range':
-> > memory.c:832: warning: passing arg 1 of `___f_pmd_alloc' from incompatible pointer type
-> > memory.c:832: warning: passing arg 2 of `___f_pmd_alloc' makes integer from pointer without a cast
-> > memory.c: In function `handle_mm_fault':
-> > memory.c:1339: warning: passing arg 1 of `___f_pmd_alloc' from incompatible pointer type
-> > memory.c:1339: warning: passing arg 2 of `___f_pmd_alloc' makes integer from pointer without a cast
-> > memory.c:1342: warning: passing arg 1 of `___f_pte_alloc' from incompatible pointer type
-> > memory.c:1342: warning: passing arg 2 of `___f_pte_alloc' makes integer from pointer without a cast
-> > memory.c: In function `__pmd_alloc':
-> > memory.c:1364: warning: implicit declaration of function `pmd_alloc_one_fast'
-> > memory.c:1364: warning: assignment makes pointer from integer without a cast
-> > memory.c:1367: warning: implicit declaration of function `pmd_alloc_one'
-> > memory.c:1367: warning: assignment makes pointer from integer without a cast
-> > memory.c:1381: warning: implicit declaration of function `pgd_populate'
-> > memory.c: At top level:
-> > memory.c:1393: conflicting types for `___f_pte_alloc'
-> > /usr/src/linux-2.4.5/include/asm/pgalloc.h:125: previous declaration of `___f_pte_alloc'
-> > memory.c: In function `___f_pte_alloc':
-> > memory.c:1398: warning: implicit declaration of function `pte_alloc_one_fast'
-> > memory.c:1398: `address' undeclared (first use in this function)
-> > memory.c:1398: (Each undeclared identifier is reported only once
-> > memory.c:1398: for each function it appears in.)
-> > memory.c:1398: warning: assignment makes pointer from integer without a cast
-> > memory.c:1401: warning: implicit declaration of function `pte_alloc_one'
-> > memory.c:1401: warning: assignment makes pointer from integer without a cast
-> > memory.c:1415: warning: implicit declaration of function `pmd_populate'
-> > make[2]: *** [memory.o] Error 1
-> > make[2]: Leaving directory `/usr/src/linux-2.4.5/mm'
-> > make[1]: *** [first_rule] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.4.5/mm'
-> > make: *** [_dir_mm] Error 2
-> >
->
-> -- tia
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+I noticed the assembly has SYMBOL_NAME
+(its all over the place).
 
+This is define in include/linux/linkage.h
+
+to just:
+#define SYMBOL_NAME(X) X
+
+(this wasn't in Bovet's book).
+
+What's the purpose?  
+
+marty		mleisner@eng.mc.xerox.com   
+Don't  confuse education with schooling.
+	Milton Friedman to Yogi Berra

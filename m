@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263939AbUEHA0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUEHAZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbUEHA0C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 20:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUEHAXN
+	id S263963AbUEHAZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 20:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUEHAX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 20:23:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52355 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263937AbUEHAVy (ORCPT
+	Fri, 7 May 2004 20:23:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54403 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263939AbUEHAV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 20:21:54 -0400
-Date: Fri, 7 May 2004 16:25:10 -0700
+	Fri, 7 May 2004 20:21:57 -0400
+Date: Fri, 7 May 2004 16:24:36 -0700
 From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       vojtech@suse.cz
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Message-ID: <20040507232510.GO14660@kroah.com>
-References: <200404230142.46792.dtor_core@ameritech.net> <200404251648.07232.dtor_core@ameritech.net> <20040504210414.GC27037@kroah.com> <200405050208.11348.dtor_core@ameritech.net>
+To: Duncan Sands <baldrick@free.fr>
+Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, linux-usb-devel@lists.sourceforge.net,
+       speedtouch@ml.free.fr
+Subject: Re: [linux-usb-devel] 3 USB regressions (2.6.6-rc3-bk1) that should be fixed before 2.6.6
+Message-ID: <20040507232436.GN14660@kroah.com>
+References: <Pine.LNX.4.58.0404300113120.444@alpha.polcom.net> <200404301810.56271.baldrick@free.fr> <20040430224111.GB14643@kroah.com> <200405022253.03011.baldrick@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405050208.11348.dtor_core@ameritech.net>
+In-Reply-To: <200405022253.03011.baldrick@free.fr>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 02:08:11AM -0500, Dmitry Torokhov wrote:
-> On Tuesday 04 May 2004 04:04 pm, Greg KH wrote:
-> > On Sun, Apr 25, 2004 at 04:48:07PM -0500, Dmitry Torokhov wrote:
-> > >  
-> > > No, I am still getting the oops.. hmm.. it seems a little bit different,
-> > > but still in the hiddev. I investigated further and the oops only happens
-> > > if I yank a HID device connected to an USB hub or if I yank entire hub with
-> > > a HID device connected to it. Tried with APC UPS and MS Intellimouse
-> > > Explorer. If they are connected directly to the laptop's ports everything is
-> > > fine, also other devices (USB printer for example) handle hub disconnection
-> > > just fine. It does not matter if I have device open or closed for oops to
-> > > happen. And, for the record, oops itself:
-> > 
-> > Are you still getting this in the 2.6.6-rc3 kernel?
-> > 
-> > How about the latest -mm release?
-> > 
+On Sun, May 02, 2004 at 10:53:03PM +0200, Duncan Sands wrote:
+> > > Hi Greg, I'm not sure when these problems started showing up, maybe they
+> > > have been in 2.6.6- for a while.  One patch that may be worth having in
+> > > 2.6.6 by the way is the one for device_disconnect in devio.c that changes
+> > > destroy_all_async to destroy_async_on_interface.  It's clearly correct
+> > > and does do some good!
+> >
+> > Care to point out which one this was?  I'm swimming in a sea of patches
+> > right now :)
 > 
-> With tonight's bk pull + USB patch from 2.6.6-rc3-mm1 I am still getting the
-> following oops when pulling a HID device out of a hub:
+> I rediffed it against Linus's current tree.  The extern -> static change is to make sure
+> we avoid the problem reported by R. J. Wysocki for -rc3-mm1: unknown symbol
+> destroy_all_async.
 
-Ick, I'll work on trying to duplicate this and see if I can figure it
-out...
+Hm, at this point in time, I'll just wait on this.  2.6.6 should be out
+shortly I hope...
 
-thanks for letting me know.
+thanks,
 
 greg k-h

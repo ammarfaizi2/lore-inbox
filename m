@@ -1,106 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbULIS0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbULIS2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbULIS0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 13:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULIS0y
+	id S261578AbULIS2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 13:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbULIS2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 13:26:54 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:56469 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261577AbULIS0u (ORCPT
+	Thu, 9 Dec 2004 13:28:38 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:33201 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261578AbULIS2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 13:26:50 -0500
-Date: Thu, 9 Dec 2004 19:26:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209182626.GA13132@elte.hu>
-References: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 9 Dec 2004 13:28:05 -0500
+Message-ID: <41B898F8.6060500@colorfullife.com>
+Date: Thu, 09 Dec 2004 19:27:04 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Michael Kerrisk <mtk-lkml@gmx.net>, alan@redhat.com,
+       michael.kerrisk@gmx.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix missing wakeup in ipc/sem
+References: <25686.1102607983@www38.gmx.net>
+In-Reply-To: <25686.1102607983@www38.gmx.net>
+Content-Type: multipart/mixed;
+ boundary="------------000404020804010404040007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000404020804010404040007
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+Hi Andrew,
 
-> In my "real" application (a large real time simulation running on a
-> cluster) I cannot necessarily assign one batch of IRQ's higher than
-> any others (nor above / below the main RT tasks). The character of
-> my RT application is something like this:
-> [...]
+My patch that removed the spin_lock calls from the tail of
+sys_semtimedop introduced a bug:
+Before my patch was merged, every operation that altered an array called
+update_queue. That call woke up threads that were waiting until a
+semaphore value becomes 0. I've accidentially removed that call.
 
-> CPU load is pretty steady at up to 20% for any of the two CPU nodes in
-> the cluster. The upper bound for OS overhead (latency) I need is about
-> 1 msec (out of a 12.5 msec / 80 Hz frame). I do have some long CPU
-> runs / PCI shared memory traffic in the 80 Hz task at a one per second
-> rate that might take up to 10 msec of the 12.5 msec frame.
+The attached patch fixes that by modifying update_queue: the function
+now loops internally and wakes up all threads. The patch also removes
+update_queue calls from the error path of sys_semtimedop: failed
+operations do not modify the array, no need to rescan the list of
+waiting threads.
 
-so the 1 msec latency is needed by this 80 Hz task? I'd thus make this
-task prio 90 (higher than most IRQ handlers), and make the 80 Hz
-timesource's [timer IRQ? RTC? special driver?] IRQ thread prio 91. All
-other IRQ threads should be below prio 90. Whatever else this task
-triggers will be handled either by PI handling, or is started enough in
-advance (such as disk IO or network IO) to be completed by the time the
-80 Hz task needs it.
+Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
 
-> I could set the IRQ priority of the shared memory interface to be the
-> highest (since I do task scheduling based on it) but after that there
-> is also no preset assignment of priority to I/O activity.
 
-but if this is the task that needs to do its work within 1 msec when
-signalled, it should be the highest prio one nevertheless, and no IRQ
-(except the signal IRQ) must be allowed to preempt it.
 
-(The other tasks can 'feed' this master task with whatever scheduling
-pattern, as long as the 'master task' provides frames with a precise 80
-Hz frequency. Any jitter to the execution of these other threads is
-handled by buffering enough stuff in advance.)
 
-> Some form of priority inheritance may be "better" but I understand
-> that is not likely to be implemented (nor worth the effort).
+--------------000404020804010404040007
+Content-Type: text/plain;
+ name="patch-ipcsem-wakeupfix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-ipcsem-wakeupfix"
 
-the master task's priority will be inherited across most of the
-dependencies that might happen at the kernel level. [ If it doesnt then
-it should show up in traces and i'm most interested in fixing it ... ]
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 6
+//  SUBLEVEL = 10
+//  EXTRAVERSION =-rc2-mm4
+--- 2.6/include/linux/sem.h	2004-12-05 16:20:31.000000000 +0100
++++ build-2.6/include/linux/sem.h	2004-12-09 18:39:58.000000000 +0100
+@@ -109,6 +109,7 @@ struct sem_queue {
+ 	int			id;	 /* internal sem id */
+ 	struct sembuf *		sops;	 /* array of pending operations */
+ 	int			nsops;	 /* number of operations */
++	int			alter;   /* does the operation alter the array? */
+ };
+ 
+ /* Each task has a list of undo requests. They are executed automatically
+--- 2.6/ipc/sem.c	2004-12-05 16:21:39.000000000 +0100
++++ build-2.6/ipc/sem.c	2004-12-09 19:13:19.000000000 +0100
+@@ -358,8 +358,22 @@ static void update_queue (struct sem_arr
+ 		if (error <= 0) {
+ 			struct sem_queue *n;
+ 			remove_from_queue(sma,q);
+-			n = q->next;
+ 			q->status = IN_WAKEUP;
++			/*
++			 * Continue scanning. The next operation
++			 * that must be checked depends on the type of the
++			 * completed operation:
++			 * - if the operation modified the array, then
++			 *   restart from the head of the queue and
++			 *   check for threads that might be waiting
++			 *   for semaphore values to become 0.
++			 * - if the operation didn't modify the array,
++			 *   then just continue.
++			 */
++			if (q->alter)
++				n = sma->sem_pending;
++			else
++				n = q->next;
+ 			wake_up_process(q->sleeper);
+ 			/* hands-off: q will disappear immediately after
+ 			 * writing q->status.
+@@ -1119,8 +1133,11 @@ retry_undos:
+ 		goto out_unlock_free;
+ 
+ 	error = try_atomic_semop (sma, sops, nsops, un, current->tgid);
+-	if (error <= 0)
+-		goto update;
++	if (error <= 0) {
++		if (alter && error == 0)
++			update_queue (sma);
++		goto out_unlock_free;
++	}
+ 
+ 	/* We need to sleep on this operation, so we put the current
+ 	 * task into the pending queue and go to sleep.
+@@ -1132,6 +1149,7 @@ retry_undos:
+ 	queue.undo = un;
+ 	queue.pid = current->tgid;
+ 	queue.id = semid;
++	queue.alter = alter;
+ 	if (alter)
+ 		append_to_queue(sma ,&queue);
+ 	else
+@@ -1183,9 +1201,6 @@ retry_undos:
+ 	remove_from_queue(sma,&queue);
+ 	goto out_unlock_free;
+ 
+-update:
+-	if (alter)
+-		update_queue (sma);
+ out_unlock_free:
+ 	sem_unlock(sma);
+ out_free:
 
-> By setting the IRQ threads to RT FIFO 99, I also get something closer
-> to PREEMPT_DESKTOP w/o IRQ threading (or for that matter, closer to
-> the 2.4 kernel I use today). It shows more clearly the overhead of
-> adding the threads.
-
-i believe this is the wrong model for this workload.
-
-> [...] As Ingo noted in a private message
->   "IRQ-threading will always be more expensive than direct IRQs,
->    but it should be a fixed overhead not some drastic degradation."
->
-> I agree the overhead should be modest but somehow the test cases I run
-> don't show that (yet). There is certainly more work to be done to fix
-> that.
-
-have you tried it with all debugging turned off? I'd like to fix any
-performance problems related to IRQ/softirq threading. (If you mean the
-'lost pings' problem, that one looks like to be more of a priority
-inversion problem than a real performance issue.)
-
-	Ingo
+--------------000404020804010404040007--

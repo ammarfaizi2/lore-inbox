@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUHVNG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHVNLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266854AbUHVNG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 09:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266863AbUHVNG6
+	id S266867AbUHVNLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 09:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266845AbUHVNLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 09:06:58 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:35557 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266854AbUHVNGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 09:06:42 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 22 Aug 2004 15:05:39 +0200
-To: schilling@fokus.fraunhofer.de, diablod3@gmail.com
-Cc: linux-kernel@vger.kernel.org, der.eremit@email.de
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <41289A23.nail9NS1V89GZ@burner>
-References: <2ptdY-42Y-55@gated-at.bofh.it>
- <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
- <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
- <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
- <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
- <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
- <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
- <41288E10.nail9MX3BDIPM@burner>
- <d577e56904082205523d9a0b00@mail.gmail.com>
-In-Reply-To: <d577e56904082205523d9a0b00@mail.gmail.com>
-User-Agent: nail 11.2 8/15/04
+	Sun, 22 Aug 2004 09:11:33 -0400
+Received: from wasp.net.au ([203.190.192.17]:18356 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S266887AbUHVNKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 09:10:20 -0400
+Message-ID: <41289B5E.60703@wasp.net.au>
+Date: Sun, 22 Aug 2004 17:10:54 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Josan Kadett <corporate@superonline.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
+References: <S266616AbUHVJsa/20040822094830Z+232@vger.kernel.org>
+In-Reply-To: <S266616AbUHVJsa/20040822094830Z+232@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <diablod3@gmail.com> wrote:
+Josan Kadett wrote:
+> I am still persistent on the fact that NAT should work with this sense.
+> 
+> I just enable NAT with the following command
+> 
+> iptables -t nat -A POSTROUTING -o eth1 -j SNAT --to 192.168.1.5
+> 
+> This IP 192.168.1.5 is our patched linux server which is allowed to acccess
+> 192.168.1.77
+> 
 
-> On Sun, 22 Aug 2004 14:14:08 +0200, Joerg Schilling
-> <schilling@fokus.fraunhofer.de> wrote:
-> > Eveybody makes mistakes. Not being able to admid that and persisting to
-> > continue to go in a wrong direction is the real problem.
->  
-> Yes, everyone does. Yours was flaming kernel developers over the lkml
-> about bugs in your own program; yet, you do not admit to this, and
-> continue to piss everyone off.
+Ok.. Idea time..
+Can you add another linux box in there. Something like
 
-You seem to be unable to distinct between cause and effect.
+Client (192.168.0.30) ---> Box1Eth0(192.168.0.1) SNAT Box1Eth1(192.168.1.99) ---> 
+Box2Eth0(192.168.1.100) () Box2Eth1(192.168.77.99) ---> HorridBuggyBox(192.168.77.1)
 
-	Some pleople at Linux kernel ML did start to flame me while I was
-	trying to do my best to give technical based explanations.
+With Box 1 doing the NAT and Box 2 having the patch and just doing normal routing.
 
-As it has been proven that threre _are_ reasonable people in LKML, it would 
-help LKML to regain credibility if they could try to do some self cleaning
-and find a way to calm down the non-serious people.
+Have a route in Box 1 set to send 192.168.77.0/24 to the gateway at 192.168.1.100 which will know to 
+send anything destined for 192.168.77.1 out eth1.
 
+If I try it, it's going to work fine as I don't have a box that munges IP's like yours does so I 
+can't provide a full test. (I guess I could butcher another UML to do it if I really had to)
 
-You also seem to be unable to judge where bugs are located while looking at 
-problems.
+Doing this stuff is so much easier when you have the faulty device in front of you. Your not in the 
+UAE by any chance ;p)
 
-	It seems that we just agreed with the reasonable members of LKML
-	that there was and still is a security related bug in Linux.
-	The "fix" that used in hope to remove the security problems did just
-	create new problems instead of removing old ones.
-
-If you have nothing useful to say, please stay quiet.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Regards,
+Brad

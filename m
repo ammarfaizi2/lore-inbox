@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131641AbQL1Syn>; Thu, 28 Dec 2000 13:54:43 -0500
+	id <S131549AbQL1S5D>; Thu, 28 Dec 2000 13:57:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131633AbQL1Syd>; Thu, 28 Dec 2000 13:54:33 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14097 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131632AbQL1Sy1>; Thu, 28 Dec 2000 13:54:27 -0500
-Date: Thu, 28 Dec 2000 14:31:16 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: chris@freedom2surf.net
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-In-Reply-To: <978026911.3a4b819f71050@www.freedom2surf.net>
-Message-ID: <Pine.LNX.4.21.0012281426330.12364-100000@freak.distro.conectiva>
+	id <S131534AbQL1S4x>; Thu, 28 Dec 2000 13:56:53 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39176 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131611AbQL1S4c>; Thu, 28 Dec 2000 13:56:32 -0500
+Date: Thu, 28 Dec 2000 10:25:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Juan Quintela <quintela@fi.udc.es>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] not sleep while holding a locked page in block_truncate_page
+In-Reply-To: <Pine.LNX.4.21.0012281411550.12364-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10012281022560.12064-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,23 +21,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 28 Dec 2000 chris@freedom2surf.net wrote:
-
-> > > > > 
-> > > > > Do you remember if the reports you've got always oopsed the same
-> > > > > address (0040000) ? 
-> > > > 
+On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
 > 
-> Hi - Here's another Oops from the same machine. It looks to be in a totally 
-> different place in the code which probably means it's a memory problem?
+> If we call mark_buffer_dirty() on an already dirty buffer, we may sleep
+> waiting for bdflush even if we haven't caused _any_ real disk IO (because
+> the buffer was already dirty anyway).
+> 
+> I think it makes more sense if we only call balance_dirty if we actually
+> caused real disk IO.
+> 
+> Would you accept a patch to change that situation by making
+> __mark_buffer_dirty return the old dirty bit value and make
+> mark_buffer_dirty only sleep on bdflush if we dirtied a clean buffer?
 
-Not necessarily, but it may be a memory problem.
+I would actually prefer not having the balance_dirty() in
+mark_buffer_dirty() at all, and then just potentially adding an explicit
+balance_dirty to strategic places. There would probably not be that many
+of those strategic places.
 
-> I'll try installing on another box to confirm.
+As it stands, this is a bit too subtle for my taste, having people who
+sleep without really realizing it, and not necessarily really wanting to
+(not for correctness issues, but for latency issues - that superblock lock
+can be quite nasty)
 
-You can run the memtest86 tool (you can find it at
-http://reality.sgi.com/cbrady_denver/memtest86/), which is a more reliable
-way to find out if its really a memory bug.
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

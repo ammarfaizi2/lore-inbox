@@ -1,62 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbTKRRJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 12:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTKRRJt
+	id S263726AbTKRRQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 12:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbTKRRQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 12:09:49 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:56194
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261841AbTKRRJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 12:09:46 -0500
-Date: Tue, 18 Nov 2003 12:08:43 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-In-Reply-To: <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.53.0311181149310.11537@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Nov 2003 12:16:53 -0500
+Received: from mhs.swan.ac.uk ([137.44.1.33]:2487 "EHLO mhs.swan.ac.uk")
+	by vger.kernel.org with ESMTP id S263726AbTKRRQt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 12:16:49 -0500
+Date: Tue, 18 Nov 2003 17:16:35 +0000
+From: =?iso-8859-15?Q?Jos=E9?= Fonseca <jrfonseca@tungstengraphics.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] AGPGART, kernel 2.4.22 -- add support for Intel 875P
+Message-ID: <20031118171635.GA7507@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Mail-From: jrfonseca@tungstengraphics.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Nov 2003, Linus Torvalds wrote:
 
-> Ok. Much more readable.
-> 
-> And there is something very suspicious there.
-> 
-> The code with and without the printk() looks _identical_ apart from some 
-> trivial label renumbering, and the added
-> 
-> 	pushl   $.LC6
-> 	call    printk
-> 	.. asm ..
-> 	popl %esi
-> 
-> which all looks fine (esi is dead at that point, so the compiler is just
-> using a "popl" as a shorter form of "addl $4,%esp").
-> 
-> Btw, you seem to compile with debugging, which makes the assembly 
-> language pretty much unreadable and accounts for most of the 
-> differences: the line numbers change. If you compile a kernel where the 
-> line numbers don't change (by commenting _out_ the printk rather than 
-> removing the whole line), your diff would be more readable.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Aha! Thanks for mentioning that, noted.
+As far as I can understand from Dave Jone's 2.5.69-dj1 patch in
+<http://www.kernel.org/pub/linux/kernel/people/davej/patches/2.5/2.5.69/>,
+Matt Tolentino's AGPGART patch for Intel 875P patch support simply binds
+the i845 driver in the presence of the Intel 875P PCI ID. 
 
-> Anyway, there are _zero_ differences.
-> 
-> Just for fun, try this: move the "printk()" to _below_ the "asm"  
-> statement. It will never actually get executed, but if it's an issue of
-> some subtle code or data placement things (cache lines etc), maybe that
-> also hides the oops, since all the same code and data will be generated, 
-> just not run...
+The patch attached does the same thing for kernel 2.4.22. No attempt to
+verify this from the 845G/875P specifications was made, since 3D
+acceleration in my machine has been working faultlessly with it.
 
-Ok i just tried that and it still fails. Matt Mackall suggested i also try 
-writing a minimal printk which has the same effect.
+José Fonseca
+
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.22-agpgart-i875p.diff"
+
+diff -ur linux-2.4.22.orig/Documentation/Configure.help linux-2.4.22/Documentation/Configure.help
+--- linux-2.4.22.orig/Documentation/Configure.help	2003-09-13 11:48:23.000000000 +0100
++++ linux-2.4.22/Documentation/Configure.help	2003-11-11 17:57:13.000000000 +0000
+@@ -3678,10 +3678,11 @@
+   a module, say M here and read <file:Documentation/modules.txt>.  The
+   module will be called agpgart.o.
+ 
+-Intel 440LX/BX/GX/815/820/830/840/845/850/860 support
++Intel 440LX/BX/GX/815/820/830/840/845/850/860/875 support
+ CONFIG_AGP_INTEL
+   This option gives you AGP support for the GLX component of the
+-  XFree86 4.x on Intel 440LX/BX/GX, 815, 820, 830, 840, 845, 850 and 860 chipsets.
++  XFree86 4.x on Intel 440LX/BX/GX, 815, 820, 830, 840, 845, 850, 860 and 875
++  chipsets.
+ 
+   You should say Y here if you use XFree86 3.3.6 or 4.x and want to
+   use GLX or DRI.  If unsure, say N.
+diff -ur linux-2.4.22.orig/drivers/char/agp/agp.h linux-2.4.22/drivers/char/agp/agp.h
+--- linux-2.4.22.orig/drivers/char/agp/agp.h	2003-07-18 11:49:34.000000000 +0100
++++ linux-2.4.22/drivers/char/agp/agp.h	2003-11-11 17:48:57.000000000 +0000
+@@ -205,6 +205,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_865_G_1
+ #define PCI_DEVICE_ID_INTEL_865_G_1	0x2572
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_875_P_0
++#define PCI_DEVICE_ID_INTEL_875_P_0	0x2578
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_820_0
+ #define PCI_DEVICE_ID_INTEL_820_0       0x2500
+ #endif
+diff -ur linux-2.4.22.orig/drivers/char/agp/agpgart_be.c linux-2.4.22/drivers/char/agp/agpgart_be.c
+--- linux-2.4.22.orig/drivers/char/agp/agpgart_be.c	2003-09-03 11:27:04.000000000 +0100
++++ linux-2.4.22/drivers/char/agp/agpgart_be.c	2003-11-11 17:51:20.000000000 +0000
+@@ -4918,6 +4918,13 @@
+ 		"865G",
+ 		 intel_845_setup },
+ 
++	{ PCI_DEVICE_ID_INTEL_875_P_0,
++		PCI_VENDOR_ID_INTEL,
++		INTEL_I875_P,
++		"Intel(R)",
++		"875P",
++		 intel_845_setup },
++
+ 	{ PCI_DEVICE_ID_INTEL_840_0,
+ 		PCI_VENDOR_ID_INTEL,
+ 		INTEL_I840,
+diff -ur linux-2.4.22.orig/include/linux/agp_backend.h linux-2.4.22/include/linux/agp_backend.h
+--- linux-2.4.22.orig/include/linux/agp_backend.h	2003-11-11 17:59:03.000000000 +0000
++++ linux-2.4.22/include/linux/agp_backend.h	2003-11-11 17:53:01.000000000 +0000
+@@ -55,6 +55,7 @@
+ 	INTEL_I855_PM,
+ 	INTEL_I860,
+ 	INTEL_I865_G,
++	INTEL_I875_P,
+ 	VIA_GENERIC,
+ 	VIA_VP3,
+ 	VIA_MVP3,
+
+--FCuugMFkClbJLl1L--

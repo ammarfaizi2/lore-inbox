@@ -1,94 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264733AbTF2Umw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbTF2Ukj
+	id S264085AbTF2Unt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTF2UnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:40:39 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:63615 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S265109AbTF2UkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:40:14 -0400
-Date: Sun, 29 Jun 2003 16:53:37 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: File System conversion -- ideas
-In-reply-to: <3EFF4F00.9040608@sktc.net>
-To: "David D. Hagood" <wowbagger@sktc.net>, linux-kernel@vger.kernel.org
-Message-id: <200306291653370510.02519C1F@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
- <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net>
- <200306291431080580.01CF24BF@smtp.comcast.net> <3EFF4443.8080507@sktc.net>
- <200306291605400290.0225B33F@smtp.comcast.net> <3EFF4F00.9040608@sktc.net>
+	Sun, 29 Jun 2003 16:43:08 -0400
+Received: from gate.firmix.at ([80.109.18.208]:12705 "EHLO buffy.firmix.at")
+	by vger.kernel.org with ESMTP id S265719AbTF2Uki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:40:38 -0400
+Subject: Re: Dell vs. GPL
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030629195003.GF26258@mail.jlokier.co.uk>
+References: <200306291624.47221.gallir@uib.es> 
+	<20030629195003.GF26258@mail.jlokier.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 29 Jun 2003 22:54:53 +0200
+Message-Id: <1056920095.1012.9.camel@gimli.at.home>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-06-29 at 21:50, Jamie Lokier wrote:
+> I recall there is a special exception for computer programs in either
+> UK or EU law - I forget which, perhaps both.  This exception means
 
+Probably only UK (if any).
 
-*********** REPLY SEPARATOR  ***********
+> that if I compose some music for a publisher, I cannot give up moral
+> rights to the work - which means I always have a right to be credited
+> as author or something like that, and nobody can take that away.
+> However, if I compose a computer program for a publisher, my moral
+> right to be credited _is_ taken away.
 
-On 6/29/2003 at 3:41 PM David D. Hagood wrote:
+At least in Austria (and Germany, which has quite similar law in this
+part) this is called "Urheberrecht" (one cannot translate it since it is
+fundamentally different from what other call copyright) 
+And no, there is no way of getting rid of the "Urheberrecht" -
+independent of if you want or not. All you can do is cease the right of
+use your works _but not more_.
+Ans this applies to allwritten or otherwise created works, be it natural
+languages or artificial ones.
+Actually that's the most problematic part of "porting the GPL to the
+rest of the world".
 
->rmoser wrote:
->
->> Except for a crash at the precise moment that data is being written
->during
->> a resize of a partition in LVM or the filesystem iteself.  To my
->knowledge,
->> said operation is not journaled.
->
->And the window of vulnerability for my method is very small - for yours
->it is very large (the whole duration of the conversion operation.)
->
+> This _only_ applies to computer programmers.  Bah!
 
-Wrong.  Go read it. Citing the original post:
+No, there is no difference - in that field - between computer programs
+written in C (or perl or whatever) and poems written in German (or
+Esperanto or whatever).
 
-[QUOTE]
-1) Create a method for storing meta-data for each file/directory on a filesystem
-which is being slowly destroyed. [...]  It is
-preferable to make this datasystem fault tolerant, so that if it goes down, the
-conversion can be continued without damage. [...]
-  - Object oriented:  Store meta-data that may not be recognized by the new
-    filesystem
-  - Journalized:  Don't break!
-[...]
-  - Store data that is needed to resume the conversion at any time: There may be
-    a collossal system crash during conversion!
-  - Differentiate between each filesystem structure and the datasystem used during
-    conversion:  Must be able to disassemble one filesystem and reassemble it to
-    another WITHOUT getting lost!
-[ENDQUOTE]
-
-Everything that happens everywhere should be roll-back journalized, so that if anything
-happens, we don't finish what we did but instead go back to the immediate prior
-consistent state that will allow us to continue on with our work.  There is only one
-vulnerability point:  the final swapping out of the datasystem's superblock for the new
-filesystem's superblock at the very end.  There's a way to fix this too.  Display to the
-user where exactly the journal is.  Then stop.  He writes this number down.  Then, you
-journal the change, as in roll-forward journaling, so it will complete if it crashes.  If
-for some reason the machine drops--kernel panic, power outage, cat finds the reset
-button--you run the conversion against the system and request to replay journal at
-the offset it gave you.  The journal in this special case is sitting in a chunk of free
-space in the filesystem somewhere, and houses only this one transaction.  This means
-that once this transaction finishes, the journal is just some random data written
-to that area in the middle of free space on the filesystem.  It's unimportant, and doesn't
-have to be removed because there are no references to it.
-
->Sorry, but I've seen too many folks like you in the past on lists like
->this. You write in with a poorly considered idea, and when people try to
->show you why it won't work you plug your ears and say
->"Nyah-Nyah-Nyah-I'm-not-listening".
->
->As I said before: if you think this is so easy to do, DO IT. SHOW US THE
->CODE.
->
-
-I wish.
-
->Until you do, I consider this "discussion" at an end.
-
---Bluefox Icy
+	Bernd
 

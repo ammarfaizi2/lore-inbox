@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317473AbSG2PDQ>; Mon, 29 Jul 2002 11:03:16 -0400
+	id <S317470AbSG2PMy>; Mon, 29 Jul 2002 11:12:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317482AbSG2PDQ>; Mon, 29 Jul 2002 11:03:16 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:33411 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S317473AbSG2PDP>;
-	Mon, 29 Jul 2002 11:03:15 -0400
-Date: Mon, 29 Jul 2002 17:06:34 +0200
+	id <S317472AbSG2PMy>; Mon, 29 Jul 2002 11:12:54 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:50871 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S317470AbSG2PMx>;
+	Mon, 29 Jul 2002 11:12:53 -0400
+Date: Mon, 29 Jul 2002 17:16:21 +0200
 From: Axel Siebenwirth <axel@hh59.org>
 To: JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel@vger.kernel.org, Dave Kleikamp <shaggy@austin.ibm.com>
-Subject: 2.5.27: JFS oops
-Message-ID: <20020729150634.GA661@prester.freenet.de>
+       linux-kernel@vger.kernel.org
+Subject: 2.5.29: Oops at boot after mount of root fs (JFS)
+Message-ID: <20020729151621.GB661@prester.freenet.de>
 Mail-Followup-To: JFS-Discussion <jfs-discussion@www-124.ibm.com>,
-	linux-kernel@vger.kernel.org, Dave Kleikamp <shaggy@austin.ibm.com>
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,81 +22,81 @@ User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+Hi,
 
-here goes another jfsCommit oops from kernel 2.5.27.
+I get an oops during boot of 2.5.29. Since I have problems with JFS I
+guessed it might be related to JFS. It happens right after rw mount of my
+jfs root filesystem. At another attempt to boot not the rm process oops but 
+mount itself oopsed.
 
-Distribution: Slackware 8.1
-Kernel      : 2.5.27
-JFS utils   : 1.0.20
+Checking root file system:
+fsck 1.27 (18-Mar-2002)
+fsck.jfs version 1.0.20, 21-Jun-2002
+The current device is : /dev/hda3
+Block size in bytes: 4096
+File system size in blocks: 1492036
+Phase 0 - Replay Journal Log
+File System is clean.
+Remounting root device with read-write enabled.
+/dev/hda3 on / type jfs (rw)
 
-Filesystems were created with jfs-utils 1.0.18 / kernel 2.4.18 by slackware
-installation.
+Then I get this oops:
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ksymoops 2.4.6 on i686 2.4.19-rc3-ac3.  Options used
+     -V (default)
+     -K (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.29/ (specified)
+     -m /boot/System.map-2.5.29 (specified)
+
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Unable to handle kernel NULL pointer dereference at virtual address 0000005c
+ c014f3c9
 *pde = 00000000
 Oops: 0002
 CPU:    0
-EIP:    0010:[<c0184da8>]       Not tainted
+EIP:    0010:[<c014f3c9>]       Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000 ebx: c880a08c ecx: c7ea0800 edx: c7d5f668
-esi: c7cee000 edi: 00000000 ebp: c880a080 esp: c7cee000
-ds: 0018   es: 0018   ss: 0018
-Stack: c7c7b86c 00000030 00001000 00000000 00000000 c7cee000 c7d5f65c
-c7cee000
-       c7cee000 00000000 c01924bb c7d5f65c c7d62b98 00000000 00038da8
-00c2a128
-       c7ea0800 c7d5f65c c6008000 00000030 00000000 00000001 00000000
-00000030
-Call Trace: [<c01924bb>] [<c019875f>] [<c0197fc0>] [<c01161e4>] [c0198c15>]
-[<c0198ec4>] [<c0116350>] [<c0116350>] [<c0105000>] [<c0105000>]
-[<c01057de>]
-        [<c0198d10>]
-Code: 89 50 04 8b 4c 24 44 89 5a 04 89 41 0c 8b 45 30 89 55 0c 89
+EFLAGS: 00010246
+eax: 00000000 ebx: 00000000 ecx: 0000005c edx: 00000044
+esi: cb926960 edi: cbb14eac ebp: cb926960 esp: cb8c9f60
+ds: 0018  es: 0018  ss: 0018
+Stack: cbb14eac cb926960 cbbd0000 cb926960 cb8c9f80 c014f627 cbb14eac
+cb926960
+       cbb1218c c11ed368 cbbd0005 00000004 01afef23 00000010 00000000
+00000000
+       00000000 3d451c26 00001000 00000008 cb8c8000 bfffff41 00000000
+bffffc8c
+Call Trace: [<c014f627>] [<c010765f>]
+Code: ff 405c 0f 8e d4 16 00 00 85 db 74 04 89 d8 eb be 89 34 24
 
 
->>EIP; c0184da8 <dbUpdatePMap+458/540>   <=====
+>>EIP; c014f3c9 <vfs_unlink+79/1c0>   <=====
 
->>ebx; c880a08c <_end+84d9ca8/85e5c1c>
->>ecx; c7ea0800 <_end+7b7041c/85e5c1c>
->>edx; c7d5f668 <_end+7a2f284/85e5c1c>
->>esi; c7cee000 <_end+79bdc1c/85e5c1c>
->>ebp; c880a080 <_end+84d9c9c/85e5c1c>
->>esp; c7cee000 <_end+79bdc1c/85e5c1c>
+Trace; c014f627 <sys_unlink+117/120>
+Trace; c010765f <syscall_call+7/b>
 
-Trace; c01924bb <release_metapage+19b/270>
-Trace; c019875f <txFreeMap+2ef/490>
-Trace; c0197fc0 <txUpdateMap+100/370>
-Trace; c01161e4 <schedule+1d4/300>
-Trace; c0198ec4 <jfs_lazycommit+1b4/300>
-Trace; c0116350 <default_wake_function+0/40>
-Trace; c0116350 <default_wake_function+0/40>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105000 <_stext+0/0>
-Trace; c01057de <kernel_thread+2e/40>
-Trace; c0198d10 <jfs_lazycommit+0/300>
-
-Code;  c0184da8 <dbUpdatePMap+458/540>
+Code;  c014f3c9 <vfs_unlink+79/1c0>
 00000000 <_EIP>:
-Code;  c0184da8 <dbUpdatePMap+458/540>   <=====
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
-Code;  c0184dab <dbUpdatePMap+45b/540>
-   3:   8b 4c 24 44               mov    0x44(%esp,1),%ecx
-Code;  c0184daf <dbUpdatePMap+45f/540>
-   7:   89 5a 04                  mov    %ebx,0x4(%edx)
-Code;  c0184db2 <dbUpdatePMap+462/540>
-   a:   89 41 0c                  mov    %eax,0xc(%ecx)
-Code;  c0184db5 <dbUpdatePMap+465/540>
-   d:   8b 45 30                  mov    0x30(%ebp),%eax
-Code;  c0184db8 <dbUpdatePMap+468/540>
-  10:   89 55 0c                  mov    %edx,0xc(%ebp)
-Code;  c0184dbb <dbUpdatePMap+46b/540>
-  13:   89 00                     mov    %eax,(%eax)
+Code;  c014f3c9 <vfs_unlink+79/1c0>   <=====
+   0:   ff 5c 40 0f               lcall  *0xf(%eax,%eax,2)   <=====
+Code;  c014f3cd <vfs_unlink+7d/1c0>
+   4:   8e d4                     mov    %esp,%ss
+Code;  c014f3cf <vfs_unlink+7f/1c0>
+   6:   16                        push   %ss
+Code;  c014f3d0 <vfs_unlink+80/1c0>
+   7:   00 00                     add    %al,(%eax)
+Code;  c014f3d2 <vfs_unlink+82/1c0>
+   9:   85 db                     test   %ebx,%ebx
+Code;  c014f3d4 <vfs_unlink+84/1c0>
+   b:   74 04                     je     11 <_EIP+0x11> c014f3da
+<vfs_unlink+8a/1c0>
+Code;  c014f3d6 <vfs_unlink+86/1c0>
+   d:   89 d8                     mov    %ebx,%eax
+Code;  c014f3d8 <vfs_unlink+88/1c0>
+   f:   eb be                     jmp    ffffffcf <_EIP+0xffffffcf> c014f398
+<vfs_unlink+48/1c0>
+Code;  c014f3da <vfs_unlink+8a/1c0>
+  11:   89 34 24                  mov    %esi,(%esp,1)
 
-
-Can I use jfs from cvs with current kernels (2.5.29/2.4.19-rc3-ac3) 
-to see how latest changes work?
-
-Best regards,
-Axel Siebenwirth

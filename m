@@ -1,62 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUKNVOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbUKNVV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUKNVOx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 16:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUKNVOx
+	id S261336AbUKNVV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 16:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbUKNVV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 16:14:53 -0500
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:5385 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S261324AbUKNVOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 16:14:51 -0500
-Message-ID: <4196D2F8.3020203@gentoo.org>
-Date: Sun, 14 Nov 2004 03:37:28 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bcollins@debian.org
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] raw1394: __copy_from_user check
-Content-Type: multipart/mixed;
- boundary="------------050005010105030202050603"
-X-Spam-Score: -5.8 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CT9ti-0009bX-BB*unto/nPAjJk*
+	Sun, 14 Nov 2004 16:21:26 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:17630 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261336AbUKNVVQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 16:21:16 -0500
+Subject: [BK PATCH] SCSI -rc1 fixes
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 14 Nov 2004 15:20:59 -0600
+Message-Id: <1100467267.23710.7.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050005010105030202050603
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+This is my first set of -rc fixes for SCSI.  The patch is available at
 
-Add a check for the return value of __copy_to_user
-Depends on the previous whitespace fix patch.
+bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+The short changelog is:
 
---------------050005010105030202050603
-Content-Type: text/plain;
- name="raw1394-02-check-copy-from-user.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="raw1394-02-check-copy-from-user.patch"
+Adam J. Richter:
+  o dmx3191d.c lacked MODULE_DEVICE_TABLE()
 
---- linux/drivers/ieee1394/raw1394.c.orig	2004-11-14 03:02:30.000000000 +0000
-+++ linux/drivers/ieee1394/raw1394.c	2004-11-14 03:12:12.928827600 +0000
-@@ -447,9 +447,12 @@ static ssize_t raw1394_read(struct file 
- 			req->req.error = RAW1394_ERROR_MEMFAULT;
- 		}
- 	}
--	__copy_to_user(buffer, &req->req, sizeof(req->req));
- 
- 	free_pending_request(req);
-+
-+	if (__copy_to_user(buffer, &req->req, sizeof(req->req)))
-+		return -EFAULT;
-+
- 	return sizeof(struct raw1394_request);
- }
- 
+Alan Stern:
+  o SCSI core: Fix refcounting error
 
---------------050005010105030202050603--
+Andrew Vasquez:
+  o SCSI: fix `risc_code_addr01' multiple definition
+
+James Bottomley:
+  o make osst compile again after st structure changes
+
+Jan Dittmer:
+  o aic7xxx remove warnings
+
+Jens Axboe:
+  o fix SCSI bounce limit
+
+Kai Mäkisara:
+  o SCSI tape: remove remaining typedefs
+
+Matthew Wilcox:
+  o sym2 2.1.18m
+
+Maximilian Attems:
+  o scsi/scsi_lib: replace  schedule_timeout() with
+  o scsi/53c700: replace    schedule_timeout() with
+
+Randy Dunlap:
+  o qla1280: driver_setup not __initdata
+
+Sergey S. Kostyliov:
+  o Add megaraid PCI IDs
+
+
+And the diffstat
+
+ Documentation/scsi/sym53c8xx_2.txt    |  360 +++++++++++-------------------
+ drivers/scsi/53c700.c                 |    2 
+ drivers/scsi/aic7xxx/aic7xxx_osm.c    |    4 
+ drivers/scsi/dmx3191d.c               |    1 
+ drivers/scsi/megaraid/megaraid_mbox.c |    6 
+ drivers/scsi/osst.c                   |   55 ++--
+ drivers/scsi/osst.h                   |    4 
+ drivers/scsi/qla1280.c                |    2 
+ drivers/scsi/qlogicfc_asm.c           |   10 
+ drivers/scsi/scsi_lib.c               |   18 -
+ drivers/scsi/scsi_scan.c              |    3 
+ drivers/scsi/scsi_sysfs.c             |    2 
+ drivers/scsi/st.c                     |  221 +++++++++---------
+ drivers/scsi/st.h                     |   20 -
+ drivers/scsi/sym53c8xx_2/sym53c8xx.h  |   47 ----
+ drivers/scsi/sym53c8xx_2/sym_defs.h   |  100 ++++----
+ drivers/scsi/sym53c8xx_2/sym_glue.c   |  396 +++++++++++++---------------------
+ drivers/scsi/sym53c8xx_2/sym_glue.h   |    3 
+ drivers/scsi/sym53c8xx_2/sym_hipd.c   |  100 +++-----
+ drivers/scsi/sym53c8xx_2/sym_misc.c   |    4 
+ 20 files changed, 569 insertions(+), 789 deletions(-)
+
+James
+
+

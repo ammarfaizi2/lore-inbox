@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUGQUAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUGQUHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUGQUAX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 16:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGQUAX
+	id S261474AbUGQUHO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 16:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUGQUHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 16:00:23 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:55240 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261234AbUGQUAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 16:00:19 -0400
-Message-ID: <40F9854D.2000408@comcast.net>
-Date: Sat, 17 Jul 2004 16:00:13 -0400
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040708)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: audio cd writing causes massive swap and crash
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jul 2004 16:07:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12534 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261474AbUGQUHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 16:07:12 -0400
+Date: Sat, 17 Jul 2004 22:07:04 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl>, cltien@cmedia.com.tw,
+       linux-kernel@vger.kernel.org
+Subject: [2.4 patch] cmpci oops on rmmod + fix
+Message-ID: <20040717200704.GD14733@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both with 2.6.7-rc3 and 2.6.8-rc1-mm1 I get the same behavior when 
-writing an audio cd on my plextor px-712a.  DMA is enabled and normal 
-data cds write as expected, but audio cds will cause (at any speed) the 
-box to start using insane amounts of swap (>150MB) and eventually cause 
-the box to crash before finishing the cd.  CPU usage during the write is 
-very low, but the feeling of lagginess begins after the first few tracks 
-(and as the memory begins to be sucked away).   I've used both cdrecord 
-from cdrtools in debian and from the site and both have the same 
-behavior.  I dont know how i'd go about finding out what the problem is, 
-so far I've coastered over 10 cds trying different ways of burning an 
-audio cd but it appears that burnfree, speed have nothing to do with the 
-problem. 
+Below is a patch originally sent against 2.6 by
+Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl> (and already included 
+in 2.6.8-rc1).
 
-Here's some drive info if it helps. 
+His explanation of the patch was:
 
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.8'.
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 1
-Vendor_info    : 'PLEXTOR '
-Identifikation : 'DVDR   PX-712A  '
-Revision       : '1.01'
-Device seems to be: Generic mmc2 DVD-R/DVD-RW.
-cdrecord: This version of cdrecord does not include DVD-R/DVD-RW support 
-code.
-cdrecord: See /usr/share/doc/cdrecord/README.DVD.Debian for details on 
-DVD support.
-Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
-Driver flags   : MMC-3 SWABAUDIO BURNFREE VARIREC FORCESPEED SPEEDREAD 
-SINGLESESSION HIDECDR
-Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
+<--  snip  -->
+
+The cmpci driver included in Linux 2.6.7 causes an oops on rmmod,
+I believe cm_remove should be marked __devexit rather than __devinit.
+
+<--  snip  -->
 
 
-now in cdrecord i use the option -swab not sure if that counters the 
-driver flags or what, either way I doubt it would be causing this problem. 
+This is an obvious bug, and below is my backport of his fix to 2.4 .
+While I was editing struct cm_driver, I've also converted it to C99 
+initializers (as already done in 2.6).
 
-the drive by the way is mmc4 compliant, so it's weird that it says mmc2.
-any more info that's needed just tell me.
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.4.27-rc3-full/drivers/sound/cmpci.c.old	2004-07-17 21:56:28.000000000 +0200
++++ linux-2.4.27-rc3-full/drivers/sound/cmpci.c	2004-07-17 21:57:22.000000000 +0200
+@@ -3595,7 +3595,7 @@
+ MODULE_DESCRIPTION("CM8x38 Audio Driver");
+ MODULE_LICENSE("GPL");
+ 
+-static void __devinit cm_remove(struct pci_dev *dev)
++static void __devexit cm_remove(struct pci_dev *dev)
+ {
+ 	struct cm_state *s = pci_get_drvdata(dev);
+ 
+@@ -3643,10 +3643,10 @@
+ MODULE_DEVICE_TABLE(pci, id_table);
+ 
+ static struct pci_driver cm_driver = {
+-       name: "cmpci",
+-       id_table: id_table,
+-       probe: cm_probe,
+-       remove: cm_remove
++	.name		= "cmpci",
++	.id_table	= id_table,
++	.probe		= cm_probe,
++	.remove		= __devexit_p(cm_remove)
+ };
+  
+ static int __init init_cmpci(void)
 

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282757AbRLBFve>; Sun, 2 Dec 2001 00:51:34 -0500
+	id <S282769AbRLBGDt>; Sun, 2 Dec 2001 01:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282764AbRLBFvO>; Sun, 2 Dec 2001 00:51:14 -0500
-Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:41040 "EHLO
-	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id <S282757AbRLBFvE>; Sun, 2 Dec 2001 00:51:04 -0500
-Date: Sun, 2 Dec 2001 06:51:15 +0100
-From: Sven.Riedel@tu-clausthal.de
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
-Message-ID: <20011202065115.A10283@moog.heim1.tu-clausthal.de>
-In-Reply-To: <20011201115803.B10839@viasys.com> <20011201113400.A629@moog.heim1.tu-clausthal.de> <20011201123933.A46995@niksula.cs.hut.fi>
-Mime-Version: 1.0
+	id <S282768AbRLBGDh>; Sun, 2 Dec 2001 01:03:37 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:43142 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282769AbRLBGDY>;
+	Sun, 2 Dec 2001 01:03:24 -0500
+Message-ID: <3C09C414.5D9C9CAE@pobox.com>
+Date: Sat, 01 Dec 2001 22:03:00 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Charles-Edouard Ruault <ce@ruault.com>
+CC: stephane@tuxfinder.org, Jeff Merkey <jmerkey@timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: File system Corruption with 2.4.16
+In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com> <001e01c17acb$a44b69c0$f5976dcf@nwfs> <20011202023145.A1628@emeraude.kwisatz.net> <3C09B3FA.61777E84@ruault.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011201123933.A46995@niksula.cs.hut.fi>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 01, 2001 at 12:39:33PM +0200, Ville Herva wrote:
-> Of course the drive is longer attached to HPT370 and your friend is propably
-> reluctant to reattach it, but it would still be nice to know if he gets
-> consistent results which for example this simple test:
+Charles-Edouard Ruault wrote:
 
-Well, I asked him, but he doesn't want to rip his fileserver apart
-again. Sorry.
+> The symlink problem you're reporting is exactly what i've been experiencing among
+> other things ...
+> on both systems i had multiple ext2 partitions and one reseirfs partition.
+> The problem showed up after a few days of uptime. Both machines where not heaviliy
+> loaded and had no memory shortage.
+> It looks like it also happened on my third system, which had only 2 ext2 partitions
+> . I was able to clean up this one with fsck and rebooted safely to 2.4.14 ....
+> Given the fact that i'm not the only one to see the problem with 2.4.16 i'll safely
+> backtrack all my machines to 2.4.14 ...
+> If i can be of any help to pinpoint the problem please let me know. But since i'm
+> not a kernel hacker i don't think i'll be pluging into the sources myself on my own
 
-Regs,
-Sven
--- 
-Sven Riedel                      sr@gimp.org
-Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
-38678 Clausthal                  "Call me bored, but don't call me boring."
-                                 - Larry Wall 
+Interesting - maybe I'm just lucky, but my
+systems have never been more stable than
+they are now under 2.4.16 -
+
+The plot thickens!
+
+jjs
+

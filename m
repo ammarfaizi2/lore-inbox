@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288595AbSAVQXD>; Tue, 22 Jan 2002 11:23:03 -0500
+	id <S288767AbSAVQkg>; Tue, 22 Jan 2002 11:40:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288767AbSAVQWx>; Tue, 22 Jan 2002 11:22:53 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:28356 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S288595AbSAVQWf>;
-	Tue, 22 Jan 2002 11:22:35 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AB8@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: patch to the maintainers file for arpd support
-Date: Tue, 22 Jan 2002 08:22:25 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S288814AbSAVQk0>; Tue, 22 Jan 2002 11:40:26 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:7947 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S288767AbSAVQkV>;
+	Tue, 22 Jan 2002 11:40:21 -0500
+Date: Tue, 22 Jan 2002 17:40:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.2-dj4
+Message-ID: <20020122174017.A14033@suse.cz>
+In-Reply-To: <20020122141609.A3379@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020122141609.A3379@suse.de>; from davej@suse.de on Tue, Jan 22, 2002 at 02:16:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Naur MAINTAINERS MAINTAINERS.orig
---- MAINTAINERS Tue Jan 22 11:17:37 2002
-+++ MAINTAINERS.orig    Mon Oct 22 11:37:17 2001
-@@ -204,8 +204,8 @@
- S:     Maintained
+On Tue, Jan 22, 2002 at 02:16:09PM +0000, Dave Jones wrote:
 
- ARPD SUPPORT
--P:     Jonathan Layes
--M:     layes@loran.com
-+P:     Dana Lacoste
-+M:     dana.lacoste@peregrine.com
-+W:     http://home.loran.com/~dlacoste/
- L:     linux-net@vger.kernel.org
- S:     Maintained
+> This syncs up to pre2 (pre3 next time), and includes Vojtech's (and others)
+> input layer reworking to get it some more testing before it goes Linuswards.
+> Anyone with any input device (yes, even just a keyboard)
+> now has to enable this, and the relevant keyboard driver.
+
+To extend this a little further, for a normal PS/2 keyboard and mouse
+setup you need to enable the following options (or load the appropriate
+modules):
+
+Input device support  --->
+	Input core support			(input.o)	
+	  Keyboard interface			(keybdev.o)
+	  Mouse interface			(mousedev.o)
+	Serial i/o support			(serio.o)
+	  i8042 PC Keyboard controller		(i8042.o)
+	Keyboards
+	  AT keyboard support			(atkbd.o)
+	Mice
+	  PS/2 mouse				(psmouse.o)
+
+Note that you also have to change XF86Config and GPM to use /dev/input/mice
+instead of /dev/psaux.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

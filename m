@@ -1,54 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264869AbUEMVDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264832AbUEMVDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264869AbUEMVDO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 17:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUEMVDO
+	id S264832AbUEMVDG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 17:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUEMVDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 17:03:14 -0400
-Received: from ida.rowland.org ([192.131.102.52]:11524 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264869AbUEMVDK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 17:03:10 -0400
-Date: Thu, 13 May 2004 17:03:09 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Duncan Sands <baldrick@free.fr>
-cc: Greg KH <greg@kroah.com>, Nuno Ferreira <nuno.ferreira@graycell.biz>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sf.net>
-Subject: Re: PATCH: (as279) Don't delete interfaces until all are unbound
-In-Reply-To: <200405132150.21710.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.44L0.0405131656470.651-100000@ida.rowland.org>
+	Thu, 13 May 2004 17:03:06 -0400
+Received: from web80512.mail.yahoo.com ([66.218.79.82]:45948 "HELO
+	web80512.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264832AbUEMVDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 17:03:05 -0400
+Message-ID: <20040513210304.16628.qmail@web80512.mail.yahoo.com>
+Date: Thu, 13 May 2004 14:03:04 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: 2.6.6-mm2 and losing keyboard
+To: linux-kernel@vger.kernel.org
+Cc: vojtech@suse.cz, akpm@osld.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 May 2004, Duncan Sands wrote:
+Hi,
 
-> Hi Alan,
-> 
-> > +		/* Now that the interfaces are unbound, nobody should
-> > +		 * try to access them.
-> > +		 */
-> 
-> how is usbfs going to claim interfaces after this?
+I goofed up splitting i8042 IRQ handling into IRQ+tasklet, -mm2 needs the
+following changeset to be reverted for now:
 
-After this there _are_ no interfaces!  They've all been destroyed by
-usb_disable_device(), called as part of usb_set_configuration() or
-usb_disconnect().  Of course, usb_set_configuration() will go ahead and
-create a new set of interfaces that usbfs can then bind.
+http://dtor.bkbits.net:8080/input/user=dtor_core/cset@409f23a7y-Ir-8MvxQWOnfGOq5XPYw?nav=!-|index.html|stats|!+|index.html|ChangeSet@-4d
 
-> > + * Don't call this function unless you are bound to one of the interfaces
-> > + * on this device or you own the dev->serialize semaphore!
-> 
-> Owning dev->serialize won't stop an Oops if the interfaces are all NULL...
+I will try to come up with the proper fix later tonight.
 
-If you own dev->serialize then usb_disable_device() can't be running
-concurrently, since it requires its caller to own that semaphore (although
-that may not be stated explicitly).  Hence either the interfaces won't be
-NULL or else dev->actconfig will be NULL, and in either case
-usb_ifnum_to_if() will work okay.
-
-Alan Stern
-
+Dmitry

@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUJKQZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269063AbUJKQZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269164AbUJKQZK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUJKPuY
+	id S269063AbUJKQZN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbUJKQXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:50:24 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:43653 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S269065AbUJKPrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:47:47 -0400
-Date: Mon, 11 Oct 2004 18:47:45 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc4-mm1
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com>
-References: <20041011032502.299dc88d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Oct 2004 12:23:42 -0400
+Received: from us1.server44secre01.de ([80.190.243.163]:52167 "EHLO
+	us1.server44secre01.de") by vger.kernel.org with ESMTP
+	id S269097AbUJKQWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 12:22:23 -0400
+Date: Mon, 11 Oct 2004 18:21:53 +0200
+To: Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: video_usercopy() enforces change of VideoText IOCTLs since 2.6.8
+Message-ID: <20041011162153.GA9101@t-online.de>
+References: <20041007165410.GA2306@t-online.de> <20041008105219.GA24842@bytesex> <20041008140056.72b177d9.akpm@osdl.org> <20041009092801.GC3482@bytesex> <20041009112839.GA2908@t-online.de> <20041009121845.GE3482@bytesex> <20041010085541.GA1642@t-online.de> <20041011151455.GC23632@bytesex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041011151455.GC23632@bytesex>
+User-Agent: Mutt/1.3.28i
+From: linux@MichaelGeng.de (Michael Geng)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004, Andrew Morton wrote:
+On Mon, Oct 11, 2004 at 05:14:55PM +0200, Gerd Knorr wrote:
+> > +#define VTXIOCGETINFO	_IOR  (0x81,  1, vtx_info_t)
+> > +#define VTXIOCCLRPAGE	_IOW  (0x81,  2, vtx_pagereq_t)
+> > +#define VTXIOCCLRFOUND	_IOW  (0x81,  3, vtx_pagereq_t)
+> > +#define VTXIOCPAGEREQ	_IOW  (0x81,  4, vtx_pagereq_t)
+> > +#define VTXIOCGETSTAT	_IOW  (0x81,  5, vtx_pagereq_t)
+> > +#define VTXIOCGETPAGE	_IOW  (0x81,  6, vtx_pagereq_t)
+> > +#define VTXIOCSTOPDAU	_IOW  (0x81,  7, vtx_pagereq_t)
+> 
+> Hmm, _IOW for VTXIOCGET* looks bogous, is that really correct?
 
-> - I wasn't going to do any -mm's until after 2.6.9 comes out.  But we need
->   this one so that people who have patches in -mm can check that I haven't
->   failed to push anything critical.  If there's a patch in here which you
->   think should be in 2.6.9, please let me know.
+This is the definition of the argument to the VTXIOCGET* IOCTLs:
 
-How about the following?
+typedef struct 
+{
+	int page;	/* number of requested page (hexadecimal) */
+	int hour;	/* requested hour (hexadecimal) */
+	int minute;	/* requested minute (hexadecimal) */
+	int pagemask;	/* mask defining which values of the above are set */
+	int pgbuf;	/* buffer where page will be stored */
+	int start;	/* start of requested part of page */
+	int end;	/* end of requested part of page */
+	void __user *buffer;	/* pointer to beginning of destination buffer */
+}
+vtx_pagereq_t;
 
-remove-lock_section-from-x86_64-spin_lock-asm.patch
-  remove LOCK_SECTION from x86_64 spin_lock asm
+The driver returns all data in the buffer field. Copying there is done by a seperate call to
+copy_to_user(). All other fields are never changed by the driver. So the _IOW definition is ok.
 
-allow-x86_64-to-reenable-interrupts-on-contention.patch
-  Allow x86_64 to reenable interrupts on contention
+> Note that you often need RW for read/get ioctls because even these
+> often pass data to the driver as well (for example the vtx page number
+> you want query the status for).  Please double-check that.  Otherwise
+> the patch looks ok to me.
 
-The former is a fix.
+Thank you! Andrew, could you please forward the patch? 
+Suggestion for a comment line:
+Videotext: IOCTLs changed to match _IO macros in linux/ioctl.h
 
-Thanks,
-	Zwane
+Michael

@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313260AbSD3LzM>; Tue, 30 Apr 2002 07:55:12 -0400
+	id <S313264AbSD3MKl>; Tue, 30 Apr 2002 08:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313264AbSD3LzL>; Tue, 30 Apr 2002 07:55:11 -0400
-Received: from web10404.mail.yahoo.com ([216.136.130.96]:12548 "HELO
-	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313260AbSD3LzL>; Tue, 30 Apr 2002 07:55:11 -0400
-Message-ID: <20020430115510.26880.qmail@web10404.mail.yahoo.com>
-Date: Tue, 30 Apr 2002 04:55:10 -0700 (PDT)
-From: "D.J. Barrow" <barrow_dj@yahoo.com>
-Subject: SMP race condition on startup with patch
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313265AbSD3MKk>; Tue, 30 Apr 2002 08:10:40 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:9995 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S313264AbSD3MKj>;
+	Tue, 30 Apr 2002 08:10:39 -0400
+Subject: Re: What compiler to use
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200204302043.24504.wom@tateyama.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 30 Apr 2002 14:10:35 +0200
+Message-Id: <1020168635.419.11.camel@ADMIN>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, 2002-04-30 at 13:43, Gabor Kerenyi wrote:
+> On Tuesday 30 April 2002 20:33, Frank Schaefer wrote:
+> > I plan to build a linux box for kernel development (only). Which
+> > compiler would you suggest me to use?
+> > As of today I'm using gcc-2.95.3 on all my production machines. Is this
+> > still the preferred compiler for kernel work, or should I change to
+> > 3.0.x?
+> 
+> I use 2.95.2 for the test machine and gcc-3.1 from cvs on the other. There's 
+> no problem.
+> gcc-3.1 gives a bit more warning. (I use 3.1 at home also)
+> but don't try to use gcc 3.2 because the kernel won't compile in some cases.
+> 
+> Gabor
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Thanks
+Frank
 
-I found a smp race condition on startup
-of the 2.4.18 kernel when I put a printk
-in schedule.
-
-
-See the comment below in 
-/init/main.c
-/*
- * We need to finalize in a non-__init function or
-else race conditions
- * between the root thread and the init thread may
-cause start_kernel to
- * be reaped by free_initmem before the root thread
-has proceeded to
- * cpu_idle.
- */
-static void rest_init(void)
-
-Note that init_idle the first thing  called from
-cpu_idle.
-& it is freed from 
-free_initmem in the init function in main.c
-which may be called before the cpu
-gets into cpu_idle.
-
-
-Here is the patch.
-
---- linux.orig/kernel/sched.c   Fri Dec 21 17:42:04
-2001
-+++ linux/kernel/sched.c        Tue Apr 30 12:22:02
-2002
-@@ -1299,7 +1299,7 @@
-
- extern unsigned long wait_init_idle;
-
--void __init init_idle(void)
-+void init_idle(void)
- {
-        struct schedule_data * sched_data;
-        sched_data =
-&aligned_data[smp_processor_id()].schedule_data;
-
-
-=====
-D.J. Barrow Linux kernel developer
-eMail: dj_barrow@ariasoft.ie 
-Home: +353-22-47196.
-Work: +353-91-758353
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - your guide to health and wellness
-http://health.yahoo.com

@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbSI2Ciu>; Sat, 28 Sep 2002 22:38:50 -0400
+	id <S262373AbSI2CiI>; Sat, 28 Sep 2002 22:38:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262375AbSI2Ciu>; Sat, 28 Sep 2002 22:38:50 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:20392 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S262374AbSI2Cit>;
-	Sat, 28 Sep 2002 22:38:49 -0400
-Message-ID: <3D9668F8.9090007@candelatech.com>
-Date: Sat, 28 Sep 2002 19:44:08 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S262374AbSI2CiI>; Sat, 28 Sep 2002 22:38:08 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:2764 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S262373AbSI2CiH>;
+	Sat, 28 Sep 2002 22:38:07 -0400
+Message-ID: <1033267407.3d9668cf555f2@kolivas.net>
+Date: Sun, 29 Sep 2002 12:43:27 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: linux-kernel@vger.kernel.org
+Subject: [BENCHMARK] Preempt effect on 2.5.39 with contest 0.41
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: APIC error on CPU0: 00(02)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've performed some benchmarks with the latest contest v0.41
+(http://contest.kolivas.net) to determine what effect preemptible has on these
+benchmarks and whether contest has the ability to show any effect.
 
-Kernel: 2.4.20-pre8
+Here are the benchmarks:
 
-Machine: dual 1.66Ghz AMD machine, Tyan motherboard 64/66 PCI,
-   2 Intel PRO/1000 MT nics,
-   1 DFE-570tx 4-port tulip based NIC.
-   2 built-in 3-com NICs.
+noload:
+Kernel                  Time            CPU             Ratio
+2.5.39                  73.17           93%             1.08
+2.5.39-pe               73.03           94%             1.08
 
-I was running 20Mbps over each of the 4 tulip 100Mbps ports, and nothing over
-the gigE ports...  Things ran fine, but I occasionally saw messages like
-this:
+process_load:
+Kernel                  Time            CPU             Ratio
+2.5.39                  91.0            76%             1.31*
+2.5.39-pe               83.6            82%             1.23
 
-[root@localhost lanforge]# eth7: (19541091) System Error occured (2)
-eth7: (19547299) System Error occured (2)
-eth6: (19163408) System Error occured (2)
-[root@localhost lanforge]# eth6: (19167052) System Error occured (2)
+io_load:
+Kernel                  Time            CPU             Ratio
+2.5.39                  226             37%             3.20
+2.5.39-pe               234             34%             3.43
 
-[root@localhost lanforge]# eth6: (19171414) System Error occured (2)
-eth7: (19560749) System Error occured (2)
-eth6: (19187463) System Error occured (2)
+mem_load:
+Kernel                  Time            CPU             Ratio
+2.5.39                  103.72          72%             1.53
+2.5.39-pe               103.95          73%             1.54
 
+The only statistically significant difference was in process_load where enabling
+preempt made it faster. Well duh, what else what you expect? At least we can see
+it is having the desired effect and not detrimental to any other area, and that
+contest is able to show this effect.
 
-I mounted another machine across NFS using one of the 3-com ports, and
-started this command: tar -xvzf /mnt/blah/kernel.foo.tgz
+Average of 5 runs when difference was noted, simplified for clarity.
 
-At this point, the machine starts behaving extremely slowly, but after
-a few fits and bursts, it finishes and I can get a response at the prompt
-again.
-
-I see more messages similar to those above, and I also see these errors:
-
-[root@localhost lanforge]# eth6: (19773823) System Error occured (2)
-APIC error on CPU0: 00(02)
-APIC error on CPU1: 00(02)
-
-
-If anyone has any ideas, or can suggest more debugging information I can
-gather to make the problem easier to solve, please let me know!
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Con.

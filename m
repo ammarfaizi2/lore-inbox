@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289319AbSBEAoi>; Mon, 4 Feb 2002 19:44:38 -0500
+	id <S289323AbSBEAua>; Mon, 4 Feb 2002 19:50:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289323AbSBEAo2>; Mon, 4 Feb 2002 19:44:28 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:30902 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S289319AbSBEAoW>; Mon, 4 Feb 2002 19:44:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: arjan@fenrus.demon.nl
+	id <S289326AbSBEAuW>; Mon, 4 Feb 2002 19:50:22 -0500
+Received: from zero.tech9.net ([209.61.188.187]:773 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289323AbSBEAuK>;
+	Mon, 4 Feb 2002 19:50:10 -0500
 Subject: Re: current->state after kmalloc
-Date: Tue, 5 Feb 2002 01:43:21 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m16XtOG-000OVeC@amadeus.home.nl>
-In-Reply-To: <m16XtOG-000OVeC@amadeus.home.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16Xthq-147i9wC@fwd04.sul.t-online.com>
+From: Robert Love <rml@tech9.net>
+To: Oliver.Neukum@lrz.uni-muenchen.de
+Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <16Xthq-147i9wC@fwd04.sul.t-online.com>
+In-Reply-To: <m16XtOG-000OVeC@amadeus.home.nl> 
+	<16Xthq-147i9wC@fwd04.sul.t-online.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 04 Feb 2002 19:50:10 -0500
+Message-Id: <1012870211.1062.43.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 February 2002 01:23, arjan@fenrus.demon.nl wrote:
-> In article <16Xt8Y-1SQ44eC@fwd04.sul.t-online.com> you wrote:
-> > set_current_state(TASK_INTERRUPTIBLE);
-> > kmalloc(sizeof(struct x), GFP_KERNEL);
-> >
-> > what is current->state after kmalloc ?
->
-> undefined. If kmalloc slept and you survived (due to setting
-> TASK_INTERRUPTIBLE that's not guaranteed)  then it'll most likely be
-> TASK_RUNNING.
-> If you depend on this your kernel code is broken in that has subtle
-> dependencies on unspecified behavior and will break whenever kmalloc
-> changes internal behavior.
+On Mon, 2002-02-04 at 19:43, Oliver Neukum wrote:
 
-Is it safe with GFP_ATOMIC ?
+> Is it safe with GFP_ATOMIC ?
 
-	Regards
-		Oliver
+You are guaranteed kmalloc will not sleep if you use GFP_ATOMIC, yes.
+
+But I still find it gross to mark yourself sleeping but not sleep
+immediately.
+
+	Robert Love
+

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265155AbRF0AC5>; Tue, 26 Jun 2001 20:02:57 -0400
+	id <S265157AbRF0AIs>; Tue, 26 Jun 2001 20:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265157AbRF0ACs>; Tue, 26 Jun 2001 20:02:48 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:4623 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S265155AbRF0ACe>;
-	Tue, 26 Jun 2001 20:02:34 -0400
-Message-ID: <20010627020237.A24622@win.tue.nl>
-Date: Wed, 27 Jun 2001 02:02:37 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Kenneth Johansson <ken@canit.se>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXT2 Filesystem permissions (bug)?
-In-Reply-To: <m28zigi7m4.fsf@boreas.yi.org.> <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net> <9h8b8q$s95$1@cesium.transmeta.com> <3B390B48.D444B7C5@canit.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3B390B48.D444B7C5@canit.se>; from Kenneth Johansson on Wed, Jun 27, 2001 at 12:23:04AM +0200
+	id <S265158AbRF0AIh>; Tue, 26 Jun 2001 20:08:37 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40445 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265157AbRF0AIZ>;
+	Tue, 26 Jun 2001 20:08:25 -0400
+Date: Tue, 26 Jun 2001 20:08:19 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Theodore Tso <tytso@valinux.com>
+cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: [RFC] Checks in ext2_new_block()
+In-Reply-To: <20010626194919.J537@think.thunk.org>
+Message-ID: <Pine.GSO.4.21.0106261952100.18037-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
+	Ted, could you comment on sanity checks in ext2_new_block()?
+a)
+        if (tmp == le32_to_cpu(gdp->bg_block_bitmap) ||
+            tmp == le32_to_cpu(gdp->bg_inode_bitmap) ||
+            in_range (tmp, le32_to_cpu(gdp->bg_inode_table),
+                      sb->u.ext2_sb.s_itb_per_group))
+                ext2_error (sb, "ext2_new_block",
+                            "Allocating block in system zone - "
+                            "block = %u", tmp);
 
-:: It's neither a bug nor undocumented.
+will go ahead and return the block. Looks like we can do better than that
+if we mark it in use (we do that anyway), decremnt relevant free blocks
+counters (global and cylinder group one) and goto repeat;
 
-Kenneth Johansson wrote:
+b) we don't do similar checks for blocks we grab in preallocation loop.
+And ext2_alloc_block() doesn't do such checks either.
 
-: Interesting but I wonder how much this helps someone that not already know
-: what it is. Should not the ls manual also contain something that explains
+c)
+        if (ext2_set_bit (j, bh->b_data)) {
+                ext2_warning (sb, "ext2_new_block",
+                              "bit already set for block %d", j);
+                DQUOT_FREE_BLOCK(sb, inode, 1);
+                goto repeat;
+        }
+is of the "if memory got corrupted during the last dozens of cycles" variety -
+we had seen that bit 0 several lines before and we couldn't even block during
+that interval (not that it mattered much, since all modifications of these
+bitmaps are under lock_super() anyway).
 
-In fact the best info is on the stat page:
+d)
+        if (j >= le32_to_cpu(es->s_blocks_count)) {
+                ext2_error (sb, "ext2_new_block",
+                            "block(%d) >= blocks count(%d) - "
+                            "block_group = %d, es == %p ",j,
+                        le32_to_cpu(es->s_blocks_count), i, es);
+                goto out;
+        }
+is a bit too late _and_ we don't do anything similar for preallocated blocks.
 
-...
-       The set GID bit (S_ISGID) has several special uses: For  a
-       directory  it  indicates  that BSD semantics is to be used
-       for that directory:  files  created  there  inherit  their
-       group ID from the directory, not from the effective gid of
-       the creating process, and directories created  there  will
-       also  get  the  S_ISGID bit set.  For a file that does not
-       have the group execution bit (S_IXGRP) set,  it  indicates
-       mandatory file/record locking.
+The question being: which of these checks deserve to stay ((c) doesn't, IMO)
+and which deserve to be extended to preallocation? If we do them for
+main path, we ought to be at least consistent...
 
-       The  `sticky'  bit  (S_ISVTX)  on a directory means that a
-       file in that directory can be renamed or deleted  only  by
-       the  owner of the file, by the owner of the directory, and
-       by root.
-...

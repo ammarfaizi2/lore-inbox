@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270082AbTG1O2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 10:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270085AbTG1O2Z
+	id S270081AbTG1Ojj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 10:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270093AbTG1Ojj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 10:28:25 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:2753 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S270082AbTG1O2Y (ORCPT
+	Mon, 28 Jul 2003 10:39:39 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:9232 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S270081AbTG1Oji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 10:28:24 -0400
-Message-Id: <200307281443.h6SEhc628275@zeus.kernel.org>
-From: bbryan10@email.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hey man
+	Mon, 28 Jul 2003 10:39:38 -0400
+Date: Mon, 28 Jul 2003 16:54:52 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+       Chris Heath <chris@heathens.co.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i8042 problem
+Message-ID: <20030728145452.GA1753@win.tue.nl>
+References: <20030728115924.GB1706@win.tue.nl> <Pine.GSO.3.96.1030728155303.15233A-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Mon, 28 Jul 2003 23:41:12 +0900
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.3.96.1030728155303.15233A-100000@delta.ds2.pg.gda.pl>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi please check out the following site
+On Mon, Jul 28, 2003 at 04:01:27PM +0200, Maciej W. Rozycki wrote:
 
-its a godsend, I have saved a fortune
+> Well, are timeouts needed at all?
 
-are you prepared for lower mortgage repayments?
+Yes. We send a command to the keyboard. It may react, or it may not.
 
-http://srd.yahoo.com/drst/232234/*http://cheapermortgage.cn/4/index.asp?RefID=198478
+

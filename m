@@ -1,137 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267811AbUHEUaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267821AbUHEUbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267811AbUHEUaL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267821AbUHEUaL
+	id S267821AbUHEUbw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEUbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:30:11 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17270 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267811AbUHEU3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:29:55 -0400
-Date: Thu, 5 Aug 2004 21:29:48 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] clarify get_task_mm (mmgrab)
-Message-ID: <Pine.LNX.4.44.0408052125030.2563-100000@localhost.localdomain>
+	Thu, 5 Aug 2004 16:31:51 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:41856 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S267821AbUHEUbh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:31:37 -0400
+Message-ID: <411299D4.5060001@tmr.com>
+Date: Thu, 05 Aug 2004 16:34:28 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Newsgroups: mail.linux-kernel
+To: Rik van Riel <riel@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
+References: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clarify mmgrab by collapsing it into get_task_mm (in fork.c not inline),
-and commenting on the special case it is guarding against: when use_mm
-in an AIO daemon temporarily adopts the mm while it's on its way out.
+Rik van Riel wrote:
+> The patch below implements RSS ulimit enforcement for 2.6.8-rc3-mm1.
+> It works in a very simple way: if a process has more resident memory
+> than its RSS limit allows, we pretend it didn't access any of its
+> pages, making it easy for the pageout code to evict the pages.
+> 
+> In addition to this, we don't allow a process that exceeds its RSS
+> limit to have the swapout protection token.
+> 
+> I have tested the patch on my system here and it appears to be working
+> fine.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+You have had better luck getting that to compile than I have, but I'm 
+still working on it. I assume that the note about sched compiling with 
+SMP set will get me going.
 
---- 2.6.8-rc3-mm1/fs/proc/array.c	2004-08-05 12:13:06.000000000 +0100
-+++ linux/fs/proc/array.c	2004-08-05 20:25:43.968797320 +0100
-@@ -311,11 +311,7 @@ int proc_pid_stat(struct task_struct *ta
- 
- 	state = *get_task_state(task);
- 	vsize = eip = esp = 0;
--	task_lock(task);
--	mm = task->mm;
--	if(mm)
--		mm = mmgrab(mm);
--	task_unlock(task);
-+	mm = get_task_mm(task);
- 	if (mm) {
- 		down_read(&mm->mmap_sem);
- 		vsize = task_vsize(mm);
---- 2.6.8-rc3-mm1/include/linux/sched.h	2004-08-05 12:13:07.000000000 +0100
-+++ linux/include/linux/sched.h	2004-08-05 20:25:43.990793976 +0100
-@@ -941,8 +941,8 @@ static inline void mmdrop(struct mm_stru
- 
- /* mmput gets rid of the mappings and all user-space */
- extern void mmput(struct mm_struct *);
--/* Grab a reference to the mm if its not already going away */
--extern struct mm_struct *mmgrab(struct mm_struct *);
-+/* Grab a reference to a task's mm, if it is not already going away */
-+extern struct mm_struct *get_task_mm(struct task_struct *task);
- /* Remove the current tasks stale references to the old mm_struct */
- extern void mm_release(struct task_struct *, struct mm_struct *);
- 
-@@ -1043,27 +1043,7 @@ static inline void task_unlock(struct ta
- {
- 	spin_unlock(&p->alloc_lock);
- }
-- 
--/**
-- * get_task_mm - acquire a reference to the task's mm
-- *
-- * Returns %NULL if the task has no mm. User must release
-- * the mm via mmput() after use.
-- */
--static inline struct mm_struct * get_task_mm(struct task_struct * task)
--{
--	struct mm_struct * mm;
-- 
--	task_lock(task);
--	mm = task->mm;
--	if (mm)
--		mm = mmgrab(mm);
--	task_unlock(task);
- 
--	return mm;
--}
-- 
-- 
- /* set thread flags in other task's structures
-  * - see asm/thread_info.h for TIF_xxxx flags available
-  */
---- 2.6.8-rc3-mm1/kernel/fork.c	2004-08-05 12:13:07.000000000 +0100
-+++ linux/kernel/fork.c	2004-08-05 20:25:44.008791240 +0100
-@@ -483,20 +483,34 @@ void mmput(struct mm_struct *mm)
- 	}
- }
- 
--/*
-- * Checks if the use count of an mm is non-zero and if so
-- * returns a reference to it after bumping up the use count.
-- * If the use count is zero, it means this mm is going away,
-- * so return NULL.
-+/**
-+ * get_task_mm - acquire a reference to the task's mm
-+ *
-+ * Returns %NULL if the task has no mm.  Checks if the use count
-+ * of the mm is non-zero and if so returns a reference to it, after
-+ * bumping up the use count.  User must release the mm via mmput()
-+ * after use.  Typically used by /proc and ptrace.
-+ *
-+ * If the use count is zero, it means that this mm is going away,
-+ * so return %NULL.  This only happens in the case of an AIO daemon
-+ * which has temporarily adopted an mm (see use_mm), in the course
-+ * of its final mmput, before exit_aio has completed.
-  */
--struct mm_struct *mmgrab(struct mm_struct *mm)
-+struct mm_struct *get_task_mm(struct task_struct *task)
- {
--	spin_lock(&mmlist_lock);
--	if (!atomic_read(&mm->mm_users))
--		mm = NULL;
--	else
--		atomic_inc(&mm->mm_users);
--	spin_unlock(&mmlist_lock);
-+	struct mm_struct *mm;
-+ 
-+	task_lock(task);
-+	mm = task->mm;
-+	if (mm) {
-+		spin_lock(&mmlist_lock);
-+		if (!atomic_read(&mm->mm_users))
-+			mm = NULL;
-+		else
-+			atomic_inc(&mm->mm_users);
-+		spin_unlock(&mmlist_lock);
-+	}
-+	task_unlock(task);
- 	return mm;
- }
- 
+Wish there was something like RSS for cache, so that one process reading 
+every inode on the planet, or doing an md5 on an 11GB file wouldn't push 
+every damn process out if it's waiting for me to finish typing a line...
 
+I did a brute force patch for 2.4.18 to limit the total memory used for 
+cache, but it would sure be nice to just limit by process. Yes I know 
+cache is shared, I have looked at this before :-(
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbUK0IDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbUK0Ip6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbUK0IDo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 03:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK0IDo
+	id S261158AbUK0Ip6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 03:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUK0Ip6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 03:03:44 -0500
-Received: from mail.charite.de ([160.45.207.131]:61614 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S261158AbUK0IDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 03:03:30 -0500
-Date: Sat, 27 Nov 2004 09:03:29 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Out of memory, but no OOM Killer? (2.6.9-ac11)
-Message-ID: <20041127080329.GU30987@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20041126224722.GK30987@charite.de> <41A7C2CA.1030008@yahoo.com.au> <20041127003353.GQ30987@charite.de> <41A7D3EF.3030002@yahoo.com.au>
+	Sat, 27 Nov 2004 03:45:58 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16839 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261158AbUK0Ipw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 03:45:52 -0500
+Date: Sat, 27 Nov 2004 08:22:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend 2 merge: 9/51: init/* changes.
+Message-ID: <20041127072224.GM1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293918.5805.221.camel@desktop.cunninghams> <1101293918.5805.221.camel@desktop.cunninghams> <20041125170718.GA1417@openzaurus.ucw.cz> <E1CXs6Z-0001cv-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41A7D3EF.3030002@yahoo.com.au>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <E1CXs6Z-0001cv-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nick Piggin <nickpiggin@yahoo.com.au>:
+Hi!
 
-> >I see. rsync requested a big chunk of memory, but failed due to the
-> >fragmentation of free memory? my "sar" output shows lots of free memory and
-> >lots of unused swap:
-> >
+> >> 1) Make name_to_dev_t non init. Why should you need to reboot if all you
+> >> want to do is change the device you're using to suspend? That's M_'s way
+> > 
+> > Well, if you change it using /proc and forget to change kernel cmd line, you'll have
+> > a problem. Do you really change this so often?
 > 
-> Basically, yes. Well not *exactly* rsync - your network drivers. I guess
-> rsync is showing up in process context most often because that is the
-> process causing most of the network activity.
+> name_to_dev_t needs to be non-init in order to make it possible to
+> trigger a resume when the block device driver isn't static. Pavel, would
+> you be willing to consider a patch to make it possible to trigger swsusp
+> resume from userspace? That gets things working with initrd kernels.
+> I've been using something along these lines for a few weeks now, and it
+> hasn't eaten my filesystem yet.
 
-At that time, yes.
+Given it is not too intrusive... why not. Send it for comments.
+I probably will not use this myself, so you'll need to test/maintain
+it.
 
-> Yep, it looks like fragmentation is indeed the problem here. See you have
-> a lot of memory that is able to be reclaimed, but the failing allocations
-> themselves can't reclaim any of it because they are happening from
-> interrupts. What they should be doing is telling `kswapd` to start freeing
-> memory for them - however this currently doesn't happen properly for
-> allocations which are order greater than 0.
-> 
-> Fortunately that is usually not a big problem, but as you have seen, it
-> can be. Anyway, expect 2.6.10 to be better (ie. good enough), and 2.6.11
-> should have even more complete fixes.
+> Yes, I was thinking of this mostly from a distribution perspective.
+> There's always potential for data-loss if users resume after touching
+> the root filesystem. On the other hand, it's currently possible for them
+> to do that anyway (think booting a different kernel without swsusp
+> support, then rebooting back into the swsusp one)
 
-Aha.
-
-> OK that should be fine. If you should upgrade to a 2.6.10 or later kernel,
-> put this value back to the default, and report further problems if they
-> occur.
-
-I just set it "for now"
-
+Yep... 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,62 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278347AbRJOVPM>; Mon, 15 Oct 2001 17:15:12 -0400
+	id <S278344AbRJOVQv>; Mon, 15 Oct 2001 17:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278344AbRJOVPB>; Mon, 15 Oct 2001 17:15:01 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51440
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278313AbRJOVOy>; Mon, 15 Oct 2001 17:14:54 -0400
-Date: Mon, 15 Oct 2001 14:15:20 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Slo Mo Snail <slomo@beermail.no-ip.com>
-Cc: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: How many versions of VM are there?
-Message-ID: <20011015141520.A4482@mikef-linux.matchmail.com>
-Mail-Followup-To: Slo Mo Snail <slomo@beermail.no-ip.com>,
-	"M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com> <E15tEoY-0000dt-00@beermail.no-ip.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15tEoY-0000dt-00@beermail.no-ip.com>
-User-Agent: Mutt/1.3.22i
+	id <S278360AbRJOVQl>; Mon, 15 Oct 2001 17:16:41 -0400
+Received: from mailrelay2.inwind.it ([212.141.54.102]:23012 "EHLO
+	mailrelay2.inwind.it") by vger.kernel.org with ESMTP
+	id <S278344AbRJOVQ3>; Mon, 15 Oct 2001 17:16:29 -0400
+Message-ID: <3BCB523C.7060800@inwind.it>
+Date: Mon, 15 Oct 2001 23:16:44 +0200
+From: Michele Mencacci <shire@inwind.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: HD problem!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 15, 2001 at 10:58:22PM +0200, Slo Mo Snail wrote:
-> As far as I know there are 2 different version of VM:
-> 2.2.x and 2.4.x-acyy: Rik von Riel's VM (but I'm not sure wether it's the
-> same VM)
+Hello there!
+I have a prob with 2.4.XX kernel version.
+It doesn't read the partition table of my 4th HD, It says "unknown 
+partition table", but the HD is OK, if I use kernel 2.2.19 all works fine.
+Anybody can help me to understand whats wrong?
+Thanx in advance
 
-No.
+                            Mike
 
-It's not the same VM.  2.2 had a VM change from Andrea at about 2.2.17-18,
-don't know about before...
-
-> 2.4.x: Andrea's VM
-> 
-
-2.4.0-2.4.10pre10 = Rik's VM.
-
-2.4.10pre11+ = Andrea's VM
-
-2.4.12-ac has Rik's vm, and it looks like Alan will keep Rik's VM for a while.
-
-> You find Documentation in
-> Documentation/vm/*
-> Documentation/sysctl/vm.txt
->
-
-I think this is still out of date...  There's a patch at Rik's site.  Don't
-know if it is accurate for Andrea's VM...
-
-http://www.surriel.com/patches/
-
-> but i think there's no Documentation of Andrea's VM yet
-> 
-
-True.  I don't know if Andrea is working on that yet...  It looks like he's
-trying to iron out his new VM...
-
-Mike

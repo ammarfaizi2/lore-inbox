@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
+	id <S293680AbSHIOCx>; Fri, 9 Aug 2002 10:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:42765 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S312560AbSHINzc>; Fri, 9 Aug 2002 09:55:32 -0400
-Date: Fri, 9 Aug 2002 10:59:00 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Chris Adams <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-In-Reply-To: <200208090704.g7974Td55043@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.44L.0208091058140.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312558AbSHIOCx>; Fri, 9 Aug 2002 10:02:53 -0400
+Received: from dsl-213-023-043-103.arcor-ip.net ([213.23.43.103]:53387 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S293680AbSHIOCw>;
+	Fri, 9 Aug 2002 10:02:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>
+Subject: Re: fix CONFIG_HIGHPTE
+Date: Fri, 9 Aug 2002 16:07:24 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       riel@surriel.com
+References: <20020806231522.GJ6256@holomorphy.com> <20020807010752.GC6343@krispykreme> <3D508C83.3A78CC58@zip.com.au>
+In-Reply-To: <3D508C83.3A78CC58@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17dAQH-0001Mo-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Aug 2002, Albert D. Cahalan wrote:
+On Wednesday 07 August 2002 04:57, Andrew Morton wrote:
+> Anton Blanchard wrote:
+> > On ppc64 shared pagetables will require significant changes to the way
+> > we handle the hardware hashtable. So add that to the "more and more crap
+> > in there to support these pte_chains"
+> 
+> Last I heard, pagetable sharing wasn't working out too well
+> because they all get unshared.
 
-> I almost put 99999, but then I realized that that's silly.
-> For years Linux had a hard limit of about 4000 processes,
+That's only when you fork from a process with a minimal amount of VM mapped, 
+such as bash, which has 3 page tables allocated to it, all of which get 
+unshared.  The situation is entirely different if you fork from a process 
+that has malloced more than a few meg, or beaten on a large mmap.  Page table 
+sharing turns in a significant win there.
 
-That limit was removed some 2 years ago.
+> > Will shared pagetables be a requirement or can we turn it on per arch?
+> 
+> It's doubtful if per-arch would be an option.
 
-Rik
+It's currently expressed as a config option.  As it's purely an optimization 
+there's no reason to do otherwise.  Disabling it per-arch should be trivial.
+
+> - We'll continue to suck for the University workload.
+
+That seems likely ;-)
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Daniel

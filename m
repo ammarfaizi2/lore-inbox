@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264769AbUEETLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264646AbUEETez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbUEETLG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 15:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbUEETLG
+	id S264646AbUEETez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 15:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUEETez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 15:11:06 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:17352 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264769AbUEETLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 15:11:02 -0400
-From: Jan Killius <jkillius@arcor.de>
-Reply-To: jkillius@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Date: Wed, 5 May 2004 21:10:51 +0200
-User-Agent: KMail/1.6.52
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_7wTmAhXbPmJzGb+"
-Message-Id: <200405052110.51866.jkillius@arcor.de>
+	Wed, 5 May 2004 15:34:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60585 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264646AbUEETey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 15:34:54 -0400
+Date: Wed, 5 May 2004 12:30:56 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, bunk@fs.tum.de,
+       marcelo.tosatti@cyclades.com
+Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
+Message-Id: <20040505123056.375954be.davem@redhat.com>
+In-Reply-To: <200405051057.06222@WOLK>
+References: <20040503230911.GE7068@logos.cnet>
+	<20040504205659.GA17583@havoc.gtf.org>
+	<20040504201832.1c8d07a3.davem@redhat.com>
+	<200405051057.06222@WOLK>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_7wTmAhXbPmJzGb+
-Content-Type: text/plain;
-  charset="us-ascii";
-  boundary=""
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, 5 May 2004 10:57:06 +0200
+Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com> wrote:
 
-Hello,
-here is a small patch thats fix building on x86-64.
+> > I agree, anyone cooking up a patch for this?
+> 
+> 
+> Like this?
 
--- 
-        Jan
-
---Boundary-00=_7wTmAhXbPmJzGb+
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="mempolice.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="mempolice.patch"
-
-diff -Naur linux-2.6.6-rc3-mm2/arch/x86_64/ia32/ia32_binfmt.c linux-2.6.6-rc3-mm2.new/arch/x86_64/ia32/ia32_binfmt.c
---- linux-2.6.6-rc3-mm2/arch/x86_64/ia32/ia32_binfmt.c	2004-05-05 21:06:39.000000000 +0200
-+++ linux-2.6.6-rc3-mm2.new/arch/x86_64/ia32/ia32_binfmt.c	2004-05-05 21:01:43.398886976 +0200
-@@ -14,6 +14,7 @@
- #include <linux/string.h>
- #include <linux/binfmts.h>
- #include <linux/mm.h>
-+#include <linux/mempolicy.h>
- #include <linux/security.h>
- 
- #include <asm/segment.h> 
-
---Boundary-00=_7wTmAhXbPmJzGb+--
+Works for me, I'll push this to Marcelo thanks.

@@ -1,184 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264557AbTDPT1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 15:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbTDPT1M
+	id S264550AbTDPTYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 15:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTDPTYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 15:27:12 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19471 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264557AbTDPT1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 15:27:06 -0400
-Date: Wed, 16 Apr 2003 21:38:59 +0200
-From: Jan Kara <jack@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@digeo.com, sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix ext3+quota deadlock
-Message-ID: <20030416193859.GA1379@atrey.karlin.mff.cuni.cz>
+	Wed, 16 Apr 2003 15:24:30 -0400
+Received: from AMarseille-201-1-5-18.abo.wanadoo.fr ([217.128.250.18]:14375
+	"EHLO debian") by vger.kernel.org with ESMTP id S264550AbTDPTY3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 15:24:29 -0400
+Subject: RE: Subtle semantic issue with sleep callbacks in drivers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304161133110.912-100000@cherise>
+References: <Pine.LNX.4.44.0304161133110.912-100000@cherise>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050521763.644.9.camel@debian>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Apr 2003 21:36:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-04-16 at 20:39, Patrick Mochel wrote:
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I completely agree with Andy. We should not re-POST the video hardware, no
+> matter what. The idea behind ACPI is that the OS takes care of everything, 
+> including video save/restore. 
 
-  Hi Alan,
+If I understand Alan properly, we don't always have choice, some BIOSes
+will do it anyway...
 
-  I'm sending you a patch which fixes a deadlock when quota is used on
-ext3. There is lock inversion on dqio_sem and journal_start/stop. The
-patch introduces needed framework for ext3 to start transaction before
-dqio_sem is acquired. Please apply.
+> We may not have the documentation to properly do that for all hardware 
+> currently, but that is something that we have to suck up and deal with. 
+> For now, we go with hardware that we're able to handle. 
+> 
+> The drivers that cannot support reinitialization will not be able to 
+> support suspend-to-RAM. When we get to a point where it really becomes an 
+> issue (i.e. after we have decent working code), then we concentrate on 
+> getting the appropriate docuementation (or code itself, source or binary) 
+> to do it correctly. 
 
-							Bye
-								Honza
+It is now already ! I don't think we will _ever_ get ATI and nVidia
+provide enough documentation to POST all chip models (which isn't always
+possible without knowledge of every single way the chip is wired on a
+each board).
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.4.21-pre5-ac3-2-ext3deadlock.diff"
+Currently, I cannot implement suspend-to-RAM on the latest PowerBooks
+because of that (they use nVidia chip that are powered down and not just
+unclocked unlike earlier ATI based models) because of that. Nor can I
+implement it on any other "desktop" Mac.
 
-diff -ruNX /home/jack/.kerndiffexclude linux-2.4.21-pre5-ac3-1-syncall/fs/dquot.c linux-2.4.21-pre5-ac3-2-ext3deadlock/fs/dquot.c
---- linux-2.4.21-pre5-ac3-1-syncall/fs/dquot.c	Tue Apr  1 21:08:39 2003
-+++ linux-2.4.21-pre5-ac3-2-ext3deadlock/fs/dquot.c	Mon Apr 14 23:55:34 2003
-@@ -397,7 +397,7 @@
- 		if (dquot->dq_flags & DQ_LOCKED)
- 			wait_on_dquot(dquot);
- 		if (dquot_dirty(dquot))
--			commit_dqblk(dquot);
-+			sb->dq_op->sync_dquot(dquot);
- 		dqput(dquot);
- 		goto restart;
- 	}
-@@ -1221,9 +1221,16 @@
- 	alloc_inode:	dquot_alloc_inode,
- 	free_space:	dquot_free_space,
- 	free_inode:	dquot_free_inode,
--	transfer:	dquot_transfer
-+	transfer:	dquot_transfer,
-+	sync_dquot:	commit_dqblk
- };
- 
-+/* Function used by filesystems for initializing the dquot_operations structure */
-+void init_dquot_operations(struct dquot_operations *fsdqops)
-+{
-+	memcpy(fsdqops, &dquot_operations, sizeof(dquot_operations));
-+}
-+
- static inline void set_enable_flags(struct quota_info *dqopt, int type)
- {
- 	switch (type) {
-@@ -1519,3 +1526,4 @@
- EXPORT_SYMBOL(register_quota_format);
- EXPORT_SYMBOL(unregister_quota_format);
- EXPORT_SYMBOL(dqstats);
-+EXPORT_SYMBOL(init_dquot_operations);
-diff -ruNX /home/jack/.kerndiffexclude linux-2.4.21-pre5-ac3-1-syncall/fs/ext3/super.c linux-2.4.21-pre5-ac3-2-ext3deadlock/fs/ext3/super.c
---- linux-2.4.21-pre5-ac3-1-syncall/fs/ext3/super.c	Tue Apr  1 21:06:22 2003
-+++ linux-2.4.21-pre5-ac3-2-ext3deadlock/fs/ext3/super.c	Mon Apr 14 23:58:24 2003
-@@ -448,6 +448,9 @@
- 	return;
- }
- 
-+static struct dquot_operations ext3_qops;
-+static int (*old_sync_dquot)(struct dquot *dquot);
-+
- static struct super_operations ext3_sops = {
- 	read_inode:	ext3_read_inode,	/* BKL held */
- 	write_inode:	ext3_write_inode,	/* BKL not held.  Don't need */
-@@ -1128,6 +1131,7 @@
- 	 * set up enough so that it can read an inode
- 	 */
- 	sb->s_op = &ext3_sops;
-+	sb->dq_op = &ext3_qops;
- 	INIT_LIST_HEAD(&sbi->s_orphan); /* unlinked but open files */
- 
- 	sb->s_root = 0;
-@@ -1758,10 +1762,63 @@
- 	return 0;
- }
- 
-+/* Helper function for writing quotas on sync - we need to start transaction before quota file
-+ * is locked for write. Otherwise the are possible deadlocks:
-+ * Process 1                         Process 2
-+ * ext3_create()                     quota_sync()
-+ *   journal_start()                   write_dquot()
-+ *   DQUOT_INIT()                        down(dqio_sem)
-+ *     down(dqio_sem)                    journal_start()
-+ *
-+ */
-+
-+#ifdef CONFIG_QUOTA
-+
-+#define EXT3_OLD_QFMT_BLOCKS 2
-+#define EXT3_V0_QFMT_BLOCKS 6
-+
-+static int ext3_sync_dquot(struct dquot *dquot)
-+{
-+	int nblocks, ret;
-+	handle_t *handle;
-+	struct quota_info *dqops = sb_dqopt(dquot->dq_sb);
-+	struct inode *qinode;
-+
-+	switch (dqops->info[dquot->dq_type].dqi_format->qf_fmt_id) {
-+		case QFMT_VFS_OLD:
-+			nblocks = EXT3_OLD_QFMT_BLOCKS;
-+			break;
-+		case QFMT_VFS_V0:
-+			nblocks = EXT3_V0_QFMT_BLOCKS;
-+			break;
-+		default:
-+			nblocks = EXT3_MAX_TRANS_DATA;
-+	}
-+	lock_kernel();
-+	qinode = dqops->files[dquot->dq_type]->f_dentry->d_inode;
-+	handle = ext3_journal_start(qinode, nblocks);
-+	if (IS_ERR(handle)) {
-+		unlock_kernel();
-+		return PTR_ERR(handle);
-+	}
-+	unlock_kernel();
-+	ret = old_sync_dquot(dquot);
-+	lock_kernel();
-+	ret = ext3_journal_stop(handle, qinode);
-+	unlock_kernel();
-+	return ret;
-+}
-+#endif
-+
- static DECLARE_FSTYPE_DEV(ext3_fs_type, "ext3", ext3_read_super);
- 
- static int __init init_ext3_fs(void)
- {
-+#ifdef CONFIG_QUOTA
-+	init_dquot_operations(&ext3_qops);
-+	old_sync_dquot = ext3_qops.sync_dquot;
-+	ext3_qops.sync_dquot = ext3_sync_dquot;
-+#endif
-         return register_filesystem(&ext3_fs_type);
- }
- 
-diff -ruNX /home/jack/.kerndiffexclude linux-2.4.21-pre5-ac3-1-syncall/include/linux/quota.h linux-2.4.21-pre5-ac3-2-ext3deadlock/include/linux/quota.h
---- linux-2.4.21-pre5-ac3-1-syncall/include/linux/quota.h	Tue Apr  1 21:19:44 2003
-+++ linux-2.4.21-pre5-ac3-2-ext3deadlock/include/linux/quota.h	Tue Apr 15 21:07:51 2003
-@@ -251,6 +251,7 @@
- 	void (*free_space) (struct inode *, qsize_t);
- 	void (*free_inode) (const struct inode *, unsigned long);
- 	int (*transfer) (struct inode *, struct iattr *);
-+	int (*sync_dquot) (struct dquot *);
- };
- 
- /* Operations handling requests from userspace */
-@@ -312,6 +313,7 @@
- 
- int register_quota_format(struct quota_format_type *fmt);
- void unregister_quota_format(struct quota_format_type *fmt);
-+void init_dquot_operations(struct dquot_operations *fsdqops);
- 
- #else
- 
+> Trying to figure out if we need to POST or not for different hardware, 
+> based what the driver knows, is going to become quite a mess real fast. I 
+> don't want to deal with the pain, and would rather take the high ground, 
+> even if it means suffering in the short term. 
 
---cWoXeonUoKmBZSoM--
+When I finally have an implementation of an OF runtime so I can re-POST
+the card, I could eventually have the driver itself call this to explicitely
+ask for a re-POST...
+
+Ben.
+

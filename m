@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262143AbSJAQSO>; Tue, 1 Oct 2002 12:18:14 -0400
+	id <S262156AbSJAQmo>; Tue, 1 Oct 2002 12:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262144AbSJAQSO>; Tue, 1 Oct 2002 12:18:14 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49338 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262143AbSJAQSN>; Tue, 1 Oct 2002 12:18:13 -0400
-Date: Tue, 1 Oct 2002 17:23:14 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Steve Underwood <steveu@coppice.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB IEEE1284 gadgets and ppdev
-Message-ID: <20021001162314.GI20631@redhat.com>
-References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com> <3D91BF58.8080803@coppice.org> <20020925142757.GL9457@redhat.com> <20020925150129.GC30339@kroah.com> <20020925150915.GM9457@redhat.com> <3D99C0D9.7060704@coppice.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FUFe+yI/t+r3nyH4"
-Content-Disposition: inline
-In-Reply-To: <3D99C0D9.7060704@coppice.org>
-User-Agent: Mutt/1.4i
+	id <S262158AbSJAQmo>; Tue, 1 Oct 2002 12:42:44 -0400
+Received: from gate.perex.cz ([194.212.165.105]:32007 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262156AbSJAQmn>;
+	Tue, 1 Oct 2002 12:42:43 -0400
+Date: Tue, 1 Oct 2002 18:44:27 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2nd ALSA update [3/12] - 2002/08/13
+Message-ID: <Pine.LNX.4.33.0210011842080.20016-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FUFe+yI/t+r3nyH4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+A big one. Please, download it here:
+ftp://ftp.alsa-project.org/pub/kernel-patches/set#2/3.patch
 
-On Tue, Oct 01, 2002 at 11:35:53PM +0800, Steve Underwood wrote:
+						Jaroslav
 
-> Being able to bit twiddle to the extent that ppdev allows is pretty
-> important, though.
+ChangeSet@1.646, 2002-10-01 09:03:23+02:00, perex@suse.cz
+  ALSA update 2002/08/13 :
+    - C99-like structure initializers - first bunch of changes
+    - CS46xx
+      - fixed the compile with the older image
+    - AC'97 codec
+      - added the ids for ITE chips
+      - check the validity of registers always in the limited register mode
+    - intel8x0
+      - allow ICH4 to proceed without probing PCR / SCR bits
+    - VIA686
+      - AC97 cold reset only when AC-link is down
 
-Well, usblp wouldn't let you do any more than /dev/lp0 currently does,
-really.  It sounds like you want support for more uss720-like
-devices.
 
-Tim.
-*/
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 
---FUFe+yI/t+r3nyH4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9mcvytO8Ac4jnUq4RAouJAKDEJa30nTImOEJOuJhzWvgUbKentQCfcEDy
-PkUkDYveYSzXlRN7PuaOMOE=
-=tlTm
------END PGP SIGNATURE-----
-
---FUFe+yI/t+r3nyH4--

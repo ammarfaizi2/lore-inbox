@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVCTAWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVCTAZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVCTAWq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 19:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCTAWp
+	id S261952AbVCTAZY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 19:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVCTAZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 19:22:45 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:9390 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261929AbVCTAWn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 19:22:43 -0500
-Cc: albert@users.sf.net, akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       pj@engr.sgi.com, 7eggert@gmx.de
-Subject: [PATCH][0/6] Change proc file permissions with sysctls
-In-Reply-To: 
-Date: Sun, 20 Mar 2005 01:22:42 +0100
-Message-Id: <1111278162.22BA.5209@neapel230.server4you.de>
+	Sat, 19 Mar 2005 19:25:23 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:28085 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262029AbVCTAYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 19:24:49 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-00
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <20050319191658.GA5921@elte.hu>
+References: <20050319191658.GA5921@elte.hu>
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 19 Mar 2005 19:24:42 -0500
+Message-Id: <1111278282.15042.28.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patches implement another interface that allows an admin
-to restrict permissions inside /proc/<pid> to enhance the privacy of
-users.  Following a suggestion by Albert Calahan this set of patches
-introduces five sysctls, each one changes the permissions of a certain
-file in /proc/<pid>.
+On Sat, 2005-03-19 at 20:16 +0100, Ingo Molnar wrote:
+> i have released the -V0.7.41-00 Real-Time Preemption patch (merged to
+> 2.6.12-rc1), which can be downloaded from the usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
 
-It works by implementing getattr and permission methods that update the
-files' permissions (btw. Al Viro suggested doing it this way right from
-the start..).
+3ms latency in the NFS client code.  Workload was a kernel compile over
+NFS.
 
-To "cloak" as much as currently possible:
+preemption latency trace v1.1.4 on 2.6.12-rc1-RT-V0.7.41-00
+--------------------------------------------------------------------
+ latency: 3178 �s, #4095/14224, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1 #P:1)
+    -----------------
+    | task: ksoftirqd/0-2 (uid:0 nice:-10 policy:0 rt_prio:0)
+    -----------------
 
-   # sysctl -q proc.cmdline=0400
-   # sysctl -q proc.maps=0400
-   # sysctl -q proc.stat=0400
-   # sysctl -q proc.statm=0400
-   # sysctl -q proc.status=0400
+                 _------=> CPU#            
+                / _-----=> irqs-off        
+               | / _----=> need-resched    
+               || / _---=> hardirq/softirq 
+               ||| / _--=> preempt-depth   
+               |||| /                      
+               |||||     delay             
+   cmd     pid ||||| time  |   caller      
+      \   /    |||||   \   |   /           
+(T1/#0)            <...> 32105 0 3 00000004 00000000 [0011939614227867] 0.000ms (+4137027.445ms): <6500646c> (<61000000>)
+(T1/#2)            <...> 32105 0 3 00000004 00000002 [0011939614228097] 0.000ms (+0.000ms): __trace_start_sched_wakeup+0x9a/0xd0 <c013150a> (try_to_wake_up+0x94/0x140 <c0110474>)
+(T1/#3)            <...> 32105 0 3 00000003 00000003 [0011939614228436] 0.000ms (+0.000ms): preempt_schedule+0x11/0x80 <c02b57c1> (try_to_wake_up+0x94/0x140 <c0110474>)
+(T3/#4)    <...>-32105 0dn.3    0�s : try_to_wake_up+0x11e/0x140 <c01104fe> <<...>-2> (69 76): 
+(T1/#5)            <...> 32105 0 3 00000002 00000005 [0011939614228942] 0.000ms (+0.000ms): preempt_schedule+0x11/0x80 <c02b57c1> (try_to_wake_up+0xf8/0x140 <c01104d8>)
+(T1/#6)            <...> 32105 0 3 00000002 00000006 [0011939614229130] 0.000ms (+0.000ms): wake_up_process+0x35/0x40 <c0110555> (do_softirq+0x3f/0x50 <c011b05f>)
+(T6/#7)    <...>-32105 0dn.1    1�s < (1)
+(T1/#8)            <...> 32105 0 2 00000001 00000008 [0011939614229782] 0.001ms (+0.000ms): radix_tree_gang_lookup+0xe/0x70 <c01e05ee> (nfs_wait_on_requests+0x6d/0x110 <c01c744d>)
+(T1/#9)            <...> 32105 0 2 00000001 00000009 [0011939614229985] 0.001ms (+0.000ms): __lookup+0xe/0xd0 <c01e051e> (radix_tree_gang_lookup+0x52/0x70 <c01e0632>)
+(T1/#10)            <...> 32105 0 2 00000001 0000000a [0011939614230480] 0.001ms (+0.000ms): radix_tree_gang_lookup+0xe/0x70 <c01e05ee> (nfs_wait_on_requests+0x6d/0x110 <c01c744d>)
+(T1/#11)            <...> 32105 0 2 00000001 0000000b [0011939614230634] 0.002ms (+0.000ms): __lookup+0xe/0xd0 <c01e051e> (radix_tree_gang_lookup+0x52/0x70 <c01e0632>)
+(T1/#12)            <...> 32105 0 2 00000001 0000000c [0011939614230889] 0.002ms (+0.000ms): radix_tree_gang_lookup+0xe/0x70 <c01e05ee> (nfs_wait_on_requests+0x6d/0x110 <c01c744d>)
+(T1/#13)            <...> 32105 0 2 00000001 0000000d [0011939614231034] 0.002ms (+0.000ms): __lookup+0xe/0xd0 <c01e051e> (radix_tree_gang_lookup+0x52/0x70 <c01e0632>)
+(T1/#14)            <...> 32105 0 2 00000001 0000000e [0011939614231302] 0.002ms (+0.000ms): radix_tree_gang_lookup+0xe/0x70 <c01e05ee> (nfs_wait_on_requests+0x6d/0x110 <c01c744d>)
+(T1/#15)            <...> 32105 0 2 00000001 0000000f [0011939614231419] 0.002ms (+0.000ms): __lookup+0xe/0xd0 <c01e051e> (radix_tree_gang_lookup+0x52/0x70 <c01e0632>)
 
-This will set the permissions of /proc/*/cmdline etc. to the given
-value.
+(last two lines just repeat)
 
-The permissions of files in /proc/1 (usually belonging to init) are
-kept as they are.  The idea is to let system processes be freely
-visible by anyone, just as before.  Especially interesting in this
-regard would be instances of login.  I don't know how to easily
-discriminate between system processes and "normal" processes inside
-the kernel (apart from pid == 1 and uid == 0 (which is too broad)).
-Any ideas?
+This is probably not be a regression; I had never tested this with NFS
+before.
 
-It's easy to make more files' permissions configurable, if the need
-arises.
-
-This implementation is a lot bigger than the quick hacks I sent earlier.
-Is this feature growing too fat?  Also I'm unsure about the #ifdef'ery
-in fs/proc/base.c, I just wanted to be consistent with the surrounding
-code. :-P
-
-Rene
+Lee
 

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289005AbSANUKF>; Mon, 14 Jan 2002 15:10:05 -0500
+	id <S289000AbSANUNF>; Mon, 14 Jan 2002 15:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288974AbSANUIr>; Mon, 14 Jan 2002 15:08:47 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:19728 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289011AbSANUIO>; Mon, 14 Jan 2002 15:08:14 -0500
-Message-ID: <3C43394D.412C7ECC@zip.com.au>
-Date: Mon, 14 Jan 2002 12:02:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Roman Zippel <zippel@linux-m68k.org>, yodaiken@fsmlabs.com,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33.0201141248220.29048-100000@serv> from "Roman Zippel" at Jan 14, 2002 01:00:53 PM <E16Q6D2-0001aZ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288959AbSANULh>; Mon, 14 Jan 2002 15:11:37 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:41222 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S289000AbSANUKf>;
+	Mon, 14 Jan 2002 15:10:35 -0500
+Date: Mon, 14 Jan 2002 21:11:48 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Brian Beattie <alchemy@us.ibm.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        Mario Mikocevic <mozgy@hinet.hr>, linux-kernel@vger.kernel.org
+Subject: Re: FC & MULTIPATH !? (any hope?)
+Message-ID: <20020114211148.B935@marowsky-bree.de>
+In-Reply-To: <200201141524.g0EFOqj09542@localhost.localdomain> <1011037987.918.0.camel@w-beattie1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1011037987.918.0.camel@w-beattie1>
+User-Agent: Mutt/1.3.22.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I'm really trying to avoid this, I'm more than happy to discuss
-> > theoretical or practical problems _if_ they are backed by arguments,
-> > latter are very thin with Victor. Making pointless claims only triggers
-> > above reaction. If I did really miss a major argument so far, I will
-> > publicly apologize.
-> 
-> You seem to be missing the fact that latency guarantees only work if you
-> can make progress. If a low priority process is pre-empted owning a
-> resource (quite likely) then you won't get your good latency. To
-> handle those cases you get into priority boosting, and all sorts of lock
-> complexity - so that the task that owns the resource temporarily can borrow
-> your priority in order that you can make progress at your needed speed.
-> That gets horrendously complex, and you get huge chains of priority
-> dependancies including hardware level ones.
-> 
+On 2002-01-14T11:53:07,
+   Brian Beattie <alchemy@us.ibm.com> said:
 
-It would be useful to define the scope and design guidelines of a "real
-time task".   Obviously, if it tries to perform filesystem or network
-I/O it can block for a long time.  If it acquires VFS locks it can suffer
-bad priority inversion.
+> I've been working with the multipath code.  Trying to add functionality
+> to it.  While I have not yet looked at this particular issue, if there
+> is interest I would be willing to see what can be done.  I do not think
+> it would be a big deal to add the functionality to reactivate a dead
+> path.  It should not be too hard to attempt to do so automatically.
 
-I have all along assumed that a well-designed RT application would delegate
-all these operations to SCHED_OTHER worker processes, probably via shared
-memory/shared mappings.  So in the simplest case, you'd have a SCHED_FIFO
-task which talks to the hardware, and which has a helper task which reads
-and writes stuff from and to disk.  With sufficient buffering and readahead
-to cover the worst case IO latencies.
+It should only be tried on demand, or at least possible to configure it in
+this way; more safe.
 
-If this is generally workable, then it means that the areas of possible
-priority inversion are quite small - basically device driver read/write
-functions.  The main remaining area where priority inversion can 
-happen is in the page allocator.  I'm experimenting/thinking about giving
-non-SCHED_OTHER tasks a modified form of atomic allocation to defeat this.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
--
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+

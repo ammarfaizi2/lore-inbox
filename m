@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUJLVwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUJLVx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUJLVwf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJLVwf
+	id S267882AbUJLVx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJLVwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:52:35 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9225 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S267930AbUJLVrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:47:41 -0400
-Date: Tue, 12 Oct 2004 23:47:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>, mochel@digitalimplant.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] make CONFIG_PM_DEBUG depend on CONFIG_PM
-Message-ID: <20041012214704.GE18579@stusta.de>
+	Tue, 12 Oct 2004 17:52:41 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:50191 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S267882AbUJLVur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 17:50:47 -0400
+Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
+From: David Woodhouse <dwmw2@infradead.org>
+To: Arun Sharma <arun.sharma@intel.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+In-Reply-To: <416AF599.2060801@intel.com>
+References: <41643EC0.1010505@intel.com>
+	 <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com>
+	 <mailman.1097223239.25078@unix-os.sc.intel.com>
+	 <41671696.1060706@intel.com>
+	 <mailman.1097403036.11924@unix-os.sc.intel.com>
+	 <416AF599.2060801@intel.com>
+Content-Type: text/plain
+Date: Tue, 12 Oct 2004 22:50:24 +0100
+Message-Id: <1097617824.5178.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 (2.0.1-4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-10-11 at 14:05 -0700, Arun Sharma wrote:
+> I've prototyped a generic userland solution that covers just open and
+> stat system calls (for completeness, all path walk related syscalls
+> need to be covered) using the LD_PRELOAD approach.
+> 
+> I saw a 16% degradation in system time on this benchmark:
+> 
+> find /usr/src/linux -name '*.[chS]' | xargs grep fsck
+> 
+> mainly due to the doubling of the number of calls to open. Also, there
+> was a slight increase in user time as well, due to malloc/free
+> overhead.
 
-The trivial patch by Chris Wright below still applies against
-both 2.6.9-rc4 and 2.6.9-rc4-mm1.
+The patch is entirely bogus. This isn't at all ia64-specific, and
+doesn't live in arch/ia64. It's just as applicable on _all_ systems
+where we may want to do CPU or OS emulation.
 
+If you make it generic so that qemu can use it for emulating i386 even
+on machines like ppc64, perhaps it would be saner.
 
-make CONFIG_PM_DEBUG depend on CONFIG_PM
+-- 
+dwmw2
 
-
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-===== kernel/power/Kconfig 1.11 vs edited =====
---- 1.11/kernel/power/Kconfig	2004-08-01 20:36:39 -07:00
-+++ edited/kernel/power/Kconfig	2004-09-29 16:01:40 -07:00
-@@ -20,6 +20,7 @@
- 
- config PM_DEBUG
- 	bool "Power Management Debug Support"
-+	depends on PM
- 	---help---
- 	This option enables verbose debugging support in the Power Management
- 	code. This is helpful when debugging and reporting various PM bugs, 

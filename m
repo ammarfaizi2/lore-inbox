@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290891AbSASAu5>; Fri, 18 Jan 2002 19:50:57 -0500
+	id <S290892AbSASAzX>; Fri, 18 Jan 2002 19:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290890AbSASAur>; Fri, 18 Jan 2002 19:50:47 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:10247 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S290889AbSASAu0>; Fri, 18 Jan 2002 19:50:26 -0500
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: rm-ing files with open file descriptors
-Date: Sat, 19 Jan 2002 00:50:24 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <a2afsg$73g$2@ncc1701.cistron.net>
-In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com>
-X-Trace: ncc1701.cistron.net 1011401424 7280 195.64.65.67 (19 Jan 2002 00:50:24 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S290893AbSASAzJ>; Fri, 18 Jan 2002 19:55:09 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:53258 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S290892AbSASAyw>;
+	Fri, 18 Jan 2002 19:54:52 -0500
+Message-ID: <014501c1a083$e5c44650$58dc703f@bnscorp.com>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: "Tim Moore" <timothymoore@bigfoot.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <00c201c1a033$1cf46700$b71c64c2@viasys.com> <3C48BF64.FBF58C7C@bigfoot.com>
+Subject: Re: VIA KT133 & HPT 370 IDE disk corruption
+Date: Fri, 18 Jan 2002 19:54:48 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com>,
-Richard B. Johnson <root@chaos.analogic.com> wrote:
->This is a characteristic of a VFS (Virtual File System) on any
->Unix system. The file doesn't go away until it is closed by
->everybody that accesses it. However, you can remove or rename it
->even when it's open for write by other tasks. If a task has an
->open file-descriptor and keeps it open, it could 'fix' a possibly
->deleted file, by opening it again with
->
->         new_fd = open("filename", O_CREAT|O_RDWR, 0644);
->
->(without O_TRUNC) and it will remain in existance after all
->file descriptors are closed, because it was "created" again
->after it was deleted by another task.
+> My BP6's [hpt366] had similar sustained I/O lockup issues, especially
+> when running a RAID stripe.  From the v1.01 BP6 manual:
 
-Well no. new_fd will refer to a completely new, empty file
-which has no relation to the old file at all.
+Unfortunately, I suspect that is due to the older HPT drivers still in the
+current kernels (the HPT366 is a very broken beast by design, and from what
+I've gathered from others, is that Abit did poor job connecting it into the
+BP6)
 
-There is no way to recreate a file with a nlink count of 0,
-well that is until someone adds flink(fd, newpath) to the kernel.
+Another reason for those lockups could be due to the noisy APIC bus on the
+BP6.
 
-You're a regular on this list, frankly I'm amazed that you
-don't know this ?
+As much as I love my BP6, as an "ultimate dirty hack not approved by Intel"
+motherboard, it has its flaws.
+I'm just thankful it is still running. :)
 
-Mike.
 

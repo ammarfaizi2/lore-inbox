@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263086AbVCEG0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263319AbVCEGRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263086AbVCEG0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 01:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbVCEGTj
+	id S263319AbVCEGRS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 01:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbVCEGNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 01:19:39 -0500
-Received: from fire.osdl.org ([65.172.181.4]:22668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263004AbVCEGKm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 01:10:42 -0500
-Date: Fri, 4 Mar 2005 21:55:49 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: linux-sound@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
-Cc: torvalds <torvalds@osdl.org>, akpm <akpm@osdl.org>
-Subject: [PATCH] oss/esssolo1: fix initdata section references
-Message-Id: <20050304215549.776833e2.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sat, 5 Mar 2005 01:13:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7179 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263034AbVCDUlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:41:23 -0500
+Date: Fri, 4 Mar 2005 21:41:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mike@waychison.com
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] unexport complete_all
+Message-ID: <20050304204120.GI3327@stusta.de>
+References: <422817C3.2010307@waychison.com> <58cb370e0503040240314120ea@mail.gmail.com> <20050304110750.GD3992@stusta.de> <38620.66.11.176.22.1109956113.squirrel@webmail1.hrnoc.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <38620.66.11.176.22.1109956113.squirrel@webmail1.hrnoc.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 04, 2005 at 12:08:33PM -0500, mike@waychison.com wrote:
+> 
+> Did you just blindly grep the userspace tarball?
+> 
+> There is no kernel code in there.  It's all in linux-2.6.*-autofsng-*.patch.
 
-oss/esssolo1: fix initdata section reference:
+Sorry, my bad.
 
-Error: ./sound/oss/esssolo1.o .text refers to 0000000000000bab R_X86_64_32S      .init.data+0x0000000000000004
-Error: ./sound/oss/esssolo1.o .text refers to 0000000000000bb2 R_X86_64_32S      .init.data
+I couldn't connect to your FTP server this morning (I don't know why) 
+and I found the wrong file with Google.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+This makes my patch void.
 
-diffstat:=
- sound/oss/esssolo1.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> Mike Waychison
 
-diff -Naurp ./sound/oss/esssolo1.c~oss_esssolo1_sections ./sound/oss/esssolo1.c
---- ./sound/oss/esssolo1.c~oss_esssolo1_sections	2005-03-01 23:37:48.000000000 -0800
-+++ ./sound/oss/esssolo1.c	2005-03-04 21:19:59.000000000 -0800
-@@ -2193,7 +2193,7 @@ static /*const*/ struct file_operations 
- static struct initvol {
- 	int mixch;
- 	int vol;
--} initvol[] __initdata = {
-+} initvol[] __devinitdata = {
- 	{ SOUND_MIXER_WRITE_VOLUME, 0x4040 },
- 	{ SOUND_MIXER_WRITE_PCM, 0x4040 },
- 	{ SOUND_MIXER_WRITE_SYNTH, 0x4040 },
+cu
+Adrian
 
+-- 
 
----
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

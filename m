@@ -1,88 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSGGQNT>; Sun, 7 Jul 2002 12:13:19 -0400
+	id <S316106AbSGGQVM>; Sun, 7 Jul 2002 12:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSGGQNS>; Sun, 7 Jul 2002 12:13:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28938 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316089AbSGGQNR>;
-	Sun, 7 Jul 2002 12:13:17 -0400
-Date: Sun, 7 Jul 2002 17:15:55 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [PATCH] simplify networking fcntl
-Message-ID: <20020707171555.L27706@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316113AbSGGQVL>; Sun, 7 Jul 2002 12:21:11 -0400
+Received: from [192.58.209.91] ([192.58.209.91]:33704 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S316106AbSGGQVK>;
+	Sun, 7 Jul 2002 12:21:10 -0400
+From: George France <france@handhelds.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       rmk@arm.linux.org.uk (Russell King)
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+Date: Sun, 7 Jul 2002 12:25:08 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+References: <200207070030.g670UbT166497@saturn.cs.uml.edu>
+In-Reply-To: <200207070030.g670UbT166497@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Message-Id: <02070712250804.01900@shadowfax.middleearth>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 06 July 2002 20:30, Albert D. Cahalan wrote:
+>
+> Right now I'm looking to get the temperature,
+> clock speed, and voltage. I get the first two
+> on PowerPC hardware, but it's not obvious what
+> mess an SMP system would spit out.
+>
 
-Sockets haven't had their own special ioctls since before linux 2.0.29.
-sock_no_fcntl is only called for F_SETOWN, so it can stand some
-simplification.
+Alpha Quad:
 
-diff -urNX dontdiff linux-2.5.24/fs/fcntl.c linux-2.5.24-mm/fs/fcntl.c
---- linux-2.5.24/fs/fcntl.c	Sun Jun  9 06:09:49 2002
-+++ linux-2.5.24-mm/fs/fcntl.c	Tue Jul  2 10:55:29 2002
-@@ -347,10 +345,6 @@
- 			err = fcntl_dirnotify(fd, filp, arg);
- 			break;
- 		default:
--			/* sockets need a few special fcntls. */
--			err = -EINVAL;
--			if (S_ISSOCK (filp->f_dentry->d_inode->i_mode))
--				err = sock_fcntl (filp, cmd, arg);
- 			break;
- 	}
- 
-diff -urNX dontdiff linux-2.5.24/net/core/sock.c linux-2.5.24-mm/net/core/sock.c
---- linux-2.5.24/net/core/sock.c	Sun Jun  2 18:44:52 2002
-+++ linux-2.5.24-mm/net/core/sock.c	Tue Jul  2 10:37:58 2002
-@@ -1048,32 +1048,17 @@
- 	return -EOPNOTSUPP;
- }
- 
--/* 
-- * Note: if you add something that sleeps here then change sock_fcntl()
-- *       to do proper fd locking.
-- */
- int sock_no_fcntl(struct socket *sock, unsigned int cmd, unsigned long arg)
- {
--	struct sock *sk = sock->sk;
--
--	switch(cmd)
--	{
--		case F_SETOWN:
--			/*
--			 * This is a little restrictive, but it's the only
--			 * way to make sure that you can't send a sigurg to
--			 * another process.
--			 */
--			if (current->pgrp != -arg &&
--				current->pid != arg &&
--				!capable(CAP_KILL)) return(-EPERM);
--			sk->proc = arg;
--			return(0);
--		case F_GETOWN:
--			return(sk->proc);
--		default:
--			return(-EINVAL);
--	}
-+	/*
-+	 * TCP doesn't use the standard fasync method to deliver
-+	 * SIGURG and SIGIO, so we check permissions at setup time.
-+	 * This should be fixed.
-+	 */
-+	if (current->pgrp != -arg && current->pid != arg && !capable(CAP_KILL))
-+		return -EPERM;
-+	sock->sk->proc = arg;
-+	return 0;
- }
- 
- int sock_no_sendmsg(struct socket *sock, struct msghdr *m, int flags,
+cpu                     : Alpha
+cpu model               : EV56
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       :
+system type             : Rawhide
+system variation        : Dodge
+system revision         : 0
+system serial number    : BT00000000
+cycle frequency [Hz]    : 400000000
+timer frequency [Hz]    : 1200.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 747.36
+kernel unaligned acc    : 0 (pc=0,va=0)
+user unaligned acc      : 416 (pc=12008d8d0,va=4463)
+platform string         : AlphaServer 7310 5/400 4MB
+cpus detected           : 4
+cpus active             : 4
+cpu active mask         : 000000000000000f                                    
+  
 
--- 
-Revolutions do not require corporate support.
+Intel Quad:
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 10
+model name      : Pentium III (Cascades)
+stepping        : 1
+cpu MHz         : 701.636
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat \pse36 mmx fxsr sse
+bogomips        : 1399.19                                                     
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 10
+model name      : Pentium III (Cascades)
+stepping        : 1
+cpu MHz         : 701.636
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat \pse36 mmx fxsr sse
+bogomips        : 1402.47
+                                                                              
+processor       : 2
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 10
+model name      : Pentium III (Cascades)
+stepping        : 1
+cpu MHz         : 701.636
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat \pse36 mmx fxsr sse
+bogomips        : 1402.47                                                     
+            
+processor       : 3
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 10
+model name      : Pentium III (Cascades)
+stepping        : 1
+cpu MHz         : 701.636
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat \pse36 mmx fxsr sse
+bogomips        : 1402.47    
+
+
+Enjoy,
+
+
+--George
+

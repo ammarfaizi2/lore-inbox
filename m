@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265938AbUGTQFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUGTQIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265938AbUGTQFa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 12:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUGTQFa
+	id S265971AbUGTQIl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 12:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUGTQIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 12:05:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22967 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265938AbUGTQFY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 12:05:24 -0400
-Date: Tue, 20 Jul 2004 11:52:42 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl>, cltien@cmedia.com.tw,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] cmpci oops on rmmod + fix
-Message-ID: <20040720145242.GA2315@dmt.cyclades>
-References: <20040717200704.GD14733@fs.tum.de>
-Mime-Version: 1.0
+	Tue, 20 Jul 2004 12:08:41 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:58786 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265971AbUGTQIK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 12:08:10 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040717200704.GD14733@fs.tum.de>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16637.17254.121371.640514@napali.hpl.hp.com>
+Date: Tue, 20 Jul 2004 09:08:06 -0700
+To: Andreas Schwab <schwab@suse.de>
+Cc: davidm@hpl.hp.com, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: fix for unkillable zombie task
+In-Reply-To: <jevfgjulx7.fsf@sykes.suse.de>
+References: <16632.21429.257483.650452@napali.hpl.hp.com>
+	<jesmbr3pfl.fsf@sykes.suse.de>
+	<16636.7969.396569.877226@napali.hpl.hp.com>
+	<jevfgjulx7.fsf@sykes.suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 17, 2004 at 10:07:04PM +0200, Adrian Bunk wrote:
-> Below is a patch originally sent against 2.6 by
-> Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl> (and already included 
-> in 2.6.8-rc1).
-> 
-> His explanation of the patch was:
-> 
-> <--  snip  -->
-> 
-> The cmpci driver included in Linux 2.6.7 causes an oops on rmmod,
-> I believe cm_remove should be marked __devexit rather than __devinit.
-> 
-> <--  snip  -->
-> 
-> 
-> This is an obvious bug, and below is my backport of his fix to 2.4 .
-> While I was editing struct cm_driver, I've also converted it to C99 
-> initializers (as already done in 2.6).
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+>>>>> On Tue, 20 Jul 2004 10:23:32 +0200, Andreas Schwab <schwab@suse.de> said:
 
-Looks good, applied.
+  Andreas> David Mosberger <davidm@napali.hpl.hp.com> writes:
+  >>>>>>> On Sat, 17 Jul 2004 12:20:46 +0200, Andreas Schwab
+  >>>>>>> <schwab@suse.de> said:
+  >>
+  Andreas> Could this be the same problem as discussed in the thread
+  Andreas> at
+  Andreas> <http://marc.theaimsgroup.com/?t=108857537300002&r=1&w=2>?
 
-Thanks Adrian.
+  >>  It appears the "final" patch never made it into Linus' tree?
+
+  Andreas> And it appears to be a different issue, your patch doesn't
+  Andreas> fix that.
+
+Do you have a simple test-case?
+
+	--david

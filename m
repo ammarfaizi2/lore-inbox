@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130915AbQKJBzl>; Thu, 9 Nov 2000 20:55:41 -0500
+	id <S130451AbQKJCXZ>; Thu, 9 Nov 2000 21:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130451AbQKJBzb>; Thu, 9 Nov 2000 20:55:31 -0500
-Received: from smtp2.Mountain.Net ([198.77.1.5]:15004 "EHLO
-	nabiki.mountain.net") by vger.kernel.org with ESMTP
-	id <S130915AbQKJBzT>; Thu, 9 Nov 2000 20:55:19 -0500
-Message-ID: <3A0B5356.4276498C@mountain.net>
-Date: Thu, 09 Nov 2000 20:45:58 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11-p1-davem i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S130819AbQKJCXQ>; Thu, 9 Nov 2000 21:23:16 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:36100 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S130601AbQKJCW5>; Thu, 9 Nov 2000 21:22:57 -0500
+Message-Id: <200011100222.eAA2MoJ10471@wattle.linuxcare.com.au>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] obvious change to apm.c
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: andrewm@uow.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch] NE2000
-In-Reply-To: <200011082031.XAA20453@ms2.inr.ac.ru> (kuznet@ms2.inr.ac.ru),
-			<200011082031.XAA20453@ms2.inr.ac.ru> <200011090127.RAA17691@pizda.ninka.net> <3A0A8236.2166E00@uow.edu.au> <200011091120.DAA27190@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <10468.973822969.1@linuxcare.com.au>
+Date: Fri, 10 Nov 2000 13:22:49 +1100
+From: Stephen Rothwell <sfr@linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    Date: Thu, 09 Nov 2000 21:53:42 +1100
->    From: Andrew Morton <andrewm@uow.edu.au>
-> 
->    "David S. Miller" wrote:
->    > I will compose a patch to fix all this.
-> 
->    I've quickly been through just about all of the kernel wrt
->    waitqueues.
-> 
-> My analysis was in error, BEWARE!
-> 
-> Being on multiple wait queues at once is just fine.  I verified this
-> with Linus tonight.
-> 
-> The problem case is in mixing TASK_EXCLUSIVE and non-TASK_EXCLUSIVE
-> sleeps, that is what can actually cause problems.
-> 
-> Everything else is fine.  Anyways, the (untested) patch below should
-> cure the lock_sock() cases.
-> 
-> --- ./net/ipv4/af_inet.c.~1~    Tue Oct 24 14:26:18 2000
-> +++ ./net/ipv4/af_inet.c        Wed Nov  8 17:28:47 2000
-[...]
-> --- ./net/ipv4/tcp.c.~1~        Fri Oct  6 15:45:41 2000
-> +++ ./net/ipv4/tcp.c    Wed Nov  8 17:35:31 2000
+Hi Linus,
 
-This touches the places where I saw hangs, so I'm testing.
-Too soon to have statistics, but with this patch I have
-observed no more failures to wake (what I referred  to as
-"soft hangs").
+Obvious patch since daemonize() now does this stuff.
 
-I have seen a total I/O lockup, but no info escapes to
-indicate its source. No NMI wakeup available, maybe I should
-rig a pushbutton.
+Cheers,
+Stephen
+-- 
+Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
++61-2-62628990 tel, +61-2-62628991 fax 
+sfr@linuxcare.com, http://www.linuxcare.com/ 
+Linuxcare. Support for the revolution.
 
-Tom
+diff -ruN 2.4.0-test11pre2/arch/i386/kernel/apm.c 2.4.0-test11pre2-sfr/arch/i386/kernel/apm.c
+--- 2.4.0-test11pre2/arch/i386/kernel/apm.c	Wed Nov  1 09:36:12 2000
++++ 2.4.0-test11pre2-sfr/arch/i386/kernel/apm.c	Fri Nov 10 13:20:28 2000
+@@ -1422,9 +1422,6 @@
+ 
+ 	kapmd_running = 1;
+ 
+-	exit_files(current);	/* daemonize doesn't do exit_files */
+-	current->files = init_task.files;
+-	atomic_inc(&current->files->count);
+ 	daemonize();
+ 
+ 	strcpy(current->comm, "kapm-idled");
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292807AbSBQGxS>; Sun, 17 Feb 2002 01:53:18 -0500
+	id <S291272AbSBQXK6>; Sun, 17 Feb 2002 18:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292808AbSBQGxI>; Sun, 17 Feb 2002 01:53:08 -0500
-Received: from smtp.alacritech.com ([209.10.208.82]:18316 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S292807AbSBQGw6>; Sun, 17 Feb 2002 01:52:58 -0500
-Message-ID: <3C6F51CB.D4D8F328@alacritech.com>
-Date: Sat, 16 Feb 2002 22:46:35 -0800
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S291277AbSBQXKj>; Sun, 17 Feb 2002 18:10:39 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:15624 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S291272AbSBQXK2>; Sun, 17 Feb 2002 18:10:28 -0500
+Date: Mon, 18 Feb 2002 00:10:18 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <Pine.LNX.4.44.0202161156350.16872-100000@xanadu.home>
+Message-ID: <20020217231017.GC5131@merlin.emma.line.org>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020216095039.L23546@thyrsus.com> <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ everything deleted ]
+On Sat, 16 Feb 2002, Nicolas Pitre wrote:
 
-Wow, I'm amazed at the amount of time spent on this thread,
-when people could have actually been doing real work, or
-maybe just enjoying family, friends, life ...
+> Make the whole thing ___***IDENTICAL***___ to CML1.
+> Do a formal translation of CML1 into CML2.
 
-I hope it comes to some useful resolutions,
+This requirement is contrary to CML2's objective. CML2 is not about
+re-implementing CML1 tools and bugs in another language, there are at
+least two current projects for that, one of them is mconfig.
 
---Matt
+-- 
+Matthias Andree
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

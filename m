@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272369AbTHIOlD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 10:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272377AbTHIOlC
+	id S272377AbTHIO4G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272382AbTHIO4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 10:41:02 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:50060 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272369AbTHIOlB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 10:41:01 -0400
-Subject: Re: FS Corruption with VIA MVP3 + UDMA/DMA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wes Janzen <superchkn@sbcglobal.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com
-In-Reply-To: <3F34E6D1.7030900@sbcglobal.net>
-References: <16128.19218.139117.293393@charged.uio.no>
-	 <3F007EBF.9020506@sbcglobal.net> <3F10729F.7070701@sbcglobal.net>
-	 <3F34E6D1.7030900@sbcglobal.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060439826.4938.88.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 9 Aug 2003 10:56:06 -0400
+Received: from othala.naquadah.org ([213.41.156.228]:7922 "EHLO
+	selmak.ipv6.naquadah.org") by vger.kernel.org with ESMTP
+	id S272377AbTHIO4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 10:56:04 -0400
+Date: Sat, 9 Aug 2003 16:51:50 +0200
+From: Julien Danjou <julien@jdanjou.org>
+To: linux-kernel@vger.kernel.org
+Subject: Error in raid1 device
+Message-ID: <20030809145150.GB4514@selmak.naquadah.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Aug 2003 15:37:07 +0100
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-08-09 at 13:19, Wes Janzen wrote:
-> I don't know why I didn't google for this in the first place, but it 
-> looks like it is a known issue.  Just apparently not well-known.
-> 
-> Probably not especially important though, I wonder just how many people 
-> are still running this setup...  With Linux, I'd say even fewer.
+Hello,
 
-I'm running MVP4 without problems. I've got an old MVP3 board I need to
-dig out and play with. Certainly MVP3 has problems with some AGP and
-some other high load PCI situations. 
+I've just see this today on a machine running 2.6.0-test2-bk7:
+Aug  9 16:48:03 abydos kernel: attempt to access beyond end of device
+Aug  9 16:48:03 abydos kernel: md1: rw=0, want=4000855256, limit=5863424
+
+Aproximatively 10 times :-/
+The result is awful:
+s--xrws---  28436 3902563852 2186484323 4286391822 Jan 10  2015 uptime
+
+(yes, uptime is a socket :-/)
+
+Several program seems to be corrupted in /usr/bin (maybe elsewhere also..)
+
+The file system is ext3 and md1 is a raid1 array mounted on /usr.
+/dev/md/1             2,8G  2,3G  329M  88% /usr
+The IDE controler is an Intel on a P4P800.
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24db (rev 02)
+
+I have just rebooted on test3, I have the same output at boot time, the
+file system seems to be "definitively corrupted".
+
+-- 
+Julien Danjou
+
+· http://jdanjou.org                   <julien@jdanjou.org> ·
+· GnuPG: 9A0D 5FD9 EB42 22F6 8974  C95C A462 B51E C2FE E5CD ·

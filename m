@@ -1,51 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVBPXsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVBPXyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbVBPXsy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 18:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVBPXsx
+	id S262135AbVBPXyi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 18:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVBPXyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 18:48:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43492 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262134AbVBPXry convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 18:47:54 -0500
-Date: Wed, 16 Feb 2005 15:52:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: noel@zhtwn.com, torvalds@osdl.org, kas@fi.muni.cz, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
-Message-Id: <20050216155255.0ffab555.akpm@osdl.org>
-In-Reply-To: <200502160107.08039.kernel-stuff@comcast.net>
-References: <20050121161959.GO3922@fi.muni.cz>
-	<200502152300.15063.kernel-stuff@comcast.net>
-	<20050215211210.1ea2d342.akpm@osdl.org>
-	<200502160107.08039.kernel-stuff@comcast.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Feb 2005 18:54:38 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56272 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262128AbVBPXyd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 18:54:33 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Date: Wed, 16 Feb 2005 15:54:00 -0800
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200502151557.06049.jbarnes@sgi.com> <1108515817.13375.63.camel@gaston>
+In-Reply-To: <1108515817.13375.63.camel@gaston>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_a09ECd9wZMo9ttJ"
+Message-Id: <200502161554.02110.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar <kernel-stuff@comcast.net> wrote:
->
-> On Wednesday 16 February 2005 12:12 am, Andrew Morton wrote:
-> > Plenty of moisture there.
-> >
-> > Could you please use this patch?  Make sure that you enable
-> > CONFIG_FRAME_POINTER (might not be needed for __builtin_return_address(0),
-> > but let's be sure).  Also enable CONFIG_DEBUG_SLAB.
-> 
-> Will try that out. For now I tried -rc4 and couple other things - removing 
-> nvidia module doesnt make any difference but removing ndiswrapper and with no 
-> networking the slab growth stops. With 8139too driver and network the growth 
-> is there but pretty slower than with ndiswrapper. With 8139too + some network 
-> activity slab seems to reduce sometimes.
+--Boundary-00=_a09ECd9wZMo9ttJ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-OK.
+On Tuesday, February 15, 2005 5:03 pm, Benjamin Herrenschmidt wrote:
+> What about printing "No PCI ROM detected" ? I like having that info when
+> getting user reports, but I agree that a less worrying message would
+> be good.
 
-> Seems either an ndiswrapper or a networking related leak. Will report the 
-> results with Manfred's patch tomorrow.
+Ok, how about this then?  It changes the printks in both drivers to KERN_INFO 
+and describes the situation a bit more accurately.
 
-So it's probably an ndiswrapper bug?
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+Thanks,
+Jesse
+
+P.S. Jon, I think the pci_map_rom code is buggy--if the option ROM signature 
+is missing or indicates that there's no ROM, the routine still returns a 
+valid pointer making the caller thing it succeeded.  If we fix that up we can 
+fix up the callers.
+
+--Boundary-00=_a09ECd9wZMo9ttJ
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="aty-no-rom-present-cleanup.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="aty-no-rom-present-cleanup.patch"
+
+===== drivers/video/aty/radeon_base.c 1.39 vs edited =====
+--- 1.39/drivers/video/aty/radeon_base.c	2005-02-10 22:57:44 -08:00
++++ edited/drivers/video/aty/radeon_base.c	2005-02-16 15:48:48 -08:00
+@@ -330,8 +330,8 @@
+ 
+ 	/* Very simple test to make sure it appeared */
+ 	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
+-		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
++		printk(KERN_INFO "radeonfb (%s): no ROM present\n",
++		       pci_name(rinfo->pdev));
+ 		goto failed;
+ 	}
+ 	/* Look for the PCI data to check the ROM type */
+===== drivers/video/aty/aty128fb.c 1.56 vs edited =====
+--- 1.56/drivers/video/aty/aty128fb.c	2005-02-10 22:57:44 -08:00
++++ edited/drivers/video/aty/aty128fb.c	2005-02-16 15:50:12 -08:00
+@@ -813,8 +813,8 @@
+ 
+ 	/* Very simple test to make sure it appeared */
+ 	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
+-		       BIOS_IN16(0));
++		printk(KERN_INFO "aty128fb (%s): no ROM present\n",
++		       pci_name(dev));
+ 		goto failed;
+ 	}
+ 
+
+--Boundary-00=_a09ECd9wZMo9ttJ--

@@ -1,62 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTKYGQi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 01:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTKYGQi
+	id S262070AbTKYGNE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 01:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTKYGNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 01:16:38 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:63756 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S262076AbTKYGQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 01:16:36 -0500
-Message-ID: <3FC2F3FD.9070100@snapgear.com>
-Date: Tue, 25 Nov 2003 16:17:33 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 25 Nov 2003 01:13:04 -0500
+Received: from zeus.city.tvnet.hu ([195.38.100.182]:62849 "EHLO
+	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP id S262070AbTKYGND
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 01:13:03 -0500
+Subject: off: nvidia binary driver with 2.6-test10
+From: Sipos Ferenc <sferi@mail.tvnet.hu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.0-test10-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1069741003.3493.2.camel@zeus.city.tvnet.hu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 25 Nov 2003 07:16:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi!
 
-An update of the uClinux (MMU-less) fixups against 2.6.0-test10.
-No real changes over linux-2.6.0-test9-uc0 just generated
-and tested against test10.
+Something has changed between 2.6-test9 and 2.6-test10, the nvidia
+driver for test3-mm3 won't run automatically, I have to reinstall each
+system restart. Does anybody have a patch? Thx.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test10-uc0.patch.gz
-
-As usual I will break up and send important bug fixes to Linus...
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Paco

@@ -1,103 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318354AbSGRUTh>; Thu, 18 Jul 2002 16:19:37 -0400
+	id <S318326AbSGRU3I>; Thu, 18 Jul 2002 16:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318357AbSGRUTh>; Thu, 18 Jul 2002 16:19:37 -0400
-Received: from ns.suse.de ([213.95.15.193]:5129 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318354AbSGRUTf>;
-	Thu, 18 Jul 2002 16:19:35 -0400
-Date: Thu, 18 Jul 2002 22:22:29 +0200
-From: Dave Jones <davej@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020718222229.B21997@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3D361091.13618.16DC46FB@localhost> <Pine.LNX.3.96.1020718123016.8220B-100000@gatekeeper.tmr.com>
+	id <S318302AbSGRU3I>; Thu, 18 Jul 2002 16:29:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33031 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318326AbSGRU3H>;
+	Thu, 18 Jul 2002 16:29:07 -0400
+Date: Thu, 18 Jul 2002 21:32:08 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Cc: jsimmons@transvirtual.com
+Subject: Re: 2.5.26 broken on headless boxes
+Message-ID: <20020718213208.P13352@parcelfarce.linux.theplanet.co.uk>
+References: <20020717165538.D13352@parcelfarce.linux.theplanet.co.uk> <20020718010617.GL1096@holomorphy.com> <20020718142946.L13352@parcelfarce.linux.theplanet.co.uk> <20020718201857.GS1096@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020718123016.8220B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020718201857.GS1096@holomorphy.com>; from wli@holomorphy.com on Thu, Jul 18, 2002 at 01:18:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
+On Thu, Jul 18, 2002 at 01:18:57PM -0700, William Lee Irwin III wrote:
+> On Thu, Jul 18, 2002 at 02:29:46PM +0100, Matthew Wilcox wrote:
+> >>>EIP; c01b7695 <visual_init+85/e0>   <=====
+> >>>edx; f7906600 <END_OF_CODE+37502e5c/????>
+> >>>edi; c03dcc00 <vc_cons+0/fc>
+> >>>esp; c3d45e7c <END_OF_CODE+39426d8/????>
+> > Trace; c01b7773 <vc_allocate+83/140>
+> > Trace; c01baa25 <con_open+19/88>
+> > Trace; c01ac08c <tty_open+20c/394>
+> > Trace; c0145a83 <link_path_walk+683/874>
+> > Trace; c0144ed7 <permission+27/2c>
+> > Trace; c0146373 <may_open+5f/2ac>
+> > Trace; c013c33a <chrdev_open+66/98>
+> > Trace; c013b001 <dentry_open+e1/1b0>
+> > Trace; c013af16 <filp_open+52/5c>
+> > Trace; c013b307 <sys_open+37/74>
+> > Trace; c0108893 <syscall_call+7/b>
+> 
+> This is the 4th one of these I've seen in the last two days. Any chance
+> of being able to compile with -g and get an addr2line on the EIP? I've
+> tried to reproduce it myself, but haven't gotten it to happen yet.
 
- > > o New kernel build system (kbuild 2.5)            (Keith Owens)
- > 	I fear Keith might go SPC if this had to wait for 2.7
+seems fairly obvious what's happening with a couple of printks...
 
-Bit by bit, either parts of Keith's work, or orthogonal ideas
-are making it in. Whether the big chunks make it by halloween remains
-to be seen.
+    printk("visual_init: sw = %p, conswitchp = %p, currcons = %d, init = %d\n",
+                    sw, conswitchp, currcons, init);
 
- > > o Add XFS (A journaling filesystem from SGI)      (XFS team)
- > > o Asynchronous IO (aio) support                   (Ben LaHaise)
- > > o LVM (Logical Volume Manager) v2.0               (LVM team)
- > 	I thought these were all progressing nicely
+gets me the interesting fact that sw & conswitchp are both NULL.
+later on, we call:
+    sw->con_init(vc_cons[currcons].d, init);
+which seems like it would be the exact cause, no?
 
-All are aiming for halloween, but none (afaik) have put forward
-anything that can be merged yet. The XFS & LVM folks are still
-cleaning bits and getting things presentable, whilst Ben is still
-at work with aio I guess (judging by his relative silence since
-the summit 8-)
+now whether putting a:
 
- > > o Page table sharing                              (Daniel Phillips)
- > > o ext2/ext3 online resize support                 (Andreas Dilger)
- > 	Definitely want to stabilize these
+	if (!sw)
+		return;
 
-"would be nice".
-
- > > o UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
- > 	Hopefully this is close as well
-
-This has been around for an age, but I haven't seen anything for 2.5
-yet. Then again, I dropped off the packet-writing mailing list a long
-time ago, so I'm not sure how up to date those folks are.
-
- > > o Full compliance with IPv6                       (Alexey Kuznetzov, Jun Murai, Yoshifuji Hideaki, USAGI team)
- > 	could ease in 2.6.x if not?
-
-Davem's call I guess. ISTR the USAGI work was a rather large patch which
-if in Davem's shoes, I'd be rather dubious about taking 'all-in-one'.
-
- > > o Add support for NFS v4                          (NFS v4 team)
- > 	This really shouldn't wait for 2.8!
-
-Last I saw of this patch it was still against something like 2.4.1,
-so they have a lot of catch up to do. This fact asides, if it doesn't
-touch common code, there's no reason it can't go in post-feature freeze
-in the same way as a driver/additional fs. Depends how much it touches.
-That said, are there really that many NFSv4 hosts out there that make
-this a *must have* feature ? Are any other *nix vendors shipping NFSv4 yet?
-
- > > o Remove the 2TB block device limit               (Peter Chubb)
- > 	This would help db folks now, and who knows how big
- > 	a single drive will be before 2.7?
-
-Agreed, a pretty important feature.
-
- > > o Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
- > 	Sure would be nice if it worked on desktops as well as laptops
-
-"works for me". Admittedly I've not played with pcmcia much, but it
-seems at least if you choose the right hardware it works fine.
-
- > > o Add thrashing control                           (Rik van Riel)
- > I sure would like to see documentation improvements on this list! For 2.6
- > it would be beautiful is no features went into /proc/sys unless they went
- > into the Documentation directory as well.	
-
-ObRelated: There was some shouting about a sysctlfs at some point
-which could clean up a lot of the crap in /proc/sys at the expense of
-an extra mount. Al ?
-
-        Dave.
+call into visual_init or whether we should determine earlier never to
+call visual_init, I don't know.  The people who know about the console
+have been conspicuously silent so far...
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Revolutions do not require corporate support.

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266747AbUGUVzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266754AbUGUWCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266747AbUGUVzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 17:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUGUVzx
+	id S266754AbUGUWCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 18:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUGUWCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 17:55:53 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:9668 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S266751AbUGUVyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 17:54:14 -0400
+	Wed, 21 Jul 2004 18:02:42 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:10716 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S266754AbUGUWCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 18:02:41 -0400
+Date: Wed, 21 Jul 2004 17:13:01 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] delete devfs
-From: Jesse Stockall <stockall@magma.ca>
-To: Greg KH <greg@kroah.com>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040721212745.GC18110@kroah.com>
-References: <20040721141524.GA12564@kroah.com>
-	 <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com>
-	 <1090444782.8033.4.camel@homer.blizzard.org>
-	 <20040721212745.GC18110@kroah.com>
-Content-Type: text/plain
-Message-Id: <1090446817.8033.18.camel@homer.blizzard.org>
+Message-ID: <20040721211301.GA15344@phunnypharm.org>
+References: <20040721141524.GA12564@kroah.com> <E1BnIHx-0003Py-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 21 Jul 2004 17:53:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1BnIHx-0003Py-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 17:27, Greg KH wrote:
+On Wed, Jul 21, 2004 at 03:41:45PM +0100, Matthew Garrett wrote:
+> Greg KH <greg@kroah.com> wrote:
 > 
-> It fixes an obviously broken chunk of code that is not maintained by
-> _anyone_.  And it will clean up all device drivers a _lot_ to have this
-> gone, which will benifit everyone in the long run.
+> >Ok, to test out the new development model, here's a nice patch that
+> >simply removes the devfs code.  No commercial distro supports this for
+> >2.6, and both Gentoo and Debian have full udev support for 2.6, so it is
+> >not needed there either.  Combine this with the fact that Richard has
+> >sent me a number of good udev patches to fix up some "emulate devfs with
+> >udev" minor issues, I think we can successfully do this now.
 > 
+> The new Debian installer requires devfs on several architectures, even
+> for 2.6 installs. That's unlikely to get changed before release.
 
-Agreed, but this 'broken' chunk of code is 'working' for a lot of people
-(whether or not this is due to pure luck is not the point)
-
-> As for "right now"?  Why not?  I'm just embracing the new development
-> model of the kernel :)
-
-That's the point that Oliver and I raised, the "leave it till 2.7" (not
-breaking things for real world users) argument seems stronger than the
-"rip it now" (because it makes things cleaner, easier to code, etc)
-argument. 
-
-Devfs should never have made it in the kernel in the first place, but
-ripping devfs out in the middle of a stable series does not solve any
-problems, it creates them.
-
-Is keeping devfs around for 2.6 really that much or a burden? When was
-the last time you saw any mails on lkml asking for devfs support?
-
-Jesse
+What's keeping those architectures from switching to udev?
 
 -- 
-Jesse Stockall <stockall@magma.ca>
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

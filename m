@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274635AbRIYLEa>; Tue, 25 Sep 2001 07:04:30 -0400
+	id <S274633AbRIYLHv>; Tue, 25 Sep 2001 07:07:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274633AbRIYLEU>; Tue, 25 Sep 2001 07:04:20 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:48305 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S274634AbRIYLEF>; Tue, 25 Sep 2001 07:04:05 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
-Date: Tue, 25 Sep 2001 11:04:30 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9opobu$g0$1@forge.intermeta.de>
-In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com> <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1001415871 28704 212.34.181.4 (25 Sep 2001 11:04:31 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 25 Sep 2001 11:04:31 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S274639AbRIYLHk>; Tue, 25 Sep 2001 07:07:40 -0400
+Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:24223 "EHLO
+	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274633AbRIYLHZ>; Tue, 25 Sep 2001 07:07:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+Date: Tue, 25 Sep 2001 04:07:47 -0700
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <B0005839269@gollum.logi.net.au> <20010925044949.JNOU8313.femail42.sdc1.sfba.home.com@there> <20010925124231.A1390@emma1.emma.line.org>
+In-Reply-To: <20010925124231.A1390@emma1.emma.line.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010925110746.SOTR2356.femail27.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+On Tuesday 25 September 2001 03:42 am, Matthias Andree wrote:
+> On Mon, 24 Sep 2001, Nicholas Knight wrote:
+> > It's a very remote possability of failure, like most instances
+> > where write-cache would cause problems. Catastrophic failure of the
+> > IDE cable in mid-write will cause problems. If write cache is
+> > enabled, the write stands a higher chance of having made it to the
+> > drive before the cable died, with it off, it stands a higher chance
+> > of NOT having made it entirely to the drive.
+>
+> Cables don't suddenly die without the help of e. g. your CPU fan.
 
->On Mon, 24 Sep 2001, Paul G. Allen wrote:
+I explained in another message the situation I was thinking of, 
+accidental pulling of the cable.
 
->> If this passes, everyone working in computer security can be
->> arrested and thrown in prison for life. In addition, people such
->> as Kevin Mitnick can be thrown back in prison even though they
->> have already paid for their crime (double jeopardy?).
->>
->> http://www.securityfocus.com/news/257
+>
+> > For most drives, I don't know for sure if they'd finish the write
+> > that's now sitting in their cache, but I expect higher quality
+> > drives (such as our IBM drives) definitely would. Infact I may even
+> > be willing to test this later (my swap partition looks like it
+> > wants to help :)
+>
+> Drives would not write incomplete blocks.
 
->So, would anybody have a nice piece of real estate in the
->free world where silicon valley could be evacuated to ?
+Not what I ment, I ment that if a write gets to the drive completely, 
+and part is still sitting in the cache, I'd think the drive would 
+continue to write it out as long as it has power. I wasn't reffering to 
+the write partialy being down the cable.
 
-I can offer you lots of real estate between here and munich. ;-)
-
-But then again, we have the Bavarian illuminates in Ingolstadt and the
-gnomes of Zuerich. =%-)
-
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+> >
+> > Either Maxtor or Western Digital share very close designs to IBM
+> > drives, I belive they had some sort of development partnership. I'm
+> > not sure if it was Maxtor or WD.
+>
+> The Western Digital 420400D (20 GB, 5400/min) and its 7200/min
+> brother with 18 GBs were IBM disk drives, supposedly, but the WD
+> ...AA/BB drives and whatever else there was looked some different
+> from IBM drives.
+>
+> > > Why are disk drives slower with their caches disabled on LINEAR
+> > > writes?
+> >
+> > Maybe the cache isn't doing what we think it is?
+>
+> Maybe. A monitor software or debug mode would be good to see when
+> writes are scheduled and which blocks are written (I need to ask a
+> friend of mine who hacked ll_rw_blk.c on a different purpose for his
+> diploma thesis, maybe his code is valuable to figure things out.)
+>
+> > Does anyone have contacts at IBM and/or Western Digital?
+> > Something's up... The 256MB write with write-cache off was going at
+> > 5.8MB/sec, and with it on it was going at 14.22MB/sec (averages).
+> > One interesting thing, the timings are showing a pretty consistant
+> > but tiny increase in sys time with write caching on.
+>
+> I also saw that here, but again, it's basically the same hardware.

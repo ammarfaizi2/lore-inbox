@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSFERuy>; Wed, 5 Jun 2002 13:50:54 -0400
+	id <S315607AbSFERyh>; Wed, 5 Jun 2002 13:54:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315779AbSFERux>; Wed, 5 Jun 2002 13:50:53 -0400
-Received: from internal-bristol34.naxs.com ([216.98.66.34]:41601 "EHLO
-	coredump.electro-mechanical.com") by vger.kernel.org with ESMTP
-	id <S315690AbSFERuw>; Wed, 5 Jun 2002 13:50:52 -0400
-Date: Wed, 5 Jun 2002 13:46:25 -0400
-From: William Thompson <wt@electro-mechanical.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: promise PDC20267 onboard supermicro P3TDDE
-Message-ID: <20020605134625.B26891@coredump.electro-mechanical.com>
-In-Reply-To: <20020605132018.A4803@coredump.electro-mechanical.com> <1023302356.2443.25.camel@irongate.swansea.linux.org.uk>
+	id <S315721AbSFERyg>; Wed, 5 Jun 2002 13:54:36 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:27403 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315607AbSFERyf>;
+	Wed, 5 Jun 2002 13:54:35 -0400
+Date: Wed, 5 Jun 2002 10:51:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+        Arnd Bergmann <arndb@de.ibm.com>
+Subject: Re: device model documentation 3/3
+Message-ID: <20020605175152.GE3275@kroah.com>
+In-Reply-To: <200206051224.g55COIZ208776@d06relay02.portsmouth.uk.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 08 May 2002 15:51:25 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Removing the hdd from the controller and it boots just fine.  I tried a
-> > Quantum fireball lct10 05 and a seagate st34311a with the same results.
-> > 
-> > The bios on the pdc controller is v1.31
+On Wed, Jun 05, 2002 at 04:24:18PM +0200, Arnd Bergmann wrote:
+> On Tue Jun 04 2002 - 11:25:19 EST,
+> Patrick Mochel <mochel@osdl.org> wrote:
 > 
-> When 2.4.19pre10-ac2 appears please try that. I've merged a couple of
-> small fixes from Promise (not all the ones they want sorting - some of
-> it is a bit hairy so I'll let Andre do that 8))
+> > When a driver is removed, the list of devices that it supports is 
+> > iterated over, and the driver's remove callback is called for each 
+> > one. The device is removed from that list and the symlinks removed. 
+> 
+> Maybe I'm blind, but I can't see how this works without races for
+> bridge device drivers. Imagine for example what happens when I rmmod
+> a usb hcd driver. Its module use count should be zero as long as the 
+> devices attached to it are not in use, right?
 
-Ok.  where do I get the ac patches at?  It's been a long time since I tried
-one.
+A USB HCD driver module use count is always zero, so you can always
+unload it.  Now if this is a good idea or not is debatable :)
+
+thanks,
+
+greg k-h

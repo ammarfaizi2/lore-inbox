@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265309AbTLHDEE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 22:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbTLHDEE
+	id S265314AbTLHDIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 22:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbTLHDIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 22:04:04 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:41157 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265309AbTLHDEC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 22:04:02 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Bob <recbo@nishanet.com>
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-Date: Mon, 8 Dec 2003 04:06:02 +0100
-User-Agent: KMail/1.5.4
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com> <1070671068.3972.6.camel@athlonxp.bradney.info> <3FD3EB1A.2060600@nishanet.com>
-In-Reply-To: <3FD3EB1A.2060600@nishanet.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 7 Dec 2003 22:08:46 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:37360 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265314AbTLHDIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 22:08:44 -0500
+Date: Sun, 7 Dec 2003 22:06:05 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: David Dillow <dave@thedillows.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [BK PATCH 0/3] Teach kbuild to pull files from BK repository
+In-Reply-To: <1070595121.4574.24.camel@ori.thedillows.org>
+Message-ID: <Pine.GSO.4.33.0312072204020.13188-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312080406.02369.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 of December 2003 04:08, Bob wrote:
-> >Sounds great.. maybe you have come across something. Yes, the CPU
-> >Disconnect function arrived in your BIOS in revision of 2003/03/27
-> >"6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset
-> >does not support C2 disconnect; thus, disable C2 function."
-> >
-> >For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can
-> >see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS
-> >that has been discussed.
-> >
-> >Craig
->
-> I don't have that in MSI K7N2 MCP2-T near the
-> agp and fsb spread spectrum items or anywhere
-> else.
+On 4 Dec 2003, David Dillow wrote:
+>I finally got tired of having to run "bk -r get" before doing a build, so I
+...
 
-Use athcool:
-	http://members.jcom.home.ne.jp/jacobi/linux/softwares.html#athcool
-or apply kernel patch (2.4 and 2.6 versions were posted already).
+This is not necessary...
 
---bart
+  spacemeat:/usr/src/linux-2.6-bk# cat BitKeeper/etc/config
+  # Don't change this unless you're Linus
+  logging_ask:no
+  description: Linux kernel tree
+  logging: logging@openlogging.org
+  email: torvalds@transmeta.com
+
+  # cramer / why isn't this the default?
+  []checkout:get
+
+That last line is the magic.  It's documented in the BK FAQ (more than once
+I think.)
+
+--Ricky
+
 

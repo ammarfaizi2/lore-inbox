@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTIIHv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 03:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTIIHv1
+	id S263975AbTIIHxP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 03:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263985AbTIIHxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 03:51:27 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:16199 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S263956AbTIIHv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 03:51:26 -0400
-Date: Tue, 9 Sep 2003 08:50:24 +0100
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dennis Freise <Cataclysm@final-frontier.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-Message-ID: <20030909075023.GA8065@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dennis Freise <Cataclysm@final-frontier.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org> <20030908225401.GD681@redhat.com> <1063069344.28622.53.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 9 Sep 2003 03:53:15 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:35845
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S263975AbTIIHxN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 03:53:13 -0400
+Subject: Re: 2.6.0-test5-mm1
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <20030908235028.7dbd321b.akpm@osdl.org>
+References: <20030908235028.7dbd321b.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1063093989.12321.28.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063069344.28622.53.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 09 Sep 2003 00:53:09 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 02:02:25AM +0100, Alan Cox wrote:
+On Mon, 2003-09-08 at 23:50, Andrew Morton wrote:
+> +group_leader-rework.patch
+> 
+>  Use the thread group leader's pgrp rather than the current thread's pgrp
+>  everywhere.
 
- > > Linking GPL code to binary .o files, and then disabling the
- > > MODULE_LICENSE("GPL") smells pretty fishy to me.
- > 
- > If all the code they include is their own then they could have dual
- > licensed it. If not and they are modifying core kernel code to add hooks
- > for their code they aren't likely to get past the preliminary arguments 
- > about a GPL violation and it being a derivative work.
+Missed one:
 
-For one it links in the GPL'd nvidia GART module.
+ fs/autofs/inode.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-		Dave
+diff -puN fs/autofs/inode.c~fix-pgrp fs/autofs/inode.c
+--- local-2.6/fs/autofs/inode.c~fix-pgrp	2003-09-09 00:29:35.000000000 -0700
++++ local-2.6-jeremy/fs/autofs/inode.c	2003-09-09 00:30:05.000000000 -0700
+@@ -129,7 +129,7 @@ int autofs_fill_super(struct super_block
+ 	sbi->magic = AUTOFS_SBI_MAGIC;
+ 	sbi->catatonic = 0;
+ 	sbi->exp_timeout = 0;
+-	sbi->oz_pgrp = current->pgrp;
++	sbi->oz_pgrp = process_group(current);
+ 	autofs_initialize_hash(&sbi->dirhash);
+ 	sbi->queues = NULL;
+ 	memset(sbi->symlink_bitmap, 0, sizeof(long)*AUTOFS_SYMLINK_BITMAP_LEN);
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+_
+
+

@@ -1,33 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbULGMyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbULGMyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbULGMyT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 07:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbULGMyT
+	id S261802AbULGMyc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 07:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbULGMyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 07:54:19 -0500
-Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:10500 "EHLO
-	linmail.globaledgesoft.com") by vger.kernel.org with ESMTP
-	id S261801AbULGMyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 07:54:17 -0500
-Message-ID: <41B5A768.80609@globaledgesoft.com>
-Date: Tue, 07 Dec 2004 18:21:52 +0530
-From: krishna <krishna.c@globaledgesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Tue, 7 Dec 2004 07:54:31 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:37038 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261802AbULGMy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 07:54:28 -0500
+Date: Tue, 7 Dec 2004 13:54:25 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: krishna <krishna.c@globaledgesoft.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: what does __foo means.
+In-Reply-To: <41B5A5E1.9010608@globaledgesoft.com>
+Message-ID: <Pine.LNX.4.53.0412071354060.16729@yvahk01.tjqt.qr>
+References: <41B5A5E1.9010608@globaledgesoft.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: what does __foo means?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>Hi all,
+>
+>    Can anyone tell me does double underscore before a function mean?
+>    In which scenario a programmer must use it.
 
-    Can anyone tell me, what does double underscore before a 
-function/variable mean?
-    In which scenario a programmer must use it.
+>From the POV of a compiler, _ is like [a-z]. The programmer may use it freely.
 
-Regards,
-Krishna Chaitanya
 
+
+Jan Engelhardt
+-- 
+ENOSPC

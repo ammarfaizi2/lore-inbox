@@ -1,64 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318979AbSHFERW>; Tue, 6 Aug 2002 00:17:22 -0400
+	id <S319000AbSHFGKk>; Tue, 6 Aug 2002 02:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318982AbSHFERV>; Tue, 6 Aug 2002 00:17:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33548 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318979AbSHFERV>;
-	Tue, 6 Aug 2002 00:17:21 -0400
-Message-ID: <3D4F50F7.2DE00276@zip.com.au>
-Date: Mon, 05 Aug 2002 21:30:47 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S319002AbSHFGKk>; Tue, 6 Aug 2002 02:10:40 -0400
+Received: from pc132.utati.net ([216.143.22.132]:48525 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S319000AbSHFGKj>; Tue, 6 Aug 2002 02:10:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Greg KH <greg@kroah.com>
+Subject: Policy vs API (was Re: [PATCH] integrate driverfs and devfs (2.5.28))
+Date: Mon, 5 Aug 2002 19:51:21 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207291431381.22697-100000@cherise.pdx.osdl.net> <200208051225.g75CP4v316564@pimout4-ext.prodigy.net> <20020805231914.GF29396@kroah.com>
+In-Reply-To: <20020805231914.GF29396@kroah.com>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Steven Cole <elenstev@mesatop.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Steven Cole <scole@lanl.gov>
-Subject: Re: Linux v2.4.19-rc5
-References: <1028232945.3147.99.camel@spc9.esa.lanl.gov> <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020806055922.26D48644@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> On 1 Aug 2002, Steven Cole wrote:
-> 
-> > Here are some dbench numbers, from the "for what it's worth" department.
-> > This was done with SMP kernels, on a dual p3 box, SCSI disk, ext2.
-> > The first column is dbench clients.  The numbers are throughput
-> > in MB/sec.  The 2.5.29 kernel had a few RR-supplied smp fixes.
-> > Looks like for this limited test, 2.4.19-rc5 holds up pretty well.
-> > I've also ran this set of tests several times on -rc5 using ext3
-> > and data=writeback, and everything looks fine.
-> >
-> > Steven
-> 
-> Call me an optimist, but after all the reliability problems we had win the
-> 2.5 series, I sort of hoped it would be better in performance, not
-> increasingly worse. Am I misreading this? Can we fall back to the faster
-> 2.4 code :-(
+On Monday 05 August 2002 07:19 pm, Greg KH wrote:
 
-IO in 2.5 is much more CPU efficient that in 2.4, and straight-line
-bandwidth is better as well.
+> > By the way, why doesn't imposing consistent predefined major/minor
+> > numbers (0x0301 instead of "hda1") count as "policy"?   I'm honestly
+> > curious...
+>
+> It does.  I want to get rid of it too :)  But that's still a ways away...
 
-The scheduling of that IO has a few problems, so in wildly seeky loads
-like dbench the kernel still falls over its own feet a bit.  The
-two main culprits here are the lock_buffer() in block_write_full_page()
-against the blockdev mapping, and the writeback of dirty pages from the
-tail of the LRU in page reclaim.
+The user needs some kind of API.  Some way for a program to say "Could I 
+please talk to the slave drive on the second IDE controller".  What I'm 
+wondering is where's the line between "policy" and "API"?  You can't have a 
+standard API without SOME level of "policy".
 
-And no, the eventual dbench numbers will not be a measure of the success
-of the tuning which will happen on the run in to 2.6.  Dbench throughput
-may well be lower, because we probably should be starting writeback
-at lower dirty thresholds.
+Major/minor device numbers suck because the namespace is too small (for 
+historical reasons), it's randomly organized (again for historical reasons), 
+it's almost exhausted (due to the first two), making it bigger will just help 
+the clutter breed, and it's almost impossible to recycle old numbers as long 
+as three people out there are still using the floppy tape controller or 
+whatever.  Plus humans really do think in words (or at least text strings), 
+hence the phone book and DNS to access numbers via strings.  (And the /dev 
+directory.)
 
-If you want good dbench numbers:
+There already ARE standardized text based APIs, and internationalization 
+people object to them for political correctness reasons and that's just 
+stupid.  If somebody is REALLY stupid enough to translate the standard C 
+library function names into chinese unicode, and then try to actually link a 
+program against it, they deserve what they get.  Same with the standard unix 
+commands: awk, grep, and sed aren't english.  (They're posix.  :)
+Internationalizing the data going through an API is one thing, trying to 
+internationalize the API itself is just silly.  Might as well encourage 
+non-english posts on linux-kernel...
 
-echo 70 > /proc/sys/vm/dirty_background_ratio
-echo 75 > /proc/sys/vm/dirty_async_ratio
-echo 80 > /proc/sys/vm/dirty_sync_ratio
-echo 30000 > /proc/sys/vm/dirty_expire_centisecs
+I've noticed a bias against actually using strings to interface the kernel 
+with userspace (the module autoloader being one relatively obvious example), 
+but it's still done in a bunch of places anyway ("/sbin/init", "linuxrc", 
+"hotplug", "modprobe", the text command line for kernel booting with "init=", 
+"root=", "initrd="...).  The kernel talks to other parts of the kernel by 
+exporting text symbols, userspace talks to userspace with strings, why is 
+kernel to userspace fundamentally different?  The problem with the horror 
+that is /proc is that it's not ORGANIZED, not that it's text.  People put so 
+much stuff into /proc because they WANT a text API, and for a long time that 
+was their only real outlet.
+
+The problems with devfs are, well, numerous, but the fundamental idea of 
+automatically mounting a /dev directory with the available devices into it 
+rather than a MAKEDEV script to create 8 zillion nodes for devices you might 
+conceivably want to borrow from a museum someday...  Implementation issues 
+aside, what was wrong with the idea itself?  The rebellion against using the 
+existing names there makes devfs a lot less interesting to me, I know that 
+much.  It doesn't provide the same API the /dev directory does, and half the 
+software I use won't compile against it without a chainsaw and a bullwhip, or 
+the daemon kludge.  Code quality aside, the new devfs api never struck me as 
+an improvement over the old one.  (I STILL don't know why a change of 
+implementation mandated a change of API.)
+
+I'm under the vague impression that devicefs may somehow become the new 
+driver API at some point after Buck Rogers returns from his frozen orbit.  
+The whole POINT of devicefs seems to be to expose new data through a fresh 
+API that's designed to grow without getting disorganized.  This implies (to 
+me) a move towards a device API defined in the context of a text namespace.
+
+If there's some move underway to avoid doing so (because any standard API is 
+"policy"), what exactly is the better alternative?
+
+Rob

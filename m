@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVAMDUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVAMD0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVAMDUH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVAMDUH
+	id S261270AbVAMD0C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVAMD0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:20:07 -0500
-Received: from mx.freeshell.org ([192.94.73.21]:25591 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S261199AbVAMDTo (ORCPT
+	Wed, 12 Jan 2005 22:26:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17320 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261270AbVAMDZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:19:44 -0500
-Date: Thu, 13 Jan 2005 03:19:21 +0000 (UTC)
-From: Roey Katz <roey@sdf.lonestar.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-In-Reply-To: <200501110239.33260.dtor_core@ameritech.net>
-Message-ID: <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
- <200501091102.51246.dtor_core@ameritech.net> <Pine.NEB.4.61.0501100107070.13360@sdf.lonestar.org>
- <200501110239.33260.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Jan 2005 22:25:52 -0500
+Date: Wed, 12 Jan 2005 22:25:06 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113032506.GB1212@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry,
+On Wed, Jan 12, 2005 at 06:09:31PM -0800, Linus Torvalds wrote:
 
-I have placed the results of the patched 2.6.9-rc2-bk2 kernel at the 
-following address:
+ > Yes, I think delayed disclosure is broken. I think the whole notion of 
+ > "vendor update available when disclosure happens" is nothing but vendor 
+ > politics, and doesn't help _users_ one whit.
 
-   http://roey.freeshell.org/mystuff/kernel/*-20050112
+The volume of traffic we as a vendor get every time an issue
+makes news (and sadly even the insignificant issues seem to be
+making news these days) from users wanting to know where our
+updates are is a good indication that your thinking is clearly bogus.
 
-As expected, the system was unresponsive to keyboard input.
-Regarding your mouse question:
-How do I test the mouse if they keyboard does not work (is there some 
-way to output the contents of /dev/psaux on startup? I'm not sure anymore 
-what file the mouse data appears in, too)
+ > The only thing it does is allow the vendor to point fingers and say "hey, we
+ > have an update, now it's your problem".
 
-- Roey
+I fail to see the point you're trying to make here.
 
+ > So it's embarrassing to everybody if the kernel.org kernel has a security
+ > hole for longer than vendor kernels, but at the same time, most _users_
+ > run vendor kernels anyway, so maybe the current setup is the proper one,
+ > and the kernel.org kernel _should_ be the last one to get the fix.  
 
-On Tue, 11 Jan 2005, Dmitry Torokhov wrote:
+I think the timelyness isn't the issue, the issue is making sure that
+the kernel.org kernel actually does end up getting the fixes.
+That 2.6.10 got out of -rc with known vulnerabilities which were
+known to be fixed in 2.6.9-ac is mind-boggling.  That a 2.6.10.1
+didn't follow up yet is equally so.
 
-> Date: Tue, 11 Jan 2005 02:39:33 -0500
-> From: Dmitry Torokhov <dtor_core@ameritech.net>
-> To: linux-kernel@vger.kernel.org
-> Cc: Roey Katz <roey@sdf.lonestar.org>
-> Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-> 
-> On Sunday 09 January 2005 08:09 pm, Roey Katz wrote:
->> OK, I moved that input/serio line to be just above the line mentioning
->> "input".  Rebooted;  still got this error.  See all the -2.6.9-rc2-bk3
->> logs on my web site (http://roey.freeshell.org/mystuff/kernel/) for
->> details. I will follow up with psmouse disabled if you want.
->>
->
-> I just don't see anything wrong with it... oh well...
->
-> Ok, I have cut out everything but input changes from -rc2-bk3, could you
-> pleasde try appying the patch below to -rc2. If it does not work it will
-> prove that the input code is to blame and we'll start reverting changes
-> one by one to find out the one that broke the keyboard.
->
-> Make you are booting with log_buf_len=131072 as some of your logs are
-> short. And be sure hit keyboard couple of times after the mox finished
-> booting (single user mode preferably).
->
-> Btw, does your mouse work?
->
->>
->> Roey
->> PS: just changing a Makefile makes a difference?
->>
-> This particular chane make keyboard controller initialization code run later
-> in the startup sequence, but apparently it had no visible effect.
->
-> -- 
-> Dmitry
->
->
+Part of the premise of the 'new' development model was that vendor kernels
+were where people go for the 'super-stable kernel', and the kernel.org
+kernel may not be quite so polished around the edges. This seems to
+go against what you're saying in this thread which reads..
+'kernel.org kernels might not be as stable as vendor kernels, but you're
+ going to need to run it if you want security holes fixed asap'
+
+ > Whatever. I happen to believe in openness, and vendor-sec does not. It's
+ > that simple.
+
+That openness comes at a price. I don't need to bore you with
+analogies, as you know as well as I do how wide and far Linux
+is deployed these days, but doing this openly is just irresponsible.
+
+Someone malicious on getting the announcement of a new kernel.org release
+gets told exactly where the hole is and how to exploit it.
+All they'll need to do is find a target running a vendor kernel before
+updates get deployed.  Whilst this is true to a certain degree
+today, as not everyone deploys security updates in a timely manner
+(some not at all), things can only get worse.
+
+		Dave

@@ -1,125 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRCNFWu>; Wed, 14 Mar 2001 00:22:50 -0500
+	id <S131308AbRCNF7h>; Wed, 14 Mar 2001 00:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131310AbRCNFWk>; Wed, 14 Mar 2001 00:22:40 -0500
-Received: from f74.law3.hotmail.com ([209.185.241.74]:45060 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S131305AbRCNFW3>;
-	Wed, 14 Mar 2001 00:22:29 -0500
-X-Originating-IP: [65.25.188.54]
-From: "John William" <jw2357@hotmail.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] HP Vectra XU 5/90 interrupt problems
-Date: Wed, 14 Mar 2001 05:21:43 
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_2ca8_4bc7_4770"
-Message-ID: <F74vus7H5bYjxHBJnHP0000e647@hotmail.com>
-X-OriginalArrivalTime: 14 Mar 2001 05:21:43.0160 (UTC) FILETIME=[A7F03780:01C0AC46]
+	id <S131310AbRCNF71>; Wed, 14 Mar 2001 00:59:27 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:14587 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131308AbRCNF7I>; Wed, 14 Mar 2001 00:59:08 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103140558.f2E5w8P06685@webber.adilger.int>
+Subject: Re: ln -l says symlink has size 281474976710666
+In-Reply-To: <20010314022236.D18554@grulic.org.ar> from John R Lenton at "Mar
+ 14, 2001 02:22:36 am"
+To: John R Lenton <john@grulic.org.ar>
+Date: Tue, 13 Mar 2001 22:58:08 -0700 (MST)
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+John Lenton writes:
+> burocracia:~# debugfs /dev/hda2
+> debugfs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+> debugfs:  stat <404176>
+> Inode: 404176   Type: symlink    Mode:  0777   Flags: 0x0   Generation: 2457884131
+> User:     0   Group:     0   Size: 281474976710666
+> Fast_link_dest: imlib-base
+> debugfs:  stat <404192>
+> Inode: 404192   Type: symlink    Mode:  0777   Flags: 0x0   Generation: 1796859698
+> User:     0   Group:     0   Size: 281474976710669
+> Fast_link_dest: /proc/self/fd
 
-------=_NextPart_000_2ca8_4bc7_4770
-Content-Type: text/plain; format=flowed
+So it is garbage in the "i_size_high" field (=i_dir_acl) in the inode.
 
-I propose a patch of mpparse.c (patched against 2.4.2) to fix the Vectra XU 
-interrupt problem.
+> this is after an e2fsck, after a reboot, after restart. Nothing
+> in the logs. The inodes are as old as the system, which isn't all
+> that old (circa the first release with reiserfs).
 
-By the time we get to construct_default_ioirq_mptable(), we know we have an 
-ISA/PCI machine without any IRQ entries in the MP table. At this point the 
-kernel would just set up all the IRQ entries as ISA conforming entries (edge 
-sensitive). So any shared PCI interrupts won't work right.
+Luckily, after the symlink is created it ignores the size, and only uses
+the i_blocks count to determine if the symlink is stored in the inode
+itself or in another block (the fast symlink will be NUL terminated).
+It could well have been corruption from a long time ago, and only with
+2.4.x and LFS you have noticed it.
 
-A quick sanity check is made against the ELCR data (IRQ0, 1, 2 and 13 can 
-never be level sensitive). If the check passes, the ELCR data is copied into 
-the new MP table we are creating. This sets the PCI interrupts to level 
-sensitive.
+Probably e2fsck needs to be updated to check for and fix this problem -
+it is impossible for a symlink to be larger than a single block, so
+the i_size_high field should always be zero.
 
-This patch works on the Vectra XU 5/90 machines I have here.
-
-Comments are welcome!
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
-
-------=_NextPart_000_2ca8_4bc7_4770
-Content-Type: text/plain; name="mpparse.diff"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="mpparse.diff"
-
-diff -u linux/arch/i386/kernel/mpparse.bak linux/arch/i386/kernel/mpparse.c
---- linux/arch/i386/kernel/mpparse.bak	Tue Nov 14 23:25:34 2000
-+++ linux/arch/i386/kernel/mpparse.c	Tue Mar 13 23:08:01 2001
-@@ -361,10 +361,19 @@
-	return num_processors;
-}
-
-+static int __init ELCR_trigger(unsigned int irq)
-+{
-+	unsigned int port;
-+
-+	port = 0x4d0 + (irq >> 3);
-+	return (inb(port) >> (irq & 7)) & 1;
-+}
-+
-static void __init construct_default_ioirq_mptable(int mpc_default_type)
-{
-	struct mpc_config_intsrc intsrc;
-	int i;
-+	int ELCR_fallback = 0;
-
-	intsrc.mpc_type = MP_INTSRC;
-	intsrc.mpc_irqflag = 0;			/* conforming */
-@@ -372,6 +381,26 @@
-	intsrc.mpc_dstapic = mp_ioapics[0].mpc_apicid;
-
-	intsrc.mpc_irqtype = mp_INT;
-+
-+	/*
-+	 *  If true, we have an ISA/PCI system with no IRQ entries
-+	 *  in the MP table. To prevent the PCI interrupts from being set up
-+	 *  incorrectly, we try to use the ELCR. The sanity check to see if
-+	 *  there is good ELCR data is very simple - IRQ0, 1, 2 and 13 can
-+	 *  never be level sensitive, so we simply see if the ELCR agrees.
-+	 *  If it does, we assume it's valid.
-+	 */
-+	if (mpc_default_type == 5) {
-+		printk("ISA/PCI bus type with no IRQ information... falling back to 
-ELCR\n");
-+
-+		if (ELCR_trigger(0) || ELCR_trigger(1) || ELCR_trigger(2) || 
-ELCR_trigger(13))
-+			printk("ELCR contains invalid data... not using ELCR\n");
-+		else {
-+			printk("Using ELCR to identify PCI interrupts\n");
-+			ELCR_fallback = 1;
-+		}
-+	}
-+
-	for (i = 0; i < 16; i++) {
-		switch (mpc_default_type) {
-		case 2:
-@@ -381,6 +410,18 @@
-		default:
-			if (i == 2)
-				continue;	/* IRQ2 is never connected */
-+		}
-+
-+		if (ELCR_fallback) {
-+			/*
-+			 *  If the ELCR indicates a level-sensitive interrupt, we
-+			 *  copy that information over to the MP table in the
-+			 *  irqflag field (level sensitive, active high polarity).
-+			 */
-+			if (ELCR_trigger(i))
-+				intsrc.mpc_irqflag = 13;
-+			else
-+				intsrc.mpc_irqflag = 0;
-		}
-
-		intsrc.mpc_srcbusirq = i;
-
-
-------=_NextPart_000_2ca8_4bc7_4770--
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

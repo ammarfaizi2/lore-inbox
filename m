@@ -1,94 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266516AbUBLQxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 11:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266518AbUBLQxZ
+	id S266518AbUBLQzt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 11:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUBLQzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 11:53:25 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:24242 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S266516AbUBLQxB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 11:53:01 -0500
-Date: Thu, 12 Feb 2004 09:52:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][0/6] A different KGDB stub
-Message-ID: <20040212165259.GP19676@smtp.west.cox.net>
-References: <20040212000237.GA19676@smtp.west.cox.net> <20040211162756.12bb19e8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Feb 2004 11:55:49 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:43188 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S266518AbUBLQzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 11:55:45 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Nick Piggin <piggin@cyberone.com.au>, Giuliano Pochini <pochini@shiny.it>
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
+Date: Fri, 13 Feb 2004 01:05:20 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au>
+In-Reply-To: <402B5502.2010207@cyberone.com.au>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040211162756.12bb19e8.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200402130105.22554.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 04:27:56PM -0800, Andrew Morton wrote:
-
-> Tom Rini <trini@kernel.crashing.org> wrote:
+On Thursday 12 February 2004 18:27, Nick Piggin wrote:
+> 
+> Giuliano Pochini wrote:
+> 
+> >On 12-Feb-2004 Andrea Arcangeli wrote:
 > >
-> > Hi Andrew.  As a reply to this message, I'm going to send you patches to
-> > replace George's KGDB with a version that is Amit Kale's work, with a
-> > number of additional cleanups (that I'll put in his CVS ASAP).  There
-> > are 6 different patches:
-> > core.patch: All of the non-arch specific bits, that aren't drivers.
-> > 8250.patch: The i/o driver for KGDB, via a standard PC uart.
-> > kgdboe.patch: The i/o driver for KGDB, via netpoll.
-> > i386.patch: The i386-specific code, tested.
-> > ppc32.patch: The ppc32-specific code, tested.
-> > x86_64.patch: The x86_64-specific bits, untested.
+> >
+> >>the main difference is that 2.4 isn't in function of time, it's in
+> >>function of requests, no matter how long it takes to write a request,
+> >>so it's potentially optimizing slow devices when you don't care about
+> >>latency (deadline can be tuned for each dev via
+> >>/sys/block/*/queue/iosched/).
+> >>
+> >
+> >IMHO it's the opposite. Transfer speed * seek time of some
+> >slow devices is lower than fast devices. For example:
+> >
+> >Hard disk  raw speed= 40MB/s   seek time =  8ms
+> >MO/ZIP     raw speed=  3MB/s   seek time = 25ms
+> >
+> >
 > 
-> OK.
+> I like accounting by time better because its accurate
+> and fair for all types of devices, however I admit an
+> auto tuning feature would be nice.
 > 
-> > With this, there's a few design questions I have.  First, as I've done
-> > things right now, a breakpoint at the first line of C code is untested.
-> > It should work, but I have a question of how we want to handle setting
-> > up the pointer to our i/o functions (if we have a pointer).  There's a
-> > couple of ways that this could be solved, with pros and cons.  For
-> > example, if we want to allow for both serial and enet to be used in the
-> > same kernel, we could default to setting this pointer to the 8250
-> > version, and allow for kgdb_arch_init to override (as PPC sometimes
-> > does).  This is what I've done for now, but I don't know if I like how
-> > it looks or not. If we don't care about allowing for > 1 i/o driver, we
-> > can simply drop kgdb_serial as a function pointer and just call
-> > kgdb_getDebugChar/kgdb_putDebugChar/etc.  Or someone else can suggest an
-> > better way.
+> Say you allow 16 128K requests before seeking:
+> The HD will run the requests for 50ms then seek (8ms).
+> So this gives you about 86% efficiency.
+> On your zip drive it takes 666ms, giving you 96%.
 > 
-> I don't think runtime selection is very important, personally.  You tend to
-> get things set up with a serial cable or ethernet and just leave it that
-> way.  Given that you need to recompile the kernel anyway, I'd say that
-> Kconfig-time selection is acceptable.
+> Now with AS, allowing 50ms of requests before a seek
+> gives you the same for an HD, but only 66% for the MO
+> drive. A CD-ROM will be much worse.
+> 
+> Auto tuning wouldn't be too hard. Just measure the time
+> it takes for your seeking requests to complete and you
+> can use the simple formula to allow users to specify a
+> efficiency vs latency %age.
+> 
 
-I'll start on that then.
+This triggers me to ask about "io niceness" which has been on 
+my mind for some time.
 
-> > Next, what features of George's version are a must-have?  And what that
-> > we have now, can we drop?  For example, up until I started working on
-> > kgdboe+netpoll, I found KGBB_CONSOLE quite handy.  Now, I'm very happy
-> > with netconsole, so I don't have a strong attachment to KGDB_CONSOLE
-> > anymore.  But it's not much code anyhow.  And of course, what could be
-> > done better?
-> 
-> I use KGDB_CONSOLE occasionally, although that's only when I can't stomach
-> the thought of using minicom ;)
-> 
-> A few things which I believe have debatable value are:
-> 
-> CONFIG_KGDB_MORE
-> CONFIG_KGDB_OPTIONS
-> CONFIG_NO_KGDB_CPUS
-> CONFIG_KGDB_TS
-> CONFIG_STACK_OVERFLOW_TEST
-> CONFIG_KGDB_SYSRQ		(Just turn it on by default?)
-> 
-> I have never used (or, as far as I know, needed) any of the above.
+A disk intensive example is updatedb, which since the earlier 
+days of linux on [34]86s, is usually reniced at 19. At that time a 
+CPU did 10-50 bogomips and disks transfered  5-20MB at seek times of 
+10ms or so.
 
-I think CONFIG_KGDB_SYSRQ can die since with the 8250 and enet drivers
-you can try and connect at any point, which will schedule a breakpoint
-and you can get in like that.  As for NO_KGDB_CPUS, I'm not entirely
-certain why this can't go away and there'd be an array of NR_CPUS in
-size.
+Today, CPU's are 100 times as fast but disks are effectively only 
+2-5 times as fast.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+What I am getting at is being annoyed with updatedb ___saturating___ 
+the the disk so easily as the "ancient" method of renicing does not 
+consider the fact that the CPU pwrformance has increased 20-50 fold 
+over disk performace.
+
+Bottom line: what about assigning "io niceness" to processes, which
+would also help with actively scheduling io toward processes 
+needing it.
+
+Michael
+

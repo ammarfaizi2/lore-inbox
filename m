@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290536AbSAQXsR>; Thu, 17 Jan 2002 18:48:17 -0500
+	id <S290537AbSAQXsR>; Thu, 17 Jan 2002 18:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290537AbSAQXsG>; Thu, 17 Jan 2002 18:48:06 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:18327 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290536AbSAQXrv>; Thu, 17 Jan 2002 18:47:51 -0500
-Subject: Re: FC & MULTIPATH !? (any hope?)
-From: Brian Beattie <alchemy@us.ibm.com>
-To: Mario Mikocevic <mozgy@hinet.hr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
-In-Reply-To: <20020114123301.B30997@danielle.hinet.hr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 17 Jan 2002 15:36:54 -0800
-Message-Id: <1011310615.519.3.camel@w-beattie1>
-Mime-Version: 1.0
+	id <S290538AbSAQXsG>; Thu, 17 Jan 2002 18:48:06 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:63138 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S290537AbSAQXr4>; Thu, 17 Jan 2002 18:47:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: evms-devel@lists.sourceforge.net
+Subject: [ANNOUNCE] EVMS Release 0.9.0 (Beta)
+Date: Thu, 17 Jan 2002 17:44:05 -0600
+X-Mailer: KMail [version 1.2]
+Cc: evms-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <02011717440501.29109@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 03:33, Mario Mikocevic wrote:
-> Hi,
-> 
-> is there any hope of working combination of MULTIPATH with FC !?
-> 
-> At the moment I am using raid option multipath but it's one way
-> street, when one FC connection dies it successfully switches onto
-> another FC connection but when that second dies aswell, mount point
-> is in a limbo, no switching back to first FC connection.
-> 
-> Any other solutions, patches ?!
-> 
+The EVMS team is officially announcing its first Beta release. Package 0.9.0 
+of the Enterprise Volume Management System is now available for download at 
+the project web site:
+http://www.sf.net/projects/evms
 
-After analysing the current code in md/multipath and discussing it with
-other here who have experience with multipath support I have come up
-with the following approach.
+Highlights for version 0.9.0:
 
-When a path fails and there are no more good paths, an attempt will be
-made complete the operation using each previously failed path untill the
-operation succeds, or all know paths have been tried.  If the operation
-succeds, that path will be marked good.
+v0.9.0 - 1/17/02
+- Core Engine
+   - New APIs for Filesystem Interface Modules.
+   - Support for setting properties of volumes, objects, and containers.
+   - New user-interface tasks.
+      - Expand containers, mkfs, fsck, defrag.
+   - Improved user-space discovery algorithm.
+- GUI
+   - Support for expanding containers and removing objects from containers.
+   - Support for setting object properties.
+- Command Line
+   - Support for expanding, shrinking containers.
+- LVM Plugin
+   - Supports adding/removing objects (PVs) from containers in the GUI or the
+      EVMS command line.
+- MD Plugin
+   - Runtime support for Linear, RAID-0, and RAID-1.
+      - Sync and spare-failover available for RAID-1.
+      - Hot-add for RAID-1 still under development.
+  - Engine support for Linear, RAID-0, and RAID-1.
+      - Discovery, creation, deletion.
+  - Engine discovery support for RAID-5. No creation yet.
+  - Recommended to NOT use the EVMS MD plugin and the original MD driver in
+     the same kernel.
+- EVMS Drivelinking Plugin
+   - Support for missing elements in a drive-link. Exports the drive-link in
+      read-only mode to allow recovery of data on the remaining elements.
+- AIX Plugin
+   - Minimal discovery in user-space. Constructs all containers without
+      exporting any regions.
+- Text-Mode Interface
+   - All code and features added. Needs additional testing.
+- Kernel
+   - Supports specifying an EVMS volume as a "root=" kernel boot-parameter.
+- Lots of testing and bug-fixes.
 
-When a operation is attempted and no good paths exist, the operation
-will be attempted on each know path until success or all know paths are
-tried.
 
-Probable enhancements to this would include, provideing a method to mark
-a path to not attempt this crude form of auto recovery and a way to mark
-a failed path as good.  Finally a device wide flag to disable
-auto-recovery.
-
-A disadvantage to this approach is that it would potentially, multiply
-the amount or time it takes to ultimately fail the attempt, by the
-number of paths.  This would seem to be acceptable since the alternative
-is to fail the operation when a good route might exist.
-
-I would appreciate any thoughts, flames, or suggestions.
-
+Kevin Corry
+corryk@us.ibm.com
+Enterprise Volume Management System
+http://www.sf.net/projects/evms

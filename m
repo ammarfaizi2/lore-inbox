@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpPizqoA4jaf/S8uPls5wkAc0Vw==
+thread-index: AcQVpI6rqA9zDRGwT/iyMnsSXs4DYg==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Tue, 06 Jan 2004 03:19:11 +0000
-Message-ID: <046801c415a4$f8b33350$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 21:58:15 +0000
+Message-ID: <024801c415a4$8eab3020$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
+Date: Mon, 29 Mar 2004 16:43:18 +0100
 Content-Class: urn:content-classes:message
+From: "Vojtech Pavlik" <vojtech@suse.cz>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:46:16 +0100
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [Bugfix] Set more than 32K pid_max (reformatted)
-In-Reply-To: <Pine.LNX.4.44.0401061042580.26260-100000@mazda.sh.intel.com>
-References: <Pine.LNX.4.44.0401061042580.26260-100000@mazda.sh.intel.com>
+Cc: <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: Re: [PATCH] Remove Intel check in i386 HPET code
+References: <20040104131350.GA21508@averell>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20040104131350.GA21508@averell>
+User-Agent: Mutt/1.5.4i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:46:17.0078 (UTC) FILETIME=[F9129160:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:43:18.0625 (UTC) FILETIME=[8EB4CD10:01C415A4]
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jan 04, 2004 at 02:13:50PM +0100, Andi Kleen wrote:
+> 
+> The i386 HPET time setup code would explicitely check for the Intel
+> vendor ID. That is bogus because other chipset vendors (like AMD) 
+> are implementing HPET too. 
+> 
+> Remove this check.
 
-On Tue, 6 Jan 2004, Zhu, Yi wrote:
+You can also remove the HPET_ID_VENDOR_8086 definition.
 
->         if (!offset || !atomic_read(&map->nr_free)) {
-> +               if (!offser)
+> 
+> -Andi
+> 
+> diff -u linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c~ linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c
+> --- linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c~	2004-01-04 14:10:59.000000000 +0100
+> +++ linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c	2004-01-04 14:10:59.000000000 +0100
+> @@ -91,10 +91,6 @@
+>  	    !(id & HPET_ID_LEGSUP))
+>  		return -1;
+>  
+> -	if (((id & HPET_ID_VENDOR) >> HPET_ID_VENDOR_SHIFT) !=
+> -				HPET_ID_VENDOR_8086)
+> -		return -1;
+> -
+>  	hpet_period = hpet_readl(HPET_PERIOD);
+>  	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
+>  		return -1;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I suppose it should be "if (!offset)"...
-
-Mind Booster Noori
-
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQE/+igomNlq8m+oD34RAgGcAJ9p12OYiL/XKCJu4JPczbNO8+P6rwCg3Wdz
-eIkeuX3q4JuVHaLeGXGIDIA=
-=vP/K
------END PGP SIGNATURE-----
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,59 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbUCKQCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUCKQBv
+	id S261491AbUCKQBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUCKQBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:01:51 -0500
-Received: from smtp.irisa.fr ([131.254.130.26]:61877 "EHLO smtp.irisa.fr")
-	by vger.kernel.org with ESMTP id S261437AbUCKQBp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:01:45 -0500
-Message-ID: <40508D65.9000601@irisa.fr>
-Date: Thu, 11 Mar 2004 17:01:41 +0100
-From: David Fort <david.fort@irisa.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040216
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Unkillable Zombie process under 2.6.3 and 2.6.4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 11 Mar 2004 11:01:44 -0500
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:41314 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S261496AbUCKQBD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:01:03 -0500
+Subject: [PATCH] 2.6.4 synclink.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079020863.1950.5.camel@toshiba>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Mar 2004 10:01:04 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
-i have some troubles with some totally unkillable zombie process:
-Here's how i can get unkillable zombies debug multi-threaded program 
-using gdb and
-in the execution my program popens a command, sometimes i get the 
-following gdb message
+Patch for synclink.c against 2.6.4
 
-waiting for new child: No child processes.
-(gdb)
+* track driver API changes
+* remove cast (kernel janitor)
 
-And gdb give me back the prompt. I have the impression that the child 
-process has
-been effectively launched.
-If i ask gdb to continue the process goes on but the incriminated thread 
-looks freezed. When
-in this state i can contact other threads, but gdb is stuck(Ctrl+C 
-doesn't work).
-
-Killing -9 my program doesn't have any effect. But killing -9 gdb 
-effectivelly kills gdb
-but not my program(which is a son of gdb). Shouldn't the kernel finish 
-the job with zombie
-process when their father die ?(there's nobody to catch signals, or 
-return codes).
-
-My big problem is that the faulty program keeps its binding sockets 
-opened, so i can't
-launch anything on that ports.
+Please apply.
 
 -- 
-Fort David, Projet IDsA
-IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
-Tél: +33 (0) 2 99 84 71 33
+Paul Fulghum
+paulkf@microgate.com
+
+--- linux-2.6.4/drivers/char/synclink.c	2004-03-11 08:37:38.000000000 -0600
++++ linux-2.6.4-mg1/drivers/char/synclink.c	2004-03-11 08:46:15.000000000 -0600
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 4.16 2003/09/05 15:26:02 paulkf Exp $
++ * $Id: synclink.c,v 4.21 2004/03/08 15:29:22 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -909,7 +909,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 4.16 $";
++static char *driver_version = "$Revision: 4.21 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -7846,13 +7846,14 @@
+ 	info->if_ptr = &info->pppdev;
+ 	info->netdev = info->pppdev.dev = d;
+ 
+-	sppp_attach(&info->pppdev);
+-
+ 	d->base_addr = info->io_base;
+ 	d->irq = info->irq_level;
+ 	d->dma = info->dma_level;
+ 	d->priv = info;
+ 
++	sppp_attach(&info->pppdev);
++	mgsl_setup(d);
++
+ 	if (register_netdev(d)) {
+ 		printk(KERN_WARNING "%s: register_netdev failed.\n", d->name);
+ 		sppp_detach(info->netdev);
+@@ -8022,7 +8023,7 @@
+ 
+ int mgsl_sppp_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+-	struct mgsl_struct *info = (struct mgsl_struct *)dev->priv;
++	struct mgsl_struct *info = dev->priv;
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):mgsl_ioctl %s cmd=%08X\n", __FILE__,__LINE__,
+ 			info->netname, cmd );
+
 
 

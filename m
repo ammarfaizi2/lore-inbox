@@ -1,94 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbRDEW46>; Thu, 5 Apr 2001 18:56:58 -0400
+	id <S129381AbRDEW5S>; Thu, 5 Apr 2001 18:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRDEW4t>; Thu, 5 Apr 2001 18:56:49 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:65482 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129245AbRDEW4i>;
-	Thu, 5 Apr 2001 18:56:38 -0400
-Date: Thu, 5 Apr 2001 15:57:38 -0700 (PDT)
-From: "Andrew T. Scott" <andrews@tathata.org>
-To: adam@cfar.umd.edu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ufs fs at 2.2.x and 2.4.x
-In-Reply-To: <Pine.GSO.4.21.0009171448450.7933-100000@chia.umiacs.umd.edu>
-Message-ID: <Pine.LNX.4.21.0104051556540.2143-100000@tathata.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129321AbRDEW5I>; Thu, 5 Apr 2001 18:57:08 -0400
+Received: from snifit.smb.utfors.se ([195.58.112.20]:1424 "EHLO
+	snifit.smb.utfors.se") by vger.kernel.org with ESMTP
+	id <S129245AbRDEW4x>; Thu, 5 Apr 2001 18:56:53 -0400
+Message-Id: <3.0.1.32.20010406005458.00d99c68@post.utfors.se>
+X-Mailer: Windows Eudora Light Version 3.0.1 (32)
+Date: Fri, 06 Apr 2001 00:54:58 +0200
+To: linux-kernel@vger.kernel.org
+From: Jakob Kemi <jakob.kemi@post.utfors.se>
+Subject: Parport probe
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why is it that 2.2.x UFS write support is considered (experimental)?
+Hi all.
 
--Andrew
+Ok, maybe this isn't the right list for this question. In 2.2.x the
+parport_probe module extracted the ieee1284 device id correctly and added to the
+proc fs. However this doesn't seem to work for me in 2.4.x
+I only have one device to test it on and since I know there have been some
+difficulties regarding the device string's length bytes etc I post my device_id string here
+the first two bytes says that length is 96 and the following is the string 
+"MFG:Winbond;MDL:SA5459B;CLS:DIGCAM;DES:Winbond's DIGCAM driver can not be found in the system;"
 
+I have tested to build, parport, parport_pc and ieee1284 both as modules and static into the kernel.
+Is there some option I need to enable. As far as I understand the CONFIG_PARPORT_1284 should be enough??
 
-On Sun, 17 Sep 2000 adam@cfar.umd.edu wrote:
+Bye
+	Jakob
 
-> > > FWIW, I downloaded install 'floppyC28.fs' from openbsd web site.
-> > 
-> > OK. So did I.
-> > 
-> > % md5sum floppyC28.fs
-> > 2ae3c61008df5accdfb132f20e744bfb  floppyC28.fs
-> 
-> same here..
-> [root@pepsi openbsd]# md5sum floppyC28.fs 
-> 2ae3c61008df5accdfb132f20e744bfb  floppyC28.fs
-> 
-> 
-> > > 		mount /dev/fd0 /mnt -t ufs -o ufstype=44bsd,ro
-> > 
-> > OK. So did I. Afterwards:
-> > 
-> > % ls -l /mnt
-> > total 1332
-> > -r-xr-xr-x   1 root     root        53248 Sep 12 13:18 boot
-> > -rw-r--r--   1 root     root      1301229 Sep 12 13:18 bsd
-> 
-> still problems... 
-> 
-> [root@pepsi /]# df /mnt
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/fd0                  1407      1332        75  95% /mnt
-> [root@pepsi /]# mount /mnt
-> [root@pepsi /]# mount | grep mnt
-> /dev/fd0 on /mnt type ufs (ro,ufstype=44bsd)
-> 
-> [root@pepsi /]# ls /mnt
-> [root@pepsi /]# dmesg | tail -3
-> UFS-fs error (device 02:00): ufs_readdir: bad entry in directory #2, size
-> 512: reclen is too small for namlen - offset=0, inode=2, reclen=12,
-> namlen=260
-> UFS-fs error (device 02:00): ufs_readdir: bad entry in directory #2, size
-> 512: reclen is too small for namlen - offset=0, inode=2, reclen=12,
-> namlen=260
-> UFS-fs error (device 02:00): ufs_readdir: bad entry in directory #2, size
-> 512: reclen is too small for namlen - offset=0, inode=2, reclen=12,
-> namlen=260
-> 
-> 
-> > This was Linux version 2.4.0-test8 (aeb@mette) (gcc version 2.95.2 19991024 (release))
-> > So, questions:
-> > 1. Are we talking about the same file (same md5sum)?
-> 
-> yes.
-> 
-> > 2. Do things improve with 2.4.0-test8?
-> 
-> Will try it ... sometime. not right now though.. 
-> 
-> (obtw: i can mount /mnt multiple times.. )
-> 
-> [root@pepsi /]# umount /mnt
-> [root@pepsi /]#     mount /dev/fd0 /mnt -t ufs -o ufstype=44bsd,ro
-> [root@pepsi /]#     mount /dev/fd0 /mnt -t ufs -o ufstype=44bsd,ro
-> [root@pepsi /]#     mount /dev/fd0 /mnt -t ufs -o ufstype=44bsd,ro
-> /dev/fd0 on /mnt type ufs (ro,ufstype=44bsd)
-> /dev/fd0 on /mnt type ufs (ro,ufstype=44bsd)
-> /dev/fd0 on /mnt type ufs (ro,ufstype=44bsd)
-> 
-> Is this feature? 
-> 
-> 
 

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTIJLHt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbTIJLHt
+	id S262482AbTIJLRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbTIJLRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:07:49 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:53392 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262041AbTIJLHs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:07:48 -0400
-Date: Wed, 10 Sep 2003 12:07:44 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Hu, Boris" <boris.hu@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Split futex global spinlock futex_lock
-Message-ID: <20030910110744.GD21313@mail.jlokier.co.uk>
-References: <37FBBA5F3A361C41AB7CE44558C3448E01C0B69E@pdsmsx403.ccr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <37FBBA5F3A361C41AB7CE44558C3448E01C0B69E@pdsmsx403.ccr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Sep 2003 07:17:19 -0400
+Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:39430
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262482AbTIJLRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 07:17:16 -0400
+Message-ID: <3F5F0820.3090003@cyberone.com.au>
+Date: Wed, 10 Sep 2003 21:16:48 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Luca Veraldi <luca.veraldi@katamail.com>
+CC: Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Efficient IPC mechanism on Linux
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910120729.C14352@devserv.devel.redhat.com> <20030910103752.GC21313@mail.jlokier.co.uk> <20030910124151.C9878@devserv.devel.redhat.com> <02bc01c37789$ebfa9a40$5aaf7450@wssupremo>
+In-Reply-To: <02bc01c37789$ebfa9a40$5aaf7450@wssupremo>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hu, Boris wrote:
-> Split futex global spinlock futex_lock into hash bucket spinlocks.
 
-> +/*
-> + * Split the global futex_lock into every hash list lock.
-> + */
-> +struct futex_hash_bucket {
-> +       struct list_head        chain;
-> +       spinlock_t              lock;
-> +};
 
-Put "lock" first: it is always the first field accessed.  That will
-save a few clock cycles on some systems.
+Luca Veraldi wrote:
 
-I was going to suggest something about cache alignment, but of course
-that doesn't make sense.  If the structure is made any larger,
-it might as well contain more hash buckets.
+>>Memory is sort of starting to be like disk IO in this regard.
+>>
+>
+>Good. So the less you copy memory all around, the better you permorm.
+>
 
-Thinking a little deeper, it occurs to me that for scalable SMP
-performance, you want:
+Hi Luca,
+There was a zero-copy pipe implementation floating around a while ago
+I think. Did you have a look at that? IIRC it had advantages and
+disadvantages over regular pipes in performance.
 
-  (1 << FUTEX_HASHBITS) > some factor * SMP_CACHE_BYTES * NR_CPUS / sizeof (bucket)
+Nick
 
-To put it into perspective, consider a hypothetical 16-way P4.
-SMP_CACHE_BYTES is 128 on a P4.  That's 24 cache lines in the whole hash table.
 
-If there are only a few futexes in the table at any time, the dominant
-time for each operation is going to be the spinlock and associated
-cache line transfers, not traversing a bucket's list.
-
-So that hypothetical box would have an effective hash table of only 24 buckets.
-
-What I'm saying is:
-
-	If you're able to benchmark changes to the code on a big box,
-	and you want to tune it's performance, try changing
-	FUTEX_HASHBITS.  Also try adding a dummy word into
-	futex_hash_bucket, and use __cache_aligned_in_smp on the array so that
-	no buckets straddle two cache lines.
-
-Thought for the day...
--- Jamie

@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFVHzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUFVHzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUFVHzV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 03:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFVHzV
+	id S261162AbUFVHzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 03:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUFVHzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 03:55:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7390 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261234AbUFVHzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 03:55:13 -0400
-Date: Tue, 22 Jun 2004 09:56:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Keith Owens <kaos@sgi.com>
-Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040622075623.GA16829@elte.hu>
-References: <20040617121356.GA24338@elte.hu> <1642.1087796771@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1642.1087796771@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 22 Jun 2004 03:55:06 -0400
+Received: from gw.compusonic.fi ([195.255.196.126]:49375 "EHLO
+	gw.compusonic.fi") by vger.kernel.org with ESMTP id S261162AbUFVHyx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 03:54:53 -0400
+Date: Tue, 22 Jun 2004 10:54:52 +0300 (EEST)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: 4Front Technologies <dev@opensound.com>,
+       David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040622020615.GE14478@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0406221033350.8222@zeus.compusonic.fi>
+References: <40D232AD.4020708@opensound.com> <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
+ <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com> <40D636EA.7090704@opensound.com>
+ <20040622020615.GE14478@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Jun 2004, Andrea Arcangeli wrote:
 
-* Keith Owens <kaos@sgi.com> wrote:
+> To make the last recent example we had to break the source API with the
+> drivers to fix the release_pages race that Andrew found and fixed in
+> mainline too. That changes page->count into page->_count and quite some
+> drivers broke even outside the kernel. I had the choice of not breaking
+> the API but that would had forced us to disable irq and take a per-zone
+> spinlock in every last put_page(), definitely not desiderable in a
+> enterprise OS where number matters. I appreciate the ability to fix
+> things right and to boost performance to the maximum whenever possible,
+> like it happens in the mainline kernel tree. I even had a lengthy
+> private discussion with Andrew and it was him suggesting me the
+> local_irq_disable + atomic_dec_and_lock as the only possible
+> alternative, but it wasn't attractive enough for performance reasons.
+> Furthermore in a few years people would be more annoyed by page->count
+> than by page->_count as people moves into more recent mainline releases.
+This kind of "breaks" are not so fatal provided that there is some way to
+detect them reliably. Usually it's possible to check LINUX_VERSION_CODE
+and use different approaches depending on the kernel version. However
+this doesn't always work because distribution vendors often back port
+features from the newer kernels into their distribution kernels which
+have older LINUX_VERSION_CODE. A better  approach would be marking them
+with #define HAVE_NEW_something in the header file that implements this
+change.
 
-> Don't forget live crash dumping. [...]
+In the long term frequent changes in kernel interfaces cause problems
+because drivers that try to stay compatible with as many kernel versions
+as possible will start looking like #ifdef spaghetti.
 
-it's still possible, you'll have to save/restore the timer table,
-instead of overwriting it.
+Best regards,
 
-	Ingo
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSC1ACO>; Wed, 27 Mar 2002 19:02:14 -0500
+	id <S310654AbSC1AFO>; Wed, 27 Mar 2002 19:05:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310654AbSC1ACE>; Wed, 27 Mar 2002 19:02:04 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:58807 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S310483AbSC1AB4>; Wed, 27 Mar 2002 19:01:56 -0500
-Message-Id: <200203280001.g2S01cb12720@lmail.actcom.co.il>
-Content-Type: text/plain; charset=US-ASCII
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, pavel@suse.cz (Pavel Machek)
-Subject: Re: IDE and hot-swap disk caddies
-Date: Thu, 28 Mar 2002 02:01:25 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
-        andre@linux-ide.org (Andre Hedrick), wakko@animx.eu.org (Wakko Warner),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <E16qMGm-0006J0-00@the-village.bc.nu>
+	id <S310740AbSC1AFE>; Wed, 27 Mar 2002 19:05:04 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:30991 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S310654AbSC1AEy>; Wed, 27 Mar 2002 19:04:54 -0500
+Date: Thu, 28 Mar 2002 00:04:42 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
+In-Reply-To: <3CA20698.E8A9826E@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0203272354430.17217-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 March 2002 00:51 am, Alan Cox wrote:
-> > I have seen USB mass storage devices with ide connector on them, so it
-> > is certainly possible to translate between scsi and ide. If it makes
-> > sense from performance standpoint.... I don't know.
+On Wed, 27 Mar 2002, Andrew Morton wrote:
 
-I have one of these. The performance that I get is really poor and there
-are some quirks but it is still useful. I will be _very happy_ when I will be 
-able to use it for system installation/upgrade (which did not happen yet).
-
+> > Yeah, I thought it was a little odd.  Postgres does so much
+> > fsync()ing that I thought it may just have been that the lower
+> > overhead won out over ext2's cleverer layout.  All the I/O was
+> > basically fsync-driven, so this test was only about write
+> > performance.
 >
-> SCSI->IDE command translation isnt too hard providing you stick to simple
-> stuff and blindly ignore things like ATAPI, SMART, and all the control
-> stuff. The moment you get into the complex stuff its deeply unfunny.
->
+> For fsync-intensive loads ext3's best mode is generally
+> data=journal.  That way, an fsync is satisfied by a nice
+> single linear write to the journal.
 
-What are the prospects of seeing SCSI and IDE code (and internal
-programming interface) unified? How much can be unified until
-performace considerations and code complexity mandates a separation?
+Here we are.  This is with just a 200Mb journal (the partition
+is only a little over 1Gb, and the datafiles grow fairly big,
+so I didn't brave making it any bigger).
 
--- Itai
+	tuning?	single	ir	mx-ir	oltp	mixed-oltp
+		(sec)	(tps)	(sec)	(tps)	(sec)
+ext3    bn      1285.32 65.98   1996.41 90.05   307.79
+ext3-wb	bn      1287.31 98.42   2149.38 125.13  236.02
+ext3-jd	bn      1306.90	72.07	1813.54	125.15	305.27
+
+The I/O load should be almost exclusively fsync-driven writes,
+so I'm not sure how to account for the fact that the OLTP and
+OLTP + misc (mostly read) activity give different numbers.
+
+I'll try to find time to run these again tomorrow to convince
+myself that all is sane, but these numbers are usually pretty
+stable.
+
+Matthew.
+

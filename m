@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbTIAQ1x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbTIAQ1x
+	id S263040AbTIAQeq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTIAQeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:27:53 -0400
-Received: from dns.communicationvalley.it ([212.239.58.133]:39821 "HELO
-	dns.communicationvalley.it") by vger.kernel.org with SMTP
-	id S262898AbTIAQ1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:27:51 -0400
-From: biker@villagepeople.it
-Organization: Communication Valley SpA
-To: linux-kernel@vger.kernel.org
-Subject: Re: pl2303 + uhci oops
-Date: Mon, 1 Sep 2003 18:27:50 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 1 Sep 2003 12:34:46 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:28872 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263040AbTIAQeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:34:44 -0400
+Subject: Re: bitkeeper comments
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+In-Reply-To: <20030901155915.GC1327@work.bitmover.com>
+References: <1062389729.314.31.camel@cube>
+	 <20030901140706.GG18458@work.bitmover.com> <1062430014.314.59.camel@cube>
+	 <20030901154646.GB1327@work.bitmover.com>
+	 <20030901165658.A24661@infradead.org>
+	 <20030901155915.GC1327@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309011827.50331.biker@villagepeople.it>
+Message-Id: <1062434020.14183.13.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Mon, 01 Sep 2003 17:33:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Using a pl2303-based usb->serial adaptor with the uhci driver always ends 
-> > with a oops.
- 
-> Use 2.6.0-testX - it's fixed there:) I'm successfully using a GPS
-> receiver based on a pl2303. This one if from www.lact.de (ebay'ed).
- 
-> MfG, JBG
- 
-This is good, but since 99% of the people is still using 2.4.x, it would be 
-nice if it was fixed there too... ^_^
-BTW, I'm very willing to help by providing any additional information that 
-might be useful to solve the problem.
+On Llu, 2003-09-01 at 16:59, Larry McVoy wrote:
+> Hey, I'm not in the middle of this because I don't understand who is right
+> and it's not my place to make that call.  I said "if Linus or Marcelo says
+> do it"  specifically for the case that there is some hanky panky going on.
+> On the other hand, it's perfectly possible that the wrong comment got 
+> stuck in there and if that's the case why shouldn't it get fixed?
 
-Take care,
-Silla
+Presumably in the abstract "if you care" case you can generate this
+change globally by excluding that changeset and all after, then
+reapplying it with a different comment then reapplying all that follow ?
 

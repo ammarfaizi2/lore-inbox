@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTDQAFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTDQAFn
+	id S261927AbTDQAVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 20:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTDQAVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:05:43 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:6390 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261962AbTDQAFm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:05:42 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C262E0E@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "'ranty@debian.org'" <ranty@debian.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: firmware separation filesystem (fwfs)
-Date: Wed, 16 Apr 2003 17:17:25 -0700
+	Wed, 16 Apr 2003 20:21:09 -0400
+Received: from siaag1ab.compuserve.com ([149.174.40.4]:43925 "EHLO
+	siaag1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261927AbTDQAVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 20:21:09 -0400
+Date: Wed, 16 Apr 2003 20:29:15 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] kill ide-geometry.c, fix boot problems
+To: "Andries.Brouwer@cwi.nl" <Andries.Brouwer@cwi.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304162032_MC3-1-34B8-7706@compuserve.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> From: David Gibson [mailto:david@gibson.dropbear.id.au]
->
-> My personal feeling is that this would probably make more sense as a
-> type of sysfs node, rather than a separate filesystem, but the basic
-> concept seems sound.
+> Especially when the disk is to be a Linux-only disk it is very
+> unlikely that a client should want a disk manager.
+> I have guided many a user in getting rid of DM.
 
-Would not the new binary interface to sysfs help to sort 
-this out?
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+  I couldn't get rid of the disk manager on an old 486 running RH 5 --
+did I miss something or was it really impossible?
+
+
+--
+ Chuck

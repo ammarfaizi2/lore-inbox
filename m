@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbTFIMoR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 08:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTFIMoR
+	id S264242AbTFINAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 09:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTFINAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 08:44:17 -0400
-Received: from [209.167.240.9] ([209.167.240.9]:53757 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id S264226AbTFIMoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 08:44:14 -0400
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: Martin List-Petersen <martin@list-petersen.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1054940371.3044.40.camel@loke>
-References: <1054940371.3044.40.camel@loke>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Jun 2003 08:57:52 -0400
-Message-Id: <1055163473.25882.13.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
+	Mon, 9 Jun 2003 09:00:22 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:53319 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S264242AbTFINAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 09:00:21 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A92022B63E8@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: Russell King <rmk@arm.linux.org.uk>,
+       =?iso-8859-1?Q?Colm_MacC=E1rth?= =?iso-8859-1?Q?aigh?= 
+	<colm@stdlib.net>
+Cc: Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
+Subject: RE: Linksys WRT54G and the GPL
+Date: Mon, 9 Jun 2003 09:13:47 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-06 at 18:59, Martin List-Petersen wrote:
-> Eerh, dumb question here: Is this MiniPCI Wlan cards in general or how ?
-> I ask, because i've seen MiniPCI Wlan cards and i've seen cards that in
-> fact are PC-Card Wlan cards and a PC-Card-to-PCI bridge put together on
-> a MiniPCI card, just adding another PC-Card slot to your notebook and
-> inserting a Wlan card there (Dell TrueMobile 1150).
+-----Original Message-----
+From: Russell King [mailto:rmk@arm.linux.org.uk]
+Sent: Sunday, June 08, 2003 5:48 PM
 
-IIRC, it's the antenna PLUS the WLan card that gets FCC licensed,
-so you violate FCC rules by allowing a card without an antenna,
-and this is why even 'regular' pcmcia cards all have their own
-'unique' antenna jacks, so you can't plug in an off the shelf antenna
-and boost your signal.
+>>   http://www.vitalsystem.com/
+>
+> and www.armlinux.net.  Linus has already been informed of this situation,
+> and we came to the conclusion that, at the time, there was no way to
+> enforce the copyright due to their location in the world.  This may have
+> changed recently.
 
-So the theory that the IBM laptops with built in antennas can't
-use just any mini-PCI card makes sense, even if it is stupid.
-They would have been licensed for specific cards only, and would
-be violating the FCC license to use other cards.
-
-I hope that's all it is.  If they had some other reason I'd be very
-pissed off if I bought a stinkpad.  (Wait a minute, I did buy a
-stinkpad :)
-
-Dana Lacoste
-Ottawa, Canada
-
+IANAL and all that, but VITAL Systems Inc. list themselves as having
+a corporate HQ in Phoenix, AZ, USA.  As such, were someone interested,
+a suit could proceed in US courts.

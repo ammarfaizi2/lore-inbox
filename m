@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbUBYCv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 21:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUBYCv5
+	id S262422AbUBYDBx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 22:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBYDBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 21:51:57 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:44505 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262413AbUBYCvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 21:51:51 -0500
-Message-ID: <403C0DBF.7040608@matchmail.com>
-Date: Tue, 24 Feb 2004 18:51:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
+	Tue, 24 Feb 2004 22:01:53 -0500
+Received: from smtp1.cwidc.net ([154.33.63.111]:55178 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S262422AbUBYDBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 22:01:47 -0500
+Message-ID: <403C1011.5020400@tequila.co.jp>
+Date: Wed, 25 Feb 2004 12:01:37 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: Tequila \ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040210
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm3
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Adaptec I2O raid driver in linux 2.6.3
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm3/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have a dual CPU server that won't boot 2.6.3-mm3.  It will however 
-boot vanilla 2.6.3.
+Hi,
 
-Right after is says "uncompressing kernel" and "booting" it hangs.
+actually heard Adaptec should have released 5 months ago or so ...
+anyway, comiling Adpatec I2O raid controller into kernel fails:
 
-Any patches I should try reverting?  I know it uses aic7xxx, but it 
-doesn't even get to that point.  Does ACPI start that early?
+make -f scripts/Makefile.build obj=drivers/scsi
+~  gcc -Wp,-MD,drivers/scsi/.dpt_i2o.o.d -nostdinc -iwithprefix include
+- -D__KERNEL__ -Iinclude  -D__KERNEL__ -Iinclude  -Wall
+- -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common
+- -pipe -mpreferred-stack-boundary=2 -march=pentium4
+- -Iinclude/asm-i386/mach-default -O2     -DKBUILD_BASENAME=dpt_i2o
+- -DKBUILD_MODNAME=dpt_i2o -c -o drivers/scsi/dpt_i2o.o
+drivers/scsi/dpt_i2o.c
+drivers/scsi/dpt_i2o.c:32:2: #error Please convert me to
+Documentation/DMA-mapping.txt
+drivers/scsi/dpt_i2o.c: In function `adpt_install_hba':
+drivers/scsi/dpt_i2o.c:977: warning: passing arg 2 of `request_irq' from
+incompatible pointer type
+drivers/scsi/dpt_i2o.c: In function `adpt_scsi_to_i2o':
+drivers/scsi/dpt_i2o.c:2118: error: structure has no member named `address'
+drivers/scsi/dpt_i2o.c: At top level:
+drivers/scsi/dpt_i2o.c:165: warning: `dptids' defined but not used
+make[2]: *** [drivers/scsi/dpt_i2o.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-model name      : Pentium III (Coppermine)
-stepping        : 3
-cpu MHz         : 664.913
+I think I don't need to attach my .config here
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:02.0 PCI bridge: Intel Corp. 80960RM [i960RM Bridge] (rev 01)
-00:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 08)
-00:0e.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC (rev 7a)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 4f)
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
-01:04.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891 (rev 01)
-01:06.0 SCSI storage controller: Adaptec AIC-7880U (rev 02)
-02:06.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 08)
-02:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 08)
+iD8DBQFAPBAQjBz/yQjBxz8RAlnGAJ0dUiddig2sQduzBFv2A9RcC2CW2wCeKiW+
+e/UT9h4vfmn1towCua8rUOM=
+=Am9Z
+-----END PGP SIGNATURE-----

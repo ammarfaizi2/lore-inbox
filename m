@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266746AbRGYJRg>; Wed, 25 Jul 2001 05:17:36 -0400
+	id <S268547AbRGYJ3z>; Wed, 25 Jul 2001 05:29:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266781AbRGYJR0>; Wed, 25 Jul 2001 05:17:26 -0400
-Received: from web11502.mail.yahoo.com ([216.136.172.47]:17925 "HELO
-	web11502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266746AbRGYJRK>; Wed, 25 Jul 2001 05:17:10 -0400
-Message-ID: <20010725091716.71588.qmail@web11502.mail.yahoo.com>
-Date: Wed, 25 Jul 2001 02:17:16 -0700 (PDT)
-From: Satish Kumar <m_satish@yahoo.com>
-Subject: bdev manipulation at block layer level
-To: linux-kernel@vger.kernel.org
-Cc: m_satish@yahoo.com
+	id <S268549AbRGYJ3q>; Wed, 25 Jul 2001 05:29:46 -0400
+Received: from femail31.sdc1.sfba.home.com ([24.254.60.21]:28091 "EHLO
+	femail31.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S268547AbRGYJ3a>; Wed, 25 Jul 2001 05:29:30 -0400
+Date: Wed, 25 Jul 2001 05:29:14 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: <hiufungeric.tse@utoronto.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux partitioning in IA64
+In-Reply-To: <996006372.3b5dd9e47c253@webmail.utoronto.ca>
+Message-ID: <Pine.LNX.4.33.0107250528050.1440-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+On Tue, 24 Jul 2001 hiufungeric.tse@utoronto.ca wrote:
 
-I have a host PC connected to a disk array with
-alternate paths to an end scsi disk. 
-I attempted load balancing across paths by changing
-the b_dev & b_rdev ib the bufer_head list in
-ll_rw_block function of ll_rw_blk.c (block layer), and
-was successful in load balancing with data integrity,
-on linux 2.2.16.
-However, when I try the same stunt with a linux 2.4 (
-&2.4.2) kernel, I am seeing corruption occasionally.
-Can anyone let me know if I am missing anything ?
+>Date: Tue, 24 Jul 2001 16:26:12 -0400 (EDT)
+>From: hiufungeric.tse@utoronto.ca
+>To: linux-kernel@vger.kernel.org
+>Content-Type: 	text/plain; charset=US-ASCII
+>Subject: linux partitioning in IA64
+>
+>Hei,
+>
+>I am trying to install seawolf(linux IA64) on an IA 64 machine.
+>For partitioning I went through several trails without success.
+>(total # disk space is 10G). After all the initial settings, I
+>restarted the machine to EFI (boot manager). Can't boot to
+>linux and the EFI can't recognize files the installation CD
+>initially saved on the hard disk. Are there special ways or
+>tricks to partition the disk and to make it work?
 
-Thanks !
+Much better to send this type of question to ia64-list@redhat.com,
+as it is mostly OT here...
 
-regards,
-Satish.
-
-
+Hope this helps.
 
 
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Open Source advocate
+       Opinions and viewpoints expressed are solely my own.
+----------------------------------------------------------------------
+Definition: MCSE - Must Consult Someone Experienced
 
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/

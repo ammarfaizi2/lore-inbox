@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUKCEce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKCFCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUKCEce (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 23:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUKCEce
+	id S261431AbUKCFCI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 00:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUKCFCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 23:32:34 -0500
-Received: from ruby-fe0.getonit.net.au ([202.47.112.2]:6554 "EHLO
-	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S261426AbUKCEcd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 23:32:33 -0500
-From: "Tim Warnock" <timoid@getonit.net.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: ipv4 arp and linux
-Date: Wed, 3 Nov 2004 14:32:29 +1000
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAADJ+ICBUnRkOc9W13U4B0WAEAAAAA@getonit.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcTBXiCaalGtrTFiS/WfbsbkyfV4Pw==
+	Wed, 3 Nov 2004 00:02:07 -0500
+Received: from cantor.suse.de ([195.135.220.2]:18127 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261431AbUKCFCF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 00:02:05 -0500
+Date: Wed, 3 Nov 2004 05:55:47 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.9: Only handle system NMIs on the BSP
+Message-ID: <20041103045547.GA25334@wotan.suse.de>
+References: <Pine.LNX.4.58L.0411030125340.32079@blysk.ds.pg.gda.pl> <20041103024944.GA8907@wotan.suse.de> <Pine.LNX.4.58L.0411030255410.32079@blysk.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0411030255410.32079@blysk.ds.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What arp packet size does a linux 2.4 series kernel use? How would it be
-made bigger?
+On Wed, Nov 03, 2004 at 03:04:06AM +0000, Maciej W. Rozycki wrote:
+> On Wed, 3 Nov 2004, Andi Kleen wrote:
+> 
+> > >  While discussing races in the NMI handler's trailer fiddling with RTC
+> > > registers, I've discovered we incorrectly attempt to handle NMIs coming
+> > > from the system (memory errors, IOCHK# assertions, etc.) with all
+> > > processors even though the interrupts are only routed to the bootstrap
+> > > processor.  If one of these events coincides with a NMI watchdog tick it
+> > 
+> > Where is this documented/guaranteed that only APs get such NMIs? 
+> 
+>  Only the BSP gets them (not APs) and it's we who arrange for that. ;-)  
+> We only enable LVT1 on the BSP -- APs have this input masked.  See 
+> setup_local_APIC().
 
-I'm having a problem where a cisco switch is ignoring me because (according
-to the guys who operate it) the arp spec for 802.3 is 64 bytes and im not
-doing that.
+Ok, then it's fine for me. Thanks. 
 
-Im not subscribed to the list, so if I could be cc'd I'd appreciate it.
-
-Hope someone can help me, and thanks for taking the time to read this.
-
-Tim
-
+-Andi

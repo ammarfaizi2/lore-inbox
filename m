@@ -1,137 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbSLCWZs>; Tue, 3 Dec 2002 17:25:48 -0500
+	id <S266322AbSLCW3Q>; Tue, 3 Dec 2002 17:29:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266322AbSLCWZs>; Tue, 3 Dec 2002 17:25:48 -0500
-Received: from smtp.laposte.net ([213.30.181.11]:12942 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S266320AbSLCWZq>;
-	Tue, 3 Dec 2002 17:25:46 -0500
-Subject: [PATCH] [2.5] [Resend] Via KT400 agp support II
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <Alan@redhat.com>, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PVrWYqC6aqSFp+XKlzhk"
-Organization: 
-Message-Id: <1038954760.1051.19.camel@rousalka>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-3) 
-Date: 03 Dec 2002 23:32:40 +0100
+	id <S266347AbSLCW3P>; Tue, 3 Dec 2002 17:29:15 -0500
+Received: from pc2-cmbg2-4-cust80.cmbg.cable.ntl.com ([80.2.247.80]:46589 "EHLO
+	flat") by vger.kernel.org with ESMTP id <S266322AbSLCW3P>;
+	Tue, 3 Dec 2002 17:29:15 -0500
+From: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.50-mm1] scheduling while atomic
+Date: Tue, 3 Dec 2002 22:36:45 +0000
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200212032236.45974.cb-lkml@fish.zetnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-PVrWYqC6aqSFp+XKlzhk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I get this back trace by removing a usb bluetooth dongle using the in-kernel 
+bluetooth stack and the hci_usb driver.
 
-[ Re-send, still applies as-is to 2.5.50-bk3 ]
+I'm using 2.5.50-mm1 and PREEMPT=y.
 
-Hi,
+Charlie
 
-	This little patch adds some cosmetic changes to the one that went in
-mainline (found when I did the 2.4 port) :=20
-- corrects the drm startup message so it doesn't print unknown chip for
-the kt400
-- adds a bunch of ids to the pci database (started with the kt400, ended
-with all unreferenced chips on my box)
-
-	This is purely cosmetic ; the necessary part to get the kt400 was in
-the first patch. Anyway this is nice to have and impactless.
-
-	Please apply,
-
-diff -uNr linux-2.5.49-bk1.orig/drivers/char/drm/drm_agpsupport.h
-linux-2.5.49-bk1/drivers/char/drm/drm_agpsupport.h
---- linux-2.5.49-bk1.orig/drivers/char/drm/drm_agpsupport.h	2002-11-22
-22:40:12.000000000 +0100
-+++ linux-2.5.49-bk1/drivers/char/drm/drm_agpsupport.h	2002-11-26
-22:27:52.000000000 +0100
-@@ -286,9 +286,11 @@
- 			break;
- 		case VIA_APOLLO_KT133:	head->chipset =3D "VIA Apollo KT133";
- 			break;
--
-+		case VIA_APOLLO_KT400:  head->chipset =3D "VIA Apollo KT400";
-+			break;
- 		case VIA_APOLLO_PRO: 	head->chipset =3D "VIA Apollo Pro";
- 			break;
-+
- 		case SIS_GENERIC:	head->chipset =3D "SiS";           break;
- 		case AMD_GENERIC:	head->chipset =3D "AMD";           break;
- 		case AMD_IRONGATE:	head->chipset =3D "AMD Irongate";  break;
-diff -uNr linux-2.5.49-bk1.orig/drivers/pci/pci.ids
-linux-2.5.49-bk1/drivers/pci/pci.ids
---- linux-2.5.49-bk1.orig/drivers/pci/pci.ids	2002-11-26
-22:15:27.000000000 +0100
-+++ linux-2.5.49-bk1/drivers/pci/pci.ids	2002-11-26 22:25:45.000000000
-+0100
-@@ -582,6 +582,7 @@
- 	6003  CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator]
- 		1013 4280  Crystal SoundFusion PCI Audio Accelerator
- 		1681 0050  Hercules Game Theater XP
-+		1681 a011  Hercules Fortissimo III 7.1
- 	6004  CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator]
- 	6005  Crystal CS4281 PCI Audio
- 		1013 4281  Crystal CS4281 PCI Audio
-@@ -2687,6 +2688,7 @@
- 	0505  VT82C505
- 	0561  VT82C561
- 	0571  VT82C586B PIPC Bus Master IDE
-+		1458 5002 GA-7VAX Mainboard
- 	0576  VT82C576 3V [Apollo Master]
- 	0585  VT82C585VP [Apollo VP1/VPX]
- 	0586  VT82C586/A/B PCI-to-ISA [Apollo VP]
-@@ -2735,6 +2737,7 @@
- 		1462 3091  MS-6309 Onboard Audio
- 		15dd 7609  Onboard Audio
- 	3059  VT8233 AC97 Audio Controller
-+		1458 a002  GA-7VAX Onboard Audio (Realtek ALC650)
- 	3065  VT6102 [Rhine-II]
- 		1186 1400  DFE-530TX rev A
- 		1186 1401  DFE-530TX rev B
-@@ -2748,6 +2751,7 @@
- 	3102  VT8662 Host Bridge
- 	3103  VT8615 Host Bridge
- 	3104  USB 2.0
-+		1458 5004  GA-7VAX Mainboard
- 	3109  VT8233C PCI to ISA Bridge
- 	3112  VT8361 [KLE133] Host Bridge
- 	3128  VT8753 [P4X266 AGP]
-@@ -2756,6 +2760,9 @@
- 	3148  P4M266 Host Bridge
- 	3156  P/KN266 Host Bridge
- 	3177  VT8233A ISA Bridge
-+		1458 5001 GA-7VAX Mainboard
-+	3189  VT8377 [KT400 AGP] Host Bridge
-+		1458 5000 GA-7VAX Mainboard
- 	5030  VT82C596 ACPI [Apollo PRO]
- 	6100  VT85C100A [Rhine II]
- 	8231  VT8231 [PCI-to-ISA Bridge]
-@@ -2776,6 +2783,7 @@
- 	b102  VT8362 AGP Bridge
- 	b103  VT8615 AGP Bridge
- 	b112  VT8361 [KLE133] AGP Bridge
-+	b168  VT8235 PCI Bridge
- 1107  Stratus Computers
- 	0576  VIA VT82C570MV [Apollo] (Wrong vendor ID!)
- 1108  Proteon, Inc.
-
---=20
-Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-
---=-PVrWYqC6aqSFp+XKlzhk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA97TEII2bVKDsp8g0RAnGAAJ41s0n5foxXbfs8GoIrFR7/WT9Y9wCg4mUC
-7rxd4MnYlyKG2/mLZmgh59A=
-=cYWP
------END PGP SIGNATURE-----
-
---=-PVrWYqC6aqSFp+XKlzhk--
+bad: scheduling while atomic!
+Call Trace:
+ [<c0116201>] do_schedule+0x3d/0x2c8
+ [<c01166f5>] wait_for_completion+0x8d/0xd0
+ [<c01164d0>] default_wake_function+0x0/0x34
+ [<c01164d0>] default_wake_function+0x0/0x34
+ [<c8d112ca>] hcd_unlink_urb+0x16a/0x1ac [usbcore]
+ [<c8db498c>] hci_usb_driver+0x8c/0xa0 [hci_usb]
+ [<c8db3d10>] hci_usb_interrupt+0x0/0x324 [hci_usb]
+ [<c8d11790>] usb_unlink_urb+0x28/0x38 [usbcore]
+ [<c8db31b4>] hci_usb_disable_intr+0x14/0x60 [hci_usb]
+ [<c8db3603>] hci_usb_close+0x43/0x140 [hci_usb]
+ [<c8db498c>] hci_usb_driver+0x8c/0xa0 [hci_usb]
+ [<c8db47e4>] hci_usb_disconnect+0x24/0x68 [hci_usb]
+ [<c8db4900>] hci_usb_driver+0x0/0xa0 [hci_usb]
+ [<c8d0d1dd>] usb_device_remove+0xad/0x110 [usbcore]
+ [<c8db4918>] hci_usb_driver+0x18/0xa0 [hci_usb]
+ [<c01b043a>] detach+0x46/0x60
+ [<c8d1cd80>] usb_bus_type+0x0/0x120 [usbcore]
+ [<c01b0467>] device_detach+0x13/0x18
+ [<c8db4918>] hci_usb_driver+0x18/0xa0 [hci_usb]
+ [<c01b0596>] bus_remove_device+0x56/0xac
+ [<c8d18423>] +0x23/0x1a9c [usbcore]
+ [<c01afb61>] device_del+0x71/0x94
+ [<c01afb91>] device_unregister+0xd/0x1a
+ [<c8d0d9fe>] usb_disconnect+0x7a/0xc8 [usbcore]
+ [<c8d0f97d>] usb_hub_port_connect_change+0x59/0x258 [usbcore]
+ [<c8d0f696>] usb_hub_port_status+0x7a/0x88 [usbcore]
+ [<c8d0fcb8>] usb_hub_events+0x13c/0x2d0 [usbcore]
+ [<c8d0fe85>] usb_hub_thread+0x39/0xd8 [usbcore]
+ [<c8d0fe4c>] usb_hub_thread+0x0/0xd8 [usbcore]
+ [<c01164d0>] default_wake_function+0x0/0x34
+ [<c8d1cecc>] khubd_wait+0x4/0xc [usbcore]
+ [<c8d1cecc>] khubd_wait+0x4/0xc [usbcore]
+ [<c0107081>] kernel_thread_helper+0x5/0xc
 

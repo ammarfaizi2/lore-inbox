@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318778AbSILXTP>; Thu, 12 Sep 2002 19:19:15 -0400
+	id <S318743AbSILXTA>; Thu, 12 Sep 2002 19:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319164AbSILXTO>; Thu, 12 Sep 2002 19:19:14 -0400
-Received: from mta04bw.bigpond.com ([139.134.6.87]:2758 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318778AbSILXTN>; Thu, 12 Sep 2002 19:19:13 -0400
-Message-ID: <3D812222.3F2727CA@bigpond.com>
-Date: Fri, 13 Sep 2002 09:24:18 +1000
-From: Allan Duncan <allan.d@bigpond.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S318778AbSILXTA>; Thu, 12 Sep 2002 19:19:00 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:17286 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318743AbSILXTA>; Thu, 12 Sep 2002 19:19:00 -0400
+Date: Thu, 12 Sep 2002 20:23:38 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Daniel Phillips <phillips@arcor.de>, <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <3D811A6C.C73FEC37@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0209122022080.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and 
- agpgart
-References: <3D7FF444.87980B8E@bigpond.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allan Duncan wrote:
-> 
-> This is a reissue of an earlier report, and I've since done some more digging.
-> 
-> Up to kernel 2.4.20-pre2 there was no problem, agpgart et al ran fine etc,
-> but from 2.4.20-pre4 onwards when Xwindows starts to load these modules
-> I am instantly thrown back to a booting machine.
-> The same kernels on a VIA MVP3 chipset box with a Matrox G200 are fine.
-> 
-> I have ascertained that any attempt to use agpgart triggers it.
-> 
-> Rather than clutter up the list with lots of log files, I've made a web page at
-> http://www.users.bigpond.com/allan.d/bug/Matrox.html
-> with all the info I could gather.
-> 
-> Any suggestions of how to improve the error messages around the failure point
-> are welcome.  Nothing is written into dmesg at the time of failure.
+On Thu, 12 Sep 2002, Andrew Morton wrote:
+> Rik van Riel wrote:
 
-Uh, the logs for -pre5 with AGP_VIA enabled are NOW referred to (instead of
-duplicating the -pre5 w/o VIA).
+> > invalidate_page(struct page * page) {
+
+> That's the bottom-up approach.  The top-down (vmtruncate) approach
+> would also work, if the locking is suitable.
+
+The top-down approach will almost certainly be most efficient when
+invalidating a large chunk of a file (truncate, large file locks)
+while the bottom-up approach is probably more efficient when the
+system invalidates very few pages (small file lock, cluster file
+system mmap() support).
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

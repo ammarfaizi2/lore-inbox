@@ -1,103 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVAHSct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVAHSl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVAHSct (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 13:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVAHSct
+	id S261251AbVAHSl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 13:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVAHSl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 13:32:49 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:31367 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261250AbVAHScg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 13:32:36 -0500
-Date: Sat, 8 Jan 2005 10:32:20 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com,
-       Linus Torvalds <torvalds@osdl.org>, dipankar@in.ibm.com
-Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
-Message-ID: <20050108183220.GA2033@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106235633.GA10110@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 8 Jan 2005 13:41:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29609 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261251AbVAHSlw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 13:41:52 -0500
+Date: Sat, 8 Jan 2005 10:41:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux@horizon.com
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+In-Reply-To: <20050108082535.24141.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.58.0501081018271.2386@ppc970.osdl.org>
+References: <20050108082535.24141.qmail@science.horizon.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 03:56:34PM -0800, Greg KH wrote:
-> On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
-> > Which begs the question "how do we ever get rid of these things when we
-> > have no projected date for Linux-2.8"?
-> > 
-> > I'd propose:
-> > 
-> > a) Create Documentation/feature-removal-schedule.txt which describes
-> >    things which are going away, when, why, who is involved, etc.
-> 
-> Ok, I'll bite, here's a patch that does just that.  Look good?
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -----------
-> 
-> Add Documentation/feature-removal-schedule.txt as a way to notify
-> everyone when and what is going to be removed.
-> 
-> Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-> 
-> diff -Nru a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/Documentation/feature-removal-schedule.txt	2005-01-06 15:54:40 -08:00
-> @@ -0,0 +1,17 @@
-> +The following is a list of files and features that are going to be
-> +removed in the kernel source tree.  Every entry should contain what
-> +exactly is going away, why it is happening, and who is going to be doing
-> +the work.  When the feature is removed from the kernel, it should also
-> +be removed from this file.
-> +
-> +---------------------------
-> +
-> +What:	devfs
-> +When:	July 2005
-> +Files:	fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
-> +	function calls throughout the kernel tree
-> +Why:	It has been unmaintained for a number of years, has unfixable
-> +	races, contains a naming policy within the kernel that is
-> +	against the LSB, and can be replaced by using udev.
-> +Who:	Greg Kroah-Hartman <greg@kroah.com>
-> +
-
-And another.  I would also like to flag the exports themselves as
-indicated in the patch below.  Thoughts?
-
-						Thanx, Paul
-
-What:	call_rcu(), call_rcu_bh(), and synchronize_kernel() change from
-	EXPORT_SYMBOL() to EXPORT_SYMBOL_GPL().
-When:	January 9, 2006
-Files:  kernel/rcupdate.c
-Why:	There are no known environments supporting RCU from which
-	one could reasonably expect to port a non-GPL kernel module
-	or driver to Linux.
-Who:	Paul E. McKenney <paulmck@us.ibm.com>
 
 
-diff -urpN -X ../dontdiff linux-2.5/kernel/rcupdate.c linux-2.5-rcu-export-warn/kernel/rcupdate.c
---- linux-2.5/kernel/rcupdate.c	Sat Jan  8 09:25:55 2005
-+++ linux-2.5-rcu-export-warn/kernel/rcupdate.c	Sat Jan  8 10:21:18 2005
-@@ -465,6 +465,8 @@ void synchronize_kernel(void)
- }
- 
- module_param(maxbatch, int, 0);
-+
-+/* WARNING: these will become EXPORT_SYMBOL_GPL() in January 2006. */
- EXPORT_SYMBOL(call_rcu);
- EXPORT_SYMBOL(call_rcu_bh);
- EXPORT_SYMBOL(synchronize_kernel);
+On Sat, 8 Jan 2005 linux@horizon.com wrote:
+> 
+> H'm... the version that seemed natural to me was an asymmetrical one-way
+> tee, such as "tee(in, out, len, flags)" might be better, where the next
+> <len> bytes are *both* readable on fd "in" *and* copied to fd "out".
+
+Yes, the implementation may end up being something like that, I haven't
+decided. That would be more of a "peek()" kind of thing, not a "tee()",
+but it has the advantage of getting rid of one unnecessary complexity of
+"tee()" - dependence on three different fd's (in particular, if one of the
+output fd's isn't writable, we can't do anything at all).
+
+However, "peek()" has the problem that while it allows you to just run "n" 
+peek() calls for the "n" outputs, you now need to keep track of how much 
+each output has consumed (since they can be filled at different rates), 
+and then appropriately "eat" the proper amount of input when it has been 
+consumed by everybody. That's a very error-prone interface.
+
+In contrast, with a plain "tee()", you'd just create a tree "log(n)" 
+deep of "tee()" actors, and you'd have "n" outputs from one input, and 
+each individual point would be very simple.
+
+NOTE! I don't think either "tee()" or "peek()" really works for very high
+fan-out. I don't believe that you'd ever really have a "balanced" enough
+output across many things, and since they all end up being synchronized to
+the same input (you can make the buffers deeper, which will help a bit,
+but..) I don't think it ends up being _that_ useful.
+
+Where I foresee "tee()" is when there is some rate-limited input that you 
+can easily handle in two or three streams. That's what the example of a 
+digital TV input signal was kind of meant to be - the input is 
+rate-limited, which means that the fact that the outputs are 
+likely consumed at different paces (saving to disk might be fast, showing 
+it on the screen would be real-time) doesn't matter. But such a use ends 
+up breaking down when the load is too high - you're likely going to be 
+constrained in the number of streams by pure load issues.
+
+(And if you are _not_ constrained by load issues, then you don't need 
+tee() at all - you could just have copied the things by hand ;)
+
+> But then I realized that I might be thinking about a completely different
+> implementation than you... I was thinking asynchronous, while perhaps
+> you were thinking synchronous.
+
+I _am_ thinking entirely synchronous. It would copy exactly what was in 
+the pipe, and nothing more. It would sleep if either end was full/empty 
+(modulo N_DELAY, of course), but it would in no way be a long-term "set up 
+this copy mechanism.
+
+None of the pipes would do anything on their own - they aren't "actors".  
+They'd be purely buffers. So if you want to have an asynchronous 
+long-running "tee()/copy()/peek()", you'd have a thread that does that for 
+you.
+
+> With the synchronous model, the two-output tee() call makes more sense, too.
+> Still, it would be nice to be able to produce n identical output streams
+> without needing n-1 processes to do it  Any ideas? 
+
+I agree, although I don't know how common it would be for "n" to be very
+big. And you don't need n-1 processes (or threads), you can certainly do
+it with the normal select-loop approach too.
+
+> As for the issue of coalescing:
+> > This is the main reason why I want to avoid coalescing if possible: if you
+> > never coalesce, then each "pipe_buffer" is complete in itself, and that
+> > simplifies locking enormously.
+> >
+> > (The other reason to potentially avoid coalescing is that I think it might
+> > be useful to allow the "sendmsg()/recvmsg()" interfaces that honour packet
+> > boundaries. The new pipe code _is_ internally "packetized" after all).
+> 
+> It is somewhat offensive that the minimum overhead for a 1-byte write
+> is a struct pipe_buffer plus a full page.
+
+Note that there is no reason why we couldn't use just "kmalloc()" too.
+
+For the different input cases we'll need per-pipe_buffer operation
+functions (very much including a "release()" function) _anyway_, which
+means that while the current implementation always just does "alloc_page()
++ __free_page()" for it's buffer allocation, there is absolutely zero that 
+says that you couldn't allocate small buffers with "kmalloc()" and free 
+them with "kfree()".
+
+And since we need to support per-buffer ops anyway (for people mixing
+"write()" and "splice()" to set up the pipe contents), it works very
+naturally for mixed size writes too (ie you can have a small write that is
+buffered in a small kmalloc'ed buffer, followed by a big write that uses
+the page allocator, and nobody will care - you just decide at buffer fill
+time which one you need).
+
+So yes, the current setup is wasteful, but coalescing isn't the only way 
+to fight that - you can just use smaller allocations too.
+
+So in my mind, the only reason for doign coalescing is if some silly
+program deadlocks if it writes many small writes, and nobody is reading
+it. Some people use pipes as buffers _within_ a program, ie use them to
+send signals etc (common for signal-safe select handling - you make the
+signal handler do a write() to a pipe, and the select loop has the pipe in
+its FD-set).
+
+For all of those that are valid (certainly the signal case), you need to
+put the pipe into nonblocking mode anyway, so I don't think coalescing is
+really needed. SuS certainly does _not_ seem guarantee that you can do
+many nonblocking writes (small _or_ big). Let's see if somebody reports 
+any trouble with the new world order.
+
+			Linus

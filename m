@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUCPWSu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 17:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCPWSu
+	id S261752AbUCPWWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 17:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUCPWWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 17:18:50 -0500
-Received: from mail.tpgi.com.au ([203.12.160.100]:24225 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261744AbUCPWSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 17:18:48 -0500
-Subject: Re: The verdict on the future of suspending to disk?
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suspend development list <swsusp-devel@lists.sourceforge.net>
-In-Reply-To: <20040316113717.GB2282@elf.ucw.cz>
-References: <1079408330.3403.5.camel@calvin.wpcb.org.au>
-	 <20040316113717.GB2282@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1079467995.3403.68.camel@calvin.wpcb.org.au>
+	Tue, 16 Mar 2004 17:22:55 -0500
+Received: from colino.net ([62.212.100.143]:14334 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261752AbUCPWWy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 17:22:54 -0500
+Date: Tue, 16 Mar 2004 23:22:14 +0100
+From: Colin Leroy <colin@colino.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.5-rc1: snd-powermac missing symbol
+Message-Id: <20040316232214.5f0c174b@jack.colino.net>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Wed, 17 Mar 2004 09:13:15 +1300
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+$ sudo modprobe snd-powermac
+Password:
+FATAL: Error inserting snd_powermac (/lib/modules/2.6.5-rc1/kernel/sound/ppc/snd-powermac.ko): Unknown symbol in module, or unknown parameter (see dmesg)
+$ dmesg
+adt746x: Setting speed to: 128 for CPU fan.
+snd_powermac: Unknown symbol snd_pcm_dma_flags
 
-On Wed, 2004-03-17 at 00:37, Pavel Machek wrote:
-> I do not think Patrick is going to maintain anything.
-> 
-> If you want to maintain it, you can have it. Big plus if you are able
-> to deal with Patrick.
-
-Okay, but can we clearly delineate responsibilities? I'm happy to deal
-with the suspend-to-disk stuff because I understand it. I don't however
-understand suspend-to-ram or kobjects (yes, I will need to learn them)
-or device drivers, so I don't want anyone thinking I'm going to
-concentrate on anything more than what I'm already doing. That said, I'd
-love to take over software suspend and work on merging the work I've
-done.
-
-Nigel
+Solved by adding 
+#define snd_pcm_dma_flags(x) ((void *)(unsigned long)(x))
+but I doubt it's the correct way...
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+Colin

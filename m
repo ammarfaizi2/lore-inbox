@@ -1,80 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUCITit (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCITaB
+	id S262189AbUCIThR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUCITdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:30:01 -0500
-Received: from [193.108.190.253] ([193.108.190.253]:33468 "EHLO
-	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
-	id S262155AbUCIT2t convert rfc822-to-8bit (ORCPT
+	Tue, 9 Mar 2004 14:33:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:4739 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262158AbUCITcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:28:49 -0500
-Subject: Re: UID/GID mapping system
-From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <04030910465700.32521@tabby>
-References: <1078775149.23059.25.camel@luke>  <04030910465700.32521@tabby>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1078860500.3156.1.camel@homer>
+	Tue, 9 Mar 2004 14:32:22 -0500
+Date: Tue, 9 Mar 2004 20:33:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040309193338.GA15865@elte.hu>
+References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu> <20040309110233.GA3819@elte.hu> <20040309155917.GH8193@dualathlon.random> <20040309160709.GA10577@elte.hu> <20040309160807.GA10778@elte.hu> <20040309163920.GN8193@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Mar 2004 20:28:25 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <20040309163920.GN8193@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 2004-03-09 kl. 17:46 skrev Jesse Pollard:
-> Have you considered the problem of 64 bit uids? and gids?,
 
-Er.. no. I just use the uid_t and gid_t. Are they 64bit? Why are they a problem?
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> and unlimited number of groups assigned to a single user?
 
-No. That's not my problem, is it? I just provide the mapping system.
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-> How about having to support multiple maps (one for each remote host
-> that mounts a filesystem)?
+> > > how fast is the system you tried this on? If it's faster than the 500
+> > > MHz box i tried it on then please try the attached test-mmap3.c.
+> > > (which is still not doing anything extreme.)
+> > 
+> > also, please run it on an UP kernel.
+> 
+> I will, thanks for the hint.
 
-The maps are on the client, so that's no issue. The trick is to make it
-totally transparent to the filesystem being mounted, be it networked or
-non-networked.
+test-mmap3.c attached. It locked up my UP box so hard that i couldnt
+even switch consoles - i turned the box off after 30 minutes.
 
-> These tables are going to have to be external to the kernel, and the kernel
-> only caching those that are known to be active to speed up the search.
+	Ingo
 
-I suppose that would be a solution. But now that you know it's on the
-client, is it still as big a problem? I don't think so, but I could be
-wrong.
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="test-mmap3.c"
 
-> I also suggest making it optional - or being able to specify a 1:1 mapping
-> be assumed. And be used with an inverse table: UIDs that are NOT to be mapped
-> (as in, all uids are mapped 1:1 EXCEPT ...)
+/*
+ * Copyright (C) Ingo Molnar, 2004
+ *
+ * Create 80 MB worth of finegrained mappings to a shmfs file,
+ * and spawn 32 processes.
+ */
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 
-That's the way it's done now. If there's no map in the file, it's just
-passed through. And of course you don't have to supply any file at all!
+/* 80 MB of mappings */
+#define CACHE_PAGES 20000
 
-> I have worked at centers that had about 1200 users on each of 5 compute 
-> servers. Each compute server mounts the same filesystem from a server. IF
-> and only if all systems are within one security domain (all users are common, 
-> and have the same uid/gid list for all systems - a frequent case), do
-> you not need a map.
+#define PAGE_SIZE	4096
+#define CACHE_SIZE	(CACHE_PAGES*PAGE_SIZE)
+#define WINDOW_PAGES	(CACHE_PAGES*9/10)
+#define WINDOW_SIZE	(WINDOW_PAGES*PAGE_SIZE)
+#define WINDOW_START	0x48000000
 
-Right.
+int main(void)
+{
+	char *data, *ptr, filename[100];
+	char empty_page [PAGE_SIZE];
+	int i, fd;
 
-> If each compute server is in a different security domain (unique user list)
-> then you must have 5 maps (10 if you include group maps) for each filesystem.
-> That adds up to 6000 entries in uid maps alone. If 64 bit uids are used (8
-> bytes/uid) that becomes 48K for the example, with only ONE exported
-> filesystem, and only uids. This might seem a lot, but consider exports to
-> workstations - 150 workstations, and likely 2-5 uids each (at least
-> one for admininistration use). That would be 150 maps (just uids), of only 5
-> entries each - 750 entries, 6K (more reasonable).
+	sprintf(filename, "/dev/shm/cache%d", getpid());
+	fd = open(filename, O_RDWR|O_CREAT|O_TRUNC,S_IRWXU);
+	unlink(filename);
 
-Still, the server does not know this is going on. It's all on the
-client, so the memory usage is limited.
+	for (i = 0; i < CACHE_PAGES; i++)
+		write(fd, empty_page, PAGE_SIZE);
+	data = mmap(0, WINDOW_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED , fd, 0);
 
--- 
-Søren Hansen <sh@warma.dk>
+	for (i = 0; i < WINDOW_PAGES; i++) {
+		ptr = (char*) mmap(data + i*PAGE_SIZE, PAGE_SIZE,
+				PROT_READ|PROT_WRITE, MAP_SHARED | MAP_FIXED,
+					fd, (WINDOW_PAGES-i)*PAGE_SIZE);
+		(*ptr)++;
+	}
+	printf("%d pages mapped - sleeping until Ctrl-C.\n", WINDOW_PAGES);
+	fork(); fork(); fork(); fork(); fork();
+	pause();
 
+	return 0;
+}
+
+
+--sdtB3X0nJg68CQEu--

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUJDShJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268304AbUJDSmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268300AbUJDShJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 14:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268304AbUJDShJ
+	id S268304AbUJDSmf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 14:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUJDSmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 14:37:09 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47762 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268300AbUJDShG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 14:37:06 -0400
-Message-ID: <4161989F.9050607@tmr.com>
-Date: Mon, 04 Oct 2004 14:38:23 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make gcc -align options .config-settable
-References: <200410012226.23565.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410012226.23565.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 4 Oct 2004 14:42:35 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:15903 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268304AbUJDSmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 14:42:33 -0400
+Message-ID: <9e47339104100411421bf077c4@mail.gmail.com>
+Date: Mon, 4 Oct 2004 14:42:21 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Tonnerre <tonnerre@thundrix.ch>, Greg Ungerer <gerg@snapgear.com>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Merging DRM and fbdev
+Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sf.net,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041004174700.GB30858@thundrix.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <9e47339104100220553c57624a@mail.gmail.com>
+	 <Pine.LNX.4.58.0410030824280.2325@skynet>
+	 <9e47339104100309468e6a64f@mail.gmail.com>
+	 <20041004174700.GB30858@thundrix.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> Resend.
+On Mon, 4 Oct 2004 19:47:00 +0200, Tonnerre <tonnerre@thundrix.ch> wrote:
+> On Sun, Oct 03, 2004 at 12:46:51PM -0400, Jon Smirl wrote:
+> > But there does appear to be one other user of inter_module_...
+> > MTD driver for "M-Systems Disk-On-Chip Millennium Plus"
+> > mtd/devices/doc2001plus.c
+> > mtd/chips/cfi_cmdset_0001.c
 > 
-> With all alignment options set to 1 (minimum alignment),
-> I've got 5% smaller vmlinux compared to one built with
-> default code alignment.
+> nvidia and  ati use them  as well, it  seems. Not that I'd  care about
+> them, though. They can roll their own fixes as they decided to.
 
-It would be interesting to know if this is better WRT cache usage than 
-alignment which ensures that loops fit within the minimum number of 
-cache lines. That's not quite the same thing as starting on a cache line 
-in all cases.
+Nvidia and ATI probably use it because they are derived from Linux
+DRM/AGP code. When I remove it from the Linux drivers it may disappear
+from theirs too.
 
-This may be of interest to embedded builds.
+I CC'd a few of the email addresses in the MTD driver's source. 
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Jon Smirl
+jonsmirl@gmail.com

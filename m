@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269160AbTCDDMO>; Mon, 3 Mar 2003 22:12:14 -0500
+	id <S269133AbTCDEAd>; Mon, 3 Mar 2003 23:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269161AbTCDDMO>; Mon, 3 Mar 2003 22:12:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58380 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269160AbTCDDMN>; Mon, 3 Mar 2003 22:12:13 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Dmesg: Use a PAE enabled kernel
-Date: 3 Mar 2003 19:22:25 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4165h$f0f$1@cesium.transmeta.com>
-References: <3E63736F.6090000@walrond.org> <26670000.1046707704@[10.10.2.4]> <3E6381B9.4090708@walrond.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S269143AbTCDEAd>; Mon, 3 Mar 2003 23:00:33 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:61424 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S269133AbTCDEAc>; Mon, 3 Mar 2003 23:00:32 -0500
+Date: Mon, 3 Mar 2003 21:09:56 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Beneath <ishikodzume@beneath.plus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: EXT3: linux-2.4.21-pre5
+Message-ID: <20030303210956.M1373@schatzie.adilger.int>
+Mail-Followup-To: Beneath <ishikodzume@beneath.plus.com>,
+	linux-kernel@vger.kernel.org
+References: <20030304024714.647cc75d.ishikodzume@beneath.plus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030304024714.647cc75d.ishikodzume@beneath.plus.com>; from ishikodzume@beneath.plus.com on Tue, Mar 04, 2003 at 02:47:14AM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3E6381B9.4090708@walrond.org>
-By author:    Andrew Walrond <andrew@walrond.org>
-In newsgroup: linux.dev.kernel
->
-> The dump looks like this:
+On Mar 04, 2003  02:47 +0000, Beneath wrote:
+> All of a sudden, and not during any heavy disk writing sessions or
+> anything, things seem to stop loading up. I.e. the system is still very
+> much alive, just anything that requires disk access will hang. It's
+> happened both times in X, and i was able to switch back to VT1, where
+> the following error messages awaited me:
+> (this is as much as i could write down)
 > 
-> BIOS-provided physical RAM map:
->   BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->   BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->   BIOS-e820: 0000000000100000 - 00000000bfffa000 (usable)
->   BIOS-e820: 00000000bfffa000 - 00000000bffff000 (ACPI data)
->   BIOS-e820: 00000000bffff000 - 00000000c0000000 (ACPI NVS)
->   BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
->   BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
->   BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
->   BIOS-e820: 0000000100000000 - 0000000140000000 (usable)  
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	       This memory lives above the 4GB mark.
+> Several of these two messages:
+> EXT3-FS error (device ide0(3,2)) in ext3 reserve_inode_write: IO failure
+> EXT3-FS error (device ide0(3,2)) in ext3_get_inode ... (this then
+> scrolled off the screen before i could transcribe it)
 
-> Warning only 4GB will be used.
-> Use a PAE enabled kernel.
-> 3200MB HIGHMEM available.
-> 896MB LOWMEM available.
-> 
-> So you are saying that not all the 4Gb of ram will get mapped/used 
-> (specifically, everything not marked 'usable') ?
+So, could you check in /var/log/messages (or whatever) to see if you
+have the original error?  It might not have been written to disk if the
+error is on the /var filesystem.  If that is the case, is it possible
+for you to set up a serial console or network syslog to capture the
+full errors?
 
-Basically, your motherboard only allows 3 GB below the 4 GB boundary;
-the rest ends up above.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

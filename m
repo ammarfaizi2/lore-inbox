@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbRESQBj>; Sat, 19 May 2001 12:01:39 -0400
+	id <S261851AbRESQPX>; Sat, 19 May 2001 12:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261850AbRESQBa>; Sat, 19 May 2001 12:01:30 -0400
-Received: from simba.xos.nl ([192.87.153.226]:50706 "EHLO simba.xos.nl")
-	by vger.kernel.org with ESMTP id <S261843AbRESQBO>;
-	Sat, 19 May 2001 12:01:14 -0400
-Message-Id: <200105191601.SAA04009@rabbit.xos.nl>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup) 
-In-Reply-To: Your message of "Sat, 19 May 2001 17:10:56 +0200."
-             <3B068D00.95338099@alsa-project.org> 
+	id <S261856AbRESQPO>; Sat, 19 May 2001 12:15:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2564 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261851AbRESQOz>; Sat, 19 May 2001 12:14:55 -0400
+Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
+To: Axel.Thimm@physik.fu-berlin.de (Axel Thimm)
+Date: Sat, 19 May 2001 17:11:30 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        doelf@au-ja.de (Au-Ja), YipingChen@via.com.tw (Yiping Chen),
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        john@grulic.org.ar (John R Lenton)
+In-Reply-To: <20010519110721.A1415@pua.nirvana> from "Axel Thimm" at May 19, 2001 11:07:21 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <3997.990288066.1@rabbit.xos.nl>
-Date: Sat, 19 May 2001 18:01:06 +0200
-From: Willem Konynenberg <wfk@xos.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1519KE-0008Vg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abramo Bagnara wrote:
-> Alexander Viro wrote:
-> >         Folks, before you get all excited about cramming side effects into
-> > open(2), consider the following case:
-> > 
-> > 1) opening "/dev/zero/start_nuclear_war" has a certain side effect.
-[...]
-> Can't this easily avoided if the needed action is not
-> 
-> < /dev/zero/start_nuclear_war 
-> or
-> > /dev/zero/start_nuclear_war
-> 
-> but
-> 
-> echo "I'm evil" > /dev/zero/start_nuclear_war
-> 
-> ?
+> This are the latest suggestions for handling the VIA Southbridge bug as
+> derived from the hardware site www.au-ja.de (Many thanks to doelf).
 
-Yes, and that is exactly the difference between having a side effect
-on the open(2), versus having the effect as a result of a write(2).
+I'd rather people left this except for the obvious fixed that were done for
+non VIA northbridge combinations until 2.5. 2.4 is not an appropriate place
+to play with possibly disk corrupting PCI hacks without documentation.
 
-Unfortunately, there are already some cases where an open
-on a device can have unexpected results.  If you don't want
-to get blocked waiting for the carrier-detect signal from the
-modem when opening a tty device, you had better specify the
-O_NONBLOCK option on the open.  If you don't want this flag
-to be active during the actual I/O operations, then you would
-have to do an fcntl to clear the O_NONBLOCK again after the open.
+What is pathetic is that VIA have yet to place anything in the public domain
+giving correct workarounds. People are picking at BIOSes praying to spot all
+the changes (which may not be in the PCI registers even) because a vendor 
+hasn't got the decency to admit they screwed up and then to issue proper fixes
 
-So I guess things have already been a bit messy in this
-area for many years, even before linux even existed, and
-in some cases you can't really do anything about it because
-the behaviour is mandated by the applicable standards, like
-POSIX, SUS, or whatever.
-(The blocking of the open on a tty device is explicitly
- documented in my copy of the X/Open specification.)
+If it had been a manufacturer in most respectable areas of business they'd be
+recalling and reissuing components, and paying for the end resllers to notify
+each customer 
 
-Fortunately, blocking the nightly backup program by making it
-accidentally open a tty is not quite as catastrophic as having
-it start a nuclear war, or format the disks, or something,
-just because a user was playing games with symlinks.
+Alan
 
--- 
-     Willem Konynenberg <wfk@xos.nl>
-I am not able rightly to apprehend the kind of confusion of ideas
-that could provoke such a question  --  Charles Babbage

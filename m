@@ -1,378 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261384AbSJMANh>; Sat, 12 Oct 2002 20:13:37 -0400
+	id <S261381AbSJMALk>; Sat, 12 Oct 2002 20:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbSJMANh>; Sat, 12 Oct 2002 20:13:37 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:53001 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261384AbSJMANY>; Sat, 12 Oct 2002 20:13:24 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] merges parse_options() of fat and parse_options() of vfat (2/5)
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 13 Oct 2002 09:19:09 +0900
-Message-ID: <87bs5zb37m.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261382AbSJMALk>; Sat, 12 Oct 2002 20:11:40 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:12188 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S261381AbSJMALi>; Sat, 12 Oct 2002 20:11:38 -0400
+Date: Sat, 12 Oct 2002 18:17:15 -0600
+Message-Id: <200210130017.g9D0HFM26892@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] killing DEVFS_FL_AUTO_OWNER
+In-Reply-To: <Pine.GSO.4.21.0210061550100.25699-100000@weyl.math.psu.edu>
+References: <200210061932.g96JW3527255@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0210061550100.25699-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alexander Viro writes:
+> On Sun, 6 Oct 2002, Richard Gooch wrote:
+> > Well, I can't comment on the video1394 driver. I don't really know why
+> > they are using DEVFS_FL_AUTO_OWNER. If their device node is safe to
+> > have rw-rw-rw- (like with PTY slaves), then it's not a problem.
+> > However, if the driver allows you to do Bad Things[tm] if you can read
+> > or write to the device node, then the driver is buggy, and is abusing
+> > DEVFS_FL_AUTO_OWNER.
+> > 
+> > So we should get input from the driver maintainer as to what the
+> > intent is.
 
-This merges parse_options() of fat and parse_options() of vfat.
-And this doesn't recognize the unknown options.
+Before you get upset about my reply, bear in mind that the following
+discussion is mostly irrelevant, since DEVFS_FL_AUTO_OWNER is no
+longer being used for BSD PTY slaves.
 
-Please apply.
+> 1) current implementation does _not_ reset uid/gid after the first
+> open().  It either stays as it was (until the d_delete) or gets
+> reset to root.root.666 (after d_delete) and stays that way.
 
+The uid/gid isn't supposed to reset after the first open(). It's
+supposed to reset after the last close() (or soon after). The intended
+semantics of DEVFS_FL_AUTO_OWNER as quite simple: hand ownership of
+the node to the opening process, which will then do a chmod(2) to
+obtain the desired permissions (which are usually rw-------). The
+process will receive EPERM if someone else opens the same device at
+the same time and wins the race.
 
- fs/fat/inode.c  |  148 +++++++++++++++++++++++++++++++++-------------
- fs/vfat/namei.c |  104 +-------------------------------
- 2 files changed, 111 insertions(+), 141 deletions(-)
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Once the "owning" process closes the device, it will soon be restored
+to root.root rw-rw-rw-, allowing another process to open the device.
 
-diff -urNp fat_super_err_fix/fs/fat/inode.c fat_vfat_opt_shift/fs/fat/inode.c
---- fat_super_err_fix/fs/fat/inode.c	2002-10-13 03:18:25.000000000 +0900
-+++ fat_vfat_opt_shift/fs/fat/inode.c	2002-10-13 07:30:59.000000000 +0900
-@@ -201,38 +201,54 @@ void fat_put_super(struct super_block *s
- 	kfree(sbi);
- }
- 
-+static int simple_getbool(char *s, int *setval)
-+{
-+	if (s) {
-+		if (!strcmp(s,"1") || !strcmp(s,"yes") || !strcmp(s,"true"))
-+			*setval = 1;
-+		else if (!strcmp(s,"0") || !strcmp(s,"no") || !strcmp(s,"false"))
-+			*setval = 0;
-+		else
-+			return 0;
-+	} else
-+		*setval = 1;
-+	return 1;
-+}
- 
--static int parse_options(char *options, int *debug,
-+static int parse_options(char *options, int is_vfat, int *debug,
- 			 struct fat_mount_options *opts,
- 			 char *cvf_format, char *cvf_options)
- {
--	char *this_char,*value,save,*savep;
--	char *p;
--	int ret = 1, len;
-+	char *this_char, *value, *p;
-+	int ret = 1, val, len;
-+
-+	opts->isvfat = is_vfat;
- 
--	opts->name_check = 'n';
--	opts->conversion = 'b';
- 	opts->fs_uid = current->uid;
- 	opts->fs_gid = current->gid;
- 	opts->fs_umask = current->fs->umask;
--	opts->quiet = opts->sys_immutable = opts->dotsOK = opts->showexec = 0;
- 	opts->codepage = 0;
--	opts->nocase = 0;
--	opts->shortname = 0;
--	opts->utf8 = 0;
- 	opts->iocharset = NULL;
-+	if (is_vfat)
-+		opts->shortname = VFAT_SFN_DISPLAY_LOWER|VFAT_SFN_CREATE_WIN95;
-+	else
-+		opts->shortname = 0;
-+	opts->name_check = 'n';
-+	opts->conversion = 'b';
-+	opts->quiet = opts->showexec = opts->sys_immutable = opts->dotsOK =  0;
-+	opts->utf8 = opts->unicode_xlate = opts->posixfs = 0;
-+	opts->numtail = 1;
-+	opts->nocase = 0;
- 	*debug = 0;
- 
- 	if (!options)
- 		goto out;
--	save = 0;
--	savep = NULL;
- 	while ((this_char = strsep(&options,",")) != NULL) {
--		if ((value = strchr(this_char,'=')) != NULL) {
--			save = *value;
--			savep = value;
-+		if (!*this_char)
-+			continue;
-+		if ((value = strchr(this_char,'=')) != NULL)
- 			*value++ = 0;
--		}
-+
- 		if (!strcmp(this_char,"check") && value) {
- 			if (value[0] && !value[1] && strchr("rns",*value))
- 				opts->name_check = *value;
-@@ -255,23 +271,18 @@ static int parse_options(char *options, 
- 				opts->conversion = 'a';
- 			else ret = 0;
- 		}
--		else if (!strcmp(this_char,"dots")) {
--			opts->dotsOK = 1;
--		}
- 		else if (!strcmp(this_char,"nocase")) {
--			opts->nocase = 1;
--		}
--		else if (!strcmp(this_char,"nodots")) {
--			opts->dotsOK = 0;
-+			if (!is_vfat)
-+				opts->nocase = 1;
-+			else {
-+				/* for backward compatible */
-+				opts->shortname = VFAT_SFN_DISPLAY_WIN95
-+					| VFAT_SFN_CREATE_WIN95;
-+			}
- 		}
- 		else if (!strcmp(this_char,"showexec")) {
- 			opts->showexec = 1;
- 		}
--		else if (!strcmp(this_char,"dotsOK") && value) {
--			if (!strcmp(value,"yes")) opts->dotsOK = 1;
--			else if (!strcmp(value,"no")) opts->dotsOK = 0;
--			else ret = 0;
--		}
- 		else if (!strcmp(this_char,"uid")) {
- 			if (!value || !*value) ret = 0;
- 			else {
-@@ -317,7 +328,32 @@ static int parse_options(char *options, 
- 			opts->codepage = simple_strtoul(value,&value,0);
- 			if (*value) ret = 0;
- 		}
--		else if (!strcmp(this_char,"iocharset") && value) {
-+		else if (!strcmp(this_char,"cvf_format")) {
-+			if (!value)
-+				return 0;
-+			strncpy(cvf_format,value,20);
-+		}
-+		else if (!strcmp(this_char,"cvf_options")) {
-+			if (!value)
-+				return 0;
-+			strncpy(cvf_options,value,100);
-+		}
-+
-+		/* msdos specific */
-+		else if (!is_vfat && !strcmp(this_char,"dots")) {
-+			opts->dotsOK = 1;
-+		}
-+		else if (!is_vfat && !strcmp(this_char,"nodots")) {
-+			opts->dotsOK = 0;
-+		}
-+		else if (!is_vfat && !strcmp(this_char,"dotsOK") && value) {
-+			if (!strcmp(value,"yes")) opts->dotsOK = 1;
-+			else if (!strcmp(value,"no")) opts->dotsOK = 0;
-+			else ret = 0;
-+		}
-+
-+		/* vfat specific */
-+		else if (is_vfat && !strcmp(this_char,"iocharset") && value) {
- 			p = value;
- 			while (*value && *value != ',')
- 				value++;
-@@ -338,23 +374,54 @@ static int parse_options(char *options, 
- 					ret = 0;
- 			}
- 		}
--		else if (!strcmp(this_char,"cvf_format")) {
--			if (!value)
--				return 0;
--			strncpy(cvf_format,value,20);
-+		else if (is_vfat && !strcmp(this_char,"utf8")) {
-+			ret = simple_getbool(value, &val);
-+			if (ret) opts->utf8 = val;
-+		}
-+		else if (is_vfat && !strcmp(this_char,"uni_xlate")) {
-+			ret = simple_getbool(value, &val);
-+			if (ret) opts->unicode_xlate = val;
-+		}
-+		else if (is_vfat && !strcmp(this_char,"posix")) {
-+			ret = simple_getbool(value, &val);
-+			if (ret) opts->posixfs = val;
-+		}
-+		else if (is_vfat && !strcmp(this_char,"nonumtail")) {
-+			ret = simple_getbool(value, &val);
-+			if (ret) {
-+				opts->numtail = !val;
-+			}
- 		}
--		else if (!strcmp(this_char,"cvf_options")) {
--			if (!value)
--				return 0;
--			strncpy(cvf_options,value,100);
-+		else if (is_vfat && !strcmp(this_char, "shortname")) {
-+			if (!strcmp(value, "lower"))
-+				opts->shortname = VFAT_SFN_DISPLAY_LOWER
-+						| VFAT_SFN_CREATE_WIN95;
-+			else if (!strcmp(value, "win95"))
-+				opts->shortname = VFAT_SFN_DISPLAY_WIN95
-+						| VFAT_SFN_CREATE_WIN95;
-+			else if (!strcmp(value, "winnt"))
-+				opts->shortname = VFAT_SFN_DISPLAY_WINNT
-+						| VFAT_SFN_CREATE_WINNT;
-+			else if (!strcmp(value, "mixed"))
-+				opts->shortname = VFAT_SFN_DISPLAY_WINNT
-+						| VFAT_SFN_CREATE_WIN95;
-+			else
-+				ret = 0;
-+		} else {
-+			printk("FAT: Unrecognized mount option %s\n",
-+			       this_char);
-+			ret = 0;
- 		}
- 
--		if (options) *(options-1) = ',';
--		if (value) *savep = save;
- 		if (ret == 0)
- 			break;
- 	}
- out:
-+	if (opts->posixfs)
-+		opts->name_check = 's';
-+	if (opts->unicode_xlate)
-+		opts->utf8 = 0;
-+	
- 	return ret;
- }
- 
-@@ -658,12 +725,11 @@ int fat_fill_super(struct super_block *s
- 	sb->s_magic = MSDOS_SUPER_MAGIC;
- 	sb->s_op = &fat_sops;
- 	sb->s_export_op = &fat_export_ops;
--	sbi->options.isvfat = isvfat;
- 	sbi->dir_ops = fs_dir_inode_ops;
- 	sbi->cvf_format = &default_cvf;
- 
- 	error = -EINVAL;
--	if (!parse_options((char *)data, &debug, &sbi->options,
-+	if (!parse_options((char *)data, isvfat, &debug, &sbi->options,
- 			   cvf_format, cvf_options))
- 		goto out_fail;
- 
-diff -urNp fat_super_err_fix/fs/vfat/namei.c fat_vfat_opt_shift/fs/vfat/namei.c
---- fat_super_err_fix/fs/vfat/namei.c	2002-10-13 03:18:25.000000000 +0900
-+++ fat_vfat_opt_shift/fs/vfat/namei.c	2002-10-13 03:31:53.000000000 +0900
-@@ -80,93 +80,6 @@ static int vfat_revalidate(struct dentry
- 	return 0;
- }
- 
--static int simple_getbool(char *s, int *setval)
--{
--	if (s) {
--		if (!strcmp(s,"1") || !strcmp(s,"yes") || !strcmp(s,"true")) {
--			*setval = 1;
--		} else if (!strcmp(s,"0") || !strcmp(s,"no") || !strcmp(s,"false")) {
--			*setval = 0;
--		} else {
--			return 0;
--		}
--	} else {
--		*setval = 1;
--	}
--	return 1;
--}
--
--static int parse_options(char *options,	struct fat_mount_options *opts)
--{
--	char *this_char,*value,save,*savep;
--	int ret, val;
--
--	opts->unicode_xlate = opts->posixfs = 0;
--	opts->numtail = 1;
--	opts->utf8 = 0;
--	opts->shortname = VFAT_SFN_DISPLAY_LOWER | VFAT_SFN_CREATE_WIN95;
--	/* for backward compatible */
--	if (opts->nocase) {
--		opts->nocase = 0;
--		opts->shortname = VFAT_SFN_DISPLAY_WIN95
--		  		| VFAT_SFN_CREATE_WIN95;
--	}
--
--	if (!options) return 1;
--	save = 0;
--	savep = NULL;
--	ret = 1;
--	while ((this_char = strsep(&options,",")) != NULL) {
--		if ((value = strchr(this_char,'=')) != NULL) {
--			save = *value;
--			savep = value;
--			*value++ = 0;
--		}
--		if (!strcmp(this_char,"utf8")) {
--			ret = simple_getbool(value, &val);
--			if (ret) opts->utf8 = val;
--		} else if (!strcmp(this_char,"uni_xlate")) {
--			ret = simple_getbool(value, &val);
--			if (ret) opts->unicode_xlate = val;
--		} else if (!strcmp(this_char,"posix")) {
--			ret = simple_getbool(value, &val);
--			if (ret) opts->posixfs = val;
--		} else if (!strcmp(this_char,"nonumtail")) {
--			ret = simple_getbool(value, &val);
--			if (ret) {
--				opts->numtail = !val;
--			}
--		} else if (!strcmp(this_char, "shortname")) {
--			if (!strcmp(value, "lower"))
--				opts->shortname = VFAT_SFN_DISPLAY_LOWER
--						| VFAT_SFN_CREATE_WIN95;
--			else if (!strcmp(value, "win95"))
--				opts->shortname = VFAT_SFN_DISPLAY_WIN95
--						| VFAT_SFN_CREATE_WIN95;
--			else if (!strcmp(value, "winnt"))
--				opts->shortname = VFAT_SFN_DISPLAY_WINNT
--						| VFAT_SFN_CREATE_WINNT;
--			else if (!strcmp(value, "mixed"))
--				opts->shortname = VFAT_SFN_DISPLAY_WINNT
--						| VFAT_SFN_CREATE_WIN95;
--			else
--				ret = 0;
--		}
--		if (options)
--			*(options-1) = ',';
--		if (value) {
--			*savep = save;
--		}
--		if (ret == 0) {
--			return 0;
--		}
--	}
--	if (opts->unicode_xlate) {
--		opts->utf8 = 0;
--	}
--	return 1;
--}
--
- static inline unsigned char
- vfat_tolower(struct nls_table *t, unsigned char c)
- {
-@@ -1281,24 +1194,15 @@ struct inode_operations vfat_dir_inode_o
- int vfat_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	int res;
--	struct msdos_sb_info *sbi;
--  
-+
- 	res = fat_fill_super(sb, data, silent, &vfat_dir_inode_operations, 1);
- 	if (res)
- 		return res;
- 
--	sbi = MSDOS_SB(sb);
--
--	if (parse_options((char *) data, &(sbi->options))) {
--		sbi->options.dotsOK = 0;
--		if (sbi->options.posixfs) {
--			sbi->options.name_check = 's';
--		}
--	}
--	if (sbi->options.name_check != 's') {
-+	if (MSDOS_SB(sb)->options.name_check != 's')
- 		sb->s_root->d_op = &vfat_dentry_ops[0];
--	} else {
-+	else
- 		sb->s_root->d_op = &vfat_dentry_ops[2];
--	}
-+
- 	return 0;
- }
+> Notice that your code that sets it is in the very end of
+> devfs_open() - in the part that is run once.  df->open is never
+> reset, so...
+
+Actually, it *is* reset, in devfs_d_delete().
+
+> Oh, BTW - you have
+> 
+> 	if (df->open) return 0;
+> 	df->open = TRUE;
+> 
+> with no locking whatsoever - you'd reduced BKL-covered area so that
+> it doesn't cover that place.  With obvious consequences...
+
+It doesn't really matter, because the worst that will happen is that a
+process open(2)s the node, but some other process manages to get
+ownership. For the intended use (allowing the user to set BSD PTY
+slave permissions to rw------- rather than the normal rw-rw-rw-) this
+is fine. The situation is no worse than a non-devfs system where a
+non-privileged process cannot ever lock down the permissions on its
+BSD PTY slave. With DEVFS_FL_AUTO_OWNER, said process can.
+
+> 2) either applications do care to do chmod/chown (and in that case
+> DEVFS_FL_AUTO_OWNER is simply irrelevant), or they are
+> 	* broken on non-devfs systems
+> 	* broken on devfs systems due to (1)
+
+I do: "chmod go= `tty`" in my login scripts, just to prevent funny
+buggers from sending crap to my login session. I don't always have
+permission to do this (depending on the system), but where I do, it's
+a plus. So the intended application doesn't depend on this, but takes
+advantage of it.
+
+I do agree that depending on it is non-portable, though.
+
+> Having world-readable video camera is an obvious security problem,
+> so applications _must_ deal with that, for non-devfs systems if
+> nothing else.
+
+Agreed, and I can't see why the driver author did this.
+
+> 3) this crap is the only thing that still uses DEVFS_FL_AUTO_OWNER.
+> 
+> IOW, we should remove it and send heads-up to driver authors.  End
+> of story.
+
+That's fine by me too. I might have coded up a patch for it by now,
+but my box has been busy the last few hours doing a rsync (scanning
+the ChangeSet information seems to be the main offender, even though I
+have a gig of RAM:-(). I'll start on this once my repository is
+unlocked again.
+
+> Another thing: when you do devfs_register(), the thing creates
+> intermediate directories.  However, devfs_unregister() on the same
+> node doesn't undo the effect of devfs_register() - directories stay
+> around, even if nothing else holds them.
+> 
+> Proposal: add a counter to devfs entries of directories so that
+> 	* result of devfs_mk_dir would have it set to 1
+> 	* creation of child in a directory would increment it by 1
+> 	* removal of child would decrement it by 1
+> 	* when counter drops to 0 (which means that directory had
+> been created implictly by devfs_register() and all children are gone)
+> we unregister directory.  That, in turn, can cause unregistering its
+> parent, etc.
+
+Hm. I'll have to think about this some more, but offhand I'm not happy
+about the potential interactions with devfs_get()/devfs_put(). If a
+driver grabs hold of an intermediate directory and removes the child,
+the directory it has a hold of is no longer part of the tree. This
+could cause problems for some people (I've always rejected a
+devfs_move(), but I know there are people who have implemented it
+themselves). A sequence like:
+	devfs_get_handle ();
+	devfs_unregister ();
+	devfs_register ();
+
+would now fail. People would have to recode to:
+	devfs_get_handle ();
+	devfs_register ();
+	devfs_unregister ();
+
+> That would cut down the amount of work done in drivers (esp. block
+> device drivers) and allow to simplify the ad-hackery in
+> partitions/check.c.
+
+What kind of reductions to driver code do you have in mind? Is it
+really a big deal?
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

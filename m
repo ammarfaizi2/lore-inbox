@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269899AbUJNDWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269948AbUJNDY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269899AbUJNDWi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 23:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269948AbUJNDWe
+	id S269948AbUJNDY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 23:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269950AbUJNDYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 23:22:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54206 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269899AbUJNDWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 23:22:32 -0400
-Date: Wed, 13 Oct 2004 20:20:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nathan Scott <nathans@sgi.com>
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Page cache write performance issue
-Message-Id: <20041013202041.2e7066af.akpm@osdl.org>
-In-Reply-To: <20041014005300.GA716@frodo>
-References: <20041013054452.GB1618@frodo>
-	<20041012231945.2aff9a00.akpm@osdl.org>
-	<20041013063955.GA2079@frodo>
-	<20041013000206.680132ad.akpm@osdl.org>
-	<20041013172352.B4917536@wobbly.melbourne.sgi.com>
-	<416CE423.3000607@cyberone.com.au>
-	<20041013013941.49693816.akpm@osdl.org>
-	<20041014005300.GA716@frodo>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 23:24:55 -0400
+Received: from virt10p.secure-wi.com ([209.216.203.97]:44203 "EHLO
+	virt10p.secure-wi.com") by vger.kernel.org with ESMTP
+	id S269948AbUJNDYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 23:24:45 -0400
+Message-ID: <004f01c4b8a1$9ee2b6c0$41c8a8c0@Eshwar>
+From: "eshwar" <eshwar@moschip.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Raj" <inguva@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar> <b2fa632f0410122315753f8886@mail.gmail.com> <001401c4b796$abcddfb0$41c8a8c0@Eshwar> <1097663878.4440.0.camel@localhost.localdomain>
+Subject: Re: Write USB Device Driver entry not called
+Date: Sat, 23 Oct 2004 07:12:56 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott <nathans@sgi.com> wrote:
+I agree but the return value from the vfs_write should not be the -EBADF
+(Bad File descriptor) it might be -EACCES (premission denied)... Correct me
+if I am wrong...
+
+this can be code in fs/read_write.c vfs_write()
+
+ if (!(file->f_mode & FMODE_WRITE))
+  return -EACCES;
+
+Eshwar
+
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "eshwar" <eshwar@moschip.com>
+Cc: "Raj" <inguva@gmail.com>; "Linux Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 13, 2004 4:07 PM
+Subject: Re: Write USB Device Driver entry not called
+
+
+> On Iau, 2004-10-21 at 18:52, eshwar wrote:
+> > Open is sucessfull.... I don't think the problem the flags of open
 >
-> On Wed, Oct 13, 2004 at 01:39:41AM -0700, Andrew Morton wrote:
->  > Nick Piggin <piggin@cyberone.com.au> wrote:
->  > >
->  > >  Andrew probably has better ideas.
->  > 
->  > uh, is this an ia32 highmem box?
-> 
->  Yep, it is.
-> 
->  > If so, you've hit the VM sour spot.
->  > ...
->  > Basically, *any* other config is fine.  896MB and below, 1.5GB and above.
-> 
->  I just tried switching CONFIG_HIGHMEM off, and so running the
->  machine with 512MB; then adjusted the test to write 256M into
->  the page cache, again in 1K sequential chunks.  A similar mis-
->  behaviour happens, though the numbers are slightly better (up
->  from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
->  drop the file size down to 128M with this kernel, I see good
->  results again (as we'd expect).
+> I do. See any book on C/Unix style file opening. For an existing file
+> you want
+> open("foo", O_flags)
+>
+> for a new file possibly
+>
+> open("foo", O_CREAT|o_flags, S_Iblah)
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-No such problem here, with
-
-	dd if=/dev/zero of=x bs=1k count=128k
-
-on a 256MB machine.  xfs and ext2.
-
-Can you exhibit this one more than one machine?
-
-Silly question: what does `grep sync' /etc/fstab say over there? ;)

@@ -1,29 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbRFNIUc>; Thu, 14 Jun 2001 04:20:32 -0400
+	id <S261535AbRFNIbd>; Thu, 14 Jun 2001 04:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261535AbRFNIUW>; Thu, 14 Jun 2001 04:20:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30729 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261459AbRFNIUL>; Thu, 14 Jun 2001 04:20:11 -0400
-Subject: Re: Problems with arch/i386/kernel/apm.c
-To: mochel@transmeta.com (Patrick Mochel)
-Date: Thu, 14 Jun 2001 09:18:18 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        jgolds@resilience.com (Jeff Golds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106121639100.13607-100000@nobelium.transmeta.com> from "Patrick Mochel" at Jun 12, 2001 04:48:31 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261547AbRFNIbX>; Thu, 14 Jun 2001 04:31:23 -0400
+Received: from www.wen-online.de ([212.223.88.39]:47116 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261535AbRFNIbR>;
+	Thu, 14 Jun 2001 04:31:17 -0400
+Date: Thu, 14 Jun 2001 10:30:32 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Tom Sightler <ttsig@tuxyturvy.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+In-Reply-To: <Pine.LNX.4.33.0106131716510.1742-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0106140954130.927-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ASKY-0004Le-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus confirmed this assumption, but it may turn out to not be the case.
+On Wed, 13 Jun 2001, Rik van Riel wrote:
 
-It isnt the case. It's also horrible for debugging if you dont do it two
-stage because with two stages you can force some restores to be done with
-irqs off so you can see where the bug is
+> On Wed, 13 Jun 2001, Tom Sightler wrote:
+>
+> > 1.  Transfer of the first 100-150MB is very fast (9.8MB/sec via 100Mb Ethernet,
+> > close to wire speed).  At this point Linux has yet to write the first byte to
+> > disk.  OK, this might be an exaggerated, but very little disk activity has
+> > occured on my laptop.
+> >
+> > 2.  Suddenly it's as if Linux says, "Damn, I've got a lot of data to flush,
+> > maybe I should do that" then the hard drive light comes on solid for several
+> > seconds.  During this time the ftp transfer drops to about 1/5 of the original
+> > speed.
+> >
+> > 3.  After the initial burst of data is written things seem much more reasonable,
+> > and data streams to the disk almost continually while the rest of the transfer
+> > completes at near full speed again.
+> >
+> > Basically, it seems the kernel buffers all of the incoming file up to nearly
+> > available memory before it begins to panic and starts flushing the file to disk.
+> >  It seems it should start to lazy write somewhat ealier.
+> > Perhaps some of this is tuneable from userland and I just don't
+> > know how.
+>
+> Actually, it already does the lazy write earlier.
+>
+> The page reclaim code scans up to 1/4th of the inactive_dirty
+> pages on the first loop, where it does NOT write things to
+> disk.
+
+I've done some experiments with a _clean_ shortage.  Requiring that a
+portion of inactive pages be pre cleaned improves response as you start
+reclaiming.  Even though you may have enough inactive pages total, you
+know that laundering is needed before things get heavy.  This gets the
+dirty pages moving a little sooner.  As you're reclaiming pages, writes
+trickle out whether your dirty list is short or long.  (and if I'd been
+able to make that idea work a little better, you'd have seen my mess;)
+
+	-Mike
+

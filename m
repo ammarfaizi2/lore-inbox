@@ -1,105 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287144AbRL2G6A>; Sat, 29 Dec 2001 01:58:00 -0500
+	id <S287148AbRL2HQo>; Sat, 29 Dec 2001 02:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287145AbRL2G5u>; Sat, 29 Dec 2001 01:57:50 -0500
-Received: from svr3.applink.net ([206.50.88.3]:32275 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S287144AbRL2G5f>;
-	Sat, 29 Dec 2001 01:57:35 -0500
-Message-Id: <200112290657.fBT6vMSr008000@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: linux-kernel@vger.kernel.org
-Subject: RFC: Linux Bug Tracking & Feature Tracking DB
-Date: Sat, 29 Dec 2001 00:53:39 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: timothy.covell@ashavan.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S287145AbRL2HQf>; Sat, 29 Dec 2001 02:16:35 -0500
+Received: from tuminfo2.informatik.tu-muenchen.de ([131.159.0.81]:171 "EHLO
+	tuminfo2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S287148AbRL2HQV>; Sat, 29 Dec 2001 02:16:21 -0500
+Subject: NETIF_F_(SG|FRAGLIST|HIGHDMA) docs anywhere?
+From: Daniel Stodden <stodden@in.tum.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-xSFVlNoQYwz1NgJvVZDG"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 29 Dec 2001 08:16:12 +0100
+Message-Id: <1009610172.2105.0.camel@bitch>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm sure that this has been proposed and discussed
-before, and I'm sure that some of the software houses
-like RedHat must do this internally, but here goes again....
+--=-xSFVlNoQYwz1NgJvVZDG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-First the obvious problem:
+hi.
 
-Just today, I had a problem with a system lockup on 2.4.16
-which was fixed in 2.4.17.  Although, I try to read the changelogs,
-most of them are so terse as to be worthless to anyone but the
-kernel hackers themselves.   And few people beside the hackers
-have time to read through all the patches just in case the pertinant
-fix might be there (and if said person could readily do this, he
-could probably code his own fixes!)
+software-only network device, currently implementing none of the
+dev->features flags.
 
+the driver transmits packets via pci dma to other processors residing on
+a shared PCI bus segment. so i guess supporting at least scatter/gather
+should give some performance improvements in order to get rid of
+skb_linearize() on xmit? since transmission is done completely by the
+local cpu, all of F_SG/FRAGLIST/HIGHDMA look relatively easy to
+implemement to me.=20
 
-Present solution:
+my major problem is test cases and getting the picture behind these
+structures. is there any documentation around on the
+skb_shinfo(skb)->frags and skb_shinfo(skb)->frag_list stuff? i've spend
+quite some time now trying to figure out exactly under which
+circumstances which of both applies. not too successful i must admit :)
 
-Kernel hackers spend lots of time reading email and replying.
-This requires that kernel hackers are user friendly, can easily
-recognize bugs, and easily recall fixes, have lots of time on
-their hands, etc.
+frag_list seems to be the list involved with keeping track of ip
+fragmentation. so dev->hard_start_xmit() with frag_list set would only
+happen on routers or when??
 
+when is nr_frags>0? i've found some postings indicating sendfile(2) will
+benefit here. is this the only case? need some test code..
 
+any hint appreciated,
+dns
 
-Proposed Solution:
-
-A kernel bug and feature tracking system.  This would similar
-to what you all know (like Bugtraq).   Entries might look something like:
-
-Example bug:
-
-bug #13697
-Synopsys: Hard kernel lockup on 2.4.16 with ieee1394 SBP-2.
-Solution: Patch file: pdrv54678
-            http://patches.linux.org./pub/linux/v2.4/patches/p/drv/54678.diff
-Platform: x86
-Section: drivers
-Subsection: ieee1394
-Contact: joe_hacker@linux-ieee1394.sourceforge.net.
-Web URL: http://linux1394.sourceforge.net
-
-Note: All patches in 'diff -urc' format.
-
-Example Feature:
-
-Search Results on Keyword: SBP-2 	Platform: x86
-
-Topic: SBP-2
-Platform: x86
-Section: drivers
-Subsection: ieee1394
-Support on 2.2.x-2.2.y and 2.4.x-2.4.present
-Maturity: 7 (of 10)
-Relevant Bug Reports:   #13697, #14999
-Contact: joe_hacker@linux-ieee1394.sourceforge.net.
-Web URL: http://linux1394.sourceforge.net
+--=20
+___________________________________________________________________________
+ mailto:stodden@in.tum.de
 
 
+--=-xSFVlNoQYwz1NgJvVZDG
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The outstanding issues:
+iD8DBQA8LW28SPSplX5M5nQRAvviAKCQ8p8q7O0Vb05nzXEsa4CFs6guIwCdE5Mc
+5OcwE4Hi6RVIsYgDoC4WC7M=
+=xFlE
+-----END PGP SIGNATURE-----
 
-1. The maintainer of this DB would need to receive patches
-along with patch.lsm and feature.lsm like files from the code 
-maintainers.   That means  that Linus, Alan, Marcello, Dave 
-Jones, et al.,  might have to be involved.
-
-2. DB would be a high volume site (at least that's the idea!)
-
-3. Would would pay for and maintain it?  (I know, since I'm
-the one putting forth the idea, it's mine to run with.  However,
-a. I ain't rich.  b. following from a., I have no bandwidth 24kbps
-dialup.)
-
-
-
-
-That's my RFC.
-
-
-timothy.covell@ashavan.org.
+--=-xSFVlNoQYwz1NgJvVZDG--

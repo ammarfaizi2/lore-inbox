@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271764AbRH0QAG>; Mon, 27 Aug 2001 12:00:06 -0400
+	id <S271856AbRH1RTH>; Tue, 28 Aug 2001 13:19:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271767AbRH0P74>; Mon, 27 Aug 2001 11:59:56 -0400
-Received: from mx2.port.ru ([194.67.57.12]:54539 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S271764AbRH0P7u>;
-	Mon, 27 Aug 2001 11:59:50 -0400
+	id <S271851AbRH1RSs>; Tue, 28 Aug 2001 13:18:48 -0400
+Received: from mx6.port.ru ([194.67.57.16]:8457 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S271856AbRH1RSf>;
+	Tue, 28 Aug 2001 13:18:35 -0400
 From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109262022.f8QKMWi00606@vegae.deep.net>
-Subject: Linux 2.4.8-ac12
+Message-Id: <200109272141.f8RLfKI03553@vegae.deep.net>
+Subject: 2.4.9-ac1 slight RT sluggishness
 To: lkml@vegae.deep.net
-Date: Wed, 26 Sep 2001 20:22:27 +0000 (UTC)
+Date: Thu, 27 Sep 2001 21:41:19 +0000 (UTC)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,12 +18,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-      In the past hour ac12 oopsed again twice.
-   the interesting fact is that the time between bootup and
-   the actual oops is nearly constant: 20 minutes...
-   This makes me quite unsure about the nature of the crash...
+                Just collected all the facts in a bunch:
+      1. There is a svgalib fast-action game called koules.
+   Koules intro eventually delays by about 1/10 sec, and it is _visible_.
+      2. Again these delays while playing music: mpg123+esd.
+      3. Again these delays are in sync with gpm mouse stalls.
+  I.e when sound stops for its 1/10 sec, mouse stops to respond too.
+
+a) mpg123 is reniced at -20.
+b) "find /" doesnt seem to affect this behaviour.
+c) it is a somewhat flashing effect: one minute it triggers
+  each 5 secs or so, next 10 minutes i do not see it.
+d) CPU load is in its right limits.
+
+p166/24M/2.4.9-ac1/2.95.3
 
 cheers,
- Sam
-
+ Sam 
 

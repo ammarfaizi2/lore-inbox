@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbTCRDFO>; Mon, 17 Mar 2003 22:05:14 -0500
+	id <S262120AbTCRDCv>; Mon, 17 Mar 2003 22:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262149AbTCRDFO>; Mon, 17 Mar 2003 22:05:14 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:38075 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262148AbTCRDFM>; Mon, 17 Mar 2003 22:05:12 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Date: Tue, 18 Mar 2003 12:01:40 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15990.28660.687262.457216@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: 2.4.20: ext3/raid5 - allocating block in system zone/multiple 1 requests for sector
-In-Reply-To: message from Dr. David Alan Gilbert on Sunday March 16
-References: <20030316150148.GC1148@gallifrey>
-X-Mailer: VM 7.08 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S262128AbTCRDCv>; Mon, 17 Mar 2003 22:02:51 -0500
+Received: from mail.gmx.net ([213.165.64.20]:49738 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262120AbTCRDCu>;
+	Mon, 17 Mar 2003 22:02:50 -0500
+Message-Id: <5.2.0.9.2.20030318041526.0258cec8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 18 Mar 2003 04:18:20 +0100
+To: "Marijn Kruisselbrink" <marijnk@gmx.co.uk>
+From: Mike Galbraith <efault@gmx.de>
+Subject: RE: (2.5.65) Unresolved symbols in modules?
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <HJEOKOJLKINBOCDGFDOOOEOACCAA.marijnk@gmx.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday March 16, gilbertd@treblig.org wrote:
-> Hi,
->   I've just built an 800GB RAID5 array and built an ext3 file system
-> on it; on trying to copy data off the 200GB RAID it is replacing I'm
-> starting to see errors of the form:
-> 
-> kernel: EXT3-fs error (device md(9,2)): ext3_new_block: Allocating block in
-> system zone - block = 140509185
-> 
-> and
-> 
-> kernel: EXT3-fs error (device md(9,2)): ext3_add_entry: bad entry in
-> directory #70254593: rec_len %% 4 != 0 - offset=28, inode=23880564,
-> rec_len=21587, name_len=76
-> 
-> and
-> 
-> kernel: raid5: multiple 1 requests for sector 281018464
+At 02:11 AM 3/18/2003 +0100, Marijn Kruisselbrink wrote:
+> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.65; fi
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.5.65/kernel/drivers/char/lp.ko
+> > depmod:         parport_read
+> > depmod:         parport_set_timeout
+> > depmod:         parport_unregister_device
+> > ...
+> > [lots and lots of unresolved symbols in lots of modules]
+> >
+> > What am I doing wrong?  What web page or kernel documentation should I
+> > be reading?
+>I experienced exactly the same problems when I was running 2.5 kernels for
+>the first time. I think the problem is that the module-init-tools are
+>installed in /usr/local/sbin instead of /sbin. In /sbin are still the ol
+>dmodutils. When you simply run depmod, you will run the module-init-tools,
+>but in the linux-makefile /sbin/depmod is called. You could simply copy the
+>modutils to *.old (depmod -> depmod.old), and make symlinks/copys of the
+>module-init-tools in /sbin (or just make sure make isntall installs them
+>there).
 
-I had exactly these symptoms about a year ago in 2.4.18.  I found and
-fixed the problem and have just checked and the fix is definately in
-2.4.20.
-So if you really are running 2.4.20 then it looks like a similar bug
-has appeared.
+./configure --prefix=/usr --bindir=/bin --sbindir=/sbin 
 
-These two symptoms strongly suggest a buffer aliasing problem.
-i.e. you have two buffers (one for data and one for metadata)
-that refer to the same location on disc.
-One is part of a file that was recently deleted, but the buffer hasn't
-been flushed yet.  The other is part of a new directory.
-The old buffer and the new buffer both get written to disc at much the
-same time (hence the "multiple 1 requests"), but the old buffer hits
-the disc second and so corrupts the filesystem.
-
-The bug I found was specific to data=journal mode, and this certainly
-has more options for buffer aliasing.  Were you using data=journal?
-
-NeilBrown

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289631AbSAJTTJ>; Thu, 10 Jan 2002 14:19:09 -0500
+	id <S289617AbSAJTS7>; Thu, 10 Jan 2002 14:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289651AbSAJTSu>; Thu, 10 Jan 2002 14:18:50 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:59054 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289624AbSAJTQn>;
-	Thu, 10 Jan 2002 14:16:43 -0500
-Date: Thu, 10 Jan 2002 11:15:55 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-Message-ID: <20020110111555.A15171@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20020110102105.B1162@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0201101107350.1493-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0201101107350.1493-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Thu, Jan 10, 2002 at 11:08:21AM -0800
+	id <S289657AbSAJTSr>; Thu, 10 Jan 2002 14:18:47 -0500
+Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:25001 "EHLO
+	front2.chartermi.net") by vger.kernel.org with ESMTP
+	id <S289651AbSAJTRz>; Thu, 10 Jan 2002 14:17:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: reddog83 <reddog83@chartermi.net>
+Reply-To: reddog83@chartermi.net
+To: camel_3@hotmail.com
+Subject: Re: i810_audio
+Date: Thu, 10 Jan 2002 14:21:42 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <auto-000047665933@front2.chartermi.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 11:08:21AM -0800, Davide Libenzi wrote:
-> On Thu, 10 Jan 2002, Mike Kravetz wrote:
-> > >
-> > > I just kicked off another benchmark run to compare pre10, pre10 & G1
-> > > patch, pre10 & Davide's patch.
-> >
-> > It wasn't a good night for benchmarking.  I had a typo in the
-> > script to run chat reniced and as a result didn't collect any
-> > numbers for this.  In addition, the kernel with Davide's patch
-> > failed to boot with 8 CPUs enabled.  Can't see any '# CPU specific'
-> > mods in the patch.  In any case, here is what I do have.
-> 
-> Doh !! Do you have a panic dump Mike ?
-
-It didn't panic, but hung during the boot process.  After
-reading other mail, this may be caused by the out of order
-locking bug/deadlock that existed in this version of the
-O(1) scheduler.  I may be able to try and verify later today.
-Right now the machine is being used for something else.
-
--- 
-Mike
+Doug do you still have the i810 audio version 0.18
+Also v0.19 has unresolved symbols :
+./i810_audio.o: unresolved symbol __global_cli
+./i810_audio.o: unresolved symbol kernel_flag
+./i810_audio.o: unresolved symbol synchronize_irq
+./i810_audio.o: unresolved symbol __global_save_flags
+./i810_audio.o: unresolved symbol __global_restore_flags
+i686 566 Celeron kernel 2.4.17 
+If you do will you send me v0.18 so that I may have sound again thank you.
+(I lost it so that is why I'm asking)
+Victor
+>Does anybody still have the i810_audio version 0.18 if so please send me the 
+>driver becuase Doug updated his link for version 0.19
+>Thank you in advance Victor

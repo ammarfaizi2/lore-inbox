@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293527AbSCOXsj>; Fri, 15 Mar 2002 18:48:39 -0500
+	id <S292130AbSCOXyT>; Fri, 15 Mar 2002 18:54:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293531AbSCOXs2>; Fri, 15 Mar 2002 18:48:28 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:59297 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293527AbSCOXs0>;
-	Fri, 15 Mar 2002 18:48:26 -0500
-Date: Fri, 15 Mar 2002 15:45:27 -0800 (PST)
-Message-Id: <20020315.154527.98068496.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
-Subject: Re: RFC2385 (MD5 signature in TCP packets) support
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16m1bl-000554-00@the-village.bc.nu>
-In-Reply-To: <20020315.153705.111545634.davem@redhat.com>
-	<E16m1bl-000554-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S291460AbSCOXyK>; Fri, 15 Mar 2002 18:54:10 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:41951 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S291340AbSCOXx6>; Fri, 15 Mar 2002 18:53:58 -0500
+Date: Fri, 15 Mar 2002 15:50:41 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18 scheduler bugs
+Message-ID: <20020315155041.C1559@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0203152156270.23324-100000@elte.hu> <200203152214.WAA27958@rudolph.ccur.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200203152214.WAA27958@rudolph.ccur.com>; from jak@rudolph.ccur.com on Fri, Mar 15, 2002 at 05:14:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 15 Mar 2002 23:59:36 +0000 (GMT)
+Joe: from your original mail,
 
-   What do you think Ipsec does with an RST frame with an incorrect
-   IP-AH MD5 signature ? Exactly the same thing.
-   
-IPsec is fundamentally different because it encapsulates all IP
-traffic, not just TCP.  The packet is killed at IP if it doesn't
-pass the signature.
+On Fri, Mar 15, 2002 at 03:54:39PM -0500, Joe Korty wrote:
+>
+> - reschedule_idle() - smp_send_reschedule when setting idle's need_resched
+>
+>     Idle tasks nowdays don't spin waiting for need->resched to change,
+>     they sleep on a halt insn instead.  Therefore any setting of
+>     need->resched on an idle task running on a remote CPU should be
+>     accompanied by a cross-processor interrupt.
+>
+> diff -Nur linux-2.4.18-base/kernel/sched.c linux/kernel/sched.c
+> --- linux-2.4.18-base/kernel/sched.c  Fri Dec 21 12:42:04 2001
+> +++ linux/kernel/sched.c      Fri Mar 15 14:57:21 2002
+> @@ -225,16 +225,9 @@
+>       if (can_schedule(p, best_cpu)) {
+>               tsk = idle_task(best_cpu);
+>               if (cpu_curr(best_cpu) == tsk) {
+> -                     int need_resched;
+>  send_now_idle:
+> -                     /*
+> -                      * If need_resched == -1 then we can skip sending
+> -                      * the IPI altogether, tsk->need_resched is
+> -                      * actively watched by the idle thread.
+> -                      */
+> -                     need_resched = tsk->need_resched;
+>                       tsk->need_resched = 1;
+> -                     if ((best_cpu != this_cpu) && !need_resched)
+> +                     if (best_cpu != this_cpu)
+>                               smp_send_reschedule(best_cpu);
+>                       return;
+>               }
 
-   I'm not saying the RFC is a good idea (tho its a needed patch to
-   use Linux for backbone routing sanely with most vendors BGP
-   kit). Your argument about the RST frame is however pure horseshit
-   
-I totally disagree.
+Note that the original code always did send an IPI when setting
+need_resched.  It only skipped the IPI if need_resched was already
+set.  I may be wrong, but I always considered the check for
+need_resched already being set to be an optimization.  In other
+words, if need_resched was already set then you know an IPI was
+previously sent but schedule has not yet run on that CPU.
 
-Look, TCP is the last place more complexity needs to exist.
-Errors in logic in TCP need to be dealt with by breaking the
-connection and spitting a RST out, and it must be done in a
-way that is as easy to verify as possible.
+For your patch to make any difference, there would need to be code
+that frequently set need_resched and did not send an IPI to the
+target CPU.  I don't think there is any code that does this (except
+code that sets need_resched while in interrupt context which is
+handled by other means).
 
-IPSEC getting the signature wrong is more akin to getting bitstream
-corruptions from your networking card for a certain sequence of bytes.
+I would agree that the comment in the above code is out of date
+and misleading.
+
+-- 
+Mike

@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVBKFE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVBKFJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVBKFE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 00:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVBKFEz
+	id S262192AbVBKFJx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 00:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVBKFJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 00:04:55 -0500
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:5536 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262176AbVBKFEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 00:04:52 -0500
-Subject: Re: 2.6.11-rc3-mm2
-From: Nick Piggin <nickpiggin@yahoo.com.au>
+	Fri, 11 Feb 2005 00:09:53 -0500
+Received: from gizmo05bw.bigpond.com ([144.140.70.40]:5085 "HELO
+	gizmo05bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262192AbVBKFJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 00:09:35 -0500
+Message-ID: <420C3E04.1000804@bigpond.net.au>
+Date: Fri, 11 Feb 2005 16:09:24 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, Matt Mackall <mpm@selenic.com>,
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Matt Mackall <mpm@selenic.com>,
        Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
        Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
        linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
        rlrevell@joe-job.com, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200502110341.j1B3fS8o017685@localhost.localdomain>
+Subject: Re: 2.6.11-rc3-mm2
 References: <200502110341.j1B3fS8o017685@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 11 Feb 2005 16:04:46 +1100
-Message-Id: <1108098286.5098.41.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+In-Reply-To: <200502110341.j1B3fS8o017685@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 22:41 -0500, Paul Davis wrote:
+Paul Davis wrote:
 >   [ the best solution is .... ]
 > 
 >   [ my preferred solution is ... ]
@@ -43,17 +44,18 @@ On Thu, 2005-02-10 at 22:41 -0500, Paul Davis wrote:
 > that did not have at least as many problems as the RT LSM module, and
 > all other proposed solutions were also more invasive of other aspects
 > of kernel design and operations than RT LSM is.
-> 
 
-Sure, it is quick and easy. Suits some. At least I do prefer
-this to altering the semantics of realtime scheduling.
+As I see it, what I said was in support of RT LSM (or at least the 
+approach that RT LSM is taking) so why are you attacking me.  I'm on 
+your side :-)
 
-I can't say much about it because I'm not putting my hand up to
-do anything. Just mentioning that rlimit would be better if not
-for the userspace side of the equation. I think most were already
-agreed on that point anyway though.
+Peter
+PS I'm withdrawing the "unprivileged real time" feature from the 
+spa_no_frills and zaphod schedulers in the PlugSched patch as a result 
+of the discussions on SCHED_ISO and RT rlimits because the discussion 
+convinced me that it's the wrong way to go.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Nick
-
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

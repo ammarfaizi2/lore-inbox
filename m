@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUAUAAp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 19:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUAUAAp
+	id S265845AbUAUACs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 19:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUAUACs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 19:00:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17378 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265845AbUAUAAo (ORCPT
+	Tue, 20 Jan 2004 19:02:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28898 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265845AbUAUACp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 19:00:44 -0500
-Date: Tue, 20 Jan 2004 16:01:59 -0800
+	Tue, 20 Jan 2004 19:02:45 -0500
+Date: Tue, 20 Jan 2004 16:03:46 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: swsusp does not stop DMA properly during resume
-Message-Id: <20040120160159.5cb078ec.akpm@osdl.org>
-In-Reply-To: <20040120235347.GE1234@elf.ucw.cz>
-References: <20040120224653.GA19159@elf.ucw.cz>
-	<20040120150629.6949eda7.akpm@osdl.org>
-	<1074642037.739.49.camel@gaston>
-	<20040120235347.GE1234@elf.ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: bunk@fs.tum.de, James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [2.6 patch] show "Fusion MPT device support" menu only if
+ BLK_DEV_SD
+Message-Id: <20040120160346.7e466ad2.akpm@osdl.org>
+In-Reply-To: <20040120233537.A23375@infradead.org>
+References: <20040120232507.GC6441@fs.tum.de>
+	<20040120233537.A23375@infradead.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,27 +27,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
 >
-> Hi!
-> 
-> > > I _think_ what this patch is doing is suspending all devices from within
-> > > the boot kernel before starting into the resumed kernel.  Is this correct?
-> > > 
-> > > > +	update_screen(fg_console);	/* Hmm, is this the problem? */
-> > > 
-> > > Cryptic comment.  To what "problem" does this refer?
+> On Wed, Jan 21, 2004 at 12:25:07AM +0100, Adrian Bunk wrote:
+> > With BLK_DEV_SD=n, I see a "Fusion MPT device support" menu I can't 
+> > enter.
 > > 
-> > Note that you should make sure all calls to update_screen (among others)
-> > are guarded by the console semaphore, with my VT patch, not doing so
-> > will result in WARN_ON's
+> > The simple patch below removes the "Fusion MPT device support" menu if 
+> > BLK_DEV_SD=n.
 > 
-> Hmmm... yes, I'll need to fix that one. [Is there console semaphore in
-> 2.6.1, or do I need to wait for 2.6.2 before I can do something with
-> this?]
+> I'd rather see an explanation from LSI why a scsi LLDD depens on a uper
+> driver.  This can't be right.
 
-It's acquire_console_sem()/release_console_sem().
+There's a hint in the config help:
 
-I'll change the patch.  Could you please test it all in next -mm, let me
-know?
+          [2] In order enable capability to boot the linux kernel
+          natively from a Fusion MPT target device, you MUST
+          answer Y here! (currently requires CONFIG_BLK_DEV_SD)
+
+But a kernel built with BLK_DEV_SD=n, FUSION=y builds and links OK.
 

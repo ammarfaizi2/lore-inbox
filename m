@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUHZLSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268694AbUHZLWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268832AbUHZLSY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 07:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268767AbUHZLPP
+	id S268694AbUHZLWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbUHZLUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 07:15:15 -0400
-Received: from gate.firmix.at ([80.109.18.208]:40669 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S268727AbUHZLLn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:11:43 -0400
+	Thu, 26 Aug 2004 07:20:46 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:64397 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268775AbUHZLOy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 07:14:54 -0400
+Date: Thu, 26 Aug 2004 13:17:30 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <507956415.20040826131730@tnonline.net>
+To: Christoph Hellwig <hch@lst.de>
+CC: Jamie Lokier <jamie@shareable.org>, Hans Reiser <reiser@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Spam <spam@tnonline.net>
-Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <742303812.20040826125114@tnonline.net>
+In-Reply-To: <20040826105914.GA30795@lst.de>
 References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825152805.45a1ce64.akpm@osdl.org>
-	 <112698263.20040826005146@tnonline.net>
-	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-	 <1453698131.20040826011935@tnonline.net>
-	 <20040825163225.4441cfdd.akpm@osdl.org>
-	 <20040825233739.GP10907@legion.cup.hp.com>
-	 <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net>
-	 <20040826024956.08b66b46.akpm@osdl.org>
-	 <839984491.20040826122025@tnonline.net>
-	 <20040826032457.21377e94.akpm@osdl.org>
-	 <742303812.20040826125114@tnonline.net>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1093518671.2883.19.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Thu, 26 Aug 2004 13:11:11 +0200
+ <20040825200859.GA16345@lst.de>
+ <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+ <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org>
+ <412DA11B.2070303@namesys.com> <20040826105330.GB30449@mail.shareable.org>
+ <20040826105914.GA30795@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ shortened Cc: of reiser- and other folks since it is no longer
-reiser-specific - sorry, if it was too much ]
-[ fixed missing attribution ]
 
-On Thu, 2004-08-26 at 12:51 +0200, Spam wrote:
-> On Thu, 2004-08-26 at 03:24 -0700, Andrew Morton wrote:
-> > Spam <spam@tnonline.net> wrote:
-[...]
-> >>   Applications  that support the new features will benefit, all others
-> >>   will continue to work without destroying data.
-> 
-> > Sorry, but that all sounds a bit fluffy.   Please provide some examples.
 
-It is too fluffy.
+> On Thu, Aug 26, 2004 at 11:53:30AM +0100, Jamie Lokier wrote:
+>> Hans Reiser wrote:
+>> > being able to cat dirname/pseudos/cat and get a 
+>> > concatenation of all of the files is nice, and being able to cat 
+>> > dirname/pseudos/tar and get an archive of the directory is nice
+>> 
+>> Yes.  Being able to cd into filename.tar.gz and filename.iso is also
+>> nice, but all of these features should be supported by the VFS
+>> generically, not in any specific filesystem, and there should be a
+>> hook to invoke the various fun filesystem-independent handlers by name.
 
->   We  already had the examples with cp and mv. Both should continue to
->   work and the files will still be copied. The same with Konqueror and
+> It doesn't belong into the kernel at all.  If at all it belongs into a
+> userspace filesystems, but even in that case the magic detection of
+> which one to use is kinda hard.  You absoutely don't want to hardcode
+> file formats in the kernel.
 
-... after they are patched to support streams. As stated each stream has
-an own fd, so - from the user-space perspective - one has to open *all*
-streams of this file, read them and write them into the destination.
+  Do  you  mean  user-level  file  system  as  a  VFS  handled by user
+  applications,  or  a  intermediate  file  system  layer  between any
+  application  and  the  real  file  system?  The latter would be good
+  enough as it would still be transparent to the applications.
 
->   Nautilus.  Files  and  their  meta-files/streams/attributes  will be
->   retained as long as applications are using the OS API.
+  ~S
+  
 
-The OS-API is *one* file descriptor where you can read, write, mmap, ...
-on. Therefore stream selection must happen with open() since open()
-returns a fd (which uniquely identify a stream). Voila.
-And actually this makes transition actually possible: Old apps simply
-ignore streams (yes, there will be a default stream, which is used id
-nothing else is specified) and throw them away (think of e.g. patch
-which opens a new file, writes into it, unlink's the old one and mv's
-the new one on the old place) until they are modified to support them.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+
 

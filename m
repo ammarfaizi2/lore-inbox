@@ -1,49 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
+	id <S319555AbSH3MU6>; Fri, 30 Aug 2002 08:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319554AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:57984 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S317258AbSH3MOK>; Fri, 30 Aug 2002 08:14:10 -0400
-Date: Fri, 30 Aug 2002 09:18:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: nfs & "Warning - running *really* short on DMA buffers"
-In-Reply-To: <3D6F7650.32578.A1B755@localhost>
-Message-ID: <Pine.LNX.4.44L.0208300916580.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319557AbSH3MU6>; Fri, 30 Aug 2002 08:20:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56079 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319555AbSH3MU4>;
+	Fri, 30 Aug 2002 08:20:56 -0400
+Date: Fri, 30 Aug 2002 13:25:21 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andy Tai <lichengtai@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: file locking (fcntl) bug in 2.4.19
+Message-ID: <20020830132521.Y28676@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Aug 2002, Pedro M. Rodrigues wrote:
 
->    I do wan't to tune the vm settings, these warnings may not be
-> fatal but it's not pretty to have hundreds of those in the console
-> and log files. Bear with me on this one, but i remember doing exactly
-> that in the past, tuning  /proc/sys/vm/freepages. How does one
-> acomplish that nowadays? I looked at the kernel source documentation
-> and still found references to freepages, but vm/freepages doesn't
-> exist anymore. Kernel is 2.4.18-10 from Redhat.
+Yep, 2.4 & 2.5 are broken.  Here's a patch which both marcelo and alan
+refuse to apply, but fixes the problem.
 
-For fundamental reasons it's always possible for non-sleeping
-allocations to fail.  I think this warning just needs to be
-rate-limited, if it isn't already ...
+diff -urNX dontdiff linux-2418/fs/locks.c linux-2418-acct/fs/locks.c
+--- linux-2418/fs/locks.c	Thu Oct 11 08:52:18 2001
++++ linux-2418-acct/fs/locks.c	Mon Jul  1 16:23:36 2002
+@@ -134,15 +134,9 @@
+ static kmem_cache_t *filelock_cache;
+ 
+ /* Allocate an empty lock structure. */
+-static struct file_lock *locks_alloc_lock(int account)
++static struct file_lock *locks_alloc_lock(void)
+ {
+-	struct file_lock *fl;
+-	if (account && current->locks >= current->rlim[RLIMIT_LOCKS].rlim_cur)
+-		return NULL;
+-	fl = kmem_cache_alloc(filelock_cache, SLAB_KERNEL);
+-	if (fl)
+-		current->locks++;
+-	return fl;
++	return kmem_cache_alloc(filelock_cache, SLAB_KERNEL);
+ }
+ 
+ /* Free a lock which is not in use. */
+@@ -152,7 +146,6 @@
+ 		BUG();
+ 		return;
+ 	}
+-	current->locks--;
+ 	if (waitqueue_active(&fl->fl_wait))
+ 		panic("Attempting to free lock with active wait queue");
+ 
+@@ -219,7 +212,7 @@
+ /* Fill in a file_lock structure with an appropriate FLOCK lock. */
+ static struct file_lock *flock_make_lock(struct file *filp, unsigned int type)
+ {
+-	struct file_lock *fl = locks_alloc_lock(1);
++	struct file_lock *fl = locks_alloc_lock();
+ 	if (fl == NULL)
+ 		return NULL;
+ 
+@@ -348,7 +341,7 @@
+ /* Allocate a file_lock initialised to this type of lease */
+ static int lease_alloc(struct file *filp, int type, struct file_lock **flp)
+ {
+-	struct file_lock *fl = locks_alloc_lock(1);
++	struct file_lock *fl = locks_alloc_lock();
+ 	if (fl == NULL)
+ 		return -ENOMEM;
+ 
+@@ -712,7 +705,7 @@
+ 			 size_t count)
+ {
+ 	struct file_lock *fl;
+-	struct file_lock *new_fl = locks_alloc_lock(0);
++	struct file_lock *new_fl = locks_alloc_lock();
+ 	int error;
+ 
+ 	if (new_fl == NULL)
+@@ -872,8 +865,8 @@
+ 	 * We may need two file_lock structures for this operation,
+ 	 * so we get them in advance to avoid races.
+ 	 */
+-	new_fl = locks_alloc_lock(0);
+-	new_fl2 = locks_alloc_lock(0);
++	new_fl = locks_alloc_lock();
++	new_fl2 = locks_alloc_lock();
+ 	error = -ENOLCK; /* "no luck" */
+ 	if (!(new_fl && new_fl2))
+ 		goto out_nolock;
+@@ -1426,7 +1419,7 @@
+ int fcntl_setlk(unsigned int fd, unsigned int cmd, struct flock *l)
+ {
+ 	struct file *filp;
+-	struct file_lock *file_lock = locks_alloc_lock(0);
++	struct file_lock *file_lock = locks_alloc_lock();
+ 	struct flock flock;
+ 	struct inode *inode;
+ 	int error;
+@@ -1582,7 +1575,7 @@
+ int fcntl_setlk64(unsigned int fd, unsigned int cmd, struct flock64 *l)
+ {
+ 	struct file *filp;
+-	struct file_lock *file_lock = locks_alloc_lock(0);
++	struct file_lock *file_lock = locks_alloc_lock();
+ 	struct flock64 flock;
+ 	struct inode *inode;
+ 	int error;
 
-OTOH, failed allocations could serve as a hint for kswapd to
-try to keep more memory free. I should look into that for some
-next version.
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Revolutions do not require corporate support.

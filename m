@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264989AbTIJPYk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTIJPYk
+	id S264992AbTIJP33 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTIJP33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:24:40 -0400
-Received: from hal-5.inet.it ([213.92.5.24]:12466 "EHLO hal-5.inet.it")
-	by vger.kernel.org with ESMTP id S264989AbTIJPYh (ORCPT
+	Wed, 10 Sep 2003 11:29:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24228 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264992AbTIJP3U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:24:37 -0400
-Message-ID: <05ec01c377b0$31535480$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <u9j3.1VB.27@gated-at.bofh.it> <u9j3.1VB.29@gated-at.bofh.it> <u9j3.1VB.31@gated-at.bofh.it> <u9j3.1VB.25@gated-at.bofh.it> <ubNY.5Ma.19@gated-at.bofh.it> <uc79.6lg.13@gated-at.bofh.it> <uc7d.6lg.23@gated-at.bofh.it> <uch0.6zx.17@gated-at.bofh.it> <ucqs.6NC.3@gated-at.bofh.it> <ucqy.6NC.19@gated-at.bofh.it> <udmB.8eZ.15@gated-at.bofh.it> <udPF.BD.11@gated-at.bofh.it> <3F5F37CD.6060808@softhome.net>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 17:28:27 +0200
+	Wed, 10 Sep 2003 11:29:20 -0400
+Date: Wed, 10 Sep 2003 08:26:41 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] add kobject to struct module 
+In-Reply-To: <20030910080955.9318E2C0EB@lists.samba.org>
+Message-ID: <Pine.LNX.4.33.0309100807430.1012-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    Can you forward-port your work to 2.6 kernel?
->    Can you benchmarkt it against the same primitives in 2.6 kernel?
 
-I could do it only if there was an effective reason to do it. 
-And there isn't.
+> > read/write of what?  The attribute?  Sure, why not set the module
+> > attribute sysfs file to the module that way the reference count will be
+> > incremented if the sysfs file is opened.
+> 
+> Hmm, because there's one attribute: which module would own it?  You're
+> going to creation attributes per module later (for module parameters),
+> so when you do that it might make sense to do this too.
 
-They have just posted me a message with pipe latency under kernel 2.4.
-And it is exactly the same (apart some minor variations in misurements 
-that are natural enough).
+kernel/module.c owns the attribute code. (The same code and attribute 
+structure is reused for each object its exported for, so the owner field 
+must be set to the owner of the code itself.) 
 
->    You have just started your work - are you going to finish it? Or it 
-> was just-another-academical-study?
+> > But in looking at your patch, I don't see why you want to separate the
+> > module from the kobject?  What benefit does it have?
+> 
+> The lifetimes are separate, each controlled by their own reference
+> count.  I *know* this will work even if someone holds a reference to
+> the kobject (for some reason in the future) even as the module is
+> removed.
 
-I consider my work finished.
-I studied an efficient IPC mechanism and I tried to implement it 
-on an existing Operating System.
+Correct me if I'm wrong, but this sounds similar to the networking 
+refcount problem. The reference on the containing object is the 
+interesting one, as far as visibility goes. As long as its positive, the 
+module is active. 
 
-I tried some other IPC primitives in benchmark tests 
-and reported the comparisons between completion times.
+The kobject refcount can still be used for the lifetime of the object. It
+can simply be pinned the entire time the module is active. When the module
+is deleted, the kobject can be unregistered somewhere around
+free_module(). It looks like you might want to split that up into two
+parts: "Before unregistering the kobject" that removed it from lists, etc, 
+and "In kobject release method", which would call module_free() (and 
+probably free the args then too). 
 
-I got my goal.
+This way you should retain the same semantics and be able to use the 
+kobject for controlling the lifetime (which will allow you to safely 
+export attributes through sysfs). 
 
->    If you can try to develop new sematics for old syntax (shm* & etc) it 
-> can be welcomed too.
->    And if it would be poll()able - it would be great. Applications which 
-> do block on read()/getmsg() in real-life not that common, and as I've 
-> understood - this is the case for your message passing structure.
+Make sense? 
 
-I'm not a kernel developer. Ask Linus Torvalds.
 
-Bye,
-Luca
+	Pat
+

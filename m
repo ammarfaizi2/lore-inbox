@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278879AbRKOKnG>; Thu, 15 Nov 2001 05:43:06 -0500
+	id <S280801AbRKOLFR>; Thu, 15 Nov 2001 06:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280815AbRKOKmq>; Thu, 15 Nov 2001 05:42:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:11270 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278959AbRKOKmp>;
-	Thu, 15 Nov 2001 05:42:45 -0500
-Mail-Copies-To: never
-To: "Alex Adriaanse" <alex_a@caltech.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: LFS stopped working
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOMEONCMAA.alex_a@caltech.edu>
-From: Andreas Jaeger <aj@suse.de>
-Date: Thu, 15 Nov 2001 11:42:42 +0100
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOMEONCMAA.alex_a@caltech.edu> ("Alex
- Adriaanse"'s message of "Thu, 15 Nov 2001 02:03:52 -0800")
-Message-ID: <howv0s48nx.fsf@gee.suse.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
-MIME-Version: 1.0
+	id <S280809AbRKOLFI>; Thu, 15 Nov 2001 06:05:08 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:11278 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S280801AbRKOLEv>; Thu, 15 Nov 2001 06:04:51 -0500
+From: Norbert Preining <preining@logic.at>
+Date: Thu, 15 Nov 2001 12:04:44 +0100
+To: linux-kernel@vger.kernel.org
+Subject: apm poweroff problem with 2.4.14, dell i8k
+Message-ID: <20011115120444.A836@alpha.logic.tuwien.ac.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alex Adriaanse" <alex_a@caltech.edu> writes:
+Hi!
 
-> But ulimit shows that the file size is unlimited... would this be a bug?  If
-> that's the case, then how/why would it work before?
+With 2.4.14 the power off at the end of shutdown does not work on
+my dell inspiron 8000. It was working on linux-2.4.10. Is this a
+known problem? I didn't find anything in the mail archives.
 
-If you use an older distro, bash will not handle the changed getrlimit
-syscall in 2.4, for details check the Red Hat entry under:
-http://www.suse.de/~aj/linux_lfs.html
+Can you please Cc: me any response!
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+
+Best wishes
+
+Norbert
+
+
+-----------------------------------------------------------------------
+Norbert Preining <preining@logic.at> 
+University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
+-----------------------------------------------------------------------
+BOTOLPHS
+
+Huge benign tumours which archdeacons and old chemisty teachers affect
+to wear on the sides of their noses.
+
+			--- Douglas Adams, The Meaning of Liff 

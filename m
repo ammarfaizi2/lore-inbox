@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbULCUYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbULCTvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbULCUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 15:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbULCUXw
+	id S262483AbULCTvw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 14:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbULCTvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 15:23:52 -0500
-Received: from www1.cdi.cz ([194.213.194.49]:46303 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S262506AbULCUWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 15:22:16 -0500
-Date: Fri, 3 Dec 2004 21:21:50 +0100 (CET)
-From: devik <devik@cdi.cz>
-X-X-Sender: <devik@devix>
-To: Dimitri Sivanich <sivanich@sgi.com>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <piggin@cyberone.com.au>
-Subject: Re: [PATCH] sched isolcpus=1 related OOPS in 2.6.9
-In-Reply-To: <20041203194713.GB16069@sgi.com>
-Message-ID: <Pine.LNX.4.33.0412032111560.493-100000@devix>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Dec 2004 14:51:09 -0500
+Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:21764
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262483AbULCT3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 14:29:33 -0500
+Message-Id: <200412032145.iB3LjYZW004715@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: [PATCH] UML - correctly restore extramask in sigreturn
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 Dec 2004 16:45:34 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After a quick look, this patch looks OK (although I haven't had a chance to
-> test it yet).  I don't know what what was intended with a default cpu_power
-> of 0, but I don't believe that a value of SCHED_LOAD_SCALE should negatively
-> affect the isolated domains (versus any other value).
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-Hello Dimitri,
+Restoring of current->blocked in sys_sigreturn is wrong.
+The first (long ) of the mask correctly is fetched from sc->oldmask.
+The further longs again come from there, but correctly should be
+taken from frame->extramask.
 
-thanks for your check. As I understand the code (it took me
-5 hours eh eh) only relative sizes of cpu_power within one
-domain matter. Thus in isolated domain one can use any nonzero
-value. Also SCHED_LOAD_SCALE is probably ok in principle because
-the value means "power of one typical CPU" AFAIK.
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-I'm not sure who is official maintainer of the scheduler and
-whether he will see/integrate the patch ...
-
-devik
+Index: 2.6.9/arch/um/sys-i386/signal.c
+===================================================================
+--- 2.6.9.orig/arch/um/sys-i386/signal.c	2004-12-01 14:03:31.000000000 -0500
++++ 2.6.9/arch/um/sys-i386/signal.c	2004-12-01 14:10:26.000000000 -0500
+@@ -307,11 +307,12 @@
+ 	struct sigframe __user *frame = (struct sigframe *)(sp - 8);
+ 	sigset_t set;
+ 	struct sigcontext __user *sc = &frame->sc;
+-	unsigned long __user *mask = &sc->oldmask;
++	unsigned long __user *oldmask = &sc->oldmask;
++	unsigned long __user *extramask = frame->extramask;
+ 	int sig_size = (_NSIG_WORDS - 1) * sizeof(unsigned long);
+ 
+-	if(copy_from_user(&set.sig[0], mask, sizeof(&set.sig[0])) ||
+-	   copy_from_user(&set.sig[1], mask, sig_size))
++	if(copy_from_user(&set.sig[0], oldmask, sizeof(&set.sig[0])) ||
++	   copy_from_user(&set.sig[1], extramask, sig_size))
+ 		goto segfault;
+ 
+ 	sigdelsetmask(&set, ~_BLOCKABLE);
 

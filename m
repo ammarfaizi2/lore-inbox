@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbUBQIQP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 03:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUBQIQP
+	id S263584AbUBQI0b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 03:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUBQI0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 03:16:15 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:59090 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262745AbUBQIQO (ORCPT
+	Tue, 17 Feb 2004 03:26:31 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25861 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263584AbUBQI0a convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 03:16:14 -0500
+	Tue, 17 Feb 2004 03:26:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Tom Guilliams <tguilliams@san.rr.com>, DHollenbeck <dick@softplc.com>
+Subject: Re: [BusyBox] [Fwd: Loopback device setup?]
+Date: Tue, 17 Feb 2004 10:22:38 +0200
+X-Mailer: KMail [version 1.4]
+Cc: busybox@mail.codepoet.org, linux-kernel@vger.kernel.org
+References: <40314A9F.3090801@softplc.com> <40315E31.90201@san.rr.com>
+In-Reply-To: <40315E31.90201@san.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16433.52683.105686.205893@alkaid.it.uu.se>
-Date: Tue, 17 Feb 2004 09:16:11 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Tetsuji Rai <tetsuji_rai@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot enable APIC with 2.6.2
-In-Reply-To: <4031731A.8020001@yahoo.com>
-References: <403101BA.1060202@yahoo.com>
-	<16433.19261.280849.983457@alkaid.it.uu.se>
-	<4031731A.8020001@yahoo.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402171022.38290.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tetsuji Rai writes:
- > Mikael Pettersson wrote:
- > > Tetsuji Rai writes:
- > >  > I enabled APIC in config file of kernel 2.6.2, however APIC is not enabled
- > >  > on boot.   I'm sure APIC is enabled on my machine by BIOS, because I
- > >  > confirmed it with WIndows XP.  What's wrong with my settings?   Or it's a
- > >  > bug of kernel?.....I suspect my config should be wrong.....
- > > 
- > > "APIC" here means I/O-APIC. The local APIC is Ok according to the dmesg log.
-...
- > > But here the .config ends, so we can't tell if ACPI is enabled or not.
-...
- > Okey!!  I attach my config file (config-2.6.2) to this email as an
- > attachment.  And yes my machine is overclocked by 8 percent :)
-...
- > # ACPI (Advanced Configuration and Power Interface) Support
- > #
- > # CONFIG_ACPI is not set
+On Tuesday 17 February 2004 02:20, Tom Guilliams wrote:
+> in /driver/block/loop.c -
+>
+> loop_set_fd()
+>
+> 		/*
+>                   * If we can't read - sorry. If we only can't write -
+>                  		 * well, it's going to be read-only.
+>                   */
+>                  if (!aops->readpage)
+>                          goto out_putf;
+>
+> I confirmed the "if (!aops->readpage)" is true.  I'm not sure what the
+> readpage routine is trying to do (which dev or file) in my command below -
+> # mount -t ext2 -o loop ramdisk.image rootfs
+>
+> Anyone have any thoughts??  This is all being done in the /tmp
+> dircectory which is mounted as "tmpfs".  Not sure if that has anything
+> to do with it.
 
-ACPI is disabled. Enable it and try again.
+I recall that tmpfs cannot do readpage (by design?).
+CCing LKML, maybe someone will pour in more info.
+-- 
+vda

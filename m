@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUHIO7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUHIObD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266737AbUHIO7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUHIO7F
+	id S266661AbUHIObD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266633AbUHIO3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:59:05 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52702 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266680AbUHIO6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:58:25 -0400
-Date: Mon, 9 Aug 2004 16:57:37 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408091457.i79EvbrX010682@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Mon, 9 Aug 2004 10:29:12 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:21765 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S266646AbUHIO2G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:28:06 -0400
+Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF090213@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: David Balazic <david.balazic@hermes.si>,
+       "'Pat LaVarre'" <p.lavarre@ieee.org>
+Cc: "'David Burg'" <dburg@nero.com>, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: Can not read UDF CD
+Date: Mon, 9 Aug 2004 16:27:48 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, I put the ISO image and the udf checker outputs on BitTorrent,
+the torrent file is avaliable at
+http://lizika.pfmb.uni-mb.si/~stein/UDF_image_and_reports.torrent
 
->From: Jens Axboe <axboe@suse.de>
+In case you don't have a BitTorrent client, one can be had at
+http://bitconjurer.org/BitTorrent/download.html
+( even a commandline version , written in python )
 
->> DMA abstraction does not fix HW bugs, it only allows you to behave the
->> same for all "DMA users" for the same HW in the kernel.
-
->If they all use the interface. Like with all interfaces, it takes time
->before it's being used kernel-wide.
-
-I did mention DMA abstraction in LKML in 1999 or even earlier.....
-It is a long time since then.
+Regards,
+David
 
 
->I have lots of discussions on linux-kernel, and not all of them (very
->few, in fact) end up in flames. You seem to end up in flames with
->basically everyone. At least on linux-kernel, I believe my track record
->is far better than yours. Your mails are often infuriating.
-
-You need to distinct between boot licking people and people who know what
-they are talking about. It seems that you are missing the needed discussion
-stile in order to be able to discuss things with people that are not of your
-opinion. I _am_ able to do this and it was alway you to come up with personal
-insultings, altough I know that even pure technical discussions may be very 
-"hot"...
-
-Note that you did always block when I asked you for giving technical arguments.
-
-At last: I am always open to people wo have the needed discussion style and the
-technical background to talk about things, but I don't like the kind of 
-discussions I am always thrown into on LKML because they start with bashing me.
-
-Once you learned how to discuss things on a result oriented way, I would be 
-happy to see mail from you again.
-
-Meanwhile, have a nice day.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+> ----------
+> From: 	Pat LaVarre[SMTP:p.lavarre@ieee.org]
+> Sent: 	29. julij 2004 19:06
+> To: 	David Balazic
+> Cc: 	'David Burg'; linux_udf@hpesjro.fc.hp.com;
+> linux-kernel@vger.kernel.org
+> Subject: 	Re: Can not read UDF CD
+> 
+> // David Balazic:
+> 
+> > I will try to see if the problem is reproducable with burning
+> > more UDF CDs...
+> 
+> Yes please thank you.
+> 
+> >> I attach the "udf_test -scsi 1:0" output.
+> 
+> Attach did Not arrive here, sorry, please retry attach, at least to me, 
+> else publish on web.
+> 
+> Also please say if you can easily share a .iso image of the disc.  (Of 
+> course I imagine linux_udf and linux-kernel don't want that attached.)
+> 
+> >> -	   Main: length,location: 32768, 30654 expected:  32768, 32
+> >> -	Reserve: length,location: 32768, 30670 expected:  32768, 48
+> 
+> I likewise find these interesting.  Don't know yet what they mean - 
+> again I say "Ben wrote udf.ko, not I".
+> 
+> I'll try to hunt for relevant claims in the 
+> udfct/src/udf_tester/udf_test (aka phgfsck) output when I receive it.
+> 
+> // David Burg:
+> 
+> >> Let me know if you ... think ... Nero has a mistake
+> 
+> Wow.  Will do with pleasure thank you for your interest.
+> 
+> Pat LaVarre
+> 

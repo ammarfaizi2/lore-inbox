@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265347AbSJXIRl>; Thu, 24 Oct 2002 04:17:41 -0400
+	id <S265348AbSJXIS2>; Thu, 24 Oct 2002 04:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265348AbSJXIRk>; Thu, 24 Oct 2002 04:17:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32139 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265347AbSJXIRk>;
-	Thu, 24 Oct 2002 04:17:40 -0400
-Date: Thu, 24 Oct 2002 01:15:12 -0700 (PDT)
-Message-Id: <20021024.011512.08605370.davem@redhat.com>
-To: laforge@gnumonks.org
-Cc: bart.de.schuymer@pandora.be, coreteam@netfilter.org,
-       linux-kernel@vger.kernel.org, buytenh@gnu.org
-Subject: Re: [netfilter-core] [RFC] place to put bridge-netfilter specific
- data in the skbuff
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021024101656.T2450@sunbeam.de.gnumonks.org>
-References: <200210141953.38933.bart.de.schuymer@pandora.be>
-	<200210142159.49290.bart.de.schuymer@pandora.be>
-	<20021024101656.T2450@sunbeam.de.gnumonks.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265349AbSJXIS1>; Thu, 24 Oct 2002 04:18:27 -0400
+Received: from 12-234-207-200.client.attbi.com ([12.234.207.200]:46720 "EHLO
+	chrisl-um.vmware.com") by vger.kernel.org with ESMTP
+	id <S265348AbSJXISY>; Thu, 24 Oct 2002 04:18:24 -0400
+Date: Thu, 24 Oct 2002 01:25:05 -0700
+From: chrisl@vmware.com
+To: Andrew Morton <akpm@digeo.com>, andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: writepage return value check in vmscan.c
+Message-ID: <20021024082505.GB1471@vmware.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Harald Welte <laforge@gnumonks.org>
-   Date: Thu, 24 Oct 2002 10:16:56 +0200
+Hi Andrew,
 
-   Mh. Since bridging firewall is cool, but not something everybody will
-   use by default [and it adds code as well as enlarges the skb], I think it 
-   should be a compiletime kernel config option.
-   
-This was my initial reaction, but both of us misunderstand what
-is going on I think.
+It might be a silly question.
 
-If you use bridging, using netfilter on the bridged traffic "is not
-possible" without these bridge-netfilter changes.
+Is it a bug in vmscan.c that it do not check the return
+value of writepage when shrinking the cache?
 
-So he's saying, if we have bridging enable and netfilter, should
-bridge-netfilter be on, and right now I say yes.
+Some background of the problem:
 
-Bart, correct me if I'm wrong.
+I was tracing some heavy swapping problem relate to high memory usage
+when running many virtual machines in VMware GSX server some time ago.
+If the total ram size of different virtual machine add up to some level,
+bigger than 2G on a 4Gmachine.Kernel will keep swapping and no response.
+
+VMware open a tmp ram file for each virtual machine and mmap on that file
+to share memory between different process.
+
+I soon find out the hidden size limit on shmfs even though the ram file
+is open on a ext2/ext3 file system. If I change the ram file open on
+/dev/shm then the problem seems to go away. I guess that is because /tmp
+directory is full but bigger /tmp did not help. that is another issue
+though.
+
+I try to find out what happen if user memory map a sparse file then
+kernel try to write it back to disk and hit a no disk space error.
+To my surprise, it seems to me that both 2.4 and 2.5 kernel do not
+check the return value of "writepage". If there is an error like ENOSPC
+it will just drop it on the ground? Do I miss something obvious?
+
+BTW, I am amazed that there is so many way user can abuse the mmap system
+call. e.g. open a file, ftruncate to a bigger size, unlink that file while
+keep the file descriptor, mmap to some memory using that descriptor,
+close that descriptor, you can still use that mmaped memory.
+
+Cheers,
+
+Chris

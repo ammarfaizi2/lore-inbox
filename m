@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267551AbUHWIuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUHWIxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267551AbUHWIuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 04:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267552AbUHWIuP
+	id S267588AbUHWIxm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 04:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUHWIxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 04:50:15 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:18320 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S267551AbUHWIuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 04:50:06 -0400
-Date: Mon, 23 Aug 2004 10:50:00 +0200
-From: Frank =?iso-8859-1?Q?Matthie=DF?= <frankm@lug-owl.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Trivial IPv6-for-Fedora HOWTO
-Message-ID: <20040823085000.GA12383@dvmwest.dvmwest.de>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <4129236E.9020205@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+	Mon, 23 Aug 2004 04:53:41 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:8877 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S267552AbUHWIxi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 04:53:38 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: IEEE-1588
+Date: Mon, 23 Aug 2004 04:53:35 -0400
+User-Agent: KMail/1.6.82
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-net@vger.kernel.org
+References: <Pine.OSF.4.05.10408230950290.29749-100000@da410.ifa.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10408230950290.29749-100000@da410.ifa.au.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4129236E.9020205@pobox.com>
-X-PGP-Key: http://lug-owl.de/~frankm/pubkey_CF1B698D.asc
-X-PGP-Fingerprint: 2473 4985 E3B2 990D CB32  AA11 96FC 72B9 CF1B 698D
-X-message-Flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6i
+Message-Id: <200408230453.35598.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.62.54] at Mon, 23 Aug 2004 03:53:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 23 August 2004 03:51, Esben Nielsen wrote:
+>Does anyone know about that standard for time syncronization? Is
+> there any work on Linux-support?
+>
+>Esben
 
---YiEDa0DAkWCtVeE4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure.  There is ntpdate, intended for gross corrections at boot time, 
+and ntp, which finetunes things if you need microsecond accuracy all 
+day long.  I don't, so I just run ntpdate at boot time and 4x a day 
+with cron against 4 servers chosen at random from a list of 33, using 
+a script and a list of servers someone posted years ago now.
 
-Jeff Garzik [2004-08-23 00:51 CEST]:
->=20
-> So, thanks to David Woodhouse for showing me how to do this.  IPv6=20
-> appears to be very, very close to a Just Works(tm) state.
->=20
-> These instructions are for Fedora Core 2 users, and describe how to set=
-=20
-> up IPv6 automatically tunnelling (6to4) on an IPv4 network.  If you are=
-=20
-> stuck on an IPv4-only network (like most of us), this enables=20
-> communication with IPv6 hosts quickly, easily, and transparently.
->=20
-> (this HOWTO is archived at http://yyz.us/ipv6-fc2-howto.html)
-[...]
->=20
-> If you have an iptables ipv4 firewall, you'll want to
->=20
-[...]
->=20
-> F2) duplicate your ipv4 firewall rules for ipv6, using ip6tables.  Some=
-=20
-> things, like masquerade, are not applicable to ipv6.
+Both are installed in a normal full install, but not this script.  ntp 
+as I understand it needs configured before its used, but it can be 
+run from /etc/init.d by turning it on with chkconfig once its 
+configured.
 
-Does Fedora Core 2 has patches, which add ipv6 statefull inspection to
-netfilter? If not, this is only true for rules without statefull
-inspection.
-
-Frank.
---=20
-Frank Matthie=DF
-
-"Was kommt denn als n=E4chstes? Ein Studiengang 6 Semester sendmail mit
- Aufbaustudium `sendmail security'?" -- Frank Guthausen
-
---YiEDa0DAkWCtVeE4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBKa+3LXa7dZqO5SERAm0+AJ4r5i/1EaxghTsL6Tg0mVSKuhSUCACfVMN5
-acEthcDvhBwS31zz04zFVHs=
-=91nx
------END PGP SIGNATURE-----
-
---YiEDa0DAkWCtVeE4--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

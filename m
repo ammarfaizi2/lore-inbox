@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267788AbTAHRl2>; Wed, 8 Jan 2003 12:41:28 -0500
+	id <S267693AbTAHRrS>; Wed, 8 Jan 2003 12:47:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267799AbTAHRl2>; Wed, 8 Jan 2003 12:41:28 -0500
-Received: from zeke.inet.com ([199.171.211.198]:24476 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S267788AbTAHRl1>;
-	Wed, 8 Jan 2003 12:41:27 -0500
-Message-ID: <3E1C64CE.8050709@inet.com>
-Date: Wed, 08 Jan 2003 11:50:06 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Murray J. Root" <murrayr@brain.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: USB CF reader reboots PC
-References: <20030108165130.GA1181@Master.Wizards> <20030108173356.GA1189@Master.Wizards>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267819AbTAHRrR>; Wed, 8 Jan 2003 12:47:17 -0500
+Received: from mail5.intermedia.net ([206.40.48.155]:47877 "EHLO
+	mail5.intermedia.net") by vger.kernel.org with ESMTP
+	id <S267693AbTAHRrQ>; Wed, 8 Jan 2003 12:47:16 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E18WB8O-0004jy-00@fencepost.gnu.org>
+References: <20030102061430.GA23276@mark.mielke.cc>
+	 <E18UIZS-0006Cr-00@fencepost.gnu.org>
+	 <20030103040612.GA10651@work.bitmover.com>
+	 <20030104220651.GA30907@merlin.emma.line.org>
+	 <20030104222330.GA1386@work.bitmover.com>
+	 <E18VFaz-0008S0-00@fencepost.gnu.org>
+	 <20030105221345.GA31840@mark.mielke.cc>
+	 <E18Vao9-0002JZ-00@fencepost.gnu.org>
+	 <20030106173949.GA1712@gnuppy.monkey.org>
+	 <E18Vtxz-0002cB-00@fencepost.gnu.org>
+	 <20030107141758.GA10770@gnuppy.monkey.org>
+	 <E18WB8O-0004jy-00@fencepost.gnu.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042049451.22532.7.camel@ymb1.mail.vip.sc5.yahoo.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 08 Jan 2003 10:10:52 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Murray J. Root wrote:
-> Ooops - kernel 2.5.5[234]
-> 
-> On Wed, Jan 08, 2003 at 11:51:30AM -0500, Murray J. Root wrote:
-> 
->>ASUS P4S533 (SiS645DX chipset)
->>P4 2GHz
->>1G PC2700 RAM
->>SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
->>
->>----------------------------
->>devfs compiled in to kernel, devfs=nomount in lilo.conf
->>  
->>Insert CF card. mount it. cd to it, do reads and/or writes
->>umount card. remove card.
->>insert a different card (does not happen if the same card is used)
->>mount it. system reboots. logs are corrupted
->>
->>Doesn't happen every time for read - sometimes I can read 2 or 3 cards first
->>Happens every time for write - if I write to a card then changing cards
->>causes a reboot
->>
-[snip]
 
-Somewhat similar vein, but a different set of symptoms, I've seen a 
-RedHat box not see that the CF card changed...
-(USB SanDisk CF & SD reader, also using only CF cards.)
+Richard,
 
-insert 128MB CF card.
-everything is ok.
-remove 128MB CF card, still see 128MB partition
-insert 256MB CF card.
-see 128MB partition.
-(based on /proc/partitions)
+The last time I tried installing the GNU Operating System without the
+Linux Kernel, it wouldn't boot. Dont know why. I had my /bin/ls and my
+/bin/make installed but they just wouldn't boot the computer.
 
-I've not followed this up to figure out why yet.
-You might check that situation to see if yours is related at all.
+I finally installed a Windows 98 kernel to help the GNU operating system
+(i.e. ls and make) and now I can happily state that my computer is
+running a GNU Operating System with a Windows 98 kernel.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Doesn't that sound silly ???????
+
+
+Know why ? cos (Operating System == kernel), in this case, its Linux,
+and the GNU stuff refers to the utilities only.
+
+Mind you, they are VERY IMPORTANT utilities, but utilities nonetheless.
+To call them an operating system is ridiculous, as I think I proved in
+the earlier part of my mail.
+
+Ranjeet Shetye.
+Senior Software Engineer.
+
 

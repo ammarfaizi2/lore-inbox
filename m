@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUFJTAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUFJTCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUFJTAK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUFJS64
+	id S262431AbUFJTCK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUFJTAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 14:58:56 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29580 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262391AbUFJS5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 14:57:20 -0400
-Message-ID: <40C8AF31.1010704@tmr.com>
-Date: Thu, 10 Jun 2004 14:57:53 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+	Thu, 10 Jun 2004 15:00:23 -0400
+Received: from s-smtp-osl-02.bluecom.no ([62.101.193.41]:5851 "EHLO
+	s-smtp-osl-02.bluecom.no") by vger.kernel.org with ESMTP
+	id S262391AbUFJS7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 14:59:49 -0400
+Message-ID: <40C8AFA4.3040705@globelan.net>
+Date: Thu, 10 Jun 2004 20:59:48 +0200
+From: Lars Age Kamfjord <lakmailing@globelan.net>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Robert White <rwhite@casabyte.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-References: <24vX0-81P-7@gated-at.bofh.it> <24WNz-4pO-3@gated-at.bofh.it>
-In-Reply-To: <24WNz-4pO-3@gated-at.bofh.it>
+To: linux-kernel@vger.kernel.org
+Cc: stian@nixia.no
+Subject: Re: timer + fpu stuff locks my console race
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert White wrote:
-> I would think that having an easy call to disable the NX modification would be both
-> safe and effective.  That is, adding a syscall (or whatever) that would let you mark
-> your heap and/or stack executable while leaving the new default as NX, is "just as
-> safe" as flagging the executable in the first place.
+ACK on 2.6.5 (fedora core 2 vanilla)
 
-It clearly wouldn't be safe, and that keeps it from being effective. 
-Like having a great lock and burglar alarm, then putting the key and 
-entry code under the mat. NX is to prevent abuse by BAD PEOPLE and 
-therefore should not have any way to defeat it from within a program.
+Totally locked my X window system.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Lars Age Kamfjord
+
+ > Please keep me in CC as I'm not on the mailinglist. I'm currently on a
+ > vaccation, so I can't hook my linux-box to the Internet, but I came 
+across
+ > a race condition in the "old" 2.4.26-rc1 vanilla kernel.
+
+ > I'm doing some code tests when I came across problems with my program
+ > locking my console (even X if I'm using a xterm).
+
+ > I think first of all gcc triggers the problem, so the full report is 
+here:
+ > http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15905
+
+ > Stian Skjelstad

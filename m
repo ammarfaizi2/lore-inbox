@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbUBTSTw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUBTSTv
+	id S261278AbUBTSSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUBTSSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:19:51 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:15621 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S261275AbUBTSTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:19:00 -0500
-Date: Sat, 21 Feb 2004 03:20:06 +0900 (JST)
-Message-Id: <20040221.032006.68375681.yoshfuji@linux-ipv6.org>
-To: andrew@walrond.org, netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.3 : [eth0: Too much work at interrupt,
- status=0x00000001.]
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200402201803.12146.andrew@walrond.org>
-References: <200402201803.12146.andrew@walrond.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Feb 2004 13:18:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10112 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261278AbUBTSSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 13:18:12 -0500
+Date: Fri, 20 Feb 2004 10:22:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Ingo Molnar <mingo@elte.hu>, Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(),
+ O_CLEAN
+In-Reply-To: <20040220173307.GF8994@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402201017370.2533@ppc970.osdl.org>
+References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+ <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+ <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+ <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
+ <20040220173307.GF8994@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200402201803.12146.andrew@walrond.org> (at Fri, 20 Feb 2004 18:03:11 +0000), Andrew Walrond <andrew@walrond.org> says:
 
-> I'm getting loads of these messages in dmesg.
+
+On Fri, 20 Feb 2004, Jamie Lokier wrote:
 > 
-> This is a vanilla 2.6.3 kernel with ACPI disabled with acpi=off boot 
-> parameter. No preempt, APIC and IOAPIC enabled
-> 
-> Its a single 2Ghz celeron with Via chipset and Rhine II ethernet. It is under 
-> no load at all. ssh only.
-> 
-> dmesg is short and follows; Any knowledge apprieciated!
-:
-> eth0: Too much work at interrupt, status=0x00000001.
+> How about this: we clean up dnotify, so it can be used for
+> user<->kernel dcache coherency
 
-I've got this several times, randomly, and
-I had to go to the console to reboot the machine.
+No can do.
 
-Well, sorry, I haven't tracked it down yet...
+There is no _way_ dnotify can do a race-free update, exactly because any 
+user-level state is fundamentally irrelevant because it isn't tested under 
+the directory semaphore.
 
-Others?
+See? You can have a user-level cache, but the flag and the notification 
+absolutely has to be under the inode semaphore (and thus in kernel space) 
+if you want to avoid all races with unrelated processes.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Now, for samba this isn't necessarily a huge problem, because you can 
+basically say "don't do that, then", and just document that you shouldn't 
+mess with a samba export using anything but SMB accesses. So in a sense, 
+the samba unix-side coherency is nothing more than politeness, and then 
+dnotify or similar works fine (by virtue of not being an absolute 
+coherency guarantee, just a "best effort").
+
+But then it should be documented as such. It's not coherent, it's only 
+"almost coherent".
+
+		Linus

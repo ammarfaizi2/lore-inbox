@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbTIINnH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264114AbTIINnH
+	id S264143AbTIINrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTIINrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:43:07 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32396 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264097AbTIINnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:43:05 -0400
-Date: Tue, 9 Sep 2003 15:09:02 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Mike Fedyk <mfedyk@matchmail.com>,
-       Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-Message-ID: <20030909130902.GE3944@openzaurus.ucw.cz>
-References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com> <3F578656.60005@namesys.com> <20030904132804.D15623@schatzie.adilger.int> <3F57AF79.1040702@namesys.com>
+	Tue, 9 Sep 2003 09:47:16 -0400
+Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:30438 "EHLO
+	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
+	id S264143AbTIINrM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:47:12 -0400
+X-Version: Mailcentro(english)
+X-SenderIP: 80.58.9.42
+X-SenderID: 7831070
+From: "Jose Luis Alarcon Sanchez" <jlalarcon@chevy.zzn.com>
+Message-Id: <97AFC939E694B5D4AB8FACAB31CB4945@jlalarcon.chevy.zzn.com>
+Date: Tue, 9 Sep 2003 15:46:57 +0200
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: midian@ihme.org, linux-kernel@vger.kernel.org
+Subject: Re: Nforce2
+X-Mailer: Web Based Pronto
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F57AF79.1040702@namesys.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Yup.  That's why we confine it to a (finite #defined number) set of 
-> operations within one sys_reiser4 call.  At some point we will allow 
-> trusted user space processes to span multiple system calls (mail 
-> server applicances, database appliances, etc., might find this 
-> useful).  You might consider supporting sys_reiser4 at some point.
-
-
-Well, if you want that API to be widely usable, you should invent
-better name than sys_reiser4 :-).
+---- Begin Original Message ----
+Still problems with nvidia-agp on 2.6.0-test5(-mm1). I can't track down
+the problem because my box needs a hard reboot. My card is nvidia. So
+they should work together. On 2.4.23-pre3, there's no problem anymore.
+Works fine, but why not in 2.6.0-test5? Any ideas why it crashes? Any
+fix? If you need me to investigate more. Tell me how.
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+----
+Markus Hästbacka <midian@ihme.org>
+---- End Original Message ----
 
+
+  Hi Markus.
+
+  Have you the minion patches in http://www.minion.de/nvidia.html
+installed?. It is necesary for the nvidia driver works on 2.6
+kernels.
+
+  Regards.
+
+  Jose.
+
+
+http://linuxespana.scripterz.org
+
+FreeBSD RELEASE 4.8.
+Mandrake Linux 9.1 Kernel 2.6.0-test5 XFS.
+Registered BSD User 51101.
+Registered Linux User #213309.
+Memories..... You are talking about memories. 
+Rick Deckard. Blade Runner.
+
+
+Get your Free E-mail at http://chevy.zzn.com
+__________________
+http://www.zzn.com

@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUIYTiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269399AbUIYToQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269398AbUIYTiX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 15:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269399AbUIYTiX
+	id S269399AbUIYToQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 15:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269402AbUIYToQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 15:38:23 -0400
-Received: from main.gmane.org ([80.91.229.2]:16049 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269398AbUIYTiV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 15:38:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: OOM-killer killed everything
-Date: Sat, 25 Sep 2004 18:12:50 +0600
-Message-ID: <415560C2.1020602@ums.usu.ru>
-References: <200409251326.13915.petkov@uni-muenster.de>
+	Sat, 25 Sep 2004 15:44:16 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26808 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S269399AbUIYToO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 15:44:14 -0400
+Date: Sat, 25 Sep 2004 21:40:01 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: netdev@oss.sgi.com
+Cc: jgarzik@pobox.com, Jon Mason <jdmason@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: 8139C+/8169 and suspend mode
+Message-ID: <20040925194000.GA11363@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: en-us, en
-In-Reply-To: <200409251326.13915.petkov@uni-muenster.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Borislav Petkov wrote:
-> Hi there,
-> 
-> I just started burning an audio cd with cdrecord, ran it as root because of 
-> the SUID changes in 2.6.8 when this big bad guy by the name of OOM-killer 
-> appeared and started killing everything :) I don't know whether the spurious 
-> interrupt issue has something to do with it but according to what I've read 
-> on lkml about it until now, it is supposed to be quite harmless. Sysinfo 
-> + .config attached.
-> 
-> Regards,
-> Boris.
+Does anyone have positive experience with suspend mode on the aforementionned
+chipset ?
 
-Known bug. For the fix, see:
+Rationale: Jon noticed that the r8169 driver did not correctly set the dirty
+Rx ring index when the driver tries to reset the chipset (rtl8169_hw_start)
+after a Tx timeout recovery. The chipset is told where the Tx/Rx rings start
+but the software driver works with a badly inaccurate (rx_cur, rx_dirty) pair.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109309119620622&w=2
+If I am not mistaken, the same pattern applies to the resume function in the
+r8169 driver and in the 8139cp driver. 
 
--- 
-Alexander E. Patrakov
+So, despite me thinking that the poor thing is in a bad state, is there
+anybody who actually succeeds using it ?
 
+--
+Ueimor

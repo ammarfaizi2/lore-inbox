@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263330AbVCKOU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263320AbVCKOXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbVCKOU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 09:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbVCKOUw
+	id S263320AbVCKOXx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 09:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVCKOXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 09:20:52 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53485 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263330AbVCKOU3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 09:20:29 -0500
-Date: Fri, 11 Mar 2005 15:20:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: do not provoke emergency disk shutdowns
-Message-ID: <20050311142012.GA1584@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Mar 2005 09:23:53 -0500
+Received: from cpc4-cmbg4-4-0-cust135.cmbg.cable.ntl.com ([81.108.205.135]:25361
+	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
+	id S263320AbVCKOWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 09:22:25 -0500
+Message-ID: <4231A94E.9020904@thekelleys.org.uk>
+Date: Fri, 11 Mar 2005 14:21:02 +0000
+From: Simon Kelley <simon@thekelleys.org.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: CaT <cat@zip.com.au>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi,
+       yoshfuji@linux-ipv6.org
+Subject: Re: ipv6 and ipv4 interaction weirdness
+References: <20050311121655.GE14146@zip.com.au>
+In-Reply-To: <20050311121655.GE14146@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stefan <seife@suse.de>
+CaT wrote:
+> I just had some issues with ssh and trying to get it to bind to all ipv6
+> and ipv4 addresses to it via :: and 0.0.0.0. The problem was that it'd
+> only let one succeed. If 0.0.0.0:22 was successful then :: port 22 could
+> not happen and neither could my ipv6 addy port 22 as it would get the
+> 'address already in use' error from bind(). The reverse was also true.
+> If it bound to :: port 22 then 0.0.0.0:22 would fail.
+> 
+> On the other hand if I got it to bind to each address individually then
+> both ipv4 (2 addresses) and ipv6 (1 address) binds would succeed.
+> 
+> Maybe I'm just looking at it wrong but shouldn't ipv4 and ipv6 interfere
+> with each other?
+> 
+> I'm using kernel 2.6.11-ac2 with OpenSSH_3.8.1p1 Debian-8.sarge.4,
+> OpenSSL 0.9.7e 25 Oct 2004 and glibc 2.3.2 (debian version
+> 2.3.2.ds1-20).
+> 
 
-In platform swsusp mode, we were forgetting to spin disks down,
-leading to ugly emergency shutdown. This synchronizes platform method
-with other methods and actually helps. Please apply,
+A solution is to set the IPV6_V6ONLY sockopt on the IPv6 socket (or just 
+use IPv6 sockets and their ability to accept IPv4 connections in a 
+corner of the IPv6 address space).
 
-								Pavel
+It seems unlikely that a released ssh would have that problem, but I 
+haven't checked.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Cheers,
 
---- linux/kernel/power/disk.c-orig	2005-03-01 09:50:51.000000000 +0100
-+++ linux/kernel/power/disk.c	2005-03-01 09:57:29.000000000 +0100
-@@ -56,7 +56,7 @@ static void power_down(suspend_disk_meth
- 	local_irq_save(flags);
- 	switch(mode) {
- 	case PM_DISK_PLATFORM:
-- 		device_power_down(PMSG_SUSPEND);
-+ 		device_shutdown();
- 		error = pm_ops->enter(PM_SUSPEND_DISK);
- 		break;
- 	case PM_DISK_SHUTDOWN:
+Simon.
 
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

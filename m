@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265436AbUBPIbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 03:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbUBPIbJ
+	id S265420AbUBPIW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 03:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUBPIW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 03:31:09 -0500
-Received: from smtp3.clb.oleane.net ([213.56.31.19]:23765 "EHLO
-	smtp3.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S265436AbUBPIbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 03:31:05 -0500
-Subject: Re: JFS default behavior
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Jan Knutar <jk-lkml@sci.fi>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200402160545.04175.jk-lkml@sci.fi>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
-	 <200402160545.04175.jk-lkml@sci.fi>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gy3Ueg6OdOIEpGep9VC5"
-Organization: Adresse personnelle
-Message-Id: <1076920241.11055.4.camel@ulysse.olympe.o2t>
+	Mon, 16 Feb 2004 03:22:26 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:60649 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S265420AbUBPIWY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 03:22:24 -0500
+Date: Mon, 16 Feb 2004 09:22:22 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dm core patches
+Message-ID: <20040216082222.GG20998@marowsky-bree.de>
+References: <1076690681.2158.54.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Mon, 16 Feb 2004 09:30:41 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1076690681.2158.54.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-02-13T11:44:41,
+   James Bottomley <James.Bottomley@steeleye.com> said:
 
---=-gy3Ueg6OdOIEpGep9VC5
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+> - fatal: error cannot be retried
+> - retryable: error may be retried
+> 
+> and possibly
+> 
+> - informational: This is dangerous, since it's giving information about
+> a transaction that actually succeeded (i.e. we'd need to fix drivers to
+> recognise it as being uptodate but with info, like sector remapped)
 
-Le lun, 16/02/2004 =C3=A0 05:45 +0200, Jan Knutar a =C3=A9crit :
-> > - what happens to already existing invalid UTF-8 filenames ? Should
-> > the kernel forcibly rewrite them (in 2.7.0...) to remove legacy mess
-> > ? What should happen if someone plug an unconverted FS in such a
-> > system afterwards ?
->=20
-> What I would like would be a userspace tool, that would recurse and=20
-> convert filename encodings from specified locale to UTF-8. Something=20
-> like "any2utf8 -from iso8859-1 -recurse /mnt/myoldmp3disk".=20
-> Does anyone know if such a tool exists already?
+I don't think we need informational errors. The meaning of this seems
+pretty difficult to define, and it's bound to have annoying semantics. I
+also can't come up with a case where you would want to use that ;-)
 
-One can do find+ recode magic now
+> Then, we also have a error origin indication:
+> 
+> - device: The device is actually reporting the problem
+> - transport: the error is a transport error
+> - driver: the error comes from the device driver.
+> 
+> So dm would know that fatal transport or driver errors could be
+> repathed, but fatal device errors probably couldn't.
+> 
+> Any that I've missed?
 
-The question is :
-- can this be automated ?
-- how can one recognise and unconverted fs ?
-- how can on guess the encodings(s) that have been used before on such
-an fs ?
+No, I think those were the ones which we were discussing at KS2003 too.
 
-You're assuming the situation is merely a iso8859-1 to utf-8 migration.
-Far from it. The core problem is everyone damn wrote what it pleased him
-without considering future readers.
 
-Cheers,
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
---=20
-Nicolas Mailhot
-
---=-gy3Ueg6OdOIEpGep9VC5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAMH+pI2bVKDsp8g0RAu+5AKCrkjSjuS4obgLFnV/KWsHD/W1wOgCfTEl2
-5p7EjazLOSHKAqjOzW55xmU=
-=S8t0
------END PGP SIGNATURE-----
-
---=-gy3Ueg6OdOIEpGep9VC5--
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

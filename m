@@ -1,56 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUIHMXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUIHM3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUIHMXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUIHMWb
+	id S261239AbUIHM3R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUIHM3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:22:31 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:29347 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262406AbUIHMSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:18:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fw: 2.6.9-rc1-mm4: swsusp + AMD64 = LOCKUP on CPU0
-Date: Wed, 8 Sep 2004 14:19:15 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Ingo Molnar <mingo@redhat.com>
-References: <20040908021637.57525d43.akpm@osdl.org> <20040908102652.GA2921@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040908102652.GA2921@atrey.karlin.mff.cuni.cz>
+	Wed, 8 Sep 2004 08:29:17 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:5129 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261711AbUIHM3K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 08:29:10 -0400
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove dead exports from fs/fat/
+References: <20040907144355.GB8717@lst.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 08 Sep 2004 21:28:20 +0900
+In-Reply-To: <20040907144355.GB8717@lst.de> (Christoph Hellwig's message of
+ "Tue, 7 Sep 2004 16:43:55 +0200")
+Message-ID: <87n001rlln.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409081419.15606.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 of September 2004 12:26, Pavel Machek wrote:
-> Hi!
-> 
-> > One for you guys on lkml ;)
-> 
-> It simply takes long to count pages (O(n^2) algorithm), so watchdog
-> triggers. I have better algorithm locally, but would like merge to
-> linus first. (I posted it to lkml some days ago, I can attach the
-> bigdiff).
-> 
-> Just disable the watchdog. Suspend *is* going to take time with
-> disabled interrupts.
+Christoph Hellwig <hch@lst.de> writes:
 
-Eeek.  I can't disable the NMI watchdog on x86-64, can I?  According to 
-Documentation/nmi_watchdog.txt:
+> These were used by the defunct umsdos code only.
 
-"For x86-64, the needed APIC is always compiled in, and the NMI watchdog is
-always enabled with I/O-APIC mode (nmi_watchdog=1)."
-
-Greets,
-RJW
-
+Thanks. I'll submit to -mm tree.
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

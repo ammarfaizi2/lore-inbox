@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVAEV2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVAEVc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVAEV2d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 16:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVAEV2c
+	id S262601AbVAEVc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 16:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVAEVc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 16:28:32 -0500
-Received: from bluebottle-fe1.bluebottle.com ([67.107.78.243]:3530 "EHLO
+	Wed, 5 Jan 2005 16:32:27 -0500
+Received: from bluebottle-fe1.bluebottle.com ([67.107.78.243]:19661 "EHLO
 	bluebottle-fe1.bluebottle.com") by vger.kernel.org with ESMTP
-	id S262598AbVAEV1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 16:27:52 -0500
-Message-ID: <1104960434.41dc5bb24c4f6@bluebottle.com>
-Date: Wed,  5 Jan 2005 15:27:14 -0600
+	id S262601AbVAEV32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 16:29:28 -0500
+Message-ID: <1104960539.41dc5c1b93c17@bluebottle.com>
+Date: Wed,  5 Jan 2005 15:28:59 -0600
 From: jago25_98 <jago25_98@bluebottle.com>
 To: linux-kernel@vger.kernel.org
 Subject: 2.6.10 kernel panic: IDE/SCSI related?
@@ -20,6 +20,8 @@ Content-Transfer-Encoding: 7BIT
 User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
 
 I'm getting regular kernel panics with a vanilla 2.6.10 kernel.
 
@@ -47,7 +49,12 @@ American Megatrends Inc. MegaRAID 428 Ultra RAID Controller
 An the IDE bus is:
 [SiS] 5513
 
+Best I could for output is a photo:
+http://www.ajpearce.co.uk/files/kernelpanic2.JPG
+
 and maybe it could be related to this mix of hardware?
 
 How do I begin to try and diagnose this problem? Really want to help
 to fix this if I can.
+
+

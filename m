@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317845AbSIEQJH>; Thu, 5 Sep 2002 12:09:07 -0400
+	id <S317851AbSIEQJI>; Thu, 5 Sep 2002 12:09:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSIEQJG>; Thu, 5 Sep 2002 12:09:06 -0400
-Received: from angband.namesys.com ([212.16.7.85]:24748 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S317845AbSIEQJG>; Thu, 5 Sep 2002 12:09:06 -0400
-Date: Thu, 5 Sep 2002 20:13:37 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: "David S. Miller" <davem@redhat.com>, szepe@pinerecords.com,
-       mason@suse.com, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       linuxjfs@us.ibm.com
-Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
-Message-ID: <20020905201337.A4698@namesys.com>
-References: <3D76A6FF.509@namesys.com> <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com> <200209051109.12291.shaggy@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200209051109.12291.shaggy@austin.ibm.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S317852AbSIEQJI>; Thu, 5 Sep 2002 12:09:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39436 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317851AbSIEQJG>;
+	Thu, 5 Sep 2002 12:09:06 -0400
+Message-ID: <3D7785B4.A35C9BC8@zip.com.au>
+Date: Thu, 05 Sep 2002 09:26:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
+References: <20020905123331.A1984@in.ibm.com> <Pine.LNX.4.44.0209050744520.14066-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Linus Torvalds wrote:
+> 
+> ...
+> I would suggest:
+> 
+>  - add a "nr of sectors completed" argument to the "bi_end_io()" function,
+>    so that it looks like
+> 
+>         void xxx_bio_end_io(struct bio *bio, unsigned long completed)
+>         {
+>                 /*
+>                  * Old completion handlers that don't understand it
+>                  * should just return immediately for partial bio
+>                  * completion notifiers
+>                  */
+>                 if (bio->b_size)
+>                         return;
+>                 ...
+>         }
+> 
+>    which would allow things like mpage_end_io_read() to unlock pages as
+>    they complete, instead of unlocking them all in one go.
 
-   I am sorry but yor mailer corrupted the message or something like that
-   so I cannot understand what do you mean.
+It's a feature!  We don't want to have to soak up 20,000 context
+switches a second just reading a file from an 80MB/sec disk.
 
-   Ah, I see now. My latest version of a patch does a cast 
-   this way (yes, I noticed that problem).
-#define REISERFS_LINK_MAX (nlink_t)((((nlink_t) -1) > 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
+> Comments? It looks trivial to do this from a bio level, and it would not
+> be hard to update the existing end_io functions (because you can always
+> just update them with the one-liner "if not totally done, return" to get
+> the old behaviour).
+> 
+> Andrew? I really dislike the lack of concurrency in our current mpage
+> read-ahead thing. Whaddayathink?
 
-Bye,
-    Oleg
-On Thu, Sep 05, 2002 at 11:09:12AM -0500, Dave Kleikamp wrote:
-> On Thursday 05 September 2002 04:54, Oleg Drokin wrote:
-> 
-> > +/* Find maximal number, that nlink_t can hold. GCC is able to
-> > calculate this +   value at compile time, so do not worry about extra
-> > CPU overhead. */ +#define REISERFS_LINK_MAX ((((nlink_t) -1) >> 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
-> 
-> Shouldn't this be:
-> 
-> #define REISERFS_LINK_MAX ((((nlink_t) -1) >> 0)?(nlink_t) ~0:((1u<<(sizeof(nlink_t)*8-1))-1))
-> 
-> if nlink_t is u16, ~0 would still be 0xffffffff (assuming 32 bits)
-> -- 
-> David Kleikamp
-> IBM Linux Technology Center
-> 
+Well it is supposed to lay out two BIOs, but if that happens, it's
+fragile - it relies on BIO_MAX_SIZE=64k and default readahead=128k.
+
+What I think we need to do here is to get Jens' bio_add_page() stuff
+up and running and to then go through the device drivers and set their
+max BIO size to something which is inversely proportional to the
+device's expected bandwidth.
+
+This way, the floppy readahead would lay out 1- or 2-page BIOs, and
+the honking FC array would lay out 128k or larger BIOs.
+
+(In fact, I would prefer that the device's nominal read- and write-
+bandwidths be made available in some manner.  This way the VM can
+make these granularity-size decisions for readahead, and the VM
+can then solve the machine-full-of-dirty-memory-against-a-slow-device
+problem.  But the non-blocking page reclaim code probably solves that
+too).

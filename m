@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129114AbRBBNwO>; Fri, 2 Feb 2001 08:52:14 -0500
+	id <S129152AbRBBNwy>; Fri, 2 Feb 2001 08:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129152AbRBBNwE>; Fri, 2 Feb 2001 08:52:04 -0500
-Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:56583 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129114AbRBBNvu>;
-	Fri, 2 Feb 2001 08:51:50 -0500
-Date: Fri, 2 Feb 2001 13:46:42 +0000
-From: Michael Pacey <michael@wd21.co.uk>
-To: drew@drewb.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2 SCSI controllers causing boot problems...
-Message-ID: <20010202134642.A344@kermit.wd21.co.uk>
-In-Reply-To: <14970.34641.120958.857239@champ.drew.net>
+	id <S129217AbRBBNwp>; Fri, 2 Feb 2001 08:52:45 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:3090 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S129152AbRBBNwh>;
+	Fri, 2 Feb 2001 08:52:37 -0500
+Date: Fri, 2 Feb 2001 14:52:16 +0100
+From: Frank de Lange <frank@unternet.org>
+To: linux-kernel@vger.kernel.org
+Cc: roel@grobbebol.xs4all.nl
+Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
+Message-ID: <20010202145216.C13831@unternet.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <14970.34641.120958.857239@champ.drew.net>; from drew@drewb.com on Fri, Feb 02, 2001 at 10:09:21 +0000
-X-Mailer: Balsa 1.0.pre5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 2.4.1. rebuilt here and with a floodping towards my machine causes a
+> hard crash where nothing works anymore.
 
-On Fri, 02 Feb 2001 10:09:21 Drew Bertola wrote:
-> 
-> I know I've seen this in the past, but the answer slips my mind and I
-> can't find anything in the archives.
-> 
-> I've just set up a box w/ an aic7xxx card.  The boot drive hangs off
-> that card.  During installation, the boot drive is sda.  Lilo contains
-> "root=/dev/sda8".  
-> 
-> I compiled a new kernel with the 3ware raid driver.  When I rebooted,
-> the 3ware card driver must have been loaded first; /dev/sda8 was no
-> longer the root device.
-> 
-> How do I control the device designations during boot?
->
+I'm currently running 2.4.1 with Maciej's patch-2.4.0-io_apic-4. Additionally,
+I disabled focus_processor in apic.c to get rid of some network delays. Flood
+pings both from and to this system do not cause any problems, other than making
+the streaming audio sound a bit choppy...
 
-Drew,
+Box is a dual-celeron (466, non-overclocked) BP-6 with two ne2k (Winbond
+W89C940 based) cards sharing an interrupt.  
 
-If you check the archive's I've had a similar problem.
+Maybe that works for you as well?
 
-Possible answers:
+Cheers//Frank
 
-Compile the to-be-loaded-2nd driver as a module and keep the first builtin
-Use devfs (it lets you pass a 'scsi=driver1:driver2:...' to the kernel,
-controlling load order)
-
-There are devfs 2.2 patches and 2.4.1 includes devfs natively; I chose
-2.4.1 and it worked.
-
---
-Michael Pacey
-michael@wd21.co.uk
-ICQ: 105498469
-
-wd21 ltd - world domination in the 21st century
-
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

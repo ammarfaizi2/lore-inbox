@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRJ2NRA>; Mon, 29 Oct 2001 08:17:00 -0500
+	id <S274813AbRJ2NUA>; Mon, 29 Oct 2001 08:20:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJ2NQu>; Mon, 29 Oct 2001 08:16:50 -0500
-Received: from goofy.fi.upm.es ([138.100.8.23]:12815 "EHLO goofy.fi.upm.es")
-	by vger.kernel.org with ESMTP id <S273881AbRJ2NQp>;
-	Mon, 29 Oct 2001 08:16:45 -0500
-Date: Mon, 29 Oct 2001 14:16:57 +0100 (MET)
-From: Alvaro de Luna <aluna@avellano.datsi.fi.upm.es>
-Subject: ISACAN
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.GSO.4.05.10110291411100.7547-100000@avellano.datsi.fi.upm.es>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	id <S274951AbRJ2NTl>; Mon, 29 Oct 2001 08:19:41 -0500
+Received: from ns.caldera.de ([212.34.180.1]:1260 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S274813AbRJ2NTU>;
+	Mon, 29 Oct 2001 08:19:20 -0500
+Date: Mon, 29 Oct 2001 14:19:42 +0100
+Message-Id: <200110291319.f9TDJgx31343@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: manik@cisco.com (Manik Raina)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] small fix for warning in exec_domain.c
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.GSO.4.33.0110291428230.20450-100000@cbin2-view1.cisco.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
- I've just subscribed on this list, and I'm looking for a
-Linux driver for ISACAN, a dual can bus interface.
-Has anybody know anything about this?
+In article <Pine.GSO.4.33.0110291428230.20450-100000@cbin2-view1.cisco.com> you wrote:
+> Hi all,
 
-For more references of this card visit:
-http://www.hmcomputing.net/isacan.htm
+> When support for Kernel modules is not configured, we get
+> a warning. This fix solves that.
 
-Any comments welcome.
+Looks sane to me.
 
-Thanks.
+	Christoph
 
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132757AbREBL1Z>; Wed, 2 May 2001 07:27:25 -0400
+	id <S132760AbREBLef>; Wed, 2 May 2001 07:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132765AbREBL1R>; Wed, 2 May 2001 07:27:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20751 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132760AbREBL0v>; Wed, 2 May 2001 07:26:51 -0400
-Subject: Re: 2.4.4, 2.4.4-ac1 and -ac3: oops loading future domain scsi module
-To: fluido@fluido.as (Carlo E. Prelz)
-Date: Wed, 2 May 2001 12:30:21 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010502090359.A484@qn-212-127-137-79.fluido.as> from "Carlo E. Prelz" at May 02, 2001 09:03:59 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132765AbREBLeZ>; Wed, 2 May 2001 07:34:25 -0400
+Received: from mx1.nameplanet.com ([213.203.30.51]:7434 "HELO
+	mx1.nameplanet.com") by vger.kernel.org with SMTP
+	id <S132760AbREBLeX>; Wed, 2 May 2001 07:34:23 -0400
+Date: Wed, 2 May 2001 15:33:56 +0200 (CEST)
+From: Ketil Froyn <ketil@froyn.com>
+X-X-Sender: <ketil@localhost.localdomain>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <lu01@rogge.yi.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum files per Directory
+In-Reply-To: <E14uhI2-0002NH-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105021523100.1110-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uupr-0003RH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     shpnt->io_port = port_base;
-> +	 if(pdev!=NULL)
->     scsi_set_pci_device(shpnt->pci_dev, pdev);
->     shpnt->n_io_port = 0x10;
->     print_banner( shpnt );
-> 
-> I hope this is the right way...
+On Tue, 1 May 2001, Alan Cox wrote:
 
-I suspect it should be
+> > cyrus-imapd i ran into problems.
+> > At about 2^15 files the filesystem gave up, telling me that there cannot be
+> > more files in a directory.
+> >
+> > Is this a vfs-Issue or an ext2-issue?
+>
+> Bit of both. You exceeded the max link count, and your performance would have
+> been abominable too. cyrus should be using heirarchies of directories for
+> very large amounts of stuff.
 
-	if(shpnt->pci_dev)
+That's not always best, is it? I've been testing a bit with reiserfs, and
+with LOTS of files, I lose performance with a lot of directories compared
+to putting all the files in one directory.
 
-but the effect is identical
+Of course, that is only read-performance. Write performance is enhanced
+(at least when creating new files) by splitting this into some more
+directories. So how you want to split this up depends whether your data is
+write-many-read-once or write-once-read-many or something in between. That
+is my experience with reiserfs, anyway.
+
+Ketil
+

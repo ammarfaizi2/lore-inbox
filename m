@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266676AbSKOTFq>; Fri, 15 Nov 2002 14:05:46 -0500
+	id <S266548AbSKOTKB>; Fri, 15 Nov 2002 14:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266678AbSKOTFq>; Fri, 15 Nov 2002 14:05:46 -0500
-Received: from holomorphy.com ([66.224.33.161]:57552 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266676AbSKOTFp>;
-	Fri, 15 Nov 2002 14:05:45 -0500
-Date: Fri, 15 Nov 2002 11:07:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: privatize various functions in sched.h
-Message-ID: <20021115190710.GA23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	kernel-janitor-discuss@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20021115105403.GS22031@holomorphy.com> <20021115112836.GU23425@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115112836.GU23425@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266553AbSKOTKA>; Fri, 15 Nov 2002 14:10:00 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:58377
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S266548AbSKOTJ6>; Fri, 15 Nov 2002 14:09:58 -0500
+Message-ID: <3DD546B9.3040000@rackable.com>
+Date: Fri, 15 Nov 2002 11:10:49 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Chilton <ian@ichilton.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Anyone use HPT366 + UDMA in Linux?
+References: <20021115123541.GA1889@buzz.ichilton.co.uk> <1037371184.19971.0.camel@irongate.swansea.linux.org.uk> <20021115184202.GB32543@buzz.ichilton.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Nov 2002 19:16:45.0159 (UTC) FILETIME=[8973CF70:01C28CDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 02:54:03AM -0800, William Lee Irwin III wrote:
->> This removes a bunch of inlines used only in isolated places from sched.h
+Ian Chilton wrote:
 
-On Fri, Nov 15, 2002 at 03:28:36AM -0800, William Lee Irwin III wrote:
-> Hmm, while I'm at it, this applies atop the previous patch:
-> This removes d_path() from sched.h and uninlines it. No idea why it was
-> in sched.h in the first place (or why something this large is inlined).
+>Hello,
+>
+>  
+>
+>>If it still doesnt work in 2.4.20-rc1-ac2 or later please send me a
+>>detailed bug report
+>>    
+>>
+>
+>Does that mean you know it's been broken and/or are there changes to
+>HPT366 in 2.4.20-rc1-ac2?
+>  
+>
+  What is means is Alan is doing a thankless job fixing the current ide 
+mess.  The ac 2.4/2.5 trees are being used to test a number of updates. 
+ If you can provide Alan good bug report on the issue in 2.4.20-rc1-ac2. 
+ He will take a look at fixing the code.  I think the info he needs 
+would be:
+-The ide section of dmesg or all of dmesg
+-output of hdparm -vi /dev/hd(whatever)
+-result of hdparm -d 1 /dev/hd(whatever)
 
-Atop the d_path() removal patch:
+
+>I've been trying 2.4.19, 2.4.20-pre11 and 2.4.20-rc1 with and without
+>Rik's fairsched patch.
+>
+>
+>  
+>
 
 
-__d_path() may be privatized since umsdos is broken anyway.
 
- fs/dcache.c            |    6 +++---
- include/linux/dcache.h |    2 --
- kernel/ksyms.c         |    1 -
- 3 files changed, 3 insertions(+), 6 deletions(-)
-
-
-diff -urpN cleanup-2.5.47-5/fs/dcache.c cleanup-2.5.47-6/fs/dcache.c
---- cleanup-2.5.47-5/fs/dcache.c	2002-11-15 02:45:02.000000000 -0800
-+++ cleanup-2.5.47-6/fs/dcache.c	2002-11-15 10:19:33.000000000 -0800
-@@ -1136,9 +1136,9 @@ void d_move(struct dentry * dentry, stru
-  *
-  * "buflen" should be %PAGE_SIZE or more. Caller holds the dcache_lock.
-  */
--char * __d_path(struct dentry *dentry, struct vfsmount *vfsmnt,
--		struct dentry *root, struct vfsmount *rootmnt,
--		char *buffer, int buflen)
-+static char * __d_path( struct dentry *dentry, struct vfsmount *vfsmnt,
-+			struct dentry *root, struct vfsmount *rootmnt,
-+			char *buffer, int buflen)
- {
- 	char * end = buffer+buflen;
- 	char * retval;
-diff -urpN cleanup-2.5.47-5/include/linux/dcache.h cleanup-2.5.47-6/include/linux/dcache.h
---- cleanup-2.5.47-5/include/linux/dcache.h	2002-11-15 02:41:37.000000000 -0800
-+++ cleanup-2.5.47-6/include/linux/dcache.h	2002-11-15 10:19:01.000000000 -0800
-@@ -238,8 +238,6 @@ extern struct dentry * __d_lookup(struct
- /* validate "insecure" dentry pointer */
- extern int d_validate(struct dentry *, struct dentry *);
- 
--extern char * __d_path(struct dentry *, struct vfsmount *, struct dentry *,
--	struct vfsmount *, char *, int);
- extern char * d_path(struct dentry *, struct vfsmount *, char *, int);
-   
- /* Allocation counts.. */
-diff -urpN cleanup-2.5.47-5/kernel/ksyms.c cleanup-2.5.47-6/kernel/ksyms.c
---- cleanup-2.5.47-5/kernel/ksyms.c	2002-11-15 02:43:58.000000000 -0800
-+++ cleanup-2.5.47-6/kernel/ksyms.c	2002-11-15 10:19:50.000000000 -0800
-@@ -167,7 +167,6 @@ EXPORT_SYMBOL(d_alloc_anon);
- EXPORT_SYMBOL(d_splice_alias);
- EXPORT_SYMBOL(d_lookup);
- EXPORT_SYMBOL(d_path);
--EXPORT_SYMBOL(__d_path);
- EXPORT_SYMBOL(mark_buffer_dirty);
- EXPORT_SYMBOL(end_buffer_io_sync);
- EXPORT_SYMBOL(__mark_inode_dirty);

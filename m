@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUAVQ5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 11:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUAVQ5M
+	id S264608AbUAVP2F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 10:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUAVP2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 11:57:12 -0500
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:36298 "EHLO
-	tumblerings.org") by vger.kernel.org with ESMTP id S264894AbUAVQ5K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 11:57:10 -0500
-Date: Thu, 22 Jan 2004 08:57:05 -0800
-From: Zack Brown <zbrown@tumblerings.org>
-To: linux-kernel@vger.kernel.org
-Subject: looking for recent lkml archives in mbox format
-Message-ID: <20040122165705.GA1991@tumblerings.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 22 Jan 2004 10:28:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5084 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264608AbUAVP15 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 10:27:57 -0500
+Date: Thu, 22 Jan 2004 07:27:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Richard Henderson <rth@twiddle.net>
+cc: Valdis.Kletnieks@vt.edu,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-mm5 versus gcc 3.5 snapshot
+In-Reply-To: <20040122060253.GA18719@twiddle.net>
+Message-ID: <Pine.LNX.4.58.0401220725180.2123@home.osdl.org>
+References: <200401212236.i0LMaNuh020491@turing-police.cc.vt.edu>
+ <Pine.LNX.4.58.0401212043200.2123@home.osdl.org> <20040122060253.GA18719@twiddle.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-If someone's willing to send me the lkml archives from Jan 13 to the 22,
-please contact me privately. I had some email problems upgrading to exim4,
-and got dropped from the list (presumably due to bounces), and it took me
-this long to straighten it out.
 
-Many thanks,
-Zack
+On Wed, 21 Jan 2004, Richard Henderson wrote:
+> 
+> You're reading that wrong way-round.  It's "+m" and "=m"/"0" that's
+> disallowed.
 
--- 
-Zack Brown
+Ok, but...
+
+>	  I.e. if you have matching constraints (or read-write
+> constrants, which are exactly short-hand for matching constraints),
+> then you *must* have a register alternative.  I.e. you'll get this
+> warning if you *only* allow memories.
+> 
+> The problem is partially conceptual -- what in the world does
+> 
+> 	"=m"(x) : "0"(y)
+
+I agree about the latter one, but "+m" (which is what the kernel uses) has
+well-defined meaning, and the compiler would be/is silly to complain about
+it.
+
+So your arguments fall down flat. If it was
+
+	"=m" (x) : "0" (y)
+
+I'd agree with you, but that's not the code the compiler complains about.
+
+Shorthand or not, the "+m" usage is (a) totally logical and (b) 
+historically allowed.
+
+Please fix the compiler.
+
+		Linus

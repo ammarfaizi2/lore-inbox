@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbTATLtP>; Mon, 20 Jan 2003 06:49:15 -0500
+	id <S265689AbTATLxU>; Mon, 20 Jan 2003 06:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbTATLtP>; Mon, 20 Jan 2003 06:49:15 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:19204 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S265681AbTATLtO>; Mon, 20 Jan 2003 06:49:14 -0500
-Date: Mon, 20 Jan 2003 14:57:54 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Martin.Bligh@us.ibm.com, akpm@zip.com.au
-Subject: Re: pci_child_fixup()
-Message-ID: <20030120145754.A912@jurassic.park.msu.ru>
-References: <20030120035217.GE770@holomorphy.com>
-Mime-Version: 1.0
+	id <S265700AbTATLxU>; Mon, 20 Jan 2003 06:53:20 -0500
+Received: from mail.efore.fi ([62.236.103.42]:57569 "EHLO mail.efore.fi")
+	by vger.kernel.org with ESMTP id <S265689AbTATLxT>;
+	Mon, 20 Jan 2003 06:53:19 -0500
+Message-ID: <3E2BE54A.FDA301D7@efore.fi>
+Date: Mon, 20 Jan 2003 14:02:18 +0200
+From: Lauri Tischler <lauri.tischler@efore.fi>
+Organization: Efore Oyj
+X-Mailer: Mozilla 4.79 [en] (WinNT; U)
+X-Accept-Language: fi,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PCI wireless NIC: can't set MAC addr
+References: <200301201023.h0KAN8s06017@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030120035217.GE770@holomorphy.com>; from wli@holomorphy.com on Sun, Jan 19, 2003 at 07:52:17PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 07:52:17PM -0800, William Lee Irwin III wrote:
->  		child = pci_add_new_bus(bus, dev, 0);
-> -		child->primary = buses & 0xFF;
-> -		child->secondary = (buses >> 8) & 0xFF;
-> -		child->subordinate = (buses >> 16) & 0xFF;
-> -		child->number = child->secondary;
-> +		pci_child_fixup(bus, child, buses);
+Denis Vlasenko wrote:
 
-The "bus" argument seems to be redundant. Why not use "child->parent"
-just filled in by pci_add_new_bus() instead?
+> I seem to be unable to set MAC address on a D-Link
+> DWL-520 (a PCI wireless NIC). I am using 2.4.20-pre11
+> and orinoco_pci as a module.
 
-Ivan.
+I have Dlink DWL-520+ PCI card, is that different from DWL-520
+as none of the drivers appear to detect it.

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263251AbSJCMLs>; Thu, 3 Oct 2002 08:11:48 -0400
+	id <S263254AbSJCM0C>; Thu, 3 Oct 2002 08:26:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263258AbSJCMLr>; Thu, 3 Oct 2002 08:11:47 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:22546 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S263251AbSJCMLr>; Thu, 3 Oct 2002 08:11:47 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pr e8)
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A79D1@EXCHANGE>
-To: Ed Vance <EdV@macrolink.com>
-Date: Thu, 3 Oct 2002 14:16:53 +0200 (CEST)
-CC: "'Russell King'" <rmk@arm.linux.org.uk>,
-       Marek Michalkiewicz <marekm@amelek.gda.pl>,
-       linux-kernel@vger.kernel.org, Tim Waugh <twaugh@redhat.com>
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
+	id <S263256AbSJCM0C>; Thu, 3 Oct 2002 08:26:02 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:10224 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263254AbSJCM0B>; Thu, 3 Oct 2002 08:26:01 -0400
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Andreas Dilger <adilger@clusterfs.com>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9BDA8D.5080700@metaparadigm.com>
+References: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu> 
+	<3D9BDA8D.5080700@metaparadigm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17x4uT-0008Au-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 13:38:50 +0100
+Message-Id: <1033648730.28022.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I agree. For 2.4, Stability before elegance. Minimum change is a good thing.
-> The patch looks straight-forward enough, simply plop the file into a
-> directory for which it was never intended. It does localize the effect of
-> the change nicely. 
+On Thu, 2002-10-03 at 06:50, Michael Clark wrote:
+> > ... and you don't need EVMS for that.
+> 
+> But EVMS would be an excellent substitute in the mean time.
+> 
+> Better to having something excellent now than something perfect but
+> too late.
 
-Yes, moving parport_serial looked much simpler to me than moving serial
-to its own directory (the proper solution, done in 2.5).  I hope others
-can also agree to accept this low risk change for 2.4 in the meantime.
-
-In some sense, parport_serial is not strictly part of neither serial nor
-parport drivers - it is common to (uses the services of) both.
-
-> I have a question. Similar changes have been suggested several times and
-> always seem to bring out a small hail of rather negative comments. (like
-> "gross hack ..." :) 
-
-Well, the hardware itself is kind of a hack (not a clean design - no
-separate PCI functions for serial and parallel ports; I guess that would
-use a little more silicon and make the chip a few cents more expensive),
-and that's the reason why the parport_serial driver exists at all...
-
-Thanks,
-Marek
+You can see who around here has maintained kernel code and who hasnt.
+You don't want a substitute in the mean time, because then you have to
+get rid of it
 

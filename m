@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbTL3Ew2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 23:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTL3EwQ
+	id S265094AbTL3FQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 00:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbTL3FQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 23:52:16 -0500
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:7359 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264457AbTL3Etq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 23:49:46 -0500
-Date: Tue, 30 Dec 2003 13:37:27 +1100
-From: Rusty Russell <rusty@au1.ibm.com>
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: in_atomic doesn't count local_irq_disable?
-Message-Id: <20031230133727.5222bfac.rusty@rustcorp.com.au>
-In-Reply-To: <20031229190336.A6746@in.ibm.com>
-References: <20031229190336.A6746@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 30 Dec 2003 00:16:55 -0500
+Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:46513 "EHLO
+	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265094AbTL3FQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 00:16:54 -0500
+Message-Id: <6.0.1.1.2.20031230155431.022253f0@mail.optusnet.com.au>
+X-Nil: 
+Date: Tue, 30 Dec 2003 16:15:10 +1100
+To: david.lang@digitalinsight.com
+From: Leon Toh <tltoh@attglobal.net>
+Subject: Re: Adaptec/DPT I2O Option Omitted From Linux 2.6.0 Kernel
+  Configuration Tool
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0312290340010.3163@dlang.diginsite.com>
+References: <6.0.1.1.2.20031227093632.0229afe8@wheresmymailserver.com>
+ <3FEF721D.7020405@rackable.com>
+ <6.0.1.1.2.20031229201602.021feec0@mail.optusnet.com.au>
+ <Pine.LNX.4.58.0312290340010.3163@dlang.diginsite.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003 19:03:36 +0530
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+At 10:40 PM 29/12/2003, David Lang wrote:
+>On Mon, 29 Dec 2003, Leon Toh wrote:
+>
+> > By the way I've hack the script file to make Adaptec I2O Option to appear
+> > in Linux 2.6.0 Kernel Configuration tool. Currently I'm now in the middle
+> > of recompiling the kernel using current dpti2o driver support but haven't
+> > got to the dpti2o driver yet.
+>
+>did you doublecheck that it wasn't just blocked by not choosing to allow
+>you to compile known broken drivers?
 
-> do_page_fault avoids calling this down_read if we are "in_atomic()"
-> Isn't in_atomic supposed to count IRQs disabled case? If not
-> then shouldn't do_page_fault also check for irqs_disabled() 
-> before calling down_read()?
+The driver is broken anyway. Will have a case open up and escalated.
 
-in_atomic() doesn't actually return true if irqs are disabled.
-
-hence "(in_atomic() || irqs_disabled())" in __might_sleep.
-
-do_page_fault should have the same test...
-
-Thanks,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy

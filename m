@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUIOXqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUIOVlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267649AbUIOXqS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUIOW0M
+	id S267571AbUIOVlb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUIOVkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 18:26:12 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:41997 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S267660AbUIOWZi (ORCPT
+	Wed, 15 Sep 2004 17:40:45 -0400
+Received: from soundwarez.org ([217.160.171.123]:59550 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S267571AbUIOVis (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 18:25:38 -0400
-From: "Bc. Michal Semler" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: CD-ROM can't be ejected
-Date: Thu, 16 Sep 2004 00:25:35 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 15 Sep 2004 17:38:48 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Robert Love <rml@novell.com>
+Cc: Greg KH <greg@kroah.com>, Tim Hockin <thockin@hockin.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1095283589.23385.117.camel@betsy.boston.ximian.com>
+References: <20040915034455.GB30747@kroah.com>
+	 <20040915194018.GC24131@kroah.com>
+	 <1095279043.23385.102.camel@betsy.boston.ximian.com>
+	 <20040915202234.GA18242@hockin.org>
+	 <1095279985.23385.104.camel@betsy.boston.ximian.com>
+	 <20040915203133.GA18812@hockin.org>
+	 <1095280414.23385.108.camel@betsy.boston.ximian.com>
+	 <20040915204754.GA19625@hockin.org>
+	 <1095281358.23385.109.camel@betsy.boston.ximian.com>
+	 <20040915205643.GA19875@hockin.org>  <20040915212322.GB25840@kroah.com>
+	 <1095283589.23385.117.camel@betsy.boston.ximian.com>
+Content-Type: text/plain
+Date: Wed, 15 Sep 2004 23:38:50 +0200
+Message-Id: <1095284330.3508.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409160025.35961.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2004-09-15 at 17:26 -0400, Robert Love wrote:
+> On Wed, 2004-09-15 at 14:23 -0700, Greg KH wrote:
+> 
+> > We aren't giving absolute /dev entries here, that's the beauty of the
+> > kobject tree :)
+> 
+> Not that I agree, but I don't think it is the absolute /dev entries that
+> bother him: it is the fact that knowledge of the mount itself is an
+> information leak.
+> 
+> Which it is.  As root, in my name space, I should rest in the knowledge
+> that my mounts are secret, I guess.  But I just do not see it as a big
+> problem.
 
-it's almost half a year, when I filled this bug report:
-http://bugme.osdl.org/show_bug.cgi?id=2951
+Anyone can watch the refcount on the fs-modules, they increment on every
+device claim. Is that a leak in your eyes too :)
 
-and it still don't work :)
+Kay
 
-Can anybody help me?
-
-Thanks
-
-Michal

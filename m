@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273467AbRIUMNP>; Fri, 21 Sep 2001 08:13:15 -0400
+	id <S273474AbRIUMOz>; Fri, 21 Sep 2001 08:14:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273470AbRIUMNF>; Fri, 21 Sep 2001 08:13:05 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11539 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273467AbRIUMM5>;
-	Fri, 21 Sep 2001 08:12:57 -0400
-Date: Fri, 21 Sep 2001 09:13:07 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010921124338.4e31a635.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33L.0109210912310.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273470AbRIUMOr>; Fri, 21 Sep 2001 08:14:47 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9747 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273477AbRIUMOd>; Fri, 21 Sep 2001 08:14:33 -0400
+Subject: Re: [reiserfs-list] Re: [PATCH] Significant performace improvements on reiserfs systems
+To: Nikita@namesys.com (Nikita Danilov)
+Date: Fri, 21 Sep 2001 13:18:31 +0100 (BST)
+Cc: akpm@zip.com.au (Andrew Morton), george@mvista.com (george anzinger),
+        andrea@suse.de (Andrea Arcangeli), rml@tech9.net (Robert Love),
+        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?Q?N=FCtzel?=),
+        mason@suse.com (Chris Mason), kuib-kl@ljbc.wa.edu.au (Beau Kuiper),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        reiserfs-list@namesys.com (ReiserFS List)
+In-Reply-To: <15275.2374.92496.536594@gargle.gargle.HOWL> from "Nikita Danilov" at Sep 21, 2001 01:32:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kPGJ-0008EU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Stephan von Krawczynski wrote:
+> In Solaris, before spinning on a busy spin-lock, thread checks whether
+> spin-lock holder runs on the same processor. If so, thread goes to sleep
+> and holder wakes it up on spin-lock release. The same, I guess is going
 
-> Shit, if I only were able to implement that. Can anybody help me to
-> proove my point?
 
-Trying to implement your idea would probably pose a nice
-counter-argument. Without measuring which pages are in
-heavy use, how are you going to evict the right pages ?
+> for interrupts that are served as separate threads. This way, one can
+> re-schedule with spin-locks held.
 
-regards,
+This is one of the things interrupt handling by threads gives you, but the
+performance cost is not nice. When you consider that ksoftirqd when it
+kicks in (currently far too often) takes up to 10% off gigabit ethernet
+performance, you can appreciate why we don't want to go that path.
 
-Rik
--- 
-IA64: a worthy successor to i860.
+Our spinlock paths are supposed to be very small and predictable. Where 
+there is sleeping involved we have semaphores.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+As lockmeter shows we still have a few io_request_lock cases at least where
+we lock for far too long
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Alan

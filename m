@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCCIUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVCCIX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVCCIUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCCIUe
+	id S261591AbVCCIX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCCIXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:20:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37553 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261581AbVCCIUN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:20:13 -0500
-Date: Thu, 3 Mar 2005 09:20:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH ide-dev-2.6] ide: ide_dma_intr oops fix
-Message-ID: <20050303082010.GF19505@suse.de>
-References: <20050303030318.GA25410@htj.dyndns.org> <20050303064925.GB19505@suse.de> <4226B54E.6020709@gmail.com> <58cb370e050303000478119a22@mail.gmail.com> <20050303080519.GE19505@suse.de> <58cb370e05030300145c554abe@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 3 Mar 2005 03:23:25 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:6564 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261591AbVCCIV6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 03:21:58 -0500
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch - 2.6.11-rc5-mm1] genalloc - general purpose allocator
+References: <16934.4191.474769.320391@jaguar.mkp.net>
+	<16934.5385.841758.628631@napali.hpl.hp.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 03 Mar 2005 03:21:56 -0500
+In-Reply-To: <16934.5385.841758.628631@napali.hpl.hp.com>
+Message-ID: <yq03bvdf8bf.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e05030300145c554abe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03 2005, Bartlomiej Zolnierkiewicz wrote:
-> On Thu, 3 Mar 2005 09:05:19 +0100, Jens Axboe <axboe@suse.de> wrote:
-> > On Thu, Mar 03 2005, Bartlomiej Zolnierkiewicz wrote:
-> > > On Thu, 03 Mar 2005 15:57:18 +0900, Tejun Heo <htejun@gmail.com> wrote:
-> > > >   Hello, Jens.
-> > > >
-> > > > Jens Axboe wrote:
-> > > > > On Thu, Mar 03 2005, Tejun Heo wrote:
-> > > > >
-> > > > >> Hello, Bartlomiej.
-> > > > >>
-> > > > >> This patch fixes ide_dma_intr() oops which occurs for TASKFILE ioctl
-> > > > >>using DMA dataphses.  This is against the latest ide-dev-2.6 tree +
-> > > > >>all your recent 9 patches.
-> > > > >>
-> > > > >> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> > > > >>
-> > > > >>Index: linux-taskfile-ng/drivers/ide/ide-dma.c
-> > > > >>===================================================================
-> > > > >>--- linux-taskfile-ng.orig/drivers/ide/ide-dma.c      2005-03-03 11:59:16.485582413 +0900
-> > > > >>+++ linux-taskfile-ng/drivers/ide/ide-dma.c   2005-03-03 12:00:07.753376048 +0900
-> > > > >>@@ -175,10 +175,14 @@ ide_startstop_t ide_dma_intr (ide_drive_
-> > > > >>      if (OK_STAT(stat,DRIVE_READY,drive->bad_wstat|DRQ_STAT)) {
-> > > > >>              if (!dma_stat) {
-> > > > >>                      struct request *rq = HWGROUP(drive)->rq;
-> > > > >>-                     ide_driver_t *drv;
-> > > > >>
-> > > > >>-                     drv = *(ide_driver_t **)rq->rq_disk->private_data;;
-> > > > >>-                     drv->end_request(drive, 1, rq->nr_sectors);
-> > > > >>+                     if (rq->rq_disk) {
-> > > > >>+                             ide_driver_t *drv;
-> > > > >>+
-> > > > >>+                             drv = *(ide_driver_t **)rq->rq_disk->private_data;;
-> > > > >>+                             drv->end_request(drive, 1, rq->nr_sectors);
-> > > > >>+                     } else
-> > > > >>+                             ide_end_request(drive, 1, rq->nr_sectors);
-> > > > >>                      return ide_stopped;
-> > > > >>              }
-> > > > >>              printk(KERN_ERR "%s: dma_intr: bad DMA status (dma_stat=%x)\n",
-> > > > >
-> > > > > Why not just set rq_disk for taskfile requests as well, seems a lot
-> > > > > cleaner than special casing the end_request handling.
-> > > >
-> > > >   Just because other places were fixed this way and the whole drive
-> > > > command issue/completion codes are just about to be restructured.  Above
-> > > > code will go away soon.  Please consider it a quick fix.
-> > > >
-> > > >   Thanks.
-> > >
-> > > Because struct gendisk is now allocated by device drivers (like in SCSI
-> > > subsystem) rq_disk can't be set for REQ_DRIVE_TASKFILE requests
-> > > (for some requests it can be set but better to keep it consistent).
-> > 
-> > Seems cleaner to store the driver in the drive structure then, no
-> > special casing needed.
-> 
-> This can't be done *correctly* with driver model support, that is why
-> SCSI does the same trick.  There were three incremental patch series,
-> all sent to linux-{ide,kernel} (all patches except the final one are
-> now in ide-dev-2.6), to convert IDE device drivers to driver model.
+>>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-Ok, I guess we'll have to live with it then.
+David> At the risk of asking the obvious: what's preventing genalloc
+David> to be implemented in terms of mempool?
 
--- 
-Jens Axboe
+David,
 
+Taking another look at mempool, there's several reasons why mempool
+isn't well suited for this job.
+
+Basically for the uncached page case we want to first pull out all the
+spill pages in the lower granules[1] and only after those have been
+used, do we want to start converting pages from cached to uncached.
+
+mempool on the other hand will first try and call the user provided
+allocation function and only if that fails try and take memory from
+the pool, this will force us to convert pages from cached to uncached
+if we don't have to.
+
+The other issue is that mempool isn't designed to handle the case
+where you do not want to hand the memory back to the system using the
+user provided free() function, somehing which we can't even do for the
+spill pages and converting the normal pages back is a nightmare since
+you have to wait for a full granule to reappear.
+
+Last, mempool interacts quite a lot with the vm, kicking bdflush if it
+is unable to allocate memory which will not have any effect for these
+kinds of pages anyway.
+
+One could probably do this via mempool, but it would basically require
+one to put another object allocator below mempool which really makes
+the whole exercise pointless as this could just as well be done
+standalone ... ie. genalloc.
+
+Cheers,
+Jes
+
+[1]: For those who are interested, on ia64 one has to convert a full
+granule, 16MB, at a time in order to avoid data corruption due to the
+CPU might be doing speculative loads within a full granule.

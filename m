@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135346AbRDRVGX>; Wed, 18 Apr 2001 17:06:23 -0400
+	id <S135345AbRDRVID>; Wed, 18 Apr 2001 17:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135345AbRDRVGF>; Wed, 18 Apr 2001 17:06:05 -0400
-Received: from dns.bankinter.es ([195.235.30.34]:5620 "EHLO smtp.bankinter.es")
-	by vger.kernel.org with ESMTP id <S135344AbRDRVF6> convert rfc822-to-8bit;
-	Wed, 18 Apr 2001 17:05:58 -0400
-Date: Wed, 18 Apr 2001 22:08:07 +0200 (CEST)
-From: Simon Neira <sneira@inorbit.com>
-To: linux-kernel@vger.kernel.org
-Subject: System hangs reading CDROM/IDE in 2.4.x with VIA MVP3 chipset.
-Message-ID: <Pine.LNX.4.10.10104182203590.472-100000@ijssel.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S135348AbRDRVHx>; Wed, 18 Apr 2001 17:07:53 -0400
+Received: from cr5112-a.ktchnr1.on.wave.home.com ([24.112.107.106]:44281 "EHLO
+	insight.worldvisions.ca") by vger.kernel.org with ESMTP
+	id <S135345AbRDRVHu>; Wed, 18 Apr 2001 17:07:50 -0400
+Date: Wed, 18 Apr 2001 17:05:32 -0400
+From: Avery Pennarun <apenwarr@worldvisions.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: John Fremlin <chief@bandits.org>, sfr@linuxcare.com.au,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+Message-ID: <20010418170532.A6306@worldvisions.ca>
+In-Reply-To: <m27l0i58i3.fsf@boreas.yi.org.> <E14pyHg-0005cJ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E14pyHg-0005cJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 09:10:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Apr 18, 2001 at 09:10:37PM +0100, Alan Cox wrote:
 
-Since I intalled 2.4.x kernel my system hangs randomly when reading my
-IDE-ATAPI 40x Pioner CDROM drive. (I tryed with 2.4.1 and 2.4.3 kernels)
+> > willing to exercise this power. We would not break compatibility with
+> > any std kernel by instead having a apmd send a "reject all" ioctl
+> > instead, and so deal with events without having the pressure of having
+> > to reject or accept them, and let us remove all the veto code from the
+> > kernel driver. Or am I missing something?
+> 
+> That sounds workable. But the same program could reply to the events just
+> as well as issue the ioctl 8)
 
-	Just making a 
-		cat /dev/hdc > /dev/null 
-	or making a ls -lR will hang totally my computer in a random time
-	(sometimes a few seconds, sometimes a few minutes)
+AFAICT some APM BIOSes get impatient if you don't acknowledge/reject the
+requests fast enough, and start to go bananas.  By always rejecting requests
+and then making user requests instead at some time later, we might eliminate
+this problem (or just cause new ones).
 
- It doesn't hangs with a 2.2.x kernel or with a windows OS installed in the
- same computer.
+Also, I don't think the "critical suspend" message can be rejected at all,
+so it would have to be a special case where currently I don't think it's too
+bad.
 
- In /dev/hdd I have Mitshubishi CD-rewriter (4x4x20) using SCSI emulation
- that doesn't hangs when doing the same things.
+Have fun,
 
--2.4.3 Kernel (using Debian woody)
--I use an Aopen AX59Pro motherboard with a VIA MVP3 AGP chipset.
--Enabled in Kernel:
-     *VIA82CXXX chipset support
-     *Generic PCI IDE chipset support
-     *Sharing PCI IDE interrupts support
-     *Use PCI DMA by default when available
-     *SCSI emulation support
--K6-II 350 Mhz processor with 128Mb RAM.
--Vesa framebuffer installed with a RivaTNT graphcard
--52MB disk swap space.
-
- 
-That's the booting log
-==========
-block: queued sectors max/low 83936kB/27978kB, 256 slots per queue
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
-    ide0: BM-DMA at 0x6400-0x6407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0x6408-0x640f, BIOS settings: hdc:DMA, hdd:DMA
-hda: SAMSUNG SV0432A, ATA DISK drive
-hdb: ST32531A, ATA DISK drive
-hdc: Pioneer CD-ROM ATAPI Model DR-944 0107, ATAPI CD/DVD-ROM drive
-hdd: MITSBICDRW4420a, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 8421840 sectors (4312 MB) w/482KiB Cache, CHS=524/255/63, UDMA(33)
-hdb: 4996476 sectors (2558 MB), CHS=619/128/63, DMA
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-ide-cd: passing drive hdd to ide-scsi emulation.
-Partition check:
- hda: hda1 hda2 < hda5 hda6 >
- hdb: hdb1 hdb2 hdb3 < hdb5 >
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-loop: loaded (max 8 devices)
-============
-
-  Please Cc me.
-  Thanks!
-
-
-Greets.
-------------------------------------------------------------------------
-Simón Neira Dueñas    | A Coruña University Linux User Group (CLUG/GPUL)
- sneira@inorbit.com   | Room 0.05 - Fac. Informática - A Coruña - Spain
- sneira@ceu.fi.udc.es |                 www.gpul.org
-------------------------------------------------------------------------
-
+Avery

@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVAaPUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVAaPcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVAaPUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 10:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAaPUR
+	id S261237AbVAaPcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 10:32:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVAaPcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 10:20:17 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:35257 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261231AbVAaPUN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 10:20:13 -0500
-Date: Mon, 31 Jan 2005 16:16:56 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: 2.6.11-rc2-mm2
-In-Reply-To: <20050131151008.GM18316@stusta.de>
-Message-ID: <Pine.LNX.4.61.0501311616020.30794@scrub.home>
-References: <9dda349205012923347bc6a456@mail.gmail.com>
- <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org>
- <20050130105738.GA28387@infradead.org> <20050130120009.GG3185@stusta.de>
- <20050130121241.GH3185@stusta.de> <Pine.LNX.4.61.0501302358270.6118@scrub.home>
- <20050130231055.GA7103@stusta.de> <Pine.LNX.4.61.0501310025360.6118@scrub.home>
- <20050131151008.GM18316@stusta.de>
+	Mon, 31 Jan 2005 10:32:03 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:29192 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261237AbVAaPb7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 10:31:59 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: SPARC64 mapped figure goes unsignedly negative...
+References: <87sm4izw3u.fsf@amaterasu.srvr.nix>
+	<Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: it's not slow --- it's stately.
+Date: Mon, 31 Jan 2005 15:30:54 +0000
+In-Reply-To: <Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com> (Hugh
+ Dickins's message of "Mon, 31 Jan 2005 13:04:55 +0000 (GMT)")
+Message-ID: <87sm4hwr81.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 31 Jan 2005, Adrian Bunk wrote:
-
-> > Why not just let XFS_FS select EXPORTFS directly:
-> > 
-> > config XFS_FS
-> > 	select EXPORTFS if NFSD
+On Mon, 31 Jan 2005, Hugh Dickins suggested tentatively:
+> On Sun, 30 Jan 2005, Nix wrote:
+>> /proc/meminfo on my UltraSPARC IIi:
+>> Mapped:       18446744073687883208 kB
+>> 
+>> (This kernel is compiled with GCC-3.4.3, which might be relevant.)
 > 
-> This has the wrong semantics:
-> With NFSD=m and XFS_FS=y it only sets EXPORTFS=m.
+> Indeed: sparc64 gcc-3.4 seems to be having trouble with that
+> since 2.6.9: we've been persuing it offlist, I'll factor you in.
 
-This should do it then:
+Excellent; thank you!
 
-config XFS_FS
-	select EXPORTFS if NFSD!=n
+(2.6.10 seems to *run* perfectly well on that box, for what it's worth;
+unless this is a symptom of some underlying dark and terrible failure,
+it looks like a not-very-important cosmetic bug.)
 
-bye, Roman
+-- 
+`Blish is clearly in love with language. Unfortunately,
+ language dislikes him intensely.' --- Russ Allbery

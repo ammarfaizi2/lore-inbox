@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbTACUXr>; Fri, 3 Jan 2003 15:23:47 -0500
+	id <S267647AbTACUXs>; Fri, 3 Jan 2003 15:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTACUXq>; Fri, 3 Jan 2003 15:23:46 -0500
-Received: from packet.digeo.com ([12.110.80.53]:35325 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267646AbTACUWV>;
-	Fri, 3 Jan 2003 15:22:21 -0500
-Message-ID: <3E15F2F5.356A933D@digeo.com>
-Date: Fri, 03 Jan 2003 12:30:45 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joe Korty <joe.korty@ccur.com>, sct@redhat.com, adilger@clusterfs.com,
-       rusty@rustcorp.com.au, riel@conectiva.com.br,
+	id <S267649AbTACUXl>; Fri, 3 Jan 2003 15:23:41 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:46273 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S267647AbTACUWX>; Fri, 3 Jan 2003 15:22:23 -0500
+From: Richard Stallman <rms@gnu.org>
+To: venom@sns.it
+CC: mark@mark.mielke.cc, efault@gmx.de, Hell.Surfers@cwctv.net,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre2 stalls out when running unixbench
-References: <200301031656.QAA29658@rudolph.ccur.com> <3E15ED74.6EF0DC4A@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Jan 2003 20:30:45.0829 (UTC) FILETIME=[FE8A0750:01C2B366]
+In-reply-to: <Pine.LNX.4.43.0301031208260.3887-100000@cibs9.sns.it>
+	(venom@sns.it)
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Reply-to: rms@gnu.org
+References: <Pine.LNX.4.43.0301031208260.3887-100000@cibs9.sns.it>
+Message-Id: <E18UYT1-0004xK-00@fencepost.gnu.org>
+Date: Fri, 03 Jan 2003 15:30:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the previous episode of "travails of a geriatric kernel jock",
-Andrew Morton wrote:
-> 
->  Unpatched 2.4.20 does the same thing.
-> 
+    So we should talk about Xfree86/KDE/GNU/whatever/Linux... too long...
 
-No it doesn't.
+This is a valid point--the name "GNU/Linux" is imperfect.
+By the same token, the name "Linux" is even worse.
 
-Good news is that 2.4.20 plus recent ext3 fixes doesn't lock up
-either.
+For more explanation, see
+http://www.gnu.org/gnu/gnu-linux-faq.html#many.
+

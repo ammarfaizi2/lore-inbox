@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278464AbRJZOPA>; Fri, 26 Oct 2001 10:15:00 -0400
+	id <S278505AbRJZORV>; Fri, 26 Oct 2001 10:17:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278490AbRJZOOu>; Fri, 26 Oct 2001 10:14:50 -0400
-Received: from relay02.cablecom.net ([62.2.33.102]:63238 "EHLO
-	relay02.cablecom.net") by vger.kernel.org with ESMTP
-	id <S278464AbRJZOOj>; Fri, 26 Oct 2001 10:14:39 -0400
-Message-Id: <200110261415.f9QEF9305606@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-To: <linux-kernel@vger.kernel.org>
-Subject: priority queues on dp83820
-Date: Fri, 26 Oct 2001 16:01:48 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S278493AbRJZORL>; Fri, 26 Oct 2001 10:17:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6922 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278490AbRJZORA>; Fri, 26 Oct 2001 10:17:00 -0400
+Subject: Re: PATCH 2.4.14.2: more inflate_fs build fixes
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Fri, 26 Oct 2001 15:23:44 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com,
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3BD92F59.BAD76B6F@mandrakesoft.com> from "Jeff Garzik" at Oct 26, 2001 05:39:37 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15x7tg-0000Df-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-has anybody try to use the priority queues of the dp83820?
-or does somebody know where to get docu knewer then the 
-preliminary form february 2001?
+> This is required also, in order to build cramfs or zisofs in
+> 2.4.14-pre2.
 
-i wrote a driver for the dp83820. now i tried to use 
-priority queuing for prescheduled zero copy datastreans.
-first i just whanted enable priority queueing without 
-inserting of any vlan tag. this works for 1 to 3 queues 
-like it sais in the docu (untagged packets are queued 
-like packets with priority 0). but when i enable the 4th
-queue i receive all none tagged data on queue 1 instead 
-of queue 0. and if i enalbe vlan-tagging globaly or on 
-a per packet basis i don't get any interrupts on the 
-receiving side. has anybody an idea whats going on. if 
-you need the code to have a lock at - let me know, i 
-realy need some help.
+I was going to send Linus that too after I grabbed pre2 - thanks.
 
-chris
+Alan
 

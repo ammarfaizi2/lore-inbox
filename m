@@ -1,88 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUDSRXU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 13:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUDSRXU
+	id S261605AbUDSRYV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 13:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUDSRYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 13:23:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43191 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261602AbUDSRXS (ORCPT
+	Mon, 19 Apr 2004 13:24:21 -0400
+Received: from mtaw6.prodigy.net ([64.164.98.56]:36815 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S261605AbUDSRYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 13:23:18 -0400
-Date: Mon, 19 Apr 2004 10:17:43 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile error in main.c [2.6.bk]
-Message-Id: <20040419101743.3c50e14b.rddunlap@osdl.org>
-In-Reply-To: <40840565.6000304@debian.org>
-References: <407F821A.3040908@debian.org>
-	<20040418040111.GR3445@bakeyournoodle.com>
-	<40836E12.8000402@debian.org>
-	<20040419092155.1614862a.rddunlap@osdl.org>
-	<40840565.6000304@debian.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Apr 2004 13:24:16 -0400
+Message-ID: <40840B7E.4080605@pacbell.net>
+Date: Mon, 19 Apr 2004 10:25:18 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Duncan Sands <baldrick@free.fr>
+CC: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Frederic Detienne <fd@cisco.com>
+Subject: Re: [linux-usb-devel] [PATCH 1/9] USB usbfs: take a reference to
+ the usb device
+References: <200404141229.26677.baldrick@free.fr> <200404172217.10994.baldrick@free.fr>
+In-Reply-To: <200404172217.10994.baldrick@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Apr 2004 18:59:17 +0200 Giacomo A. Catenazzi wrote:
+Heh ... I like this, getting rid of more of locks from usbcore.
 
-| Randy.Dunlap wrote:
-| > On Mon, 19 Apr 2004 08:13:38 +0200 Giacomo A. Catenazzi wrote:
-| > | 
-| > | I've still the same error on newer bk:
-| > | 
-| > | 
-| > |    CC      init/main.o
-| > | In file included from include/linux/proc_fs.h:6,
-| > |                   from init/main.c:17:
-| > | include/linux/fs.h:23:25: linux/audit.h: No such file or directory
-| > | In file included from include/asm/irq.h:16,
-| > |                   from include/linux/kernel_stat.h:5,
-| > |                   from init/main.c:34:
-| > | include/asm-i386/mach-default/irq_vectors.h:87:32: irq_vectors_limits.h: No such file or directory
-| > | In file included from init/main.c:34:
-| > | include/linux/kernel_stat.h:28: error: `NR_IRQS' undeclared here (not in a function)
-| > | make[1]: *** [init/main.o] Error 1
-| > | 
-| > | 
-| > | Attached my .config
-| > 
-| > 
-| > 2.6.6-rc1-bk4 builds for me with your .config file.
-| > Were you using something earlier than (before) rc1-bk4 ?
-| 
-| 
-| I'm using the latest linus bk version
-| 
-| VERSION = 2
-| PATCHLEVEL = 6
-| SUBLEVEL = 6
-| EXTRAVERSION =-rc1
-| NAME=Zonked Quokka
-| 
-| 
-| hmm:
-| 
-| cate@catee:~/kernel/5,v2.5/bk/linus-2.5$ find include/ | grep audit
-| include/linux/SCCS/s.audit.h
-| include/config/audit.h
-| 
-| but no include/linux/audit.h as used in include/linux/fs.h
-| 
-| Corrupted local bk?
 
-Sounds like something like that.  I don't know for sure.
-Just that 2.6.6-rc1 builds for me with your .config file
-(using tarball, not using bk).
+Duncan Sands wrote:
+>   In later steps we can
+> (1) turn dev->serialize into a rwsem
 
---
-~Randy
-"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)
+That doesn't bother me (unlike some folk!) but I do
+agree it should wait until the rest shakes out, and
+until we can observe benefits.  Hardly any code paths
+need complete mutual exclusion (writelock).
+
+
+> (2) push the acquisition of dev->serialize down to the lower levels as they are fixed up.
+
+Actually at least some of those lower levels are getting
+fixed by pushing the lock acquisition up.
+
+The reason usbfs needs to get involved in that stuff is
+that it's going around the standard usb driver structure.
+One of the other things that "usbfs2" should do is act a
+lot more like a "normal" device driver, so it plays better
+with more of the normal usbcore mechanisms.
+
+- Dave
+
+

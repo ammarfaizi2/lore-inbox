@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262891AbSITQfH>; Fri, 20 Sep 2002 12:35:07 -0400
+	id <S262922AbSITQmQ>; Fri, 20 Sep 2002 12:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262894AbSITQfH>; Fri, 20 Sep 2002 12:35:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:55207 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262891AbSITQfG>;
-	Fri, 20 Sep 2002 12:35:06 -0400
-Date: Fri, 20 Sep 2002 18:47:41 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE:  [patch] generic-pidhash-2.5.36-D4, BK-curr
-In-Reply-To: <Pine.LNX.4.33.0209201838030.2801-100000@ccvsbarc.wipro.com>
-Message-ID: <Pine.LNX.4.44.0209201843510.8689-100000@localhost.localdomain>
+	id <S262986AbSITQmQ>; Fri, 20 Sep 2002 12:42:16 -0400
+Received: from packet.digeo.com ([12.110.80.53]:61883 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262922AbSITQmP>;
+	Fri, 20 Sep 2002 12:42:15 -0400
+Message-ID: <3D8B5111.A318D63D@digeo.com>
+Date: Fri, 20 Sep 2002 09:47:13 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: locking rules for ->dirty_inode()
+References: <3D8B4421.59392B30@digeo.com> <15755.19895.544309.44729@laputa.namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 16:47:14.0370 (UTC) FILETIME=[5F500A20:01C260C5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nikita Danilov wrote:
+> 
+> ...
+> Actually, I came over this while trying to describe lock ordering in
+> reiser4 after I just started integrating other kernel locks there. I
+> wonder, has somebody already done this, writing up kernel lock
+> hierarchy, that is?
+> 
 
-On Fri, 20 Sep 2002, Hanumanthu. H wrote:
+I've been keeping the comment at the top of filemap.c uptodate when
+I discover things.  It got smaller a while ago when certain rude
+locks were spoken to.
 
-> First of all, using bitmap is not that good as exposed in this
-> mailing list (I think some good guys at IBM already implememted
-> bitmap for pids as part of Linux scalability enhancements & [...]
+Really, this form of representation isn't rich enough, but the
+format certainly provides enough info to know when you might be
+taking locks in the wrong order, and it tells you where to look
+to see them being taken.
 
-i mentioned that patch in earlier emails, and it is a whole different
-thing. The patch built a completely new bitmap *every* time we hit an
-already allocated PID, to find the next 'safe range'. The new PID
-allocator in 2.5.37 keeps one bitmap and does a single set-bit map
-operation in the fastpath and does a fast bitscan forward even in the
-worst case.
+The problem with the format is that locks are only mentioned once,
+and it can't describe the whole graph.  Maybe it needs something
+like:
 
-> remember they discussed pros & cons too) & [...]
 
-(that approach was pretty gross i have to say.)
+ *  ->i_shared_lock             (vmtruncate)
+ *    ->private_lock            (__free_pte->__set_page_dirty_buffers)
+ *      ->swap_list_lock
+ *        ->swap_device_lock    (exclusive_swap_page, others)
+ *          ->mapping->page_lock
+ *      ->inode_lock            (__mark_inode_dirty)
+ *        ->sb_lock             (fs/fs-writeback.c)
++*  ->i_shared_lock
++*    ->page_table_lock         (lots of places)
+ */
 
-> [...] atomic operations are not that cheap anyway. [...]
-
-huh?
-
-	Ingo
-
+Don't know.  Maybe someone somewhere has developed a notation
+for this?   How are you doing it?

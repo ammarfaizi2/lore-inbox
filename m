@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314477AbSECQLK>; Fri, 3 May 2002 12:11:10 -0400
+	id <S314483AbSECQN3>; Fri, 3 May 2002 12:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314480AbSECQLJ>; Fri, 3 May 2002 12:11:09 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:56811 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S314477AbSECQLI>; Fri, 3 May 2002 12:11:08 -0400
-Date: Fri, 03 May 2002 09:10:46 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
-Message-ID: <4058482389.1020417045@[10.10.2.3]>
-In-Reply-To: <20020503175819.A14505@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S314498AbSECQN2>; Fri, 3 May 2002 12:13:28 -0400
+Received: from mail.interware.hu ([195.70.32.130]:24809 "EHLO
+	mail.interware.hu") by vger.kernel.org with ESMTP
+	id <S314483AbSECQN1>; Fri, 3 May 2002 12:13:27 -0400
+Date: Fri, 3 May 2002 18:13:26 +0200 (CEST)
+From: Hirling Endre <endre@interware.hu>
+To: Russell Leighton <russ@elegant-software.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 as a router, when is it appropriate?
+In-Reply-To: <3CD28FB8.40204@elegant-software.com>
+Message-ID: <Pine.LNX.4.44.0205031806480.12310-100000@dusk.interware.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Another interesting problem is that 'struct page *' will be as best a
-> cookie, not a valid pointer anymore, not sure what's the best way to
-> handle that. Working with pfn would be cleaner rather than working with
-> a cookie (somebody could dereference the cookie by mistake thinking it's
-> a page structure old style), but if __alloc_pages returns a pfn a whole
-> lot of kernel code will break.
 
-Yup, a physical address pfn would probably be best.
 
-(such as tlb size, which is something stupid like 4 pages, IIRC)
+On Fri, 3 May 2002, Russell Leighton wrote:
 
-> it has 8 pages for data and 2 for instructions, that's 16M data and 4M
-> of instructions with PAE
+> Could someone please tell me (or refer me to docs) on when
+> using the Linux on PC hardware as a router is an appropriate
+> solution and when one should consider a "real" router (e.g., Cisco)?
 
-What is "it", a P4? I think the sizes are dependant on which chip you're
-using. The x440 has the P4 chips, but the NUMA-Q is is P2 or P3 (even
-PPro for the oldest ones, but those don't work at the moment with Linux
-on multiquad).
+I have a Linux-based router and it can handle about as much as a cisco
+7206vxr with GE interfaces. I think both of them reaches the bandwidth
+limit of the PCI bus. The PC can be much better with 64bit/66MHz PCI
+buses or you can even buy motherboards with 100 or 133MHz PCI-X slots. I
+guess those can drive 3 or 4 GE interfaces at gigabit speed.
 
-M.
+You need a cisco when you care about interface density, you have
+interfaces you can't buy for a PC or you need to route protocols other
+than IP or proprietary to cisco.
+
+endre
 

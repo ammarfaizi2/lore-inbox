@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289733AbSAWIXc>; Wed, 23 Jan 2002 03:23:32 -0500
+	id <S289730AbSAWIoh>; Wed, 23 Jan 2002 03:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289732AbSAWIXU>; Wed, 23 Jan 2002 03:23:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18953 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289730AbSAWIXI>; Wed, 23 Jan 2002 03:23:08 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: kernel.org: setting the record straight
-Date: 23 Jan 2002 00:23:02 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2lrt6$d96$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S289735AbSAWIo2>; Wed, 23 Jan 2002 03:44:28 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:33554 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S289730AbSAWIoU>; Wed, 23 Jan 2002 03:44:20 -0500
+Date: Wed, 23 Jan 2002 09:44:14 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Torrey Hoffman <thoffman@arnor.net>, vojtech@ucw.cz,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: depmod problem for 2.5.2-dj4
+Message-ID: <20020123094414.D5170@suse.cz>
+In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net> <20020123045405.GA12060@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020123045405.GA12060@kroah.com>; from greg@kroah.com on Tue, Jan 22, 2002 at 08:54:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It has come to my attention there are some unfounded rumours about the
-kernel.org outage from this past weekend, and I wanted to set the
-record straight:
+On Tue, Jan 22, 2002 at 08:54:05PM -0800, Greg KH wrote:
+> On Tue, Jan 22, 2002 at 04:12:30PM -0800, Torrey Hoffman wrote:
+> > 
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/hid.o
+> > depmod: 	usb_make_path
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbkbd.o
+> > depmod: 	usb_make_path
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbmouse.o
+> > depmod: 	usb_make_path
+> > make: *** [_modinst_post] Error 1
+> 
+> Looks like you need to add a:
+> 	EXPORT_SYMBOL(usb_make_path);
+> to the usb.c file.
 
-In particular, the outage was *not* caused by any kind of failure in
-the new Compaq server hardware.  It worries me a bit that this
-particular rumour was circulating, since it reflects badly on a donor
-who has just provided us with a very nice machine.
+Correct.
 
-The approximate history of the failure is as such:
+> Vojtech, is this a USB function that you want added to usb.c?
 
-Back in December, we were already planning to replace the old server
-hardware after repeated problems, probably age-related.  We were
-originally planning to put the new server in production after the
-holidays, however, when the old server really started to flake out on
-us we decided to push it in service early.
+Yes, please. This will change later when Pat Mochels devicefs kicks in,
+but for the time being, it'd be very useful.
 
-ISC was very accomodating and arranged for us to put it in service on
-short notice, despite several logistics problem.  One of those
-problems was the lack of a configured port for the management card in
-the new server.  As a result, it did not get wired up at that time.
+> Didn't you (or someone else) propose a function like this in the past?
 
-This past Friday morning, the kernel on the server apparently stopped
-servicing user-space processes; the details aren't known, other than
-the fact that pings and TCP SYNs received replies, but we couldn't get
-any actual data across.  Futhermore, on and off there was as much as
-95% packet loss in pings, although the machine didn't stop responding
-to pings until it was power cycled on Sunday.
+I'm not sure, I may have proposed it. I'm not sure of the outcome
+either. The input subsystem needs to use the bus topology for matching
+the devices - there is no other way to differentiate between two
+identical USB mice.
 
-Due to a miscommunication between myself and the staff at ISC we
-weren't able to get the machine power cycled until Sunday (it did not
-return from the power cycle) and the management port connected until
-Monday.  Once the management port got connected, it was a 5-minute job
-to bring the machine back to life.
-
-Finally, I would like to thank the many people and organizations who
-have offered to host another kernel.org server in one way or another.
-I'm going to be evaluating our options, with the goal of getting at
-least one additional server if at all possible.  If so, my preference
-will definitely be to try to obtain identical hardware with the one we
-currently have.
-
-	  -=hpa
+Do you think it could be added?
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Vojtech Pavlik
+SuSE Labs

@@ -1,163 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVDALyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVDAMOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVDALyy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 06:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVDALyq
+	id S262723AbVDAMOn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 07:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVDAMOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 06:54:46 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:58240 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262721AbVDALxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 06:53:44 -0500
-Message-ID: <424D37B2.2CE24C67@tv-sign.ru>
-Date: Fri, 01 Apr 2005 15:59:46 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 1 Apr 2005 07:14:43 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:59265 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262723AbVDAMOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 07:14:40 -0500
+Message-ID: <55598.195.245.190.93.1112357613.squirrel@www.rncbc.org>
+In-Reply-To: <20050401104724.GA31971@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+    <20050401104724.GA31971@elte.hu>
+Date: Fri, 1 Apr 2005 13:13:33 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       "Steven Rostedt" <rostedt@goodmis.org>
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Lameter <christoph@lameter.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-References: <424D373F.1BCBF2AC@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 01 Apr 2005 12:14:38.0296 (UTC) FILETIME=[60063580:01C536B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here it is code snippets for easier review.
+>
+> i have released the -V0.7.43-00 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+>
 
-typedef struct timer_base_s {
-	spinlock_t lock;
-	struct timer_list *running_timer;
-} timer_base_t;
+RT-V0.7.43-00 is failing to build here:
+  .
+  .
+  .
+  CC      kernel/rcupdate.o
+  CC      kernel/intermodule.o
+kernel/intermodule.c:179: warning: `inter_module_register' is deprecated
+(declar
+ed at kernel/intermodule.c:38)
+kernel/intermodule.c:180: warning: `inter_module_unregister' is deprecated
+(decl
+ared at kernel/intermodule.c:79)
+kernel/intermodule.c:182: warning: `inter_module_put' is deprecated
+(declared at
+ kernel/intermodule.c:160)
+  CC      kernel/extable.o
+  CC      kernel/params.o
+  CC      kernel/posix-timers.o
+  CC      kernel/kthread.o
+  CC      kernel/wait.o
+  CC      kernel/kfifo.o
+  CC      kernel/sys_ni.o
+  CC      kernel/posix-cpu-timers.o
+  CC      kernel/rt.o
+kernel/rt.c:1435: error: `up_read' undeclared here (not in a function)
+kernel/rt.c:1435: error: initializer element is not constant
+kernel/rt.c:1435: error: (near initialization for `__ksymtab_up_read.value')
+kernel/rt.c:1435: error: __ksymtab_up_read causes a section type conflict
+make[1]: *** [kernel/rt.o] Error 1
+make: *** [kernel] Error 2
 
-struct tvec_t_base_s {
-	timer_base_t t_base;
-	...
-} tvec_bases[];
+Bye.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
-struct timer_list {
-	...
-	timer_base_t *_base;
-};
-
-int timer_pending(struct timer_list * timer)
-{
-	return timer->entry.next != NULL;
-}
-
-void init_timer(struct timer_list *timer)
-{
-	timer->entry.next = NULL;
-	timer->_base = &per_cpu(tvec_bases).t_base;
-}
-
-timer_base_t *lock_timer_base(struct timer_list *timer, unsigned long *flags)
-{
-	for (;;) {
-		timer_base_t *base = timer->_base;
-		if (base != NULL) {
-			spin_lock_irqsave(&base->lock, *flags);
-			if (base == timer->_base)
-				return base;
-			spin_unlock_irqrestore(&base->lock, *flags);
-		}
-	}
-}
-
-int __mod_timer(struct timer_list *timer, unsigned long expires)
-{
-	timer_base_t *base;
-	tvec_base_t *new_base;
-	int ret = -1;
-
-	do {
-		base = lock_timer_base(timer, &flags);
-		new_base = &__get_cpu_var(tvec_bases);
-
-		/* Ensure the timer is serialized. */
-		if (base != &new_base->t_base
-			&& base->running_timer == timer)
-			goto unlock;
-
-		ret = 0;
-		if (timer_pending(timer)) {
-			__list_del(timer->entry);
-			ret = 1;
-		}
-
-		if (base != &new_base->t_base) {
-			timer->_base = NULL;
-			spin_unlock(&base->lock);
-			base = &new_base->t_base;
-			spin_lock(&base->lock);
-			timer->_base = base;
-		}
-
-		timer->expires = expires;
-		internal_add_timer(new_base, timer);
-unlock:
-		spin_unlock_irqrestore(&base->lock, flags);
-	} while (ret < 0);
-
-	return ret;
-}
-
-void detach_timer(struct timer_list *timer)
-{
-	__list_del(timer->entry);
-	entry->next = NULL;
-}
-
-int del_timer(struct timer_list *timer)
-{
-	int ret = 0;
-
-	if (timer_pending(timer)) {
-		timer_base_t *base = lock_timer_base(timer);
-		if (timer_pending(timer)) {
-			detach_timer(timer);
-			ret = 1;
-		}
-		spin_unlock_irqrestore(&base->lock, flags);
-	}
-
-	return ret;
-}
-
-int del_timer_sync(struct timer_list *timer)
-{
-	int ret = -1;
-
-	do {
-		timer_base_t *base = lock_timer_base(timer);
-
-		if (base->running_timer == timer)
-			goto unlock;
-
-		ret = 0;
-		if (timer_pending(timer)) {
-			detach_timer(timer);
-			ret = 1;
-		}
-unlock:
-		spin_unlock_irqrestore(&base->lock, flags);
-	} while (ret < 0);
-
-	return ret;
-}
-
-void __run_timers(tvec_base_t *base)
-{
-	spin_lock_irq(&base->t_base.lock);
-
-	for_each_expired_timer(timer) {
-		base->t_base.running_timer = timer;
-		detach_timer(timer);
-		spin_unlock(&base->t_base.lock);
-		timer->function(data);
-		spin_lock(&base->t_base.lock);
-	}
-}

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbTJJIj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 04:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTJJIjZ
+	id S262675AbTJJIsg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 04:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTJJIsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 04:39:25 -0400
-Received: from law14-f5.law14.hotmail.com ([64.4.21.5]:18705 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262673AbTJJIjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 04:39:20 -0400
-X-Originating-IP: [61.11.18.237]
-X-Originating-Email: [t_telichari@hotmail.com]
-From: "Tushar Telichari" <t_telichari@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Changing map for shared libraries
-Date: Fri, 10 Oct 2003 14:09:18 +0530
+	Fri, 10 Oct 2003 04:48:36 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:63726 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262675AbTJJIsc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 04:48:32 -0400
+Subject: Re: Changing map for shared libraries
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Tushar Telichari <t_telichari@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <LAW14-F5V9LvuKebm4M00000d37@hotmail.com>
+References: <LAW14-F5V9LvuKebm4M00000d37@hotmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hq5bORG2VszlpS/1eK9z"
+Organization: Red Hat, Inc.
+Message-Id: <1065775635.5433.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW14-F5V9LvuKebm4M00000d37@hotmail.com>
-X-OriginalArrivalTime: 10 Oct 2003 08:39:19.0267 (UTC) FILETIME=[FF079330:01C38F09]
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
+Date: Fri, 10 Oct 2003 10:47:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I need to change the 0x40000000 (loading of shared libraries) to a different 
-address after it.
-My Linux kernel is 2.4.7-10
-It would be great if someone could suggest how to do it.
+--=-hq5bORG2VszlpS/1eK9z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Tushar
+On Fri, 2003-10-10 at 10:39, Tushar Telichari wrote:
+> Hi,
+>=20
+> I need to change the 0x40000000 (loading of shared libraries) to a differ=
+ent=20
+> address after it.
 
-_________________________________________________________________
-Interact with peers. Learn from experts. 
-http://server1.msn.co.in/sp03/teched/index.asp Be tech-empowered!
+you can use prelink to move all libs to a location of your chosing
 
+> My Linux kernel is 2.4.7-10
+
+that's a very bad and old kernel with lots of local (and remote)
+security holes... you really should upgrade.
+
+--=-hq5bORG2VszlpS/1eK9z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/hnISxULwo51rQBIRAqUdAJ9903aaklTnHU6mj5YpRrzVTYY5ugCdHuN8
+IHzzfMDDV51hauEHn825hjY=
+=MmOg
+-----END PGP SIGNATURE-----
+
+--=-hq5bORG2VszlpS/1eK9z--

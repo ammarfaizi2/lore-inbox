@@ -1,71 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbTBYAQG>; Mon, 24 Feb 2003 19:16:06 -0500
+	id <S264745AbTBYAUa>; Mon, 24 Feb 2003 19:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264790AbTBYAQF>; Mon, 24 Feb 2003 19:16:05 -0500
-Received: from imo-d08.mx.aol.com ([205.188.157.40]:55479 "EHLO
-	imo-d08.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S264788AbTBYAQE>; Mon, 24 Feb 2003 19:16:04 -0500
-Message-ID: <3E5AB69B.5020907@netscape.net>
-Date: Mon, 24 Feb 2003 21:19:39 -0300
-From: Fernando R Secco <TByteP@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en, ja, pt-br
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel -2.4.18
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264756AbTBYAUa>; Mon, 24 Feb 2003 19:20:30 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:35226 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S264745AbTBYAU3>; Mon, 24 Feb 2003 19:20:29 -0500
+From: David Woodhouse <dwmw2@infradead.org>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Tomas Szepe <szepe@pinerecords.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.51.0302241651360.28724@dns.toxicfilms.tv>
+References: <20030224143729.GG27646@louise.pinerecords.com>
+	 <Pine.LNX.4.51.0302241651360.28724@dns.toxicfilms.tv>
+Organization: 
+Message-Id: <1046133025.23366.2.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.0.99 (dwmw2) (Preview Release)
+Date: 25 Feb 2003 00:30:26 +0000
+Subject: Re: What's up with pre5?
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mmap
-forget_pte: old mapping existed!
-------------[ cut here ]------------
-kernel BUG at memory.c:314!
-invalid operand: 0000
-driver_myrinet nls_iso8859-1 cmpci soundcore ide-cd cdrom agpgart nvidia 
-autof
-CPU:    0
-EIP:    0010:[<c012ac4c>]    Tainted: P
-EFLAGS: 00010282
+On Mon, 2003-02-24 at 15:51, Maciej Soltysiak wrote:
+> > It's been 4 weeks since 2.4.21-pre4 went out and the pre4->current
+> > diff is over 3 megabytes.  Anything special holding off -pre5?
+> where do you get this pre4->current diff?
 
-EIP is at remap_page_range [kernel] 0x1ec (2.4.18-14)
-eax: 00000021   ebx: c4678458   ecx: de04e000   edx: de04ff7c
-esi: dec7c09c   edi: 09aa2067   ebp: 00027000   esp: d2249eec
-ds: 0018   es: 0018   ss: 0018
-Process pcimap_test (pid: 24867, stackpage=d2249000)
-Stack: c0255f20 00214000 f9013000 00214000 f8fec000 00014000 cc047400 
-dffd1540
-       40214000 cc047400 ffffffea dffd1540 00001000 d2249f40 e1be72e9 
-40014000
-       b8fec000 00200000 00000027 dffd1540 00000000 ddeb1f40 c012c3d6 
-ddeb1f40
-Call Trace: [<e1be72e9>] yardriver_mmap [driver_myrinet] 0x3f (0xd2249f24))
-[<c012c3d6>] do_mmap_pgoff [kernel] 0x2f6 (0xd2249f44))
-[<c010e457>] sys_mmap2 [kernel] 0x77 (0xd2249f94))
-[<c01090ff>] system_call [kernel] 0x33 (0xd2249fc0))
-
-
-Code: 0f 0b 3a 01 62 5a 25 c0 e9 56 ff ff ff 90 8d b6 00 00 00 00
- 
+http://www.XX.kernel.org/pub/linux/kernel/v2.4/testing/cset/
+and at the moment
+http://www.XX.kernel.org/pub/linux/kernel/v2.4/testing/cset/cset-1.953-to-1.992.txt.gz
 
 -- 
-Fernando R Secco
-Computer Science Bachelor Student 
-
-Universidade Federal de Santa Catarina
-http://www.ufsc.br
-
-SNOW - Parallel Programming Environment for Clustes of Workstations 
-http://snow.lisha.ufsc.br
-
-Personal website 
-http:// www.lisha.ufsc.br/~secco
-
-nerd things
-icq: 30051897
-aim: TByteP
-
-
+dwmw2

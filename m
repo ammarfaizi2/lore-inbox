@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288284AbSAVQWx>; Tue, 22 Jan 2002 11:22:53 -0500
+	id <S288595AbSAVQXD>; Tue, 22 Jan 2002 11:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288767AbSAVQWo>; Tue, 22 Jan 2002 11:22:44 -0500
-Received: from p50859276.dip.t-dialin.net ([80.133.146.118]:40139 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S288284AbSAVQW2>; Tue, 22 Jan 2002 11:22:28 -0500
-From: Martin Loschwitz <madkiss@madkiss.de>
-Date: Tue, 22 Jan 2002 17:22:25 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-pre4: undefined reference to `local symbols in discarded section .text.exit'
-Message-ID: <20020122162225.GA7356@madkiss.de>
-In-Reply-To: <20020122160603.GA7182@madkiss.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020122160603.GA7182@madkiss.de>
-User-Agent: Mutt/1.3.26i
+	id <S288767AbSAVQWx>; Tue, 22 Jan 2002 11:22:53 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:28356 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S288595AbSAVQWf>;
+	Tue, 22 Jan 2002 11:22:35 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AB8@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: patch to the maintainers file for arpd support
+Date: Tue, 22 Jan 2002 08:22:25 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to tell you some things that could be important:
+diff -Naur MAINTAINERS MAINTAINERS.orig
+--- MAINTAINERS Tue Jan 22 11:17:37 2002
++++ MAINTAINERS.orig    Mon Oct 22 11:37:17 2001
+@@ -204,8 +204,8 @@
+ S:     Maintained
 
-Debian Version: 3.0/Sid
-Version of binutils: 2.11.92.0.12.3
-Version of gcc: 2.95.4
-
-After downgrading the binutils-package to version 2.11.92.0.10,
-it works just fine.
-
--- 
--- Martin Loschwitz ---------------- hobbit.NeverAgain.DE --
--- Koernerstrasse 58 ---------- mail <madkiss@madkiss-de> --
--- 41747 Viersen ------------ http http://www.madkiss.de/ -- 
--- Germany ------------------------ irc Madkiss (IRC-Net) --
+ ARPD SUPPORT
+-P:     Jonathan Layes
+-M:     layes@loran.com
++P:     Dana Lacoste
++M:     dana.lacoste@peregrine.com
++W:     http://home.loran.com/~dlacoste/
+ L:     linux-net@vger.kernel.org
+ S:     Maintained

@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268305AbUIGPrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUIGQEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268305AbUIGPrL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 11:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUIGPnF
+	id S268196AbUIGQEV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUIGQBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:43:05 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:11453
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268314AbUIGPkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:40:06 -0400
-Date: Tue, 7 Sep 2004 08:37:23 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Ludo Stellingwerff <ludo@protactive.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sporadic hitting the BUG() in the XFRM Garbage Collector
-Message-Id: <20040907083723.5138c770.davem@davemloft.net>
-In-Reply-To: <413DD17E.3050804@protactive.nl>
-References: <413DD17E.3050804@protactive.nl>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 12:01:36 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:12029 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268196AbUIGP6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 11:58:12 -0400
+Date: Tue, 7 Sep 2004 12:02:38 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       len.brown@intel.com
+Subject: Re: [PATCH] Oops and panic while unloading holder of pm_idle
+In-Reply-To: <200409051802.03976.blaisorblade_spam@yahoo.it>
+Message-ID: <Pine.LNX.4.53.0409071200480.14053@montezuma.fsmlabs.com>
+References: <200408171728.06262.blaisorblade_spam@yahoo.it>
+ <200408301309.54465.blaisorblade_spam@yahoo.it>
+ <Pine.LNX.4.58.0408301743190.21529@montezuma.fsmlabs.com>
+ <200409051802.03976.blaisorblade_spam@yahoo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Sep 2004 17:19:26 +0200
-Ludo Stellingwerff <ludo@protactive.nl> wrote:
+On Sun, 5 Sep 2004, BlaisorBlade wrote:
 
-> This seems to happen at the removal of a IPsec policy. Some data: kernel 
-> 2.6.6. with Netfilter POM IPSEC-patches, ipsec-tools 0.2.3.
+> > There aren't many users of pm_idle 
+> > outside of arch/*/kernel/process.c
+> Both APM and ACPI set pm_idle, and both can be modular. It seems, however, 
+> they are the only such ones. And since they APM and ACPI refuse to be both 
+> loaded, we cannot have (actually) two modules which override pm_idle. So 
+> you're right.
 
-Known problem with xfrm reference counting, fixed in 2.6.7
-and later.
+There are a few other issues with pm_idle, preempt and modular drivers 
+which someone else is looking at, we'll see how things go from there.
 
-Please report networking bugs to the proper channels in
-the future, namely linux-net@vger.kernel.org and netdev@oss.sgi.com
-as this is where the networking developers listen.
+Thanks,
+	Zwane
 
-Thanks.

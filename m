@@ -1,61 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263110AbVCXPis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVCXPit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263110AbVCXPis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbVCXPgd
+	id S262808AbVCXPit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVCXPgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:36:33 -0500
-Received: from [217.222.53.238] ([217.222.53.238]:387 "EHLO mail.gts.it")
-	by vger.kernel.org with ESMTP id S262805AbVCXPbk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:31:40 -0500
-From: Stefano Rivoir <s.rivoir@gts.it>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Subject: Re: 2.6.12-rc1-mm2
-Date: Thu, 24 Mar 2005 16:31:30 +0100
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Airlie <airlied@gmail.com>
-References: <20050324044114.5aa5b166.akpm@osdl.org> <200503241540.33012.s.rivoir@gts.it> <4242DA5A.4020904@ens-lyon.org>
-In-Reply-To: <4242DA5A.4020904@ens-lyon.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200503241631.30681.s.rivoir@gts.it>
+	Thu, 24 Mar 2005 10:36:16 -0500
+Received: from geode.he.net ([216.218.230.98]:2833 "HELO noserose.net")
+	by vger.kernel.org with SMTP id S262526AbVCXPcQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 10:32:16 -0500
+From: ecashin@noserose.net
+Message-Id: <1111678333.1305@geode.he.net>
+Date: Thu, 24 Mar 2005 07:32:13 -0800
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11] aoe [12/12]: send outgoing packets in order
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 16:18, giovedì 24 marzo 2005, Brice Goglin ha scritto:
-> Stefano Rivoir a écrit :
-> > Alle 13:41, giovedì 24 marzo 2005, Andrew Morton ha scritto:
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/
-> >>2. 6.12-rc1-mm2/
-> >>
-> >>
-> >>- Some fixes for the recent DRM problems.
-> >
-> > Hi Andrew,
-> >
-> > While I was OK with DRM up to 2.6.12-rc1-mm1, now I get this at startup,
-> > and Xorg fails to enable DRI (attached, lspci and .config):
+I can't use list.h, since sk_buff doesn't have a list_head but instead
+has two struct sk_buff pointers, and I want to avoid any extra memory
+allocation.
 
-> --- linux-mm/include/linux/agp_backend.h.old    2005-03-24
-> 16:17:25.000000000 +0100
-> +++ linux-mm/include/linux/agp_backend.h        2005-03-24
-> 16:10:25.000000000 +0100
-> @@ -100,6 +100,7 @@
->   extern int agp_bind_memory(struct agp_memory *, off_t);
->   extern int agp_unbind_memory(struct agp_memory *);
->   extern void agp_enable(struct agp_bridge_data *, u32);
-> +extern struct agp_bridge_data * (*agp_find_bridge)(struct pci_dev *);
->   extern struct agp_bridge_data *agp_backend_acquire(struct pci_dev *);
->   extern void agp_backend_release(struct agp_bridge_data *);
+send outgoing packets in order
 
-Right, that fixed it for me.
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 
-Thank you.
+diff -uprN a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+--- a/drivers/block/aoe/aoe.h	2005-03-10 12:20:02.000000000 -0500
++++ b/drivers/block/aoe/aoe.h	2005-03-10 12:20:04.000000000 -0500
+@@ -132,7 +132,8 @@ struct aoedev {
+ 	struct timer_list timer;
+ 	spinlock_t lock;
+ 	struct net_device *ifp;	/* interface ed is attached to */
+-	struct sk_buff *skblist;/* packets needing to be sent */
++	struct sk_buff *sendq_hd; /* packets needing to be sent, list head */
++	struct sk_buff *sendq_tl;
+ 	mempool_t *bufpool;	/* for deadlock-free Buf allocation */
+ 	struct list_head bufq;	/* queue of bios to work on */
+ 	struct buf *inprocess;	/* the one we're currently working on */
+diff -uprN a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+--- a/drivers/block/aoe/aoeblk.c	2005-03-10 12:20:02.000000000 -0500
++++ b/drivers/block/aoe/aoeblk.c	2005-03-10 12:20:04.000000000 -0500
+@@ -147,8 +147,8 @@ aoeblk_make_request(request_queue_t *q, 
+ 	list_add_tail(&buf->bufs, &d->bufq);
+ 	aoecmd_work(d);
+ 
+-	sl = d->skblist;
+-	d->skblist = NULL;
++	sl = d->sendq_hd;
++	d->sendq_hd = d->sendq_tl = NULL;
+ 
+ 	spin_unlock_irqrestore(&d->lock, flags);
+ 
+diff -uprN a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+--- a/drivers/block/aoe/aoecmd.c	2005-03-10 12:20:02.000000000 -0500
++++ b/drivers/block/aoe/aoecmd.c	2005-03-10 12:20:04.000000000 -0500
+@@ -178,8 +178,12 @@ aoecmd_ata_rw(struct aoedev *d, struct f
+ 
+ 	skb = skb_prepare(d, f);
+ 	if (skb) {
+-		skb->next = d->skblist;
+-		d->skblist = skb;
++		skb->next = NULL;
++		if (d->sendq_hd)
++			d->sendq_tl->next = skb;
++		else
++			d->sendq_hd = skb;
++		d->sendq_tl = skb;
+ 	}
+ }
+ 
+@@ -227,8 +231,12 @@ rexmit(struct aoedev *d, struct frame *f
+ 
+ 	skb = skb_prepare(d, f);
+ 	if (skb) {
+-		skb->next = d->skblist;
+-		d->skblist = skb;
++		skb->next = NULL;
++		if (d->sendq_hd)
++			d->sendq_tl->next = skb;
++		else
++			d->sendq_hd = skb;
++		d->sendq_tl = skb;
+ 	}
+ }
+ 
+@@ -280,8 +288,8 @@ tdie:		spin_unlock_irqrestore(&d->lock, 
+ 		}
+ 	}
+ 
+-	sl = d->skblist;
+-	d->skblist = NULL;
++	sl = d->sendq_hd;
++	d->sendq_hd = d->sendq_tl = NULL;
+ 	if (sl) {
+ 		n = d->rttavg <<= 1;
+ 		if (n > MAXTIMER)
+@@ -481,8 +489,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 
+ 	aoecmd_work(d);
+ 
+-	sl = d->skblist;
+-	d->skblist = NULL;
++	sl = d->sendq_hd;
++	d->sendq_hd = d->sendq_tl = NULL;
+ 
+ 	spin_unlock_irqrestore(&d->lock, flags);
+ 
+@@ -531,7 +539,7 @@ aoecmd_cfg(ushort aoemajor, unsigned cha
+  
+ /*
+  * Since we only call this in one place (and it only prepares one frame)
+- * we just return the skb.  Usually we'd chain it up to the d->skblist.
++ * we just return the skb.  Usually we'd chain it up to the aoedev sendq.
+  */
+ static struct sk_buff *
+ aoecmd_ata_id(struct aoedev *d)
+
 
 -- 
-Stefano Rivoir
+  Ed L. Cashin <ecashin@coraid.com>

@@ -1,27 +1,46 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <970985-26836>; Sat, 11 Jul 1998 06:56:29 -0400
-Received: from ife-fast.ee.ethz.ch ([129.132.24.193]:60708 "EHLO ife.ee.ethz.ch" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <970938-26836>; Sat, 11 Jul 1998 06:55:52 -0400
-Message-ID: <35A754B5.93E13F5E@ife.ee.ethz.ch>
-Date: Sat, 11 Jul 1998 14:04:05 +0200
-From: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Organization: IfE
-X-Mailer: Mozilla 4.05 [en] (X11; I; SunOS 5.5.1 sun4u)
-MIME-Version: 1.0
-To: Colin Plumb <colin@nyx.net>
-CC: root@chaos.analogic.com, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <971543-26836>; Sat, 11 Jul 1998 20:21:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1252 "EHLO chaos.analogic.com" ident: "SOCKWRITE-65") by vger.rutgers.edu with ESMTP id <971540-26836>; Sat, 11 Jul 1998 20:21:10 -0400
+Date: Sat, 11 Jul 1998 21:29:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: linux-kernel@vger.rutgers.edu
 Subject: Re: Future time
-References: <199807111057.EAA14133@nyx10.nyx.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <6o6htg$huh$1@palladium.transmeta.com>
+Message-ID: <Pine.LNX.3.95.980711212747.1544A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-For those living near germany, I have some
-DCF77 receiver code (the german timecode transmitter
-on LF, 77.5kHz) using the pseudo noise phase 
-modulation sequence (read much more accurate than
-the amplitude stuff).
+On 11 Jul 1998, H. Peter Anvin wrote:
 
-Tom
+> Followup to:  <Pine.GSO.3.96.980711034638.18184A-100000@delta.ds2.pg.gda.pl>
+> By author:    "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+> In newsgroup: linux.dev.kernel
+> > 
+> > > Then, the SMP machines don't use these controllers at all unless the APIC
+> > > is broken.
+> > 
+> >  But not all ia32 machines are SMP and these which are not have usually
+> > the onchip APIC either absent or disabled.  Unfortunately...
+> > 
+> 
+> Actually, the thing to use is the cycle counter if the CPU clock is
+> anywhere near stable.
+> 
+> 	-hpa
+But that's the point! In the near future, CPU clocks will only be stable
+to about 2 percent because the next cost-cutting 'comsumerish' thingy
+will be to replace quartz crystals with ceramic resonators.
+
+
+Cheers,
+Dick Johnson
+                  ***** FILE SYSTEM MODIFIED *****
+Penguin : Linux version 2.1.108 on an i586 machine (66.15 BogoMips).
+Warning : It's hard to remain at the trailing edge of technology.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

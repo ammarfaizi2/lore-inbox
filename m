@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135193AbRDZIcP>; Thu, 26 Apr 2001 04:32:15 -0400
+	id <S135209AbRDZIjZ>; Thu, 26 Apr 2001 04:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135198AbRDZIcF>; Thu, 26 Apr 2001 04:32:05 -0400
-Received: from olsinka.site.cas.cz ([147.231.11.16]:2432 "EHLO
-	twilight.suse.cz") by vger.kernel.org with ESMTP id <S135193AbRDZIbx>;
-	Thu, 26 Apr 2001 04:31:53 -0400
-Date: Thu, 26 Apr 2001 10:05:47 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Vivek Dasmohapatra <vivek@etla.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: drivers/usb/hid.c
-Message-ID: <20010426100547.A1659@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10104252235460.2687-100000@www.teaparty.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10104252235460.2687-100000@www.teaparty.net>; from vivek@etla.org on Wed, Apr 25, 2001 at 10:44:37PM +0100
+	id <S135210AbRDZIjP>; Thu, 26 Apr 2001 04:39:15 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:24078 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135209AbRDZIjE>;
+	Thu, 26 Apr 2001 04:39:04 -0400
+Date: Thu, 26 Apr 2001 09:37:39 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104260617020.566-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.30.0104260934520.1198-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 10:44:37PM +0100, Vivek Dasmohapatra wrote:
-> 
-> Hi: Been battling w. my new Gravis joystick [kernel 2.4.3-ac5] - the
-> driver wouldn't recognise it through the gameport, but would through the
-> USB port [the stick came with a converter]. I did have one problem though:
-> I had to apply the following one line patch to get the joystick hat to
-> work correctly: Don't know if this is generally correct, as I only have
-> one USB joystick with which to test it.
-> 
-> --- linux/drivers/usb/hid.c~	Sat Apr 21 20:34:33 2001
-> +++ linux/drivers/usb/hid.c	Sat Apr 21 20:38:51 2001
-> @@ -78,7 +78,7 @@
->  static struct {
->  	__s32 x;
->  	__s32 y;
-> -}  hid_hat_to_axis[] = {{ 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, { 0, 0}};
-> +}  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
->  
->  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
->  				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
 
-I'll have to verify, but either a fix got lost somewhere, or this is a
-bug in the joystick. The hats were working fine.
+On Thu, 26 Apr 2001, Mike Galbraith wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> More of a question.  Neither Ingo's nor your patch makes any
+> difference on my UP box (128mb PIII/500) doing make -j30. [...]
+
+(the patch Marcelo sent is the -B3 patch plus Linus' suggested async
+interface cleanup, so it should be functionally equivalent to the -B3
+patch.)
+
+	Ingo
+

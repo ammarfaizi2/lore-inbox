@@ -1,56 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271270AbTHRGQm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 02:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271272AbTHRGQm
+	id S271272AbTHRGRK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 02:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271278AbTHRGRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 02:16:42 -0400
-Received: from mailhost.NMT.EDU ([129.138.4.52]:61652 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id S271270AbTHRGQl (ORCPT
+	Mon, 18 Aug 2003 02:17:10 -0400
+Received: from f22.mail.ru ([194.67.57.55]:62214 "EHLO f22.mail.ru")
+	by vger.kernel.org with ESMTP id S271272AbTHRGRF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 02:16:41 -0400
-Date: Mon, 18 Aug 2003 00:15:11 -0600
-From: Val Henson <val@nmt.edu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [bk patches] add ethtool_ops to net drivers
-Message-ID: <20030818061511.GA1255@speare5-1-14>
+	Mon, 18 Aug 2003 02:17:05 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=jw schultz=?koi8-r?Q?=22=20?= <jw@pegasys.ws>
+Cc: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Favorite-Color: Polka dot
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Mon, 18 Aug 2003 10:21:22 +0400
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I needed the following patch to compile netsyms.c - just a missing
-include.
 
-Thanks,
+> Actually you have not answered his question.  And i think it
+> a reasonable one.  It could be it was answered elsewhere.
 
--VAL
+No it was not answered. Yes you got this exactly. Aparently my
+englisg is not as bad after all ... :)
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1214  -> 1.1215 
-#	       net/netsyms.c	1.93    -> 1.94   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/08/17	val@host4.sbcglobal.net	1.1215
-# Add missing include for ethtool ops
-# --------------------------------------------
-#
-diff -Nru a/net/netsyms.c b/net/netsyms.c
---- a/net/netsyms.c	Sun Aug 17 20:26:07 2003
-+++ b/net/netsyms.c	Sun Aug 17 20:26:07 2003
-@@ -626,6 +626,7 @@
- EXPORT_SYMBOL(linkwatch_fire_event);
- 
- /* ethtool.c */
-+#include <linux/ethtool.h>
- EXPORT_SYMBOL(ethtool_op_get_link);
- EXPORT_SYMBOL(ethtool_op_get_tx_csum);
- EXPORT_SYMBOL(ethtool_op_get_sg);
+>>>>> Question: how to configure udev so that "database" always refers to LUN 0
+>>>>> on target 0 on bus 0 on HBA in PCI slot 1.
+>>> Let's avoid this communication problem. You show me namedev.config line that 
+>>> implements the above.
+
+> I'll try to put slightly differently.  I'll concede that we
+> cannot positionaly identify USB devices so lets set that
+> aside for the nonce.  We can persistently, positionaly
+> identify a device within the HBA context (BUS +ID + LUN) and
+> should be able to do the same for a PCI HBA (PCI slot +
+> device) or (PCI bridge topology).
+
+actually you can. As Greg pointed out, topology rarely changes,
+so it gives you enough information (of course if you constantly
+add and remove USB hubs it becomes a bit of pain). But it has
+the same problem - USB bus grows off PCI bus (usually) so adding
+new USB controller possibly invalidates all configuration.
+
+> So can i uniquely identify using persistent positional
+> information a drive at PCI_slot=1, HBA_on_card=0, BUS=0,
+> ID=1, LUN=0?  And how do i uniquely identify it in the udev
+> config file so that adding the same model drive in the same
+> BUS+ID+LUN on an same model HBA card in another PCI slot
+> does not confuse the two?  If i cannot, can i at least do
+> the identification so that adding ID=0,LUN=0 to the scsi buss
+> doesn't cause a name change.
+
+yep.
+
+just to show what I expected from sysfs - here is entry from Solaris
+/devices:
+
+brw-r-----   1 root     sys       32,240 Jan 24  2002 /devices/pci@16,4000/scsi@5,1/sd@0,0:a
+
+this entry identifies disk partition 0 on drive with SCSI ID 0, LUN 0
+connected to bus 1 of controller in slot 5 of PCI bus identified
+by 16. Now you can use whatever policy you like to give human
+meaningful name to this entry. And if you have USB it will continue
+further giving you exact topology starting from the root of your
+device tree.
+
+and this path does not contain single logical id so it is not subject
+to change if I add the same controller somewhere else.
+
+hopefully it clarifies what I mean ...
+
+regards
+
+-andrey

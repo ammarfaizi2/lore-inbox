@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270995AbTGPRSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270991AbTGPRRH
+	id S270997AbTGPRVj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270991AbTGPRUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:17:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6338 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270966AbTGPRQ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:16:28 -0400
-Date: Wed, 16 Jul 2003 19:31:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       vojtech@suse.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716173122.GQ833@suse.de>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de> <20030716172531.GP833@suse.de> <20030716172823.GE21896@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716172823.GE21896@suse.de>
+	Wed, 16 Jul 2003 13:20:22 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:7845 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S270997AbTGPRTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:19:12 -0400
+Message-ID: <3F158C5F.1000300@myrealbox.com>
+Date: Thu, 17 Jul 2003 01:33:19 +0800
+From: Romit Dasgupta <romit@myrealbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Trivial Change (E820map) : arch/i386/boot/setup.S
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16 2003, Dave Jones wrote:
->  > >  > Also Dave, can you try
->  > >  > and do a vmstat 1 while ripping and PS2 dropping out?
->  > > Ok, I just fired that up in another window.
->  > > When it happens next, I'll mail off a snapshot..
->  > Thanks.
-> 
-> Well, that didn't take long..
-> 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  2  0 109376   9632   2576  44368    0    0   136    28 1636  1304  1  4 90  4
->  0  0 109376   8036   2588  45852    0    0  1492     0 2166 15874  2 11 82  5
->  1  0 109376   8036   2588  45852    0    0     0     0 1089  1230  1  1 99  0
->  1  0 109376   8004   2612  45896    0    0     8   144 2660  1088  1 11 85  4
->  1  0 109376   5880   2616  46436    0    0     0     0 1338  1263  2 24 74  0
->  2  0 109376   5512   2576  45320    0    0     0    72 2108  1434  4 35 61  0
->  2  0 109376   5816   2520  45252   56    0    60   940 1852  2340  6 33 59  2
->  1  0 109376   4880   2448  45800    0    0     0   520 1940  2930  6 33 60  2
->  0  0 109376   5468   2412  45300    0    0    16  1672 2504  3077  9 42 44  7
->  1  0 109376   5532   2396  45792    0    0     0   344 2172  3504  4 33 61  2
->  1  0 109376   4132   2416  46452    0    0     8     4 2727  3483  5 39 54  1
->  0  0 109376   4864   2384  45484    0    0     4  1324 2186  3448  5 34 59  4
->  1  0 109376   5024   2384  46436    0    0     0   600 2484  3533  4 36 58  2
-> 
-> Lost sync here. Mouse dancing. vmstat output stopped for a few seconds.
+Hi,
+      After reading the e820 method from Ralf Brown's interrupt list(
+http://www.ctyme.com/intr/rb-1741.htm)
+it seems that the es register wont get thrashed. So there is no need to 
+repatedly execute (for getting each map entry) the following two lines 
+inside jmpe820: of seutp.S and thus can be moved out as below.  Is there 
+any reason to do it inside?
 
-Doesn't look really bogged down by interrupt load, still half idle. So
-that looks like a PS2 bug. Unless the irq latencies are really bad, I
-guess that could be it too. Vojtech knows a hell of a lot more about
-that than me :)
 
--- 
-Jens Axboe
+        pushw   %ds
+        popw    %es
+
+jmpe820:
+        movl    $0x0000e820, %eax               # e820, upper word zeroed
+        movl    $SMAP, %edx                     # ascii 'SMAP'
+        movl    $20, %ecx                       # size of the e820rec
+#       pushw   %ds                             # data record.
+#       popw    %es
+
+
+Diff
+-------
+
+===== setup.S 1.22 vs edited =====
+318a319,320
+ >       pushw   %ds
+ >       popw    %es
+324,325c326,327
+<       pushw   %ds                             # data record.
+<       popw    %es
+---
+ > #       pushw %ds                             # data record.
+ > #       popw  %es
+1156d1157
+<
+
+
+Tested in my i386 machine and here is the relevant portion of dmesg 
+after boot.
+
+> Linux version 2.6.0-test1 (root@feynman) (gcc version 3.2 20020903 
+> (Red Hat Linux 8.0 3.2-7)) #14 Thu Jul 17 01:05:15 SGT 2003
+> Video mode to be used for restore is f00
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+>  BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+>  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 0000000017ff0000 (usable)
+>  BIOS-e820: 0000000017ff0000 - 0000000017ffec00 (ACPI data)
+>  BIOS-e820: 0000000017ffec00 - 0000000018000000 (ACPI NVS)
+>  BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+> 0MB HIGHMEM available.
+> 383MB LOWMEM available.
+> On node 0 totalpages: 98288
+
+
+Regards,
+-Romit
 

@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLRXjy>; Mon, 18 Dec 2000 18:39:54 -0500
+	id <S129431AbQLRXrY>; Mon, 18 Dec 2000 18:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbQLRXjo>; Mon, 18 Dec 2000 18:39:44 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25844 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129391AbQLRXjX>;
-	Mon, 18 Dec 2000 18:39:23 -0500
-Date: Mon, 18 Dec 2000 18:08:53 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0test13pre3ac1
-In-Reply-To: <E14868l-00064b-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0012181807360.24959-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129477AbQLRXrP>; Mon, 18 Dec 2000 18:47:15 -0500
+Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:26130 "EHLO
+	mail.neruo.com") by vger.kernel.org with ESMTP id <S129431AbQLRXrG>;
+	Mon, 18 Dec 2000 18:47:06 -0500
+Subject: Re: APM bug with Inspiron 5000e
+From: Brad Douglas <brad@neruo.com>
+To: volodya@mindspring.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.20.0012162303120.2738-100000@node2.localnet.net>
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 18 Dec 2000 15:15:29 -0800
+Mime-Version: 1.0
+Message-Id: <20001218234708Z129431-439+4801@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Dec 2000 23:05:45 -0500,  wrote:
+> 
+> I am seeing this bug with both test8 and test12 kernels. Help/suggestions
+> for debugging are appreciated.
+> 
+> Computer: Inspiron 5000e. 
+> Bug: oops when doing cat /proc/apm.
+> 
+>                       Vladimir Dergachev
 
 
-On Mon, 18 Dec 2000, Alan Cox wrote:
+What's the BIOS revision it claims to have during POST?  It should be
+A0x (where x is a number).
 
-> o	Fix leak in link() syscall			(Al Viro)
-							 ^^^^^^^
-Originally - by Christopher Yeoh.
+Thanks,
+
+Brad Douglas
+brad@neruo.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

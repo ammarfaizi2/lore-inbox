@@ -1,68 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317063AbSF1ReS>; Fri, 28 Jun 2002 13:34:18 -0400
+	id <S317471AbSF1Rj0>; Fri, 28 Jun 2002 13:39:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSF1ReR>; Fri, 28 Jun 2002 13:34:17 -0400
-Received: from web40310.mail.yahoo.com ([66.218.78.89]:17806 "HELO
-	web40310.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317063AbSF1ReR>; Fri, 28 Jun 2002 13:34:17 -0400
-Message-ID: <20020628173633.10835.qmail@web40310.mail.yahoo.com>
-Date: Fri, 28 Jun 2002 19:36:33 +0200 (CEST)
-From: =?iso-8859-1?q?philippe=20philippe?= <philippe_aubry@yahoo.com>
-Subject: Oops on a bi p3
-To: linux-kernel@vger.kernel.org
-Cc: philippe.aubry1@mageos.com
+	id <S317472AbSF1RjZ>; Fri, 28 Jun 2002 13:39:25 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:40630 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
+	id <S317471AbSF1RjY>; Fri, 28 Jun 2002 13:39:24 -0400
+Message-ID: <3D1C9FD2.3060000@cox.net>
+Date: Fri, 28 Jun 2002 10:41:38 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1a) Gecko/20020611
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: andre@linux-ide.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] patch to make ide-probe mark ide-floppy devices as removable
+ and clean up drive type override code
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch has been in wide use for months, but has not (yet) been integrated 
+into the kernel. Patch is against 2.4.19-pre10-ac2, which has a 
+different version of ide-probe.c than 2.4.19-rc1.
 
+diff -X dontdiff -urN linux/drivers/ide/ide-probe.c 
+linux-probe/drivers/ide/ide-probe.c
+--- linux/drivers/ide/ide-probe.c	Thu Jun  6 10:00:50 2002
++++ linux-probe/drivers/ide/ide-probe.c	Thu Jun  6 10:37:41 2002
+@@ -130,31 +130,40 @@
+  	 
+	goto err_misc;
+  		}
+  #endif /* CONFIG_BLK_DEV_PDC4030 */
++ 
+	/*
++ 
+	 * Handle drive type overrides for "unusual" devices
++ 
+	 */
+  		switch (type) {
+- 
+		case ide_floppy:
+- 
+			if (!strstr(id->model, "CD-ROM")) {
+- 
+				if (!strstr(id->model, "oppy") &&
+- 
+				    !strstr(id->model, "poyp") &&
+- 
+				    !strstr(id->model, "ZIP"))
+- 
+					printk("cdrom or floppy?, assuming ");
+- 
+				if (drive->media != ide_cdrom) {
+- 
+					printk ("FLOPPY");
+- 
+					break;
+- 
+				}
+- 
+			}
++ 
+	case ide_floppy:
++ 
+		if (strstr(id->model, "CD-ROM")) {
++ 
+			type = ide_cdrom;
++ 
+			break;
++ 
+		}
++ 
+		if (!strstr(id->model, "oppy") &&
++ 
+		    !strstr(id->model, "poyp") &&
++ 
+		    !strstr(id->model, "ZIP"))
++ 
+			printk("cdrom or floppy?, assuming ");
++ 
+		if (drive->media == ide_cdrom)
+  	 
+		type = ide_cdrom;	/* Early cdrom models used zero */
+- 
+		case ide_cdrom:
+- 
+			drive->removable = 1;
++ 
+		break;
+  #ifdef CONFIG_PPC
++ 
+	case ide_cdrom:
+  	 
+		/* kludge for Apple PowerBook internal zip */
+- 
+			if (!strstr(id->model, "CD-ROM") &&
+- 
+			    strstr(id->model, "ZIP")) {
+- 
+				printk ("FLOPPY");
+- 
+				type = ide_floppy;
+- 
+				break;
+- 
+			}
++ 
+		if (!strstr(id->model, "CD-ROM") &&
++ 
+		    strstr(id->model, "ZIP")) {
++ 
+			type = ide_floppy;
++ 
+			break;
++ 
+		}
+  #endif
++ 
+	}
++ 
+	switch (type) {
++ 	 
+	case ide_floppy:
++ 	 
+		printk ("FLOPPY");
++ 	 
+		drive->removable = 1;
++ 	 
+		break;
++ 	 
+	case ide_cdrom:
+  	 
+		printk ("CD/DVD-ROM");
++ 	 
+		drive->removable = 1;
+  	 
+		break;
+  	 
+	case ide_tape:
+  	 
+		printk ("TAPE");
 
-
-hello, 
-
-I have this message when i  try to make a tar from a
-big directory. This Oops 
-is the same all time i try to make a tar with a big
-directory, the file i try 
-to compresse are on scsi disk connected by a qlogic
-differential scsi card. 
-It is normal?, could you give me some information.
-The mother is an MSI with a VIA 694 X chipset based
-with 2 p3 1Ghz.
-I use a 2.4.18 kernel with smp support and different
-other module.
- 
-Message from system :
-
-Unable to handle kernel NULL pointer derenference at
-virtual address 00000108
-printing eip :
-fc81797a
-*pde = 00000000
-Oops : 0002
-CPU: 0
-EIP:   0010:[<fc81797a>]         not tainted
-EFLAGS: 00010002
-eax: 0000fffc ebx: f7aee000 ecx: 00000010 edx:
-f7aefc88
-esi: f7aee020 edi: 00000108 ebp: 00000000 esp:
-c02e7f18
-ds: 0018 es: 0018 ss:0018
-process swapper ( pid: 0, stackpage=c02e7000 )
-stack : 00000001 00000001 f7aefc7c f7aefc00 00000002
-00000000 24000001 
-0000000b ....
-Call trace : [<fc817785>] ... [<c0105000>]
-Code : f3 a5 80 3b 03 75 0f 53 e8 a9 00 00 00 89 85 80
-01 00 00 5b
-<0>Kernel panic: Aiee, killing interrupt handler!
-in interrupt handler - not syncing
-
-philippe.aubry1@mageos.com
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263450AbSITUER>; Fri, 20 Sep 2002 16:04:17 -0400
+	id <S263456AbSITUEb>; Fri, 20 Sep 2002 16:04:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263456AbSITUER>; Fri, 20 Sep 2002 16:04:17 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24588
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263450AbSITUEP>; Fri, 20 Sep 2002 16:04:15 -0400
-Subject: Re: pre-empt and smp in 2.5.37 - is it supposed to work?
-From: Robert Love <rml@tech9.net>
-To: thunder7@xs4all.nl
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020920200441.GA3677@middle.of.nowhere>
-References: <20020920200441.GA3677@middle.of.nowhere>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Sep 2002 16:09:22 -0400
-Message-Id: <1032552562.966.832.camel@phantasy>
+	id <S263457AbSITUEb>; Fri, 20 Sep 2002 16:04:31 -0400
+Received: from f4.pav1.hotmail.com ([64.4.31.4]:21011 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263456AbSITUE2>;
+	Fri, 20 Sep 2002 16:04:28 -0400
+X-Originating-IP: [12.9.24.195]
+From: "Mehdi Hashemian" <mhashemian@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: PTE question
+Date: Fri, 20 Sep 2002 13:09:25 -0700
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F4VcxjXHzfAbPM1EhXT000004c5@hotmail.com>
+X-OriginalArrivalTime: 20 Sep 2002 20:09:26.0255 (UTC) FILETIME=[9E7AC7F0:01C260E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-20 at 16:04, Jurriaan wrote:
+Hello,
 
-> I get a large screen full of hex addresses even before my framebuffer
-> activates, so I wonder if breakage when using preempt and smp is a known
-> issue in 2.5.37 or not?
+As I did not receive any response for the following question, I appreciate 
+if someone guide me to the right email list to post this question, if there 
+is any.
 
-You need this yet-to-be-merged patch.  It should work fine with it.
+Appreciate it,
+Mehdi
 
-It is just an overzealous debugging test..
+----Original Message Follows----
+From: "Mehdi Hashemian" <mhashemian@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PTE question
+Date: Wed, 18 Sep 2002 18:52:25 -0700
 
-	Robert Love
+Hello,
 
-diff -urN linux-2.5.37/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.37/kernel/sched.c	Fri Sep 20 11:20:32 2002
-+++ linux/kernel/sched.c	Fri Sep 20 15:49:05 2002
-@@ -940,8 +940,17 @@
- 	struct list_head *queue;
- 	int idx;
- 
--	if (unlikely(in_atomic()))
--		BUG();
-+	/*
-+	 * Test if we are atomic.  Since do_exit() needs to call into
-+	 * schedule() atomically, we ignore that path for now.
-+	 * Otherwise, whine if we are scheduling when we should not be.
-+	 */
-+	if (likely(current->state != TASK_ZOMBIE)) {
-+		if (unlikely(in_atomic())) {
-+			printk(KERN_ERR "bad: scheduling while atomic!\n");
-+			dump_stack();
-+		}
-+	}
- 
- #if CONFIG_DEBUG_HIGHMEM
- 	check_highmem_ptes();
+Appreciate if someone checks this piece of code. I try to diable cache and 
+write-through bits in PTE but somehow PTE address is within first 16MB of 
+memory (DMA_ZONE) and later when Kernel tries to allocate more pages, it 
+chooses the same address range and this piece of code corrupts memory by 
+ORing these bits. Any help appreciated!
+
+    {
+        addr = __get_dma_pages(priority, order);
+
+        int npages = __get_npages(order);
+	unsigned long addr2 = addr;
+	pgd_t *pgd;
+	pmd_t *pmd;
+	pte_t *pte;
+	int i;
+
+	for (i = 0; i < npages; i++)
+	{
+	    pgd = pgd_offset(&init_mm, addr2);
+	    pmd = pmd_offset(pgd, addr2);
+	    pte = pte_offset(pmd, addr2);
+	    pte_val(*pte) |= (_PAGE_PCD | _PAGE_PWT);
+
+	    addr2 += PAGE_SIZE;
+	}
+	__flush_tlb_all();
+    }
+
+Mehdi
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

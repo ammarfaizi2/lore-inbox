@@ -1,95 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUG0Arx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUG0AxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUG0Arx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 20:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUG0Arx
+	id S265234AbUG0AxB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 20:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUG0AxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 20:47:53 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:34569 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S266166AbUG0Arb convert rfc822-to-8bit (ORCPT
+	Mon, 26 Jul 2004 20:53:01 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:26879 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S265234AbUG0Aw6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 20:47:31 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 26 Jul 2004 20:52:58 -0400
+Message-ID: <4105A761.9090905@tequila.co.jp>
+Date: Tue, 27 Jul 2004 09:52:49 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-Date: Mon, 26 Jul 2004 17:46:31 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F95EF@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-Thread-Index: AcRzcjFWkJH3jwJsRkWb7SsMTQek4gAABr5Q
-From: "Andrew Chew" <achew@nvidia.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
-X-OriginalArrivalTime: 27 Jul 2004 00:47:21.0910 (UTC) FILETIME=[46C70D60:01C47373]
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, Joel Becker <Joel.Becker@oracle.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Autotune swappiness01
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org> <cone.1090882721.156452.20693.502@pc.kolivas.org>
+In-Reply-To: <cone.1090882721.156452.20693.502@pc.kolivas.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sincerely apologize about the mangled patch.  I'll be more careful
-next time (and check my mailer settings).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The #ifdef was for consistency (I noticed that there were other IDs
-similarly defined in intel8x0.c).  I don't see why we'd need it, either.
-We should probably remove PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO and
-PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO #defines from intel8x0.c as well, as
-they're similarly redundant.  For that matter, why not remove all of the
-PCI_DEVICE_ID_* #defines from the intel8x0.c driver, and make sure the
-device IDs are defined in pci_ids.h.
+Con Kolivas wrote:
+| Andrew Morton writes:
 
-Want me to submit a patch for that?
+|> Yes, I think 60% is about right for a 512-768M box.  Too high for the
+|> smaller machines, too low for the larger ones.
+|
+|
+| Sigh..
+| I have a 1Gb desktop machine that refuses to keep my applications in ram
+| overnight if I have a swappiness higher than the default so I think lots
+| of desktop users with more ram will be unhappy with higher settings.
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org] 
-> Sent: Monday, July 26, 2004 5:38 PM
-> To: Andrew Chew
-> Cc: linux-kernel@vger.kernel.org; jgarzik@pobox.com
-> Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 
-> audio support
-> 
-> 
-> "Andrew Chew" <achew@nvidia.com> wrote:
-> >
-> > This patch updates include/linux/pci_ids.h with the CK804 audio  
-> > controller ID, and adds the CK804 audio controller to the  
-> > sound/pci/intel8x0.c audio driver.
-> 
-> I'm getting many workwrapped and tab-replaced patches 
-> nowadays.  Could people pleeeeze ensure that their email 
-> clients are sending unmangled patches?
-> 
-> I fixed this one up.  I usually do :(
-> 
-> 
-> >  --- linux-2.6.8-rc2/include/linux/pci_ids.h	2004-07-21
-> >  15:22:57.000000000 -0700
-> >  +++ linux/include/linux/pci_ids.h	2004-07-20 18:49:22.000000000
-> >  -0700
-> >  @@ -1071,6 +1071,7 @@
-> >   #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
-> >   #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
-> >   #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
-> >  +#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
-> >   #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
-> >   #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
-> >   #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
-> >  --- linux-2.6.8-rc2/sound/pci/intel8x0.c	2004-07-21
-> >  15:22:59.000000000 -0700
-> >  +++ linux/sound/pci/intel8x0.c	2004-07-20 
-> 18:52:07.000000000 -0700
-> >  @@ -155,6 +155,9 @@
-> >   #ifndef PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO
-> >   #define PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO	0x00ea
-> >   #endif
-> >  +#ifndef PCI_DEVICE_ID_NVIDIA_CK804_AUDIO
-> >  +#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO 0x0059
-> >  +#endif
-> >   
-> 
-> Why does the driver need this ifdef?  We just added the ID to 
-> pci_ids.h?
-> 
+I have 1 GB and I had a setting of 51 (seemed to be perhaps gentoo
+default or so) and I especially after a weekend (2 days off) it is
+always the "monday-morning-swap-hell" where I have to wait 5min until he
+swapped in the apps he swapped out during weekend.
+
+I changed that to 20 now, but I don't know if this will make things
+worse or better.
+
+|> More intelligent selection of the initial value is needed.
+|
+| Perhaps, but I really doubt desktop users running mainline would be
+| happy about it going significantly higher.
+
+no, but an already diskussed feature that would know, not to swap out
+much used apps (eg mozilla which is used all the time, or openoffice)
+during night or long idle times, if not _really_ needed.
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBBadgjBz/yQjBxz8RAkj5AJ9527iKCfaJyWI4S8cDvKCIcyC7ZACgyqel
+txTVMqqVJUuargYPnX8Fvyw=
+=gmPf
+-----END PGP SIGNATURE-----

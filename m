@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268860AbUICOam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUICOhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268860AbUICOam (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 10:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUICOam
+	id S267928AbUICOhW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 10:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUICOhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 10:30:42 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:1449 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S268860AbUICOaZ (ORCPT
+	Fri, 3 Sep 2004 10:37:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:51685 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267928AbUICOhT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 10:30:25 -0400
-Date: Fri, 3 Sep 2004 15:29:09 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Valdis.Kletnieks@vt.edu
-cc: "Wise, Jeremey" <jeremey.wise@agilysys.com>,
-       Oliver Hunt <oliverhunt@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel or Grub bug.
-In-Reply-To: <200409022133.i82LXc38022679@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.61.0409031528420.19868@student.dei.uc.pt>
-References: <1094008341.4704.32.camel@wizej.agilysys.com>
- <200408312358.08153.dsteven3@maine.rr.com> <1094041227.4635.7.camel@wizej.agilysys.com>
- <200409011135.36537.dsteven3@maine.rr.com> <1094055985.4635.44.camel@wizej.agilysys.com>
- <4699bb7b04090109415f64fea1@mail.gmail.com>           
- <1094067612.15795.19.camel@wizej.agilysys.com> <200409022133.i82LXc38022679@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Fri, 3 Sep 2004 10:37:19 -0400
+Date: Fri, 3 Sep 2004 16:37:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland Dreier <roland@topspin.com>
+Cc: Andi Kleen <ak@suse.de>, jakub@redhat.com, ecd@skynet.be, pavel@suse.cz,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] fs/compat.c: rwsem instead of BKL around ioctl32_hash_table
+Message-ID: <20040903143718.GB4699@wotan.suse.de>
+References: <20040901072245.GF13749@mellanox.co.il> <524qmi2e1s.fsf@topspin.com> <20040902211448.GE16175@wotan.suse.de> <52isawtihi.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52isawtihi.fsf@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Sep 02, 2004 at 03:26:49PM -0700, Roland Dreier wrote:
+>     Andi> It does not make much sense because the ioctl will take the
+>     Andi> BKL anyways.
+> 
+> True, but it seems pretty ugly to protect the ioctl32 hash with the
+> BKL.  I think the greater good of reducing use of the BKL should be
+> looked at.
 
-On Thu, 2 Sep 2004 Valdis.Kletnieks@vt.edu wrote:
+Replacing one lock with two is IMHO a bad idea. Making the number
+of locks smaller and avoiding the locking wall IMHO has priority
+even over BKL removal. 
 
-> A somewhat subtle gotcha that I got bit by once - very bad things
-> happen if you try to load reiserfs off an ext2-formatted initrd image,
-> and your kernel doesn't have ext2 built in.  (Feel free to substitute
-> any 2 filesystem formats - I actually got nailed by ext2/ext3)...
+> 
+>     Andi> If you wanted to fix it properly better make it use RCU -
+>     Andi> but it cannot work for the case of calling a compat handler.
+> 
+> I'm not sure I follow what you're saying.  When I looked at this, at
+> first I thought RCU would be better for the hash lookup, but I didn't
+> see a way to prevent a compat handler from being removed while it was
+> running.  That's why I moved to a semaphore, which would hold off the
+> removal until the handler was done running.  Is this what you mean?
+> Do you see a way to uose RCU here?
 
-Well, in my case that's not the problem...
+The code currently assumes that the compat code is either 
+in the kernel or in the same module who implements the
+device (then the high level module count handling for
+the file descriptor takes care of it) 
 
-Marcos Marado
+The BKL couldn't protect again removal of sleeping compat 
+handlers anyways because the BKL is dropped during a 
+schedule, and they all can sleep in user accesses.
+During this scheduling window the module could be unloaded
+if its count was zero. But with the assumption above this
+cannot happen.
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+So basically the locking there is not to protect against
+running handlers, just to ensure consistency during
+the list walking. The list isn't touched anymore
+after the compat handler runs, so the sleeping in there
+is no problem.
 
-iD8DBQFBOH+3mNlq8m+oD34RAkhUAKC4+wdzMHzHqoRCecFGOXvAzF9NqwCg8DSh
-EcL7JMsoNNgL3D534efCWsA=
-=3soR
------END PGP SIGNATURE-----
+RCU could be used as well to protect the list because
+there is no sleep involved.
 
+-Andi

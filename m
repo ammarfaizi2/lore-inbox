@@ -1,131 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273788AbSISXdS>; Thu, 19 Sep 2002 19:33:18 -0400
+	id <S273860AbSISXf7>; Thu, 19 Sep 2002 19:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273842AbSISXdS>; Thu, 19 Sep 2002 19:33:18 -0400
-Received: from packet.digeo.com ([12.110.80.53]:42921 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S273788AbSISXdQ>;
-	Thu, 19 Sep 2002 19:33:16 -0400
-Message-ID: <3D8A5FE6.4C5DE189@digeo.com>
-Date: Thu, 19 Sep 2002 16:38:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S273863AbSISXf7>; Thu, 19 Sep 2002 19:35:59 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:12502 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S273860AbSISXf6>;
+	Thu, 19 Sep 2002 19:35:58 -0400
+Date: Fri, 20 Sep 2002 01:46:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Dave Jones <davej@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] generic-pidhash-2.5.36-J2, BK-curr
+In-Reply-To: <20020920013246.A12393@suse.de>
+Message-ID: <Pine.LNX.4.44.0209200146250.20078-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Hanna Linder <hannal@us.ibm.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Sep 2002 23:38:14.0515 (UTC) FILETIME=[9F7DCC30:01C26035]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder wrote:
+
+On Fri, 20 Sep 2002, Dave Jones wrote:
+
+>  > >  - add list_for_each_noprefetch() to list.h, for all those list users who 
+>  > >    know that in the majority of cases the list is going to be short.
+>  > That name is really ugly, as the lack ofthe prefetch is an implementation
+>  > detail.  What about list_for_each_short or __list_for_each?
 > 
-> ...
->         So akpm's removal of lock section directives breaks down the
-> functions holding locks that previously were reported under the
-> .text.lock.filename?
+> Wasn't this the reason we have list_for_each_safe() ?
 
-Yup.  It makes the profiler report the spinlock cost at the
-actual callsite.  Patch below.
+no, list_for_each_safe() is a loop that is entry-removal safe.
 
-> Looks like fastwalk might not behave so well
-> on this 32 cpu numa system...
+	Ingo
 
-I've rather lost the plot.  Have any of the dcache speedup
-patches been merged into 2.5?
-
-It would be interesting to know the context switch rate
-during this test, and to see what things look like with HZ=100.
-
-
-
---- 2.5.24/include/asm-i386/spinlock.h~spinlock-inline	Fri Jun 21 13:12:01 2002
-+++ 2.5.24-akpm/include/asm-i386/spinlock.h	Fri Jun 21 13:18:12 2002
-@@ -46,13 +46,13 @@ typedef struct {
- 	"\n1:\t" \
- 	"lock ; decb %0\n\t" \
- 	"js 2f\n" \
--	LOCK_SECTION_START("") \
-+	"jmp 3f\n" \
- 	"2:\t" \
- 	"cmpb $0,%0\n\t" \
- 	"rep;nop\n\t" \
- 	"jle 2b\n\t" \
- 	"jmp 1b\n" \
--	LOCK_SECTION_END
-+	"3:\t" \
- 
- /*
-  * This works. Despite all the confusion.
---- 2.5.24/include/asm-i386/rwlock.h~spinlock-inline	Fri Jun 21 13:18:33 2002
-+++ 2.5.24-akpm/include/asm-i386/rwlock.h	Fri Jun 21 13:22:09 2002
-@@ -22,25 +22,19 @@
- 
- #define __build_read_lock_ptr(rw, helper)   \
- 	asm volatile(LOCK "subl $1,(%0)\n\t" \
--		     "js 2f\n" \
--		     "1:\n" \
--		     LOCK_SECTION_START("") \
--		     "2:\tcall " helper "\n\t" \
--		     "jmp 1b\n" \
--		     LOCK_SECTION_END \
-+		     "jns 1f\n\t" \
-+		     "call " helper "\n\t" \
-+		     "1:\t" \
- 		     ::"a" (rw) : "memory")
- 
- #define __build_read_lock_const(rw, helper)   \
- 	asm volatile(LOCK "subl $1,%0\n\t" \
--		     "js 2f\n" \
--		     "1:\n" \
--		     LOCK_SECTION_START("") \
--		     "2:\tpushl %%eax\n\t" \
-+		     "jns 1f\n\t" \
-+		     "pushl %%eax\n\t" \
- 		     "leal %0,%%eax\n\t" \
- 		     "call " helper "\n\t" \
- 		     "popl %%eax\n\t" \
--		     "jmp 1b\n" \
--		     LOCK_SECTION_END \
-+		     "1:\t" \
- 		     :"=m" (*(volatile int *)rw) : : "memory")
- 
- #define __build_read_lock(rw, helper)	do { \
-@@ -52,25 +46,19 @@
- 
- #define __build_write_lock_ptr(rw, helper) \
- 	asm volatile(LOCK "subl $" RW_LOCK_BIAS_STR ",(%0)\n\t" \
--		     "jnz 2f\n" \
-+		     "jz 1f\n\t" \
-+		     "call " helper "\n\t" \
- 		     "1:\n" \
--		     LOCK_SECTION_START("") \
--		     "2:\tcall " helper "\n\t" \
--		     "jmp 1b\n" \
--		     LOCK_SECTION_END \
- 		     ::"a" (rw) : "memory")
- 
- #define __build_write_lock_const(rw, helper) \
- 	asm volatile(LOCK "subl $" RW_LOCK_BIAS_STR ",%0\n\t" \
--		     "jnz 2f\n" \
--		     "1:\n" \
--		     LOCK_SECTION_START("") \
--		     "2:\tpushl %%eax\n\t" \
-+		     "jz 1f\n\t" \
-+		     "pushl %%eax\n\t" \
- 		     "leal %0,%%eax\n\t" \
- 		     "call " helper "\n\t" \
- 		     "popl %%eax\n\t" \
--		     "jmp 1b\n" \
--		     LOCK_SECTION_END \
-+		     "1:\n" \
- 		     :"=m" (*(volatile int *)rw) : : "memory")
- 
- #define __build_write_lock(rw, helper)	do { \
-
--

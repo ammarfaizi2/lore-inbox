@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312734AbSCVPxR>; Fri, 22 Mar 2002 10:53:17 -0500
+	id <S312735AbSCVP7H>; Fri, 22 Mar 2002 10:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312736AbSCVPxH>; Fri, 22 Mar 2002 10:53:07 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:52686 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S312734AbSCVPwt>;
-	Fri, 22 Mar 2002 10:52:49 -0500
-To: roms@lpg.ticalc.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: your mail, [PATCH] tipar
-In-Reply-To: <E16lHKt-0007dn-00@the-village.bc.nu> <3C935F7A.AD380542@free.fr>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 22 Mar 2002 16:52:01 +0100
-Message-ID: <d31yecd2hq.fsf@lxplus052.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312736AbSCVP65>; Fri, 22 Mar 2002 10:58:57 -0500
+Received: from GS176.SP.CS.CMU.EDU ([128.2.198.136]:46485 "EHLO
+	gs176.sp.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S312735AbSCVP6p>; Fri, 22 Mar 2002 10:58:45 -0500
+Message-Id: <200203221559.g2MFxwd32172@gs176.sp.cs.cmu.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        dave@zarzycki.org
+Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot 
+In-Reply-To: Your message of "Fri, 22 Mar 2002 12:50:11 +0100."
+             <3C9B1A73.2070606@evision-ventures.com> 
+Date: Fri, 22 Mar 2002 10:59:58 -0500
+From: John Langford <jcl@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Romain Liévin <rlievin@free.fr> writes:
+>	int port = hwif->index ? 0x5c : 0x58;
+>	int portFIFO = hwif->channel ? 0x55 : 0x54;
+>
+>The usage of hwif->index *is* wrong.
 
-> Hi,
-> 
-> according to various remarks, I improved the source code.
-> I submit it again for new comments & suggestions...
+Switching hwif->index to hwif->channel doesn't help here - same
+failure mode.
 
-Another comment. Your usage of the START macro is kinda
-broken. Basically you declare it as #define START(x) but never use the
-value, and instead rely on a local scope variable named max being
-present.
+I've confirmed that the problem is isolated to
+"CONFIG_BLK_DEV_ALI15X3=y" as Dave suggested.
 
-> +/* ----- global defines -----------------------------------------------
-> */
-> +
-> +#define START(x) { max=jiffies+HZ/(timeout/10); }
-> +#define WAIT(x)  { \
-> +  if (time_before((x), jiffies)) return -1; \
-> +  if (current->need_resched) schedule(); }
-> +/* Try to transmit a byte on the specified port (-1 if error). */
-> +static int put_ti_parallel(int minor, unsigned char data)
-> +{
-> +       int bit;
-> +       unsigned long max;
-> +       
-> +       for (bit=0; bit<8; bit++) {
-> +               if (data & 1) {
-> +                       outbyte(2, minor);
-> +                       START(max); 
+Any other ideas?
 
-If you really want to use the START macro, you should redefine it as
-follows:
-
-#define START(x) { x=jiffies+HZ/(timeout/10); }
-
-One example of where one has to be careful with macros ;(
-
-Jes
+-John

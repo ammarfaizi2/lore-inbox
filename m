@@ -1,77 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274433AbRITL7l>; Thu, 20 Sep 2001 07:59:41 -0400
+	id <S274431AbRITL5b>; Thu, 20 Sep 2001 07:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274434AbRITL7c>; Thu, 20 Sep 2001 07:59:32 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:27728 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S274433AbRITL7T>; Thu, 20 Sep 2001 07:59:19 -0400
-Date: Thu, 20 Sep 2001 13:59:43 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: John Clemens <john@deater.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [prelim-PATCH] Enable SSE on K7 without BIOS support.
-Message-ID: <20010920135943.X9551@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	John Clemens <john@deater.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109192306150.371-100000@pianoman.cluster.toy>
+	id <S274429AbRITL5W>; Thu, 20 Sep 2001 07:57:22 -0400
+Received: from ns.caldera.de ([212.34.180.1]:42187 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S274431AbRITL5I>;
+	Thu, 20 Sep 2001 07:57:08 -0400
+Date: Thu, 20 Sep 2001 13:57:17 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Kevin Corry <corry@ecn.purdue.edu>
+Cc: linux-kernel@vger.kernel.org, hch@ns.caldera.de, adilger@turbolabs.com
+Subject: Re: IBMs LVM?
+Message-ID: <20010920135717.A11737@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	Kevin Corry <corry@ecn.purdue.edu>, linux-kernel@vger.kernel.org,
+	hch@ns.caldera.de, adilger@turbolabs.com
+In-Reply-To: <200109142155.f8ELtVi03827@shay.ecn.purdue.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0ywUhQCikZ2Y3PNw"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109192306150.371-100000@pianoman.cluster.toy>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109142155.f8ELtVi03827@shay.ecn.purdue.edu>; from corry@ecn.purdue.edu on Fri, Sep 14, 2001 at 04:55:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, enough work done - back to the flamefests :)
 
---0ywUhQCikZ2Y3PNw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Sep 14, 2001 at 04:55:31PM -0500, Kevin Corry wrote:
+> I think this particular issue is being slightly mistaken. There are no
+> facilities in EVMS to "migrate" one type of volume to another type of volume.
+> For instance, if a user has an OS/2 box and uses OS/2 LVM volumes, EVMS will
+> support that format directly. However, it currently does not allow that volume
+> to be converted to, say, a Linux LVM volume. If this is the user's desire, he
+> will have to create new volumes using the Linux LVM module, and move the data
+> between the volumes. In future designs there may be support for doing this kind
+> of operation on-line, but that would be as close as we would get to doing a
+> "migration".
 
-On Wed, Sep 19, 2001 at 11:30:41PM -0400, John Clemens wrote:
-> diff -u --recursive linux-orig/arch/i386/kernel/setup.c linux/arch/i386/k=
-ernel/setup.c
-> --- linux-orig/arch/i386/kernel/setup.c	Wed Sep 19 22:49:11 2001
-> +++ linux/arch/i386/kernel/setup.c	Wed Sep 19 22:51:34 2001
-> @@ -1272,6 +1272,14 @@
->=20
->  		case 6:	/* An Athlon/Duron. We can trust the BIOS probably */
->  			mcheck_init(c);
-> +			if (c->x86_model =3D=3D 6 || c->x86_model =3D=3D 7) {
-> +			        rdmsr(MSR_K7_HWCR, l, h);
-> +				if ( (h|l) !=3D 0 ) {
-> +					printk(KERN_INFO "Palomino/Morgan: Enabling K7/SSE support (your BI=
-OS didn't..)\n");
-> +					wrmsr(MSR_K7_HWCR, 0, 0);
-> +					set_bit(X86_FEATURE_XMM, &c->x86_capability);
+That's my position as well, good.
 
-After you enabled it via HWCR, cpuid should report the SSE capability, no?
-You should check it and not unconditionally enable XMM/SSE support flag,
-otherwise it may break on some CPU models.
+> Well, I certainly find it interesting to hear you say this. This whole 
+> notion (which I have personally thought is completely rediculous from 
+> the start) was put in due to suggestions from you.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
 
---0ywUhQCikZ2Y3PNw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Noe need for FUD here.  Please recall the 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+	Subject: Re: [Evms] Questions about portability
 
-iD8DBQE7qdouxmLh6hyYd04RAhiZAJsGELULkux4febmABi9GIkDjW/iPwCfZlgS
-cK0P+vR9gjmjdQNSJTplVII=
-=85VF
------END PGP SIGNATURE-----
+thread in 01/2001, specificly my post
 
---0ywUhQCikZ2Y3PNw--
+	Message-ID: <20010111142355.A10524@caldera.de>
+
+> > I think such an patch would be accepted much more likely. You know
+> > Linus (and we all :)) likes ripping out code.
+> >
+> > If you come and say: this patch nukes all special cases for MD, LVM
+> > and partition handling, the code is now X lines less I bet he will
+> > like it.
+> 
+> We have discussed this quite a bit recently, and we seem pretty well split
+> on what we should do (as it seems you are). The crux of what we have decided
+> is that we don't want to suddenly force EVMS on all Linux users (by removing
+> the partition code, etc). Rather, we were going to put another option in the
+> EVMS configuration menu to allow removal of this code at compile time.
+
+Blarg.  All this this code is obsolete but you can force it back in stuff
+will make Linux as unmaintainable and bloated as the commercial UNICEs.
+
+If we have a nice, leight-weight abstraction there is no reason to not use
+it.  Of course your code is currently neither small nor nicely abstracted..
+
+Anyway, I will get my design for improved block device stacking and unified
+partition discovery back from the attic and implement a protopy ontop of
+the bio patchset.  I'll Cc my ennouncement to evms-devel, you're free to
+layer ontop if you want.
+
+> On a very brief check, my LVM module in the EVMS kernel code is about
+> 2800 lines, with the actual LVM kernel code taking up about 3700 lines.
+
+3700 lines of 2800?  My current CVS sais it's about 2800.
+
+> All together, drivers/md has about 12k lines and drivers/evms has about
+> 16k lines. Of course, that also includes support for the partitioning code,
+> generic snapshotting, bad-block relocation, and OS/2 and AIX compatibility.
+> However, that doesn't currently include a port of MD. But I honestly can't
+> see the core MD code being more than another few k-lines, and hopefully a
+> nearly straight port of the personality modules.
+
+Currently the md codee is about 10k LOC, that includes raid0/1/4/5, linear
+and mutlipathing and high-speed checksumming code
+
+	Christoph
+

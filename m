@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbTCINYb>; Sun, 9 Mar 2003 08:24:31 -0500
+	id <S262513AbTCIONH>; Sun, 9 Mar 2003 09:13:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262514AbTCINYb>; Sun, 9 Mar 2003 08:24:31 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13866 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262510AbTCINY0>; Sun, 9 Mar 2003 08:24:26 -0500
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@work.bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-References: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
-	<Pine.LNX.4.44.0303090504140.32518-100000@serv>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Mar 2003 06:34:30 -0700
-In-Reply-To: <Pine.LNX.4.44.0303090504140.32518-100000@serv>
-Message-ID: <m14r6ck6jd.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262514AbTCIONG>; Sun, 9 Mar 2003 09:13:06 -0500
+Received: from CPE-144-132-194-153.nsw.bigpond.net.au ([144.132.194.153]:17799
+	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
+	id <S262513AbTCIONF>; Sun, 9 Mar 2003 09:13:05 -0500
+Date: Sun, 9 Mar 2003 22:18:17 +0800
+From: Geoffrey Lee <glee@gnupilgrims.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] add missing module license to ipfwadm_core.c
+Message-ID: <20030309141817.GA8987@anakin.wychk.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> writes:
 
-> Hi,
-> 
-> On Sat, 8 Mar 2003, Linus Torvalds wrote:
-> 
-> > None of these are issues for broken systems like CVS or SVN, since they
-> > have a central repository, so there _cannot_ be multiple concurrent
-> > renames that have to be merged much later.
-> 
-> It is possible, you only have to remember that the file foo.c doesn't have 
-> to be called foo.c,v in the repository. SVN should be able to handle this, 
-> it's just lacking important merging mechanisms.
-> This is actually a key feature I want to see in a SCM system - the ability 
-> to keep multiple developments within the same repository. I want to pull 
-> other source tress into a branch and compare them with other branches and 
-> merge them into new branches.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=big5
+Content-Disposition: inline
 
-In a distributed system everything happens on a branch.
+Hi all,
 
-> > Sepoarate repostitories and SCCS file formats have nothing to do with the 
-> > real problem. Distribution is key, not the repository format.
-> 
-> I agree, what I was trying to say is that the SCCS format makes a few 
-> things more complex than they had to be.
 
-I don't know, if the problem really changes that much.  How do
-you pick a globally unique inode number for a file?  And then
-how do you reconcile this when people on 2 different branches create
-the same file and want to merge their versions together?
+Since vger seems to have eaten some mail over the weekend, I thought
+maybe I should resend this.
 
-So as a very rough approximation.
-- Distribution is the problem.
-- Powerful branching is the only thing that helps this
-- Non branch local data (labels/tags) is very difficult.
+This adds a missing module license to ipfwadm_core.c to prevent it
+from tainting the kernel when loaded in as a module.
 
-Eric
+Please apply.
+
+Thanks,
+
+	-- Geoff.
+
+-- 
+char p[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
+
+
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=big5
+Content-Disposition: attachment; filename="ifwadm_core.c.diff"
+
+--- linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c.orig	2002-03-23 17:30:07.000000000 +0800
++++ linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c	2003-03-08 14:40:01.000000000 +0800
+@@ -130,6 +130,8 @@
+ #include <linux/stat.h>
+ #include <linux/version.h>
+ 
++MODULE_LICENSE("Dual BSD/GPL");
++
+ /*
+  *	Implement IP packet firewall
+  */
+
+--2fHTh5uZTiUOsy+g--

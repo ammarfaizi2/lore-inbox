@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264114AbTEJNmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 09:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTEJNmq
+	id S264121AbTEJNqc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 09:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbTEJNqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 09:42:46 -0400
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:40597 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S264114AbTEJNmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 09:42:45 -0400
-Message-Id: <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!) 
-In-reply-to: Your message of "Sat, 10 May 2003 06:20:16 BST."
-             <20030510062015.A21408@infradead.org> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Sat, 10 May 2003 09:52:49 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	Sat, 10 May 2003 09:46:32 -0400
+Received: from dclient217-162-28-172.hispeed.ch ([217.162.28.172]:8466 "EHLO
+	homegate.delouw.ch") by vger.kernel.org with ESMTP id S264121AbTEJNqa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 09:46:30 -0400
+Message-ID: <3EBCFCDB.8030505@delouw.ch>
+Date: Sat, 10 May 2003 15:21:31 +0200
+From: Luc de Louw <luc@delouw.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: de-ch, zh, en-us, ro, eu, fr-fr, da, ru, pt, hu, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHLET] for typo in reiserfs in 2.4.21-rc2
+References: <3EBCD7F0.3040700@delouw.ch>
+In-Reply-To: <3EBCD7F0.3040700@delouw.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030510062015.A21408@infradead.org>,Christoph Hellwig writes:
->> +init_one_failure:
->> +	if (atm_dev) atm_dev_deregister(atm_dev);
->> +	if (he_dev) kfree(he_dev);
->> +	pci_disable_device(pci_dev);
->> +	return err;
->
->kfree(NULL) if perfectly fine.  Also please untangle all this if
->statements to two separate lines.
+Luc de Louw wrote:
+> Hi,
+> 
+> I found a small typo in fs/reiserfs/do_balan.c which makes in unable to 
+> compile the reiserfs module.
 
-but its ok for usb drivers?
+Please ignore the previous mail.
 
-class/usb-midi.c:       if ( u ) kfree(u);
-class/usblp.c:          if (usblp->statusbuf) kfree(usblp->statusbuf);
-class/usblp.c:          if (usblp->device_id_string) kfree(usblp->device_id_string);
-image/mdc800.c:#define try_free_mem(A)  if (A != 0) { kfree (A); A=0; }
+I obviousely had problems with my system, the IDE-driver included in the 
+SuSE kernel corrupted parts of my filesystems.
+
+After rebooting I was able to apply the patch again, and then the typo 
+was gone...
+
+Now I got a stable kernel :-)
+
+Sorry for the confusion....
+
+rgds
+
+Luc
+

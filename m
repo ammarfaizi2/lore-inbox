@@ -1,364 +1,600 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbTAIEW4>; Wed, 8 Jan 2003 23:22:56 -0500
+	id <S261529AbTAIE2V>; Wed, 8 Jan 2003 23:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbTAIEW4>; Wed, 8 Jan 2003 23:22:56 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4576
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S261568AbTAIEWv>;
-	Wed, 8 Jan 2003 23:22:51 -0500
-Date: Wed, 8 Jan 2003 20:31:19 -0800
-To: jt@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Wireless Extensions v16-3 - clean patches
-Message-ID: <20030109043119.GA13910@kanoe.ludicrus.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oXNgvKVxGWJ0RPMJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
-From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
+	id <S261581AbTAIE2V>; Wed, 8 Jan 2003 23:28:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42255 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261529AbTAIE2L>; Wed, 8 Jan 2003 23:28:11 -0500
+Date: Wed, 8 Jan 2003 20:35:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.5.55
+Message-ID: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---oXNgvKVxGWJ0RPMJ
-Content-Type: multipart/mixed; boundary="IvGM3kKqwtniy32b"
-Content-Disposition: inline
+All over the map again: arm, alpha, ppc, sparc, usb, isdn, dm, sysfs,
+knfsd - you name it. 
+
+		Linus
 
 
---IvGM3kKqwtniy32b
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Summary of changes from v2.5.54 to v2.5.55
+============================================
 
-Hi Jean,
+<adaplas@pol.net>:
+  o [AGPGART]:  early agp init fix intel_agp_init() must not be
+    declared static for explicit early initialization to work (ie
+    i810fb).
 
-I have attached two patches that allow current 2.5.54 BK and 2.4.20
-vanilla to patch cleanly from whatever WE they came with to WE16,
-=66rom your site. This is easier since the patches on your website for
-2.4.20 require two patches, and the 2.5.x one has a single reject
-that was not hard to resolve (just a few line breaks here and there
-and editing of the surrounding text confused patch.)
+<arnd@bergmann-dalldorf.de>:
+  o [NET-DV]: Add some missing statics
 
-For 2.5, the BK i diffed against was a fresh tree from today, but
-since you're the one that makes all the changes to those files
-anyway, it really doesn't matter until a new WE is pushed! And then
-this patch won't be necessary at all :)
+<craig@homerjay.homelinux.org>:
+  o Fix errors making Docbook documentation
 
-Both patches should be placed in the root of the source tree and
-applied with -p0.
+<daniel.ritz@gmx.ch>:
+  o Fix kallsyms stem compression crash
+  o Stop APM initialization race from oopsing
 
-Hope this can benefit others who would like to easily upgrade their
-WE :)
+<gerg@moreton.com.au>:
+  o remove malloc.h from 68328 serial driver
 
-Regards
-Josh
+<joe@fib011235813.fsnet.co.uk>:
+  o dm: Don't let the ioctl interface drop a suspended device
+  o dm: Correct clone info initialisation
+  o dm: Correct target_type reference counting
+  o dm: rwlock_t -> rw_semaphore (fluff)
+  o dm: Call dm_put_target_type() *after* calling the destructor
+  o dm: Remove explicit returns from void fns (fluff)
+  o dm: printk tgt->error if dm_table_add_target() fails
+  o dm: Simplify error->map
+  o dm: Export dm_table_get_mode()
+  o dm: Remove redundant error checking
+
+<john@grabjohn.com>:
+  o Fix two mis-spellings of 'kernel'
+
+<kala@pinerecords.com>:
+  o remove net config from arch-alpha
+  o remove net config from arch-arm
+  o remove net config from arch-cris
+  o remove net config from arch-ia64
+  o remove net config from arch-m68k
+  o remove net config from arch-m68k_nommu
+  o remove net config from arch-mips32
+  o remove net config from arch-mips64
+  o remove net config from arch-parisc
+  o remove net config from arch-ppc
+  o remove net config from arch-ppc64
+  o remove net config from arch-sparc32
+  o remove net config from arch-sparc64
+  o remove net config from arch-superh
+  o remove net config from arch-v850
+  o remove net config from arch-x86
+  o remove net config from arch-x86_64
+  o add proper bus dependencies to net driver configs
+  o add m68k dependencies to net driver config
+  o Add the unified NETDEVICES submenu
+  o Bring the "Networking support" menu to life
+
+<mikal@stillhq.com>:
+  o misc_register-011-002
+  o xpad_typo
+  o cli_sti_removal-002
+  o misc_register-008-004
+  o misc_register-029-004
+  o misc_register-007-005
+
+<pablo@menichini.com.ar>:
+  o Handle kmalloc fails: drivers_pci_probe.c
+  o [SPARC-ENVCTRL]: Handle failed kmalloc
+
+<valko@linux.karinthy.hu>:
+  o [SPARC64]: Translate IPT_SO_SET_REPLACE socket option for 32-bit
+    apps
+
+<wd@denx.de>:
+  o PPC32: Add support for SPI and RISC timers to the MPC8xx commproc.h
+    file.
+  o PPC32: Minor updates for a few MPC8xx platforms
+  o PPC32: Make the MPC8xx FEC driver PHY selection configurable
+  o PPC32: Add code to support the AMD AM79C874 PHY to the MPC8xx FEC
+    driver
+
+<wrlk@riede.org>:
+  o fix ide-scsi oops with abort
+
+Adrian Bunk <bunk@fs.tum.de>:
+  o remove kernel 2.0 compatibility code from i91uscsi.c
+  o Remove stale zft_dirty() caller and declaration
+  o remove code for 2.0 kernels from drivers/char/ftape/*
+
+Andi Kleen <ak@suse.de>:
+  o x86-64 updates for 2.5.54
+  o 2.5.54 AGP driver fixes for x86-64
+  o x86_64 extable fixes
+  o Fix x86-64 AGPGART/IOMMU compilation
+
+Andrew Morton <akpm@digeo.com>:
+  o hugetlbfs deadlock
+  o move LOG_BUF_SIZE to header/config
+  o devfs mount-time readdir fix and cleanup
+  o misc fixes
+  o 3c59x: 3c920 support
+  o copy_page_range: minor cleanup
+  o infrastructure for handling pte_chain_alloc() failures
+  o handle pte_chain_alloc() failures
+  o infrastructure for handling radix_tree_node allocation
+  o handle radix_tree_node allocation failures
+  o mempool_resize fix
+  o slab: redzoning cleanup
+  o shrink the amount of vmalloc space reserved for kmap
+  o Dynamically size the pidhash hash table
+  o AIO exit fix
+  o return the correct thing from direct-io
+  o AIO support for raw/O_DIRECT
+  o bio dirtying infrastructure
+  o AIO support for raw/O_DIRECT
+  o Reduced wakeup rate in direct-io code
+
+Andries E. Brouwer <andries.brouwer@cwi.nl>:
+  o scsi_scan.c
+  o htmldoc fix
+
+Anton Blanchard <anton@samba.org>:
+  o ppc64: remove yaboot hooks, we dont use them on ppc64
+  o ppc64: remove MSCHUNKS code from prom.c, its no longer used on
+    pSeries
+  o ppc64: call quiesce
+  o ppc64: quieten boot wrapper a bit
+  o ppc64: Makefile cleanup from Sam Ravnborg
+  o ppc64: remove some old xmon code
+  o ppc64: move sys32_times + sys32_newstat from Stephen Rothwell
+  o ppc64: remove some old code
+  o ppc64: remove xics_isa_init
+  o ppc64: move xics.h into include/asm-ppc64
+  o ppc64: add identifiers to asm statements, makes reading disassembly
+    slightly easier
+  o ppc64: wrap pSeries and iSeries specific code
+  o ppc64: Split up pSeries and iSeries specific files, helps with
+    bloat and TOC utilisation
+  o ppc64: Makefile cleanup from Sam Ravnborg
+  o ppc64: support for > 32 CPUs (24 way RS64 with HMT shows up as 48
+    way)
+  o ppc64: Fix for memcpy from paulus
+  o ppc64: Add readahead ioctls
+  o ppc64: restore FB ioctls
+  o ppc64: eliminate the rest of the __kernel_..._t32 typedefs from
+    Stephen Rothwell
+  o ppc64: update
+  o small module patch
+
+Benjamin Herrenschmidt <benh@kernel.crashing.org>:
+  o PPC32: Extend CPU and idle handling for new 7xx/7xxx PPC cpus
+  o PPC32: Update L2/L3 cache control register handling (from 2.4)
+
+Bjorn Helgaas <bjorn_helgaas@hp.com>:
+  o [AGP] Remove bogus AGP/DRM assumptions [Forward port of a 2.4 patch
+    that got applied last month -- DJ] 
+  o [AGP] size AGP mem correctly when memory is discontiguous
+  o 440GX AGP update
+  o i810/i830 AGP update
+
+Bob Miller <rem@osdl.org>:
+  o Remove unused function from radeon_mem.c
+  o Fixed ifdefs for a label in ncpfs_sock.c
+
+Chris Wilson <chris@qwirx.com>:
+  o misc_register sx.c version 2
+  o Kernel Janitors patch to drivers_macintosh_ans-lcd.c
+  o ip27-rtc.c create_proc_read_entry patch
+  o perf.c misc_register patch
+  o drivers_macintosh_via-pmu_.c
+  o drivers_sgi_char_streamable.c misc_register patch
+  o drivers_sgi_char_usema.c misc_register patch
+  o cli_sti in drivers_net_irda_sa1100_ir.c
+
+Christoph Hellwig <hch@infradead.org>:
+  o Fix PCMCIA SCSI driver build
+
+Dave Jones <davej@codemonkey.org.uk>:
+  o [AGP] add agp_num_entries() function to determine GATT table size -
+    reserved IOMMU entries
+  o [AGP] Move the VIA KT400 to its own driver
+  o [AGP] Add debug info to failure path of AGP 3.0 rate enabling
+  o [AGP] VIA KT400 AGP 3.0 aperture size decoding
+  o [AGP] Flesh out the VIA KT400 driver some more
+  o [AGP] VIA VT8235/P4X400 GART support (based upon 2.4 patch from
+    Richard Baverstock <beaver@gto.net>)
+  o [AGP] Clean up some comments
+  o [AGP] P4X333 uses same northbridge as P4X400 Also renumber it. (The
+    previous patch used the number of the southbridge by mistake)
+  o x86-64 RAID XOR compile fix
+  o Fix READ_CD fallback
+  o CDROM changers timeout tweak
+  o Wacky gdth driver vendor update
+  o P4 typo
+  o CREDITS updates
+  o Appletalk bits depend on ISA/EISA
+  o yenta comment typo
+  o Missed checks in hisax
+  o Make ip2 module variable dependant on CONFIG_MODULE
+  o Missing check in PCI hotplug
+  o Fix up dma_alloc_coherent with 64bit DMA masks on i386
+  o zoran ioctl sleeping fixes
+  o x86-64 pmd corruption fix
+  o size_t fixes
+  o tracer pid
+  o Correct header
+  o Remove broken prefetching in free_one_pgd()
+  o x86-64 spinlock code typo
+  o compiler warning silence
+  o EDD typo
+  o signal.h -W cleanup
+  o Remove unneeded CONFIG_X86_USE_STRING_486
+  o Remove unused proto
+
+Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
+  o JFS: In jfs_extendfs, brelse was being called with wrong bufferhead
+  o JFS: Clean up flushing outstanding transactions to journal
+  o JFS: add sync_fs super_operation
+  o JFS: define aio_read and aio_write file_operations
+
+David Jeffery <david_jeffery@adaptec.com>:
+  o ips driver 1/3: remove 2.2 kernel compat code
+  o ips driver 2/3: adapter error handling fixes
+  o ips driver 3/3: code cleanup
+
+David S. Miller <davem@nuts.ninka.net>:
+  o [AIC7xxx]: aic7xxx_osm.h needs asm/io.h, this keeps being deleted
+    by Justin :(
+  o [SPARC]: Kill ide intr lock crap from asm ide.h headers
+  o [SPARC64]: Add dummy archclean target
+  o [USB]: core/hcd.c needs dma-mapping.h
+  o [USB]: Add missing quotes in ohci debugging snprintf
+  o [SPARC64]: Only include linux/cache.h in asm/smp.h if not assembler
+  o [NFS4]: Use proper printf format for size_t
+  o [SPARC64]: Add dummy archmrproper rule
+  o [SPARC64]: Fix aic7xxx kconfig path
+  o [SPARC]: sbus.c ifdeffing cleanup
+  o [SPARC64]: flock compat changes
+  o kernel/pid.c: Use proper size_t printf format string
+  o [SPARC64]: Fix typos in Rustys extable changes
+  o [SUNRPC]: svcauth.h needs linux/string.h
+  o [CRC32]: Fix pointer casts on 64-bit
+  o [SUNGEM]: Add warning to ppc code wrt. MAX_ADDR_LEN change
+  o [NET]: Remove dup wireless.h include in socket.c
+
+Dipankar Sarma <dipankar@in.ibm.com>:
+  o [IPV4]: barriers in lockfree rtcache
+
+Dominik Brodowski <linux@brodo.de>:
+  o cpufreq: p4-clockmod bugfixes
+  o cpufreq: elanfreq cleanup and compile fix
+  o cpufreq: update timer notifier
+
+Geert Uytterhoeven <geert@linux-m68k.org>:
+  o Remove unused prototype for init_modules()
+
+Gerd Knorr <kraxel@bytesex.org>:
+  o add tda9887 module
+  o video-buf.c update
+  o add v4l1-compat module
+  o bttv driver update
+  o update bttv documentation
+  o add bt832 module
+  o media/video i2c updates
+  o i2c update for tuner.c
+  o saa7134 driver update
+
+Greg Kroah-Hartman <greg@kroah.com>:
+  o IBM PCI Hotplug: fix compile time error due to find_bus() function
+    name
+  o PCI: properly unregister a PCI device if it is removed
+  o PCI hotplug: clean up the try_module_get() logic a bit
+
+Hideaki Yoshifuji <yoshfuji@linux-ipv6.org>:
+  o [IPV6]: Fix Length of Authentication Extension Header
+
+Hugh Dickins <hugh@veritas.com>:
+  o I/O APIC confusion
+  o demystify do_boot_cpu stack
+
+James Bottomley <jejb@raven.il.steeleye.com>:
+  o parisc update for 53c700/lasi700
+  o shuffle sr_ioctl include ordering for parisc
+  o update ncr53c8xx to new dma_ API (needed to incorporate zalon)
+
+James Morris <jmorris@intercode.com.au>:
+  o [SUNSAB]: Bug fixes for new sunsab uart driver
+
+Jeff Garzik <jgarzik@redhat.com>:
+  o [netdrvr mii] fix ugly lack of useful bit masking
+  o [netdrvr] add AMD-8111 ethernet driver (yet another PCI lance)
+  o [netdrvr eepro100] new pci id
+  o [netdrvr de4x5] fix uninitializer timer
+  o [netdrver e1000] wol updates
+  o [netdrvr e1000] restore VLAN settings after resume
+  o [netdrvr e1000] small cleanups and fixes
+  o [netdrvr e100] Bug fix: system panic in watchdog when repeating
+    ifdown, rmmod, insmod
+  o [netdrvr e100] Bug fix: enable/disable WOL based on EEPROM settings
+  o [netdrvr e100] fix ethtool/mii interface up/down issues
+  o [IrDA] s/MOD_foo_COUNT/SET_MODULE_OWNER/ cleanups
+  o [netdrvr] ethernet crc fixes
+  o [netdrvr e100] better debugging for command failures/timeouts
+  o [netdrvr e100] changelog/whitespace updates, small fixes
+  o [netdrvr amd8111e] add to drivers/net/Makefile.lib too, as it uses
+    crc32
+
+Justin T. Gibbs <gibbs@overdrive.btc.adaptec.com>:
+  o Update the aic7xxx Makefile so that the register information tables
+    are not rebuilt on every build.
+  o aic7xxx/aicasm
+  o aic7xxx and aic79xx drivers Correct several DV issues
+  o aic7xxx and aic79xx driver updates
+
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
+  o ISDN/HiSax: Fix compilation for !CONFIG_ISAPNP
+  o ISDN/HiSax: Remove unused B-Channel callbacks
+  o ISDN/HiSax: un-virtualize W6692 B-Channel access
+  o ISDN/HiSax: Helper functions for B-Channel {read,write}_reg()
+  o ISDN/HiSax: Move BC_{Read,Write}_Reg into struct bc_hw_ops
+  o ISDN/HiSax: Un-virtualize D-channel access in hfc_2bds0.c
+  o ISDN/HiSax: Un-virtualize D-channel access in w6692.c
+  o ISDN/HiSax: Helper functions for D-Channel {read,write}_reg() etc
+  o ISDN/HiSax: Move isac{read,write}{,fifo} into struct dc_hw_ops
+  o ISDN/HiSax: Simplify readreg()/writereg() use
+  o ISDN/HiSax: Use u8 instead of u_char
+  o ISDN/HiSax: Renaming ReadISAC -> isac_read etc
+  o ISDN/HiSax: Add B-Channel FIFO ops
+  o ISDN/HiSax: Use {isac,hscx}_{read,write} and friends
+  o ISDN/HiSax: Un-inline hscx_irq.c
+  o ISDN/HiSax: Un-inline jade_irq.c
+  o ISDN/HiSax: Remove unnecessary locking
+  o ISDN/HiSax: "ops" structure for the shared xmit handling
+
+Linus Torvalds <torvalds@home.transmeta.com>:
+  o Fix befs/romfs breakage from vfs.h cleanups by Christoph
+  o Needs <linux/string.h> for strlen()
+  o Move x86 signal handler return stub to the vsyscall page, and stop
+    honoring the SA_RESTORER information.
+  o Make vm86 traps correctly distinguish between vm86 and kernel mode
+
+Luca Barbieri <ldb@ldb.ods.org>:
+  o Fix sysenter iopl
+  o Fix sysenter (%ebp) fault handling
+  o Introduce TIF_IRET and use it to disable sysexit
+
+Martin J. Bligh <mbligh@aracnet.com>:
+  o create generalised apic_to_node mapping
+  o make i386 topology caching
+  o changes do_boot_cpu to return an error code
+  o move one more to subarch, general tidy up
+  o cleanup apicid <-> cpu mapping
+  o remove clustered_apic_mode from smpboot.c
+  o nuke clustered_apic_mode and friends
+
+Martin Mares <mj@ucw.cz>:
+  o PCI IDs update
+
+Mikael Pettersson <mikpe@csd.uu.se>:
+  o fix ide-cd/ide-scsi oopses after module unload
+
+Neil Brown <neilb@cse.unsw.edu.au>:
+  o knfsd: Avoid opps when NFSD decodes bad filehandle
+  o knfsd: Fix bug in RPC cache when entry in replaced
+  o knfsd: Fix some bugs in qword management
+  o knfsd: Handle -EAGAIN from exp_find properly in nfsfh.c
+  o knfsd: Don't assume a reader on an RPC cache channel at statup
+  o knfsd: rpc/svc auth_unix tidyup
+  o knfsd: Allow rpcsvc caches to provide a 'cache_show' method
+  o knfsd: Provide content file for auth.unix.ip cache
+  o knfsd: Provide 'flush' interface for userspace to flush rpc/svc
+    caches
+  o knfsd: Fixes for nfsd filesystem files
+  o knfsd: Change names of legacy interfaces in nfsd filesys to start
+    with period
+  o knfsd: Add 'filehandle' entry for nfsd filesystem for looking up a
+    filehandle
+  o knfsd: Add 'threads' file to nfsd filesystem to allow changing
+    number of threads
+  o knfsd: Use hash_long from hash.h for hashing in rpc/svc caches
+  o knfsd: NFSv4 server fixes
+  o md: Make sure yielding thread actually yields cpu when waiting for
+    turn at reconstruct
+  o md: Make MD device-is-idle test check whole device, not partition
+  o md: Record location of incomplete resync at shutdown and restart
+    from there
+
+Patrick Mochel <mochel@osdl.org>:
+  o kobjects: minor updates
+  o fs/partitions/check.c - minor updates
+  o driver model: eliminate struct device_driver::bus_list
+  o driver model: get correct pointer of interfaces from data
+  o Deprecate /proc/pci
+  o kobject.h - add check that we're being included by other kernel
+    entities
+  o kobject: Introduce struct kobj_type
+  o driver model: clean up struct bus_type a bit
+  o driver model: clean up struct device_class a bit
+  o Introduce struct kset
+  o kobjects: Remove kobject::subsys and subsystem::kobj
+  o edd: fix up for changes in kobject infrastructure
+  o acpi: use decl_subsys() macro
+  o remove kernel/platform.c
+  o block devices: use list and lock in block_subsys, instead of those
+    defined in genhd.c
+  o net devices: Get network devices to show up in sysfs
+  o bus drivers: fix leaking refcounts
+  o driver model: allow manual binding of devices to drivers
+  o add kset_find_obj() to search for object in a kset's list
+  o Implement find_bus() for finding a struct bus_type by name
+  o Update kobject documentation
+
+Paul Mackerras <paulus@samba.org>:
+  o PPC32: Update the support for the IBM 40x embedded PowerPC chips
+    and boards
+  o PPC32: Fix so that we don't use the 6xx-specific idle code on
+    POWER3
+  o PPC32: remove support for IBM iSeries machines
+  o PPC32: create arch/ppc/platforms/4xx/Kconfig and move the config
+  o PPC32: Fix an oops that could happen if ptrace caused a page fault
+  o PPC32: Misc. updates to arch/ppc/Kconfig
+  o PPC32: Makefile and other fixes for the boot wrappers
+  o PPC32: Use non-pinned large-page TLB entries for kernel RAM mapping
+  o PPC32: adapt platform code to changes in i8259 PIC code
+  o PPC32: Use C99 initializer syntax in INIT_THREAD
+  o PPC32: move some declarations from asm/pci-bridge.h to asm/prom.h
+  o PPC32: Move IRQ sense/polarity definitions from open_pic.h to irq.h
+  o PPC32: use CONFIG_FRAMEBUFFER_CONSOLE for logo rather than
+    CONFIG_FB
+  o PPC32: Move files for the "oak" 403-based platform in with the
+  o PPC32: Update the defconfigs
+  o PPC32: remove execute permission from some ppc source files
+  o PPC32: Add support for the IBM405LP-based "Beech" board
+  o PPC32: Add support for the "Redwood-6" STB03xxx-based eval board
+  o PPC32: Add support for new IBM embedded PPC cpus
+
+Pete Zaitcev <zaitcev@redhat.com>:
+  o [SPARC]: Add Ravnborg Makefile cleanups
+  o [SPARC]: Include file cleanups, fixes restart_block compile
+  o [SPARC]: Build problem in ksyms
+  o [SPARC]: Eric Browers sbus interrupts decoders
+
+Ravikiran G. Thirumalai <kiran@in.ibm.com>:
+  o [NET]: Convert sockets_in_use to use per_cpu areas
+  o [IPV4]: Convert mibstats to use kmalloc_percpu
+  o [IPV6]: Convert mibstats to use kmalloc_percpu
+  o [SCTP]: Convert mibstats to use kmalloc_percpu
+  o [IPV4]: Convert rt_cache_state to use kmalloc_percpu
+
+Ray Lee <ray-lk@madrabbit.org>:
+  o Re: unix_getname buglet - > 2.5.4(?)
+
+Richard Henderson <rth@twiddle.net>:
+  o [ALPHA] ET_REL modules support
+  o [ALPHA] Export scr_memcpyw for modular fbcon
+  o [TGAFB] Implement the fb_fillrect hook
+  o [TGAFB] Implement the fb_copyarea hook
+  o [MODULES] Fix compiler warning wrt try_module_get when modules are
+    disabled.
+  o [FB] Re-add fb_readq for non-sparc
+  o [ALPHA] Distribute the irq and extra device init routines in
+    arch/alpha/kernel/ to the config options that need them.  Fix a few
+    build problems for XLT and RX164.
+  o [ALPHA] Makefile cleanup from Sam Ravnborg <sam@ravnborg.org>
+  o [ALPHA] Corrections to last makefile patch
+  o [ALPHA] Update for generic exception table cleanup
+  o [ALPHA] Adjust signature of module_frob_arch_sections
+  o fix alpha boot oops
+
+Richard Hirst <rhirst@linuxcare.com>:
+  o Add parisc Zalon SCSI card
+
+Rob Radez <rob@osinvestor.com>:
+  o [SPARC]: Add param section to linker script
+
+Robert Love <rml@tech9.net>:
+  o remove wavelan_cs warning
+
+Roland Dreier <roland@topspin.com>:
+  o [NET]: Increase MAX_ADDR_LEN
+
+Russell King <rmk@flint.arm.linux.org.uk>:
+  o [ARM] Fix up location of Acorn font file
+  o [ARM] Fix child-structure named initialisers
+  o [ARM] Semaphore functions need to be memory barriers
+  o [ARM] Add restart block infrastructure
+  o [ARM] Add __param section for kernel/module parameters
+  o [ARM] Fix up {__,}put_user macros
+  o [ARM] Allow arch/arm/kernel/asm-offsets.s to be regenerated
+  o [ARM] Convert semaphore initialisers to C99 syntax
+  o [ARM] IOP310 build fixes
+  o [ARM] Allow arch/arm/kernel/bios32.c to build for iop310
+  o [ARM] Make jornada720 build again
+  o [ARM] Minor fixes to drivers/pcmcia/sa1111_generic.c
+  o [ARM] Fix ups for ARM generic dma mapping interface
+  o [ARM] Sanitise sa1111 and neponset device driver names
+  o [ARM] Update mach-types
+  o [ARM] Add basic support for enable/disable_irq_wake
+  o [ARM] Add support for IRQ-based wakeup for SA11x0 CPUs
+  o [ARM] Add IRQ wake support for SA1111 PS/2 interfaces
+
+Rusty Russell <rusty@rustcorp.com.au>:
+  o Modules: fix plt sections
+  o Use sh_entsize for ELF section offsets
+  o MODULE_LICENSE and EXPORT_SYMBOL_GPL support
+  o Exception table cleanup
+  o /proc/modules change
+  o Fix BUG() decl warning in smp.h for UP
+  o Update MAINTAINERS for modules
+  o "constfrobbing considered harmful"
+  o Remove mod_bound macro and unify kernel_text_address()
+
+Stephen Rothwell <sfr@canb.auug.org.au>:
+  o x86 savesegment() cleanup
+  o better compat_jiffies_to_clock_t
+  o compat_flock: generic
+  o compat_flock: ppc64
+  o compat_flock: x86_64
+  o compat_flock: ia64
+  o compat_flock: s390x
+  o [SPARC64]: Kill __kernel 32-bit compat types, use compat_foo
+    instead
+  o {get,put}_compat_timspec: generic
+  o {get,put}_compat_timspec: s390x
+
+Thibaut Varene <varenet@parisc-linux.org>:
+  o linux-2.5.46: Remove unused static variable
+
+Thomas Sailer <sailer@scs.ch>:
+  o 2.5.54: fix oopsable bug in OSS PCI sound drivers
+
+Tom Callaway <tcallawa@redhat.com>:
+  o [SUNLANCE]: Add missing asm/machine.h include for sun4 builds
+
+Tom Rini <trini@kernel.crashing.org>:
+  o PPC32: Cleanup the questions under CONFIG_ADVANCED_OPTIONS
+  o PPC32: Fix a delay which could occur when booting on machines
+    without an RTC.
+  o PPC32: Add explicit parens to the _ALIGN macro
+  o PPC32: Fix some 'prep' machines which are not true PRePs, and can
+    safely poll for interrupts on the i8259.
+  o PPC32: Fix a problem in the bootloader/wrapper where we might
+  o PPC32: Remove extra __KERNEL__ checks in some headers, as well as
+    adding /* __KERNEL__ */ to the #endif of others.
+
+Tomas Szepe <szepe@pinerecords.com>:
+  o unify netdev config follow-up
+  o [NET]: Protect secpath references in skbuff.c with CONFIG_INET
+
+Trond Myklebust <trond.myklebust@fys.uio.no>:
+  o Fix NFS 'off by one' bug
+  o allow arbitrary alignment of NFS read/write requests
+  o Cleanup for SunRPC auth code
+
+William Stinson <wstinson@wanadoo.fr>:
+  o remove check_region in drivers_isdn_hisax_mic.c
+  o remove check_region from drivers_isdn_hisax_sedlbauer.c
+  o remove check_region calls from drivers_telephony_ixj.c
+  o remove check_region from drivers_isdn_hisax_asuscom.c
+  o remove check_region from drivers_isdn_hisax_enternow_pci.c
+  o remove check_region from drivers_isdn_hisax_teles0.c
+  o remove check_region from drivers_isdn_hisax_w6692.c
+  o remove check_region from isdn_hisax_s0box.c
+  o remove check_region from fdc-io.c version 2
+  o remove check_region from drivers_isdn_hisax_avm_pci.c
+  o remove check_region from drivers_isdn_hisax_bkm_a8.c
+  o remove check_region from sportster.c
+  o remove check_region from nj_u.c
+  o remove check_region from Documentation_DocBook_videobook.tmpl
+  o remove check_region from saphir.c
+  o [SPARC-BPP]: remove check_region
 
 
-
---IvGM3kKqwtniy32b
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="we14_2.4.20-we16.patch.bz2"
-Content-Transfer-Encoding: base64
-
-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
-
---IvGM3kKqwtniy32b
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="we15_2.5.54bk-we16.patch.bz2"
-Content-Transfer-Encoding: base64
-
-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
-Eh/nI5IA
-
---IvGM3kKqwtniy32b--
-
---oXNgvKVxGWJ0RPMJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+HPsX6TRUxq22Mx4RAjIdAKCqwv/IBm0JuTQzM5xv61Rk9AuDwQCgiZOT
-2Jxd6G+dwG8/ZuhxAn6fJtc=
-=hGg6
------END PGP SIGNATURE-----
-
---oXNgvKVxGWJ0RPMJ--

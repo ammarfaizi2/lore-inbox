@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVAAR2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVAASlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVAAR2l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 12:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVAAR2l
+	id S261161AbVAASlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 13:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVAASlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 12:28:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45837 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261160AbVAAR2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 12:28:34 -0500
-Date: Sat, 1 Jan 2005 18:28:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove obsolete Computone MAINTAINERS entry (fwd)
-Message-ID: <20050101172832.GB14319@stusta.de>
-References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org> <20041220191530.GA25986@alcove.wittsend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041220191530.GA25986@alcove.wittsend.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 1 Jan 2005 13:41:10 -0500
+Received: from rekin12.go2.pl ([193.17.41.32]:3023 "EHLO rekin12.go2.pl")
+	by vger.kernel.org with ESMTP id S261161AbVAASlG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 13:41:06 -0500
+From: =?iso-8859-2?Q?Fryderyk_Mazurek?= <dedyk@go2.pl>
+To: =?iso-8859-2?Q?Bill_Davidsen?= <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, gustavo@compunauta.com
+Subject: =?iso-8859-2?Q?Re:_Problems_with_2.6.10?=
+Date: Sat,  1 Jan 2005 19:41:04 +0100
+Content-Type: text/plain; charset="iso-8859-2";
+Content-Transfer-Encoding: 8bit
+X-Mailer: o2.pl WebMail v5.27
+X-Originator: 83.31.152.34
+In-Reply-To: <41D5FB14.8090704@tmr.com>
+References: <41D3646A.9020806@tmr.com><20041228145600.6A9FC193D36@r10.go2.pl> <20041230164546.987845674D@rekin12.go2.pl> 
+	<41D5FB14.8090704@tmr.com>
+Message-Id: <20050101184104.D672F56721@rekin12.go2.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 02:15:30PM -0500, Michael H. Warfield wrote:
-> On Fri, Nov 19, 2004 at 07:47:35PM -0800, Andrew Morton wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > > I'm not sure whether it makes sense to list the previous maintainers for 
-> > >  orphaned code, but if such entries contain buouncing mail addresses it's 
-> > >  IMHO time to simply remove them.
-> > > 
-> > > ...
-> > >  -M:	Michael H. Warfield <mhw@wittsend.com>
-> 
-> > wittsend.com is still there and Michael still runs it.
-> 
-> 	Yeah, I'm still here.  I've just been out of town almost one
-> week out of every two since June, so I'm more than a little behind on
-> catching up on the kernel stuff (yes and the Samba stuff as well,
-> I know, I know, sigh...).
->...
+Hello!
 
-At least the mailing list is definitely dead:
+At last I fixed my problem! I changed source to not enable "Host
+Protected Area". This means that on 2.6.10 I have 33,8GB disk, not
+40GB, how on "true" 2.6.10. And now my BIOS detect my disk. But
+question is, what does "true" kernel do, and why influence to BIOS?
+Maybe this is kernel BUG?
+Here is my diff's file. Maybe my patch is primitive, but it works.
+Maybe somebody will do better patch.
 
-<linux-computone@lazuli.wittsend.com>:
-Sorry, I wasn't able to establish an SMTP connection. (#4.4.1)
-I'm not going to try again; this message has been in the queue too long.
+My patch:
+--- ./ide-disk-copy.c	2004-12-24 22:34:32.000000000 +0100
++++ ./ide-disk.c	2005-01-01 18:07:33.000000000 +0100
+@@ -642,7 +642,9 @@
+ 			 drive->name,
+ 			 capacity, sectors_to_MB(capacity),
+ 			 set_max, sectors_to_MB(set_max));
+-
++	
++	return;
++	
+ 	if (lba48)
+ 		set_max = idedisk_set_max_address_ext(drive, set_max);
+ 	else
 
-> 	I've got two patches in my queue for the Computone drivers for
-> 2.6 plus three patches that apply to both the 2.4 and 2.6 kernels.  I've
-> got to check to see if Marcelo got around to integrating those patches
-> into 2.4 and then jump onto the combined patches.
-> 
-> 	As Shrek said...  (You didn't slay the dragon?) - "It's on my
-> todo list".
 
-It seems you are still active :-) , so why is it "Orphaned"?
+I want to thank all who helped me and I wish a Happy New Year!
 
-> 	Mike
+Fryderyk.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

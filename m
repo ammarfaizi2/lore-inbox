@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265366AbSJRWkE>; Fri, 18 Oct 2002 18:40:04 -0400
+	id <S265368AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbSJRWkE>; Fri, 18 Oct 2002 18:40:04 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:55033 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S265366AbSJRWkD>; Fri, 18 Oct 2002 18:40:03 -0400
-Date: Fri, 18 Oct 2002 15:36:50 -0700
-From: Chris Wright <chris@wirex.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018153650.G26442@figure1.int.wirex.com>
-Mail-Followup-To: Stephen Smalley <sds@tislabs.com>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20021018173339.A7481@infradead.org> <Pine.GSO.4.33.0210181239310.9847-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.33.0210181239310.9847-100000@raven>; from sds@tislabs.com on Fri, Oct 18, 2002 at 01:15:04PM -0400
+	id <S265376AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36616 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265368AbSJRWnC>; Fri, 18 Oct 2002 18:43:02 -0400
+Date: Fri, 18 Oct 2002 15:51:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Hanna Linder <hannal@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: [PATCH] sys_epoll system call interface to /dev/epoll
+In-Reply-To: <Pine.LNX.4.44.0210181538100.1537-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0210181542140.1202-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@tislabs.com) wrote:
-> 
-> On Fri, 18 Oct 2002, Christoph Hellwig wrote:
-> 
-> > It adds infrastructure to implement syscalls without peer review.
-> > And then it ends being crap like the selinux syscalls.
-> 
-> Yes, I think you've made your point.  Go ahead, remove sys_security.
 
-Looks like we should remove this.  The interface is awkward, and there
-are many examples of how it's not needed and is broken by design.  I know
-SubDomain can get by without it.
+On Fri, 18 Oct 2002, Davide Libenzi wrote:
+> 
+> Linus, yesterday I was sugesting Hanna to use most of the existing code
+> and to make :
+> 
+> int sys_epoll_create(int maxfds);
+> 
+> to actually return an fd. Basically during this function call the code
+> allocates a file*, initialize it, allocates a free fd, maps the file* to
+> the fd, creates the vma* for the shared events area between the kernel and
+> user space, maps allocated kernel pages to the vma*, install the vma* and
+> returns the fd.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+But that's what her patch infrastructure seems to do. It's not just
+epoll_create(), it's all the other ioctl's too (unlink, remove etc). One
+queston is whether there is one epoll system call (that multiplexes, like
+in Hanna's patch) or many. I personally don't like multiplexing system
+calls - the system call number _is_ a multiplexor, I don't see the point 
+of having multiple levels.
+
+		Linus
+

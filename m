@@ -1,41 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263476AbSIQCHX>; Mon, 16 Sep 2002 22:07:23 -0400
+	id <S263461AbSIQCGn>; Mon, 16 Sep 2002 22:06:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263495AbSIQCHW>; Mon, 16 Sep 2002 22:07:22 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:20469 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S263476AbSIQCHV>; Mon, 16 Sep 2002 22:07:21 -0400
-Date: Mon, 16 Sep 2002 22:12:19 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: linux-aio@kvack.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: libaio 0.3.92 test release
-Message-ID: <20020916221219.A22465@redhat.com>
+	id <S263476AbSIQCGm>; Mon, 16 Sep 2002 22:06:42 -0400
+Received: from mnh-1-04.mv.com ([207.22.10.36]:9734 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S263461AbSIQCGm>;
+	Mon, 16 Sep 2002 22:06:42 -0400
+Message-Id: <200209170315.WAA04676@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: user-mode port 0.59-2.4.19-5
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Mon, 16 Sep 2002 22:15:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+This is the first major release of the 2.4.19 UML.
 
-I've just uploaded the libaio 0.3.92 test release to kernel.org.  Most 
-notably, this release passes a few basic tests on ia64, and should work 
-on x86-64 too (but isn't tested).  An updated kernel patch can be found
-in /pub/linux/kernel/people/bcrl/aio/patches/testing/aio-20020916.diff 
-which uses the registered syscall ABI (no more dynamic syscalls), fixes 
-a bug in io_submit that allowed iocbs to be read from kernel memory 
-(that bug is not present in RH 2.1AS; the fix was lost in the 2.4.18 
-merge), fixes an occasional hang caused by timers not being unregistered 
-in io_getevents, and probably introduces a few other bugs.  This is a 
-test release as I still have to split up the patches into -stable, 
--alpha and -developement to prevent people from shipping experimental 
-code that was never meant to be used on production machines.  In any 
-case, if people could give this a whirl and submit reports to 
-linux-aio@kvack.org, it would be appreciated.  My hit list still 
-includes getting ARM, PPC, S/390, SPARC and m68k support merged into 
-libaio, so if anyone cares to provide patches, I'd appreciate it.  Cheers,
+The major kernel changes since the last 2.4.18 UML include -
 
-		-ben
+	A number of honeypot and jail mode bugs and crashes were fixed.
+
+	Many build cleanups and fixes.
+
+	Many new exported symbols.
+
+	Added a new filesystem - hppfs (honeypot procfs), which allows UML 
+/proc entries to be arbitrarily modified from the host
+
+	Fixed a number of crashes and one data corruption bug.
+
+	Much code cleanup, including starting to define a host OS interface, 
+so that UML can become portable between OSes.
+
+	Many configuration cleanups, including splitting the large config.in 
+into smaller, more manageable config.ins.
+
+	Added /proc/mconsole, which allows UML processes to send mconsole 
+notifications to mconsole clients on the host.
+
+	SCSI is now available.  Currently, the only low-level driver is 
+scsi_debug, which runs a SCSI ramdisk in 8M (by default) of kernel memory.
+
+	eth devices inside UML are now guaranteed to get the same names as
+were specified on the command line.
+
+	Fixed a number of block driver bugs, and cleaned it up some.
+
+	Helpers are now killed when UML exits, so host ports are released
+and telnet sessions ended cleanly.
+
+	The terminal emulator that UML uses is now configurable.
+
+	Fixed a number of gdb support bugs.
+
+The major utilities changes include -
+
+	uml_moo now sparses its output files.  It also has a destructive
+merge option and handles large COW files correctly.
+
+	Several tunctl bugs were fixed and some cleanups done.
+
+	There is now a jail kit, which contains everything needed to set up
+a chroot and run a UML confined to it.
+
+	There is also the host side of hppfs, including a small demo driver.
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+Other links of interest:
+
+	The UML project home page : http://user-mode-linux.sourceforge.net
+	The UML Community site : http://usermodelinux.org
+
+				Jeff
+

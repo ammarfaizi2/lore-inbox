@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271838AbRHUTHU>; Tue, 21 Aug 2001 15:07:20 -0400
+	id <S271831AbRHUTHk>; Tue, 21 Aug 2001 15:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271836AbRHUTHM>; Tue, 21 Aug 2001 15:07:12 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:1257 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S271826AbRHUTG4>; Tue, 21 Aug 2001 15:06:56 -0400
-Message-ID: <3B82B136.1010904@korseby.net>
-Date: Tue, 21 Aug 2001 21:06:30 +0200
-From: Kristian <kristian@korseby.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: de, en
+	id <S271830AbRHUTHa>; Tue, 21 Aug 2001 15:07:30 -0400
+Received: from post-10.mail.nl.demon.net ([194.159.73.20]:9969 "EHLO
+	post.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id <S271831AbRHUTHT>; Tue, 21 Aug 2001 15:07:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Jan <fugitive@fugitive.demon.nl>
+Reply-To: fugitive@fugitive.demon.nl
+Organization: Linux
+To: linux-kernel@vger.kernel.org
+Subject: bug...fatal error
+Date: Tue, 21 Aug 2001 21:10:24 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: cwidmer@iiic.ethz.ch, linux-kernel@vger.kernel.org
-Subject: Re: massive filesystem corruption with 2.4.9
-In-Reply-To: <E15ZEJM-0008Di-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Message-Id: <01082121102400.01862@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Does memtest86 show up anything on this box ?
+When using "tiny" for taskbar, and auto-hide, selecting/klicking the enlarged 
+first (K) (KDE) icon, after the taskbar goes to (auto)hide, i get a fatal 
+error (black screen,bombs at the bottom) I use Red-Hat 7.1 (no updates).
+typing root password in req.box, brings me back.
+-- 
 
-No errors...
+Eric Jan.
 
-Btw: As far as I know did the problem occur since I patched 2.4.5 with ac13 or 
-ac15. Maybe a clean 2.4.5 works fine. I'm not sure about this. It's some time 
-ago... Did you have made some important ext2-related changes with 2.4.5-ac?. I 
-could revert to the old kernel and test him if it is relevant.
-
-Kristian
-
-·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
-                          :: http://www.korseby.net
-                          :: http://www.tomlab.de
-kristian@korseby.net ....::
-
+(using RH7.1)

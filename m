@@ -1,244 +1,250 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUBZXRd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbUBZXQw
+	id S261295AbUBZXX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:16:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2692 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261231AbUBZXP7
+	Thu, 26 Feb 2004 18:23:11 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59121 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261253AbUBZXTv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:15:59 -0500
-Date: Thu, 26 Feb 2004 23:15:50 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Go Taniguchi <go@turbolinux.co.jp>, willy@debian.org,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
-Message-ID: <20040226231550.GY25779@parcelfarce.linux.theplanet.co.uk>
-References: <20040222172200.1d6bdfae.akpm@osdl.org> <1077668801.2857.63.camel@cog.beaverton.ibm.com> <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp> <1077830762.2857.164.camel@cog.beaverton.ibm.com> <1077836576.2857.168.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077836576.2857.168.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Feb 2004 18:19:51 -0500
+Message-ID: <403E7F0C.6000009@mvista.com>
+Date: Thu, 26 Feb 2004 15:19:40 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <200402261300.34911.amitkale@emsyssoft.com>
+In-Reply-To: <200402261300.34911.amitkale@emsyssoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 03:02:56PM -0800, john stultz wrote:
-> On Thu, 2004-02-26 at 13:26, john stultz wrote:
-> > On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
-> > > Hi,
-> > > 
-> > > Andrew Morton wrote:
-> > > > john stultz <johnstul@us.ibm.com> wrote:
-> > > >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
-> > > >>there as well. 
-> > > 
-> > > Problem patch is expanded-pci-config-space.patch.
-> > > x440 can not enable acpi by dmi_scan.
-> > > expanded-pci-config-space.patch need acpi support.
-> > > So, kernel can not get x440's xAPIC interrupt.
-> > 
-> > Wow, thanks for that analysis Go! I'll test it here to confirm. 
+Amit S. Kale wrote:
+> On Thursday 26 Feb 2004 3:13 am, Tom Rini wrote:
 > 
-> Yep, I've confirmed that backing out the expanded-pci-config-space patch
-> solves it. Thanks again, Go, for hunting that down! 
+>>The following adds, and then makes use of kgdb_process_breakpoint /
+>>kgdb_schedule_breakpoint.  Using it i kgdb_8250.c isn't strictly needed,
+>>but it isn't wrong either.
 > 
-> Matthew, any ideas why the patch fails if the system has an ACPI
-> blacklist entry?
+> 
+> That makes 8250 response it a _bit_ slower. A user will notice when kgdb 
+> doesn't respond within a millisecond of pressing Ctrl+C :-)
 
-Hrm.  I was just asked to break out some of the ACPI code rearrangement
-from the rest of the patch.  Can you try this patch instead of the
-expanded-pci-config-space.patch and tell me whether it continues to fail
-for you?
+Hm...  I have been wondering if it might not be a good idea to put some comments 
+to the user at or around the breakpoint.  Possibly we might want to tell the 
+user about where the info files are or some such.  This would then come up on 
+his screen when the source code at the breakpoint is displayed.
 
-I don't understand why it should make a difference though.  It looks
-to me like the current code will also fail to call the HPET code if the
-bios is blacklisted.
+comments...
 
-Index: arch/i386/kernel/acpi/boot.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/arch/i386/kernel/acpi/boot.c,v
-retrieving revision 1.10
-diff -u -p -r1.10 boot.c
---- a/arch/i386/kernel/acpi/boot.c	17 Feb 2004 12:51:46 -0000	1.10
-+++ b/arch/i386/kernel/acpi/boot.c	26 Feb 2004 16:34:12 -0000
-@@ -398,55 +398,10 @@ acpi_find_rsdp (void)
- 	return rsdp_phys;
- }
- 
--/*
-- * acpi_boot_init()
-- *  called from setup_arch(), always.
-- *	1. maps ACPI tables for later use
-- *	2. enumerates lapics
-- *	3. enumerates io-apics
-- *
-- * side effects:
-- *	acpi_lapic = 1 if LAPIC found
-- *	acpi_ioapic = 1 if IOAPIC found
-- *	if (acpi_lapic && acpi_ioapic) smp_found_config = 1;
-- *	if acpi_blacklisted() acpi_disabled = 1;
-- *	acpi_irq_model=...
-- *	...
-- *
-- * return value: (currently ignored)
-- *	0: success
-- *	!0: failure
-- */
- 
--int __init
--acpi_boot_init (void)
-+static int acpi_apic_setup(void)
- {
--	int			result = 0;
--
--	if (acpi_disabled && !acpi_ht)
--		 return 1;
--
--	/*
--	 * The default interrupt routing model is PIC (8259).  This gets
--	 * overriden if IOAPICs are enumerated (below).
--	 */
--	acpi_irq_model = ACPI_IRQ_MODEL_PIC;
--
--	/* 
--	 * Initialize the ACPI boot-time table parser.
--	 */
--	result = acpi_table_init();
--	if (result) {
--		acpi_disabled = 1;
--		return result;
--	}
--
--	result = acpi_blacklisted();
--	if (result) {
--		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
--		acpi_disabled = 1;
--		return result;
--	}
-+	int result;
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- 
-@@ -506,24 +461,17 @@ acpi_boot_init (void)
- 
- 	acpi_lapic = 1;
- 
--#endif /*CONFIG_X86_LOCAL_APIC*/
-+#endif /* CONFIG_X86_LOCAL_APIC */
- 
- #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
- 
- 	/* 
- 	 * I/O APIC 
--	 * --------
- 	 */
- 
--	/*
--	 * ACPI interpreter is required to complete interrupt setup,
--	 * so if it is off, don't enumerate the io-apics with ACPI.
--	 * If MPS is present, it will handle them,
--	 * otherwise the system will stay in PIC mode
--	 */
--	if (acpi_disabled || acpi_noirq) {
-+	if (acpi_noirq) {
- 		return 1;
--        }
-+	}
- 
- 	/*
-  	 * if "noapic" boot option, don't look for IO-APICs
-@@ -538,8 +486,7 @@ acpi_boot_init (void)
- 	if (!result) {
- 		printk(KERN_ERR PREFIX "No IOAPIC entries present\n");
- 		return -ENODEV;
--	}
--	else if (result < 0) {
-+	} else if (result < 0) {
- 		printk(KERN_ERR PREFIX "Error parsing IOAPIC entry\n");
- 		return result;
- 	}
-@@ -576,9 +523,71 @@ acpi_boot_init (void)
- 	}
- #endif
- 
-+	return 0;
-+}
-+
-+/*
-+ * acpi_boot_init()
-+ *  called from setup_arch(), always.
-+ *	1. maps ACPI tables for later use
-+ *	2. enumerates lapics
-+ *	3. enumerates io-apics
-+ *
-+ * side effects:
-+ *	acpi_lapic = 1 if LAPIC found
-+ *	acpi_ioapic = 1 if IOAPIC found
-+ *	if (acpi_lapic && acpi_ioapic) smp_found_config = 1;
-+ *	if acpi_blacklisted() acpi_disabled = 1;
-+ *	acpi_irq_model=...
-+ *	...
-+ *
-+ * return value: (currently ignored)
-+ *	0: success
-+ *	!0: failure
-+ */
-+
-+int __init
-+acpi_boot_init (void)
-+{
-+	int result, error;
-+
-+	if (acpi_disabled && !acpi_ht)
-+		 return 1;
-+
-+	/*
-+	 * The default interrupt routing model is PIC (8259).  This gets
-+	 * overriden if IOAPICs are enumerated (below).
-+	 */
-+	acpi_irq_model = ACPI_IRQ_MODEL_PIC;
-+
-+	/* 
-+	 * Initialize the ACPI boot-time table parser.
-+	 */
-+	result = acpi_table_init();
-+	if (result) {
-+		acpi_disabled = 1;
-+		return result;
-+	}
-+
-+	result = acpi_blacklisted();
-+	if (result) {
-+		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
-+		acpi_disabled = 1;
-+		return result;
-+	}
-+
-+	error = acpi_apic_setup();
-+
- #ifdef CONFIG_HPET_TIMER
--	acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
-+	result = acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
-+	if (result < 0) {
-+		printk(KERN_ERR PREFIX "Error %d parsing HPET\n", result);
-+		if (!error)
-+			error = result;
-+	} else if (result > 1) {
-+		printk(KERN_WARNING PREFIX "Multiple HPET tables exist\n");
-+	}
- #endif
- 
--	return 0;
-+	return error;
- }
+-g
+> 
+> OK to checkin.
+> -Amit
+> 
+> 
+>># This is a BitKeeper generated patch for the following project:
+>># Project Name: Linux kernel tree
+>># This patch format is intended for GNU patch command version 2.5 or
+>>higher. # This patch includes the following deltas:
+>>#	           ChangeSet	1.1663  -> 1.1664
+>>#	arch/i386/kernel/irq.c	1.48    -> 1.49
+>>#	drivers/net/kgdb_eth.c	1.2     -> 1.3
+>>#	arch/x86_64/kernel/irq.c	1.21    -> 1.22
+>>#	drivers/serial/kgdb_8250.c	1.3     -> 1.4
+>>#	       kernel/kgdb.c	1.3     -> 1.4
+>>#	arch/ppc/kernel/irq.c	1.36    -> 1.37
+>>#	include/linux/kgdb.h	1.3     -> 1.4
+>>#
+>># The following is the BitKeeper ChangeSet Log
+>># --------------------------------------------
+>># 04/02/25	trini@kernel.crashing.org	1.1664
+>># process_breakpoint/schedule_breakpoint.
+>># --------------------------------------------
+>>#
+>>diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+>>--- a/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>+++ b/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>@@ -34,6 +34,7 @@
+>> #include <linux/proc_fs.h>
+>> #include <linux/seq_file.h>
+>> #include <linux/kallsyms.h>
+>>+#include <linux/kgdb.h>
+>>
+>> #include <asm/atomic.h>
+>> #include <asm/io.h>
+>>@@ -507,6 +508,8 @@
+>> 	spin_unlock(&desc->lock);
+>>
+>> 	irq_exit();
+>>+
+>>+	kgdb_process_breakpoint();
+>>
+>> 	return 1;
+>> }
+>>diff -Nru a/arch/ppc/kernel/irq.c b/arch/ppc/kernel/irq.c
+>>--- a/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>+++ b/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>@@ -46,6 +46,7 @@
+>> #include <linux/random.h>
+>> #include <linux/seq_file.h>
+>> #include <linux/cpumask.h>
+>>+#include <linux/kgdb.h>
+>>
+>> #include <asm/uaccess.h>
+>> #include <asm/bitops.h>
+>>@@ -536,7 +537,9 @@
+>> 	if (irq != -2 && first)
+>> 		/* That's not SMP safe ... but who cares ? */
+>> 		ppc_spurious_interrupts++;
+>>-        irq_exit();
+>>+	irq_exit();
+>>+
+>>+	kgdb_process_breakpoint();
+>> }
+>>
+>> unsigned long probe_irq_on (void)
+>>diff -Nru a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
+>>--- a/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>+++ b/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
+>>@@ -405,6 +405,8 @@
+>> 	spin_unlock(&desc->lock);
+>>
+>> 	irq_exit();
+>>+
+>>+	kgdb_process_breakpoint();
+>> 	return 1;
+>> }
+>>
+>>diff -Nru a/drivers/net/kgdb_eth.c b/drivers/net/kgdb_eth.c
+>>--- a/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
+>>+++ b/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
+>>@@ -60,7 +60,6 @@
+>> static atomic_t in_count;
+>> int kgdboe = 0;			/* Default to tty mode */
+>>
+>>-extern void breakpoint(void);
+>> static void rx_hook(struct netpoll *np, int port, char *msg, int len);
+>>
+>> static struct netpoll np = {
+>>@@ -106,14 +105,12 @@
+>>
+>> 	np->remote_port = port;
+>>
+>>-	/* Is this gdb trying to attach? */
+>>-	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
+>>-		breakpoint();
+>>+	/* Is this gdb trying to attach (!kgdb_connected) or break in
+>>+	 * (msg[0] == 3) ? */
+>>+	if (!netpoll_trap() && (!kgdb_connected || msg[0] == 3))
+>>+		 kgdb_schedule_breakpoint();
+>>
+>> 	for (i = 0; i < len; i++) {
+>>-		if (msg[i] == 3)
+>>-			breakpoint();
+>>-
+>> 		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
+>> 			/* buffer overflow, clear it */
+>> 			in_head = in_tail = 0;
+>>diff -Nru a/drivers/serial/kgdb_8250.c b/drivers/serial/kgdb_8250.c
+>>--- a/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
+>>+++ b/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
+>>@@ -248,7 +248,7 @@
+>>
+>> 	/* If we get an interrupt, then KGDB is trying to connect. */
+>> 	if (!kgdb_connected) {
+>>-		breakpoint();
+>>+		kgdb_schedule_breakpoint();
+>> 		return IRQ_HANDLED;
+>> 	}
+>>
+>>diff -Nru a/include/linux/kgdb.h b/include/linux/kgdb.h
+>>--- a/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
+>>+++ b/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
+>>@@ -11,8 +11,22 @@
+>> #include <asm/atomic.h>
+>> #include <linux/debugger.h>
+>>
+>>+/*
+>>+ * This file should not include ANY others.  This makes it usable
+>>+ * most anywhere without the fear of include order or inclusion.
+>>+ * TODO: Make it so!
+>>+ *
+>>+ * This file may be included all the time.  It is only active if
+>>+ * CONFIG_KGDB is defined, otherwise it stubs out all the macros
+>>+ * and entry points.
+>>+ */
+>>+
+>>+#if defined(CONFIG_KGDB) && !defined(__ASSEMBLY__)
+>> /* To enter the debugger explicitly. */
+>>-void breakpoint(void);
+>>+extern void breakpoint(void);
+>>+extern void kgdb_schedule_breakpoint(void);
+>>+extern void kgdb_process_breakpoint(void);
+>>+extern volatile int kgdb_connected;
+>>
+>> #ifndef KGDB_MAX_NO_CPUS
+>> #if CONFIG_NR_CPUS > 8
+>>@@ -112,4 +126,7 @@
+>> char *kgdb_hex2mem(char *buf, char *mem, int count);
+>> int kgdb_get_mem(char *addr, unsigned char *buf, int count);
+>>
+>>+#else
+>>+#define kgdb_process_breakpoint()      do {} while(0)
+>>+#endif /* KGDB && !__ASSEMBLY__ */
+>> #endif				/* _KGDB_H_ */
+>>diff -Nru a/kernel/kgdb.c b/kernel/kgdb.c
+>>--- a/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
+>>+++ b/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
+>>@@ -1169,6 +1169,29 @@
+>> 	printk("Connected.\n");
+>> }
+>>
+>>+/*
+>>+ * Sometimes we need to schedule a breakpoint because we can't break
+>>+ * right where we are.
+>>+ */
+>>+static int kgdb_need_breakpoint[NR_CPUS];
+>>+
+>>+void kgdb_schedule_breakpoint(void)
+>>+{
+>>+	kgdb_need_breakpoint[smp_processor_id()] = 1;
+>>+}
+>>+
+>>+void kgdb_process_breakpoint(void)
+>>+{
+>>+	/*
+>>+	 * Handle a breakpoint queued from inside network driver code
+>>+	  * to avoid reentrancy issues
+>>+	 */
+>>+	if (kgdb_need_breakpoint[smp_processor_id()]) {
+>>+		 kgdb_need_breakpoint[smp_processor_id()] = 0;
+>>+		 breakpoint();
+>>+	}
+>>+}
+>>+
+>> #ifdef CONFIG_KGDB_CONSOLE
+>> char kgdbconbuf[BUFMAX];
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263465AbTIHSgY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTIHSgY
+	id S263468AbTIHSmd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbTIHSmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:36:24 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:5136 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263465AbTIHSgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:36:22 -0400
-Message-ID: <3F5CD12B.2060108@techsource.com>
-Date: Mon, 08 Sep 2003 14:57:47 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Use of AI for process scheduling
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Sep 2003 14:42:33 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:17531 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263468AbTIHSm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 14:42:27 -0400
+Date: Mon, 8 Sep 2003 19:41:17 +0100
+From: Dave Jones <davej@redhat.com>
+To: Stian Jordet <liste@jordet.nu>
+Cc: Mika Liljeberg <mika.liljeberg@welho.com>, linux-kernel@vger.kernel.org,
+       dri-users@lists.sourceforge.net
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+Message-ID: <20030908184117.GA681@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stian Jordet <liste@jordet.nu>,
+	Mika Liljeberg <mika.liljeberg@welho.com>,
+	linux-kernel@vger.kernel.org, dri-users@lists.sourceforge.net
+References: <1063044345.1895.10.camel@hades> <1063045080.21991.13.camel@chevrolet.hybel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1063045080.21991.13.camel@chevrolet.hybel>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got back from vacation and have 3278 list messages to sift 
-through.  (Yay.)  I wouldn't be surprised, therefore, if others were 
-already discussing this, but I've been thinking of some ideas over the 
-past week that we may be helpful for the advancement of intelligent 
-process scheduling.
+On Mon, Sep 08, 2003 at 06:18:01PM +0000, Stian Jordet wrote:
+ > man, 08.09.2003 kl. 18.05 skrev Mika Liljeberg:
+ > > Hi All,
+ > > 
+ > > Just in case anyone is interested, ATI has released version 3.2.5 of
+ > > their FireGL driver for XFree86. The driver supports all their high end
+ > > graphics cards. This is the first version that has DRM support for the
+ > > 2.6 series of kernels.
+ > 
+ > Well.. Not really :)
+ > 
+ > chevrolet:/lib/modules/fglrx/build_mod/2.6.x# make
+ > make -C /lib/modules/2.6.0-test4/build
+ > SUBDIRS=/lib/modules/fglrx/build_mod/2.6.x modules
+ > make[1]: Entering directory `/usr/src/linux-2.6.0-test4'
+ > make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
+ > *** Warning: Overriding SUBDIRS on the command line can cause
+ > ***          inconsistencies
+ >   CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agp3.o
+ >   CC [M]  /lib/modules/fglrx/build_mod/2.6.x/nvidia-agp.o
+ >   CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agpgart_be.o
+ >   CC [M]  /lib/modules/fglrx/build_mod/2.6.x/i7505-agp.o
+ >   CC [M]  /lib/modules/fglrx/build_mod/2.6.x/firegl_public.o
 
-To begin with, let's consider the parts of an intelligent system:
+Comedy. So the story so far..
 
-1) Inputs (ie. properties and behaviors of processes)
-2) Heuristics
-3) Outputs (ie. dynamic priorities, etc.)
+- ATI grab 2.4.16's AGP driver.
+- Working AGP3 support happens in 2.5
+- ATI gets backported to 2.4 and 'munged'.
+- Additional fixes go into 2.5
+- ATI forwardport their trainwreck to 2.6.
 
-Up to this point, the interactive scheduler has been designed in a very 
-expert-system-like manner.  Human experts observe behaviors and define 
-heuristics.  Ultimately, we do want a solid set of heuristics that are 
-coded in C, and that's what the current development process has been 
-working directly toward.
+It shouldn't have *any* need whatsoever to touch agpgart in 2.6.
 
-The progress has been slow, and there have been a lot of false starts 
-and tangents which have been discarded.  This is all how development 
-works, and it's important to explore all possibilities.  But what I 
-would like to propose is that we work on a way to accelerate that 
-process, and that is to make use of machine learning.  We move from 
-expert systems to artificial intelligence, because the heuristics are 
-determined by the machine and are therefore dynamic.
+The mind truly boggles.
 
-Basically, we need to write and install into the kernel an AI engine 
-which uses user feedback about the "feel" of the system to adjust 
-heuristics dynamically.  For instance, if the user sees that the system 
-is misbehaving, they can pause the system in the kernel debugger, 
-examine process priorities, and indicate what "outputs" from the AI 
-engine are wrong.  It then learns from that.  Heuristics can be tweaked 
-until things run as desired.  At that point, scheduler developers trade 
-emails in the AI heuristic language.
+		Dave
 
-Obviously, this AI engine will be slow and add a huge amount of 
-processing overhead.  The idea is to determine what the heuristics are, 
-and then to release a kernel, recode the heuristics in C.
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130451AbRBRAGQ>; Sat, 17 Feb 2001 19:06:16 -0500
+	id <S132243AbRBRAKr>; Sat, 17 Feb 2001 19:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131228AbRBRAGH>; Sat, 17 Feb 2001 19:06:07 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:59659 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130451AbRBRAF5>; Sat, 17 Feb 2001 19:05:57 -0500
-Date: Sat, 17 Feb 2001 18:05:47 -0600
-To: Nathan Black <NBlack@md.aacisd.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx (and sym53c8xx) plans
-Message-ID: <20010217180547.B28785@cadcamlab.org>
-In-Reply-To: <8FED3D71D1D2D411992A009027711D671897@md>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <8FED3D71D1D2D411992A009027711D671897@md>; from NBlack@md.aacisd.com on Thu, Feb 15, 2001 at 12:19:47PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S132240AbRBRAKi>; Sat, 17 Feb 2001 19:10:38 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:40630 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131228AbRBRAKZ>;
+	Sat, 17 Feb 2001 19:10:25 -0500
+Date: Sun, 18 Feb 2001 01:10:14 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102180010.BAA163601.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, swansma@yahoo.com
+Subject: Re: Fwd: Re: System V msg queue bugs in latest kernels
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From swansma@yahoo.com Sat Feb 17 22:45:36 2001
 
-[Nathan Black]
-> This really improved the performance of my dual PIII-866 w/512MB Ram
-> and AIC7899 scsi.
-[...]
-> I would suggest, if at all possible, putting this in the 2.4.2
-> kernel.
+    I'm sending this to you with the hope that lines like this (in ipcs.c)
+    can be modified to report proper values:
 
-Have you any idea the breadth of cards and chips that aic7xxx supports?
-Sure, Justin's driver does great with your shiny new 7899, but can you
-verify that it also drives the 8-year-old EISA AHA-2740 I still have
-sitting around (actually retired to the parts pile, but that's beside
-the point, I'm sure some still exist in the wild)?  How about the VLB
-card I have in my 486 at home?
+     printf ("%-10o%-12ld%-12ld\n",
+                    ipcp->mode & 0777,
+                    /*
+                     * glibc-2.1.3 and earlier has unsigned short;
+                     * glibc-2.1.91 has variation between
+                     * unsigned short, unsigned long
+                     * Austin has msgqnum_t
+                     */
+                    (long) msgque.msg_cbytes,
+                    (long) msgque.msg_qnum);  
 
-IMHO there is no way Linus should consider replacing aic7xxx with 6.1
-in a stable kernel.  Not until it has gotten as much testing on as much
-obscure hardware as the old driver, which is not going to happen soon.
-Breaking existing working setups in 2.4.x is not an option.  Possible
-solution: let the two drivers coexist, like ncr53c8xx vs sym53c8xx or
-tulip vs old_tulip.
+    msg_cbytes and msg_qnum should be handled differently (as per Manfred's
+    email).
 
-Peter
+Hmm. In 2.2.18 these fields are short in the kernel, so there is
+no more information, and ipcs cannot print it.
+In 2.4.1 these fields are long in the kernel, and are copied back
+to user space using copy_msqid_to_user() which will give the longs
+in case IPC_64 was set, and the shorts otherwise.
+
+(By the way, "IPC_64" is rather a misnomer - it is more like IPC_32.
+I could well imagine that we'll need something for 64-bits sooner or
+later (and call it IPC_128 then?).)
+
+Manfred's email does
+
+    #define msg_lqbytes        __rwait
+
+that is, his program stores information in, and retrieves information
+from some field that maybe is unused. In fact the kernel also uses it,
+so I don't think that would be very successful.
+
+No, we must just use IPC_64 when it is available, and that is glibc's job.
+Looking at the libc source I see that glibc-2.1.95 does this, but
+glibc-2.1.3 doesn't. So, maybe, if you upgrade your glibc all will be well.
+
+Andries

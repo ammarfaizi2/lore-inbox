@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261592AbSIXJQE>; Tue, 24 Sep 2002 05:16:04 -0400
+	id <S261323AbSIXJVk>; Tue, 24 Sep 2002 05:21:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261603AbSIXJQE>; Tue, 24 Sep 2002 05:16:04 -0400
-Received: from angband.namesys.com ([212.16.7.85]:27272 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S261592AbSIXJQD>; Tue, 24 Sep 2002 05:16:03 -0400
-Date: Tue, 24 Sep 2002 13:21:10 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org,
-       Hans Reiser <reiser@namesys.com>
-Subject: Re: ReiserFS buglet
-Message-ID: <20020924132110.A22362@namesys.com>
-References: <20020924072455.GE2442@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20020924072455.GE2442@unthought.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S261613AbSIXJVk>; Tue, 24 Sep 2002 05:21:40 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:34461 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S261323AbSIXJVj>;
+	Tue, 24 Sep 2002 05:21:39 -0400
+Message-ID: <1032859610.3d902fda0c16a@kolivas.net>
+Date: Tue, 24 Sep 2002 19:26:50 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+References: <Pine.LNX.4.33.0209232236070.27095-100000@coffee.psychology.mcmaster.ca> <1032835551.3d8fd1df2fba0@kolivas.net> <3D8FD580.F1320237@digeo.com> <200209240850.g8O8odp24965@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200209240850.g8O8odp24965@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Quoting Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>:
 
-On Tue, Sep 24, 2002 at 09:24:55AM +0200, Jakob Oestergaard wrote:
+> On 24 September 2002 01:01, Andrew Morton wrote:
+> > (And if there's more than a 1% variation between same kernel, compiled
+> > with different compilers then the test is bust.  Kernel CPU time is
+> > dominated by cache misses and runtime is dominated by IO wait.
+> > Quality of code generation is of tiny significance)
+> 
+> Well, not exactly. If it is true that Intel/MS compilers beat GCC
+> by 30% on code size, 30% smaller kernel ought to make some difference.
+> 
+> However, that will become a GCC code quality benchmark then.
 
-> In linux-2.4.19, I found the following:
-> fs/reiserfs/super.c:707
->  s->s_blocksize = sb_blocksize(rs);
->  s->s_blocksize_bits = 0;
->  while ((1 << s->s_blocksize_bits) != s->s_blocksize)
->      s->s_blocksize_bits ++;
-> What happens if there's a bit-flip on the disk so that s->s_blocksize is
-> not a power of two ?
+Great well if someone has access to one of these compilers and can successfully
+compile me a kernel using my .config I'd love to benchmark it for them.
 
-FS will refuse to mount. Or kernel will panic (depends on some stuff).
-If s->s_blocksize is zeroed, kernel will hang, as you correctly noticed.
-
-> I would suggest replacing the '!=' with a '<' in the while loop and
-> adding a sanity check afterwards.
-
-What if overheated CPU will cause a bitflip exactly after such checks?
-You cannot protect against broken hardware. Such problems should be
-fixed by fsck.
-
-> As I see it, the ReiserFS journal has the same problems as jbd wrt. to
-> atomicity of write operations of indexes.  Please see my recent mail
-> about the jbd problems.
-
-journal header in reiserfs only occupies first 20 bytes of the block,
-since this fells within 1st 512 bytes hardware sector, it will be written
-atomically, I presume.
-
-Bye,
-    Oleg
+Con.

@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272317AbRHXURw>; Fri, 24 Aug 2001 16:17:52 -0400
+	id <S272315AbRHXUWL>; Fri, 24 Aug 2001 16:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272315AbRHXURl>; Fri, 24 Aug 2001 16:17:41 -0400
-Received: from willow.seitz.com ([207.106.55.140]:60944 "EHLO willow.seitz.com")
-	by vger.kernel.org with ESMTP id <S272318AbRHXURb>;
-	Fri, 24 Aug 2001 16:17:31 -0400
-From: Ross Vandegrift <ross@willow.seitz.com>
-Date: Fri, 24 Aug 2001 16:17:47 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 broken on 486SX
-Message-ID: <20010824161747.A10618@willow.seitz.com>
-In-Reply-To: <20010824154233.A10048@willow.seitz.com>
+	id <S272316AbRHXUWB>; Fri, 24 Aug 2001 16:22:01 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:22182 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S272315AbRHXUVs>;
+	Fri, 24 Aug 2001 16:21:48 -0400
+Date: Fri, 24 Aug 2001 22:22:02 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software raid does not do parallel reads under 2.4?
+Message-ID: <20010824222202.B12903@fuji.laendle>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010823234218.B12873@cerebro.laendle> <15238.11161.492557.264988@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010824154233.A10048@willow.seitz.com>; from ross@willow.seitz.com on Fri, Aug 24, 2001 at 03:42:33PM -0400
+In-Reply-To: <15238.11161.492557.264988@notabene.cse.unsw.edu.au>
+X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ack, that was a horrific problem report.  Here are a few relevant data points I left out:
+On Fri, Aug 24, 2001 at 08:25:29PM +1000, Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> For raid0, the md driver just redirects requests to the right drive.
+> It doesn't explicitly serialise or parallelise anything. 2.4 works in
+> exactly the same was as 2.2.
 
-Kernels have always been compiled only with 386 optimizations.
-	(tried 486 a few times, no difference)
-Always built including soft float support (not that it matters so early)
-Always built with gcc 2.95.2
-Same kernel binaries work perfectly on a number of other boxen:
-	A 386DX, a number of Pentium 100's, another 486SX, and a K6-2
+then why is 2.2 so much faster?
 
+> With a 2MB chunksize, I would expect a linear read to touch just one
+> drive at a time.
 
-Ross Vandegrift
-ross@willow.seitz.com
+why? i read 8mb cvhunks a time (see the dd) so it should read 3x2mb
+chunks easily. anyway, i get the same throughput with 64k, 16k etc..
+chunksize.
+
+> With a 4K chunk size, I suspect that an linear read would read from
+> all the drives in parallel.
+
+maybe, but it's still exactly as fast: 30mb/s, which is slower than one drive
+can do.
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

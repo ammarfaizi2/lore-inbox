@@ -1,107 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264933AbSKEVcn>; Tue, 5 Nov 2002 16:32:43 -0500
+	id <S264936AbSKEVdn>; Tue, 5 Nov 2002 16:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbSKEVcn>; Tue, 5 Nov 2002 16:32:43 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:33247 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S264933AbSKEVck>; Tue, 5 Nov 2002 16:32:40 -0500
-Message-ID: <3DC83A7B.5050107@namesys.com>
-Date: Tue, 05 Nov 2002 13:39:07 -0800
-From: reiser <reiser@namesys.com>
-Reply-To: reiser@namesys.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Nikita Danilov <Nikita@namesys.com>, Tomas Szepe <szepe@pinerecords.com>,
-       Alexander Zarochentcev <zam@namesys.com>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
-       umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-References: <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com> <20021101102327.GA26306@louise.pinerecords.com> <15810.46998.714820.519167@crimson.namesys.com> <20021102132421.GJ28803@louise.pinerecords.com> <15814.21309.758207.21416@laputa.namesys.com> <3DC19F61.5040007@namesys.com> <3DC773B0.4070701@namesys.com> <20021105022944.A14575@munet-d.enel.ucalgary.ca>
-In-Reply-To: <3DC1D63A.CCAD78EF@digeo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264934AbSKEVdm>; Tue, 5 Nov 2002 16:33:42 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:21265 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S264936AbSKEVcp>;
+	Tue, 5 Nov 2002 16:32:45 -0500
+Date: Tue, 5 Nov 2002 16:39:18 -0500 (EST)
+Message-Id: <200211052139.gA5LdIc373506@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: linux-kernel@vger.kernel.org
+Cc: mbligh@aracnet.com, jw@pegasys.ws, wa@almesberger.net, rml@tech9.net,
+       andersen@codepoet.org, woofwoof@hathway.com
+Subject: Re: ps performance sucks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drew Roselli did traces of overwrite patterns, and the typical time to 
-overwrite was about 6 minutes, so if you want the write cache to be 
-effective you want it to last for more than 6 minutes.  I encourage you 
-to read the PhD thesis she wrote and argue with it and me on it, I am 
-far from dogmatically certain that 10 minutes is the right amount of 
-time.  60 seconds is the most I would want for my Dell laptop (laptops 
-are crash prone).  10 minutes for a non-mobile computer with a UPS, or 
-in an area with a competent electric utility company, is quite 
-reasonable though.  10 minutes is clearly the right amount of time for, 
-say, a user space programmer, and probably too risky for a kernel 
-programmer.  Probably kernel programmers are outnumbered 10 to 1 by user 
-space programmers?  ( I don't really know.)
 
-There simply is not enough empirical data for what we argue about, 
-unfortunately.  Drew Roselli's thesis is the only one, and there is a 
-need for 5 such theses before one can consider the topic reasonably 
-understandable by the discerning.  I worry a lot that her samples are 
-distorted by site specific usage patterns that might not resemble those 
-of the usual linux user.
+First of all, sorry to break the threading. I didn't get
+a Cc: and the web archives drop most email headers. I'm
+going to respond to everyone in a big blob w/o attributions.
 
-I wish I personally had a better understanding of what the usual linux 
-user does in the way of IO.....
+> Clearly ps could do with a cleanup. There is no reason to
+> read environ if it wasn't asked for. Deciding which files
+> are needed based on the command line options would be a
 
-Hans
+Done. You should be using procps-3.0.5 now. If you're not,
+an upgrade is called for. http://procps.sf.net/
 
-Andreas Dilger wrote:
+(tough luck if you're using some other ps)
 
->On Nov 04, 2002  23:30 -0800, reiser wrote:
->  
->
->>The appropriate setting of 
->>transaction max age depends on the user.  The setting we chose is 
->>appropriate for software developers doing compiles.  It is not clear to 
->>me yet what the right setting is.  Perhaps 3 minutes is more 
->>appropriate.  I was probably overly influenced by Drew Roselli's 
->>statistics on how long the cyle is between rewrites.  Her statistics are 
->>probably skewed by having lots of CS students using the machines she got 
->>her data from.  5 seconds is too short to perform good layout 
->>optimization for subsequent reads.
->>    
->>
->
->I think the bdflush defaults are (were?) something like 5 seconds for
->metadata, and 30 seconds for file data. reiser4 should (if it doesn't
->already) use the parameters set by sys_bdflush() to tune the writeout
->intervals.
->
->I would think that either:
->a) A file was completely written in under 30 seconds (e.g. untar or gcc
->   or whatever else you are doing), so deferring allocation and writing
->   to disk does not help you at all.
->b) A file is continuing to be written for more than 30 seconds that
->   has a very large amount of outstanding data which can be committed
->   to disk with (probably) the same read optimization quality as any
->   larger amount of data.
->c) A file is continuing to be written for more than 30 seconds that
->   is growing slowly and no matter how long you defer the write you
->   will only get an incremental read layout.  Presumably you could do
->   something to pre-allocate/reserve a bunch of space at the end of this
->   file as it continues to grow.
->
->So, except for the very unusual case of files with lifespans between 30
->seconds and 300 seconds, or files that are written to between those
->intervals, I would guess that you are not gaining much extra benefit by
->deferring the writes another 270 seconds.
->
+Nothing that parses the crap in /proc will ever be fast though.
+There's a patch for Linux 2.4.0 that some people might like:
 
->
->Cheers, Andreas
->--
->Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
->                 \  would they cancel out, leaving him still hungry?"
->http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
->
->
->  
->
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0104.2/1720.html
 
+> Strace it - IIRC it does 5 opens per PID. Vomit.
 
+Nope, it does 2. Perhaps you're not running procps 3 yet?
+http://procps.sf.net/
+
+Of course if you do something like "ps ev" you need all 5.
+
+> I'm thinking that ps, top and company are good reasons to
+> make an exception of one value per file in proc. Clearly
+> open+read+close of 3-5 "files" each extracting data from
+> task_struct isn't more efficient than one "file" that
+> generates the needed data one field per line.
+
+There are several ways to attack this.
+
+First of all, implement an open_read_close() syscall. Duh.
+I expect Hans Reiser would be delighted too. Maybe return
+a file descriptor if the file was too big or it blocked.
+Maybe provide some basic stat data atomically with the call.
+
+For per-task proc files, one file per kernel lock seems sane.
+I haven't looked at how many that would be, and of course it
+varies by kernel. So maybe it ends up not being exact; that's OK.
+
+> I think it's pretty trivial to make /proc/<pid>/psinfo, which
+> dumps the garbage from all five files in one place. Which makes
+> it 5 times better, but it still sucks.
+
+Well, not all the garbage! It'd be nice to have the popular
+stuff in a file similar to /proc/*/stat. That would be what ps
+needs to support these options: -f -l -F l u v j -j -ly -lc
+plus "top". (not counting the process name or args though)
+
+> You could take a more radical approach. Since the goal of such
+> a psinfo file would be to accelerate access to information
+> that's already available elsewhere, you can do away with many
+> of the niceties of procfs, e.g.
+>
+>  - no need to be human-readable (e.g. binary or hex dump may
+>    make sense in this case)
+
+As long as you expand everything to the biggest data type that
+could ever be used, binary is wonderful. Make the ABI be 64-bit
+for almost everything, with proper alignment of course. Somebody
+slap the person who put a 32-bit ino_t in the latest stat syscall.
+
+> First write says "pid,comm". Internally, this gets translated
+> to 0x8c+0x04, 0x2ee+0x10 (offset+length). Next read returns
+> "pid 4,comm 16" (include the name, so you can indicate fields
+> the kernel doesn't recognize). Then, kmalloc 20*tasks bytes,
+> lock, copy the fields from struct task_struct, unlock, let the
+> stuff be read by user space, kfree. Adjacent fields can be
+> optimized to single byte strings at setup time.
+
+If you're going to do that, then specify stuff via the filename:
+/proc/12345/hack/80basic,20pids,20uids,40argv,4tty,4stat
+
+Not that I care for dealing with the above!
+
+>> sgid country
+>> * real killer: you think Albert would fail to produce equally
+>> crappy code and equally crappy behaviour? Yeah, right.
+>
+> Well I think Rik and I can handle it in our tree :)
+
+You guys can't even get BSD process selection right.
+
+If necessary I could fix a few spots needed for setgid usage.
+I'd rather not need to do so, because then yet another chunk
+of non-kernel code is making security decisions.
+
+> * device is not network-transparent - even in principle
+
+ROTFL. What a fantasy. You damn well know /proc isn't either.
+If you can hack /proc to be exportable, you can damn well do
+the same for a device file. You won't be using NFS for this.
+I think Mosix already has a shared /proc anyway; an ioctl() is
+a simple matter of writing a little ugly code.
+
+> And i'd still keep environ seperate. I'm inclined to think
+> ps should never have presented it in the first place.
+> This is the direction i (for what it's worth) favor.
+
+Yeah, well that's BSD compatibility for you. Printing the
+environment might actually be useful if you could pick just
+the fields you wanted:  ps -eo pid,stat,.DISPLAY,comm
+
+Useful? Like that notation?
+
+> Well if we want to be gross and efficient, we could just compile
+> a kmem-diving dynamic library with every kernel compile and stick
+> it in /boot or somewhere. Mildly less extreme is a flat index file
+> for the data you need a la System.map. Then just open /dev/kmem
+> and grab what you want. Walking the tasklist with no locking would
+> be an interesting challenge, but probably not insurmountable.
+> That's how things like ps always used to work IIRC.
+
+Yep, that's gross and efficient for sure. The dynamic library idea
+fixes a major problem; BSD "top" is always breaking due to kernel
+differences on Solaris and FreeBSD.

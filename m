@@ -1,43 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266085AbUAVFNO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 00:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUAVFNN
+	id S264305AbUAVFQX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 00:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbUAVFPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 00:13:13 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:46809 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266085AbUAVFNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 00:13:08 -0500
-Date: Thu, 22 Jan 2004 00:13:03 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Dave Jones <davej@redhat.com>, Zan Lynx <zlynx@acm.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
- public posts
-In-Reply-To: <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-Message-ID: <Pine.LNX.4.44.0401220012160.15146-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jan 2004 00:15:33 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:43435 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266172AbUAVFOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 00:14:19 -0500
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <4022195408.1074577421@aslan.btc.adaptec.com>
+References: <400BDC85.8040907@wanadoo.es>	<1074532919.1895.32.camel@mulgrave>		<37477754
+	 08.1074537497@aslan.btc.adaptec.com>	<1074559838.2078.1.camel@mulgrave>
+	<3942145408.1074564149@aslan.btc.adaptec.com>
+	<1074573912.2081.81.camel@mulgrave> 
+	<4022195408.1074577421@aslan.btc.adaptec.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 22 Jan 2004 00:14:09 -0500
+Message-Id: <1074748451.2124.78.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jan 2004, Mike Fedyk wrote:
+On Tue, 2004-01-20 at 00:43, Justin T. Gibbs wrote: 
+> As for control, the type of control "I seek" does exist.  You have it.
+> You can also delegate some of that control if it suits you.
 
-> What do you think about individual email (non-list) using a confirmation
-> based spam blocking system.
+Well, as you have heard from the horse's mouth: I don't. 
+
+> I provided all of the information required for you to make a reasoned
+> decision of which change sets to integrate.  I had no idea that you
+> would completely disregard the wealth of information in the change sets
+> and change set comments when coming up with an integration point.  Your
+> actions show that you didn't review or understand the changes well enough
+> to submit them into the tree.  You probably didn't even test the resulting
+> driver on real hardware before you submitted the changes.
+
+Actually, I would have done nothing but for some 2.6 migration reports
+of total lockups with the then in tree aic79xx driver.  The patch that
+went into the tree was tested by the people reporting the lockups. 
+
+> > The recovery code does work.  You may want it to work differently, and
+> > that may make it work better, but that's an enhancement not a bug fix.
 > 
-> I currently use spamassassin to filter my messages, but I saw recently a
-> project that asks you to reply to a confirmation message if you're not
-> already on the white-list.
+> No.  The recovery code doesn't work.  Many of the people that know this
+> don't bother complaining to you about it.  They complain to the HBA driver
+> authors and the tech support departments of the companies that make the HBAs.
+> The HBA driver authors then do what they have to ensure that the system
+> remains viable after recovery.  
 
-That used to be fairly ok, until the introduction of
-virusses-with-forged-sender a year or two ago ...
+You haven't outlined any incorrect cases in your emails, just could do
+better cases.  If you have all these bug reports that you haven't been
+passing on, could you at least distil them to the mid layer failure
+scenario that we can discuss fixing? 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+> I mean honestly.  Do you think I would have gone to all of the trouble
+> I did in doing my own watchdog recovery if the recovery code worked
+> correctly?  Or that I would stand so firm in my position if these issues
+> didn't have real customer impact?
+
+Well, in coming up with the mid layer changes from 2.4 to 2.6 I did look
+at what issues the main drivers had work arounds for. I used these work
+arounds and an email you sent in September 2002 as the basis for a lot
+of the mid-layer changes in 2.6.  None of the other drivers does this
+timer interception and the issue wasn't mentioned in your email, so I am
+dubious about the seriousness of the impact.
+
+The way fixes get into linux is either lots of people complain, or one
+person sends a fix, neither has happened in this case, which again leads
+me to suspect that it's not a huge problem.
+
+The still outstanding question is, now that you have a clearer idea what
+being a Maintainer entails, do you wish to be the maintainer for
+aic7xxx?
+
+James
+
 

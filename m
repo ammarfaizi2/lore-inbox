@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129249AbRBBVPb>; Fri, 2 Feb 2001 16:15:31 -0500
+	id <S129282AbRBBVPz>; Fri, 2 Feb 2001 16:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRBBVPW>; Fri, 2 Feb 2001 16:15:22 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129249AbRBBVPQ>; Fri, 2 Feb 2001 16:15:16 -0500
-Date: Fri, 2 Feb 2001 16:14:59 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Every Make option ends in error.
-In-Reply-To: <Pine.LNX.4.21.0102022052090.31663-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.95.1010202160531.692A-100000@chaos.analogic.com>
+	id <S129964AbRBBVPn>; Fri, 2 Feb 2001 16:15:43 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:7181 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129282AbRBBVPj>; Fri, 2 Feb 2001 16:15:39 -0500
+Message-ID: <3A7B1BFA.F7B4EAD@namesys.com>
+Date: Fri, 02 Feb 2001 23:43:38 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.com>
+CC: Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
+In-Reply-To: <200102021825.f12IPCu20705@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Ken Moffat wrote:
-
-> Hi guys, 
->  I guess I'm doing something stupid, so please can somebody point it out
-> and put me out of my misery ?
->  
->  Copied a plain 2.4.0 tree to a new directory, patched it to 2.4.1 without
-> any errors. Then I realised it had all the object files from my last
-> compile, so I thought "make mrproper" was called for. It did a little,
-> then
+Alan Cox wrote:
 > 
-> rm: include/asm: is a directory
-> make: *** [mrproper] Error 1
+> > So, did Linus say no?  If not, let's ask him with a patch.  Quite simply,
+> > neither we nor the users should be burdened with this, and the patch removes
+> > the burden.
 > 
-This link file got changed to a directory, probable because your
-new directory was copied! You should have used `tar`. Copy will
-follow the sym-links and copy the underlying data, i.e., a whole
-directory.
-
-Not to worry. In your new Linux directory tree do:
-
-cd include
-mv asm /tmp	# or /usr/src, someplace temporary.
-
-cd ..		# Back to Linux
-cp .config ..	# Save your configuration
-make mrproper	# Make like a distribution
-cp ../.config . # Restore configuration
-make oldconfig	# Re-do configuration
-make dep	# Re-do dependencies
-make bzImage	# Doit toit
-
-After everything works, recursively delete the saved 'asm'
-directory that was moved outside the kernel tree.
+> Since egcs-1.1.2 and gcc 2.95 miscompile the kernel strstr code dont forget
+> to stop those being used as well. Oh look you'll need CVS gcc to build the
+> kernel... ah but wait that misbuilds DAC960.c...
+> 
+> Oh look nothing compiles the kernel.
+> 
+> Congratulations 8)
+> 
+> Alan
 
 
-Cheers,
-Dick Johnson
+Users cannot use gcc 2.96 as shipped in RedHat 7.0 if they want to use
+reiserfs.  It is that simple.  How can you even consider defending allowing the
+use of it without requiring a positive affirmation by the user that they don't
+know what they are doing and want to do it anyway?:-)  I could understand
+arguing that you don't want to be bothered with protecting the users because you
+don't have the time, but if somebody else finds the time to write the patch....
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+I would indeed encourage Linus to accept patches to test for known bad compilers
+at make time.  It is less work for us all to prevent users from having bugs than
+to respond to their having them.  I look forward to gcc 3.00, and I encourage
+the compiler guys to get over being (understandably) irked that somebody else
+released their code prematurely, and to increment the version number to 2.97 so
+that users can more easily avoid the baddie.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

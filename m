@@ -1,114 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131516AbQLPIa1>; Sat, 16 Dec 2000 03:30:27 -0500
+	id <S129408AbQLPIhM>; Sat, 16 Dec 2000 03:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131539AbQLPIaR>; Sat, 16 Dec 2000 03:30:17 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:1288 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S131516AbQLPIaJ>; Sat, 16 Dec 2000 03:30:09 -0500
-Date: Fri, 15 Dec 2000 23:59:19 -0800 (PST)
-From: ferret@phonewave.net
-To: richard offer <offer@sgi.com>
-cc: linux-kernel@vger.kernel.org, magenta@trikuare.cx
-Subject: Re: What about 'kernel package'? was: Re: Linus's include file strategy redux
-In-Reply-To: <1001215202538.ZM23045@sgi.com>
-Message-ID: <Pine.LNX.3.96.1001215225813.20126A-100000@tarot.mentasm.org>
+	id <S129485AbQLPIhE>; Sat, 16 Dec 2000 03:37:04 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:59145 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S129408AbQLPIgx>;
+	Sat, 16 Dec 2000 03:36:53 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012160806.AAA32686@pobox.com>
+Subject: Re: test13pre2 - netfilter modiles compile failure
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 16 Dec 2000 00:06:34 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+Reply-To: barryn@pobox.com
+In-Reply-To: <91f1ru$4e3$1@penguin.transmeta.com> from "Linus Torvalds" at Dec 15, 2000 10:25:02 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 15 Dec 2000, richard offer wrote:
-
+Linus Torvalds wrote:
+> In article <200012160552.VAA27106@pobox.com>,
+> Barry K. Nathan <barryn@pobox.com> wrote:
+> >I got the same error with the ipchains-compatible netfilter compiled as
+> >modules. Compiling into the kernel instead, I also get an error. I've
+> >included the error and my .config below.
 > 
-> * $ from ferret@phonewave.net at "15-Dec: 8:22pm" | sed "1,$s/^/* /"
-> *
-> *
-> * Once again, I'd like to suggest Debian's kernel package system as a good
-> * working example of this sort of administrative-level kernel management. I
-> * brought this up on the list once before, maybe eight months ago, but I
-> * recall not even one reply worth of discussion about it. I have a fairly
-> * basic idea of what could be done to merge part of 'make-kpkg' into the
-> * kernel-side management, but I'd like to see some other trained eyeballs
-> * taking a look.
-> 
-> I'm not familiar with Debian at all.. do you have some pointers to information
-> on make-kpkg ?
+> Try removing "$(ip_conntrack-objs) $(iptable_nat-objs)" from the
+> ip_nf_compat-objs line in net/ipv4/netfilter/Makefile..
 
-Off the top of my head:
+Ok, I tried that, and I tried Andrew Morton's patch as well. Both patches
+fix the module case, but not the in-kernel case. With Linus' patch, the
+in-kernel case fails with the error message in my previous mail. With
+Andrew's patch, it fails like this:
 
-* perl script (but this can be changed if we wanted to adopt it)
-* Has build support for kernel 'flavours': 2.2.17-flavour
-* Has build support for modules outside of the kernel tree: alsa and
-  lm-sensors, and others
-* Has support for cross-compiling the kernel and modules, by passing a
-  single destination-archetecture paramater, with the support of an
-  installed cross-compilation suite.
+ld -m elf_i386  -r -o netfilter.o ipchains.o ip_nf_compat.o
+ld: cannot open ip_nf_compat.o: No such file or directory
+make[3]: *** [netfilter.o] Error 1
+make[3]: Leaving directory
+`/home/barryn/lsoft/kernels/buildspace/linux-2.4.0test13pre2bkn-alt-ath/net/ipv4/netfilter'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory
+`/home/barryn/lsoft/kernels/buildspace/linux-2.4.0test13pre2bkn-alt-ath/net/ipv4/netfilter'
+make[1]: *** [_subdir_ipv4/netfilter] Error 2
+make[1]: Leaving directory
+`/home/barryn/lsoft/kernels/buildspace/linux-2.4.0test13pre2bkn-alt-ath/net'
+make: *** [_dir_net] Error 2
 
-Has full support for building Debian packages (of course!):
-* Kernel image
-* Kernel headers: placed into /usr/src/kernel-headers-<version>
-* Kernel source: placed into /usr/src/kernel-source-<version>
-* External modules
+The only difference in my .config, between the working module case and the
+failing in-kernel case, is whether CONFIG_IP_NF_COMPAT_IPCHAINS is set to
+y or m. I included one of the .configs (although I forget which one) in my
+previous email.
 
-The package build features could technically be seperated off into stubs
-on the main package. but it seems Connectiva is working on merging Red
-Hat's and Debian's packaging systems into something the LSB can adopt, if
-I hear correctly.
-
-Some of my ideas regarding the use of kernel-package with the main kernel
-source:
-* Simplifies the build of third-party modules AT KERNEL BUILD TIME:
-  The sources go into /usr/src/modules/<package>
-* Protects against the dreaded accidental overwriting of current kernel
-  image and modules but is easily enough overridden: newbie or
-  asleep-at-console protection.
-* Could be easily hooked into local package management system.
-* The current monolithic kernel tarball could be split up to take
-  advantage of the modules build system, although the configuration
-  scripts would have to be changed. This would have a liability that code
-  outside the core kernel tree would be more difficult to compile into a
-  kernel, but would benefit by allowing non-core components to be
-  developed and released asynchronously. A non-core component would be
-  anything not required for booting, basic networking, or console access.
-  Examples: infrared, multimedia, and sound.
-
-Areas in which the kernel-package system would need to be improved:
-* Support for building new modules after kernel build time. This is a
-  current issue which could be more easily solved in the framework of
-  kernel-package.
-* Support for calling an interactive configuration.
-* Scripting support to run a user-defined sequence with a single command.
-
-
-
-
-A typical build cycle on my build machine goes like:
-
-# make-kpkg clean
-# make menuconfig  (if I need to change or interactively verify my
-		    options)
-# make-kpkg --revision=<hostname>.<build #> configure
-# make-kpkg modules-clean
-# make-kpkg modules
-# make-kpkg kernel-headers (which I usually skip for personal use)
-# make-kpkg kernel-image
-
-I end up with package files called something like:
-
-kernel-image-2.4.0-test11_heathen.01_i386.deb
-kernel-headers-2.4.0-test11_heathen.01_i386.deb
-alsa-modules-2.4.0-test11_0.5.9d+heathen.01_i386.deb
-
-
-Getting it:
-* The package is called 'kernel-package', and you can download the source
-  for it through www.debian.org
-* The archives ARE undergoing reorganisation at this time, so if anyone
-  has troubles I can place a copy onto my webserver.
-
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290734AbSARQdt>; Fri, 18 Jan 2002 11:33:49 -0500
+	id <S290736AbSARQmW>; Fri, 18 Jan 2002 11:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290735AbSARQdk>; Fri, 18 Jan 2002 11:33:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20487 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290734AbSARQd3>; Fri, 18 Jan 2002 11:33:29 -0500
-Subject: Re: I2O kernel oops with Promise SuperTrak SX6000
-To: S.Zimmermann@tu-harburg.de (Sebastian Zimmermann)
-Date: Fri, 18 Jan 2002 16:45:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <3C483460.70100@tu-harburg.de> from "Sebastian Zimmermann" at Jan 18, 2002 03:42:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290737AbSARQmL>; Fri, 18 Jan 2002 11:42:11 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:2576 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S290736AbSARQl5>;
+	Fri, 18 Jan 2002 11:41:57 -0500
+Date: Fri, 18 Jan 2002 08:39:26 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: "Roger W.Brown" <bregor@anusf.anu.edu.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Type-change of kdev_t
+In-Reply-To: <20020118134245.630F6706B1@argo.anu.edu.au>
+Message-ID: <Pine.LNX.4.33L2.0201180836550.13155-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Rc8x-0007Ha-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When the system is powered up, the SuperTrak BIOS is initializing the 
-> adapter. If we manually *abort* the initialization, Linux will boot 
-> without problems and we can use the hardware raid.
-> 
-> However, if we let the controller initialze the adapter (that is the 
-> default), the kernel will always Oops when I2O is loaded:
+On Sat, 19 Jan 2002, Roger W.Brown wrote:
 
-Please try 2.4.18pre3-ac first of all. That has one small detail changed
-that may matter.
+|
+|   Hi,
+|
+|       I'm no kernel hacker so I am little hesitant to speak; however,
+|   I'm looking at kdev_t.h from the linux-2.5.3-pre1 source.
+|
+|   The type of kdev_t has changed recently from a scalar type to a
+|   structured type.  Should macro definitions such as MINOR(dev) also
+|   be revised to be consistent with the "new" kdev_t ?
 
-> My guess is that the i2o module tries to initialize the board. When it 
-> already was initialized by the BIOS, the system crashes.
+Macros to use kdev_t also changed.
 
-At the moment I've no idea. The i2o code is entitled to reinit the board 
-should it want to, and the supertrak 100 certainly works with 18pre3-ac3.
+|   Something like:
+|
+|   #define MINOR(dev)  ((unsigned int) ((dev.value) & MINORMASK))
+|
+|   rather than
+|
+|   #define MINOR(dev)  ((unsigned int) ((dev) & MINORMASK))
+|
+|   Then usage of the MINOR() macro remains unchanged.
+
+Nope, use major() and minor() instead [although I prefer
+the kmajor() and kminor() patch].
+
+See http://www.osdl.org/archive/rddunlap/linux-port-25x.html,
+item 7, bullet 3, which points to an email from one Linus Torvalds
+about the kdev_t change.
+
+-- 
+~Randy
 

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSAZBIQ>; Fri, 25 Jan 2002 20:08:16 -0500
+	id <S288981AbSAZBIQ>; Fri, 25 Jan 2002 20:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288981AbSAZBIG>; Fri, 25 Jan 2002 20:08:06 -0500
-Received: from ww.olm.fr ([212.43.237.40]:16644 "EHLO www.olm.fr")
-	by vger.kernel.org with ESMTP id <S288978AbSAZBH4>;
+	id <S288978AbSAZBIH>; Fri, 25 Jan 2002 20:08:07 -0500
+Received: from ww.olm.fr ([212.43.237.40]:16900 "EHLO www.olm.fr")
+	by vger.kernel.org with ESMTP id <S288980AbSAZBH4>;
 	Fri, 25 Jan 2002 20:07:56 -0500
 Date: Sat, 26 Jan 2002 02:07:45 +0100
-Message-Id: <200201260107.CAA29212@www.olm.fr>
+Message-Id: <200201260107.CAA29227@www.olm.fr>
 To: linux-kernel@vger.kernel.org
 Subject: Nouvelles acquisitions / New online
 From: "AaZbooks.com" <aazmace@aazbooks.com>

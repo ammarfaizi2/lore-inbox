@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130758AbRBWJvc>; Fri, 23 Feb 2001 04:51:32 -0500
+	id <S130706AbRBWJ4X>; Fri, 23 Feb 2001 04:56:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131025AbRBWJvW>; Fri, 23 Feb 2001 04:51:22 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:29192 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130832AbRBWJvG>; Fri, 23 Feb 2001 04:51:06 -0500
-Date: Thu, 22 Feb 2001 21:15:45 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: root <lkthomas@hkicable.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: need to suggest a good FS:
-In-Reply-To: <3A95A94E.E3C84BE4@hkicable.com>
-Message-ID: <Pine.LNX.4.33.0102222114340.2548-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S131025AbRBWJ4M>; Fri, 23 Feb 2001 04:56:12 -0500
+Received: from web8002.in.yahoo.com ([203.199.70.20]:34570 "HELO
+	web8002.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S130706AbRBWJ4K>; Fri, 23 Feb 2001 04:56:10 -0500
+Message-ID: <20010223100140.25508.qmail@web8002.mail.in.yahoo.com>
+Date: Fri, 23 Feb 2001 10:01:40 +0000 (GMT)
+From: Rahul <callrahulonly@yahoo.co.in>
+Subject: Linux device driver writing
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, root wrote:
+Hi friends,
 
->Date: Fri, 23 Feb 2001 08:05:34 +0800
->From: root <lkthomas@hkicable.com>
->To: linux-kernel@vger.kernel.org
->Content-Type: text/plain; charset=us-ascii
->Subject: need to suggest a good FS:
->
->hey all, trouble again
->
->anyone can suggest some good FS that can install linux?
->exclude reiserfs, ext2, ext3, DOS FAT..etc
->just need non-normal or non-popular FS, any suggestion?
+I am new to this field of writing device drivers. I
+have done my course in Unix/C and presently working
+for a company in india in embedded systems. I am
+looking forward to write some device drivers in
+Linux/Unix/QNX can any one suggest me any good book
+which i can refer for my guidance.
 
-cbmfs?  Might be a bit tight on disk space though.  It would
-definitely be non-{normal,popular}.
+thx for your constant support.
+bye
+rahul
 
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-Fun thing to do as root, in the root directory:
-chmod -R 666 *
-Just as bad as rm -rf *, but more fun.
-"The files are all there, but I can't do anything with them!"
-And you can't change permissions, since chmod isn't executable either. :-)
-
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.in address at http://mail.yahoo.co.in

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263449AbTC2SGN>; Sat, 29 Mar 2003 13:06:13 -0500
+	id <S263448AbTC2SPf>; Sat, 29 Mar 2003 13:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263451AbTC2SGN>; Sat, 29 Mar 2003 13:06:13 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:53692 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S263449AbTC2SGM>; Sat, 29 Mar 2003 13:06:12 -0500
-Message-ID: <3E85E35C.3090107@myrealbox.com>
-Date: Sat, 29 Mar 2003 10:18:04 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.3b) Gecko/20030213
-X-Accept-Language: en-us, en
+	id <S263451AbTC2SPf>; Sat, 29 Mar 2003 13:15:35 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:18692 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S263448AbTC2SPe>; Sat, 29 Mar 2003 13:15:34 -0500
+From: john@grabjohn.com
+Message-Id: <200303291829.h2TITPPi000418@81-2-122-30.bradfords.org.uk>
+Subject: Re: [TRIVIAL] Cleanup in fs/devpts/inode.c
+To: l.s.r@web.de (=?ISO-8859-1?Q?Ren=E9?= Scharfe)
+Date: Sat, 29 Mar 2003 18:29:25 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+In-Reply-To: <20030329192616.72a397a4.l.s.r@web.de> from "=?ISO-8859-1?Q?Ren=E9?= Scharfe" at Mar 29, 2003 07:26:16 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.66-ac1  SCSI question for Alan
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+> this patch un-complicates a small piece of code of the dev/pts
+> filesystem and decreases the size of the object code by 8 bytes
+> for my build. Yay! :)
 
-First, the Makefile in your patch still says 2.5.65-ac4.
+> -		err = PTR_ERR(devpts_mnt);
+> -		if (!IS_ERR(devpts_mnt))
+> -			err = 0;
+> +		if (IS_ERR(devpts_mnt))
+> +			err = PTR_ERR(devpts_mnt);
 
-Second, I'm still trying to untangle the ppa driver problem, and the
-'ac' patches may be a clue.  What I see is that there is a significant
-difference between the 'ac' kernels and Linus's kernels:
+Why not use
 
-With Linus's kernels the ppa driver actually does work, although I get
-a kernel oops and modprobe segfaults after loading ppa.
+err = (IS_ERR(devpts_mnt) ? err = 0 : PTR_ERR(devpts_mnt));
 
-However, the 'ac' kernels don't work with the ppa module because the
-sda4 device never appears in /dev, so naturally the Zip drive won't
-mount properly (although the ppa module does load with the same oops).
+?
 
-The /dev/scsi/host0/bus0/target6/lun0 directory should contain entries
-for 'disc' and 'part4' but with the 'ac' patches they don't appear.
-
-Can you think of any reason that the 'ac' patches would have this
-effect?
-
-Thanks.
-
-
-
+John.

@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbULGVBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbULGVKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbULGVBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 16:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbULGVBr
+	id S261895AbULGVKr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 16:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbULGVKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 16:01:47 -0500
-Received: from mail.gmx.de ([213.165.64.20]:39854 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261892AbULGVBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 16:01:17 -0500
-X-Authenticated: #3340650
-Subject: Re: [<02282da7>] (usb_hcd_irq+0x0/0x4b) Disabling IRQ #5 - USB
-	Devices do not work
-From: Florian Krammel <florian_kr@gmx.de>
-To: Kernel-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1102450409.7531.10.camel@orange-bud>
-References: <1102333735.5095.4.camel@orange-bud>
-	 <1102339694.13485.26.camel@localhost.localdomain>
-	 <1102450409.7531.10.camel@orange-bud>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yCmHQkHtMi338+fnSWKW"
-Date: Tue, 07 Dec 2004 21:52:09 +0100
-Message-Id: <1102452729.7531.29.camel@orange-bud>
+	Tue, 7 Dec 2004 16:10:47 -0500
+Received: from quickstop.soohrt.org ([81.2.155.147]:30157 "EHLO
+	quickstop.soohrt.org") by vger.kernel.org with ESMTP
+	id S261895AbULGVKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 16:10:40 -0500
+Date: Tue, 7 Dec 2004 22:10:35 +0100
+From: Karsten Desler <kdesler@soohrt.org>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       jamal <hadi@cyberus.ca>, Robert Olsson <Robert.Olsson@data.slu.se>,
+       P@draigBrady.com
+Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
+Message-ID: <20041207211035.GA20286@quickstop.soohrt.org>
+References: <20041206205305.GA11970@soohrt.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
+In-Reply-To: <20041206205305.GA11970@soohrt.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-yCmHQkHtMi338+fnSWKW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Karsten Desler <kdesler@soohrt.org> wrote:
+> Current packetload on eth0 (and reversed on eth1):
+>   115kpps tx
+>   135kpps rx
 
-> > What chipset is the motherboard ?
+I totally forgot to mention: There are approximately 100k concurrent
+flows.
 
-I don't know, I don't have the motherboard manuals.
-How can I get this information via software?
+>From dmesg:
+IP: routing cache hash table of 16384 buckets, 128Kbytes
 
+Maybe there is some contention on the rt_hash_table spinlocks?
+Is the attached patch enough to increase the size?
 
-> > Windows XP and Linux may well hit the same problems with USB.
+- Karsten
 
-really? ;)
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="rtcachesize.patch"
 
+--- linux/net/ipv4/route.c~old	2004-12-07 21:55:22.000000000 +0100
++++ linux/net/ipv4/route.c	2004-12-07 21:55:32.000000000 +0100
+@@ -2728,7 +2728,7 @@
+ 	if (!ipv4_dst_ops.kmem_cachep)
+ 		panic("IP: failed to allocate ip_dst_cache\n");
+ 
+-	goal = num_physpages >> (26 - PAGE_SHIFT);
++	goal = num_physpages >> (23 - PAGE_SHIFT);
+ 	if (rhash_entries)
+ 		goal = (rhash_entries * sizeof(struct rt_hash_bucket)) >> PAGE_SHIFT;
+ 	for (order = 0; (1UL << order) < goal; order++)
 
-> > The latest FC3 kernel should have new enough -ac patches to run on boxe=
-s
-> > with
-> > totally broken BIOS IRQ routing. Try the boot option "irqpoll"
-
-this is great, thank you! I get the error message but everything works
-
-
-> > Ditto, and this is quite possibly the root cause. That suggests the BIO=
-S
-> > handover code for EHCI is insufficient for some cases (and it appears t=
-o
-> > be looking at the code quickly - it should register IRQ 5 before doing =
-a
-> > handover which it does but it probably needs to just ack and mask IRQ 5
-> > during the handover. It could be another device breaking IRQ5 however)
-> >=20
-> >=20
-> > What occurs if you build a kernel with EHCI disabled, ditto what occurs
-> > if you boot with init=3D/bin/sh and then load ohci before ehci ?
-
-I don't tested this because "irqpoll" solve my problem. Are you
-interested in the result? I can try it.
-
-
-thank you for help...
-
-mfg
-florian
-
---=20
-Florian Krammel <florian_kr@gmx.de>
-
---=-yCmHQkHtMi338+fnSWKW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBthf4m9XQAcbR/eIRAgjeAJ90BZn4HLhLlDngCzafSzuHabfdSgCfSJML
-q3OYkLsU7CB19cxTpuP3Myk=
-=3bR3
------END PGP SIGNATURE-----
-
---=-yCmHQkHtMi338+fnSWKW--
-
+--y0ulUmNC+osPPQO6--

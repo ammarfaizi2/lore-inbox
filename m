@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVAZXtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVAZXxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVAZXtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVAZXsI
+	id S262142AbVAZXxR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVAZXv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:48:08 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:16086 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262127AbVAZT02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:26:28 -0500
-Date: Wed, 26 Jan 2005 11:26:19 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] unexport register_cpu and unregister_cpu
-Message-ID: <20050126112619.A27536@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <1106722547.9855.36.camel@localhost.localdomain> <20050126102226.A27022@unix-os.sc.intel.com> <1106766630.13753.23.camel@biclops>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1106766630.13753.23.camel@biclops>; from nathanl@austin.ibm.com on Wed, Jan 26, 2005 at 01:10:30PM -0600
+	Wed, 26 Jan 2005 18:51:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12515 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262201AbVAZTy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:54:29 -0500
+Date: Wed, 26 Jan 2005 11:53:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olh@suse.de>
+cc: Jesse Pollard <jesse@cats-chateau.net>, linux-os <linux-os@analogic.com>,
+       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
+       Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <20050126193839.GA29324@suse.de>
+Message-ID: <Pine.LNX.4.58.0501261151010.2362@ppc970.osdl.org>
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org>
+ <41F6A45D.1000804@comcast.net> <Pine.LNX.4.61.0501251542290.8986@chaos.analogic.com>
+ <05012609151500.16556@tabby> <Pine.LNX.4.58.0501260803360.2362@ppc970.osdl.org>
+ <20050126191501.GA26920@suse.de> <Pine.LNX.4.58.0501261127280.2362@ppc970.osdl.org>
+ <20050126193839.GA29324@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 01:10:30PM -0600, Nathan Lynch wrote:
-> On Wed, 2005-01-26 at 10:22 -0800, Keshavamurthy Anil S wrote:
-> > On Wed, Jan 26, 2005 at 12:55:47AM -0600, Nathan Lynch wrote:
-> > > http://linus.bkbits.net:8080/linux-2.5/cset@4180a2b7mi2fzuNQDBOQY7eMAkns8g?nav=index.html|src/|src/drivers|src/drivers/base|related/drivers/base/cpu.c
-> > > 
-> > > This changeset introduced exports for register_cpu and unregister_cpu
-> > > right after 2.6.10.  As far as I can tell these are not called from any
-> > > code which can be built as a module, and I can't think of a good reason
-> > > why any out of tree code would use them.  Unless I've missed something,
-> > > can we remove them before 2.6.11?
+
+
+On Wed, 26 Jan 2005, Olaf Hering wrote:
 > > 
-> > 	No this is not correct. ACPI processor.ko driver which supports
-> > physical CPU hotplug needs register_cpu() and unregister_cpu() functions
-> > for dynamically hotadd/hotremove support of the processors.
+> > Details, please?
 > 
-> I do not understand your objection.  The processor module does not call
-> the interfaces in question directly.  They are called only from arch
-> setup code (e.g. arch/ia64/kernel/topology.c) which is never built as a
-> module.
+> You did it this way:
+> http://linux.bkbits.net:8080/linux-2.5/cset@4115cba3UCrZo9SnkQp0apTO3SghJQ
 
-Oops.. Sorry, its my fault.
+Oh, that's a separate issue. We want to have multiple levels of security.
 
-> 
-> > Please see drivers/acpi/processor_core.c  
-> > 	acpi_processor_hotadd_init() -> arch_register_cpu() ->
-> > 		->register_cpu().
-> 
-> Sure -- the arch_register_cpu and arch_unregister_cpu symbols need to be
-> exported for this use (and they are).  Exporting register_cpu and
-> unregister_cpu is unnecessary.
+We not only try to make sure that there are easy interfaces (but yeah, I 
+don't force people to rewrite - I sadly don't have a cadre of slaves at my 
+beck and call ;p), but it's also always a good idea to have interfaces 
+that are bug-resistant even in the face of people actively not using the 
+better interfaces.
 
-I agree with you 100%. 
+So having good interfaces that are harder to have bugs in does _not_ mean 
+that we still shouldn't have defensive programming practices anyway. The 
+combination of the two means that a bug in one layer hopefully gets caught 
+be the other layer.
 
-> 
-> I double-checked an ia64 build with CONFIG_ACPI_HOTPLUG_CPU=y and
-> CONFIG_ACPI_PROCESSOR=m and saw no errors or warnings caused by the
-> change...
-
-Andrew, I have no objection with Nathan's patch.
-
-thanks,
-Anil
-
+		Linus

@@ -1,34 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSKYSXi>; Mon, 25 Nov 2002 13:23:38 -0500
+	id <S262780AbSKYSda>; Mon, 25 Nov 2002 13:33:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSKYSXi>; Mon, 25 Nov 2002 13:23:38 -0500
-Received: from sullivan.realtime.net ([205.238.132.76]:51473 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id <S262664AbSKYSXh>; Mon, 25 Nov 2002 13:23:37 -0500
-Date: Mon, 25 Nov 2002 12:30:46 -0600 (CST)
-Message-Id: <200211251830.gAPIUkZ90395@sullivan.realtime.net>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-From: Milton Miller <miltonm@bga.com>
-Subject: Re: [PATCH] make 2.5.49 mount root again for devfs users
-In-Reply-To: <3DE21B96.8BA15D27@aitel.hist.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S264001AbSKYSda>; Mon, 25 Nov 2002 13:33:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:37078 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262780AbSKYSd3>;
+	Mon, 25 Nov 2002 13:33:29 -0500
+Date: Mon, 25 Nov 2002 12:34:54 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] sysfs on 2.5.48 unable to remove files while in use
+In-Reply-To: <20021124113258.S17062@almesberger.net>
+Message-ID: <Pine.LNX.4.33.0211251136590.898-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What you did was bypass devfs, and cause create_dev to mknod a file
-with the device number of your root instead of creating a symlink
-to the normal devfs node.
 
-Is your booter translating the device name into a number?  You can
-check this by looking at the printed comand line in the dmesg, or
-by cat /proc/cmdline .
+On Sun, 24 Nov 2002, Werner Almesberger wrote:
 
-If you see root=0304 then your booter is translating the device number
-and therefore find_in_devfs is failing (possibly because of the previously
-metioned patch to read_dir).
+> Alexander Viro wrote:
+> > a) sysfs doesn't allow mkdir/rmdir and thus avoids an imperial buttload
+> > of races - witness the crap in devfs.
+> 
+> But isn't one of the problems there that kernel and user space can
+> both initiate changes ? What I'm proposing is to let this be driven
+> by user space. You'd of course still have different policies in
+> different parts of the sysfs hierarchy, but would that really be a
+> problem ?
 
-I notice that there are lots of hardcoded maxdepth of 64 characters for
-the devfs path, but yours seems to be 39 and therefore should be ok.
+Yes. The fs hasn't allowed userspace to create and remove files and 
+directories because it's too complex to be worth it. There are a number of 
+races to be dealt with, plus you have to make the filesystem deal with the 
+policy of interpreting the user's request properly. 
 
-milton
+> > c) mkdir creating non-empty directory or rmdir removing non-empty directory
+> > is *ugly*.
+> 
+> Uglier than a "magic" file that then goes and creates/removes
+> directories and files in them ? Why don't we  echo mkdir foo >.
+> then ? ;-)
+
+On the surface, that's what's happening, and it's the same way procfs has
+worked for ages.  It's not great, but it works well for specific purposes.
+
+The difference is that sysfs directories are tied to kobjects. By writing
+to the file with the specific syntax, you are telling the module to create
+an object with the parameters you give. Once the object is registered, a 
+directory is created for it, and it's only removed when the object is 
+unregistered. We don't just randomly create directories. 
+
+The object type is context dependent, as well as the parameters and the
+syntax to write to the file.  That's the flexibility we can afford.
+
+[ From a purist standpoint, it's still a little weird. Al has been telling
+me for ages that the only proper way to do it is to have each object get a
+mountpoint instead of a directory. According to him, which I generally
+take as gospel, it's the only way to do in-kernel filesystems in a
+race-free way. It's hard, and IIRC, there are several infrastructural
+changes that must take place in order for it to happen. (I think I still
+have the IRC log somewhere..) But, it might happen someday.. ]
+
+
+	-pat
+

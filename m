@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313668AbSDURpE>; Sun, 21 Apr 2002 13:45:04 -0400
+	id <S313675AbSDURsE>; Sun, 21 Apr 2002 13:48:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313675AbSDURpE>; Sun, 21 Apr 2002 13:45:04 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:61859 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313668AbSDURpC>;
-	Sun, 21 Apr 2002 13:45:02 -0400
-Date: Sun, 21 Apr 2002 13:45:00 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Larry McVoy <lm@work.bitmover.com>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-        Wayne Scott <wscott@work.bitmover.com>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421134500.A7828@havoc.gtf.org>
-In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020421131354.C4479@havoc.gtf.org> <20020421102339.E10525@work.bitmover.com> <20020421133225.F4479@havoc.gtf.org> <20020421103923.I10525@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313676AbSDURsD>; Sun, 21 Apr 2002 13:48:03 -0400
+Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:7572 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313675AbSDURsC>;
+	Sun, 21 Apr 2002 13:48:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Date: Sat, 20 Apr 2002 19:48:44 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020421101731.D10525@work.bitmover.com> <20020421132203.E4479@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16yyya-0000l7-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 10:39:23AM -0700, Larry McVoy wrote:
-> On Sun, Apr 21, 2002 at 01:32:25PM -0400, Jeff Garzik wrote:
-> > On Sun, Apr 21, 2002 at 10:23:39AM -0700, Larry McVoy wrote:
-> > > > IOW, I propose to create a "linuspush" script that replaces his current
-> > > > "bk push" command.  Linus pushes batches of csets out at a time,
-> > > > make these cset batches the pre-patches...
+On Sunday 21 April 2002 19:22, Jeff Garzik wrote:
+> Daniel Phillips wrote:
+> > On Sunday 21 April 2002 18:57, Jeff Garzik wrote:
+> > > On Sat, Apr 20, 2002 at 06:46:11PM +0200, Daniel Phillips wrote:
+> > > > Let's pull back a little from the proselytizing, shall we?  I'll modify
+> > > > my proposal to 'include just a pointer to the bk documentation in the
+> > > > kernel tree itself'.  This should satisfy everybody.
 > > > 
-> > > This is easily doable as a trigger.  I'm pretty sure that all you want
-> > > is
+> > > No, it doesn't.  It was put into the tree for convenience.
 > > 
-> > Not quite -- pre-patches are a one-big-patch, diffed against the most
-> > recently released kernel.  
+> > How much less convenient is it to click on a link?  So much harder that it's
+> > worth pissing off some key developers?
 > 
-> That's easier yet.
-> 
-> 	bk diffs -Cv2.5.8
-> 
-> > One quality of all traditional Linus pre-patches and patches is that
-> > if you have N csets modifying a single file, you see N gnu-style diff
-> > modifications, instead of the single one you would get when generating
-> > the patch via GNU diff.
-> 
-> Did you get that backwards?  Do you want to see N diffs on a single
-> file or do you want one?  We can do either, diffs -C does one.
+> Linus has already explained why he put it into the kernel sources.
 
-Didn't get it backwards, I misunderstood BK.
+So far the only argument I've seen is: it's convenient.  Did I miss something?
 
-It sounds like 'bk diffs -C' does what I want.
+The convenience argument is bogus.  A url is just as convenient, especially as
+Larry has offered an appropriate home, one which will by definition continue
+to exist as long as Bitkeeper stays alive.  Plus, the url saves download
+bandwidth.  A compelling argument I'd say.
 
+> And, who are these key developers you are speaking for?
 
-> Also, we're planning on making a "push stack", which remembers the set of
-> csets pushed each time, so you can do
-> 
-> 	bk undo	# remove the last push effects
-> 	bk undo	# remove the last push effects
-> 	..
-> 	bk undo	# remove the clone effects and destroy the repository
-> 
-> You could use that to generate these patches you want.
+They can introduce themselves if they wish.  Or you can ask around.
 
-Gnifty... I don't know that I would ever use the multiple-undo stack,
-but being able to see a single GNU-style patch for set of "what I just
-downloaded in the last bk pull" would definitely come in handy.
-(substitute "last bk pull" with "a bk pull N pulls ago" if you like)
-
-	Jeff
-
-
+-- 
+Daniel

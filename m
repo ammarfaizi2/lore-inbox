@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318138AbSGWRhP>; Tue, 23 Jul 2002 13:37:15 -0400
+	id <S318163AbSGWRkV>; Tue, 23 Jul 2002 13:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318153AbSGWRhP>; Tue, 23 Jul 2002 13:37:15 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:12774 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318138AbSGWRhO>;
-	Tue, 23 Jul 2002 13:37:14 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318164AbSGWRkV>; Tue, 23 Jul 2002 13:40:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:3267 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318163AbSGWRkV>;
+	Tue, 23 Jul 2002 13:40:21 -0400
+Subject: Re: [OOPS] 2.5.27 - __free_pages_ok()
+From: Paul Larson <plars@austin.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, haveblue@us.ibm.com
+In-Reply-To: <20020722225251.GG919@holomorphy.com>
+References: <Pine.LNX.4.44L.0207221704120.3086-100000@imladris.surriel.com>
+	<1027377273.5170.37.camel@plars.austin.ibm.com> 
+	<20020722225251.GG919@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15677.37942.751459.494661@napali.hpl.hp.com>
-Date: Tue, 23 Jul 2002 10:36:54 -0700
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
-       David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VM accounting 3/3 noreserve
-In-Reply-To: <Pine.LNX.4.21.0207231828180.10982-100000@localhost.localdomain>
-References: <Pine.LNX.4.21.0207231823470.10982-100000@localhost.localdomain>
-	<Pine.LNX.4.21.0207231828180.10982-100000@localhost.localdomain>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 Jul 2002 12:40:43 -0500
+Message-Id: <1027446044.7699.15.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 23 Jul 2002 18:29:22 +0100 (BST), Hugh Dickins <hugh@veritas.com> said:
+On Mon, 2002-07-22 at 17:52, William Lee Irwin III wrote:
+> ISTR this compiler having code generation problems. I think trying to
+> reproduce this with a working i386 compiler is in order, e.g. debian's
+> 2.95.4 or some similarly stable version.
+That's exactly the one I was planning on trying it with.  Tried it this
+morning with the same error.  Three compilers later, I think this is
+looking less like a compiler error.  Any ideas?
 
-  Hugh> MAP_NORESERVE handling remains odd: doesn't have its own
-  Hugh> VM_flag, so mprotect a private readonly MAP_NORESERVE mapping
-  Hugh> to writable and the reservation is then made/checked (see
-  Hugh> vmacct2 patch).  I don't mind adding VM_NORESERVE to fix that
-  Hugh> later, if MAP_NORESERVE users think it necessary: David?
+-Paul Larson
 
-Well, if we support MAP_NORESERVE, we ought to do it consistently and
-correctly (note: my original report was triggered by a third party
-getting confused because MAP_NORESERVE didn't work as expected).
-
-	--david

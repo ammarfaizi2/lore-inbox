@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270889AbTGQUj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 16:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGQUj4
+	id S270898AbTGQUkO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 16:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270908AbTGQUkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 16:39:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31908 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270889AbTGQUjz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 16:39:55 -0400
-Message-ID: <3F170D0F.7070304@pobox.com>
-Date: Thu, 17 Jul 2003 16:54:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 17 Jul 2003 16:40:14 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:8928 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S270898AbTGQUkK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 16:40:10 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-References: <20030711140219.GB16433@suse.de>
-In-Reply-To: <20030711140219.GB16433@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
+Date: Thu, 17 Jul 2003 13:55:03 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A847E9704D@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
+Thread-Index: AcNMk4BYEQU1resIQXaqRR34qsaMxwAEd5OA
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Alvaro Lopes" <alvieboy@alvie.com>,
+       "Ralf Hildebrandt" <Ralf.Hildebrandt@charite.de>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Jul 2003 20:55:03.0644 (UTC) FILETIME=[B20431C0:01C34CA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another one:
+> From: Alvaro Lopes [mailto:alvieboy@alvie.com] 
+> I have the same problem here with a toshiba satellite (with 
+> 2.6.0-test1).  It boots ok, then when I reboot it stops 
+> before loading 
+> lilo (pure blank screen with only cursor on it). If I switch 
+> off/on it 
+> goes OK.
+> 
+> This wasn't happening in 2.5.66. ACPI S3 suspend/resume is 
+> working fine 
+> though. Could this be related to ACPI in any way?
 
-rmmod on net drivers no longer produces the behavior that's existed 
-since modules were first added to the kernel.
+ACPI S3 works???
 
-	Jeff
+The screen and all devices work after resume?
 
-
-
+-- Andy

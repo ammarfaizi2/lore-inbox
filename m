@@ -1,45 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263612AbUFBQxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUFBRF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbUFBQxq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUFBQxq
+	id S262756AbUFBRF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 13:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUFBRF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:53:46 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:31977 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S263612AbUFBQxg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:53:36 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Possible bug: ext3 misreporting filesystem usage
-Date: Wed, 2 Jun 2004 16:53:34 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c9l0me$cf1$1@news.cistron.nl>
-References: <1275157.LnyMtzroWT@ironfroggy.com>
+	Wed, 2 Jun 2004 13:05:28 -0400
+Received: from outmx002.isp.belgacom.be ([195.238.3.52]:17092 "EHLO
+	outmx002.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S262756AbUFBRFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 13:05:17 -0400
+Subject: Re: why swap at all?
+From: FabF <fabian.frederick@skynet.be>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200406022142.52854.kernel@kolivas.org>
+References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
+	 <1086154721.2275.2.camel@localhost.localdomain>
+	 <200406022142.52854.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1086196003.2047.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1086195214 12769 62.216.29.200 (2 Jun 2004 16:53:34 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 02 Jun 2004 19:06:44 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1275157.LnyMtzroWT@ironfroggy.com>,
-Calvin Spealman  <calvin@ironfroggy.com> wrote:
->I've been getting a possible bug after running my system a few weeks. The
->ext3 partition's usage is being misreported. Right now, df -h says ive got
->no space left, but according to du /, I'm only using 17 gigs of my 40 gig
->drive. Restarting fixes the problem, so I'm thinking it might be some
->mis-handled variable in memory, not something on the disc itself? And, yes,
->I do know that du is right, not df, because I keep good track of my disc
->usage. This is pretty serious, it killed a 40+ hour process that i'll have
->to start over again from the beginning!
+On Wed, 2004-06-02 at 13:42, Con Kolivas wrote:
+> On Wed, 2 Jun 2004 15:38, FabF wrote:
+> > On Wed, 2004-06-02 at 01:17, Bernd Eckenfels wrote:
+> > > In article <200406012000.i51K0vor019011@turing-police.cc.vt.edu> you 
+> wrote:
+> > > > out (unlike some, I don't mind if Mozilla or OpenOffice end up out on
+> > > > disk after extended inactivity - but if my window manager gets swapped
+> > > > out, I get peeved when focus-follows-mouse doesn't and my typing goes
+> > > > into the wrong window or some such... ;)
+> > >
+> > > Yes but: your wm is so  often used/activated it will not get swaped  out.
+> > > But if your mouse passes over mozilla and tries to focus it, then you
+> > > will feel the pain of a swapped-out x program.
+> >
+> > Exactly !
+> > Does autoregulated VM swap. patch could help here ?
+> 
+> Unless you are pushing the limits of your available ram by your usage pattern 
+> then yes the autoregulated swappiness patch should help.
+> 
+> available here:
+> http://ck.kolivas.org/patches/2.6/2.6.7-rc2/patch-2.6.7-rc2-am11
+> 
+> Just a brief word that might clarify things for people. It seems this huge 
+> swap discussion centres around 2 different arguments. Akpm has said that the 
+> correct way for the vm to behave is that of swappiness=100. Desktop users 
+> note they have less swap out of the programs they use with swappiness 0 or 
+> their swap turned off. When your swappiness is set high, the current vm 
+> decisions are the fastest they can be, but when you go back to your 
+> applications they will take longer to restart. When your swappiness is set 
+> low your applications will restart rapidly, but the current vm will be doing 
+> more work and be slower. Most benchmarks will show the latter, but most 
+> desktop users will feel the former and not really notice the latter.
+> 
+> Try the little experiment to see: Boot with mem=128M and try to compile a 2.6 
+> kernel with all the debugging symbols option enabled - do this with 
+> swappiness set to 0 and then at 100. You'll see it compile much faster at 
+> 100. Yet you know that if you set your swappiness to 0 mozilla will load 
+> faster next time you use it on your desktop during your normal usage pattern 
+> (of course you'd probably be using mozilla on a system with a bit more than 
+> 128M ram but this helps demonstrate the point). 
+> 
+> Does this explain in coarse examples to the desktop users why ideal systems 
+> shouldn't be swap disabled or swappiness=0 ?
+> 
+> The autoregulated swappiness patch tries to get some sort of common ground, 
+> where it sacrifices performance slightly currently to improve what happens 
+> the next time you use your machine substantially. Because it changes with the 
+> amount of application pages in ram, it will not increasingly sacrifice 
+> performance when your memory is full with application pages. What it will not 
+> do is improve the swap thrash situation when you have grossly overloaded your 
+> ram.
+> 
+> Con
 
-There's a process holding on to a 23 GB logfile that has been
-deleted. Try "ls -l /proc/*/fd/* 2>&1 | grep deleted" . Kill the
-process and you'll have your space back.
+My box rocks with you patch Con ! Swappiness is floating between 50->65.
+I never saw a 2.6 box so quick in rl5.
 
-Mike.
+Thanks !
+FabF
+
+
+
 

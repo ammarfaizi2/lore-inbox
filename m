@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131276AbRC3Jo7>; Fri, 30 Mar 2001 04:44:59 -0500
+	id <S131293AbRC3Jo7>; Fri, 30 Mar 2001 04:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131293AbRC3Jou>; Fri, 30 Mar 2001 04:44:50 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:36936 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131246AbRC3Joh>; Fri, 30 Mar 2001 04:44:37 -0500
-Date: Fri, 30 Mar 2001 03:43:46 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Jaswinder Singh <jaswinder.singh@3disystems.com>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-   Jamey Hicks <jamey@crl.dec.com>, Stephen L Johnson <sjohnson@monsters.org>
-Subject: Re: Memory leak in the ramfs file system
-In-Reply-To: <022101bfd4af$dbb068c0$bba6b3d0@Toshiba>
-Message-ID: <Pine.LNX.3.96.1010330034105.8826E-100000@mandrakesoft.mandrakesoft.com>
+	id <S131246AbRC3Jov>; Fri, 30 Mar 2001 04:44:51 -0500
+Received: from mx.interplus.ro ([193.231.252.3]:44804 "EHLO mx.interplus.ro")
+	by vger.kernel.org with ESMTP id <S131276AbRC3Jol>;
+	Fri, 30 Mar 2001 04:44:41 -0500
+Message-ID: <3AC45495.6146B17D@interplus.ro>
+Date: Fri, 30 Mar 2001 12:40:37 +0300
+From: Mircea Ciocan <mirceac@interplus.ro>
+Organization: Home Office
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac24 i686)
+X-Accept-Language: ro, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Manoj Sontakke <manojs@sasken.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Packet/frame generator
+In-Reply-To: <Pine.LNX.4.21.0103302013040.1257-100000@pcc65.sasi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2000, Jaswinder Singh wrote:
-> > What does /proc/slabinfo say? The most likely leak is a dentry leak or
-> > an inode leak, and both of those should be fairly easy to see in the
-> > slab info (dentry_cache and inode_cache respectively).
-> >
+	Here is a nice packet building library:
+
+www.packetfactory.net/Projects/Libnet/
+
+		HTH
+
+		Mircea C.
+
+
+
+Manoj Sontakke wrote:
 > 
-> I am attaching details before and during  my application .
+> Hi
+>         Can anyone tell me a good packet/frame generator for linux?
+> thanks
 > 
-> Mainly changes are in dentry_cache and inode_cache , but i am attaching
-> whole /proc/slabinfo for your reference.
-
-Would it be possible for you to attached a 'before' picture of slabinfo,
-as well as 'after'?
-
-> > Obviously, it could be a data page leak too, but such a leak should be
-> > easy to see by creating a few big files and deleting them..
-> >
-> > Linus
+> manoj
 > 
-> I am also facing one more problem with ramfs.
-> 
-> du and df shows 0 , so i am also attaching its output.
-
-I don't recall how du works exactly... if it uses stat(2), it should not
-be broken AFAIK.
-
-As for 'df', that will definitely show zero, because ramfs does not do
-filesystem accounting in its present form.  You might consider trying a
-modified version of ramfs, as found in Alan Cox's 'ac' patchkit.  This
-patchkit includes a modified ramfs which supports limiting filesystem
-size, but more importantly (for you), it should make 'df' work again.
-
-	Jeff
-
-
-
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

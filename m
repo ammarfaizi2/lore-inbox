@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275327AbTHMSip (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275323AbTHMSiH
+	id S275313AbTHMTAT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHMTAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:38:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40912 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275339AbTHMSgp (ORCPT
+	Wed, 13 Aug 2003 15:00:19 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:48875 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S275313AbTHMTAN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:36:45 -0400
-Date: Wed, 13 Aug 2003 11:36:35 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] get rid of bcopy warning
-Message-Id: <20030813113635.3d3b71ce.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Aug 2003 15:00:13 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C0638AF57@txexmtae.amd.com>
+From: richard.brunner@amd.com
+To: ak@suse.de, alan@lxorguk.ukuu.org.uk
+cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+Date: Wed, 13 Aug 2003 13:59:55 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 132455251530573-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of warning because internal definition of bcopy
-conflicts with builtin.  The warning is probably a bogus
-bug of GCC 3.2.3, but the workaround is simple.
+See below.
 
-Almost no driver really uses bcopy anyway, and no code
-uses the return value.
+] -Rich ...
+] AMD Fellow
+] richard.brunner at amd com 
+ 
+> From: Andi Kleen [mailto:ak@suse.de] 
 
-diff -Nru a/lib/string.c b/lib/string.c
---- a/lib/string.c	Wed Aug 13 11:31:13 2003
-+++ b/lib/string.c	Wed Aug 13 11:31:13 2003
-@@ -432,14 +432,13 @@
-  * You should not use this function to access IO space, use memcpy_toio()
-  * or memcpy_fromio() instead.
-  */
--char * bcopy(const char * src, char * dest, int count)
-+void bcopy(const void * src, void * dest, size_t count)
- {
-+ 	const char *s = src;
- 	char *tmp = dest;
- 
- 	while (count--)
--		*tmp++ = *src++;
--
--	return dest;
-+		*tmp++ = *s++;
- }
- #endif
- 
+> On Wed, Aug 13, 2003 at 04:20:11PM +0100, Alan Cox wrote:
+> > On Mer, 2003-08-13 at 15:20, Andi Kleen wrote:
+
+> > Has AMD confirmed that your solution is ok for the K7 as well as K8 - 
+> > ie that if we hit the errata the fixup recovers the CPU from whatever 
+> > lunatic state it is now in ?
+> 
+> My solution is a fix as the problem is described in the 
+> Opteron Specification Update (and also as our own testing 
+> showed - we discovered the problem originally) 
+
+Hi, AMD has not confirmed anything with respect to this issue
+on K7/Athlon. We are currently trying to get the code that reproduces
+this bug into AMD so we can see what triggers it.
+
+Andi's workaround for Opteron (before a BIOS fix was available),
+is probably a fine *short-term* workaround until we can get back 
+to you on this. AMD believes that dimissing a exception on
+prefetch as spurious on Athlon will work you around the current
+problem.
+
+Linking the Opteron bug to an Athlon bug is pre-mature at this point.
+
+> The Errata is basically: When there is a prefetch and a load for the 
+> same address in flight and the load faults and the CPU is in 
+> a very specific complicated state then the Exception is 
+> reported on the prefetch, not the fault. 
+> 
+> The fix just handles the exception and doesn't crash.
+> 
+> At least on Opteron it can be also fixed with a magic bit in 
+> the BIOS, maybe that's possible on XP too. But I opted to 
+> work around it in the kernel to not force all people to get a 
+> new BIOS.
+
+Let us get back to you, ok? I am starting up our
+internal validation people to go poke at this.
+

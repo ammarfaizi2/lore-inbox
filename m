@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265581AbUA2K2d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 05:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265587AbUA2K2d
+	id S264917AbUA2KoH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 05:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbUA2KoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 05:28:33 -0500
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:56724 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265581AbUA2K2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 05:28:30 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Jos Hulzink <josh@stack.nl>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.1 Hyperthread smart "nice"
-Date: Thu, 29 Jan 2004 21:28:20 +1100
-User-Agent: KMail/1.5.3
-References: <200401291917.42087.kernel@kolivas.org> <200401291039.22561.josh@stack.nl>
-In-Reply-To: <200401291039.22561.josh@stack.nl>
+	Thu, 29 Jan 2004 05:44:07 -0500
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:18654 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264917AbUA2KoE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 05:44:04 -0500
+Date: Thu, 29 Jan 2004 12:44:02 +0200 (EET)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: 2.6.2-rc2 Interactivity problems with SMP + HT
+Message-ID: <Pine.LNX.4.58.0401291239320.23046@hosting.rdsbv.ro>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401292128.20650.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jan 2004 20:39, Jos Hulzink wrote:
-> On Thursday 29 Jan 2004 09:17, Con Kolivas wrote:
-> > Hi all
-> >
-> > This patch (together with the ht base patch) will not allow a priority
-> > >10 difference to run concurrently on both siblings, instead putting the
-> > low priority one to sleep. Overall if you run concurrent nice 0 and nice
-> > 20 tasks with this patch your cpu throughput will drop during heavy
-> > periods by up to 10% (the hyperthread benefit), but your nice 0 task will
-> > run about 90% faster. It has no effect if you don't run any tasks at
-> > different "nice" levels. It does not modify real time tasks or kernel
-> > threads, and will allow niced tasks to run while a high priority kernel
-> > thread is running on the sibling cpu.
->
-> If I read you correctly, if one thread has nothing else to do but the nice
-> 0 task, the nice 20 task will never be scheduled at all ? Sounds like not
-> the perfect solution to me...
+Hello!
 
-Wrong.. there is the matter of the other runqueue in smp mode :)
+First, thank you very much for the effort you put for Linux!
 
-Con
+I have a Intel motherboard with SATA (2 Maxtor disks).
+CPUs: 2 x 2.4GHz PIV HT = 4 processors (2 virtual)
+1 GB RAM.
 
+Load: postgresql and apache. Very low load (3-4 clients).
+
+RAID: Yes, soft RAID1 between the 2 disks.
+
+I have times when the console freeze for 3-4 seconds!
+2.6.0-test11 had the same problem (maybe longer times).
+2.6.1-rc2 worked good in this respect but crashed after 2 days. :(
+2.6.2-rc2 is back with the delay.
+
+Do you know why this can happen?
+
+Thank you very much!
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

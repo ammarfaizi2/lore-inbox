@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268083AbUJSJDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUJSJDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268083AbUJSJDM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 05:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJSJDM
+	id S268080AbUJSJDy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 05:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJSJDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 05:03:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:20620 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268083AbUJSJDJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:03:09 -0400
-Date: Tue, 19 Oct 2004 11:04:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Message-ID: <20041019090428.GA17204@elte.hu>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <1098173546.12223.737.camel@thomas>
+	Tue, 19 Oct 2004 05:03:53 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:6843 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S268080AbUJSJDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 05:03:49 -0400
+Date: Tue, 19 Oct 2004 11:03:46 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 BK build broken
+Message-ID: <20041019090346.GB6020@merlin.emma.line.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20041019021719.GA22924@merlin.emma.line.org> <20041018221041.184632cb.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098173546.12223.737.camel@thomas>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041018221041.184632cb.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Oct 2004, Andrew Morton wrote:
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
-
-> On Mon, 2004-10-18 at 16:50, Ingo Molnar wrote:
-> > i have released the -U5 Real-Time Preemption patch:
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> >
+> > include/linux/compiler.h:20: syntax error in macro parameter list
 > 
-> All sleep_on variants trigger the irqs_disabled() check in schedule(). 
-> tglx
+> I used this:
+> 
+> diff -puN include/linux/compiler.h~builtin_warning-is-not-traditional include/linux/compiler.h
+> --- 25/include/linux/compiler.h~builtin_warning-is-not-traditional	2004-10-18 22:08:25.224796488 -0700
+> +++ 25-akpm/include/linux/compiler.h	2004-10-18 22:09:05.505672864 -0700
+> @@ -17,7 +17,9 @@ extern void __chk_io_ptr(void __iomem *)
+>  # define __iomem
+>  # define __chk_user_ptr(x) (void)0
+>  # define __chk_io_ptr(x) (void)0
+> -#define __builtin_warning(x, ...) (1)
+> +#ifndef __ASSEMBLY__	/* gcc -traditional fails with varargs-style macros */
+> +# define __builtin_warning(x, ...) (1)
+> +#endif
+>  #endif
 
-ah, forgot that the waitqueue lock is a raw lock. Is there _any_
-scenario where sleep_on() is actually correct kernel code?
+This fixes the problem for me with SuSE's gcc-3.3.3-41, with pristine
+gcc-3.3.4 and gcc-3.4.2.
 
-	Ingo
+Thank you!
+
+-- 
+Matthias Andree

@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270977AbTGWIDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 04:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271134AbTGWIDi
+	id S267256AbTGWIGb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 04:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271155AbTGWIG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 04:03:38 -0400
-Received: from pop.gmx.net ([213.165.64.20]:35803 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270977AbTGWIDe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 04:03:34 -0400
-Date: Wed, 23 Jul 2003 13:48:11 +0530
-From: Apurva Mehta <apurva@gmx.net>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
-Message-ID: <20030723081811.GA1324@home.woodlands>
-Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20030722013443.GA18184@netnation.com> <20030722172858.GB2880@home.woodlands> <1058899713.733.6.camel@teapot.felipe-alfaro.com> <20030722203716.GA1321@home.woodlands> <20030722213326.GB1176@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722213326.GB1176@matchmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Jul 2003 04:06:26 -0400
+Received: from web41609.mail.yahoo.com ([66.218.93.109]:52114 "HELO
+	web41609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267256AbTGWIFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 04:05:41 -0400
+Message-ID: <20030723082046.42027.qmail@web41609.mail.yahoo.com>
+Date: Wed, 23 Jul 2003 10:20:46 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: announce: kmsgdump update for 2.5.75
+To: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: willy@meta-x.org
+In-Reply-To: <20030718140309.623ff4c9.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mike Fedyk <mfedyk@matchmail.com> [2003-07-23 12:00]:
+Hi Randy, all.
 
-[snip]
-> > I just patched my tree and compiled it. It does not work.. It freezes
-> > the system when I try to start X.. I gives a huge error message and
-> > the last line is something like :
-> > <6>note: X[1306] exited with preempt_count 1
-> > 
-> > I checked all the logs and I cannot find the complete error message
-> > anywhere. Any suggestions where to look? 
-> 
-> How about your Xfree86 log?  (probably somewhere in /var/log)
+OK finally I tested 2.5.74, 2.5.75 and 2.6.0-test1 on a PIII/800. They
+all allowed be to get to the interactive screen after Sysrq-D (eventhough
+the keyboard was dead after that, as always on this crappy machine/bios).
 
-I stumbled accross something very interesting today morning while
-trying to start X on 2.6.0-test1-mm2. If I login on the console and
-then execute a simple command like 'ls' and then do a `startx`, it
-works. But if login and immediately do a `startx` (without any
-preceding command), I get that error. Very strange.
+I noticed that you had a #define KDEBUG which puts printk's at every
+checkpoint. I wonder if it's not risky to do this within the last ones,
+when the machine is nearly ready to reboot. I'm not sure if this could
+work with serial consoles or frame buffer. Could you please retry with
+#undef KDEBUG ?
 
-The problems do not end there. Once I start X, I experience
-random freezes of the system. In one session I could play some music
-and write some email. It froze just after dialing into the
-internet. In another session it froze while trying to start xmms.
+BTW, I'm not certain that the current code is still totally compatible
+with standard kernel reboot techniques. I've read through it rather
+quickly and compare it to other functions such as machine_real_restart(),
+etc... It may be possible that we have to stop/notify some subsystems
+prior to this.
 
-After the system freezes in X and when I reboot into mm2, I get an error
-message like I described in my previous mail just after all the init
-scripts have started. The system then freezes again. On the subsequent
-reboot, I can login.
+FYI, on this machine, I enabled ACPI and local APIC, but disabled preempt.
+Unfortunately, I don't have enough time to recheck with different combinations
+of these options.
 
-The Xfee86 logs (XFree86.0.log and XFree86.0.log.old) do not contain
-anything relavent. I checked /var/log/messages and it has nothing either.
+Hoping this helps a bit...
 
-	- Apurva
+Cheers,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

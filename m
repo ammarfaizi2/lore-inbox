@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUCEVWp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUCEVWp
+	id S262117AbUCEV3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUCEV3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:22:45 -0500
-Received: from h24-78-210-69.ss.shawcable.net ([24.78.210.69]:63754 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP id S262109AbUCEVWm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:22:42 -0500
-Date: Fri, 5 Mar 2004 15:26:30 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] UTF-8ifying the kernel source
-Message-ID: <20040305212630.GB22261@discworld.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040304100503.GA13970@havoc.gtf.org> <buovfljbsyl.fsf@mcspd15.ucom.lsi.nec.co.jp> <c2ambg$9rs$1@terminus.zytor.com> <4048EA87.1080304@matchmail.com> <4048EADF.1060601@zytor.com> <yw1xsmgnc7sw.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 5 Mar 2004 16:29:24 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:26060 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262117AbUCEV3X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 16:29:23 -0500
+Date: Fri, 05 Mar 2004 13:28:54 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
+cc: Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+       riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <63620000.1078522134@flay>
+In-Reply-To: <20040305152622.GA14375@elte.hu>
+References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <20040305152622.GA14375@elte.hu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xsmgnc7sw.fsf@kth.se>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård <mru@kth.se> wrote:
-> >
-> > Right now, "less" seems to insist on showing ampersands for *any*
-> > non-ASCII character for me...
+> * Andrea Arcangeli <andrea@suse.de> wrote:
 > 
-> Less version 381 is working fine here with UTF-8.  I have LANG and
-> LC_CTYPE set to en_US.UTF-8.
+>> It's a nogo for 64G but I would be really pleased to see a workload
+>> triggering the zone-normal shortage in 32G, I've never seen any one. 
+>> [...]
+> 
+> have you tried TPC-C/TPC-H?
 
-less 340 works fine here with the same settings.
+We're doing those here. Publishing results will be tricky due to their
+draconian rules, but I'm sure you'll be able to read between the lines ;-)
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
------------------------------------------------------------------------
+OASB (Oracle apps) is the other total killer I've found in the past.
+
+M.
+

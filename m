@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUJOPMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUJOPMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUJOPMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 11:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUJOPKk
+	id S268039AbUJOPMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 11:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUJOPKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 11:10:40 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:24026 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267953AbUJOPFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 11:05:40 -0400
-Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mikem@beardog.cca.cpqcorp.net, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20041014183948.GA12325@infradead.org>
-References: <20041013212253.GB9866@beardog.cca.cpqcorp.net>
-	<20041014083900.GB7747@infradead.org> <1097764660.2198.11.camel@mulgrave> 
-	<20041014183948.GA12325@infradead.org>
-Content-Type: text/plain
+	Fri, 15 Oct 2004 11:10:47 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8621 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268008AbUJOPI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 11:08:28 -0400
+Message-ID: <416FE5E6.3000309@osdl.org>
+Date: Fri, 15 Oct 2004 07:59:50 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lsml@rtr.ca>,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
+References: <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca> <416EB1B6.5070603@pobox.com> <416EC90A.30607@rtr.ca> <416F5A72.9080602@pobox.com> <20041015092535.C25937@tuxdriver.com>
+In-Reply-To: <20041015092535.C25937@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 15 Oct 2004 10:05:09 -0500
-Message-Id: <1097852716.1718.9.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 13:39, Christoph Hellwig wrote:
-> Such a volume has been configured and set up, and although it's still
-> ugly I'd say it's okay.  But the patch also adds one gendisk per controller
-> even if no volume is set up.
+John W. Linville wrote:
+> On Fri, Oct 15, 2004 at 01:04:50AM -0400, Jeff Garzik wrote:
+> 
+>>The full body of your email is pasted into the BitKeeper changeset 
+>>description.
+> 
+> 
+> Jeff,
+> 
+> Andrews "The perfect patch"
+> (http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt) in section
+> 3.e says: 
+> 
+>    Most people's patch receiving scripts will treat a ^--- string
+>    as the separator between the changelog and the patch itself.  You can
+>    use this to ensure that any diffstat information is discarded when the
+>    patch is applied:
+> 
+> Do your scripts act this way as well?
 
-That's this bit of code:
+Jeff, are your scripts available somewhere (for the rest of us)?
 
-@@ -2762,7 +2810,9 @@ static int __devinit cciss_init_one(stru
-                disk->fops = &cciss_fops;
-                disk->queue = hba[i]->queue;
-                disk->private_data = drv;
--               if( !(drv->nr_blocks))
-+               /* we must register the controller even if no disks
-exist */
-+               /* this is for the online array utilities */
-+               if(!drv->heads && j)
-                        continue;
-                blk_queue_hardsect_size(hba[i]->queue, drv->block_size);
-                set_capacity(disk, drv->nr_blocks);
-
-Mike, is there a way we can only allocate a gendisk when we know there's
-actually a device there (if owned by another controller currently)?
-
-James
+> It is nice to be able to send a single e-mail both w/
+> changelog-appropriate comments and with "this relates to the last
+> message" comments as well...
+> 
+> John
+> 
+> P.S.  Hopefully I didn't misunderstand Andrew...
 
 
+Thanks,
+-- 
+~Randy

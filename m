@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317314AbSHAXZQ>; Thu, 1 Aug 2002 19:25:16 -0400
+	id <S317340AbSHAX1Y>; Thu, 1 Aug 2002 19:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317338AbSHAXZQ>; Thu, 1 Aug 2002 19:25:16 -0400
-Received: from u212-239-148-114.freedom.planetinternet.be ([212.239.148.114]:22790
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
-	id <S317314AbSHAXZP>; Thu, 1 Aug 2002 19:25:15 -0400
-Message-Id: <200208012327.g71NRWZp013762@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.30 unresolved symbol: elv_queue_empty
-Date: Fri, 02 Aug 2002 01:27:32 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S317341AbSHAX1Y>; Thu, 1 Aug 2002 19:27:24 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21509 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317340AbSHAX1X>; Thu, 1 Aug 2002 19:27:23 -0400
+Date: Thu, 1 Aug 2002 16:30:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: manipulating sigmask from filesystems and drivers 
+In-Reply-To: <Pine.LNX.4.44.0208020009490.28515-100000@serv>
+Message-ID: <Pine.LNX.4.33.0208011613440.1315-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The subject says nearly all: with 2.5.30, I get the following:
+[ I'm having a real hard time to not shout at the top of my lungs "SHUT
+  THE FUCK UP ABOUT THIS ALREADY!" and then running around the offices 
+  with a chainsaw laughing maniacally. But I'll try. This once. ]
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/block/floppy.o
-depmod:         elv_queue_empty
-depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/ide/atapi.o
-depmod:         elv_queue_empty
-depmod: *** Unresolved symbols in /lib/modules/2.5.30/kernel/drivers/ide/ide-mod.o
-depmod:         elv_queue_empty
+On Fri, 2 Aug 2002, Roman Zippel wrote:
+> 
+> Relying on that the fd will always point to a normal file is only asking
+> for trouble.
 
-Oh, while I'm at it: ever since the IDE cleanup started, loading one
-or more of the IDE/CD related modules for a second time after they 
-have been unloaded once already results in a pretty bad oops (total
-lockup). Took me quite a while to narrow this down. 2.5.29 still has 
-this problem. I was going to submit the oops for 2.5.30 if applicable, 
-but first gotta get that symbol resolved...
+People _do_ rely on regular files working this way. Wake up and smell the
+coffee, you cannot change reality by just arguing about it.
 
-This is on a measly SMP P5 with limited memory which is all-SCSI 
-except for the CD drive. Hence the modules.
+There are cases where you absolutely _have_ to rely on this documented
+UNIX behaviour. One example is using a log-file (yes, a _file_, not a
+socket or a pipe) that you explicitly opened with O_APPEND, just so that
+you can guarantee _atomic_ writes that do not get lost or partially
+re-ordered in your log.
 
-Regards,
+And yes, these logging programs are mission-critical, and they do have
+signals going on, and they rely on well-defined and documented interfaces
+that say that doing a write() to a filesystem is _not_ going to return in
+the middle just because a signal came in.
 
-  MCE
--- 
-========================================================================
-M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
-GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
- V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
-========================================================================
+These programs know what they are doing. They are explicitly _not_ using
+"stdio" to write the log-file, exactly because they cannot afford to have
+the write broken up into many parts (and they do not want to have it
+buffered either, since getting the logging out in a timely fashion can be
+important). 
+
+The only, and the _portable_ way to do this under UNIX is to create one
+single buffer, and write it out with one single write() call. Anything
+else is likely to cause the file to be interspersed by random
+log-fragments, instead of being a nice consecutive list of full log
+entries.
+
+Feel free to change Linux to have your stupid preferred semantics where
+everybody is supposed to be able to handle signals at any time, but please
+re-name it to "Crapix" when you do. Because that is what it would be.  
+Crap. Utter braindamage.
+
+If people cannot find this in SuS, then I simply don't _care_. I care
+about not having a crap OS, and I also care about not having to repeat
+myself and give a million examples of why the current behaviour is
+_required_, and why we're not getting rid of it.
+
+[ Did profanity help explain the situation? Do people finally understand 
+  why this _really_ isn't up for discussion? Please don't bother sending 
+  me any more email about this.  My co-workers are already eyeing me and 
+  my chainsaw nervously. Thank you for sparing them. ]
+
+			Linus
 

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRDNHkv>; Sat, 14 Apr 2001 03:40:51 -0400
+	id <S129346AbRDNHyk>; Sat, 14 Apr 2001 03:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRDNHkl>; Sat, 14 Apr 2001 03:40:41 -0400
-Received: from bigD.kappa.ro ([194.102.255.132]:2571 "EHLO bigD.kappa.ro")
-	by vger.kernel.org with ESMTP id <S129245AbRDNHka>;
-	Sat, 14 Apr 2001 03:40:30 -0400
-Date: Sat, 14 Apr 2001 10:40:26 +0300 (EEST)
-From: Doru Petrescu <pdoru@kappa.ro>
-Reply-To: pdoru@kappa.ro
-To: linux-kernel@vger.kernel.org
-cc: Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: problem with the timers ?!? (was: No one wants to help me)
-In-Reply-To: <3AD7696B.FB80F2B6@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0104141018150.10445-100000@bigD.kappa.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129359AbRDNHya>; Sat, 14 Apr 2001 03:54:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47631 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129346AbRDNHyP>;
+	Sat, 14 Apr 2001 03:54:15 -0400
+Date: Sat, 14 Apr 2001 09:54:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arthur Pedyczak <arthur-p@home.com>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: loop problems continue in 2.4.3
+Message-ID: <20010414095402.C20299@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0104132330560.1677-100000@cs865114-a.amp.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0104132330560.1677-100000@cs865114-a.amp.dhs.org>; from arthur-p@home.com on Fri, Apr 13, 2001 at 11:35:02PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem is, it seems that your machine is using
-> IPV4, TCP, IDE, netfilter and nothing else.  Those
-> parts of the kernel don't have the above bug (well,
-> they didn't mid last year).
+On Fri, Apr 13 2001, Arthur Pedyczak wrote:
+> Hi all,
+> here are my $0.02 regarding loop in 2.4.3.
 > 
-> One really, really useful piece of information would
-> be the value of the `function' member of the corrupted
-> timer.  Your debug code prints this out.  Do you still
-> have the logs?
+> 1. mounted file
+> mount -t iso9660 -o loop file.img /mnt/cdrom
+>     worked o.k.
+> 2. unmounted
+> umount /mnt/cdrom
+>     worked o.k.
+> 3. mounted file
+> mount -t iso9660 -o loop file.img /mnt/cdrom
+>     worked o.k.
+> 4. tried to unmount
+> umount /mnt/cdrom
+>    got oops:
 > 
-> Was it ever non-zero?
-> 
-> If so, what function was it pointing at?
+> =====================
+> Apr 13 20:50:03 cs865114-a kernel: Unable to handle kernel paging request at virtual address 7e92bfd7
 
+Please disable syslog decoding (it sucks) and feed it through ksymoops
+instead.
 
-The matchine crashed several times, BEFORE I modified timer.c
-it did NOT CRASHED even once after that :( 
-I am waiting for it to chrash.
-when it will crash, I will let you guys know.
+In other words, reproduce and dmesg | ksymoops instead.
 
-But, as I stated before, I fear that because of the changes, the race
-condition does not happen any more ...
-
-
-Best regards,
-------
-Doru Petrescu
-KappaNet - Senior Software Engineer
-E-mail: pdoru@kappa.ro		 LINUX - the choice of the GNU generation
-
+-- 
+Jens Axboe
 

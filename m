@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268292AbUH3ShK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUH3SnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268292AbUH3ShK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUH3Saz
+	id S267333AbUH3SnS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUH3SmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:30:55 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:64271 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268886AbUH3S03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:26:29 -0400
-Message-ID: <41337153.60505@superbug.demon.co.uk>
-Date: Mon, 30 Aug 2004 19:26:27 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+	Mon, 30 Aug 2004 14:42:17 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:25799 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S268303AbUH3Sjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:39:36 -0400
+Message-ID: <4133740F.6090505@grupopie.com>
+Date: Mon, 30 Aug 2004 19:38:07 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Driver retries disk errors.
-References: <20040830163931.GA4295@bitwizard.nl> <20040830174632.GA21419@thunk.org>
-In-Reply-To: <20040830174632.GA21419@thunk.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       mpm@selenic.com, linux-kernel@vger.kernel.org, bcasavan@sgi.com
+Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
+References: <1093406686.412c0fde79d4f@webmail.grupopie.com> <20040825173941.GJ5414@waste.org> <412CDE9D.3090609@grupopie.com> <20040825185854.GP31237@waste.org> <412CE3ED.5000803@grupopie.com> <20040825192922.GH21964@parcelfarce.linux.theplanet.co.uk> <412D236E.3030401@grupopie.com> <20040825234345.GN21964@parcelfarce.linux.theplanet.co.uk> <20040826025904.02bf4c0e.akpm@osdl.org> <412DBAD9.6020303@grupopie.com> <20040830182141.GB8990@mars.ravnborg.org>
+In-Reply-To: <20040830182141.GB8990@mars.ravnborg.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.37; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
-> On Mon, Aug 30, 2004 at 06:39:31PM +0200, Rogier Wolff wrote:
+Sam Ravnborg wrote:
+> On Thu, Aug 26, 2004 at 11:26:33AM +0100, Paulo Marques wrote:
 > 
->>We encounter "bad" drives with quite a lot more regularity than other
->>people (look at the Email address). We're however, wondering why the
->>IDE code still retries a bad block 8 times? 
-> 
-> 
-> I could see retrying 2 or 3 times, but 8 times does seem to be a bit
-> much, agreed.
+>>If there is a way to know at compile time the exported symbols, then 
+>>scripts/kallsyms might generate a bitmap along with all the other data 
+>>it generates so that checking is_exported would become O(1).
 > 
 > 
->>In fact we regularly are able to recover data from drives: we have a
->>userspace application that retries over and over again, and this
->>sometimes recovers "marginal" blocks. This could be considered "good
->>practise" if there is a filesystem requesting the block. On the other
->>hand, when this happens, the drive is usually beyond being usable for
->>a filesystem: if we recover one block this way, the next block will be
->>errorred and the filesystem "crashes" anyway. In fact this behaviour
->>may masquerade the first warnings that something is going wrong....
-> 
-> 
-> If the block gets successfully read after 2 or 3 tries, it might be a
-> good idea for the kernel to automatically do a forced rewrite of the
-> block, which should cause the disk to do its own disk block
-> sparing/reassignment.  
-> 
-> 						- Ted
+> If there exist a symbol named __ksymtab_{symbol} then you know it is exported.
 
-It does the same retries with CD-ROM and DVDs, and if the retries fail, 
-it disables DMA! It even does the retries when reading CD-Audio.
-Maybe there should be a "retrys" setting that can be set by hdparm, then 
-we could set the retry counts, and what happens when a retry fails on a 
-per device basis.
+Thanks for the sugestion.
 
+I already looked at EXPORT_SYMBOL in module.h and reached the same 
+conclusion, and wrote a patch that did just that.
+
+The problem with that patch was that symbols exported with 
+EXPORT_SYMBOL_GPL would show up as exported whereas in the previous 
+version they didn't :(
+
+I asked Rusty Russell in private if the old behaviour was the desired 
+behaviour or if it would be better to uppercase the symbols that are 
+uppercased in System.map (i.e. exported vs public), and he replied that 
+the old behaviour was done on purpose and should be kept (at least that 
+is what I understood, not being a native speaker and all).
+
+So I'm writting a new version right now that checks that the 
+__ksymtab_{symbol} is on the __ksymtab section and not on the 
+__ksymtab_gpl section to keep the old behaviour.
+
+Anyway, the patch really speeds up a "time cat /proc/kallsyms" from 
+0.25s to 0.00s (I really need to do my own benchmark. "time" doesn't 
+have enough resolution :)
+
+I'll probably post it tonight.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVAVR0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVAVRcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVAVR0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 12:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVAVR0D
+	id S262335AbVAVRcw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 12:32:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVAVRcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 12:26:03 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19991
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262006AbVAVRZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 12:25:51 -0500
-Date: Sat, 22 Jan 2005 18:25:42 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-Message-ID: <20050122172542.GF7587@dualathlon.random>
-References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net> <20050121195522.GA14982@elte.hu> <20050121203425.GB11112@dualathlon.random> <20050122103242.GC9357@elf.ucw.cz>
+	Sat, 22 Jan 2005 12:32:52 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:64977 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262335AbVAVRct convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 12:32:49 -0500
+Cc: linux-kernel@vger.kernel.org, js@linuxtv.org
+In-Reply-To: <1106415266247@linuxtv.org>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Sat, 22 Jan 2005 18:34:26 +0100
+Message-Id: <11064152661677@linuxtv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050122103242.GC9357@elf.ucw.cz>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+To: Linus Torvalds <torvalds@osdl.org>
+From: Johannes Stezenbach <js@linuxtv.org>
+X-SA-Exim-Connect-IP: 217.231.47.99
+Subject: [PATCH 1/9] fix RPS init race
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 22, 2005 at 11:32:42AM +0100, Pavel Machek wrote:
-> Well, seccomp is also getting very little testing, when ptrace gets a
-> lot of testing; I know that seccomp is simple, but I believe testing
-> coverage still make ptrace better choice.
+- [DVB] saa7146: explicitely disable RPS tasks in saa7146_init_one()
 
-It's not testing that makes code more secure. Testing verifys the code
-works in production, but testing almost never helps to find security
-issues, and often not even hidden subtle race conditions. Check how many
-security bugs have been found with testing.  Just go to bugtraq count
-them. I simply cannot relay on testing for the security part. I will
-relay on testing for everything else but not for this.
+Signed-off-by: Michael Hunold <hunold@linuxtv.org>
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+
+diff -uraNwB linux-2.6.11-rc2/drivers/media/common/saa7146_core.c linux-2.6.11-rc2-dvb/drivers/media/common/saa7146_core.c
+--- linux-2.6.11-rc2/drivers/media/common/saa7146_core.c	2005-01-20 19:55:47.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/common/saa7146_core.c	2005-01-20 19:56:37.000000000 +0100
+@@ -380,8 +380,8 @@
+ 	/* disable all irqs */
+ 	saa7146_write(dev, IER, 0);
+ 
+-	/* shut down all dma transfers */
+-	saa7146_write(dev, MC1, 0x00ff0000);
++	/* shut down all dma transfers and rps tasks */
++	saa7146_write(dev, MC1, 0x30ff0000);
+ 
+ 	/* clear out any rps-signals pending */
+ 	saa7146_write(dev, MC2, 0xf8000000);
+

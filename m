@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbTKMWNq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 17:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTKMWNq
+	id S264452AbTKMWPG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 17:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTKMWPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 17:13:46 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:4589 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264444AbTKMWNp (ORCPT
+	Thu, 13 Nov 2003 17:15:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264452AbTKMWO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 17:13:45 -0500
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC
-To: "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-kernel@vger.kernel.org>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.23-rc1: cpu_sibling_map fix
-Date: Thu, 13 Nov 2003 14:13:37 -0800
-User-Agent: KMail/1.5
-References: <7F740D512C7C1046AB53446D37200173618737@scsmsx402.sc.intel.com>
-In-Reply-To: <7F740D512C7C1046AB53446D37200173618737@scsmsx402.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 13 Nov 2003 17:14:58 -0500
+Subject: vhangup when the console is serial
+From: "Guy M. Streeter" <streeter@redhat.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068761694.8714.33.camel@jarjar.hsv.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Nov 2003 16:14:54 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311131413.37223.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 November 2003 11:32 am, Nakajima, Jun wrote:
-> Can you please explain why the information by CPUID does not work for
-> summit-based machine? The CPUID does not reflect the H/W configuration,
-> and the BIOS needs to communicate via local APIC Ids instead?
->
-> 	Jun
+  I'm experiencing a problem on an embedded system with 2.4.23-pre2 or
+later, and in 2.4.22-ac4. The system has a serial console, and I see a
+call to the driver's hangup routine in the middle of the login sequence
+(after login:, before password:).
+  I've traced this to do_tty_hangup() (called from sys_vhangup), and I
+see
+that it attempts to avoid calling the driver's hangup() routine for the
+console device. The test for the console doesn't account for serial
+console.
+  A change like the one below resolves this problem for me. However, I
+don't understand why the problem doesn't occur on earlier kernels. I
+hope someone more familiar with this code can comment on it.
+  I've searched the archives of this list for any discussion of this
+problem, without any luck. I am not subscribed to this list, and would
+appreciate being CC-ed on any replies.
 
-Easy.  Note this bit from Intel's IA-32 manual:
+thanks,
+--Guy
+streeter@redhat.com
 
-* Local APIC ID (high byte of EBX)--this number is the 8-bit ID that is
-  assigned to the local APIC on the processor during power up.  This
-  field was introduced in the Pentium 4 processor.
+--- v2.4.23-pre8/drivers/char/tty_io.c.orig	2003-10-27
+13:22:19.000000000 -0600
++++ v2.4.23-pre8/drivers/char/tty_io.c	2003-10-27 13:23:49.000000000
+-0600
+@@ -109,6 +109,7 @@ extern void con_init_devfs (void);
+ extern void disable_early_printk(void);
+ 
+ #define CONSOLE_DEV MKDEV(TTY_MAJOR,0)
++#define SERIAL_CONSOLE_DEV MKDEV(TTY_MAJOR,64)
+ #define TTY_DEV MKDEV(TTYAUX_MAJOR,0)
+ #define SYSCONS_DEV MKDEV(TTYAUX_MAJOR,1)
+ #define PTMX_DEV MKDEV(TTYAUX_MAJOR,2)
+@@ -461,6 +462,9 @@ void do_tty_hangup(void *data)
+ 	for (l = tty->tty_files.next; l != &tty->tty_files; l = l->next) {
+ 		struct file * filp = list_entry(l, struct file, f_list);
+ 		if (filp->f_dentry->d_inode->i_rdev == CONSOLE_DEV ||
++#ifdef CONFIG_SERIAL_CONSOLE
++		    filp->f_dentry->d_inode->i_rdev == SERIAL_CONSOLE_DEV ||
++#endif
+ 		    filp->f_dentry->d_inode->i_rdev == SYSCONS_DEV) {
+ 			cons_filp = filp;
+ 			continue;
 
-On almost all systems, the value latched in the CPU when it comes out of reset 
-doesn't change over the life of the system.  However, our Summit boxes (and I 
-suspect most NUMA boxen) have a BIOS that builds the full system out of 
-smaller building blocks, each of which starts as an independent computer.  
-The act of doing so means rewriting the local APIC ID register with a 
-different value.  (It turns out that the CPU only latches 6 bits of APIC ID, 
-but we need 8.)
-
-Thus, we need the patch that reads the APIC ID register instead of just using 
-the value from cpuid.  And we probably won't be the only ones either.
-
-> > -----Original Message-----
-[ Snip! ]
 
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

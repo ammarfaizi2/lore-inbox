@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266493AbUGPUCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266570AbUGPUPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUGPUCa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 16:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266567AbUGPUCa
+	id S266570AbUGPUPw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 16:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUGPUPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 16:02:30 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:15048 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266493AbUGPUC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 16:02:28 -0400
-Date: Fri, 16 Jul 2004 21:01:13 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>, dsaxena@plexity.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH TRIVIAL] Add Intel IXP2400 & IXP2800 to PCI.ids
-Message-ID: <20040716200113.GB20555@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>, dsaxena@plexity.net,
-	greg@kroah.com, linux-kernel@vger.kernel.org
-References: <20040716170832.GA4997@plexity.net> <40F81020.5010808@pobox.com> <20040716194654.GA20555@redhat.com>
+	Fri, 16 Jul 2004 16:15:52 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:16603 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S266570AbUGPUPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 16:15:49 -0400
+Date: Fri, 16 Jul 2004 16:15:15 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
+Message-ID: <20040716201515.GA14095@havoc.gtf.org>
+References: <20040712075113.GB19875@havoc.gtf.org> <20040712082104.GA22366@havoc.gtf.org> <20040712220935.GA20049@havoc.gtf.org> <20040713003935.GA1050@havoc.gtf.org> <1089692194.1845.38.camel@gaston> <20040714040403.GA29729@havoc.gtf.org> <20040714233920.GP21856@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040716194654.GA20555@redhat.com>
+In-Reply-To: <20040714233920.GP21856@smtp.west.cox.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 08:46:54PM +0100, Dave Jones wrote:
- > On Fri, Jul 16, 2004 at 01:28:00PM -0400, Jeff Garzik wrote:
- > 
- >  > >This is already in sf.net, just not upstream.
- >  > 
- >  > Why not post a patch updating to latest sf.net?
- >  > 
- >  > We really need to keep the two in sync.
- > 
- > This could be trivially automated to have a script
- > grab latest, generate diff, and send a mail to Linux-kernel
- > once a week/month/whatever.
- > 
- > I'll hack something up.
+On Wed, Jul 14, 2004 at 04:39:20PM -0700, Tom Rini wrote:
+> On Wed, Jul 14, 2004 at 12:04:03AM -0400, David Eger wrote:
+> > > > ( of course, it still spews diahrea of 'IN from bad port XXXXXXXX'
+> > > >   but then, I don't have the hardware.... still, seems weird that OF
+> > > >   would report that I do have said hardware :-/ )
+> > > 
+> > > The IN from bad port is a different issue, it's probably issued by
+> > > another driver trying to tap legacy hardware, either serial.o or
+> > > ps/2 kbd, I suppose, check what else of that sort you have in your
+> > >  .config
+> > 
+> > Sure enough, the "IN from bad port XXXXXXXX" ended up being the i8042
+> > serial PC keyboard driver, enabled with CONFIG_SERIO_I8042.  Don't know
+> > why that's in ppc defconfig....
+> 
+> That's on for all of the ppc boards with an i8042 which the defconfig is
+> supposed to support (prep & chrp hardware).
 
-Nightly snapshots will appear here..
-http://www.codemonkey.org.uk/projects/pci/
+Sorry, I tend to think "ppc == pmac".  So, a couple of thoughts:
 
-I've thought again on the regular sending.. as they can be
-quite large diffs occasionally, it's probably better if
-gregkh pulls this into his pci tree every so often,
-that way it goes into mainline semi-automatically, and
-also gets some visibility in -mm for a while.
+(1) Can you make the i8042 disable itself if the hardware isn't there?
+    Those damned bad port messages eat my entire syslog buffer.
 
-How's that sound Greg? Or would you prefer I dump
-this into a bk tree you can regularly pull from?
-It's only a bit more scripting to do so..
+(2) At the moment, that defconfig is also shared by us TiBook hackers.
+    Would it be feasible to have a separate pmac_defconfig?  How do 
+    'make menuconfig' and friends choose a defconfig if there isn't a .config?
 
-Looking at the diff is actually quite handy, theres some
-bogons that have crept in there. I'll fix those up.
-
-		Dave
+-dte
 

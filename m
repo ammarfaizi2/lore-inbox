@@ -1,71 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUJLSZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUJLS17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUJLSZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUJLSZo
+	id S267558AbUJLS17 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUJLS17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:25:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8099 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266572AbUJLSZ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:25:28 -0400
-Message-ID: <416C2189.4080302@pobox.com>
-Date: Tue, 12 Oct 2004 14:25:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: driver hacking tips (was Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3)
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i			nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165	A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca	>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.	A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.607090	4@rtr.ca> <1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca>	<1097250465.2412.49.camel@mulgrave> 	<416C0D55.1020603@rtr.ca>	<1097601478.2044.103.camel@mulgrave>  <416C12CC.1050301@rtr.ca> <1097602220.2044.119.camel@mulgrave> <416C157A.6030400@rtr.ca> <416C177B.6030504@pobox.com> <416C19B9.7000806@rtr.ca>
-In-Reply-To: <416C19B9.7000806@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Oct 2004 14:27:59 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:44974 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S267558AbUJLS1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:27:14 -0400
+Message-Id: <200410121827.i9CIRAc6014366@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc4-mm1-VP-T7 - horrid death in vortex_init at boot
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1246049674P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Oct 2004 14:27:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[subject changed as this knowledge can benefit others as well]
+--==_Exmh_1246049674P
+Content-Type: text/plain; charset=us-ascii
 
-In addition to agreeing with James' most recently assessment of 
-qs_process_sff_entry(), I wanted to interject a bit of more general 
-discussion...
+2.6.9-rc4-mm1-VP-T7 plus Ingo's patch to profile.c and 3c59x.c to use
+raw_rwlock_t and raw_spinlock_t rather than the non-raw variant.  It croaked
+when it found the onboard ethernet controller on a Dell Latitude C840 laptop:
 
-Two main, but unrelated, driver-writing points:
+lspci says it's a:
+02:00.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
 
-1) Putting almost all your in-irq code into a tasklet can be quite 
-convenient, if your situation is amenable to that.  The benefits are
+Got the following (admittedly truncated - was handwritten and CTS is a pain,
+literally) at very early boot:
 
-a) your irq handler is tiny,
+3c59x: Donald Becker and others. ...
+0000:02:00.0: 3Com PCI 3c905C Tornado at 0xec80. Vers LK1.1.19
+kernel BUG at net/core/net-sysfs.c:384
+process swapper
+... registers skipped
+call trace:
+	show_stack
+	show_registers
+	die
+	do_invalid_op
+	error_code
+	class_hotplug
+	kobject_hotplug
+	kobject_add
+	class_device_add
+	netdev_register_sysfs
+	netdev_run_todo
+	register_netdev
+	vortex_probe1
+	vortex_init_one
+	pci_device_probe_static
+	__pci_device_probe
+	pci_device_probe
+	bus_match
+	driver_attach
+	bus_add_driver
+	driver_register
+	pci_register_driver
+	vortex_init
+	do_initcalls
 
-	ack irqs
-	tasklet_schedule()
+The offending code:
 
-b) data can be synchronized without a lock, if the data is only used in 
-the tasklet or in between tasklet_disable/tasklet_enable pairs.
+static void netdev_release(struct class_device *cd)
+{
+        struct net_device *dev
+                = container_of(cd, struct net_device, class_dev);
 
-c) you can "call" your in-irq code from places other than your irq 
-handler, and let the tasklet subsystem synchronize the tasklet schedule. 
-  no worries about disabling interrupts, they will just do (a) as 
-described above.
+        BUG_ON(dev->reg_state != NETREG_RELEASED);
 
+        kfree((char *)dev - dev->padded);
+}
 
-2) You want to avoid a model (like qs_process_sff_entry, alas) where you 
-have one single, huge "event completion" path, called from various 
-points in the driver.  Instead, do your best to make sure event/action 
-as fine-grained as possible.
+I'm guessing something broken in the bk-driver-core patch in -rc4-mm1, as
+that completely overhauled this stuff.
 
-Storage drivers that want to handle long-running events, or events that 
-need process context, typically want to either fire off events 
-_asynchronously_ via schedule_work(), or have a long-running thread that 
-does nothing but processes an internal driver event queue.  It's really 
-programmer's preference at that point, as having a single (or per-host) 
-event queue thread can sometimes be more simple than async work queue code.
+This ring any bells?  If need be, I'll scare up a serial cable and get a
+more complete trace - somehow, I don't think netconsole will help here.. ;)
 
-	Jeff
+(As an aside, kobject_hotplug calls call_usermodehelper() - which seems
+like a Bad Idea if we haven't gotten userspace up and running yet?
 
+--==_Exmh_1246049674P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFBbCH9cC3lWbTT17ARAi7PAKDVxTBrpIm7YL7EchVZAjDOqZJMAACfZxU6
+ZrvbH9LaWmfp5oiaxCLP5Jg=
+=vL+f
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1246049674P--

@@ -1,87 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUHZJmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267876AbUHZIse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUHZJmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 05:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUHZJkl
+	id S267876AbUHZIse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 04:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267901AbUHZIpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:40:41 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:27367 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S266619AbUHZJWo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 05:22:44 -0400
-Date: Thu, 26 Aug 2004 12:22:33 +0300 (EEST)
-From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-X-X-Sender: tuukkat@stekt37
-To: Simon Oosthoek <simon@ti-wmc.nl>
-cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-Subject: Re: [linux-usb-devel] Re: kernel 2.6.8 pwc patches and counterpatches
-In-Reply-To: <cgi65a$s76$1@sea.gmane.org>
-Message-ID: <Pine.GSO.4.61.0408261201490.16780@stekt37>
-References: <1092793392.17286.75.camel@localhost> <1092845135.8044.22.camel@localhost>
- <20040823221028.GB4694@kroah.com> <200408250058.24845@smcc.demon.nl>
- <cgi65a$s76$1@sea.gmane.org>
+	Thu, 26 Aug 2004 04:45:31 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:34437 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268028AbUHZImT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 04:42:19 -0400
+Message-ID: <412DA26C.5060604@namesys.com>
+Date: Thu, 26 Aug 2004 01:42:20 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Jeremy Allison <jra@samba.org>
+CC: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825202022.GK10907@legion.cup.hp.com>
+In-Reply-To: <20040825202022.GK10907@legion.cup.hp.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Aug 2004, Simon Oosthoek wrote:
+Jeremy Allison wrote:
 
-> I have one of those philips cams (bought it because I saw pwc in the kernel 
-> source), but I found out that without pwcx is was next to useless. I haven't
-
-Could you elaborate why it is next to useless? I think 95% of Linux
-web camera drivers don't support all features of a camera, like 
-compression. Reverse engineering USB traffic is easy, reverse engineering
-compressed formats is _hard_.
-
-> The fact that the NDA has expired already doesn't surprise me, but I would 
-> have expected some (or a huge) effort to liberate the source with full 
-> permission from Philips (they probably don't care anymore and could use the
-
-I understood that Nemosoft has already asked Philips a permission and 
-denied for that. It hardly helps asking again and again and again... he has 
-to maintain the driver, too.
-
-> The fact that this hasn't happened is to me a hint that Nemosoft likes the 
-> power of "owning" it more that the chance of liberating it. But I could be
-
-Why do you think that *most* of the pwc driver is already GPL'ed then, and 
-even (was) in the kernel?
-
-> I'd prefer that a clear choice is made on this, as Nemosoft suggests, because 
-> it shouldn't be in the kernel without the full decoding algorithms.
-
-Then you should remove most of the other drivers in the kernel too.
-
-Besides, format conversions _are not allowed_ in the kernel. They belong 
-into userspace.
-
-Nemosoft: you should not have the power to demand removing the GPL'd code
-from the kernel (I don't know about the law, but whatever it says, GPL'd 
-license should not be revocable). You can ask, of course, but wouldn't it 
-be simpler to just stop maintaining the in-kernel driver, if it already 
-works?
-
-From: Greg KH <greg@kroah.com>
->> We'll see. Greg, please remove all references to the PWC driver from the 2.6
->> kernel ASAP. This also includes Documentation/usb/philips.txt and a
->I'm very sorry it's come to this, I really am.
+>On Wed, Aug 25, 2004 at 12:53:28PM -0700, Hans Reiser wrote:
+>  
 >
->I'd like to personally thank you for all the time you've spent in
->working on this driver over the years, and wish you the best in whatever
->you do in the future.  Come back anytime.
+>>You ignored everything I said during the discussion of xattrs about how 
+>>there is no need to have attributes when you can just have files and 
+>>directories, and that xattrs reflected a complete ignorance of name 
+>>space design principles.  When I said we should just add some nice 
+>>optional features to files and directories so that they can do 
+>>everything that attributes can do if they are used that way, you just 
+>>didn't get it.  You instead went for the quick ugly hack called xattrs.  
+>>You then got that ugly hack done first, because quick hacks are, well, 
+>>quick.  I then went about doing it the right way for Reiser4, and got 
+>>DARPA to fund doing it.  I was never silent about it.
+>>    
+>>
+>
+>I don't want to comment on any of the technical issues about VFS etc. as
+>I would be completely out of my depth, however I do want to say 2 things. Firstly,
+>this is a feature that Samba users have been needing for many years to maintain
+>compatibility with NTFS and Windows clients. Microsoft no longer sell any servers
+>or clients without support for multiple data streams per file, and their latest
+>XP SP2 code *does* use this feature. Whatever the kernel issues I'm really glad
+>that Hans and Namesys have created something we can use to match this
+>functionality - soon we will need it in order to be able to exist in
+>a Microsoft client-dominated world.
+>  
+>
+I agree that your work is important without agreeing that MS client 
+domination will last.;-)  It is indeed my desire to give you every 
+single feature you need to emulate MS streams within files, but doing it 
+using directories that are files.  I would like to support you in 
+emulating windows faster than windows.
 
-Too bad seeing this. Nemosoft, I hope you will continue maintaining
-the driver which looks very nice (though I haven't been able to test it),
-at least as an external module. That allows you free hands to add any nice
-features that would never been accepted into kernel, anyway.
+>My second point is the following. Hans - did you *really* have to reinvent
+>the wheel w.r.t userspace API calls ? Did you look at this work (done in 2001
+>for Solaris) ?
+>  
+>
+I interviewed for the file system architect job at Sun in, I think, 
+1999, and they offered me the job conditional on my giving up on my 
+Linux work.  (After much trying and failing to convince them that it 
+would be okay for me to work on Linux also, I declined the job, much to 
+my fiscal loss and work satisfaction.)
 
---
-| Tuukka Toivonen <tuukkat@ee.oulu.fi>   [OpenPGP public key
-| Homepage: http://www.ee.oulu.fi/~tuukkat/       available]
-| M.Sc. Researcher, Dept of El & Inf Eng, University of Oulu
-| "You will be shot if you try to do
-|           format conversion in kernel" -Pavel Machek, 2001
-+-----------------------------------------------------------
+They do not do a pure job of implementing attributes in the file 
+namespace though.  There are far more distinctions between files and 
+attributes than are necessary that are described in these man pages 
+below, and those distinctions cause a loss of closure.  I can say more 
+on that if asked.
+
+>http://bama.ua.edu/cgi-bin/man-cgi?fsattr+5
+>http://bama.ua.edu/cgi-bin/man-cgi?attropen+3C
+>http://bama.ua.edu/cgi-bin/man-cgi?openat+2
+>
+>I'm complaining here as someone who will have to write portable code
+>to try and work on all these "files with streams" systems.
+>
+>Jeremy.
+>
+>
+>  
+>
+

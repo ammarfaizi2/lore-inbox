@@ -1,87 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbTEONem (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEONem
+	id S264016AbTEONop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbTEONop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:34:42 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:14382 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264010AbTEONel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:34:41 -0400
-Subject: Re: Test Patch: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44L0.0305141634070.626-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0305141634070.626-100000@ida.rowland.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053006338.2025.13.camel@diemos>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 May 2003 08:45:38 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 15 May 2003 09:44:45 -0400
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:39322 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S264016AbTEONoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:44:44 -0400
+Message-Id: <200305151355.h4FDtbGi012336@locutus.cmf.nrl.navy.mil>
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2 
+In-reply-to: Your message of "Thu, 15 May 2003 14:35:15 BST."
+             <6445.1053005715@warthog.warthog> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Thu, 15 May 2003 09:55:37 -0400
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-05-14 at 15:52, Alan Stern wrote:
-> Below is a patch that addresses both of the issues raised in this thread.  
-> The delay time is moved out of the interrupt handler, and the
-> wakeup/suspend transitions are de-bounced.  To do this, I needed to add a
-> mildly elaborate state mechanism.  State transitions are polled during the
-> stall-timer callback.
-> 
-> There is no protection against simultaneous access from multiple threads,
-> such as a PCI suspend occurring at the same time as a normal suspend or
-> resume.  The original driver didn't have any either; it's probably not
-> worth worrying too much about.  The patch works okay on my system.  Try it
-> and see how it works on yours.
-> 
-> Johannes, please look over this code and verify that I haven't screwed 
-> anything up.
-> 
-> Alan Stern
+In message <6445.1053005715@warthog.warthog>,David Howells writes:
+>Where's this 1:1 come from? PAGs aren't 1:1 with processes, nor are they 1:1
+>with users.
+>
+>I've tried to implement them as I understand the design information I could
+>find (which specified that any process could belong to a single PAG). From the
+>comments that have been made, it seems that each user needs some sort of
+>fallback token set for any process that doesn't have a PAG.
 
-I tested the patch, and it solves the IRQ latency problems by moving
-the delay outside of the ISR. The debouncing period reduces the
-rate of thrashing back and forth between wake and suspend, but
-the cycle does continue forever:
-
-May 15 08:27:27 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
-May 15 08:27:27 diemos kernel: suspend_hc():UHCI_RUNNING
-May 15 08:27:28 diemos kernel: suspend_hc():UHCI_SUSPENDING_GRACE
-May 15 08:27:28 diemos kernel: wakeup_hc():UHCI_SUSPENDED
-May 15 08:27:28 diemos kernel: wakeup_hc():UHCI_RESUMING_1
-May 15 08:27:28 diemos kernel: suspend_hc():UHCI_RESUMING_2
-May 15 08:27:29 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
-May 15 08:27:29 diemos kernel: suspend_hc():UHCI_RUNNING
-May 15 08:27:30 diemos kernel: suspend_hc():UHCI_SUSPENDING_GRACE
-May 15 08:27:30 diemos kernel: wakeup_hc():UHCI_SUSPENDED
-May 15 08:27:30 diemos kernel: wakeup_hc():UHCI_RESUMING_1
-May 15 08:27:30 diemos kernel: suspend_hc():UHCI_RESUMING_2
-May 15 08:27:31 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
-
-This patch removes my complaint, but I do wonder why this
-unused controller continually generates the USBSTS_RD
-indications. I would hope HP used pull-ups/downs on unused
-input signals of the PIIX3 chipset, but maybe not.
-
-I also can't vouch for the correct operation of this patch
-for fully functional USB implementations.
-
-If you have other tests you want me to do to try and figure
-out a sane way of dealing with such unused controllers,
-just ask.
-
-Thanks,
-Paul
-
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
-
+PAGs shouldnt be 1:1 with processes or users.  They are closer in nature
+to process groups.  However,  a process wouldnt loose its PAG affiliation
+after calling setsid.  This is the main reason using the process group
+isn't sufficient for PAGs.

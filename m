@@ -1,101 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUIXQKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUIXQNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268864AbUIXQKl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268883AbUIXQKl
+	id S268889AbUIXQNq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUIXQNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:10:41 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:14242 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S268864AbUIXQJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:09:09 -0400
-Message-ID: <4154466C.5060804@rocklinux-consulting.de>
-Date: Fri, 24 Sep 2004 18:08:12 +0200
-From: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@rocklinux-consulting.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
+	Fri, 24 Sep 2004 12:13:46 -0400
+Received: from ppsw-8.csi.cam.ac.uk ([131.111.8.138]:32144 "EHLO
+	ppsw-8.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268889AbUIXQMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 12:12:54 -0400
+Date: Fri, 24 Sep 2004 17:12:47 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 2/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation, cleanups
+ and a bugfix
+In-Reply-To: <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
-Subject: sym53c8xx_2 regressions in 2.6.9-rc2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi James, hi all, James, your recent 2.6.9-pre changes
-	seem to cause new regressions in the sym53c8xx_2 driver. On my U30
-	sparc64 box I get many errors in the system log: [...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James, hi all,
+This is patch 2/10 in the series.  It contains the following ChangeSet:
 
-James, your recent 2.6.9-pre changes seem to cause new regressions in 
-the sym53c8xx_2 driver.
+<aia21@cantab.net> (04/09/22 1.1948)
+   NTFS: Get rid of the ugly transparent union in fs/ntfs/dir.c::ntfs_readdir()
+         and ntfs_filldir() as per suggestion from Al Viro.
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-On my U30 sparc64 box I get many errors in the system log:
+Best regards,
 
-Sep 20 15:28:34 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff7b90 
-resid=6.
-Sep 20 15:28:34 sundown last message repeated 2 times
-Sep 20 15:28:34 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff6390 
-resid=6.
-Sep 20 15:28:35 sundown last message repeated 6 times
-Sep 20 15:28:35 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff9b90 
-resid=6.
-Sep 20 15:28:35 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff6390 
-resid=6.
-Sep 20 15:28:35 sundown last message repeated 29 times
-Sep 20 15:28:35 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff9b90 
-resid=6.
-Sep 20 15:28:35 sundown last message repeated 2 times
-Sep 20 15:28:35 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff6390 
-resid=6.
-Sep 20 15:28:36 sundown last message repeated 28 times
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
-those did not show up in any other 2.6 kernel up to .8.1 ...
+===================================================================
 
-Connected devices are: # cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-   Vendor: IBM      Model: DXHS18Y          Rev: 0430
-   Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-   Vendor: TEAC     Model: CD-ROM CD-532S   Rev: 1.0A
-   Type:   CD-ROM                           ANSI SCSI revision: 02
-
-With a working 2.6.8 kernel (that is the one the running right now) the 
-printouts during boot are:
-
-sym0: <875> rev 0x3 at pci 0001:00:03.0 irq 4,7e0
-sym0: No NVRAM, ID 7, Fast-20, SE, parity checking
-sym0: SCSI BUS has been reset.
-scsi0 : sym-2.1.18j
-sym0:0: FAST-20 WIDE SCSI 40.0 MB/s ST (50.0 ns, offset 15)
-   Vendor: IBM       Model: DXHS18Y           Rev: 0430
-   Type:   Direct-Access                      ANSI SCSI revision: 03
-sym0:0:0: tagged command queuing enabled, command queue depth 16.
-scsi(0:0:0:0): Beginning Domain Validation
-sym0:0: FAST-20 SCSI 20.0 MB/s ST (50.0 ns, offset 16)
-sym0:0: FAST-20 WIDE SCSI 40.0 MB/s ST (50.0 ns, offset 15)
-scsi(0:0:0:0): Domain Validation skipping write tests
-scsi(0:0:0:0): Ending Domain Validation
-SCSI device sda: 35566480 512-byte hdwr sectors (18210 MB)
-SCSI device sda: drive cache: write back
-  /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-   Vendor: TEAC      Model: CD-ROM CD-532S    Rev: 1.0A
-   Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi(0:0:6:0): Beginning Domain Validation
-sym0:6: FAST-20 SCSI 20.0 MB/s ST (50.0 ns, offset 16)
-scsi(0:0:6:0): Domain Validation skipping write tests
-scsi(0:0:6:0): Ending Domain Validation
-
-Sincerely yours,
-   René Rebe
+diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog	2004-09-24 17:06:05 +01:00
++++ b/fs/ntfs/ChangeLog	2004-09-24 17:06:05 +01:00
+@@ -28,6 +28,8 @@
+ 	  ACLs yet.
+ 	- Remove BKL use from ntfs_setattr() syncing up with the rest of the
+ 	  kernel.
++	- Get rid of the ugly transparent union in fs/ntfs/dir.c::ntfs_readdir()
++	  and ntfs_filldir() as per suggestion from Al Viro.
+ 
+ 2.1.18 - Fix scheduling latencies at mount time as well as an endianness bug.
+ 
+diff -Nru a/fs/ntfs/dir.c b/fs/ntfs/dir.c
+--- a/fs/ntfs/dir.c	2004-09-24 17:06:05 +01:00
++++ b/fs/ntfs/dir.c	2004-09-24 17:06:05 +01:00
+@@ -999,23 +999,11 @@
+ 
+ #endif
+ 
+-typedef union {
+-	INDEX_ROOT *ir;
+-	INDEX_ALLOCATION *ia;
+-} index_union __attribute__ ((__transparent_union__));
+-
+-typedef enum {
+-	INDEX_TYPE_ROOT,	/* index root */
+-	INDEX_TYPE_ALLOCATION,	/* index allocation */
+-} INDEX_TYPE;
+-
+ /**
+  * ntfs_filldir - ntfs specific filldir method
+  * @vol:	current ntfs volume
+  * @fpos:	position in the directory
+  * @ndir:	ntfs inode of current directory
+- * @index_type:	specifies whether @iu is an index root or an index allocation
+- * @iu:		index root or index allocation attribute to which @ie belongs
+  * @ia_page:	page in which the index allocation buffer @ie is in resides
+  * @ie:		current index entry
+  * @name:	buffer to use for the converted name
+@@ -1036,8 +1024,7 @@
+  * would need to drop the lock immediately anyway.
+  */
+ static inline int ntfs_filldir(ntfs_volume *vol, loff_t *fpos,
+-		ntfs_inode *ndir, const INDEX_TYPE index_type,
+-		index_union iu, struct page *ia_page, INDEX_ENTRY *ie,
++		ntfs_inode *ndir, struct page *ia_page, INDEX_ENTRY *ie,
+ 		u8 *name, void *dirent, filldir_t filldir)
+ {
+ 	unsigned long mref;
+@@ -1045,14 +1032,6 @@
+ 	unsigned dt_type;
+ 	FILE_NAME_TYPE_FLAGS name_type;
+ 
+-	/* Advance the position even if going to skip the entry. */
+-	if (index_type == INDEX_TYPE_ALLOCATION)
+-		*fpos = (u8*)ie - (u8*)iu.ia +
+-				(sle64_to_cpu(iu.ia->index_block_vcn) <<
+-				ndir->itype.index.vcn_size_bits) +
+-				vol->mft_record_size;
+-	else /* if (index_type == INDEX_TYPE_ROOT) */
+-		*fpos = (u8*)ie - (u8*)iu.ir;
+ 	name_type = ie->key.file_name.file_name_type;
+ 	if (name_type == FILE_NAME_DOS) {
+ 		ntfs_debug("Skipping DOS name space entry.");
+@@ -1084,14 +1063,14 @@
+ 	 * Drop the page lock otherwise we deadlock with NFS when it calls
+ 	 * ->lookup since ntfs_lookup() will lock the same page.
+ 	 */
+-	if (index_type == INDEX_TYPE_ALLOCATION)
++	if (ia_page)
+ 		unlock_page(ia_page);
+ 	ntfs_debug("Calling filldir for %s with len %i, fpos 0x%llx, inode "
+ 			"0x%lx, DT_%s.", name, name_len, *fpos, mref,
+ 			dt_type == DT_DIR ? "DIR" : "REG");
+ 	rc = filldir(dirent, name, name_len, *fpos, mref, dt_type);
+ 	/* Relock the page but not if we are aborting ->readdir. */
+-	if (!rc && index_type == INDEX_TYPE_ALLOCATION)
++	if (!rc && ia_page)
+ 		lock_page(ia_page);
+ 	return rc;
+ }
+@@ -1244,9 +1223,11 @@
+ 		/* Skip index root entry if continuing previous readdir. */
+ 		if (ir_pos > (u8*)ie - (u8*)ir)
+ 			continue;
++		/* Advance the position even if going to skip the entry. */
++		fpos = (u8*)ie - (u8*)ir;
+ 		/* Submit the name to the filldir callback. */
+-		rc = ntfs_filldir(vol, &fpos, ndir, INDEX_TYPE_ROOT, ir, NULL,
+-				ie, name, dirent, filldir);
++		rc = ntfs_filldir(vol, &fpos, ndir, NULL, ie, name, dirent,
++				filldir);
+ 		if (rc) {
+ 			kfree(ir);
+ 			goto abort;
+@@ -1420,14 +1401,19 @@
+ 		/* Skip index block entry if continuing previous readdir. */
+ 		if (ia_pos - ia_start > (u8*)ie - (u8*)ia)
+ 			continue;
++		/* Advance the position even if going to skip the entry. */
++		fpos = (u8*)ie - (u8*)ia +
++				(sle64_to_cpu(ia->index_block_vcn) <<
++				ndir->itype.index.vcn_size_bits) +
++				vol->mft_record_size;
+ 		/*
+ 		 * Submit the name to the @filldir callback.  Note,
+ 		 * ntfs_filldir() drops the lock on @ia_page but it retakes it
+ 		 * before returning, unless a non-zero value is returned in
+ 		 * which case the page is left unlocked.
+ 		 */
+-		rc = ntfs_filldir(vol, &fpos, ndir, INDEX_TYPE_ALLOCATION, ia,
+-				ia_page, ie, name, dirent, filldir);
++		rc = ntfs_filldir(vol, &fpos, ndir, ia_page, ie, name, dirent,
++				filldir);
+ 		if (rc) {
+ 			/* @ia_page is already unlocked in this case. */
+ 			ntfs_unmap_page(ia_page);

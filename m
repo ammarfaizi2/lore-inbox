@@ -1,40 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132026AbRCVOC6>; Thu, 22 Mar 2001 09:02:58 -0500
+	id <S132030AbRCVOal>; Thu, 22 Mar 2001 09:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132027AbRCVOCs>; Thu, 22 Mar 2001 09:02:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:48515 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132026AbRCVOCk>;
-	Thu, 22 Mar 2001 09:02:40 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S132032AbRCVOaa>; Thu, 22 Mar 2001 09:30:30 -0500
+Received: from [63.122.164.52] ([63.122.164.52]:42254 "EHLO
+	dbimail.digitalbiometrics.com") by vger.kernel.org with ESMTP
+	id <S132030AbRCVOaQ>; Thu, 22 Mar 2001 09:30:16 -0500
+Message-ID: <D0FA767FA2D5D31194990090279877DA5736B2@dbimail.digitalbiometrics.com>
+From: Neal Gieselman <Neal.Gieselman@Visionics.com>
+To: linux-kernel@vger.kernel.org
+Subject: Where is the RAM?
+Date: Thu, 22 Mar 2001 08:29:14 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15034.1416.38648.681507@pizda.ninka.net>
-Date: Thu, 22 Mar 2001 06:00:40 -0800 (PST)
-To: Steve Underwood <steveu@coppice.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's Alan?
-In-Reply-To: <3ABA03F1.74C74A90@coppice.org>
-In-Reply-To: <ggnjbtciq3909gn5kg0iqqj2jqk3j7f1it@4ax.com>
-	<99cnj3$5ij$1@voyager.cistron.net>
-	<15033.59920.519379.825531@pizda.ninka.net>
-	<3ABA03F1.74C74A90@coppice.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Steve Underwood writes:
- > "David S. Miller" wrote:
- > > They needed some help from him to position Mir for it's
- > > final descent.
- > 
- > Strange. I thought his key skill was stopping things from crashing!
-
-This crash was inevitable, he's just making sure the disks get
-sync'd.
-
-Later,
-David S. Miller
-davem@redhat.com
+I have a Redhat 6.1 WS that was installed with 64 MB RAM.  I added another
+64 MB, booted, BIOS sees it, but top, free, etc still see only 64 MB.
+Any clues on what to do?

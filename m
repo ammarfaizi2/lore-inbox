@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282772AbRK0Dkw>; Mon, 26 Nov 2001 22:40:52 -0500
+	id <S282771AbRK0Dkw>; Mon, 26 Nov 2001 22:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282773AbRK0Dkm>; Mon, 26 Nov 2001 22:40:42 -0500
-Received: from zero.tech9.net ([209.61.188.187]:33033 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282772AbRK0Dkf>;
-	Mon, 26 Nov 2001 22:40:35 -0500
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-From: Robert Love <rml@tech9.net>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>, mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16744i-0004zQ-00@localhost>
-In-Reply-To: <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
-	<1006472754.1336.0.camel@icbm>  <E16744i-0004zQ-00@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 26 Nov 2001 22:39:16 -0500
-Message-Id: <1006832357.1385.3.camel@icbm>
-Mime-Version: 1.0
+	id <S282772AbRK0Dkm>; Mon, 26 Nov 2001 22:40:42 -0500
+Received: from kullstam.ne.mediaone.net ([66.30.137.210]:44672 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S282771AbRK0Dkd>; Mon, 26 Nov 2001 22:40:33 -0500
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
+In-Reply-To: <E168Szh-0006un-00@the-village.bc.nu>
+	<0111261642580L.02001@localhost.localdomain>
+	<0111261851570S.02001@localhost.localdomain>
+Organization: none
+Date: 26 Nov 2001 22:40:31 -0500
+In-Reply-To: <0111261851570S.02001@localhost.localdomain>
+Message-ID: <m2oflorids.fsf@euler.axel.nom>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-22 at 19:20, Ryan Cumming wrote: 
+Rob Landley <landley@trommello.org> writes:
 
->  Here here, I was just thinking "Well, I like the CPU affinity idea, but I 
-> loathe syscall creep... I hope this Robert Love fellow says something about 
-> that" as I read your email's header.
+> On Monday 26 November 2001 16:42, Rob Landley wrote:
+> 
+> > I also can't think of a distribution that doesn't have at least a yearly
+> > major release cycle.
+> 
+> Okay, Debian.
 
-I did a procfs-based implementation of a user interface for setting CPU
-affinity.  It implements various features like Ingo's with the change
-that it is, obviously, a procfs entry and not a set of syscalls. 
+what do you mean?  it's at least a year between debian releases.  ;->
 
-It is readable and writable via /proc/<pid>/affinity 
-
-I posted a patch to lkml moments ago, but it is also available at 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/cpu-affinity
-(please use a mirror).
-
-Comments, suggestions, et cetera welcome -- if possible under the new thread.
-
-	Robert Love
-
+-- 
+J o h a n  K u l l s t a m
+[kullstam@mediaone.net]

@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUIMTLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268881AbUIMTOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268884AbUIMTLy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUIMTLy
+	id S268881AbUIMTOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIMTOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:11:54 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:19289 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S268884AbUIMTLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:11:15 -0400
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] [PATCH] nptl/sys_clone fix for i386/ppc
-Date: Mon, 13 Sep 2004 20:50:08 +0200
-User-Agent: KMail/1.6.1
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       David Jeffery <djeffery@britsys.net>, linux-kernel@vger.kernel.org
-References: <20040826020626.GA28471@malice.crymeariver.org> <200409121752.07398.blaisorblade_spam@yahoo.it> <20040913031014.GA13184@ccure.user-mode-linux.org>
-In-Reply-To: <20040913031014.GA13184@ccure.user-mode-linux.org>
-MIME-Version: 1.0
+	Mon, 13 Sep 2004 15:14:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26273 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268870AbUIMTN6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 15:13:58 -0400
+Date: Mon, 13 Sep 2004 21:12:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joshua Schmidlkofer <kernel@pacrimopen.com>
+Cc: Con Kolivas <kernel@kolivas.org>, jch@imr-net.com,
+       ck kernel mailing list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Cliff Wells <clifford.wells@comcast.net>
+Subject: Re: [ck] Re: 2.6.8.1-ck7, Two Badnessess, one dump.
+Message-ID: <20040913191237.GF18883@suse.de>
+References: <41412765.4010005@kolivas.org> <4144F691.6040405@pacrimopen.com> <41451957.7000101@kolivas.org> <4145BAE9.1040800@pacrimopen.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409132050.08856.blaisorblade_spam@yahoo.it>
+In-Reply-To: <4145BAE9.1040800@pacrimopen.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 05:10, Jeff Dike wrote:
-> On Sun, Sep 12, 2004 at 05:52:44PM +0200, BlaisorBlade wrote:
-> > It worked no worse than current version (which is broken). In fact the
-> > 2.4 clone had 2 arguments. So it's obvious.
->
-> In fact, it worked better.  It worked on a modern Debian filesystem, where
-> my old code didn't.
-Oh, well, your version gets the fifth arg right, indeed.
-> > However, this is non-standard. I've added just a comment for now, since
-> > you may have reason to keep the current code, but such behaviour calls
-> > for breakage when things change.
+On Mon, Sep 13 2004, Joshua Schmidlkofer wrote:
+> Con,
+> 
+> 
+>    I did not mention before, I thought it was a fluke on my system. Now 
+> its affecting two systems since applying ck7.
+> 
+> 
+> <snip>
+> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> 
+> ide: failed opcode was: unknown
+> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete 
+> DataRequest }ide: failed opcode was 100
+> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> 
+> ide: failed opcode was: unknown
+> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete 
+> DataRequest }ide: failed opcode was 100
+> hda: CHECK for good STATUS
+> <snip>
+> 
+> That is happening while applying the dma settings to the hard drive.
+> 
+> In both cases, the drive is a Western Digital 40GB hard drive.  That is 
+> the only solid commoniality.  One is a P4 2.8, the other a P4 2.4.   
+> Intel Chipset + Intel IDE in one, Intel Chipset + HighPoint chipset in 
+> the other. 
+> 
+> However, the code is exactly the same.
 
-> Yeah, I not sure why I did things the way I did.  That's very old code, and
-> there may have been some good reason for it which has since disappeared.
+Is your drive idle while applying dma settings? Current 2.6 kernels
+aren't even close to being safe to modify drive settings, since it makes
+no effective attempts to serialize with ongoing commands. I have a
+half-assed patch to fix that.
 
-> Offhand, it looks like doing things in the standard way will clean up
-> copy_thread a bit.
-I agree completely.
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+Jens Axboe
+

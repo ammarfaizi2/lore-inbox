@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264927AbUAKOVi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 09:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUAKOVi
+	id S265883AbUAKOdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 09:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUAKOdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 09:21:38 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:37331 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264927AbUAKOVg (ORCPT
+	Sun, 11 Jan 2004 09:33:44 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:39696 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265883AbUAKOdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 09:21:36 -0500
-Date: Sun, 11 Jan 2004 15:21:10 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Berg Larsen <pebl@math.ku.dk>
-Cc: Gunter =?iso-8859-1?Q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync loss (With Patch).
-Message-ID: <20040111142110.GA28148@ucw.cz>
-References: <20040111081046.GA25497@ucw.cz> <Pine.LNX.4.40.0401111326480.16947-100000@shannon.math.ku.dk>
+	Sun, 11 Jan 2004 09:33:42 -0500
+Date: Sun, 11 Jan 2004 15:33:38 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GIVEUP [bootup kernel panic 2.6.x] no root partition detected?
+Message-ID: <20040111143338.GA1923@win.tue.nl>
+References: <40005E9C.3030309@intercable.net> <4000D463.3040707@intercable.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0401111326480.16947-100000@shannon.math.ku.dk>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <4000D463.3040707@intercable.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 01:46:41PM +0100, Peter Berg Larsen wrote:
+On Sat, Jan 10, 2004 at 10:43:15PM -0600, Pablo E. Limon Garcia Viesca wrote:
 
-> On Sun, 11 Jan 2004, Vojtech Pavlik wrote:
-> 
-> > > I dont have a machine with active multiplexing so the the patch is
-> > > untested. It warns when the mouse is removed, and tries to recover
-> > > if multiplexing is disabled.
-> >
-> > It's nice, but er definitely shouldn't call i8042_enable_mux() from the
-> > interrupt handler, because i8042_command() waits for characters arriving
-> > in the interrupt handler, so we could get into rather nasty recursions.
-> 
-> Are you sure? The i8042_command does spin_lock_irqsave(&i8042_lock,
-> flags), i8042_wait_read, i8042_read_data and unlock. It seems a good place
-> for me as the 8042s buffer is just flush by the interrupt. Well except for
-> the fact it is in the interrupt handler :)
+> Hello again, after two days of trying to solve my problem I give up now.
 
-Ahh, yeah, I forgot. Gee, and I wrote i8042_command.
+Hmm - no information at all?
 
-> I cannot see a simple/fast solution: All data read in the interrupt must
-> be processed otherwise kbd data might be lost. I dont want
-> I8042_BUFFER_SIZE calls to serio_rescan/reconnect, as serio is not smart
-> enought to only do it once. The mux port number(s) must be remembered if
-> serio is called after the loop. I dont like any further calls to
-> i8042_flush as it troughs away both kbd and aux data.
+Let me search the archives.
 
-Consider the loop gone. It already is in my version.
+>> Partition check:
+>> hda: [DM6:DD0] [remap +63] [2480/255/63] hda1 hda2 <hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12>
 
-> hmm, I actually want the handler to look something like:
-> 
->  if (str & I8042_STR_MUXERR)
->           i8042_handle_aux_data
->  else
->           i8042_handle_kbd_data
-> 
-> That way i8042_flush can call handle_*_data depending on what to flush.
-> 
-> Peter
- 
+Aha. Boot, and give boot parameter "hda=remap63".
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Andries
+

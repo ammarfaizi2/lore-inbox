@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293138AbSCEBRK>; Mon, 4 Mar 2002 20:17:10 -0500
+	id <S293139AbSCEB1J>; Mon, 4 Mar 2002 20:27:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293139AbSCEBRC>; Mon, 4 Mar 2002 20:17:02 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:32522 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293138AbSCEBQn>;
-	Mon, 4 Mar 2002 20:16:43 -0500
-Date: Mon, 4 Mar 2002 17:09:11 -0800
-From: Greg KH <greg@kroah.com>
-To: mingo@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] removal of mp_bus_id_to_node array in 2.5.6-pre2
-Message-ID: <20020305010910.GA6139@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 04 Feb 2002 22:57:29 -0800
+	id <S293142AbSCEB06>; Mon, 4 Mar 2002 20:26:58 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40709 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293139AbSCEB0k>;
+	Mon, 4 Mar 2002 20:26:40 -0500
+Date: Mon, 4 Mar 2002 22:26:30 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020305020546.W20606@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0203042225340.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+> On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
+> > This could be expressed as:
+> >
+> > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+> > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+>
+> Highmem? Let's assume you speak about "normal" and "dma" only of course.
+>
+> And that's not always the right zonelist layout. If an allocation asks for
+> ram from a certain node, like during the ram bindings, we should use the
+> current layout of the numa zonelist. If node A is the preferred, than we
+> should allocate from node A first,
 
-Here's a patch against 2.5.6-pre2 that removes the mp_bus_id_to_node
-array from arch/i386/kernel/mpparse.c as it isn't needed anymore.  This
-saves us a small amount of kernel memory, which is always a good thing :)
+You're forgetting about the fact that this NUMA box only
+has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
+HIGHMEM zones...
 
-thanks,
+This makes the fallback pattern somewhat more complex.
 
-greg k-h
+regards,
 
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Mon Mar  4 16:59:01 2002
-+++ b/arch/i386/kernel/mpparse.c	Mon Mar  4 16:59:01 2002
-@@ -36,7 +36,6 @@
-  */
- int apic_version [MAX_APICS];
- int mp_bus_id_to_type [MAX_MP_BUSSES];
--int mp_bus_id_to_node [MAX_MP_BUSSES];
- int mp_bus_id_to_pci_bus [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
- int mp_current_pci_id;
- 
-@@ -246,8 +245,7 @@
- 	str[6] = 0;
- 	
- 	if (clustered_apic_mode) {
--		mp_bus_id_to_node[m->mpc_busid] = translation_table[mpc_record]->trans_quad;
--		printk("Bus #%d is %s (node %d)\n", m->mpc_busid, str, mp_bus_id_to_node[m->mpc_busid]);
-+		printk("Bus #%d is %s (node %d)\n", m->mpc_busid, str, translation_table[mpc_record]->trans_quad);
- 	} else {
- 		Dprintk("Bus #%d is %s\n", m->mpc_busid, str);
- 	}
+http://www.surriel.com/		http://distro.conectiva.com/
+

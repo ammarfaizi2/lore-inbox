@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289236AbSBNAjK>; Wed, 13 Feb 2002 19:39:10 -0500
+	id <S289234AbSBNAg6>; Wed, 13 Feb 2002 19:36:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289243AbSBNAi6>; Wed, 13 Feb 2002 19:38:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9491 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289236AbSBNAiz>;
-	Wed, 13 Feb 2002 19:38:55 -0500
-Message-ID: <3C6B06E5.F6A7AD9F@zip.com.au>
-Date: Wed, 13 Feb 2002 16:37:57 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+	id <S289236AbSBNAgt>; Wed, 13 Feb 2002 19:36:49 -0500
+Received: from suntan.tandem.com ([192.216.221.8]:55495 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S289234AbSBNAgp>; Wed, 13 Feb 2002 19:36:45 -0500
+Message-ID: <3C6B0131.F096F020@compaq.com>
+Date: Wed, 13 Feb 2002 16:13:37 -0800
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>,
-		<Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com> <E16b9jW-0002QL-00@starship.berlin>
+To: David Howells <dhowells@redhat.com>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, hch@caldera.de
+Subject: Re: [PATCH] 2.4.18-pre9, trylock for read/write semaphores
+In-Reply-To: <26130.1013588383@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+David Howells wrote:
+> I think the following would be more elegant:
 > 
-> On February 13, 2002 11:24 pm, Bill Davidsen wrote:
-> > ...
-> > It doesn't matter, if you write the existing dirty buffers the filesystem
-> > type is irrelevant.
+> [snip]
+
+I agree.
+
+
+> I'm also not sure that the cast has any effect in the following excerpt from
+> the above:
 > 
-> Incorrect.  The modern crop of filesystems has the concept of consistency
-> points, and data written after a consistency point is irrelevant except to the
-> next consistency point.  IOW, it's often ok to leave some buffers dirty on a
-> sync.  But for a dumb filesystem you just have to guess at what's needed for
-> a consistency point, and the best guess is 'whatever's dirty at the time of
-> sync'.
+>         old = (volatile signed long)sem->count;
 > 
-> For metadata-only journalling the issues get more subtle and we need a ruling
-> from the ext3 guys.
 
-The current implementation of fsync_dev is about as good as
-it'll get for journal=writeback mode - write the data,
-run a commit, write the data again then wait on it all.
+You're right. I looked at the generated assembly, and the volatile cast
+makes no difference.
 
-> 
-> Sorry, I don't see the connection to sync.
 
-I don't understand the whole thread :)
+> What you may actually want is:
+> [snip]
 
-The patch I sent yesterday, which is at
-http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre9/sync_livelock.patch
-provides sensible and safe sync semantics, and avoids livelock.
+Although you're right that a volatile pointer is the proper way to do
+it, it turns out that a volatile declaration isn't necessary at all. The
+cmpxchg() function is a memory barrier that forces the count to be
+refetched the next time through the loop.
 
-It'd be good if someone else could, like, apply and test it, rather
-than sending out all this email and stuff.
 
--
+> Using this inline assembly has three advantages over mixing lots of C into it:
+> [snip]
+
+I'm not much of an assembly programmer, so implementing it this way
+never crossed my mind. It looks much more efficient than the code
+generated from the C version. A drawback is that it is not as easy to
+port to other architectures, particularly those that already have a
+cmpxchg() function.
+
+It's up to you whether you prefer C or assembly. Let me know, and I'll
+test that version and regenerate the patch.
+
+Brian

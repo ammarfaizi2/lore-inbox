@@ -1,143 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265529AbUBBAw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 19:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUBBAw3
+	id S265538AbUBBBCW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 20:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUBBBCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 19:52:29 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:36566 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S265529AbUBBAwW (ORCPT
+	Sun, 1 Feb 2004 20:02:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64987 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265538AbUBBBCU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 19:52:22 -0500
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-References: <87oesieb75.fsf@codematters.co.uk>
-	<20040201151111.4a6b64c3.akpm@osdl.org>
-	<401D9154.9060903@cyberone.com.au>
-From: Philip Martin <philip@codematters.co.uk>
-Date: Mon, 02 Feb 2004 00:51:41 +0000
-In-Reply-To: <401D9154.9060903@cyberone.com.au> (Nick Piggin's message of
- "Mon, 02 Feb 2004 10:52:52 +1100")
-Message-ID: <87llnm482q.fsf@codematters.co.uk>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
+	Sun, 1 Feb 2004 20:02:20 -0500
+Date: Sun, 1 Feb 2004 17:00:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: "David S. Miller" <davem@redhat.com>, James Morris <jmorris@redhat.com>,
+       jakub@redhat.com, dparis@w3works.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       rspchan@starhub.net.sg
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch   pentium3,4
+In-Reply-To: <401D6D38.3020009@tmr.com>
+Message-ID: <Pine.LNX.4.58.0402011657310.2229@home.osdl.org>
+References: <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com>
+ <20040130131400.13190af5.davem@redhat.com> <401D6D38.3020009@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> writes:
-
-> Its got 512MB RAM though so its not swapping, is it?
-
-No, it's not swapping.
-
-> Philip, can you please send about 30 seconds of vmstat 1
-> output for 2.4 and 2.6 while the test is running. Thanks
-
-OK.  I rebooted, logged in, shutdown the network, ran find to fill the
-memory, then did make clean, make -j4, make clean, make -j4.  The
-vmstat numbers are for the middle of the second make -j4.  I'm using
-Debian's procps 3.1.15-1.
 
 
-2.4.24
+On Sun, 1 Feb 2004, Bill Davidsen wrote:
+> 
+> What didn't you like about Jakob's patch which avoids the 64 byte size 
+> penalty?
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  2      0  13848  95012 304080    0    0     0   976  263   811 84 16  0  0
- 4  0      0  14276  95584 304328    0    0     0  2092  290   765 83 17  0  0
- 7  0      0  20808  95584 303924    0    0     0     0  110   722 79 21  0  0
- 5  0      0  15064  95584 303972    0    0     0     0  102   773 77 23  0  0
- 5  0      0  19516  95584 304520    0    0     0     0  102   422 89 11  0  0
- 4  0      0  20560  95584 304212    0    0     0     0  102  1044 63 37  0  0
- 4  1      0  17092  95880 304504    0    0     0   584  119   448 88 12  0  0
- 6  0      0  22740  96028 304448    0    0     0  1020  234  1005 74 26  0  0
- 5  0      0  10672  96028 304472    0    0     0     0  102   685 78 22  0  0
- 4  0      0  22124  96028 305068    0    0     0     0  102   557 85 15  0  0
- 4  0      0  16696  96028 304712    0    0     0     0  102  1048 67 33  0  0
- 5  0      0  21732  96028 305436    0    0     0     0  102   270 90 10  0  0
- 4  1      0  21056  96356 304960    0    0     0   644  178  1346 47 52  1  0
- 4  0      0   8916  96676 305196    0    0     0  1520  263   325 90  6  4  0
- 5  0      0  19404  96676 305924    0    0     0     0  102   505 86 14  0  0
- 5  0      0  16624  96676 305260    0    0     0     0  102  1081 65 35  0  0
- 3  0      0   8732  96676 305380    0    0     0     0  102   280 91  9  0  0
- 4  0      0  14080  96676 305556    0    0     0     0  102   747 76 24  0  0
- 5  1      0  14948  97016 305788    0    0     0   668  178   542 79 18  3  0
- 4  0      0  13820  97124 305732    0    0     0  1020  188  1028 67 33  0  0
- 5  0      0  16344  97128 306208    0    0     0     0  102   433 87 13  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 4  1      0  11028  97216 306388    0    0   432    84  174  1091 68 32  0  0
- 6  0      0  15816  97268 306748    0    0    36    56  114   556 81 19  0  0
- 5  0      0  13524  97268 306636    0    0     0     0  102   983 66 34  0  0
- 4  1      0  16996  97732 306828    0    0     0   952  226   472 84 16  0  0
- 4  0      0  14232  97752 306880    0    0     0   960  159  1194 64 36  0  0
- 5  0      0  15704  97752 307216    0    0     0     0  102   370 84 16  0  0
- 5  0      0  15548  97752 307120    0    0     0     0  102  1166 66 34  0  0
- 4  0      0   7284  97752 307224    0    0     0     0  102   324 91  9  0  0
- 7  0      0  11872  97752 307396    0    0     0     0  102   563 85 15  0  0
- 4  1      0  12860  98388 307940    0    0     0  1504  290   815 77 23  0  0
- 4  0      0   7532  98628 307580    0    0     0  1324  223   846 79 21  0  0
- 4  0      0  11536  98628 305912    0    0     0     0  102   374 89 11  0  0
- 6  0      0  12508  98628 305760    0    0     0     0  102   825 78 22  0  0
- 5  0      0  12700  98628 306060    0    0     0     0  102   459 87 13  0  0
- 4  0      0  11972  98628 306020    0    0     0     0  102   789 74 26  0  0
- 4  1      0  14388  98924 306120    0    0     0   584  166   690 80 20  0  0
- 2  3      0   9956  99528 305528    0    0     0  1344  287   788 77 23  0  0
- 7  0      0  14744  99608 305256    0    0     0   976  154   842 75 24  1  0
- 4  0      0   4988  99608 303244    0    0     0     0  102   460 86 14  0  0
- 4  0      0  20264  99608 303664    0    0     0     0  102   917 75 25  0  0
- 4  0      0  12940  99608 303544    0    0     0     0  102   645 80 20  0  0
+What size penalty?
 
-2.6.1
+The data has to be allocated somewhere, and on the stack is simply not 
+acceptable. So there can be no size penalty.
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 5  0      0  25528 241032  44500    0    0     0     0 1020  1315 63 37  0  0
- 4  0      0  28528 241032  44840    0    0     0     0 1002   533 87 14  0  0
- 4  0      0  34352 241032  44908    0    0     0     0 1003   804 81 19  0  0
- 4  0      0  25064 241032  44908    0    0     0     0 1003  1312 66 34  0  0
- 1  4      0  26024 241032  44976    0    0     0    92 1007   685 84 15  0  1
- 4  2      0  18152 241032  45248    0    0     0  1364 1186   800 79 19  0  2
- 6  2      0  29288 241092  45392    0    0     0  1088 1158   769 86 14  0  0
- 5  1      0  31208 241200  45352    0    0     0   928 1138  1702 43 40  2 15
- 4  1      0  26728 241200  45488    0    0     0  1388 1182  1148 63 29  0  9
- 4  1      0  23784 241236  45520    0    0     0  1092 1158   823 82 15  0  2
- 8  1      0  30568 241296  45664    0    0     0   988 1145  1561 58 33  1  9
- 4  3      0  28008 241316  45780    0    0     0  1140 1164  1543 55 36  1  9
- 4  1      0  26280 241336  45964    0    0     0  1360 1185   680 72 14  0 13
- 6  1      0  32744 241416  45884    0    0     0   896 1136  1061 72 21  2  7
- 4  0      0  24872 241416  45884    0    0     0  1548 1064  1459 57 38  2  4
- 4  0      0  27176 241416  46156    0    0     0     0 1002   905 78 22  0  0
- 6  0      0  31784 241416  46224    0    0     0     0 1002  1423 63 38  0  0
- 4  0      0  24360 241416  46428    0    0     0     0 1003   735 81 19  0  0
- 5  0      0  29032 241416  46428    0    0     0     0 1003  1083 73 27  0  0
- 1  4      0  25640 241416  46428    0    0     0  1128 1126  1344 62 37  0  2
- 4  1      0  21480 241416  46496    0    0     0   864 1140   822 78 17  1  4
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 6  2      0  27304 241456  46660    0    0     0  1044 1152   898 80 17  0  2
- 3  2      0  28392 241476  46776    0    0     0  1120 1129  1569 55 37  3  6
- 4  1      0  26920 241476  46980    0    0     0  1016 1179  1050 75 22  0  3
- 5  2      0  25576 241512  48372    0    0  1176   884 1130   767 81 15  0  3
- 2  4      0  26920 241616  50716    0    0  2308   696 1144  1063 66 25  0  8
- 2  3      0  20456 241628  50500    0    0     0  1116 1154  1488 58 35  1  6
- 5  2      0  24616 241648  50888    0    0     0  1256 1181   840 80 19  0  0
- 4  0      0  25704 241668  50936    0    0     0  2108 1168  1562 62 34  1  4
- 5  0      0  20392 241672  50864    0    0     0     0 1030   673 81 19  0  0
- 4  0      0  22184 241672  51204    0    0     0     0 1003   983 75 25  0  0
- 7  0      0  22248 241672  51136    0    0     0     0 1003  1493 60 40  0  0
- 5  0      0  22632 241672  51204    0    0     0     0 1003  1001 73 27  0  0
- 4  2      0  22632 241672  51476    0    0     0   576 1040  1232 67 34  0  0
- 4  2      0  19872 241672  51340    0    0     0  1272 1186  1143 72 28  0  0
- 4  1      0  22112 241672  51476    0    0     0   988 1160  1206 67 27  0  6
- 3  3      0  21408 241692  51524    0    0     0  1364 1182  1563 53 40  1  7
- 8  1      0  21024 241692  51728    0    0     0  1336 1164  1043 74 24  0  2
- 5  1      0  19296 241712  51776    0    0     0  1080 1170  1331 65 29  1  5
- 2  1      0  16224 241728  51760    0    0     0  1140 1177  1036 78 22  0  0
- 4  1      0  20704 241728  52168    0    0     0  1076 1159   798 83 16  1  0
- 5  1      0  20320 241748  52080    0    0     0  1440 1160  1469 63 36  0  1
+Yes, the text size of the binary is slightly bigger, because a "static 
+const" ends up in the ro-section, but that's _purely_ an accounting thing. 
+It has to be somewhere, be it .text, .data or .bss. Who would ever care 
+where it is?
 
--- 
-Philip Martin
+Having it in .ro means that there are no initialization issues, and a 
+compressed kernel compresses the zero bytes better than having init-time 
+code to initialize the array (or, worse, doing it over and over at 
+run-time).
+
+So where does this size penalty idea come from?
+
+In short: "static const" is correct.
+
+		Linus

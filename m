@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbUDYHcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUDYHdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUDYHcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 03:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDYHcP
+	id S261704AbUDYHdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 03:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDYHdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 03:32:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:19731 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262217AbUDYHcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 03:32:14 -0400
-Date: Sun, 25 Apr 2004 09:29:18 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: File system compression, not at the block layer
-Message-ID: <20040425072918.GA21148@alpha.home.local>
-References: <20040424073622.GN596@alpha.home.local> <200404250305.i3P355eF003826@pincoya.inf.utfsm.cl>
+	Sun, 25 Apr 2004 03:33:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48905 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261704AbUDYHdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 03:33:06 -0400
+Date: Sun, 25 Apr 2004 08:33:02 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Jason Cox <steel300@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: Change number of tty devices
+Message-ID: <20040425083302.A18033@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Jason Cox <steel300@gentoo.org>, linux-kernel@vger.kernel.org
+References: <20040422093302.B19797@flint.arm.linux.org.uk> <Pine.LNX.4.44.0404250414330.15965-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404250305.i3P355eF003826@pincoya.inf.utfsm.cl>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0404250414330.15965-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Sun, Apr 25, 2004 at 04:15:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 24, 2004 at 11:05:05PM -0400, Horst von Brand wrote:
- 
-> >                             Haven't you noticed that drives with many
-> > platters are always faster than their cousins with fewer platters ? And
-> > I don't speak about access time, but about sequential reads.
+On Sun, Apr 25, 2004 at 04:15:57AM +0100, James Simmons wrote:
 > 
-> Have you ever wondered how they squeeze 16 or more platters into that slim
-> enclosure? If you take them apart, the question evaporates: There are 2 or
-> 3 platters in them, no more. The "many platters" are an artifact of BIOS'
-> "disk geometry" description.
+> > On Thu, Apr 22, 2004 at 02:24:06AM +0000, Jason Cox wrote:
+> > > > When the kernel supports multi-desktop systems we will have to deal
+> > > > with the serial and VT issue. Most likely the serial tty drivers will
+> > > > be given a different major number. 
+> > > 
+> > > Why isn't this done now?
+> > 
+> > It's a API change and requires a flag day "everyone update their
+> > filesystem."  Especially in a stable kernel series.
+> 
+> By the time 2.7.X comes around everyone should be using udev. That should 
+> settle any problems. 
 
-I know, I was speaking about physical platters of course. Mark Hann told
-me in private that he disagreed with me, so I checked recent disks 
-(36, 73, 147 GB SCSI with 1, 2, 4 platters) and he was right, they have
-exactly the same spec concerning speed. But I said that I remember the
-times when I regularly did this test on disks that I was integrating about
-7-8 years ago, they were 2.1, 4.3, 6.4 GB (1,2,3 platters), and I'm fairly
-certain that the 1-platter performed at about 5 MB/s while the 6.4 was around
-12 MB/s. BTW, the 9GB SCSI I have in my PC does about 28 MB/s for 1 platter,
-while its 18 GB equivalent (2 platters) does about 51. So I think that what
-I observed remained true for such capacities, but changed on bigger disks
-because of mechanical constraints. Afterall, what's 18 GB now ? Less than
-one twentieth of the biggest disk.
+I have my doubts about that first statement.
 
-Anyway, this is off-topic, so that's my last post on LKML on the subject.
-
-Regards,
-Willy
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

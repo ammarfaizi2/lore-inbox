@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270050AbRIEBvj>; Tue, 4 Sep 2001 21:51:39 -0400
+	id <S270073AbRIEBv7>; Tue, 4 Sep 2001 21:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270073AbRIEBva>; Tue, 4 Sep 2001 21:51:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14214 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S270050AbRIEBvM>;
-	Tue, 4 Sep 2001 21:51:12 -0400
-Date: Tue, 04 Sep 2001 18:51:23 -0700 (PDT)
-Message-Id: <20010904.185123.26276785.davem@redhat.com>
-To: andrew.grover@intel.com
-Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org, _deepfire@mail.ru
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S270132AbRIEBvu>; Tue, 4 Sep 2001 21:51:50 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:49878 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270073AbRIEBvk>;
+	Tue, 4 Sep 2001 21:51:40 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac6 
+In-Reply-To: Your message of "Mon, 03 Sep 2001 15:05:29 +0200."
+             <20010903150529.J699@athlon.random> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 05 Sep 2001 11:51:11 +1000
+Message-ID: <16601.999654671@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Grover, Andrew" <andrew.grover@intel.com>
-   Date: Tue, 4 Sep 2001 14:52:17 -0700 
-   
-   I'm not advocating anything similar for Linux, I'm just saying it's an
-   interesting thought experiment - what if the SMP-ness of a machine was
-   abstracted from the kernel proper? How much of the kernel really cares, or
-   really *should* care about SMP/UP?
+On Mon, 3 Sep 2001 15:05:29 +0200, 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>On Mon, Sep 03, 2001 at 02:50:47AM +0100, Alan Cox wrote:
+>> 2.4.9-ac6
+>> o	Add MODULE_LICENSE tags to telephony		(Robert Love)
+>> o	Add MODULE_LICENSE tags to drivers/video	(Robert Love)
+>> o	Add MODULE_LICENSE tags to zorro		(Robert Love)
+>
+>what's the point of such information? If something I would understand to
+>specify the licence of a module when it's _not_ GPL.
 
-Every spinlock :-) You'd have to either accept their overhead, or have
-some way to nop out the instructions on uniprocessor boots.  There
-would still be the space overhead after such code patching.
-
-I remember the Digital UNIX folks did something interesting in this
-area.  There should be a paper online somewhere.
-
-Later,
-David S. Miller
-davem@redhat.com
+The next version of insmod will warn about modules with no
+MODULE_LICENSE at all and inform about modules with proprietary
+licences.  Both cases will mark the kenrel as tainted which will show
+up on bug reports.
 

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284970AbRLQCQC>; Sun, 16 Dec 2001 21:16:02 -0500
+	id <S284966AbRLQCVn>; Sun, 16 Dec 2001 21:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284969AbRLQCPw>; Sun, 16 Dec 2001 21:15:52 -0500
-Received: from [203.94.130.164] ([203.94.130.164]:7945 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id <S284968AbRLQCPk>;
-	Sun, 16 Dec 2001 21:15:40 -0500
-Date: Mon, 17 Dec 2001 13:21:46 +1100 (EST)
-From: brett@bad-sports.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1 - fix qlogic pcmcia scsi
-Message-ID: <Pine.LNX.4.40.0112171318090.30472-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284965AbRLQCVe>; Sun, 16 Dec 2001 21:21:34 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40105 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284966AbRLQCVS>; Sun, 16 Dec 2001 21:21:18 -0500
+Date: Sun, 16 Dec 2001 19:21:10 -0700
+Message-Id: <200112170221.fBH2LAx01188@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1 - intermediate bio stuff..
+In-Reply-To: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds writes:
+> 2.5.1 is hopefully a good interim stage - many block drivers should
+> work fine, but many more do not.  However, the pre-patches were
+> getting largish, so I'd rather do a 2.5.1 than wait for all the
+> details.
 
-Hey,
+Trying a quick test-run here:
+# modprobe ide-probe-mod
+/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
 
-Small patch to fix compilation for my pcmcia scsi card, as broken by the 
-bio changes.
+# modprobe ide-cd
+/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
 
-thanks,
+# modprobe ide-disk
+/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
 
-	/ Brett
+# modprobe nfs
+/lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_escape
+/lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_printf
 
---- drivers/scsi/qlogicfas.c.bak	Mon Dec 17 12:54:48 2001
-+++ drivers/scsi/qlogicfas.c	Mon Dec 17 12:55:24 2001
-@@ -467,10 +467,11 @@
- static void	    do_ql_ihandl(int irq, void *dev_id, struct pt_regs * 
-regs)
- {
- 	unsigned long flags;
-+	struct Scsi_Host *host = dev_id;
- 
--	spin_lock_irqsave(&io_request_lock, flags);
-+	spin_lock_irqsave(&host->host_lock, flags);
- 	ql_ihandl(irq, dev_id, regs);
--	spin_unlock_irqrestore(&io_request_lock, flags);
-+	spin_unlock_irqrestore(&host->host_lock, flags);
- }
- #endif
- 
+				Regards,
 
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

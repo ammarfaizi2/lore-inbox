@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269249AbRHGSGU>; Tue, 7 Aug 2001 14:06:20 -0400
+	id <S269254AbRHGSMt>; Tue, 7 Aug 2001 14:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269248AbRHGSGJ>; Tue, 7 Aug 2001 14:06:09 -0400
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:1898 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S269249AbRHGSGA>; Tue, 7 Aug 2001 14:06:00 -0400
-Message-ID: <3B702E09.8030207@blue-labs.org>
-Date: Tue, 07 Aug 2001 14:06:01 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
+	id <S269250AbRHGSMa>; Tue, 7 Aug 2001 14:12:30 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:17675 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269254AbRHGSMS>; Tue, 7 Aug 2001 14:12:18 -0400
+Message-ID: <3B7030B3.9F2E8E67@zip.com.au>
+Date: Tue, 07 Aug 2001 11:17:23 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: landley@webofficenow.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RP_FILTER runs too late
-In-Reply-To: <3B6F8E17.9090100@blue-labs.org> <01080620523409.04153@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ben LaHaise <bcrl@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.31.0108070920440.31117-100000@cesium.transmeta.com> <Pine.LNX.4.33.0108071245250.30280-100000@touchme.toronto.redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh I have it working, there is just one workaround requirement and one 
-nit with rp_filter.  rp_filter has to be disabled and that is an SNAT 
-item.  The workaround for a "pre-routing" snat is to setup ip route 
-rules, tag the packets, and finally nat them.  It accomplishes the task 
-I need but is in my opinion a hack.
+Ben LaHaise wrote:
+> 
+> On Tue, 7 Aug 2001, Linus Torvalds wrote:
+> 
+> > Try pre4.
+> 
+> It's similarly awful (what did you expect -- there are no meaningful
+> changes between the two!).  io throughput to a 12 disk array is humming
+> along at a whopping 40MB/s (can do 80) that's very spotty and jerky,
+> mostly being driven by syncs.  vmscan gets delayed occasionally, and small
+> interactive program loading varies from not to long (3s) to way too long
+> (> 30s).
 
-I'd rather see SNAT available in pre-routing and have rp_filter run 
-against the packet before it hits the netfilter code.
+Ben, are you using software RAID?
 
--d
-
-Rob Landley wrote:
-
->On Tuesday 07 August 2001 02:43, David Ford wrote:
->
->>I finally figured out why my SNAT setup wasn't working.  I had 1 in
->>eth0/rp_filter and that was silently breaking it.
->>
->>This discussion follows the scripts located at website
->>http://blue-labs.org/ , rc.networking and rc.firewalling.  Both are live
->>meaning you'll see any changes I make.
->>
->>Here's the scoop.  I run a VPN from here to my colo server...but I don't
->>want all my traffic going through the VPN.  So I need to finagle a
->>method of NAT.  Now because the NAT code runs behind the routing code,
->>packets are already heading the wrong direction when they get their
->>headers changed.  Because of that you need to tag them with a mark and
->>implement routing rules based on that mark.  As an aside note, all that
->>could be avoided if SNAT would just be available in PREROUTING.
->>
->>Ok. Now that packets are flowing through the right interfaces, things
->>look good but wait...the reply packets are vanishing without a trace.
->>
->>The culprit is the rp_filter on eth0.  The packet comes in, gets the
->>header rewritten then gets chomped by rp_filter.  I'm not quite sure why
->>because the src is still an external IP and the destination before and
->>after is still an internal IP.
->>
->>Wouldn't the rp_filter be more effective if it came ahead of the nat
->>code?  As it is now, it's useless on that interface.
->>
->>David
->>
->
->I just put up some firewall rules as part of the Dynamic Virtual Private 
->Networking project on sourceforge at http://dvpn.sourceforge.net.  It shows 
->both source and destination nat, port forwarding outside of a box, and a 
->couple other fun goodies.  Not necessarily your kind of VPN, but maybe it'll 
->help...
->
->I'm not sure what you're trying to do, but I got everything I tried to work...
->
->Rob
->
-
-
-
+The throughput problems which Mike Black has been seeing with
+ext3 seem to be specific to an interaction with software RAID5
+and possibly highmem.  I've never been able to reproduce them.

@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVCDDft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVCCV6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbVCDDft (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 22:35:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVCDDdP
+	id S262626AbVCCV6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVCCVuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 22:33:15 -0500
-Received: from td9091b2a.pool.terralink.de ([217.9.27.42]:26095 "EHLO
-	tolot.miese-zwerge.org") by vger.kernel.org with ESMTP
-	id S262763AbVCDC7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:59:44 -0500
-Date: Fri, 4 Mar 2005 03:57:46 +0100
-From: Jochen Striepe <jochen@tolot.escape.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 16:50:05 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41134 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262613AbVCCVtW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:49:22 -0500
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304025746.GD26085@tolot.miese-zwerge.org>
-References: <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org>
+From: John Cherry <cherry@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       jgarzik@pobox.com, rmk+lkml@arm.linux.org.uk,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303052100.GA22952@redhat.com>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	 <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
+	 <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+	 <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org>
+	 <20050303052100.GA22952@redhat.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 13:49:50 -0800
+Message-Id: <1109886590.24056.33.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303160330.5db86db7.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-Signature-Color: brightblue
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi,
+On Thu, 2005-03-03 at 00:21 -0500, Dave Jones wrote:
+<snip>
+> compile time regressions we should be able to nail down fairly easily.
+> (someone from OSDL is already doing compile stats and such on each release
+>  [too bad they're mostly incomprehensible to the casual viewer])
 
-On 03 Mar 2005, Andrew Morton wrote:
-> 2.6.x is making good progress but there have been a handful of prominent
-> regressions which seem to be making people think that the whole process is
-> bust.  I don't believe that this has been proven yet.
+Dave, I'm the "someone from OSDL".  I agree that the compile stats and
+error/warning regresssions can be a little challenging to grock for the
+casual observer.  Is it content or formatting that would help the casual
+viewer?
 
-Sorry -- what you (with the vision of a kernel developer) are seeing
-here surely is interesting, but it's not the point:
+John
 
-The point is what the *users* think. Just in case it still hasn't been
-made clear enough in this thread: If your user base gets the impression
-the development process isn't reliable any longer, you won't get your
-kernel tested as much as you want.
+> The bigger problem is runtime testing. If things aren't getting the
+> exposure they need, we're going to get screwed over by something or other
+> every time Linus bk pull's some random driver repo.
+> 
+> 		Dave
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Please remember why this thread started. It was a proposal to get more
-users testing the rc kernels. 
-
-
-So I hope the latest proposal really helps making releases contain fewer
-surprises.
-
-
-Greetings,
-
-Jochen.
--- 
-All I want is a warm bed and a kind word and unlimited power.
-         -- Ashleigh Brilliant

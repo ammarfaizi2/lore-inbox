@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270985AbTGVSPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270982AbTGVSPn
+	id S270979AbTGVSTj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270981AbTGVSTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:15:43 -0400
-Received: from www.opensource-ca.org ([168.234.203.30]:42710 "EHLO
-	guug.galileo.edu") by vger.kernel.org with ESMTP id S270977AbTGVSPl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:15:41 -0400
-Date: Tue, 22 Jul 2003 12:26:09 -0600
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       debian-sparc@lists.debian.org
-Subject: Re: sparc scsi esp depends on pci & hangs on boot
-Message-ID: <20030722182609.GA30174@guug.org>
-References: <20030722025142.GC25561@guug.org> <20030722080905.A21280@devserv.devel.redhat.com>
+	Tue, 22 Jul 2003 14:19:39 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25612 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270979AbTGVSTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:19:38 -0400
+Date: Tue, 22 Jul 2003 19:34:40 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Larry LeBlanc <leblanc@inmotiontechnology.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Power Management/PCMCIA conflict causes system freeze
+Message-ID: <20030722193440.A16051@flint.arm.linux.org.uk>
+Mail-Followup-To: Larry LeBlanc <leblanc@inmotiontechnology.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3F1D8159.4060209@inmotiontechnology.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030722080905.A21280@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.4i
-From: Otto Solares <solca@guug.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F1D8159.4060209@inmotiontechnology.com>; from leblanc@inmotiontechnology.com on Tue, Jul 22, 2003 at 11:24:25AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 08:09:05AM -0400, Pete Zaitcev wrote:
-> > Date: 	Mon, 21 Jul 2003 20:51:42 -0600
-> > From: Otto Solares <solca@guug.org>
-> 
-> > ultra enterprise 1 (sun4u sparc64)
-> > sparc station 4    (sun4m sparc32)
-> > 
-> > on both i need to enable PCI support even
-> > when these boxes doesn't have a PCI bus,
-> 
-> I'll look into sparc32 problems when I get from Canada.
+On Tue, Jul 22, 2003 at 11:24:25AM -0700, Larry LeBlanc wrote:
+> Any ideas? I've tried turning on debug in apm but all that happens is 
+> the debug messages freeze with the rest of the system. Is there any 
+> other location I should turn on debug messages to try to get an idea of 
+> where the system is hanging?
 
-good.
+You need to enable sysrq, cause a hang, and then issue a sysrq-t and
+sysrq-p to find out where you're hanging.
 
-converting the esp scsi driver to sbus without
-pci requirement is the right step IMO.  Maybe
-the scsi people can comment on this.
+Note that if you're using a serial console, you need to hold the serial
+port open for sysrq requests to be processed.
 
--solca
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOGwU>; Fri, 15 Dec 2000 01:52:20 -0500
+	id <S132153AbQLOHID>; Fri, 15 Dec 2000 02:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131341AbQLOGwL>; Fri, 15 Dec 2000 01:52:11 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:19972 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129267AbQLOGvz>; Fri, 15 Dec 2000 01:51:55 -0500
-Date: Thu, 14 Dec 2000 22:20:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <3A398F84.2CD3039D@thebarn.com>
-Message-ID: <Pine.LNX.4.10.10012142208420.1308-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129267AbQLOHHx>; Fri, 15 Dec 2000 02:07:53 -0500
+Received: from takayasu.center.osakafu-u.ac.jp ([157.16.240.30]:63692 "EHLO
+	takayasu.center.osakafu-u.ac.jp") by vger.kernel.org with ESMTP
+	id <S131966AbQLOHHu>; Fri, 15 Dec 2000 02:07:50 -0500
+To: neilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: failed in BUG() at fs/buffer.c:765
+In-Reply-To: <14904.44216.352364.618062@notabene.cse.unsw.edu.au>
+In-Reply-To: <20001214191242E.ark@center.osakafu-u.ac.jp>
+	<14904.44216.352364.618062@notabene.cse.unsw.edu.au>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Capitol Reef)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001215153714C.ark@center.osakafu-u.ac.jp>
+Date: Fri, 15 Dec 2000 15:37:14 +0900
+From: Atsuhiro Kojima <ark@center.osakafu-u.ac.jp>
+X-Dispatcher: imput version 991025(IM133)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
 
-
-On Thu, 14 Dec 2000, Russell Cattelan wrote:
+> The simplest fix for this is the patch below.  Exactly what will get
+> into test13 has not yet been decided.
 > 
-> Ok one more wrinkle.
-> sync_buffers calls ll_rw_block, this is going to have the same problem as
-> calling ll_rw_block directly.
+> NeilBrown
 
-Good point. 
-
-This actually looks fairly nasty to fix. The obvious fix would be to not
-put such buffers on the dirty list at all, and instead rely on the VM
-layer calling "writepage()" when it wants to push out the pages.
-That would be the nice behaviour from a VM standpoint.
-
-However, that assumes that you don't have any "anonymous" buffers, which
-is probably an unrealistic assumption.
-
-The problem is that we don't have any per-buffer "writebuffer()" function,
-the way we have them per-page. It was never needed for any of the normal
-filesystems, and XFS just happened to be able to take advantage of the
-b_end_io behaviour.
-
-Suggestions welcome. 
-
-		Linus
-
+Thanks for your advice.
+I will try it soon, maybe tonight or tomorrow.
+---
+Atsuhiro Kojima
+Library & Science Information Center, Osaka Prefecture University.
+E-mail: ark@center.osakafu-u.ac.jp
+http://cuvier.center.osakafu-u.ac.jp/ark/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

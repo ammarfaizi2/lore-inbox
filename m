@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVCIX03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCIX3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVCIX03 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVCIXY7
+	id S262325AbVCIX3K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCIX1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:24:59 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:43175 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262259AbVCIXXK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:23:10 -0500
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-References: <200503092218.j29MICg26503@unix-os.sc.intel.com>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 10 Mar 2005 00:23:09 +0100
-In-Reply-To: <200503092218.j29MICg26503@unix-os.sc.intel.com> (Kenneth W.
- Chen's message of "Wed, 9 Mar 2005 14:18:12 -0800")
-Message-ID: <m1r7iov1ya.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 9 Mar 2005 18:27:09 -0500
+Received: from rutherford.zen.co.uk ([212.23.3.142]:31973 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S261199AbVCIX0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:26:39 -0500
+Message-ID: <422F8623.4030405@cantab.net>
+Date: Wed, 09 Mar 2005 23:26:27 +0000
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Support for GEODE CPUs
+References: <200503081935.j28JZ433020124@hera.kernel.org>	 <1110387668.28860.205.camel@localhost.localdomain>	 <20050309173344.GD17865@csclub.uwaterloo.ca> <1110405563.3072.250.camel@localhost.localdomain>
+In-Reply-To: <1110405563.3072.250.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-Rutherford-IP: [82.70.146.41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
->
-> Just to clarify here, these data need to be taken at grain of salt. A
-> high count in _spin_unlock_* functions do not automatically points to
-> lock contention.  It's one of the blind spot syndrome with timer based
-> profile on ia64.  There are some lock contentions in 2.6 kernel that
-> we are staring at.  Please do not misinterpret the number here.
+Alan Cox wrote:
+> 
+> There are a few Geode tricks to know for performance
+> 
+> - If you can't turn it off use solid areas of colour to speed the system
+> up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
 
-Why don't you use oprofileÂ>? It uses NMIs and can profile "inside" 
-interrupt disabled sections.
+How much of a difference does the compression make to performance?
 
--Andi
+> - The onboard audio is a software SB emulation on older GX. It burns
+> CPU.
+
+Presumably one could write a native audio driver that didn't use the 
+soundblaster emulation?
+
+David Vrabel

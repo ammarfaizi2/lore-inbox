@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUK2Sak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUK2ScW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUK2Sak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUK2Sah
+	id S261480AbUK2ScW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 13:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbUK2ScV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:30:37 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:11 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261479AbUK2Sab convert rfc822-to-8bit (ORCPT
+	Mon, 29 Nov 2004 13:32:21 -0500
+Received: from hera.kernel.org ([63.209.29.2]:44501 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261480AbUK2ScL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:30:31 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Licensing nit in glibc-kernheaders-2.4
-Date: Mon, 29 Nov 2004 13:30:30 -0500
-Message-ID: <C9AAAF1DB2411546B68C720B0D0630CB010A732D@ataexc01.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Licensing nit in glibc-kernheaders-2.4
-Thread-Index: AcTWQYE/IC3GwUGUStyt9r6Pr6P94A==
-From: "Foster, Glen A" <glen.foster@hp.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <ncorbic@sangoma.com>
-X-OriginalArrivalTime: 29 Nov 2004 18:30:31.0038 (UTC) FILETIME=[81B249E0:01C4D641]
+	Mon, 29 Nov 2004 13:32:11 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: 2.6.9 tcp problems
+Date: Mon, 29 Nov 2004 10:35:48 -0800
+Organization: Open Source Development Lab
+Message-ID: <20041129103548.7b9a9e23@zqx3.pdx.osdl.net>
+References: <41AB6476.8060405@nea-fast.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1101753127 18078 172.20.1.73 (29 Nov 2004 18:32:07 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 29 Nov 2004 18:32:07 +0000 (UTC)
+X-Newsreader: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is truly a nit, I just ran across it by accident.  I filed a bug
-against RH glibc-kernheaders and I was told to file the problem report
-upstream by sending email to linux-kernel@vger.kernel.org and cc: the
-developer -- so I added the one e-mail address in the file under
-question.
+On Mon, 29 Nov 2004 13:03:34 -0500
+kernel <kernel@nea-fast.com> wrote:
 
-In glibc-kernheaders-2.4, the file usr/include/linux/sdla_chdlc.h has a
-boiler-plate license template that *almost* matches the one in the GNU
-GPL, but there's a mis-spelling that some day should be corrected.  This
-*is* a nit but could stand to be fixed; I certainly think it could wait
-for an update.
+> I've run into a problem with 2.6.(8.1,9) after installing a secondary 
+> firewall. When I try to pull data through the original firewall (mail, 
+> http, ssh), it stops after approx. 260k. Running ethereal tells me "A 
+> segment before the frame was lost" followed by a bunch of  "This is a 
+> TCP duplicate ack" when using ssh. All 2.4.x machines and windows 
+> clients work fine. I built 2.4.28 and it works fine from my machine. I 
+> also fiddled with tcp_ecn and that didn't fix it either. I don't have 
+> any problems communicating to "local" machines. I've attached the 
+> tcpdump output from an scp attempt. NIC is a 3Com Corporation 3c905B.
 
-Lines 9-12 of usr/include/linux/sdla_chdlc.h are:
-
-<excerpt>
-	This program is free software; you can redistribute it and/or
-	modify it under the term of the GNU General Public License
-	as published by the Free Software Foundation; either version
-	2 of the License, or (at your option) any later version.
-</excerpt>
-
-This is almost exactly the boiler-plate needed for a correct licensing
-reference to the GNU GPL, but not quite.  Line ten should be changed
-to use the word "terms" instead of "term", as (a) there is more than
-one term to the GPL that must be adhered to, and (b) the GPL mentions
-specifically that the wording of said reference cannot be modified -
-and it has been modified.
-
-Thanks in advance for your consideration.  Best regards,
-
-Glen A. Foster
-Hewlett-Packard Company
-Linux and Open Source Lab
+What kind of firewall?  There are firewalls that are too stupid and don't
+understand TCP window scaling.

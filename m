@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285709AbRLTAiI>; Wed, 19 Dec 2001 19:38:08 -0500
+	id <S285692AbRLTAn7>; Wed, 19 Dec 2001 19:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285707AbRLTAh7>; Wed, 19 Dec 2001 19:37:59 -0500
-Received: from cm61-15-169-117.hkcable.com.hk ([61.15.169.117]:15488 "EHLO
-	cm61-15-169-117.hkcable.com.hk") by vger.kernel.org with ESMTP
-	id <S285704AbRLTAhn>; Wed, 19 Dec 2001 19:37:43 -0500
-Message-ID: <3C2131FC.6040209@rcn.com.hk>
-Date: Thu, 20 Dec 2001 08:34:04 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: nfsroot dead slow with redhat 7.2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285720AbRLTAnt>; Wed, 19 Dec 2001 19:43:49 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:31501 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S285692AbRLTAnn>; Wed, 19 Dec 2001 19:43:43 -0500
+Date: Thu, 20 Dec 2001 01:43:04 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Michael De Nil <linux@aerythmic.be>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 -> undefined reference to `local symbols ...
+Message-ID: <20011220004304.GB18071@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.43.0112200109380.424-100000@LiSa>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.43.0112200109380.424-100000@LiSa>
+User-Agent: Mutt/1.3.24i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Thu, Dec 20, 2001 at 01:13:48AM +0100, Michael De Nil wrote:
+> I tried now several times to 'make' the 2.4.16-kernel, but I get allways
+> the same error:
+> 
+> ...
+> a /usr/src/linux-2.4.16/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
+> in discarded section .text.exit'
+> make: *** [vmlinux] Error 1
 
-When I use 2.4.7-10 i686 kernel from stock Redhat 7.2 as the NFS server. 
-My NFS client use the 2.4.13 kernel, when I mount the nfsroot to the 
-server, I found it is dead slow on the client. This only happens in i686 
-kernel on the server, if we use a K6-2 uses an i386 server its fine. 
-What's going on? By the way, how to configure the client to default use 
-a NFSv3 mount? Thanks.
+Known problem, you're probably using Debian testing. Either downgrade
+your binutils, or use 2.4.17-rc2.
 
-regards,
 
-David
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

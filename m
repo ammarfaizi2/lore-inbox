@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbULNXBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbULNXHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbULNXBV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 18:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNW7P
+	id S261748AbULNXHB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 18:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbULNXGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:59:15 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:53895 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S261741AbULNW5p
+	Tue, 14 Dec 2004 18:06:11 -0500
+Received: from alog0357.analogic.com ([208.224.222.133]:20608 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261718AbULNXEY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:57:45 -0500
-Message-Id: <200412142257.iBEMvYPj014838@localhost.localdomain>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       George Anzinger <george@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0 
-In-reply-to: Your message of "Tue, 14 Dec 2004 17:47:11 EST."
-             <1103064432.14699.69.camel@krustophenia.net> 
-Date: Tue, 14 Dec 2004 17:57:34 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.151.88.162] at Tue, 14 Dec 2004 16:57:39 -0600
+	Tue, 14 Dec 2004 18:04:24 -0500
+Date: Tue, 14 Dec 2004 18:00:55 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Tony Lindgren <tony@atomide.com>, john stultz <johnstul@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic-hz
+In-Reply-To: <20041214220646.GC19218@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0412141751590.20391@chaos.analogic.com>
+References: <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com>
+ <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz>
+ <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz>
+ <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz>
+ <20041214013924.GB14617@atomide.com> <20041214093735.GA1063@elf.ucw.cz>
+ <20041214211814.GA31226@atomide.com> <20041214220646.GC19218@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > On Tue, 2004-12-14 at 22:18 +0100, Ingo Molnar wrote:
->> > > the two projects are obviously complementary and i have no intention to
->> > > reinvent the wheel in any way. Best would be to bring hires timers up to
->> > > upstream-mergable state (independently of the -RT patch) and ask Andrew
->> > > to include it in -mm, then i'd port -RT to it automatically.
->> > 
->> > Among other things I think Paul Davis mentioned that George's high res
->> > timer patch would make it possible for JACK to send MIDI clock.  This
->> > would be a huge improvement.
->> 
->> <clueless question> roughly what latency/accuracy requirements does the
->> MIDI clock have, and why is it an advantage if Linux generates it? What
->> generates it otherwise - external MIDI hardware? Or was the problem
->> mainly not latency/accuracy but that Linux couldnt generate a
->> finegrained enough clock?
+On Tue, 14 Dec 2004, Pavel Machek wrote:
 
-the latter. to send MIDI Clock or MIDI Timecode requires an interrupt
-source that is not locked to jiffie-ish intervals or power-of-2
-related intervals. For example, MTC requires sending 2 bytes roughly
-every 0.8msec. Sending them every msec isn't good enough, in general.
+> Hi!
+>
+>>>> The patch in question is at:
+>>>>
+>>>> http://linux-omap.bkbits.net:8080/main/user=tmlind/patch@1.2016.4.18?nav=!-|index.html|stats|!+|index.html|ChangeSet@-12w|cset@1.2016.4.18
+>>>
+>>> Wow, that's basically 8 lines of code plus driver for new
+>>> hardware... Is it really that simple?
+>>
+>> Yeah, the key things are reprogramming the timer in the idle loop
+>> based on next_timer_interrupt(), and calling timer_interrupt from
+>> other interrupts as well :)
+>>
+>> Should we try a similar patch for x86/amd64? I'm not sure which timers
+>> to use though? One should be programmable length for the interrupt,
+>> and the other continuous for the timekeeping.
+>
+> Yes, it would certainly be interesting. 5% power savings, and no
+> singing capacitors, while keeping HZ=1000. Sounds good to me.
+>
+> There are about 1000 timers available in PC, each having its own
+> quirks. CMOS clock should be able to generate 1024Hz periodic timer
+> (we currently do not use) and TSC we currently use for periodic timer
+> should be usable in single-shot mode.
+> 								Pavel
+> --
 
-my understanding of the HRT patch is that it allows the timer to be
-reprogrammed to elapse with nanosecond resolution. i don't understand
-why linus has been so reluctant to move linux in this direction, other
-than it being hard to fit into the existing fixed interval timer
-framework.
+If you use that RTC timer, it needs to be something that can be
+turned OFF. Many embedded applications use that because its the
+only timer that the OS doesn't muck with. It also has very low
+noise which makes in a good timing source for IIR filters for
+high precision, low data-rate data acquisition (like 24 bits).
 
---p
+Since it generates an edge, its interrupt can't be shared.
+I certainly hope that you don't use it. One can read the
+time without disturbing the interrupt rate. One just
+needs to use the existing rtc_lock and not spin with
+the lock being held.
+
+Currently the kernel RTC software allocates the RTC interrupt
+even though it doesn't use it. This makes it necessary to
+compile the RTC as a module and then remove it when another
+driver needs to use the RTC interrupt source.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

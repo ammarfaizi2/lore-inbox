@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbUKZTzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264006AbUKZVug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbUKZTzI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263954AbUKZTyu
+	id S264006AbUKZVug (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264001AbUKZTxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:54:50 -0500
+	Fri, 26 Nov 2004 14:53:48 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262470AbUKZTbL (ORCPT
+	by vger.kernel.org with ESMTP id S262480AbUKZTbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:31:11 -0500
-Date: Thu, 25 Nov 2004 17:02:33 -0500
-From: Dorn Hetzel <kernel@dorn.hetzel.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: r8169.c
-Message-ID: <20041125220233.GA23850@lilah.hetzel.org>
-References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com> <20041122181307.GA3625@lilah.hetzel.org> <20041123144901.GA19005@lilah.hetzel.org> <20041123194740.GA32210@electric-eye.fr.zoreil.com>
+	Fri, 26 Nov 2004 14:31:23 -0500
+Date: Thu, 25 Nov 2004 17:56:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 4/51: Get module list.
+Message-ID: <20041125165617.GC476@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293104.5805.203.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041123194740.GA32210@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1101293104.5805.203.camel@desktop.cunninghams>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 08:47:40PM +0100, Francois Romieu wrote:
-> Dorn Hetzel <kernel@dorn.hetzel.org> :
+Hi!
 
-> > Stacked on these 4 patches and things seem much better :)
+> This provides access to the list of loaded modules for suspend's
+> debugging output. When a cycle finishes, suspend outputs something the
+> following:
 > 
-> Did you change the compiler as well ?
+> > Please include the following information in bug reports:
+> > - SUSPEND core   : 2.1.5.7
+> > - Kernel Version : 2.6.9
+> > - Compiler vers. : 3.3
+> > - Modules loaded : tuner bttv videodev snd_seq_oss snd_seq_midi_event
+> > snd_seq snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_pcm
+> > snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device
+> > snd soundcore visor usbserial usblp joydev evdev usbmouse usbhid
+> > uhci_hcd usbcore ppp_deflate zlib_deflate zlib_inflate bsd_comp
+> > ipt_LOG ipt_state ipt_MASQUERADE iptable_nat ip_conntrack
+> > ipt_multiport ipt_REJECT iptable_filter ip_tables ppp_async
+> > ppp_generic slhc crc_ccitt video_buf v4l2_common btcx_risc Win4Lin
+> > mki_adapter radeon agpgart parport_pc lp parport sg ide_cd sr_mod
+> > cdrom floppy af_packet e1000 loop dm_mod tsdev suspend_bootsplash
+> > suspend_text suspend_swap suspend_block_io suspend_lzf suspend_core
+> > - Attempt number : 9
+> > - Parameters     : 0 2304 32768 1 0 4096 5
+> > - Limits         : 261680 pages RAM. Initial boot: 252677.
+> > - Overall expected compression percentage: 0.
+> > - LZF Compressor enabled.
+> >   Compressed 922112000 bytes into 437892038 (52 percent compression).
+> > - Swapwriter active.
+> >   Swap available for image: 294868 pages.
+> > - Debugging compiled in.
+> > - Preemptive kernel.
+> > - SMP kernel.
+> > - Highmem Support.
+> > - I/O speed: Write 72 MB/s, Read 119 MB/s.
 > 
-> If yes, it would be nice to know if the system performs correctly when built with
-> the previous compiler (feel free to answer #1 only if you are busy :o) ).
->
+> Including the modules loaded is very helpful for debugging problems.
 
-I went ahead and remotely rebuilt using gcc 2.95.4 and upon reboot it
-worked long enough to ssh in and then it failed.  So it sounds like the
-version of gcc DOES make a difference :)
+It might be usefull as an add-on patch when people are actually debugging it,
+but I do not think it is needed for mainline. You can just do lsmod before suspend...
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-I will report further details when I get home and can access the box
-again ;)
-
--Dorn
- 
-> --
-> Ueimor
-> -

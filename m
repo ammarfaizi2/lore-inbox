@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130977AbRCJJu3>; Sat, 10 Mar 2001 04:50:29 -0500
+	id <S130988AbRCJKIC>; Sat, 10 Mar 2001 05:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130971AbRCJJuT>; Sat, 10 Mar 2001 04:50:19 -0500
-Received: from dyn545.dhcp.lancs.ac.uk ([148.88.245.69]:516 "EHLO
-	dyn545.dhcp.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S130977AbRCJJuO>; Sat, 10 Mar 2001 04:50:14 -0500
-Date: Fri, 9 Mar 2001 21:08:55 +0000 (GMT)
-From: Stephen Torri <s.torri@lancaster.ac.uk>
-X-X-Sender: <torri@localhost.localdomain>
-To: David Christensen <David_Christensen@Phoenix.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI:system description tables not found.
-In-Reply-To: <D973CF70008ED411B273009027893BA409728C@irv-exch.phoenix.com>
-Message-ID: <Pine.LNX.4.33.0103092106180.10511-100000@localhost.localdomain>
+	id <S130993AbRCJKHw>; Sat, 10 Mar 2001 05:07:52 -0500
+Received: from ppp-96-119-an01u-dada6.iunet.it ([151.35.96.119]:27652 "HELO
+	home.bogus") by vger.kernel.org with SMTP id <S130988AbRCJKHl>;
+	Sat, 10 Mar 2001 05:07:41 -0500
+Message-ID: <XFMail.20010310123041.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20010309164740.D1057@w-mikek2.sequent.com>
+Date: Sat, 10 Mar 2001 12:30:41 +0100 (CET)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Mike Kravetz <mkravetz@sequent.com>
+Subject: RE: sys_sched_yield fast path
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Mar 2001, David Christensen wrote:
 
-> Stephen,
->
-> Is there a BIOS setup option for enabling ACPI?  Make sure it is enabled.
+On 10-Mar-2001 Mike Kravetz wrote:
+> Any thoughts about adding a 'fast path' to the SMP code in
+> sys_sched_yield.  Why not compare nr_pending to smp_num_cpus
+> before examining the aligned_data structures?  Something like,
+> 
+> if (nr_pending > smp_num_cpus)
+>       goto set_resched_now;
+> 
+> Where set_resched_now is a label placed just before the code
+> that sets the need_resched field of the current process.
+> This would eliminate touching all the aligned_data cache lines
+> in the case where nr_pending can never be decremented to zero.
+> 
+> Also, would it make sense to stop decrementing nr_pending to
+> prevent it from going negative?  OR  Is the reasoning that in
+> these cases there is so much 'scheduling' activity that we
+> should force the reschedule?
 
-The BIOS setup option for ACPI is enabled.
+Probably the rate at which is called sys_sched_yield() is not so high to let
+the performance improvement to be measurable.
+If You're going to measure the schedule() speed with the test program in which
+the schedule() rate is the same of the sched_yield() rate, this could clean Your
+measure of the schedule() speed.
 
-> Also attach a copy of the E820 output from dmesg.
 
-Linux version 2.4.2 (root@base.torri.linux) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #2 SMP Mon Feb 26 23:47:16 GMT 2001
 
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
- BIOS-e820: 0000000000020000 @ 00000000000e0000 (reserved)
- BIOS-e820: 0000000017f00000 @ 0000000000100000 (usable)
- BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
- BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
- BIOS-e820: 0000000000040000 @ 00000000fffc0000 (reserved)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes.
-Scan SMP from c00f0000 for 65536 bytes.
-found SMP MP-table at 000fb4f0
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f2000 reserved twice.
-hm, page 000f3000 reserved twice.
-On node 0 totalpages: 98304
-zone(0): 4096 pages.
-zone(1): 94208 pages.
-zone(2): 0 pages.
 
-Stephen
------------------------------------------------
-Buyer's Guide for a Operating System:
-Don't care to know: Mac
-Don't mind knowing but not too much: Windows
-Hit me! I can take it!: Linux
+- Davide
 

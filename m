@@ -1,115 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262992AbTDKJJe (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 05:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTDKJJe (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 05:09:34 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:39646 "HELO
+	id S262835AbTDKJJa (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 05:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTDKJJa (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 05:09:30 -0400
+Received: from netmail02.services.quay.plus.net ([212.159.14.221]:40670 "HELO
 	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S262992AbTDKJJ2 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 05:09:28 -0400
+	id S262835AbTDKJJ2 (for <rfc822;Linux-Kernel@vger.kernel.org>); Fri, 11 Apr 2003 05:09:28 -0400
 From: "Riley Williams" <Riley@Williams.Name>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: kernel support for non-English user messages
-Date: Fri, 11 Apr 2003 10:21:16 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAIEBJCGAA.Riley@Williams.Name>
+To: "Linux Kernel List" <Linux-Kernel@vger.kernel.org>,
+       "Robert White" <rwhite@casabyte.com>
+Subject: Re: kernel support for non-English user messages
+Date: Fri, 11 Apr 2003 10:21:17 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAKEBJCGAA.Riley@Williams.Name>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Importance: Normal
-In-Reply-To: <1050001294.12494.11.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGMEPICGAA.rwhite@casabyte.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan.
+Hi Robert.
 
- >> If we use 32-bit hash codes, there's a real chance of different
- >> messages
+ > It is tautologically true that every printk starts with a format
+ > string, and that "really" the kernel has no business "switching
+ > languages" on the fly. That is, like selecting the chipset, the
+ > language the kernel should express it self ought to be selected
+ > at compile time.
 
- > There are less than 65536 files each of which is less than 65536
- > lines long, so it seems that a properly chosen automated index
- > ought to be collision free ?
+I can certainly accept such an argument for a single system. The
+problem I have is with people then posting their errors on here
+with the messages in a language that none of the maintainers on
+here understands - how are we then expected to help them?
 
-Some thoughts on that:
+It is because of this requirement that I believe that message codes
+in some form are unavoidable - at least with message codes, one
+can look them up and find the version of the message translated
+into one's own language. However, Linus has vetoed the idea of
+putting such codes into the kernel in any form, and that makes the
+whole idea a non-starter in any form.
 
- 1. If the printk() messages are internationalised, we are going to
-    see log extracts posted here in various languages, including some
-    that the relevant maintainers don't understand. To stand any
-    realistic chance of dealing with the resultant bug reports, we
-    need to include the message code in the report so we can just
-    feed the various reports through a tool that translates them into
-    our preferred language.
+Personally, I'm willing to discuss this issue and see what sort of
+ideas we can come up with, and what problems each idea may have.
 
- 2. For the above to work, we need the following guarantees:
+ > In essence, the translations have to be done earlier in the
+ > process instead of later. Having or needing a tool to read the
+ > log won't help someone trying to diagnose a problem where a tool
+ > isn't in place and the storage requirements for after-the-fact
+ > to see and use the output become unreasonable. (It's just not
+ > telnet/shell friendly.)
 
-     a. A particular message code always refers to the same message.
+Agreed.
 
-     b. A particular message is always referred to by the same
-        message code.
+ > Consider a tool that scans any source file and collects up the
+ > literal strings of every printk encountered and tosses them into
+ > a static array...
+ >
+ >	"CHAR_TYPE * KernelMessage[] = { "whatever", "whatever"...};"
+ >
+ > ...then replaces...
+ >
+ >	printk("whatever",...);
+ >
+ > ...with...
+ >
+ >	printk(KernelMessage[0],...);
 
- 3. To obtain these guarantees, we need to ensure that the translation
-    tool supplied with any particular kernel can handle all message
-    codes from that kernel or from any earlier kernel in its direct
-    ancestry. We thus can't reuse message codes once issued.
+It would also have to handle all the cases of...
 
- 4. In some languages, the parameters will need to be specified in a
-    different order to the English order.
+	#define CMD_PRINT(x...)   printk(KERN_INFO x)
 
- 5. We wish to keep the kernel size to a minimum.
+			:
 
-The combination of the above points would lead me to suggest the
-following design:
+	CMD_PRINT("This is some useless information");
 
- 1. The printk() function must NEVER be on the RHS of any #define
-    statement. Many source files currently do this, and it kills any
-    hope of an automated tool going through the kernel sources and
-    allocating message numbers, irrespective of the numbering method
-    chosen.
+...that are spread amongst various subsystems. Personally, I'd prefer
+to see macros like that replaced with the printk calls directly, but
+that's up to the individual subsystem maintainers.
 
- 2. Given the above, it would be possible to change the compilation
-    sequence such that the message indexing tool runs first and
-    pre-processes each printk() call to replace the format string with
-    an index into a table of message formats. This table would contain
-    in each row first the message code allocated to that row, then the
-    format string, and finally a key to the parameter order to be used.
-    The table generated would thus be the English language file, and
-    would be generated such that any existing messages therein were
-    reused. This would have the benefit that where any particular
-    message format occurs multiple times, they would be merged.
+The simple way to do this would be to insert the kernel message tool
+into the compilation process immediately after the macro expansion
+tool has run, as all of the above macros would have been expanded at
+that time. However, this requires that the intermediate files are
+all saved as part of the compilation process, otherwise this tool
+would have no means of accessing the expanded macros.
 
- 3. Given all of the above, a new printk() function would be written
-    to index into the table and pick out the relevant row, then to
-    produce a call to the current printk() function (renamed as
-    printk2() or whatever) with its parameters sorted into the order
-    specified by the final field in the table.
+ > subsequent runs of this theoretical tool will take any new prink(s)
+ > found and add them to the list. For completeness, any KernelMessage
+ > subscripts never used (cause the printk was removed) would get
+ > burped out of the sequence at re-expression time.
 
- 4. Where functions will be called prior to such internationalisations
-    being available, they would call the printk2() function directly,
-    and the message indexing tool would be designed to ignore such
-    calls when doing its parsing.
-
- 5. The next step of the compilation would process the files produced
-    by this tool rather than the original kernel sources.
-
-This would then lead to the actual messages existing in a separate
-directory in the kernel source tree with the `make *config` process
-allowing one to select the appropriate language to be used, and
-auto-indexing the available languages (not hard to do). The compilation
-would then run a separate tool that created a *.h file with the relevant
-version of the table for that particular compilation.
-
-One detail that would need to be handled is this: If the selected
-language file did not contain an entry for a particular message code,
-the entry for that message code would need to be extracted from the
-English language file. To help with translation, it should produce a
-report stating which message codes it had to do that for.
-
-Also, the table would want to be sorted by message number to speed up
-access to the individual messages.
+We need certain guarantees for this system to be usable. See my reply
+to Alan Cox on this subject for details.
 
 Best wishes from Riley.
 ---

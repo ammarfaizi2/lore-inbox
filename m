@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263115AbVBDSxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbVBDSd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263115AbVBDSxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbVBDSYY
+	id S266142AbVBDSd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 13:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbVBDSaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:24:24 -0500
-Received: from netblock-66-159-231-38.dslextreme.com ([66.159.231.38]:22201
-	"EHLO mail.cavein.org") by vger.kernel.org with ESMTP
-	id S266420AbVBDSW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:22:56 -0500
-Date: Fri, 4 Feb 2005 10:22:51 -0800 (PST)
-From: Richard A Nelson <cowboy@cavein.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: Shane Hathaway <shane@hathawaymix.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Configure MTU via kernel DHCP
-In-Reply-To: <200502041755.41288.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.58.0502041017560.30239@hygvzn-guhyr.pnirva.bet>
-References: <200502022148.00045.shane@hathawaymix.org> <200502041755.41288.hpj@urpla.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Feb 2005 13:30:55 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:52676 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264938AbVBDS3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 13:29:49 -0500
+Message-Id: <200502041713.j14HDkjp006327@laptop11.inf.utfsm.cl>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+cc: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Huge unreliability - does Linux have something to do with it? 
+In-Reply-To: Message from jerome lacoste <jerome.lacoste@gmail.com> 
+   of "Fri, 04 Feb 2005 12:28:07 BST." <5a2cf1f60502040328aaf6c9f@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 04 Feb 2005 14:13:46 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 04 Feb 2005 15:29:31 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Hans-Peter Jansen wrote:
+jerome lacoste <jerome.lacoste@gmail.com> said:
+> Bernd Eckenfels <ecki-news2005-01@lina.inka.de> said:
+> >> Could a hardware failure look like bad sectors to fsck?
 
-> On Thursday 03 February 2005 05:47, Shane Hathaway wrote:
-> > The attached patch enhances the kernel's DHCP client support (in
-> > net/ipv4/ipconfig.c) to set the interface MTU if provided by the
-> > DHCP server. Without this patch, it's difficult to netboot on a
-> > network that uses jumbo frames.  The patch is based on 2.6.10, but
-> > I'll update it to the latest testing kernel if that would expedite
-> > its inclusion in the kernel.
+> > A failure of the bus or a former sporadic error can cause defective fs, but
+> > normally you have a read error in fsck no structure error.
+> > 
+> > Are you using hdparm? is the system perhaps overheating or overclocked?
 
-What will this code do at the (increasingly common) misconfigured sites
-- many places (hotels, airports, etc) return a MTU of 64... to which the
-DHCP3 client faithfully attempts to set, only to receive:
-	SIOCSIFMTU: Invalid argument
+> no overclock
+> hdparm is used but I cannot tell you exactly what the config is (now
+> machine has been running memtest for 1.5 hour). I don't think I use
+> special option: probably the defaults in my config file (mult_sect 16,
+> dma on, write_cache off).
 
-And is one of the easiest issues I've had during my travels - thankfully
-I don't do it all that often; trying to tell the helpdesk folk that
-their DHCP server is handing out bogus DNS servers, MTU, even networks
-is an exercise in futility.
+There are combinations of IDE + disk that slowly corrupt filesystems with
+DMA on, if the default setting is DMA off _don't touch it_. Not all bad
+combinations are catched by the code in the kernel (intel + some Western
+Digital disk is what drove me up the wall until I disabled DMA).
 
+What machine is this, what disk?
+
+> overheating: perhaps. The machine is hot and running many hours per
+> day (usually 12-16). It s running the fans very often, but it's always
+> been like that. I've tried to control the fan, but then the
+> temperature goes high very quickly. So I let the fans run.
+
+Wise decision.
 -- 
-Rick Nelson
-"Absolutely nothing should be concluded from these figures except that
-no conclusion can be drawn from them."
-(By Joseph L. Brothers, Linux/PowerPC Project)
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

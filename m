@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286210AbRLJKER>; Mon, 10 Dec 2001 05:04:17 -0500
+	id <S286211AbRLJKGR>; Mon, 10 Dec 2001 05:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286211AbRLJKEI>; Mon, 10 Dec 2001 05:04:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50694 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286210AbRLJKDy>; Mon, 10 Dec 2001 05:03:54 -0500
-Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Mon, 10 Dec 2001 10:10:05 +0000 (GMT)
+	id <S286212AbRLJKGH>; Mon, 10 Dec 2001 05:06:07 -0500
+Received: from zero.tech9.net ([209.61.188.187]:45574 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S286211AbRLJKFt>;
+	Mon, 10 Dec 2001 05:05:49 -0500
+Subject: Re: Strange SAK event
+From: Robert Love <rml@tech9.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.43.0112101032230.4997-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Dec 10, 2001 10:51:44 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <01121011504200.01165@manta>
+In-Reply-To: <01121011504200.01165@manta>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16DNNu-0001VB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 10 Dec 2001 05:04:47 -0500
+Message-Id: <1007978688.874.40.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> patches that go into the stable kernel should also go into the development
-> kernel. I was wondering how good this works and I was surprised that only
+On Mon, 2001-12-10 at 08:50, vda wrote:
 
-In many cases that isnt true, and for a lot of the pending patches its
-pointless merging them into 2.5 until 2.5 gets into better shape. Going back
-over them as you have done is something that does need doing, but not until
-the block layer has some semblance of completion about it
+> A few minutes ago I experienced strange thing: I tried to kill hung Midnight 
+> Commander with SAK with no success. Top showed that near 100% CPU was sucked 
+> by mc. Plain old kill <pid> form another vc killed it, and login prompt 
+> appeared.
+> 
+> Isn't SAK supposed to be able to kill anything on a vc?
+
+SAK actually kills everything that has /dev/console open, IIRC.
+
+	Robert Love
+

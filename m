@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbULEUQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbULEURE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbULEUQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 15:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbULEUQK
+	id S261376AbULEURE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 15:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbULEURE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 15:16:10 -0500
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:33799 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261378AbULEUQH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 15:16:07 -0500
-Date: Sun, 5 Dec 2004 21:14:08 +0100 (CET)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/char/moxa.c: remove an unused function
-In-Reply-To: <20041205170247.GR2953@stusta.de>
-Message-ID: <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
-References: <20041205170247.GR2953@stusta.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-746264020-1102277648=:11466"
+	Sun, 5 Dec 2004 15:17:04 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:32412 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261376AbULEUQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 15:16:53 -0500
+Date: Sun, 5 Dec 2004 21:16:52 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Miguel Angel Flores <maf@sombragris.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel development environment
+Message-ID: <20041205201652.GB1159@mail.13thfloor.at>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Miguel Angel Flores <maf@sombragris.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41B1F97A.80803@sombragris.com> <1102268517.9242.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1102268517.9242.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sun, Dec 05, 2004 at 05:41:59PM +0000, Alan Cox wrote:
+> On Sad, 2004-12-04 at 17:52, Miguel Angel Flores wrote:
+> > My actual development environment consists in a scratch vim editor, 
+> > diff, patch
+> > and gcc. My question is: ¿What kind of tools use you, the kernel gurus, to
+> > write and debug code? ¿It's enough with vi and gcc?
+> 
+> Editor, compiler and at least two PC's, and occasionally gdbstubs
 
---8323328-746264020-1102277648=:11466
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+although I do not consider myself a 'kernel guru' ...
 
-On Sun, 5 Dec 2004, Adrian Bunk wrote:
+cscope and ctags will help with code navigation
+QEMU and UML are good choices to do kernel testing
+and if necessary debugging ...
 
-> The patch below removes an unused global function.
->
->
-> diffstat output:
-> drivers/char/moxa.c |   18 ------------------
-> 1 files changed, 18 deletions(-)
->
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-2.6.10-rc1-mm3-full/drivers/char/moxa.c.old	2004-11-07 00:28:05.000000000 +0100
-> +++ linux-2.6.10-rc1-mm3-full/drivers/char/moxa.c	2004-11-07 00:28:41.000000000 +0100
-> @@ -1765,7 +1765,6 @@
->  *	2.  MoxaPortEnable(int port);					     *
->  *	3.  MoxaPortDisable(int port);					     *
->  *	4.  MoxaPortGetMaxBaud(int port);				     *
->- *	5.  MoxaPortGetCurBaud(int port);				     *
->  *	6.  MoxaPortSetBaud(int port, long baud);			     *
->  *	7.  MoxaPortSetMode(int port, int databit, int stopbit, int parity); *
->  *	8.  MoxaPortSetTermio(int port, unsigned char *termio); 	     *
-[..]
+HTH,
+Herbert
 
-Prabaly it will be good renumber this or make unnumbered (and all other 
-comments with "Function <num>:" :)
-
-[..]
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---8323328-746264020-1102277648=:11466--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

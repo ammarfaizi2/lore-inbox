@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVCDSes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVCDShG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbVCDSes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVCDSep
+	id S262974AbVCDShG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbVCDSfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:34:45 -0500
-Received: from smartmx-05.inode.at ([213.229.60.37]:17549 "EHLO
-	smartmx-05.inode.at") by vger.kernel.org with ESMTP id S262970AbVCDSb7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:31:59 -0500
-Message-ID: <4228A9A1.2090301@inode.info>
-Date: Fri, 04 Mar 2005 19:32:01 +0100
-From: Richard Fuchs <richard.fuchs@inode.info>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Fri, 4 Mar 2005 13:35:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54178 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262972AbVCDScq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:32:46 -0500
+Message-ID: <4228A9B9.4060308@pobox.com>
+Date: Fri, 04 Mar 2005 13:32:25 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: slab corruption in skb allocs
-References: <42283093.7040405@inode.info> <20050304181050.GB4484@redhat.com>
-In-Reply-To: <20050304181050.GB4484@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Linus Torvalds wrote:
+> I've long since decided that there's no point to making "-pre". What's the 
+> difference between a "-pre" and a daily -bk snapshot? Really?
 
-> Which network drivers are in use on the box that gets the corruption ?
+Several non-BK developers use the first -rc1 as a merge point.
 
-all three that i tested it on are using the e100 driver. the boxes with 
-pci id 8086:1039 and 8086:1229 are seeing corruptions, the one with pci 
-id 8086:2449 is not.
+Others simply trust that _Linus_ has a lot more smarts than an automated 
+script, about deciding when a good testing point should occur.  Holy 
+Penguin Pee has value, they feel.
 
-i will try again the eepro100 driver and see if it does the same...
 
-cheers
-richard
+> So when I do a release, it _is_ an -rc. The fact that people have trouble 
+> understanding this is not _my_ fault.
+
+If you want people to start testing, a good first step would be 
+understanding why this is so.
+
+Users have been trained that -rc means "serious bugfixes only".  You are 
+trying to re-train them.  That just won't work.
+
+When you do an -rc1 or -rc2, it is not serious bugfixes only. 
+_Especially_ rc1.  rc1 is in no way "bugfixes only."  Non-BK developers 
+just treat the first couple -rc's as a merge point, while the rest of us 
+BK developers have already gone into "send bugfixes only" mode.
+
+You are fighting an uphill battle against user perceptions and training.
+
+	Jeff
+
+

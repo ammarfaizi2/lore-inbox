@@ -1,102 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267363AbSKPVIs>; Sat, 16 Nov 2002 16:08:48 -0500
+	id <S267364AbSKPVSA>; Sat, 16 Nov 2002 16:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267364AbSKPVIr>; Sat, 16 Nov 2002 16:08:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35574 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267363AbSKPVIp>; Sat, 16 Nov 2002 16:08:45 -0500
-Date: Sat, 16 Nov 2002 22:15:36 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@HansenPartnership.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RFC: [2.5 patch] Create a "Subarchitecture" menu
-Message-ID: <20021116211536.GF28356@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267365AbSKPVSA>; Sat, 16 Nov 2002 16:18:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10770 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267364AbSKPVSA>;
+	Sat, 16 Nov 2002 16:18:00 -0500
+Message-ID: <3DD6B788.20108@pobox.com>
+Date: Sat, 16 Nov 2002 16:24:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
+       david.rusling@reo.mts.dec.com, davidm@cs.arizona.edu
+Subject: Re: Patch: linux-2.5.47/arch/alpha/kernel/pci.c - do not directly
+ set pci_dev.dma_mask where possible
+References: <20021116063842.A20141@baldur.yggdrasil.com>
+In-Reply-To: <20021116063842.A20141@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My impression is that it's currently easy to accidentially activate the
-Voyager support in 2.5.47 by typing once too often "y" which results in
-a kernel that doesn't boot on a PC. The patch below is a suggestion to
-to create a "Subarchitecture" choice.
+Adam J. Richter wrote:
 
-The wording might not be perfect and it might make sense to add other
-subarchs there, too. I'm interested in comments whether this is a good
-idea or whether there are reasons why this is a bad idea.
+> --- linux-2.5.47/arch/alpha/kernel/pci.c	2002-11-10 19:28:03.000000000 
+> -0800
+> +++ linux/arch/alpha/kernel/pci.c	2002-11-16 05:54:00.000000000 -0800
+> @@ -124,7 +124,7 @@
+>  	unsigned int class = dev->class >> 8;
+>
+>  	if (class == PCI_CLASS_BRIDGE_ISA || class == PCI_CLASS_BRIDGE_ISA) {
+> -		dev->dma_mask = MAX_ISA_DMA_ADDRESS - 1;
+> +		pci_set_dma_mask(dev, MAX_ISA_DMA_ADDRESS - 1);
+>  		isa_bridge = dev;
+>  	}
+>  }
 
-TIA
-Adrian
+
+No; pci_set_dma_mask is too high-level for the above arch-specific code. 
+  When dma_mask is moved this will need to get examined and fixed up in 
+another way.
+
+	Jeff
 
 
---- linux-2.5.47-full/arch/i386/Kconfig.old	2002-11-16 21:36:44.000000000 +0100
-+++ linux-2.5.47-full/arch/i386/Kconfig	2002-11-16 22:02:47.000000000 +0100
-@@ -39,7 +39,33 @@
- menu "Processor type and features"
- 
- choice
-+	prompt "Subarchitecture"
-+	default PC
-+
-+config PC
-+	bool "PC"
-+	help
-+	  Choose this option if your computer is a PC.
-+
-+	  Choose this option unless you really know what you are doing.
-+
-+config VOYAGER
-+	bool "Support for the NCR Voyager Architecture"
-+	help
-+	  Voyager is a MCA based 32 way capable SMP architecture proprietary
-+	  to NCR Corp.  Machine classes 345x/35xx/4100/51xx are voyager based.
-+  
-+	  *** WARNING ***
-+
-+	  If you do not specifically know you have a Voyager based machine,
-+	  don't choose this option otherwise the kernel you build will not
-+	  be bootable.
-+
-+endchoice
-+
-+choice
- 	prompt "Processor family"
-+	depends on PC
- 	default M686
- 
- config M386
-@@ -980,17 +1006,6 @@
- 
- menu "Bus options (PCI, PCMCIA, EISA, MCA, ISA)"
- 
--config VOYAGER
--	bool "Support for the NCR Voyager Architecture"
--	depends on MCA
--	help
--	  Voyager is a MCA based 32 way capable SMP architecture proprietary
--	  to NCR Corp.  Machine classes 345x/35xx/4100/51xx are voyager based.
--  
--	  *** WARNING ***
--
--	  If you do not specifically know you have a Voyager based machine,
--	  say N here otherwise the kernel you build will not be bootable.
- 
- # Visual Workstation support is utterly broken.
- # If you want to see it working mail an VW540 to hch@infradead.org 8)
-@@ -1102,8 +1117,12 @@
- 	  Otherwise, say N.
- 
- config MCA
-+	bool
-+	depends on VOYAGER
-+
-+config MCA
- 	bool "MCA support"
--	depends on !VISWS
-+	depends on !VISWS && !VOYAGER
- 	help
- 	  MicroChannel Architecture is found in some IBM PS/2 machines and
- 	  laptops.  It is a bus system similar to PCI or ISA. See
+

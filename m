@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264856AbTE1UQL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbTE1UQL
+	id S264859AbTE1USQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbTE1USQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:16:11 -0400
-Received: from 213-0-201-232.dialup.nuria.telefonica-data.net ([213.0.201.232]:37761
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S264856AbTE1UQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:16:10 -0400
-Date: Wed, 28 May 2003 22:29:21 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what happened to i2c-proc
-Message-ID: <20030528202921.GA8349@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <m3d6i3avnk.fsf@ccs.covici.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3d6i3avnk.fsf@ccs.covici.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 28 May 2003 16:18:16 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:27608 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S264859AbTE1USP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 16:18:15 -0400
+Date: Wed, 28 May 2003 13:31:29 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER][PATCH] cmpci user-pointer fix
+In-Reply-To: <5C5CFB74-9149-11D7-8297-000A95A0560C@us.ibm.com>
+Message-ID: <Pine.GSO.4.44.0305281318350.27390-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 28 May 2003, at 12:22:23 -0400,
-John Covici wrote:
+> ---------------------------------------------------------
+>
+> I believe the attached patch fixes it. cm_write was calling access_ok,
+> but after that you must still access user space through the
+> get/put/copy*_user functions. It should be safe to return -EFAULT at
+> these points in cm_write, since there are other returns already in the
+> code above and below that. Compile-tested only.
 
-> I am trying to compile appropriate modules for lm sensors in 2.5.70,
-> but there seems to be no way to configure i2c-proc -- it seems to be
-> there for other architectures, but not for i386.
-> 
-And this is probably the cause of my hardware sensors (it87.ko) not
-working :-). Here is what modules.dep for my 2.4.20 kernel says:
-/lib/modules/2.4.20-xfsip/kernel/drivers/sensors/it87.o:
-    /lib/modules/2.4.20-xfsip/kernel/drivers/i2c/i2c-core.o \
-    /lib/modules/2.4.20-xfsip/kernel/drivers/i2c/i2c-proc.o
+Thanks a lot for the fixes!
 
-And here what it says for my 2.5.70 kernel:
-/lib/modules/2.5.70/kernel/drivers/i2c/chips/it87.ko: /lib/modules/2.5.70/kernel/drivers/i2c/i2c-sensor.ko /lib/modules/2.5.70/kernel/drivers/i2c/i2c-core.ko
+>
+> Junfeng, the checker seems to have missed the "*dst0++ = *src++;" bits
+> at the bottom of the patch... or at least it wasn't in the mail I saw
+> ("4 potential user-pointer errors", 2 May 2003).
 
-Or maybe something changed in the meantime, and problems are in
-user-space, the fact is it doesn't work:
+I deliberately surpressed 'redudant' error reports.  When the checker saw
+multiple errors caused by the same user pointer in one function, it'll
+only report one error for this user pointer in this function.  if I don't
+do so, people tend to get bored by the 'repeated' messages, and leave
+error reports in other functions uninspected. ;) I'll re-run the checker
+soon with the suppression off.
 
-server:~# sensors -v
-sensors version 2.6.5
+-Junfeng
 
-As seen on lm_sensors' home page, it seems the are still porting i2c and
-lm_sensors to recent 2.5.x kernels, so maybe the problem is there. They
-advise against trying to compile both i2c and lm_sensors for 2.5.x
-kernels, because probably they won't work.
-
-Hope this helps.
-
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.5.70)

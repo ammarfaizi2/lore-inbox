@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVAMG6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVAMHDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVAMG6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 01:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVAMG6q
+	id S261179AbVAMHDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 02:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVAMHDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 01:58:46 -0500
-Received: from h-66-134-203-88.snvacaid.covad.net ([66.134.203.88]:54073 "EHLO
-	mail.zanfx.com") by vger.kernel.org with ESMTP id S261177AbVAMG6o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 01:58:44 -0500
-Message-ID: <41E61C68.10801@zanfx.com>
-Date: Wed, 12 Jan 2005 22:59:52 -0800
-From: "Paul A. Sumner" <paul@zanfx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040622
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: High write latency, iowait, slow writes 2.6.9
-References: <41E4BB99.90908@zanfx.com> <cs44ai$oet$1@news.cistron.nl>
-In-Reply-To: <cs44ai$oet$1@news.cistron.nl>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 02:03:38 -0500
+Received: from waste.org ([216.27.176.166]:59781 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261179AbVAMHDg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 02:03:36 -0500
+Date: Wed, 12 Jan 2005 23:03:14 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Avoiding fragmentation through different allocator
+Message-ID: <20050113070314.GL2995@waste.org>
+References: <Pine.LNX.4.58.0501122101420.13738@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501122101420.13738@skynet>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks... I've tried the as, deadline and cfq schedulers. Deadline is
-giving me the best results. I've also tried tweaking the stuff in
-/sys/block/sda/queue/iosched/.
+On Wed, Jan 12, 2005 at 09:09:24PM +0000, Mel Gorman wrote:
+> I stress-tested this patch very heavily and it never oopsed so I am
+> confident of it's stability, so what is left is to look at the results of
+> this patch were and I think they look promising in a number of respects. I
+> have graphs that do not translate to text very well, so I'll just point you
+> to http://www.csn.ul.ie/~mel/projects/mbuddy-results-1 instead.
 
-For lack of a better way of describing it, it seems like something is
-thrashing.
+This graph rather hard to comprehend.
 
-Miquel van Smoorenburg wrote:
-> In article <41E4BB99.90908@zanfx.com>,
-> Paul A. Sumner <paul@zanfx.com> wrote:
-> 
->>I have a new server that during big io tasks, e.g., bonnie++ and
->>tiobench testing, becomes very unresponsive. Both bonnie++ and tiobench
->>show good read performance, but the write performance lags, max
->>latencies are into the *minutes* and it experiences extended high
->>iowait. I'm guessing the iowait may not be a real problem. The machine
->>is as follows:
-> 
-> 
-> Try another IO scheduler (boot with elevator=deadline or elevator=cfq
->  on the kernel command line)
-> 
-> Mike.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> The results were not spectacular but still very interesting. Under heavy
+> stresing (updatedb + 4 simultaneous -j4 kernel compiles with avg load 15)
+> fragmentation is consistently lower than the standard allocator. It could
+> also be a lot better if there was some means of purging caches, userpages
+> and buffers but thats in the future. For the moment, the only real control
+> I had was the buffer pages.
+
+You might stress higher order page allocation with a) 8k stacks turned
+on b) UDP NFS with large read/write.
+ 
+> Opinions/Feedback?
+
+Looks interesting.
 
 -- 
-Paul A. Sumner
-Principal Software Engineer
-
-Moore Iacofano Goltsman, Inc. (MIG)
-800 Hearst Avenue
-Berkeley, CA  94710
-Office: 510-845-7549 ext. 191
-FAX:   510-845-8750
-Mobile: 510-812-1520
-
-
+Mathematics is the supreme nostalgia of our time.

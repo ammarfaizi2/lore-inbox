@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263949AbRFEJoM>; Tue, 5 Jun 2001 05:44:12 -0400
+	id <S263952AbRFEJqM>; Tue, 5 Jun 2001 05:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263950AbRFEJoC>; Tue, 5 Jun 2001 05:44:02 -0400
-Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:57474 "EHLO
-	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
-	id <S263949AbRFEJnm>; Tue, 5 Jun 2001 05:43:42 -0400
-Date: Tue, 5 Jun 2001 12:37:55 +0300
-From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
-To: linux-kernel@vger.kernel.org
-Subject: isolating process..
-Message-ID: <20010605123755.B5998@kivc.vstu.vinnica.ua>
-Mail-Followup-To: Bohdan Vlasyuk <bohdan>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Logged: Logged by kivc.vstu.vinnica.ua as f559btp06205 at Tue Jun  5 12:37:55 2001
+	id <S263951AbRFEJqC>; Tue, 5 Jun 2001 05:46:02 -0400
+Received: from roma.axis.se ([193.13.178.2]:11398 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S263950AbRFEJpx>;
+	Tue, 5 Jun 2001 05:45:53 -0400
+Message-ID: <018601c0eda3$fff76770$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: "David Woodhouse" <dwmw2@infradead.org>,
+        "David S. Miller" <davem@redhat.com>
+Cc: "Chris Wedgwood" <cw@f00f.org>, "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+        <bjorn.wesen@axis.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mtd@lists.infradead.org>
+In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net>  <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org>  <25587.991730769@redhat.com>
+Subject: Re: Missing cache flush. 
+Date: Tue, 5 Jun 2001 11:43:39 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Possibly saying something extremly stupid here,
+how about simply "fakewriting" 0xFF to the flash
+after an erase to update any caches?
 
-Hi !
+> 2. Flash. A few writes of magic data to magic addresses and a whole erase
+>    block suddenly contains 0xFF. The CPU doesn't notice that either.
 
-Is it possible by any means to isolate any given process, so that
-it'll be unable to crash system. Suppose all the process needs is
-stdin, stdout, and CPU time. Can Linux guarantee that given process
-won't hurt system stability ? Let us soppose that we have ideal CPU
-without mistakes. How can I limit CPU time/Mem Usage for given
-process?
+ do_erase_stuff();
+ /* While verifying, update cache */
+                for (address = adr; address < (adr + size); address++) {
+                        if ((verify = map->read8(map, address)) != 0xFF) {
+                                error = 1;
+                                break;
+                        }
+                        /* "Fake" write 0xFF's to the erased sector so that
+caches are updated
+                         *  after we verified that uncached data is ok
+                         */
+                        *(unsigned char*)CACHED(address) = 0xFF;
+                }
 
-Please, supply ANY suggestions.
+/Johan
 
-My ideas:
-
-create some user, and decrease his ulimits up to miminum of 1 process,
-0 core size, appropriate memory/ etc.
-
-
-Thanks!

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVC3Evn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVC3FQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVC3Evn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 23:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVC3Evn
+	id S261426AbVC3FQc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVC3FQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 23:51:43 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:47978 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261545AbVC3Evl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 23:51:41 -0500
-Date: Tue, 29 Mar 2005 22:50:10 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Aligning file system data
-In-reply-to: <3ND9P-2LV-1@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <424A3002.0@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=UTF-8
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3ND9P-2LV-1@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Wed, 30 Mar 2005 00:16:32 -0500
+Received: from [24.24.2.58] ([24.24.2.58]:30856 "EHLO ms-smtp-04.nyroc.rr.com")
+	by vger.kernel.org with ESMTP id S261426AbVC3FQa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:16:30 -0500
+Subject: Re: Mac mini sound woes
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe>
+	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+	 <1112084311.5353.6.camel@gaston>
+	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
+	 <s5h7jjqkazy.wl@alsa2.suse.de>
+	 <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 30 Mar 2005 00:15:19 -0500
+Message-Id: <1112159719.3691.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
-> How likely is it that I can actually align stuff to 31.5KiB on the
-> physical disk, i.e. have each block be a track?
+On Wed, 2005-03-30 at 03:45 +0200, Marcin Dalecki wrote:
 
-I don't think this is very likely. Even being able to find out what the 
-physical disk arrangement is, or whether it is consistent in terms of 
-track size, etc. seems unlikely.
-
+> > I think your misunderstanding is that you beliieve user-space can't do
+> > RT.  It's wrong.  See JACK (jackit.sf.net), for example.
 > 
-> Rather than leveraging the track cache, would it be less expensive for
-> me to simply read in blocks totaling about 16 or 32KiB all at once?
+> I know JACK in and out. It doesn't provide what you claim.
 
-For block sizes that small I think that the kernel should be smart 
-enough to do this itself, there is no need to concern with such low 
-level details in the application.
+Are you implying that "He don't know JACK!"
 
-> How much more latency is involved in (B) than in (C)?  Does crossing a
-> track boundary incur anything expensive?
+Sorry, couldn't resist. Move along now, nothing to see here :-)  God
+it's late, I need to go to bed.
 
-Given that both the disk and the kernel will likely read far more than 
-32KB ahead I can't see much difference other than the overhead inside 
-your application..
+Is that an American phrase. If so, it might not be understood elsewhere.
+So just in case others don't understand this stupid joke. There's a
+phrase "You don't know Jack" which is equivalent to saying "you don't
+know what you're talking about".  Which makes this kind of a pun. 
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+-- Steve
+
 

@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266563AbRGGVX2>; Sat, 7 Jul 2001 17:23:28 -0400
+	id <S266567AbRGGVZ6>; Sat, 7 Jul 2001 17:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266565AbRGGVXT>; Sat, 7 Jul 2001 17:23:19 -0400
-Received: from [144.137.82.249] ([144.137.82.249]:55549 "EHLO eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id <S266563AbRGGVXG>;
-	Sat, 7 Jul 2001 17:23:06 -0400
-Message-ID: <3B47793D.5AD52AE@eyal.emu.id.au>
-Date: Sun, 08 Jul 2001 07:03:57 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
-X-Accept-Language: en
+	id <S266573AbRGGVZs>; Sat, 7 Jul 2001 17:25:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31244 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266567AbRGGVZf>; Sat, 7 Jul 2001 17:25:35 -0400
+Subject: Re: VM in 2.4.7-pre hurts...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 7 Jul 2001 22:25:32 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        riel@conectiva.com.br (Rik van Riel),
+        phillips@bonn-fries.net (Daniel Phillips)
+In-Reply-To: <Pine.LNX.4.33.0107071019440.31249-100000@penguin.transmeta.com> from "Linus Torvalds" at Jul 07, 2001 10:28:20 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-ac2
-In-Reply-To: <20010707165106.A23132@lightning.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Iza0-0006GJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.6-ac2/kernel/drivers/net/dl2k.o
-depmod:         __ucmpdi2
+> instead. That way the vmstat output might be more useful, although vmstat
+> obviously won't know about the new "SwapCache:" field..
+> 
+> Can you try that, and see if something else stands out once the misleading
+> accounting is taken care of?
+
+Its certainly misleading. I got Jeff to try making oom return 4999 out of 5000
+times regardless.

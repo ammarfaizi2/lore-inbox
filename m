@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129550AbRBMKUC>; Tue, 13 Feb 2001 05:20:02 -0500
+	id <S129414AbRBMKaE>; Tue, 13 Feb 2001 05:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130126AbRBMKTw>; Tue, 13 Feb 2001 05:19:52 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:40966 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S129550AbRBMKTs>;
-	Tue, 13 Feb 2001 05:19:48 -0500
-From: Steve Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200102131019.KAA21847@gw.chygwyn.com>
-Subject: Re: SO_RCVTIMEO, SO_SNDTIMEO
-To: chris@scary.beasts.org (Chris Evans)
-Date: Tue, 13 Feb 2001 10:19:38 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0102130035550.9858-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 13, 2001 12:38:16 AM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129465AbRBMK3p>; Tue, 13 Feb 2001 05:29:45 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:34314 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129414AbRBMK3o>; Tue, 13 Feb 2001 05:29:44 -0500
+Date: Tue, 13 Feb 2001 05:30:09 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Sven Koch <haegar@sdinet.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: lkml subject line
+In-Reply-To: <Pine.LNX.4.32.0102131107400.21378-100000@space.comunit.de>
+Message-ID: <Pine.LNX.4.33.0102130528200.8874-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 13 Feb 2001, Sven Koch wrote:
 
-They are the maximum amount of time that a send or receive call will
-block for. The standard socket error returns apply, so if data has
-been sent or received, then the return value will be the amount of
-data transferred; if no data has been transferred and the timeout
-has been reached then -1 is returned with errno=EAGAIN just as if the socket
-was specified to be nonblocking. If the timeout is set to zero (the default)
-then the operation will never timeout.
+>> That said, and while we're on the topic.. Does anyone have a
+>> *PERFECT* recipe for procmail to REMOVE the stupid [Dummy] things
+>> most GNU mailman lists and others prepend to the subject?
+>
+>I am using the following to sort the suse-security-list (for example, I do
+>the same on all lists that tag something into the subject):
+>
+>:0 fhw
+>* ^TO_suse-security@suse.com
+>| sed -e '/^Subject:/s/\[suse-security\] //'
+>:0 A:
+>SuSE-Security$MONTH
 
-Steve.
+DAMN!  I was _SO_ close!  I'm no sed expert, but I have been
+working the last hour or so on nailing this down and here is what
+I had:
 
-> 
-> 
-> Hi,
-> 
-> I notice the entities in the subject line have appeared in Linux 2.4.
-> 
-> What is their functional specification? I guess they trigger if no bytes
-> are received/send within a consecutive period. How does the app get the
-> error? -EPIPE for a blocking read/write? If so, does SIGPIPE
-> get raised? Or is -ETIMEDOUT used? ...
-> 
-> TIA,
-> Chris
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://vger.kernel.org/lkml/
-> 
+:0:
+* ^Subject:.*testxpert
+{
+    :0 fWh
+    * ^Subject:.*\[Xpert\]
+    | sed -e '/^Subject:/ s/\[Xpert\]//g' >> XPERT
+}
+
+Didn't work of course, but I got the sed line right by the looks
+of it.  Should ever we meet, I'm buying the beer good man!
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+Need general help or technical support with Red Hat Linux 7.0?  Join the user 
+support mailing list by sending a message to "guinness-list-request@redhat.com"
+with the word "subscribe" on the subject line.
 

@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUFNVin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264492AbUFNVlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUFNVin (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUFNVim
+	id S264492AbUFNVlS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFNVlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:38:42 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:32955 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S264512AbUFNVih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:38:37 -0400
-Date: Mon, 14 Jun 2004 14:38:35 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 4/5] kbuild: make clean improved
-Message-ID: <20040614213835.GA11113@smtp.west.cox.net>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204655.GE15243@mars.ravnborg.org> <20040614215034.K14403@flint.arm.linux.org.uk> <20040614211940.GA15555@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Jun 2004 17:41:17 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:44687 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264492AbUFNVlQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 17:41:16 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: upcalls from kernel code to user space daemons
+Date: Mon, 14 Jun 2004 23:40:58 +0200
+User-Agent: KMail/1.6.2
+Cc: Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <1087236468.10367.27.camel@stevef95.austin.ibm.com> <40CDEECF.7060102@nortelnetworks.com>
+In-Reply-To: <40CDEECF.7060102@nortelnetworks.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040614211940.GA15555@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406142341.13340.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 11:19:40PM +0200, Sam Ravnborg wrote:
-> On Mon, Jun 14, 2004 at 09:50:34PM +0100, Russell King wrote:
-> > On Mon, Jun 14, 2004 at 10:46:55PM +0200, Sam Ravnborg wrote:
-> > >  # Directories & files removed with 'make clean'
-> > >  CLEAN_DIRS  += $(MODVERDIR)
-> > > -CLEAN_FILES +=	vmlinux System.map \
-> > > +CLEAN_FILES +=	vmlinux System.map .version .config.old \
-> > >                  .tmp_kallsyms* .tmp_version .tmp_vmlinux*
-> > 
-> > Why should 'make clean' remove the build version?  Traditionally,
-> > this has been preserved until 'make mrproper'.
-> 
-> In the 2.4 days people had to do 'make clean' very often.
-> For the 2.6 kernel this is no longer needed, so when cleaning up
-> we want to be effective.
-> 
-> .version only really pays off when doing a lot of consecutive
-> build on the _same_ kernel src.
-> 
-> And make clean is often used in combination with kernel patching,
-> especially when renaming files: mv mm/slab.c.old mm/slab.c for example.
-> 
-> Here we start over with some new src, so it make sense to start over
-> with the version?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'd agrue the exact opposite.  If you're starting from scratch (new
-patchset, etc, where you might do something like mv mm/slab.c.old
-mm/slab.c) use 'distclean' or 'mrproper'.  If you just want to do a
-'make clean' because you can't be sure you trust the build system to get
-things right, you don't want the version being reset.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> > 1) getHostByName:  when the kernel cifs code detects a server crashes
+> > and fails reconnecting the socket and the kernel code wants to see if
+> > the hostname now has a new ip address.
+
+Is that possible at all? It looks like that might deadlock in the page
+out code path.
+
+> > 2) package a kerberos ticket ala RFC2478 (SPNEGO)
+> 
+> One way to do it (or is this what you meant by captive ioctl?)
+> 
+> userspace daemon loops on ioctl()
+> kernel portion of ioctl call goes to sleep until something to do
+> when needed, fill in data and return to userspace
+> userspace does stuff, then passes data back down via ioctl()
+> ioctl() puts userspace back to sleep and continues on with other work
+
+You could just as well implement an ordinary read()
+
+	Regards
+		Oliver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAzhtxbuJ1a+1Sn8oRAvupAJ0T6K8PMeKwWanDTHUmeYtpmsPnKQCeLZbk
+cZC0HjRPQSN3Xmkp1tSKFIA=
+=tZMS
+-----END PGP SIGNATURE-----

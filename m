@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbUKPLU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbUKPLmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbUKPLU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 06:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUKPLU5
+	id S261957AbUKPLmk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 06:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUKPLmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 06:20:57 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:25562 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261958AbUKPLUm (ORCPT
+	Tue, 16 Nov 2004 06:42:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6817 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261957AbUKPLmi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 06:20:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KU6FWbvNwEvzDU/XsltXIvzV/2bR9Dq2Mg+UDW6hHacJaILGA9F91kYyl8IqxGUCBL98wswta+KbY5cxDy2ivlMAVbihQ6vwyLwitSeGzf82kKl+5zwfFClqG4lhg6yn7/37gkEaOb6QXL+KrghGsT9cJIm88BCvaagP+pAqlno=
-Message-ID: <84144f0204111603202f79f249@mail.gmail.com>
-Date: Tue, 16 Nov 2004 13:20:38 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Simon Braunschmidt <braunschmidt@corscience.de>
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+	Tue, 16 Nov 2004 06:42:38 -0500
+Date: Tue, 16 Nov 2004 12:42:08 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Magnus Damm <magnus.damm@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4199DDF2.5040700@corscience.de>
+Subject: Re: [PATCH] documentation - nohighio
+Message-ID: <20041116114208.GD26240@suse.de>
+References: <aec7e5c304111602474a3103e4@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-	 <84144f0204111602136a9bbded@mail.gmail.com>
-	 <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-	 <84144f020411160235616c529b@mail.gmail.com>
-	 <4199DDF2.5040700@corscience.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aec7e5c304111602474a3103e4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 16 Nov 2004 12:01:06 +0100, Simon Braunschmidt
-<braunschmidt@corscience.de> wrote:
-> And redundancy does hurt maintainability.
+On Tue, Nov 16 2004, Magnus Damm wrote:
+> Hello,
 > 
-> Naturally, it would be the other way around.
-> Sure you can write all your code in binary, or even better compressed,
-> but i wouldnt maintain those beasts ;-)
+> The kernel parameter "nohighio" seems to be gone in the code, but the
+> parameter is still left in the documentation.
 
-No, that is obfuscation and has nothing to do with this. The cast I
-mentioned is _redudant_ because the common case is:
+Ah thanks, yes that's a 2.4 debug option that is long gone.
 
-         struct foo * f = (struct foo *) priv; /* priv is void pointer */
+Acked-by: Jens Axboe <axboe@suse.de>
 
-And the cast gives you absolutely zero benefit in terms of
-readability. For arithmetic types, you use casts to be explicit about
-different conversions, but for void pointers there's only one
-conversion which makes sense and that's what the standard guarantees.
+> --- linux-2.6.10-rc2/Documentation/kernel-parameters.txt	2004-11-14 18:35:07.000000000 +0100
+> +++ linux-2.6.10-rc2-no_nohighio/Documentation/kernel-parameters.txt	2004-11-16 11:37:58.201316728 +0100
+> @@ -785,8 +785,6 @@
+>  
+>  	nofxsr		[BUGS=IA-32]
+>  
+> -	nohighio	[BUGS=IA-32] Disable highmem block I/O.
+> -
+>  	nohlt		[BUGS=ARM]
+>   
+>  	no-hlt		[BUGS=IA-32] Tells the kernel that the hlt
 
-On Tue, 16 Nov 2004 12:01:06 +0100, Simon Braunschmidt
-<braunschmidt@corscience.de> wrote:
-> I vote for explicit casts, makes code more readable.
 
-I vote for the established kernel coding style.
+-- 
+Jens Axboe
 
-                                Pekka

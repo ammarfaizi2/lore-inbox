@@ -1,18 +1,21 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313810AbSDUUUB>; Sun, 21 Apr 2002 16:20:01 -0400
+	id <S313827AbSDUUXN>; Sun, 21 Apr 2002 16:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313812AbSDUUUB>; Sun, 21 Apr 2002 16:20:01 -0400
-Received: from rrcs-sw-24-242-143-126.biz.rr.com ([24.242.143.126]:24841 "HELO
-	nawilson.com") by vger.kernel.org with SMTP id <S313810AbSDUUT7>;
-	Sun, 21 Apr 2002 16:19:59 -0400
-Date: 21 Apr 2002 20:19:53 -0000
-Message-ID: <20020421201953.1860.qmail@nawilson.com>
+	id <S313830AbSDUUXM>; Sun, 21 Apr 2002 16:23:12 -0400
+Received: from rrcs-sw-24-242-143-126.biz.rr.com ([24.242.143.126]:26377 "HELO
+	nawilson.com") by vger.kernel.org with SMTP id <S313827AbSDUUXJ>;
+	Sun, 21 Apr 2002 16:23:09 -0400
+Date: 21 Apr 2002 20:23:03 -0000
+Message-ID: <20020421202303.1884.qmail@nawilson.com>
 From: "Neil A. Wilson" <nawilson@nawilson.com>
 To: linux-kernel@vger.kernel.org
 Cc: "Willy Tarreau" <wtarreau@free.fr>
+Subject: Re: [PATCH] Allow setuid/setgid core files
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry for no subject on the first one.
 
 On Sun, 2002-04-21 at 09:10, Neil A. Wilson wrote:
 > Thanks for the feedback.  You bring up a good point here.  Currently the

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbUCDXv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 18:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUCDXv0
+	id S262011AbUCDXzS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 18:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUCDXzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 18:51:26 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59848 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261997AbUCDXvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 18:51:25 -0500
-Subject: Re: problem with cache flush routine for G5?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>
-In-Reply-To: <40479A50.9090605@nortelnetworks.com>
-References: <40479A50.9090605@nortelnetworks.com>
+	Thu, 4 Mar 2004 18:55:18 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37569 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262011AbUCDXzN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 18:55:13 -0500
+Subject: [PATCH] JFS DMAPI
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Blaschke <blaschke@us.ibm.com>
 Content-Type: text/plain
-Message-Id: <1078444268.5698.27.camel@gaston>
+Message-Id: <1078444492.9162.56.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 10:51:08 +1100
+Date: Thu, 04 Mar 2004 17:54:52 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-05 at 08:06, Chris Friesen wrote:
-> We're running into issues with the "flush_data_cache" routine on the G5.
-> 
-> For the G5, the L1 dcache is 32K and the L2 cache is 512K. At 128 
-> bytes/cacheline, that's 256 and 4096 cachelines, respectively.
-> 
-> In the existing tree, NUM_CACHE_LINES is set to 128*8, or 1024.  Is this 
-> an oversight or am I missing something?
-> 
-> Also, I'm curious why the dcbf instruction is not used for this.
+Andrew,
+Would you consider adding this patch to -mm?  This would add the DMAPI
+interface to JFS.  This function has long been requested by HSMs
+(Hierarchical Storage Managers).  It is based on SGI's XFS
+implementation, but has been clean up to avoid their vnode interface.
 
-First of all, why do you need to flush the cache at all ?
+Most of the code is in the fs/jfs/dmapi subdirectory.  The amount of
+code in the normal jfs codepaths is quite small.  There is no code
+outside of fs/jfs.
 
-If you are talking about the cache flush in the 32 bits bootloaders,
-then yes, this seem to be broken, you should ask Tom Rini who
-maintain these things.
+Due to the size of the patch, I haven't included it here, but it can be
+downloaded from
+http://www10.software.ibm.com/developer/opensource/jfs/project/pub/dmapi/dmapi-2.6.4-rc2.patch
 
-The kernel proper definitely doesn't contain such a routine.
+There is a user library which can be downloaded at
+http://oss.software.ibm.com/jfs/
 
-Ben.
-
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

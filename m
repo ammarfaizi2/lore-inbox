@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129626AbRBMAB0>; Mon, 12 Feb 2001 19:01:26 -0500
+	id <S129341AbRBMAF0>; Mon, 12 Feb 2001 19:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbRBMABQ>; Mon, 12 Feb 2001 19:01:16 -0500
-Received: from smtp.bellnexxia.net ([209.226.175.26]:37595 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129749AbRBMABI>; Mon, 12 Feb 2001 19:01:08 -0500
-Date: Mon, 12 Feb 2001 19:01:12 -0500 (EST)
-From: Scott Murray <scott@spiteful.org>
-To: Chris Funderburg <chris@Funderburg.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: opl3sa not detected anymore
-In-Reply-To: <Pine.LNX.4.30.0102122311180.1057-100000@pikachu.bti.com>
-Message-ID: <Pine.LNX.4.30.0102121846040.10962-100000@godzilla.spiteful.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129700AbRBMAFR>; Mon, 12 Feb 2001 19:05:17 -0500
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.16]:13272 "EHLO mta5")
+	by vger.kernel.org with ESMTP id <S129341AbRBMAFG>;
+	Mon, 12 Feb 2001 19:05:06 -0500
+Date: Mon, 12 Feb 2001 19:02:05 -0500 (EST)
+From: Sean <crisper@optonline.net>
+Subject: Re: LARGE bug with 2.4.1ac10 and loop filesystem
+In-Reply-To: <E14SRSR-0008JM-00@the-village.bc.nu>
+To: linux-kernel@vger.kernel.org
+Reply-to: Sean <crisper@optonline.net>
+Message-id: <200102130001.f1D01ob13279@s1.optonline.net>
+MIME-version: 1.0
+X-Mailer: Pronto v2.2.3 On linux/CSV
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+In-Reply-To: <E14SRSR-0008JM-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Chris Funderburg wrote:
+All,
 
->
-> After the updates to the opl3sa2 driver (2.4.2-pre3?) my card isn't being
-> detected anymore.  Are there further updates to come, or do I need to
-> change the settings?  The driver is being loaded as a module with the
-> following in /etc/modules.conf:
-[snip]
-> The midi works fine, but 'modprobe sound' reports:
->
-> opl3sa2: No cards found
-> opl3sa2: 0 PnP card(s) found.
+I just compiled 2.4.1-ac10 with the loop-3 patch from adoeb and it seems to fix
+the loopback problems.	This is for someone NOT using the encrypted FS since I
+did not test this.
 
-If you've configured ISA PnP support into the kernel, then the driver
-ignores those settings unless you specify isapnp=0.  What I'd suggest
-is that you try disabling the configuration done by the isapnp tools,
-which can be done on RedHat and derived systems by renaming your
-/etc/isapnp.conf to something else.  There seem to be some issues
-with resetting the PnP configuration with isapnp after the in-kernel
-ISA PnP driver has done its stuff, as a couple of other people have
-mentioned similiar problems.
+If anyone has a better way to make sure everything is working correctly other
+than using mkinitrd to test if the loopback works then please let me know.
 
-Scott
+Thanks for the fix,
+
+Sean 
 
 
--- 
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.spiteful.org (coming soon)                 ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
+On Mon, 12 Feb 2001 22:28:28 +0000 (GMT), Alan Cox said:
+
+> > > That was Im afraid pure luck. Jens is currently sorting out the
+>  > > loop problems and has test patches
+>  > 
+>  > By any chance, are these loop problems the same ones affecting
+>  > 2.4.2-pre2 and -pre3?
+>  
+>  And to varying degrees all 2.4.x kernels right now
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>  the body of a message to majordomo@vger.kernel.org
+>  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  Please read the FAQ at  http://vger.kernel.org/lkml/
+>  
+>  
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,132 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279845AbRKGKMi>; Wed, 7 Nov 2001 05:12:38 -0500
+	id <S279629AbRKGKPH>; Wed, 7 Nov 2001 05:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280387AbRKGKM2>; Wed, 7 Nov 2001 05:12:28 -0500
-Received: from hazard.jcu.cz ([160.217.1.6]:32666 "HELO hazard.jcu.cz")
-	by vger.kernel.org with SMTP id <S279688AbRKGKMO>;
-	Wed, 7 Nov 2001 05:12:14 -0500
-Date: Wed, 7 Nov 2001 11:10:56 +0100
-From: Jan Marek <linux@hazard.jcu.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition
-Message-ID: <20011107111056.E11351@hazard.jcu.cz>
-In-Reply-To: <20011107104044.C11351@hazard.jcu.cz> <20011106123427.A11351@hazard.jcu.cz> <3BE2D37A.D32C6DB1@zip.com.au> <20011105112900.C5919@hazard.jcu.cz> <23001.1005086449@redhat.com> <11670.1005127189@redhat.com> <20011107110702.D11351@hazard.jcu.cz>
+	id <S279688AbRKGKO5>; Wed, 7 Nov 2001 05:14:57 -0500
+Received: from [194.51.220.145] ([194.51.220.145]:51427 "EHLO emeraude")
+	by vger.kernel.org with ESMTP id <S279629AbRKGKOr>;
+	Wed, 7 Nov 2001 05:14:47 -0500
+Date: Wed, 7 Nov 2001 11:13:39 +0100
+From: Stephane Jourdois <stephane@tuxfinder.org>
+To: "Marcel J.E. Mol" <marcel@mesa.nl>
+Cc: Massimo Dal Zotto <dz@cs.unitn.it>, LKLM <linux-kernel@vger.kernel.org>,
+        Juri Haberland <juri@koschikode.com>
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+Message-ID: <20011107111339.A4155@emeraude.kwisatz.net>
+Reply-To: stephane@tuxfinder.org
+In-Reply-To: <20011105231759.02B541195E@a.mx.spoiled.org> <200111061645.RAA02115@fandango.cs.unitn.it> <20011107104405.A3168@emeraude.kwisatz.net> <20011107110141.C29983@joshua.mesa.nl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="xHFwDpU9dbj6ez1V"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
 Content-Disposition: inline
-In-Reply-To: <20011107110702.D11351@hazard.jcu.cz>
+In-Reply-To: <20011107110141.C29983@joshua.mesa.nl>
 User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.14
+X-Send-From: emeraude
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=us-ascii
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Nov 07, 2001 at 11:01:41AM +0100, Marcel J.E. Mol wrote:
+> Maybe this is better:
+>=20
+> diff -u i8kutils-1.2.orig/i8kbuttons.c i8kutils-1.2/i8kbuttons.c
+> --- i8kutils-1.2.orig/i8kbuttons.c      Tue Nov  6 20:07:27 2001
+> +++ i8kutils-1.2/i8kbuttons.c   Tue Nov  6 20:11:19 2001
+> @@ -53,15 +53,17 @@
+>=20
+>      DPRINTF("exec_cmd: %s\n", cmd);
+>=20
+>      if ((rc=3Dfork()) < 0) {
+>         perror("fork failed");
+>         return;
+>      }
+> =20
+>      if (rc =3D=3D 0) {
+>         execl("/bin/sh", "sh", "-c", cmd, NULL);
+>         exit(0);
+>      }
+> +    else
+> +       wait(&rc);
+>  }
+> =20
+> It get rid of the zombies and allows only one setmixer/auimix command
+> to be active at a time...
+
+Yup I did that on i8kutils-1.1, then reverted to system(), because I
+removed the anti-repeat system, and used a slow mixer application. Then
+the repeat was bad (sometimes slow, sometimes quick).
+In fact, I don't really mind, as now I use aumix (and it is fast
+enought).
+
+Massimo, choose one please :-)
+
+	Stephane
+
+
+--=20
+ ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
+(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
+ \\\   6, av. de la Belle Image	 X                         ///
+  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
+
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-Hallo,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-> I have ACPI enabled and I'm attaching my lspci -vvv... Thank you
-> very much...
+iEYEARECAAYFAjvpCVMACgkQk2dpMN4A2NPVMgCggZCjnQJ3C/OgJrj382d1FO2L
+AAIAnRYtafWJFhz2Of+3OOtmbdB1xBZd
+=tokU
+-----END PGP SIGNATURE-----
 
-I'm sorry, I don't remember to attach this file... One's more...
-
-> 
-> > --
-> > dwmw2
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
-
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lsp
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 03)
-	Subsystem: Compaq Computer Corporation: Unknown device b110
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at 50000000 (32-bit, prefetchable) [size=256M]
-
-00:04.0 CardBus bridge: Texas Instruments PCI1211
-	Subsystem: Compaq Computer Corporation: Unknown device b103
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 168, cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 7fffe000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=176
-	Memory window 0: 10000000-103ff000 (prefetchable)
-	Memory window 1: 10400000-107ff000
-	I/O window 0: 00004400-000044ff
-	I/O window 1: 00004800-000048ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:05.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro (rev dc) (prog-if 00 [VGA])
-	Subsystem: Compaq Computer Corporation: Unknown device b11b
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 66 (2000ns min), cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 41000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: I/O ports at 3000 [size=256]
-	Region 2: Memory at 40280000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [5c] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 4: I/O ports at 3820 [size=16]
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at 3800 [size=32]
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
-
-00:08.0 Multimedia audio controller: ESS Technology ES1978 Maestro 2E (rev 10)
-	Subsystem: Compaq Computer Corporation: Unknown device b112
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (500ns min, 6000ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 3400 [size=256]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
-	Subsystem: Compaq Computer Corporation 56k V.90 Modem
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 40000000 (32-bit, non-prefetchable) [size=256]
-	Region 1: I/O ports at 2400 [size=8]
-	Region 2: I/O ports at 2000 [size=256]
-	Capabilities: [f8] Power Management version 2
-		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
---xHFwDpU9dbj6ez1V--
+--ReaqsoxgOBHFXBhH--

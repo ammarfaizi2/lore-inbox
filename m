@@ -1,25 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318812AbSG0UBY>; Sat, 27 Jul 2002 16:01:24 -0400
+	id <S318813AbSG0UHC>; Sat, 27 Jul 2002 16:07:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318813AbSG0UBY>; Sat, 27 Jul 2002 16:01:24 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:54540 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318812AbSG0UBY>; Sat, 27 Jul 2002 16:01:24 -0400
-Date: Sat, 27 Jul 2002 13:04:37 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Thomas Molina <tmolina@cox.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Report Status 
-In-Reply-To: <Pine.LNX.4.44.0207261001420.1036-100000@dad.molina>
-Message-ID: <Pine.LNX.4.44.0207271303370.17619-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318814AbSG0UHC>; Sat, 27 Jul 2002 16:07:02 -0400
+Received: from stingr.net ([212.193.32.15]:47491 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S318813AbSG0UHB>;
+	Sat, 27 Jul 2002 16:07:01 -0400
+Date: Sun, 28 Jul 2002 00:10:19 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+Message-ID: <20020727201019.GA4177@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1027714551.961.61.camel@fede> <Pine.GSO.4.21.0207261642500.21586-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0207261642500.21586-100000@weyl.math.psu.edu>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to Alexander Viro:
+> What you and the rest of armchair generals do not get is that "adding
+> features" is _not_ the hard part of work.  Doing that in a way that
+> wouldn't be a permanent source of bugs afterwards and cleaning up the
+> existing sources of bugs _IS_.  So is doing infrastructure work.  So
+> is auditing code.  So is removing crap code.
 
->    console lockup                      open         2.5.27
+One remark is - Microsoft actually "conquered" the market by adding features
+_only_.
 
-Any more info on this or is this the devfs problem.
-
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

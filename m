@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSFGHqf>; Fri, 7 Jun 2002 03:46:35 -0400
+	id <S317214AbSFGHzb>; Fri, 7 Jun 2002 03:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316801AbSFGHqe>; Fri, 7 Jun 2002 03:46:34 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:23729
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
-	id <S316788AbSFGHqe>; Fri, 7 Jun 2002 03:46:34 -0400
-Message-ID: <20020607074629.27617.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-        Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org,
-        dag@newtech.fi
-Subject: Re: Devfs strangeness in 2.4.18 
-In-Reply-To: Message from Richard Gooch <rgooch@ras.ucalgary.ca> 
-   of "Thu, 06 Jun 2002 17:04:15 MDT." <200206062304.g56N4Fg05480@vindaloo.ras.ucalgary.ca> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Jun 2002 10:46:29 +0300
-From: Dag Nygren <dag@newtech.fi>
+	id <S317137AbSFGHza>; Fri, 7 Jun 2002 03:55:30 -0400
+Received: from mail.univie.ac.at ([131.130.1.27]:53409 "EHLO
+	mailbox.univie.ac.at") by vger.kernel.org with ESMTP
+	id <S317100AbSFGHz3>; Fri, 7 Jun 2002 03:55:29 -0400
+Message-ID: <3D0066CA.90902@univie.ac.at>
+Date: Fri, 07 Jun 2002 09:54:50 +0200
+From: Gerald Teschl <gerald.teschl@univie.ac.at>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org, alan@redhat.com
+Subject: Re: [PATCH] unregister YMH0021 from ad1848
+In-Reply-To: <Pine.LNX.4.44.0206070804420.12649-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ruth Ivimey-Cook writes:
-> > On Thu, 6 Jun 2002, Dag Nygren wrote:
-> > 
-> > >The problems are tha the sg? links doesn't correspond to the real
-> > >devices shown by /proc/scsi/scsi (Which matches the real situation)
-> > >sg0 matches the first disk, OK
-> > >sg1 matches the Medium changer, OK
-> > >sg2 matches nothing...... There is no target 2 on host1 !!!
-> > >sg3 matches the DLT tape drive
-> > >sg4 matches the DAT tape drive
-> > >
-> > >The other problem is the st? links.
-> > >st0 is linked out into nothing ...
-> > >
-> > >Seems like 3 host adapters is too much for devfs......
-> > >Do I need an upgrade ?
-> > 
-> > In my experience, devfs doesn't create /dev/sg or /dev/st softlinks.
-> 
-> Indeed. It's devfsd that creates it.
-> 
-> > The only links it creates are from /dev/discs/... to /dev/ide/... or
-> > /dev/scsi/... as appropriate.
-> > 
-> > I would look into the mandrake boot sequence in detail.
-> 
-> Also check that you don't have bogus entries in your dev-state
-> area. Mandrake had some configuration problems a few months back.
+Zwane Mwaikambo wrote:
 
-Yess!!!
-That's what did it, removing the sg? and st? entries from /lib/dev-state
-did the trick. There were some oldies ghosting there. Thanks a lot 
-Richard, I didn't even know that there was a dev-state directory to
-look for ;-).
-Is there any comprehensive documentation on devfsd and devfs anywhere
-on the net? Could be good to read a bit more about this.
+>Hi Gerald,
+>  
+>
+>I don't have it uncommented, this is what i get;
+>
+>ad1848/cs4248 codec driver Copyright (C) by Hannu Savolainen 1993-1996
+>ad1848: OPL3-SA2 WSS mode detected
+>ad1848: ISAPnP reports 'OPL3-SA2 WSS mode' at i/o 0xe80, irq 5, dma 1, 3
+>opl3sa2: chipset version = 0x3
+>opl3sa2: Found OPL3-SA3 (YMF715B or YMF719B)
+><OPL3-SA3> at 0x100 irq 5 dma 1,3
+><MS Sound System (CS4231)> at 0xe84 irq 5 dma 1,3
+><MPU-401 0.0  Midi interface #1> at 0x300 irq 5
+>opl3sa2: 1 PnP card(s) found.
+>
+>Did you try a more recent -ac kernel? Because i sent a patch for this 
+>about 2 months back.
+>
+>  
+>
+This is a kernel which has your patch included. Otherwise it will say
+"ad1848: No ISAPnP card(s) found";-) BTW, everything seems to work
+fine even without your patch.
 
-BRGDS
+Even with your patch, if I just load the ad1848 module (which is what 
+sndconfig
+will set up for you -- you can find several users reporting this problem 
+if you search
+the mailing lists) sound will not work! So if I understand this 
+correctly, this implies
+that the YMH0021 entry should be removed from the MODULE_DEVICE_TABLE
+in ad1848 since it is not a driver for this device.
 
-Dag
+Gerald
 
 

@@ -1,100 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267526AbTAXE0q>; Thu, 23 Jan 2003 23:26:46 -0500
+	id <S267529AbTAXEi3>; Thu, 23 Jan 2003 23:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267529AbTAXE0q>; Thu, 23 Jan 2003 23:26:46 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:22223 "EHLO
-	albatross.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267526AbTAXE0p>; Thu, 23 Jan 2003 23:26:45 -0500
-Date: Thu, 23 Jan 2003 23:41:19 -0500
-To: akpm@digeo.com, piggin@cyberone.com.au
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: big ext3 sequential write improvement in 2.5.51-mm1 gone in 2.5.53-mm1
-Message-ID: <20030124044119.GA15252@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S267530AbTAXEi3>; Thu, 23 Jan 2003 23:38:29 -0500
+Received: from cache2.telkomsel.co.id ([202.155.14.253]:33809 "EHLO
+	cache2.telkomsel.co.id") by vger.kernel.org with ESMTP
+	id <S267529AbTAXEi2>; Thu, 23 Jan 2003 23:38:28 -0500
+Message-ID: <3E30C2A5.5040502@bna.telkomsel.co.id>
+Date: Fri, 24 Jan 2003 11:35:49 +0700
+From: arief_mulya <arief@bna.telkomsel.co.id>
+Organization: damai itu indah <peace is beautiful>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, tech@openbsd.org,
+       freebsd-hackers@freebsd.org, tech-kern@netbsd.org
+Subject: Technical Differences of *BSD and Linux
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
->> I have not been paying any attention to the I/O scheduler changes for a
->> couple of months, so I can't say exactly what caused this.  
+Dear all,
 
-OK.  The previous -mm I tested on the quad Xeon was 2.5.54-mm3, so if 
-Nick's batch expiry is more recent, it explains the "sudden" tiobench
-divergence with Linus' tree.
 
->> Possibly Nick's
->> batch expiry logic which causes the scheduler to alternate between reading
->> and writing with fairly coarse granularity.
+I Apologize, If this thread has existed before, and so if
+this is very offtopic and tiredsome for most of you here.
 
-Nick:
-> Yes, however tiobench doesn't mix the two. The batch_expire helps
-> probably by giving longer batches between servicing expired requests.
+I'm a newbie, and just about to get my feet wet into the
+kernel-code, been using (GNU/)Linux (or whatever the name
+is, I personally don't really care, I caremost at the
+technical excellence) for the last two years, I personally
+think it's a toupper(great); system.
 
-Andrew:
->>I _have_ been paying attention to the IO scheduler for the past few days. 
->>-mm5 will have the first draft of the anticipatory IO scheduler.  This of
->>course is yielding tremendous improvements in bandwidth when there are
->>competing reads and writes.
+But after recently reviewing some BSD based systems, I began
+to wonder. And these are my questions (I'm trying to avoid 
+flame and being a troll here, so if there's any of my 
+questions is not on technical basis, or are being such a 
+jerk troll please just trash filter my name and email address):
 
->I expect it will take another week or two to get the I/O scheduler changes
->>really settled down.  Your assistance in thoroughly benching that would be
->>appreciated.
+1. In what technical area of the kernel are Linux and *BSD 
+differ?
+2. How does it differ? What are the technical reasoning 
+behind the decisions?
 
-The mixed workloads I run that vary the most are "memory shortage" tests.
+3. Is there any group of developer from each project that 
+review each other changes, and tries to make the best code 
+out, or is the issues very system specific (something that 
+work best on Linux might not be so on FreeBSD or NetBSD or 
+OpenBSD)?
 
-qsbench creates heavy swap load and simultaneous ed build. (small gnu package 
-"tar xzf/configure/make/make check").
+4. Any chance of merging the very best part of each kernel?
+5. Or is it possible to do so?
 
-Good numbers for this benchmark are open to interpretation, but more
-ed builds in less time is better.  The "secs" column is how long it took
-for qsbench to do it's thing. 
 
-kernel                 ed_builds   secs   secs/build
-2.4.20-rc2-ac1-rmap15-O1      38    373     9.82
-2.4.19-rmap15                 50    445     8.90
-2.4.20-rc2aa1-4m              47    597    12.70
-2.4.20-pre8aa1                47    598    12.72
-2.4.20aa1                     50    603    12.06
-2.4.20-rc1-jam1               51    604    11.84
-2.4.20-jam2                   50    609    12.18
-2.4.20-pre11aa1o1             58    615    10.60
-2.4.20-pre11aa1               55    632    11.49
-2.4.20-rc2aa1                 55    648    11.78
-2.4.20-rc1aa1                 61    678    11.11
-2.4.20-rc4                    57    743    13.04
-2.5.51-mm2                    63    761    12.08
-2.5.58                        87    809     9.30
-2.4.19-ck13                   86    822     9.56
-2.4.20-pre10                  75    831    11.08
-2.4.20-rc1                    85    938    11.04
-2.5.50                       110    978     8.89
-2.5.50bk8                    107    984     9.20
-2.5.51-mm1                    87    985    11.32
-2.5.46-mm2                    85   1000    11.76
-2.5.59                       119   1088     9.14
-2.5.55                       127   1127     8.87
-2.5.54-mm2                    73   1135    15.55
-2.5.52-mm2                   101   1202    11.90
-2.5.59-mm2                   139   1263     9.09
-2.5.53-mm1                   107   1297    12.12
-2.5.54-mm3                    97   1361    14.03
-2.5.52-wli-1                 200   1775     8.88
-2.5.56                       222   1978     8.91
-2.5.52bk7                    232   2085     8.99
-2.5.49-mm1                   248   2731    11.01
-2.5.39                       346   2949     8.52
-2.5.44-mm5                   348   2996     8.61
-2.5.42                       408   3528     8.65
-2.5.44-mm6                   342   3680    10.76
-2.5.43-mm2                   475   4209     8.86
-2.5.40-mm1                   706   6131     8.68
+Anything else that matters, are welcome.
 
---
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+Please answer technically, I don't wanna be a troll here, 
+and I hope so do everyone that answers this. I really like 
+to learn, not to read some flame of who's the best.
+
+To freebsd and openbsd list, please CC the answer to me 
+directly, as I don't get response from the majordomo of my 
+subscription requests, yet.
+
+
+Best Regards,
+
+arief_mulya
+-- 
 

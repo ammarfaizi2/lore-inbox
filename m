@@ -1,42 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUCIQkG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCIQkG
+	id S262062AbUCIQsi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUCIQsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:40:06 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8205
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262049AbUCIQij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:38:39 -0500
-Date: Tue, 9 Mar 2004 17:39:20 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309163920.GN8193@dualathlon.random>
-References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu> <20040309110233.GA3819@elte.hu> <20040309155917.GH8193@dualathlon.random> <20040309160709.GA10577@elte.hu> <20040309160807.GA10778@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309160807.GA10778@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 9 Mar 2004 11:48:38 -0500
+Received: from smtp.freestart.hu ([213.197.64.6]:32516 "EHLO
+	relay.freestart.hu") by vger.kernel.org with ESMTP id S262062AbUCIQsX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 11:48:23 -0500
+Date: Tue, 9 Mar 2004 17:46:18 +0100 (CET)
+From: "Peter S. Mazinger" <ps.m@gmx.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG in 2.4.25-rc1: attempt to access beyond end of device, alsoIbm Serveraid
+In-Reply-To: <Pine.LNX.4.44.0403011935270.9653-100000@lnx.bridge.intra>
+Message-ID: <Pine.LNX.4.44.0403091738460.18861-100000@lnx.bridge.intra>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-freestart-banner: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 05:08:07PM +0100, Ingo Molnar wrote:
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > this use more cpu than the previous one, but no other differences.
-> > 
-> > how fast is the system you tried this on? If it's faster than the 500
-> > MHz box i tried it on then please try the attached test-mmap3.c.
-> > (which is still not doing anything extreme.)
-> 
-> also, please run it on an UP kernel.
+On Mon, 1 Mar 2004, Peter S. Mazinger wrote:
 
-I will, thanks for the hint.
+> On Fri, 27 Feb 2004, Marcelo Tosatti wrote:
+> 
+> > 
+> > Peter,
+> > 
+> > Can you try to revert (apply with -R) and see if it happens again, please?
+> 
+> Yes, it happens again (the problem appeared at 2.4.25-pre4 time, but that 
+> patch is to huge for me to find the problematic part)
+
+I have tried both patches proposed by Chuck Lever
+
+--- mm/filemap.c.mps	Tue Mar  9 16:53:01 2004
++++ mm/filemap.c	Tue Mar  9 16:55:07 2004
+@@ -1348,7 +1348,7 @@
+ 	while (ahead < max_ahead) {
+ 		unsigned long ra_index = raend + ahead + 1;
+ 
+-		if (ra_index > end_index)
++		if (ra_index >= end_index)
+ 			break;
+ 		if (page_cache_read(filp, ra_index) < 0)
+ 			break;
+
+this one corrects the error
+
+--- mm/filemap.c.mps	Tue Mar  9 14:33:17 2004
++++ mm/filemap.c	Tue Mar  9 14:35:01 2004
+@@ -1286,6 +1286,8 @@
+ 	int max_readahead = get_max_readahead(inode);
+ 
+ 	end_index = inode->i_size >> PAGE_CACHE_SHIFT;
++	end_index = ((inode->i_size + ~PAGE_CACHE_MASK) >>
++						PAGE_CACHE_SHIFT) - 1;
+ 
+ 	raend = filp->f_raend;
+ 	max_ahead = 0;
+
+this one does not correct the error
+
+my ATA controller is ICH5 (built into the kernel), so add it too to the 
+list of problematic drivers.
+
+Peter
+
+> 
+> > 
+> > 
+> > On Fri, 6 Feb 2004, Peter S. Mazinger wrote:
+> > 
+> > > Hello!
+> > >
+> > > my hardware:
+> > > x86
+> > > ide controller (builtin driver)
+> > > ext3 partitions (as modules loaded from initrd)
+> > >
+> > > if I shutdown -h now the computer, I get as last messages:
+> > > attempt to access beyond end of device
+> > > 03:03 rw=0, want=1044228, limit=1044225
+> > > (3 times, 03:03/want/limit with other numbers), for all mounted
+> > > (remounted ro) partitions
+> > >
+> > > distro: RedHat 7.3 (with all updates up to december)
+> > > kernel is pristine: only 2.4.25-rc1 applied (EXPERIMENTAL code disabled)
+> > > util-linux: 2.11n-12.7.3 (used umount, if it matters)
+> > >
+> > > Peter
+> > >
+> > > --
+> > > Peter S. Mazinger <ps dot m at gmx dot net>           ID: 0xA5F059F2
+> > > Key fingerprint = 92A4 31E1 56BC 3D5A 2D08  BB6E C389 975E A5F0 59F2
+> > >
+> > >
+> > > ____________________________________________________________________
+> > > Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
+> > > Probald ki most! http://www.freestart.hu
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> 
+> 
+
+-- 
+Peter S. Mazinger <ps dot m at gmx dot net>           ID: 0xA5F059F2
+Key fingerprint = 92A4 31E1 56BC 3D5A 2D08  BB6E C389 975E A5F0 59F2
+
+
+
+____________________________________________________________________
+Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
+Probald ki most! http://www.freestart.hu

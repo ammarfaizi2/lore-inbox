@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132006AbRAQKCi>; Wed, 17 Jan 2001 05:02:38 -0500
+	id <S131309AbRAQKES>; Wed, 17 Jan 2001 05:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132124AbRAQKC2>; Wed, 17 Jan 2001 05:02:28 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:43907 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132006AbRAQKCT>; Wed, 17 Jan 2001 05:02:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A656C09.4A40BBF5@mandrakesoft.com> 
-In-Reply-To: <3A656C09.4A40BBF5@mandrakesoft.com>  <200101162111.f0GLBNb14141@webber.adilger.net> <20276.979724327@redhat.com> 
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        "'Bryan Henderson'" <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order? 
-Mime-Version: 1.0
+	id <S132124AbRAQKEI>; Wed, 17 Jan 2001 05:04:08 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:25354 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S131309AbRAQKEE>;
+	Wed, 17 Jan 2001 05:04:04 -0500
+Message-ID: <3A656C1C.60B4330C@student.ethz.ch>
+Date: Wed, 17 Jan 2001 10:55:40 +0100
+From: Giacomo Catenazzi <cate@student.ethz.ch>
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en, en-US, en-GB
+MIME-Version: 1.0
+To: Sajeev <sajeevm@vantel.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems in 2.4 kernel
+In-Reply-To: <fa.fb4ouhv.1q2suj4@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 17 Jan 2001 10:02:07 +0000
-Message-ID: <13466.979725727@redhat.com>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jan 2001 09:55:31.0361 (UTC) FILETIME=[A0C6C110:01C0806B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+aprasad@in.ibm.com wrote:
+> 
+> Sanjeev Wrote:
+> I am not able to mount my floppy drive. When I try to mount it gives me the
+> following error
+> 'mount: /dev/fd0 has wrong major or minor number'
 
-jgarzik@mandrakesoft.com said:
->  The one thing I don't know is... can the kernel mount the root fs if
-> only given the uuid?
+did you update the modutils?
 
-There are 2.2 patches to do it, which I think are now being dusted off and 
-resurrected. but scanning for UUID involves poking at every partition on 
-every available hard drive.
-
-Doing it by serial number (do SCSI drives have a unique serial number?) 
-would be possible without doing that.
-
---
-dwmw2
-
-
+	giacomo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266466AbTGJUiL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 16:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269526AbTGJUiL
+	id S269530AbTGJUfb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 16:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269587AbTGJUfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 16:38:11 -0400
-Received: from zeke.inet.com ([199.171.211.198]:50569 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S266466AbTGJUiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 16:38:09 -0400
-Message-ID: <3F0DD21B.5010408@inet.com>
-Date: Thu, 10 Jul 2003 15:52:43 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Style question: Should one check for NULL pointers?
-References: <Pine.LNX.4.44L0.0307101606060.22398-100000@netrider.rowland.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 10 Jul 2003 16:35:31 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:43692 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269530AbTGJUfZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 16:35:25 -0400
+Subject: Re: [PATCH] linux-2.4.22-pre4_x440-acpi-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andrew Grover <andrew.grover@intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55L.0307100019460.6316@freak.distro.conectiva>
+References: <1057799280.27380.248.camel@w-jstultz2.beaverton.ibm.com>
+	 <Pine.LNX.4.55L.0307100019460.6316@freak.distro.conectiva>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057870055.22133.152.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Jul 2003 13:47:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-[snip]
-> Ultimately this comes down to a question of style and taste.  This 
-> particular issue is not addressed in Documentation/CodingStyle so I'm 
-> raising it here.  My personal preference is for code that means what it 
-> says; if a pointer is checked it should be because there is a genuine 
-> possibility that the pointer _is_ NULL.  I see no reason for pure 
-> paranoia, particularly if it's not commented as such.
+On Wed, 2003-07-09 at 20:22, Marcelo Tosatti wrote:
+> On Wed, 9 Jul 2003, john stultz wrote:
+> > 	Due to the new ACPI code, when booting in full ACPI mode, we do not go
+> > through the mps tables, thus we do not execute the summit detection code
+> > required for booting an x440.
+> >
+> > This patch insures that when booting in full ACPI mode we check to see
+> > if we're running on a summit based system and enable clustered apic
+> > mode. Without this patch the x440s hang while booting in full ACPI mode.
+>
+> I just applied it John, it will be in bk soon.
+
+Thanks so much.
+
+> But cant that be done in a cleaner way?
 > 
-> Comments, anyone?
+> The acpi_madt_oem_check() call and implementation are the cleaner way of
+> doing this?
 
-BUG_ON() perhaps?
+Well,when booting using the acpi tables, we need an equivalent hook to
+detect_clustered_apic(), which is used when booting off the mps table.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Basically I just kept the acpi_madt_oem_check() name and implementation
+from the 2.5 tree, but I'd be fine with doing it differently if someone
+can suggest an idea. 
+
+thanks
+-john
 

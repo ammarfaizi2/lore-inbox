@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268799AbUHTXa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUHTXds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268799AbUHTXa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 19:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUHTXa7
+	id S268802AbUHTXds (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 19:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268803AbUHTXdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 19:30:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44247 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268799AbUHTXa4 (ORCPT
+	Fri, 20 Aug 2004 19:33:47 -0400
+Received: from ozlabs.org ([203.10.76.45]:26604 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268802AbUHTXdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 19:30:56 -0400
-Date: Fri, 20 Aug 2004 16:34:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: riel@redhat.com, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.8.1-mm2 - reiser4
-Message-Id: <20040820163426.2c6d4cb8.akpm@osdl.org>
-In-Reply-To: <20040820232050.GI1945@krispykreme>
-References: <Pine.LNX.4.44.0408201753250.4192-100000@chimarrao.boston.redhat.com>
-	<Pine.LNX.4.44.0408201852140.4192-100000@chimarrao.boston.redhat.com>
-	<20040820232050.GI1945@krispykreme>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 20 Aug 2004 19:33:40 -0400
+Date: Sat, 21 Aug 2004 09:31:26 +1000
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Message-ID: <20040820233126.GJ1945@krispykreme>
+References: <20040820031919.413d0a95.akpm@osdl.org> <200408201144.49522.jbarnes@engr.sgi.com> <200408201257.42064.jbarnes@engr.sgi.com> <20040820115541.3e68c5be.akpm@osdl.org> <20040820200248.GJ11200@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820200248.GJ11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
-> 
-> > Oh, and another one.  The reiser 4 system call
-> > sys_reiserfs seems to need an additional patch,
-> > which is craftily hidden inside reiser4-only.patch
-> > 
-> > That patch creates fs/reiser4/linux-5_reiser4_syscall.patch,
-> > which I can only assume reiser 4 users should apply...
-> 
-> I would assume a compat layer interface would be a requirement to
-> merging such a syscall interface. Does it exist?
+ 
+> Parallel compilation is an extremely poor benchmark in general, as the
+> workload is incapable of being effectively scaled to system sizes, the
+> linking phase is inherently unparallelizable and the compilation phase
+> too parallelizable to actually stress anything. There is also precisely
+> zero relevance the benchmark has to anything real users would do.
 
-It's my understanding that sys_reiser4() is basically defunct at this point.
+I spend most of my life compiling kernels and I consider myself a real
+user :)
 
-It will probably be revived at some time in the future but we'd be best
-off crossing that bridge when we arrive at it, and ignoring the syscall
-part of the code at this time.
-
-For review purposes it would be better if the syscall code and all the
-namesys debug support code simply weren't present in the patch.  But one
-can sympathise with the need to keep it there for the time being.  Please
-just read around it.
+Anton

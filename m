@@ -1,61 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279103AbRKOBAn>; Wed, 14 Nov 2001 20:00:43 -0500
+	id <S279548AbRKOBPy>; Wed, 14 Nov 2001 20:15:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279454AbRKOBAe>; Wed, 14 Nov 2001 20:00:34 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:8074 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S279103AbRKOBAX>; Wed, 14 Nov 2001 20:00:23 -0500
-Date: Thu, 15 Nov 2001 01:00:20 +0000
-From: Alex Walker <alex@x3ja.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: huggie@earth.li
-Subject: VFAT problems in 2.4.14
-Message-ID: <20011115010020.B510@x3ja.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S279617AbRKOBPn>; Wed, 14 Nov 2001 20:15:43 -0500
+Received: from anime.net ([63.172.78.150]:30984 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S279548AbRKOBP2>;
+	Wed, 14 Nov 2001 20:15:28 -0500
+Date: Wed, 14 Nov 2001 17:15:14 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What Athlon chipset is most stable in Linux?
+In-Reply-To: <3BF31459.BB4BE456@randomlogic.com>
+Message-ID: <Pine.LNX.4.30.0111141714230.30302-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me in any replies - I am not subscribed to the list]
+On Wed, 14 Nov 2001, Paul G. Allen wrote:
+> I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly tweaked
+> compiled in, and a tweaked Detonator 3 nVidia driver
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+???
 
-I was copying some files from a reiserfs partition to a FAT32 partition
-with the simple command `sudo cp -a Docs/mywork My\ Documents\Work`.
-Where "My\ Documents" is a symlink to a directory on my windows
-partition.  I did this as sudo since I had no set up permissions on my
-FAT32 partition for my normal user.  I then rebooted into Windows, only
-to discover that it had gone badly wrong.
-
-The original directory had only 3 subdirectories.  2 of these
-transferred across without any errors.  The final one was created, but
-the contents corrupted.  It originally had 1.4M of data in 6 document
-files.  Instead of these files, files and directories with spurious
-names (lots of symbols I can't type in my editor) were created.
-
-Not only this, but the contents of this directory claimed to total 74G
-(on a 20G disk!).  None of the files were readable in Windows.
-
-I rebooted again into linux and investigated some more.
-- The files names were all 12 characters long. 
-- There are 72 of these files.
-- When listing the directories you get "Directory sread (sector
-  0xd12a66d, limit 6136798" "attempt to access beyond end of device"
-  errrors.
-- Again, linux thinks the directory is 72G big (but df disagrees on
-  partition size)
-- Even though the partition is mounted read-only, any attempt to re-copy
-  is met with a "creating `file`: Read-only file system" error
-
-Fortunately it was a copy, not a move!
-
-Hope this is helpful.  Any advice appreciated.
-
-aLeX
-
+-Dan
 -- 
------------------------------
-Alex Walker   alex@x3ja.co.uk 
-        x3ja|alex
------------------------------
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

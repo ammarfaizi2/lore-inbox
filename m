@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbSLIL4v>; Mon, 9 Dec 2002 06:56:51 -0500
+	id <S265262AbSLIMAD>; Mon, 9 Dec 2002 07:00:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265262AbSLIL4v>; Mon, 9 Dec 2002 06:56:51 -0500
-Received: from mina.ecs.soton.ac.uk ([152.78.64.20]:35998 "HELO
-	mina.ecs.soton.ac.uk") by vger.kernel.org with SMTP
-	id <S265230AbSLIL4u>; Mon, 9 Dec 2002 06:56:50 -0500
-Date: Mon, 9 Dec 2002 12:04:32 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Need help recovering RAID array after admin error
-Message-ID: <20021209120431.GB9768@mina.ecs.soton.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265306AbSLIMAD>; Mon, 9 Dec 2002 07:00:03 -0500
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:7668 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S265262AbSLIMAC> convert rfc822-to-8bit; Mon, 9 Dec 2002 07:00:02 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: s390 update.
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, com.ibm@arndb.de, idrys@gmx.de
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF298CF6BF.169EB018-ONC1256C8A.0041E2AB@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 9 Dec 2002 13:04:20 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 09/12/2002 13:06:55
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Hi,
 
-   Software RAID-5 does indeed protect against a disk failure.
+Hi Sam,
+> > I have put all the patches on bkbits. Just pull from
+> Did that and took a look at the Makefiles.
+> Here is an update for s390.
 
-   Software RAID-5 doesn't protect against removing the wrong disk
-from the array after a disk failure. :(
+Makefile magic, how lovely. Arnd said something about "obvious". Oh, well
+thanks for the patch. Arnd takes care of it.
 
-   I'm using 2.4.20-ac1 with a Debian-testing system and the new mdadm
-tools. I have (or had) a 3-device RAID-5 array.  One disk decided to
-have a bit of a funny turn, and the RAID code kicked it out of the
-array as failed. I believe (although it's difficult to be absolutely
-certain) that it was the middle disk in the array (disk 1) which
-failed.
+blue skies,
+   Martin
 
-   The mdadm monitoring daemon, however, mailed me immediately to tell
-me of the failure, and it reported the device node of disk 2. I didn't
-do any further checks, but immediately used mdadm to pull what I
-thought was the faulty disk from the array, at which point my system
-started rapidly to collapse. At that point, I panicked and hit
-Alt-SysRq-b.
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
-   I can still boot the machine, since boot and root fs aren't on the
-RAID-5 device.
 
-   After some investigation, I believe that the failed disk is
-actually still good, at least enough to get the important data off
-it. I prodded the RAID-5 partitions and examined their superblocks
-with mdadm. I can't quote the results verbatim, since the machine is
-no longer net-capable, and it's 2 miles away from here, but...
-
-   Disk 0: thinks that disk 1 has failed, that disk 2 no longer
-exists, that disk 3 is now what was disk 2, and that disk 3 is an
-unsynced spare. Has superblock version 56.
-
-   Disk 1: thinks that everything is OK. Has superblock version 55.
-
-   Disk 2/3: thinks much the same as disk 0. Has superblock version 56.
-
-   Is there any way that I can rebuild the array in a degraded mode
-from disks 0 and 1, using the superblock information from disk 1?
-
-   If not, and if I had a big enough storage area, could I dd the
-relevant partitions onto it as files and reconstruct enough data in
-userspace to mount the filesystems from the array on a loopback to
-recover my data?
-
-   Can anyone help?
-
-   I would have backups of this data, only the backup system I was
-using corrupted disks and crashed the VM, so I stoppeed using it... :(
-
-   Hugo.
-
--- 
- --- Hugo Mills - <hugo@soton.ac.uk> - ECS at Southampton University --- 
-          --- Comb-e-chem project: http://www.combechem.org/ ---         
-              Quantum Mechanics: The dreams stuff is made of             

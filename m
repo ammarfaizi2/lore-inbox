@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUFKAd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUFKAd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbUFKAd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUFKAd1
+	id S263616AbUFKAd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUFKAd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:33:27 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:28838 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S263614AbUFKAdZ
+	Thu, 10 Jun 2004 20:33:58 -0400
+Received: from mail-06.iinet.net.au ([203.59.3.38]:11429 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263616AbUFKAdw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:33:25 -0400
-Date: Thu, 10 Jun 2004 16:41:00 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@www.fnordora.org
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 10 Jun 2004 20:33:52 -0400
 Subject: Re: Insults in the kernel-sources
-In-Reply-To: <40C8F7BA.1060700@linuxmail.org>
-Message-ID: <Pine.LNX.4.44.0406101638130.18878-100000@www.fnordora.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: James Buchanan <buchanan@iinet.net.au>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Vadim Lobanov <vadim@cs.washington.edu>, walt <wa1ter@myrealbox.com>,
+       alan <alan@clueserver.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040610235818.GA3418@hockin.org>
+References: <40C8EC21.2090803@myrealbox.com>
+	 <20040610164948.N7071-100000@attu2.cs.washington.edu>
+	 <20040610235818.GA3418@hockin.org>
+Content-Type: text/plain
+Message-Id: <1086914046.1812.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 11 Jun 2004 10:34:06 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jun 2004, Nigel Cunningham wrote:
 
-> alan wrote:
-> > Turns out the Microsoft code has just as much profanity, if not more, than 
-> > the Linux kernel source.  (Of course, they have more to swear about...)
-> 
-> The amount of profanity in the Microsoft code is irrelevant, unless you want to base your ethics on 
-> what people do. If you think it through, you'll see that's a very shaky foundation for determining 
-> right and wrong.
+> Note to all: do not accept patches from Vadim.  Sorry, guy.  You're
+> tainted.
 
-I just find it a pointless diversion one way or another.  profanity is 
-quite descriptive when it comes to code.  (Especially device drivers.)
+Yeah, we don't want microshit's source in Linux!!  Hah.
 
-Some people try to assign their personal choices of language preference 
-into a moral judgement.  It generates more heat than light in a 
-development environment.
+Seriously, how can this amount to anything?  M$ claiming Vadim stole
+Win2K source and contributed it to Linux?  Pu-leeease....
+
+Maybehap they could use their lawyers to stir up a great mess and cause
+people to waste a lot of money defending spurious lawsuits... in which
+case I get your point...
+
 

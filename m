@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261458AbRERTVZ>; Fri, 18 May 2001 15:21:25 -0400
+	id <S261459AbRERTWP>; Fri, 18 May 2001 15:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbRERTVP>; Fri, 18 May 2001 15:21:15 -0400
-Received: from web11304.mail.yahoo.com ([216.136.131.207]:56841 "HELO
-	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261458AbRERTVL>; Fri, 18 May 2001 15:21:11 -0400
-Message-ID: <20010518192110.22434.qmail@web11304.mail.yahoo.com>
-Date: Fri, 18 May 2001 12:21:10 -0700 (PDT)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: Re: DMA support for toshiba IDE controllers
-To: linux-kernel@vger.kernel.org
+	id <S261462AbRERTWG>; Fri, 18 May 2001 15:22:06 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:56204 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S261459AbRERTVy>; Fri, 18 May 2001 15:21:54 -0400
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC, AMD-K6/2 -mcpu=586...
+In-Reply-To: <m2u22ibww6.fsf@sympatico.ca> <m2d796twqe.fsf@sympatico.ca> <20010518203446.A1066@werewolf.able.es> <m2eltm335t.fsf@sympatico.ca>
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 18 May 2001 15:20:26 -0400
+In-Reply-To: Bill Pringlemeir's message of "18 May 2001 14:47:26 -0400"
+Message-ID: <m23da2mpl1.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to clarify, this is a custom Toshiba chipset.  It
-includes IDE, PCI controller, etc.  I believe the IDE
-controller may be on the ISA bus as it does not show
-up with lspci, etc. I'm not sure of the exact chip,
-perhaps someone with a better knowledge of toshiab
-products does.
 
-Thanks,
+>>>>> "JAM" == J A Magallon <jamagallon@able.es> writes:
 
-Alex
+ JAM> That is not the problem. The problem is that the registers have
+ JAM> to lay in a defined way, transcribed to a C struct, and that
+ JAM> pgcc lays badly that struct.
+
+ WJP> Yes, I understand that.  I was showing a way to find the value
+ WJP> of padding needed to align the register store in the structure.
+ WJP> Perhaps I should have shown a mod to asm/processor.h,
+[snip]
+ WJP> I was describing a way to make things independent of the
+ WJP> compiler layout of the structs.  However, this complicates the
+ WJP> build process, and people might not like the padding due to
+ WJP> cache alignment details.
+
+Sorry,  they would obviously declare it as such if the kernel developers
+wanted to.
+
+        /* floating point info */
+        unsigned char fpAlign[0] __attribute__ ((aligned (16)));
+	union i387_union	i387;
+
+This is a much simpler way of achieving what I was trying to explain
+previously.  I think that this syntax has been in the GCC extensions
+for some time.
+
+regards,
+Bill Pringlemeir.
 
 
-> Does anyone know if there is any DMA support for the
-> toshiba IDE controller's in many of their portable
-> models such as the older porteges and librettos? 
-The
-> controllers support DMA, but not in linux.  I'm not
-> sure what toshiba's policy is on documentation. 
-They
-> used to be pretty stingy, but I heard they have
-> recently opened up of lot of their doc's, like the
-> oboe IR controller for instance. 
-> 
-> Thanks,
-> 
-> Alex
-> 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/

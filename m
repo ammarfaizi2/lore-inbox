@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130940AbRBIWnY>; Fri, 9 Feb 2001 17:43:24 -0500
+	id <S129666AbRBIW46>; Fri, 9 Feb 2001 17:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131016AbRBIWnO>; Fri, 9 Feb 2001 17:43:14 -0500
-Received: from cs167115-141.austin.rr.com ([24.167.115.141]:54081 "EHLO
-	fido2.homeip.net") by vger.kernel.org with ESMTP id <S130936AbRBIWnA>;
-	Fri, 9 Feb 2001 17:43:00 -0500
-Message-ID: <3A84726C.4B07B601@mail.utexas.edu>
-Date: Fri, 09 Feb 2001 16:42:52 -0600
-From: Philip Langdale <philipl@mail.utexas.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac6 i686)
-X-Accept-Language: en, zh, zh-CN, zh-TW
+	id <S130624AbRBIW4s>; Fri, 9 Feb 2001 17:56:48 -0500
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:15601 "EHLO
+	vaio.greennet") by vger.kernel.org with ESMTP id <S129666AbRBIW43>;
+	Fri, 9 Feb 2001 17:56:29 -0500
+Date: Fri, 9 Feb 2001 17:56:06 -0500 (EST)
+From: Donald Becker <becker@scyld.com>
+To: Jes Sorensen <jes@linuxcare.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <d3d7crwn2n.fsf@lxplus015.cern.ch>
+Message-ID: <Pine.LNX.4.10.10102091707310.7141-100000@vaio.greennet>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PCI clock 
- detection
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On 9 Feb 2001, Jes Sorensen wrote:
 
-Vojtech,
+> >>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+> Jeff> Donald Becker wrote:
+> >> On Tue, 16 Jan 2001, Jeff Garzik wrote: > * IA64 support (Jes) Oh,
+> >> and this is completely bogus.  This isn't a fix, it's a hack that
+> >> covers up the real problem.
+> >> 
+> >> The align-copy should *never* be required because the alignment
+> >> differs between DIX and E-II encapsulated packets.  The machine
+> >> shouldn't crash because someone sends you a different encapsulation
+> >> type!
+> 
+> The ia64 kernel has gotten mis aligned load support, but it's slow as
+> a dog so we really want to copy the packet every time anyway when the
+> header is not aligned. If people send out 802.3 headers or other crap
+> on Ethernet then it's just too bad.
 
-I've tried out your new via driver and it
-appears to have solved the problem with
-the mis-detected ls-120 drive, but the ata66
-drives are still being run at 33. 
+Note the word "required", meaning "must be done" vs. "recommended"
+meaning "should be done".
 
-More interestingly, the pci-clk calculations
-seem to be returning badly off values.
+The initial issue was a comment in a starfire patch that claimed an IA64
+bug had been fixed.  The copy breakpoint change might have improved
+performance by doing a copy-align, but it didn't fix a bug.
 
-My motherboard is a kt133a+686b btk7a from abit.
+That performance tradeoff was already anticipated: the 'rx_copybreak'
+value that was changed was a module parameter, not a constant.  That
+allows a module-load-time tradeoff, based the specific implementation,
+of copying the received packet or accepting a few unaligned loads of the
+usually small IP header.  See the comments in starfire.c, as well as
+several other bus-master drivers.
+   
 
-When I set the FSB to 133 with PCI=133/4=33 the
-timing code returns 43mhz.
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 
-when I set the FSB to 100 with PCI=100/3=33 then
-it returns 42mhz.
-
-These are scarely different from the nominal values.
-I didn't observe anything bad in the few minutes
-I was running like this, but right now I've hacked
-the driver back to a hardcoded 33.
-
-What should I do next?
-
---phil
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

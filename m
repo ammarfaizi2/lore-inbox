@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269751AbUJAKnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269755AbUJAKuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269751AbUJAKnT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 06:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUJAKnT
+	id S269755AbUJAKuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 06:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUJAKuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 06:43:19 -0400
-Received: from corb.mc.mpls.visi.com ([208.42.156.1]:7124 "EHLO
-	corb.mc.mpls.visi.com") by vger.kernel.org with ESMTP
-	id S269751AbUJAKnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 06:43:17 -0400
-Message-ID: <415D3408.8070201@steinerpoint.com>
-Date: Fri, 01 Oct 2004 05:40:08 -0500
-From: Al Borchers <alborchers@steinerpoint.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: new locking in change_termios breaks USB serial drivers
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 06:50:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:41672 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269755AbUJAKuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 06:50:21 -0400
+Date: Fri, 1 Oct 2004 12:47:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Message-ID: <20041001104723.GH3008@suse.de>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410011154.32670.petkov@uni-muenster.de> <20041001095432.GF3008@suse.de> <200410011234.12462.petkov@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410011234.12462.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.9-rc3 changes the locking in the tty_ioctl.c function
-change_termios().  It gets a spin_lock_irqsave(&tty_termios_lock,...)
-before calling the tty driver's set_termios function.
+On Fri, Oct 01 2004, Borislav Petkov wrote:
+> > > > I don't see any changes that could impact this from 2.6.7 to 2.6.8. We
+> > > > tightened the dma alignment (from 4 to 32 bytes), but should not cause
+> > > > problems going in that direction. Unless the other path is buggy, of
+> > > > course.
+> > > >
+> > > > Does dma make a difference? Please try 2.6.9-rc3 as well.
+> > >
+> > > Sorry guys,
+> > >
+> > > still a no go. Tested today 2.6.8.1 and 2.6.9-rc3 both with DMA
+> > > on/off. same lost interrupt message. How about a hardware problem?
+> > > Maybe the cd-drive is showing some hidden "features" under certain
+> > > conditions, although it is highly unlikely since 2.6.7 runs fine.
+> > > strange...
+> >
+> > I can't say, probably you need to look outside of ide changes to locate
+> > the problem. Have you tried disabling acpi on your box?
+>
+> I'm not sure whether adding the boot option acpi=off is enough to
+> disable ACPI in 2.6, but if this is the case 2.6.9-rc3 is still a no
+> go with acpi disabled. How about APIC? 
 
-This means that the drivers' set_termios functions cannot sleep.
+maybe it would be more useful if you tried the -bk snapshots in between
+2.6.7 and 2.6.8 to locate where the problem started. try the 2.6.8-rc
+first, then try the snapshots in between when you find where the problem
+was introduced.
 
-Unfortunately, many USB serial drivers' set_termios functions
-send an urb to change the termios settings and sleep waiting for
-it to complete.
-
-I just looked quickly, but it seems belkin_sa.c, digi_acceleport.c,
-ftdi_sio.c, io_ti.c, kl5usb105.c, mct_u232.c, pl2303.c, and whiteheat.c
-all sleep in their set_termios functions.
-
-If this locking in change_termios() stays, we are going to have to
-fix set_termios in all of these drivers.  I am updating io_ti.c right
-now.
-
--- Al
+-- 
+Jens Axboe
 

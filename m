@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbTCaJxr>; Mon, 31 Mar 2003 04:53:47 -0500
+	id <S261555AbTCaJ44>; Mon, 31 Mar 2003 04:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261555AbTCaJxr>; Mon, 31 Mar 2003 04:53:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60648 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261550AbTCaJxq>; Mon, 31 Mar 2003 04:53:46 -0500
-Date: Mon, 31 Mar 2003 12:05:03 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Peter Waechtler <pwaechtler@mac.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] fix sound/oss/ics2101.c compilation
-Message-ID: <20030331100503.GD22827@fs.tum.de>
-References: <20030321201012.GO6940@fs.tum.de> <1048443066.1936.2.camel@picklock> <20030330093048.GF10005@fs.tum.de> <1049068012.2798.13.camel@picklock>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049068012.2798.13.camel@picklock>
-User-Agent: Mutt/1.4.1i
+	id <S261567AbTCaJ44>; Mon, 31 Mar 2003 04:56:56 -0500
+Received: from icope-203-146-ban.icope.com ([203.196.146.203]:39164 "HELO
+	icope.com") by vger.kernel.org with SMTP id <S261555AbTCaJ44>;
+	Mon, 31 Mar 2003 04:56:56 -0500
+Message-ID: <3E881337.50903@icope.com>
+Date: Mon, 31 Mar 2003 15:36:47 +0530
+From: _VJ <vjose@icope.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Probs in printk
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 02:04:04AM +0200, Peter Waechtler wrote:
-> 
-> There's a problem when compiling the GUS driver into the kernel
-> instead of as a module. I renamed the global "lock" to "gus_lock"
-> and made sure that it's used (shared by gus_midi, gus_wave, ics2101)
-> 
-> [snippet of sound/oss/Makefile]
-> obj-$(CONFIG_SOUND_GUS)         += gus.o ad1848.o
-> gus-objs        := gus_card.o gus_midi.o gus_vol.o gus_wave.o ics2101.o
-> 
-> 
-> Adrian: Do you have a GUS and can test this?
+Hi,
 
-Unfortunately not, I noticed this problem while doing compile-only tests 
-with a .config that has as much as possible enabled.
+I'm using printk for the device driver I'm writing.It doesn't give the 
+output to my console and the only way I can get those is just using
+cat  /proc/kmsg.But what I want is to get console prints while I'm 
+running .Then I put the kernel image of the remote system where it used 
+to give console output.Still I'm not getting any output to the screen.I 
+tried to use console_print ....not giving any result to the console.So I 
+would like to know what can I do about this
 
-BTW:
-The sound/oss/mad16.c part of your patch doesn't belong to this problem?
+Thanx in advance.
 
-cu
-Adrian
+Vj
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

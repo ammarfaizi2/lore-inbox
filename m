@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286300AbRLJQFe>; Mon, 10 Dec 2001 11:05:34 -0500
+	id <S286303AbRLJQHe>; Mon, 10 Dec 2001 11:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286299AbRLJQFY>; Mon, 10 Dec 2001 11:05:24 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8979 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S286298AbRLJQFJ>; Mon, 10 Dec 2001 11:05:09 -0500
-Date: Mon, 10 Dec 2001 17:04:06 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Clemens <john@deater.net>
-Cc: Cory Bell <cory.bell@usa.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011210170405.B24663@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011209131332.A37@toy.ucw.cz> <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
-User-Agent: Mutt/1.3.20i
+	id <S286299AbRLJQHZ>; Mon, 10 Dec 2001 11:07:25 -0500
+Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:32162 "EHLO
+	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
+	id <S286301AbRLJQHP>; Mon, 10 Dec 2001 11:07:15 -0500
+Date: Mon, 10 Dec 2001 11:05:22 -0500 (EST)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mm question
+In-Reply-To: <E16DSFZ-0002KX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.20.0112101041020.17406-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
-> > > > know what interrupt is right for maestro3, also on omnibook? ;-).
+
+On Mon, 10 Dec 2001, Alan Cox wrote:
+
+> > Right, but then my card refuses to dma into anything with address smaller
+> > than 04000000.
 > 
-> I've updated my bios on my Pavilion N5430 and guess what is shows on
-> the bios boot screen (if you disable the bios splash screen)... Omnibook
-> XE3.  They are one in the same, at least model number wise.  weird,
-> considering there are no AMD omnibooks..
+> What was your board designer on when they decided to bar DMA below 64Mb ?
 
-I *do* have AMD omnibook on my table.
+Not mine (unfortunately ?). The card in question is ATI All-in-Wonder
+Radeon - and I am trying to get video capture working. Unfortunately the
+documentation is quite terse - for example the dma table register
+description mentions its width, offset and "No description is provided".
 
-> > Ouch, you said you have maestro on irq5. And does it *work*? For me,
-> > it plays mp3 but repeats portions even on wrong interrupt.
+Additionally I have to tiptoe my way around DRI driver which also uses
+busmastering.
+
+At the moment I have a working driver with one bug: DMA transfer just does
+not happen into pages with address less than 0x4000000 which is the same
+value as physical address of the ring buffer.
+
+I suspect that this is somehow connected with the amount of available 
+"AGP addressable" memory which is ~64meg less than the total amount on my
+machine. However, looking around in AGP driver or AGP specs does not seem
+to indicate any restriction of the sort and, moreover, I do not need AGP
+for this DMA transfer (it is PCI only).
+
 > 
-> My maestro is on IRQ 5, and the pIRQ table says it should be on IRQ 5, and
-> it works fine. Earlier 2.4 kernels (before .8 or .9) had all sorts of
-> problems with the maestro3 (actually Allegro-1), but i haven't had any
-> problems in a while.. Try ALSA, see if that fixes your problems.
-
-Interrupts are not comming. If I hook it on irq11 (usb), and make usb
-generate interrupts, it plays.
-
-> > > apply to both. If you want to help get the BIOS updated (the root cause,
-> > > IMHO), please call HP support and reference case number 1429683616 (that
-> > > 9 may be a 4 - my handwriting is horrible). That's the case I logged
-> > > with thim about the broken PIR table (USB irq showing 9; being 11) and
-> > > failure to enable sse on athlon 4/duron/xp chips.
+> > amount) but this would place a big load on the system during buffer
+> > allocation.
 > 
-> Good luck.. I emailed HP support, and got the "we're forwarding your
-> request to the BIOS people".. and that was 4 months ago.
-> 
-> Ohh, and Marcelo accepted the K7/SSE patch for 2.4.17, so no need for that
-> patch anymore..
+> And might never terminate
 
-I do not much care about sse, but I'd prefer my sound working :-(.
-								Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I thought of establishing a timeout and giving up after a while. The
+buffer is allocated once for each open on /dev/videoX so it is not too
+critical - though I would not want to cause and OOM condition.
+
+> 
+> > I was hoping for something more elegant, but I am not adverse to writing
+> > my own get_free_page_from_range().
+> 
+> Thats not a trivial task.
+> 
+
+Better than giving up.. Unfortunately looking around in
+linux/Documentation and drivers did not yield much in terms of
+explanation. I know I can use mem_map_reserve to reserve a page but I
+don't know how to get page struct from a physical address nor which lock
+to use when messing with this.
+
+                     thanks
+
+                         Vladimir Dergachev
+

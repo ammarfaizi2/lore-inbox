@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbUCJFdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 00:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCJFdQ
+	id S262254AbUCJFfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 00:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUCJFf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 00:33:16 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59090 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261947AbUCJFdN (ORCPT
+	Wed, 10 Mar 2004 00:35:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24550 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262254AbUCJFfV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 00:33:13 -0500
-Subject: Re: [PATCH] ppc64: Fix occasional crash at boot in OF interface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <404EA513.5060703@tequila.co.jp>
-References: <1078890877.9750.52.camel@gaston>
-	 <404EA513.5060703@tequila.co.jp>
-Content-Type: text/plain
-Message-Id: <1078896591.9861.58.camel@gaston>
+	Wed, 10 Mar 2004 00:35:21 -0500
+Date: Tue, 9 Mar 2004 21:35:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: blk_congestion_wait racy?
+Message-Id: <20040309213518.44adb33d.akpm@osdl.org>
+In-Reply-To: <404EA645.8010900@cyberone.com.au>
+References: <OFAAC6B1AC.5886C5F2-ONC1256E52.0061A30B-C1256E52.0062656E@de.ibm.com>
+	<404EA645.8010900@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 16:29:51 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-10 at 16:18, Clemens Schwaighofer wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Benjamin Herrenschmidt wrote:
-> 
-> is there a reason why you dropped all the comments ?
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> But I'm guessing that you have no requests in flight by the time
+>  blk_congestion_wait gets called, so nothing ever gets kicked.
 
-I dropped the obviously useless ones yes.
+That's why blk_congestion_wait() in -mm propagates the schedule_timeout()
+return value.   You can do:
 
-Ben.
+	if (blk_congestion_wait(...))
+		printk("ouch\n");
 
-
+If your kernel says ouch much, we have a problem.

@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262530AbREZBoi>; Fri, 25 May 2001 21:44:38 -0400
+	id <S262526AbREZBuS>; Fri, 25 May 2001 21:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262535AbREZBo3>; Fri, 25 May 2001 21:44:29 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26119 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262526AbREZBoL>;
-	Fri, 25 May 2001 21:44:11 -0400
-Date: Fri, 25 May 2001 22:43:48 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	id <S262531AbREZBuJ>; Fri, 25 May 2001 21:50:09 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15410 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262526AbREZBtx>; Fri, 25 May 2001 21:49:53 -0400
+Date: Sat, 26 May 2001 03:49:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
-In-Reply-To: <20010526024230.K9634@athlon.random>
-Message-ID: <Pine.LNX.4.21.0105252241550.30264-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010526034922.O9634@athlon.random>
+In-Reply-To: <20010526032741.M9634@athlon.random> <Pine.LNX.4.33.0105252133210.3806-100000@toomuch.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0105252133210.3806-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Fri, May 25, 2001 at 09:38:36PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Andrea Arcangeli wrote:
+On Fri, May 25, 2001 at 09:38:36PM -0400, Ben LaHaise wrote:
+> You're missing a few subtle points:
+> 
+> 	1. reservations are against a specific zone
 
-> Please merge this one in 2.4 for now (originally from Ingo, I only
-> improved it), this is a real definitive fix
+A single zone is not used only for one thing, period. In my previous
+email I enlighted the only conditions under which a reserved pool can
+avoid a deadlock.
 
-With the only minor detail being that it DOESN'T WORK.
+> 	2. try_to_free_pages uses the swap reservation
 
-You're not solving the problems of GFP_BUFFER allocators
-looping forever in __alloc_pages(), the deadlock can still
-happen.
+try_to_free_pages has an huge stacking under it, bounce
+bufferes/loop/nbd/whatever being just some of them.
 
-You've only solved the 1 specific case of highmem.c getting
-a page for bounce buffers, but you'll happily let the thing
-deadlock while trying to get buffer heads for a normal low
-memory page!
+> 	3. irqs can no longer eat memory allocations that are needed for
+> 	   swap
 
-regards,
+you don't even need irq to still deadlock.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+> Note that with this patch the current garbage in the zone structure with
+> pages_min (which doesn't work reliably) becomes obsolete.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+The "garbage" is just an heuristic to allow atomic allocation to work in
+the common case dynamically. Anything deadlock related cannot rely on
+pages_min.
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+I am talking about fixing the thing, of course I perfectly know you can
+hide it pretty well, but I definitely hate those kind of hiding patches.
 
+> > The only case where a reserved pool make sense is when you know that
+> > waiting (i.e. running a task queue, scheduling and trying again to
+> > allocate later) you will succeed the allocation for sure eventually
+> > (possibly with a FIFO policy to make also starvation impossible, not
+> > only deadlocks). If you don't have that guarantee those pools
+> > atuomatically become only a sourcecode and runtime waste, possibly they
+> > could hide core bugs in the allocator or stuff like that.
+> 
+> You're completely wrong here.
+
+I don't think so.
+
+Andrea

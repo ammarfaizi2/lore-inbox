@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290203AbSAQTdx>; Thu, 17 Jan 2002 14:33:53 -0500
+	id <S290200AbSAQTkx>; Thu, 17 Jan 2002 14:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290200AbSAQTdn>; Thu, 17 Jan 2002 14:33:43 -0500
-Received: from suhkur.cc.ioc.ee ([193.40.251.100]:47865 "HELO suhkur.cc.ioc.ee")
-	by vger.kernel.org with SMTP id <S290203AbSAQTde>;
-	Thu, 17 Jan 2002 14:33:34 -0500
-Date: Thu, 17 Jan 2002 21:33:31 +0200 (GMT)
-From: Juhan Ernits <juhan@cc.ioc.ee>
-To: linux-kernel@vger.kernel.org
-Subject: misconfiguration of ne.o module in 2.2.19 damaged hardware. Is it
- normal?
-Message-ID: <Pine.GSO.4.21.0201172119110.18678-100000@suhkur.cc.ioc.ee>
+	id <S290201AbSAQTko>; Thu, 17 Jan 2002 14:40:44 -0500
+Received: from hirogen.kabelfoon.nl ([62.45.45.69]:9997 "HELO
+	hirogen.kabelfoon.nl") by vger.kernel.org with SMTP
+	id <S290200AbSAQTka>; Thu, 17 Jan 2002 14:40:30 -0500
+Message-ID: <3C47284A.9080607@kabelfoon.nl>
+Date: Thu, 17 Jan 2002 20:38:50 +0100
+From: Nick Martens <nickm@kabelfoon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hangs using opengl
+In-Reply-To: <20020117191450.932B64ADB4@drie.kotnet.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frank Dekervel wrote:
 
-Hello!
+> op donderdag 17 januari 2002 18:09 , schreef Nick Martens  in 
+> <3C4712DB.6090201@kabelfoon.nl> :
+> 
+> 
+>>Hi,
+>>I'm having some trouble with my box, at the time that i start an opengl
+>>game in X sometimes the load of my machine gets really high (not in all
+>>games Quake III runs just fine). when i try to move my mouse it won't
+>>move, when i press CTRL-ALT-BACKSPACE nothing happens and I have to
+>>reset my system. Is this kernel related or just an opengl problen ? if
+>>it's kernel related I am running kernel 2.4.5 And my video-card is an
+>>NVIDIA geforce 2 pro 450 from gainward. before this card i had a diamond
+>>viper 770 ultra and the same problem occured. If this is not a kernel
+>>issue: where can i go to solve this ????
+>>
+>>Greets Nick
+>>
+>>
 
-Is the following normal procedure? I've configured many ne2000 nics (and
-also doing some guesswork on their parameters), but never managed to break
-any of them with this.
+Ok thanx all Another thing when it crashes the hd load seems extremely 
+high. system config is Intel P3 1ghz, intel 815 chipset, kernel 2.4.5 
+,xf86 4.1, kde 2.2
 
-The hw setup was the following:
+i also checked my logs:
+/var/log/debug contains:
 
-P166MMX
-Intel 430TX Chipset (Chaintech 5TDM1)
-128MB RAM
-Matrox Millennium graphics adapter
-SB AWE 64 Gold sound card
-DLink DE-250 (ne2000 compatible) 0x280, irq 3
-COM2 disabled in bios
-(the same setup had been working as stable as is possible under MS)
-
-I installed linux on this box (Debian 2.2r4, kernel version 2.2.19).
-Then when configuring the network the module ne.o was chosen. 
-I was sure about the io address but not so sure about the irq. So I
-configured the module with only io address parameter.
-At this point no problems occurred.
-
-Then I configured the network address but the device eth0 did not appear
-to be available (naturally, due to misconfiguration). Since it was part of
-automated install I decided to reboot after this.
-
-Shutdown went fine, but the computer never reached the "beep" at the
-beginning of the boot process, when bios checks memory.
-The computer stopped behaving like this when the nic was removed . Another
-computer behaved in exactly the same way, when the broken nic was
-inserted.
-
-How can such hardware damaging behaviour be avoided (assuming there are
-more such dumb users as me :-)?
-
-Best regards,
-
-Juhan Ernits
-
+Jan 17 20:15:09 nick kernel: CPU: Before vendor init, caps: 0387f9ff 
+00000000 00000000, vendor = 0
+Jan 17 20:15:09 nick kernel: CPU: After vendor init, caps: 0387f9ff 
+00000000 00000000 00000000
+Jan 17 20:15:09 nick kernel: CPU:     After generic, caps: 0383f9ff 
+00000000 00000000 00000000
+Jan 17 20:15:09 nick kernel: CPU:             Common caps: 0383f9ff 
+00000000 00000000 00000000
+Jan 17 20:15:23 nick kernel: agpgart: unsupported bridge
+Jan 17 20:15:23 nick kernel: agpgart: no supported devices found.
 
 

@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261653AbSIWMve>; Mon, 23 Sep 2002 08:51:34 -0400
+	id <S262468AbSIWMy4>; Mon, 23 Sep 2002 08:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262027AbSIWMve>; Mon, 23 Sep 2002 08:51:34 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:56989 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261653AbSIWMvc>; Mon, 23 Sep 2002 08:51:32 -0400
-Date: Mon, 23 Sep 2002 07:56:25 -0500
-From: David Kleikamp <shaggy@austin.ibm.com>
-Message-Id: <200209231256.g8NCuPbx001961@kleikamp.austin.ibm.com>
-To: marcelo@conectiva.com.br
-Subject: [PATCH] JFS: Fix compiler errors in xattr.c
+	id <S262483AbSIWMy4>; Mon, 23 Sep 2002 08:54:56 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:58250 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S262468AbSIWMyz>;
+	Mon, 23 Sep 2002 08:54:55 -0400
+Message-ID: <1032786004.3d8f1054cc069@kolivas.net>
+Date: Mon, 23 Sep 2002 23:00:04 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: andersen@codepoet.org
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+References: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain> <1032777021.3d8eed3d55f53@kolivas.net> <20020923124730.GA7556@codepoet.org>
+In-Reply-To: <20020923124730.GA7556@codepoet.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Quoting Erik Andersen <andersen@codepoet.org>:
 
-This patch can be pulled from bk://jfs.bkbits.net/linux-2.4
+> On Mon Sep 23, 2002 at 08:30:21PM +1000, Con Kolivas wrote:
+> > Yes you make a very valid point and something I've been stewing over
+> privately
+> > for some time. contest runs benchmarks in a fixed order with a "priming"
+> compile
+> > to try and get pagecaches etc back to some sort of baseline (I've been
+> trying
+> > hard to make the results accurate and repeatable). 
+> 
+> It would sure be nice for this sortof test if there were
+> some sort of a "flush-all-caches" syscall...
 
-JFS won't compile without this fix.  I had unintentionally pushed some
-changes to the BK tree you pulled from.  I hadn't pushed this one,
-thinking the earlier ones weren't there.  Please take this one ASAP.
+For the moment I think I'll also add a swapoff/swapon before each compile as
+well (thanks Luuk for the suggestion). I'm still looking at the raw data to
+figure out what to do.
 
-Thanks,
-Shaggy
-
---------------------------------------------------------------
-ChangeSet@1.661.1.8, 2002-09-20 15:38:11-05:00, shaggy@kleikamp.austin.ibm.com
-  JFS: Fix compiler errors in xattr.c
-  
-  Fix errors due to header differences between mainline kernel and
-  acl.bestbits.org patches.
-
- fs/jfs/xattr.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
---------------------------------------------------------------
-
-diff -Nru a/fs/jfs/xattr.c b/fs/jfs/xattr.c
---- a/fs/jfs/xattr.c	Mon Sep 23 07:42:33 2002
-+++ b/fs/jfs/xattr.c	Mon Sep 23 07:42:33 2002
-@@ -640,7 +640,7 @@
- }
- 
- static int can_set_xattr(struct inode *inode, const char *name,
--			 const void *value, size_t value_len)
-+			 void *value, size_t value_len)
- {
- 	if (IS_RDONLY(inode))
- 		return -EROFS;
-@@ -650,7 +650,7 @@
- 
- 	if((strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) != 0) &&
- 	   (strncmp(name, XATTR_OS2_PREFIX, XATTR_OS2_PREFIX_LEN) != 0))
--		return -ENOTSUP;
-+		return -EOPNOTSUPP;
- 
- 	if (!S_ISREG(inode->i_mode) &&
- 	    (!S_ISDIR(inode->i_mode) || inode->i_mode &S_ISVTX))
-@@ -659,7 +659,7 @@
- 	return permission(inode, MAY_WRITE);
- }
- 
--int __jfs_setxattr(struct inode *inode, const char *name, const void *value,
-+int __jfs_setxattr(struct inode *inode, const char *name, void *value,
- 		   size_t value_len, int flags)
- {
- 	struct jfs_ea_list *ealist;
-@@ -798,7 +798,7 @@
- 	return rc;
- }
- 
--int jfs_setxattr(struct dentry *dentry, const char *name, const void *value,
-+int jfs_setxattr(struct dentry *dentry, const char *name, void *value,
- 		 size_t value_len, int flags)
- {
- 	if (value == NULL) {	/* empty EA, do not remove */
+Con.

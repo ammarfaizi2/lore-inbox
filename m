@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316664AbSGVKhR>; Mon, 22 Jul 2002 06:37:17 -0400
+	id <S315388AbSGVApV>; Sun, 21 Jul 2002 20:45:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSGVKhR>; Mon, 22 Jul 2002 06:37:17 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:3364 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316664AbSGVKhR> convert rfc822-to-8bit; Mon, 22 Jul 2002 06:37:17 -0400
-Date: Mon, 22 Jul 2002 04:40:23 -0600 (MDT)
+	id <S315431AbSGVApU>; Sun, 21 Jul 2002 20:45:20 -0400
+Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:31457 "EHLO
+	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S315388AbSGVApU>; Sun, 21 Jul 2002 20:45:20 -0400
+Date: Sun, 21 Jul 2002 18:43:09 -0600 (MDT)
 From: Thunder from the hill <thunder@ngforever.de>
 X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Sami Louko <samppa@pleco.mikrolahti.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: still troubles with an Alpha-kernel
-In-Reply-To: <20020722073941.GA10979@pleco.mikrolahti.fi>
-Message-ID: <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
+To: Jos Hulzink <josh@stack.nl>
+cc: Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Szakacsits Szabolcs <szaka@sienet.hu>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strict VM overcommit
+In-Reply-To: <20020721162011.I69041-100000@turtle.stack.nl>
+Message-ID: <Pine.LNX.4.44.0207211842230.3309-100000@hawkeye.luckynet.adm>
 X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Mon, 22 Jul 2002, Sami Louko wrote:
-> -r--------    1 root     root         4.0T heinä  22 10:38 /proc/kcore
-> 
-> The core shows a bit huge :-/ Four terabytes... huh.
+On Sun, 21 Jul 2002, Jos Hulzink wrote:
+> Maybe it is an option to add the --I_know_Im_stupid option to the swapoff
+> command line ? (Also known as the --force flag). This way we can both
+> return an error when the OS lacks memory and force a swapoff.
 
-Mine (2.4.19-rc2-aa1) is 2 Giga, exactly the RAM size, here...
+What's wrong with the current behavior? If the system can't live without 
+swap, why forcing it dead?
 
 							Regards,
 							Thunder

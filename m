@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292293AbSBPAJR>; Fri, 15 Feb 2002 19:09:17 -0500
+	id <S292294AbSBPAPa>; Fri, 15 Feb 2002 19:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292294AbSBPAJI>; Fri, 15 Feb 2002 19:09:08 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:63904 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S292293AbSBPAIw>;
-	Fri, 15 Feb 2002 19:08:52 -0500
-Message-ID: <3C6DA313.6000408@candelatech.com>
-Date: Fri, 15 Feb 2002 17:08:51 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
+	id <S292295AbSBPAPV>; Fri, 15 Feb 2002 19:15:21 -0500
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:42451
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S292294AbSBPAPJ>; Fri, 15 Feb 2002 19:15:09 -0500
+Date: Fri, 15 Feb 2002 19:15:03 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org> <20020215153636.D32005@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020215171952.D15406@thyrsus.com>
+Message-ID: <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Feb 2002, Eric S. Raymond wrote:
 
-
-Larry McVoy wrote:
-
-> On Sat, Feb 16, 2002 at 12:23:12AM +0100, Matthias Andree wrote:
+> Dave Jones <davej@suse.de>:
+> >  The point being made is that you constantly refuse to listen.
+> >  You ask for an opinion, and when something comes back that isn't
+> >  what you expect, you run off and write something completely 
+> >  different just to appease some fabled Aunt Tilley, then come
+> >  back and say "Ok, how about now?".
 > 
->>Are you telling that kernel programmers don't rewrite code from scratch?
->>Is that a correct interpretation of "improve the existing system"? Note
->>that "it can't be done" can also imply "cannot reasonable be done".
->>
->>If that's not what you mean, stop reading this mail, drop a line to
->>clarify this and forget this piece of mail.
->>
+> I honestly don't undestand how this myth got started, Dave.
 > 
-> That's not what I mean.  But it's worthwhile to note that almost all
-> "rewrite from scratch" projects really translate into "I'm unwilling to
-> learn what the last guy did, and I'm smarter, so I'm going to do what
-> I want to do".  And that is not what kernel programmers do.  They would
-> love to be able to do that but it's very rare that doing so makes sense.
+> >From my point of view, I have been busting my ass trying to *extract*
+> requirements from Linus and other people with a stake.  What guidance
+> I get is vague and contradictory.  My proposals to address it get ignored.
+> Everything I do right gets written off and teensy side issues get 
+> inflated into monsters.
+> 
+> It's utterly maddening to hear people accuse me of not listening when
+> I spend so damn much effort trying to do what they want for so little
+> reward...
+
+Eric....
+
+Again...  Just like I said to you in private email...
+
+Show us that you're able to write a 1 for 1 functional correspondance
+between CML1 and CML2 and propose that for inclusion into 2.5.  This will
+already have the advantage of using a common engine to parse the config
+language regardless of the frontend used, along with the readability and
+compactness of CML2.  This should not cause a too big cultural change.
+
+Wait for a month or two while developers get used to it.  Then and only then
+could you start discussion about advanced CML2 possibilities and features.  
+REmember that Linux development only works like a car that you propose
+individual parts individually and let people comment on them.  Providing the
+whole car already assembled with a "turn key"  package simply doesn't work
+with most car hackers.
+
+As a bonus to further stimulate acceptance of CML2, make it work with the
+tools that most people already have i.e. Python 1.5.
 
 
-I have to call bullshit on this one! :)
-
-The kernel is always getting some module replaced by some other
-module.  Everything from the VM to the recent ALSA merge that
-will kill OSS.  This is not to claim it's always a good thing,
-just that you can't claim this is not what kernel programmers do...
-
-Hell, we gotta be some of the most egotistical folks around,
-it's what keeps us going!
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+Nicolas
 

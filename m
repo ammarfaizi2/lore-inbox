@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUH2J5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUH2KGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267578AbUH2J5V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 05:57:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUH2J5V
+	id S266304AbUH2KGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 06:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUH2KGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 05:57:21 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:10900 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S267578AbUH2J5S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 05:57:18 -0400
-Date: Sun, 29 Aug 2004 12:56:58 +0300
-From: Pekka Pietikainen <pp@ee.oulu.fi>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Brian Somers <brian.somers@sun.com>, Michael.Waychison@sun.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-Message-ID: <20040829095657.GA22755@ee.oulu.fi>
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com> <200408162049.FFF09413.8592816B@anet.ne.jp> <20040816143824.15238e42.davem@redhat.com> <412CD101.4050406@sun.com> <20040825120831.55a20c57.davem@redhat.com> <412CF0E9.2010903@sun.com> <20040825175805.6807014c.davem@redhat.com> <412DC055.4070401@sun.com> <20040826123730.375ce5d2.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20040826123730.375ce5d2.davem@redhat.com>
-User-Agent: Mutt/1.4.2i
+	Sun, 29 Aug 2004 06:06:16 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:16082 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S266304AbUH2KGN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 06:06:13 -0400
+Message-ID: <1093773970.4131aa9251448@imp4-q.free.fr>
+Date: Sun, 29 Aug 2004 12:06:10 +0200
+From: castet.matthieu@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: pnp and acpi_pnp
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 213.228.47.30
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 12:37:30PM -0700, David S. Miller wrote:
-> On Thu, 26 Aug 2004 11:49:57 +0100
-> Brian Somers <brian.somers@sun.com> wrote:
-> 
-> > Can we get this guy to try running an older version of tg3 to see
-> > what change introduce the issue?
-> 
-> Brian, we already narrowed it down to exactly the hw autoneg
-> changes Sun wrote.  It breaks the IBM blades onboard 5704
-> fibre chips.  Reverting your change or disabling hw autoneg
-> in the new code both fix the problem.
-Just another datapoint, an IBM blade with
+Hello,
 
-01:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704S Gigabit
-Ethernet (rev 02)
+in pnpbios Kconfig, it is said that acpi will  supersede PNPBIOS some day.
+But acpi_pnp seem incomplete :
+- It doesn't have got a sysfs entry that let the user see the device he has, and
+let him change some parameters.
+- You can't export pnp alias that let some script (like hotplug) autoload the
+modules you need.
+- Also it seem less precise than pnpbios detection (might be a acpi bug in my
+computer...) : on my laptop I have a serial port (PNP0501) and a ir port
+(PNP0510). The 8250_pnp driver only find the serial port, but the 8250_acpi
+find both ports, but it is not good because I can't load the specific ir driver
+without unloading the serial modules...
+- acpi_pnp doesn't also offer generic function
+(pnp_{port,irq,dma,...}_{start,len,valid,..}) that permit easy discovering of
+the ressource need by the device and don't need specific handler like in
+acpi_pnp.
 
-01:00.1 Class 0200: 14e4:16a8 (rev 02)
-        Subsystem: 1014:029c
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (16000ns min), Cache Line Size 08
-        Interrupt: pin B routed to IRQ 185
-        Region 0: Memory at fbfd0000 (64-bit, non-prefetchable)
-        Region 2: Memory at fbfc0000 (64-bit, non-prefetchable) [size=64K]
-        Capabilities: [40] PCI-X non-bridge device.
-                Command: DPERE- ERO- RBC=2 OST=0
-                Status: Bus=1 Dev=0 Func=1 64bit+ 133MHz+ SCD- USC-,
-DC=simple, DMMRBC=2, DMOST=0, DMCRS=1, RSCEM-
-        Capabilities: [48] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable+ DSel=0 DScale=1 PME-
-        Capabilities: [50] Vital Product Data
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3
-Enable-
-                Address: 0000000100000000  Data: 5900
+Also if you want support pnpbios and acpi_pnp (not eveybody had a working
+acpi...) you had to duplicate your code (and even do 2 modules like serial
+module does). If acpi_pnp id will be exported it would be even worse because
+the 2 drivers will register the same device, and because pnpbios automatiquely
+disable device (and free the resource it uses) if the probe fail, it could be
+very problematic...
 
-doesn't work with the hw autoneg stuff in fc2's 2.6.8-1.521, #if 0
-around the
+So could it be possible to integreate acpi_pnp in pnp protocol that already
+supprt pnpbios and isapnp ?
+Also I believe it must do before too much driver use acpi_pnp.
 
-        if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5704 &&
-            tp->phy_id == PHY_ID_SERDES) {
-                /* Enable hardware link auto-negotiation */
-		...
-	} 
+Thanks.
 
-makes it work. So it looks like a A2 vs. A3 (or
-PCI_SUBSYSTEM_VENDOR_IBM ;) ) thing.
+Matthieu
 
-Btw., a ethtool workaround would be appreciated or is that even possible? I
-tried ethtool -s eth1 speed 1000 duplex full port fibre autoneg off without
-luck. But that was over a java-based VNC thing run remotely over SSH port
-forwarding that gets keyboard mappings wrong, so I didn't spend too much
-time playing around :-)
+PS : for the people that think that pnp is useless, they can look for example
+how some alsa driver try to manage mpu and joystick without it (for example in
+intel8x0.c, they register the LPC (hopefully some clever driver like i8xx_tco
+or hw_random that use also the lpc don't register it...), for the jostick they
+duplicate generic code from ns558 that can autodetect the port via pnp and find
+the good one (alsa driver alway thinks the gameport is on io 0x200, but in
+reality it is on io 0x201 on my computer...), it is the same for mpu and the
+generic module snd-mpu401(only support acpi pnp, but I had a version that
+support pnpbios), and the intel8x0.c don't handle mpu irq whereas snd-mpu401
+does...
 
--- 
-Pekka Pietikainen
+PS2 : please CC me since I'm not subscribed to lkml.

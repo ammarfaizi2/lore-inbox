@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265421AbRF0WLv>; Wed, 27 Jun 2001 18:11:51 -0400
+	id <S265432AbRF0WPL>; Wed, 27 Jun 2001 18:15:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265429AbRF0WLp>; Wed, 27 Jun 2001 18:11:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62983 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265421AbRF0WLc>; Wed, 27 Jun 2001 18:11:32 -0400
-Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using cyr ixIII
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Wed, 27 Jun 2001 23:10:47 +0100 (BST)
-Cc: FrankZhu@viatech.com.cn, linux-kernel@vger.kernel.org
-In-Reply-To: <200106272019.WAA29237@harpo.it.uu.se> from "Mikael Pettersson" at Jun 27, 2001 10:19:37 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265429AbRF0WPB>; Wed, 27 Jun 2001 18:15:01 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:10695 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265432AbRF0WOt>;
+	Wed, 27 Jun 2001 18:14:49 -0400
+Message-ID: <3B3A5B00.9FF387C9@mandrakesoft.com>
+Date: Wed, 27 Jun 2001 18:15:28 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: tom_gall@vnet.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15FNWJ-0005xB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is that VIA Cyrix III announces itself (via CPUID)
-> as a "family 6" processor, i.e. i686 compatible. This is not
-> completely accurate, since it doesn't implement the conditional
-> move instruction. [Yeah, I know there's a CPUID feature flag for
+Tom Gall wrote:
+>   The first part changes number, primary, and secondary to unsigned ints from
+> chars. What we do is encode the PCI "domain" aka PCI Primary Host Bridge, aka
+> pci controller in with the bus number. In our case we do it like this:
+> 
+> pci_controller=dev->bus->number>>8) &0xFF0000
+> bus_number= dev->bus->number&0x0000FF),
+> 
+>   Is this reasonable for everyone?
 
-Intel specifically state that you cannot use CMOV without checking
-for it. Its actually a gcc/binutils tool bug. The CPU is right.
+Why not use sysdata like the other arches?
 
-> To make the machine work you'll have to ensure that the kernel,
-> user-space libraries and programs, and NFS-imported programs
-> all are compiled for a lesser CPU than i686.
+Changing the meaning of dev->bus->number globally seems pointless.  If
+you are going to do that, just do it the right way and introduce another
+struct member, pci_domain or somesuch.
 
-For RH 
+	Jeff
 
-	rpm -qa |grep ".i686*"
 
-and update the packages listed with their i586/i386 ones. 
-
-Alan
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,559 +1,380 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbUKCDqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUKCDzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbUKCDqz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 22:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUKCDqz
+	id S261371AbUKCDzi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 22:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbUKCDzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 22:46:55 -0500
-Received: from ozlabs.org ([203.10.76.45]:7089 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261402AbUKCDpz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 22:45:55 -0500
-Date: Wed, 3 Nov 2004 14:44:33 +1100
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Roskin <proski@gnu.org>,
-       orinoco-deve@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Another trivial orinoco update
-Message-ID: <20041103034433.GB5441@zax>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	Pavel Roskin <proski@gnu.org>, orinoco-deve@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
+	Tue, 2 Nov 2004 22:55:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29928 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261371AbUKCDyy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 22:54:54 -0500
+Date: Wed, 3 Nov 2004 03:54:53 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-kernel@vger.kernel.org
+Subject: compat syscalls naming standardisation
+Message-ID: <20041103035453.GR24690@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff/Andrew please apply:
 
-This patch alters the convention with which orinoco_lock() is invoked
-in the orinoco driver.  This should cause no behavioural change, but
-reduces meaningless diffs between the mainline and CVS version of the
-driver.  Another small step towards a merge.
+On PA-RISC, we have a unified syscall table for 32 and 64 bit that uses
+macros to generate the appropriate syscall names (native vs compat).
+For this to work, we need consistent compat syscall names.  Unfortunately,
+some recent additions drop the 'sys_'.  This patch won't apply now that
+the sys_ni.c patch is in.  I'll rediff it against -bk tomorrow morning
+and submit it.
 
-Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
-
-Index: working-2.6/drivers/net/wireless/orinoco.c
-===================================================================
---- working-2.6.orig/drivers/net/wireless/orinoco.c	2004-11-03 12:08:34.464080384 +1100
-+++ working-2.6/drivers/net/wireless/orinoco.c	2004-11-03 13:34:38.339052064 +1100
-@@ -617,9 +617,8 @@
- 	unsigned long flags;
- 	int err;
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/ia64/ia32/ia32_entry.S parisc-2.6-bk/arch/ia64/ia32/ia32_entry.S
+--- linux-2.6.10-rc1-bk12/arch/ia64/ia32/ia32_entry.S	Fri Oct 22 15:39:40 2004
++++ parisc-2.6-bk/arch/ia64/ia32/ia32_entry.S	Tue Nov  2 08:14:03 2004
+@@ -470,16 +470,16 @@ ia32_syscall_table:
+ 	data8 sys_remap_file_pages
+ 	data8 sys_set_tid_address
+  	data8 sys32_timer_create
+- 	data8 compat_timer_settime	/* 260 */
+- 	data8 compat_timer_gettime
++ 	data8 compat_sys_timer_settime	/* 260 */
++ 	data8 compat_sys_timer_gettime
+  	data8 sys_timer_getoverrun
+  	data8 sys_timer_delete
+- 	data8 compat_clock_settime
+- 	data8 compat_clock_gettime /* 265 */
+- 	data8 compat_clock_getres
+- 	data8 compat_clock_nanosleep
+-	data8 compat_statfs64
+-	data8 compat_fstatfs64
++ 	data8 compat_sys_clock_settime
++ 	data8 compat_sys_clock_gettime /* 265 */
++ 	data8 compat_sys_clock_getres
++ 	data8 compat_sys_clock_nanosleep
++	data8 compat_sys_statfs64
++	data8 compat_sys_fstatfs64
+  	data8 sys_tgkill	/* 270 */
+  	data8 compat_sys_utimes
+  	data8 sys32_fadvise64_64
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/ppc64/kernel/misc.S parisc-2.6-bk/arch/ppc64/kernel/misc.S
+--- linux-2.6.10-rc1-bk12/arch/ppc64/kernel/misc.S	Tue Nov  2 07:52:20 2004
++++ parisc-2.6-bk/arch/ppc64/kernel/misc.S	Tue Nov  2 08:14:09 2004
+@@ -935,27 +935,27 @@ _GLOBAL(sys_call_table32)
+ 	.llong .sys_epoll_wait
+ 	.llong .sys_remap_file_pages
+ 	.llong .ppc32_timer_create	/* 240 */
+-	.llong .compat_timer_settime
+-	.llong .compat_timer_gettime
++	.llong .compat_sys_timer_settime
++	.llong .compat_sys_timer_gettime
+ 	.llong .sys_timer_getoverrun
+ 	.llong .sys_timer_delete
+-	.llong .compat_clock_settime	/* 245 */
+-	.llong .compat_clock_gettime
+-	.llong .compat_clock_getres
+-	.llong .compat_clock_nanosleep
++	.llong .compat_sys_clock_settime	/* 245 */
++	.llong .compat_sys_clock_gettime
++	.llong .compat_sys_clock_getres
++	.llong .compat_sys_clock_nanosleep
+ 	.llong .ppc32_swapcontext
+ 	.llong .sys32_tgkill		/* 250 */
+ 	.llong .sys32_utimes
+-	.llong .compat_statfs64
+-	.llong .compat_fstatfs64
++	.llong .compat_sys_statfs64
++	.llong .compat_sys_fstatfs64
+ 	.llong .ppc32_fadvise64_64	/* 32bit only fadvise64_64 */
+ 	.llong .ppc_rtas		/* 255 */
+ 	.llong .sys_ni_syscall		/* 256 reserved for sys_debug_setcontext */
+ 	.llong .sys_ni_syscall		/* 257 reserved for vserver */
+ 	.llong .sys_ni_syscall		/* 258 reserved for new sys_remap_file_pages */
+-	.llong .compat_mbind
+-	.llong .compat_get_mempolicy	/* 260 */
+-	.llong .compat_set_mempolicy
++	.llong .compat_sys_mbind
++	.llong .compat_sys_get_mempolicy	/* 260 */
++	.llong .compat_sys_set_mempolicy
+ 	.llong .compat_sys_mq_open
+ 	.llong .sys_mq_unlink
+ 	.llong .compat_sys_mq_timedsend
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/s390/kernel/compat_wrapper.S parisc-2.6-bk/arch/s390/kernel/compat_wrapper.S
+--- linux-2.6.10-rc1-bk12/arch/s390/kernel/compat_wrapper.S	Fri Oct 22 15:40:29 2004
++++ parisc-2.6-bk/arch/s390/kernel/compat_wrapper.S	Tue Nov  2 08:14:11 2004
+@@ -1262,19 +1262,19 @@ sys32_fadvise64_64_wrapper:
+ sys32_clock_settime_wrapper:
+ 	lgfr	%r2,%r2			# clockid_t (int)
+ 	llgtr	%r3,%r3			# struct compat_timespec *
+-	jg	compat_clock_settime
++	jg	compat_sys_clock_settime
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
+ 	.globl	sys32_clock_gettime_wrapper
+ sys32_clock_gettime_wrapper:
+ 	lgfr	%r2,%r2			# clockid_t (int)
+ 	llgtr	%r3,%r3			# struct compat_timespec *
+-	jg	compat_clock_gettime
++	jg	compat_sys_clock_gettime
  
- 	err = __orinoco_up(dev);
+ 	.globl	sys32_clock_getres_wrapper
+ sys32_clock_getres_wrapper:
+ 	lgfr	%r2,%r2			# clockid_t (int)
+ 	llgtr	%r3,%r3			# struct compat_timespec *
+-	jg	compat_clock_getres
++	jg	compat_sys_clock_getres
  
-@@ -671,10 +670,9 @@
- 		return NULL; /* FIXME: Can we do better than this? */
- 	}
+ 	.globl	sys32_clock_nanosleep_wrapper
+ sys32_clock_nanosleep_wrapper:
+@@ -1282,7 +1282,7 @@ sys32_clock_nanosleep_wrapper:
+ 	lgfr	%r3,%r3			# int
+ 	llgtr	%r4,%r4			# struct compat_timespec *
+ 	llgtr	%r5,%r5			# struct compat_timespec *
+-	jg	compat_clock_nanosleep
++	jg	compat_sys_clock_nanosleep
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return NULL; /* FIXME: Erg, we've been signalled, how
--			      * do we propagate this back up? */
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return NULL;  /* FIXME: Erg, we've been signalled, how
-+			       * do we propagate this back up? */
+ 	.globl	sys32_timer_create_wrapper
+ sys32_timer_create_wrapper:
+@@ -1297,13 +1297,13 @@ sys32_timer_settime_wrapper:
+ 	lgfr	%r3,%r3			# int
+ 	llgtr	%r4,%r4			# struct compat_itimerspec *
+ 	llgtr	%r5,%r5			# struct compat_itimerspec *
+-	jg	compat_timer_settime
++	jg	compat_sys_timer_settime
  
- 	if (priv->iw_mode == IW_MODE_ADHOC) {
- 		memset(&wstats->qual, 0, sizeof(wstats->qual));
-@@ -1822,10 +1820,8 @@
- 		return 0;
- 	}
+ 	.globl	sys32_timer_gettime_wrapper
+ sys32_timer_gettime_wrapper:
+ 	lgfr	%r2,%r2			# timer_t (int)
+ 	llgtr	%r3,%r3			# struct compat_itimerspec *
+-	jg	compat_timer_gettime
++	jg	compat_sys_timer_gettime
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
--
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 		
- 	err = hermes_disable_port(hw, 0);
- 	if (err) {
-@@ -1867,11 +1863,10 @@
+ 	.globl	sys32_timer_getoverrun_wrapper
+ sys32_timer_getoverrun_wrapper:
+@@ -1354,14 +1354,14 @@ compat_sys_statfs64_wrapper:
+ 	llgtr	%r2,%r2			# const char *
+ 	llgfr	%r3,%r3			# compat_size_t
+ 	llgtr	%r4,%r4			# struct compat_statfs64 *
+-	jg	compat_statfs64
++	jg	compat_sys_statfs64
+ 
+ 	.globl compat_sys_fstatfs64_wrapper
+ compat_sys_fstatfs64_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int fd
+ 	llgfr	%r3,%r3			# compat_size_t
+ 	llgtr	%r4,%r4			# struct compat_statfs64 *
+-	jg	compat_fstatfs64
++	jg	compat_sys_fstatfs64
+ 
+ 	.globl	compat_sys_mq_open_wrapper
+ compat_sys_mq_open_wrapper:
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/sparc64/kernel/sys32.S parisc-2.6-bk/arch/sparc64/kernel/sys32.S
+--- linux-2.6.10-rc1-bk12/arch/sparc64/kernel/sys32.S	Fri Oct 22 15:38:39 2004
++++ parisc-2.6-bk/arch/sparc64/kernel/sys32.S	Tue Nov  2 08:14:12 2004
+@@ -84,9 +84,9 @@ SIGN2(sys32_fadvise64_64, compat_sys_fad
+ SIGN2(sys32_bdflush, sys_bdflush, %o0, %o1)
+ SIGN1(sys32_mlockall, sys_mlockall, %o0)
+ SIGN1(sys32_nfsservctl, compat_sys_nfsservctl, %o0)
+-SIGN1(sys32_clock_settime, compat_clock_settime, %o1)
+-SIGN1(sys32_clock_nanosleep, compat_clock_nanosleep, %o1)
+-SIGN1(sys32_timer_settime, compat_timer_settime, %o1)
++SIGN1(sys32_clock_settime, compat_sys_clock_settime, %o1)
++SIGN1(sys32_clock_nanosleep, compat_sys_clock_nanosleep, %o1)
++SIGN1(sys32_timer_settime, compat_sys_timer_settime, %o1)
+ SIGN1(sys32_io_submit, compat_sys_io_submit, %o1)
+ SIGN1(sys32_mq_open, compat_sys_mq_open, %o1)
+ SIGN1(sys32_select, compat_sys_select, %o0)
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/sparc64/kernel/systbls.S parisc-2.6-bk/arch/sparc64/kernel/systbls.S
+--- linux-2.6.10-rc1-bk12/arch/sparc64/kernel/systbls.S	Tue Nov  2 07:52:20 2004
++++ parisc-2.6-bk/arch/sparc64/kernel/systbls.S	Tue Nov  2 08:14:12 2004
+@@ -60,19 +60,19 @@ sys_call_table32:
+ 	.word sys32_setpgid, sys32_fremovexattr, sys32_tkill, sys32_exit_group, sparc64_newuname
+ /*190*/	.word sys32_init_module, sparc64_personality, sys_remap_file_pages, sys32_epoll_create, sys32_epoll_ctl
+ 	.word sys32_epoll_wait, sys_nis_syscall, sys_getppid, sys32_sigaction, sys_sgetmask
+-/*200*/	.word sys32_ssetmask, sys_sigsuspend, compat_sys_newlstat, sys_uselib, compat_old_readdir
++/*200*/	.word sys32_ssetmask, sys_sigsuspend, compat_sys_newlstat, sys_uselib, compat_sys_old_readdir
+ 	.word sys32_readahead, sys32_socketcall, sys32_syslog, sys32_lookup_dcookie, sys32_fadvise64
+ /*210*/	.word sys32_fadvise64_64, sys32_tgkill, sys32_waitpid, sys_swapoff, sys32_sysinfo
+ 	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_nis_syscall, sys32_adjtimex
+ /*220*/	.word sys32_sigprocmask, sys_ni_syscall, sys32_delete_module, sys_ni_syscall, sys32_getpgid
+ 	.word sys32_bdflush, sys32_sysfs, sys_nis_syscall, sys32_setfsuid16, sys32_setfsgid16
+-/*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_statfs64
+-	.word compat_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys32_mlockall
++/*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_sys_statfs64
++	.word compat_sys_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys32_mlockall
+ /*240*/	.word sys_munlockall, sys32_sched_setparam, sys32_sched_getparam, sys32_sched_setscheduler, sys32_sched_getscheduler
+ 	.word sys_sched_yield, sys32_sched_get_priority_max, sys32_sched_get_priority_min, sys32_sched_rr_get_interval, compat_sys_nanosleep
+ /*250*/	.word sys32_mremap, sys32_sysctl, sys32_getsid, sys_fdatasync, sys32_nfsservctl
+-	.word sys_ni_syscall, sys32_clock_settime, compat_clock_gettime, compat_clock_getres, sys32_clock_nanosleep
+-/*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, sys32_timer_settime, compat_timer_gettime, sys_timer_getoverrun
++	.word sys_ni_syscall, sys32_clock_settime, compat_sys_clock_gettime, compat_sys_clock_getres, sys32_clock_nanosleep
++/*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, sys32_timer_settime, compat_sys_timer_gettime, sys_timer_getoverrun
+ 	.word sys_timer_delete, sys32_timer_create, sys_ni_syscall, compat_sys_io_setup, sys_io_destroy
+ /*270*/	.word sys32_io_submit, sys_io_cancel, compat_sys_io_getevents, sys32_mq_open, sys_mq_unlink
+ 	.word sys_mq_timedsend, sys_mq_timedreceive, compat_sys_mq_notify, compat_sys_mq_getsetattr, compat_sys_waitid
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/arch/x86_64/ia32/ia32entry.S parisc-2.6-bk/arch/x86_64/ia32/ia32entry.S
+--- linux-2.6.10-rc1-bk12/arch/x86_64/ia32/ia32entry.S	Fri Oct 22 15:39:07 2004
++++ parisc-2.6-bk/arch/x86_64/ia32/ia32entry.S	Tue Nov  2 08:14:12 2004
+@@ -562,22 +562,22 @@ ia32_sys_call_table:
+ 	.quad sys_remap_file_pages
+ 	.quad sys_set_tid_address
+ 	.quad sys32_timer_create
+-	.quad compat_timer_settime	/* 260 */
+-	.quad compat_timer_gettime
++	.quad compat_sys_timer_settime	/* 260 */
++	.quad compat_sys_timer_gettime
+ 	.quad sys_timer_getoverrun
+ 	.quad sys_timer_delete
+-	.quad compat_clock_settime
+-	.quad compat_clock_gettime	/* 265 */
+-	.quad compat_clock_getres
+-	.quad compat_clock_nanosleep
+-	.quad compat_statfs64
+-	.quad compat_fstatfs64
++	.quad compat_sys_clock_settime
++	.quad compat_sys_clock_gettime	/* 265 */
++	.quad compat_sys_clock_getres
++	.quad compat_sys_clock_nanosleep
++	.quad compat_sys_statfs64
++	.quad compat_sys_fstatfs64
+ 	.quad sys_tgkill		/* 270 */
+ 	.quad compat_sys_utimes
+ 	.quad sys32_fadvise64_64
+ 	.quad quiet_ni_syscall	/* sys_vserver */
+ 	.quad sys_mbind
+-	.quad compat_get_mempolicy	/* 275 */
++	.quad compat_sys_get_mempolicy	/* 275 */
+ 	.quad sys_set_mempolicy
+ 	.quad compat_sys_mq_open
+ 	.quad sys_mq_unlink
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/fs/compat.c parisc-2.6-bk/fs/compat.c
+--- linux-2.6.10-rc1-bk12/fs/compat.c	Fri Oct 22 15:39:07 2004
++++ parisc-2.6-bk/fs/compat.c	Tue Nov  2 08:14:31 2004
+@@ -205,7 +205,7 @@ static int put_compat_statfs64(struct co
+ 	return 0;
+ }
+ 
+-asmlinkage long compat_statfs64(const char __user *path, compat_size_t sz, struct compat_statfs64 __user *buf)
++asmlinkage long compat_sys_statfs64(const char __user *path, compat_size_t sz, struct compat_statfs64 __user *buf)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	struct hermes *hw = &priv->hw;
--	int err;
-+	int err = 0;
- 	unsigned long flags;
+ 	struct nameidata nd;
+ 	int error;
+@@ -224,7 +224,7 @@ asmlinkage long compat_statfs64(const ch
+ 	return error;
+ }
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
-+	if (orinoco_lock(priv, &flags) != 0)
- 		/* When the hardware becomes available again, whatever
- 		 * detects that is responsible for re-initializing
- 		 * it. So no need for anything further */
-@@ -2414,9 +2409,8 @@
- 	int err = 0;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	err = hermes_read_ltv(hw, USER_BAP, HERMES_RID_CURRENTBSSID,
- 			      ETH_ALEN, NULL, buf);
-@@ -2436,9 +2430,8 @@
- 	int len;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	if (strlen(priv->desired_essid) > 0) {
- 		/* We read the desired SSID from the hardware rather
-@@ -2489,9 +2482,8 @@
- 	long freq = 0;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	
- 	err = hermes_read_wordrec(hw, USER_BAP, HERMES_RID_CURRENTCHANNEL, &channel);
- 	if (err)
-@@ -2531,9 +2523,8 @@
- 	int i;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	err = hermes_read_ltv(hw, USER_BAP, HERMES_RID_SUPPORTEDDATARATES,
- 			      sizeof(list), NULL, &list);
-@@ -2571,9 +2562,8 @@
- 
- 	rrq->length = sizeof(range);
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	mode = priv->iw_mode;
- 	orinoco_unlock(priv, &flags);
-@@ -2642,9 +2632,8 @@
- 	range.min_frag = 256;
- 	range.max_frag = 2346;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	if (priv->has_wep) {
- 		range.max_encoding_tokens = ORINOCO_MAX_KEYS;
- 
-@@ -2709,10 +2698,9 @@
- 		if (copy_from_user(keybuf, erq->pointer, erq->length))
- 			return -EFAULT;
- 	}
--	
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	
- 	if (erq->pointer) {
- 		if (erq->length > ORINOCO_MAX_KEY_SIZE) {
-@@ -2791,12 +2779,10 @@
- 	int index = (erq->flags & IW_ENCODE_INDEX) - 1;
- 	u16 xlen = 0;
- 	char keybuf[ORINOCO_MAX_KEY_SIZE];
--	int err;
- 	unsigned long flags;
--	
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	if ((index < 0) || (index >= ORINOCO_MAX_KEYS))
- 		index = priv->tx_key;
-@@ -2836,7 +2822,6 @@
+-asmlinkage long compat_fstatfs64(unsigned int fd, compat_size_t sz, struct compat_statfs64 __user *buf)
++asmlinkage long compat_sys_fstatfs64(unsigned int fd, compat_size_t sz, struct compat_statfs64 __user *buf)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	char essidbuf[IW_ESSID_MAX_SIZE+1];
--	int err;
- 	unsigned long flags;
+ 	struct file * file;
+ 	struct kstatfs tmp;
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/kernel/compat.c parisc-2.6-bk/kernel/compat.c
+--- linux-2.6.10-rc1-bk12/kernel/compat.c	Fri Oct 22 15:39:19 2004
++++ parisc-2.6-bk/kernel/compat.c	Tue Nov  2 08:14:43 2004
+@@ -484,7 +485,7 @@ static int put_compat_itimerspec(struct 
+ 	return 0;
+ } 
  
- 	/* Note : ESSID is ignored in Ad-Hoc demo mode, but we can set it
-@@ -2854,9 +2839,8 @@
- 		essidbuf[erq->length] = '\0';
- 	}
+-long compat_timer_settime(timer_t timer_id, int flags, 
++long compat_sys_timer_settime(timer_t timer_id, int flags, 
+ 			  struct compat_itimerspec __user *new, 
+ 			  struct compat_itimerspec __user *old)
+ { 
+@@ -507,7 +508,7 @@ long compat_timer_settime(timer_t timer_
+ 	return err;
+ } 
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
+-long compat_timer_gettime(timer_t timer_id,
++long compat_sys_timer_gettime(timer_t timer_id,
+ 		struct compat_itimerspec __user *setting)
+ { 
+ 	long err;
+@@ -524,7 +525,7 @@ long compat_timer_gettime(timer_t timer_
+ 	return err;
+ } 
  
- 	memcpy(priv->desired_essid, essidbuf, sizeof(priv->desired_essid));
- 
-@@ -2880,9 +2864,8 @@
- 		if (err)
- 			return err;
- 	} else {
--		err = orinoco_lock(priv, &flags);
--		if (err)
--			return err;
-+		if (orinoco_lock(priv, &flags) != 0)
-+			return -EBUSY;
- 		memcpy(essidbuf, priv->desired_essid, sizeof(essidbuf));
- 		orinoco_unlock(priv, &flags);
- 	}
-@@ -2902,7 +2885,6 @@
+-long compat_clock_settime(clockid_t which_clock,
++long compat_sys_clock_settime(clockid_t which_clock,
+ 		struct compat_timespec __user *tp)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	char nickbuf[IW_ESSID_MAX_SIZE+1];
--	int err;
- 	unsigned long flags;
+ 	long err;
+@@ -541,7 +542,7 @@ long compat_clock_settime(clockid_t whic
+ 	return err;
+ } 
  
- 	if (nrq->length > IW_ESSID_MAX_SIZE)
-@@ -2915,9 +2897,8 @@
- 
- 	nickbuf[nrq->length] = '\0';
- 	
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	memcpy(priv->nick, nickbuf, sizeof(priv->nick));
- 
-@@ -2930,12 +2911,10 @@
+-long compat_clock_gettime(clockid_t which_clock,
++long compat_sys_clock_gettime(clockid_t which_clock,
+ 		struct compat_timespec __user *tp)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	char nickbuf[IW_ESSID_MAX_SIZE+1];
--	int err;
- 	unsigned long flags;
+ 	long err;
+@@ -558,7 +559,7 @@ long compat_clock_gettime(clockid_t whic
+ 	return err;
+ } 
  
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	memcpy(nickbuf, priv->nick, IW_ESSID_MAX_SIZE+1);
- 	orinoco_unlock(priv, &flags);
-@@ -2952,7 +2931,6 @@
+-long compat_clock_getres(clockid_t which_clock,
++long compat_sys_clock_getres(clockid_t which_clock,
+ 		struct compat_timespec __user *tp)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int chan = -1;
--	int err;
- 	unsigned long flags;
+ 	long err;
+@@ -575,7 +576,7 @@ long compat_clock_getres(clockid_t which
+ 	return err;
+ } 
  
- 	/* We can only use this in Ad-Hoc demo mode to set the operating
-@@ -2981,9 +2959,8 @@
- 	     ! (priv->channel_mask & (1 << (chan-1)) ) )
- 		return -EINVAL;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	priv->channel = chan;
- 	orinoco_unlock(priv, &flags);
- 
-@@ -3001,9 +2978,8 @@
- 	if (!priv->has_sensitivity)
- 		return -EOPNOTSUPP;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	err = hermes_read_wordrec(hw, USER_BAP,
- 				  HERMES_RID_CNFSYSTEMSCALE, &val);
- 	orinoco_unlock(priv, &flags);
-@@ -3021,7 +2997,6 @@
+-long compat_clock_nanosleep(clockid_t which_clock, int flags,
++long compat_sys_clock_nanosleep(clockid_t which_clock, int flags,
+ 			    struct compat_timespec __user *rqtp,
+ 			    struct compat_timespec __user *rmtp)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int val = srq->value;
--	int err;
- 	unsigned long flags;
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/kernel/sys.c parisc-2.6-bk/kernel/sys.c
+--- linux-2.6.10-rc1-bk12/kernel/sys.c	Tue Nov  2 07:52:28 2004
++++ parisc-2.6-bk/kernel/sys.c	Tue Nov  2 08:14:43 2004
+@@ -280,9 +280,9 @@ cond_syscall(compat_sys_mq_getsetattr)
+ cond_syscall(sys_mbind)
+ cond_syscall(sys_get_mempolicy)
+ cond_syscall(sys_set_mempolicy)
+-cond_syscall(compat_mbind)
+-cond_syscall(compat_get_mempolicy)
+-cond_syscall(compat_set_mempolicy)
++cond_syscall(compat_sys_mbind)
++cond_syscall(compat_sys_get_mempolicy)
++cond_syscall(compat_sys_set_mempolicy)
+ cond_syscall(sys_add_key)
+ cond_syscall(sys_request_key)
+ cond_syscall(sys_keyctl)
+diff -urpNX dontdiff linux-2.6.10-rc1-bk12/mm/mempolicy.c parisc-2.6-bk/mm/mempolicy.c
+--- linux-2.6.10-rc1-bk12/mm/mempolicy.c	Tue Nov  2 07:52:28 2004
++++ parisc-2.6-bk/mm/mempolicy.c	Tue Nov  2 08:14:44 2004
+@@ -530,7 +530,7 @@ asmlinkage long sys_get_mempolicy(int __
  
- 	if (!priv->has_sensitivity)
-@@ -3030,9 +3005,8 @@
- 	if ((val < 1) || (val > 3))
- 		return -EINVAL;
- 	
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	priv->ap_density = val;
- 	orinoco_unlock(priv, &flags);
+ #ifdef CONFIG_COMPAT
  
-@@ -3043,7 +3017,6 @@
+-asmlinkage long compat_get_mempolicy(int __user *policy,
++asmlinkage long compat_sys_get_mempolicy(int __user *policy,
+ 				     compat_ulong_t __user *nmask,
+ 				     compat_ulong_t maxnode,
+ 				     compat_ulong_t addr, compat_ulong_t flags)
+@@ -558,7 +558,7 @@ asmlinkage long compat_get_mempolicy(int
+ 	return err;
+ }
+ 
+-asmlinkage long compat_set_mempolicy(int mode, compat_ulong_t __user *nmask,
++asmlinkage long compat_sys_set_mempolicy(int mode, compat_ulong_t __user *nmask,
+ 				     compat_ulong_t maxnode)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int val = rrq->value;
--	int err;
- 	unsigned long flags;
+ 	long err = 0;
+@@ -581,7 +581,7 @@ asmlinkage long compat_set_mempolicy(int
+ 	return sys_set_mempolicy(mode, nm, nr_bits+1);
+ }
  
- 	if (rrq->disabled)
-@@ -3052,9 +3025,8 @@
- 	if ( (val < 0) || (val > 2347) )
- 		return -EINVAL;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	priv->rts_thresh = val;
- 	orinoco_unlock(priv, &flags);
-@@ -3068,9 +3040,8 @@
- 	int err = 0;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	if (priv->has_mwo) {
- 		if (frq->disabled)
-@@ -3106,9 +3077,8 @@
- 	u16 val;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	
- 	if (priv->has_mwo) {
- 		err = hermes_read_wordrec(hw, USER_BAP,
-@@ -3170,9 +3140,8 @@
- 	if (ratemode == -1)
- 		return -EINVAL;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	priv->bitratemode = ratemode;
- 	orinoco_unlock(priv, &flags);
- 
-@@ -3189,9 +3158,8 @@
- 	u16 val;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	ratemode = priv->bitratemode;
- 
-@@ -3251,9 +3219,8 @@
- 	int err = 0;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	if (prq->disabled) {
- 		priv->pm_on = 0;
-@@ -3306,9 +3273,8 @@
- 	u16 enable, period, timeout, mcast;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	
- 	err = hermes_read_wordrec(hw, USER_BAP, HERMES_RID_CNFPMENABLED, &enable);
- 	if (err)
-@@ -3355,9 +3321,8 @@
- 	u16 short_limit, long_limit, lifetime;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 	
- 	err = hermes_read_wordrec(hw, USER_BAP, HERMES_RID_SHORTRETRYLIMIT,
- 				  &short_limit);
-@@ -3403,12 +3368,10 @@
+-asmlinkage long compat_mbind(compat_ulong_t start, compat_ulong_t len,
++asmlinkage long compat_sys_mbind(compat_ulong_t start, compat_ulong_t len,
+ 			     compat_ulong_t mode, compat_ulong_t __user *nmask,
+ 			     compat_ulong_t maxnode, compat_ulong_t flags)
  {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int val = *( (int *) wrq->u.name );
--	int err;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	priv->ibss_port = val ;
- 
-@@ -3423,12 +3386,10 @@
- {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int *val = (int *)wrq->u.name;
--	int err;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	*val = priv->ibss_port;
- 	orinoco_unlock(priv, &flags);
-@@ -3443,9 +3404,8 @@
- 	int err = 0;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	switch (val) {
- 	case 0: /* Try to do IEEE ad-hoc mode */
-@@ -3482,12 +3442,10 @@
- {
- 	struct orinoco_private *priv = netdev_priv(dev);
- 	int *val = (int *)wrq->u.name;
--	int err;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	*val = priv->prefer_port3;
- 	orinoco_unlock(priv, &flags);
-@@ -3517,9 +3475,8 @@
- 	}
- 
- 	/* Make sure nobody mess with the structure while we do */
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	/* orinoco_lock() doesn't disable interrupts, so make sure the
- 	 * interrupt rx path don't get confused while we copy */
-@@ -3550,12 +3507,10 @@
- 	struct iw_quality spy_stat[IW_MAX_SPY];
- 	int number;
- 	int i;
--	int err;
- 	unsigned long flags;
- 
--	err = orinoco_lock(priv, &flags);
--	if (err)
--		return err;
-+	if (orinoco_lock(priv, &flags) != 0)
-+		return -EBUSY;
- 
- 	number = priv->spy_number;
- 	if ((number > 0) && (srq->pointer)) {
-@@ -3625,9 +3580,8 @@
- 		break;
- 
- 	case SIOCSIWMODE:
--		err = orinoco_lock(priv, &flags);
--		if (err)
--			return err;
-+		if (orinoco_lock(priv, &flags) != 0)
-+			return -EBUSY;
- 		switch (wrq->u.mode) {
- 		case IW_MODE_ADHOC:
- 			if (! (priv->has_ibss || priv->has_port3) )
-@@ -3652,9 +3606,8 @@
- 		break;
- 
- 	case SIOCGIWMODE:
--		err = orinoco_lock(priv, &flags);
--		if (err)
--			return err;
-+		if (orinoco_lock(priv, &flags) != 0)
-+			return -EBUSY;
- 		wrq->u.mode = priv->iw_mode;
- 		orinoco_unlock(priv, &flags);
- 		break;
-@@ -3869,9 +3822,8 @@
- 		if(priv->has_preamble) {
- 			int val = *( (int *) wrq->u.name );
- 
--			err = orinoco_lock(priv, &flags);
--			if (err)
--				return err;
-+			if (orinoco_lock(priv, &flags) != 0)
-+				return -EBUSY;
- 			if (val)
- 				priv->preamble = 1;
- 			else
-@@ -3886,9 +3838,8 @@
- 		if(priv->has_preamble) {
- 			int *val = (int *)wrq->u.name;
- 
--			err = orinoco_lock(priv, &flags);
--			if (err)
--				return err;
-+			if (orinoco_lock(priv, &flags) != 0)
-+				return -EBUSY;
- 			*val = priv->preamble;
- 			orinoco_unlock(priv, &flags);
- 		} else
-
 
 -- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

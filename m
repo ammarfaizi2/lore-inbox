@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbTDKAdb (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTDKAdb (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 20:33:31 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:7690 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S262180AbTDKAda (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 20:33:30 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, root@chaos.analogic.com,
-       Frank Davis <fdavis@si.rr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel support for non-english user messages
-References: <3E93A958.80107@si.rr.com>
-	<20030409080803.GC29167@mea-ext.zmailer.org>
-	<20030409080803.GC29167@mea-ext.zmailer.org>
-	<20030409190700.H19288@almesberger.net> <3E94A1B4.6020602@si.rr.com>
-	<Pine.LNX.4.53.0304092126130.992@chaos>
-	<1050001030.12494.1.camel@dhcp22.swansea.linux.org.uk>
-	<shsvfxm157p.fsf@charged.uio.no>
-	<1050003748.12494.42.camel@dhcp22.swansea.linux.org.uk>
-From: Christer Weinigel <christer@weinigel.se>
-Date: 11 Apr 2003 02:48:42 +0200
-In-Reply-To: <1050003748.12494.42.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <m31y09uadx.fsf@localhost.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id S262186AbTDKAhg (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTDKAhf (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 20:37:35 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:8153 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id S262186AbTDKAhd (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 20:37:33 -0400
+Date: Thu, 10 Apr 2003 17:47:03 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit kdev_t - just for playing
+Message-ID: <20030411004703.GQ31739@ca-server1.us.oracle.com>
+References: <1049913637.1993.73.camel@mulgrave> <Pine.LNX.4.44.0304092202570.5042-100000@serv> <1049941189.4467.186.camel@mulgrave> <Pine.LNX.4.44.0304101033500.5042-100000@serv> <1049988660.1998.100.camel@mulgrave> <Pine.LNX.4.44.0304102029430.5042-100000@serv>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304102029430.5042-100000@serv>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Fri, Apr 11, 2003 at 01:53:07AM +0200, Roman Zippel wrote:
+> So we do break compatibility! Wow, it really took quite some time until 
+> someone confirmed this...
 
-> On Thu, 2003-04-10 at 21:13, Trond Myklebust wrote:
-> > Which features in particular were you thinking would be worth porting?
-> 
-> Give me the clustering support 8)
+	No, the current patch DOES NOT BREAK compatibility.  Device
+numbers from 00:00 to FF:FF are not munged in any way.  As long as
+regular drivers don't expect anything else (eg, a new scsi driver that
+uses a new larger major), nothing is broken or changed.
 
-One of the things I really liked with VMS was the centralized logging
-in a clustered system.  I'd very much like to be able to say "give me
-all syslog messages for the mail subsystem at this severity level or
-above" instead of having to play around with /etc/syslog.conf,
-restarting syslogd and tail -f.  Of course this isn't a kernel
-problem, it's something that should be implemented in syslog, but it's
-just an example of a good idea in VMS.
+> The current numbering matches the naming, 0x0301 is /dev/hda1, 0x0802 is 
+> /dev/sda2 and 0x4103 is /dev/sdq3, the proposed patch does change the 
+> numbering _and_ naming policy.
 
-  /Christer
+	The proposed patch changes none of it.  Folks have proposed
+other changes based upon it, but Andreas' patch as it stands (at least,
+last time I looked at it) does not break this.
+
+> This may be true in the kernel, but you move all the compatibility 
+> problems into user space and so we just added another ugly emulation 
+> layer.
+
+	Naming is entirely a userspace problem.  It is also an extremely
+hard problem.  Consider that the UK folks will want /dev/disc and the US
+folks will want /dev/disk.  That's before we even approach persistent
+naming.
+
+> Oh, I do listen, you can be sure of that, but what am I supposed to so, 
+> when it even takes weeks to get a clear answer about something simple as 
+> compatibility? When I ask questions, I get evading answers, when I say 
+> it's broken, I get silence, what else can I do?
+
+	I will repeat:  The patch does not break compatibility, and any
+discussion of new device spaces based on the larger number have been
+theoretical.  If you had read the patch, you would have seen this.
+
+> Producing a patch isn't that difficult, but I'd rather be interested, if 
+> there is even interest in such a patch? I already got not a single comment 
+> about the last patch.
+
+	Propose a dynamic system.  Show us your code.  Until you do,
+do not clutter the simple task of "expand the size of dev_t" with the
+orthogonal task of "how do we use this new dev_t".
+
+Joel
 
 -- 
-"Just how much can I get away with and still go to heaven?"
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+"You cannot bring about prosperity by discouraging thrift. You cannot
+ strengthen the weak by weakening the strong. You cannot help the wage
+ earner by pulling down the wage payer. You cannot further the
+ brotherhood of man by encouraging class hatred. You cannot help the
+ poor by destroying the rich. You cannot build character and courage by
+ taking away a man's initiative and independence. You cannot help men
+ permanently by doing for them what they could and should do for themselves."
+	- Abraham Lincoln 
+
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

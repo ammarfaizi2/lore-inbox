@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274572AbRITR3p>; Thu, 20 Sep 2001 13:29:45 -0400
+	id <S274575AbRITRhh>; Thu, 20 Sep 2001 13:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274574AbRITR3g>; Thu, 20 Sep 2001 13:29:36 -0400
-Received: from pop3.telenet-ops.be ([195.130.132.40]:3735 "EHLO
-	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S274572AbRITR3Z>; Thu, 20 Sep 2001 13:29:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <DevilKin@gmx.net>
-Reply-To: DevilKin@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: AGPGART for AMD 761 broken in 2.4.10-pre12?
-Date: Thu, 20 Sep 2001 19:28:56 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20010920171534.C26E09BB3F@pop3.telenet-ops.be>
-In-Reply-To: <20010920171534.C26E09BB3F@pop3.telenet-ops.be>
-X-Cats: All your linux' belong to us!
+	id <S274576AbRITRh1>; Thu, 20 Sep 2001 13:37:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28684 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274575AbRITRhM>; Thu, 20 Sep 2001 13:37:12 -0400
+Subject: Re: [PATCH] fix register_sysrq() in 2.4.9++
+To: rddunlap@osdlab.org (Randy.Dunlap)
+Date: Thu, 20 Sep 2001 18:41:45 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan), torvalds@transmeta.com (Linus),
+        linux-kernel@vger.kernel.org (lkml), sfr@canb.auug.org.au,
+        crutcher+kernel@datastacks.com
+In-Reply-To: <3BAA107E.4F2FDEE2@osdlab.org> from "Randy.Dunlap" at Sep 20, 2001 08:51:26 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010920172940.A93A89BB3F@pop3.telenet-ops.be>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15k7pZ-0005i0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 September 2001 19:14, DevilKin wrote:
-> Hello All,
->
-> First off, I'd like to say a big 'thank you!!!!' to all the people here, I
-> was very amazed at the quickness the support for the chipset was integrated
-> into the maintream kernel.
->
-> I've been testing the latest kernels a bit, and I've found out that when
-> using the pre12 kernel, I once again get:
->
-> Linux agpgart interface v0.99 (c) Jeff Hartmann
-> agpgart: Maximum main memory to use for agp memory: 439M
-> agpgart: Unsupported AMD chipset (device id: 700e), you might want to try
-> agp_try_unsupported=1.
-> agpgart: no supported devices found.
->
-> where as with the pre11 kernel it was:
->
-> Linux agpgart interface v0.99 (c) Jeff Hartmann
-> agpgart: Maximum main memory to use for agp memory: 439M
-> agpgart: Detected AMD 761 chipset
->
->
-> I've not had the time to crosscheck what actually changed with -pre12, but
-> could it be the patch got lost somewhere?
->
-> Thanks,
->
-> DevilKin
+u> +
+> +static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
+> +{
+> +	return -1;
+> +}
 
-I've manually applied the patch written for the pre-11 kernels, and then it 
-works great. Could it be it hasn't been added to pre-12?
-
-Thanks,
-
-DevilKin
--- 
-devilkin@gmx.net
+make it report ok as other non compiled in stuff does - then you can avoid
+masses of ifdefs

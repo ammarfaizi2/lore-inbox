@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264035AbTFJV6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 17:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTFJV5V
+	id S262445AbTFJV6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 17:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTFJV5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 17:57:21 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49077 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262151AbTFJVzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 17:55:20 -0400
-Date: Tue, 10 Jun 2003 19:06:15 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc8
-Message-ID: <Pine.LNX.4.55L.0306101845460.30401@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jun 2003 17:57:14 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57767
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262445AbTFJVzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 17:55:33 -0400
+Subject: Re: Wrong number of cpus detected/reported
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Samuel Flory <sflory@rackable.com>, John Appleby <john@dnsworld.co.uk>,
+       xyko_ig@ig.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055281927.2269.47.camel@spc9.esa.lanl.gov>
+References: <434747C01D5AC443809D5FC540501131569E@bobcat.unickz.com>
+	 <3EE64161.5010102@rackable.com>
+	 <1055279041.2270.42.camel@spc9.esa.lanl.gov>
+	 <1055280955.32661.35.camel@dhcp22.swansea.linux.org.uk>
+	 <1055281927.2269.47.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055282795.32662.56.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Jun 2003 23:06:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2003-06-10 at 22:52, Steven Cole wrote:
+> Is there a reliable method, apart from knowing 'a priori' the mapping
+> from CPU models and stepping to hyperthreading capability?
 
-Hi,
+Except for building a collection of databooks and "specification updates" none
+I know of. 
 
-Here goes -rc8. If nothing really bad happens in 2 days, this becomes
-final.
-
-
-Summary of changes from v2.4.21-rc7 to v2.4.21-rc8
-============================================
-
-Geert Uytterhoeven <geert@linux-m68k.org>:
-  o Fix ext2fs warning
-
-Hugh Dickins <hugh@veritas.com>:
-  o Fix shmctl(SHM_LOCK/UNLOCK) deadlock
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Backout erroneous kiobuf dcache flush changes Cset exclude: jsun@mvista.com|ChangeSet|20030425203656|60956
-  o Changed EXTRAVERSION to -pre8
-  o Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201637|12385
-  o Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201907|11405
-  o Remove bogus license for Rocket driver and change it to GPL
 

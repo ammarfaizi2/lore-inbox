@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUIMN51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUIMN5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266777AbUIMN51 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 09:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266790AbUIMN51
+	id S266775AbUIMN5T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 09:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUIMN5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 09:57:27 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:17421 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266777AbUIMN5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 09:57:24 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Subject: Re: Unwritable device nodes on ro nfs
-Date: Mon, 13 Sep 2004 16:56:52 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-References: <200409131551.30187.vda@port.imtp.ilyichevsk.odessa.ua> <41459D0B.404@bio.ifi.lmu.de>
-In-Reply-To: <41459D0B.404@bio.ifi.lmu.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Mon, 13 Sep 2004 09:57:19 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:42233 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266775AbUIMN5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 09:57:13 -0400
+Subject: Re: /proc/sys/kernel/pid_max issues
+From: Albert Cahalan <albert@users.sf.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       wli@holomorphy.com, cw@f00f.org, anton@samba.org
+In-Reply-To: <20040913075743.GA15722@elte.hu>
+References: <1095045628.1173.637.camel@cube>
+	 <20040913075743.GA15722@elte.hu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095083649.1174.1293.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Sep 2004 09:54:09 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409131656.52706.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 16:13, Frank Steiner wrote:
-> Denis Vlasenko wrote:
-> > Hi,
-> >
-> > I am moving away from devfs. I have a problem
-> > booting with ro nfs root fs.
->
-> Known problem and the patch is here:
-> http://linux.bkbits.net:8080/linux-2.6/cset@1.1803.129.187
+On Mon, 2004-09-13 at 03:57, Ingo Molnar wrote:
+> * Albert Cahalan <albert@users.sf.net> wrote:
+> 
+> > I'd much prefer LRU allocation. There are
+> > lots of system calls that take PID values.
+> > All such calls are hazardous. They're pretty
+> > much broken by design.
+> 
+> this is a pretty sweeping assertion. Would you
+> care to mention a few examples of such hazards?
 
-404 Not Found
---
-vda
+kill(12345,9)
+setpriority(PRIO_PROCESS,12345,-20)
+sched_setscheduler(12345, SCHED_FIFO, &sp)
+
+Prior to the call being handled, the process may
+die and be replaced. Some random innocent process,
+or a not-so-innocent one, will get acted upon by
+mistake. This is broken and dangerous.
+
+Well, it's in the UNIX standard. The best one can
+do is to make the race window hard to hit, with LRU.
+
+> > BTW, since pid_max is now adjustable, reducing
+> > the default to 4 digits would make sense. [...]
+> 
+> i'm not sure what you mean by 'now', pid_max has
+> been adjustable for quite some time.
+
+2.6.x series I believe, not 2.4.xx series
+
 

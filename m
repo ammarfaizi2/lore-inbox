@@ -1,46 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266553AbUBLUxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 15:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUBLUxY
+	id S266579AbUBLUwI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 15:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUBLUwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 15:53:24 -0500
-Received: from gate.crashing.org ([63.228.1.57]:44951 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266553AbUBLUxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 15:53:02 -0500
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Jamie Lokier <jamie@shareable.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
-References: <1076384799.893.5.camel@gaston>
-	 <Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
-	 <20040210173738.GA9894@mail.shareable.org>
-	 <20040213002358.1dd5c93a.ak@suse.de> <20040212100446.GA2862@elte.hu>
-	 <Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1076618966.12467.14.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 13 Feb 2004 07:49:26 +1100
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Feb 2004 15:52:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:15237 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266579AbUBLUwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 15:52:03 -0500
+Date: Thu, 12 Feb 2004 15:45:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Gopi Palaniappan <gpalani1@urbana.css.mot.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: memory foorprint of kernel modules
+In-Reply-To: <BDEMIINGEPCMIFLFPKCKCEFDCCAA.gpalani1@urbana.css.mot.com>
+Message-ID: <Pine.LNX.4.53.0402121543070.28272@chaos>
+References: <BDEMIINGEPCMIFLFPKCKCEFDCCAA.gpalani1@urbana.css.mot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 12 Feb 2004, Gopi Palaniappan wrote:
 
-> One option is to mark the brk() VMA's as being grow-up (which they are), 
-> and make get_unmapped_area() realize that it should avoid trying to 
-> allocate just above grow-up segments or just below grow-down segments. 
-> That's still something of a special case, but at least it's not "magic" 
-> any more, now it's more of a "makes sense".
+> Is there an easy way to measure the memory/RAM footprint of dynamically
+> loaded kernel modules?
+> Are there tools similar to "pmap" for this purpose?
+>
+> thanks,
+> Gopi
+> --
+> Motorola Inc.
+> Personal Communications Sector,
+> Urbana-Champaign Design Center,
+> 1800 S. Oak St, Champaign, IL 61820.
+>
 
-Though we need a way to represent TASK_UNMAPPED_BASE, no ? (as the
-limit above which it's ok). 
+You might make some sense of /proc/ksyms...
 
-Ben.
+This is for a module called ramdisk.
+
+Script started on Thu Feb 12 15:41:10 2004
+cd /proc
+# strings ksyms | grep ramdisk
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+d4a19510 __insmod_ramdisk_S.bss_L4
+[ramdisk]
+d4a19100 __insmod_ramdisk_S.rodata_L563
+[ramdisk]
+[ramdisk]
+[ramdisk]
+d4a18000 __insmod_ramdisk_O/root/Message-Based/drivers/target/ramdisk.o_M4027E0AD_V132120
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+d4a18054 __insmod_ramdisk_S.text_L4237
+[ramdisk]
+[ramdisk]
+[ramdisk]
+[ramdisk]
+d4a19398 __insmod_ramdisk_S.data_L5
+[ramdisk]
+# exit
+exit
+Script done on Thu Feb 12 15:41:45 2004
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

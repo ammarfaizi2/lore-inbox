@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289551AbSA2M3W>; Tue, 29 Jan 2002 07:29:22 -0500
+	id <S289589AbSA2Mar>; Tue, 29 Jan 2002 07:30:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289628AbSA2M2D>; Tue, 29 Jan 2002 07:28:03 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:45699 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289589AbSA2M1V>;
-	Tue, 29 Jan 2002 07:27:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: <mingo@elte.hu>, Rob Landley <landley@trommello.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 13:31:44 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
+	id <S289564AbSA2M3a>; Tue, 29 Jan 2002 07:29:30 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:10374 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S289647AbSA2M2n>; Tue, 29 Jan 2002 07:28:43 -0500
+Message-ID: <3C56943E.60405@antefacto.com>
+Date: Tue, 29 Jan 2002 12:23:26 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VXQP-0000A8-00@starship.berlin>
+To: Francesco Munda <syylk@libero.it>
+CC: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <200201290137.g0T1bwB24120@karis.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 02:54 pm, Ingo Molnar wrote:
-> If a patch gets ignored 33 times in a row then perhaps the person doing
-> the patch should first think really hard about the following 4 issues:
+Francesco Munda wrote:
+
+> On Mon, 28 Jan 2002 09:10:56 -0500
+> Rob Landley <landley@trommello.org> wrote:
 > 
->   - cleanliness
->   - concept
->   - timing
->   - testing
 > 
-> a violation of any of these items can cause patch to be dropped *without
-> notice*. Face it, it's not Linus' task to teach people how to code or how
-> to write correct patches. Sure, he still does teach people most of the
-> time, but you cannot *expect* him to be able to do it 100% of the time.
+>>Patch Penguin Proposal.
+>>
+>>[...]
+>>
+> 
+> You mean some sort of proxy/two-tier development? A "commit/rollback"
+> transaction model on the kernel itself?
 
-While I agree in general with most of your remarks, I think you're being a 
-little too glib here.  Consider my patch to fix group descriptor corruption 
-in Ext2, submitted half a dozen times to Linus and other maintainers over the 
-course of two years, which was clearly explained, passed scrutiny on 
-ext2-devel and lkml, fixed a real problem that really bit people and which 
-I'd been running myself over the entire period.  Which one of cleanliness, 
-concept, timing or testing did I violate?
 
-If the answer is 'none of the above', then what is wrong with this picture?
+Dave Jones described the current model very succinctly in:
 
---
-Daniel
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100966905916285&w=2
+
+He also mentioned a big problem. People not honouring/realising
+there position in the tree, (trying to get in the ChangeLog?).
+True, the only way to scale it is add another level at the current
+bottleneck, but this must be more than 1 person or it won't help,
+as it'll just move the bottelneck back a little.
+
+Personally I think automated tools (like bitkeeper) would help
+more than another level in the hierarchy.
+
+Currently the way I see it [should be] currently is:
+
+random hackers
+| | | | | | |
+| maintainers
+| | | |
+combiners
+| |
+Linus
+
+I.E. Linus just gets input from the combiners which
+test logic from the maintainers in combination. Also
+random hackers should input to the combiners and not Linus
+if there isn't an appropriate maintainer for their code.
+
+Padraig.
+

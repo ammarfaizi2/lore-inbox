@@ -1,115 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263683AbTCUSKk>; Fri, 21 Mar 2003 13:10:40 -0500
+	id <S264006AbTCUWdR>; Fri, 21 Mar 2003 17:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263678AbTCUSJg>; Fri, 21 Mar 2003 13:09:36 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36739
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263675AbTCUSJD>; Fri, 21 Mar 2003 13:09:03 -0500
-Date: Fri, 21 Mar 2003 19:24:18 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211924.h2LJOIat025735@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: rio __NO_VERSION__ 
+	id <S264022AbTCUWcM>; Fri, 21 Mar 2003 17:32:12 -0500
+Received: from B543a.pppool.de ([213.7.84.58]:13234 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S264006AbTCUWap>; Fri, 21 Mar 2003 17:30:45 -0500
+Subject: Re: Release of 2.4.21
+From: Daniel Egger <degger@fhm.edu>
+To: John Bradford <john@grabjohn.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303210923.h2L9NciG000393@81-2-122-30.bradfords.org.uk>
+References: <200303210923.h2L9NciG000393@81-2-122-30.bradfords.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zuybujJ+RLx1m7lDDNY+"
+Organization: 
+Message-Id: <1048283620.15199.22.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 21 Mar 2003 22:53:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/rioboot.c linux-2.5.65-ac2/drivers/char/rio/rioboot.c
---- linux-2.5.65/drivers/char/rio/rioboot.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/rioboot.c	2003-03-18 16:58:11.000000000 +0000
-@@ -34,7 +34,6 @@
- static char *_rioboot_c_sccs_ = "@(#)rioboot.c	1.3";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/riocmd.c linux-2.5.65-ac2/drivers/char/rio/riocmd.c
---- linux-2.5.65/drivers/char/rio/riocmd.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/riocmd.c	2003-03-18 16:58:11.000000000 +0000
-@@ -34,7 +34,6 @@
- static char *_riocmd_c_sccs_ = "@(#)riocmd.c	1.2";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/rioctrl.c linux-2.5.65-ac2/drivers/char/rio/rioctrl.c
---- linux-2.5.65/drivers/char/rio/rioctrl.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/rioctrl.c	2003-03-18 16:58:11.000000000 +0000
-@@ -34,7 +34,6 @@
- #endif
- 
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/rioinit.c linux-2.5.65-ac2/drivers/char/rio/rioinit.c
---- linux-2.5.65/drivers/char/rio/rioinit.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/rioinit.c	2003-03-18 16:58:11.000000000 +0000
-@@ -33,7 +33,6 @@
- static char *_rioinit_c_sccs_ = "@(#)rioinit.c	1.3";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/riointr.c linux-2.5.65-ac2/drivers/char/rio/riointr.c
---- linux-2.5.65/drivers/char/rio/riointr.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/riointr.c	2003-03-18 16:58:11.000000000 +0000
-@@ -34,7 +34,6 @@
- #endif
- 
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/rioparam.c linux-2.5.65-ac2/drivers/char/rio/rioparam.c
---- linux-2.5.65/drivers/char/rio/rioparam.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/rioparam.c	2003-03-18 16:58:24.000000000 +0000
-@@ -34,7 +34,6 @@
- static char *_rioparam_c_sccs_ = "@(#)rioparam.c	1.3";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/rioroute.c linux-2.5.65-ac2/drivers/char/rio/rioroute.c
---- linux-2.5.65/drivers/char/rio/rioroute.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/rioroute.c	2003-03-18 16:58:24.000000000 +0000
-@@ -33,7 +33,6 @@
- static char *_rioroute_c_sccs_ = "@(#)rioroute.c	1.3";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/riotable.c linux-2.5.65-ac2/drivers/char/rio/riotable.c
---- linux-2.5.65/drivers/char/rio/riotable.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/riotable.c	2003-03-18 16:58:24.000000000 +0000
-@@ -33,7 +33,6 @@
- static char *_riotable_c_sccs_ = "@(#)riotable.c	1.2";
- #endif
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/char/rio/riotty.c linux-2.5.65-ac2/drivers/char/rio/riotty.c
---- linux-2.5.65/drivers/char/rio/riotty.c	2003-03-18 16:46:47.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/char/rio/riotty.c	2003-03-18 16:58:24.000000000 +0000
-@@ -36,7 +36,6 @@
- 
- #define __EXPLICIT_DEF_H__
- 
--#define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
+
+--=-zuybujJ+RLx1m7lDDNY+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Am Fre, 2003-03-21 um 10.23 schrieb John Bradford:
+
+> Unless the system has to run 24/7, which a desktop machine usually
+> doesn't have to, I don't see why testing 2.5 on it isn't a
+> possibility.
+
+Because desktop systems usually don't feature the notion of a testbed,
+read an environment in which dangerous changes can be tested without
+severe loss of important data.
+
+I would never ever boot a 2.5.x kernel on my notebook or on any other=20
+machines without preparing a different harddrive for instance, YMMV
+though.
+
+--=20
+Servus,
+       Daniel
+
+--=-zuybujJ+RLx1m7lDDNY+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+e4njchlzsq9KoIYRAtAZAJ4kqkkCes3jP1yia6oU6LX70Nz1pACfRkT/
+FqfsAcMZEtkuY4Bj4HLtbxA=
+=YUvo
+-----END PGP SIGNATURE-----
+
+--=-zuybujJ+RLx1m7lDDNY+--
+

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275300AbTHSCWi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 22:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275303AbTHSCWi
+	id S275303AbTHSCaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 22:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275307AbTHSC37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 22:22:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49859 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275300AbTHSCWh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 22:22:37 -0400
-Message-ID: <3F4189E1.5010808@pobox.com>
-Date: Mon, 18 Aug 2003 22:22:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>
-CC: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.x ACPI updates
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC79@hdsmsx402.hd.intel.com>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC79@hdsmsx402.hd.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 22:29:59 -0400
+Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:15539
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S275303AbTHSC36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 22:29:58 -0400
+Date: Mon, 18 Aug 2003 22:29:37 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] 'the the' in mails ...
+Message-ID: <20030819022937.GV25975@kurtwerks.com>
+References: <20030819012411.GA30871@www.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030819012411.GA30871@www.13thfloor.at>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
-> The ISO_8859_1 acute accent, u with diaeresis, and registered sign, have been in Config.info since Feb 2002.
+Quoth Herbert Pötzl:
 > 
-> Andy's tools seem to have extended them to 16-bit characters during a merge.  A "minor gaff"?  Okay, I guess that's fair.  He promises that he doesn't know how to type a latin capital A with a circumflex on his keyboard;-).
+> Please, could one of the native english
+> speaker enlighten me about 'the the' ...
 > 
-> Moving on...  Is the fix to restore the 8-bit characters, or use 7-bit characters?
+> I know this is absolutely off topic, but
+> about 30 threads, in the last two months,
+> on lkml contain this strange construct, 
+> and I'm worried that I miss something very
+> important ...
+> 
+> or is this just such a common typo? if so
+> please tell me, and I will simply ignore it 
+> from now on ...
 
+Common typo.
 
-Just sent a private message, but to relate the process to others as well...
-
-The fix is to ensure that the ACPI updates sent to Marcelo never touch 
-areas of Documentation/Configure.help that do not relate to ACPI ;-) 
-Whatever characters are currently in Configure.help, just leave them be :)
-
-	Jeff, being a UTF8 fan, is pained saying this...
-
-
-
+Kurt
+-- 
+God made the integers; all else is the work of Man.
+		-- Kronecker

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281042AbRKOUfS>; Thu, 15 Nov 2001 15:35:18 -0500
+	id <S281046AbRKOUii>; Thu, 15 Nov 2001 15:38:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281040AbRKOUfJ>; Thu, 15 Nov 2001 15:35:09 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:41919 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S281042AbRKOUfA>;
-	Thu, 15 Nov 2001 15:35:00 -0500
-Message-ID: <3BF425E1.B487225F@mailnet.de>
-Date: Thu, 15 Nov 2001 21:30:25 +0100
-From: pil@mailnet.de
-X-Mailer: Mozilla 4.78C-pil. [en] (X11; U; Linux 2.4.10 i586)
-X-Accept-Language: en, en-US, de
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HFS-Bug in Kernel 2.4.12 and above
-In-Reply-To: <3BF3DB8A.CD1BBCE6@mailnet.de> <20011115152636.A1259@flint.arm.linux.org.uk>
+	id <S281044AbRKOUi3>; Thu, 15 Nov 2001 15:38:29 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31984 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281048AbRKOUiP>;
+	Thu, 15 Nov 2001 15:38:15 -0500
+Date: Thu, 15 Nov 2001 13:37:34 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Sven Heinicke <sven@research.nj.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/stat description for proc.txt
+Message-ID: <20011115133734.P5739@lynx.no>
+Mail-Followup-To: Sven Heinicke <sven@research.nj.nec.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com> <20011115115939.I5739@lynx.no> <15348.8974.587924.655924@abasin.nj.nec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <15348.8974.587924.655924@abasin.nj.nec.com>; from sven@research.nj.nec.com on Thu, Nov 15, 2001 at 03:18:22PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Thu, Nov 15, 2001 at 04:13:14PM +0100, pil@mailnet.de wrote:
-> > Kernel 2.4.12 is no more able to handle two floppy drives with hfs
-> > formated floppies.
-> >
-> > You can recreate the failure if you have two floppy drives, use Kernel
-> > 2.4.12 (and above) with loadable module support for hfs- and
-> > vfat-floppies and try to mount the first one with a hfs formated floppy
-> > inside. If you unmount the floppy drive again you will get a
-> > segmentation fault and an uninterruptible sleep for the mount PID. You
-> > cannot mount this drive again.
-> >
-> > For all other see attached file 'report'.
-> >
-> > Regards
-> >
-> > Wolfgang Pichler
-> > ARM MFM AND FLOPPY DRIVERS
-> > P:      Dave Gilbert
-> > M:      linux@treblig.org
-> > S:      Maintained
-> >
-> 
-> What is the relevance of the above past from the Linux CREDITS file?
-> 
+On Nov 15, 2001  15:18 -0500, Sven Heinicke wrote:
+> +total of all the separate CPU statistics.  The four numbers following
+> +"cpu" entries are: user, nice, system and idle usage.  These are
+> +stored in, I believe, jiffers.
+They definitely are in   ^^^^^^^ units of jiffies.
 
-Sorry, no relevence at all. Dave Gilbert was the first to whom the
-bug-report was sent.
+> +The "btime" field the is up time of the system in seconds.
 
-Regards
+It's not the uptime, but actually the time in seconds that the system booted.
 
-Wolfgang Pichler
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

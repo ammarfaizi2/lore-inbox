@@ -1,39 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268109AbTBWKHh>; Sun, 23 Feb 2003 05:07:37 -0500
+	id <S268276AbTBWKTb>; Sun, 23 Feb 2003 05:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268113AbTBWKHT>; Sun, 23 Feb 2003 05:07:19 -0500
-Received: from [207.44.168.39] ([207.44.168.39]:9699 "EHLO ensim.rackshack.net")
-	by vger.kernel.org with ESMTP id <S268236AbTBWKGU>;
-	Sun, 23 Feb 2003 05:06:20 -0500
-Message-ID: <35950.80.191.78.43.1046004090.squirrel@www.irandata.com>
-Date: Sun, 23 Feb 2003 16:11:30 +0330 (IRT)
-Subject: Unidirectional links
-From: <abangar@irandata.com>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-Mailer: SquirrelMail (version 1.2.5)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S268292AbTBWKTa>; Sun, 23 Feb 2003 05:19:30 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:19460 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268276AbTBWKT2>; Sun, 23 Feb 2003 05:19:28 -0500
+Date: Sun, 23 Feb 2003 10:29:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (6/21) FS & partiton
+Message-ID: <20030223102937.A15963@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Osamu Tomita <tomita@cinet.co.jp>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20030223092116.GA1324@yuzuki.cinet.co.jp> <20030223094325.GG1324@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030223094325.GG1324@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Sun, Feb 23, 2003 at 06:43:25PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list members
+On Sun, Feb 23, 2003 at 06:43:25PM +0900, Osamu Tomita wrote:
+> -	if (FAT_FIRST_ENT(sb, media) != first) {
+> +	if (FAT_FIRST_ENT(sb, media) != first
+> +	    && (!pc98 || media != 0xf8 || (first & 0xff) != 0xfe))
+> +	{
 
-I'm new to this list....
-My company had a leased line with 64K bandwidth that can send and receive
-over it...nowadays , they leases a new satelite links with 2M bandwidth
-that can only receive from it..both this two connection has some ip
-address in different rangs (C class for leased line and A class for
-satelite)..now how can i configure my linux box that can send via leased
-line and receive from satelite link...i read the linux advanced routing
-and traffice control but i can't understand any things....please help me
+I think this should be made unconditionally.  There's no reason why
+non-pc98 linux machines shouldn't read fat filesystems created on pc98.
 
-thanks
+> +/* #ifdef CONFIG_BLK_DEV_IDEDISK */
+> +#include <linux/ide.h>
+> +/* #endif */
+> +
+> +/* #ifdef CONFIG_BLK_DEV_SD */
+> +#include "../../drivers/scsi/scsi.h"
+> +#include "../../drivers/scsi/hosts.h"
+> +#include <scsi/scsicam.h>
+> +/* #endif */
 
-Hamed Abangar
+this is really ugly..
 
+> +	int g_head, g_sect;
+> +	Sector sect;
+> +	const struct nec98_partition *part;
+> +	unsigned char *data;
+> +	int sector_size = bdev_hardsect_size(bdev);
+> +	int major = major(to_kdev_t(bdev->bd_dev));
+> +	int minor = minor(to_kdev_t(bdev->bd_dev));
+
+use MAJOR/MINOR here.
+
+> +
+> +	switch (major) {
+> +#if defined CONFIG_BLK_DEV_HD_ONLY
+> +	case HD_MAJOR:
+> +	{
+> +		extern struct hd_i_struct hd_info[2];
+> +
+> +		g_head = hd_info[minor >> 6].head;
+> +		g_sect = hd_info[minor >> 6].sect;
+> +		break;
+> +	}
+> +#endif /* CONFIG_BLK_DEV_HD_ONLY */
+> +#if defined CONFIG_BLK_DEV_SD || defined CONFIG_BLK_DEV_SD_MODULE
+> +	case SCSI_DISK0_MAJOR:
+> +	case SCSI_DISK1_MAJOR:
+> +	case SCSI_DISK2_MAJOR:
+> +	case SCSI_DISK3_MAJOR:
+> +	case SCSI_DISK4_MAJOR:
+> +	case SCSI_DISK5_MAJOR:
+> +	case SCSI_DISK6_MAJOR:
+> +	case SCSI_DISK7_MAJOR:
+> +	{
+> +		int diskinfo[3] = { 0, 0, 0 };
+> +
+> +		pc98_bios_param(bdev, diskinfo);
+> +
+> +		if ((g_head = diskinfo[0]) <= 0)
+> +			g_head = 8;
+> +		if ((g_sect = diskinfo[1]) <= 0)
+> +			g_sect = 17;
+> +		break;
+> +	}
+> +#endif /* CONFIG_BLK_DEV_SD(_MODULE) */
+> +#if defined CONFIG_BLK_DEV_IDEDISK || defined CONFIG_BLK_DEV_IDEDISK_MODULE
+> +	case IDE0_MAJOR:
+> +	case IDE1_MAJOR:
+> +	case IDE2_MAJOR:
+> +	case IDE3_MAJOR:
+> +	case IDE4_MAJOR:
+> +	case IDE5_MAJOR:
+> +	case IDE6_MAJOR:
+> +	case IDE7_MAJOR:
+> +	case IDE8_MAJOR:
+> +	case IDE9_MAJOR:
+> +	{
+> +		ide_drive_t *drive;
+> +		unsigned int	h;
+> +
+> +		for (h = 0; h < MAX_HWIFS; ++h) {
+> +			ide_hwif_t  *hwif = &ide_hwifs[h];
+> +			if (hwif->present && major == hwif->major) {
+> +				unsigned unit = minor >> PARTN_BITS;
+> +				if (unit < MAX_DRIVES) {
+> +					drive = &hwif->drives[unit];
+> +					if (drive->present) {
+> +						g_head = drive->head;
+> +						g_sect = drive->sect;
+> +						goto found;
+> +					}
+> +				}
+> +				break;
+> +			}
+> +		}
+> +	}
+> +#endif /* CONFIG_BLK_DEV_IDEDISK(_MODULE) */
+> +	default:
+> +		printk(" unsupported disk (major = %u)\n", major);
+> +		return 0;
+> +	}
+
+This is horribly ugly.  Just do an inkernel ioctl instead.  Something
+like the following (untested!):
+
+	struct hd_geometry geo;
+	int err;
+
+	err = ioctl_by_bdev(bdev, HDIO_GETGEO, &geo);
+	if (err)
+		return err;
+
+	g_head = geo.heads;
+	g_sect = geo.sectors;
+	
 

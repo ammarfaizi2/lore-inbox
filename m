@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280714AbRKSVSh>; Mon, 19 Nov 2001 16:18:37 -0500
+	id <S280717AbRKSVTR>; Mon, 19 Nov 2001 16:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280717AbRKSVS2>; Mon, 19 Nov 2001 16:18:28 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49426 "HELO
+	id <S280725AbRKSVTJ>; Mon, 19 Nov 2001 16:19:09 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55314 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280714AbRKSVSI>; Mon, 19 Nov 2001 16:18:08 -0500
-Date: Mon, 19 Nov 2001 19:17:51 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Remco Post <r.post@sara.nl>, James A Sutherland <jas88@cam.ac.uk>,
-        <linux-kernel@vger.kernel.org>, <remco@zhadum.sara.nl>
-Subject: Re: Swap 
-In-Reply-To: <1922542962.1006204382@[195.224.237.69]>
-Message-ID: <Pine.LNX.4.33L.0111191917000.1491-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280717AbRKSVTA>; Mon, 19 Nov 2001 16:19:00 -0500
+Date: Mon, 19 Nov 2001 18:01:10 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Simon Kirby <sim@netnation.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <Pine.LNX.4.33.0111190958230.8205-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0111191755460.7451-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Alex Bligh - linux-kernel wrote:
-> --On Monday, 19 November, 2001 2:58 PM -0200 Rik van Riel
-> <riel@conectiva.com.br> wrote:
->
-> > Guess again.  Linux doesn't have load control implemented ...
->
-> Out of interest, is received wisdom that this is a good/bad
-> thing?
 
-Load control is a good thing since it means the box
-gets slower in a controlled way instead of running
-fine one minute and horribly falling over the next
-minute.
 
-I'm certainly planning to implement some load control
-measures for 2.5.
+On Mon, 19 Nov 2001, Linus Torvalds wrote:
 
-regards,
+> 
+> On Mon, 19 Nov 2001, Simon Kirby wrote:
+> >
+> > So, uh, any idea why the server is hitting the page->mapping BUG() thing
+> > in the first place? :)
+> 
+> No.
+> 
+> I suspect that your earlier oopses left something in a stale state - this
+> is the same machine that you've reported others oopses for, no?
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+Linus, 
 
-http://www.surriel.com/		http://distro.conectiva.com/
+I was talking with Rik today about 2.5 VM plans and we end up talking
+about the order of the pagecache_lock and pagemap_lru_lock. He ended up
+showing me add_to_page_cache(), which now looks like:
+
+We ended up talking about the possibility of a reschedule (IRQ) happening
+before after the "spin_unlock(pagecache_lock)" but before the
+"lru_cache_add()".
+
+I haven't investigated the issue yet... But isn't that possible ? 
+
+void add_to_page_cache(struct page * page, struct address_space * mapping,
+unsigned long offset)
+{
+        spin_lock(&pagecache_lock);
+        __add_to_page_cache(page, mapping, offset, page_hash(mapping,
+offset));
+        spin_unlock(&pagecache_lock);
+        lru_cache_add(page);
+}
+
 

@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUEVI1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264918AbUEVId5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbUEVI1J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 04:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUEVI1J
+	id S264918AbUEVId5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 04:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUEVId5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 04:27:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:13960 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264917AbUEVI0H (ORCPT
+	Sat, 22 May 2004 04:33:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1774 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264917AbUEVId4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 04:26:07 -0400
-Date: Sat, 22 May 2004 01:26:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: slab redzoning
-Message-ID: <20040522082602.GJ2161@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Manfred Spraul <manfred@colorfullife.com>, mpm@selenic.com,
-	linux-kernel@vger.kernel.org
-References: <20040522034902.GB2161@holomorphy.com> <40AF0911.6020000@colorfullife.com>
+	Sat, 22 May 2004 04:33:56 -0400
+Date: Sat, 22 May 2004 01:33:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: arjanv@redhat.com
+Cc: axboe@suse.de, mason@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ext3 barrier bits
+Message-Id: <20040522013313.6cb15a4b.akpm@osdl.org>
+In-Reply-To: <1085214261.2781.1.camel@laptop.fenrus.com>
+References: <20040521093207.GA1952@suse.de>
+	<20040521023807.0de63c7a.akpm@osdl.org>
+	<20040521100234.GK1952@suse.de>
+	<20040521235044.6160cccb.akpm@osdl.org>
+	<20040522073540.GO1952@suse.de>
+	<20040522011139.01a7da10.akpm@osdl.org>
+	<1085214261.2781.1.camel@laptop.fenrus.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40AF0911.6020000@colorfullife.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->>-if ((size < 4096 || fls(size-1) == fls(size-1+3*BYTES_PER_WORD)))
->>+if (size + 3*BYTES_PER_WORD <= PAGE_SIZE ||
+Arjan van de Ven <arjanv@redhat.com> wrote:
+>
+> 
+> > - Does the kernel tell you if your disk doesn't supoprt barriers?  ie:
+> >   how does the user know if it's working or not?
+> 
+> ... and how do you know your disk isn't lying and ignoring the barriers?
+> 
 
-On Sat, May 22, 2004 at 10:02:25AM +0200, Manfred Spraul wrote:
-> I understand this change: objects between 4082 and 4095 bytes are 
-> redzoned and cause order==1 allocations, that's wrong.
+If some benchmark slows down when barriers are enabled then that's a pretty
+good indicator.  I don't know what benchmark that might be though.
 
-William Lee Irwin III wrote:
-> >+			((size & (size - 1)) &&
-> >+			(1 << fls(size)) - size > 3*BYTES_PER_WORD))
-
-On Sat, May 22, 2004 at 10:02:25AM +0200, Manfred Spraul wrote:
-> Why this change? I've tested my fls(size-1)==fls(size-1-3*4) approach 
-> and it always returned the right result: No redzoning between 8181 and 
-> 8192 bytes, between 16373 and 16384, etc.
-
-It returns a false positive when size + 3*BYTES_PER_WORD == 2**n, e.g.
-size == 16373. Here, fls(size - 1) == 13, but fls(size - 1 + 12) == 13
-while size - 1 + 12 == 16384, where we'd want the check to fail. Or so
-my analysis of it goes.
-
--- wli

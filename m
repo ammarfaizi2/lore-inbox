@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUJSG2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUJSGbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268035AbUJSG2w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 02:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJSG2w
+	id S268025AbUJSGbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 02:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJSGbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 02:28:52 -0400
-Received: from [203.200.194.71] ([203.200.194.71]:12863 "EHLO
-	semsoftindia-samsung.com") by vger.kernel.org with ESMTP
-	id S268035AbUJSG2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 02:28:50 -0400
-Reply-To: <srinivas@semsoftindia-samsung.com>
-From: "Srinivas Naga Vutukuri" <srinivas@semsoftindia-samsung.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: DMA memory allocation --how to more than 1 MB
-Date: Tue, 19 Oct 2004 11:58:16 +0530
-Message-ID: <HEEPIMMIBFKCAGHPIBKDEEFFCAAA.srinivas@semsoftindia-samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Tue, 19 Oct 2004 02:31:19 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:16516 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S268025AbUJSGbQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 02:31:16 -0400
+Date: Tue, 19 Oct 2004 08:30:57 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Alexandre Oliva <aoliva@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: forcing PS/2 USB emulation off
+Message-ID: <20041019063057.GA3057@ucw.cz>
+References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <200410172248.16571.dtor_core@ameritech.net> <20041018164539.GC18169@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041018164539.GC18169@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 18, 2004 at 09:45:39AM -0700, Greg KH wrote:
 
-
-  
-I am just looking at the mail,
-mentioned that using __get_free_pages(GFP_KERNEL, 8),
-its possible... lets check it out...
-  
-http://www.spinics.net/lists/newbies/msg12638.html
+> I'm a little leary of changing the way the kernel grabs the USB hardware
+> from the way we have been doing it for the past 6 years.  So by
+> providing the option for people who have broken machines like these, we
+> will let them work properly, and it should not affect any of the zillion
+> other people out there with working hardware.
+> 
+> Or, if we can determine a specific model of hardware that really needs
+> this option enabled, we can do that automatically.  If you look at the
+> patch, we do that for some specific IBM machines for this very reason.
+> 
+> Is there any consistancy with the type of hardware that you see being
+> reported for this issue?
  
+Like 30% of all notebooks? ;) They do boot without the USB handoff, the
+PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
+detection is possible due to the BIOS interference.
 
-regards,
-srinivas.
-
-********************************************************************
-No virus was detected in the attachment no filename
-
-Your mail has been scanned by InterScan.
-********************************************************************
-
-
-The information contained in this electronic message and any attachments 
-to this message are intended for the exclusive use of the addressee(s) 
-and may contain confidential or privileged information.
-If you are not the intended recipient, please notify the sender at 
-Samsung Electro-Mechanics Co. Ltd. or admin@semsoftindia-samsung.com
-immediately and destroy all copies of this message and any attachments.
-Any unauthorized review, use, disclosure, dissemination, forwarding, 
-printing or copying of this email or any action taken in reliance on
-this e-mail is strictly prohibited and may be unlawful.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

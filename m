@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273894AbRI0Usr>; Thu, 27 Sep 2001 16:48:47 -0400
+	id <S273895AbRI0Uwh>; Thu, 27 Sep 2001 16:52:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273895AbRI0Ush>; Thu, 27 Sep 2001 16:48:37 -0400
-Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:6916
-	"EHLO awak") by vger.kernel.org with ESMTP id <S273894AbRI0Us1> convert rfc822-to-8bit;
-	Thu, 27 Sep 2001 16:48:27 -0400
-Subject: Re: 2.4.9-ac15 sluggish
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.14.99+cvs.2001.09.27.08.00 (Preview Release)
-Date: 27 Sep 2001 22:43:15 +0200
-Message-Id: <1001623396.18174.14.camel@nomade>
-Mime-Version: 1.0
+	id <S273896AbRI0Uw1>; Thu, 27 Sep 2001 16:52:27 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:9877 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S273895AbRI0UwM>;
+	Thu, 27 Sep 2001 16:52:12 -0400
+Date: Thu, 27 Sep 2001 21:52:35 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Jesper Juhl <juhl@eisenstein.dk>,
+        Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: OOM killer
+Message-ID: <1123696067.1001627554@[195.224.237.69]>
+In-Reply-To: <3BB20C27.4125F9BA@eisenstein.dk>
+In-Reply-To: <3BB20C27.4125F9BA@eisenstein.dk>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le jeu 27-09-2001 at 17:13 Rik van Riel a écrit :
-> We discovered a merge bug, -ac15 has a few lines in
-> try_to_swap_out() 10 lines higher than they were in
-> the patch I sent to Alan ;)
-> 
-> This is fixed in the age+launder patch from my home
-> page ard in the vmscan.c I sent to Alan for -ac16.
-
-Mmmh ... i'm now compiling (make -j5) -ac16 under -ac15-age+launder and
-it's sluggish: xmms drops audio sometimes, my mouse pointer is jerky.
 
 
-         Xav
+--On Wednesday, 26 September, 2001 7:11 PM +0200 Jesper Juhl 
+<juhl@eisenstein.dk> wrote:
 
+> Or maybe make it a configure option if Linux should over commit memory or
+> not.
+
+deja vu
+
+shed:~# cat /proc/sys/vm/overcommit_memory
+0
+shed:~# echo 1 >/proc/sys/vm/overcommit_memory
+shed:~# cat /proc/sys/vm/overcommit_memory
+1
+shed:~# echo 0 >/proc/sys/vm/overcommit_memory
+shed:~# cat /proc/sys/vm/overcommit_memory
+0
+
+--
+Alex Bligh

@@ -1,57 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVBQUKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVBQUJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbVBQUKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 15:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVBQUKP
+	id S262339AbVBQUJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 15:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVBQUH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 15:10:15 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:24081 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262337AbVBQUJz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 15:09:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=oK2+jqWsqmd1tQNI7fVFHTNXITIL0v1rGUZ5qn/I+EmrGBLOCEOmcjt4eBBjJaz6AiKjvumnlMg8qNWzsIBRy6JzhiPjyFIFSaVLPvunX+HOXiQW4/KRd3VA1dQ1nEa0maFKua5lLiwQea1R8hl8sSJNE7yy1Weo78w9+OpnhkU=
-Message-ID: <d120d50005021712092241f9ec@mail.gmail.com>
-Date: Thu, 17 Feb 2005 15:09:51 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Swsusp, resume and kernel versions
-Cc: John M Flinchbaugh <john@hjsoft.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050217195651.GB5963@openzaurus.ucw.cz>
+	Thu, 17 Feb 2005 15:07:58 -0500
+Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:14085 "EHLO
+	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S261194AbVBQUG1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 15:06:27 -0500
+Date: Thu, 17 Feb 2005 21:06:20 +0100
+From: Erik van Konijnenburg <ekonijn@xs4all.nl>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] yaird, a mkinitrd based on hotplug concepts
+Message-ID: <20050217210620.A20645@banaan.localdomain>
+Mail-Followup-To: linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200502162346.26143.dtor_core@ameritech.net>
-	 <20050217110731.GE1353@elf.ucw.cz>
-	 <20050217162847.GA32488@butterfly.hjsoft.com>
-	 <d120d5000502170930ccc3e9e@mail.gmail.com>
-	 <20050217195651.GB5963@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005 20:56:52 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
-> 
-> > > Just remember you're doing the mkswap if you decide to rearrange your
-> > > partitions at all, or code a script smart enough to grep your swap
-> > > partitions out of your fstab.
-> >
-> > It could be a workaround. Still it will cause loss of unsaved work if
-> > I happen to load wrong kernel. Given that the code checking for swsusp
-> > image can be marked __init I don't understand the reasons gainst doing
-> > it.
-> 
-> How do you know which partitions to check? swsusp gets it from resume= parameter,
-> but if you do not have it compiled, you probably have wrong cmdline, too.
->
 
-Ok, that makes sense. I guess I should just stop pulling vendor
-kernels with the rest of updates since I am not using them anyway.
+OK, time to stop polishing and start publishing.
 
-Sorry for the noise.
+This is to announce yaird, Yet Another mkInitRD, a rewrite of mkinitrd
+based on hotplug algorithms.
 
--- 
-Dmitry
+MOTIVATION
+==========
+Why a rewrite?  The versions of mkinitrd that I studied, Debian sid
+and Fedora FC3, have some problems: they capture a lot of knowledge
+about the boot process, but don't always understand when a new kernel
+uses a different module name than the old kernel, may rely on modules
+compiled into the kernel, and don't always catch errors at the earliest
+opportunity.
+
+Assumption: there are three issues that cause most of these problems.
+ - Backward compatibility: sysfs provides a wealth of information
+   about hardware, but if you have to support 2.4 kernels, you have
+   to limit yourself in the use you can make of that information.
+ - Originality: hotplug does a pretty good job of finding the appropriate
+   modules for a device, basically because it closely follows the
+   algorithms the kernel uses for matching hardware with modules.
+   Deviating from those algorithms is unlikely to produce a more
+   robust result.
+ - Shell scripting: beyond a certain level of complexity, the shell
+   syntax makes it difficult to focus on the data structures you're
+   trying to process and makes it difficult to do rigorous error checking.
+
+Yaird is intended to find out whether that assumption is correct: if so, 
+a program to build initrd images will be more reliable if it's written
+in perl, if it uses sysfs to determine what hardware needs to be supported,
+and if it closely follows the methods hotplug uses find the modules
+needed to support some hardware.
+
+STATUS
+======
+There is working code: yaird booted the machine this note is written on.
+Code is available online, there also is a paper that discusses the workings
+of the application in detail.
+
+	http://www.xs4all.nl/~ekonijn/yaird/
+
+So far, the program works correctly on every machine it's been tested on,
+but with only two test boxes that does not mean much.
+
+Basic creature comforts are in place: "configure; make" but no RPM or
+deb files, a README and help option but no manual page.
+
+Features:
+ - understands SATA and IDE.  USB sticks and SCSI should work, but are
+   untested.
+ - understands MDADM and LVM2, activates only necessary devices,
+   understands stacks like LVM on top of stripe on top of mirror.
+ - handles both initrd and initramfs.
+ - understands USB keyboards.
+ - understands hotplug blacklist.
+ - knows that a module compiled into the kernel does not need insmod.
+ - understands /etc/fstab, including niceties such as labels, uuids and
+   octal escapes.
+ - image generation understands symbolic links and shared libraries.
+   (should support 32bit emulation on 64bit kernels; untested).
+ - templating system to simplify tuning the initrd image to the distribution.
+ - avoids hard-coded device numbers; does not require devfs.
+ - testing mode gives detailed overview of the systems hardware
+   and the modules needed to support that.
+
+There are rough edges in practically every feature: this is suitable
+for testing, but not for production use.
+
+TODO
+====
+(1) Testing so far is 100% successful, but with just two boxes to play
+with, that's not saying much.  If you can find space to test the code
+on your system, your results are highly appreciated.  At this point,
+hardware testing is most valuable: I already know that dm-crypt is
+unsupported for now, but whether this stuff can boot a powerbook, sparc,
+or just about anything else is an open question.
+
+(2) Feedback.  This may be an interesting idea, but how does it relate
+to other new stuff floating about?  In particular, what about the work
+that's going on putting udev on initramfs: are these approaches complementary
+or alternatives?  Different perspectives on where this stuff fits in would
+help.
+
+(3) Support more configurations.  dm-crypt is unsupported for now, and so
+are multipath, swsusp, EVMS, NFS and loopback mounts.  Implementing this
+stuff becomes interesting once there are some tests results that the
+basic ideas work in practice.
+
+Regards,
+Erik
+
+

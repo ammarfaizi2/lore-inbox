@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUBSNxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 08:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUBSNwk
+	id S267258AbUBSNzc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 08:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUBSNzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 08:52:40 -0500
-Received: from web12607.mail.yahoo.com ([216.136.173.230]:45324 "HELO
-	web12607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267215AbUBSNwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 08:52:14 -0500
-Message-ID: <20040219135212.34779.qmail@web12607.mail.yahoo.com>
-Date: Thu, 19 Feb 2004 05:52:12 -0800 (PST)
+	Thu, 19 Feb 2004 08:55:31 -0500
+Received: from web12603.mail.yahoo.com ([216.136.173.226]:31650 "HELO
+	web12603.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267258AbUBSNxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 08:53:14 -0500
+Message-ID: <20040219135311.95851.qmail@web12603.mail.yahoo.com>
+Date: Thu, 19 Feb 2004 05:53:11 -0800 (PST)
 From: Joilnen Leite <pidhash@yahoo.com>
+Subject: ide-scsi lock
 To: linux-kernel@vger.kernel.org
 Cc: linux-ide@vger.kernel.org
 MIME-Version: 1.0

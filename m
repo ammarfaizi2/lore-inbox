@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263935AbTH1Ldu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 07:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTH1Ldu
+	id S263939AbTH1MBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 08:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTH1MBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 07:33:50 -0400
-Received: from [66.155.158.133] ([66.155.158.133]:4224 "EHLO
-	ns.waumbecmill.com") by vger.kernel.org with ESMTP id S263935AbTH1Ldt convert rfc822-to-8bit
+	Thu, 28 Aug 2003 08:01:45 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:64134 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263939AbTH1MBn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 07:33:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: binary kernel drivers re. hpt370 and redhat
-Date: Thu, 28 Aug 2003 08:33:01 -0400
-User-Agent: KMail/1.4.3
-References: <200308271840.30368.jbriggs@briggsmedia.com> <20030827145755.7e1ce956.shemminger@osdl.org> <1062022619.23531.38.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1062022619.23531.38.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308280833.01136.jbriggs@briggsmedia.com>
+	Thu, 28 Aug 2003 08:01:43 -0400
+Date: Thu, 28 Aug 2003 13:01:35 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Timo Sirainen <tss@iki.fi>
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lockless file reading
+Message-ID: <20030828120135.GA6800@mail.jlokier.co.uk>
+References: <MDEHLPKNGKAHNMBLJOLKEEJEFLAA.davids@webmaster.com> <1062066411.1451.319.camel@hurina>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062066411.1451.319.camel@hurina>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that companies will eventually see it costs less and the benefits 
-higher to open source their drivers.  But that is a conclusion and paradigm 
-that they will have to evolve to themselves, and shoving it down their 
-throats will only lengthen the process.  The first step is to support their 
-hardware under the platform (linux), and that is what I am focusing on.  
+Timo Sirainen wrote:
+> Reorder on per-byte basis? Per-page/block would still be acceptable.
 
-Thanks for the technical analysis and suggestions.
+The _CPUs_ can reorder on a per-byte basis, on a multiprocessor.  It
+has nothing to do with the kernel.
 
-Joe
+> Anyway, the alternative would be shared mmap()ed file. You can trust
+> 32bit memory updates to be atomic, right?
 
-On Wednesday 27 August 2003 06:17 pm, you wrote:
-> On Mer, 2003-08-27 at 22:57, Stephen Hemminger wrote:
-> > On Wed, 27 Aug 2003 18:40:30 -0400
-> >
-> > joe briggs <jbriggs@briggsmedia.com> wrote:
-> > > I have a client who has a raid controller currently supported under
-> > > windows, and now wants to support linux as a bootable device. 
-> > > Currently, some of their trade secrets are contained in the driver as
-> > > opposed to the controller
->
-> Standard practice - its not IMHO so much trade secrets as "improving the
-> barrier to vendor change" 8). Pretty much all of the older PATA
-> controllers don't actually do hardware raid but bios/driver raid - ie
-> its the equivalent (or roughly so) of the md layer but locks you into
-> the vendor. The notable exception here is the 3ware card (there are a
-> couple of others too - Promise Supertrak100, SX6000)
->
-> We know some of these formats (eg see the hptraid driver in 2.4.2x)
->
-> > The problem is more in the bootloader (LILO or GRUB) would not no how
-> > to do raid. The /boot partition would have to be on a non-raid partition.
-> > Same problem if driver is statically linked in the kernel.
->
-> Plus little issues like the GPL 8)
+Atomic yes (if aligned), weakly ordered though.
 
--- 
-Joe Briggs
-Briggs Media Systems
-105 Burnsen Ave.
-Manchester NH 01304 USA
-TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
-www.briggsmedia.com
+> Or what about: write("12"), fsync(), write("12")? Is it still possible
+> for read() to return "1x1x"?
+
+Yes it is possible, in principle.
+
+This is what happens: the writing CPU writes "1", "2" in order.  The
+reading CPU reads bytes 1, 3 before the writes are
+observed and bytes 0, 2 after.  The CPU can do this.
+
+The kernel doesn't prevent this, because it doesn't hold any exclusive
+lock between the writer and reader during the data transfers.
+Furthermore the kernel transfers a byte at a time, on some
+architecture (including x86), if any buffer is not aligned.
+
+It is very unlikely to return "1x1x", but you should know it is not
+architecturally impossible.  Given your incomplete knowledge of every
+architectural quirk, it is more likely to occur than an MD5 collision.
+
+On 32-bit aligned atomicity: if the block of 4 bytes is aligned in
+memory, then with shared mmap you will only see whole words
+transferred because all (current) Linux SMP-capable architectures
+offer 32 bit atomicity.  It is not a very nice assumption: it doesn't
+hold for 16 bits or 64 bits, and may not hold for a future 64 bit
+architecture.  Keep in mind the words stay whole, but multiple words
+are read out of order.
+
+With read() and write(), even aligned 32-bit words don't work.  On
+some 64-bit architectures, a 32-bit word read() will be issued as 4
+byte reads at the machine level, with weak memory ordering.  (I'm
+reading Alpha and IA64 __copy_user right now, and they both do that).
+
+Enjoy :)
+-- Jamie

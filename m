@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313577AbSDEVKT>; Fri, 5 Apr 2002 16:10:19 -0500
+	id <S313697AbSDEXUm>; Fri, 5 Apr 2002 18:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313578AbSDEVKJ>; Fri, 5 Apr 2002 16:10:09 -0500
-Received: from reef.structbio.Vanderbilt.Edu ([160.129.152.246]:59397 "EHLO
-	structbio.vanderbilt.edu") by vger.kernel.org with ESMTP
-	id <S313577AbSDEVKH>; Fri, 5 Apr 2002 16:10:07 -0500
-Date: Fri, 5 Apr 2002 15:10:06 -0600
-From: "Brandon D. Valentine" <bandix@structbio.vanderbilt.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: block device issues
-In-Reply-To: <Pine.SGI.4.43.0204031516440.110414-100000@coral.structbio.vanderbilt.edu>
-Message-ID: <Pine.SGI.4.43.0204051505290.116241-100000@coral.structbio.vanderbilt.edu>
+	id <S313701AbSDEXUc>; Fri, 5 Apr 2002 18:20:32 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:18335 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S313697AbSDEXUQ>; Fri, 5 Apr 2002 18:20:16 -0500
+Message-ID: <000701c1dcf8$6d5b61b0$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Best 2.4 kernel for SPARC?
+Date: Sat, 6 Apr 2002 01:20:08 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Brandon D. Valentine wrote:
+What is the 2.4 kernel that works best for SPARC?
 
->Greetings,
->
->This past weekend one of our Linux 2.4/XFS fileservers crashed pretty
->badly.  I am attempting to diagnose the cause of the crash so that I may
->prevent it from recurring.  My analysis so far follows.  I am hoping
->that a few of you out there might have seen this before or have ideas on
->its cause.
+The machine is a SPARC Ultra 10 3D creator with RedHat 6.2, now running some
+old 2.4 kernel (cannot check right now).
 
-I just wanted to followup on this bug report to say that I have been
-contacted and informed how to contact with the XFS developers while
-oss.sgi.com is down (the primary reason I sent the bug report here in
-the first place).  I will be following up on this bug with the XFS
-developers.  If anyone reading is interested in the outcome feel free to
-contact me and I will keep you updated.
+I would also like to test some low-latency stuff if possible, and it is very
+important that rebooting/powering off works 100% as it's an remote machine.
 
-Thanks,
-
--- 
-Brandon D. Valentine <bandix@structbio.vanderbilt.edu>
-Computer Geek, Center for Structural Biology
-
-"This isn't rocket science -- but it _is_ computer science."
-	- Terry Lambert on current@FreeBSD.org.
-
+/Martin
 

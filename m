@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUKEVOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbUKEVSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUKEVOI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 16:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbUKEVOI
+	id S261218AbUKEVSb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 16:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUKEVSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 16:14:08 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:8352 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261210AbUKEVOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 16:14:06 -0500
-Date: Fri, 5 Nov 2004 13:13:49 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] major devfs shrink based on tmpfs and lookup traps
-Message-ID: <20041105211349.GA17340@taniwha.stupidest.org>
-References: <200411061021.iA6ALa403415@freya.yggdrasil.com>
+	Fri, 5 Nov 2004 16:18:31 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:26800 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261218AbUKEVS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 16:18:29 -0500
+Subject: Re: IO_APIC NMI Watchdog not handled by suspend/resume.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0411050825370.4441@musoma.fsmlabs.com>
+References: <1099643612.3793.3.camel@desktop.cunninghams>
+	 <Pine.LNX.4.61.0411050825370.4441@musoma.fsmlabs.com>
+Content-Type: text/plain
+Message-Id: <1099689445.4507.0.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411061021.iA6ALa403415@freya.yggdrasil.com>
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 06 Nov 2004 08:17:25 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 02:21:36AM -0800, Adam J. Richter wrote:
+Hi.
 
-> This patch is a replacement implementation of devfs.  This patch
-> combined the tmpfs "lookup traps" patch that is required for certain
-> devfs functionality are a net deletion of more than 1800 lines of
-> code[1].  The code that actually remains in fs/devfs has a
-> .text+.data size of under 3kB.
+Thanks! I'll give it a go.
 
-wow, that's pretty neat.... but isn't devfs going to be killed off
-sooner or later anyhow?
+Regards,
+
+Nigel
+
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

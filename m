@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbUL0PhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbUL0PhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbUL0PhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 10:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUL0PhP
+	id S261909AbUL0PhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 10:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbUL0PhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 10:37:15 -0500
-Received: from zamok.crans.org ([138.231.136.6]:56790 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261908AbUL0PhC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 10:37:02 -0500
-From: Mathieu Segaud <matt@minas-morgul.org>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] Re: 2.6.10 xfs segfault on boot startup?
-References: <200412241942.36264.gene.heskett@verizon.net>
-Date: Mon, 27 Dec 2004 16:37:00 +0100
-In-Reply-To: <200412241942.36264.gene.heskett@verizon.net> (Gene Heskett's
-	message of "Fri, 24 Dec 2004 19:42:36 -0500")
-Message-ID: <87wtv392hv.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Mon, 27 Dec 2004 10:37:24 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44955 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261909AbUL0PhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 10:37:14 -0500
+Subject: Re: Linux 2.6.10-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e04122616577e1bd33@mail.gmail.com>
+References: <1104103881.16545.2.camel@localhost.localdomain>
+	 <58cb370e04122616577e1bd33@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104157999.20952.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Dec 2004 14:33:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> disait dernièrement que :
+On Llu, 2004-12-27 at 00:57, Bartlomiej Zolnierkiewicz wrote:
+> Most of these options are pure braindamage (they were obsoleted to
+> verify what is what) and they paper over real bugs in core or host drivers.
+> 
+> What do you need 'serialize' option for?
 
-> Greetings all;
->
-> I just rebooted to a "still got that new car smell" fresh 2.6.10, and 
-> this went by on the boot screen while it was starting the various 
-> services in init.d:
->
-> Starting xfs: /etc/rc3.d/S90xfs: line 137:  2377 Segmentation fault      
-> ttmkfdir -d . -o fonts.scale
-> /etc/rc3.d/S90xfs: line 137:  2404 Segmentation fault      ttmkfdir 
-> -d . -o fonts.scale
+A whole range of quirky systems, probably in most cases buggy hardware,
+BIOS firmware setup bugs and the like but they are there and end users
+use them. Its __init code so it is free.
 
-it is a userland problem. seems like you have some garbage in your fonts dir.
+As to real bugs there is probably a good three to six months fixing
+needed for the DMA timeout paths having been debugging them, along with
+timer/irq races all over the place. I'd rather worry about the fact the
+IDE eh code is totally hosed first and realistically needs an ide_eh
+thread for error handling akin to the SCSI approach.
 
->
-> I had installed some new ttf fonts over the last day or so, and had 
-> used them with the beta OOo-1.9-xxx before rebooting from 
-> 2.6.10-V0.33-04, but when I did a 'service xfs restart' just before 
-> seeing if startx worked (it did obviousy) no further errors were 
-> output, and it was running when I did that, so its apparently not 
-> repeatable.
+> 
+> > o       Fix bogus dma_ naming in the 2.6.10 patch       (Alan Cox)
+> 
+> It is on purpose, we really don't need 'ide_' prefix in ide_hwif_t.
+> The rest of ide_dma_* functions will lose ide_* prefix over time.
 
-I had this message when emerging xorg-x11 on my gentoo box. ttmkfdir does
-not seem robust enough when upgrading fonts.
+The current code uses
 
-> But it was a bit puzzling.  Anybody have an idea?  Self-healing 
-> software, the Holy Grail...
->
-> Merry Christmas wishes to all that celebrate it on this list.
+dma_ for DMA variables
+ide_dma_ for functions
 
-thx, merry xmas
+Its nice clean and logical. I'll consider moving my IDE code over to
+your naming when the naming is consistent again (with or without the
+ide_).
 
--- 
-if (!cost_analysis) goto darwinism;
-
-	- Mike Galbraith explaining economics on linux-kernel
+Alan
 

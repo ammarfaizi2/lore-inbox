@@ -1,57 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261944AbREXNf1>; Thu, 24 May 2001 09:35:27 -0400
+	id <S261960AbREXNwT>; Thu, 24 May 2001 09:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261932AbREXNfR>; Thu, 24 May 2001 09:35:17 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34314 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261924AbREXNfM>; Thu, 24 May 2001 09:35:12 -0400
-Date: Thu, 24 May 2001 15:18:36 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: "peter k." <spam-goes-to-dev-null@gmx.net>
-Cc: "Adrian V. Bono" <adrianb@ntsp.nec.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: patch to put IDE drives in sleep-mode after an halt
-Message-ID: <20010524151836.C1477@arthur.ubicom.tudelft.nl>
-In-Reply-To: <003901c0e44d$2de3ea60$093fe33e@host1> <3B0D028F.4B7FBAB0@ntsp.nec.co.jp> <005201c0e451$57f91740$093fe33e@host1>
-Mime-Version: 1.0
+	id <S261975AbREXNwJ>; Thu, 24 May 2001 09:52:09 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:10464 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S261960AbREXNwG>; Thu, 24 May 2001 09:52:06 -0400
+To: John Lenton <jlenton@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to crash 2.4.4 w/SBLive
+In-Reply-To: <20010524063754.5547.qmail@web11607.mail.yahoo.com>
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 24 May 2001 09:50:31 -0400
+In-Reply-To: John Lenton's message of "Wed, 23 May 2001 23:37:54 -0700 (PDT)"
+Message-ID: <m23d9ux3dk.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <005201c0e451$57f91740$093fe33e@host1>; from spam-goes-to-dev-null@gmx.net on Thu, May 24, 2001 at 02:59:18PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 02:59:18PM +0200, peter k. wrote:
-> well, my new 40gb ones are auto-parking i think but all the other ones from
-> last year aren't
-> and older hardware (although 1 year isnt even old for a hd) should be
-> supported by the kernel, right?
+>>>>> "John" == John Lenton <jlenton@yahoo.com> writes:
 
-All drives with voice coils for head movement do auto park on power off
-by design. Only really old drives with stepper motors (Seagate ST225
-and friends, over 15 years old) don't do it, but the capacity of those
-drives don't make it worthwile supporting anyway.
+ John> I found to my dismay that it's extremely easy to crash 2.4.4 if
+ John> it has a Live! in it. I have no way of getting at the oops, but
+ John> somebody out there probably has both this soundcard and a
+ John> serial console (or somethin').  I present it in the form of a
+ John> script, but you'll probably have no problem realizing where the
+ John> problem is. The number of "writers" never gets past 64. I guess
+ John> the 65th should probably get the same as the 2nd writer does on
+ John> other cards...
 
-> plus, its really not difficult to implement spinning down the hds before
-> halt anyway
+Extremely easy is relative.  At any rate, Alan Cox has some patches
+that list fixes in the SBLive support (a memory leak).  I have ac13
+installed and I ran your script.  I was able to get `Oops' messages,
+and I found them in my dmesg.  I am unfamiliar with how I should use
+ksyms to decode this for people... Are these physical addresses or
+virtual?  I guess I should look at the source...  Anyways, the script
+does *work* but not as advertised ;-)
 
-It's so easy that it should be done from the init scripts instead of
-from kernel. "hdparm -Y device" forces the drive to sleep mode.
+fwiw,
+Bill Pringlemeir.
 
->  and then the kernel
-> leaves the system as clean as it was before booting ;) !!
+inting eip:
+c01caa92
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01caa92>]
+EFLAGS: 00010097
+eax: dfdfdfdf   ebx: ffffffff   ecx: c31f8f0c   edx: dfdfdfdf
+esi: c11d8000   edi: c11d8000   ebp: 00000097   esp: c39e5f38
+ds: 0018   es: 0018   ss: 0018
+Process cat (pid: 3424, stackpage=c39e5000)
+Stack: c31f8e00 c11d8000 c09c0d00 00000000 dfdfdfdf c01c7957 c11d8000 c31f8e78 
+       c09c0d00 c31f8e00 c11d8000 c01c78fa c09c0d00 00000246 c31f8e00 00001000 
+       c01c400a c09c0d00 ffffffea c278e7e0 00001000 00000000 00001000 c39e4000 
+Call Trace: [<dfdfdfdf>] [<c01c7957>] [<c01c78fa>] [<c01c400a>] [<c0130196>] 
+   [<c0106b73>] 
 
-That's a silly argument. Why should the OS leave the system clean? It's
-the boot code's task to set up the system in a proper way.
+Code: 89 50 04 89 02 8b 97 70 40 00 00 8d b7 70 40 00 00 89 54 24 
+ <1>Unable to handle kernel paging request at virtual address 00008004
+ printing eip:
+c01caa92
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01caa92>]
+EFLAGS: 00010086
+eax: 00008000   ebx: ffffffff   ecx: c365b10c   edx: 00000001
+esi: c11d8000   edi: c11d8000   ebp: 00000086   esp: c301ff38
+ds: 0018   es: 0018   ss: 0018
+Process cat (pid: 3426, stackpage=c301f000)
+Stack: c365b000 c11d8000 c09c0ce0 00000000 00000001 c01c7957 c11d8000 c365b078 
+       c09c0ce0 c365b000 c11d8000 c01c78fa c09c0ce0 00000246 c365b000 00001000 
+       c01c400a c09c0ce0 ffffffea c278e840 00001000 00000000 00001000 c301e000 
+Call Trace: [<c01c7957>] [<c01c78fa>] [<c01c400a>] [<c0130196>] [<c0106b73>] 
+
+Code: 89 50 04 89 02 8b 97 70 40 00 00 8d b7 70 40 00 00 89 54 24 
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ 
 
 
-Erik
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
+

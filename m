@@ -1,102 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbTFBJoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 05:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTFBJoQ
+	id S262115AbTFBJpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 05:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTFBJpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 05:44:16 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26376
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262093AbTFBJoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 05:44:14 -0400
-Date: Mon, 2 Jun 2003 02:46:51 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <20030526045833.GA27204@gtf.org>
-Message-ID: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
+	Mon, 2 Jun 2003 05:45:18 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:12695 "EHLO
+	exchange.Pronto.TV") by vger.kernel.org with ESMTP id S262098AbTFBJot convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 05:44:49 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [REPOST][REPOST][REPOST] Killing processes in D state
+Date: Mon, 2 Jun 2003 11:58:13 +0200
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306021158.13429.roy@karlsbakk.net>
+X-OriginalArrivalTime: 02 Jun 2003 09:58:13.0779 (UTC) FILETIME=[7B514630:01C328ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all
 
-JG,
+this discussion has been up a few times, but I want it again. I _REALLY_ want 
+to be able to kill processes in D state. I am aware of that this is not good, 
+but compared to other parts of the linux kernel, there's quite a lot suicidal 
+stuff there already, so why not. There is, for instance, in 2.5, the 
+possibility to forcably remove loaded modules - FAR worse than merely killing 
+a userspace process in D state.
 
-This is the right move after months of debating ideas.
-Migrating the contents of ./drivers/ide/pci to scsi is reasonable too.
-This will allow the legacy drivers to die.
+So please, dear kernel people, Free Thy Users From Those Terrible Unreasonable 
+Reboots.
 
-Taskfile came to late to be really useful, it is now best used as a model
-to tackle FIS/FPDMA mapping for SATA II.
+regards
 
-Linus, my professional opinion is to follow Jeff's direction for 2.5/2.6.
-This will allow Linux to push open source to the hardware vendors.
-There are several bastardized scsi-ide drivers in ./scsi.
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
-pci2000.c,h :: pci2220i.c,h :: psi240i.c,h + psi_*.h :: eata*
-
-ATAPI is nothing more than Bastardized SCSI beaten with an ugly stick.
-
-Packet-Taskfile is more than painful, and I am not in the fighting mood.
-
-Cheers,
-
-Andre
-
-On Mon, 26 May 2003, Jeff Garzik wrote:
-
-> Just to echo some comments I said in private, this driver is _not_
-> a replacement for drivers/ide.  This is not, and has never been,
-> the intention.  In fact, I need drivers/ide's continued existence,
-> so that I may have fewer boundaries on future development.
-> 
-> Even though ATAPI support doesn't exist and error handling is
-> primitive, this driver has been extensively tested locally and I feel
-> is ready for a full and public kernel developer assault :)
-> 
-> James ok'd sending this...  I'll be sending "un-hack scsi headers" patch
-> through him via his scsi-misc-2.5 tree.
-> 
-> 
-> 
-> 
-> Linus, please do a
-> 
-> 	bk pull bk://kernel.bkbits.net/jgarzik/scsi-2.5
-> 
-> Others may download the patch from
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.69-bk18-scsi1.patch.bz2
-> 
-> This will update the following files:
-> 
->  drivers/scsi/Kconfig    |   27 
->  drivers/scsi/Makefile   |    1 
->  drivers/scsi/ata_piix.c |  322 ++++++
->  drivers/scsi/libata.c   | 2247 ++++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/ata.h     |  485 ++++++++++
->  5 files changed, 3082 insertions(+)
-> 
-> through these ChangeSets:
-> 
-> <jgarzik@redhat.com> (03/05/26 1.1357)
->    [scsi ata] make PATA config option actually do something useful
-> 
-> <jgarzik@redhat.com> (03/05/26 1.1356)
->    [scsi ata] include hacks, b/c scsi headers not in include/linux
-> 
-> <jgarzik@redhat.com> (03/05/26 1.1355)
->    [scsi] add ATA driver
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+Computers are like air conditioners.
+They stop working when you open Windows.
 

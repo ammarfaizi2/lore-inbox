@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUEJVKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUEJVOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUEJVKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 17:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUEJVKj
+	id S261832AbUEJVOw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 17:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUEJVOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 17:10:39 -0400
-Received: from 75.80-203-232.nextgentel.com ([80.203.232.75]:26318 "EHLO
-	lincoln.jordet.nu") by vger.kernel.org with ESMTP id S261724AbUEJVKe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 17:10:34 -0400
-Subject: Re: usb_hcd_irq, nobody cared on 2.6.6
-From: Stian Jordet <liste@jordet.nu>
-To: Thomas Cataldo <tomc@compaqnet.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1084222439.3548.7.camel@buffy>
-References: <1084222439.3548.7.camel@buffy>
-Content-Type: text/plain
-Message-Id: <1084223427.2369.2.camel@chevrolet.jordet>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Mon, 10 May 2004 23:10:28 +0200
+	Mon, 10 May 2004 17:14:52 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:62118 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S261832AbUEJVOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 17:14:48 -0400
+Message-ID: <409FF068.30902@keyaccess.nl>
+Date: Mon, 10 May 2004 23:13:12 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+References: <409F4944.4090501@keyaccess.nl> <200405102125.51947.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405102125.51947.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 10.05.2004 kl. 22.53 +0200, skrev Thomas Cataldo:
-> Hi,
-> 
-> Few minutes after boot I found that in my logs :
-> 
-> irq 10: nobody cared!
-[snip]
-> 0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+Bartlomiej Zolnierkiewicz wrote:
 
-This is a problem with all Apollo Pro 133/266/MVP3 it seems. Check
-http://bugzilla.kernel.org/show_bug.cgi?id=2243 and see if you have the
-same symptoms.
+> Rene, can you test these (incremental) patches?
 
-Best regards,
-Stian
+> +       if (drive->usage != 1)
+> +               return 0;
 
+Only this one does not make a change.
+
+> -       if (drive->usage != 1)
+> +       if (drive->usage != 1 || !drive->removable)
+
+With this one, the cache flushing noise is no more, but still a problem 
+unfortunately. With or without these patches, 2.6.6 powers down the 
+drive during reboot. This is very annoying, seeing as how it immediately 
+needs to spin up again for POST.
+
+Thanks for now!
+
+Rene.

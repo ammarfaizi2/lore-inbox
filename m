@@ -1,217 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUENOVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUENOYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUENOVL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 10:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUENOU7
+	id S261231AbUENOYc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 10:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUENOYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 10:20:59 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:22505 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261210AbUENOLL (ORCPT
+	Fri, 14 May 2004 10:24:32 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:41961 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261231AbUENOLu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 10:11:11 -0400
-Date: Fri, 14 May 2004 16:11:02 +0200 (MEST)
-Message-Id: <200405141411.i4EEB2Ep018409@alkaid.it.uu.se>
+	Fri, 14 May 2004 10:11:50 -0400
+Date: Fri, 14 May 2004 16:11:39 +0200 (MEST)
+Message-Id: <200405141411.i4EEBdvW018419@alkaid.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
+Subject: PATCH][4/7] perfctr-2.7.2 for 2.6.6-mm2: PowerPC
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+perfctr-2.7.2 for 2.6.6-mm2, part 4/7:
 
-perfctr-2.7.2 for 2.6.6-mm2, part 3/7:
+- PowerPC driver and arch changes
 
-- x86_64 driver and arch changes
+ arch/ppc/Kconfig            |    2 
+ arch/ppc/kernel/misc.S      |    1 
+ arch/ppc/kernel/process.c   |    6 
+ drivers/perfctr/ppc.c       | 1012 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/perfctr/ppc_tests.c |  286 ++++++++++++
+ drivers/perfctr/ppc_tests.h |   12 
+ include/asm-ppc/perfctr.h   |  170 +++++++
+ include/asm-ppc/processor.h |    1 
+ include/asm-ppc/unistd.h    |    3 
+ 9 files changed, 1492 insertions(+), 1 deletion(-)
 
- arch/x86_64/Kconfig              |    2 
- arch/x86_64/ia32/ia32entry.S     |    2 
- arch/x86_64/kernel/entry.S       |    5 
- arch/x86_64/kernel/i8259.c       |    3 
- arch/x86_64/kernel/process.c     |    8 
- drivers/perfctr/x86_64.c         |  660 +++++++++++++++++++++++++++++++++++++++
- include/asm-x86_64/hw_irq.h      |    5 
- include/asm-x86_64/ia32_unistd.h |    2 
- include/asm-x86_64/irq.h         |    2 
- include/asm-x86_64/perfctr.h     |  166 +++++++++
- include/asm-x86_64/processor.h   |    2 
- include/asm-x86_64/unistd.h      |    4 
- 12 files changed, 857 insertions(+), 4 deletions(-)
-
-diff -ruN linux-2.6.6-mm2/arch/x86_64/Kconfig linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/Kconfig
---- linux-2.6.6-mm2/arch/x86_64/Kconfig	2004-05-14 14:02:09.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/Kconfig	2004-05-14 14:45:43.970229684 +0200
-@@ -319,6 +319,8 @@
- 	bool
+diff -ruN linux-2.6.6-mm2/arch/ppc/Kconfig linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/Kconfig
+--- linux-2.6.6-mm2/arch/ppc/Kconfig	2004-05-14 14:02:09.000000000 +0200
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/Kconfig	2004-05-14 14:44:06.468685599 +0200
+@@ -214,6 +214,8 @@
+ 	depends on 4xx || 8xx
  	default y
  
 +source "drivers/perfctr/Kconfig"
 +
  endmenu
  
- 
-diff -ruN linux-2.6.6-mm2/arch/x86_64/ia32/ia32entry.S linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/ia32/ia32entry.S
---- linux-2.6.6-mm2/arch/x86_64/ia32/ia32entry.S	2004-05-14 14:02:09.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/ia32/ia32entry.S	2004-05-14 14:45:43.970229684 +0200
-@@ -588,6 +588,8 @@
- 	.quad compat_sys_mq_timedreceive	/* 280 */
- 	.quad compat_sys_mq_notify
- 	.quad compat_sys_mq_getsetattr
-+	.quad sys_ni_syscall	/* reserved for kexec */
-+	.quad sys_perfctr
- 	/* don't forget to change IA32_NR_syscalls */
- ia32_syscall_end:		
- 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
-diff -ruN linux-2.6.6-mm2/arch/x86_64/kernel/entry.S linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/entry.S
---- linux-2.6.6-mm2/arch/x86_64/kernel/entry.S	2004-05-10 11:14:36.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/entry.S	2004-05-14 14:45:43.970229684 +0200
-@@ -557,6 +557,11 @@
- 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
- #endif
- 				
-+#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PERFCTR)
-+ENTRY(perfctr_interrupt)
-+	apicinterrupt LOCAL_PERFCTR_VECTOR,smp_perfctr_interrupt
-+#endif
-+ 		
- /*
-  * Exception entry points.
-  */ 		
-diff -ruN linux-2.6.6-mm2/arch/x86_64/kernel/i8259.c linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/i8259.c
---- linux-2.6.6-mm2/arch/x86_64/kernel/i8259.c	2004-05-10 11:14:36.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/i8259.c	2004-05-14 14:45:43.980229843 +0200
-@@ -24,6 +24,7 @@
- #include <asm/delay.h>
- #include <asm/desc.h>
- #include <asm/apic.h>
-+#include <asm/perfctr.h>
- 
- #include <linux/irq.h>
- 
-@@ -485,6 +486,8 @@
- 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
- #endif
- 
-+	perfctr_vector_init();
-+
- 	/*
- 	 * Set the clock to HZ Hz, we already have a valid
- 	 * vector now:
-diff -ruN linux-2.6.6-mm2/arch/x86_64/kernel/process.c linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/process.c
---- linux-2.6.6-mm2/arch/x86_64/kernel/process.c	2004-05-14 14:02:09.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/arch/x86_64/kernel/process.c	2004-05-14 14:45:43.980229843 +0200
-@@ -36,6 +36,7 @@
- #include <linux/delay.h>
- #include <linux/irq.h>
- #include <linux/ptrace.h>
+ menu "Platform options"
+diff -ruN linux-2.6.6-mm2/arch/ppc/kernel/misc.S linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/kernel/misc.S
+--- linux-2.6.6-mm2/arch/ppc/kernel/misc.S	2004-05-14 14:02:09.000000000 +0200
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/kernel/misc.S	2004-05-14 14:44:06.468685599 +0200
+@@ -1397,3 +1397,4 @@
+ 	.long sys_mq_timedreceive	/* 265 */
+ 	.long sys_mq_notify
+ 	.long sys_mq_getsetattr
++	.long sys_perfctr
+diff -ruN linux-2.6.6-mm2/arch/ppc/kernel/process.c linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/kernel/process.c
+--- linux-2.6.6-mm2/arch/ppc/kernel/process.c	2004-05-14 14:02:09.000000000 +0200
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/arch/ppc/kernel/process.c	2004-05-14 14:44:06.478685758 +0200
+@@ -35,6 +35,7 @@
+ #include <linux/init_task.h>
+ #include <linux/module.h>
+ #include <linux/kallsyms.h>
 +#include <linux/perfctr.h>
- #include <linux/version.h>
  
+ #include <asm/pgtable.h>
  #include <asm/uaccess.h>
-@@ -266,6 +267,7 @@
- 		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
- 		put_cpu();
- 	}
-+	perfctr_exit_thread(&me->thread);
+@@ -253,7 +254,9 @@
+ 		new->thread.regs->msr |= MSR_VEC;
+ 	new_thread = &new->thread;
+ 	old_thread = &current->thread;
++	perfctr_suspend_thread(&prev->thread);
+ 	last = _switch(old_thread, new_thread);
++	perfctr_resume_thread(&current->thread);
+ 	local_irq_restore(s);
+ 	return last;
+ }
+@@ -322,6 +325,7 @@
+ 		last_task_used_math = NULL;
+ 	if (last_task_used_altivec == current)
+ 		last_task_used_altivec = NULL;
++	perfctr_exit_thread(&current->thread);
  }
  
  void flush_thread(void)
-@@ -369,6 +371,8 @@
- 	asm("movl %%es,%0" : "=m" (p->thread.es));
- 	asm("movl %%ds,%0" : "=m" (p->thread.ds));
+@@ -408,6 +412,8 @@
+ 
+ 	p->thread.last_syscall = -1;
  
 +	perfctr_copy_thread(&p->thread);
 +
- 	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
- 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
- 		if (!p->thread.io_bitmap_ptr) 
-@@ -415,6 +419,8 @@
- 	int cpu = smp_processor_id();  
- 	struct tss_struct *tss = init_tss + cpu;
- 
-+	perfctr_suspend_thread(prev);
-+
- 	unlazy_fpu(prev_p);
- 
- 	/*
-@@ -518,6 +524,8 @@
- 		}
- 	}
- 
-+	perfctr_resume_thread(next);
-+
- 	return prev_p;
+ 	return 0;
  }
  
-diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2.x86_64/drivers/perfctr/x86_64.c
---- linux-2.6.6-mm2/drivers/perfctr/x86_64.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/drivers/perfctr/x86_64.c	2004-05-14 14:45:43.990230001 +0200
-@@ -0,0 +1,660 @@
-+/* $Id: x86_64.c,v 1.27 2004/05/13 23:32:50 mikpe Exp $
-+ * x86_64 performance-monitoring counters driver.
+diff -ruN linux-2.6.6-mm2/drivers/perfctr/ppc.c linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc.c
+--- linux-2.6.6-mm2/drivers/perfctr/ppc.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc.c	2004-05-14 14:44:06.478685758 +0200
+@@ -0,0 +1,1012 @@
++/* $Id: ppc.c,v 1.5 2004/05/13 23:32:49 mikpe Exp $
++ * PPC32 performance-monitoring counters driver.
 + *
-+ * Copyright (C) 2003-2004  Mikael Pettersson
++ * Copyright (C) 2004  Mikael Pettersson
 + */
 +#include <linux/config.h>
 +#include <linux/init.h>
 +#include <linux/sched.h>
-+#include <linux/interrupt.h>
++#include <linux/fs.h>
 +#include <linux/perfctr.h>
++#include <linux/seq_file.h>
++#include <asm/machdep.h>
++#include <asm/time.h>		/* tb_ticks_per_jiffy, get_tbl() */
 +
-+#include <asm/msr.h>
-+#include <asm/fixmap.h>
-+#include <asm/apic.h>
-+struct hw_interrupt_type;
-+#include <asm/hw_irq.h>
++#include "ppc_tests.h"
 +
-+#include "x86_compat.h"
-+#include "x86_tests.h"
-+
-+/* Support for lazy evntsel and perfctr MSR updates. */
++/* Support for lazy evntsel and perfctr SPR updates. */
 +struct per_cpu_cache {	/* roughly a subset of perfctr_cpu_state */
 +	union {
 +		unsigned int id;	/* cache owner id */
 +	} k1;
-+	struct {
-+		/* NOTE: these caches have physical indices, not virtual */
-+		unsigned int evntsel[4];
-+	} control;
++	/* Physically indexed cache of the MMCRs. */
++	unsigned int ppc_mmcr[3];
 +} ____cacheline_aligned;
 +static struct per_cpu_cache per_cpu_cache[NR_CPUS] __cacheline_aligned;
 +
 +/* Structure for counter snapshots, as 32-bit values. */
 +struct perfctr_low_ctrs {
 +	unsigned int tsc;
-+	unsigned int pmc[4];
++	unsigned int pmc[6];
 +};
 +
-+/* AMD K8 */
-+#define MSR_K8_EVNTSEL0		0xC0010000	/* .. 0xC0010003 */
-+#define MSR_K8_PERFCTR0		0xC0010004	/* .. 0xC0010007 */
-+#define K8_EVNTSEL_ENABLE	0x00400000
-+#define K8_EVNTSEL_INT		0x00100000
-+#define K8_EVNTSEL_CPL		0x00030000
-+#define K8_EVNTSEL_RESERVED	0x00280000
++enum pm_type {
++    PM_604,
++    PM_604e,
++    PM_750,	/* XXX: Minor event set diffs between IBM and Moto. */
++    PM_7400,
++    PM_7450,
++};
++static enum pm_type pm_type;
 +
-+#define rdpmc_low(ctr,low) \
-+	__asm__ __volatile__("rdpmc" : "=a"(low) : "c"(ctr) : "edx")
++#define SPRN_MMCR0	0x3B8	/* 604 and up */
++#define SPRN_PMC1	0x3B9	/* 604 and up */
++#define SPRN_PMC2	0x3BA	/* 604 and up */
++#define SPRN_SIA	0x3BB	/* 604 and up */
++#define SPRN_MMCR1	0x3BC	/* 604e and up */
++#define SPRN_PMC3	0x3BD	/* 604e and up */
++#define SPRN_PMC4	0x3BE	/* 604e and up */
++#define SPRN_MMCR2	0x3B0	/* 7400 and up */
++#define SPRN_BAMR	0x3B7	/* 7400 and up */
++#define SPRN_PMC5	0x3B1	/* 7450 and up */
++#define SPRN_PMC6	0x3B2	/* 7450 and up */
 +
-+static void clear_msr_range(unsigned int base, unsigned int n)
-+{
-+	unsigned int i;
++/* MMCR0 layout (74xx terminology) */
++#define MMCR0_FC		0x80000000 /* Freeze counters unconditionally. */
++#define MMCR0_FCS		0x40000000 /* Freeze counters while MSR[PR]=0 (supervisor mode). */
++#define MMCR0_FCP		0x20000000 /* Freeze counters while MSR[PR]=1 (user mode). */
++#define MMCR0_FCM1		0x10000000 /* Freeze counters while MSR[PM]=1. */
++#define MMCR0_FCM0		0x08000000 /* Freeze counters while MSR[PM]=0. */
++#define MMCR0_PMXE		0x04000000 /* Enable performance monitor exceptions.
++					    * Cleared by hardware when a PM exception occurs.
++					    * 604: PMXE is not cleared by hardware.
++					    */
++#define MMCR0_FCECE		0x02000000 /* Freeze counters on enabled condition or event.
++					    * FCECE is treated as 0 if TRIGGER is 1.
++					    * 74xx: FC is set when the event occurs.
++					    * 604/750: ineffective when PMXE=0.
++					    */
++#define MMCR0_TBSEL		0x01800000 /* Time base lower (TBL) bit selector.
++					    * 00: bit 31, 01: bit 23, 10: bit 19, 11: bit 15.
++					    */
++#define MMCR0_TBEE		0x00400000 /* Enable event on TBL bit transition from 0 to 1. */
++#define MMCR0_THRESHOLD		0x003F0000 /* Threshold value for certain events. */
++#define MMCR0_PMC1CE		0x00008000 /* Enable event on PMC1 overflow. */
++#define MMCR0_PMCjCE		0x00004000 /* Enable event on PMC2-PMC6 overflow.
++					    * 604/750: Overrides FCECE (DISCOUNT).
++					    */
++#define MMCR0_TRIGGER		0x00002000 /* Disable PMC2-PMC6 until PMC1 overflow or other event.
++					    * 74xx: cleared by hardware when the event occurs.
++					    */
++#define MMCR0_PMC1SEL		0x00001FB0 /* PMC1 event selector, 7 bits. */
++#define MMCR0_PMC2SEL		0x0000003F /* PMC2 event selector, 6 bits. */
++#define MMCR0_RESERVED		(MMCR0_PMXE | MMCR0_PMC1SEL | MMCR0_PMC2SEL)
 +
-+	for(i = 0; i < n; ++i)
-+		wrmsr(base+i, 0, 0);
-+}
++/* MMCR1 layout (604e-7457) */
++#define MMCR1_PMC3SEL		0xF8000000 /* PMC3 event selector, 5 bits. */
++#define MMCR1_PMC4SEL		0x07B00000 /* PMC4 event selector, 5 bits. */
++#define MMCR1_PMC5SEL		0x003E0000 /* PMC5 event selector, 5 bits. (745x only) */
++#define MMCR1_PMC6SEL		0x0001F800 /* PMC6 event selector, 6 bits. (745x only) */
++#define MMCR1__RESERVED		0x000007FF /* should be zero */
 +
-+static inline void set_in_cr4_local(unsigned int mask)
-+{
-+	write_cr4(read_cr4() | mask);
-+}
-+
-+static inline void clear_in_cr4_local(unsigned int mask)
-+{
-+	write_cr4(read_cr4() & ~mask);
-+}
++/* MMCR2 layout (7400-7457) */
++#define MMCR2_THRESHMULT	0x80000000 /* MMCR0[THRESHOLD] multiplier. */
++#define MMCR2_SMCNTEN		0x40000000 /* 7400/7410 only, should be zero. */
++#define MMCR2_SMINTEN		0x20000000 /* 7400/7410 only, should be zero. */
++#define MMCR2__RESERVED		0x1FFFFFFF /* should be zero */
++#define MMCR2_RESERVED		(MMCR2_SMCNTEN | MMCR2_SMINTEN | MMCR2__RESERVED)
 +
 +static unsigned int new_id(void)
 +{
@@ -225,21 +205,18 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	return id;
 +}
 +
++#if PERFCTR_INTERRUPT_SUPPORT
 +static void perfctr_default_ihandler(unsigned long pc)
 +{
 +}
 +
 +static perfctr_ihandler_t perfctr_ihandler = perfctr_default_ihandler;
 +
-+asmlinkage void smp_perfctr_interrupt(struct pt_regs *regs)
++void do_perfctr_interrupt(struct pt_regs *regs)
 +{
-+	/* PREEMPT note: invoked via an interrupt gate, which
-+	   masks interrupts. We're still on the originating CPU. */
-+	/* XXX: recursive interrupts? delay the ACK, mask LVTPC, or queue? */
-+	ack_APIC_irq();
-+	irq_enter();
-+	(*perfctr_ihandler)(instruction_pointer(regs));
-+	irq_exit();
++	preempt_disable();
++	(*perfctr_ihandler)(regs->nip);
++	preempt_enable_no_resched();
 +}
 +
 +void perfctr_cpu_set_ihandler(perfctr_ihandler_t ihandler)
@@ -247,30 +224,34 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	perfctr_ihandler = ihandler ? ihandler : perfctr_default_ihandler;
 +}
 +
-+#if defined(CONFIG_SMP)
++#else
++#define perfctr_cstatus_has_ictrs(cstatus)	0
++#endif
++
++#if defined(CONFIG_SMP) && PERFCTR_INTERRUPT_SUPPORT
 +
 +static inline void set_isuspend_cpu(struct perfctr_cpu_state *state,
-+				    int cpu)
++				    const struct per_cpu_cache *cache)
 +{
-+	state->k1.isuspend_cpu = cpu;
++	state->k1.isuspend_cpu = cache;
 +}
 +
 +static inline int is_isuspend_cpu(const struct perfctr_cpu_state *state,
-+				  int cpu)
++				  const struct per_cpu_cache *cache)
 +{
-+	return state->k1.isuspend_cpu == cpu;
++	return state->k1.isuspend_cpu == cache;
 +}
 +
 +static inline void clear_isuspend_cpu(struct perfctr_cpu_state *state)
 +{
-+	state->k1.isuspend_cpu = NR_CPUS;
++	state->k1.isuspend_cpu = NULL;
 +}
 +
 +#else
 +static inline void set_isuspend_cpu(struct perfctr_cpu_state *state,
-+				    int cpu) { }
++				    const struct per_cpu_cache *cache) { }
 +static inline int is_isuspend_cpu(const struct perfctr_cpu_state *state,
-+				  int cpu) { return 1; }
++				  const struct per_cpu_cache *cache) { return 1; }
 +static inline void clear_isuspend_cpu(struct perfctr_cpu_state *state) { }
 +#endif
 +
@@ -280,157 +261,348 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 + *								*
 + ****************************************************************/
 +
-+static void perfctr_cpu_read_counters(const struct perfctr_cpu_state *state,
-+				      struct perfctr_low_ctrs *ctrs)
++/*
++ * The PowerPC 604/750/74xx family.
++ *
++ * Common features
++ * ---------------
++ * - Per counter event selection data in subfields of control registers.
++ *   MMCR0 contains both global control and PMC1/PMC2 event selectors.
++ * - Overflow interrupt support is present in all processors, but an
++ *   erratum makes it difficult to use in 750/7400/7410 processors.
++ * - There is no concept of per-counter qualifiers:
++ *   - User-mode/supervisor-mode restrictions are global.
++ *   - Two groups of counters, PMC1 and PMC2-PMC<highest>. Each group
++ *     has a single overflow interrupt/event enable/disable flag.
++ * - The instructions used to read (mfspr) and write (mtspr) the control
++ *   and counter registers (SPRs) only support hardcoded register numbers.
++ *   There is no support for accessing an SPR via a runtime value.
++ * - Each counter supports its own unique set of events. However, events
++ *   0-1 are common for PMC1-PMC4, and events 2-4 are common for PMC1-PMC4.
++ * - There is no separate high-resolution core clock counter.
++ *   The time-base counter is available, but it typically runs an order of
++ *   magnitude slower than the core clock.
++ *   Any performance counter can be programmed to count core clocks, but
++ *   doing this (a) reserves one PMC, and (b) needs indirect accesses
++ *   since the SPR number in general isn't known at compile-time.
++ *
++ * Driver notes
++ * ------------
++ * - The driver currently does not support performance monitor interrupts,
++ *   mostly because of the 750/7400/7410 erratum. Working around it would
++ *   require disabling the decrementer interrupt, reserving a performance
++ *   counter and setting it up for TBL bit-flip events, and having the PMI
++ *   handler invoke the decrementer handler.
++ *
++ * 604
++ * ---
++ * 604 has MMCR0, PMC1, PMC2, SIA, and SDA.
++ *
++ * MMCR0[THRESHOLD] is not automatically multiplied.
++ *
++ * On the 604, software must always reset MMCR0[ENINT] after
++ * taking a PMI. This is not the case for the 604e.
++ *
++ * 604e
++ * ----
++ * 604e adds MMCR1, PMC3, and PMC4.
++ * Bus-to-core multiplier is available via HID1[PLL_CFG].
++ *
++ * MMCR0[THRESHOLD] is automatically multiplied by 4.
++ *
++ * When the 604e vectors to the PMI handler, it automatically
++ * clears any pending PMIs. Unlike the 604, the 604e does not
++ * require MMCR0[ENINT] to be cleared (and possibly reset)
++ * before external interrupts can be re-enabled.
++ *
++ * 750
++ * ---
++ * 750 adds user-readable MMCRn/PMCn/SIA registers, and removes SDA.
++ *
++ * MMCR0[THRESHOLD] is not automatically multiplied.
++ *
++ * Motorola MPC750UM.pdf, page C-78, states: "The performance monitor
++ * of the MPC755 functions the same as that of the MPC750, (...), except
++ * that for both the MPC750 and MPC755, no combination of the thermal
++ * assist unit, the decrementer register, and the performance monitor
++ * can be used at any one time. If exceptions for any two of these
++ * functional blocks are enabled together, multiple exceptions caused
++ * by any of these three blocks cause unpredictable results."
++ *
++ * IBM 750CXe_Err_DD2X.pdf, Erratum #13, states that a PMI which
++ * occurs immediately after a delayed decrementer exception can
++ * corrupt SRR0, causing the processor to hang. It also states that
++ * PMIs via TB bit transitions can be used to simulate the decrementer.
++ *
++ * 750FX adds dual-PLL support and programmable core frequency switching.
++ *
++ * 74xx
++ * ----
++ * 7400 adds MMCR2 and BAMR.
++ *
++ * MMCR0[THRESHOLD] is multiplied by 2 or 32, as specified
++ * by MMCR2[THRESHMULT].
++ *
++ * 74xx changes the semantics of several MMCR0 control bits,
++ * compared to 604/750.
++ *
++ * PPC7410 Erratum No. 10: Like the MPC750 TAU/DECR/PMI erratum.
++ * Erratum No. 14 marks TAU as unsupported in 7410, but this leaves
++ * perfmon and decrementer interrupts as being mutually exclusive.
++ * Affects PPC7410 1.0-1.2 (PVR 0x800C1100-0x800C1102). 1.3 and up
++ * (PVR 0x800C1103 up) are Ok.
++ *
++ * 7450 adds PMC5 and PMC6.
++ *
++ * 7455/7445 V3.3 (PVR 80010303) and later use the 7457 PLL table,
++ * earlier revisions use the 7450 PLL table
++ */
++
++static inline unsigned int read_pmc(unsigned int pmc)
++{
++	switch( pmc ) {
++	default: /* impossible, but silences gcc warning */
++	case 0:
++		return mfspr(SPRN_PMC1);
++	case 1:
++		return mfspr(SPRN_PMC2);
++	case 2:
++		return mfspr(SPRN_PMC3);
++	case 3:
++		return mfspr(SPRN_PMC4);
++	case 4:
++		return mfspr(SPRN_PMC5);
++	case 5:
++		return mfspr(SPRN_PMC6);
++	}
++}
++
++static void ppc_read_counters(/*const*/ struct perfctr_cpu_state *state,
++			      struct perfctr_low_ctrs *ctrs)
 +{
 +	unsigned int cstatus, nrctrs, i;
 +
 +	cstatus = state->cstatus;
 +	if( perfctr_cstatus_has_tsc(cstatus) )
-+		rdtscl(ctrs->tsc);
++		ctrs->tsc = get_tbl();
 +	nrctrs = perfctr_cstatus_nractrs(cstatus);
 +	for(i = 0; i < nrctrs; ++i) {
 +		unsigned int pmc = state->pmc[i].map;
-+		rdpmc_low(pmc, ctrs->pmc[i]);
++		ctrs->pmc[i] = read_pmc(pmc);
++	}
++	/* handle MMCR0 changes due to FCECE or TRIGGER on 74xx */
++	if( state->cstatus & (1<<30) ) {
++		unsigned int mmcr0 = mfspr(SPRN_MMCR0);
++		state->ppc_mmcr[0] = mmcr0;
++		per_cpu_cache[smp_processor_id()].ppc_mmcr[0] = mmcr0;
 +	}
 +}
 +
-+static int k8_check_control(struct perfctr_cpu_state *state)
++static unsigned int pmc_max_event(unsigned int pmc)
 +{
-+	unsigned int evntsel, i, nractrs, nrctrs, pmc_mask, pmc;
++	switch( pmc ) {
++	default: /* impossible, but silences gcc warning */
++	case 0:
++		return 127;
++	case 1:
++		return 63;
++	case 2:
++		return 31;
++	case 3:
++		return 31;
++	case 4:
++		return 31;
++	case 5:
++		return 63;
++	}
++}
 +
-+	nractrs = state->control.nractrs;
-+	nrctrs = nractrs + state->control.nrictrs;
-+	if( nrctrs < nractrs || nrctrs > 4 )
++static unsigned int get_nr_pmcs(void)
++{
++	switch( pm_type ) {
++	case PM_7450:
++		return 6;
++	case PM_7400:
++	case PM_750:
++	case PM_604e:
++		return 4;
++	default: /* impossible, but silences gcc warning */
++	case PM_604:
++		return 2;
++	}
++}
++
++static int ppc_check_control(struct perfctr_cpu_state *state)
++{
++	unsigned int i, nrctrs, pmc_mask, pmc;
++	unsigned int nr_pmcs, evntsel[6];
++
++	nr_pmcs = get_nr_pmcs();
++	nrctrs = state->control.nractrs;
++	if( state->control.nrictrs || nrctrs > nr_pmcs )
 +		return -EINVAL;
 +
 +	pmc_mask = 0;
++	memset(evntsel, 0, sizeof evntsel);
 +	for(i = 0; i < nrctrs; ++i) {
 +		pmc = state->control.pmc_map[i];
 +		state->pmc[i].map = pmc;
-+		if( pmc >= 4 || (pmc_mask & (1<<pmc)) )
++		if( pmc >= nr_pmcs || (pmc_mask & (1<<pmc)) )
 +			return -EINVAL;
 +		pmc_mask |= (1<<pmc);
-+		evntsel = state->control.evntsel[i];
-+		/* protect reserved bits */
-+		if( evntsel & K8_EVNTSEL_RESERVED )
-+			return -EPERM;
-+		/* ENable bit must be set in each evntsel */
-+		if( !(evntsel & K8_EVNTSEL_ENABLE) )
++
++		evntsel[pmc] = state->control.evntsel[i];
++		if( evntsel[pmc] > pmc_max_event(pmc) )
 +			return -EINVAL;
-+		/* the CPL field must be non-zero */
-+		if( !(evntsel & K8_EVNTSEL_CPL) )
-+			return -EINVAL;
-+		/* INT bit must be off for a-mode and on for i-mode counters */
-+		if( evntsel & K8_EVNTSEL_INT ) {
-+			if( i < nractrs )
-+				return -EINVAL;
-+		} else {
-+			if( i >= nractrs )
-+				return -EINVAL;
-+		}
 +	}
++
++	switch( pm_type ) {
++	case PM_7450:
++		if( state->control.ppc.mmcr2 & MMCR2_RESERVED )
++			return -EINVAL;
++		state->ppc_mmcr[2] = state->control.ppc.mmcr2;
++		break;
++	default:
++		if( state->control.ppc.mmcr2 )
++			return -EINVAL;
++		state->ppc_mmcr[2] = 0;
++	}
++
++	if( state->control.ppc.mmcr0 & MMCR0_RESERVED )
++		return -EINVAL;
++	state->ppc_mmcr[0] = (state->control.ppc.mmcr0
++			      | (evntsel[0] << (31-25))
++			      | (evntsel[1] << (31-31)));
++
++	state->ppc_mmcr[1] = ((  evntsel[2] << (31-4))
++			      | (evntsel[3] << (31-9))
++			      | (evntsel[4] << (31-14))
++			      | (evntsel[5] << (31-20)));
++
 +	state->k1.id = new_id();
++
++	/*
++	 * MMCR0[FC] and MMCR0[TRIGGER] may change on 74xx if FCECE or
++	 * TRIGGER is set. To avoid undoing those changes, we must read
++	 * MMCR0 back into state->ppc_mmcr[0] and the cache at suspends.
++	 */
++	switch( pm_type ) {
++	case PM_7450:
++	case PM_7400:
++		if( state->ppc_mmcr[0] & (MMCR0_FCECE | MMCR0_TRIGGER) )
++			state->cstatus |= (1<<30);
++	default:
++		;
++	}
++
 +	return 0;
 +}
 +
-+static void perfctr_cpu_isuspend(struct perfctr_cpu_state *state)
++#if PERFCTR_INTERRUPT_SUPPORT
++static void ppc_isuspend(struct perfctr_cpu_state *state)
 +{
-+	struct per_cpu_cache *cache;
-+	unsigned int cstatus, nrctrs, i;
-+	int cpu;
-+
-+	cpu = smp_processor_id();
-+	cache = &per_cpu_cache[cpu];
-+	cstatus = state->cstatus;
-+	nrctrs = perfctr_cstatus_nrctrs(cstatus);
-+	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
-+		unsigned int pmc, now;
-+		pmc = state->pmc[i].map;
-+		cache->control.evntsel[pmc] = 0;
-+		wrmsr(MSR_K8_EVNTSEL0+pmc, 0, 0);
-+		rdpmc_low(pmc, now);
-+		state->pmc[i].sum += now - state->pmc[i].start;
-+		state->pmc[i].start = now;
-+	}
-+	/* cache->k1.id is still == state->k1.id */
-+	set_isuspend_cpu(state, cpu);
++	// XXX
 +}
 +
-+static void perfctr_cpu_iresume(const struct perfctr_cpu_state *state)
++static void ppc_iresume(const struct perfctr_cpu_state *state)
 +{
-+	struct per_cpu_cache *cache;
-+	unsigned int cstatus, nrctrs, i;
-+	int cpu;
-+
-+	cpu = smp_processor_id();
-+	cache = &per_cpu_cache[cpu];
-+	if( cache->k1.id == state->k1.id ) {
-+		cache->k1.id = 0; /* force reload of cleared EVNTSELs */
-+		if( is_isuspend_cpu(state, cpu) )
-+			return; /* skip reload of PERFCTRs */
-+	}
-+	cstatus = state->cstatus;
-+	nrctrs = perfctr_cstatus_nrctrs(cstatus);
-+	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
-+		unsigned int pmc = state->pmc[i].map;
-+		/* If the control wasn't ours we must disable the evntsels
-+		   before reinitialising the counters, to prevent unexpected
-+		   counter increments and missed overflow interrupts. */
-+		if( cache->control.evntsel[pmc] ) {
-+			cache->control.evntsel[pmc] = 0;
-+			wrmsr(MSR_K8_EVNTSEL0+pmc, 0, 0);
-+		}
-+		wrmsr(MSR_K8_PERFCTR0+pmc, state->pmc[i].start, -1);
-+	}
-+	/* cache->k1.id remains != state->k1.id */
++	// XXX
 +}
++#endif
 +
-+static void perfctr_cpu_write_control(const struct perfctr_cpu_state *state)
++static void ppc_write_control(const struct perfctr_cpu_state *state)
 +{
 +	struct per_cpu_cache *cache;
-+	unsigned int nrctrs, i;
++	unsigned int value;
 +
 +	cache = &per_cpu_cache[smp_processor_id()];
 +	if( cache->k1.id == state->k1.id ) {
 +		return;
 +	}
-+	nrctrs = perfctr_cstatus_nrctrs(state->cstatus);
-+	for(i = 0; i < nrctrs; ++i) {
-+		unsigned int evntsel = state->control.evntsel[i];
-+		unsigned int pmc = state->pmc[i].map;
-+		if( evntsel != cache->control.evntsel[pmc] ) {
-+			cache->control.evntsel[pmc] = evntsel;
-+			wrmsr(MSR_K8_EVNTSEL0+pmc, evntsel, 0);
-+		}
++	/*
++	 * Order matters here: update threshmult and event
++	 * selectors before updating global control, which
++	 * potentially enables PMIs.
++	 *
++	 * Since mtspr doesn't accept a runtime value for the
++	 * SPR number, unroll the loop so each mtspr targets
++	 * a constant SPR.
++	 *
++	 * For processors without MMCR2, we ensure that the
++	 * cache and the state indicate the same value for it,
++	 * preventing any actual mtspr to it. Ditto for MMCR1.
++	 */
++	value = state->ppc_mmcr[2];
++	if( value != cache->ppc_mmcr[2] ) {
++		cache->ppc_mmcr[2] = value;
++		mtspr(SPRN_MMCR2, value);
++	}
++	value = state->ppc_mmcr[1];
++	if( value != cache->ppc_mmcr[1] ) {
++		cache->ppc_mmcr[1] = value;
++		mtspr(SPRN_MMCR1, value);
++	}
++	value = state->ppc_mmcr[0];
++	if( value != cache->ppc_mmcr[0] ) {
++		cache->ppc_mmcr[0] = value;
++		mtspr(SPRN_MMCR0, value);
 +	}
 +	cache->k1.id = state->k1.id;
 +}
 +
-+static void k8_clear_counters(void)
++static void ppc_clear_counters(void)
 +{
-+	clear_msr_range(MSR_K8_EVNTSEL0, 4+4);
-+}
-+
-+/*
-+ * Generic driver for any x86-64 with a working TSC.
-+ * (Mainly for testing with Screwdriver.)
-+ */
-+
-+static int generic_check_control(struct perfctr_cpu_state *state)
-+{
-+	if( state->control.nractrs || state->control.nrictrs )
-+		return -EINVAL;
-+	return 0;
-+}
-+
-+static void generic_clear_counters(void)
-+{
++	switch( pm_type ) {
++	case PM_7450:
++	case PM_7400:
++		mtspr(SPRN_MMCR2, 0);
++		mtspr(SPRN_BAMR, 0);
++	case PM_750:
++	case PM_604e:
++		mtspr(SPRN_MMCR1, 0);
++	case PM_604:
++		mtspr(SPRN_MMCR0, 0);
++	}
++	switch( pm_type ) {
++	case PM_7450:
++		mtspr(SPRN_PMC6, 0);
++		mtspr(SPRN_PMC5, 0);
++	case PM_7400:
++	case PM_750:
++	case PM_604e:
++		mtspr(SPRN_PMC4, 0);
++		mtspr(SPRN_PMC3, 0);
++	case PM_604:
++		mtspr(SPRN_PMC2, 0);
++		mtspr(SPRN_PMC1, 0);
++	}
 +}
 +
 +/*
 + * Driver methods, internal and exported.
 + */
++
++static void perfctr_cpu_write_control(const struct perfctr_cpu_state *state)
++{
++	return ppc_write_control(state);
++}
++
++static void perfctr_cpu_read_counters(/*const*/ struct perfctr_cpu_state *state,
++				      struct perfctr_low_ctrs *ctrs)
++{
++	return ppc_read_counters(state, ctrs);
++}
++
++#if PERFCTR_INTERRUPT_SUPPORT
++static void perfctr_cpu_isuspend(struct perfctr_cpu_state *state)
++{
++	return ppc_isuspend(state);
++}
++
++static void perfctr_cpu_iresume(const struct perfctr_cpu_state *state)
++{
++	return ppc_iresume(state);
++}
 +
 +/* Call perfctr_cpu_ireload() just before perfctr_cpu_resume() to
 +   bypass internal caching and force a reload if the I-mode PMCs. */
@@ -453,12 +625,15 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	nrctrs = perfctr_cstatus_nrctrs(cstatus);
 +
 +	for(pmc_mask = 0; pmc < nrctrs; ++pmc) {
-+		if( (int)state->pmc[pmc].start >= 0 ) { /* XXX: ">" ? */
++		if( (int)state->pmc[pmc].start < 0 ) { /* PPC-specific */
 +			/* XXX: "+=" to correct for overshots */
 +			state->pmc[pmc].start = state->control.ireset[pmc];
 +			pmc_mask |= (1 << pmc);
 +		}
 +	}
++	/* XXX: if pmc_mask == 0, then it must have been a TBL bit flip */
++	/* XXX: HW cleared MMCR0[ENINT]. We presumably cleared the entire
++	   MMCR0, so the re-enable occurs automatically later, no? */
 +	return pmc_mask;
 +}
 +
@@ -469,7 +644,7 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	i = state->control.nractrs;
 +	nrctrs = i + state->control.nrictrs;
 +	for(; i < nrctrs; ++i)
-+		if( state->control.ireset[i] >= 0 )
++		if( state->control.ireset[i] < 0 )	/* PPC-specific */
 +			return -EINVAL;
 +	return 0;
 +}
@@ -484,7 +659,18 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +		state->pmc[i].start = state->control.ireset[i];
 +}
 +
-+static int (*check_control)(struct perfctr_cpu_state*);
++#else	/* PERFCTR_INTERRUPT_SUPPORT */
++static inline void perfctr_cpu_isuspend(struct perfctr_cpu_state *state) { }
++static inline void perfctr_cpu_iresume(const struct perfctr_cpu_state *state) { }
++static inline int check_ireset(const struct perfctr_cpu_state *state) { return 0; }
++static inline void setup_imode_start_values(struct perfctr_cpu_state *state) { }
++#endif	/* PERFCTR_INTERRUPT_SUPPORT */
++
++static int check_control(struct perfctr_cpu_state *state)
++{
++	return ppc_check_control(state);
++}
++
 +int perfctr_cpu_update_control(struct perfctr_cpu_state *state, int is_global)
 +{
 +	int err;
@@ -497,15 +683,15 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	    && state->control.nrictrs )
 +		return -EPERM;
 +
-+	err = check_control(state);
-+	if( err < 0 )
-+		return err;
 +	err = check_ireset(state);
 +	if( err < 0 )
 +		return err;
-+	state->cstatus = perfctr_mk_cstatus(state->control.tsc_on,
-+					    state->control.nractrs,
-+					    state->control.nrictrs);
++	err = check_control(state); /* may initialise state->cstatus */
++	if( err < 0 )
++		return err;
++	state->cstatus |= perfctr_mk_cstatus(state->control.tsc_on,
++					     state->control.nractrs,
++					     state->control.nrictrs);
 +	setup_imode_start_values(state);
 +	return 0;
 +}
@@ -564,10 +750,15 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	}
 +}
 +
-+static void (*clear_counters)(void);
 +static void perfctr_cpu_clear_counters(void)
 +{
-+	return clear_counters();
++	struct per_cpu_cache *cache;
++
++	cache = &per_cpu_cache[smp_processor_id()];
++	memset(cache, 0, sizeof *cache);
++	cache->k1.id = -1;
++
++	ppc_clear_counters();
 +}
 +
 +/****************************************************************
@@ -576,175 +767,290 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 + *								*
 + ****************************************************************/
 +
-+static int __init amd_init(void)
-+{
-+	static char k8_name[] __initdata = "AMD K8";
-+	static char k8c_name[] __initdata = "AMD K8C";
++/* Derive CPU core frequency from TB frequency and PLL_CFG. */
 +
-+	if( !cpu_has_tsc )
-+		return -ENODEV;
-+	if( boot_cpu_data.x86 != 15 )
-+		return -ENODEV;
-+	if( (boot_cpu_data.x86_model > 5) ||
-+	    (boot_cpu_data.x86_model >= 4 && boot_cpu_data.x86_mask >= 8) ) {
-+		perfctr_info.cpu_type = PERFCTR_X86_AMD_K8C;
-+		perfctr_cpu_name = k8c_name;
-+	} else {
-+		perfctr_info.cpu_type = PERFCTR_X86_AMD_K8;
-+		perfctr_cpu_name = k8_name;
++enum pll_type {
++	PLL_NONE,	/* for e.g. 604 which has no HID1[PLL_CFG] */
++	PLL_604e,
++	PLL_750,
++	PLL_750FX,
++	PLL_7400,
++	PLL_7450,
++	PLL_7457,
++};
++
++/* These are the known bus-to-core ratios, indexed by PLL_CFG.
++   Multiplied by 2 since half-multiplier steps are present. */
++
++static unsigned char cfg_ratio_604e[16] __initdata = { // *2
++	2, 2, 14, 2, 4, 13, 5, 9,
++	6, 11, 8, 10, 3, 12, 7, 0
++};
++
++static unsigned char cfg_ratio_750[16] __initdata = { // *2
++	5, 15, 14, 2, 4, 13, 20, 9, // 0b0110 is 18 if L1_TSTCLK=0, but that is abnormal
++	6, 11, 8, 10, 16, 12, 7, 0
++};
++
++static unsigned char cfg_ratio_750FX[32] __initdata = { // *2
++	0, 0, 2, 2, 4, 5, 6, 7,
++	8, 9, 10, 11, 12, 13, 14, 15,
++	16, 17, 18, 19, 20, 22, 24, 26,
++	28, 30, 32, 34, 36, 38, 40, 0
++};
++
++static unsigned char cfg_ratio_7400[16] __initdata = { // *2
++	18, 15, 14, 2, 4, 13, 5, 9,
++	6, 11, 8, 10, 16, 12, 7, 0
++};
++
++static unsigned char cfg_ratio_7450[32] __initdata = { // *2
++	1, 0, 15, 30, 14, 0, 2, 0,
++	4, 0, 13, 26, 5, 0, 9, 18,
++	6, 0, 11, 22, 8, 20, 10, 24,
++	16, 28, 12, 32, 7, 0, 0, 0
++};
++
++static unsigned char cfg_ratio_7457[32] __initdata = { // *2
++	23, 34, 15, 30, 14, 36, 2, 40,
++	4, 42, 13, 26, 17, 48, 19, 18,
++	6, 21, 11, 22, 8, 20, 10, 24,
++	16, 28, 12, 32, 27, 56, 0, 25
++};
++
++static unsigned int __init tb_to_core_ratio(enum pll_type pll_type)
++{
++	unsigned char *cfg_ratio;
++	unsigned int shift = 28, mask = 0xF, hid1, pll_cfg, ratio;
++
++	switch( pll_type ) {
++	case PLL_604e:
++		cfg_ratio = cfg_ratio_604e;
++		break;
++	case PLL_750:
++		cfg_ratio = cfg_ratio_750;
++		break;
++	case PLL_750FX:
++		cfg_ratio = cfg_ratio_750FX;
++		hid1 = mfspr(SPRN_HID1);
++		switch( (hid1 >> 16) & 0x3 ) { /* HID1[PI0,PS] */
++		case 0:		/* PLL0 with external config */
++			shift = 31-4;	/* access HID1[PCE] */
++			break;
++		case 2:		/* PLL0 with internal config */
++			shift = 31-20;	/* access HID1[PC0] */
++			break;
++		case 1: case 3:	/* PLL1 */
++			shift = 31-28;	/* access HID1[PC1] */
++			break;
++		}
++		mask = 0x1F;
++		break;
++	case PLL_7400:
++		cfg_ratio = cfg_ratio_7400;
++		break;
++	case PLL_7450:
++		cfg_ratio = cfg_ratio_7450;
++		shift = 12;
++		mask = 0x1F;
++		break;
++	case PLL_7457:
++		cfg_ratio = cfg_ratio_7457;
++		shift = 12;
++		mask = 0x1F;
++		break;
++	default:
++		return 0;
 +	}
-+	check_control = k8_check_control;
-+	clear_counters = k8_clear_counters;
-+	if( cpu_has_apic )
-+		perfctr_info.cpu_features |= PERFCTR_FEATURE_PCINT;
++	hid1 = mfspr(SPRN_HID1);
++	pll_cfg = (hid1 >> shift) & mask;
++	ratio = cfg_ratio[pll_cfg];
++	if( !ratio )
++		printk(KERN_WARNING "perfctr/%s: unknown PLL_CFG 0x%x\n",
++		       __FILE__, pll_cfg);
++	return (4/2) * ratio;
++}
++
++static unsigned int __init pll_to_core_khz(enum pll_type pll_type)
++{
++	unsigned int tb_to_core = tb_to_core_ratio(pll_type);
++	perfctr_info.tsc_to_cpu_mult = tb_to_core;
++	return tb_ticks_per_jiffy * tb_to_core * (HZ/10) / (1000/10);
++}
++
++/* Extract the CPU clock frequency from /proc/cpuinfo. */
++
++static unsigned int __init parse_clock_khz(struct seq_file *m)
++{
++	/* "/proc/cpuinfo" formats:
++	 *
++	 * "core clock\t: %d MHz\n"	// 8260 (show_percpuinfo)
++	 * "clock\t\t: %ldMHz\n"	// 4xx (show_percpuinfo)
++	 * "clock\t\t: %dMHz\n"		// oak (show_percpuinfo)
++	 * "clock\t\t: %ldMHz\n"	// prep (show_percpuinfo)
++	 * "clock\t\t: %dMHz\n"		// pmac (show_percpuinfo)
++	 * "clock\t\t: %dMHz\n"		// gemini (show_cpuinfo!)
++	 */
++	char *p;
++	unsigned int mhz;
++
++	p = m->buf;
++	p[m->count] = '\0';
++
++	for(;;) {		/* for each line */
++		if( strncmp(p, "core ", 5) == 0 )
++			p += 5;
++		do {
++			if( strncmp(p, "clock\t", 6) != 0 )
++				break;
++			p += 6;
++			while( *p == '\t' )
++				++p;
++			if( *p != ':' )
++				break;
++			do {
++				++p;
++			} while( *p == ' ' );
++			mhz = simple_strtoul(p, 0, 10);
++			if( mhz )
++				return mhz * 1000;
++		} while( 0 );
++		for(;;) {	/* skip to next line */
++			switch( *p++ ) {
++			case '\n':
++				break;
++			case '\0':
++				return 0;
++			default:
++				continue;
++			}
++			break;
++		}
++	}
++}
++
++static unsigned int __init detect_cpu_khz(enum pll_type pll_type)
++{
++	char buf[512];
++	struct seq_file m;
++	unsigned int khz;
++
++	khz = pll_to_core_khz(pll_type);
++	if( khz )
++		return khz;
++
++	memset(&m, 0, sizeof m);
++	m.buf = buf;
++	m.size = (sizeof buf)-1;
++
++	m.count = 0;
++	if( ppc_md.show_percpuinfo != 0 &&
++	    ppc_md.show_percpuinfo(&m, 0) == 0 &&
++	    (khz = parse_clock_khz(&m)) != 0 )
++		return khz;
++
++	m.count = 0;
++	if( ppc_md.show_cpuinfo != 0 &&
++	    ppc_md.show_cpuinfo(&m) == 0 &&
++	    (khz = parse_clock_khz(&m)) != 0 )
++		return khz;
++
++	printk(KERN_WARNING "perfctr/%s: unable to determine CPU speed\n",
++	       __FILE__);
 +	return 0;
 +}
 +
-+/* For testing on Screwdriver. */
 +static int __init generic_init(void)
 +{
-+	static char generic_name[] __initdata = "Generic x86-64 with TSC";
-+	if( !cpu_has_tsc )
++	static char generic_name[] __initdata = "PowerPC 60x/7xx/74xx";
++	unsigned int features;
++	enum pll_type pll_type;
++	unsigned int pvr;
++
++	features = PERFCTR_FEATURE_RDTSC | PERFCTR_FEATURE_RDPMC;
++	pvr = mfspr(SPRN_PVR);
++	switch( PVR_VER(pvr) ) {
++	case 0x0004: /* 604 */
++		pm_type = PM_604;
++		pll_type = PLL_NONE;
++		features = PERFCTR_FEATURE_RDTSC;
++		break;
++	case 0x0009: /* 604e;  */
++	case 0x000A: /* 604ev */
++		pm_type = PM_604e;
++		pll_type = PLL_604e;
++		features = PERFCTR_FEATURE_RDTSC;
++		break;
++	case 0x0008: /* 750/740 */
++		pm_type = PM_750;
++		pll_type = PLL_750;
++		break;
++	case 0x7000: case 0x7001: /* IBM750FX */
++		pm_type = PM_750;
++		pll_type = PLL_750FX;
++		break;
++	case 0x000C: /* 7400 */
++		pm_type = PM_7400;
++		pll_type = PLL_7400;
++		break;
++	case 0x800C: /* 7410 */
++		pm_type = PM_7400;
++		pll_type = PLL_7400;
++		break;
++	case 0x8000: /* 7451/7441 */
++		pm_type = PM_7450;
++		pll_type = PLL_7450;
++		break;
++	case 0x8001: /* 7455/7445 */
++		pm_type = PM_7450;
++		pll_type = ((pvr & 0xFFFF) < 0x0303) ? PLL_7450 : PLL_7457;
++		break;
++	case 0x8002: /* 7457/7447 */
++		pm_type = PM_7450;
++		pll_type = PLL_7457;
++		break;
++	default:
++		printk(KERN_WARNING "perfctr/%s: unknown PowerPC with "
++		       "PVR 0x%08x -- bailing out\n", __FILE__, pvr);
 +		return -ENODEV;
-+	perfctr_info.cpu_features &= ~PERFCTR_FEATURE_RDPMC;
-+	perfctr_info.cpu_type = PERFCTR_X86_GENERIC;
-+	perfctr_cpu_name = generic_name;
-+	check_control = generic_check_control;
-+	clear_counters = generic_clear_counters;
-+	return 0;
-+}
-+
-+static void perfctr_cpu_init_one(void *ignore)
-+{
-+	/* PREEMPT note: when called via smp_call_function(),
-+	   this is in IRQ context with preemption disabled. */
-+	perfctr_cpu_clear_counters();
-+	if( cpu_has_apic )
-+		apic_write(APIC_LVTPC, LOCAL_PERFCTR_VECTOR);
-+	if( perfctr_info.cpu_features & PERFCTR_FEATURE_RDPMC )
-+		set_in_cr4_local(X86_CR4_PCE);
-+}
-+
-+static void perfctr_cpu_exit_one(void *ignore)
-+{
-+	/* PREEMPT note: when called via smp_call_function(),
-+	   this is in IRQ context with preemption disabled. */
-+	perfctr_cpu_clear_counters();
-+	if( cpu_has_apic )
-+		apic_write(APIC_LVTPC, APIC_DM_NMI | APIC_LVT_MASKED);
-+	if( perfctr_info.cpu_features & PERFCTR_FEATURE_RDPMC )
-+		clear_in_cr4_local(X86_CR4_PCE);
-+}
-+
-+#if defined(CONFIG_PM)
-+
-+static void perfctr_pm_suspend(void)
-+{
-+	/* XXX: clear control registers */
-+	printk("perfctr: PM suspend\n");
-+}
-+
-+static void perfctr_pm_resume(void)
-+{
-+	/* XXX: reload control registers */
-+	printk("perfctr: PM resume\n");
-+}
-+
-+#include <linux/sysdev.h>
-+
-+static int perfctr_device_suspend(struct sys_device *dev, u32 state)
-+{
-+	perfctr_pm_suspend();
-+	return 0;
-+}
-+
-+static int perfctr_device_resume(struct sys_device *dev)
-+{
-+	perfctr_pm_resume();
-+	return 0;
-+}
-+
-+static struct sysdev_class perfctr_sysclass = {
-+	set_kset_name("perfctr"),
-+	.resume		= perfctr_device_resume,
-+	.suspend	= perfctr_device_suspend,
-+};
-+
-+static struct sys_device device_perfctr = {
-+	.id	= 0,
-+	.cls	= &perfctr_sysclass,
-+};
-+
-+static void x86_pm_init(void)
-+{
-+	if( sysdev_class_register(&perfctr_sysclass) == 0 )
-+		sysdev_register(&device_perfctr);
-+}
-+
-+static void x86_pm_exit(void)
-+{
-+	sysdev_unregister(&device_perfctr);
-+	sysdev_class_unregister(&perfctr_sysclass);
-+}
-+
-+#else
-+
-+static inline void x86_pm_init(void) { }
-+static inline void x86_pm_exit(void) { }
-+
-+#endif	/* CONFIG_PM */
-+
-+static void do_init_tests(void)
-+{
-+#ifdef CONFIG_PERFCTR_INIT_TESTS
-+	if( reserve_lapic_nmi() >= 0 ) {
-+		perfctr_x86_init_tests();
-+		release_lapic_nmi();
 +	}
-+#endif
++	perfctr_info.cpu_features = features;
++	perfctr_info.cpu_type = 0; /* user-space should inspect PVR */
++	perfctr_cpu_name = generic_name;
++	perfctr_info.cpu_khz = detect_cpu_khz(pll_type);
++	perfctr_ppc_init_tests();
++	return 0;
 +}
 +
-+static void invalidate_per_cpu_cache(void)
++static void __init perfctr_cpu_init_one(void *ignore)
 +{
-+	/*
-+	 * per_cpu_cache[] is initialised to contain "impossible"
-+	 * evntsel values guaranteed to differ from anything accepted
-+	 * by perfctr_cpu_update_control(). This way, initialisation of
-+	 * a CPU's evntsel MSRs will happen automatically the first time
-+	 * perfctr_cpu_write_control() executes on it.
-+	 * All-bits-one works for all currently supported processors.
-+	 * The memset also sets the ids to -1, which is intentional.
-+	 */
-+	memset(per_cpu_cache, ~0, sizeof per_cpu_cache);
++	/* PREEMPT note: when called via smp_call_function(),
++	   this is in IRQ context with preemption disabled. */
++	perfctr_cpu_clear_counters();
++}
++
++static void __exit perfctr_cpu_exit_one(void *ignore)
++{
++	/* PREEMPT note: when called via smp_call_function(),
++	   this is in IRQ context with preemption disabled. */
++	perfctr_cpu_clear_counters();
 +}
 +
 +int __init perfctr_cpu_init(void)
 +{
-+	int err = -ENODEV;
++	int err;
 +
 +	preempt_disable();
 +
-+	/* RDPMC and RDTSC are on by default. They will be disabled
-+	   by the init procedures if necessary. */
-+	perfctr_info.cpu_features = PERFCTR_FEATURE_RDPMC | PERFCTR_FEATURE_RDTSC;
++	perfctr_info.cpu_features = 0;
 +
-+	switch( boot_cpu_data.x86_vendor ) {
-+	case X86_VENDOR_AMD:
-+		err = amd_init();
-+		break;
-+	}
-+	if( err ) {
-+		err = generic_init();	/* last resort */
-+		if( err )
-+			goto out;
-+	}
-+	do_init_tests();
++	err = generic_init();
++	if( err )
++		goto out;
 +
-+	invalidate_per_cpu_cache();
-+
-+	perfctr_info.cpu_khz = cpu_khz;
-+	perfctr_info.tsc_to_cpu_mult = 1;
-+
++	perfctr_cpu_init_one(NULL);
++	smp_call_function(perfctr_cpu_init_one, NULL, 1, 1);
++	perfctr_cpu_set_ihandler(NULL);
 + out:
 +	preempt_enable();
 +	return err;
@@ -752,6 +1058,11 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +
 +void __exit perfctr_cpu_exit(void)
 +{
++	preempt_disable();
++	perfctr_cpu_exit_one(NULL);
++	smp_call_function(perfctr_cpu_exit_one, NULL, 1, 1);
++	perfctr_cpu_set_ihandler(NULL);
++	preempt_enable();
 +}
 +
 +/****************************************************************
@@ -769,21 +1080,17 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +
 +	down(&mutex);
 +	ret = current_service;
-+	if( ret )
-+		goto out_up;
-+	ret = "unknown driver (oprofile?)";
-+	if( reserve_lapic_nmi() < 0 )
-+		goto out_up;
-+	current_service = service;
-+	if( perfctr_info.cpu_features & PERFCTR_FEATURE_RDPMC )
-+		mmu_cr4_features |= X86_CR4_PCE;
-+	on_each_cpu(perfctr_cpu_init_one, NULL, 1, 1);
-+	perfctr_cpu_set_ihandler(NULL);
-+	x86_pm_init();
-+	ret = NULL;
-+ out_up:
++	if( !ret )
++		current_service = service;
 +	up(&mutex);
 +	return ret;
++}
++
++static void perfctr_cpu_clear_one(void *ignore)
++{
++	/* PREEMPT note: when called via smp_call_function(),
++	   this is in IRQ context with preemption disabled. */
++	perfctr_cpu_clear_counters();
 +}
 +
 +void perfctr_cpu_release(const char *service)
@@ -792,95 +1099,356 @@ diff -ruN linux-2.6.6-mm2/drivers/perfctr/x86_64.c linux-2.6.6-mm2.perfctr-2.7.2
 +	if( service != current_service ) {
 +		printk(KERN_ERR "%s: attempt by %s to release while reserved by %s\n",
 +		       __FUNCTION__, service, current_service);
-+		goto out_up;
++	} else {
++		/* power down the counters */
++		on_each_cpu(perfctr_cpu_clear_one, NULL, 1, 1);
++		perfctr_cpu_set_ihandler(NULL);
++		current_service = 0;
 +	}
-+	/* power down the counters */
-+	invalidate_per_cpu_cache();
-+	if( perfctr_info.cpu_features & PERFCTR_FEATURE_RDPMC )
-+		mmu_cr4_features &= ~X86_CR4_PCE;
-+	on_each_cpu(perfctr_cpu_exit_one, NULL, 1, 1);
-+	perfctr_cpu_set_ihandler(NULL);
-+	x86_pm_exit();
-+	current_service = 0;
-+	release_lapic_nmi();
-+ out_up:
 +	up(&mutex);
 +}
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/hw_irq.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/hw_irq.h
---- linux-2.6.6-mm2/include/asm-x86_64/hw_irq.h	2004-02-18 11:09:53.000000000 +0100
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/hw_irq.h	2004-05-14 14:45:43.980229843 +0200
-@@ -65,14 +65,15 @@
-  * sources per level' errata.
-  */
- #define LOCAL_TIMER_VECTOR	0xef
-+#define LOCAL_PERFCTR_VECTOR	0xee
- 
- /*
-- * First APIC vector available to drivers: (vectors 0x30-0xee)
-+ * First APIC vector available to drivers: (vectors 0x30-0xed)
-  * we start at 0x31 to spread out vectors evenly between priority
-  * levels. (0x80 is the syscall vector)
-  */
- #define FIRST_DEVICE_VECTOR	0x31
--#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
-+#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
- 
- 
- #ifndef __ASSEMBLY__
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/ia32_unistd.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/ia32_unistd.h
---- linux-2.6.6-mm2/include/asm-x86_64/ia32_unistd.h	2004-05-10 11:14:37.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/ia32_unistd.h	2004-05-14 14:45:43.980229843 +0200
-@@ -288,6 +288,8 @@
- #define __NR_ia32_mq_timedreceive	(__NR_ia32_mq_open+3)
- #define __NR_ia32_mq_notify		(__NR_ia32_mq_open+4)
- #define __NR_ia32_mq_getsetattr	(__NR_ia32_mq_open+5)
-+/* 283: reserved for kexec */
-+#define __NR_ia32_perfctr	284
- 
- #define IA32_NR_syscalls 285	/* must be > than biggest syscall! */
- 
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/irq.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/irq.h
---- linux-2.6.6-mm2/include/asm-x86_64/irq.h	2004-05-10 11:14:37.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/irq.h	2004-05-14 14:45:43.980229843 +0200
-@@ -29,7 +29,7 @@
-  */
- #define NR_VECTORS 256
- 
--#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
-+#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in hw_irq.h */
- 
- #ifdef CONFIG_PCI_USE_VECTOR
- #define NR_IRQS FIRST_SYSTEM_VECTOR
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/perfctr.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/perfctr.h
---- linux-2.6.6-mm2/include/asm-x86_64/perfctr.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/perfctr.h	2004-05-14 14:45:43.980229843 +0200
-@@ -0,0 +1,166 @@
-+/* $Id: perfctr.h,v 1.12 2004/05/12 21:28:27 mikpe Exp $
-+ * x86_64 Performance-Monitoring Counters driver
+diff -ruN linux-2.6.6-mm2/drivers/perfctr/ppc_tests.c linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc_tests.c
+--- linux-2.6.6-mm2/drivers/perfctr/ppc_tests.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc_tests.c	2004-05-14 14:44:06.478685758 +0200
+@@ -0,0 +1,286 @@
++/* $Id: ppc_tests.c,v 1.3 2004/05/13 23:32:49 mikpe Exp $
++ * Performance-monitoring counters driver.
++ * Optional PPC32-specific init-time tests.
 + *
-+ * Based on <asm-i386/perfctr.h>:
-+ * - removed P5- and P4-only stuff
-+ * - reduced the number of counters from 18 to 4
-+ * - PERFCTR_INTERRUPT_SUPPORT is always 1
-+ * - perfctr_cpus_forbidden_mask never needed (it's P4-only)
-+ *
-+ * Copyright (C) 2003-2004  Mikael Pettersson
++ * Copyright (C) 2004  Mikael Pettersson
 + */
-+#ifndef _ASM_X86_64_PERFCTR_H
-+#define _ASM_X86_64_PERFCTR_H
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/fs.h>
++#include <linux/perfctr.h>
++#include <asm/processor.h>
++#include <asm/time.h>	/* for tb_ticks_per_jiffy */
++#include "ppc_tests.h"
++
++#define NITER	256
++#define X2(S)	S"; "S
++#define X8(S)	X2(X2(X2(S)))
++
++static void __init do_read_tbl(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mftbl %0") : "=r"(dummy));
++}
++
++static void __init do_read_pmc1(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_PMC1)) : "=r"(dummy));
++}
++
++static void __init do_read_pmc2(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_PMC2)) : "=r"(dummy));
++}
++
++static void __init do_read_pmc3(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_PMC3)) : "=r"(dummy));
++}
++
++static void __init do_read_pmc4(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_PMC4)) : "=r"(dummy));
++}
++
++static void __init do_read_mmcr0(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_MMCR0)) : "=r"(dummy));
++}
++
++static void __init do_read_mmcr1(unsigned int unused)
++{
++	unsigned int i, dummy;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mfspr %0," __stringify(SPRN_MMCR1)) : "=r"(dummy));
++}
++
++static void __init do_write_pmc2(unsigned int arg)
++{
++	unsigned int i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mtspr " __stringify(SPRN_PMC2) ",%0") : : "r"(arg));
++}
++
++static void __init do_write_pmc3(unsigned int arg)
++{
++	unsigned int i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mtspr " __stringify(SPRN_PMC3) ",%0") : : "r"(arg));
++}
++
++static void __init do_write_pmc4(unsigned int arg)
++{
++	unsigned int i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mtspr " __stringify(SPRN_PMC4) ",%0") : : "r"(arg));
++}
++
++static void __init do_write_mmcr1(unsigned int arg)
++{
++	unsigned int i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mtspr " __stringify(SPRN_MMCR1) ",%0") : : "r"(arg));
++}
++
++static void __init do_write_mmcr0(unsigned int arg)
++{
++	unsigned int i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__(X8("mtspr " __stringify(SPRN_MMCR0) ",%0") : : "r"(arg));
++}
++
++static void __init do_empty_loop(unsigned int unused)
++{
++	unsigned i;
++	for(i = 0; i < NITER/8; ++i)
++		__asm__ __volatile__("" : : );
++}
++
++static unsigned __init run(void (*doit)(unsigned int), unsigned int arg)
++{
++	unsigned int start, stop;
++	start = mfspr(SPRN_PMC1);
++	(*doit)(arg);	/* should take < 2^32 cycles to complete */
++	stop = mfspr(SPRN_PMC1);
++	return stop - start;
++}
++
++static void __init init_tests_message(void)
++{
++	unsigned int pvr = mfspr(SPRN_PVR);
++	printk(KERN_INFO "Please email the following PERFCTR INIT lines "
++	       "to mikpe@csd.uu.se\n"
++	       KERN_INFO "To remove this message, rebuild the driver "
++	       "with CONFIG_PERFCTR_INIT_TESTS=n\n");
++	printk(KERN_INFO "PERFCTR INIT: PVR 0x%08x, CPU clock %u kHz, TB clock %u kHz\n",
++	       pvr,
++	       perfctr_info.cpu_khz,
++	       tb_ticks_per_jiffy*(HZ/10)/(1000/10));
++}
++
++static void __init clear(int have_mmcr1)
++{
++	mtspr(SPRN_MMCR0, 0);
++	mtspr(SPRN_PMC1, 0);
++	mtspr(SPRN_PMC2, 0);
++	if( have_mmcr1 ) {
++		mtspr(SPRN_MMCR1, 0);
++		mtspr(SPRN_PMC3, 0);
++		mtspr(SPRN_PMC4, 0);
++	}		
++}
++
++static void __init check_fcece(unsigned int pmc1ce)
++{
++	unsigned int mmcr0;
++
++	/*
++	 * This test checks if MMCR0[FC] is set after PMC1 overflows
++	 * when MMCR0[FCECE] is set.
++	 * 74xx documentation states this behaviour, while documentation
++	 * for 604/750 processors doesn't mention this at all.
++	 *
++	 * Also output the value of PMC1 shortly after the overflow.
++	 * This tells us if PMC1 really was frozen. On 604/750, it may not
++	 * freeze since we don't enable PMIs. [No freeze confirmed on 750.]
++	 *
++	 * When pmc1ce == 0, MMCR0[PMC1CE] is zero. It's unclear whether
++	 * this masks all PMC1 overflow events or just PMC1 PMIs.
++	 *
++	 * PMC1 counts processor cycles, with 100 to go before overflowing.
++	 * FCECE is set.
++	 * PMC1CE is clear if !pmc1ce, otherwise set.
++	 */
++	mtspr(SPRN_PMC1, 0x80000000-100);
++	mmcr0 = (1<<(31-6)) | (0x01 << 6);
++	if( pmc1ce )
++		mmcr0 |= (1<<(31-16));
++	mtspr(SPRN_MMCR0, mmcr0);
++	do {
++		do_empty_loop(0);
++	} while( !(mfspr(SPRN_PMC1) & 0x80000000) );
++	do_empty_loop(0);
++	printk(KERN_INFO "PERFCTR INIT: %s(%u): MMCR0[FC] is %u, PMC1 is %#x\n",
++	       __FUNCTION__, pmc1ce,
++	       !!(mfspr(SPRN_MMCR0) & (1<<(31-0))), mfspr(SPRN_PMC1));
++	mtspr(SPRN_MMCR0, 0);
++	mtspr(SPRN_PMC1, 0);
++}
++
++static void __init check_trigger(unsigned int pmc1ce)
++{
++	unsigned int mmcr0;
++
++	/*
++	 * This test checks if MMCR0[TRIGGER] is reset after PMC1 overflows.
++	 * 74xx documentation states this behaviour, while documentation
++	 * for 604/750 processors doesn't mention this at all.
++	 * [No reset confirmed on 750.]
++	 *
++	 * Also output the values of PMC1 and PMC2 shortly after the overflow.
++	 * PMC2 should be equal to PMC1-0x80000000.
++	 *
++	 * When pmc1ce == 0, MMCR0[PMC1CE] is zero. It's unclear whether
++	 * this masks all PMC1 overflow events or just PMC1 PMIs.
++	 *
++	 * PMC1 counts processor cycles, with 100 to go before overflowing.
++	 * PMC2 counts processor cycles, starting from 0.
++	 * TRIGGER is set, so PMC2 doesn't start until PMC1 overflows.
++	 * PMC1CE is clear if !pmc1ce, otherwise set.
++	 */
++	mtspr(SPRN_PMC2, 0);
++	mtspr(SPRN_PMC1, 0x80000000-100);
++	mmcr0 = (1<<(31-18)) | (0x01 << 6) | (0x01 << 0);
++	if( pmc1ce )
++		mmcr0 |= (1<<(31-16));
++	mtspr(SPRN_MMCR0, mmcr0);
++	do {
++		do_empty_loop(0);
++	} while( !(mfspr(SPRN_PMC1) & 0x80000000) );
++	do_empty_loop(0);
++	printk(KERN_INFO "PERFCTR INIT: %s(%u): MMCR0[TRIGGER] is %u, PMC1 is %#x, PMC2 is %#x\n",
++	       __FUNCTION__, pmc1ce,
++	       !!(mfspr(SPRN_MMCR0) & (1<<(31-18))), mfspr(SPRN_PMC1), mfspr(SPRN_PMC2));
++	mtspr(SPRN_MMCR0, 0);
++	mtspr(SPRN_PMC1, 0);
++	mtspr(SPRN_PMC2, 0);
++}
++
++static void __init
++measure_overheads(int have_mmcr1)
++{
++	int i;
++	unsigned int mmcr0, loop, ticks[12];
++	const char *name[12];
++
++	clear(have_mmcr1);
++
++	/* PMC1 = "processor cycles",
++	   PMC2 = "completed instructions",
++	   not disabled in any mode,
++	   no interrupts */
++	mmcr0 = (0x01 << 6) | (0x02 << 0);
++	mtspr(SPRN_MMCR0, mmcr0);
++
++	name[0] = "mftbl";
++	ticks[0] = run(do_read_tbl, 0);
++	name[1] = "mfspr (pmc1)";
++	ticks[1] = run(do_read_pmc1, 0);
++	name[2] = "mfspr (pmc2)";
++	ticks[2] = run(do_read_pmc2, 0);
++	name[3] = "mfspr (pmc3)";
++	ticks[3] = have_mmcr1 ? run(do_read_pmc3, 0) : 0;
++	name[4] = "mfspr (pmc4)";
++	ticks[4] = have_mmcr1 ? run(do_read_pmc4, 0) : 0;
++	name[5] = "mfspr (mmcr0)";
++	ticks[5] = run(do_read_mmcr0, 0);
++	name[6] = "mfspr (mmcr1)";
++	ticks[6] = have_mmcr1 ? run(do_read_mmcr1, 0) : 0;
++	name[7] = "mtspr (pmc2)";
++	ticks[7] = run(do_write_pmc2, 0);
++	name[8] = "mtspr (pmc3)";
++	ticks[8] = have_mmcr1 ? run(do_write_pmc3, 0) : 0;
++	name[9] = "mtspr (pmc4)";
++	ticks[9] = have_mmcr1 ? run(do_write_pmc4, 0) : 0;
++	name[10] = "mtspr (mmcr1)";
++	ticks[10] = have_mmcr1 ? run(do_write_mmcr1, 0) : 0;
++	name[11] = "mtspr (mmcr0)";
++	ticks[11] = run(do_write_mmcr0, mmcr0);
++
++	loop = run(do_empty_loop, 0);
++
++	clear(have_mmcr1);
++
++	init_tests_message();
++	printk(KERN_INFO "PERFCTR INIT: NITER == %u\n", NITER);
++	printk(KERN_INFO "PERFCTR INIT: loop overhead is %u cycles\n", loop);
++	for(i = 0; i < ARRAY_SIZE(ticks); ++i) {
++		unsigned int x;
++		if( !ticks[i] )
++			continue;
++		x = ((ticks[i] - loop) * 10) / NITER;
++		printk(KERN_INFO "PERFCTR INIT: %s cost is %u.%u cycles (%u total)\n",
++		       name[i], x/10, x%10, ticks[i]);
++	}
++	check_fcece(0);
++	check_fcece(1);
++	check_trigger(0);
++	check_trigger(1);
++}
++
++void __init perfctr_ppc_init_tests(void)
++{
++	measure_overheads(PVR_VER(mfspr(SPRN_PVR)) != 0x0004);
++}
+diff -ruN linux-2.6.6-mm2/drivers/perfctr/ppc_tests.h linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc_tests.h
+--- linux-2.6.6-mm2/drivers/perfctr/ppc_tests.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/drivers/perfctr/ppc_tests.h	2004-05-14 14:44:06.478685758 +0200
+@@ -0,0 +1,12 @@
++/* $Id: ppc_tests.h,v 1.1 2004/01/12 01:59:11 mikpe Exp $
++ * Performance-monitoring counters driver.
++ * Optional PPC32-specific init-time tests.
++ *
++ * Copyright (C) 2004  Mikael Pettersson
++ */
++
++#ifdef CONFIG_PERFCTR_INIT_TESTS
++extern void perfctr_ppc_init_tests(void);
++#else
++#define perfctr_ppc_init_tests()
++#endif
+diff -ruN linux-2.6.6-mm2/include/asm-ppc/perfctr.h linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/perfctr.h
+--- linux-2.6.6-mm2/include/asm-ppc/perfctr.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/perfctr.h	2004-05-14 14:44:06.478685758 +0200
+@@ -0,0 +1,170 @@
++/* $Id: perfctr.h,v 1.4 2004/05/12 21:28:27 mikpe Exp $
++ * PPC32 Performance-Monitoring Counters driver
++ *
++ * Copyright (C) 2004  Mikael Pettersson
++ */
++#ifndef _ASM_PPC_PERFCTR_H
++#define _ASM_PPC_PERFCTR_H
++
++/* perfctr_info.cpu_type values */
++#define PERFCTR_PPC_604		1
++#define PERFCTR_PPC_604e	2
++#define PERFCTR_PPC_750		3
++#define PERFCTR_PPC_7400	4
++#define PERFCTR_PPC_7450	5
 +
 +struct perfctr_sum_ctrs {
 +	unsigned long long tsc;
-+	unsigned long long pmc[4];
++	unsigned long long pmc[6];
 +};
 +
 +struct perfctr_cpu_control {
 +	unsigned int tsc_on;
 +	unsigned int nractrs;		/* # of a-mode counters */
 +	unsigned int nrictrs;		/* # of i-mode counters */
-+	unsigned int pmc_map[4];
-+	unsigned int evntsel[4];	/* one per counter, even on P5 */
-+	int ireset[4];			/* < 0, for i-mode counters */
++	unsigned int pmc_map[6];
++	unsigned int evntsel[6];	/* one per counter, even on P5 */
++	int ireset[6];			/* [0,0x7fffffff], for i-mode counters */
++	struct {
++		unsigned int mmcr0;	/* sans PMC{1,2}SEL */
++		unsigned int mmcr2;	/* only THRESHMULT */
++		/* IABR/DABR/BAMR not supported */
++	} ppc;
 +	unsigned int _reserved1;
 +	unsigned int _reserved2;
 +	unsigned int _reserved3;
@@ -891,7 +1459,7 @@ diff -ruN linux-2.6.6-mm2/include/asm-x86_64/perfctr.h linux-2.6.6-mm2.perfctr-2
 +	unsigned int cstatus;
 +	struct {	/* k1 is opaque in the user ABI */
 +		unsigned int id;
-+		int isuspend_cpu;
++		const void *isuspend_cpu;
 +	} k1;
 +	/* The two tsc fields must be inlined. Placing them in a
 +	   sub-struct causes unwanted internal padding on x86-64. */
@@ -901,14 +1469,16 @@ diff -ruN linux-2.6.6-mm2/include/asm-x86_64/perfctr.h linux-2.6.6-mm2.perfctr-2
 +		unsigned int map;
 +		unsigned int start;
 +		unsigned long long sum;
-+	} pmc[4];	/* the size is not part of the user ABI */
++	} pmc[6];	/* the size is not part of the user ABI */
 +#ifdef __KERNEL__
++	unsigned int ppc_mmcr[3];
 +	struct perfctr_cpu_control control;
 +#endif
 +};
 +
 +/* cstatus is a re-encoding of control.tsc_on/nractrs/nrictrs
 +   which should have less overhead in most cases */
++/* XXX: ppc driver internally also uses cstatus&(1<<30) */
 +
 +static inline
 +unsigned int perfctr_mk_cstatus(unsigned int tsc_on, unsigned int nractrs,
@@ -961,7 +1531,7 @@ diff -ruN linux-2.6.6-mm2/include/asm-x86_64/perfctr.h linux-2.6.6-mm2.perfctr-2
 +#define si_pmc_ovf_mask	_sifields._pad[0] /* XXX: use an unsigned field later */
 +
 +/* version number for user-visible CPU-specific data */
-+#define PERFCTR_CPU_VERSION	0x0500	/* 5.0 */
++#define PERFCTR_CPU_VERSION	0	/* XXX: not yet cast in stone */
 +
 +#ifdef __KERNEL__
 +
@@ -1000,51 +1570,45 @@ diff -ruN linux-2.6.6-mm2/include/asm-x86_64/perfctr.h linux-2.6.6-mm2.perfctr-2
 +   It will be called in IRQ context, with preemption disabled. */
 +typedef void (*perfctr_ihandler_t)(unsigned long pc);
 +
-+/* CONFIG_X86_LOCAL_APIC is always defined on x86-64, so overflow
-+   interrupt support is always included. */
-+#define PERFCTR_INTERRUPT_SUPPORT 1
++/* XXX: The hardware supports overflow interrupts, but the driver
++   does not yet enable this due to an erratum in 750/7400/7410. */
++//#define PERFCTR_INTERRUPT_SUPPORT 1
 +
++#if PERFCTR_INTERRUPT_SUPPORT
 +extern void perfctr_cpu_set_ihandler(perfctr_ihandler_t);
 +extern void perfctr_cpu_ireload(struct perfctr_cpu_state*);
 +extern unsigned int perfctr_cpu_identify_overflow(struct perfctr_cpu_state*);
++#else
++static inline void perfctr_cpu_set_ihandler(perfctr_ihandler_t x) { }
++#endif
 +
 +#endif	/* CONFIG_PERFCTR */
 +
-+#if defined(CONFIG_PERFCTR)
-+extern void perfctr_interrupt(void);
-+#define perfctr_vector_init()	\
-+	set_intr_gate(LOCAL_PERFCTR_VECTOR, perfctr_interrupt)
-+#else
-+#define perfctr_vector_init()	do{}while(0)
-+#endif
-+
 +#endif	/* __KERNEL__ */
 +
-+#endif	/* _ASM_X86_64_PERFCTR_H */
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/processor.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/processor.h
---- linux-2.6.6-mm2/include/asm-x86_64/processor.h	2004-05-14 14:02:13.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/processor.h	2004-05-14 14:45:43.980229843 +0200
-@@ -253,6 +253,8 @@
- 	unsigned long	*io_bitmap_ptr;
- /* cached TLS descriptors. */
- 	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
-+/* performance counters */
-+	struct vperfctr *perfctr;
++#endif	/* _ASM_PPC_PERFCTR_H */
+diff -ruN linux-2.6.6-mm2/include/asm-ppc/processor.h linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/processor.h
+--- linux-2.6.6-mm2/include/asm-ppc/processor.h	2004-05-10 11:14:37.000000000 +0200
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/processor.h	2004-05-14 14:44:06.478685758 +0200
+@@ -119,6 +119,7 @@
+ 	unsigned long	vrsave;
+ 	int		used_vr;	/* set if process has used altivec */
+ #endif /* CONFIG_ALTIVEC */
++	struct vperfctr *perfctr;	/* performance counters */
  };
  
- #define INIT_THREAD  {}
-diff -ruN linux-2.6.6-mm2/include/asm-x86_64/unistd.h linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/unistd.h
---- linux-2.6.6-mm2/include/asm-x86_64/unistd.h	2004-05-14 14:02:13.000000000 +0200
-+++ linux-2.6.6-mm2.perfctr-2.7.2.x86_64/include/asm-x86_64/unistd.h	2004-05-14 14:45:43.980229843 +0200
-@@ -552,8 +552,10 @@
- __SYSCALL(__NR_mq_notify, sys_mq_notify)
- #define __NR_mq_getsetattr 	245
- __SYSCALL(__NR_mq_getsetattr, sys_mq_getsetattr)
-+#define __NR_perfctr		246
-+__SYSCALL(__NR_perfctr, sys_perfctr)
+ #define ARCH_MIN_TASKALIGN 16
+diff -ruN linux-2.6.6-mm2/include/asm-ppc/unistd.h linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/unistd.h
+--- linux-2.6.6-mm2/include/asm-ppc/unistd.h	2004-05-10 11:14:37.000000000 +0200
++++ linux-2.6.6-mm2.perfctr-2.7.2.ppc/include/asm-ppc/unistd.h	2004-05-14 14:44:06.478685758 +0200
+@@ -272,8 +272,9 @@
+ #define __NR_mq_timedreceive	265
+ #define __NR_mq_notify		266
+ #define __NR_mq_getsetattr	267
++#define __NR_perfctr		268
  
--#define __NR_syscall_max __NR_mq_getsetattr
-+#define __NR_syscall_max __NR_perfctr
- #ifndef __NO_STUBS
+-#define __NR_syscalls		268
++#define __NR_syscalls		269
  
- /* user-visible error numbers are in the range -1 - -4095 */
+ #define __NR(n)	#n
+ 

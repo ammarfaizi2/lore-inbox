@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287475AbSALUyN>; Sat, 12 Jan 2002 15:54:13 -0500
+	id <S287450AbSALU7w>; Sat, 12 Jan 2002 15:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287471AbSALUyC>; Sat, 12 Jan 2002 15:54:02 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:41490 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287450AbSALUxu>; Sat, 12 Jan 2002 15:53:50 -0500
-Message-ID: <3C40A255.EBE646@linux-m68k.org>
-Date: Sat, 12 Jan 2002 21:53:41 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S287472AbSALU7n>; Sat, 12 Jan 2002 15:59:43 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33546 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287450AbSALU72>; Sat, 12 Jan 2002 15:59:28 -0500
+Message-ID: <3C40A39F.8030703@zytor.com>
+Date: Sat, 12 Jan 2002 12:59:11 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1-2-3 GB
+In-Reply-To: <20020112004528.A159@earthlink.net> <a1ooql$ili$1@cesium.transmeta.com> <20020112141738.L1482@inspiron.school.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli wrote:
 
-Alan Cox wrote:
-
-> So with pre-empt this happens
 > 
->         driver magic
->         disable_irq(dev->irq)
-> PRE-EMPT:
->         [large periods of time running other code]
-> PRE-EMPT:
->         We get back and we've missed 300 packets, the serial port sharing
->         the IRQ has dropped our internet connection completely.
+> actually it is really max virtual memory.. but from the user point of
+> view, user is supposed to care about the virtual memory he can manage,
+> not about what the kernel will do with the rest. So if the user wants
+> 3GB of virtual memory available to each task he will select 3GB. I
+> really don't mind if you want to change it from the kernel point of
+> view, but given it's the user who's supposed to compile it, also the
+> current patch looks good enough to me.
+> 
 
-But it shouldn't deadlock as Victor is suggesting.
 
-> There are numerous other examples in the kernel tree where the current code
-> knows that there is a small bounded time between two actions in kernel space
-> that do not have a sleep. They are not spin locked, and putting spin locks
-> everywhere will just trash performance. They are pure hardware interactions
-> so you can't automatically detect them.
+Oh, right... if so he simply has the 05G option mislabelled... it should 
+be 3.5G
 
-Why should spin locks trash perfomance, while an expensive disable_irq()
-doesn't?
+	-hpa
 
-bye, Roman
+

@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267142AbUBMVPS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 16:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUBMVPS
+	id S267212AbUBMVV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267225AbUBMVVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 16:15:18 -0500
-Received: from ddc.ilcddc.com ([12.35.229.4]:4357 "EHLO ddcnyntd.ddc-ny.com")
-	by vger.kernel.org with ESMTP id S267142AbUBMVPD (ORCPT
+	Fri, 13 Feb 2004 16:21:55 -0500
+Received: from mail.kroah.org ([65.200.24.183]:32955 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267212AbUBMVVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 16:15:03 -0500
-Message-ID: <89760D3F308BD41183B000508BAFAC4104B16F74@DDCNYNTD>
-From: RANDAZZO@ddc-web.com
-To: linux-kernel@vger.kernel.org
-Subject: FW: spinlocks dont work
-Date: Fri, 13 Feb 2004 16:12:08 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 13 Feb 2004 16:21:54 -0500
+Date: Fri, 13 Feb 2004 13:08:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Mike Bell <kernel@mikebell.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040213210856.GG14048@kroah.com>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210175548.GN4421@tinyvaio.nome.ca> <20040210181932.GI28111@kroah.com> <20040210191233.GA4814@tinyvaio.nome.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210191233.GA4814@tinyvaio.nome.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a uniprocessor system, with config_smp NOT Defined...
+On Tue, Feb 10, 2004 at 11:12:34AM -0800, Mike Bell wrote:
+> On Tue, Feb 10, 2004 at 10:19:32AM -0800, Greg KH wrote:
+> > ugh, and here I said I wouldn't respond.  But to be fair, he wrote me
+> > this before I said that...
+> 
+> Also, since it's not intended to be a personal attack but rather an
+> attempt to find the truth, whether you personally want to respond or not
+> I'd still like to respond to the claims you made with why I think
+> they're wrong.
 
-Note the following example:
-
-driver 'A' calls spin_lock_irqsave and gets through (but does not call
-..unlock).
-driver 'B' calls spin_lock_irqsave and gets through???
-
-How can B get through if A did not unlock yet?
-
--Mike
-
------Original Message-----
-From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-Sent: Friday, February 13, 2004 3:25 PM
-To: RANDAZZO@ddc-web.com
-Subject: RE: spinlocks dont work
-
-
-On Fri, 13 Feb 2004 RANDAZZO@ddc-web.com wrote:
-
-> if I need to lock out in the ISR, and I haven't
-> compiled for SMP, what can I use instead?
->
-> Mike
-
-spinlock_t mylock = SPIN_LOCK_UNLOCKED;
-
-You put:
-        unsigned int flags;
-
-	spin_lock_irqsave(&mylock, flags);
-	//
-        // Critical section code
-	//
-        spin_unlock_irqrestore(&mylock flags);
-
-...this construct around any critical section. If you
-don't know how to write interrupt service routines and
-insist upon enabling interrupts within the ISR, you
-need the same thing in the ISR.
-
-
-Whether or not it's compiled for SMP should not then make
-any difference because the 'cli' in the macro will still
-exist.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
- 
-"This message may contain company proprietary information. If you are not
-the intended recipient, any disclosure, copying, distribution or reliance on
-the contents of this message is prohibited. If you received this message in
-error, please delete and notify me."
-
+Ok, will do.

@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUASSV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 13:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUASSV6
+	id S262540AbUASSYG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 13:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUASSYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 13:21:58 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:2178 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262580AbUASSRK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 13:17:10 -0500
-Date: Mon, 19 Jan 2004 10:18:08 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, jeremy@sgi.com
-Subject: Re: [PATCH] readX_relaxed interface
-Message-ID: <20040119181808.GA4225@cup.hp.com>
-References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com> <20040116050059.GA13222@cup.hp.com> <023b01c3de6f$10276820$2987110a@lsd.css.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <023b01c3de6f$10276820$2987110a@lsd.css.fujitsu.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 19 Jan 2004 13:24:06 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:14512 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262540AbUASSX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 13:23:57 -0500
+Date: Mon, 19 Jan 2004 11:21:26 -0700
+From: Travis Morgan <lkml@bigfiber.net>
+Subject: Re: ALSA vs. OSS
+In-reply-to: <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <1074536486.5955.412.camel@castle.bigfiber.net>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+References: <1074532714.16759.4.camel@midux>
+ <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 06:31:42PM +0900, Hironobu Ishii wrote:
-> But, when the read thread continues without noticing the error
-> (before the error is asynchronously notified),
+So far I sort of tend to agree with you on OSS being better.
 
-I wasn't suggesting asynchonous notification.
+I have a soundblaster Live Value card. I can no longer control the
+output level through my digital out. With OSS my PCM volume used to
+affect both the headphone jack and the digital out. With ALSA it affects
+only the headphone jack.
 
-> the thread runs based on wrong data and may panic.
+I have loaded up alsamixer and played with every level in there and it
+doesn't seem possible to adjust the level anymore unless I adjust the
+wave volume. As a result I've been unable to get xmms or gkrellm to
+adjust the volume coming out of my stereo.
 
-So far I've been assuming resources/IO requests can be cleaned up
-more easily in a shared code path. I was assuming the readb() would 
-call the "cleanup" and then return a "harmless" value (eg. 0 or -1)
-that was provided by the driver before hand. I'm more worried
-about the code that evaluates the readb() return value than
-synchronous notification or cleaning up resources.
+Now I like the idea of seperate volume controls, but this doesn't do
+that.
 
-Having unique error recovery code after each PIO read did work
-but it was not an elegant solution. It was a problem of too much
-"unused" code interferring with the regular code path. And it
-didn't distinguish sufficiently between code to handle "platform"
-errors (failure to talk to a card) vs card errors (card
-failed an IO).
+Regards,
+Travis M
 
-I guess I'd need to modify one driver using my proposal
-instead of assuming it doesn't matter wether the recovery code
-lives immediately after the PIO read or in some common routine.
-Problem is I have other issues to deal with right now
-even though I've made clear to my management "HW error recovery"
-is required for higher levels of availability with linux.
 
-> So I think PIO read error must be notified synchronously.
+On Mon, 2004-01-19 at 10:48, Steve Youngs wrote:
+> * Markus Hästbacka <midian@ihme.org> writes:
+> 
+>   > but ALSA didn't let me to open two sound sources (like XMMS and
+>   > Quake3) at the same time, so I guess it is not really done yet, or
+>   > is it?
+> 
+> Works for me.  Right now I've got 3 instances of mpg123 playing 3
+> different MP3s and XEmacs playing a big .wav file and an audio CD
+> playing.  It's a horrible jumbled mess of noise coming out of my
+> speakers, but it is working.
 
-I agree.
-
-> On the other hand, PIO write error can be notified asynchronously,
-> because software does not use it.
-
-yes.
-
-thanks,
-grant

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbRACWH3>; Wed, 3 Jan 2001 17:07:29 -0500
+	id <S131203AbRACWJi>; Wed, 3 Jan 2001 17:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131401AbRACWHL>; Wed, 3 Jan 2001 17:07:11 -0500
-Received: from ANancy-101-1-1-133.abo.wanadoo.fr ([193.251.70.133]:29427 "HELO
-	the-babel-tower.nobis.phear.org") by vger.kernel.org with SMTP
-	id <S129518AbRACWGx>; Wed, 3 Jan 2001 17:06:53 -0500
-Date: Wed, 3 Jan 2001 23:12:03 +0100 (CET)
-From: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.21.0101032307100.11696-100000@the-babel-tower.nobis.phear.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130669AbRACWJ2>; Wed, 3 Jan 2001 17:09:28 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:58895 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S130111AbRACWJN>; Wed, 3 Jan 2001 17:09:13 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 4 Jan 2001 09:07:41 +1100
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org, David Miller <davem@redhat.com>
+Subject: Re: 2.2.19pre5 on sparc64: Missing symbols
+Message-ID: <20010104090741.A21322@linuxcare.com>
+In-Reply-To: <200101031650.f03Go4D29320@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200101031650.f03Go4D29320@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Wed, Jan 03, 2001 at 01:50:04PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Dan Aloni wrote:
+ 
+> depmod: *** Unresolved symbols in /lib/modules/2.2.19pre5/fs/binfmt_elf.o
+> depmod: 	get_pte_slow
+> depmod: 	get_pmd_slow
+> depmod: 	pgt_quicklists
 
-> 
-> This preliminary, small patch prevents execution of system calls which
-> were executed from a writable segment. It was tested and seems to work,
-> without breaking anything. It also reports of such calls by using printk.
-> 
+Thanks, fix is in cvs.
 
-Hum,
+Anton
 
-Allow-me to give you this URL where you will be able to find a more
-complete patch to do the very same thing. I don't tell you this will work
-as you need but I think this is a good reason to abandon your project
-since this patch really do the same (and adds others security features to
-the kernel)
-
-Here: http://www.openwall.com/linux/
-
-Best regards.
-
-  -- Nicolas Noble
-
+--- arch/sparc64/kernel/sparc64_ksyms.c.orig	Thu Jan  4 09:04:07 2001
++++ arch/sparc64/kernel/sparc64_ksyms.c	Thu Jan  4 08:48:29 2001
+@@ -210,6 +210,11 @@
+ /* Should really be in linux/kernel/ksyms.c */
+ EXPORT_SYMBOL(dump_thread);
+ EXPORT_SYMBOL(dump_fpu);
++EXPORT_SYMBOL(get_pmd_slow);
++EXPORT_SYMBOL(get_pte_slow);
++#ifndef CONFIG_SMP
++EXPORT_SYMBOL(pgt_quicklists);
++#endif
+ 
+ /* math-emu wants this */
+ EXPORT_SYMBOL(die_if_kernel);
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

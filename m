@@ -1,84 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263132AbUCaBO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 20:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbUCaBO1
+	id S261159AbUCaBYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 20:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUCaBYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 20:14:27 -0500
-Received: from ozlabs.org ([203.10.76.45]:6887 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263132AbUCaBOZ (ORCPT
+	Tue, 30 Mar 2004 20:24:43 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:29341 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261159AbUCaBYm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 20:14:25 -0500
-Subject: Re: Bug#240886: module-init-tools: modprobe pass wrong ide options
-	to insmod
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: 240886@bugs.debian.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040330162503.GA7730@wonderland.linux.it>
-References: <20040330162503.GA7730@wonderland.linux.it>
-Content-Type: text/plain
-Message-Id: <1080695659.11048.152.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 31 Mar 2004 11:14:20 +1000
+	Tue, 30 Mar 2004 20:24:42 -0500
+Date: Tue, 30 Mar 2004 17:24:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: rddunlap@osdl.org, hari@in.ibm.com, linux-kernel@vger.kernel.org,
+       apw@shadowen.org, jamesclv@us.ibm.com
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-ID: <273320000.1080696246@flay>
+In-Reply-To: <20040330171104.752104a9.akpm@osdl.org>
+References: <006701c415a4$01df0770$d100000a@sbs2003.local><20040329162123.4c57734d.akpm@osdl.org><20040329162555.4227bc88.akpm@osdl.org><20040330132832.GA5552@in.ibm.com><20040330151729.1bd0c5d0.rddunlap@osdl.org><187940000.1080692555@flay><20040330163928.7cafae3d.akpm@osdl.org><270000000.1080694659@flay> <20040330171104.752104a9.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-31 at 02:25, Marco d'Itri wrote:
-...
-> modprobe -v -k ide-mod options="ide=nodma hdc=cdrom"
+--On Tuesday, March 30, 2004 17:11:04 -0800 Andrew Morton <akpm@osdl.org> wrote:
+
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> I made a similar patch, but I don't see how we can really fix it without
+>> providing locking on cpu_online_map.
 > 
-> resulting in
+> Are we missing something here?
 > 
->  insmod the_module "options=ide=nodma hdc=cdrom"
+> Why does, for example, smp_send_reschedule() not have the same problem? 
+> Because we've gone around and correctly removed all references to the CPU
+> from the scheduler data structures before offlining it.
 > 
-> will not work. 
+> But we're not doing that in the mm code, right?  Should we not be taking
+> mmlist_lock and running around knocking this CPU out of everyone's
+> cpu_vm_mask before offlining it?
 
-There are two problems here: one is in modprobe, but the real problem is
-that putting:
+I think we're assuming that we don't have to because the problem is fixed 
+by the "cpus_and(tmp, cpumask, cpu_online_map)" in flush_tlb_others so we 
+don't have to. Except it's racy, and doesn't work.
 
-	options ide-mod options="ide=nodma hdc=cdrom"
+It would seem to me that your suggestion would fix it. But isn't locking
+cpu_online_map both simpler and (most importantly) more generic? I can't 
+imagine that we don't use this elsewhere ... suppose for instance we took 
+a timer interrupt, causing a scheduler rebalance, and moved a process to 
+an offline CPU at that point? Isn't any user of smp_call_function also racy?
 
-will be handed to ide-mod as:
+Not locking it just seems fundamentally dangerous to me ... maybe I'm 
+wrong though.
 
-	"ide=nodma hdc=cdrom"
-
-ie. with the quotes intact.  It doesn't handle that, and probably
-shouldn't.
-
-Name: Fix Quote Handling in Parameters
-Status: Tested on 2.6.5-rc3
-
-Agustin Martin <agmartin@debian.org> pointed out that this doesn't
-work:
-
-	options ide-mod options="ide=nodma hdc=cdrom"
-
-The quotes are understood by kernel/params.c (ie. it skips over spaces
-inside them), but are not stripped before handing to the underlying
-function.  They should be.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7471-linux-2.6.5-rc3/kernel/params.c .7471-linux-2.6.5-rc3.updated/kernel/params.c
---- .7471-linux-2.6.5-rc3/kernel/params.c	2003-10-09 18:03:02.000000000 +1000
-+++ .7471-linux-2.6.5-rc3.updated/kernel/params.c	2004-03-31 11:02:44.000000000 +1000
-@@ -96,6 +96,13 @@ static char *next_arg(char *args, char *
- 	else {
- 		args[equals] = '\0';
- 		*val = args + equals + 1;
-+
-+		/* Don't include quotes in value. */
-+		if (**val == '"') {
-+			(*val)++;
-+			if (args[i-1] == '"')
-+				args[i-1] = '\0';
-+		}
- 	}
- 
- 	if (args[i]) {
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+M.
 

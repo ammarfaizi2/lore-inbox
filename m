@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131722AbRCXRSU>; Sat, 24 Mar 2001 12:18:20 -0500
+	id <S131723AbRCXRXU>; Sat, 24 Mar 2001 12:23:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131723AbRCXRSK>; Sat, 24 Mar 2001 12:18:10 -0500
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:10493
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S131722AbRCXRR7>; Sat, 24 Mar 2001 12:17:59 -0500
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Doug McNaught <doug@wireboard.com>, Gerhard Mack <gmack@innerfire.net>
-Subject: Re: [OT] Linux Worm (fwd)
-Date: Sat, 24 Mar 2001 11:11:50 -0600
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Bob Lorenzini <hwm@newportharbornet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10103231028250.9403-100000@innerfire.net> <m3ae6c48v4.fsf@belphigor.mcnaught.org>
-In-Reply-To: <m3ae6c48v4.fsf@belphigor.mcnaught.org>
-MIME-Version: 1.0
-Message-Id: <01032411170201.03927@tabby>
-Content-Transfer-Encoding: 7BIT
+	id <S131724AbRCXRXK>; Sat, 24 Mar 2001 12:23:10 -0500
+Received: from avalon.student.liu.se ([130.236.230.76]:15091 "EHLO
+	mail.student.liu.se") by vger.kernel.org with ESMTP
+	id <S131723AbRCXRW7>; Sat, 24 Mar 2001 12:22:59 -0500
+Date: Sat, 24 Mar 2001 18:28:53 +0100
+From: Jorgen Cederlof <jorgen.cederlof@cendio.se>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bug in do_mount()
+Message-ID: <20010324182853.A4090@ondska>
+In-Reply-To: <20010324145822.B1353@ondska> <Pine.GSO.4.21.0103240904140.11914-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.GSO.4.21.0103240904140.11914-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Mar 24, 2001 at 09:13:46AM -0500
+X-god-play-dice: No
+X-eric-conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Doug McNaught wrote:
->Gerhard Mack <gmack@innerfire.net> writes:
->
->> On Fri, 23 Mar 2001, Bob Lorenzini wrote:
->> 
->> > I'm annoyed when persons post virus alerts to unrelated lists but this
->> > is a serious threat. If your offended flame away.
->> 
->> This should be a wake up call... distributions need to stop using product
->> with consistently bad security records. 
->
->Is there an alternative to BIND that's free software?  Never seen
->one. 
+> >       if (list_empty(&sb->s_mounts))
+> >               kill_super(sb, 0);
+> > +     else
+> > +             put_filesystem(fstype);
+> >       goto unlock_out;
+ 
+> Reference acquired by get_fs_type() is
+> released by put_filesystem() (near fs_out), _NOT_ by kill_super().
 
-Not one that is Open Source....
+Yes.
 
-Bind itself has been proven over many years. This is the first major
-problem found. If you want a fix, get bind v9. Besides handling IP version
-4, it also handles version 6.
+> kill_super() releases the reference stored in ->s_type (created
+> by get_sb_...()). If superblock stays alive you should not release it.
 
-The only current limitation is the inability to control sort order of
-hosts with multiple interfaces. I think this is due to the new IP v 6
-resource handling.
+get_sb_...() will do get_filesystem() even if superblock stays alive.
 
-Bind 9 works well (see ISC web page http://www.isc.org/products/BIND/)
+We get the filesystem twice, in get_fs_type() and get_sb_...(), but if
+we goto 'fail:' and don't call kill_super(), we put the filesystem
+only once (near fs_out). 
 
->
->-Doug (who doesn't think this is a Good Thing)
+> What bug are you trying to fix?
 
-It really isn't, but the new bind may be. There is even an update
-to bind 8 that contains a fix for the problem.
+foofs is a FS_SINGLE filesystem: 
+(but the !nd.dentry->d_inode case should be no different)
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
+# grep foofs /proc/modules 
+foofs                 6736   0 (unused)
+# mount NONE /mnt -t foofs
+# grep foofs /proc/modules 
+foofs                 6736   1
+# mount NONE /mnt -t foofs
+mount: NONE already mounted or /mnt busy
+mount: according to mtab, NONE is already mounted on /mnt
+# grep foofs /proc/modules 
+foofs                 6736   2
+# mount NONE /mnt -t foofs
+mount: NONE already mounted or /mnt busy
+mount: according to mtab, NONE is already mounted on /mnt
+# grep foofs /proc/modules 
+foofs                 6736   3
+# umount /mnt
+# grep foofs /proc/modules 
+foofs                 6736   2
+# umount /mnt
+umount: /mnt: not mounted
+# grep foofs /proc/modules 
+foofs                 6736   2
+# rmmod foofs
+foofs: Device or resource busy
 
-Any opinions expressed are solely my own.

@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVDDIvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVDDIy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVDDIvt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVDDIvt
+	id S261184AbVDDIy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVDDIy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:51:49 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:10887 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261183AbVDDIvk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:51:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=qIep0c8nVwIoLuoTmnrrFAX9iPrOpdyIblLhnDKBzEkBeSuxb4L0xKkpPdMLm/N28uZjLBB/2Kg8LX0AG/DnFWdJG/b6z8okpT1D4pRvaOfOh+tv2Qn3+DIW/1raB8rvBm9b2AKnjpX89kxX5qcCEQol12fGW2QLKP7O7Q5q6cM=
-Message-ID: <59ab6ac1050404015133699168@mail.gmail.com>
-Date: Mon, 4 Apr 2005 10:51:39 +0200
-From: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
-	<jadebustos@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Jose_=C1ngel_De_Bustos_P=E9rez?= 
-	  <jadebustos@gmail.com>
-To: Triffid Hunter <triffid_hunter@funkmunch.net>
-Subject: Re: A problem with kswapd
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4250F5CB.4070605@funkmunch.net>
+	Mon, 4 Apr 2005 04:54:59 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:1495 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261184AbVDDIyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:54:55 -0400
+Subject: Re: [RFC 1/6]SEP initialization rework
+From: Li Shaohua <shaohua.li@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>
+In-Reply-To: <20050404084638.GB14642@elf.ucw.cz>
+References: <1112580349.4194.331.camel@sli10-desk.sh.intel.com>
+	 <20050404084638.GB14642@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1112604746.4194.374.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <59ab6ac105040400423fefd96a@mail.gmail.com>
-	 <4250F5CB.4070605@funkmunch.net>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 04 Apr 2005 16:52:26 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 4, 2005 10:07 AM, Triffid Hunter <triffid_hunter@funkmunch.net> wrote:
-> try 2.4.30 which has just been released (unchanged from 2.4.30-rc4)
+Hi,
+
+On Mon, 2005-04-04 at 16:46, Pavel Machek wrote:
+> > ---
+> > 
+> >  linux-2.6.11-root/arch/i386/kernel/smpboot.c           |    6 ++++++
+> >  linux-2.6.11-root/arch/i386/kernel/sysenter.c          |   10 ++++++----
+> >  linux-2.6.11-root/arch/i386/mach-voyager/voyager_smp.c |    6 ++++++
+> >  3 files changed, 18 insertions(+), 4 deletions(-)
+> > 
+> > diff -puN arch/i386/kernel/sysenter.c~sep_init_cleanup arch/i386/kernel/sysenter.c
+> > --- linux-2.6.11/arch/i386/kernel/sysenter.c~sep_init_cleanup	2005-03-28 09:32:30.936304248 +0800
+> > +++ linux-2.6.11-root/arch/i386/kernel/sysenter.c	2005-03-28 09:58:20.703703792 +0800
+> > @@ -26,6 +26,11 @@ void enable_sep_cpu(void *info)
+> >  	int cpu = get_cpu();
+> >  	struct tss_struct *tss = &per_cpu(init_tss, cpu);
+> >  
+> > +	if (!boot_cpu_has(X86_FEATURE_SEP)) {
+> > +		put_cpu();
+> > +		return;
+> > +	}
+> > +
+> >  	tss->ss1 = __KERNEL_CS;
+> >  	tss->esp1 = sizeof(struct tss_struct) + (unsigned long) tss;
+> >  	wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
+> > @@ -41,7 +46,7 @@ void enable_sep_cpu(void *info)
+> >  extern const char vsyscall_int80_start, vsyscall_int80_end;
+> >  extern const char vsyscall_sysenter_start, vsyscall_sysenter_end;
+> >  
+> > -static int __init sysenter_setup(void)
+> > +int __init sysenter_setup(void)
+> >  {
+> >  	void *page = (void *)get_zeroed_page(GFP_ATOMIC);
+> >  
 > 
+> Can this still be __init? I think you are calling it from hotplug code
+> now, right?
+Only BP executes it. AP calls enable_sep_cpu.
 
-Sorry kernel is 2.4.21.
-
-We have other machines in the "same" conditions and they have a normal
-behavour. We don't know the reason for this awkward behavour.
-
-I don't know if we can change to kernel 2.4.20, its a production
-machine and I have to check if that kernel has official support.
-
-> Jose Ángel De Bustos Pérez wrote:
-> > Hi,
-> >
-> > I have a problem with kswapd and I didn't find anything in the
-> > archives of the list (I hope not having missed someone).
-> >
-> > kswapd is using 100% of CPU in a suse sles8 with kernel 2.4.241. This
-> > machine has its FS under LVM and ResiserFS, except for /boot which is
-> > in ext2.
-> >
-> > Any idea? Thanks in advance.
 > 
+> > diff -puN arch/i386/kernel/smpboot.c~sep_init_cleanup arch/i386/kernel/smpboot.c
+> > --- linux-2.6.11/arch/i386/kernel/smpboot.c~sep_init_cleanup	2005-03-28 09:33:49.972288952 +0800
+> > +++ linux-2.6.11-root/arch/i386/kernel/smpboot.c	2005-03-28 09:46:01.814032096 +0800
+> > @@ -415,6 +415,8 @@ static void __init smp_callin(void)
+> >  
+> >  static int cpucount;
+> >  
+> > +extern int sysenter_setup(void);
+> > +extern void enable_sep_cpu(void *);
+> >  /*
+> >   * Activate a secondary processor.
+> >   */
+> 
+> Perhaps these should go to header file somewhere?
+in asm-i386/smp.h?
 
+Thanks,
+Shaohua
 
--- 
-____________________________________
-Atentamente, José Angel de Bustos Pérez
-
-jadebustos@linuxmail.org
-jadebustos@gmail.com
-
-Jabber ID jadebustos@jabber.org
-ICQ ID 200368358

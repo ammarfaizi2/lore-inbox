@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276505AbRJCQgw>; Wed, 3 Oct 2001 12:36:52 -0400
+	id <S276503AbRJCQld>; Wed, 3 Oct 2001 12:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276503AbRJCQgn>; Wed, 3 Oct 2001 12:36:43 -0400
-Received: from web14803.mail.yahoo.com ([216.136.224.219]:1802 "HELO
-	web14803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S276500AbRJCQgb>; Wed, 3 Oct 2001 12:36:31 -0400
-Message-ID: <20011003163700.66539.qmail@web14803.mail.yahoo.com>
-Date: Wed, 3 Oct 2001 09:37:00 -0700 (PDT)
-From: Linux Bigot <linuxopinion@yahoo.com>
-Subject: Re: how to get virtual address from dma address
-To: jes@sunsite.dk
-Cc: linux-kernel@vger.kernel.org
+	id <S276516AbRJCQlW>; Wed, 3 Oct 2001 12:41:22 -0400
+Received: from webcon.net ([216.187.106.140]:9149 "EHLO webcon.net")
+	by vger.kernel.org with ESMTP id <S276503AbRJCQlO>;
+	Wed, 3 Oct 2001 12:41:14 -0400
+Date: Wed, 3 Oct 2001 12:41:38 -0400 (EDT)
+From: Ian Morgan <imorgan@webcon.net>
+To: linux-kernel@vger.kernel.org
+cc: tech@webcon.net
+Subject: ksoftirqd goes bezerk (100% CPU usage)
+Message-ID: <Pine.LNX.4.40.0110031218540.9183-100000@light.webcon.net>
+Organization: "Webcon, Inc."
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please tell me why can't I use bus_to_virt().
+Just experienced a very strange new behaviour in 2.4.10:
 
-Thanks
+An SMP box (Dual Celeron 400MHz on a BP6, .5 GB RAM) had both ksoftirqd_CPU0
+and ksoftirqd_CPU1 chewing on 100% of the CPU. Everything else on the system
+seemed to be working OK other than going really slow because of the load.
 
+I have no idea when this started ('cept sometime within about 12 hours
+before noticing it), and there's nothing in the logs to indicate something
+going wrong. Any idea what might have caused that? Any way to recover other
+than a reboot? Is this even a known problem? I can't find any reports of
+people having similar problems.
 
------Original Message-----
-From:	Jes Sorensen [SMTP:jes@sunsite.dk]
-Sent:	Wednesday, October 03, 2001 11:26 AM
-To:	Linux Bigot
-Cc:	linux-kernel@vger.kernel.org
-Subject:	Re: how to get virtual address from dma
-address
+[Not on list, please CC reply to imorgan at webcon dot net]
 
->>>>> "Linux" == Linux Bigot <linuxopinion@yahoo.com>
-writes:
+Regards,
+Ian Morgan
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan        Vice President & C.O.O.         Webcon, Inc.
+ imorgan@webcon.net         PGP: #2DA40D07          www.webcon.net
+-------------------------------------------------------------------
 
-Linux> All programmers I am relatively new to linux
-kernel. Please
-Linux> advise what is the safe way to get the original
-virtaul address
-Linux> from dma address e.g.,
-
-You have to store the address you pass to
-pci_map_single() somewhere
-in your data structures together with the dma address.
-
-Jes
--
-To unsubscribe from this list: send the line
-"unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at 
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Listen to your Yahoo! Mail messages from any phone.
-http://phone.yahoo.com

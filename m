@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbTDGWmm (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263729AbTDGWmm (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:42:42 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35968
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263727AbTDGWmk (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:42:40 -0400
-Date: Tue, 8 Apr 2003 01:01:30 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080001.h3801UFS008904@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix the mode for bios call in x86-32 as well as -64
+	id S263735AbTDGWoN (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbTDGWoM (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:44:12 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:33030 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S263735AbTDGWoJ convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 18:44:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+To: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] new syscall: flink
+Date: Tue, 8 Apr 2003 00:55:43 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org> <200304080017.21799.fredrik@dolda2000.cjb.net> <3E91FAF0.4060400@redhat.com>
+In-Reply-To: <3E91FAF0.4060400@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304080055.43562.fredrik@dolda2000.cjb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Andi Kleen)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/i386/boot/setup.S linux-2.5.67-ac1/arch/i386/boot/setup.S
---- linux-2.5.67/arch/i386/boot/setup.S	2003-04-08 00:37:34.000000000 +0100
-+++ linux-2.5.67-ac1/arch/i386/boot/setup.S	2003-04-03 16:46:29.000000000 +0100
-@@ -213,7 +213,7 @@
- # Part of above routine, this one just prints ascii al
- prtchr:	pushw	%ax
- 	pushw	%cx
--	xorb	%bh, %bh
-+	movw	$7,%bx
- 	movw	$0x01, %cx
- 	movb	$0x0e, %ah
- 	int	$0x10
+On Tuesday 08 April 2003 00:25, Ulrich Drepper wrote:
+> The use of /proc is growing and you'll find that more than just
+> fexecve() will fail if you don't have /proc.
+
+Well, that was no news, but still; you know like... shouldn't it be 
+implemented? Or if I put it like this: If I were going to implemented, is 
+there any kind of chance to get that public, not least considering that it is 
+a new syscall and all?
+
+Fredrik Tolf
+

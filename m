@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbUCYXLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 18:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUCYXIP
+	id S263646AbUCYXY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 18:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUCYXY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:08:15 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:10255 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263741AbUCYXAZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:00:25 -0500
-Date: Thu, 25 Mar 2004 15:59:00 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org
-cc: Jeff Garzik <jgarzik@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <1019470000.1080255540@aslan.btc.adaptec.com>
-In-Reply-To: <200403251200.35199.kevcorry@us.ibm.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
+	Thu, 25 Mar 2004 18:24:58 -0500
+Received: from alt.aurema.com ([203.217.18.57]:17064 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S263646AbUCYXYy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 18:24:54 -0500
+Message-ID: <406369A1.7090905@aurema.com>
+Date: Fri, 26 Mar 2004 10:22:09 +1100
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jamie Lokier <jamie@shareable.org>
+CC: Micha Feigin <michf@post.tau.ac.il>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+References: <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com> <20040325174053.GB11236@mail.shareable.org>
+In-Reply-To: <20040325174053.GB11236@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Independent DM efforts have already started supporting MD raid0/1
->> metadata from what I understand, though these efforts don't seem to post
->> to linux-kernel or linux-raid much at all.  :/
+Jamie Lokier wrote:
+> Peter Williams wrote:
 > 
-> I post on lkml.....occasionally. :)
+>>>Will this be USER_HZ or kernel HZ?
+>>>Someone earlier suggested it would be USER_HZ which would make it
+>>>pointless.
+>>
+>>It has to be whatever enables user space to correctly interpret values 
+>>sent to user space as "ticks".  That means USER_HZ and it's not useless 
+>>as it enables USER_HZ to be different and/or change without breaking 
+>>programs that use values expressed in "ticks".
+> 
+> 
+> It is, however, useless for the _other_ reasons userspace needs to
+> know kernel HZ, including as I mentioned userspace timer granularity.
 
-...
+Theoretically, which I know can be a pain, user space timer granularity 
+should be in USER_HZ as, theoretically, this is the only one user space 
+is supposed to know about.  Because of this, in my view, HZ and USER_HZ 
+should be the same or USER_HZ should be greater than HZ.
 
-> This decision was not based on any real dislike of the MD driver, but rather 
-> for the benefits that are gained by using Device-Mapper. In particular, 
-> Device-Mapper provides the ability to change out the device mapping on the 
-> fly, by temporarily suspending I/O, changing the table, and resuming the I/O 
-> I'm sure many of you know this already. But I'm not sure everyone fully 
-> understands how powerful a feature this is. For instance, it means EVMS can 
-> now expand RAID-linear devices online. While that particular example may not 
-> sound all that exciting, if things like RAID-1 and RAID-5 were "ported" to 
-> Device-Mapper, this feature would then allow you to do stuff like add new 
-> "active" members to a RAID-1 online (think changing from 2-way mirror to 
-> 3-way mirror). It would be possible to convert from RAID-0 to RAID-4 online 
-> simply by adding a new disk (assuming other limitations, e.g. a single 
-> stripe-zone). Unfortunately, these are things the MD driver can't do online, 
-> because you need to completely stop the MD device before making such changes 
-> (to prevent the kernel and user-space from trampling on the same metadata), 
-> and MD won't stop the device if it's open (i.e. if it's mounted or if you 
-> have other device (LVM) built on top of MD). Often times this means you need 
-> to boot to a rescue-CD to make these types of configuration changes.
+> 
+> (Btw, that usage would be better as a period rather than a frequency,
+> so that a "tickless" kernel can report zero).
 
-We should be clear about your argument here.  It is not that DM makes
-generic morphing easy and possible, it is that with DM the most basic
-types of morphing (no data striping or de-striping) is easily accomplished.
-You sight two examples:
+_SC_CLK_TCK is a POSIX.1 definition and can't be changed.  But I don't 
+think that there's any impediment to adding new parameters that can be 
+reported by sysconf().
 
-1) Adding another member to a RAID-1.  While MD may not allow this to
-   occur while the array is operational, EMD does.  This is possible
-   because there is only one entity controlling the meta-data.
+> 
+> The fundamental problem is that there are two values,  and both values
+> have programs which can usefully use them.
+> 
+> How hard can it be to export both?
+> 
 
-2) Converting a RAID0 to a RAID4 while possible with DM is not particularly
-   interesting from an end user perspective.
+Making HZ == USER_HZ would also solve the problem.
 
-The fact of the matter is that neither EMD nor DM provide a generic
-morphing capability.  If this is desirable, we can discuss how it could
-be achieved, but my initial belief is that attempting any type of
-complicated morphing from userland would be slow, prone to deadlocks,
-and thus difficult to achieve in a fashion that guaranteed no loss of
-data in the face of unexpected system restarts.
-
---
-Justin
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 

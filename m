@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUIEKyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUIELCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUIEKyc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 06:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUIEKyc
+	id S266187AbUIELCN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 07:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbUIELCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 06:54:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7571 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266242AbUIEKy3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 06:54:29 -0400
-Date: Sun, 5 Sep 2004 03:52:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q about pagecache data never written to disk
-Message-Id: <20040905035233.6a6b5823.akpm@osdl.org>
-In-Reply-To: <20040905120147.A9202@castle.nmd.msu.ru>
-References: <20040905120147.A9202@castle.nmd.msu.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 5 Sep 2004 07:02:12 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:9677 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S266187AbUIELCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 07:02:09 -0400
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Sun, 5 Sep 2004 13:01:09 +0200
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Dan Kegel <dank@kegel.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Getting kernel.org kernel to build for m68k?
+Message-ID: <20040905110109.GD2605@kiste>
+References: <41355F88.2080801@kegel.com> <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be> <Pine.LNX.4.58.0409051224020.30282@anakin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+KJYzRxRHjYqLGl5"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409051224020.30282@anakin>
+User-Agent: Mutt/1.5.6+20040722i
+X-Smurf-Spam-Score: -3.1 (---)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin <saw@saw.sw.com.sg> wrote:
->
-> Let's suppose an mmap'ed (SHARED, RW) file has a hole.
->  AFAICS, we allow to dirty the file pages without allocating the space for the
->  hole - filemap_nopage just "reads" the page filling it with zeroes, and
->  nothing is done about the on-disk data until writepage.
-> 
->  So, if the page can't be written to disk (no space), the dirty data just
->  stays in the pagecache.  The data can be read or seen via mmap, but it isn't
->  and never be on disk.  The pagecache stays unsynchronized with the on-disk
->  content forever.
 
-The kernel will make one attampt to write the data to disk.  If that write
-hits ENOSPC, the page is not redirtied (ie: the data can be lost).
+--+KJYzRxRHjYqLGl5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-When that write hits ENOSPC an error flag is set in the address_space and
-that will be returned from a subsequent msync().  The application will then
-need to do something about it.
+Hi,
 
-If your application doesn't msync() the memory then it doesn't care about
-its data anyway.  If your application _does_ msync the pages then we
-reliably report errors.
+Geert Uytterhoeven:
+> Hence if no one objects, I'll submit the patch to Andrew and Linus.
+>=20
+> All comments are welcome!
+>=20
+Go for it.
 
->  Is it the intended behavior?
->  Shouldn't we call the filesystem to fill the hole at the moment of the first
->  write access?
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
 
-That would be a retrograde step - it would be nice to move in the other
-direction: perform disk allocation at writeback time rather than at write()
-time, even for regular write() data.  To do that we (probably) need space
-reservation APIs.  And yes, we perhaps could reserve space in the
-filesystem when that page is first written to.
+--+KJYzRxRHjYqLGl5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-But then what would we do if there's no space?  SIGBUS?  SIGSEGV? 
-Inappropriate.  SIGENOSPC?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
+iD8DBQFBOvH18+hUANcKr/kRAtkLAJ0UAtUKrDCTmzIlQkrqXJSgDxsOzgCfdc7a
+MnZoG+PU+gBEANqXxgVKFqI=
+=OYbb
+-----END PGP SIGNATURE-----
+
+--+KJYzRxRHjYqLGl5--

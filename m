@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289191AbSBSBZQ>; Mon, 18 Feb 2002 20:25:16 -0500
+	id <S289226AbSBSB1q>; Mon, 18 Feb 2002 20:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289210AbSBSBZG>; Mon, 18 Feb 2002 20:25:06 -0500
-Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:3730 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289191AbSBSBYy>;
-	Mon, 18 Feb 2002 20:24:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] Page table sharing
-Date: Tue, 19 Feb 2002 02:29:29 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Hugh Dickins <hugh@veritas.com>, <dmccr@us.ibm.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>, <mingo@redhat.com>,
-        Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
-        <wli@holomorphy.com>
-In-Reply-To: <Pine.LNX.4.33L.0202182221040.1930-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0202182221040.1930-100000@imladris.surriel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16cz61-0000ya-00@starship.berlin>
+	id <S289210AbSBSB10>; Mon, 18 Feb 2002 20:27:26 -0500
+Received: from holomorphy.com ([216.36.33.161]:38799 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S289216AbSBSB1T>;
+	Mon, 18 Feb 2002 20:27:19 -0500
+Date: Mon, 18 Feb 2002 17:27:10 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        riel@surriel.com, davem@redhat.com, rwhron@earthlink.net
+Subject: Re: [PATCH] [rmap] operator-sparse Fibonacci hashing of waitqueues
+Message-ID: <20020219012710.GH3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org, riel@surriel.com, davem@redhat.com,
+	rwhron@earthlink.net
+In-Reply-To: <20020217090111.GF832@holomorphy.com> <E16cwJZ-0000jZ-00@starship.berlin> <20020219003450.GF3511@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020219003450.GF3511@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 19, 2002 02:22 am, Rik van Riel wrote:
-> On Mon, 18 Feb 2002, Linus Torvalds wrote:
-> > On Tue, 19 Feb 2002, Daniel Phillips wrote:
-> > >
-> > > Thanks, here it is again.
-> >
-> > Daniel, there's something wrong in the locking.
-> 
-> > Does anybody see any reason why this doesn't work totally without the
-> > lock?
-> 
-> We'll need protection from the swapout code.  It would be
-> embarassing if the page fault handler would run for one
-> mm while kswapd was holding the page_table_lock for another
-> mm.
-> 
-> I'm not sure how the page_table_share_lock is supposed
-> to fix that one, though.
+On Mon, Feb 18, 2002 at 04:34:50PM -0800, William Lee Irwin III wrote:
+> Now, there is something called the "spectrum" of a number, which for
+> a number x is the set of all the numbers of the form n * x, where n
+> is an integer. So we have {1*x}, {2*x}, {3*x}, and so on.
 
-It doesn't, at present.  This needs to be addressed.
+Argh! Spec(x) is the multiset [1*x], [2*x], [3*x] where [x] is the
+integer part of x.
 
--- 
-Daniel
+
+Cheers,
+Bill

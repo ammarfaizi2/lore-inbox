@@ -1,90 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSGIUUZ>; Tue, 9 Jul 2002 16:20:25 -0400
+	id <S317397AbSGIUTK>; Tue, 9 Jul 2002 16:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317398AbSGIUUY>; Tue, 9 Jul 2002 16:20:24 -0400
-Received: from [199.128.236.1] ([199.128.236.1]:33810 "EHLO
-	intranet.reeusda.gov") by vger.kernel.org with ESMTP
-	id <S317399AbSGIUUW>; Tue, 9 Jul 2002 16:20:22 -0400
-Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D20218@CSREESSERVER>
-From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-To: "'jbradford@dial.pipex.com'" <jbradford@dial.pipex.com>,
-       "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+	id <S317398AbSGIUTJ>; Tue, 9 Jul 2002 16:19:09 -0400
+Received: from [213.187.195.158] ([213.187.195.158]:48368 "EHLO
+	kokeicha.ingate.se") by vger.kernel.org with ESMTP
+	id <S317397AbSGIUTI>; Tue, 9 Jul 2002 16:19:08 -0400
+To: netfilter-devel@lists.samba.org
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: list of compiled in support
-Date: Tue, 9 Jul 2002 16:23:45 -0400 
+Subject: [PATCH] Iptables multiport match fix
+From: Marcus Sundberg <marcus@ingate.com>
+Date: 09 Jul 2002 22:21:36 +0200
+Message-ID: <veznx0ejov.fsf@inigo.ingate.se>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or maybe:
+Hi,
 
-strings /proc/kernel/ksyms | grep ipx
+The multiport match checks for the IPT_INV_PROTO flag in the 'flags'
+member of struct ipt_ip instead of in the 'invflags' member.
 
-Michael Martinez
-System Administrator (Contractor)
-Information Systems and Technology Management
-CSREES - United States Department of Agriculture
-(202) 720-6223
+diff -ur linux.current/net/ipv4/netfilter/ipt_multiport.c linux-mine/net/ipv4/netfilter/ipt_multiport.c
+--- linux-2.4.19-rc1/net/ipv4/netfilter/ipt_multiport.c	Tue Jun 20 23:32:27 2000
++++ linux/net/ipv4/netfilter/ipt_multiport.c	Tue Jul  9 10:43:23 2002
+@@ -78,7 +78,7 @@
+ 
+ 	/* Must specify proto == TCP/UDP, no unknown flags or bad count */
+ 	return (ip->proto == IPPROTO_TCP || ip->proto == IPPROTO_UDP)
+-		&& !(ip->flags & IPT_INV_PROTO)
++		&& !(ip->invflags & IPT_INV_PROTO)
+ 		&& matchsize == IPT_ALIGN(sizeof(struct ipt_multiport))
+ 		&& (multiinfo->flags == IPT_MULTIPORT_SOURCE
+ 		    || multiinfo->flags == IPT_MULTIPORT_DESTINATION
 
+(Where should I send this btw? The kernel part of iptables doesn't
+seem to be in the netfilter CVS. Was I supposed to create a p-o-m
+patch? Or send it directly to Marcelo?)
 
------Original Message-----
-From: jbradford@dial.pipex.com [mailto:jbradford@dial.pipex.com]
-Sent: Tuesday, July 09, 2002 9:30 AM
-To: MMARTINEZ@intranet.reeusda.gov
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: list of compiled in support
-
-
-Can't you just
-
-grep ipx System.map
-
-???  Or am I being thick again?  :-/
-
-> No, no. Just simply find out whether my kernel supports ipx. And if it
-does
-> support it, then to disable it, without recompiling the kernel, perhaps by
-> removing ipx entries from /etc/services.
-> 
-> Michael Martinez
-> System Administrator (Contractor)
-> Information Systems and Technology Management
-> CSREES - United States Department of Agriculture
-> (202) 720-6223
-> 
-> 
-> -----Original Message-----
-> From: Thunder from the hill [mailto:thunder@ngforever.de]
-> Sent: Tuesday, July 09, 2002 8:53 AM
-> To: Martinez, Michael - CSREES/ISTM
-> Cc: 'Alan Cox'; linux-kernel@vger.kernel.org
-> Subject: RE: list of compiled in support
-> 
-> 
-> Hi,
-> 
-> On Tue, 9 Jul 2002, Martinez, Michael - CSREES/ISTM wrote:
-> > Okay. this would require a little C code right? is there a shell command
-> > line tool I could use instead?
-> 
-> What exactly is your intention? IPX networking from a shell script?
-> 
-> 							Regards,
-> 							Thunder
-> -- 
-> (Use http://www.ebb.org/ungeek if you can't decode)
-> ------BEGIN GEEK CODE BLOCK------
-> Version: 3.12
-> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-> e++++ h* r--- y- 
-> ------END GEEK CODE BLOCK------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+//Marcus
+-- 
+---------------------------------------+--------------------------
+  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
+ Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

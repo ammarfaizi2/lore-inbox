@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280056AbRLBPxD>; Sun, 2 Dec 2001 10:53:03 -0500
+	id <S280029AbRLBQAp>; Sun, 2 Dec 2001 11:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280029AbRLBPwx>; Sun, 2 Dec 2001 10:52:53 -0500
-Received: from relay-2v.club-internet.fr ([194.158.96.113]:27119 "HELO
-	relay-2v.club-internet.fr") by vger.kernel.org with SMTP
-	id <S280114AbRLBPwm>; Sun, 2 Dec 2001 10:52:42 -0500
-Message-ID: <3C0A4E56.1070409@freesurf.fr>
-Date: Sun, 02 Dec 2001 16:52:54 +0100
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011130
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: [2.5.1-pre5] Unresolved symbols in nfs module
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280114AbRLBQAe>; Sun, 2 Dec 2001 11:00:34 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:65294 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280101AbRLBQAX>;
+	Sun, 2 Dec 2001 11:00:23 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.10 is available 
+In-Reply-To: Your message of "Sun, 02 Dec 2001 23:48:29 +1100."
+             <26392.1007297309@ocs3.intra.ocs.com.au> 
+Date: Mon, 03 Dec 2001 03:00:10 +1100
+Message-ID: <27607.1007308810@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make modules_install:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.1-pre5; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.1-pre5/kernel/fs/nfs/nfs.o
-depmod:         seq_escape
-depmod:         seq_printf
+Content-Type: text/plain; charset=us-ascii
 
--- 
-  ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
-Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+On Sun, 02 Dec 2001 23:48:29 +1100, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>Release 1.10 of kernel build for kernel 2.5 (kbuild 2.5) has been
+>released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
+>download release 1.10.
+>
+>kbuild 2.5 currently supports i386 (2.4.16), ia64 (2.4.16-011128),
+>sparc32 (2.4.16), sparc64 (2.4.16).
 
-"Software is like sex it's better when it's free.", Linus Torvalds
+At no extra cost, kbuild 2.5 now supports kernel 2.5.1-pre5.  See patch
+kbuild-2.5-2.5.1-pre5-1.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE8ClAIi4UHNye0ZOoRAifzAKDvmShuNuhYQHvXcZm6wQhePhv2TACgu2pi
+zExlLuM9zAvvDK7KE5tiilE=
+=873e
+-----END PGP SIGNATURE-----
 

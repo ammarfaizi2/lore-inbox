@@ -1,155 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265406AbUBAXOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 18:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUBAXOl
+	id S265516AbUBAXYu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUBAXYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 18:14:41 -0500
-Received: from sputnik.bioma.se ([212.112.42.34]:42632 "EHLO sputnik.bktv.se")
-	by vger.kernel.org with ESMTP id S265406AbUBAXOf (ORCPT
+	Sun, 1 Feb 2004 18:24:49 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:30731 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265531AbUBAXYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 18:14:35 -0500
-Message-ID: <401D8855.1000203@lmpnet.se>
-Date: Mon, 02 Feb 2004 00:14:29 +0100
-From: Michael Jonsson <micke@lmpnet.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: build error smbfs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Feb 2004 18:24:46 -0500
+Date: Mon, 2 Feb 2004 00:24:42 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andreas Gruenbacher <agruen@suse.de>, morgan@transmeta.com,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: permission() bug?
+Message-ID: <20040202002442.A28165@pclin040.win.tue.nl>
+References: <1075638996.2424.13.camel@nb.suse.de> <20040201131457.2cf44e4c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040201131457.2cf44e4c.akpm@osdl.org>; from akpm@osdl.org on Sun, Feb 01, 2004 at 01:14:57PM -0800
+X-Spam-DCC: COLLEGEOFNEWCALEDONIA: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Feb 01, 2004 at 01:14:57PM -0800, Andrew Morton wrote:
 
-I get an error when I try to build kernel-2.6.1 with smbfs,
+> >  the fix for permission() that makes it compliant with POSIX.1-2001
+> 
+> Question is: should we fix it?  I'm not aware of any bug reports against
+> this behaviour, and there is the possibility that changing it now will
+> break some applications.
 
-************************************************
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CC [M]  fs/smbfs/proc.o
-fs/smbfs/proc.c:33:19: proto.h: No such file or directory
-fs/smbfs/proc.c: In function `smb_request_ok':
-fs/smbfs/proc.c:826: warning: implicit declaration of function 
-`smb_add_request'
-fs/smbfs/proc.c: In function `smb_newconn':
-fs/smbfs/proc.c:874: warning: implicit declaration of function 
-`smb_valid_socket'
-fs/smbfs/proc.c:903: error: `smb_data_ready' undeclared (first use in 
-this function)
-fs/smbfs/proc.c:903: error: (Each undeclared identifier is reported only 
-once
-fs/smbfs/proc.c:903: error: for each function it appears in.)
-fs/smbfs/proc.c:968: error: `smb_dir_inode_operations_unix' undeclared 
-(first use in this function)
-fs/smbfs/proc.c:981: warning: implicit declaration of function 
-`smbiod_wake_up'
-fs/smbfs/proc.c: In function `smb_proc_seek':
-fs/smbfs/proc.c:1071: warning: implicit declaration of function 
-`smb_alloc_request'
-fs/smbfs/proc.c:1071: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c:1088: warning: implicit declaration of function `smb_rput'
-fs/smbfs/proc.c: In function `smb_proc_open':
-fs/smbfs/proc.c:1121: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_open':
-fs/smbfs/proc.c:1192: warning: implicit declaration of function 
-`smb_renew_times'
-fs/smbfs/proc.c: In function `smb_proc_close':
-fs/smbfs/proc.c:1215: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_close_inode':
-fs/smbfs/proc.c:1270: warning: implicit declaration of function 
-`smb_get_inode_attr'
-fs/smbfs/proc.c: In function `smb_proc_read':
-fs/smbfs/proc.c:1339: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_write':
-fs/smbfs/proc.c:1387: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_readX':
-fs/smbfs/proc.c:1461: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_writeX':
-fs/smbfs/proc.c:1507: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_create':
-fs/smbfs/proc.c:1551: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_mv':
-fs/smbfs/proc.c:1584: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_generic_command':
-fs/smbfs/proc.c:1619: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_unlink':
-fs/smbfs/proc.c:1690: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_flush':
-fs/smbfs/proc.c:1742: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_trunc64':
-fs/smbfs/proc.c:1776: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_readdir_short':
-fs/smbfs/proc.c:1978: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c:2065: warning: implicit declaration of function 
-`smb_fill_cache'
-fs/smbfs/proc.c: In function `smb_proc_readdir_long':
-fs/smbfs/proc.c:2308: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_ff':
-fs/smbfs/proc.c:2512: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_core':
-fs/smbfs/proc.c:2594: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_std':
-fs/smbfs/proc.c:2679: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_all':
-fs/smbfs/proc.c:2729: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_getattr_unix':
-fs/smbfs/proc.c:2760: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_core':
-fs/smbfs/proc.c:2846: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_ext':
-fs/smbfs/proc.c:2908: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_trans2':
-fs/smbfs/proc.c:2954: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_setattr_unix':
-fs/smbfs/proc.c:3028: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_dskattr':
-fs/smbfs/proc.c:3179: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_read_link':
-fs/smbfs/proc.c:3209: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_symlink':
-fs/smbfs/proc.c:3258: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_link':
-fs/smbfs/proc.c:3301: warning: assignment makes pointer from integer 
-without a cast
-fs/smbfs/proc.c: In function `smb_proc_query_cifsunix':
-fs/smbfs/proc.c:3346: warning: assignment makes pointer from integer 
-without a cast
-make[2]: *** [fs/smbfs/proc.o] Error 1
-make[1]: *** [fs/smbfs] Error 2
-make: *** [fs] Error 2
-***********************************************************
+Quite apart from this particular case, the general answer to such questions
+should be Yes.
 
-Regards
-Micke
+It must not be the case that Linux is roughly speaking POSIX-conforming
+but deviates in a thousand obscure ways.
+
+When a deviation is noticed, changing to be POSIX-conforming should
+be the default action. Of course, some POSIX requirements are rather
+unfortunate, and in individual cases there can be a good reason
+not to change. Such individual cases should be discussed and well documented.
+
+In a case like this, where it is clear that Linux is buggy, the bug
+should just be fixed.  Of course it is your call to choose between
+fixing a bug and keeping a stable interface.  If you choose the latter
+this must be fixed in 2.7.
+
+(By the way - 2.0.34 and 2.2.19 do not have this bug, 2.4.18 has.)
 
 
+Andries

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266283AbUANAca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 19:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUANAc3
+	id S266268AbUANA2X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 19:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266280AbUANA2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 19:32:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266283AbUANAcW (ORCPT
+	Tue, 13 Jan 2004 19:28:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19919 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S266268AbUANA2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 19:32:22 -0500
-Date: Tue, 13 Jan 2004 16:32:05 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: john moser <bluefoxicy@linux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initializing a task
-Message-ID: <20040113163205.B30560@osdlab.pdx.osdl.net>
-References: <20040113152026.34ADA3966@sitemail.everyone.net>
+	Tue, 13 Jan 2004 19:28:09 -0500
+Date: Tue, 13 Jan 2004 16:21:12 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: jt@hpl.hp.com, jt@bougret.hpl.hp.com, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.X] SIOCSIFNAME wilcard suppor & name validation
+Message-Id: <20040113162112.509edb71.davem@redhat.com>
+In-Reply-To: <20040113142204.0b41403b.shemminger@osdl.org>
+References: <20040112234332.GA1785@bougret.hpl.hp.com>
+	<20040113142204.0b41403b.shemminger@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040113152026.34ADA3966@sitemail.everyone.net>; from bluefoxicy@linux.net on Tue, Jan 13, 2004 at 07:20:26AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* john moser (bluefoxicy@linux.net) wrote:
-> I'm having severe severe issues with my jail.  Inside do_fork() I have
-> code for
+On Tue, 13 Jan 2004 14:22:04 -0800
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-Did you look at the INIT_TASK() macro for initialization.  Also, you may
-take a look at another jail implementation (done to emulate BSD jails)
-done as a security module.
-										http://mail.immunix.com/pipermail/linux-security-module/2003-December/4990.html
+> Here is an enhanced version of the previous patch.
+> It adds both the wildcard support that Jean did, and validation of network
+> device names.
+> 
+> It doesn't check the error return from class_device_rename because
+> that will not fail unless object or name are null.
 
-thanks
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+This is really cool, nice work guys.
+
+Patch applied, thanks.

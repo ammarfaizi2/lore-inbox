@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbSKOFFX>; Fri, 15 Nov 2002 00:05:23 -0500
+	id <S265787AbSKOFMz>; Fri, 15 Nov 2002 00:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbSKOFFW>; Fri, 15 Nov 2002 00:05:22 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:29965 "EHLO
+	id <S265797AbSKOFMz>; Fri, 15 Nov 2002 00:12:55 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:39693 "EHLO
 	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265773AbSKOFFW>; Fri, 15 Nov 2002 00:05:22 -0500
-Date: Fri, 15 Nov 2002 05:12:07 +0000
+	id <S265787AbSKOFMw>; Fri, 15 Nov 2002 00:12:52 -0500
+Date: Fri, 15 Nov 2002 05:19:39 +0000
 From: John Levon <levon@movementarian.org>
 To: Corey Minyard <cminyard@mvista.com>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
@@ -14,33 +14,34 @@ Cc: Linus Torvalds <torvalds@transmeta.com>,
        "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
        Dipankar Sarma <dipankar@gamebox.net>, linux-kernel@vger.kernel.org
 Subject: Re: NMI handling rework for x86
-Message-ID: <20021115051207.GA29779@compsoc.man.ac.uk>
-References: <3DD47858.3060404@mvista.com>
+Message-ID: <20021115051939.GA32131@compsoc.man.ac.uk>
+References: <3DD47858.3060404@mvista.com> <20021115051207.GA29779@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DD47858.3060404@mvista.com>
+In-Reply-To: <20021115051207.GA29779@compsoc.man.ac.uk>
 User-Agent: Mutt/1.3.25i
 X-Url: http://www.movementarian.org/
 X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18CYm1-00023b-00*18UF2C89MUk* (Manchester Computing, University of Manchester)
+X-Scanner: exiscan *18CYtI-00027K-00*69KhBRR9VZ6* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 10:30:16PM -0600, Corey Minyard wrote:
+On Fri, Nov 15, 2002 at 05:12:07AM +0000, John Levon wrote:
 
-> Since a lot of things are hacking into this code (lkcd, kdb, oprofile, 
-> nmi watchdog, and now my IPMI watchdog pretimeout), it would be very 
-> nice to get their junk out of this code and allow them to bind in 
-> nicely, and allow binding from modules.
+> also, the diff would be much easier to read as a separate "mv nmi.c
+> nmi_watchdog.c" then diff against that
 
-I've just noticed you haven't fixed the watchdog vs. oprofile case.  You
-pass in the handled flag to the NMI watchdog handler, but you ignore the
-value and always do the perfctr reset. You /must/ only do the reset if
-handled == false, or you'll screw up oprofile when it's running.
+Oh, and I suppose I agree with Zwane - stuff like this really needs
+hammering wrt testing. Have you actually tried oprofile against it
+yourself Corey ? It's probably the best source of huge amounts of NMIs
+:)
 
-also, the diff would be much easier to read as a separate "mv nmi.c
-nmi_watchdog.c" then diff against that
+If you can fix up the patch I'll try and make some time to test it
+properly
 
 regards
 john
+-- 
+Khendon's Law: If the same point is made twice by the same person,
+the thread is over.

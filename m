@@ -1,53 +1,90 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315412AbSEBUo2>; Thu, 2 May 2002 16:44:28 -0400
+	id <S315414AbSEBUp4>; Thu, 2 May 2002 16:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSEBUo1>; Thu, 2 May 2002 16:44:27 -0400
-Received: from alex.intersurf.net ([216.115.129.11]:46606 "HELO
-	alex.intersurf.net") by vger.kernel.org with SMTP
-	id <S315412AbSEBUo1>; Thu, 2 May 2002 16:44:27 -0400
-Date: Thu, 2 May 2002 15:44:25 -0500
-From: Mark Orr <markorr@intersurf.com>
+	id <S315415AbSEBUpz>; Thu, 2 May 2002 16:45:55 -0400
+Received: from host.greatconnect.com ([209.239.40.135]:55556 "EHLO
+	host.greatconnect.com") by vger.kernel.org with ESMTP
+	id <S315414AbSEBUpx>; Thu, 2 May 2002 16:45:53 -0400
+Message-ID: <3CD1A469.9040605@rackable.com>
+Date: Thu, 02 May 2002 13:41:13 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.12-dj1:  IDE trouble - RZ1000 still won't finish booting
-Message-Id: <20020502154425.45437b42.markorr@intersurf.com>
-X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.19pres and IDE DMA
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
+Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
+ Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
+ On a side note the same thing occurs with the RH 2.4.18-0.13 kernel. 
+ It appears both kernels merged an ide update from the ac kernel line.
 
-I posted a log about this about a week ago regarding
-Linux 2.5.10 not completing boot on an older system with a
-RZ1000 IDE interface.   (and that RZ1000 by itself, w/ CMD640
-and generic PCI IDE disabled in make config, wouldnt even
-compile  -- it still doesnt with 2.5.12-dj1)
+PS-There is also some issue with a resource conflict that occurs under 
+every kernel I've tried.
 
 
-It still crashes at the same place - when the root
-filesystem is remounted with R/W.   The messages look different,
-i.e. the "unexpected interrupt <x> <y>" is gone, but it looks
-like it's still complaining about the same thing:
+2.4.18:
+bash-2.05# hdparm -d 1 /dev/hda
 
-hda: task_mulout_intr: error=0x04  { DriveStatusError }
+/dev/hda:
+ setting using_dma to 1 (on)
+ using_dma    =  1 (on)
+bash-2.05# hdparm -d /dev/hda
 
-then several of these:
+/dev/hda:
+ using_dma    =  1 (on)
+bash-2.05#
 
-   { task_mulout_intr }
-hda:  ide_set_handler: handler not null  old=<some hex> new=<some other hex>
-bug: kernel timer added twice
+2.4.19pre7
 
-finally:
+root@dev30> /sbin/hdparm /dev/hda
 
-end_request: I/O error, dev 03:00, sector 456628
-end_buffer_io_sync: I/O error
-hda: ata_irq_request: hwgroup was not busy!?
-Unable to hand kernel NULL pointer dereference...
+/dev/hda:
+multcount    = 16 (on)
+I/O support  =  0 (default 16-bit)
+unmaskirq    =  0 (off)
+using_dma    =  0 (off)
+keepsettings =  0 (off)
+nowerr       =  0 (off)
+readonly     =  0 (off)
+readahead    =  8 (on)
+geometry     = 238216/255/63, sectors = 240121728, start = 0
+busstate     =  1 (on)
 
-...and the usual dumpage.    (which isnt logged, naturally)
+root@dev30> /sbin/hdparm -d1 /dev/hda
+/dev/hda:
+setting using_dma to 1 (on)
+HDIO_SET_DMA fail ed: Operation not permitted
+using_dma    =  0 (off)
 
---
-Mark Orr
-markorr@intersurf.com
+
+lspci strangeness: (both 2.4.19pre7, and 2.4.18)
+
+00:1f.1 IDE interface: Intel Corporation: Unknown device 248b (rev 02) 
+(prog-if
+8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 0, IRQ 18
+        I/O ports at <unassigned> [size=8]
+        I/O ports at <unassigned> [size=4]
+        I/O ports at <unassigned> [size=8]
+        I/O ports at <unassigned> [size=4]
+        I/O ports at ffa0 [size=16]
+        Memory at 40000000 (32-bit, non-prefetchable) [disabled] [size=1K]
+
+IDE intialization error: (both 2.4.19pre7, and 2.4.18)
+
+PCI_IDE: unknown IDE controller on PCI bus 00 device f9,VID=8086,DID=248b
+PCI: Device 00:1f.1 not available because of resource collision
+PCI_IDE: (ide_setup_pci_device:) Could not enable device.
+
+
+
+
+

@@ -1,92 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312943AbSCZEMJ>; Mon, 25 Mar 2002 23:12:09 -0500
+	id <S312944AbSCZESJ>; Mon, 25 Mar 2002 23:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312945AbSCZEMA>; Mon, 25 Mar 2002 23:12:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49669 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312942AbSCZELp>;
-	Mon, 25 Mar 2002 23:11:45 -0500
-Message-ID: <3C9FF4B3.3070408@mandrakesoft.com>
-Date: Mon, 25 Mar 2002 23:10:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S312945AbSCZERu>; Mon, 25 Mar 2002 23:17:50 -0500
+Received: from smtp.polyu.edu.hk ([158.132.14.103]:26897 "EHLO
+	hkpa04.polyu.edu.hk") by vger.kernel.org with ESMTP
+	id <S312942AbSCZERi>; Mon, 25 Mar 2002 23:17:38 -0500
+Message-ID: <000701c1d47d$31daade0$ccd7fea9@winxp>
+From: "Anthony Chee" <anthony.chee@polyu.edu.hk>
+To: "Bart Trojanowski" <bart@jukie.net>, <linux-kernel@vger.kernel.org>
+Cc: <kbuild-devel@vger.kernel.org>, <kernelnewbies@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <004501c1d34f$32bda110$0100a8c0@winxp> <20020325164535.A5144@jukie.net>
+Subject: Re: undefined reference
+Date: Tue, 26 Mar 2002 12:17:50 +0800
 MIME-Version: 1.0
-To: christophe =?ISO-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] 3c59x and resume
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9FC76F.6050900@mandrakesoft.com> <20020326014050.GP1853@ufies.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
+Or let me say clearly.
 
->On Mon, Mar 25, 2002 at 07:57:19PM -0500, Jeff Garzik wrote:
->
->>This patch causes module defaults to be reused -- potentially incorrectly.
->>
->
->Wrong. How can the fact that a suspend/resume cycle increment the id be
->worst than the fact that the same cycle return idx to the previous
->state?
->
->The argument you have against this patch is WRONG.
->
->You think about NICs in a PCI slot. 
->That's changed the day the cardbus support was moved from pcmcia to the
->today implementation.
->You can't expect cardbus user to stop using the suspend mode because you
->expect your id to be attributed one time (that doesn't even make sense).
->
->I agree that this patch is not a full fix (I said it in my original
->post) but I disagree that it does any bad things. I would be interested
->to learn about a real case ?
->
+The suitution is I want the kernel source use the symbol from module.
 
-Just exactly what I described.
+What I did in the module code are:
+1. EXPORT_SYMBOL(func) in the source code of module
+2. Set "extern int func()" in the module header
 
-The current system increments the card id on each ->probe, and does not 
-decrement on ->remove, which makes sense if you are hotplugging one card 
-and then another -- you don't want to reuse the same module options for 
-a different card.  Your patch changes this logic to, "oh wait, let's 
-stop doing this and have a special case once we reach MAX_UNITS"  Thus, 
-you could potentially reuse the final slot when that was not the desired 
-action.
+What I did in the kernel source code are:
+1. Insert "func()" in the inode.c
+2. Add the module header in the kernel source code
 
-Note that I am not defending this method of card_idx usage, because 
-different use cases have different requirements (as indeed you do).  But 
-your patch fixes one thing at the expense of another.
+Then I use "make bzImage", I got no error message on compiling inode.c, but
+I got
 
-I just had another idea.  Create a new module option 'default_options', 
-a single integer value.  Instead of assigning "-1" to options when we 
-run out of MAX_UNITS ids, assign the default_options value.
+"fs/fs.o(.text+0x1377d): undefined reference to `func'"
 
+in the linking stage.
 
+I also set condition inode.c to check the existing of module before calling
+func()
 
->>This is a personal solution, that might live on temporary as an 
->>outside-the-tree patch... but we cannot apply this to the stable kernel.
->>
->>I agree the card idx is wrong on remove.  Insert and remove a 3c59x 
->>cardbus card several times, and you will lose your module options too. 
->>
->
->NO -- If I can remove/insert suspend/remove my card as I want I ever get
->the same ID. 
->
-"same id" is vague.  Same PCI id?  Sure, but that doesn't mean it's the 
-same card, from the driver's point of view. The driver really needs to 
-keep track of whether or not a new ->probe indicates a card whose MAC 
-address we have seen before.
+Thanks
 
-To reiterate another issue, however, suspend/resume should _not_ be 
-calling the code added in your patch.  That's a non-3c59x bug somewhere.
+Regards,
+Anthony
 
-    Jeff
-
+----- Original Message -----
+From: "Bart Trojanowski" <bart@jukie.net>
+To: "Anthony Chee" <anthony.chee@polyu.edu.hk>;
+<linux-kernel@vger.kernel.org>
+Cc: <kbuild-devel@vger.kernel.org>; <kernelnewbies@vger.kernel.org>;
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, March 26, 2002 5:45 AM
+Subject: Re: undefined reference
 
 
 

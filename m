@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280996AbRKOTKr>; Thu, 15 Nov 2001 14:10:47 -0500
+	id <S281000AbRKOTO6>; Thu, 15 Nov 2001 14:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280998AbRKOTKi>; Thu, 15 Nov 2001 14:10:38 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20741 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280996AbRKOTKX>;
-	Thu, 15 Nov 2001 14:10:23 -0500
-Subject: Re: Uniprocessor Compile error: 2.4.15-pre4 (-tr) in kernel.o
-	(cpu_init()) - Works with SMP
-From: Robert Love <rml@tech9.net>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Ben Ryan <ben@bssc.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011113162814.A28319@redhat.com>
-In-Reply-To: <2482591359.20011114043702@bssc.edu.au>
-	<187493868425.20011114074459@bssc.edu.au> 
-	<20011113162814.A28319@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 15 Nov 2001 14:10:25 -0500
-Message-Id: <1005851437.1061.1.camel@phantasy>
+	id <S281004AbRKOTOt>; Thu, 15 Nov 2001 14:14:49 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:61884 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S281000AbRKOTOc>; Thu, 15 Nov 2001 14:14:32 -0500
+Date: Thu, 15 Nov 2001 14:14:30 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Martin McWhorter <m_mcwhorter@prairiegroup.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+Message-ID: <20011115141430.B10133@devserv.devel.redhat.com>
+In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <mailman.1005834780.32418.linux-kernel2news@redhat.com> <200111151807.fAFI7XN30496@devserv.devel.redhat.com> <3BF40D17.4060501@prairiegroup.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF40D17.4060501@prairiegroup.com>; from m_mcwhorter@prairiegroup.com on Thu, Nov 15, 2001 at 12:44:39PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 07:44:59AM +1100, Ben Ryan wrote:
-> SMP compile succeeded. (albeit with lots of warnings on 'pure')
+> Date: Thu, 15 Nov 2001 12:44:39 -0600
+> From: Martin McWhorter <m_mcwhorter@prairiegroup.com>
+> To: Pete Zaitcev <zaitcev@redhat.com>,
+>    linux-kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: Possible Bug: 2.4.14 USB Keyboard
+> 
+> > ok, so no usbkbd, it seems. But still, do lsmod too, please.
+> 
+> [root@m_mcwhorter m_mcwhorter]# /sbin/lsmod
+> Module                  Size  Used by
+> emu10k1                49584   0  (autoclean)
+> sr_mod                 13968   0  (autoclean)
+> ac97_codec              9248   0  (autoclean) [emu10k1]
+> soundcore               3376   4  (autoclean) [emu10k1]
+> usbkbd                  2944   0  (unused)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-UP users of the patch will want to apply this, too:
+YES! Kill this bastard (the best of all is to use rm(1), then reboot).
 
-diff -urN rattlesnake/include/asm-i386/current_asm.h  linux/include/asm-i386/current_asm.h 
---- rattlesnake/include/asm-i386/current_asm.h	Thu Nov 15 14:07:46 2001
-+++ linux/include/asm-i386/current_asm.h	Thu Nov 15 14:08:15 2001
-@@ -7,7 +7,7 @@
- #include <linux/per_cpu.h>
- #include <asm/desc.h>
- 
--#if 1 /*def CONFIG_SMP*/
-+#ifdef CONFIG_SMP
- /* Pass in the long and short versions of the register.
-  * eg GET_CURRENT(%ebx,%bx)
-  * All of this braindamage comes to us c/o a bug in gas: the
+>[...]
+> mousedev                3936   1
+> keybdev                 1728   0  (unused)
+> hid                    12576   0  (unused)
+> input                   3136   0  [usbkbd mousedev keybdev hid]
+> usb-uhci               21344   0  (unused)
+> usbcore                49184   1  [usbkbd hid usb-uhci]
 
+Dunno how, but usbkbd often manages to disable hid.
+Never let it get built. We do have reports of people who
+have keyboards not working with hid, very infrequently.
+Of course, those guys prefer just to build usbkbd than to
+help figuring why hid does not work. If not for that,
+usbkbd would be removed from kernel sources long ago.
 
-	Robert Love
-
+-- Pete

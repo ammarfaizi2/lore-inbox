@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315796AbSENQUX>; Tue, 14 May 2002 12:20:23 -0400
+	id <S315797AbSENQUz>; Tue, 14 May 2002 12:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315797AbSENQUW>; Tue, 14 May 2002 12:20:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:28421 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315796AbSENQUV>;
-	Tue, 14 May 2002 12:20:21 -0400
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: File open/create attibutes.
-In-Reply-To: <Pine.LNX.3.95.1020514113724.2711A-100000@chaos.analogic.com>
-X-Yow: FISH-NET-FISH-NET-FISH-NET-FISH-NET-FISH!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Tue, 14 May 2002 18:20:15 +0200
-Message-ID: <jeznz23dmo.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50 (ia64-suse-linux)
+	id <S315800AbSENQUy>; Tue, 14 May 2002 12:20:54 -0400
+Received: from gateway.ukaea.org.uk ([194.128.63.73]:1323 "EHLO
+	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
+	id <S315797AbSENQUw>; Tue, 14 May 2002 12:20:52 -0400
+Message-ID: <3CE13943.FBD5B1D6@ukaea.org.uk>
+Date: Tue, 14 May 2002 17:20:19 +0100
+From: Neil Conway <nconway.list@ukaea.org.uk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-31 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+Martin Dalecki wrote:
+> 
+> Uz.ytkownik Alan Cox napisa?:
+> >>From an abstract hardware point of view each ide controller is a queue not
+> > each device. Not following that is I think the cause of much of the existing
+> > pain and suffering.
+> 
+> Yes thinking about it longer and longer I tend to the same conclusion,
+> that we just shouldn't have per device queue but per channel queues instead.
+> The only problem here is the fact that some device properties
+> are attached to the queue right now. Like for example sector size and friends.
 
-|> Hello,
-|> 
-|> If a file exists with attributes, 0644, and it is opened with truncate
-|> and create with different attributes, it doesn't get those attributes.
-|> It's only if the file doesn't exist at all that it gets created with
-|> the new attributes.
-|> 
-|> I think this is a bug.
+OK..
 
-POSIX disagrees:
+> I didn't have a too deep look in to the generic blk layer. But I would
+> rather expect that since the lower layers are allowed to pass
+> an spin lock up to the queue intialization, sharing a spin lock
+> between two request queues should just serialize them with respect to
+> each other. And this is precisely what 63 does.
 
-O_CREAT         If the file exists, this flag has no effect except as
-                noted under O_EXCL below.
+(You're planning to have two queues per channel but sharing the same
+lock?)
 
-Andreas.
+On the serialisation issue: what does serialisation of the queues with
+respect to each other mean to you?  I understand it to mean that we
+won't ever call the request_fn of both queues at the same time - because
+that's all the actual spinlock buys you.  It does not IIUC mean that you
+can't get a call to request_fn of one queue while the other queue has
+lots of requests in it (which are potentially being serviced by DMA). 
+Or does it?  Does the block layer track which requests are "active"
+somehow?
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+My main question could be posed thus: am I right in thinking that we
+MUST track the busy-ness of the channel at all times?  (and for broken
+chipsets, track the logical OR of both channels' busy-ness)
+
+Neil
+PS: I'm hoping someone will either say "here's why you're wrong" or
+"you're right" RSN...

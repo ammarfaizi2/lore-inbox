@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbTK2HZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 02:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTK2HZk
+	id S263726AbTK2IWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 03:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTK2IWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 02:25:40 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:11525 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263698AbTK2HZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 02:25:38 -0500
-Date: Sat, 29 Nov 2003 08:24:47 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Baptiste Malguy <baptiste@malguy.net>
+	Sat, 29 Nov 2003 03:22:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22797 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263726AbTK2IWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 03:22:03 -0500
+Date: Sat, 29 Nov 2003 08:22:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: pZa1x <pZa1x@rogers.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VT driver/char/console.c, kernel 2.4.22
-Message-ID: <20031129072447.GA17722@alpha.home.local>
-References: <3FC7DF1E.3090807@malguy.net>
+Subject: Re: APM Suspend Problem
+Message-ID: <20031129082200.A30476@flint.arm.linux.org.uk>
+Mail-Followup-To: pZa1x <pZa1x@rogers.com>, linux-kernel@vger.kernel.org
+References: <3FC7F031.5060502@rogers.com> <3FC7F2E3.8080109@rogers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FC7DF1E.3090807@malguy.net>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FC7F2E3.8080109@rogers.com>; from pZa1x@rogers.com on Sat, Nov 29, 2003 at 01:14:11AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 12:49:50AM +0100, Baptiste Malguy wrote:
- 
-> In relation to this patch, I want to say that many many websites, FAQs, 
-> ... say that you must
-> have something like console="/dev/ttyX CONSOLE=/dev/ttyN" to redirect 
-> the kernel and init
-> messages.
+On Sat, Nov 29, 2003 at 01:14:11AM +0000, pZa1x wrote:
+> A follow-up
 > 
-> About 'CONSOLE=', that's true because this is a environment variable 
-> that /sbin/init obtains.
-> About 'console=', it's completly wrong ! 'console=' expects a driver 
-> name (example: "tty",
-> "tty1", "ttyS0"), not device file name. Only the Linux source code 
-> reading and a few websites
-> says the right usage of 'console='.
+> by shutting down PCMCIA and rmmod'ing all the related modules ie ide_cs, 
+> ds, yenta_socket, pcmcia_core the suspend works on AC again.
+> 
+> So, I add them back one by one:
+> pcmcia_core -> still works
+> yenta_socket -> FAILS!
+> rmmod yenta_socket -> works again!
+> 
+> Summary: suspend works on my Thinkpad T21
+> (a) with no apm module or apmd but with all PCMCIA (ie. hardware 
+> suspend- close lid etc);
+> (b) with apm & apmd and all PCMCIA but no AC power
+> (c) with apm & apmd but no yenta_socket and the rest but with AC power
+> 
+> The problem is a combination of apm, yenta_socket and AC power.
 
-If there really are FAQ reporting this, it might be simpler to make the
-kernel accept /dev/XXX than to try to fix all FAQs, and it would be more
-intuitive to people who type on lilo command line.
+The output of:
 
-> Is the way I attached the patch "correct"  ?
+lspci -vvxxxx
 
-You'd better send an "unified diff" (diff -u) which includes one level of
-kernel directory. You diff then starts like this :
---- linux-2.4.22/drivers/char/console
-+++ linux-2.4.22-bm1/drivers/char/console
+both with and without yenta_socket inserted would be a useful starting
+point.
 
-And all close changes are merged in a chunk with lines starting with + and -.
-Then it's more convenient to compare small changes.
-
-Please take a look at Documentation/SubmittingPatches for more info.
-
-> Must I Cc: it to Marcello or someone else ? I didn't
-> find the ideal maintainer in linux/MAINTAINERS.
-
-It's good to Cc Marcelo when you're sure it's an obvious patch that must be
-applied, but if you think it may be discussed here, it's better not to flood
-his mailbox, considering many people reply to all recipients.
-
-Cheers,
-Willy
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

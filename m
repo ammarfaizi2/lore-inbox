@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267106AbSL3Xw3>; Mon, 30 Dec 2002 18:52:29 -0500
+	id <S267176AbSLaAAO>; Mon, 30 Dec 2002 19:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267096AbSL3Xw3>; Mon, 30 Dec 2002 18:52:29 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:2312 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267106AbSL3Xw2>;
-	Mon, 30 Dec 2002 18:52:28 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212310000.gBV000hW004368@darkstar.example.net>
-Subject: New kernel bug database on-line
-To: linux-kernel@vger.kernel.org
-Date: Mon, 30 Dec 2002 23:59:59 +0000 (GMT)
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267177AbSLaAAO>; Mon, 30 Dec 2002 19:00:14 -0500
+Received: from host149-39.pool212171.interbusiness.it ([212.171.39.149]:25731
+	"EHLO nehwon.homeip.net") by vger.kernel.org with ESMTP
+	id <S267176AbSLaAAN>; Mon, 30 Dec 2002 19:00:13 -0500
+Message-ID: <3E10EDC8.4030006@unica.it>
+Date: Tue, 31 Dec 2002 01:07:20 +0000
+From: Roberto De Leo <deleo@unica.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: fbdev - boot parameter question
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of weeks ago, I started a thread about writing a bug database
-dedicated to Linux kernel development.
+Hi,
+I am developing a mini linux CD distro (movix.sf.net) and I would like 
+to set up the boot in the following way:  by default the CD should boot 
+with the vesa FB support on, but for those cards for which the vesa FB 
+fails the kernel should switch _automatically_ to the standard setting 
+it would use if it had started with the "video=vesa:off" boot parameter.
+What I get now when vesa FB fails to load is instead the kernel prompt 
+asking the user to choose among all available console modes, and I would 
+be very happy if I could avoid that.
 
-My theory is that by making it Linux kernel development specific, it
-can save more time, and make bug tracking easier than a generic bug
-database.
+I looked in the LILO HOWTO and in the BootPrompt HOWTO and in the 
+bootparam man page but could not find any way to do this.
+Any hint would be welcome. If there is no parameter available, can you 
+at least let me know which file should I change to set the standard 
+linux console mode as the default in case the vesa FB load fails?
 
-Anyway, version 1.0 is now on-line:
+Please, CC any answer to my mail address since I am not subscribed to 
+the ML.
 
-http://grabjohn.com/kernelbugdatabase/
+Thanks,
+ Roberto De Leo
 
-For the time being, you'll have to E-Mail me a request for a user
-account, (which you need to do anything with it), but I've also put
-some screenshots on-line here:
-
-http://grabjohn.com/kernelbugdatabase/screenshots/
-
-Basically, it's designed around two main principles:
-
-* As much as possible is done automatically - you shouldn't need to
-search using keywords, or categorise things manually, (although you
-can).  Instead, try searching for bugs by uploading a .config file,
-and having it automatically parsed, by selecting config options from a
-list, or by browsing the database for the state of bugs in a
-particular kernel tree.
-
-* Bugs are colour-coded:
-  Grey  - untested in this kernel version
-  Blue  - untestable in this kernel version due to other bugs
-  Red   - this bug is present in this kernel
-  Green - this bug is not present in this kernel
-
-There is also a command line interface, which will eventually be
-accessible via E-Mail, but for the time being it is only accessible
-via the web.  The command line interface currently allows you to list
-the bugs, get details about them, and add comments.
-
-Any comments on this new bug database would be very much appreciated!
-
-John

@@ -1,207 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUAUX3o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUAUX3n
+	id S266123AbUAUXh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbUAUXh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:29:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29127 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266193AbUAUX3D (ORCPT
+	Wed, 21 Jan 2004 18:37:28 -0500
+Received: from pooh.lsc.hu ([195.56.172.131]:47831 "EHLO pooh.lsc.hu")
+	by vger.kernel.org with ESMTP id S266198AbUAUXfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:29:03 -0500
-Date: Wed, 21 Jan 2004 15:24:46 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kjo <kernel-janitors@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] 2.6.1-bk6-kj1 patchset
-Message-Id: <20040121152446.61020605.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 21 Jan 2004 18:35:03 -0500
+Date: Thu, 22 Jan 2004 00:19:38 +0100
+From: GCS <gcs@lsc.hu>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: 2.6.1-mm5 - oops during network initialization
+Message-ID: <20040121231937.GA20618@lsc.hu>
+References: <20040120000535.7fb8e683.akpm@osdl.org> <200401210638.i0L6cpeU003057@turing-police.cc.vt.edu> <Pine.LNX.4.58.0401211024520.28511@hosting.rdsbv.ro> <20040121154627.GB10508@lsc.hu> <200401211659.i0LGxqHX002960@turing-police.cc.vt.edu> <20040121105836.526c943b.akpm@osdl.org> <200401211935.i0LJZ7Qd003905@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <200401211935.i0LJZ7Qd003905@turing-police.cc.vt.edu>
+X-Operating-System: GNU/Linux
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-patch is at:
-http://developer.osdl.org/rddunlap/kj-patches/2.6.1-bk6/2.6.1-bk6-kj1.patch.bz2  [2004-01-16]
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-M: merged at kernel.org;   mm: in -mm;   tx: sent;
+On Wed, Jan 21, 2004 at 02:35:07PM -0500, Valdis.Kletnieks@vt.edu <Valdis.K=
+letnieks@vt.edu> wrote:
+> On Wed, 21 Jan 2004 10:58:36 PST, you said:
+> > Valdis.Kletnieks@vt.edu wrote:
+> > >
+> > > On Wed, 21 Jan 2004 16:46:27 +0100, GCS said:
+> > >=20
+> > > > > > CONFIG_IPV6_PRIVACY=3Dy
+> > > >  Can you both try it without the above? At least it's solved my pro=
+blem,=20
+> and
+> > > > I can have 'CONFIG_IPV6=3Dy' and ipv6 netfilter options as modules.
+> > >=20
+> > > Confirm on that.  Same config, turn off CONFIG_IPV6_PRIVACY, and the
+> > > kernel boots just fine.  I'm willing to test patches if needed....
+> > >=20
+> >=20
+> > Which kernel fails to boot?  There were ipv6 fixes applied to 2.6.2-rc1.
+>=20
+> 2.6.1-mm4 worked, 2.6.1-mm5 failed, haven't tried 2.6.2-rc1 (will do so t=
+his evening).
+ 2.6.2-rc1 does _not_ have this problem, it is caused by a patch Andrew
+applied between 2.6.1-mm4 and -mm5; only affects if CONFIG_IPV6_PRIVACY
+is set.
+GCS
 
-This patch applies to linux-2.6.1-bk6.
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-new (for 2.6.1-bk6):  [2004-01-21]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-add/	aha1542_kmalloc_type.patch
-	From: Timmy Yee <shoujun@masterofpi.org>
+iD8DBQFADwkJaLTE7bG/hdERAkXQAJ9d+tLrLddd2+4IwtmbZNPOFWt25ACeJgJr
+ropmUvCRhwpDsVaMd6G1Ya0=
+=B+s1
+-----END PGP SIGNATURE-----
 
-add/	aha1542_qcommand_return.patch
-	From: Timmy Yee <shoujun@masterofpi.org>
-
-add/	char_dz_vrfy_area.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	config_sysrq.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	mcfserial_remove_casts_args.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	netdev_get_stats.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	scsi_config_doc.patch
-	From: Jean Delvare <khali@linux-fr.org>
-
-add/	saa7146_hlp_min_max.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-previous (for 2.6.1-bk4):  [2004-01-16]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add/	config_ledman_rm.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	ipt_register_target_retval.patch
-	From: Daniele Bellucci <bellucda@tiscali.it>
-
-add/	kconfig_cleanups_v1.patch
-	From: Matthew Wilcox <willy@debian.org>
-  drop	drivers/block/Kconfig: merge conflicts
-  drop	drivers/video/console/Kconfig: merge conflicts
-  drop	drivers/i2c/*/Kconfig: already merged
-
-add?	kswapd_init_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-add/	lmc_proto_raw_h_rm.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	netdev_rm_casts.patch
-	From: Carlo Perassi <carlo@linux.it>
-
-add/	s390_net_ctctty_putuser.patch
-	From: Domen Puncer <domen@coderock.org>
-	(rediffed)
-
-add/	setup_bootmem_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-?add	skfddi_regions_pciupdate.patch
-	From: Matthew Wilcox <willy@debian.org>
-
-add/	acpi_boot_message_typo.patch
-	From: Simon Richard Grint <rgrint@mrtall.compsoc.man.ac.uk>
-
-add/	cpcihp_zt5550_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-add/	mfcserial_vrfyarea.patch
-	From: Domen Puncer <domen@coderock.org>
-
-add/	vga16fb.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-add/	vgastate.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-add/	tc35815.c_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-add/	depca_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-add/	dgrs_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-
-previous (for 2.6.1):  [2004-01-13]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-M/	fdport.patch: reorder outb() macro names to reflect reality;
-	From: Randy Dunlap <rddunlap@osdl.org>
-	sent to akpm: 2004.0118;
-
-M/	vmdocs.patch
-	From: Patrick McLean <pmclean@linuxfreak.ca>
-	sent to akpm: 2004.0118;
-
-M/	2.6_spelling_Unix98.diff.patch
-	From: Andreas Beckmann <sparclinux@abeckmann.de>
-	sent to akpm: 2004.0118;
-
-M/	md_notifdef.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm: 2004.0118;
-
-M/	fsstat64.patch
-	From: Michael Still <mikal@stillhq.com>
-	sent to akpm: 2004.0118;
-
-previous (for 2.6.1-rc3):  [2004-01-08]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add	update EXTRAVERSION: add -kj1
-
-M/	amd74_noprocfs.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm/bart: 2004.0118;
-
-M/	siimage_noprocfs2.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm/bart: 2004.0118;
-
-M/	apm_thread_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm: 2004.0118;
-
-drop/	init_thread_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm: 2004.0118;
-	not worth the effort
-
-M/	mca_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm: 2004.0118;
-
-maint/	cifs_dalloc_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm/sfrench: 2004.0118;
-	merged by CIFS maintainer;
-
-M/	md_noprocfs.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm: 2004.0118;
-
-drop/	mminit_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm: 2004.0118;
-	Wrong.  If mm_init() fails, it frees `mm'.   Bad design.
-
-drop/	pdflush_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to akpm: 2004.0118;
-	Nope, if we fail to start a thread here we'll just try again later. 
-	There's no need to warn.
-
-drop/	setfpxregs_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	see source code comment:  clearing mxcsr bits must be done;
-
-drop/	ipv4_ipmr_retval.patch
-done/	From: Eugene TEO <eugeneteo@eugeneteo.net>
-
-M/	sunrpc_retval.patch
-	From: Eugene TEO <eugeneteo@eugeneteo.net>
-	sent to davem/netdev: 2004.0118;
-
-tx/	tr3c_kmalloc.patch
-	From: Pablo Menichini <pablo@menichini.com.ar>
-	and maximilian attems <janitor@sternwelten.at>
-	sent to jgarzik/netdev: 2004.0118;
-
-###
-
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+--PEIAKu/WMn1b1Hv9--

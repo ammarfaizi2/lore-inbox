@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUEFR3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUEFRaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUEFR3f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUEFR3f
+	id S261628AbUEFRaR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUEFRaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:29:35 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:64648
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261712AbUEFR3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:29:32 -0400
-From: Rob Landley <rob@landley.net>
-To: Daniele Venzano <webvenza@libero.it>, Ken Ashcraft <ken@coverity.com>
-Subject: Re: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
-Date: Thu, 6 May 2004 12:23:40 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com> <20040504084326.GA11133@gateway.milesteg.arr>
-In-Reply-To: <20040504084326.GA11133@gateway.milesteg.arr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 13:30:17 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45267 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261628AbUEFRaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:30:07 -0400
+Date: Thu, 6 May 2004 14:13:03 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
+Message-ID: <20040506121302.GI9636@fs.tum.de>
+References: <20040503230911.GE7068@logos.cnet> <20040504204633.GB8643@fs.tum.de> <200405042253.11133@WOLK> <40982AC6.5050208@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405061223.40942.rob@landley.net>
+In-Reply-To: <40982AC6.5050208@eyal.emu.id.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 May 2004 03:43, Daniele Venzano wrote:
-> Thank you for the spotting, the sis900 dirver was really missing a call
-> to netif_device_detach in sis900_suspend.
->
-> Attached is a trivial patch that fixes the issue.
->
-> The sis900 driver is currently unmaintained (the MAINTAINERS address
-> bounces), but I'm willing to take the work, since I know somewhat the
-> code and I wrote the power management functions.
->
-> I no one stands up, I'll send a patch to MAINTAINERS later on.
->
-> Bye.
+On Wed, May 05, 2004 at 09:44:06AM +1000, Eyal Lebedinsky wrote:
+> Marc-Christian Petersen wrote:
+> >On Tuesday 04 May 2004 22:46, Adrian Bunk wrote:
+> >
+> >Hi Adrian,
+> >
+> >
+> >>drivers/net/net.o(.text+0x60293): In function `tg3_get_strings':
+> >>: undefined reference to `WARN_ON'
+> >>make: *** [vmlinux] Error 1
+> >>There's no WARN_ON in 2.4.
+> >
+> >
+> >yep. Either we backport WARN_ON ;) or simply do the attached.
+> >
+> >--- old/drivers/net/tg3.c	2004-05-04 14:30:22.000000000 +0200
+> >+++ new/drivers/net/tg3.c	2004-05-04 14:49:58.000000000 +0200
+> >@@ -51,6 +51,10 @@
+> > #define TG3_TSO_SUPPORT	0
+> > #endif
+> > 
+> >+#ifndef WARN_ON
+> >+#define	WARN_ON(x)	do { } while (0)
+> >+#endif
+> 
+> Related but off topic. Do people find the ab#define	WARN_ON(x)
+> a macro acceptable? The fact is that not mentioning 'x' means any
+> side-effects are not executed, meaning the author must take special
+> care when using this macro.
+>...
 
-Does this fix the problem where you unplug the cat 5 cable from an SiS900 and 
-then plug it back in (toggling the MII tranciever link detect status and all 
-that), and the device goes positively mental until you reboot the system?  
-(Packets randomly dropped or delayed for up to 15 seconds, and arriving out 
-of sequence with horrible impacts on performance?)
+Do not use code with side effects in BUG_ON and WARN_ON.
 
-I tried pursuing this when I first noticed it circa 2.4.4, but as you say, the 
-driver is unmaintained and I haven't got specs (or any clue about) the 
-chipset...
+cu
+Adrian
 
-Rob
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

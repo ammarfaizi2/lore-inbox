@@ -1,90 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319323AbSHVL1K>; Thu, 22 Aug 2002 07:27:10 -0400
+	id <S319322AbSHVLX7>; Thu, 22 Aug 2002 07:23:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319324AbSHVL1K>; Thu, 22 Aug 2002 07:27:10 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:26505 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S319323AbSHVL1I>;
-	Thu, 22 Aug 2002 07:27:08 -0400
-Date: Thu, 22 Aug 2002 13:31:13 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre2-ac6
-Message-ID: <20020822113112.GB19201@ulima.unil.ch>
-References: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
+	id <S319323AbSHVLX7>; Thu, 22 Aug 2002 07:23:59 -0400
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:10644 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S319322AbSHVLX6>; Thu, 22 Aug 2002 07:23:58 -0400
+Message-ID: <20020822112806.28099.qmail@thales.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Thu, 22 Aug 2002 13:28:05 +0200
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: MM patches against 2.5.31
+References: <3D644C70.6D100EA5@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3D644C70.6D100EA5@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Aug 21, 2002 at 07:29:04PM -0700, Andrew Morton wrote:
+> 
+> I've uploaded a rollup of pending fixes and feature work
+> against 2.5.31 to
+> 
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.31/2.5.31-mm1/
+> 
+> The rolled up patch there is suitable for ongoing testing and
+> development.  The individual patches are in the broken-out/
+> directory and should all be documented.
 
-I can't use DMA on ICH4 with it (MB MSI 845E Max2-BLR):
-with PNPBIOS compiled in (no ACPI compiled in):
-(almost full log under
-http://ulima.unil.ch/greg/linux/dmesg-2.4.20-pre2-ac6 )
+Sorry, but we still have the page release race in multiple places.
+Look at the following (page starts with page_count == 1):
 
-...
-i810_rng: RNG not detected
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <0000fc00-0000fc0f>
-Trying to free nonexistent resource <20000000-200003ff>
-hda: IC35L120AVVA07-0, ATA DISK drive
-hdc: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=15017/255/63
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 >
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-...
+Processor 1                          Processor 2
+refill_inactive: lines 378-395
+   as page count == 1 we'll
+   continue with line 401
 
-And without PNPBIOS (also without ACPI):
-(almost full log under
-http://ulima.unil.ch/greg/linux/dmesg-2.4.20-pre2-ac6-noPNPBIOS )
-...
-i810_rng: RNG not detected
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <0000fc00-0000fc0f>
-Trying to free nonexistent resource <20000000-200003ff>
-hda: IC35L120AVVA07-0, ATA DISK drive
-hdc: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=15017/255/63
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 >
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-...
+                                     __pagevec_release: line 138
+				       calls release_pages
+				     release_pages: line 100-111
+				       put_page_test_zero brings the
+				       page count to 0 and we'll continue
+				       at line 114. Note that this may
+				       happen while another processor holds
+				       the lru lock, i.e. there is no
+				       point in checking for page count == 0
+				       with the lru lock held because
+				       the lru lock doesn't protect against
+				       decrements of page count after
+				       the check.
+  line 401: page_cache_get
+  resurrects the page, page
+  count is now 1.
+  lines 402-448.
+  line 448 calls __pagevec_release
 
-That don't seem to change anything... I have reported an oops with
-2.4.20-pre2-ac3 also with IDE:
-http://groups.google.com/groups?hl=fr&lr=&ie=UTF-8&threadm=20020816181957.GA14157%40ulima.unil.ch&rnum=1&prev=/groups%3Fhl%3Dfr%26lr%3D%26ie%3DISO-8859-1%26q%3D2.4.20-pre2-ac3%2Boops%26btnG%3DRecherche%2BGoogle
+__pagevec_release: line 138
+  calls release_pages
+release_pages: lines 100-111
+  put_page_test_zero brings the
+  page count back to 0 (!!!)
+  i.e. we continue at line 114:
 
-Is there something I could try?
+  lines 114-123.
+  The page count == 0 check in line
+  123 is successful and the page
+  is returned to the buddy allocator
+  
+				       lines 114-123.
+				       The page count == 0 check in line
+				       123 is successful, i.e. the page
+				       is returned to the buddy allocator
+				       a second time. ===> BOOM
 
-Thank you very much,
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+Neither the lru lock nor any of the page count == 0 checks can
+prevent this from happening.
+
+    regards   Christian
+
+-- 
+THAT'S ALL FOLKS!

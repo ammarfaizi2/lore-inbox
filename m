@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbUK2P7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUK2QCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbUK2P7t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 10:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUK2P6f
+	id S261745AbUK2QCm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 11:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUK2QCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 10:58:35 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:9175 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261743AbUK2P56 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 10:57:58 -0500
-Date: Mon, 29 Nov 2004 16:57:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041129155752.GA17828@elte.hu>
-References: <20041129095941.GD7868@elte.hu> <Pine.OSF.4.05.10411291152050.14592-100000@da410.ifa.au.dk> <20041129155642.GA17663@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129155642.GA17663@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 29 Nov 2004 11:02:41 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:30134 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261745AbUK2P6Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 10:58:24 -0500
+In-Reply-To: <Pine.LNX.4.61.0411150735070.10262@hibernia.jakma.org>
+Subject: Re: [patch 4/10] s390: network driver.
+To: paul@clubi.ie
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF773C347F.92E998FA-ONC1256F5B.0056F87D-C1256F5B.0057A78F@de.ibm.com>
+From: Thomas Spatzier <thomas.spatzier@de.ibm.com>
+Date: Mon, 29 Nov 2004 16:57:25 +0100
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
+ 29/11/2004 16:57:48
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> > iteration over a list which can be O(number of waiters * locking
-> > depth) long. As long as we are in the kernel both is "controlled",
-> > i.e. one can see the worst-case number in stress test and know it
-> > can't get worse. *
-> 
-> which list do you mean? Note that the pi_list depends on the number of
-> _RT-tasks_, not on the number of SCHED_NORMAL tasks. So you can create
-> an arbitrary number of SCHED_NORMAL tasks, they wont impact the
-> overhead of mutexes!
-> 
-> i very intentionally made it independent of nr-of-non-RT-tasks.
 
-and i'm regularly testing this property with 'hackbench 50', which
-creates over a 1000 wildly scheduling non-RT tasks. Latency is not
-affected by such workloads.
 
-	Ingo
+> Using a socket per interface wont address problem of sending
+> quite stale packets when a link > comes back after a long time
+> down, AUI. (not a huge problem - but not nice).
+>
+> Jeff???
+
+Has there been any outcome on the discussion about whether or not
+a device driver should drop packets when the cable is disconnected?
+It seems that from the zebra point of view, as Paul wrote,
+it would be better to not block sockets by queueing up packets
+when there is no cable connection.
+
+I do also think that it does not make sense to keep packets in the
+queue and then send those packets when the cable is plugged in
+again after a possibly long time.
+There are protocols like TCP that handle packet loss anyway.
+
+Regards,
+Thomas.
+

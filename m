@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267791AbUHTIfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUHTIfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267791AbUHTIfK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUHTIcr
+	id S267777AbUHTIfI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267791AbUHTIdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:32:47 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:6609 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264917AbUHTIbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:31:41 -0400
-Date: Fri, 20 Aug 2004 10:31:36 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>
-Subject: Please no personal insults on this list (was: GNU make alleged of "bug")
-Message-ID: <20040820083136.GA10968@merlin.emma.line.org>
-Reply-To: matthias.andree@gmx.de
-Mail-Followup-To: matthias.andree@gmx.de
-References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net> <20040819194724.GA10515@merlin.emma.line.org> <200408192108.52876.gene.heskett@verizon.net>
+	Fri, 20 Aug 2004 04:33:32 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:47776 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S267827AbUHTIcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:32:14 -0400
+Subject: Re: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "Raf D'Halleweyn (list)" <list@noduck.net>
+Cc: Max Krasnyansky <maxk@qualcomm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092966777.5230.4.camel@alto.dhalleweyn.com>
+References: <1091581193.15561.3.camel@alto.dhalleweyn.com>
+	 <1092049263.21815.18.camel@pegasus>
+	 <1092966777.5230.4.camel@alto.dhalleweyn.com>
+Content-Type: text/plain
+Message-Id: <1092990717.18082.60.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408192108.52876.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 10:31:57 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004, Gene Heskett wrote:
+Hi Ralf,
 
-> Agreed.  Maybe he thinks those of us who speak english still need that 
-> long to deciher what he thinks is english but in reality reminds me 
-> of engrish.com, just a different language for a starting point.  I 
-> can get the meaning in 3 seconds, but to fully read it, and translate 
-> it into real english takes all of that 15 seconds.  Sigh.
+> This was under 2.6.7, using ehci for USB 2.0 and uhci for 1.1.
+> 
+> Under 2.6.8.1 I get with USB 1.1:
+> usb 4-1.3: new full speed USB device using address 3
+> bcm203x_probe: Mini driver request failed
+> bcm203x: probe of 4-1.3:1.0 failed with error -5
+> usb 4-1.3: USB disconnect, address 3
+> usb 4-1.3: new full speed USB device using address 4
+> 
+> but USB 2.0 gives:
+> usb 1-3.4: new full speed USB device using address 6
+> ehci_hcd 0000:00:1d.7: qh f7d2d200 (#0) state 1
+> bcm203x_probe: Mini driver request failed
+> bcm203x: probe of 1-3.4:1.0 failed with error -5
+> usb 1-3.4: bulk timeout on ep1in
+> usb 1-3.4: usbfs: USBDEVFS_BULK failed ep 0x81 len 10 ret -110
+> usb 1-3.4: USB disconnect, address 6
+> usb 1-3.4: new full speed USB device using address 7
+> ehci_hcd 0000:00:1d.7: qh f7d2d280 (#0) state 1
+> hci_usb_intr_rx_submit: hci0 intr rx submit failed urb c1ad1994 err -28
+> 
+> If I try to do 'hciconfig hci0 up' when connected to USB 2.0 I also get
+> a 'hci_usb_intr_rx_submit: hci0 intr rx submit failed urb f7e22814 err
+> -28'.
 
-Gene,
+your dongle looks like a Broadcom based dongle. Please include the part
+from /proc/bus/usb/devices matching your device. The main problem is
+that the mini driver and the firmware for the Broadcom dongle can't be
+loaded throught request_firmware() by the bcm203x driver. Check the
+BlueZ webpage for more details and put these files in the correct place.
 
-your mail, being a "publick speling flame", was outright insulting, and
-I, not being a native speaker either, do see four misspellings and one
-missing comma in the paragraph I quoted alone. (misspellings between
-quote marks are intentional)
+Regards
 
-You ought to seriously and honestly reconsider whether you are in the
-position to badmouth Jörg or the English he writes. His skill is
-software development, and although we may not share his dogmatism or
-user interface, his software is a valuable contribution
-functionality-wise.
+Marcel
 
-The discussion was about cdrecord, its interaction with the Linux
-kernel, and drifted off into a discussion about a GNU make bug that I,
-even in the light of Jörg's explanation, still consider rather
-unimportant. Even differing views on certain topics should _not_ cause
-ad-hominem attacks like yours was.
 
-Even if I see that someone has difficulties with the language, that is
-no reason to rub his nose in it.
-
-Reply-To and Mail-Followup-To set to my mail address to
-get this unfortunate discussion of the list so at least others can get
-back to work.
-
-O si tacuisses...
-
--- 
-Matthias Andree

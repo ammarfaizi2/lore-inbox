@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbTBPAoY>; Sat, 15 Feb 2003 19:44:24 -0500
+	id <S265517AbTBPAxi>; Sat, 15 Feb 2003 19:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbTBPAoX>; Sat, 15 Feb 2003 19:44:23 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:7685 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265508AbTBPAoX>;
-	Sat, 15 Feb 2003 19:44:23 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302160055.h1G0tXd6000804@darkstar.example.net>
-Subject: Re: openbkweb-0.0
-To: arashi@yomerashi.yi.org
-Date: Sun, 16 Feb 2003 00:55:33 +0000 (GMT)
+	id <S265532AbTBPAxi>; Sat, 15 Feb 2003 19:53:38 -0500
+Received: from c16639.thoms1.vic.optusnet.com.au ([210.49.244.5]:28548 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S265517AbTBPAxh>;
+	Sat, 15 Feb 2003 19:53:37 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.61-mm1
+Date: Sun, 16 Feb 2003 12:03:31 +1100
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200302160046.h1G0k9IA000718@darkstar.example.net> from "John Bradford" at Feb 16, 2003 12:46:08 AM
-X-Mailer: ELM [version 2.5 PL6]
+References: <20030214231356.59e2ef51.akpm@digeo.com> <200302152227.03979.kernel@kolivas.org> <20030215154154.1fcb9737.akpm@digeo.com>
+In-Reply-To: <20030215154154.1fcb9737.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302161203.31899.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why can't we have a mailing list that sends out a diff for each
-> update?
-> 
-> That way, all you need is:
-> 
-> :0
-> * ^X-Mailing-List: up-to-the-second-linux-patches
-> | /usr/local/bin/apply_patches
-> 
-> and
-> 
-> #!/bin/sh
-> cd /usr/src/linux-current
-> cat | patch -p1
-> mail $username
+On Sun, 16 Feb 2003 10:41 am, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > I'm getting the same problem as 2.5.60-mm2 during boot:
+> >
+> > bad: scheduling while atomic!
+> > Call Trace:
+> >  [<c0112ab1>] do_schedule+0x3d/0x2f4
+> >  [<c0112fb5>] wait_for_completion+0x8d/0xd0
+> >  [<c0112dac>] default_wake_function+0x0/0x1c
+> >  [<c0112dac>] default_wake_function+0x0/0x1c
+> >  [<c0122219>] create_workqueue+0x125/0x178
+> >  [<c010508e>] init+0x2a/0x17c
+> >  [<c0105064>] init+0x0/0x17c
+> >  [<c0106e5d>] kernel_thread_helper+0x5/0xc
+>
+> This appears to be due to smalldevfs disagreeing with dcache_rcu over
+> dcache_lock conventions.
+>
+> I'll drop out smalldevfs until Adam returns, and has time to look at it,
 
-Sorry, I meant just:
+Backing out that patch fixes it thanks.
 
-#!/bin/sh
-cd /usr/src/linux-current
-cat | patch -p1
-
-John.
+Con

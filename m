@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289214AbSAOOkx>; Tue, 15 Jan 2002 09:40:53 -0500
+	id <S289821AbSAOOmy>; Tue, 15 Jan 2002 09:42:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289776AbSAOOkn>; Tue, 15 Jan 2002 09:40:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25254 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289214AbSAOOkd>;
-	Tue, 15 Jan 2002 09:40:33 -0500
-Date: Tue, 15 Jan 2002 17:37:55 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Anton Blanchard <anton@samba.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cross-cpu balancing with the new scheduler
-In-Reply-To: <20020114061054.GB17549@krispykreme>
-Message-ID: <Pine.LNX.4.33.0201151730120.10949-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289840AbSAOOmo>; Tue, 15 Jan 2002 09:42:44 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:29712 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289821AbSAOOmj>; Tue, 15 Jan 2002 09:42:39 -0500
+Date: Tue, 15 Jan 2002 12:53:27 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020115115327.GB10883@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com> <20020114180522.A24120@thyrsus.com> <20020114183820.G30639@redhat.com> <20020114205307.E24120@thyrsus.com> <20020114213641.I30639@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20020114213641.I30639@redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Jan 2002, Benjamin LaHaise wrote:
 
-On Mon, 14 Jan 2002, Anton Blanchard wrote:
+> On Mon, Jan 14, 2002 at 08:53:07PM -0500, Eric S. Raymond wrote:
+> > I don't understand what you think you're seeing, but I am sure of
+> > this; if I had been enough of a drug-addled lunatic to allow fetchmail
+> > to delete mail before getting a positive acknowledge from the
+> > downstream MTA, someone in the pool of over two thousand people who have sent
+> > me bug reports and patches would have called me on it some time in the
+> > six years of production use well before *you* entered the picture.
+> 
+> Uhm, as someone who has run a number of mailing lists for the past 6 
+> years, I've seen fetchmail induced bounces numerous times, and 99% of 
+> the time they're because the damn thing should default to a 
+> --never-send-bounces-to-anyone.
 
-> Rusty and I were talking about this recently. Would it make sense for
-> the load balancer to use a weighted queue length (sum up all
-> priorities in the queue?) instead of just balancing the queue length?
+It doesn't matter if people hose their qmail forwards without fetchmail
+anywhere, a provider fails to provide envelope information for that dung
+of pile that a multidrop POP3 mailbox is, somehow you can always screw
+up mailing lists. Use VERP to figure who is bouncing on you. And now
+please take this off-list.
 
-something like this would work, but it's not an easy task to *truly*
-balance priorities (or timeslice lengths instead) between CPUs.
+> That's part of what you have to deal with by being a hybrid MTA/MUA: 
+> your error handling must be directed at the user of fetchmail, not the 
+> originator of the message.  The originator of the message has no control 
 
-Eg. in the following situation:
+You have absolutely no clue of fetchmail. Get lost. Please. Come back
+only after you got the *complete* fetchmail picture.
 
-	CPU#0			CPU#1
+fetchmail does not bounce on its own for single-drop mailboxes, and as
+long as 4.x.y or 5.3.x versions are still around on distributions, ESR
+cannot do much about solutions you require either because users won't
+get hold of the policy changes.
 
-	prio 1			prio 1
-	prio 1			prio 1
-	prio 20			prio 1
+> the fact that fetchmail *is* an MUA -> it should not behave as if it is 
+> purely an MTA.
 
-if the load-balancer only looks at the tail of the runqueue then it finds
-that it cannot balance things any better - by moving the prio 20 task over
-to CPU#1 it will not create a better-balanced situation. If it would look
-at other runqueue entries then it could create the following,
-better-balanced situation:
+Fetchmail is by no means a MUA.
 
-	CPU#0			CPU#1
+> Besides, I think you're trying to solve the wrong problem.  A good many 
+> readers of linux-kernel don't want to start seeing posts from Aunt Tillie 
+> and would rather leave this ease of use issue to the distributions that 
+> already make it easy as pie.
 
-	prio 20			prio 1
-				prio 1
-				prio 1
-				prio 1
-				prio 1
+Having a common solution upstream is the way to save duplicate efforts.
 
-the solution would be to search the whole runqueue and migrate the task
-with the shortest timeslice - but that is a pretty slow and
-cache-intensive thing to do.
+And now let the fetchmail part of this thread please die.
 
-	Ingo
+-- 
+Matthias Andree
 
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

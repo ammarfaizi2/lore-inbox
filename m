@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVA1KN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVA1KVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVA1KN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 05:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVA1KN1
+	id S261251AbVA1KVx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 05:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVA1KVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 05:13:27 -0500
-Received: from linux2.cpe.fr ([134.214.50.6]:45033 "EHLO linux2.cpe.fr")
-	by vger.kernel.org with ESMTP id S261249AbVA1KNU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 05:13:20 -0500
-Date: Fri, 28 Jan 2005 11:11:44 +0100
-From: Pierre Chifflier <chifflier@cpe.fr>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Applications segfault on evo n620c with 2.6.10
-Message-ID: <20050128101144.GE19970@image4.cpe.fr>
-References: <20050127184334.GA1368@elf.ucw.cz>
+	Fri, 28 Jan 2005 05:21:52 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:59064 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261251AbVA1KVv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 05:21:51 -0500
+Date: Fri, 28 Jan 2005 11:22:43 +0100
+From: DervishD <lkml@dervishd.net>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: USB API, ioctl's and libusb
+Message-ID: <20050128102243.GE186@DervishD>
+Mail-Followup-To: Johannes Erdfelt <johannes@erdfelt.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net
+References: <20050126122014.GF58@DervishD> <200501261440.38766.oliver@neukum.org> <20050126163811.GA259@DervishD> <20050126212411.GB21204@sventech.com> <20050127110204.GA76@DervishD> <20050127220857.GK21204@sventech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050127184334.GA1368@elf.ucw.cz>
-Organization: (cpe 'fr)
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050127220857.GK21204@sventech.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 07:43:34PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> It happened for 3rd in a week now...
-> 
-> When problem happens, processes start to segfault, usually right
-> during startup. Programs that were loaded prior to problem usualy
-> works, and can be restarted. I also seen sendmail exec failing with
-> "no such file or directory" when it clearly was there. Reboot corrects
-> things, and filesystem (ext3) is not damaged.
-> 
-> Unfortunately I do not know how to reproduce it. I tried
-> parallel-building kernels for few hours and that worked okay. Swsusp
-> is not involved (but usb, bluetooth, acpi and sound may be).
-> 
-> Does anyone else see something similar?
-> 								Pavel
+    Hi Johannes :)
 
-I have the same laptop and there is no error here.
-However, I remember this laptop was affected by a RAM problem, which
-could cause these symptoms.
+ * Johannes Erdfelt <johannes@erdfelt.com> dixit:
+> On Thu, Jan 27, 2005, DervishD <lkml@dervishd.net> wrote:
+> >     Didn't knew about that... Thanks a lot for the info!. Is there
+> > any documentation available for the ioctl USB interface to the
+> > kernel? Any API guide or something like that?
+> You can use the kernel sources to see how to use it.
 
-More infos here:
-http://www.theregister.co.uk/2004/06/26/hp_ram_recall/
+    Of course, but it's not the better method for learning, IMHO ;))
+Thanks anyway, I'll take a look at the kernel sources :) and libusb
+sources, too.
 
-Cheers,
+    Raúl Núñez de Arenas Coronado
 
-Pierre
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

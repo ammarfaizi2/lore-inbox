@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVAQHbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVAQHcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVAQHbR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 02:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVAQHbQ
+	id S262717AbVAQHcc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 02:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbVAQHcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 02:31:16 -0500
-Received: from main.gmane.org ([80.91.229.2]:62905 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262716AbVAQHbO (ORCPT
+	Mon, 17 Jan 2005 02:32:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27620 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262717AbVAQHcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 02:31:14 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alban Browaeys <prahal@yahoo.com>
+	Mon, 17 Jan 2005 02:32:22 -0500
+Date: Mon, 17 Jan 2005 02:32:17 -0500
+From: Dave Jones <davej@redhat.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux Kernel Audit Project?
-Date: Mon, 17 Jan 2005 07:31:03 +0000 (UTC)
-Message-ID: <loom.20050117T082814-743@post.gmane.org>
+Message-ID: <20050117073217.GC13827@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	John Richard Moser <nigelenki@comcast.net>,
+	linux-kernel@vger.kernel.org
 References: <41EB6691.10905@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 82.125.129.199 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Galeon/1.3.18.99 (Debian package 1.3.18+arch20050108-1))
+Content-Disposition: inline
+In-Reply-To: <41EB6691.10905@comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser <nigelenki <at> comcast.net> writes:
+On Mon, Jan 17, 2005 at 02:17:37AM -0500, John Richard Moser wrote:
+ > -----BEGIN PGP SIGNED MESSAGE-----
+ > Hash: SHA1
+ > 
+ > Is there an official Linux Kernel Audit Project to actively and
+ > aggressively security audit all patches going into the Linux Kernel, or
+ > do they just get a cursory scan for bugs and obvious screwups?
 
-> Is there an official Linux Kernel Audit Project to actively and
-> aggressively security audit all patches going into the Linux Kernel, or
-> do they just get a cursory scan for bugs and obvious screwups?
+There were at least two such projects that crashed and burned
+that I recall, the last was "active" about 3 years ago, and
+accomplished very little.
 
->From a user point of view , there is at least tracking: patches are signed and
-approved by the "component" maintenair before reaching mainline.
-
-
+		Dave
 

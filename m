@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262790AbSJEWWQ>; Sat, 5 Oct 2002 18:22:16 -0400
+	id <S262787AbSJEWYy>; Sat, 5 Oct 2002 18:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262786AbSJEWUu>; Sat, 5 Oct 2002 18:20:50 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:39663 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S262760AbSJEWUp>; Sat, 5 Oct 2002 18:20:45 -0400
-Subject: [BK 4/6] 2.5.x Bluetooth subsystem update. BNEP support.
-From: "Maksim (Max) " Krasnyanskiy <maxk@qualcomm.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1033856386.6657.93.camel@champ.qualcomm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.5.99 
-Date: 05 Oct 2002 15:25:44 -0700
+	id <S262776AbSJEWYl>; Sat, 5 Oct 2002 18:24:41 -0400
+Received: from maila.telia.com ([194.22.194.231]:41182 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S262760AbSJEWYE>;
+	Sat, 5 Oct 2002 18:24:04 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Oct 2002 00:28:21 +0200
+In-Reply-To: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
+Message-ID: <m2ptuo8qre.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch #4:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-Adds support for BNEP (Bluetooth Network Encapsulation Protocol).
-It's basically simple Ethernet emulation on top of Bluetooth.
+> Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
+>   o kbuild: Make KBUILD_VERBOSE=0 work better under emacs
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.699   -> 1.700  
-#	net/bluetooth/Makefile	1.4     -> 1.5    
-#	net/bluetooth/Config.help	1.2     -> 1.3    
-#	net/bluetooth/Config.in	1.2     -> 1.3    
-#	               (new)	        -> 1.1     net/bluetooth/bnep/crc32.h
-#	               (new)	        -> 1.1     net/bluetooth/bnep/Config.in
-#	               (new)	        -> 1.1     net/bluetooth/bnep/crc32.c
-#	               (new)	        -> 1.1     net/bluetooth/bnep/bnep.h
-#	               (new)	        -> 1.1     net/bluetooth/bnep/core.c
-#	               (new)	        -> 1.1     net/bluetooth/bnep/netdev.c
-#	               (new)	        -> 1.1     net/bluetooth/bnep/Makefile
-#	               (new)	        -> 1.1     net/bluetooth/bnep/sock.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/04	maxk@viper.(none)	1.700
-# BNEP (Bluetooth Network Encapsulation Protocol) support.
-# --------------------------------------------
+This change has the unfortunate side effect that compilation doesn't
+stop after a compile error if I run make without arguments. I observed
+this when enabling debugging in yenta.c. Building with "make
+KBUILD_VERBOSE=1" does stop after the error.
 
-http://bluez.sourceforge.net/patches/bt-2.5-bnep.gz
+I'm using make 3.79.1 on a RH73 system.
 
-Max
 
+p4:~/kernel/linus/main/linux$ make drivers/pcmcia/yenta.o 
+make[1]: Entering directory `/home/petero/kernel/linus/main/linux/drivers/pcmcia'
+  gcc -Wp,-MD,./.yenta.o.d -D__KERNEL__ -I/home/petero/kernel/linus/main/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -I/home/petero/kernel/linus/main/linux/arch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=yenta -DEXPORT_SYMTAB  -c -o yenta.o yenta.c
+drivers/pcmcia/yenta.c: In function `cb_readl':
+drivers/pcmcia/yenta.c:42: parse error before string constant
+[cut]
+drivers/pcmcia/yenta.c:118: parse error before string constant
+make[1]: Leaving directory `/home/petero/kernel/linus/main/linux/drivers/pcmcia'
+p4:~/kernel/linus/main/linux$ echo $?
+0
+p4:~/kernel/linus/main/linux$ make KBUILD_VERBOSE=1 drivers/pcmcia/yenta.o
+make[1]: Entering directory `/home/petero/kernel/linus/main/linux/drivers/pcmcia'
+  gcc -Wp,-MD,./.yenta.o.d -D__KERNEL__ -I/home/petero/kernel/linus/main/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -I/home/petero/kernel/linus/main/linux/arch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=yenta -DEXPORT_SYMTAB  -c -o yenta.o yenta.c
+yenta.c: In function `cb_readl':
+yenta.c:42: parse error before string constant
+[cut]
+yenta.c:118: parse error before string constant
+make[1]: *** [yenta.o] Error 1
+make[1]: Leaving directory `/home/petero/kernel/linus/main/linux/drivers/pcmcia'
+make: *** [drivers/pcmcia/yenta.o] Error 2
+p4:~/kernel/linus/main/linux$ echo $?
+2
+p4:~/kernel/linus/main/linux$ 
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

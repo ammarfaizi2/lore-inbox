@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264994AbUFALaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264992AbUFAL36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbUFALaW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 07:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbUFALaV
+	id S264992AbUFAL36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 07:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUFAL36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 07:30:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:40079 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264994AbUFALaB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 07:30:01 -0400
-Date: Tue, 1 Jun 2004 04:29:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 1 Jun 2004 07:29:58 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:58852 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265002AbUFAL3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 07:29:34 -0400
+Date: Tue, 01 Jun 2004 20:28:39 +0900
+From: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
 Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040601112957.GO2093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-reply-to: <200406011159.23532@zodiac.zodiac.dnsalias.org>
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-id: <20040601202839.01c8a220.akiyama.nobuyuk@jp.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 References: <20040601021539.413a7ad7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040601021539.413a7ad7.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+ <200406011159.23532@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
-> - NFS server udpates
-> - md updates
-> - big x86 dmi_scan.c cleanup
-> - merged perfctr.  No documentation though :(
-> - cris architecture update
+On Tue, 01 Jun 2004 11:59:23 +0200
+Alexander Gran <alex@zodiac.dnsalias.org> wrote:
 
-Hmm. perfctr needs some structs.
+> Am Dienstag, 1. Juni 2004 11:15 schrieben Sie:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2/2.6
+> >.7-rc2-mm1/
+> 
+> > +nmi-trigger-switch-support-for-debugging.patch
+> >
+> >  Support NMI-generating front-panel switches on x86
+> 
+> Perhaps that broke compiling here:
+> 
+> ...
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> kernel/built-in.o(.data+0xc0c): undefined reference to `unknown_nmi_panic'
+> kernel/built-in.o(.data+0xc1c): undefined reference to 
+> `proc_unknown_nmi_panic'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> config attached, plain 2.6.7-rc2-mm1, only with dsdt patch for my laptop.
 
+Please try the patch below.
 
--- wli
-
-
-Index: linux-2.6.7-rc2-mm1/include/linux/perfctr.h
-===================================================================
---- linux-2.6.7-rc2-mm1.orig/include/linux/perfctr.h	2004-06-01 03:25:54.000000000 -0700
-+++ linux-2.6.7-rc2-mm1/include/linux/perfctr.h	2004-06-01 04:27:51.000000000 -0700
-@@ -53,7 +53,11 @@
- 	unsigned int _reserved3;
- 	unsigned int _reserved4;
- };
--
-+#else
-+struct perfctr_cpu_mask;
-+struct perfctr_info;
-+struct vperfctr_control;
-+struct perfctr_sum_ctrs;
- #endif	/* CONFIG_PERFCTR */
+diff -Nur linux-2.6.7-rc2-mm1.org/kernel/sysctl.c linux-2.6.7-rc2-mm1/kernel/sysctl.c
+--- linux-2.6.7-rc2-mm1.org/kernel/sysctl.c	2004-06-01 19:47:22.000000000 +0900
++++ linux-2.6.7-rc2-mm1/kernel/sysctl.c	2004-06-01 20:21:13.000000000 +0900
+@@ -63,7 +63,7 @@
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
  
- #ifdef __KERNEL__
+-#if defined(__i386__)
++#ifdef CONFIG_X86
+ extern int unknown_nmi_panic;
+ extern int proc_unknown_nmi_panic(ctl_table *, int, struct file *,
+ 				  void __user *, size_t *);
+@@ -624,7 +624,7 @@
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+-#if defined(__i386__)
++#ifdef CONFIG_X86
+ 	{
+ 		.ctl_name       = KERN_UNKNOWN_NMI_PANIC,
+ 		.procname       = "unknown_nmi_panic",
+
+

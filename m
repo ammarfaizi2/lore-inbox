@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUCCWwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 17:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUCCWwN
+	id S261220AbUCCWyU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 17:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUCCWyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 17:52:13 -0500
-Received: from gate.crashing.org ([63.228.1.57]:18374 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261205AbUCCWwK (ORCPT
+	Wed, 3 Mar 2004 17:54:20 -0500
+Received: from gprs40-129.eurotel.cz ([160.218.40.129]:32306 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261220AbUCCWyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 17:52:10 -0500
-Subject: Re: Resume only part of device tree?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1078344202.3203.22.camel@calvin.wpcb.org.au>
-References: <1078344202.3203.22.camel@calvin.wpcb.org.au>
-Content-Type: text/plain
-Message-Id: <1078353622.15320.25.camel@gaston>
+	Wed, 3 Mar 2004 17:54:18 -0500
+Date: Wed, 3 Mar 2004 23:54:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@redhat.com>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+       paul.devriendt@amd.com
+Subject: Re: powernow-k8-acpi driver
+Message-ID: <20040303225405.GF222@elf.ucw.cz>
+References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 09:40:23 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040303224841.GB16874@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-04 at 07:03, Nigel Cunningham wrote:
-> Hi all.
+Hi!
+
+>  > We could make that functionality depend on CONFIG_ACPI, and allow
+>  > runtime selection only if its defined... But those two drivers are
+>  > pretty different just now and acpi-dependend chunk is pretty big. (It
+>  > does funny stuff like polling for AC plug removal if we are in
+>  > high-power state  and battery would not handle that. Old driver simply
+>  > refused to use high-power states on such machines.)
 > 
-> Is there any existing code in the device model that supports resuming a
-> part of the device tree? For Suspend2, I'm wanting to resume storage
-> devices (and their parents) part way through resuming, and other drivers
-> later.
+> you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
+> area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
+> and its senseless duplicating this code.
 
-What is your exact goal ? Not resuming all devices when writing the
-state to the swap partition ?
+That [1] looks like promise of url, but I don't see that url.
 
-You really need to resume it all at this point. However, the optimisation
-that can be done is for some drivers to not put the HW to sleep on a
-swsusp transition, only freeze the state. I did something like that in
-IDE though that doesn't always work well due our "state" paremeter passed
-down to drivers not beeing consistent.
+> One thing is bugging me though. Whats wrong with the ACPI P-state cpufreq
+> driver ? Does that not work these days ? It's been a long time since I
+> even looked at it.
 
-Ben.
+No idea.
+								Pavel
 
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

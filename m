@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272401AbRIKL0R>; Tue, 11 Sep 2001 07:26:17 -0400
+	id <S272421AbRIKL31>; Tue, 11 Sep 2001 07:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272415AbRIKL0H>; Tue, 11 Sep 2001 07:26:07 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24076 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S272401AbRIKLZz>; Tue, 11 Sep 2001 07:25:55 -0400
-Date: Tue, 11 Sep 2001 13:26:15 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010911132615.F4757@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010910100537.W26627@khan.acc.umu.se> <200109101936.XAA00707@ms2.inr.ac.ru> <20010910224002.31693@colin.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010910224002.31693@colin.muc.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S272415AbRIKL3S>; Tue, 11 Sep 2001 07:29:18 -0400
+Received: from falka.mfa.kfki.hu ([148.6.72.6]:18660 "EHLO falka.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id <S272417AbRIKL3C>;
+	Tue, 11 Sep 2001 07:29:02 -0400
+Date: Tue, 11 Sep 2001 13:27:57 +0200 (CEST)
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Roberto Jung Drebes <drebes@inf.ufrgs.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel
+ crash)
+In-Reply-To: <a05100303b7c3a4283667@[192.168.239.101]>
+Message-ID: <Pine.LNX.4.33.0109111325320.4625-100000@falka.mfa.kfki.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Sep 2001, Andi Kleen wrote:
+Hi!
 
-> Just hope then that no ifconfig or other binary has a two on the stack
-> when calling this.
+Some time ago I had the same problem, but because I had no ability to grep
+output I ``solved'' this with a BIOS downgrade. :)
 
-One more reply to this, I inserted some debugging info, and all
-addresses that the kernel saw on this ioctl so far are:
+ > We need the versions of your old and new BIOSes, as accurately as you
+ > can make it.
 
-127.0.0.1
-the machine's address
-the machine's broadcast address
-85.85.85.85 which I used in testing Postfix' patches
-192.255.255.255 <- that's a piece of junk
-192.168.0.222 <- that's a piece of junk
+The correct working version is kt73c and the latest kt73r has this
+problem.
 
-I already used ifconfig on that machine to display configuration data.
+Gergely
 
-I'll see if other addresses turn up.
-
--- 
-Matthias Andree

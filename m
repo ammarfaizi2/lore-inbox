@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbUCLSqx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCLSqx
+	id S262389AbUCLS5y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUCLS5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:46:53 -0500
-Received: from [216.239.30.242] ([216.239.30.242]:31244 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP id S262439AbUCLSqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:46:52 -0500
-Message-Id: <200403121846.i2CIkofV004241@wind.enjellic.com>
-From: greg@wind.enjellic.com (Dr. Greg Wettstein)
-Date: Fri, 12 Mar 2004 12:46:49 -0600
-In-Reply-To: Muthian Sivathanu <muthian_s@yahoo.com>
-       "target mode fibre channel" (Mar  8, 12:41pm)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: Muthian Sivathanu <muthian_s@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: target mode fibre channel
+	Fri, 12 Mar 2004 13:57:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15247 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262389AbUCLS5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 13:57:53 -0500
+Date: Fri, 12 Mar 2004 13:57:49 -0500 (EST)
+From: Matthew Galgoci <mgalgoci@redhat.com>
+X-X-Sender: mgalgoci@lacrosse.corp.redhat.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] atkbd shaddup
+In-Reply-To: <20040312183738.GA3233@thunk.org>
+Message-ID: <Pine.LNX.4.44.0403121356560.28918-100000@lacrosse.corp.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 8, 12:41pm, Muthian Sivathanu wrote:
-} Subject: target mode fibre channel
+On Fri, 12 Mar 2004, Theodore Ts'o wrote:
 
-> Hi,
-
-Good afternoon.
-
-> Does linux have target mode support for fibre-channel
-> ?  i.e. can I have a linux machine fitted with a
-> fibrechannel card accept and service fibrechannel
-> requests from another host ? 
+> On Fri, Mar 12, 2004 at 12:37:06PM -0500, Matthew Galgoci wrote:
+> > 
+> > Andrew,
+> > 
+> > I can't be the only person to be annoyed by the "too many keys
+> > pressed" error message that often gets spewed across the console
+> > when I am typing fast. This patch turns that error message (and
+> > others) into info message. Also, one debug message was turned into
+> > info, and a couple of warnings were turned into info where I thought
+> > it made sense.
 > 
-> Basically, I want to construct a "RAID box" out of a
-> linux machine fitted with fibrechannel.   Other
-> machines should be able to talk to this machine and
-> treat this as a large disk volume.
+> I'd go even further.  Do we need to print the "too many keys pressed"
+> message at *all*?  Why would anyone care?
 
-Check-out:
+I wondered the same thing. Maybe it should be #ifdef DEBUG'd instead of toned
+down.
 
-	http://www.pavitrasoft.com
+-- 
+Matthew Galgoci
+System Administrator
+Red Hat, Inc
+919.754.3700 x44155
 
-We have been testing it extensively and have been very pleased.
-
-> thanks for any pointers,
-> Muthian
-
-}-- End of excerpt from Muthian Sivathanu
-
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-1686
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"A raccoon tangled with a 23,000 volt line today.  The results blacked
-out 1400 homes and, of course, one raccoon."
-                                -- Steel City News

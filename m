@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTAMHgc>; Mon, 13 Jan 2003 02:36:32 -0500
+	id <S267271AbTAMHft>; Mon, 13 Jan 2003 02:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbTAMHgc>; Mon, 13 Jan 2003 02:36:32 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:31197 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261495AbTAMHga>;
-	Mon, 13 Jan 2003 02:36:30 -0500
-Date: Mon, 13 Jan 2003 02:45:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: akpm@zip.com.au, davem@redhat.com, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
+	id <S267280AbTAMHft>; Mon, 13 Jan 2003 02:35:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:1690 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267271AbTAMHfs>;
+	Mon, 13 Jan 2003 02:35:48 -0500
+Date: Sun, 12 Jan 2003 23:35:13 -0800 (PST)
+Message-Id: <20030112.233513.83403887.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] __cacheline_aligned_in_smp?
-Message-ID: <20030113074516.GA4677@gtf.org>
-References: <20030113072521.74B842C104@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <20030113072521.74B842C104@lists.samba.org>
-User-Agent: Mutt/1.3.28i
+References: <20030113072521.74B842C104@lists.samba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 06:24:40PM +1100, Rusty Russell wrote:
-> Dave: Anton suggested you might have a justification for
-> __cacheline_aligned doing something on UP?
-> 
-> I think I'd prefer __cacheline_aligned to be the same as
-> __cacheline_aligned_in_smp, and have a new __cacheline_aligned_always
-> for those who REALLY want it (if any).
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Mon, 13 Jan 2003 18:24:40 +1100
 
-See the recent thread on tg3 and cacheline_aligned for David's
-description...  I and one other did some performance measurements and
-____cacheline_aligned proved useful even on UP...
+   Dave: Anton suggested you might have a justification for
+   __cacheline_aligned doing something on UP?
+   
+   I think I'd prefer __cacheline_aligned to be the same as
+   __cacheline_aligned_in_smp, and have a new __cacheline_aligned_always
+   for those who REALLY want it (if any).
+   
+I think things like oprofile_buffer really want it always.
 
-sigh.  I wish I had caught you on IRC.
+   -struct tcp_hashinfo __cacheline_aligned tcp_hashinfo = {
+   +struct tcp_hashinfo __cacheline_aligned_in_smp tcp_hashinfo = {
 
-Don't you think changing the meaning of cacheline_aligned, and adding a
-new __cacheline_aligned_always to mean what it used to, is completely
-pointless churn??
+This definitely too.
 
-	Jeff
-
-
-
+All of the submembers are placed at cacheline boundaries, which
+helps even on UP.  If I meant cacheline aligned on SMP I would
+have used the corresponding macro :)

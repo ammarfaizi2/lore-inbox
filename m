@@ -1,85 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269282AbUI3PvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269303AbUI3Pwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269282AbUI3PvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 11:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269304AbUI3PvZ
+	id S269303AbUI3Pwp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 11:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269313AbUI3Pwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 11:51:25 -0400
-Received: from serio.al.rim.or.jp ([202.247.191.123]:37119 "EHLO
-	serio.al.rim.or.jp") by vger.kernel.org with ESMTP id S269282AbUI3PvW
+	Thu, 30 Sep 2004 11:52:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5338 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269303AbUI3Pwb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 11:51:22 -0400
-Message-ID: <415C2B6C.6050401@yk.rim.or.jp>
-Date: Fri, 01 Oct 2004 00:51:08 +0900
-From: Chiaki <ishikawa@yk.rim.or.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-CC: linux-kernel@vger.kernel.org, ishikawa@yk.rim.or.jp
-Subject: Re: FSCK message suppressed during booting? (2.6.9-rc2)
-References: <E1CCtxn-00075V-00@calista.eckenfels.6bone.ka-ip.net>
-In-Reply-To: <E1CCtxn-00075V-00@calista.eckenfels.6bone.ka-ip.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Sep 2004 11:52:31 -0400
+Date: Thu, 30 Sep 2004 16:52:28 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: linux-kernel@vger.kernel.org, bbpetkov@yahoo.de
+Subject: Re: [PATCH] 2.6.9-rc3 fix warnings in sound/drivers/opl3/opl3_lib.c
+Message-ID: <20040930155228.GE23987@parcelfarce.linux.theplanet.co.uk>
+References: <20040930122853.GA28332@none> <20040930152544.GD23987@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040930152544.GD23987@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> In article <415B5034.6060809@yk.rim.or.jp> you wrote:
+On Thu, Sep 30, 2004 at 04:25:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Sep 30, 2004 at 02:28:53PM +0200, Borislav Petkov wrote:
+> > Hi there,
+> >    I get these warnings while compiling 2.6.9-rc3:
+> >    sound/drivers/opl3/opl3_lib.c: In function `snd_opl3_cs4281_command':   
+> >    sound/drivers/opl3/opl3_lib.c:101: warning: passing arg 2 of `writel'  makes pointer from integer without a cast   
+> >    sound/drivers/opl3/opl3_lib.c:104: warning: passing arg 2 of `writel'  makes pointer from integer without a cast
+> >    
+> >    Hope this fix is correct.
 > 
->>That is, under previous 2.4.xx kernel, I would have gotten
->>"The disk was not unmounted cleanly. Running fsck." or
->>some such message and fsck printed its
->>progress bar using ASCII characters.
-> 
-> 
-> Well, this is not a kernel function, your Distribution is calling fsck in
-> the bootup scripts, and fsck is calling the filesystem specific
-> implementation and this is checking if fsck is needed.
-> 
-> If you do not get this messages anymore contact your linux distribution
-> provider.
-> 
-> 
+> It looks very odd.  At the very least we don't want to overload the
+> fields in question (->r_port and ->l_port) that way.
 
-Thank you for the comment.
+*Yuck*
 
-Well, I have installed 2.6.9-rc2 on my own after having used
-Debian with my own updated kernel 2.4.2x series for a few years now.
-I certainly upgraded moduleutil and other packages to run
-2.6.9-rc2, but have not specifically updated fsck.
-(I DID ran apt-get -u update and apt-get -u upgrade to pick up
-the latest packages a week ago or so.).
+ALSA code, as pretty as ever.  No, that's not a fix; it's only shutting the
+rightfully complaining compiler up.
 
-Agreed that the starting fsck under stock Debian scheme
-may depend on 2.4.xx features which may not be available
-on 2.6.yy series kernel. I will get in contact with fsck
-package (or boot script) maintainer to see
-if we can improve this.
+What happens there is a dirty kludge created for the benefit of a single
+driver (sound/pci/cs4281.c).  Said driver has a bunch of registers
+memory-mapped, while its relatives use port IO instead.  Driver does
+(correctly) ioremap(); then it overloads the arguments of snd_opl3_create()
+normally used for port numbers and shoves *address obtained from ioremap
+and divided by 4* in them.
 
- >Do you habe maybe a journalling filesystem? Or do you have set some 
-flags to
- > force the skip of fsck (/fastboot)
- >
-
-Well, I am running 2.6.9-rc2 from loadlin as follows.
-
-loadlin 269rc2 root=/dev/sda6 ro vga=3 scsihosts=sym53c8xx:tmscsim
-
-I noticed the fsck message lines were missing on the reboot after
-a hard-hung forced me to hit reset button in the end.
-The message lines were missing, but it seems that fsck
-certainly was running invisibly. Thus the
-boot sequence halted as if the computer got hung again
-until fsck finished and bootting continued. This was very
-annoying.
-
-
-
--- 
-int main(void){int j=2003;/*(c)2003 cishikawa. */
-char t[] ="<CI> @abcdefghijklmnopqrstuvwxyz.,\n\"";
-char *i ="g>qtCIuqivb,gCwe\np@.ietCIuqi\"tqkvv is>dnamz";
-while(*i)((j+=strchr(t,*i++)-(int)t),(j%=sizeof t-1),
-(putchar(t[j])));return 0;}/* under GPL */
+Sigh...  At the very least that kind of abuse should stop.  FWIW, I would
+suggest having cs4281.c set the ->command() directly and killing that crap
+with ->l_port/->r_port overloading.

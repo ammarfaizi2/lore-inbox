@@ -1,76 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbTDQSPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 14:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTDQSPm
+	id S261907AbTDQSNY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 14:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTDQSNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 14:15:42 -0400
-Received: from pfepc.post.tele.dk ([193.162.153.4]:4117 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261857AbTDQSPk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 14:15:40 -0400
-Subject: Re: cannot boot 2.5.67
-From: Mads Christensen <mfc@krycek.org>
-To: Paul Rolland <rol@as2917.net>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <01b401c3050d$7f441d70$6400a8c0@witbe>
-References: <01b401c3050d$7f441d70$6400a8c0@witbe>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8rXCGtMpR6LbGKQ6u3uZ"
-Organization: krycek.org
-Message-Id: <1050604044.1136.4.camel@krycek>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Apr 2003 20:27:24 +0200
+	Thu, 17 Apr 2003 14:13:24 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:28556 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S261907AbTDQSNX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 14:13:23 -0400
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: root@mauve.demon.co.uk
+Subject: Re: bt848?
+Date: Thu, 17 Apr 2003 23:59:11 +0000
+User-Agent: KMail/1.5
+References: <200304171704.SAA20721@mauve.demon.co.uk>
+In-Reply-To: <200304171704.SAA20721@mauve.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304172359.11445.b_adlakha@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 17 Apr 2003 5:04 pm, you wrote:
+> > where is the bt818 capture card module??? don't see it anywhere in the
+> > config...
+>
+> I'm pretty sure there is no such thing.
+> Might you be thinking of the BT878?
 
---=-8rXCGtMpR6LbGKQ6u3uZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Common mistake i guess - but dude, never move old .config files to new
-kernel dirs - patch the kernel, review the config (make menuconfig) and
-recompile!
-
-Regards
-
-On tor, 2003-04-17 at 20:16, Paul Rolland wrote:
-> Hello,
->=20
-> > You have to get=20
-> > CONFIG_INPUT=3Dy, CONFIG_VT=3Dy and CONFIG_VT_CONSOLE=3Dy
-> > inorder for you to see anything =3D)
-> Yes, I guess I have that, as I'm using the .config from a 2.5.66
-> that was booting quite fine...
->=20
-> Anyhow, you are right, maybe that moving .config from a release to
-> another one is not 100% safe...
->=20
-> Regards,
-> Paul
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-| Mads F. Christensen     ||                      |
-| Email:                  || mfc@krycek.org       |
-| Webdesign Development   || www.krycek.org       |
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-
-
---=-8rXCGtMpR6LbGKQ6u3uZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+nvIL44SvOSUXdFgRAnUaAJ9th5o9R0y+klqDFJtjuAzqEPeicACcCw1T
-KrECaEKqR8ksEjAoQ8C/GGk=
-=8cOT
------END PGP SIGNATURE-----
-
---=-8rXCGtMpR6LbGKQ6u3uZ--
-
+yes, sorry... where is it in the 2.5 kernels?

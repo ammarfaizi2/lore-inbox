@@ -1,84 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135549AbRD1SCA>; Sat, 28 Apr 2001 14:02:00 -0400
+	id <S135580AbRD1SF3>; Sat, 28 Apr 2001 14:05:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135576AbRD1SBt>; Sat, 28 Apr 2001 14:01:49 -0400
-Received: from fep04.swip.net ([130.244.199.132]:6016 "EHLO fep04-svc.swip.net")
-	by vger.kernel.org with ESMTP id <S135549AbRD1SBg>;
-	Sat, 28 Apr 2001 14:01:36 -0400
-To: John Kacur <jkacur@home.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 sluggish under fork load
-In-Reply-To: <Pine.LNX.4.33.0104281322070.1159-100000@ppro.localdomain> <20010428170709.A410@kianga.local> <3AEAF969.58972FB4@home.com>
-From: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Date: 28 Apr 2001 20:00:45 +0200
-In-Reply-To: John Kacur's message of "Sat, 28 Apr 2001 13:10:01 -0400"
-Message-ID: <m2k8443nw2.fsf@ppro.localdomain>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S135581AbRD1SFT>; Sat, 28 Apr 2001 14:05:19 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:32781 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S135576AbRD1SFN>;
+	Sat, 28 Apr 2001 14:05:13 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104281804.f3SI4ar368494@saturn.cs.uml.edu>
+Subject: Re: 2.4 and 2GB swap partition limit
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Date: Sat, 28 Apr 2001 14:04:35 -0400 (EDT)
+Cc: wakko@animx.eu.org (Wakko Warner), R.E.Wolff@BitWizard.nl (Rogier Wolff),
+        xavier.bestel@free.fr (Xavier Bestel),
+        goswin.brederlow@student.uni-tuebingen.de (Goswin Brederlow),
+        fluffy@snurgle.org (William T Wilson), Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200104281411.QAA04406@cave.bitwizard.nl> from "Rogier Wolff" at Apr 28, 2001 04:11:47 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kacur <jkacur@home.com> writes:
+Rogier Wolff writes:
+> Wakko Warner wrote:
 
-> >Peter Osterlund wrote:
-> >> 
-> >> Another thing is that the bash loop "while true ; do /bin/true ; done" is
-> >> not possible to interrupt with ctrl-c.
-> 
-> >        Same thing here.
-> 
-> I'm not having any problems. Just a quick question, is everyone who is
-> having a problem running with more than one cpu?
+>>> So you've spent almost $200 for RAM, and refuse to spend
+>>> $4 for 1Gb of swap space. Fine with me. 
 
-A clarification. The bash loop above doesn't cause any sluggishness on
-my single cpu system. The non-working ctrl-c is probably just a bash
-bug. The child process must eat some cpu time to provoke the
-sluggishness, like in the following test program where the child busy
-waits 100ms and then exits:
+So that is a factor of 50 in price. It's what, a factor of 1000000
+in access time?
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/time.h>
+> That disk space is just sitting there. Never to be used. I spent $400
+> on the RAM, and I'm now reserving about $8 worth of disk space for
+> swap. I think that the $8 is well worth it. It keeps my machine
+> functional a while longer should something go haywire... As I said:
+> If you don't want to see it that way: Fine with me. 
 
-int main(int argc, char* argv[])
-{
-    double childTime = 0.10;
-    if (argc > 1)
-	childTime = atof(argv[1]);
+It is a disaster waiting to happen. Instead of having the offending
+process get killed, your machine could suffer extreme thrashing.
 
-    for (;;) {
-	int child = fork();
-	if (child == -1) {
-	    printf("fork error\n");
-	    exit(0);
-	} else if (child > 0) {
-	    while (waitpid(child, NULL, 0) != child)
-		;
-	    printf("."); fflush(stdout);
-	} else {
-	    struct timeval tv1, tv2;
-	    double t;
-	    gettimeofday(&tv1, NULL);
-	    for (;;) {
-		gettimeofday(&tv2, NULL);
-		t = (tv2.tv_sec - tv1.tv_sec) +
-		    (tv2.tv_usec - tv1.tv_usec) / 1000000.0;
-		if (t > childTime)
-		    break;
-	    }
-	    _exit(0);
-	}
-    }
-
-    return 0;
-}
-
--- 
-Peter Österlund             peter.osterlund@mailbox.swipnet.se
-Sköndalsvägen 35            http://home1.swipnet.se/~w-15919
-S-128 66 Sköndal            +46 8 942647
-Sweden
-
+Have enough swap for idle processes and no more.

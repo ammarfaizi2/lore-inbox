@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261325AbTCGBWM>; Thu, 6 Mar 2003 20:22:12 -0500
+	id <S261328AbTCGBSd>; Thu, 6 Mar 2003 20:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261331AbTCGBWM>; Thu, 6 Mar 2003 20:22:12 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:34258 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S261325AbTCGBWL>;
-	Thu, 6 Mar 2003 20:22:11 -0500
-Message-Id: <200303070041.h270efZH007209@eeyore.valparaiso.cl>
-To: Jonathan Lundell <linux@lundell-bros.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux vs Windows temperature anomaly 
-In-Reply-To: Your message of "Wed, 05 Mar 2003 13:52:16 -0800."
-             <p05210507ba8c20241329@[10.2.0.101]> 
-Date: Thu, 06 Mar 2003 21:40:40 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261327AbTCGBSd>; Thu, 6 Mar 2003 20:18:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39908 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261328AbTCGBSc>;
+	Thu, 6 Mar 2003 20:18:32 -0500
+Date: Fri, 7 Mar 2003 01:29:05 +0000
+From: Chris Dukes <pakrat@www.uk.linux.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Robin Holt <holt@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: Make ipconfig.c work as a loadable module.
+Message-ID: <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org> <20030306222546.K838@flint.arm.linux.org.uk> <1046996037.18158.142.camel@irongate.swansea.linux.org.uk> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <20030307000816.P838@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030307000816.P838@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Mar 07, 2003 at 12:08:16AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell <linux@lundell-bros.com> said:
-> We've been seeing a curious phenomenon on some PIII/ServerWorks 
-> CNB30-LE systems.
+On Fri, Mar 07, 2003 at 12:08:16AM +0000, Russell King wrote:
+> > 
+> > You can build the dhcp client with glibc static into your initrd. Its hardly
+> > magic or special programs or random garbage, and last time I counted it came
+> > to one program. Dunno what the other 999 utilities your dhcp needs are ?
 > 
-> The systems fail at relatively low temperatures. While the failures 
-> are not specifically memory related (ECC errors are never a factor), 
-> we have a memory test that's pretty good at triggering them. Data is 
-> apparently getting corrupted on the front-side bus.
-> 
-> Here's the curious thing: when we run the same memory test on a 
-> Windows 2000 system (same hardware; we just swap the disk), we can 
-> run the ambient temperature up to 60C with no problem at all; the 
-> test will run for days. (It occurred to us to try Win2K because the 
-> hardware vendor was using it to test systems at temperature without 
-> seeing problems.)
-> 
-> Swap in the Linux disk, and at that temperature it'll barely run at 
-> all. The memory test fails quickly at 40C ambient.
+> How about mount for nfs-root, a shell and a shell script to supply the
+> correct parameters to mount so it doesn't go and try to mount the
+> nfs-root with locking enabled - oh, and a few programs like sed and
+> so forth to pull the mount parameters out of the dhcp client output,
+> if there is such an output.
 
-Linux gives the hardware a _much_ harder workout than Windows.
+If IBM can fit a kernel and a ramdisk containing all the utilities you
+describe and more in smaller than 5M of file for tftp, one would think 
+that it could be done on Linux.
+> 
+> ipconfig.c does more than just configure networking.  It's a far smaller
+> solution to NFS-root than any userspace implementation could ever hope
+> to be.
 
-My first PC was a P/100, overclocked to /120. WinNT worked fine, Linux
-wouldn't even finish booting.
+That's nice.  Would you mind explaining to us where that would be a
+benefit?  Aside from dead header space in elf executables, I'm at
+a loss as to how a usermode implementation must be significantly
+larger than kernel code.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Chris Dukes
+I tried being reasonable once--I didn't like it.

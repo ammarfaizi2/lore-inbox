@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264111AbRFLAi2>; Mon, 11 Jun 2001 20:38:28 -0400
+	id <S264112AbRFLAj2>; Mon, 11 Jun 2001 20:39:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264112AbRFLAiS>; Mon, 11 Jun 2001 20:38:18 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:6419 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S264111AbRFLAiL>; Mon, 11 Jun 2001 20:38:11 -0400
-To: Matt Nelson <mnelson@dynatec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Any limitations on bigmem usage?
-In-Reply-To: <3B255FC1.90501@dynatec.com>
-	<m37kyitu78.fsf@belphigor.mcnaught.org>
-From: Doug McNaught <doug@wireboard.com>
-Date: 11 Jun 2001 20:38:09 -0400
-In-Reply-To: Doug McNaught's message of "11 Jun 2001 20:31:23 -0400"
-Message-ID: <m33d96ttvy.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264117AbRFLAjI>; Mon, 11 Jun 2001 20:39:08 -0400
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:53005 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S264112AbRFLAjG>;
+	Mon, 11 Jun 2001 20:39:06 -0400
+Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+From: Shawn Starr <spstarr@sh0n.net>
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200106112259.RAA20183@asooo.flowerfire.com>
+In-Reply-To: <200106112259.RAA20183@asooo.flowerfire.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 11 Jun 2001 20:39:45 -0400
+Message-Id: <992306387.21308.0.camel@coredump>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught <doug@wireboard.com> writes:
+We're testing the cards to see how much traffic they can handle (on
+Linux & OpenBSD) So, if we do get the specs (and if without any NDAs) I
+would be happy to pass them on to the Linux community. 
 
-> Matt Nelson <mnelson@dynatec.com> writes:
+I'm not a kernel developer, just a bug finder when I see things.
+
+Shawn.
+
+On 11 Jun 2001 15:59:38 -0700, Ken Brownfield wrote:
+> We did some brief testing with this card a couple of months ago.  The 
+> original drivers were pretty flaky but the recent drivers seem fine.  I 
+> haven't done extremely heavy traffic or testing (no longer have the 
+> switch and multiple machines) but I've been compiling and loading the 
+> module for a while now with 2.4.x.
 > 
-> > I am about to embark on a data processing software project that
-> > will require a LOT of memory (about, ohhh, 6GB or so), and I was
-> > wondering if there are any limitations to how one can use very
-> > large chunks of memory under Linux. Specifically, is there
-> > anything to prevent me from malloc()ing 6GB of memory, then
-> > accessing that memory as I would any other buffer?  FYI, the
-> > application will be buffering a stream of data, then performing a
-> > variety of calculations on large blocks of data at a time, before
-> > writing it out to a socket.
+> FWIW,
+> --
+> Ken.
 > 
-> Pointers on IA32 are still 32 bits, so (as I understand it) each
-> process can address a maximum of 4GB.  You would have to allocate
-> multiple chunks (in shared memory or mmap()ed files, so they're
-> persistent) and map them in and out as needed (which could get hairy).
+> On Monday, June 11, 2001, at 03:42 PM, Shawn Starr wrote:
+> 
+> >
+> > How good is the linux kernel driver for the Intel gigabit Ethernet
+> > NIC (copper) with the TL82543GC chipset? The card says it's
+> > a "PRO/1000T" server adapter, and it looks like the part
+> > number A19845-003.
+> >
+> > The sales guy who is promoting it says this is apparently a new
+> > card and he claims he can get specs from engineering.
+> > Not sure about NDA status.
+> >
+> > So my question is... is it worth calling this guy's bluff?
+> >
+> > Shawn.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+> > in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Sorry to followup to myself, but I just had another thought--if you
-can split your task up into multiple processe such that no process
-needs to address more than 4GB, an IA32 machine will work fine.  It
-will probably still take more programming work than the naive approach
-(malloc() huge chink, use it) that you could use on a 64-bit
-machine...
 
--Doug
--- 
-The rain man gave me two cures; he said jump right in,
-The first was Texas medicine--the second was just railroad gin,
-And like a fool I mixed them, and it strangled up my mind,
-Now people just get uglier, and I got no sense of time...          --Dylan
+

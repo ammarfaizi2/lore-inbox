@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268764AbTBZOy6>; Wed, 26 Feb 2003 09:54:58 -0500
+	id <S268770AbTBZO5F>; Wed, 26 Feb 2003 09:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268765AbTBZOy6>; Wed, 26 Feb 2003 09:54:58 -0500
-Received: from h108-129-61.datawire.net ([207.61.129.108]:21691 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S268764AbTBZOy5>; Wed, 26 Feb 2003 09:54:57 -0500
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG][2.5.63] New IDE changes cause data corruption on PIIX4 AND additional problems
-Date: Wed, 26 Feb 2003 10:10:20 -0500
-User-Agent: KMail/1.5
+	id <S268771AbTBZO5F>; Wed, 26 Feb 2003 09:57:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34064 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268770AbTBZO5F>;
+	Wed, 26 Feb 2003 09:57:05 -0500
+Message-ID: <3E5CD815.6050501@pobox.com>
+Date: Wed, 26 Feb 2003 10:07:01 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+CC: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH][ATM] remove mod_inc_use_count from lec
+References: <200302261230.h1QCUox9003790@locutus.cmf.nrl.navy.mil>
+In-Reply-To: <200302261230.h1QCUox9003790@locutus.cmf.nrl.navy.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302261010.20360.shawn.starr@datawire.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Booting 2.5.63 I ran into several problems:
+chas williams wrote:
+> this patch removes the deprecated MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT
+> from the lane client.
 
-1. With full kernel debugging on, sleeping contexts loop forever, Adam Belay 
-has a fix that worked for me - Still testing
 
-2. When booting over serial console if i get a buffer overrun error, I loose 
-total access to the machine. I can't ssh in or use direct console. This did 
-not happen in .62.
+For patches that look ok and do not require feedback, I would suggest 
+CC'ing your patches to David Miller, who is the net stack maintainer and 
+seems to have been applying several of your patches so far.  Though "To: 
+linux-kernel" gets your patch published, you typically want to find a 
+"patch penguin" who will apply your patches and send them to 
+Linus/Marcelo...
 
-3. Data corruption with PIIX4:  While vi'ing /etc/lilo.conf exiting, then 
-vi'ing /etc/inittab saving a change. I ran init q. The moment I ran it i got 
-a strange panic from bash and a *__timers function. When I rebooted inittab 
-was corrupt and oddly /etc/inittab became lilo.conf! (it had the same 
-contents, acrossed inode somehow?).
+	Jeff
 
-/me looks at Alan with evil eyes IDE was working so well ;-(
 
--- 
-Shawn Starr
-UNIX Systems Administrator, Operations
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-shawn.starr@datawire.net
-"The power to Transact" - http://www.datawire.net
 

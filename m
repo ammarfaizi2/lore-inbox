@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277946AbRJOAIB>; Sun, 14 Oct 2001 20:08:01 -0400
+	id <S277949AbRJOAmw>; Sun, 14 Oct 2001 20:42:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277944AbRJOAHm>; Sun, 14 Oct 2001 20:07:42 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33542 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277942AbRJOAHb>; Sun, 14 Oct 2001 20:07:31 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Wireless Extension update
-Date: 14 Oct 2001 17:07:53 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9qd9cp$977$1@cesium.transmeta.com>
-In-Reply-To: <3BC3243A.D3B48880@osdlab.org> <Pine.LNX.4.21.0110142252270.6433-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S277950AbRJOAml>; Sun, 14 Oct 2001 20:42:41 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:39178 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277949AbRJOAmZ>;
+	Sun, 14 Oct 2001 20:42:25 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Recursive deadlock on die_lock 
+In-Reply-To: Your message of "14 Oct 2001 17:14:24 CST."
+             <m1zo6tolv3.fsf@frodo.biederman.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 15 Oct 2001 10:42:36 +1000
+Message-ID: <7104.1003106556@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0110142252270.6433-100000@Consulate.UFP.CX>
-By author:    Riley Williams <rhw@MemAlpha.cx>
-In newsgroup: linux.dev.kernel
-> 
-> 	DD.MM.YYYY	(European)
-> 	MM/DD/YYYY	(American)
-> 	YYYY-MM-DD	(Japanese)
-> 
-> ...with the punctuation character specifying the one in use. I note that
-> the dates as originally quoted above are clearly consistant with this
-> standard, so see no problem myself.
-> 
-> Personally, I prefer to use the DD-MMM-YYYY format myself, where MMM in
-> the three-letter English abbreviation for the month in question, and
-> there is thus no room for misreading it as something else.
-> 
+On 14 Oct 2001 17:14:24 -0600, 
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>Keith Owens <kaos@ocs.com.au> writes:
+>> IA64 also has PAL code which is
+>> called directly by the kernel, that PAL code has no unwind data so
+>> failures in PAL code result in bad or incomplete back traces.
+>
+>PAL Ahh!!!!!
+>
+>Please tell me that we are not rely on the firmware to be correct
+>after we have finished initializing the operating system.
+>
+>Please tell me it ain't so.  I have nightmares about that kind of setup.
 
-YYYY-MM-DD is also unambiguous, and has the nice properties of being
-(a) sortable and (b) language-independent.
+Not only do we rely on it, it is mandated by the IA64 design.  Intel
+IA64 System Abstraction Layer, 24535901.pdf.  The IA64 kernel calls SAL
+all over the place.  grep -ir '\<[ps]al' include/asm-ia64/ arch/ia64/
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,98 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbTBIJSf>; Sun, 9 Feb 2003 04:18:35 -0500
+	id <S267180AbTBIJpF>; Sun, 9 Feb 2003 04:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbTBIJSf>; Sun, 9 Feb 2003 04:18:35 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25098 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267187AbTBIJSd>; Sun, 9 Feb 2003 04:18:33 -0500
-Date: Sun, 9 Feb 2003 09:28:07 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Roland McGrath <roland@redhat.com>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@digeo.com>, arjanv@redhat.com
-Subject: Re: heavy handed exit() in latest BK
-Message-ID: <20030209092807.A20121@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Roland McGrath <roland@redhat.com>,
-	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>,
-	arjanv@redhat.com
-References: <200302090348.h193mcn05216@magilla.sf.frob.com> <Pine.LNX.4.44.0302082049420.4686-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S267183AbTBIJpF>; Sun, 9 Feb 2003 04:45:05 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:60631 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S267180AbTBIJpE>; Sun, 9 Feb 2003 04:45:04 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3c509 driver doesn't compile in 2.5.59
+References: <Pine.LNX.4.30.0302090957570.12534-100000@ghost.cybernet.cz>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+In-Reply-To: <Pine.LNX.4.30.0302090957570.12534-100000@ghost.cybernet.cz>
+Date: 09 Feb 2003 10:54:22 +0100
+Message-ID: <wrp1y2hwzht.fsf@hina.wild-wind.fr.eu.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302082049420.4686-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Feb 08, 2003 at 08:51:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 08, 2003 at 08:51:05PM -0800, Linus Torvalds wrote:
-> On Sat, 8 Feb 2003, Roland McGrath wrote:
-> >
-> > Here is the patch vs 2.5.59-1.1007 that I am using now.  gdb seems happy.
-> > I have not run a lot of other tests yet.
-> 
-> Looks like kernel threads still go crazy at shutdown. I saw the migration 
-> threads apparently hogging the CPU.
+>>>>> "brain" == brain  <brain@artax.karlin.mff.cuni.cz> writes:
 
-I hope you're aware that alt-sysrq-t has been broken for some time?
+brain> Hello.
+brain> When I turn on 3c509 support in 2.5.59 kernel and try to compile, I get:
 
-include/linux/sched.h:
+[snip]
 
-#define TASK_RUNNING            0
-#define TASK_INTERRUPTIBLE      1
-#define TASK_UNINTERRUPTIBLE    2
-#define TASK_STOPPED            4
-#define TASK_ZOMBIE             8
-#define TASK_DEAD               16
+You need to update to the latest BK patches (so you get the MCA
+stuff), and then apply the patch I sent to the list yesterday.
 
-kernel/sched.c:
+brain> I'm not able to attach my config file because you'r mailing
+brain> system rejects the mail even when I put the config into body of
+brain> the message.
 
-        static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
+Nope. Your messages made it to the list, 4 times.
+The messages you get is from some very annoying badly configured
+machine from linuxgroup.net, which hit me twice yesterday...
 
-fs/proc/array.c:
-
-static const char *task_state_array[] = {
-        "R (running)",          /*  0 */
-        "S (sleeping)",         /*  1 */
-        "D (disk sleep)",       /*  2 */
-        "T (stopped)",          /*  8 */
-        "Z (zombie)",           /*  4 */
-        "X (dead)"              /* 16 */
-};
-
-So, for one more time, here's another mailing of the same patch to fix
-this brokenness.  In addition, we fix the wrong comment in fs/proc/array.c
-
---- orig/kernel/sched.c	Sun Feb  9 09:16:31 2003
-+++ linux/kernel/sched.c	Sun Feb  9 09:23:44 2003
-@@ -2037,7 +2037,7 @@
- 	unsigned long free = 0;
- 	task_t *relative;
- 	int state;
--	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
-+	static const char * stat_nam[] = { "R", "S", "D", "T", "Z", "W" };
- 
- 	printk("%-13.13s ", p->comm);
- 	state = p->state ? __ffs(p->state) + 1 : 0;
---- orig/fs/proc/array.c	Sun Feb  9 09:17:36 2003
-+++ linux/fs/proc/array.c	Sun Feb  9 09:26:00 2003
-@@ -126,8 +126,8 @@
- 	"R (running)",		/*  0 */
- 	"S (sleeping)",		/*  1 */
- 	"D (disk sleep)",	/*  2 */
--	"T (stopped)",		/*  8 */
--	"Z (zombie)",		/*  4 */
-+	"T (stopped)",		/*  4 */
-+	"Z (zombie)",		/*  8 */
- 	"X (dead)"		/* 16 */
- };
- 
-
-
+        M.
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Places change, faces change. Life is so very strange.

@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129853AbRB0UpG>; Tue, 27 Feb 2001 15:45:06 -0500
+	id <S129537AbRB0VZi>; Tue, 27 Feb 2001 16:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129854AbRB0Uo5>; Tue, 27 Feb 2001 15:44:57 -0500
-Received: from mail.inf.tu-dresden.de ([141.76.2.1]:32888 "EHLO
-	mail.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S129853AbRB0Uol>; Tue, 27 Feb 2001 15:44:41 -0500
-Date: Tue, 27 Feb 2001 21:44:40 +0100
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] quick reboot on i386
-Message-ID: <20010227214440.A31566@ugly.wh8.tu-dresden.de>
-In-Reply-To: <20010226124931.A20095@ugly.wh8.tu-dresden.de> <20010227011325.A1798@bug.ucw.cz>
-Mime-Version: 1.0
+	id <S129563AbRB0VZ2>; Tue, 27 Feb 2001 16:25:28 -0500
+Received: from mail.eunet.ch ([146.228.10.7]:7172 "EHLO mail.kpnqwest.ch")
+	by vger.kernel.org with ESMTP id <S129537AbRB0VZP>;
+	Tue, 27 Feb 2001 16:25:15 -0500
+Message-ID: <3A9C2948.506897B8@dial.eunet.ch>
+Date: Tue, 27 Feb 2001 22:25:12 +0000
+From: Mario Vanoni <vanonim@dial.eunet.ch>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 3c59x new version, help me please with the new kernels
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010227011325.A1798@bug.ucw.cz>; from pavel@suse.cz on Tue, Feb 27, 2001 at 01:13:25AM +0100
-From: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > remember quarterdeck's quickreboot from "good" (*cough*) old D{o|O}S
-> > days? here it is for linux! it's only of limited use, especially
-> > in it's current state, but some people might find it useful.
-> 
-> Hmm, I'm probably going to apply this one, as I hate behaviour of my
-> bios: if you power off during POST it will not come up next time
-> asking for you to adjust CPU frequency.
-> 
-"nice" bios ... :-/
-so now pray, that your hardware configuration allows a second boot
-without being reset. (yes, this is the downside of qreboot).
-to make it work always, we would need a "deep" reset of at least the 
-pci and isa-pnp busses, presumably a chipset reset. sadly, i have
-no idea, how to do this. possibly this would require an additional
-reset function for every chipset. anyone can add something useful here?
+PCI 3COM 3C905B COMBO Etherlink XL 10/100Mbit BNC+RJ-45
+running a LAN with 3 machines 10MB with BNC/RG-58U cable.
 
-best regards
+2.2.12 ... 2.2.19pre7aa1 no problems,
 
--- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
---
-Nothing is fool-proof to a sufficiently talented fool.
+kernel with modules, /etc/modules.conf:
+alias eth0 3c59x
+options 3x59x options=0
+
+kernel _without_ modules, my usual and preferred mode,
+with the following little patch from Andrea
+in /usr/src/linux/drivers/net/3c59x.c, original:
+static int options[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1,};
+always manually changed to:
+static int options[MAX_UNITS];
+
+booting message without modules:
+
+eth0: 3Com 3c905B Cyclone 10/100/BNC at 0xa000,  00:50:04:9b:f0:b8 IRQ11
+  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
+  Media override to transceiver type 0 (10baseT)
+  Enabling bus-master transmits and whole-frame receives.
+(the 1st line after 00:50 ... is different on all 3 machines!)
+
+Works since over an year perfectly.
+-----------------------------------
+
+2.2.19pre15aa1 (same effect with 2.4.2pre?):
+
+neither telnet nor mount -t nfs work,
+rebooting to 2.2.19pre7aa1, _all_ works always perfectly.
+
+Checked with 3c59x as module, without modules,
+with/without Andrea's change, rien ne va plus.
+
+gcc-2.95.3.test3, all kernels since test1 compiled with in
+/usr/src/linux/arch/i386/Makefile:
+ifdef CONFIG_M686
+CFLAGS := ... -march=i686 ... in place of -m486
+(stolen from 2.4.2pre?)
+
+All machines PIII550, 2 UP's 512MB mem, 1 SMP Dual 1024MB.
+glib-2.1.3
+base old SuSE 6.4 with many updgrades via sources
+*.tar.gz/*tar.bz2, never with rpm!
+
+Not in lkml, CC if necessary.
+
+I will do every test is needed/requested !!!
+
+Regards and many thanks
+Mario
+
+PS Why _all_ machines swap copying 545MB, 5 files ~115MB,
+   from a mounted /cdrom to /tmp?  With the newest kernels!
+   AT&T SVR2...3.2 in over 12 years newer swapped with cp(1).

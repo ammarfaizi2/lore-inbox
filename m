@@ -1,103 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTFFTjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 15:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTFFTjJ
+	id S262254AbTFFTrd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 15:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTFFTrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 15:39:09 -0400
-Received: from u212-239-160-174.adsl.pi.be ([212.239.160.174]:50188 "EHLO
-	italy.lashout.net") by vger.kernel.org with ESMTP id S262253AbTFFTjH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 15:39:07 -0400
-Subject: siI3112 crash on enabling dma
-From: Adriaan Peeters <apeeters@lashout.net>
-Reply-To: apeeters@lashout.net
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054929160.1793.121.camel@localhost>
+	Fri, 6 Jun 2003 15:47:32 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:13503 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262254AbTFFTrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 15:47:31 -0400
+Date: Fri, 6 Jun 2003 22:00:51 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: [Patch] 2.5.70-bk11 zlib merge #3 inffast.c
+Message-ID: <20030606200051.GI10487@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de> <20030606183247.GB10487@wohnheim.fh-wedel.de> <20030606183920.GC10487@wohnheim.fh-wedel.de> <20030606185210.GE10487@wohnheim.fh-wedel.de> <20030606192325.GG10487@wohnheim.fh-wedel.de> <20030606192814.GH10487@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Jun 2003 21:52:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030606192814.GH10487@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Linus!
 
-I'm using 2.4.20-ac2, when I boot the system, SATA disks on a sil3112
-controller (IWill IS150-R) are detected, but dma is not enabled.
-The disks work perfectly in raid 1 mode, and I can enable dma using 
-hdparm -X66 -d1 /dev/hda
-hdparm -X66 -d1 /dev/hdc
+This patch took me only 30 minutes to verify, too easy! :)
 
-But sometimes this fails and the entire system hangs. I suspect it
-happens when I enable dma mode while there is some harddisk activity.
+Most of it is reformatting, but the functional bits should fix real
+problems.  A loop is introduced, just like in the turboc patch and one
+of the three condition bodies has been expanded.
 
-I tried 2.4.21-rc7-ac1 too, but the dma isn't enabled by default either.
+Jörn
 
-If I can test some more, please let me know,
-
-Regards,
-Adriaan Peeters
-
-PS: Please cc me when replying, I'm not subscribed to the list.
-
-Interesting parts from dmesg:
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-SiI3112 Serial ATA: IDE controller at PCI slot 00:0c.0
-PCI: Found IRQ 5 for device 00:0c.0
-SiI3112 Serial ATA: chipset revision 2
-SiI3112 Serial ATA: not 100% native mode: will probe irqs later
-    ide0: MMIO-DMA at 0xd081c000-0xd081c007, BIOS settings: hda:pio,
-hdb:pio
-    ide1: MMIO-DMA at 0xd081c008-0xd081c00f, BIOS settings: hdc:pio,
-hdd:pio
-VP_IDE: IDE controller at PCI slot 00:11.1
-PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try
-using pci=biosirq.
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
-    ide2: BM-DMA at 0x8400-0x8407, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0x8408-0x840f, BIOS settings: hdg:DMA, hdh:pio
-hda: Maxtor 6Y080M0, ATA DISK drive
-hda: DMA disabled
-hdc: Maxtor 6Y080M0, ATA DISK drive
-hdc: DMA disabled
-hde: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
-hde: DMA disabled
-hdg: QUANTUM BIGFOOT2550A, ATA DISK drive
-hdg: DMA disabled
-blk: queue c047d8c4, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0xd081c080-0xd081c087,0xd081c08a on irq 5
-ide1 at 0xd081c0c0-0xd081c0c7,0xd081c0ca on irq 5
-ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide3 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=158816/16/63
-hdc: host protected area => 1
-hdc: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=158816/16/63
-hdg: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: task_no_data_intr: error=0x04 { DriveStatusError }
-hdg: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=4994/16/63, DMA
-hde: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-ide-floppy driver 0.99.newide
-Partition check:
- hda:<6> [PTBL] [9964/255/63] hda1 hda2 hda3
- hdc:<6> [PTBL] [9964/255/63] hdc1 hdc2 hdc3
- hdg:<6> [PTBL] [624/128/63] hdg1 hdg2
-ide-floppy driver 0.99.newide
- ataraid/d0: ataraid/d0p1 ataraid/d0p2 ataraid/d0p3
-Drive 0 is 78167 Mb (22 / 0) 
-Drive 1 is 78167 Mb (3 / 0) 
-Raid1 array consists of 2 drives. 
 -- 
-Adriaan Peeters <apeeters@lashout.net>
+Fancy algorithms are slow when n is small, and n is usually small.
+Fancy algorithms have big constants. Until you know that n is
+frequently going to be big, don't get fancy.
+-- Rob Pike
 
+--- linux-2.5.70-bk11/lib/zlib_inflate/inffast.c~zlib_merge_inffast	2003-06-06 15:56:15.000000000 +0200
++++ linux-2.5.70-bk11/lib/zlib_inflate/inffast.c	2003-06-06 21:53:50.000000000 +0200
+@@ -90,28 +90,41 @@
+ 
+             /* do the copy */
+             m -= c;
+-            if ((uInt)(q - s->window) >= d)     /* offset before dest */
+-            {                                   /*  just copy */
+-              r = q - d;
+-              *q++ = *r++;  c--;        /* minimum count is three, */
+-              *q++ = *r++;  c--;        /*  so unroll loop a little */
+-            }
+-            else                        /* else offset after destination */
++            r = q - d;
++            if (r < s->window)                  /* wrap if needed */
+             {
+-              e = d - (uInt)(q - s->window); /* bytes from offset to end */
+-              r = s->end - e;           /* pointer to offset */
+-              if (c > e)                /* if source crosses, */
++              do {
++                r += s->end - s->window;        /* force pointer in window */
++              } while (r < s->window);          /* covers invalid distances */
++              e = s->end - r;
++              if (c > e)
+               {
+-                c -= e;                 /* copy to end of window */
++                c -= e;                         /* wrapped copy */
+                 do {
+-                  *q++ = *r++;
++                    *q++ = *r++;
+                 } while (--e);
+-                r = s->window;          /* copy rest from start of window */
++                r = s->window;
++                do {
++                    *q++ = *r++;
++                } while (--c);
++              }
++              else                              /* normal copy */
++              {
++                *q++ = *r++;  c--;
++                *q++ = *r++;  c--;
++                do {
++                    *q++ = *r++;
++                } while (--c);
+               }
+             }
+-            do {                        /* copy all or what's left */
+-              *q++ = *r++;
+-            } while (--c);
++            else                                /* normal copy */
++            {
++              *q++ = *r++;  c--;
++              *q++ = *r++;  c--;
++              do {
++                *q++ = *r++;
++              } while (--c);
++            }
+             break;
+           }
+           else if ((e & 64) == 0)

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265751AbSKFQDU>; Wed, 6 Nov 2002 11:03:20 -0500
+	id <S265787AbSKFQJU>; Wed, 6 Nov 2002 11:09:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265749AbSKFQDU>; Wed, 6 Nov 2002 11:03:20 -0500
-Received: from line106-150.adsl.actcom.co.il ([192.117.106.150]:10961 "HELO
-	mail.bard.org.il") by vger.kernel.org with SMTP id <S265751AbSKFQDT>;
-	Wed, 6 Nov 2002 11:03:19 -0500
-Date: Wed, 6 Nov 2002 18:09:34 +0200
-From: "Marc A. Volovic" <marc@bard.org.il>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Marc A. Volovic" <marc@bard.org.il>,
-       Pannaga Bhushan <bhushan@multitech.co.in>, linux-kernel@vger.kernel.org
-Subject: Re: A hole in kernel space!
-Message-ID: <20021106160934.GA25325@glamis.bard.org.il>
-References: <20021106134935.GA24234@glamis.bard.org.il> <Pine.LNX.3.95.1021106085810.3962A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S265786AbSKFQJU>; Wed, 6 Nov 2002 11:09:20 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54083 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265785AbSKFQJS>; Wed, 6 Nov 2002 11:09:18 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [lkcd-devel] Re: What's left over.
+References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Nov 2002 09:13:18 -0700
+In-Reply-To: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
+Message-ID: <m1vg3aekwx.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021106085810.3962A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux glamis 2.4.20-pre10-ac2
-X-message-flag: 'Oi! Muy Importante! Get yourself a real email client. http://www.mutt.org/'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Richard B. Johnson:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> You know, I hope, that you can kmalloc(GFP_KERNEL) something in
-> init_module() and it will always be resident in the kernel until
-> you kfree() it in cleanup_module(). You do not have to
-> allocate/deallocate every time your module does something.
+> >From a sanity standpoint, I think the thing already _has_ a system call, 
+> though: clearly "sys_reboot()" is the place to add a case for "reboot into 
+> this image". No? That's where we shut down devices anyway, and it's the 
+> sane place to say "reboot into the kexec image"
 
-I do not alloc/dealloc every time ;-). I allocate at boot and do not
-bother deallocating at all. The module just uses that allocated memory
-and maps it into the filesystem namespace.
+When kexec is separated into two pieces I agree.  As I had it
+initially in one step it does not look at all like reboot.    Now I
+just need to think up a new magic number for sys_reboot.
 
->    Bush : The Fourth Reich of America
+[snip wonderful vision of the theoretical simplicity of sys_kexec].
 
-Errr, not that I care, but as far as I know, America had not yet had
-even its first Reich. ;-)... Germany had three, so a forth Reich might
-have been there...
+In case I was not sufficiently clear last night.  It could be as
+simple as your example code if I replaced vmalloc by
+__get_free_pages/alloc_pages, and allocated a large contiguous area of
+ram.  But MAX_ORDER limits me to 8MB images, and allocating an 8MB
+chunk is unreliable, and even a 2MB chunk is dangerous.    
 
--- 
----MAV
-                        Linguists do it cunningly
-Marc A. Volovic                                             marc@bard.org.il
+So I must use some form of scatter/gather list of pages, like
+area ->pages[] to make it work.  Things get tricky because I gather
+(via memcpy) the pages at a location that potentially overlaps the
+source pages.  So I must walk through the list of pages making certain
+I when I gather (memcpy) the buffer pages into their final location I
+will not stomp on a buffer page I have not come to yet. Correctly
+doing that untangling is where the complexity in kernel/kexec.c comes
+from.
+
+Eric
+

@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292595AbSCDRpv>; Mon, 4 Mar 2002 12:45:51 -0500
+	id <S292627AbSCDRrB>; Mon, 4 Mar 2002 12:47:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292594AbSCDRpn>; Mon, 4 Mar 2002 12:45:43 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:43141 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S292632AbSCDRpS>;
-	Mon, 4 Mar 2002 12:45:18 -0500
-Message-ID: <3C83B2A6.2010200@candelatech.com>
-Date: Mon, 04 Mar 2002 10:45:10 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S292594AbSCDRqq>; Mon, 4 Mar 2002 12:46:46 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:3044 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292627AbSCDRqH>; Mon, 4 Mar 2002 12:46:07 -0500
+Date: Mon, 4 Mar 2002 18:46:05 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
 To: Hirling Endre <endre@interware.hu>
-CC: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: recommended gigabit card for dot1q?
+Message-ID: <20020304184605.A12016@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>; from endre@interware.hu on Mon, Mar 04, 2002 at 06:31:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check out the VLAN mailing list archives...there have
-been some success stories there with gigabit nics:
-
-http://www.candelatech.com/~greear/vlan.html
-
-Hirling Endre wrote:
-
-> Hello,
-> 
+Hirling Endre:
 > I have to upgrade one of our linux-based routers to gigabit. What GE
 > card do you recommend for using with dot1q vlans? I tried a D-Link one
 > (DGE550SX, based on a Level1 chip) and an Intel one that works with the
 > e1000 driver, but I couldn't set up vlans properly with either of these.
-> 
-> thanks in advance
-> endre
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+
+If you follow the threads on this list, there has been some discussions
+regarding VLANs and GE. Try theese threads:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101524429100394&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101481826920095&w=2
 
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Thomas

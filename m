@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311684AbSCNRJH>; Thu, 14 Mar 2002 12:09:07 -0500
+	id <S311686AbSCNRL1>; Thu, 14 Mar 2002 12:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311687AbSCNRI6>; Thu, 14 Mar 2002 12:08:58 -0500
-Received: from naxos.pdb.sbs.de ([192.109.3.5]:46559 "EHLO naxos.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S311684AbSCNRIq>;
-	Thu, 14 Mar 2002 12:08:46 -0500
-Date: Thu, 14 Mar 2002 18:11:42 +0100 (CET)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: IO delay, port 0x80, and BIOS POST codes
-Message-ID: <Pine.LNX.4.33.0203141802330.1477-100000@biker.pdb.fsc.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311687AbSCNRLR>; Thu, 14 Mar 2002 12:11:17 -0500
+Received: from ns.suse.de ([213.95.15.193]:63246 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311686AbSCNRLJ>;
+	Thu, 14 Mar 2002 12:11:09 -0500
+Date: Thu, 14 Mar 2002 18:11:06 +0100
+From: Dave Jones <davej@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Martin Dalecki <martin@dalecki.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Actually hide x86 IDE chipsets on !CONFIG_X86
+Message-ID: <20020314181106.J19636@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Martin Dalecki <martin@dalecki.de>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020314165018.GE706@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314165018.GE706@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Mar 14, 2002 at 09:50:18AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 14, 2002 at 09:50:18AM -0700, Tom Rini wrote:
+ > Hello.  The following actually hides x86-specific drivers on
+ > !CONFIG_X86.  The problem is that dep_bool '...' CONFIG_FOO $CONFIG_BAR
+ > doesn't have the desired effect if CONFIG_BAR isn't set.
+ > 
+ > +   if [ "$CONFIG_X86" = "y" ]; then
+ > +      bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640
+ > +      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
+ > +   fi
 
-Hello,
-
-the BIOS on our machines (Phoenix) uses IO-port 0x80 for storing
-POST codes, not only during sytem startup, but also for messages
-generated during SMM (system management mode) operation.
-I have been told other BIOSs do the same.
-
-Unfortunately we can't read this information because Linux uses
-port 80 as "dummy" port for delay operations. (outb_p and friends,
-actually there seem to be a more hard-coded references to port
-0x80 in the code).
-
-It seems this problem was always there, just nobody took notice of it yet
-(at least in our company). Sometimes people wondered about the weird POST
-codes displayed in the LCD panel, but who cares once the machine is up...
-
-Would it be too outrageous to ask that this port number be changed, or
-made configurable?
-
-Martin
-
+ I've a PCI card with one of these. It could in theory work on any arch
+ with a PCI slot.
+ 
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

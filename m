@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274882AbTHPQiY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 12:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTHPQhR
+	id S274871AbTHPQvq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 12:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTHPQvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 12:37:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:12711 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S274871AbTHPQhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 12:37:13 -0400
-Date: Sat, 16 Aug 2003 09:36:44 -0700
-From: Greg KH <greg@kroah.com>
-To: walt <wa1ter@myrealbox.com>, ambx1@neo.rr.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 current - firewire compile error
-Message-ID: <20030816163643.GB9735@kroah.com>
-References: <3F3E288B.3010105@cornell.edu> <3F3DD93E.7090706@myrealbox.com>
+	Sat, 16 Aug 2003 12:51:46 -0400
+Received: from AMarseille-201-1-3-2.w193-253.abo.wanadoo.fr ([193.253.250.2]:25640
+	"EHLO gaston") by vger.kernel.org with ESMTP id S274871AbTHPQvp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 12:51:45 -0400
+Subject: [PATCH] PowerMac: Update for removal of device->name
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061052662.598.15.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3DD93E.7090706@myrealbox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Aug 2003 18:51:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 12:11:58AM -0700, walt wrote:
-> Ivan Gyurdiev wrote:
-> >Hopefully, this is not a duplicate post:
-> >===========================================
-> >
-> >drivers/ieee1394/nodemgr.c: In function `nodemgr_update_ud_names':
-> >drivers/ieee1394/nodemgr.c:471: error: structure has no member named `name'
-> 
-> I got a similar error starting with last night's bk pull:
-> 
-> drivers/pnp/core.c: In function `pnp_register_protocol':
-> drivers/pnp/core.c:72: structure has no member named `name'
+Hi Linus !
 
-Hm, I thought the pnp layer had already been fixed up.
+This patch fix build of PowerMac driver core with the removal
+of struct device "name" field. Please apply. It doesn't depend
+not breaks the other pending PowerMac patches.
 
-Adam?
+Ben.
 
-thanks,
+===== arch/ppc/syslib/of_device.c 1.1 vs edited =====
+--- 1.1/arch/ppc/syslib/of_device.c	Sat Aug  9 18:40:04 2003
++++ edited/arch/ppc/syslib/of_device.c	Sat Aug 16 18:48:20 2003
+@@ -227,8 +227,6 @@
+ 	dev->dev.parent = NULL;
+ 	dev->dev.bus = &of_platform_bus_type;
+ 
+-	/* XXX Make something better here ? */
+-	snprintf(dev->dev.name, DEVICE_NAME_SIZE, "Platform device %s", np->name);
+ 	reg = (u32 *)get_property(np, "reg", NULL);
+ 	strlcpy(dev->dev.bus_id, bus_id, BUS_ID_SIZE);
+ 
+===== drivers/macintosh/macio_asic.c 1.1 vs edited =====
+--- 1.1/drivers/macintosh/macio_asic.c	Sat Aug  9 18:40:04 2003
++++ edited/drivers/macintosh/macio_asic.c	Sat Aug 16 18:47:51 2003
+@@ -141,9 +141,6 @@
+ 	dev->ofdev.dev.parent = parent;
+ 	dev->ofdev.dev.bus = &macio_bus_type;
+ 
+-	/* XXX Make something better here ? */
+-	snprintf(dev->ofdev.dev.name, DEVICE_NAME_SIZE, "MacIO device %s", np->name);
+-
+ 	/* MacIO itself has a different reg, we use it's PCI base */
+ 	if (np == chip->of_node) {
+ 		sprintf(dev->ofdev.dev.bus_id, "%1d.%08lx:%.8s", chip->lbus.index,
 
-greg k-h

@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269846AbUIDJTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269847AbUIDJ14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269846AbUIDJTg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 05:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUIDJTg
+	id S269847AbUIDJ14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 05:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269848AbUIDJ14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 05:19:36 -0400
-Received: from mail.gmx.de ([213.165.64.20]:39608 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269846AbUIDJTe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 05:19:34 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: sboyce@blueyonder.co.uk
-Subject: Re: NVIDIA Driver 1.0-6111 fix
-Date: Sat, 4 Sep 2004 11:25:15 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <41390988.2010503@blueyonder.co.uk>
-In-Reply-To: <41390988.2010503@blueyonder.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Sep 2004 05:27:56 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:59909 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269847AbUIDJ1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 05:27:55 -0400
+Date: Sat, 4 Sep 2004 10:27:50 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+Message-ID: <20040904102750.A13149@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>, dri-devel@lists.sf.net,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0409040107190.18417@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409041125.21915.dominik.karall@gmx.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0409040107190.18417@skynet>; from airlied@linux.ie on Sat, Sep 04, 2004 at 01:12:16AM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 September 2004 02:17, Sid Boyce wrote:
-> The NVIDIA Linux Discussion forum has a patch that works with 2.6.9-rc1-mm3
-> http://gentoo.kems.net/gentoo-x86-portage/media-video/nvidia-kernel/files/1
->.0.6111/nv_enable_pci.patch Regards
-> Sid.
+On Sat, Sep 04, 2004 at 01:12:16AM +0100, Dave Airlie wrote:
+> 	DRM core - just the stub registration procedure and handling any
+> shared resources like the device major number, and perhaps parts of sysfs
+> and class code. This interface gets set in stone as quickly as possible
+> and is as minimal as can be, (Jon Smirls dyn-minor patch will help a fair
+> bit also). All the core does is allow DRMs to register and de-register in
+> a nice easy fashion and not interfere with each other. This drmcore.o can
+> either be linked into the kernel (ala the fb core) or a module, but in
+> theory it should only really be shipped with the kernel - (for compat
+> reasons the DRM tree will ship it for older systems).
 
-this patch only fixes the "routeirq" problem, or? because i can't see any 
-changes for pci_find_class.
+Ok.
 
-regards,
-dominik
+> 	DRM library - this contains all the non-card specific code, AGP
+> interface, buffers interface, memory allocation, context handling etc.
+> This is mostly stuff that is in templated header files now moved into C
+> files along the lines of what I've done in the drmlib-0-0-1-branch. This
+> file gets linked into each drm module, if you build two drivers into the
+> kernel it gets shared automatically as far as I can see, if you build as
+> modules they both end up with the code, for the DRM the single card is the
+> primary case so I don't mind losing some resources for having different
+> cards in a machine.
+
+Ok except you should build this only once.
+

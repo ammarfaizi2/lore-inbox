@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136699AbREGXBy>; Mon, 7 May 2001 19:01:54 -0400
+	id <S136701AbREGXFN>; Mon, 7 May 2001 19:05:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136701AbREGXBo>; Mon, 7 May 2001 19:01:44 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41220 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136699AbREGXB3>; Mon, 7 May 2001 19:01:29 -0400
-Date: Mon, 7 May 2001 18:22:56 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <9d6npn$dhp$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105071820460.7506-100000@freak.distro.conectiva>
+	id <S136704AbREGXFD>; Mon, 7 May 2001 19:05:03 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45994 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136701AbREGXEs>;
+	Mon, 7 May 2001 19:04:48 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15095.10766.342088.612404@pizda.ninka.net>
+Date: Mon, 7 May 2001 16:04:46 -0700 (PDT)
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] zero^H^H^H^Hsingle copy pipe
+In-Reply-To: <Pine.LNX.4.33.0105071243450.8156-100000@devserv.devel.redhat.com>
+In-Reply-To: <001601c0d713$d60a17b0$5517fea9@local>
+	<Pine.LNX.4.33.0105071243450.8156-100000@devserv.devel.redhat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Ben LaHaise writes:
+ > and then use a map_mm_kiobuf (which is
+ > map_user_kiobuf but with an mm parameter) for the portion of the buffer
+ > that's currently being copied.  That improves code reuse and gives us a
+ > few primatives that are quite useful elsewhere.
 
-On 7 May 2001, Linus Torvalds wrote:
+If it has roughly the same cost as Manfred's copy_user thing, it is
+therefore roughly equivalent.
 
-> But it is important to re-calculate the deadness after getting the
-> lock. Before, it was just an informed guess. After the lock, it is
-> knowledge. And you can use informed guesses for heuristics, but you
-> must _not_ use them for any serious decisions.
+If this map_mm_kiobuf() thing would cost more (I think it would
+because it would be using kiobufs when for this case there is
+absolutely no need for them) then why?  "It's a clean interface
+everyone can use" is not an acceptable answer when the clean interface
+costs significantly more than the straightforward approach.
 
-And thats what swap_writepage() is doing:
-
-static int swap_writepage(struct page *page)
-{
-        /* One for the page cache, one for this user, one for page->buffers */
-        if (page_count(page) > 2 + !!page->buffers)
-                goto in_use;
-        if (swap_count(page) > 1)
-                goto in_use;
-
-...
-}
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,66 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265561AbTFSNoF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 09:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265614AbTFSNoF
+	id S265618AbTFSNvk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 09:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265622AbTFSNvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 09:44:05 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:48512 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S265561AbTFSNoD convert rfc822-to-8bit
+	Thu, 19 Jun 2003 09:51:39 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:28110 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265618AbTFSNvP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 09:44:03 -0400
-Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions
-In-Reply-To: <20030619132810.GA6906@wohnheim.fh-wedel.de> =?ISO-8859-1?Q?from_J=F6rn_Engel_at_Jun_19=2C_2003_03=3A28=3A10_pm?=
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Date: Thu, 19 Jun 2003 08:57:59 -0500 (CDT)
-Cc: Tom Rini <trini@kernel.crashing.org>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	Thu, 19 Jun 2003 09:51:15 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sleep_decay for interactivity 2.5.72 - testers needed
+Date: Fri, 20 Jun 2003 00:05:18 +1000
+User-Agent: KMail/1.5.2
+Cc: Andreas Boman <aboman@midgaard.us>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=UNKNOWN-8BIT
-Message-Id: <20030619135800.6D4514F01@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_eMc8+mhpQ4OACA/"
+Message-Id: <200306200005.18005.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> I haven't seen a clear compiler bug yet, but found two bugs in
-> assembler code with 2.95.3 that compiled without problems with 3.2.x.
-> One of them has actually hit people, as you could see in the code.
-> Most symptoms were "fixed", but the cause remained.
 
-Another data point...  Earlier (I *think* it was this thread) someone
-mentioned problems with trying to build glibc with gcc 3.x and "ls"
-segfaulting.  I've recently upgraded portions of my system (including
-libraries and compilers) with the packages from the Slackware 9.0 CD.
-I expect a certain amount of pain (due to library version conflicts)
-every time I go through the upgrade process, but this time the pain
-feels different...  I absolutely cannot get getty and uugetty from the
-getty-ps-2.1.0 package to work: segmentation faults.  Even tried building
-from source: no good.  My old getty and uugetty binaries (version 2.0.7j)
-seem to work ok with the new libraries, but rebuilding the 2.0.7j code
-with gcc-3.2.2 results in segfaults.
+--Boundary-00=_eMc8+mhpQ4OACA/
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The behavior seems to be independent of kernel version (2.5.70-2.5.72).
-Here's the relevant version list (referenced libraries reported by ldd):
+Hidden at the end of a thread titled "[PATCH] 2.5.72 O(1) interactivity 
+bugfix" was a much improved patch for interactivity against 2.5.72 which 
+seemed to be swallowed and never appeared on lkml so here it is again.
 
-kernel 2.5.72
-glibc 2.3.1
-libtermcap 2.0.8
-ld-2.3.1
-gcc 3.2.2
-binutils 2.13.90.0.18
+If a task is interactive it will declare itself in a short period and the 
+max_sleep_avg being 10 seconds is too long for a task to be detected as such. 
+Unfortunately decreasing the max_sleep_avg will quickly put a task onto the 
+expired array if the task uses sustained cpu for a period. This makes X slow 
+down after a little usage when the machine is under heavy load. 
 
-The Slackware default install uses agetty rather than the getty-ps
-package, which may partly explain why my particular symptom hasn't been
-reported previously (to my knowledge).  I'm curious to know if this
-problem exists with a virgin Slackware 9 installation, and will probably
-have an answer by this weekend, time permitting.
+This patch uses two settings to determine a task's interactivity, the old 
+max_sleep_avg is now more of a sleep_avg "attack" and the new 
+best_sleep_decay is the decay. Initially these have been set to 1 and 60 
+seconds. Audio skipping is eliminated in my testing at heavy loads, and X 
+does not slow down during sustained usage under very heavy load. Unlike my 
+previous patch this one does not reset the sleep_avg of new forked processes.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Included as an attachment to prevent mailer mangling.
+
+Testers required. A version for -ck will be created soon.
+
+Con
+
+--Boundary-00=_eMc8+mhpQ4OACA/
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-sleep_decay"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-sleep_decay"
+
+diff -Naurp linux-2.5.72/kernel/sched.c linux-2.5.72-test/kernel/sched.c
+--- linux-2.5.72/kernel/sched.c	2003-06-18 22:47:25.000000000 +1000
++++ linux-2.5.72-test/kernel/sched.c	2003-06-19 22:23:33.000000000 +1000
+@@ -72,7 +72,8 @@
+ #define EXIT_WEIGHT		3
+ #define PRIO_BONUS_RATIO	25
+ #define INTERACTIVE_DELTA	2
+-#define MAX_SLEEP_AVG		(10*HZ)
++#define MAX_SLEEP_AVG		(HZ)
++#define BEST_SLEEP_DECAY	(60 * HZ)
+ #define STARVATION_LIMIT	(10*HZ)
+ #define NODE_THRESHOLD		125
+ 
+@@ -318,7 +319,7 @@ static int effective_prio(task_t *p)
+ 	if (rt_task(p))
+ 		return p->prio;
+ 
+-	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
++	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*(p->best_sleep_avg/BEST_SLEEP_DECAY)/MAX_SLEEP_AVG/100 -
+ 			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+ 
+ 	prio = p->static_prio - bonus;
+@@ -371,6 +372,8 @@ static inline void activate_task(task_t 
+ 			sleep_avg = MAX_SLEEP_AVG;
+ 		if (p->sleep_avg != sleep_avg) {
+ 			p->sleep_avg = sleep_avg;
++			if ((sleep_avg * BEST_SLEEP_DECAY) > p->best_sleep_avg)
++				p->best_sleep_avg = sleep_avg * BEST_SLEEP_DECAY;
+ 			p->prio = effective_prio(p);
+ 		}
+ 	}
+@@ -551,6 +554,7 @@ void wake_up_forked_process(task_t * p)
+ 	 */
+ 	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
+ 	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
++	p->best_sleep_avg = p->sleep_avg * BEST_SLEEP_DECAY;
+ 	p->prio = effective_prio(p);
+ 	set_task_cpu(p, smp_processor_id());
+ 
+@@ -1200,6 +1204,8 @@ void scheduler_tick(int user_ticks, int 
+ 	 */
+ 	if (p->sleep_avg)
+ 		p->sleep_avg--;
++	if (p->best_sleep_avg)
++		p->best_sleep_avg--;
+ 	if (unlikely(rt_task(p))) {
+ 		/*
+ 		 * RR tasks need a special form of timeslice management.
+diff -Naurp linux-2.5.72/include/linux/sched.h linux-2.5.72-test/include/linux/sched.h
+--- linux-2.5.72/include/linux/sched.h	2003-06-18 22:47:19.000000000 +1000
++++ linux-2.5.72-test/include/linux/sched.h	2003-06-19 20:56:18.000000000 +1000
+@@ -332,6 +332,7 @@ struct task_struct {
+ 
+ 	unsigned long sleep_avg;
+ 	unsigned long last_run;
++	unsigned long best_sleep_avg;
+ 
+ 	unsigned long policy;
+ 	unsigned long cpus_allowed;
+
+--Boundary-00=_eMc8+mhpQ4OACA/--
+

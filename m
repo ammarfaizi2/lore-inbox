@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbRA3JeO>; Tue, 30 Jan 2001 04:34:14 -0500
+	id <S130415AbRA3JfY>; Tue, 30 Jan 2001 04:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbRA3JeE>; Tue, 30 Jan 2001 04:34:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57348 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129704AbRA3Jds>; Tue, 30 Jan 2001 04:33:48 -0500
-Message-ID: <3A768A6B.78D72693@transmeta.com>
-Date: Tue, 30 Jan 2001 01:33:31 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129789AbRA3Jeo>; Tue, 30 Jan 2001 04:34:44 -0500
+Received: from [207.43.108.5] ([207.43.108.5]:35844 "EHLO rosswinds.net")
+	by vger.kernel.org with ESMTP id <S129704AbRA3Jec>;
+	Tue, 30 Jan 2001 04:34:32 -0500
+Date: Tue, 30 Jan 2001 04:46:06 -0500 (EST)
+From: "Michael B. Trausch" <fd0man@crosswinds.net>
+To: linux-kernel@vger.kernel.org
+Subject: [Off-Topic?]  Mixer device and controls (/dev/mixer)
+Message-ID: <Pine.LNX.4.21.0101300442420.30532-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
-To: "Michael B. Trausch" <fd0man@crosswinds.net>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <Pine.LNX.4.21.0101300350290.2225-100000@fd0man.accesstoledo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael B. Trausch" wrote:
-> 
-> On 29 Jan 2001, H. Peter Anvin wrote:
-> >
-> > He's keeping in mind who owns Hotmail.  However, I think that's unfair
-> > to the Hotmail guys; all the ones I have ever spoken with have been
-> > very professional and genuinely concerned with standards compliance.
-> >
-> 
-> I would also keep in mind, that Microsoft doesn't even run their *own*
-> system on Hotmail.  Currently they're using Solaris, and from what I hear
-> they might be moving Linux in there fairly soon.
-> 
 
-I don't know if that's true.  The headers I've seen from hotmail users --
-and Netcraft seem to agree -- indicate that they have migrated over to
-Win2K.  I do understand this was a forced migration for non-technical
-reasons, and that they had quite a bit of problems.
+I have one small question about the Linux mixer device.  I realize that
+the drivers (such as OSS and ALSA) have their own standards for the mixer
+and dsp devices and such, and so I'm not really sure if this is on topic
+or not.  If you're still interested in my question, tho, read on ;p.
 
-An interesting exception seem to be the hosts named ad.law*.hotmail.com,
-which Netcraft claim to be FreeBSD.
+I've noticed that with some audio devices, I have a Bass and Treble
+setting that I can play with (and usually do, becuase it makes things
+sound MUCH better).  Why don't I have that in some devices, and is there
+a way (through the kernel, or through a userspace program) to make up the
+difference?  I use mpg123 to play my mp3 files, but that will change soon
+as I am building myself a new installation of Linux (from the kernel on up
+;p... the Distributions aren't keeping up as much as I want and I want all
+my own home-built software anyway, except for X, 'cuz that's a bitch to
+attempt to compile on my own).
 
-	-hp
+Anyway, does anybody know the answer to that one?
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+	Thanks!
+	Mike
+
+===========================================================================
+Michael B. Trausch                                    fd0man@crosswinds.net
+Avid Linux User since April, '96!                           AIM:  ML100Smkr
+
+              Contactable via IRC (DALNet) or AIM as ML100Smkr
+===========================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

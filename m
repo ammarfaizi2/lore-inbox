@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCROuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCROx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVCROuj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 09:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCROuj
+	id S261620AbVCROx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 09:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCROx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 09:50:39 -0500
-Received: from upco.es ([130.206.70.227]:48320 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261619AbVCROub (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 09:50:31 -0500
-Date: Fri, 18 Mar 2005 15:50:28 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Maximilian Engelhardt <maxi@daemonizer.de>
-Subject: Re: Call for help: list of machines with working S3
-Message-ID: <20050318145028.GA22887@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Maximilian Engelhardt <maxi@daemonizer.de>
-References: <3xVNA-Qn-43@gated-at.bofh.it> <1111089912.9802.26.camel@mobile>
+	Fri, 18 Mar 2005 09:53:57 -0500
+Received: from hyperion.affordablehost.com ([12.164.25.86]:23177 "EHLO
+	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
+	id S261620AbVCROxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 09:53:54 -0500
+Subject: Where is a reference for ioctl32() usage?
+From: Alan Kilian <kilian@bobodyne.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1111103837.11071.83.camel@desk>
+References: <1111103837.11071.83.camel@desk>
+Content-Type: text/plain
+Date: Fri, 18 Mar 2005 08:53:52 -0600
+Message-Id: <1111157632.11071.92.camel@desk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <1111089912.9802.26.camel@mobile>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - bobodyne.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 09:05:12PM +0100, Maximilian Engelhardt wrote:
-> On Mon, 2005-02-14 at 22:20 +0100, Pavel Machek wrote:
 
-> > 		Video issues with S3 resume
-> > 		~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > 		  2003-2005, Pavel Machek
-> > 
 
-> Tried all this on my Laptop but nothing seems to work for me. 
-> I do "echo 3 > /proc/acpi/sleep" and the systems seems to go into S3.
-> When I press some key to wake it up again it powers up but I get nothing
-> than a black screen. It's not only the video card that's not working,
-> because the only thing it reacts to is Sysrq (without screen of course).
-> One additional thing I found is that in this state the HDD led keeps
-> lighting all the time untill I reboot my system. After rebooting I
-> couldn't find anything interesting in my logs.
-> 
-> Is there any way I could get S3 working on my laptop?
-> 
-> some data:
-> Acer Travel Mate 661lci
-> Gentoo Base System version 1.6.10
-> kernel 2.6.11
-> 
-> I did all this testing with a minimal kernel that only had the
-> absolutely necessary drivers.
+    Thanks for all the help in the past, and I'm once again knocking
+    at your door for more help.
 
-It happens exactly the same on my laptop, sony vaio whose configuration is 
+    I am trying to get my PCI bus device driver running on an Xeon 
+    64-bit FC-3 distribution for the first time. It works fine on a
+    32-bit FC-3 distribution.
 
-http://www.dea.icai.upco.es/romano/linux/vaio-conf/laptop-config.html
+    I got the compiler warnings all cleaned up, the driver compiles and 
+    loads, but the test executable which was compiled on a 32-bit FC-3 
+    distribution is causing these messages in /var/log/messages:
 
-Next week is Easter holyday here, I will try to connect my Psion casio as
-serial terminal and see if I can catch something. 
+	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
+	Unknown cmd fd(3) cmd(8004440e){00} arg(ffffd824) on /dev/sse0
+	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
+	Unknown cmd fd(3) cmd(8004440e){00} arg(ffffd8c4) on /dev/sse0
+	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
+	Unknown cmd fd(3) cmd(40044414){00} arg(00000000) on /dev/sse0
+	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
+	Unknown cmd fd(3) cmd(80044403){00} arg(0804f780) on /dev/sse0
 
-       Romano 
-       
-       
+    It's probably a simple thing to change my ioctl() interface in the
+    driver, but I googled myself blue in the face, and I didn't find it,
+    so I come to you, hat-in-hand for help.
+
+    Where can I find out how to change my driver so I can have a 32-bit
+    executable talk to it using ioctl()?
+
+    I did change the "type" argument in _IOR and _IOW to uint32_t from
+    int, but that didn't change things.
+
+			-Alan
+
 -- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+- Alan Kilian <kilian(at)bobodyne.com>
+
+

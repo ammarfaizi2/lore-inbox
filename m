@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263396AbTDSXB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 19:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTDSXB3
+	id S263493AbTDSXGF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 19:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTDSXGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 19:01:29 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:19982 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S263396AbTDSXB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 19:01:28 -0400
-Date: Sat, 19 Apr 2003 20:13:25 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: John Bradford <john@grabjohn.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-ID: <20030419231325.GC6251@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	John Bradford <john@grabjohn.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030419180421.0f59e75b.skraw@ithnet.com> <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk> <20030419185201.55cbaf43.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030419185201.55cbaf43.skraw@ithnet.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Sat, 19 Apr 2003 19:06:05 -0400
+Received: from mail1.ewetel.de ([212.6.122.14]:42378 "EHLO mail1.ewetel.de")
+	by vger.kernel.org with ESMTP id S263493AbTDSXGE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 19:06:04 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.5] report unknown NMI reasons only once
+In-Reply-To: <20030419230019$7cdc@gated-at.bofh.it>
+References: <20030419183013$0e6c@gated-at.bofh.it> <20030419230019$7cdc@gated-at.bofh.it>
+Date: Sun, 20 Apr 2003 01:17:49 +0200
+Message-Id: <E1971af-0002vN-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Apr 19, 2003 at 06:52:01PM +0200, Stephan von Krawczynski escreveu:
-> On Sat, 19 Apr 2003 17:22:18 +0100 (BST)
-> > A RAID-0 array and regular backups are the best way to protect your
-> > data.
+On Sun, 20 Apr 2003 01:00:19 +0200, you wrote in linux.kernel:
+
+>> Those NMIs happen only rarely when the machine is lightly loaded, but
+>> under load, I get several of them per second. This quickly makes
+>> /var/log/messages grow.
 > 
-> RAID-1 obviously ;-)
+> I guess they are overheat traps then
 
-Have you considered this:
+At 41 degrees C reported CPU temperature, I don't think so. Even if this
+is off by, say, 10 degrees, it's still not a problem. AMD allows 90 degrees
+for my CPU type (Athlon XP 1700+, Thoroughbred core).
 
-http://www.complang.tuwien.ac.at/reisner/drbd/
+Maybe I should add that "under load" in this case means running OpenGL
+games using DRI on a Voodoo4 card.
 
-?
+>> I don't think reporting any of those NMIs more than once provides
+>> valuable information, so I've cooked up a patch which only reports each
+>> unknown NMI reason once.
+> 
+> Its sitting there saying "Something is wrong" "Something is still
+> wrong".
 
-- Arnaldo
+Beats me as to what could be wrong. It's not a memory problem and the
+CPU does not overheat.
+
+I'll go patch the kernel for my personal use then, but I'm not the only
+one seeing those messages without any system problems.
+
+-- 
+Ciao,
+Pascal

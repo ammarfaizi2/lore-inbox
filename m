@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbTCKR4I>; Tue, 11 Mar 2003 12:56:08 -0500
+	id <S261541AbTCKSAy>; Tue, 11 Mar 2003 13:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbTCKR4I>; Tue, 11 Mar 2003 12:56:08 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:47585 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S261601AbTCKR4G> convert rfc822-to-8bit; Tue, 11 Mar 2003 12:56:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Prasad <prasad_s@students.iiit.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Resending] User Process and a Kernel Thread
-Date: Tue, 11 Mar 2003 12:04:48 -0600
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.44.0303112306530.26279-100000@students.iiit.net>
-In-Reply-To: <Pine.LNX.4.44.0303112306530.26279-100000@students.iiit.net>
+	id <S261542AbTCKSAx>; Tue, 11 Mar 2003 13:00:53 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:911 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261541AbTCKSAw>; Tue, 11 Mar 2003 13:00:52 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 11 Mar 2003 10:20:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: bert hubert <ahu@ds9a.nl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
+       Marius Aamodt Eriksen <marius@citi.umich.edu>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       Niels Provos <provos@citi.umich.edu>
+Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
+In-Reply-To: <20030311093427.GA19658@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.50.0303111015370.1855-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
+ <20030311093427.GA19658@outpost.ds9a.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303111204.48708.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 March 2003 11:37 am, Prasad wrote:
-> Resending the mail...
+On Tue, 11 Mar 2003, bert hubert wrote:
+
+> On Mon, Mar 10, 2003 at 12:15:25PM -0800, Davide Libenzi wrote:
 >
-> Hi all,
-> 	Whats the difference between the user process and a kernel thread?
-
-Kernel process/thread has access to all hardware capability. No security can 
-be envorced.
-
-User process is limited to the memory the kernel allocates to the process. No
-direct device access, no access to all system resources. All hardware access
-is mediated by the kernel. Some privileged operations can be delegated to a
-user process (see X server running without frame buffer support).
-
-> IS it possible to make the kernel thread a user process?
-
-No
-
->if yes, how do we
-> do that?
+> > 2) Existing apps using poll/select can easily be ported usinf LT epoll
 >
-> Prasad.
+> This is a big thing. I created a webserver based on MTasker
+> (ds9a.nl/mtasker) that used select, poll or epoll and it was very hard to
+> abstract this properly as level and edge semantics differ so wildly.
+>
+> Most programs will not abandon 'legacy' interfaces like poll and select and
+> will only want to offer epoll in addition. Right now that is hard to do.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+I agree here. It took 15 minutes to port thttpd to LT epoll.
 
-Any opinions expressed are solely my own.
+
+
+> > 1) We leave epoll as is ( ET )
+> > 2) We apply the patch that will make epoll LT
+> > 3) We add a parameter to epoll_create() to fix the interface behaviour at
+> > 	creation time ( small change on the current patch )
+> >
+> > With 2) and 3) there are also man pages to be reviewed to be posted to
+> > Andries. Comments ?
+>
+> I'd vote for 2.
+
+I received a bunch of private emails ( ppl that are using ET epoll )
+asking me to have both behaviours. The code require no more than 10 lines
+of code to give both possibilities. We have two options in doing that :
+
+1)
+We add a parameter to epoll_create() that will set the interface behaviour
+at creation time :
+
+	#define EPOLL_ET (1 << 0)
+
+	int epoll_create(int size, int flags);
+
+2)
+We can go at fd granularity by leaving the API the same, and we define :
+
+	#define EPOLLET (1 << 31)
+
+	...
+	events = EPOLLIN | EPOLLET;
+
+
+What do you think ?
+
+
+
+
+- Davide
+

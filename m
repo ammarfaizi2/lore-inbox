@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315748AbSIDWgt>; Wed, 4 Sep 2002 18:36:49 -0400
+	id <S315923AbSIDWkY>; Wed, 4 Sep 2002 18:40:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSIDWgt>; Wed, 4 Sep 2002 18:36:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27910 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315748AbSIDWgs>; Wed, 4 Sep 2002 18:36:48 -0400
-Message-ID: <3D768C0F.7040006@zytor.com>
-Date: Wed, 04 Sep 2002 15:41:19 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP Segmentation Offloading (TSO)
-References: <Pine.LNX.4.33.0209050027270.7673-100000@gra-lx1.iram.es>
+	id <S315925AbSIDWkX>; Wed, 4 Sep 2002 18:40:23 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:41744 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315923AbSIDWkX>;
+	Wed, 4 Sep 2002 18:40:23 -0400
+Message-Id: <200209042244.g84MiqK07015@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: BYTE Unix Benchmarks Version 3.6 
+In-Reply-To: Message from "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org> 
+   of "Thu, 05 Sep 2002 06:00:55 +0800." <20020904220055.21349.qmail@linuxmail.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 04 Sep 2002 15:44:52 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
-> On 3 Sep 2002, H. Peter Anvin wrote:
+> Hi all,
+> I've just ran the BYTE Unix Benchmarks Version 3.6 on the 2.4.19 and on the 2.5.33 kernel.
+> Here it goes the results:
 > 
-> [Sorry HPA, I forgot to cc to linux-kernel the first time.]
-> 
-> 
->>>P.S.
->>>    Using "bswap" is little bit tricky.
->>>
->>
->>It needs to be protected by CONFIG_I486 and alternate code implemented
->>for i386 (xchg %al,%ah; rol $16,%eax, xchg %al,%ah for example.)
-> 
-> 
-> While it would work, this sequence is overkill. Unless I'm mistaken, the
-> only property of bswap which is used in this case is that it swaps even
-> and odd bytes, which can be done by a simple "roll $8,%eax" (or rorl).
-> 
-> I believe that bswap is one byte shorter than roll. In any case, using a
-> rotate might be the right thing to do on other architectures.
-> 
+snipped:
+Always useful to compare. I think the data from STP show something simular.
+I've pulled some reports, rather than send a huge email, here are the URL's
+(btw STP runs v4.0.1 UNIXbench) 
 
-And again, I think you'll find the rotate faster on at least some x86 cores.
+ runs made on 2-CPU platform
+2.4.19: http://khack.osdl.org/stp/3877/results/report
+2.5.33: http://khack.osdl.org/stp/4928/results/report
 
-	-hpa
+Another compare...why does pre5 appear a little worse than pre4 ?
+2.4.20-pre5: http://khack.osdl.org/stp/4836/results/report
+2.4.20-pre4: http://khack.osdl.org/stp/4581/results/report
+
+
+cliffw
+
+
 
 

@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268658AbUJDVsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268594AbUJDVue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268658AbUJDVsS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268657AbUJDVrw
+	id S268594AbUJDVue (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268663AbUJDVsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:47:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37819 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268646AbUJDVgE (ORCPT
+	Mon, 4 Oct 2004 17:48:38 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:25058 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268594AbUJDVrr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:36:04 -0400
-Date: Mon, 4 Oct 2004 14:39:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: gww@btinternet.com, s.rivoir@gts.it, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-Message-Id: <20041004143953.10e6d764.akpm@osdl.org>
-In-Reply-To: <20041004143253.50a82050.akpm@osdl.org>
-References: <20041004020207.4f168876.akpm@osdl.org>
-	<4161462A.5040806@gts.it>
-	<20041004121805.2bffcd99.akpm@osdl.org>
-	<4161BCCB.4080302@btinternet.com>
-	<20041004143253.50a82050.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Oct 2004 17:47:47 -0400
+Date: Mon, 04 Oct 2004 14:48:33 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Ralf Baechle <ralf@linux-mips.org>
+cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org, greg@kroah.com
+Subject: Re: [PATCH 2.6] pci-hplj.c: replace pci_find_device with pci_get_device
+Message-ID: <290370000.1096926512@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <20041004214107.GA2160@linux-mips.org>
+References: <281940000.1096925207@w-hlinder.beaverton.ibm.com> <20041004214107.GA2160@linux-mips.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Could you try this patch?  It'll locate the bug for us.
+--On Monday, October 04, 2004 11:41:07 PM +0200 Ralf Baechle <ralf@linux-mips.org> wrote:
 
-Don't worry about this - Ingo found it.
+> On Mon, Oct 04, 2004 at 02:26:47PM -0700, Hanna Linder wrote:
+>> If  someone has access to an RM200 or RM300 and could test this I would appreciate it.
+> 
+> Except that piece of code isn't for an RM[23]00 but a HP Laserjet (yes,
+> that paper eating thing ;-) and hasn't seen any update or feedback from
+> the original submitters since the original submission, so the entire HPLJ
+> code is a candidate for removal ...
+> 
+>    Ralf
 
-You could try these instead:
+Ahh thanks, the comments at the top of the file confused me:
 
---- 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix	Mon Oct  4 14:36:19 2004
-+++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h	Mon Oct  4 14:37:02 2004
-@@ -311,10 +311,11 @@ struct ip_conntrack_stat
- 	unsigned int expect_delete;
- };
- 
--#define CONNTRACK_STAT_INC(count)				\
--	do {							\
--		per_cpu(ip_conntrack_stat, get_cpu()).count++;	\
--		put_cpu();					\
-+#define CONNTRACK_STAT_INC(count)					\
-+	do {								\
-+		preempt_disable();					\
-+		per_cpu(ip_conntrack_stat, smp_processor_id()).count++;	\
-+		preempt_disable();					\
- 	} while (0)
- 
- /* eg. PROVIDES_CONNTRACK(ftp); */
-_
+ * SNI specific PCI support for RM200/RM300.
 
+I have no opinion on the codes deletion or not. I'm simply changing all
+occurances of pci_find_device. Hopefully people will not confuse that
+work with my having any familiarity with the actual devices themselves :)
 
---- 25/include/net/neighbour.h~neigh_stat-preempt-fix-fix	Mon Oct  4 14:39:22 2004
-+++ 25-akpm/include/net/neighbour.h	Mon Oct  4 14:39:22 2004
-@@ -113,8 +113,9 @@ struct neigh_statistics
- 
- #define NEIGH_CACHE_STAT_INC(tbl, field)				\
- 	do {								\
--		(per_cpu_ptr((tbl)->stats, get_cpu())->field)++;	\
--		put_cpu();						\
-+		preempt_disable();					\
-+		(per_cpu_ptr((tbl)->stats, smp_processor_id())->field)++; \
-+		preempt_enable();					\
- 	} while (0)
- 
- struct neighbour
-_
+Thanks a lot.
+
+Hanna
+
 

@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281419AbRKEXDW>; Mon, 5 Nov 2001 18:03:22 -0500
+	id <S281423AbRKEXMn>; Mon, 5 Nov 2001 18:12:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281416AbRKEXDO>; Mon, 5 Nov 2001 18:03:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46606 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281424AbRKEXDB>; Mon, 5 Nov 2001 18:03:01 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Ext2-devel] disk throughput
-Date: Mon, 5 Nov 2001 22:59:42 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9s75ku$7u2$1@penguin.transmeta.com>
-In-Reply-To: <20011104193232.A16679@mikef-linux.matchmail.com> <-0700"> <m1wv15ufn1.fsf@mo.optusnet.com.au> <3BE70717.54F3084A@zip.com.au>
-X-Trace: palladium.transmeta.com 1005001356 4617 127.0.0.1 (5 Nov 2001 23:02:36 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 5 Nov 2001 23:02:36 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S281418AbRKEXMc>; Mon, 5 Nov 2001 18:12:32 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:62892 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S281424AbRKEXMY>; Mon, 5 Nov 2001 18:12:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Christian Laursen <xi@borderworlds.dk>
+Subject: Re: Ext2 directory index, updated
+Date: Tue, 6 Nov 2001 00:13:12 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <20011105014225Z17055-18972+38@humbolt.nl.linux.org> <m3n120x1re.fsf@borg.borderworlds.dk>
+In-Reply-To: <m3n120x1re.fsf@borg.borderworlds.dk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105231222Z16039-18972+236@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BE70717.54F3084A@zip.com.au>,
-Andrew Morton  <akpm@zip.com.au> wrote:
->>         if ( 0 && ..
->> use something like
->>         if ((last_time + 100) < jiffes && ...
->>                 last_time = jiffies;
->> which would in theory use the old behaviour for sparodic mkdirs
->> and the new behaviour for things like 'untar' et al.
->> 
->
->I agree - that's a pretty sane heuristic.
->
->It would allow us to preserve the existing semantics for the
->slowly-accreting case.  If they're still valid.
+On November 5, 2001 11:59 pm, Christian Laursen wrote:
+> Daniel Phillips <phillips@bonn-fries.net> writes:
+> 
+> > On November 4, 2001 11:09 pm, Christian Laursen wrote:
+> > > Daniel Phillips <phillips@bonn-fries.net> writes:
+> > > 
+> > > > ***N.B.: still for use on test partitions only.***
+> > > 
+> > > It's the first time, I've tried this patch and I must say, that
+> > > the first impression is very good indeed.
+> > > 
+> > > I took a real world directory (my linux-kernel MH folder containing
+> > > roughly 115000 files) and did a 'du -s' on it.
+> > > 
+> > > Without the patch it took a little more than 20 minutes to complete.
+> > > 
+> > > With the patch, it took less than 20 seconds. (And that was inside uml)
+> > 
+> > Which kernel are you using?
+> 
+> Actually, it was on a 2.2.20 kernel.
 
-I don't particularly like behaviour that changes over time, so I would
-much rather just state clearly that the current inode allocation
-strategy is obviously complete crap. Proof: simple real-world
-benchmarks, along with some trivial thinking about seek latencies.
+Yes, it's cool you can run 2.4 uml kernels on 2.2, isn't it?  What I meant 
+was, which kernel is your uml built on?
 
-In particular, the way it works now, it will on purpose try to spread
-out inodes over the whole disk. Every new directory will be allocated in
-the group that has the most free inodes, which obviously on average
-means that you try to fill up all groups equally.
+> > From 2.4.10 on ext2 has an accelerator in 
+> > ext2_find_entry - it caches the last lookup position.  I'm wondering how 
+> > that affects this case.
+> 
+> From the description I read a while ago, I believe it could cause a
+> significant speedup.
+> 
+> I'll have to try that out one of these days.
 
-Which makes _no_ sense. There is no advantage to trying to spread things
-out, only clear disadvantages.
+I noticed split results with the find_entry accelerator, at least in its 
+current form: faster delete, slower create.
 
-Instead of trying to make this time-dependent, let's just realize that
-spreading things out is stupid. It might make more sense to say
-
- - if we create a new directory
- - AND the group we're currently in is getting filled up
- - AND there is another group that is clearly emptier,
- - THEN do we switch groups.
-
-None of this stupid "if this group has more inodes than the average"
-crap. 
-
-But I'd rather have the "if (0 && .." than something that depends on
-time. But if people want to have something that is in the _spirit_ of
-the old code, then make it something like the above, which only switches
-groups if there is a need and a clear win from it.
-
-		Linus
+--
+Daniel

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129853AbQK1IQW>; Tue, 28 Nov 2000 03:16:22 -0500
+        id <S130191AbQK1IXx>; Tue, 28 Nov 2000 03:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130191AbQK1IQM>; Tue, 28 Nov 2000 03:16:12 -0500
-Received: from [195.65.218.116] ([195.65.218.116]:26002 "EHLO
-        uxmailstest.stest.ch") by vger.kernel.org with ESMTP
-        id <S129853AbQK1IPz>; Tue, 28 Nov 2000 03:15:55 -0500
-Message-ID: <3A2363C2.BA966C18@pop.agri.ch>
-Date: Tue, 28 Nov 2000 08:50:36 +0100
-From: Andreas Tobler <toa@pop.agri.ch>
-Reply-To: toa@pop.agri.ch
-Organization: zero
-X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
-X-Accept-Language: en
+        id <S130803AbQK1IXn>; Tue, 28 Nov 2000 03:23:43 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:49130 "EHLO mail.sonytel.be")
+        by vger.kernel.org with ESMTP id <S130191AbQK1IX1>;
+        Tue, 28 Nov 2000 03:23:27 -0500
+Date: Tue, 28 Nov 2000 08:52:09 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jorge Nerin <comandante@zaralinux.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: /proc/fb
+Message-ID: <Pine.GSO.4.10.10011280850080.27543-100000@escobaria.sonytel.be>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: proc_fs Howto for 2.2.X?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+	Hi Jorge,
 
-Is there a paper around which describes the use of the proc_fs in the
-actual 2.2.17 and up kernels? All I have is the Rubini book which is a
-bit aged regarding the proc_fs, and this guide:
-http://www.ibiblio.org/mdw/LDP/lkmpg/mpg.html. Also a bit dated.
+In linux-2.4.0-test12-pre2/Documentation/filesystems/proc.txt, you wrote:
 
-Exactly what I'm looking for is an explanation whether I should use
-proc_register/unregister or create_proc_entry/remove_proc_entry. 
-I know source is the best teacher, but having a look into 2.2.17 I find
-tons of proc_register/unregister references. 
-To solve my problem I had to use create_proc_entry / remove_proc_entry.
-Now I'm not sure if this is the right approach for 2.2.17 and up?
+| fb         Frame Buffer devices                               (2.4)
 
-If this was discussed already, sorry, a link to the discussion would be
-great. 
+This entry existed in 2.2 as well.
 
-Thanks for any hint, pointer....
+Gr{oetje,eeting}s,
 
-Andreas
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

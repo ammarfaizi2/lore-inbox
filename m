@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275087AbRIYQhe>; Tue, 25 Sep 2001 12:37:34 -0400
+	id <S275095AbRIYQoY>; Tue, 25 Sep 2001 12:44:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275089AbRIYQhP>; Tue, 25 Sep 2001 12:37:15 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13316 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S275087AbRIYQhN>; Tue, 25 Sep 2001 12:37:13 -0400
-Date: Tue, 25 Sep 2001 13:37:17 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Pau Aliagas <linux4u@wanadoo.es>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.9-ac15 painfully sluggish
-In-Reply-To: <Pine.LNX.4.33.0109251819520.1401-100000@pau.intranet.ct>
-Message-ID: <Pine.LNX.4.33L.0109251336380.26091-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S275093AbRIYQoO>; Tue, 25 Sep 2001 12:44:14 -0400
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:17962 "EHLO
+	trider-g7.int.fabbione.net") by vger.kernel.org with ESMTP
+	id <S275092AbRIYQoC>; Tue, 25 Sep 2001 12:44:02 -0400
+Message-ID: <3BB0B43B.38EF26A3@fabbione.net>
+Date: Tue, 25 Sep 2001 18:43:39 +0200
+From: Fabbione <fabbione@fabbione.net>
+Reply-To: fabbione@fabbione.net
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Pau Aliagas wrote:
-> On Tue, 25 Sep 2001, Rik van Riel wrote:
->
-> > Could you give me some info on how much memory is being
-> > used by the various caches (first lines of top) and maybe
-> > a few lines of vmstat output ?
+Arjan van de Ven wrote:
+> 
+> Hi,
+> 
 
-> If you need any debugging just tell me what and I'll give it a try.
+> Highlevel drivers
+> -----------------
 
-Could you send me one screen's worth of output from top
-and 5 lines from 'vmstat -a 5' ?
+You can probably add mvfs ClearCase file system but I don't remember the
+URL.
 
-thanks,
+Cheers
+Fabbione
 
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+Debian GNU/Linux Unstable Kernel 2.4.9
+fabbione on irc.atdot.it #coredump #kchat | fabbione@fabbione.net

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUCBW4c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 17:56:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUCBW4c
+	id S261813AbUCBXCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 18:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUCBXBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 17:56:32 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:57147 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262316AbUCBW4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 17:56:23 -0500
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: poll() in 2.6 and beyond
-References: <Pine.LNX.4.53.0403021318580.796@chaos>
-	<527jy3qalg.fsf@topspin.com> <Pine.LNX.4.53.0403021510270.1856@chaos>
-	<52vflnq807.fsf@topspin.com> <Pine.LNX.4.53.0403021624300.2296@chaos>
-	<52n06zq67n.fsf@topspin.com> <Pine.LNX.4.53.0403021651010.9048@chaos>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 02 Mar 2004 14:56:22 -0800
-In-Reply-To: <Pine.LNX.4.53.0403021651010.9048@chaos>
-Message-ID: <52hdx6rh7t.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Tue, 2 Mar 2004 18:01:45 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:21492 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262274AbUCBXAU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 18:00:20 -0500
+Date: Tue, 2 Mar 2004 16:00:18 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: George Anzinger <george@mvista.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+Message-ID: <20040302230018.GL20227@smtp.west.cox.net>
+References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net> <20040302223143.GE1225@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Mar 2004 22:56:22.0684 (UTC) FILETIME=[95424DC0:01C400A9]
+Content-Disposition: inline
+In-Reply-To: <20040302223143.GE1225@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Richard> You are playing games with semantics because you are
-    Richard> wrong.  The code in fs/select.c about line 101, adds the
-    Richard> current caller to the wait-queue.
+On Tue, Mar 02, 2004 at 11:31:43PM +0100, Pavel Machek wrote:
 
-I assume you mean the call to add_wait_queue() there.  That does not
-sleep.  Look at the implementation.  add_wait_queue() is defined in
-kernel/fork.c -- it just does some locking and calls
-__add_wait_queue().  __add_wait_queue() is really nothing more than 
-a list_add().  There's nothing more to it and nothing that goes to
-sleep.  Where do you think add_wait_queue() goes to sleep?
+> Hi!
+> 
+> > > Tom Rini wrote:
+> > > >Hello.  The following interdiff kills kgdb_serial in favor of function
+> > > >names.  This only adds a weak function for kgdb_flush_io, and documents
+> > > >when it would need to be provided.
+> > > 
+> > > It looks like you are also dumping any notion of building a kernel that can 
+> > > choose which method of communication to use for kgdb at run time.  Is this 
+> > > so?
+> > 
+> > Yes, as this is how Andrew suggested we do it.  It becomes quite ugly if
+> > you try and allow for any 2 of 3 methods.
+> 
+> I do not think that having kgdb_serial is so ugly. Are there any other
+> uglyness associated with that?
 
-    Richard> This wait-queue is the mechanism by which the current
-    Richard> caller sleeps, i.e., gives the CPU up to somebody else.
-    Richard> That caller's thread will not return past that line until
-    Richard> a wake_up_interruptible() call has been made for/from the
-    Richard> driver or interface handling that file descriptor. In
-    Richard> this manner any number of file discriptors may be handled
-    Richard> because the poll() routine for each of then makes its own
-    Richard> entry into the wait-queue using the described mechanism.
+More precisely:
+http://lkml.org/lkml/2004/2/11/224
 
-But there's only one thread around: the user space process that called
-into the kernel via poll().  If the first driver goes to sleep, which
-thread do you think is going to wake up and call into the second
-driver?
-
- - Roland
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

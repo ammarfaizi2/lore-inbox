@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269280AbTCBT0u>; Sun, 2 Mar 2003 14:26:50 -0500
+	id <S269282AbTCBT2c>; Sun, 2 Mar 2003 14:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269281AbTCBT0u>; Sun, 2 Mar 2003 14:26:50 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:14603 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S269280AbTCBT0t>; Sun, 2 Mar 2003 14:26:49 -0500
-To: Richard Henderson <rth@twiddle.net>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Modules broken on alpha ?
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 02 Mar 2003 20:36:50 +0100
-Message-ID: <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>
+	id <S269283AbTCBT2b>; Sun, 2 Mar 2003 14:28:31 -0500
+Received: from smtp01.web.de ([217.72.192.180]:3353 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S269282AbTCBT23>;
+	Sun, 2 Mar 2003 14:28:29 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Hanasaki JiJi <hanasaki@hanaden.com>
+Subject: Re: Kernel 2.4.20 ide-scsi
+Date: Sun, 2 Mar 2003 20:38:53 +0000
+User-Agent: KMail/1.5
+References: <3E625282.8010101@hanaden.com>
+In-Reply-To: <3E625282.8010101@hanaden.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303022038.53606.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard, Rusty,
+> CONFIG_BLK_DEV_IDECD=y
 
-I've been trying to use modules on alpha without much success (at
-least on the latest 2.5.63-bk). Any non-trivial module fails to load
-with a relocation error :
+seems, that you have made the same mistake like me yesterday.
+(Thanks to Brian Davis again)
 
-little-time:~# lsmod
-Module                  Size  Used by
-little-time:~# modprobe crc32
-little-time:~# lsmod
-Module                  Size  Used by
-crc32                   3456  0 
-little-time:~# modprobe depca
-module depca: Relocation overflow vs section 17
-FATAL: Error inserting depca (/lib/modules/2.5.63-mod/kernel/drivers/net/depca.ko): Invalid module format
-little-time:~# modprobe 3c509
-module 3c509: Relocation overflow vs section 19
-FATAL: Error inserting 3c509 (/lib/modules/2.5.63-mod/kernel/drivers/net/3c509.ko): Invalid module format
-little-time:~# lsmod
-Module                  Size  Used by
-crc32                   3456  0 
-little-time:~# 
+Just disable CONFIG_BLK_DEV_IDECD and try if it works.
 
-I'm using module-init-tools from Debian sid (0.9.10-1).
-
-Any idea ?
-
-Thanks.
-
-        M.
--- 
-Places change, faces change. Life is so very strange.
+bye, Michael Buesch.

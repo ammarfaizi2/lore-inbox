@@ -1,73 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUDUB3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263995AbUDUBeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264269AbUDUB3q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 21:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbUDUB3q
+	id S263995AbUDUBeH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 21:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbUDUBeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 21:29:46 -0400
-Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:36307
-	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
-	id S264269AbUDUB3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 21:29:43 -0400
-Date: Tue, 20 Apr 2004 18:29:33 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Andy Isaacson <adi@bitmover.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: matching "Cset exclude" changelog entries to the changelog entries they revert.
-Message-ID: <20040421012933.GC16901@tumblerings.org>
-References: <20040421001236.GA16901@tumblerings.org> <20040420172622.K22989@build.pdx.osdl.net> <20040421003820.GB16901@tumblerings.org> <20040420174147.G21045@build.pdx.osdl.net> <20040421001236.GA16901@tumblerings.org> <20040420172622.K22989@build.pdx.osdl.net> <20040421003820.GB16901@tumblerings.org> <20040421001236.GA16901@tumblerings.org> <20040420172622.K22989@build.pdx.osdl.net> <20040421010226.GC27313@bitmover.com>
+	Tue, 20 Apr 2004 21:34:07 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:27616
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263995AbUDUBd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 21:33:58 -0400
+Date: Wed, 21 Apr 2004 03:34:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Ken Ashcraft <ken@coverity.com>, linux-kernel@vger.kernel.org,
+       mc@cs.stanford.edu, dri-devel@lists.sourceforge.net
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040421013402.GI29954@dualathlon.random>
+References: <1082134916.19301.7.camel@dns.coverity.int> <20040416115406.X22989@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040421010226.GC27313@bitmover.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040416115406.X22989@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 20, 2004 at 06:02:26PM -0700, Andy Isaacson wrote:
-> On Tue, Apr 20, 2004 at 05:26:22PM -0700, Chris Wright wrote:
-> > * Zack Brown (zbrown@tumblerings.org) wrote:
-> > > for instance, "Cset exclude: davej@suse.de|ChangeSet|20020403195622" is in
-> > > 2.5.8-pre2, as the full text of the changelog entry.
+On Fri, Apr 16, 2004 at 11:54:06AM -0700, Chris Wright wrote:
+> * Ken Ashcraft (ken@coverity.com) wrote:
+> > [BUG]
+> > /home/kash/linux/linux-2.6.5/drivers/char/drm/i810_dma.c:1276:i810_dma_mc: ERROR:TAINT: 1267:1276:Using user value "((mc).idx * 4)" without first performing bounds checks [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [PATH= "(*((*dev).lock).hw_lock).lock & -2147483648 == 0" on line 1271 is false => "copy_from_user != 0" on line 1267 is false]    
+> > 	u32 *hw_status = dev_priv->hw_status_page;
+> > 	drm_i810_sarea_t *sarea_priv = (drm_i810_sarea_t *)
+> > 		dev_priv->sarea_priv;
+> > 	drm_i810_mc_t mc;
 > > 
-> > bk prs -r"davej@suse.de|ChangeSet|20020403195622" -hnd:REV: ChangeSet
+> > Start --->
+> > 	if (copy_from_user(&mc, (drm_i810_mc_t *)arg, sizeof(mc)))
+> > 		return -EFAULT;
 > > 
-> > That will give you the rev from that key in the Cset exclude message.
+> > 
+> > 	if (!_DRM_LOCK_IS_HELD(dev->lock.hw_lock->lock)) {
+> > 		DRM_ERROR("i810_dma_mc called without lock held\n");
+> > 		return -EINVAL;
+> > 	}
+> > 
+> > Error --->
+> > 	i810_dma_dispatch_mc(dev, dma->buflist[mc.idx], mc.used,
+> > 		mc.last_render );
+> > 
+> > 	atomic_add(mc.used, &dev->counts[_DRM_STAT_SECONDARY]);
 > 
-> You can use cset keys just about anywhere you can use revision numbers
-> in the BK interface.  So,
-> % bk changes -r'davej@suse.de|ChangeSet|20020403195622'
-> does the right thing.
+> Looks like a possible bug.  Index shouldn't go off end of buflist.
+> Perhaps verifying it's below buf_count would do it.  Patch below.
 > 
-> On Tue, Apr 20, 2004 at 05:38:20PM -0700, Zack Brown wrote:
-> > Will this give me the text of the changelog entry being reverted? That's
-> > what I need to find.
+> thanks,
+> -chris
+> -- 
+> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 > 
-> The "changes" command I give above will.
-> 
-> I'll see if I can get the "cset exclude" text to be an HREF.  In the
+> ===== drivers/char/drm/i810_dma.c 1.31 vs edited =====
+> --- 1.31/drivers/char/drm/i810_dma.c	Mon Apr 12 10:54:26 2004
+> +++ edited/drivers/char/drm/i810_dma.c	Fri Apr 16 11:46:32 2004
+> @@ -1275,6 +1275,9 @@
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (mc.idx >= dma->buf_count)
+> +		return -EINVAL;
+> +
+>  	i810_dma_dispatch_mc(dev, dma->buflist[mc.idx], mc.used,
+>  		mc.last_render );
 
-That would be nice.
+this is wrong, idx is signed, so you've to check for negative values
+too. Credit for noticing this doesn't belong to me though.
 
-> meantime, you can construct a working URL by appending the cset key to 
-> http://linux.bkbits.net:8080/linux-2.5/cset@
-> 
-> like so:
-> http://linux.bkbits.net:8080/linux-2.5/cset@davej@suse.de|ChangeSet|20020403195622
+Could you just in case review the other fixes too for other potential
+errors like this? thanks.
 
-This is perfect! Just what I was looking for.
+this is the correct fix for 2.6 (and it seems 2.4 too):
 
-Thanks Andy and Chris!
-Zack
-
-> 
-> -andy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Zack Brown
+--- linux/drivers/char/drm/i810_dma.c	Mon Apr 12 10:54:26 2004
++++ linux/drivers/char/drm/i810_dma.c	Fri Apr 16 11:46:32 2004
+@@ -1275,6 +1275,9 @@
+ 		return -EINVAL;
+ 	}
+ 
++	if (mc.idx >= dma->buf_count || mc.idx < 0)
++		return -EINVAL;
++
+ 	i810_dma_dispatch_mc(dev, dma->buflist[mc.idx], mc.used,
+ 		mc.last_render );
+ 

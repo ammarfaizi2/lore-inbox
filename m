@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266387AbUFUSev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266395AbUFUShU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266387AbUFUSev (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 14:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUFUSev
+	id S266395AbUFUShU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 14:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUFUShU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 14:34:51 -0400
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:897 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266387AbUFUSeY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 14:34:24 -0400
-Date: Mon, 21 Jun 2004 20:34:59 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Langley <nwo@hacked.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with psmouse detecting generic ImExPS/2
-Message-ID: <20040621183459.GA1969@ucw.cz>
-References: <20040621021651.4667bf43.nwo@hacked.org> <20040621082831.GC1200@ucw.cz> <20040621124506.18b1f67a.nwo@hacked.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
-In-Reply-To: <20040621124506.18b1f67a.nwo@hacked.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Jun 2004 14:37:20 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:4487 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S266395AbUFUSgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 14:36:46 -0400
+Date: Mon, 21 Jun 2004 20:36:40 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: network related(?) kernel panic (2.6.7-bk4)
+In-Reply-To: <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0406212019460.28702@alpha.polcom.net>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+ <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
+ <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
+ <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
+ <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I am testing 2.6.7-bk4 + timer fix + vesafb-tng patch. This time without 
+debuging compiled in. Everything worked perfectly before I got:
 
-On Mon, Jun 21, 2004 at 12:45:06PM -0500, Michael Langley wrote:
-> On Mon, 21 Jun 2004 10:28:31 +0200
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Mon, Jun 21, 2004 at 02:16:51AM -0500, Michael Langley wrote:
-> > > I noticed this after upgrading 2.6.6->2.6.7
-> > > 
-> > > Even after building psmouse as a module, and specifying the protocol,
-> > > all I get is an ImPS/2 Generic Wheel Mouse.
-> > > 
-> > > [root@purgatory root]# modprobe psmouse proto=exps
-> > > Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
-> > > isa0060/serio1
-> > > 
-> > > My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
-> > > current psmouse code, and the changes in patch-2.6.7, I can't figure out
-> > > what's breaking it.  A little help?
-> >  
-> > Maybe your mouse needs the ImPS/2 init before the ExPS/2 one. You can
-> > try to copy and-paste the ImPS/2 init once more in the code, without a
-> > return, of course.
-> > 
-> > -- 
-> > Vojtech Pavlik
-> > SuSE Labs, SuSE CR
-> 
-> 
-> Right.  That did the trick.
+bad: scheduling while atomic!
+schedule+0x466/0x470
+do_page_fault+0x104/0x4c1
+ip_route_output_flow+0x22/0x70
+sys_sched_yield+0x3f/0x50
+coredump_wait+0x31/0xa0
+do_coredump+0xf1/0x1af
+sockfd_lookup+0x16/0x80
+do_page_fault+0x0/0x4c1
+error_code+0x2d/0x38
+__dequeue_signal+0xc6/0x160
+dequeue_signal+0x23/0x80
+get_signal_to_deriver+0x246/0x330
+do_signal+0x85/0x100
+__sock_create+0x191/0x260
+sys_send+0x37/0x40
+sys_socketcall+0x12f/0x250
+copy_to_user+0x32/0x50
+do_page_fault+0x0/0x4c1
+do_notify_resume+0x35/0x38
+work_notifysig+0x13/0x15
+Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-> [root@purgatory root]# modprobe psmouse proto=exps
-> Jun 21 12:41:36 purgatory kernel: input: ImExPS/2 Generic Wheel Mouse on isa0060/serio1
-> 
-> Much thanks for the help.  I couldn't live without the extra buttons in X.
+(sorry for any mistakes - I copied it by hand).
 
-Can you check if this patch fixes it for you as well?
+The kernel was not tainted. I can reproduce the same every time I want to 
+connect to the network. I use speedtouch kernel driver. I have script that 
+first executes modem_run then pppd then wget to change DNS entries to new 
+IP adress. This happens after pppd setups connection and gets IP. I think 
+that this happens in wget. This works with 2.6.7, so some recent bk change 
+is probably the cause.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
-
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=imex-fix
-
-ChangeSet@1.1767, 2004-06-21 20:31:56+02:00, vojtech@suse.cz
-  input: when probing for ImExPS/2 mice, the ImPS/2 sequence needs
-         to be sent first, but the result should be ignored.
-  
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Can you help me?
 
 
- psmouse-base.c |    2 ++
- 1 files changed, 2 insertions(+)
+Thanks,
 
+Grzegorz Kulewski
 
-diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c	2004-06-21 20:32:54 +02:00
-+++ b/drivers/input/mouse/psmouse-base.c	2004-06-21 20:32:54 +02:00
-@@ -418,6 +418,8 @@
- {
- 	unsigned char param[2];
- 
-+	intellimouse_detect(psmouse);
-+
- 	param[0] = 200;
- 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
- 	param[0] = 200;
-Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-
---7AUc2qLy4jB3hD7Z--

@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbTCGKbO>; Fri, 7 Mar 2003 05:31:14 -0500
+	id <S261479AbTCGK31>; Fri, 7 Mar 2003 05:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261503AbTCGKbO>; Fri, 7 Mar 2003 05:31:14 -0500
-Received: from k101-11.bas1.dbn.dublin.eircom.net ([159.134.101.11]:30738 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S261502AbTCGKbN>;
-	Fri, 7 Mar 2003 05:31:13 -0500
-Message-ID: <3E68765C.8080203@Linux.ie>
-Date: Fri, 07 Mar 2003 10:37:16 +0000
-From: Padraig@Linux.ie
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
+	id <S261482AbTCGK31>; Fri, 7 Mar 2003 05:29:27 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37791 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261479AbTCGK30>;
+	Fri, 7 Mar 2003 05:29:26 -0500
+Date: Fri, 7 Mar 2003 11:39:45 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Martin Waitz <tali@admingilde.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <1046993765.715.101.camel@phantasy.awol.org>
+Message-ID: <Pine.LNX.4.44.0303071132200.8284-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Edward Shushkin <edward@namesys.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: e2compr
-References: <3E6873A5.91625CDD@namesys.com>
-In-Reply-To: <3E6873A5.91625CDD@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward Shushkin wrote:
-> What is the current status of ext2 compression port?
-> Where is the latest stuff to download?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=e2compr&q=b
+On 6 Mar 2003, Robert Love wrote:
+
+> > but the kernel should get the chance to frequently reschedule
+> > when interactivity is needed.
+> 
+> I understand your point, but we get that now without using super small
+> timeslices.
+
+well, the -A6 patch does reduce the timeslice length, it's certainly one
+tool to improve "interactivity" of CPU-bound tasks. At the moment we
+cannot reduce it arbitrarily though, because right now the way to
+implement different CPU-sharing priorities is via the timeslice
+calculator. With 100 msec default timeslices, the biggest difference one
+can get is a 10 msec timeslice for a nice +19 task, and a 100 msec
+timeslice for a nice 0 task. Ie. a nice +19 CPU-bound task uses up ~10% of
+CPU time while a nice 0 task uses up 90% of CPU time, if both are running
+at once - roughly.
+
+i have planned to add a new interface to solve this generic problem,
+basically a syscall that enables the setting of the default timeslice
+length - which gives one more degree of freedom to applications. Games
+could set this to a super-low value to get really good 'keypress latency'
+even in the presence of other CPU hogs. Compilation jobs would use the
+default long timeslices, to maximize caching benefits. And we could
+lengthen the timeslice of nice +19 tasks as well. The complexity here is
+to decouple the timeslice length from CPU-sharing priorities. I've got
+this on my list ...
+
+	Ingo
 

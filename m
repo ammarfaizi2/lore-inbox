@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270455AbRHHLk2>; Wed, 8 Aug 2001 07:40:28 -0400
+	id <S270459AbRHHLlS>; Wed, 8 Aug 2001 07:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270458AbRHHLkS>; Wed, 8 Aug 2001 07:40:18 -0400
-Received: from ns.caldera.de ([212.34.180.1]:30899 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S270455AbRHHLkI>;
-	Wed, 8 Aug 2001 07:40:08 -0400
-Date: Wed, 8 Aug 2001 13:39:29 +0200
-Message-Id: <200108081139.f78BdTH11980@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: cate@math.ethz.ch (Giacomo Catenazzi)
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        kaos@ocs.com.au
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is  available.
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3B712392.A7CFEEC9@math.ethz.ch>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S270458AbRHHLlK>; Wed, 8 Aug 2001 07:41:10 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:44306 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S270459AbRHHLk4>; Wed, 8 Aug 2001 07:40:56 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200108081140.NAA04248@green.mif.pg.gda.pl>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 8 Aug 2001 13:40:52 +0200 (CEST)
+Cc: rhw@MemAlpha.CX (Riley Williams), mra@pobox.com (Mark Atwood),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <m11ymmvn5o.fsf@frodo.biederman.org> from "Eric W. Biederman" at Aug 08, 2001 04:52:51 AM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B712392.A7CFEEC9@math.ethz.ch> you wrote:
-> BTW we cannot ship the generated file without the source files,
-> because of GPL.
+> 
+> Andrzej Krzysztofowicz <ankry@pg.gda.pl> writes:
+> 
+> > 1. NFS-root needs to have RARP/NFS servers on eth0.
+> >    How can you deal with it if you have two boards supported by a single
+> >    driver and, unfortunately, the one you need is detected as eth1 ?
+> >    Assume that you cannot switch them as they use different media type...
+> 
+> Hmm.  Then my system that does DHCP/NFS root with 2.4.7 and comes up
+> on eth2 is doesn't work?  Hmm it looks like it works to me.
 
-That's wrong.
-
-	Christoph
+Then the documentation I've read must be outdated.
+Sorry.
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

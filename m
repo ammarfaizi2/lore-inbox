@@ -1,121 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289170AbSAQPaT>; Thu, 17 Jan 2002 10:30:19 -0500
+	id <S289173AbSAQPaT>; Thu, 17 Jan 2002 10:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289168AbSAQPaC>; Thu, 17 Jan 2002 10:30:02 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:26012 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289170AbSAQP3t>; Thu, 17 Jan 2002 10:29:49 -0500
-To: jgarzik@e2.ny.us.ibm.com
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-MIME-Version: 1.0
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF678618BF.21B7F748-ON85256B44.00542D83@raleigh.ibm.com>
-From: "Kent E Yoder" <yoder1@us.ibm.com>
-Date: Thu, 17 Jan 2002 09:29:35 -0600
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 01/17/2002 10:29:37 AM,
-	Serialize complete at 01/17/2002 10:29:37 AM
-Content-Type: text/plain; charset="us-ascii"
+	id <S289170AbSAQPaD>; Thu, 17 Jan 2002 10:30:03 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20008 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289139AbSAQP3p>; Thu, 17 Jan 2002 10:29:45 -0500
+Date: Thu, 17 Jan 2002 16:30:21 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: pte-highmem-5
+Message-ID: <20020117163021.L4847@athlon.random>
+In-Reply-To: <20020116185814.I22791@athlon.random> <m3u1tll6pb.fsf@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <m3u1tll6pb.fsf@linux.local>; from cr@sap.com on Thu, Jan 17, 2002 at 09:31:12AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your points, I will take a look at these when I can...
-
-Kent
-
-
-
-Kent E Yoder wrote:
-> This patch fixes several bugs and works around known hardware problems
-> which conspired to lock up the system randomly.  Its somewhat large,
-> therefore available at:
-
-http://oss.software.ibm.com/developer/opensource/linux/patches/tr/lanstreamer-0.5.1.patch.gz
+On Thu, Jan 17, 2002 at 09:31:12AM +0100, Christoph Rohland wrote:
+> Hi Andrea,
 > 
-> * Interrupt function rearranged
-> * PCI Configuration changed
-> * Tx descriptors had to be reduced to 1 (!)
-> * Send/Receive operations are nearly serialized
+> On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
+> > They were running out of pagetables, mapping 1G per-task (shm for
+> > example) will overflow the lowmem zone with PAE with some houndred
+> > tasks in the system. They were pointing the finger at the VM but the
+> > VM was just doing the very right thing to do.
+> 
+> This lets me think about putting the swap vector of shmem into highmem
+> also. These can get big on highend servers and exactly these servers
+> tend to use a lot of shared mem.
+> 
+> What do you think?
 
+How much allocated shm do you need to fill 800mbyte of normal zone with
+the shm swap vector?
 
+(btw, I suspect allocating one page at offset 4G in every shmfs file
+could make the overhead per page of shm to increase)
 
-Marcelo, please do not apply this patch...
+But in real life I really don't expect problems here, one left page of
+the vector holds 1024 swap entries, so the overhead is of the order of
+1/1000. On the top of my head (without any precise calculation) 64G of
+shm would generate stuff of the order of some houndred mbytes of ram
+(please correct me if I'm wrong of course).  The malicious case of all
+files with one page mapped at the very end, doesn't sounds realistic
+scenario either. Comments?
 
-
-
-Sorry for the delay, review:
-
-1) (in code, not in your patch) prefer kernel-standard types like u32 or
-u16 to __u32 and __u16
-
-2) poor formatting:
-
-> +#if STREAMER_IOCTL
-> +        dev->do_ioctl = &streamer_ioctl;
-> +#else
->                         dev->do_ioctl = NULL;
-> +#endif
-
-3) I don't like this playing around with magic numbers.  pci_set_master
-and pci_enable_device and pci_disable_device twiddle PCI_COMMAND bits,
-too.  Use constants from pci.h make it clear what bits you are clearing,
-and what bits you are setting.
-
-> +       pci_write_config_byte (pdev, PCI_CACHE_LINE_SIZE, cls);
-> +       pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-> +
-> +       /* Turn off Fast B2B enable */
-> +       pcr &= 0xfdff;
-> +       /* Turn on SERR# enable and others */
-> +       pcr |= 0x0157;
-> +
-> +       pci_write_config_word (pdev, PCI_COMMAND, pcr);
-> +       pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-
-4) Your code appears to -always- set cache line size to zero.  Is that a
-hardware bug?  Look at acenic.c to see a better example of setting PCI
-cache line size.
-
-5) what is the purpose of the spin_lock in streamer_open, if open is
-serialized?  it worries me that the previous streamer_open code disabled
-interrupts and the new one does not, but replaces with a non-irq-saving
-lock that appears superfluous.
-
-6) udelay(1) after brand new spin_lock in streamer_interrupt is
-suspicious
-
-7) disabling interrupts by zeroing NIC intr mask, in interrupt handler,
-is general not needed.  why was this added?  interrupt handlers are not
-re-entered so this is not a worry.
-
-8) the while loop in the interrupt looks like it could go on for quite a
-while under heavy load, starving out a lot of other kernel code.  it
-needs a work limit at the very least...
-
-9) disabling interrupts at the beginning of each TX is wrong.  you
-probably want spin_lock_irqsave at critical parts of the xmit.
-
-10) udelay(100) is likely wrong and a sign of a race (perhaps #9, above,
-fixes this)
-
-11) replacing save_flags/cli with normal spin_lock in streamer_close is
-suspicious and likely wrong.  See issue #5 about streamer_open
-serialization.  Have you read Documentation/networking/netdevices.txt ?
-
-12) formatting of streamer_ioctl is grossly different from the rest of
-the code
-
-13) SIOCDEVPRIVATE ioctls are going away in 2.5.  (you can implement
-include/linux/ethtool.h SIOCETHTOOL interface for lot of the
-functionality, though)
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
-
-
-
+Andrea

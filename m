@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUIPPvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUIPPy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268159AbUIPPvC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUIPPrb
+	id S268232AbUIPPy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUIPPy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:47:31 -0400
-Received: from pop.gmx.net ([213.165.64.20]:48360 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268176AbUIPPmo (ORCPT
+	Thu, 16 Sep 2004 11:54:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:24797 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268295AbUIPPvS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:42:44 -0400
-X-Authenticated: #17725021
-Date: Thu, 16 Sep 2004 17:38:19 +0200
-From: Henry Margies <henry.margies@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is there a problem in timeval_to_jiffies?
-Message-Id: <20040916173819.68ddad80.henry.margies@gmx.de>
-In-Reply-To: <414962DF.5080209@mvista.com>
-References: <20040909154828.5972376a.henry.margies@gmx.de>
-	<20040912163319.6e55fbe6.henry.margies@gmx.de>
-	<20040915203039.369bb866.rddunlap@osdl.org>
-	<414962DF.5080209@mvista.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: %3lz3@K$hA\]+AEANQT9>.M`@Pfo]3I,M,_JWswT5MBOpjXQ'VST8|DGMhkv8j,9Xb%j3jG
- |onl!dcPab\nF3>j.1\:ixCGSM)nHq&UXeDDhN@x^5I
+	Thu, 16 Sep 2004 11:51:18 -0400
+Message-ID: <5d6b657504091608511f100109@mail.gmail.com>
+Date: Thu, 16 Sep 2004 17:51:04 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Stelian Pop <stelian@popies.net>, Buddy Lucas <buddy.lucas@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+In-Reply-To: <20040916152919.GG3146@crusoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+	 <20040915153013.32e797c8.akpm@osdl.org>
+	 <20040916064320.GA9886@deep-space-9.dsnet>
+	 <20040916000438.46d91e94.akpm@osdl.org>
+	 <20040916104535.GA3146@crusoe.alcove-fr>
+	 <5d6b657504091608093b171e30@mail.gmail.com>
+	 <20040916152919.GG3146@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 16 Sep 2004 17:29:19 +0200, Stelian Pop <stelian@popies.net> wrote:
+> On Thu, Sep 16, 2004 at 05:09:51PM +0200, Buddy Lucas wrote:
+> 
+> > > +       total = remaining = min(len, fifo->size - fifo->tail + fifo->head);
+> >
+> > I could be mistaken (long day at the office ;-) but doesn't this fail after
+> > wrapping?
+> 
+> No, because the type is *unsigned* int.
 
-Thank you for your answers.
+Indeed, that would exactly be the reason *why* this would fail. ;-) 
 
-> You, I think, send a bug report.  I replied via bugz.  The open
-> question is what value your particular arm platform is using
-> for CLOCK_TICK_RATE.  See below.
-
-That is right, but I did not send the bug report, I just answered
-to your reply. The requested values are:
-
-HZ: 100
-LATCH: 600000
-USEC_ROUND: 4294967295                                          
-CLOCK_TICK_RATE: 60000000                 
-TICK_NSEC: 10000000
-
-> Timers are constrained by the standard to NEVER finish early. 
-
-That is why I wrote to this mailing list, to determine if it
-is a bug or a feature :)
-
-But, especially for my arm device, the timers seem to be more or
-less accurate. They appear every 20ms with a average deviation of
-less than 20ns (without any load of course). The only bad thing
-is, that I requested timers for 10ms. I understand your
-statement, that timers should not finish early, but for my case,
-they just appear exactly 10ms late.
-
-> This means that, in order to account for the timer starting
-> between two jiffies, an extra jiffie needs to be added to the
-> value.  This will cause a timer to expire sometime between the
-> value asked for and that value + the resolution.
-
-In my case, that means, that most of my timers will appear at
-least 9980ns too late. And! it is not possible to have 10ms
-timers.
-
-But if itimers have to act like this, the current implementation
-is right. But anyway, on my board, I have to pay a high price
-for that.
-
-Just another comment, 2.4 kernels don't have this feature. So, is
-there really a need to have this?
+The expression fifo->size - fifo->tail + fifo->head might be negative
+at some point, right? (fifo->head has wrapped to some small value and
+fifo->tail > fifo->size)
 
 
-Best regards,
-Henry
+Cheers,
+Buddy
 
--- 
-
-Hi! I'm a .signature virus! Copy me into your
-~/.signature to help me spread!
-
+> 
+> Stelian.
+> --
+> 
+> 
+> Stelian Pop <stelian@popies.net>
+>

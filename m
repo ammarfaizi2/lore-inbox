@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbUCRSKM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbUCRSKM
+	id S262834AbUCRSSb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbUCRSSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:10:12 -0500
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:62215 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S262812AbUCRSKF convert rfc822-to-8bit (ORCPT
+	Thu, 18 Mar 2004 13:18:31 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:34245 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262834AbUCRSS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:10:05 -0500
-Subject: Re: [Kernel-janitors] [announce] 2.6.5-rc1-kj1 patchset
-From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: kjo <kernel-janitors@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040317141757.26364225.rddunlap@osdl.org>
-References: <20040317141757.26364225.rddunlap@osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Governo Eletronico - SP
-Message-Id: <1079633140.22854.38.camel@telecentrolivre>
+	Thu, 18 Mar 2004 13:18:29 -0500
+From: nmag@softhome.net
+To: linux-kernel@vger.kernel.org
+Subject: ip_conntrack, NIC counters limit and kernel 2.4.24
+Date: Thu, 18 Mar 2004 11:18:28 -0700
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 18 Mar 2004 15:05:40 -0300
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [200.37.137.89]
+Message-ID: <courier.4059E7F4.0000251E@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qua, 2004-03-17 às 19:17, Randy.Dunlap escreveu:
-> patch is at:
-> http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc1/2.6.5-rc1-kj1.patch.bz2  [2004-03-16]
+Hi, 
 
-Randy, the file is wrong, the correct is:
+I have a server with Debian woody stable (gcc 2.95.4, kernel 2.4.24, Intel 
+Petium IV 2.4 GHz, 512 RAM, NIC: D-Link) working as gateway and, I have a 
+problem with kernel, see the following: 
 
-http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc1/2.6.5-rc1-kj1.diff.bz2
+Mar 17 10:13:23 blackmarsh kernel: LIST_DELETE: ip_conntrack_core.c:302 
+`&ct->tuplehash[IP_CT_DIR_REPLY]'(ddf5c414) not in &ip_conntrack_hash[hr]. 
 
-:-)
+After this message, the system be froze. I have noted that it only happen 
+when the NIC counters reach the limit count (RX TX), all the traffic of my 
+network, use it, the traffic is very high, I need restart the server in some 
+nights (once on a week) before the NIC counter reach the limits... 
 
--- 
-Luiz Fernando N. Capitulino
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
+Somebody could tell me if the new kernel patch (2.4.25) repairs this error? 
+
+thanks a lot! 
+
+ --
+nmag only
+GPG public key: 0xA024A03F [http://pgp.mit.edu/]
+GNU/Linux Registered User #312624 
 

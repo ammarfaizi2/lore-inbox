@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265270AbUEZARA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUEZAYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbUEZARA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 20:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUEZARA
+	id S265276AbUEZAYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 20:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUEZAYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 20:17:00 -0400
-Received: from ptb-relay02.plus.net ([212.159.14.213]:13325 "EHLO
-	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
-	id S265272AbUEZAQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 20:16:42 -0400
-Message-ID: <40B3E1DF.10001@mauve.plus.com>
-Date: Wed, 26 May 2004 01:16:31 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: Pavel Machek <pavel@ucw.cz>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405251655.43185.rob@landley.net> <20040525220826.GC1609@elf.ucw.cz> <200405251816.05497.rob@landley.net>
-In-Reply-To: <200405251816.05497.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 25 May 2004 20:24:41 -0400
+Received: from gate.crashing.org ([63.228.1.57]:647 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265260AbUEZAYj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 20:24:39 -0400
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
+       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
+       bcrl@kvack.org, linux-mm@kvack.org,
+       Linux Arch list <linux-arch@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston>
+	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	 <1085371988.15281.38.camel@gaston>
+	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	 <1085373839.14969.42.camel@gaston>
+	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	 <20040525034326.GT29378@dualathlon.random>
+	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
+	 <20040525153501.GA19465@foobazco.org>
+	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+	 <20040525102547.35207879.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
+	 <20040525105442.2ebdc355.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+	 <1085521251.24948.127.camel@gaston>
+	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
+	 <1085522860.15315.133.camel@gaston>
+	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1085530867.14969.143.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 May 2004 10:21:08 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> On Tuesday 25 May 2004 17:08, Pavel Machek wrote:
+On Wed, 2004-05-26 at 08:14, Linus Torvalds wrote:
+> On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
+> >
+> > Note that I'd rather call the function ptep_set_* than ptep_update_* to
+> > make clear that it can only ever be used to _set_ those bits.
 > 
+> Good point.
 > 
->>>Doesn't asynchronous sendfile has the little problem your process can
->>>exit before the sendfile is complete?
->>
->>Hmm, it has...
->>
->>
->>>I'm not sure how much of a help it really is, since fork() isn't brain
->>>surgery if you want it to be asynchronous, and the lifetime rules are
->>>really explicit then.  (With a ps that does thread grouping, this isn't
->>>too bad from a clutter standpoint, even.  And you automatically get a
->>>SIGCHLD when the sendfile is complete, too...)
->>
->>Right.
->>
->>
->>>Of course if the syscall can make the sendfile outlive the process that
->>>fired it off, then by all means it sounds good.  I dunno how much extra
->>>work that is for the kernel, though.
->>
->>Well, it would be "interesting" to stop that sendfile then. You could
->>not kill it etc.
-> 
-> 
-> Well, logically what you're doing is redirecting an existing filehandle so it 
-> points to something else.  Instead of reading from this pipe, you're now 
-> reading from this file or from this network socket, or this other process's 
-> stdout.  So any intermediate processes going away is theoretically okay as 
-> long as the anchors at each end remain (process/filesystem/network connection 
-> generating the data, process/filesystem/network connection receiving the 
-> data).
-> 
-> The easy way to make the semantics work out right is that such an asynchronous 
-> sendfile would effectively close the file in question from the point of view 
-> of the process that did the sendfile.  It would pretty much have to be part 
-> of the semantics of any asynchronous sendfile call: welding together the two 
-> filehandles would behave like a single direction shutdown(2) as far as the 
-> process that called sendfile is concerned.  (That way, if you do an async 
-> sendfile in each direction, the filehandle is closed both ways, but you don't 
-> HAVE to if you don't want to.  You can feed data to a child process from a 
-> script file or something, and just deal with the responses coming back.)
-> 
-> This would mean that in theory the process that did the sendfile could go away 
-> without too much ambiguity about what should happen.  (The bits that are 
-> already closed from the process's point of view are unaffected by the process 
-> exiting.)  I dunno what's needed to clean that up in the kernel.
-> 
-> I also don't know if it's a good idea, because as you noticed the fire and 
-> forget nature of the thing means that killing it afterwards is something we 
-> haven't got a semantic for if the thing at the other end is NOT a pipe to a 
-> processes.  (We kill processes.  We don't have a kill for network connections 
-> or for files in the filesystem that are no longer associated with any 
-> process.  This is theoretically existing problem, by the way.  Check out 
-> SO_LINGER in man 7 socket...)
-> 
+> Too late.
 
-A while back (2.2?) I was using a util that came with netpipes, sockdown.
-Give it a socket FD, and it would close the socket.
-It wasn't intended for it, but I found that it was really handy to
-be able to shut other programs network connections.
-For example, tin gets wedged talking to a server that won't do something, and
-you just do
-sockdown </proc/tin/fd/nn
-And it shuts.
+Heh, I can still send a patch "fixing" it if you want ;)
 
-Mildly annoyingly, this stopped working in 2.4.
-I suppose it'd be totally insane for init to inherit descriptors for open network
-connections.
+Ben.
+
+

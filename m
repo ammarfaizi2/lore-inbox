@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289027AbSAQATd>; Wed, 16 Jan 2002 19:19:33 -0500
+	id <S288058AbSAQAUx>; Wed, 16 Jan 2002 19:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288599AbSAQATX>; Wed, 16 Jan 2002 19:19:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:9602 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S288012AbSAQATE>;
-	Wed, 16 Jan 2002 19:19:04 -0500
-Date: Wed, 16 Jan 2002 16:17:59 -0800 (PST)
-Message-Id: <20020116.161759.68040363.davem@redhat.com>
-To: wilson@whack.org
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: hires timestamps for netif_rx()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.40.0201161514030.5375-100000@apogee.whack.org>
-In-Reply-To: <20020116180042.A21447@willow.seitz.com>
-	<Pine.GSO.4.40.0201161514030.5375-100000@apogee.whack.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S287933AbSAQAUq>; Wed, 16 Jan 2002 19:20:46 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:59908 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S288083AbSAQAUL>;
+	Wed, 16 Jan 2002 19:20:11 -0500
+Date: Thu, 17 Jan 2002 01:20:01 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Dave Jones <davej@suse.de>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.33.0201162209040.15064-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.44.0201170119310.9757-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Wilson Yeung <wilson@whack.org>
-   Date: Wed, 16 Jan 2002 15:33:04 -0800 (PST)
 
-   I'd love to have a run-time tuneable kernel parameter that lets me use
-   do_gettimeofday() instead of get_fast_time for received packet
-   timestamping.  Does this seem reasonable?
-   
-Can you demonstrate a difference in accurace between these two
-routines on any architecture :-)
+
+On Wed, 16 Jan 2002, Dave Jones wrote:
+
+> On Wed, 16 Jan 2002, Richard Gooch wrote:
+>
+> > > 	[..] La nuova VM ha migliori performance rispetto alla vecchia sui
+> > > 	tipici sistemi desktop ... ma fa fiasco terribilmente su più sistemi di
+> > > 	quanto non lo facesse la vecchia VM. Redhat, per esempio, non ha potuto
+> > > 	inserire la nuova VM nella sua distribuzione perché cadrebbe a pezzi per
+> > > 	i database server, [..]
+>
+> > I don't know why you're so upset. As far as I can tell, Rik has warmly
+> > praised your VM in the above message. Of course, since you didn't
+> > provide an English translation, I can't really be sure.
+>
+> English (Well, some crazy moon-language dialect of english) translation:-
+> http://linux.html.it/articoli/rik_van_riel_en1.htm
+err, the english version is the original one...
+
+>
+> --
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

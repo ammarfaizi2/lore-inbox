@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291387AbSAaXGH>; Thu, 31 Jan 2002 18:06:07 -0500
+	id <S291389AbSAaXJT>; Thu, 31 Jan 2002 18:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291388AbSAaXF5>; Thu, 31 Jan 2002 18:05:57 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:51985 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291387AbSAaXFq>; Thu, 31 Jan 2002 18:05:46 -0500
-Date: Thu, 31 Jan 2002 15:05:03 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-m68k@lists.linux-m68k.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-In-Reply-To: <3C59BC36.14267AE7@linux-m68k.org>
-Message-ID: <Pine.LNX.4.10.10201311500070.23385-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291388AbSAaXJA>; Thu, 31 Jan 2002 18:09:00 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:19082 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290495AbSAaXIo>;
+	Thu, 31 Jan 2002 18:08:44 -0500
+Date: Thu, 31 Jan 2002 18:08:42 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: vandrove@vc.cvut.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        paulus@samba.org, davidm@hpl.hp.com, ralf@gnu.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does not
+Message-ID: <20020131180842.A13730@havoc.gtf.org>
+In-Reply-To: <107F105A2B71@vcnet.vc.cvut.cz> <20020131153115.A5370@havoc.gtf.org> <20020131225306.GA23758@vana.vc.cvut.cz> <20020131.145904.41634460.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020131.145904.41634460.davem@redhat.com>; from davem@redhat.com on Thu, Jan 31, 2002 at 02:59:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 31, 2002 at 02:59:04PM -0800, David S. Miller wrote:
+> As a side note, this thing is so tiny (less than 4K on sparc64!) so
+> why don't we just include it unconditionally instead of having all
+> of this "turn it on for these drivers" stuff?
 
-> > +       printk(amikbd_messages[scancode]);      /* scancodes >= 0x78 are error codes */
-> 
-> Damn, Geert was faster with this. :)
+Does that 4K include the BE and LE crc tables?
 
-Fixed. 
+<shrug>  I don't mind much either way, except that I am general
+resistant to "turn this on unconditionally" for bloat reasons.
+[ie. its a reflex :)]
 
-> > +       for (i = 0; i < 0x78; i++)
-> > +               if (amikbd_keycode[i])
-> > +                       set_bit(amikbd_keycode[i], amikbd_dev.keybit);
-> 
-> Do I understand it correctly, that amikbd_keycode[i] must have non zero
-> value for a valid key? If yes, something must be wrong here:
-
-Yes. amikbd_keycode is a map from scancode values to event key values. Now
-
-> > +static unsigned char amikbd_keycode[0x78] = {
-> > +         0,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43,  0, 82,
-> 
-> 0 is a valid keycode on the Amiga, it should be KEY_GRAVE.
-
-Okay so it should be:
-
-     static unsigned char amikbd_keycode[0x78] = {
- 	       41, 2, 3, 4, 5, ...
-
-If amikbd_keycode[0] is set 41 then 
-   
-set_bit(amikbd_keycode[i], amikbd_dev.keybit);
-
-will be called in the above code. 
+	Jeff
 
 
 

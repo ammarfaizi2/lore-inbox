@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbTBPKlO>; Sun, 16 Feb 2003 05:41:14 -0500
+	id <S266286AbTBPKvo>; Sun, 16 Feb 2003 05:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266274AbTBPKlO>; Sun, 16 Feb 2003 05:41:14 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266243AbTBPKlN>;
-	Sun, 16 Feb 2003 05:41:13 -0500
-Date: Sat, 15 Feb 2003 23:12:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: cpufreq on athlon4
-Message-ID: <20030215221236.GA210@elf.ucw.cz>
+	id <S266296AbTBPKvn>; Sun, 16 Feb 2003 05:51:43 -0500
+Received: from mail3.bluewin.ch ([195.186.1.75]:7145 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S266286AbTBPKvm>;
+	Sun, 16 Feb 2003 05:51:42 -0500
+Date: Sun, 16 Feb 2003 12:01:17 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [0/4][via-rhine] Improvements
+Message-ID: <20030216110117.GA2821@k3.hellgate.ch>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+References: <20030215225204.GA6887@k3.hellgate.ch> <Pine.LNX.4.44.0302151611310.23496-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0302151611310.23496-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.61 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> On Sat, 15 Feb 2003, Roger Luethi wrote:
+> > 
+> > Thanks for raising that issue. It is my understanding that PIO ops are
+> > synchronous (on IA-32). If that is correct, problems should only occur if
+> > the driver is built with MMIO support, no?
+> 
+> No, even PIO ops are asynchronous. They are _more_ synchronous than the
+> MMIO ones (I think the CPU waits until they hit the bus, and most bridges
 
-I tried cpufreq on hp omnibook with athlon4 cpu... Its interesting: It
-works *in addition* to ACPI throttling. That means I can slow it down
-to 4% of top speed.
+Hmmm... A recent thread on PCI write posting seemed to confirm my view [1].
+What am I missing here?
 
-Documentation/cpufreq should probably be renamed to Doc*/cpufreq.txt.
+------------------------------ cut here -----------------------------------
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.21-pre3-ac4
+Date: 12 Jan 2003 20:40:54 +0000
 
-Kernel says:
+On Sun, 2003-01-12 at 19:51, Benjamin Herrenschmidt wrote:
+> What about PCI write posting ? How can we enforce the 400ns delay here ?
 
-powernow: AMD K7 CPU detected.
-powernow: PowerNOW! Technology present. Can scale: frequency and
-voltage.
-powernow: Found PSB header at c00f7ab0
-powernow: Table version: 0x12
-powernow: Flags: 0x0 (Mobile voltage regulator)
-powernow: Settling Time: 100 microseconds.
-powernow: Has 14 PST tables. (Only dumping ones relevant to this CPU).
-powernow: PST:2 (@c00f7ae4)
-powernow:  cpuid: 0x761 fsb: 100        maxFID: 0xc     startvid: 0xc
-powernow:    FID: 0x10 (3.0x [300MHz])  VID: 0xc (1.400V)
-powernow:    FID: 0x4 (5.0x [500MHz])   VID: 0xc (1.400V)
-powernow:    FID: 0x6 (6.0x [600MHz])   VID: 0xc (1.400V)
-powernow:    FID: 0x8 (7.0x [700MHz])   VID: 0xc (1.400V)
-powernow:    FID: 0xc (9.0x [900MHz])   VID: 0xc (1.400V)
+For i/o space it is ok as in*/out* are synchronous. For mmio right now I
+don't know. I need to talk to Andre about that for SATA. I guess for the
+PPC its going to be fun
 
-First it claims it can scale voltage, then I see I can only use
-1.4V. Too bad for me (and my batteries ;-)...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+[...]
+------------------------------ cut here -----------------------------------
+
+> don't need a IO read to force it out. But considering the wide variety of 
+> PCI bridges out there I bet there are some that will post even PIO writes 
+> and might hold on to them for some time, especially if other activity like 
+> DMA keeps the bus busy.
+
+There was some talking about hwif->IOSYNC() (for IDE). That might be
+interesting for other devices, too. It could resolve to a nop for
+synchronous operations, and say a read* for MMIO. IMHO it shouldn't be up
+to a driver maintainer to figure out what sync op some arch the driver may
+run on needs. What a maintainer typically _can_ provide is type of
+operation (MMIO/PIO) and a register that is considered safe for a sync
+read.
+
+Roger
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=104240180906935&w=4

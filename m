@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312495AbSC3TOa>; Sat, 30 Mar 2002 14:14:30 -0500
+	id <S313535AbSC3TIK>; Sat, 30 Mar 2002 14:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312497AbSC3TOU>; Sat, 30 Mar 2002 14:14:20 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:45074 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312495AbSC3TOF>; Sat, 30 Mar 2002 14:14:05 -0500
-Date: Sat, 30 Mar 2002 19:13:55 +0000
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S313536AbSC3TIA>; Sat, 30 Mar 2002 14:08:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5383 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313535AbSC3THx>;
+	Sat, 30 Mar 2002 14:07:53 -0500
+Message-ID: <3CA60CB1.E33080D5@zip.com.au>
+Date: Sat, 30 Mar 2002 11:06:25 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre5: bad config
-Message-ID: <20020330191355.A26375@flint.arm.linux.org.uk>
-In-Reply-To: <20020330090602.B23576@flint.arm.linux.org.uk> <E16rMvl-0003Oz-00@the-village.bc.nu>
-Mime-Version: 1.0
+CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] block/IDE/interrupt lockup
+In-Reply-To: <3CA603B0.8B73FD4C@zip.com.au> from "Andrew Morton" at Mar 30, 2002 10:28:00 AM <E16rNxa-0003UM-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 30, 2002 at 05:46:21PM +0000, Alan Cox wrote:
-> > It's basically to wrap it in an CONFIG_ARM and leave the SA1100 dependency.
-> > Why?  There are other ARM PCMCIA drivers, and rather have a mass of if
-> > statements, I'd rather see dep_*
+Alan Cox wrote:
 > 
-> dep_ won't work for this case. The ARM symbols are not set on non ARM boxes
+> > The kernel calls request_irq() inside cli() in lots of places.
+> > That's the same bug: "if you called cli(), how come you're
+> > allowing kmalloc to clear it?".
+> 
+> Those places should if possible be fixed. I take patches. If we can get 2.4
+> to BUG() on those kmalloc violations and clean them up it sounds like
+> progress
 
-I think you misread my email.
+What I'd like is a debugging function `can_sleep()'.  This
+is good for documentary purposes, and will catch bugs.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+So kmalloc() would gain:
 
+	if (gfp_flags & __GFP_WAIT)
+		can_sleep();
+
+can_sleep() would do the following:
+
+- If CONFIG_PREEMPT, check the locking depth (minus BKL depth),
+  whine if non-zero.
+
+- If inside cli(), whine.
+
+- If inside __cli(), also whine (not really a bug, but a design error).
+
+- whining will include generation of a backtrace.
+
+I suspect a 2.4 version would generate too many bug reports :)
+It would have to implement its own lock depth accounting if
+we want the sleep-inside-spinlock checking.
+
+There's some arch-dependent stuff in there.  I'll do a 2.5
+patch.  I suspect it'll generate showers of stuff.  We can
+feed fixes back into 2.4.
+
+-

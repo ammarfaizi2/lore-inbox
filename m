@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLDUZe>; Mon, 4 Dec 2000 15:25:34 -0500
+	id <S129231AbQLDU0O>; Mon, 4 Dec 2000 15:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQLDUZZ>; Mon, 4 Dec 2000 15:25:25 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23255 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129183AbQLDUZS>;
-	Mon, 4 Dec 2000 15:25:18 -0500
-Date: Mon, 4 Dec 2000 14:54:49 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] inode dirty blocks  Re: test12-pre4
-In-Reply-To: <20001204181621.E8700@redhat.com>
-Message-ID: <Pine.GSO.4.21.0012041448320.7166-100000@weyl.math.psu.edu>
+	id <S129464AbQLDU0E>; Mon, 4 Dec 2000 15:26:04 -0500
+Received: from windsormachine.com ([206.48.122.28]:32530 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129231AbQLDUZr>; Mon, 4 Dec 2000 15:25:47 -0500
+Message-ID: <3A2BF6A2.1BD792BA@windsormachine.com>
+Date: Mon, 04 Dec 2000 14:55:15 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: DMA !NOT ONLY! for triton again...
+In-Reply-To: <E1430NA-000470-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, i just checked ide-dma.c, and the WDC 21600 isn't listed.  31600 is, but no
+21600
+I've been using the 21600 for awhile now with DMA enabled, under reasonable load,
+and it seems to hold up.
+Guennadi: I don't suppose you can get your hands on a different size/brand drive
+long enough to plug it in, and see if it allows DMA?
 
+Alan Cox wrote:
 
-On Mon, 4 Dec 2000, Stephen C. Tweedie wrote:
-
-> Agreed.  However, is there any reason to have this as a separate
-> function?  bforget() should _always_ remove the buffer from any inode
-> queue.  You can make that operation conditional on (bh->b_inode !=
-> NULL) if you want to avoid taking the lru lock unnecessarily.
-
-I doubt it. bforget() is called, for example, when we deal with the
-changed branch in ext2_get_block() (the thing had been partially read,
-but then we've noticed that it had been changed under us). And I don't
-think that brelse() would be a good thing there...
+> Certain older WDC drives are explicitly blacklisted due to firmware bugs.
+> WDC put out firmware upgrades but given no answer from them on how to be sure
+> a drive was upgraded we play safe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

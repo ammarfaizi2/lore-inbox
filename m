@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVDDIe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVDDIhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVDDIe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVDDIe2
+	id S261175AbVDDIhe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVDDIhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:34:28 -0400
-Received: from box3.punkt.pl ([217.8.180.76]:18957 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261174AbVDDIeS (ORCPT
+	Mon, 4 Apr 2005 04:37:31 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28094 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261175AbVDDIhF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:34:18 -0400
-Message-ID: <4250FD08.1020509@punkt.pl>
-Date: Mon, 04 Apr 2005 10:38:32 +0200
-From: |TEcHNO| <techno@punkt.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041122
-X-Accept-Language: en-gb, en-us, en-ca, en-au, ja, pl
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [SCSI] Driver broken in 2.6.x?
-References: <424EB65A.8010600@punkt.pl> <Pine.LNX.4.62.0504022301430.2525@dragon.hyggekrogen.localhost> <424F0BFF.6020402@punkt.pl> <Pine.LNX.4.62.0504022322150.2525@dragon.hyggekrogen.localhost> <42502EB2.3080802@punkt.pl> <20050403235726.GE3953@stusta.de>
-In-Reply-To: <20050403235726.GE3953@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 04:37:05 -0400
+Date: Mon, 4 Apr 2005 10:36:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: stern@rowland.harvard.edu, linux-usb-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11, USB: High latency?
+Message-ID: <20050404083652.GA29525@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F3673231DD@MAILIT.keba.co.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231DD@MAILIT.keba.co.at>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>As told, I tested it w/o nvidia module loaded, here's what I found:
->>1. It now doesn't hang on scanning for devices.
->>2. It now hangs on acquiring preview, logs will follow.
->>...
->>Apr  3 15:54:27 techno kernel: Unable to handle kernel NULL pointer
->>dereference at virtual address 0000014c
->>Apr  3 15:54:27 techno kernel:  printing eip:
->>Apr  3 15:54:27 techno kernel: c03d8143
->>Apr  3 15:54:27 techno kernel: *pde = 00000000
->>Apr  3 15:54:27 techno kernel: Oops: 0000 [#1]
->>Apr  3 15:54:27 techno kernel: PREEMPT
->>Apr  3 15:54:27 techno kernel: Modules linked in: nvidia
->>...
 
-> Still with nvidia.
+* kus Kusche Klaus <kus@keba.com> wrote:
+
+> Moreover, we know from experience that the "WBINDV" instruction (Write 
+> back and invalidate CPU cache) can cause such latencies.
 > 
-> An Oops with the nvidia module loaded since the last boot is simply not 
-> debuggable for anyone except nvidia.
-Em, there's also the same (w/o oops) with out that module, each of that 
-situations was separated by a reset. It was working well in 2.4.x so I 
-guess it'a a problem with the card's (00:0c.0 SCSI storage controller: 
-DTC Technology Corp. Domex 536) driver.
+> Does this instruction occur anywhere in Linux?
 
--- 
-pozdrawiam     |"Help me master, I felt the burning twilight behind
-techno@punkt.pl|those gates of stell..." --Perihelion, Prophecy Sequence
+yes, they rarely occur when MTRR's are set (and some drivers like video 
+uses it too), but then they'd also show up in the trace. The only other 
+possibility would be if a driver used wbinvd in a preemptible section - 
+that would not be traced. OTOH, it could still show up in wakeup-latency 
+tracing.
+
+To make sure, could you remove all relevant wbinvd's from your kernel 
+tree? You can just comment out those lines from all relevant 'grep -rl 
+wbinvd . | grep -v x86_64' files. (and in assembly defines, just replace 
+the "wbinvd" with "nop") The kernel will most likely still work most of 
+the time.
+
+Or if you want to be safe: change all wbinvd occurances to: 
+preempt_disable(); <wbinvd>; preempt_enable() sections, for tracing to 
+pick them up.
+
+	Ingo

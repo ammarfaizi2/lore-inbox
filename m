@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUHXUE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHXUII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268258AbUHXUE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHXUE2
+	id S267565AbUHXUII (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUHXUII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:04:28 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:25761 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268263AbUHXUEW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:04:22 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 24 Aug 2004 13:04:15 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Andy Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] lazy I/O bitmap copy for i386 (ver 2) ...
-In-Reply-To: <Pine.LNX.4.58.0408241113370.2026@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0408241246040.3219@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.58.0408241113370.2026@bigblue.dev.mdolabs.com>
+	Tue, 24 Aug 2004 16:08:08 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:7889 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S267565AbUHXUIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:08:01 -0400
+Date: Tue, 24 Aug 2004 22:07:50 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Matt Mackall <mpm@selenic.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc1
+In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.53.0408242202450.7152@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+ <20040824184245.GE5414@waste.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Davide Libenzi wrote:
+On Tue, 24 Aug 2004, Linus Torvalds wrote:
 
-> The following patch implements the lazy I/O bitmap copy for the i386 
-> architecture. It uses an invalid bitmap offset inside the TSS to eventually 
-> handle the correct bitmap update in the GPF handler. The logic is the same 
-> of the first version, plus the usage of get/put_cpu() (thx Brian) and the 
-> nesting over the latest Ingo variable bitmap bits.
+> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
+> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
+> any ordering wrt the bugfixes), so either interdiffs or whole new full 
+> diffs are totally "logical". We just have to chose one way or the other, 
+> and I don't actually much care.
+> 
+> Any reason for your preference? 
 
-As followup, I instrumented the switchto code to do something like:
+I'd also vote for the x.y.z.2 to be based on x.y.z, because it's 
+consistent with common practice. Currently all patches that I know of
+that have an EXTRAVERSION are based on the corresponding kernels with
+empty EXTRAVERSION. Be it -pre, -rc, -mm, -ac or whatever.
 
-        if (prev->io_bitmap_ptr) {                                                                                      
-                if (tss->io_bitmap_base == INVALID_IO_BITMAP_OFFSET_LAZY)                                               
-                        no_hit_gpf++;                                                                                   
-                else                                                                                                    
-                        hit_gpf++;                                                                                      
-        }
-
-After a couple of minutes of light X usage I get:
-
-Hit:       1017
-NoHit:    29541
-
-This is FC1 up-to-date (yesterday's ~60% rate was due an incorrect test 
-performed in the instrumentation code). Did not run any perf test, but for 
-sure updating an unsigned long should result faster than memcpy/memset 
-memory regions, during context switches.
-
-
-
-- Davide
-
+Tim

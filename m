@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268911AbUJPVqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUJPVpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268911AbUJPVqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 17:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUJPVqX
+	id S268894AbUJPVpa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 17:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUJPVp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 17:46:23 -0400
-Received: from hamlet.e18.physik.tu-muenchen.de ([129.187.154.223]:52905 "EHLO
-	hamlet.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S268899AbUJPVpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 17:45:23 -0400
-In-Reply-To: <20041016062512.GA17971@mark.mielke.cc>
-References: <20041016043540.GA17514@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKOELCPAAA.davids@webmaster.com> <20041016062512.GA17971@mark.mielke.cc>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature";
-	micalg=pgp-sha1; boundary="Apple-Mail-3--603223085"
-Message-Id: <89DD4021-1FBC-11D9-942F-000A9567DDDE@e18.physik.tu-muenchen.de>
+	Sat, 16 Oct 2004 17:45:29 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49029 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S268894AbUJPVoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 17:44:09 -0400
+Subject: Re: Best way to find where a lock is taken and not released?
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041016164646.GD2061@schnapps.adilger.int>
+References: <1097919013.4763.55.camel@desktop.cunninghams>
+	 <20041016164646.GD2061@schnapps.adilger.int>
+Content-Type: text/plain
+Message-Id: <1097962858.23471.4.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sun, 17 Oct 2004 07:40:58 +1000
 Content-Transfer-Encoding: 7bit
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>,
-       David Schwartz <davids@webmaster.com>
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Sat, 16 Oct 2004 23:44:21 +0200
-To: Mark Mielke <mark@mark.mielke.cc>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---Apple-Mail-3--603223085
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+On Sun, 2004-10-17 at 02:46, Andreas Dilger wrote:
+> On Oct 16, 2004  19:30 +1000, Nigel Cunningham wrote:
+> > I saw a hang the other day (2.6.8.1) where all other processes except
+> > the suspending to disk one were refrigerated and the process doing the
+> > suspending was stuck trying to take the dcache_lock via
+> > shrink_all_memory. Obviously some path called via shrink_all_memory had
+> > taken the lock and not released it, then tried to retake it _or_ another
+> > process had taken the lock and then not released it when backing out and
+> > entering the refrigator. My question is, what's the best way to find the
+> > path on which this occurs? Grepping, I see dcache_lock all over the
+> > show, so if there's a more efficient method that reading the files, I'd
+> > like to learn it. It occurs to me that I might try wrapping calls to
+> > lock and unlock that lock in printks, but I'm wondering if there's some
+> > better way I don't yet know.
+> 
+> Probably the easiest would be to add to the lock struct a pointer to
+> the task_struct and the EIP when it gets the lock, and clear them when
+> it releases the lock.  That way, when you see processes blocking on the
+> lock you can use crash or other tool to examine the lock and see which
+> process got the lock and also where.
 
-Hi Mark!
+Okee doke. I saw that kgdb uses that method. I'll give it a go.
 
-On Oct 16, 2004, at 8:25 AM, Mark Mielke wrote:
+Thanks!
 
-> On Fri, Oct 15, 2004 at 09:58:38PM -0700, David Schwartz wrote:
->>> You're thinking too fast, and skipping the most important point here:
->>>     1) packet was dropped earlier (or was never sent)
->>>          - if select() is issued, it blocks
->>>          - if recvmesg() is issued, it blocks
->>>     2) packet was received, but is corrupt
->>>          - if select() is issued, it does not block
->>>          - if recvmesg() is issued, it blocks
->>> See the problem?
->> I'm talking about the case where it is dropped after the 'select' hit 
->> but
->> before the call to 'recvmsg'. In that case, the select does not block 
->> but
->> the recvmsg does.
->
-> You are talking about the make believe case that only exists due to
-> the *current* implementation of Linux UDP packet reading. It doesn't
-> have to exist. It exists only behaviour nobody saw fit to implement it
-> with semantics that were reliable, because the implentors didn't 
-> foresee
-> blocking file descriptors being used. It's an implementation oversight.
->
-Well, I haven't read the source to see what would be necessary to 
-create this behaviour, but David was talking about the situation where 
-the UDP packet is dropped because of memory pressure. This event cannot 
-possibly be foretold by select()...
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Ciao,
-					Roland
-
---
-TU Muenchen, Physik-Department E18, James-Franck-Str. 85747 Garching
-Telefon 089/289-12592; Telefax 089/289-12570
---
-A mouse is a device used to point at
-the xterm you want to type in.
-Kim Alm on a.s.r.
-
---Apple-Mail-3--603223085
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFBcZY5I4MWO8QIRP0RAqjCAJ9KnXR3C8pmXmIIPX397SCp/wtauwCfb7nr
-aZNN2eJ5bvdMYW+g+pJNkss=
-=0A9Q
------END PGP SIGNATURE-----
-
---Apple-Mail-3--603223085--
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTLIAXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 19:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTLIAXZ
+	id S262131AbTLIAbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 19:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTLIAbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 19:23:25 -0500
-Received: from mail.designassembly.de ([217.115.138.177]:38368 "EHLO
-	mail.designassembly.de") by vger.kernel.org with ESMTP
-	id S262109AbTLIAXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 19:23:23 -0500
-Message-ID: <3FD515F9.2020808@designassembly.de>
-Date: Tue, 09 Dec 2003 01:23:21 +0100
-From: Michael Heyse <m.heyse@designassembly.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Mon, 8 Dec 2003 19:31:06 -0500
+Received: from mercury.sdinet.de ([193.103.161.30]:18116 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S262131AbTLIAbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 19:31:03 -0500
+Date: Tue, 9 Dec 2003 01:31:00 +0100 (CET)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Greg KH <greg@kroah.com>
+Cc: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: State of devfs in 2.6?
+In-Reply-To: <20031208233428.GA31370@kroah.com>
+Message-ID: <Pine.LNX.4.58.0312090128130.11775@mercury.sdinet.de>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com>
+ <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: LBA48 and ALI15X3 rev 0xC1
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I understand from skimming through last year's kernel archive,
+On Mon, 8 Dec 2003, Greg KH wrote:
 
-"ALi IDE controllers up to revision C4h don't support LBA48 in DMA mode,
-later revisions can do both PIO and DMA with LBA48 addressing."
+> > After ignoring .devfsd we are left with 70 devices missing:
+> >  - 15 floppy devices
+>
+> You have 15 floppy devices connected to your box?  All floppy devices
+> should show up in /sys/block.
 
-Now I'm running 2.6.0-test10-mm1 (and have also tried 2.6.0-test11) on 
-an Asus P5A-B board (ALI15X3 revision 0xC1), so I can't use LBA48 and 
-DMA, the driver truncates the size of any bigger disk to 137 GB. So far, 
-so good. But shouldn't I be able to access the entire disk in PIO mode? 
-Even if I compile the kernel without CONFIG_IDEDMA_PCI_AUTO, dmesg tells me
+perhaps he means fd0u1440, fd0u1600 and friends
 
-hdc: SAMSUNG SP1604N, ATA DISK drive
-hdc: max request size: 128KiB
-hdc: cannot use LBA48 - full capacity 312581808 sectors (160041 MB)
-hdc: 268435456 sectors (137438 MB) w/2048KiB Cache, CHS=16709/255/63
+ls /dev/fd0u*|wc -l  -> 15
 
-Am I missing something or is LBA48 completely disabled for revisions <= 
-0xC4?
+c'ya
+sven
 
-(PS: when booting with a gentoo boot-cd (kernel 2.4.21-gss), I was able 
-to access the whole disk, although I couldn't try if access was totally 
-error-free.)
+-- 
 
-Thanks,
-
-Michael
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

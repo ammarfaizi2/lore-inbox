@@ -1,93 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131269AbRDFFjH>; Fri, 6 Apr 2001 01:39:07 -0400
+	id <S131289AbRDFFwS>; Fri, 6 Apr 2001 01:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRDFFi6>; Fri, 6 Apr 2001 01:38:58 -0400
-Received: from krynn.axis.se ([193.13.178.10]:44202 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S131269AbRDFFip>;
-	Fri, 6 Apr 2001 01:38:45 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <003501c0be5c$224fd5e0$9db270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: "Erik Mouw" <J.A.K.Mouw@ITS.TUDelft.NL>,
-        "Rogier Wolff" <R.E.Wolff@BitWizard.nl>
-Cc: "Johan Adolfsson" <johan.adolfsson@axis.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <200104052156.XAA02219@cave.bitwizard.nl>
-Subject: Re: Arch specific/multiple Configure.help files?
-Date: Fri, 6 Apr 2001 07:40:48 +0200
+	id <S131296AbRDFFv7>; Fri, 6 Apr 2001 01:51:59 -0400
+Received: from smtp2.free.fr ([212.27.32.6]:12812 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S131289AbRDFFvl>;
+	Fri, 6 Apr 2001 01:51:41 -0400
+To: ramorris@dilithium.net, "Robert A. Morris" <ramorris@dilithium.net>
+Subject: Re: 2.2.19 + ide 2.2.19 03252001 patch problem
+Message-ID: <986536241.3acd59318b222@imp.free.fr>
+Date: Fri, 06 Apr 2001 07:50:41 +0200 (MEST)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org, bugs@linux-ide.org
+In-Reply-To: <TradeClient.0.9.0.Linux-2.2.18.0104052013545D.1150@ryoko.unguez.net>
+In-Reply-To: <TradeClient.0.9.0.Linux-2.2.18.0104052013545D.1150@ryoko.unguez.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 212.27.52.71
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I went ahead and implemented the change last night anyway and I
-will submit the patches and see if it will be accepted or not.
-The idea is that it first check in arch/$ARCH/Configure.help
-and if the file or the help is not found there,
-check Documentation/Configure.help.
+Quoting "Robert A. Morris" <ramorris@dilithium.net>:
+[snip]
+> Apr  5 18:15:14 ryoko kernel: hdb: task_no_data_intr: status=0x51 {
+> DriveReady SeekComplete Error }
+> Apr  5 18:15:14 ryoko kernel: hdb: task_no_data_intr: error=0x04 {
+> DriveStatusError }
+> Apr  5 18:15:14 ryoko kernel: hdb: Write Cache FAILED Flushing!
+[snip]
+> This did NOT happen with 2.2.18 and the corresponding 
+> ide.2.2.18.1209.patch.  It does NOT seem to happen on
+> /dev/hda or /dev/hdc, which is lucky, since /dev/hdb
+> is unused.  I'm using lilo.conf to specify idebus=33.
+[snip] 
+> The controller is a VIA 82C686A (Asus K7V mainboard).
+> hda: WDC WD307AA, 29333MB w/2048kB Cache, CHS=3739/255/63, UDMA(66)
+> hdb: WDC AC28400R, 8063MB w/512kB Cache, CHS=1027/255/63, (U)DMA
+> hdc: WDC WD307AA-00BAA0, 29333MB w/2048kB Cache, CHS=59598/16/63,
+> UDMA(66)
 
-I believe there is an advantage from a maintenance point of view.
-It least for our CRIS architecture, I don't think it's any benefit to
-"bloat" the Documentation/Configure.help with a lot of
-CONFIG_ETRAX entries for the various hardware inerfaces
-when the help and config can be kept locally.
+same problem observed here on same motherboard. The hard disk is a WDC AC23200L
+configured as hda. I have tested several ide/kernel combinations and all I can
+say is that 2.2.18 and 2.2.19 behave the same, but it worked till
+ide.2.2.18.1221 included, and the bug appeared since ide.2.2.18.02122001.
+I tried with and without vojtech's via patches (3.2, 4.2 and 4.3), but this
+didn't change anything (to be honest, some combinations were obviously not made
+to live together, and I had so many problems fitting all patches in one kernel
+that it sometimes even didn't boot).
 
-BTW: I added this to scripts/Configure and scripts/Menuconfig
-but I know to little tcl/tk to get it to work for the xconfig case.
-The variable $ARCH was not found and I don't know how to make
-it get it from the environment variables.
+I can also say that this problem didn't show up on other chipsets (ali and
+intel) with the same kernel+ide patch.
 
-/Johan
+finally, I made my kernel with ide.2.2.18.1221 and all seems to be OK (one week
+now). The diffs between the 2 versions were too important and I have not
+investigated further into this, but I'm ready to make some tests if needed.
 
------ Original Message -----
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Johan Adolfsson <johana@axis.com>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, April 05, 2001 11:56 PM
-Subject: Re: Arch specific/multiple Configure.help files?
+Regards,
+Willy
 
-
-> Erik Mouw wrote:
-> > On Thu, Apr 05, 2001 at 07:28:33PM +0200, Johan Adolfsson wrote:
-> > > Would it be a good idea to have support for multiple Configure.help
-> > > files in the config system?
-> > > The main advantage would be that arch specific settings could
-> > > have an arch specific help file as well.
-> >
-> > I don't see why this would be an advantage. IMHO Documentation belongs
-> > in the Documentation tree and configuration documentation belongs in
-> > Configure.help. You almost never read that file yourself, only the
-> > various kernel configure tools read it, and tools don't have a problem
-> > with large files. It's better to have the documentation at a single
-> > point, not scattered around in the kernel tree.
->
-> Well, the configure help is now "scattered around": The configuration
-> options are in the "configure.in" files, and hte docs for them are
-> somewhere else, even if it's in one large file.
->
-> I'm not sure if Larry's CML2 has the help for the options near the
-> options or not, but that's how I'd like it to be if I were designing
-> the thing from scratch. (a bit like emacs' functions: there too, you
-> give the help text near the definition of a functions!)
->
-> Roger.
->
-> --
-> ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-> *-- BitWizard writes Linux device drivers for any device you may have! --*
-> * There are old pilots, and there are bold pilots.
-> * There are also old, bald pilots.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+PS: BTW Andre, could you please name your patches ide-2.2.19-YYYYMMDD so that a
+    directory listing show the chronological order ?

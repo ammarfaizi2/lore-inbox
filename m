@@ -1,119 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262006AbTCYWBn>; Tue, 25 Mar 2003 17:01:43 -0500
+	id <S261578AbTCYWGc>; Tue, 25 Mar 2003 17:06:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261447AbTCYWBS>; Tue, 25 Mar 2003 17:01:18 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38529 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S261570AbTCYWAz>; Tue, 25 Mar 2003 17:00:55 -0500
-Date: Tue, 25 Mar 2003 22:13:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] swap 04/13 page_convert_anon -ENOMEM
-In-Reply-To: <Pine.LNX.4.44.0303252209070.12636-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303252213140.12636-100000@localhost.localdomain>
+	id <S262653AbTCYWFr>; Tue, 25 Mar 2003 17:05:47 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17136 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262045AbTCYWEM>;
+	Tue, 25 Mar 2003 17:04:12 -0500
+Message-ID: <3E80D4CC.4000202@mvista.com>
+Date: Tue, 25 Mar 2003 14:14:36 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Fionn Behrens <fionn@unix-ag.org>
+CC: linux-kernel@vger.kernel.org, root@chaos.analogic.com,
+       tim@physik3.uni-rostock.de
+Subject: Re: System time warping around real time problem - please help
+References: <1048609931.1601.49.camel@rtfm>	 <Pine.LNX.4.53.0303251152080.29361@chaos> <1048627013.2348.39.camel@rtfm>
+In-Reply-To: <1048627013.2348.39.camel@rtfm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-objrmap page_convert_anon tries to allocate pte_chains, so must allow
-for failure (even GFP_KERNEL can fail when OOM-killed); and move its
-prototype to join the rest of the rmap.c prototypes in swap.h.
+Fionn Behrens wrote:
+> Richard B. Johnson wrote:
+> 
+> 
+>>On Tue, 25 Mar 2003, Fionn Behrens wrote: 
+>>
+>>>On Die, 2003-03-25 at 18:07, Richard B. Johnson wrote:
+>>>
+>>>>On Tue, 25 Mar 2003, Fionn Behrens wrote:
+>>>
+>>>>>I have got an increasingly annoying problem with our fairly new
+>>>>>(fall '02) Dual Athlon2k+ Gigabyte 7dpxdw linux system running 
+>>>>>2.4.20.
+>>>
+>>>>I am using the exact same kernel (a lot of folks are). There
+>>>>is no such jumping on my system.
+>>>>Try this program:
+>>>
+>>>[... prg1.c ...]
+>>>
+>>>
+>>>>If this shows time jumping around you have one of either:
+>>>>
+>>>>(1) Bad timer channel 0 chip (PIT).
+>>>>(2) Some daemon trying to sync time with another system.
+>>>>(3) You are traveling too close to the speed of light.
+>>>
+>>>It just exits immediately with exit code 1. (*shrug*)
+> 
+> 
+>>Hmmm. Note that the for(;;) { } provides no exit path.
+> 
+> 
+> I noticed that well and investigated the issue using ddd. Funnily enough
+> the program runs well in ddd until X crashes. But in the shell it still
+> behaves like it would be nothing but exit(1);
+>  
+> 
+>>So, you probably have some bad RAM or your CPU is too 
+>>hot (broken fan??), or something like that. 
+> 
+> 
+> None of the above. The system is liquid cooled and subject to contiuous
+> thermal monitoring. The RAM is 1GB Infineon ECC. Before the weekend I
+> had the machine running overnight with memtest86 - 14 hours, all tests
+> activated. Not a single error.
+> I also tried an endless kernel compile loop the other day and the
+> machine compiled about 100 kernels in approx two hours without a hitch.
+> 
+> 
+>>>[... prg2.c ...]
+>>>
+>>>When I run this code it begins to put out Prev N New M lines.
+> 
+> 
+>>>Prev 1048615862810879.000000 New 1048615862759879.000000
+> 
+> 
+>>>After a few seconds of run time random processes on my machine begin
+>>>to crash, or I get kernel oopses and kernel freezes. Looks very 
+>>>much like heavy use of gettimeofday() causes random writes in system
+>>>memory.
+> 
+> 
+>>Looks very much like you have a real bad hardware problem. 
+> 
+> 
+> Just what, that is the question. After having activated the notsc
+> feature the system has not yet exposed the warp symptons but as I noted
+> in the beginning it may well take a day or two for that to happen.
+> 
+> Yet still, running the first (in ddd) or second test programs - despite
+> the current absence of any error message - causes random processes to
+> crash until the program is being stopped (by a crashed terminal, X or
+> kernel, that is).
+> 
+> Oddly enough, the system runs pretty stable for at least days of normal
+> use as long as the clock symptoms dont show up (and you dont run those
+> test programs). Which means it has not crashed a lot recently, just
+> being rebooted by me because of the jumping clock annoyance which -
+> among others - results in sluggishly behaving UI components and frequent
+> short connection freezes in ssh connections.
+> 
+> 
+>>>E.g. which type of hardware problem?
+>>
+>>Since the machine used to work last fall, It's probably just a
+>>FAN or RAM  problems.
+> 
+> 
+> I'll swap the RAM sticks around for now but I suspect its something
+> else. I just still fail to grasp  how calls to gettimeofday() are able
+> to cause random writes to memory...
+> 
+> Summary:
+>        - No apparent hardware issue.
+>        - System runs stable as long as you dont for (;;) gettimeofday();
+>        - notsc being evaluated. I will get back to you later.
+>          Does not resolve the odd test software crash, though. 
+> 
+> Kind regards,
+> 		Fionn
+> 
+> P.S.: Please keep sending me a Cc:, I grabbed this one from the archive
+> -
+This all sounds very much like the TSCs are drifting WRT each other. 
+Is it possible that you have some power management code (or hardware) 
+that is slowing one cpu and not the other?
 
---- swap03/include/linux/rmap-locking.h	Sun Mar 23 10:30:14 2003
-+++ swap04/include/linux/rmap-locking.h	Tue Mar 25 20:43:29 2003
-@@ -45,5 +45,3 @@
- 	if (pte_chain)
- 		__pte_chain_free(pte_chain);
- }
--
--void page_convert_anon(struct page *page);
---- swap03/include/linux/swap.h	Tue Mar 25 20:43:18 2003
-+++ swap04/include/linux/swap.h	Tue Mar 25 20:43:29 2003
-@@ -175,6 +175,8 @@
- void FASTCALL(page_remove_rmap(struct page *, pte_t *));
- int FASTCALL(try_to_unmap(struct page *));
- 
-+int page_convert_anon(struct page *);
-+
- /* linux/mm/shmem.c */
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
- #else
---- swap03/mm/fremap.c	Sun Mar 23 10:30:15 2003
-+++ swap04/mm/fremap.c	Tue Mar 25 20:43:29 2003
-@@ -69,8 +69,10 @@
- 	pgidx = (addr - vma->vm_start) >> PAGE_SHIFT;
- 	pgidx += vma->vm_pgoff;
- 	pgidx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
--	if (!PageAnon(page) && (page->index != pgidx))
--		page_convert_anon(page);
-+	if (!PageAnon(page) && (page->index != pgidx)) {
-+		if (page_convert_anon(page) < 0)
-+			goto err_free;
-+	}
- 
- 	pgd = pgd_offset(mm, addr);
- 	spin_lock(&mm->page_table_lock);
-@@ -95,12 +97,10 @@
- 	if (flush)
- 		flush_tlb_page(vma, addr);
- 
--	spin_unlock(&mm->page_table_lock);
--	pte_chain_free(pte_chain);
--	return 0;
--
-+	err = 0;
- err_unlock:
- 	spin_unlock(&mm->page_table_lock);
-+err_free:
- 	pte_chain_free(pte_chain);
- err:
- 	return err;
---- swap03/mm/rmap.c	Tue Mar 25 20:42:56 2003
-+++ swap04/mm/rmap.c	Tue Mar 25 20:43:29 2003
-@@ -774,7 +774,7 @@
-  * of pte_chain structures to ensure that it can complete without releasing
-  * the lock.
-  */
--void page_convert_anon(struct page *page)
-+int page_convert_anon(struct page *page)
- {
- 	struct address_space *mapping = page->mapping;
- 	struct vm_area_struct *vma;
-@@ -783,6 +783,7 @@
- 	pte_addr_t pte_paddr;
- 	int mapcount;
- 	int index = 0;
-+	int err = 0;
- 
- 	if (PageAnon(page))
- 		goto out;
-@@ -795,6 +796,15 @@
- 	if (mapcount > 1) {
- 		for (; index < mapcount; index += NRPTE) {
- 			ptec = pte_chain_alloc(GFP_KERNEL);
-+			if (!ptec) {
-+				while (pte_chain) {
-+					ptec = pte_chain->next;
-+					pte_chain_free(pte_chain);
-+					pte_chain = ptec;
-+				}
-+				err = -ENOMEM;
-+				goto out;
-+			}
- 			ptec->next = pte_chain;
- 			pte_chain = ptec;
- 		}
-@@ -867,7 +877,7 @@
- 	pte_chain_unlock(page);
- 	up(&mapping->i_shared_sem);
- out:
--	return;
-+	return err;
- }
- 
- /**
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

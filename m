@@ -1,52 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTGCCGf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 22:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTGCCGf
+	id S264861AbTGCCkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 22:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbTGCCkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 22:06:35 -0400
-Received: from holomorphy.com ([66.224.33.161]:37051 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264540AbTGCCGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 22:06:34 -0400
-Date: Wed, 2 Jul 2003 19:20:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, Mel Gorman <mel@csn.ul.ie>,
-       Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC] My research agenda for 2.7
-Message-ID: <20030703022047.GM26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>, Mel Gorman <mel@csn.ul.ie>,
-	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306262100.40707.phillips@arcor.de> <Pine.LNX.4.53.0306262030500.5910@skynet> <200306270222.27727.phillips@arcor.de> <Pine.LNX.4.53.0306271345330.14677@skynet> <20030702211055.GC13296@matchmail.com> <20030703020445.GA4379@work.bitmover.com>
+	Wed, 2 Jul 2003 22:40:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57072 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264861AbTGCCkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 22:40:03 -0400
+Date: Thu, 3 Jul 2003 04:53:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Adam Belay <ambx1@neo.rr.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org
+Subject: Re: 2.5.73: ALSA ISA pnp_init_resource_table compile errors
+Message-ID: <20030703025343.GC282@fs.tum.de>
+References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com> <20030622234447.GB3710@fs.tum.de> <20030623000808.GA14945@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030703020445.GA4379@work.bitmover.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030623000808.GA14945@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 07:04:45PM -0700, Larry McVoy wrote:
-> If we're thinking about the same thing, the basic idea was to store
-> information into a higher level object and make more intelligent paging
-> decisions based on the higher level object.  In my brain, since I'm a
-> SunOS guy, that means that you store information in the vnode (inode)
-> which reflects the status of all pages backed by this inode.
-> Instead of trying to figure out what to do at the page level, you figure
-> out what to do at the object level.  
-> Some postings about this:
-> http://groups.google.com/groups?q=topvn+mcvoy&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=3cgeu9%24h96%40fido.asd.sgi.com&rnum=1
-> http://groups.google.com/groups?q=vnode+mcvoy&start=10&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=l0ojgnINN59t%40appserv.Eng.Sun.COM&rnum=12
-> I can't find the writeup that you are thinking about.  I know what you mean,
-> there was a discussion of paging algs and I went off about how scanning a
-> page a time is insane.  If someone finds the URL let me know.
+On Mon, Jun 23, 2003 at 12:08:08AM +0000, Adam Belay wrote:
+> On Mon, Jun 23, 2003 at 01:44:47AM +0200, Adrian Bunk wrote:
+> > On Sun, Jun 22, 2003 at 11:53:14AM -0700, Linus Torvalds wrote:
+> > >...
+> > > Summary of changes from v2.5.72 to v2.5.73
+> > > ============================================
+> > >...
+> > > Adam Belay:
+> > >   o [PNP] Resource Management Cleanups and Updates
+> > >...
+> > 
+> > This patch removed pnp_init_resource_table, but several drivers under 
+> > sound/isa/ still use it, resulting in compile errors like the following:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   CC      sound/isa/ad1816a/ad1816a.o
+> > sound/isa/ad1816a/ad1816a.c: In function `snd_card_ad1816a_pnp':
+> > sound/isa/ad1816a/ad1816a.c:143: warning: implicit declaration of 
+> > function `pnp_init_resource_table'
+> > ...
+> >   LD      .tmp_vmlinux1
+> > sound/built-in.o(.text+0x349c7): In function `snd_card_ad1816a_pnp':
+> > : undefined reference to `pnp_init_resource_table'
+> > sound/built-in.o(.text+0x34ad3): In function `snd_card_ad1816a_pnp':
+> > : undefined reference to `pnp_init_resource_table'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > <--  snip  -->
+> > 
+> > 
+> > cu
+> > Adrian
+> > 
+> 
+> The patch below will correct this.
 
-I believe people are already on file object local page replacement,
-though it's more in the planning than implementation phase.
+I don't know whether it's related, but with 2.5.73 + your patch and 
+2.5.74 my soundcard stopped working (driver compiled statically into 
+the kernel, no options given).
+
+>From dmesg:
+
+2.5.74:
+
+<--  snip  -->
+
+Advanced Linux Sound Architecture DriverVersion 0.9.4 (Mon Jun 09 12:01:18 2003 UTC).
+specify port
+pnp: the driver 'ad1816a' has been registered
+pnp: match found with the PnP device '01:01.00'and the driver 'ad1816a'
+pnp: match found with the PnP device '01:01.01'and the driver 'ad1816a'
+ad1816a: AUDIO the requested resources areinvalid, using auto config
+pnp: Unable to assign resources to device 01:01.00
+ALSA device list:
+  No soundcards found.
+
+<--  snip  -->
 
 
--- wli
+2.5.72 (soundcard works):
+
+
+<--  snip  -->
+
+Advanced Linux Sound Architecture DriverVersion 0.9.4 (Mon Jun 09 12:01:18 2003 UTC).
+specify port
+pnp: the driver 'ad1816a' has been registered
+pnp: match found with the PnP device '01:01.00'and the driver 'ad1816a'Jul  3 04:37:42 r063144 kernel: pnp: match found with the PnP device '01:01.01'and the driver 'ad1816a'
+pnp: res: the device '01:01.00' has beenactivated.
+pnp: res: the device '01:01.01' has beenactivated.
+ALSA device list:
+  #0: ADI SoundPort AD1816A soundcard, SS at0x530, irq 5, dma 1&3
+
+<--  snip  -->
+
+
+> Thanks,
+> Adam
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

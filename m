@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291434AbSAaXw1>; Thu, 31 Jan 2002 18:52:27 -0500
+	id <S291437AbSAaXzT>; Thu, 31 Jan 2002 18:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291435AbSAaXwM>; Thu, 31 Jan 2002 18:52:12 -0500
-Received: from mail.littlefeet-inc.com ([63.215.255.3]:17415 "EHLO
-	ltfsd01.little-ft.com") by vger.kernel.org with ESMTP
-	id <S291434AbSAaXvH>; Thu, 31 Jan 2002 18:51:07 -0500
-Message-ID: <B9F49C7F90DF6C4B82991BFA8E9D547B12570A@BUFORD.littlefeet-inc.com>
-From: Kris Urquhart <kurquhart@littlefeet-inc.com>
-To: "'Alexander Viro'" <viro@math.psu.edu>
-Cc: "'Andreas Dilger'" <adilger@turbolabs.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: ext2/mount - multiple mounts corrupts inodes
-Date: Thu, 31 Jan 2002 15:46:45 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S291441AbSAaXzI>; Thu, 31 Jan 2002 18:55:08 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:64616 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S291437AbSAaXyy>; Thu, 31 Jan 2002 18:54:54 -0500
+Date: Fri, 1 Feb 2002 00:55:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Anton Blanchard <anton@samba.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Momchil Velikov <velco@fadata.bg>, John Stoffel <stoffel@casc.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020201005543.K3396@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0201311115450.1732-100000@penguin.transmeta.com> <Pine.LNX.4.33.0201312227350.18203-100000@localhost.localdomain> <20020131231242.GA4138@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20020131231242.GA4138@krispykreme>; from anton@samba.org on Fri, Feb 01, 2002 at 10:12:42AM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Alexander Viro [mailto:viro@math.psu.edu]
-> Sent: Thursday, January 31, 2002 1:58 PM
-
-> On Thu, 31 Jan 2002, Kris Urquhart wrote:
+On Fri, Feb 01, 2002 at 10:12:42AM +1100, Anton Blanchard wrote:
+>  
+> Hi Ingo,
 > 
-> > Dec 31 23:42:41 jumptec kernel: VFS: Disk change detected on device
-> > ide0(3,3)
-> > Dec 31 23:42:41 jumptec kernel: VFS: Disk change detected on device
-> > ide0(3,3)
-> > Dec 31 23:42:41 jumptec kernel: invalidate: dirty buffer
+> > Yes, it's very nice. Anton Blanchard has benchmarked both patch variants
+> > (tree vs. scalable-hash page buckets) for SMP scalability against the
+> > stock hash, on big RAM, many CPUs boxes, via dbench load. He has found
+> > performance of radix trees vs. scalable hash to be at least equivalent. (i
+> > think Anton has a few links to show the resulting graphs.)
 > 
-> I'd say...  Looks like a broken disk change check and everything after
-> that is not a surprise.
+> Here are some results on a 12 way machine. (2.4.16-splay is the radix
+> patch):
 > 
-> What patches do you have applied and what chipset it is?
->
+> http://samba.org/~anton/linux/pagecache_locking/1/summary.png
+> 
+> As you can see both patches give pretty much equal improvements.
+> 
+> The other problem with the current pagecache hash is that it maxes out
+> at order 9 (due to the get_free_pages limitation) which starts to hurt
+> at 4GB RAM and above. On a 32GB machine the average hashchain depth
+> was very high:
+> 
+> http://samba.org/~anton/linux/pagecache/pagecache_before.png
+> 
+> There were a few solutions (from davem and ingo) to allocate a larger
+> hash but with the radix patch we no longer have to worry about this.
+> 
+> So the radix patch solves 2 problems quite nicely :)
 
-No patches - linux-2.4.17 right off of www.linux.org.  
+all the hashes should be allocated with the bootmem allocator, that
+doesn't have the MAX_ORDER limit. Not only the pagecache hash, that is
+the only one replaced.
 
-The chipset is an ALI 1487/1489.  
-The disk itself is a JUMPtec DISKchip with a SanDisk 20-99-00024-1 on it.
+In short, for an optimal comparison between hash and radix tree, we'd
+need to fixup the hash allocation with the bootmem allocator first.
 
-The relevant lines from dmesg are:
- Uniform Multi-Platform E-IDE driver Revision: 6.31
- ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
- hda: SunDisk SDTB-128, ATA DISK drive
- ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
- hda: 31360 sectors (16 MB) w/1KiB Cache, CHS=490/2/32
- Partition check:
-  hda: hda1 hda2 hda3
-
-% cat /proc/ide/driver
-ide-disk version 1.10
-
-There is a CONFIG_BLK_DEV_ALI14XX, but apparently it only turns on 
-support for the second channel.  I tried it anyway (along with the 
-ide0=ali14xx boot parameter), but the disk was then not recognized 
-at boot time (busy/timeout during partition check).  A google search 
-did not turn up any problems with ali14xx.c since 2.0.
-
-What else should I try?
-
-Thanks.
-
--Kris
-
-
-
+Andrea

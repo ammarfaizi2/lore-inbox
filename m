@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268395AbTAMWvO>; Mon, 13 Jan 2003 17:51:14 -0500
+	id <S268392AbTAMWl5>; Mon, 13 Jan 2003 17:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268394AbTAMWvO>; Mon, 13 Jan 2003 17:51:14 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:28315 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S268395AbTAMWvM>; Mon, 13 Jan 2003 17:51:12 -0500
-Subject: Re: Linux 2.4.21-pre3-ac3 and KT400
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Edward Tandi <ed@efix.biz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042497524.2819.51.camel@wires.home.biz>
-References: <1042495829.1223.10.camel@sun>
-	 <1042497524.2819.51.camel@wires.home.biz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042498392.1191.31.camel@sun>
-Mime-Version: 1.0
-Date: 13 Jan 2003 23:53:12 +0100
-Content-Transfer-Encoding: 7bit
+	id <S268386AbTAMWl5>; Mon, 13 Jan 2003 17:41:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52234 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268392AbTAMWlz>; Mon, 13 Jan 2003 17:41:55 -0500
+Date: Mon, 13 Jan 2003 14:48:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Adam Belay <ambx1@neo.rr.com>
+cc: Jaroslav Kysela <perex@suse.cz>, Greg KH <greg@kroah.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>, Shawn Starr <spstarr@sh0n.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnP update - drivers
+In-Reply-To: <20030113173906.GA605@neo.rr.com>
+Message-ID: <Pine.LNX.4.44.0301131446380.15429-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-13 at 23:38, Edward Tandi wrote:
-> On Mon, 2003-01-13 at 22:10, Soeren Sonnenburg wrote:
-> > [...]
-> > > I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard.
-> > > The processor is a 1.5GHz Athlon XP. I started experimenting with
-> > > new-ish kernels again because of the general lack of kernel support
-> > > for this chipset in stock kernels. 3 questions below:
-> > 
-> > Hey finally someone with my setup :-))
-> > 
-> > > 1) I have 1GB ram, but I cannot get high memory support to work. It
-> > > falls over during boot. I've seen discussions about AMD cache issues,
-> > > but has it been fixed yet? Is it supposed to work?
-> > 
-> > I am using older kernels (2.4.20) and it seems to work...
+
+On Mon, 13 Jan 2003, Adam Belay wrote:
 > 
-> Yes, but as you mention below, it is unstable.
+> I'm now unhappy with the current pnp code and will most likely revert all pnp
+> changes between 2.5.56 and 2.5.57 to avoid a merging nightmare.  I will then
+> carefully remerge what I feel is acceptable.
 
-Well it works rock stable - except for one of my harddisks freezing once
-in a week (but that is another issue) - if I don't use the two
-additional promise TX2 ide controllers (extra cards not the onboard
-stuff).
+I will _not_ accept just stupid reverts, if that means that a device 
+driver is not available for people to test with.
 
-> OK. I am using the OSS driver. Still, it should work normally.
+We do not break drivers like that, and the reason you have clashes with 
+other people is that so many drivers ended up being broken for too long. 
 
-agreed.
+Feel free to revert the changes one by one _as_they_get_fixed_. But don't 
+even try to send me a patch that reverts things to a broken state. The PnP 
+changes have been painful enough as-is.
 
-> > 3) I get the following messages at boot-time:
-> > [...]
-> > > Jan 13 18:23:05 wires kernel: hda: dma_intr: error=0x84 {
-> > > DriveStatusError BadCRC }
-> > > Jan 13 18:23:05 wires kernel: blk: queue c0437940, I/O limit 4095Mb
-[...] 
-> > That sounds like a bad cable. Do you use 80wires ide cables, connectors
-> > attached to the ends ?
-> 
-> No, but my drives are old and only support UDMA 2 anyway. I get most
-> things off the LAN. It should really enable UDMA 2.
-
-hmmhh, I would consider checking the harddisk then... it might be
-defective.
-
-Soeren.
+		Linus
 

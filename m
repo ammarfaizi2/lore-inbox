@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUKXAJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUKXAJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUKXAJp (ORCPT <rfc822;willy@w.ods.org>);
+	id S261405AbUKXAJp (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 23 Nov 2004 19:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWRdq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUKXAEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:33:46 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:896 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261348AbUKWQRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:17:37 -0500
-Cc: openib-general@openib.org
-In-Reply-To: <20041123816.bPLXoHbNS6amekEO@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Tue, 23 Nov 2004 08:16:15 -0800
-Message-Id: <20041123816.baaAyOggjbry3R4e@topspin.com>
+	Tue, 23 Nov 2004 19:04:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54441 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261369AbUKWRnT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 12:43:19 -0500
+Date: Tue, 23 Nov 2004 09:42:55 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: USB: uhci.c poll for wakeup events
+Message-ID: <20041123094255.72ffe5e8@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][RFC/v2][19/21] Document InfiniBand ioctl use
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 23 Nov 2004 16:16:20.0834 (UTC) FILETIME=[C4EC2420:01C4D177]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the 0x1b ioctl magic number used by ib_umad module to
-Documentation/ioctl-number.txt.
+Forwarded from: Alan Stern
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+This patch causes the uhci driver in 2.4 to wake up the controller when
+the root-hub polling loop detects a connect change event.  Normally the
+wakeup is handled by an interrupt, but it turns out the recent Genesys
+Logic GL880S UHCI controller is defective and does not generate the 
+necessary IRQ.  With this patch the controller becomes useable.
+
+[P3: The usb-uhci is not affected, apparently.]
 
 
---- linux-bk.orig/Documentation/ioctl-number.txt	2004-11-23 08:09:54.932309534 -0800
-+++ linux-bk/Documentation/ioctl-number.txt	2004-11-23 08:10:24.016021218 -0800
-@@ -72,6 +72,7 @@
- 0x09	all	linux/md.h
- 0x12	all	linux/fs.h
- 		linux/blkpg.h
-+0x1b	all	InfiniBand Subsystem	<http://www.openib.org/>
- 0x20	all	drivers/cdrom/cm206.h
- 0x22	all	scsi/sg.h
- '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+--- linux-2.4.27/drivers/usb/host/uhci.c.orig	2003-06-13 10:51:36.000000000 -0400
++++ linux-2.4.27/drivers/usb/host/uhci.c	2004-10-28 11:52:27.000000000 -0400
+@@ -1981,6 +1981,8 @@
+ 	if ((data > 0) && (uhci->rh.send != 0)) {
+ 		dbg("root-hub INT complete: port1: %x port2: %x data: %x",
+ 			inw(io_addr + USBPORTSC1), inw(io_addr + USBPORTSC2), data);
++		if (uhci->is_suspended)
++			wakeup_hc(uhci);
+ 		uhci_call_completion(urb);
+ 	}
+ 
+
 

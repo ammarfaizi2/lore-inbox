@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbUBZP7n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUBZP7n
+	id S262824AbUBZQCe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 11:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbUBZP7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:59:43 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:61964 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262805AbUBZP6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:58:35 -0500
-Message-ID: <403E1A11.5050704@techsource.com>
-Date: Thu, 26 Feb 2004 11:08:49 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Peter Williams <peterw@aurema.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com> <403D576A.6030900@aurema.com>
-In-Reply-To: <403D576A.6030900@aurema.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 10:59:54 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:59147 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262802AbUBZP7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:59:07 -0500
+Date: Thu, 26 Feb 2004 15:59:02 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?David_Mart=EDnez_Moreno?= <ender@debian.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm4
+Message-ID: <20040226155902.A19918@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?David_Mart=EDnez_Moreno?= <ender@debian.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040225185536.57b56716.akpm@osdl.org> <200402261650.15596.ender@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200402261650.15596.ender@debian.org>; from ender@debian.org on Thu, Feb 26, 2004 at 04:50:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Peter Williams wrote:
-> Timothy Miller wrote:
->  > <snip>
+On Thu, Feb 26, 2004 at 04:50:14PM +0100, David Martínez Moreno wrote:
+Content-Description: clearsigned data
+> 	Attached patch fixes compilation of ini9100u driver and cleans several 
+> unneeded definitions. It applies cleanly to 2.6.3-mm4 (I think).
 > 
->> In fact, that may be the only "flaw" in your design.  It sounds like 
->> your scheduler does an excellent job at fairness with very low 
->> overhead.  The only problem with it is that it doesn't determine 
->> priority dynamically.
-> 
-> 
-> This (i.e. automatic renicing of specified programs) is a good idea but 
-> is not really a function that should be undertaken by the scheduler 
-> itself.  Two possible solutions spring to mind:
-> 
-> 1. modify the do_execve() in fs/exec.c to renice tasks when they execute 
-> specified binaries
+> 	Could you please review, because although simple, I'm scared, I don't really 
+> know if my patch is doing the Right Thing (tm)? Thanks. :-)
 
-We don't want user-space programs to have control over priority.  This 
-is DoS waiting to happen.
+it's not 100% correct as the driver should support multiple HBAs.
+Here's a better one:
 
-> 2. have a user space daemon poll running tasks periodically and renice 
-> them if they are running specified binaries
-
-This is much too specific.  Again, if the USER has control over this 
-list, then it's potential DoS.  And if the user adds a program which 
-should qualify but which is not in the list, the program will not get 
-its deserved boost.
-
-And a sysadmin is not going to want to update 200 lab computers just so 
-one user can get their program to run properly.
-
-> 
-> Both of these solutions have their advantages and disadvantages, are 
-> (obviously) complicated than I've made them sound and would require a 
-> great deal of care to be taken during their implementation.  However, I 
-> think that they are both doable.  My personal preference would be for 
-> the in kernel solution on the grounds of efficiency.
-
-They are doable, but they are not a general solution.
-
+--- 1.21/drivers/scsi/ini9100u.c	Wed Feb  4 06:38:11 2004
++++ edited/drivers/scsi/ini9100u.c	Thu Feb 26 17:58:20 2004
+@@ -180,15 +180,6 @@
+ 
+ static char *setup_str = (char *) NULL;
+ 
+-static irqreturn_t i91u_intr0(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr1(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr2(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr3(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr4(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr5(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr6(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr7(int irq, void *dev_id, struct pt_regs *);
+-
+ static void i91u_panic(char *msg);
+ 
+ static void i91uSCBPost(BYTE * pHcb, BYTE * pScb);
+@@ -278,7 +269,7 @@
+ 	unsigned long flags;
+ 	
+ 	spin_lock_irqsave(dev->host_lock, flags);
+-	tul_isr((HCS *)hreg->base);
++	tul_isr((HCS *)dev->base);
+ 	spin_unlock_irqrestore(dev->host_lock, flags);
+ 	return IRQ_HANDLED;
+ }

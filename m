@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267833AbRGRTXy>; Wed, 18 Jul 2001 15:23:54 -0400
+	id <S267921AbRGRT0y>; Wed, 18 Jul 2001 15:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267914AbRGRTXo>; Wed, 18 Jul 2001 15:23:44 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:54614 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267833AbRGRTX2>; Wed, 18 Jul 2001 15:23:28 -0400
-Date: Wed, 18 Jul 2001 15:23:33 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: acpi patch in 2.4.6
-Message-ID: <20010718152333.A3393@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267919AbRGRT0e>; Wed, 18 Jul 2001 15:26:34 -0400
+Received: from www.wen-online.de ([212.223.88.39]:44041 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S267914AbRGRT00>;
+	Wed, 18 Jul 2001 15:26:26 -0400
+Date: Wed, 18 Jul 2001 21:25:21 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Inclusion of zoned inactive/free shortage patch
+In-Reply-To: <Pine.LNX.4.33L.0107181536590.28730-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0107182119360.313-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 18 Jul 2001, Rik van Riel wrote:
 
-How is the following chunk taken from patch-2.4.6 ever going to work ?
+> On Wed, 18 Jul 2001, Mike Galbraith wrote:
+> > On Wed, 18 Jul 2001, Rik van Riel wrote:
+>
+> > > Marcelo, now that you have the nice VM statistics
+> > > patch, do you have some numbers on how this patch
+> > > affects the system, or is this patch based on
+> > > guesswork ?  ;)
+> >
+> > Have you read Dirk's logs or read the pertinent threads at all?
+>
+> Yes. Read the one from "Mon, 16 Jul 2001 15:14:02 -0400 (EDT)", the
+> one where Dirk replies to his own email with "wishful thinking ;-(".
 
-diff -u --recursive --new-file v2.4.5/linux/drivers/acpi/os.c
-linux/drivers/acpi/os.c
---- v2.4.5/linux/drivers/acpi/os.c      Mon Jan 22 13:23:43 2001
-+++ linux/drivers/acpi/os.c     Sun Jun 24 20:53:07 2001
-@@ -248,27 +293,27 @@
- void
- acpi_os_mem_out8 (ACPI_PHYSICAL_ADDRESS phys_addr, UINT8 value)
- {
--       *(u8*) (u32) phys_addr = value;
-+       *(u8*) phys_to_virt(phys_addr) = value;
- }
- 
+You didn't paying enough attention.  Marcelo is hot on the trail
+of a problem.
+
+	-Mike
 

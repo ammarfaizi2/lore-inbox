@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317798AbSGPMuL>; Tue, 16 Jul 2002 08:50:11 -0400
+	id <S317814AbSGPMvK>; Tue, 16 Jul 2002 08:51:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317820AbSGPMuK>; Tue, 16 Jul 2002 08:50:10 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:16135 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317798AbSGPMuI>; Tue, 16 Jul 2002 08:50:08 -0400
-Date: Tue, 16 Jul 2002 14:53:01 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S317830AbSGPMvI>; Tue, 16 Jul 2002 08:51:08 -0400
+Received: from [80.94.224.242] ([80.94.224.242]:1801 "EHLO babbler.csp.org.by")
+	by vger.kernel.org with ESMTP id <S317814AbSGPMuS>;
+	Tue, 16 Jul 2002 08:50:18 -0400
+Message-Id: <200207161312.g6GDC7B20891@babbler.csp.org.by>
+From: Svetlana Savitskaya <svs@atwss.com>
 To: linux-kernel@vger.kernel.org
-Cc: Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
-       dax@gurulabs.com
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716125301.GI4576@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
-	dax@gurulabs.com
-References: <1026490866.5316.41.camel@thud> <1026679245.15054.9.camel@thud> <E17U1BD-0000m0-00@hofmann> <1026736251.13885.108.camel@irongate.swansea.linux.org.uk> <E17U4YE-0000TL-00@hofmann> <20020715160357.GD442@clusterfs.com> <E17U9x9-0001Dc-00@hofmann> <20020716081531.GD7955@tahoe.alcove-fr> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr>
+Subject: business proposal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+Reply-To: svs@atwss.com
+Date: Tue, 16 Jul 2002 14:52:42 +0200
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020716124331.GJ7955@tahoe.alcove-fr>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, Stelian Pop wrote:
 
-> > Low-level snapshots don't do any good, they just freeze the "halfway
-> > there" on-disk structure.
-> 
-> But [s|g]tar, cpio, afio (don't know about dsmc) also freeze the
-> "halfway there" data, but at the file level instead (application
-> instead of filesystem)...
+Dear Sir/Madame,
 
-Not if some day somebody implements file system level snapshots for
-Linux. Until then, better have garbled file contents constrained to a
-file than random data as on-disk layout changes with hefty directory
-updates.
+My name is Svetlana Savitskaya. I work for Arch/Web Space Station, a
+web and software development. We have a business proposal that may be
+of interest to you. It is about outsourcing development of IT systems.
+Please let me know if you are interested and I'll send you more details.
 
-dsmc fstat()s the file it is currently reading regularly and retries the
-dump as the changes, and gives up if it is updated too often. Not sure
-about the server side, and certainly not a useful option for sequential
-devices that you directly write on. Looks like a cache for the biggest
-file is necessary.
+You can get more information about us at www.web-space-station.com.
+Our portfolio: www.web-space-station.com/portfolio/index.html
+
+Testimonials: http://www.web-space-station.com/cgi-bin/pub/testimonials/testimonials.cgi
+
+Thank you for your time and considerations,
+
+Svetlana Savitskaya
+Business Development Department
+Email: svs@atwss.com
+Tel.: +375 172 840792
+
+PS We are highly concerned about ethical business. We
+found you as a result of our targeted on-line search. It's a
+business-to-business proposal and you are not placed in
+any mailing list. There is no necessity to unsubscribe. If
+you don't reply to this message we will assume that you
+are not interested in our proposal and never contact you
+again.
+
+Arch Ltd./Web Space Station
+Podebradova 697/16,
+Prague, 182 00
+Czech Republic
+
+
 

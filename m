@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUKFMEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUKFMGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbUKFMEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 07:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbUKFMEI
+	id S261378AbUKFMGW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 07:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUKFMGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 07:04:08 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:19721 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261368AbUKFMEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 07:04:04 -0500
-Date: Sat, 6 Nov 2004 12:03:58 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Richard Waltham <richard@fars-robotics.net>,
-       SUPPORT <support@4bridgeworks.com>, Thomas Babut <thomas@babut.net>,
-       linux-kernel@vger.kernel.org, Linux SCSI <linux-scsi@vger.kernel.org>,
-       groudier@free.fr
-Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
-Message-ID: <20041106120358.GC23305@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matthew Wilcox <matthew@wil.cx>,
-	Richard Waltham <richard@fars-robotics.net>,
-	SUPPORT <support@4bridgeworks.com>, Thomas Babut <thomas@babut.net>,
-	linux-kernel@vger.kernel.org,
-	Linux SCSI <linux-scsi@vger.kernel.org>, groudier@free.fr
-References: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local> <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
+	Sat, 6 Nov 2004 07:06:22 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:54920 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261378AbUKFMGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 07:06:10 -0500
+Date: Sat, 6 Nov 2004 13:05:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Amit Shah <amitshah@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
+Message-ID: <20041106120525.GA15363@elte.hu>
+References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu> <200411061414.11719.amitshah@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <200411061414.11719.amitshah@gmx.net>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 03:59:51AM +0000, Matthew Wilcox wrote:
-> On Sat, Nov 06, 2004 at 12:02:32AM -0000, Richard Waltham wrote:
-> > Good as a backup but the original PPR capability is defined in
-> > scan_scsi.c. Shouldn't scan_scsi.c take note of the bus mode and enable
-> > PPR capabilities accordingly? This would then cover this issue for all
-> > relevant LLDDs wouldn't it?
+
+* Amit Shah <amitshah@gmx.net> wrote:
+
+> I had left the machine running overnight; I got a few BUGs and some
+> spinlock hold counts.
 > 
-> scan_scsi.c doesn't know what mode the bus is in.  scan_scsi.c doesn't
-> even know whether the bus is SPI, FC, iSCSI, SAS or SATA.
+> The message mentioned above about the e1000 xmit frame also keeps
+> appearing, but does not result in hangs.
+> 
+> I've uploaded the /var/log/messages file to
+> 
+>  http://amitshah.nav.to/kernel/messages-rt-0.7.13.txt
+> 
+> Please take a look.
 
-And PPR only makes sense for SPI anyway.  An good argument why this
-should move to the SPI transport class, which does know about SE vs HVD
-vs LVD.
+found the bug(s), the e1000 driver disabled interrupts on
+PREEMPT_REALTIME too, and the debug-message printout had a bug as well.
+Found a similar problem in the tg3 driver too. Could you check out
+-V0.7.15 that i've just uploaded to:
 
+   http://redhat.com/~mingo/realtime-preempt/
+
+does this work any better? [you'll still get the e100 message but that
+is harmless.]
+
+	Ingo

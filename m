@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264425AbTDOKJU (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 06:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbTDOKJU (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 06:09:20 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:34833 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264425AbTDOKJS (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 06:09:18 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: pk@q-leap.com, linux-kernel@vger.kernel.org
-Subject: Re: oops with e1000, ifenslave (bonding)
-Date: Tue, 15 Apr 2003 12:20:36 +0200
-User-Agent: KMail/1.5.1
-References: <16027.55946.797266.771034@q-leap.com>
-In-Reply-To: <16027.55946.797266.771034@q-leap.com>
+	id S264428AbTDOKbJ (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 06:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTDOKbJ (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 06:31:09 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:56468 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S264428AbTDOKbI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 06:31:08 -0400
+To: neilb@unsw.edu.au
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH-2.4] raid5 oopses on 2nd failed device
+From: Alex Tomas <alexey@technomagesinc.com>
+Organization: HOME
+Date: Tue, 15 Apr 2003 14:42:29 +0400
+Message-ID: <m3adest52i.fsf@tmi.comex.ru>
+User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_0z9m+DO6NT4BhFL"
-Message-Id: <200304151220.36148.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_0z9m+DO6NT4BhFL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+hi!
 
-On Tuesday 15 April 2003 12:10, Peter wrote:
+it looks like raid5 is buggy. as 2nd device is failed, I got oops.
+it's BUG at raid5.c:212. this is because sh->written[N] isn't NULL.
+raid5d thread try to handle this stripe, but following condition
+skip handling:
 
-Hi Peter,
+        /* might be able to return some write requests if the parity block
+         * is safe, or on a failed drive
+         */
+        bh = sh->bh_cache[sh->pd_idx];
+        if ( written &&
+             ( (conf->disks[sh->pd_idx].operational && !buffer_locked(bh) && buffer_uptodate(bh))
+               || (failed == 1 && failed_num == sh->pd_idx))
+            ) {
 
-> Hello,
-> the following oops occurs repeatadly:
-Does the attached patch fixes the problem?
+I suggest to fail requests which can't be returned as successful.
 
-Patch by: Scott Feldman <scott.feldman <located at> intel.com>
+with best regards
 
-ciao, Marc
---Boundary-00=_0z9m+DO6NT4BhFL
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="e1000-bonding-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="e1000-bonding-fix.patch"
 
---- linux-2.4.20/drivers/net/e1000/e1000_main.c.orig	2003-03-11 13:45:26.000000000 -0800
-+++ linux-2.4.20/drivers/net/e1000/e1000_main.c	2003-03-11 14:12:12.000000000 -0800
-@@ -963,6 +963,9 @@
- 	unsigned long size;
- 	int i;
- 
-+	if(!adapter->tx_ring.buffer_info)
-+		return;
+diff -puNr linux/drivers/md/raid5.c edited/drivers/md/raid5.c
+--- linux/drivers/md/raid5.c	Wed Jan 15 20:18:37 2003
++++ edited/drivers/md/raid5.c	Tue Apr 15 12:59:24 2003
+@@ -938,7 +938,19 @@ static void handle_stripe(struct stripe_
+ 		    }
+ 		}
+ 	}
+-		
++	
++	/* if already written requests can't be returned as successful fail them */
++	if (failed > 1 && written) {
++		for (i=disks; i--; ) {
++			if (sh->bh_written[i]) written--;
++			while ((bh = sh->bh_written[i])) {
++				sh->bh_written[i] = bh->b_reqnext;
++				bh->b_reqnext = return_fail;
++				return_fail = bh;
++			}
++		}
++	}
 +
- 	/* Free all the Tx ring sk_buffs */
- 
- 	for(i = 0; i < adapter->tx_ring.count; i++) {
-@@ -1028,6 +1031,9 @@
- 	unsigned long size;
- 	int i;
- 
-+	if(!adapter->rx_ring.buffer_info)
-+		return;
-+
- 	/* Free all the Rx ring sk_buffs */
- 
- 	for(i = 0; i < adapter->rx_ring.count; i++) {
-
---Boundary-00=_0z9m+DO6NT4BhFL--
+ 	/* Now we might consider reading some blocks, either to check/generate
+ 	 * parity, or to satisfy requests
+ 	 */
 

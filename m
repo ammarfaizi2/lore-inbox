@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSKRTLJ>; Mon, 18 Nov 2002 14:11:09 -0500
+	id <S262506AbSKRTQj>; Mon, 18 Nov 2002 14:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSKRTLJ>; Mon, 18 Nov 2002 14:11:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4357 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264733AbSKRTLI>;
-	Mon, 18 Nov 2002 14:11:08 -0500
-Message-ID: <3DD93CD2.10100@pobox.com>
-Date: Mon, 18 Nov 2002 14:17:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Morgan <imorgan@webcon.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S263968AbSKRTQj>; Mon, 18 Nov 2002 14:16:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35087 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262506AbSKRTQi>; Mon, 18 Nov 2002 14:16:38 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: tco/rng support for Intel chipsets other than the i810?
-References: <Pine.LNX.4.44.0211181410000.16963-100000@light.webcon.net>
-In-Reply-To: <Pine.LNX.4.44.0211181410000.16963-100000@light.webcon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: 18 Nov 2002 11:23:32 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <arbenk$7ct$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0211181410000.16963-100000@light.webcon.net> <3DD93CD2.10100@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Morgan wrote:
-
-> On Mon, 18 Nov 2002, Jeff Garzik wrote:
->
->
-> >WRT RNG, more than just i810 supports RNG, yes.  There are several
-> >chipset ids in i810_rng.c which are for later versions after i810.
+Followup to:  <3DD93CD2.10100@pobox.com>
+By author:    Jeff Garzik <jgarzik@pobox.com>
+In newsgroup: linux.dev.kernel
+> 
 > >
-> >So, the driver is perhaps misnamed at this point :) but it's not a huge
-> >deal, so I haven't renamed it to i8xx_rng.c.  :)
->
->
-> Do you think I can just add an entry into the rng_pci_tbl[] for my 845PE
-> (8086, 2560) and have it work?
+> > Do you think I can just add an entry into the rng_pci_tbl[] for my 845PE
+> > (8086, 2560) and have it work?
+> 
+> I don't have the docs, so I'm guessing here, but it's entirely possible.
+> 
 
+FWIW, the Intel RNG isn't really in the chipset proper, but rather in
+the "firmware hub", the glorified BIOS ROM.  The detection mechanism
+is interesting, to say the least.
 
-I don't have the docs, so I'm guessing here, but it's entirely possible.
-
-	Jeff
-
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

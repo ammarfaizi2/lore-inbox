@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135352AbRDLVkJ>; Thu, 12 Apr 2001 17:40:09 -0400
+	id <S135335AbRDLVwv>; Thu, 12 Apr 2001 17:52:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135350AbRDLVj4>; Thu, 12 Apr 2001 17:39:56 -0400
-Received: from t2.redhat.com ([199.183.24.243]:13310 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135349AbRDLVjh>; Thu, 12 Apr 2001 17:39:37 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <65256A2C.0032850D.00@sandesh.hss.hns.com> 
-In-Reply-To: <65256A2C.0032850D.00@sandesh.hss.hns.com> 
-To: npunmia@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RTC !! 
-Mime-Version: 1.0
+	id <S135353AbRDLVwl>; Thu, 12 Apr 2001 17:52:41 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:7942
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S135335AbRDLVw2>; Thu, 12 Apr 2001 17:52:28 -0400
+Date: Thu, 12 Apr 2001 14:52:22 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: schwidefsky@de.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+In-Reply-To: <3AD622AB.5F0A061B@linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 12 Apr 2001 22:39:29 +0100
-Message-ID: <19975.987111569@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-npunmia@hss.hns.com said:
-> The RTC interrupt  is programmable from 2 Hz to 8192 Hz, in powers of
-> 2. So the interrupts that you could get are one of the following:
-> 0.122ms, .244ms, .488ms, .977ms, 1.953ms, 3.906ms, 7.813ms, and so on.
->    Is there any  workaround , so that i can use RTC for meeting my
-> requirement of an interrupt every 1.666..ms!!  ( I know that i can use
-> UTIME or #define HZ 600, but i want to know if i can use RTC for this
-> purpose ) 
+Okay but what will be used for a base for hardware that has critical
+timing issues due to the rules of the hardware?
 
-You could also use the RTC  for providing the system tick (You'd need to 
-make HZ a power of two, obviously) and then use the 8254 for providing your 
-600Hz interrupt.
+I do not care but your drives/floppy/tapes/cdroms/cdrws do:
 
---
-dwmw2
+/*
+ * Timeouts for various operations:
+ */
+#define WAIT_DRQ        (5*HZ/100)      /* 50msec - spec allows up to 20ms */
+#ifdef CONFIG_APM
+#define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
+#else
+#define WAIT_READY      (3*HZ/100)      /* 30msec - should be instantaneous */
+#endif /* CONFIG_APM */
+#define WAIT_PIDENTIFY  (10*HZ) /* 10sec  - should be less than 3ms (?), if all ATAPI CD is closed at boot */
+#define WAIT_WORSTCASE  (30*HZ) /* 30sec  - worst case when spinning up */
+#define WAIT_CMD        (10*HZ) /* 10sec  - maximum wait for an IRQ to happen */
+#define WAIT_MIN_SLEEP  (2*HZ/100)      /* 20msec - minimum sleep time */
 
+Give me something for HZ or a rule for getting a known base so I can have
+your storage work and not corrupt.
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

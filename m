@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTJNVDR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJNVDR
+	id S262771AbTJNVIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTJNVIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:03:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262013AbTJNVDQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:03:16 -0400
-Date: Tue, 14 Oct 2003 14:02:16 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Vortex full-duplex doesn't work?
-Message-Id: <20031014140216.21cf33a3.rddunlap@osdl.org>
-In-Reply-To: <20031014223109.A7167@beton.cybernet.src>
-References: <20031014223109.A7167@beton.cybernet.src>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 14 Oct 2003 17:08:40 -0400
+Received: from tao.natur.cuni.cz ([195.113.56.1]:34065 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S262771AbTJNVId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:08:33 -0400
+X-Obalka-From: mmokrejs@natur.cuni.cz
+Date: Tue, 14 Oct 2003 23:08:23 +0200 (CEST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 0-order allocation failed on 2.4.23-pre5 and pre7
+In-Reply-To: <Pine.LNX.4.44.0310141152320.3275-100000@logos.cnet>
+Message-ID: <Pine.OSF.4.51.0310142307150.471142@tao.natur.cuni.cz>
+References: <Pine.LNX.4.44.0310141152320.3275-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003 22:31:09 +0200 Karel Kulhavý <clock@twibright.com> wrote:
+On Tue, 14 Oct 2003, Marcelo Tosatti wrote:
 
-| Hello
-| 
-| I have collected from tidbits of information that
-| ether=0,0,0x201,0,eth0 should set my 3c900 card to full duplex AUI.
-| 
-| I have tried this, then ifconfig eth0 up and then
-| vortex-diag -vv and it still reports MAC Settings: half-duplex
-| 
-| When I rewrite all occurences of full_duplex in 3c59x.c for hard-coded
-| "1", then I get MAC Settings: full-duplex
-| 
-| How do I set up this driver to force full-duplex AUI for 3c900 network
-| card without using modules and without patching 3c59x.c?
+>
+>
+> On Mon, 13 Oct 2003, [iso-8859-2] Martin MOKREJ? wrote:
+>
+> > Hi,
+> >   it's a long time I haven't seen sthis messages, but it just happened that
+> > I did on my laptop ASUS L3880C(1GB RAM). The message show on
+> > 2.4.23-pre5+acpi20030918 and 2.4.23-pre7. The application get's killed on
+> > 2.4.22-acpi20030918 too, just without the "0-order allocation" message.
+> > I enabled in kernel the VM allocation debug option when configuring, but
+> > apparently I have to turn it on also somewhere else. *Documentation* is
+> > missing: 1) the help in "make config/menuconfig" etc. doesn't say anything,
+> > the Documentation subdirectory doesn't say anything except "debug" as
+> > kernel boot option on command-line(I did that too, but no change) and also
+> > linux kernel-FAQ doesn't say either. :(
+> >
+> > How I tested?
+> > `gzip -dc file | less' and pressed `G' to jump to the very end of the file.
+> > The filesize is 280MB only. In a while, the mouse stopps moving for a
+> > while, than the system gets sometimes unloaded, fan is raises it's RPM's up
+> > and down town to time, and mouse cursor eventually does a move and then
+> > less command gets killed. In dmesg I found:
+> >
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process less
+>
+> Did you try to add some swap to the system?
+>
+> It seems you have none.
 
-BTW, what kernel version ???
+Yes, so far I did not need it. Do I really have to? I believe 1GB RAM
+should suffice ... Sorry for not mentioning that!
 
-As I indicated in another reply to you, <quote>
-Please try this, although I'm not yet convinced that the 3c59x
-driver calls all of the right hooks for this to work.
-but good luck, and please report back on it. </quote>
-
-It looks to me like (but I haven't traced it completely)
-3c59x doesn't call netdev_boot_setup_check() [even indirectly],
-and that is needed to set the irq/base/mem_start/mem_end
-parameters for use during the probe() function.
-(I'm looking at 2.4.22 source code for this.)
-(3c59x uses mem_start for driver options flags.)
-
-Can anyone confirm this?  If so, we could fix it, but I'd
-like to have some confirmation of what I'm thinking on this
-since I can't test it (no vortex/boomerang adapter).
-
---
-~Randy
+-- 
+Martin Mokrejs <mmokrejs@natur.cuni.cz>, <m.mokrejs@gsf.de>
+PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+tel.: +49-89-3187 3683 , fax: +49-89-3187 3585

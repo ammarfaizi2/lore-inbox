@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbQLMALl>; Tue, 12 Dec 2000 19:11:41 -0500
+	id <S130070AbQLMAML>; Tue, 12 Dec 2000 19:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129590AbQLMALb>; Tue, 12 Dec 2000 19:11:31 -0500
-Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:49405 "EHLO
-	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S129255AbQLMALN>; Tue, 12 Dec 2000 19:11:13 -0500
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-From: "Gnea" <gnea@rochester.rr.com>
-To: Juan <piernas@ditec.um.es>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Still "eth0: trigger_send() called with the transmitter busy"
-    in 2.4.0-test12
-X-Mailer: Pronto v2.2.2
-Date: 12 Dec 2000 18:22:29 EST
-Reply-To: "Gnea" <gnea@rochester.rr.com>
-In-Reply-To: <3A366482.7930EC43@ditec.um.es>
-In-Reply-To: <3A366482.7930EC43@ditec.um.es>
-Message-ID: <20001212231820.AAA6560@mail2.nyroc.rr.com@celery>
+	id <S130180AbQLMAMC>; Tue, 12 Dec 2000 19:12:02 -0500
+Received: from jalon.able.es ([212.97.163.2]:46811 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130070AbQLMALx>;
+	Tue, 12 Dec 2000 19:11:53 -0500
+Date: Wed, 13 Dec 2000 00:41:19 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Jussi Laako <jussi@jlaako.pp.fi>
+Cc: Marc Mutz <Marc@Mutz.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM problem (2.4.0-test11)
+Message-ID: <20001213004119.A779@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <3A36A163.3F01277D@jlaako.pp.fi> <3A36ADB8.3CE36940@Mutz.com> <3A36B3E5.CF9FC31D@jlaako.pp.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A36B3E5.CF9FC31D@jlaako.pp.fi>; from jussi@jlaako.pp.fi on Wed, Dec 13, 2000 at 00:25:25 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 12 Dec 2000 18:46:42 +0100, Juan blurted forth:
+On Wed, 13 Dec 2000 00:25:25 Jussi Laako wrote:
+> Marc Mutz wrote:
+> > 
+> > Just to not miss the obvious: You know about ulimit(3)?
+> 
+> Yes, but it doesn't stop deadlocks caused by kernel's VM system going
+> wild... I think that no matter what user process does, root should be always
+> able to stop it. User process should never be able to render whole system
+> unusable.
+> 
 
-> Hi!
->  
->  This error exists since 2.4.0-test10preX or so. It occurs when the
->  network interface is activated.
->  
->  I'm using RedHat 7.0 and my ethernet card is a "Kingston EtheRx KNE20
->  Plug and Play ISA Adapter". I'm unable to access the Internet because
->  the ethernet card doesn't work :-(. Besides, the card uses two
->  interrupts (?) and there are two interfaces (eth0 y eth1) when I have
->  only one (?).
->  
-[snip]
->   --- Next Part --- 
->  
->  Card 1 'KTC2000:Kingston EtheRx KNE20 Plug and Play ISA Adapter' PnP version 1.0 Product version 1.0
->    Logical device 0 'RTL8019:Unknown'
->      Supported registers 0x2
->      Compatible device PNP80d6
->      Device is active
->      Active port 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff
->      Active IRQ 255 [0xff],255 [0xff]
->      Active DMA 255,255
->      Active memory 0xffffffff,0xffffffff,0xffffffff,0xffffffff
->      Resources 0
->        Priority preferred
->        Port 0x240-0x380, align 0x1f, size 0x20, 10-bit address decoding
->        IRQ 3,4,5,2/9,10,11,12,15 High-Edge
-
-try loading the rtl81*.o module(s) until it works right... you should
-see a message for eth1 in dmesg about it
+That is just some issue that was discussed in this list recently. Look in the
+list
+for 'oom killer' subjects.
+There are various patches-ways-to-do available, kernel gurus are still working
+on it...
+(leave always some 4% of mem for root, kill some process when mem is exhausted,
+which one to kill...)
 
 -- 
-	.oO gnea at rochester dot rr dot com Oo.
-	    .oO url: http://garson.org/~gnea Oo.
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
-"You can tune a filesystem, but you can't tuna fish" -unknown
+Linux werewolf 2.2.18-aa1 #1 SMP Mon Dec 11 21:26:28 CET 2000 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

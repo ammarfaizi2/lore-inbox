@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUHNU5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUHNVFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUHNU5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUHNU5j
+	id S266155AbUHNVFe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 17:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUHNVFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:57:39 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:38067 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265928AbUHNU5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:57:34 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Len Brown <len.brown@intel.com>
-Subject: Re: [BKPATCH] ACPI for 2.6
-Date: Sat, 14 Aug 2004 13:56:51 -0700
-User-Agent: KMail/1.6.2
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <1092466509.5028.248.camel@dhcppc4>
-In-Reply-To: <1092466509.5028.248.camel@dhcppc4>
-MIME-Version: 1.0
+	Sat, 14 Aug 2004 17:05:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25086 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266155AbUHNVFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 17:05:31 -0400
+Date: Sat, 14 Aug 2004 23:05:24 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
+Message-ID: <20040814210523.GG1387@fs.tum.de>
+References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_TynHBaaPsbMZ9XT"
-Message-Id: <200408141356.51746.jbarnes@engr.sgi.com>
+In-Reply-To: <20040814074953.GA20123@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_TynHBaaPsbMZ9XT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Friday, August 13, 2004 11:55 pm, Len Brown wrote:
-> Hi Linus, please do a
->
-> 	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.8
->
-> 	Key fixes for suspend/resume, a couple of common
-> 	boot failures, and misc. random fixes.
-
-You'll need this fix for ia64 though.  Linus, please apply.
-
-Define acpi_noirq on ia64 since it's used now in pci_link.c.  All ia64 
-machines use ACPI, so we can just define it to 0 like we do for acpi_disabled 
-and acpi_pci_disabled.
-
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-Thanks,
-Jesse
-
---Boundary-00=_TynHBaaPsbMZ9XT
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ia64-acpi-build-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ia64-acpi-build-fix.patch"
-
-diff -Napur -X /home/jbarnes/dontdiff linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h linux-2.6.8-rc4/include/asm-ia64/acpi.h
---- linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h	2004-08-10 09:01:34.000000000 -0700
-+++ linux-2.6.8-rc4/include/asm-ia64/acpi.h	2004-08-10 09:26:39.000000000 -0700
-@@ -89,6 +89,7 @@ ia64_acpi_release_global_lock (unsigned 
- 	((Acq) = ia64_acpi_release_global_lock((unsigned int *) GLptr))
+On Sat, Aug 14, 2004 at 09:49:53AM +0200, Sam Ravnborg wrote:
+> On Thu, Aug 12, 2004 at 01:05:47AM +0200, Roman Zippel wrote:
+>  
+> > > It would be nice in menuconfig to see what config symbol
+> > > that has dependencies and/or side effects. 
+> > 
+> > xconfig has something like this, if you enable 'Debug Info', although it 
+> > rather dumps the internal representation.
+> > Adding something like this to menuconfig, would mean hacking lxdialog, 
+> > which is rather at the bottom of the list of things I want to do. :)
+> 
+> Did a quick hack on this.
+> When choosing help on "HCI BlueFRITZ! USB driver" menuconfig now displays:
+> 
+> -------------------------------------------------
+> Depends on (select to enable this option):
+> BT & USB
+> Selects (will be enabled by this option): 
+> FW_LOADER
+>...
  
- #define acpi_disabled 0	/* ACPI always enabled on IA64 */
-+#define acpi_noirq 0	/* ACPI always enabled on IA64 */
- #define acpi_pci_disabled 0 /* ACPI PCI always enabled on IA64 */
- #define acpi_strict 1	/* no ACPI spec workarounds on IA64 */
- static inline void disable_acpi(void) { }
+Unless I misunderstood Roman, FW_LOADER should be no longer selected.
 
---Boundary-00=_TynHBaaPsbMZ9XT--
+But if the dependencies of BT_HCIBFUSB were
+  depends on BT && USB && FW_LOADER
+the dependency information was useless since the option itself isn't 
+shown for FW_LOADER=n.
+
+And even if the option was shown:
+How should an average sysadmin configuring his own kernel know where on 
+earth the FW_LOADER option is he has to enable?
+
+> 	Sam
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

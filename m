@@ -1,46 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVBVTZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVBVT2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVBVTZg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBVTZg
+	id S261474AbVBVT2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVBVT1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:25:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:22925 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261326AbVBVTZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:25:30 -0500
-Date: Tue, 22 Feb 2005 11:25:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: jes@wildopensource.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
-Message-Id: <20050222112513.4162860d.akpm@osdl.org>
-In-Reply-To: <20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
-References: <16923.193.128608.607599@jaguar.mkp.net>
-	<20050222020309.4289504c.akpm@osdl.org>
-	<yq0ekf8lksf.fsf@jaguar.mkp.net>
-	<20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 14:27:43 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:44969 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261410AbVBVT1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 14:27:17 -0500
+Message-ID: <421B8793.7020704@acm.org>
+Date: Tue, 22 Feb 2005 13:27:15 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix for the IPMI SMB driver
+Content-Type: multipart/mixed;
+ boundary="------------010907040808090005010306"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <matthew@wil.cx> wrote:
->
-> On Tue, Feb 22, 2005 at 09:41:04AM -0500, Jes Sorensen wrote:
->  > >> + if (page->flags & PG_uncached)
->  > 
->  > Andrew> dude.  That ain't gonna work ;)
->  > 
->  > Pardon my lack of clue, but why not?
+This is a multi-part message in MIME format.
+--------------010907040808090005010306
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	if (page->flags & (1<<PG_uncached))
 
-would have been correcter.
 
->  I think you're supposed to always use test_bit() to check page flags
+--------------010907040808090005010306
+Content-Type: text/plain;
+ name="ipmi-smb-run-timer-when-in-run-to-completion-mode.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-smb-run-timer-when-in-run-to-completion-mode.diff"
 
-Yup.  Add PageUncached macros to page-flags.h.
+The IPMI SMB driver, when running in run-to-completion mode
+(done during panic time), would sometimes get locked up if
+a timeout occurred because the timer would not get run
+properly.  This adds the timer handling to the run-to-completion
+code.
+
+Signed-off-by: Corey Minyard <minyard@acm.org>
+
+Index: linux-2.6.11-rc4/drivers/char/ipmi/ipmi_smb.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/char/ipmi/ipmi_smb.c
++++ linux-2.6.11-rc4/drivers/char/ipmi/ipmi_smb.c
+@@ -140,6 +140,10 @@
+ 	   sure stuff goes out. */
+ 	int                 run_to_completion;
+ 
++	/* Used to perform timer operations when run-to-completion
++	   mode is on.  This is a countdown timer. */
++	int                 rtc_us_timer;
++
+ 	/* Used for sending/receiving data.  +1 for the length. */
+ 	unsigned char data[IPMI_MAX_MSG_LENGTH + 1];
+ 	unsigned int  data_len;
+@@ -322,6 +326,8 @@
+         struct smb_info     *smb_info = (void *) data;
+         struct i2c_op_q_entry *i2ce;
+ 
++	smb_info->rtc_us_timer = 0;
++
+         i2ce = &smb_info->i2c_q_entry;
+         i2ce->xfer_type = I2C_OP_SMBUS;
+         i2ce->handler = msg_done_handler;
+@@ -380,6 +386,7 @@
+ 			t->data = (unsigned long) smb_info;
+ 			t->function = retry_timeout;
+ 			add_timer(t);
++			smb_info->rtc_us_timer = 10000;
+ 			return;
+ 		}
+ 		if  (smb_info->smb_debug & SMB_DEBUG_MSG)
+@@ -790,6 +797,13 @@
+ 		i2c_poll(&smb_info->client, 0);
+ 		while (! SMB_IDLE(smb_info)) {
+ 			udelay(500);
++			if (smb_info->rtc_us_timer > 0) {
++				smb_info->rtc_us_timer -= 500;
++				if (smb_info->rtc_us_timer <= 0) {
++					retry_timeout((unsigned long) smb_info);
++					del_timer(&smb_info->retry_timer);
++				}
++			}
+ 			i2c_poll(&smb_info->client, 500);
+ 		}
+ 		return;
+@@ -856,6 +870,13 @@
+ 		i2c_poll(&smb_info->client, 0);
+ 		while (! SMB_IDLE(smb_info)) {
+ 			udelay(500);
++			if (smb_info->rtc_us_timer > 0) {
++				smb_info->rtc_us_timer -= 500;
++				if (smb_info->rtc_us_timer <= 0) {
++					retry_timeout((unsigned long) smb_info);
++					del_timer(&smb_info->retry_timer);
++				}
++			}
+ 			i2c_poll(&smb_info->client, 500);
+ 		}
+ 	}
+
+--------------010907040808090005010306--

@@ -1,53 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSL2Wor>; Sun, 29 Dec 2002 17:44:47 -0500
+	id <S261934AbSL2WuF>; Sun, 29 Dec 2002 17:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSL2Wor>; Sun, 29 Dec 2002 17:44:47 -0500
-Received: from maild.telia.com ([194.22.190.101]:63721 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S261448AbSL2Woq>;
-	Sun, 29 Dec 2002 17:44:46 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Sun, 29 Dec 2002 23:53:05 +0100
-From: Christian Axelsson <smiler@lanil.mine.nu>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: Re: PROBLEM: Plextor CD-RW hangs when reading via cdrdao/xine/mplayer and ide-scsi
-Message-Id: <20021229235305.146221d5.smiler@lanil.mine.nu>
-In-Reply-To: <1041201603.17115.47.camel@vertex.bastion.free-bsd.org>
-References: <1041201603.17115.47.camel@vertex.bastion.free-bsd.org>
-Organization: LANIL
-X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
+	id <S261963AbSL2WuF>; Sun, 29 Dec 2002 17:50:05 -0500
+Received: from verein.lst.de ([212.34.181.86]:54539 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261934AbSL2WuD>;
+	Sun, 29 Dec 2002 17:50:03 -0500
+Date: Sun, 29 Dec 2002 23:58:24 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove CONFIG_X86_NUMA
+Message-ID: <20021229235823.A12623@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	linux-kernel@vger.kernel.org
+References: <hch@lst.de> <200212292251.gBTMpim12460@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200212292251.gBTMpim12460@localhost.localdomain>; from James.Bottomley@steeleye.com on Sun, Dec 29, 2002 at 04:51:44PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Dec 2002 23:40:03 +0100
-"Christian \"cycloon\" Gut" <cycloon@is-root.org> wrote:
-
-<snip>
-> Hi!
-> I got some problems with my IDE Burner Plextor 2410TA. Bugreport
-> following:
+On Sun, Dec 29, 2002 at 04:51:44PM -0600, James Bottomley wrote:
+> hch@lst.de said:
+> > I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
+> > still boots on a PeeCee, so it's really an option, not a choice.
 > 
-> [1.]My IDE CD-RW drive hangs when reading a cd via cdrdao/xine/mplayer
-> and ide-scsi.
-> 
-> [2.]My whole system is compiled with gcc 3.2 (using gentoo). When i try
-> to read CDs(especially happens with VCDs) with cdrdao, xine, mplayer or
-> even vcdimager the application suddenly hangs and the CD-Drive doesn't
-> stop to run and run.
-> The Problem is not Hardwaredependant, cause it works fine under Knoppix
-> and Windows. I think it depends on gcc > 3 as it worked before and still
-> works under Knoppix.
-> 
-</snip>
+> It alters the mflags-y and mcore-y variables in arch/i386/Makefile, so it's 
+> one of the subarch choices and thus should really be under the menu options.
 
-I have an identical drive, it runs great under gentoo aswell but all programs
-are compiled with gcc 3.2, but I think it's not very compiler dependent.
-I run the drive as an IDE-scsi device aswell.
+Okay, does this patch look better?
 
--- 
-Christan Axelsson
-smiler@lanil.mine.nu
+
+--- 1.19/arch/i386/Kconfig	Sat Dec 28 23:18:10 2002
++++ edited/arch/i386/Kconfig	Sun Dec 29 23:10:14 2002
+@@ -49,7 +49,7 @@
+ 
+ config VOYAGER
+ 	bool "NCR Voyager Architecture"
+-	---help---
++	help
+ 	  Voyager is a MCA based 32 way capable SMP architecture proprietary
+ 	  to NCR Corp.  Machine classes 345x/35xx/4100/51xx are voyager based.
+ 	  
+@@ -58,9 +58,19 @@
+ 	  If you do not specifically know you have a Voyager based machine,
+ 	  say N here otherwise the kernel you build will not be bootable.
+ 
++config X86_NUMAQ
++	bool "IBM/Sequent NUMAQ"
++	help
++	  This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
++	  multiquad box. This changes the way that processors are bootstrapped,
++	  and uses Clustered Logical APIC addressing mode instead of Flat Logical.
++	  You will need a new lynxer.elf file to flash your firmware with - send
++	  email to Martin.Bligh@us.ibm.com
++
+ # Visual Workstation support is utterly broken.
+ # If you want to see it working mail an VW540 to hch@infradead.org 8)
+-#bool 'SGI Visual Workstation support' CONFIG_VISWS
++#config VISWS
++#	bool "SGI Visual Workstation support"
+ 
+ endchoice
+ 
+@@ -430,24 +440,8 @@
+ 	  This is purely to save memory - each supported CPU adds
+ 	  approximately eight kilobytes to the kernel image.
+ 
+-config X86_NUMA
+-	bool "Multi-node NUMA system support"
+-	depends on SMP
+-
+-#Platform Choices
+-config X86_NUMAQ
+-	bool "Multiquad (IBM/Sequent) NUMAQ support"
+-	depends on X86_NUMA
+-	help
+-	  This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
+-	  multiquad box. This changes the way that processors are bootstrapped,
+-	  and uses Clustered Logical APIC addressing mode instead of Flat Logical.
+-	  You will need a new lynxer.elf file to flash your firmware with - send
+-	  email to Martin.Bligh@us.ibm.com
+-
+ config X86_SUMMIT
+ 	bool "IBM x440 (Summit/EXA) support"
+-	depends on X86_NUMA
+ 	help
+ 	  This option is needed for IBM systems that use the Summit/EXA chipset.
+ 	  In particular, it is needed for the x440.
+@@ -456,7 +450,7 @@
+ 
+ config CLUSTERED_APIC
+ 	bool
+-	depends on X86_NUMA && (X86_NUMAQ || X86_SUMMIT)
++	depends on X86_NUMAQ || X86_SUMMIT
+ 	default y
+ 
+ # Common NUMA Features

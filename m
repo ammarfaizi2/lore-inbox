@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318159AbSIEVCE>; Thu, 5 Sep 2002 17:02:04 -0400
+	id <S318061AbSIEVJz>; Thu, 5 Sep 2002 17:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318161AbSIEVCE>; Thu, 5 Sep 2002 17:02:04 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:21213 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S318159AbSIEVCD>;
-	Thu, 5 Sep 2002 17:02:03 -0400
-Date: Thu, 5 Sep 2002 16:59:47 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Troy Wilson <tcw@tempest.prismnet.com>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-In-Reply-To: <200209051830.g85IUMdH096254@tempest.prismnet.com>
-Message-ID: <Pine.GSO.4.30.0209051648020.17973-100000@shell.cyberus.ca>
+	id <S318085AbSIEVJz>; Thu, 5 Sep 2002 17:09:55 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:35853 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S318061AbSIEVJy>; Thu, 5 Sep 2002 17:09:54 -0400
+Message-ID: <3D77C8B7.1534A2DB@zip.com.au>
+Date: Thu, 05 Sep 2002 14:12:23 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: trond.myklebust@fys.uio.no
+CC: Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <3D77C0A7.F74A89D0@zip.com.au> <15735.50124.304510.10612@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust wrote:
+> 
+> >>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
+> 
+>      > Probably, it worked OK with the global locking because nobody
+>      > was taking a temp ref against those pages.
+> 
+> But we still have global locking in that readdir by means of the
+> BKL. There should be no nasty races...
+> 
+>      > Please tell me exactly what semantics NFS needs in there.  Does
+>      > truncate_inode_pages() do the wrong thing?
+> 
+> Definitely. In most cases we *cannot* wait on I/O completion because
+> nfs_zap_caches() can be called directly from the 'rpciod' process by
+> means of a callback. Since 'rpciod' is responsible for completing all
+> asynchronous I/O, then truncate_inode_pages() would deadlock.
 
-Hey, thanks for crossposting to netdev
+But if there are such pages, invalidate_inode_pages() would not
+have removed them anyway?
 
-So if i understood correctly (looking at the intel site) the main value
-add of this feature is probably in having the CPU avoid reassembling and
-retransmitting. I am willing to bet that the real value in your results is
-in saving on retransmits; I would think shoving the data down the NIC
-and avoid the fragmentation shouldnt give you that much significant CPU
-savings. Do you have any stats from the hardware that could show
-retransmits etc; have you tested this with zero copy as well (sendfile)
-again, if i am right you shouldnt see much benefit from that either?
+> As I said: I don't believe the problem here has anything to do with
+> invalidate_inode_pages vs. truncate_inode_pages:
+>   - Pages should only be locked if they are actually being read from
+>     the server.
+>   - They should only be refcounted and/or cleared while the BKL is
+>     held...
+> There is no reason why code which worked fine under 2.2.x and 2.4.x
+> shouldn't work under 2.5.x.
 
-I would think it probably works well with things like partial ACKs too?
-(I am almost sure it does or someone needs to be spanked, so just
-checking).
+Trond, there are very good reasons why it broke.  Those pages are
+visible to the whole world via global data structures - both the 
+page LRUs and via the superblocks->inodes walk.  Those things exist
+for legitimate purposes, and it is legitimate for async threads
+of control to take a reference on those pages while playing with them.
 
-cheers,
-jamal
+It just "happened to work" in earlier kernels.
 
+I suspect we can just remove the page_count() test from invalidate
+and that will fix everything up.  That will give stronger invalidate
+and anything which doesn't like that is probably buggy wrt truncate anyway.
 
+Could you test that?

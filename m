@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292536AbSBZAXT>; Mon, 25 Feb 2002 19:23:19 -0500
+	id <S292539AbSBZA1T>; Mon, 25 Feb 2002 19:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292538AbSBZAXJ>; Mon, 25 Feb 2002 19:23:09 -0500
-Received: from mail47-s.fg.online.no ([148.122.161.47]:58072 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP
-	id <S292536AbSBZAW4>; Mon, 25 Feb 2002 19:22:56 -0500
-To: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18
-In-Reply-To: <E16fU2W-0002CO-00@sites.inka.de>
-From: Harald Arnesen <gurre@start.no>
-Date: Tue, 26 Feb 2002 01:22:49 +0100
-In-Reply-To: <E16fU2W-0002CO-00@sites.inka.de> (Bernd Eckenfels's message of
- "Mon, 25 Feb 2002 23:56:12 +0100")
-Message-ID: <87it8lum5i.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292546AbSBZA1J>; Mon, 25 Feb 2002 19:27:09 -0500
+Received: from quechua.inka.de ([212.227.14.2]:44405 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S292539AbSBZA1C>;
+	Mon, 25 Feb 2002 19:27:02 -0500
+From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+In-Reply-To: <02022518330103.01161@grumpersII>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16fVSQ-0002mO-00@sites.inka.de>
+Date: Tue, 26 Feb 2002 01:27:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels <ecki-news2002-02@lina.inka.de> writes:
-> I dont understand why it is a problem to release 2.4.19 instead.
+In article <02022518330103.01161@grumpersII> you wrote:
+> But it only works if everything get linked with the new library.
 
-Neither do I.
--- 
-Hilsen Harald.
+Nope, just put the new Lib into /etc/ld.so.preload
+
+Actually there is a unlink package out there, which does exactly this.
+
+Greetings
+Bernd

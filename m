@@ -1,27 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbTBCDnq>; Sun, 2 Feb 2003 22:43:46 -0500
+	id <S265936AbTBCDrt>; Sun, 2 Feb 2003 22:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbTBCDnq>; Sun, 2 Feb 2003 22:43:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14855 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265909AbTBCDnp>;
-	Sun, 2 Feb 2003 22:43:45 -0500
-Message-ID: <3E3DE788.8000101@pobox.com>
-Date: Sun, 02 Feb 2003 22:52:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: irony
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265939AbTBCDrt>; Sun, 2 Feb 2003 22:47:49 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:18825 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S265936AbTBCDrs>;
+	Sun, 2 Feb 2003 22:47:48 -0500
+Date: Sun, 2 Feb 2003 22:59:10 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][RFC] Possible PnP BIOS GPF Solution for Sony VAIO and other laptops
+Message-ID: <20030202225910.GB22089@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, CaT <cat@zip.com.au>,
+	linux-kernel@vger.kernel.org, greg@kroah.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20030202203702.GA23248@neo.rr.com> <20030203020957.GE847@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030203020957.GE847@zip.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The definition of irony?
+On Mon, Feb 03, 2003 at 01:09:57PM +1100, CaT wrote:
+> On Sun, Feb 02, 2003 at 08:37:02PM +0000, Adam Belay wrote:
+> > The PnP BIOS may be wandering into segement 0x40.  If that is the case,
+> > this patch should fix the problem.  I do not have a buggy system so I
+> > cannot test this patch but I'd be intersted to hear the results.  If you
+> > have a system that has caused pnpbios problems in the past, I recommend
+> > you try this patch.  If it works, the system will not panic on startup.
+> > This patch is against 2.5.59 and separate from my other recent patches.
+> 
+> This boots fine here. Then again 2.5.59 booted fine aswell. :) I also
+> don't get any oopses from reading /proc/bus/pnp stuff as I did before
+> when I first reported issues. As with the bootup, I also don't get these
+> issues with 2.5.59. (ie 2.5.59 works fine with or without this patch).
 
-Setting one's xscreensaver to BSOD, and then hours later the Linux box 
-has a kernel panic... with the Windows blue screen of death on the screen.
+This can be explained.  When the pnpbios makes a get current resource call
+on a buggy system it causes a GPF.  In 2.5.59 I designed the pnpbios driver
+to avoid making this call when scanning for devices.  It uses a get boot
+resource call instead.
 
+In other words...
+
+Without this patch, if you made the following change it would panic.
+
+ 		 * from devices that are can only be static such as
+ 		 * those controlled by the "system" driver.
+ 		 */
+-		if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
++		if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
+ 			break;
+ 		nodes_got++;
+ 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
+
+1 = boot config
+0 = current config
+
+Therefore it can be concluded that this patch does indeed solve the problem
+for your system :-).
+
+>
+> Sorry for not getting back to you earlier btw... I lost almost a
+> fortnights worth of email and yours was amongst them. :/
+> 
+
+Thank you for testing my patch.
+
+Regards,
+Adam

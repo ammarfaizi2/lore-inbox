@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUFPS5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUFPS7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUFPS5k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUFPS5j
+	id S264543AbUFPS7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUFPS7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:57:39 -0400
-Received: from ceiriog1.demon.co.uk ([194.222.75.230]:64384 "EHLO
-	ceiriog1.demon.co.uk") by vger.kernel.org with ESMTP
-	id S264537AbUFPS4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:56:48 -0400
-Subject: Irix NFS servers, again :-)
-From: Peter Wainwright <prw@ceiriog1.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Wed, 16 Jun 2004 14:59:13 -0400
+Received: from mail2.iserv.net ([204.177.184.152]:1767 "EHLO mail2.iserv.net")
+	by vger.kernel.org with ESMTP id S264530AbUFPS7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 14:59:00 -0400
+Message-ID: <40D0984B.3050405@didntduck.org>
+Date: Wed, 16 Jun 2004 14:58:19 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       jolt@tuxbox.org, akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [STACK] reduce >3k call path in ide
+References: <20040609122921.GG21168@wohnheim.fh-wedel.de>	<20040615163445.6b886383.rddunlap@osdl.org>	<200406160911.11985.jolt@tuxbox.org>	<20040616094737.GA2548@wohnheim.fh-wedel.de>	<40D01928.1080309@tuxbox.org>	<20040616100008.GB2548@wohnheim.fh-wedel.de> <20040616103741.042f8029.rddunlap@osdl.org>
+In-Reply-To: <20040616103741.042f8029.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1087411925.30092.35.camel@ceiriog1.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 16 Jun 2004 19:52:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just upgraded one of my machines to Fedora Core 2, including
-kernel 2.6.5. I found myself bitten on the bum by a bug I thought
-had expired long ago, namely the Irix server readdir bug, or
-32/64-bit cookie problem.
+Randy.Dunlap wrote:
+> +    tbuf = kmalloc(128 * sizeof(u_short), GFP_KERNEL);
+> +    if (!tbuf) goto err_kfree;
+> +    def_cte = kmalloc(sizeof(*def_cte), GFP_KERNEL);
+> +    if (!def_cte) goto err_kfree;
+> +    memset(def_cte, 0, sizeof(*def_cte));
+> +    cfginfo = kmalloc(sizeof(*cfginfo), GFP_KERNEL);
+> +    if (!cfginfo) goto err_kfree;
+> +    cisparse = kmalloc(sizeof(*cisparse), GFP_KERNEL);
+> +    if (!cisparse) goto err_kfree;
 
-Therefore, I thought I should let you folks know that this problem
-is still there, apparently.
+This can be condensed into a single kmalloc.  Define a struct that 
+contains these variables and kmalloc the whole struct in one call.
 
-I searched the LKML archives for (irix OR sgi) and nfs: the most
-recent relevant postings seem to be 2 years ago
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0707.html
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.2/0163.html
-It seems the relevant patch
-http://www.fys.uio.no/~trondmy/src/2.4.18/linux-2.4.18-seekdir.dif
-was never incorporated in the mainstream kernel; however, Red Hat
-did incorporate a similar patch (called, I believe,
-linux-2.4.18-irixnfs.patch) in the later 2.4 kernel RPMS. However,
-it seems that this has been omitted from the 2.6 kernels in Fedora.
-So, I have the old problem: in a directory listing from an NFS
-directory mounted from an Irix server, some entries may be
-missing.
-
-So, my question is: what happened to this patch? Is there a
-2.6 version available somewhere on the net? Was it not
-incorporated into the mainstream kernel because it is not the
-"right thing" to do (and maybe there is no "right thing" until
-we are all running on 64 bits)? If this is the opinion of
-the kernel developers I shall chase Red Hat to see if they can
-resurrect it when 2.6 kernels appear in their RHEL product.
-Some of us unfortunately still need to interoperate with Irix
-and other strange systems :-)
-
-If the list is interested, I have "sort of" ported the patch
-to Linux 2.6.6 myself - just before I left work this afternoon;
-It seems functional, but I need to have another look on my network
-at work (where I have the SGI system) before I post it; there may be
-other bits that need patching, though I hope my minimal patch will
-suffice.
-
-Please CC: to me, as I am not subscribed to the list yet.
-
+--
+				Brian Gerst

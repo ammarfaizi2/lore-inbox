@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbUCPBmr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUCPB0y
+	id S263421AbUCPBpi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUCPBnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:26:54 -0500
-Received: from mail.kroah.org ([65.200.24.183]:41647 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262854AbUCPACw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:02:52 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <10793913902844@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 14:56:31 -0800
-Message-Id: <10793913911774@kroah.com>
+	Mon, 15 Mar 2004 20:43:01 -0500
+Received: from gate.crashing.org ([63.228.1.57]:45021 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263399AbUCPBmG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 20:42:06 -0500
+Subject: Re: consistent_sync_for_cpu() and friends on ppc32
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Olaf Hering <olh@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040315164917.6a85966b.davem@redhat.com>
+References: <20040315201616.GA31268@suse.de>
+	 <20040315123647.4ce943b7.davem@redhat.com>
+	 <1079396621.1967.196.camel@gaston>
+	 <20040315164917.6a85966b.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1079400967.2302.213.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Mar 2004 12:36:07 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1557.61.7, 2004/02/18 09:39:10-08:00, greg@kroah.com
 
-I2C: fix oops in i2c-ali1535 driver if no hardware is present.
+> 1) User prepares buffer X with data.
+> 2) pci_map_single(X, TO_DEVICE)
+> 3) Device does DMA, interrupts cpu.
+> 4) pci_dma_sync_single_for_cpu(X)
+> 5) Write new contents.
+> 6) pci_dma_sync_single_for_device(X)
+> 7) Device does DMA again, interrupts cpu.
+> 8) ...
+> 
+> Step 2 would writeback flush the cpu cache, step 4 would be a NOP,
+> step 6 would writeback flush the cpu cache.
+> 
+> The direction does not provide enough information to do these operations
+> with the right amount of information.
 
-Thanks to Dave Jones for pointing this out.
+Hrm... I'm still not sure how I'm supposed to implement those
+for non-consistent PPCs (embedded). We don't carry state information
+around, so I suppose I'll have to rely on the direction beeing the
+same for the whole duration of the operation... In which case, it's
+just a matter of having for_cpu nop'ing when direction is TO_DEVICE
+and for_device nop'ing when direction is FROM_DEVICE ? Not clear
+imho...
 
+Ben.
 
- drivers/i2c/busses/i2c-ali1535.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
---- a/drivers/i2c/busses/i2c-ali1535.c	Mon Mar 15 14:37:27 2004
-+++ b/drivers/i2c/busses/i2c-ali1535.c	Mon Mar 15 14:37:27 2004
-@@ -517,6 +517,7 @@
- static void __devexit ali1535_remove(struct pci_dev *dev)
- {
- 	i2c_del_adapter(&ali1535_adapter);
-+	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
- }
- 
- static struct pci_driver ali1535_driver = {
-@@ -534,7 +535,6 @@
- static void __exit i2c_ali1535_exit(void)
- {
- 	pci_unregister_driver(&ali1535_driver);
--	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
- }
- 
- MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
 

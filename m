@@ -1,80 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267170AbSKMLdH>; Wed, 13 Nov 2002 06:33:07 -0500
+	id <S267172AbSKMLjG>; Wed, 13 Nov 2002 06:39:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267172AbSKMLdH>; Wed, 13 Nov 2002 06:33:07 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27346 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267170AbSKMLdG>;
-	Wed, 13 Nov 2002 06:33:06 -0500
-Date: Wed, 13 Nov 2002 12:39:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sasi =?iso-8859-1?Q?P=E9ter?= <Peter.Sasi@t-systems.co.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE TCQ
-Message-ID: <20021113113940.GE832@suse.de>
-References: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
+	id <S267173AbSKMLjG>; Wed, 13 Nov 2002 06:39:06 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:9903 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267172AbSKMLjF>; Wed, 13 Nov 2002 06:39:05 -0500
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] include/asm-ARCH/page.h:get_order() Reorganize and optimize
+References: <E18BmqO-0000Za-00@milikk>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 13 Nov 2002 12:45:33 +0100
+In-Reply-To: <E18BmqO-0000Za-00@milikk>
+Message-ID: <87y97xhew2.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12 2002, Sasi Péter wrote:
-> Dear Jens,
-> 
-> I would like to ask a few simple question: what does it take to make use of this nifty feature?
-> 
-> My example: I have a box with an ABIT BH6 mainboard (Intel chipset,
-> 2xUATA33 channels), A Leadtek WinFast CMD648 with 2xUATA66 channels,
-> and a Promise Ultra100 TX2 2xUATA100.  I have 3x IBM GXP120 120GB
-> UATA100 IDE HDDs (have read you write these to be capable of TCQ).
-> 
-> First set of questions: On which of the three different IDE
-> controllers are the disks supposed to be doing TCQ?
+Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com> writes:
 
-They should all work
+>     s = --s >> PAGE_SHIFT;
 
-> Is it limited to UATA100 and up?  Is it limited to specific chipsets?
-> Maybe a combination of these two?
+This code has undefined behaviour.
 
-No
+>     if (likely (s) < s)
 
-> Is there any list of the disks that support TCQ?  Or does that come
-> compulsory with eg. UATA100?
+What is that supposed to do?
 
-The list in the help section for ide tcq is pretty much complete.
-Genereally, IBM deskstar drives support tcq and that's about it.
+BTW, I just noticed
 
-> Second set of questions: Does it do any good to one-channel-one-disk
-> setups?  Is it supposed to do good to access time, operations/sec,
-> throughput, random reqs rearrangement or what?  Do you have any
-> figures how much TCQ helps performace (e.g. in file serving case)?
+#define likely(x)       __builtin_expect((x),1)
 
-Yes it will help any setup. Due to way ide tcq works, it's recommended
-only to use tcq on one drive on a channel right now. This may change in
-the future.
+I think this should rather be
 
-I don't have any general numbers. I did some benchmarking when I first
-implemented it, and it typically shows (as with scsi drives) that having
-just enough tags to keep the disk busy helps a bit. The linux io
-scheduler does the rest. For random reads, 10-30% speed increase was
-observed.
+#define likely(x)       __builtin_expect((x)!=0,1)
 
-> Now I see I piled up quite a few questions. Maybe it is more polite to
-> ask you if you can recommend any reading on the topic on the web
-> first?
+So people can write
 
-TCQ itself is described in the ata standards, but that's just a
-technical description of how to use it from a driver. For general ide
-tcq discussions, you probably want to search on google for instance.
+if (likely(pointer))
 
-> Maybe I should rather be asking Andre Hedrick about the internals of
-> TCQ?
+and indeed some people seem to assume that already.
 
-You could, I should know a bit about it too though :-)
+--- linux-2.5.47/include/linux/compiler.h~      2002-11-11 04:28:25.000000000 +0100
++++ linux-2.5.47/include/linux/compiler.h       2002-11-13 12:44:05.000000000 +0100
+@@ -10,7 +10,7 @@
+ #define __builtin_expect(x, expected_value) (x)
+ #endif
+ 
+-#define likely(x)      __builtin_expect((x),1)
++#define likely(x)      __builtin_expect((x)!=0,1)
+ #define unlikely(x)    __builtin_expect((x),0)
+ 
+ /* This macro obfuscates arithmetic on a variable address so that gcc
 
 -- 
-Jens Axboe
-
+	Falk

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVC3KFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVC3KQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVC3KFy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 05:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVC3KFx
+	id S261835AbVC3KQB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 05:16:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVC3KQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 05:05:53 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:43972 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261838AbVC3KF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 05:05:29 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: luming.yu@intel.com
-Subject: Re: [ACPI] 2.6.12-rc1-mm[1-3]: ACPI battery monitor does not work
-Date: Wed, 30 Mar 2005 12:05:39 +0200
-User-Agent: KMail/1.7.1
-Cc: acpi-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
-References: <200503291156.19112.rjw@sisk.pl> <200503301353.25492.luming.yu@intel.com>
-In-Reply-To: <200503301353.25492.luming.yu@intel.com>
+	Wed, 30 Mar 2005 05:16:01 -0500
+Received: from postino3.roma1.infn.it ([141.108.26.5]:46273 "EHLO
+	postino3.roma1.infn.it") by vger.kernel.org with ESMTP
+	id S261835AbVC3KP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 05:15:56 -0500
+Message-ID: <424A7C58.7040105@roma1.infn.it>
+Date: Wed, 30 Mar 2005 12:15:52 +0200
+From: Davide Rossetti <davide.rossetti@roma1.infn.it>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.1 (X11/20050323)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Delay in a tasklet.
+References: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
+In-Reply-To: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503301205.40555.rjw@sisk.pl>
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.30.0.2; VDF 6.30.0.55
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 30 of March 2005 07:53, Yu, Luming wrote:
-> On Tuesday 29 March 2005 17:56, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > There is a problem on my box (Asus L5D, x86-64 kernel) with the ACPI
-> > battery driver in the 2.6.12-rc1-mm[1-3] kernels.  Namely, the battery
-> > monitor that I use (the kpowersave applet from SUSE 9.2) is no longer able
-> > to report the battery status (ie how much % it is loaded).  It can only
-> > check if the AC power is connected (if it is connected, kpowersave behaves
-> > as though there was no battery in the box, and if it is not connected,
-> > kpowersave always shows that the battery is 1% loaded).
-> >
-> > Also, there are big latencies on loading and accessing the battery module,
-> > but the module loads successfully and there's nothing suspicious in dmesg.
-> >
-> > Please let me know if you need any additional information.
-> >
-> > Greets,
-> > Rafael
-> 
-> Could you just revert ec-mode patch, then retest?
+Bouchard, Sebastien wrote:
 
-Could you please point me to it?
+>Hi,
+>
+>I'm in the process of writing a linux driver and I have a question in
+>regards to tasklet :
+>
+>Is it ok to have large delay "udelay(1000);" in the tasklet?
+>
+>If not, what should I do? 
+>
+>Please send the answer to me personally (I'm not subscribe to the mailling
+>list) :
+>  
+>
+I'd be interested in the answer as well. I have a driver which does 
+udelay(100), so no 1000 but anyway, and of course I end up having the 
+X86_64 kernel happily crying. I'm moving to a little state-machine to 
+allow for a multi-pass approach instead of busy-polling..
+regards
 
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264557AbTLQVki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 16:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbTLQVki
+	id S264581AbTLQV6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 16:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264583AbTLQV6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 16:40:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57496 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264557AbTLQVkh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 16:40:37 -0500
-Date: Wed, 17 Dec 2003 13:41:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: riel@redhat.com, andrea@suse.de, wli@holomorphy.com, kernel@kolivas.org,
-       chris@cvine.freeserve.co.uk, linux-kernel@vger.kernel.org,
-       mbligh@aracnet.com
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Message-Id: <20031217134104.5a477e6e.akpm@osdl.org>
-In-Reply-To: <20031217194950.GA9375@k3.hellgate.ch>
-References: <20031216112307.GA5041@k3.hellgate.ch>
-	<Pine.LNX.4.44.0312171351080.28701-100000@chimarrao.boston.redhat.com>
-	<20031217194950.GA9375@k3.hellgate.ch>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Dec 2003 16:58:45 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45837 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264581AbTLQV6o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 16:58:44 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: no atapi cdrecord burning with 2.6.0-test11-bk10 / bk13
+Date: 17 Dec 2003 21:47:12 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <brqit0$7p7$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.21.0312171721420.32339-100000@needs-no.brain.uni-freiburg.de> <200312171141.18132.gene.heskett@verizon.net> <20031217164933.GB2495@suse.de> <200312171227.53913.gene.heskett@verizon.net>
+X-Trace: gatekeeper.tmr.com 1071697632 7975 192.168.12.62 (17 Dec 2003 21:47:12 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi <rl@hellgate.ch> wrote:
->
-> FWIW akpm posted a patch to initialize min_free_kbytes depending on
-> available RAM which seemed to make sense but it hasn't made it into
-> mainline yet.
+In article <200312171227.53913.gene.heskett@verizon.net>,
+Gene Heskett  <gene.heskett@verizon.net> wrote:
 
-Yup.  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test11/2.6.0-test11-mm1/broken-out/scale-min_free_kbytes.patch
+| I'm using /dev/hdc for burning in the k3b configuration screens, 
+| however that path may actually be defined.  I haven't quite "grok"ed 
+| all the details, but it works, and works with <10% of the cpu 
+| involved when burning.
+| 
+| To me, thats a roaring success :-)
 
-Also, note that setup_per_zone_pages_min() plays games to ensure that the
-highmem zone's free pages limit is small: there's not a lot of point in
-keeping lots of highmem pages free.
+I'm burning on a 2.4 kernel, using ide-scsi, and taking <1% CPU at 16x
+burn, so you might check if your CD is set to use DMA, or if it's still
+doing PIO. I use about 10% doing an audio burn, which does use PIO in
+2.4 AFAIK.
 
+You may be able to drop the CPU a good bit more.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

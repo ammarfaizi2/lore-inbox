@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270061AbUJHQGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUJHQKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270061AbUJHQGI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270052AbUJHQCp
+	id S267517AbUJHQKc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbUJHQKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:02:45 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:3017 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270053AbUJHQBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 12:01:45 -0400
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4166B37D.8030701@rtr.ca>
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i
-	nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A4
-	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4
-	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>
-		<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave> 
-	<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> 
-	<4166B37D.8030701@rtr.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Oct 2004 11:01:34 -0500
-Message-Id: <1097251299.1928.56.camel@mulgrave>
+	Fri, 8 Oct 2004 12:10:32 -0400
+Received: from open.hands.com ([195.224.53.39]:42961 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S267517AbUJHQKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 12:10:20 -0400
+Date: Fri, 8 Oct 2004 17:20:25 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Brice.Goglin@ens-lyon.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Message-ID: <20041008162025.GL5551@lkcl.net>
+References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <4166AFD0.2020905@ens-lyon.fr>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4166AFD0.2020905@ens-lyon.fr>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 10:34, Mark Lord wrote:
-> If those locks are not needed, the scsi.c maintainer really should
-> nuke'em.
-
-I think you can safely assume he has more important things to do.
-
-> > Really, I suppose, libata should provide the interfaces for doing this
-> > work for emulated commands.
+On Fri, Oct 08, 2004 at 05:18:40PM +0200, Brice Goglin wrote:
+> > call sys_rename, sys_pread, sys_create, sys_mknod, sys_rmdir
+> > etc. - everything that does file access.
 > 
-> Well, after this driver submission work is done with,
-> that's next on my list.  Right now libata doesn't have
-> the right interface for easy sharing of such functions.
+> If you ever actually call sys_this or sys_that ... from
+> the kernel, you'll have to do something like this to avoid
+> copy_from/to_user to fail because the target buffer is not
+> in kernel space:
+> 
+> mm_segment_t old_fs;
+> old_fs = get_fs();
+> set_fs(KERNEL_DS);
+> <do you stuff here>
+> set_fs(old_fs);
+ 
+ that's it!  that's what i was looking for.  thank you.
 
-Not emulating an INQUIRY properly via SG_IO isn't acceptable since it's
-a mandatory command.
-
-libata does all this correctly.  I strongly suggest you find a way to
-share the code rather than trying to reinvent it yourself.  But anyway,
-if you want to know how it should work, look in libata-scsi.c
-
-James
-
-
+ l.

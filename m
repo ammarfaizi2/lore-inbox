@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUGZKVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUGZKYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUGZKVK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 06:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265138AbUGZKU6
+	id S265134AbUGZKYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 06:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUGZKYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 06:20:58 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:40368 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S265134AbUGZKUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 06:20:50 -0400
-Message-ID: <4104DAF1.2090608@tu-harburg.de>
-Date: Mon, 26 Jul 2004 12:20:33 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Mon, 26 Jul 2004 06:24:55 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:38847 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S265134AbUGZKYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 06:24:52 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: Autotune swappiness01
+Date: Mon, 26 Jul 2004 12:34:29 +0200
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <200407261052.50178.rjwysocki@sisk.pl> <4104CF8F.2050208@kolivas.org>
+In-Reply-To: <4104CF8F.2050208@kolivas.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org, ext2-devel@lists.sourceforge.net
-Subject: [PATCH] Fix ext2_readdir()
-Content-Type: multipart/mixed;
- boundary="------------040506050802060406090503"
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407261234.29565.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040506050802060406090503
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 26 of July 2004 11:31, Con Kolivas wrote:
+> R. J. Wysocki wrote:
+> > On Monday 26 of July 2004 03:09, Con Kolivas wrote:
+> >>Con Kolivas writes:
+> >>>Andrew Morton writes:
+> >>>>Seriously, we've seen placebo effects before...
+> >>>
+> >>>I am in full agreement there... It's easy to see that applications do
+> >>> not swap out overnight; but i'm having difficulty trying to find a way
+> >>> to demonstrate the other part. I guess timing the "linking the kernel
+> >>> with full debug" on a low memory box is measurable.
+> >>
+> >>I should have said - finding a swappiness that ensures not swapping out
+> >>applications with updatedb, then using that same swappiness value to do
+> >> the linking test.
+> >
+> > Please excuse me, but is that viable at all?  IMHO, it's just like trying
+> > to tune a radio including volume with only one knob.  I don't say it
+> > won't work, but the probability that it will is rather small, it seems
+> > ...
+>
+> Well that's what we want. I cant remember other desktop operating
+> systems setting a root only control between night and day, or between
+> copying ISOs and running applications or...
 
-I noticed that ext2_readdir() is ignoring the set error return values 
-and always returns 0.
+I agree, but isn't it related to the fact that other desktop OSes usually 
+don't run anything like updatedb nightly?
 
-Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
+Perhaps we need a bit more sophisticated swap algorithm than other OSes do.  
+For example, couldn't we add an additional parameter to control the swapping 
+"behavior", apart from the swappiness?  Something like adding the second knob 
+in my radio example?  Just thinking,
 
---------------040506050802060406090503
-Content-Type: text/x-patch;
- name="ext2_readdir.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ext2_readdir.diff"
+rjw
 
-Index: testing-2.5/fs/ext2/dir.c
-===================================================================
---- testing-2.5.orig/fs/ext2/dir.c	2004-07-24 09:54:50.174994960 +0200
-+++ testing-2.5/fs/ext2/dir.c	2004-07-24 10:58:52.430883280 +0200
-@@ -257,10 +257,10 @@
- 	unsigned chunk_mask = ~(ext2_chunk_size(inode)-1);
- 	unsigned char *types = NULL;
- 	int need_revalidate = (filp->f_version != inode->i_version);
--	int ret = 0;
-+	int ret;
- 
- 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
--		goto done;
-+		goto success;
- 
- 	if (EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_FILETYPE))
- 		types = ext2_filetype_table;
-@@ -300,17 +300,19 @@
- 						le32_to_cpu(de->inode), d_type);
- 				if (over) {
- 					ext2_put_page(page);
--					goto done;
-+					goto success;
- 				}
- 			}
- 		}
- 		ext2_put_page(page);
- 	}
- 
-+success:
-+	ret = 0;
- done:
- 	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
- 	filp->f_version = inode->i_version;
--	return 0;
-+	return ret;
- }
- 
- /*
-
---------------040506050802060406090503--
+-- 
+Rafael J. Wysocki
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

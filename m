@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbTITVrn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 17:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbTITVrn
+	id S262002AbTITWXN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 18:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbTITWXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 17:47:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18403 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261970AbTITVrl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 17:47:41 -0400
-Date: Sat, 20 Sep 2003 14:49:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: rob@landley.net
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Process in D state (was Re: 2.6.0-test5-mm2)
-Message-Id: <20030920144902.47c2c7c4.akpm@osdl.org>
-In-Reply-To: <200309201534.36362.rob@landley.net>
-References: <20030914234843.20cea5b3.akpm@osdl.org>
-	<200309201534.36362.rob@landley.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 20 Sep 2003 18:23:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62414 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262002AbTITWXL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 18:23:11 -0400
+Message-ID: <3F6CD341.40104@pobox.com>
+Date: Sat, 20 Sep 2003 18:22:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+References: <200309131101.h8DB1WNd021570@harpo.it.uu.se>	 <1063476275.8702.35.camel@dhcp23.swansea.linux.org.uk>	 <20030913184934.GB10047@gtf.org> <20030913190131.GD10047@gtf.org>	 <20030915073445.GC27105@suse.de> <20030916194955.GC5987@gtf.org>	 <20030916195515.GC906@suse.de>  <3F6C9C55.6050608@pobox.com> <1064096170.23121.3.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1064096170.23121.3.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <rob@landley.net> wrote:
->
-> But, twice in a row now I've made this happen:
+Alan Cox wrote:
+> On Sad, 2003-09-20 at 19:28, Jeff Garzik wrote:
 > 
->   1391 pts/1    S      0:00 /bin/bash
->   1419 pts/1    S      0:00 /bin/sh ./build.sh
->   1423 pts/1    S      0:00 /bin/bash 
->  /home/landley/pending/newfirmware/make-stat
->   1447 pts/1    D      0:04 tar xvjf 
->  /home/landley/pending/newfirmware/base/linux
->   1448 pts/1    S      0:37 bzip2 -d
+>>sg needs some modifications -- for example it errors out instead of 
+>>sleeps on queue full -- but sounds good to me.
 > 
->  All I have to do is run my script, it tries to extract the kernel tarball, and 
->  tar hangs in D state.
 > 
->  How do I debug this?  (Is there some way to get the output of Ctrl-ScrLk to go 
->  to the log instead of just the console?  My system isn't currently hung, it's 
->  just got a process that is.  This process being hung prevents my partitions 
->  from being unmounted on shutdown, which is annoying.)
+> Is that an error and change in behaviour ?
 
-sysrq-T followed by `dmesg -s 1000000 > foo' should capture it.
 
->  Other miscelanous bugs: cut and paste only works some of the time (it pastes 
->  blanks other times, dunno if this was -test5 or -mm2; it worked fine in 
->  -test4).
+No and yes.  :)
 
-vgacon? fbcon? X11?
+Current sg breaks the Unix model of write(2)... you shouldn't error out 
+if the queue will "probably" become available again.
 
->  The key repeat problem is still there, although still highly intermittent.
+	Jeff
 
-I think Andries says that some keyboards just forget to send up codes. 
-We'll probably need some kernel boot parameter to support these, using the
-keyboard's silly native autorepeat.
 
->  The boot hung enabling swap space once.  I don't know why.  (Init was already 
->  running and everything...)
 
-Probably the O_DIRECT locking bug: I had `rpmv' getting stuck on boot for a
-while.  mm3 fixed that.  

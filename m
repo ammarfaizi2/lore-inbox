@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbTA1Kmg>; Tue, 28 Jan 2003 05:42:36 -0500
+	id <S265066AbTA1K4r>; Tue, 28 Jan 2003 05:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265139AbTA1Kmg>; Tue, 28 Jan 2003 05:42:36 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:3588 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265135AbTA1Kmf>;
-	Tue, 28 Jan 2003 05:42:35 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301281052.h0SAqW1n000148@darkstar.example.net>
-Subject: Re: AW: AW: Bootscreen
-To: Raphael_Schmid@CUBUS.COM (Raphael Schmid)
-Date: Tue, 28 Jan 2003 10:52:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <398E93A81CC5D311901600A0C9F29289469375@cubuss2> from "Raphael Schmid" at Jan 28, 2003 11:33:00 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265081AbTA1K4r>; Tue, 28 Jan 2003 05:56:47 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:57011 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S265066AbTA1K4q>; Tue, 28 Jan 2003 05:56:46 -0500
+Date: Tue, 28 Jan 2003 12:05:41 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+Subject: Re: Bootscreen
+Message-ID: <20030128110541.GA5035@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <398E93A81CC5D311901600A0C9F29289469376@cubuss2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <398E93A81CC5D311901600A0C9F29289469376@cubuss2>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > There is a boot option to do this, but I can't remember what it is :-)
-> What you mean, I believe, is "quiet".
+Raphael Schmid, Tue, Jan 28, 2003 11:43:28 +0100:
+> > I didn't mean use it with 2.5, i meant to port them to 2.4 ;)
+> Ouch. Now that would be one hell of an exercise for me. 
+> I'm only learning how single linked lists work these days.
 
-Yep, that's it :-)
+we all trust in you
 
-> > LILO loading linux...
-> > Uncompressing the kernel...
-> Yeah, these can be easily supressed, somewhere in arch/i386/boot/compressed
-> 
-> Are you in effect saying that Linux is *not* reinitializing the display,
-> but the bootloader is?
+> > why not write a prog which does all the setup
+> > and execs xinit at the end?
+> I have that. It's in effect an /sbin/init replacement.
 
-No.
+Oh.
 
-If you use the framebuffer, the kernel re-initialises the display when
-it boots.
+> But this is also a question of attitude to me. Even if
+> only a fake, I want Linux to be a *graphical* OS. *g*
 
-John.
+put svgalib in kernel and export it's interface?
+
+> > You can redirect the  output off the default
+> > console. In this case you will see nothing.
+> > Probably.
+> I've just been asking this in another answer to LKML.
+> Would mean the bootloader is the one reinitializing
+> the screen, right?
+
+not exactly. What you mean "reinitializing"?
+It sets some video-mode and restores it afterwards.
+
+

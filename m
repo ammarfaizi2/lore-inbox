@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUDFLeP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbUDFLcQ
+	id S263802AbUDFLiG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 07:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbUDFLfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:32:16 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:33922 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263781AbUDFL3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:29:14 -0400
-Date: Tue, 6 Apr 2004 13:29:04 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>, linux-dvb-maintainer@linuxtv.org
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] DVB dependency
-Message-ID: <Pine.GSO.4.58.0404061328310.4158@waterleaf.sonytel.be>
+	Tue, 6 Apr 2004 07:35:18 -0400
+Received: from RCH2ppp-503.uc.infovia.com.ar ([209.13.235.248]:2565 "HELO
+	hotmail.com") by vger.kernel.org with SMTP id S263784AbUDFLfD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 07:35:03 -0400
+From: "Cruzada Alex Blumberg petitorio y planilla" <petitorio@atlas.cz>
+To: "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: AXEL BLUMBERG - Petitorio y Planillas de recoleccion de firmas
+Date: Tue, 6 Apr 2004 08:34:55 -0300
+Reply-To: "Cruzada Alex Blumberg petitorio y planilla" <petitorio@atlas.cz>
+Message-ID: <47670674.20040406083455@atlas.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Priority: 3 (Normal)
+Importance: Normal
+X-Mailer: EM: 4.40.0.600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+PETITORIO Y PLANILLA DE RECOLECCION DE FIRMAS
+CRUZADA POR AXEL BLUMBERG
 
-DVB_TWINHAN_DST depends on DVB_BT8XX (dependency is explicitly mentioned in
-help text, but not enforced)
+TODOS PODEMOS PARTICIPAR JUNTANDO FIRMAS
+TODOS PODEMOS AYUDAR Y AYUDARNOS
 
---- linux-2.6.5/drivers/media/dvb/frontends/Kconfig.orig	2004-02-29 09:31:56.000000000 +0100
-+++ linux-2.6.5/drivers/media/dvb/frontends/Kconfig	2004-03-31 12:42:08.000000000 +0200
-@@ -3,7 +3,7 @@
+POR AXEL QUE SE FUE
+POR NOSOTROS 
+POR NUESTROS HIJOS
 
- config DVB_TWINHAN_DST
- 	tristate "TWINHAN DST based DVB-S frontend (QPSK)"
--	depends on DVB_CORE
-+	depends on DVB_CORE && DVB_BT8XX
- 	help
- 	  Used in such cards as the VP-1020/1030, Twinhan DST,
- 	  VVmer TV@SAT. Say Y when you want to support frontends
+DESCARGA EL PETITORIO Y LA PLANILLA DE ESTA DIRECCION
+http://www.publicidadglobal.com.ar/axel.htm
 
-Gr{oetje,eeting}s,
+MUY IMPORTANTE >>> RE-ENVIA ESTE MAIL A TODOS TUS CONTACTOS Y A TODOS LOS QUE PUEDAS
+NUESTRA VOZ VALE
+SOLO HAY QUE HACERLA OIR
 
-						Geert
+AYUDANOS Y AYUDATE A CONSTRUIR UNA ARGENTINA MAS SEGURA
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+MUY IMPORTANTE >>> RE-ENVIA ESTE MAIL A TODOS TUS CONTACTOS Y A TODOS LOS QUE PUEDAS
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+

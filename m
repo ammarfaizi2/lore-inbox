@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317632AbSGFLn3>; Sat, 6 Jul 2002 07:43:29 -0400
+	id <S317633AbSGFLnf>; Sat, 6 Jul 2002 07:43:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317633AbSGFLn2>; Sat, 6 Jul 2002 07:43:28 -0400
-Received: from p50839BA9.dip.t-dialin.net ([80.131.155.169]:55646 "EHLO
-	pc1.geisel.info") by vger.kernel.org with ESMTP id <S317632AbSGFLn1> convert rfc822-to-8bit;
-	Sat, 6 Jul 2002 07:43:27 -0400
-Date: Sat, 6 Jul 2002 13:45:58 +0200 (CEST)
-From: Dominik Geisel <devnull@geisel.info>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.5.25 compile error
-Message-ID: <Pine.LNX.4.44.0207061345080.4005-100000@pc1.geisel.info>
+	id <S317634AbSGFLne>; Sat, 6 Jul 2002 07:43:34 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:20154 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S317633AbSGFLnd>; Sat, 6 Jul 2002 07:43:33 -0400
+Message-ID: <3D26D705.9000808@oracle.com>
+Date: Sat, 06 Jul 2002 13:39:49 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Consulting Premium Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.25 dead kbd and gpm oops (my config error ?)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2.5.25 compiles and boots fine, but keyboard is dead and
+  gpm exits with its own oops() function (not a kernel oops).
 
-on 'make dep' with 2.5.25 I get the following error:
+Jul  6 13:08:33 dolphin kernel: PCI: Probing PCI hardware
+Jul  6 13:08:33 dolphin kernel: PCI: Probing PCI hardware (bus 00)
+Jul  6 13:08:33 dolphin kernel: Unknown bridge resource 2: assuming transparent
+Jul  6 13:08:33 dolphin kernel: PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+Jul  6 13:08:33 dolphin kernel: __iounmap: bad address d0802400
+Jul  6 13:08:33 dolphin kernel: apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
+[...]
+Jul  6 13:08:34 dolphin kernel: PCI: Found IRQ 11 for device 00:03.0
+Jul  6 13:08:34 dolphin kernel: PCI: Sharing IRQ 11 with 00:03.1
+Jul  6 13:08:34 dolphin kernel: PCI: Sharing IRQ 11 with 00:07.2
+Jul  6 13:08:34 dolphin kernel: PCI: Found IRQ 11 for device 00:03.1
+Jul  6 13:08:34 dolphin kernel: PCI: Sharing IRQ 11 with 00:03.0
+Jul  6 13:08:34 dolphin kernel: PCI: Sharing IRQ 11 with 00:07.2
+Jul  6 13:08:34 dolphin kernel: mice: PS/2 mouse device common for all mice
+Jul  6 13:08:34 dolphin kernel: i8042.c: Can't get irq 1 for KBD
+Jul  6 13:08:34 dolphin kernel: i8042.c: Can't get irq 1 for KBD
+Jul  6 13:08:34 dolphin kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+Jul  6 13:08:34 dolphin kernel: Yenta IRQ list 06d8, PCI irq11
+Jul  6 13:08:34 dolphin keytable: Loading keymap:  succeeded
+Jul  6 13:08:34 dolphin kernel: Socket status: 30000020
+Jul  6 13:08:34 dolphin kernel: Yenta IRQ list 06d8, PCI irq11
+Jul  6 13:08:34 dolphin kernel: Socket status: 30000006
+Jul  6 13:08:34 dolphin kernel: input.c: hotplug returned -2
+Jul  6 13:08:34 dolphin kernel: input: PS/2 Generic Mouse on isa0060/serio1
+Jul  6 13:08:34 dolphin kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+Jul  6 13:08:34 dolphin kernel: Advanced Linux Sound Architecture Driver Version 0.9.0rc2 (Wed Jun 19 08:56:25 2002 UTC).
+[...]
+Jul  6 13:08:44 dolphin sendmail: sendmail startup succeeded
+Jul  6 13:08:44 dolphin gpm: gpm startup succeeded
+Jul  6 13:08:44 dolphin gpm[778]: oops() invoked from gpm.c(978)
+Jul  6 13:08:44 dolphin gpm[778]: /dev/mouse: Device or resource busy
+Jul  6 13:08:45 dolphin crond: crond startup succeeded
 
------------------------------------------------------------------------------
-make[1]: Wechsel in das Verzeichnis Verzeichnis »/usr/src/linux«
-make[2]: Wechsel in das Verzeichnis Verzeichnis »/usr/src/linux/scripts«
-  gcc -Wp,-MD,./.split-include.d -Wall -Wstrict-prototypes -O2 
--fomit-frame-pointer   -o split-include split-include.c
-In file included from /usr/include/linux/errno.h:4,
-                 from /usr/include/bits/errno.h:25,
-                 from /usr/include/errno.h:36,
-                 from split-include.c:26:
-/usr/include/asm/errno.h:4:31: asm-generic/errno.h: No such file or 
-directory
-make[2]: *** [split-include] Fehler 1
-make[2]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux/scripts«
-make[1]: *** [scripts] Fehler 2
-make[1]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux«
-make: *** [.hdepend] Fehler 2
------------------------------------------------------------------------------
+So, there is the __iounmap message I've never seen, then the irq1
+  problem from i8042.c, the hotplug message from input.c and the
+  gpm oops(). This latter perhaps I should point to /dev/input/mouse
+  (/dev/mouse is a softlink to /dev/psaux) ?
 
-Any ideas?
+ From .config:
 
-Greetings,
-Dominik Geisel
+[asuardi@dolphin linux]$ egrep 'INPUT|MOUSE|SERIO|8042' .config | grep -v '^#'
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_I8042_REG_BASE=60
+CONFIG_I8042_KBD_IRQ=1
+CONFIG_I8042_AUX_IRQ=12
+CONFIG_SERIO_SERPORT=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
 
--- 
-We may not imagine how our lives could be more frustrating and
-complex--but Congress can.
--Cullen Hightower (contributed by Chris Johnston)
-907D F135 0EF8 5A4D 633B  805D 25E7 478B 1322 4688
+
+Box is a Dell Latitude laptop.
+
+Thanks in advance for any "input" ;)
+
+--alessandro
+
+  "my actions make me beautiful / and dignify the flesh"
+                 (R.E.M., "Falls to Climb")
 

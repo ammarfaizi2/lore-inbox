@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265895AbRFYSBL>; Mon, 25 Jun 2001 14:01:11 -0400
+	id <S265894AbRFYSAL>; Mon, 25 Jun 2001 14:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265891AbRFYSBB>; Mon, 25 Jun 2001 14:01:01 -0400
-Received: from mail.primacom.net ([62.208.91.33]:10216 "EHLO mail.primacom.net")
-	by vger.kernel.org with ESMTP id <S265895AbRFYSAq>;
-	Mon, 25 Jun 2001 14:00:46 -0400
-Message-ID: <3B3798AC.C71DE3B6@evision.ag>
-Date: Mon, 25 Jun 2001 22:01:48 +0200
-From: Martin Dalecki <dalecki@evision.ag>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S265891AbRFYSAB>; Mon, 25 Jun 2001 14:00:01 -0400
+Received: from w244.z064001166.sjc-ca.dsl.cnc.net ([64.1.166.244]:57934 "HELO
+	hellmouth.digitalvampire.org") by vger.kernel.org with SMTP
+	id <S265894AbRFYR7s>; Mon, 25 Jun 2001 13:59:48 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Linux and system area networks
+From: Roland Dreier <roland@hellmouth.digitalvampire.org>
+Date: 25 Jun 2001 10:59:27 -0700
+Message-ID: <87vglkxwxs.fsf@love-shack.i-did-not-set--mail-host-address--so-shoot-me>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: William Park <opengeometry@yahoo.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug in 3c905 driver.
-In-Reply-To: <3B378830.579A6DD@evision.ag> <20010625125418.A587@node0.opengeometry.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Park wrote:
-> 
-> On Mon, Jun 25, 2001 at 08:51:28PM +0200, Martin Dalecki wrote:
-> > Just a note...
-> >
-> > This card get's detected twofold by the plain 2.4.5 kernel.
-> > It get's listed twice under both lspci and during the kernel boot
-> > sequence on a HP LHr3 system.
-> 
-> I get only one message, I have 3c905CX and 2.4.5 kernel.  Maybe you have
-> 2 cards inside? ;-)
+I'd like to find out if anyone has thought about how Linux will handle
+some of the new network technologies people are starting to push.
+Specifically I'm talking about "System Area Networks," that is, things
+like Infiniband, as well as TCP/IP offload.
 
-Could you hand me your .config file over. Maybe there is something
-sensitive
-in the choices for PCI acess, Power management or not - or whatever else
-it may be. I would like to confirm the true source of this error.
-(Currently I'm guessing at a buggy compiler provided by SuSE or buggs
-in the PCI setup code or some wired kind of BIOS configuration problem).
+In the past people have advocated VIA as a way to use network hardware
+that provides reliability and remote DMA (RDMA).  However, VI never
+really caught on because it requires applications to be completely
+rewritten.  In addition, the corporate backers of VI seem to have
+mostly given up on it.
+
+Late last year, Network Appliance proposed something they called
+"DASockets," which would mostly preserve socket semantics.  However
+that seems to have been put on hold.
+
+Microsoft recently introduced something called "Winsock Direct" in W2K
+Datacenter.  For more info you can look at:
+
+http://www.microsoft.com/windows2000/en/datacenter/help/default.asp?url=/WINDOWS2000/en/datacenter/help/WSD_and_SAN.htm
+
+The rough idea is that WSD is a new user space library that looks at
+sockets calls and decides if they have to go through the usual kernel
+network stack, or if they can be handed off to a "SAN service
+provider" which bypasses the network stack and uses hardware reliable
+transport and possibly RDMA.
+
+This means that all applications that use Winsock benefit from the
+advanced network hardware.  Also, it means that Windows is much easier
+for hardware vendors to support than other OSes.  For example,
+Alacritech's TCP/IP offload NIC only works under Windows.  Microsoft
+is also including Infiniband support in Windows XP and Windows 2002.
+(Intel will be pushing Infiniband onto motherboards pretty soon, which
+will bring reliable transport, RDMA network hardware into the
+mainstream)
+
+So I guess my question is whether anyone has started thinking about
+the architectural changes needed to make System Area Networking and
+TCP/IP offload easier under Linux.
+
+Thanks,
+  Roland
+-- 
+Roland Dreier                                <roland@digitalvampire.org>
+GPG Key fingerprint = A89F B5E9 C185 F34D BD50  4009 37E2 25CC E0EE FAC0

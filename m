@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUBEOJq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 09:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUBEOJq
+	id S265217AbUBEO0P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 09:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUBEO0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 09:09:46 -0500
-Received: from law15-f55.law15.hotmail.com ([64.4.23.55]:22801 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265264AbUBEOJo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 09:09:44 -0500
-X-Originating-IP: [195.129.19.203]
-X-Originating-Email: [tuxinvader@hotmail.com]
-From: "Tux Invader" <tuxinvader@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: tuxinvader@hotmail.com
-Subject: Will Feisty Dunnart be appearing in proc??
-Date: Thu, 05 Feb 2004 14:09:43 +0000
+	Thu, 5 Feb 2004 09:26:15 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10472 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265217AbUBEO0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 09:26:13 -0500
+Date: Thu, 5 Feb 2004 15:26:06 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: benny@hostmobility.com, perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix two snd_printdd in sound/pci/cs46xx/dsp_spos_scb_lib.c
+Message-ID: <20040205142606.GV26093@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law15-F55rRVXR08ies00001bdb@hotmail.com>
-X-OriginalArrivalTime: 05 Feb 2004 14:09:43.0527 (UTC) FILETIME=[B3F41770:01C3EBF1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I got the following warnings in 2.6.2-mm1:
 
-I'm not all the list, please CC me.
+<--  snip  -->
 
-Given the latest craze of thinking up imaginitive names for kernels, can we 
-expect to see them appearing in /proc/version or perhaps /proc/alias anytime 
-soon? May I also suggest "Offspring betwixt a Feisty Dunnart and a Geriatric 
-Wombat" for the 2.6.3 release?
+...
+  CC      sound/pci/cs46xx/dsp_spos_scb_lib.o
+sound/pci/cs46xx/dsp_spos_scb_lib.c: In function 
+`cs46xx_dsp_pcm_channel_set_period':
+sound/pci/cs46xx/dsp_spos_scb_lib.c:1394: warning: too few arguments for format
+sound/pci/cs46xx/dsp_spos_scb_lib.c: In function 
+`cs46xx_dsp_pcm_ostream_set_period':
+sound/pci/cs46xx/dsp_spos_scb_lib.c:1432: warning: too few arguments for format
+...
 
-Thanks to everyone for such a great new kernel, you are all fantsactic.
+<--  snip  -->
 
-Cheers,
-Mark ( A Tux fan forever )
+The trivial fix is below.
 
-_________________________________________________________________
-It's fast, it's easy and it's free. Get MSN Messenger today! 
-http://www.msn.co.uk/messenger
+Please apply
+Adrian
 
+--- linux-2.6.2-mm1/sound/pci/cs46xx/dsp_spos_scb_lib.c.old	2004-02-05 15:14:57.000000000 +0100
++++ linux-2.6.2-mm1/sound/pci/cs46xx/dsp_spos_scb_lib.c	2004-02-05 15:15:28.000000000 +0100
+@@ -1391,7 +1391,7 @@
+ 		temp |= DMA_RQ_C1_SOURCE_MOD16;
+ 		break; 
+ 	default:
+-		snd_printdd ("period size (%d) not supported by HW\n");
++		snd_printdd ("period size (%d) not supported by HW\n", period_size);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1429,7 +1429,7 @@
+ 		temp |= DMA_RQ_C1_DEST_MOD16;
+ 		break; 
+ 	default:
+-		snd_printdd ("period size (%d) not supported by HW\n");
++		snd_printdd ("period size (%d) not supported by HW\n", period_size);
+ 		return -EINVAL;
+ 	}
+ 

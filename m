@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263369AbUJ2P5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263410AbUJ2P5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbUJ2P5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263374AbUJ2PxE
+	id S263410AbUJ2P5s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbUJ2Pxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:53:04 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57306 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S263419AbUJ2Ptu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:49:50 -0400
-Date: Fri, 29 Oct 2004 17:49:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Manu Abraham <manu@kromtek.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-In-Reply-To: <200410291209.30255.manu@kromtek.com>
-Message-ID: <Pine.LNX.4.61.0410291214400.877@scrub.home>
-References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410281120150.877@scrub.home> <20041028224534.GB29335@work.bitmover.com>
- <200410291209.30255.manu@kromtek.com>
+	Fri, 29 Oct 2004 11:53:33 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:28423 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263416AbUJ2Puu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 11:50:50 -0400
+Message-ID: <41826A18.6040407@techsource.com>
+Date: Fri, 29 Oct 2004 12:04:40 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: Giuliano Pochini <pochini@denise.shiny.it>,
+       Tonnerre <tonnerre@thundrix.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh> <20041025152921.GA25154@thundrix.ch> <417D216D.1060206@techsource.com> <Pine.LNX.4.58.0410251825480.16966@denise.shiny.it> <20041028093752.GB13523@hh.idb.hist.no>
+In-Reply-To: <20041028093752.GB13523@hh.idb.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 29 Oct 2004, Manu Abraham wrote:
 
-> On Fri October 29 2004 2:45 am, Larry McVoy wrote:
-> > On Thu, Oct 28, 2004 at 11:03:42PM +0200, Roman Zippel wrote:
-> > > [complaints about the awful horrible evil BK2CVS tool]
-> >
-> >  You
-> > do not get to use BK metadata to do so either, those are also our rules.
-> >
+Helge Hafting wrote:
+
+>>>It's been ages since I've encountered a GPU which could do packed 24.  I
+>>>think when people talk about "24 bit color", they're also thinking "32
+>>>bits per pixel".  Besides, there's the alpha channel.
+>>
+> Nothing wrong with 32-bit color.  What I meant, was to
+> prioritize 24-bit _or better_ - don't waste space on
+> 16-bit or even less stuff. 
+
+Yeah.  There may be some demand for 8-bit pseudocolor, but 16-bit 
+truecolor seems a bit pointless.
+
+However, if the host interface has some intelligence in it, then we 
+could have pixels in the framebuffer ALWAYS 32 bits, but we can make 
+them LOOK like 8 or 16 bit pixels to the host.
+
 > 
-> The contents of the BK, ie the metadata is Free software, licensed under the 
-> GPL. Therefore i don't understand .. Isn't this then a violation of the GPL ?
+>>Well, in order to save memory and bandwidth, the data can be 24bpp, but
+>>the software sees it 32bpp.
+>>
+> 
+> Or one could go the other way - if we use 32 bits, then
+> consider 10 bits per color.  I've always wondered about the purpose
+> of a 8-bit alpha channel.  what exactly is supposed to show
+> in "transparent" places?  Transparency makes sense when talking about 
+> windows - you see the underlying window through a transparent spot.
+> But this is the frame buffer we're talking about - what is
+> supposed to be behind that?  Another frame buffer?
 
-What someone does in the privacy of his home is outside the scope of the 
-GPL, this means the kernel repository is the private toy of Linus and he 
-leaves the decision who may play with him to Larry.
-This is also means that Linux history recorded in bk is not part of the 
-public record. This is an unfortunate fact and not a complaint BTW, but 
-Larry has not much use for facts anyway, when I try to summarize the facts 
-around the publicly available information as best as I can, Larry doesn't 
-even try to prove me wrong and instead continues to attack me personally. 
-I don't really care about the latter, but that he gets the support to do 
-so is the personally very disappointing part. :-(
+When compositing images, it's important to know "how much pixel" has 
+been painted already.  If the screen's blank and all pixels therefore 
+are completely transparent, and you draw something with antialised 
+edges, you want to keep track of the fact that the edges are "not all 
+there" so that if another triangle gets drawn that abuts the first one, 
+they merge together perfectly.
 
-bye, Roman
+

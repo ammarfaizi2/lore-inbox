@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbTINXuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 19:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTINXuY
+	id S262400AbTINX6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 19:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTINX6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 19:50:24 -0400
-Received: from dyn-ctb-210-9-246-130.webone.com.au ([210.9.246.130]:7172 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262059AbTINXuX
+	Sun, 14 Sep 2003 19:58:32 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38669 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262400AbTINX6a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 19:50:23 -0400
-Message-ID: <3F64FEB7.6010008@cyberone.com.au>
-Date: Mon, 15 Sep 2003 09:50:15 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: KConfig help text not shown in 2.6.0-test5
-References: <3F63197D.2000306@cyberone.com.au> <Pine.LNX.4.44.0309131720270.8124-100000@serv> <3F645F0A.1000104@cyberone.com.au> <Pine.LNX.4.44.0309141626540.19512-100000@serv>
-In-Reply-To: <Pine.LNX.4.44.0309141626540.19512-100000@serv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Sep 2003 19:58:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Date: 14 Sep 2003 23:49:30 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bk2uqa$fmj$1@gatekeeper.tmr.com>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com> <20030912195606.24e73086.ak@suse.de> <3F62098F.9030300@pobox.com> <20030912182216.GK27368@fs.tum.de>
+X-Trace: gatekeeper.tmr.com 1063583370 16083 192.168.12.62 (14 Sep 2003 23:49:30 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20030912182216.GK27368@fs.tum.de>,
+Adrian Bunk  <bunk@fs.tum.de> wrote:
+                [...]
 
+| But even CONFIG_X86_GENERIC doesn't do what you expect. A kernel 
+| compiled for Athlon wouldn't run on a Pentium 4 even with 
+| CONFIG_X86_GENERIC.
+| 
+| Quoting arch/i386/Kconfig in -test5:
+| 
+| <--  snip  -->
+| 
+| config X86_USE_3DNOW
+|         bool
+|         depends on MCYRIXIII || MK7
+|         default y
+| 
+| <--  snip  -->
+| 
+| My patch in the mail
+| 
+|   RFC: [2.6 patch] better i386 CPU selection
+| 
+| tries to solve these problem with a different approach (the user selects 
+| all CPUs he wants to support).
 
-Roman Zippel wrote:
-
->Hi,
->
->On Sun, 14 Sep 2003, Nick Piggin wrote:
->
->
->>>BTW you can reach the individual help within 'make config' by appending a 
->>>'?' to the number (e.g. '1?').
->>>
->>What I am seeing is the help text for the whole choice thingy is used as
->>the help text for the individual choices. This patch doesn't fix that.
->>How is it supposed to work? I assume you tried it and saw what it was
->>doing, so am I just mistaken in how I think it should work?
->>
->
->Yes, it works here, what exactly did you try?
->
-
-I got a clean 2.6.0-test5 kernel tree, applied your patch, ran make
-oldconfig menuconfig, entered "processor type and features", move over
-"processor family" and select help. That works fine. Enter "processor
-family" and select help for "Pentium-4" and the same help text comes up.
-I just thought you should see the individual help text for that item.
-
-
+If you have managed to work around all the conflicting capabilities
+without leaving the kernel way suboptimal on some, I salute your better
+solution.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

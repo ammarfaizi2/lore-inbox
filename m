@@ -1,95 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291203AbSBLVQd>; Tue, 12 Feb 2002 16:16:33 -0500
+	id <S291198AbSBLVQc>; Tue, 12 Feb 2002 16:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291193AbSBLVQU>; Tue, 12 Feb 2002 16:16:20 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:3018 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id <S291194AbSBLVPq>;
-	Tue, 12 Feb 2002 16:15:46 -0500
-Subject: Re: pci_pool reap?
-From: Daniel Stodden <stodden@in.tum.de>
-To: =?ISO-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-        zaitcev@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020211220922.I1867-100000@gerard>
-In-Reply-To: <20020211220922.I1867-100000@gerard>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-N1kHzCJJtRUsb+QJtCVV"
-X-Mailer: Evolution/1.0.2 
-Date: 12 Feb 2002 22:14:28 +0100
-Message-Id: <1013548499.2240.291.camel@bitch>
+	id <S291195AbSBLVQM>; Tue, 12 Feb 2002 16:16:12 -0500
+Received: from smtp2.vol.cz ([195.250.128.42]:3853 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S291192AbSBLVPk>;
+	Tue, 12 Feb 2002 16:15:40 -0500
+Date: Tue, 12 Feb 2002 18:14:22 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
+        zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+Message-ID: <20020212171421.GE148@elf.ucw.cz>
+In-Reply-To: <15464.33256.837784.657759@napali.hpl.hp.com> <20020211.185100.68039940.davem@redhat.com> <15464.34183.282646.869983@napali.hpl.hp.com> <20020211.190449.55725714.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020211.190449.55725714.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-N1kHzCJJtRUsb+QJtCVV
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>    No, it will slow down ia64 and you haven't shown that it helps others.
+> 
+> That's crap.  You haven't shown this yet, it didn't slow down sparc64
+> so I doubt you'll be able to.
+> 
+> You don't have any facts, you just "think" it will slow things down
+> because of the pointer dereference.  I challenge you to show it
+> actually shows up on the performance radar.
+> 
+> The thing is going to be fully hot in the cache all the time, there
+> is no way you'll take a cache miss for this dereference.
 
-On Mon, 2002-02-11 at 22:10, G=E9rard Roudier wrote:
->=20
-> So, everything is ok. :-)
+So you essentially made your cache one cacheline smaller.
 
-hey,
-
-mio nada great hacker von hardware. just the guy who wants to allocate
-coherent buffers into shrinking pci pools, preferably at interrupts.
-
-since everybody seems to come up something like "well, most systems.."
-and "but some arch.." i thought it might be actually of interest to look
-it up, no?
-
-<:)
-
-dns
-
-> > 		[1]	ok			ok
-
-> > 		[1]	ok			ok
-
-> > 		[1]	ok			ok
-
-> > 		[1]	ok			ok
-
-> >   stm:		[1]	ok			ok
-
-> >   dc:		[3]	ok			ok
-
-> >   ip32:		[1]	ok			ok
-> >   ip27:		[1]	ok			ok
-
-> > 		[1]	GFP_KERNEL		ok
-
-> > 		[2]	ok			ok
-
-> > arm:		[4]	BUG()/GFP_KERNEL	BUG()
-
-> > 		[2]	ok			ok
-
-> > ia64:		[5]	ok?			ok?
-
---=20
-___________________________________________________________________________
- mailto:stodden@in.tum.de
-
-And don't EVER make the mistake that you can design something better
-than what you get from ruthless massively parallel trial-and-error
-with a feedback cycle.
-						- Linus Torvalds
-
---=-N1kHzCJJtRUsb+QJtCVV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8aYW0SPSplX5M5nQRAhagAJ9nRo/LOV7h24Z5M28koI/gBNmLKQCeL9W9
-H83zjqJIW3aI4E81W/o3KE4=
-=pjlE
------END PGP SIGNATURE-----
-
---=-N1kHzCJJtRUsb+QJtCVV--
-
+I guess it is easy to add 100 minor modifications, none of them
+showing on performance radar, and slowing kernel 2 times in result.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

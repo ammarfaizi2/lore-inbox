@@ -1,55 +1,323 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSGUJgl>; Sun, 21 Jul 2002 05:36:41 -0400
+	id <S311749AbSGUKKE>; Sun, 21 Jul 2002 06:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311885AbSGUJgk>; Sun, 21 Jul 2002 05:36:40 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:2567 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311025AbSGUJgh>;
-	Sun, 21 Jul 2002 05:36:37 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.17 is available 
-Date: Sun, 21 Jul 2002 19:39:15 +1000
-Message-ID: <20746.1027244355@ocs3.intra.ocs.com.au>
+	id <S311885AbSGUKKE>; Sun, 21 Jul 2002 06:10:04 -0400
+Received: from verein.lst.de ([212.34.181.86]:3853 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S311749AbSGUKKC>;
+	Sun, 21 Jul 2002 06:10:02 -0400
+Date: Sun, 21 Jul 2002 12:13:04 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] vmap_pages() for 2.5.27
+Message-ID: <20020721121304.A4465@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+[Resending this against 2.5.27]
 
-Content-Type: text/plain; charset=us-ascii
+There's more and more pressure getting XFS into mainline now that most
+distributors ship it and SGI's Red Hat-based installers are in wide use,
+and although most of the core kernel changes in the XFS tree have been
+removed by redesigning/rewriting XFS code.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+Still there are a bunch of core code changes that are needed for XFS to
+work without beeing totally rewritten and this patch is an alternate
+version (which should also be usable properly for non-XFS purposes) of
+the probably most important missing core functionality needed by XFS.
 
-modutils-2.4.17.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.17-1.src.rpm       As above, in SRPM format
-modutils-2.4.17-1.i386.rpm      Compiled with gcc 2.96 20000731,
-                                glibc 2.2.2.
-patch-modutils-2.4.17.gz        Patch from modutils 2.4.15 to 2.4.17.
+The vmap_pages() functions allows to map an array of virtually
+non-continguos pages into the kernel virtual memory.  The implementation
+is very simple and a small variation of vmalloc() - instead of
+allocating new pages in alloc_area_pte() uncondintionally a pointer to a
+page array is passed down all through vmalloc_area_pages => alloc_area_pmd
+=> alloc_area_pte and if it is non-null no pages are allocated but the
+reference count on the existing ones is incremented.
 
-Changelog extract
+The old vmalloc_area_pages is renamed to __vmap_area_pages and
+vmalloc_area_pages is a small wrapper around it, passing in an NULL page
+array.  Similarly __vmalloc is renamed to vmap_pages and a small wrapper
+is added.
 
-	* struct obj_symbol needs target specific value for 32/64 bit modutils.
-	  Will Schmidt.
-	* New binutils no longer uses '?' for kstrtab in System.map.
-	  Alan Modra.
-	* Only warn for unknown parameters on insmod.  This used to be an error
-	  which caused migration problems when a parameter was removed from a
-	  module.  Requested by Matt Domsch.
-	* Change default TAINT_URL to http://www.tux.org/lkml/#export-tainted.
-	* Upgrade for bison > 1.31.  Reported by Akim Demaille.
-	* Add license string "GPL v2".  Reported by Pavel Roskin.
-	* PPC64 updates for new relocation types.  Alan Modra.
-	* Revert depmod to pre-2.4.13 behaviour.  Unresolved symbols should not
-	  cause a non-zero return code unless depmod -u is explicitly set.
+In addition I've removed th unused vmalloc_dma and cleaned up vmalloc.h
+a little - this could need more cleanup (and kdoc documentation for
+the vmalloc.c stuff), but I will do this later in an incremental patch.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
 
-iD8DBQE9OoFBi4UHNye0ZOoRAk4sAKDLl/eL1GxIsUi+0EKEganhM4dXAgCfR2tL
-4wKUbD1u1ZEV2V0/Dqp/elw=
-=vQWh
------END PGP SIGNATURE-----
-
+--- linux-2.5/drivers/char/mem.c	Sat Jul 13 20:38:52 2002
++++ linux-2.5-xfs/drivers/char/mem.c	Thu Jul 18 23:45:36 2002
+@@ -42,6 +42,9 @@
+ #if defined(CONFIG_S390_TAPE) && defined(CONFIG_S390_TAPE_CHAR)
+ extern void tapechar_init(void);
+ #endif
++
++extern long vwrite(char *buf, char *addr, unsigned long count);
++extern long vread(char *buf, char *addr, unsigned long count);
+      
+ static ssize_t do_write_mem(struct file * file, void *p, unsigned long realp,
+ 			    const char * buf, size_t count, loff_t *ppos)
+@@ -273,8 +276,6 @@
+  	return virtr + read;
+ }
+ 
+-extern long vwrite(char *buf, char *addr, unsigned long count);
+-
+ /*
+  * This function writes to the *virtual* memory as seen by the kernel.
+  */
+--- linux-2.5/kernel/ksyms.c	Sat Jul 13 20:40:52 2002
++++ linux-2.5-xfs/kernel/ksyms.c	Thu Jul 18 23:15:58 2002
+@@ -112,6 +112,7 @@
+ EXPORT_SYMBOL(vmalloc);
+ EXPORT_SYMBOL(vmalloc_32);
+ EXPORT_SYMBOL(vmalloc_to_page);
++EXPORT_SYMBOL(vmap_pages);
+ EXPORT_SYMBOL(mem_map);
+ EXPORT_SYMBOL(remap_page_range);
+ EXPORT_SYMBOL(max_mapnr);
+--- linux-2.5/include/linux/vmalloc.h	Sat Jul 13 20:40:46 2002
++++ linux-2.5-xfs/include/linux/vmalloc.h	Thu Jul 18 23:13:46 2002
+@@ -1,10 +1,12 @@
+-#ifndef __LINUX_VMALLOC_H
+-#define __LINUX_VMALLOC_H
++#ifndef _LINUX_VMALLOC_H
++#define _LINUX_VMALLOC_H
+ 
+ #include <linux/spinlock.h>
+-
+ #include <asm/pgtable.h>
+ 
++struct page;
++
++
+ /* bits in vm_struct->flags */
+ #define VM_IOREMAP	0x00000001	/* ioremap() and friends */
+ #define VM_ALLOC	0x00000002	/* vmalloc() */
+@@ -17,28 +19,25 @@
+ 	struct vm_struct * next;
+ };
+ 
+-extern struct vm_struct * get_vm_area (unsigned long size, unsigned long flags);
+-extern void vfree(void * addr);
++
+ extern void * __vmalloc (unsigned long size, int gfp_mask, pgprot_t prot);
+-extern long vread(char *buf, char *addr, unsigned long count);
+-extern void vmfree_area_pages(unsigned long address, unsigned long size);
++extern void * vmalloc(unsigned long size);
++extern void * vmalloc_32(unsigned long size);
++extern void * vmap_pages(struct page **pages, unsigned long size,
++			 int gfp_mask, pgprot_t prot);
++extern void vfree(void * addr);
++
++extern struct vm_struct * get_vm_area (unsigned long size, unsigned long flags);
+ extern int vmalloc_area_pages(unsigned long address, unsigned long size,
+                               int gfp_mask, pgprot_t prot);
++extern void vmfree_area_pages(unsigned long address, unsigned long size);
+ extern struct vm_struct *remove_kernel_area(void *addr);
+ 
+ /*
+- * Various ways to allocate pages.
+- */
+-
+-extern void * vmalloc(unsigned long size);
+-extern void * vmalloc_32(unsigned long size);
+-
+-/*
+  * vmlist_lock is a read-write spinlock that protects vmlist
+  * Used in mm/vmalloc.c (get_vm_area() and vfree()) and fs/proc/kcore.c.
+  */
+ extern rwlock_t vmlist_lock;
+-
+ extern struct vm_struct * vmlist;
+-#endif
+ 
++#endif /* _LINUX_VMALLOC_H */
+--- linux-2.5/mm/vmalloc.c	Sat Jul 13 20:40:53 2002
++++ linux-2.5-xfs/mm/vmalloc.c	Thu Jul 18 23:11:36 2002
+@@ -99,8 +99,9 @@
+ 	flush_tlb_kernel_range(start, end);
+ }
+ 
+-static inline int alloc_area_pte (pte_t * pte, unsigned long address,
+-			unsigned long size, int gfp_mask, pgprot_t prot)
++static inline int alloc_area_pte(pte_t * pte, struct page ** pages,
++				 unsigned long address, unsigned long size,
++				 int gfp_mask, pgprot_t prot)
+ {
+ 	unsigned long end;
+ 
+@@ -110,9 +111,17 @@
+ 		end = PMD_SIZE;
+ 	do {
+ 		struct page * page;
+-		spin_unlock(&init_mm.page_table_lock);
+-		page = alloc_page(gfp_mask);
+-		spin_lock(&init_mm.page_table_lock);
++
++		if (pages) {
++			page = *(pages++);
++
++			/* Add a reference to the page so we can free later */
++			get_page(page);
++		} else {
++			spin_unlock(&init_mm.page_table_lock);
++			page = alloc_page(gfp_mask);
++			spin_lock(&init_mm.page_table_lock);
++		}
+ 		if (!pte_none(*pte))
+ 			printk(KERN_ERR "alloc_area_pte: page already exists\n");
+ 		if (!page)
+@@ -124,7 +133,9 @@
+ 	return 0;
+ }
+ 
+-static inline int alloc_area_pmd(pmd_t * pmd, unsigned long address, unsigned long size, int gfp_mask, pgprot_t prot)
++static inline int alloc_area_pmd(pmd_t * pmd, struct page ** pages,
++				 unsigned long address, unsigned long size,
++				 int gfp_mask, pgprot_t prot)
+ {
+ 	unsigned long end;
+ 
+@@ -136,7 +147,8 @@
+ 		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, address);
+ 		if (!pte)
+ 			return -ENOMEM;
+-		if (alloc_area_pte(pte, address, end - address, gfp_mask, prot))
++		if (alloc_area_pte(pte, pages, address, end - address,
++					gfp_mask, prot))
+ 			return -ENOMEM;
+ 		address = (address + PMD_SIZE) & PMD_MASK;
+ 		pmd++;
+@@ -144,8 +156,8 @@
+ 	return 0;
+ }
+ 
+-inline int vmalloc_area_pages (unsigned long address, unsigned long size,
+-                               int gfp_mask, pgprot_t prot)
++int __vmap_area_pages(struct page ** pages, unsigned long address,
++		      unsigned long size, int gfp_mask, pgprot_t prot)
+ {
+ 	pgd_t * dir;
+ 	unsigned long end = address + size;
+@@ -162,7 +174,8 @@
+ 			break;
+ 
+ 		ret = -ENOMEM;
+-		if (alloc_area_pmd(pmd, address, end - address, gfp_mask, prot))
++		if (alloc_area_pmd(pmd, pages, address, end - address,
++					gfp_mask, prot))
+ 			break;
+ 
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+@@ -175,6 +188,12 @@
+ 	return ret;
+ }
+ 
++int vmalloc_area_pages(unsigned long address, unsigned long size,
++		       int gfp_mask, pgprot_t prot)
++{
++	return __vmap_area_pages(NULL, address, size, gfp_mask, prot);
++}
++
+ struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
+ {
+ 	unsigned long addr;
+@@ -238,41 +257,15 @@
+ 	}
+ 	tmp = remove_kernel_area(addr); 
+ 	if (tmp) { 
+-			vmfree_area_pages(VMALLOC_VMADDR(tmp->addr), tmp->size);
+-			kfree(tmp);
+-			return;
+-		}
++		vmfree_area_pages(VMALLOC_VMADDR(tmp->addr), tmp->size);
++		kfree(tmp);
++		return;
++	}
+ 	printk(KERN_ERR "Trying to vfree() nonexistent vm area (%p)\n", addr);
+ }
+ 
+-/*
+- *	Allocate any pages
+- */
+-
+-void * vmalloc (unsigned long size)
+-{
+-	return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
+-}
+-
+-/*
+- *	Allocate ISA addressable pages for broke crap
+- */
+-
+-void * vmalloc_dma (unsigned long size)
+-{
+-	return __vmalloc(size, GFP_KERNEL|GFP_DMA, PAGE_KERNEL);
+-}
+-
+-/*
+- *	vmalloc 32bit PA addressable pages - eg for PCI 32bit devices
+- */
+-
+-void * vmalloc_32(unsigned long size)
+-{
+-	return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL);
+-}
+-
+-void * __vmalloc (unsigned long size, int gfp_mask, pgprot_t prot)
++void * vmap_pages(struct page **pages, unsigned long size,
++		 int gfp_mask, pgprot_t prot)
+ {
+ 	void * addr;
+ 	struct vm_struct *area;
+@@ -286,13 +279,37 @@
+ 	if (!area)
+ 		return NULL;
+ 	addr = area->addr;
+-	if (vmalloc_area_pages(VMALLOC_VMADDR(addr), size, gfp_mask, prot)) {
++	if (__vmap_area_pages(pages, VMALLOC_VMADDR(addr), size, gfp_mask, prot)) {
+ 		vfree(addr);
+ 		return NULL;
+ 	}
+ 	return addr;
+ }
+ 
++void * __vmalloc (unsigned long size, int gfp_mask, pgprot_t prot)
++{
++	return vmap_pages(NULL, size, gfp_mask, prot);
++}
++
++/*
++ *	Allocate any pages
++ */
++
++void * vmalloc (unsigned long size)
++{
++	return vmap_pages(NULL, size, GFP_KERNEL|__GFP_HIGHMEM, PAGE_KERNEL);
++}
++
++/*
++ *	vmalloc 32bit PA addressable pages - eg for PCI 32bit devices
++ */
++
++void * vmalloc_32(unsigned long size)
++{
++	return vmap_pages(NULL, size, GFP_KERNEL|GFP_DMA, PAGE_KERNEL);
++}
++
++
+ long vread(char *buf, char *addr, unsigned long count)
+ {
+ 	struct vm_struct *tmp;
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

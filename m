@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267848AbUG3XG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUG3XVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267848AbUG3XG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 19:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267868AbUG3XG5
+	id S267869AbUG3XVz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 19:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267868AbUG3XVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 19:06:57 -0400
-Received: from gprs214-87.eurotel.cz ([160.218.214.87]:29829 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267848AbUG3XGz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 19:06:55 -0400
-Date: Sat, 31 Jul 2004 01:06:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       David Brownell <david-b@pacbell.net>, dbrownell@users.sourceforge.net
-Subject: Re: Solving suspend-level confusion
-Message-ID: <20040730230638.GA28908@elf.ucw.cz>
-References: <20040730164413.GB4672@elf.ucw.cz> <1091227170.7389.5.camel@gaston>
+	Fri, 30 Jul 2004 19:21:55 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:6404 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267869AbUG3XVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 19:21:54 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Shane Shrybman <shrybman@aei.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091209106.2356.3.camel@mars>
+References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
+	 <1091209106.2356.3.camel@mars>
+Content-Type: text/plain
+Date: Sat, 31 Jul 2004 01:21:35 +0200
+Message-Id: <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091227170.7389.5.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2004-07-30 at 13:38 -0400, Shane Shrybman wrote:
 
-> > What do you think?
+> > M5 does that differently, yes - so could you try it? If you still get
+> > problems, does this fix it:
 > 
-> Your constants are ugly ;) But the whole idea makes sense, I've started
-> implementing something on my side, though I didn't change the u32 to an
-> enum to avoid having to "fix" bazillions of drivers. Proper
-> documentation may just be enough...
+> Ok, M5 locked up the whole machine within a few seconds of starting X.
 
-Good. (Well, I'd still like to migrate to enums, eventually, so it
-is not easy to confuse, but...)
+Me too, with voluntary-preempt=3... It seems I can trigger this randomly
+by heavily moving the mouse around while logging in into my KDE session.
 
-> > PS: I'll be on holidays for a week, feel free to implement this or
-> > something similar.. it is going to be lot of search/replace in drivers
-> > :-(.
-> 
-> I'll have some patches soon along with the PPC stuff.
+However, with voluntary-preempt=2 I've been unable to lock the machine
+yet.
 
-I'm looking forward...
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292609AbSBPXUp>; Sat, 16 Feb 2002 18:20:45 -0500
+	id <S292612AbSBPXiK>; Sat, 16 Feb 2002 18:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292610AbSBPXUg>; Sat, 16 Feb 2002 18:20:36 -0500
-Received: from zero.tech9.net ([209.61.188.187]:14853 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292609AbSBPXUZ>;
-	Sat, 16 Feb 2002 18:20:25 -0500
-Subject: Re: [PATCH] Re: 2.5: further llseek cleanup (3/3)
-From: Robert Love <rml@tech9.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1013900429.855.3.camel@phantasy>
-In-Reply-To: <3C6EDDCA.DAB884BD@colorfullife.com> 
-	<1013900429.855.3.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 16 Feb 2002 18:20:23 -0500
-Message-Id: <1013901624.851.9.camel@phantasy>
+	id <S292613AbSBPXiA>; Sat, 16 Feb 2002 18:38:00 -0500
+Received: from holomorphy.com ([216.36.33.161]:18818 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S292612AbSBPXht>;
+	Sat, 16 Feb 2002 18:37:49 -0500
+Date: Sat, 16 Feb 2002 15:37:39 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] shrink struct page for 2.5
+Message-ID: <20020216233739.GA3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.33L.0202161804330.1930-100000@imladris.surriel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0202161804330.1930-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-02-16 at 18:00, Robert Love wrote:
-> Indeed.  Thank you, Manfred.
-> 
-> Linus, patch against 2.5.5-pre1 is attached.  Please, apply.
+On Sat, Feb 16, 2002 at 06:15:03PM -0200, Rik van Riel wrote:
+> Unfortunately I haven't managed to make 2.5.5-pre2 to boot on
+> my machine, so I haven't been able to test this port of the
+> patch to 2.5. The code has been running stably in 2.4 for the
+> last 2 months though, so if you can boot 2.5, please help test
+> this thing.
 
-Ugh, another one.  Linus, please apply.
+I tested current 2.5.5-pre bk on a diskless Pentium 200 MMX with 192MB
+of RAM loading with PXELINUX and with nfsroot enabled.
 
-	Robert Love
+The result was a triplefault (i.e. reboot) before console_init(),
+which clearly isn't our code failing.
 
-diff -urN linux-2.5.5-pre1/arch/cris/drivers/eeprom.c linux/arch/cris/drivers/eeprom.c
---- linux-2.5.5-pre1/arch/cris/drivers/eeprom.c	Wed Feb 13 18:18:43 2002
-+++ linux/arch/cris/drivers/eeprom.c	Sat Feb 16 18:11:30 2002
-@@ -470,17 +470,17 @@
-   /* truncate position */
-   if (file->f_pos < 0)
-   {
--    file->f_pos = 0;    
--    unlock_kernel();
-+    file->f_pos = 0;
-     ret = -EOVERFLOW;
-   }
--  
-+
-   if (file->f_pos >= eeprom.size)
-   {
-     file->f_pos = eeprom.size - 1;
-     ret = -EOVERFLOW;
-   }
- 
-+  unlock_kernel();
-   return ( ret );
- }
- 
+It was literally early enough I'm inclined to suspect bootloader
+protocol issues.
 
 
+Cheers,
+Bill

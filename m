@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271307AbRHORQ1>; Wed, 15 Aug 2001 13:16:27 -0400
+	id <S271310AbRHORN5>; Wed, 15 Aug 2001 13:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271309AbRHORQI>; Wed, 15 Aug 2001 13:16:08 -0400
-Received: from p3EE3E82B.dip.t-dialin.net ([62.227.232.43]:9740 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S271307AbRHORQG>;
-	Wed, 15 Aug 2001 13:16:06 -0400
-Date: Wed, 15 Aug 2001 19:17:36 +0200
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com 
-Message-ID: <20010815191736.A32547@sistina.com>
-Reply-To: mauelshagen@sistina.com
+	id <S271316AbRHORNr>; Wed, 15 Aug 2001 13:13:47 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18571
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S271310AbRHORNk>; Wed, 15 Aug 2001 13:13:40 -0400
+Date: Wed, 15 Aug 2001 10:13:46 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add linux/spinlock.h to include/linux/mc146816rtc.h
+Message-ID: <20010815101346.F15482@cpe-24-221-152-185.az.sprintbbd.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi all,
-
-with all the kind support of the community to stabilize the Linux Logical
-Volume Manager, we are proud to announce the production level release 1.0.
-
-A tarball is available now at
-
-   <http://www.sistina.com/>
-
-for download (Follow the "LVM 1.0" link).
-
-This release contains minor changes to 0.9.1 Beta 8.
-
-!!! YOU STILL NEED TO FOLLOW THE INSTRUCTIONS IN README.1ST !!!
-See the CHANGELOG file contained in the tarball for further information.
-
-We are still working together with Alan Cox on the integration of the
-actual driver into vanilla. *Sorry* folks, we couldn't wait any longer ;-)
-
-Feed back LVM related information to <linux-lvm@sistina.com>.
-
-Thanks a lot for your support of LVM.
+Hello.  include/linux/mc146818rtc.h has the line:
+'extern spinlock_t rtc_lock;' in it, but it relies on linux/spinlock.h being
+included elsewhere.  The inlined fixes that.
 
 -- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+diff -Nru a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
+--- a/include/linux/mc146818rtc.h	Wed Aug 15 09:59:45 2001
++++ b/include/linux/mc146818rtc.h	Wed Aug 15 09:59:45 2001
+@@ -13,6 +13,7 @@
+ 
+ #include <asm/io.h>
+ #include <linux/rtc.h>			/* get the user-level API */
++#include <linux/spinlock.h>		/* spinlock_t */
+ #include <asm/mc146818rtc.h>		/* register access macros */
+ 
+ extern spinlock_t rtc_lock;		/* serialize CMOS RAM access */

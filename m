@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVAGDOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVAGDSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVAGDOp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 22:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVAGDOj
+	id S261286AbVAGDSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 22:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVAGDSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 22:14:39 -0500
-Received: from smtp.nuvox.net ([64.89.70.9]:34658 "EHLO
-	smtp03.gnvlscdb.sys.nuvox.net") by vger.kernel.org with ESMTP
-	id S261288AbVAGDMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 22:12:48 -0500
-Subject: sr.c media_changed handling
-From: Dan Dennedy <dan@dennedy.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 06 Jan 2005 22:00:20 -0500
-Message-Id: <1105066820.5048.38.camel@kino.dennedy.org>
+	Thu, 6 Jan 2005 22:18:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7149 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261286AbVAGDRz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 22:17:55 -0500
+Date: Thu, 6 Jan 2005 19:17:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: hch@infradead.org, viro@parcelfarce.linux.theplanet.co.uk,
+       paulmck@us.ibm.com, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       jtk@us.ibm.com, wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, torvalds@osdl.org
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-Id: <20050106191735.0421cdca.akpm@osdl.org>
+In-Reply-To: <1105055333.17166.304.camel@localhost.localdomain>
+References: <20050106190538.GB1618@us.ibm.com>
+	<1105039259.4468.9.camel@laptopd505.fenrus.org>
+	<20050106201531.GJ1292@us.ibm.com>
+	<20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
+	<20050106210408.GM1292@us.ibm.com>
+	<20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	<20050106152621.395f935e.akpm@osdl.org>
+	<20050106234123.GA27869@infradead.org>
+	<20050106162928.650e9d71.akpm@osdl.org>
+	<1105055333.17166.304.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working with a PowerFile DVD jukebox (firewire/sbp2) on kernel
-2.6.10, and it works quite well except for media change handling. The
-problem is sr limits reads of subsequent discs to the capacity of the
-first disc opened. If I remove the line "if (cd->needs_sector_size)"
-from sr_open() and make it always get the capacity when a disc is
-opened, then it resolves my issues. Alternatively, I can send a
-CDROM_MEDIA_CHANGED ioctl when no disc is loaded to force a Read
-Capacity request when the next disc is mounted and opened. I have
-another, non-changer sbp2 disc drive that does not exhibit this problem.
-Therefore, I have two questions:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Gwe, 2005-01-07 at 00:29, Andrew Morton wrote:
+>  > Christoph Hellwig <hch@infradead.org> wrote:
+>  > Fine.  Completely agree.  Sometimes people do need to be forced to make
+>  > such changes - I don't think anyone would disagree with that.
+>  > 
+>  > What's under discussion here is "how to do it".  Do we just remove things
+>  > when we notice them, or do we give (say) 12 months notice?
+> 
+>  Why should we keep junk around for 12 months
 
-1) How does a SCSI device that reports media-changed capable
-(CDC_MEDIA_CHANGED) actually send that signal or flag? Does it come up
-through block device operation media_changed, or is that just a means to
-query the driver's current status?
+To give people a reasonable amount of time to stop using these things, of
+course.
 
-2) I suspect there are other devices that have a similar flaw. What is
-the harm in sending an inexpensive Read Capacity command each time a
-disc is opened? IOW, removing that line from sr.c in bitkeeper. It seems
-it would improve compatibility for less well-behaved devices with
-little-to-no impact on the majority.
+> that nobody has a legal reason to be using ?
 
-p.s. please include my address in the reply; I am not subscribed.
+The symbols were exported to non-gpl modules.  People used them.  Maybe
+they shouldn't have.  Maybe they were asked not to do so, and maybe or
+maybe not they noticed.  Certainly we shouldn't have exported these things
+in the first place.
 
-
+We should find a way of repairing things while minimising the amount of
+screwing people around.

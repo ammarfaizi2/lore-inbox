@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbRLDTHl>; Tue, 4 Dec 2001 14:07:41 -0500
+	id <S283358AbRLDTGM>; Tue, 4 Dec 2001 14:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283293AbRLDTGS>; Tue, 4 Dec 2001 14:06:18 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:49874 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S283356AbRLDTFb>; Tue, 4 Dec 2001 14:05:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Stefani Seibold <stefani@seibold.net>
-To: "Tommy Faasen" <faasen@xs4all.nl>
-Subject: Re: patch for suppress printk messages
-Date: Tue, 4 Dec 2001 20:03:40 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <16BIdM-12MonAC@fmrl05.sul.t-online.com> <001e01c17cea$d6b03c30$6400a8c0@it0>
-In-Reply-To: <001e01c17cea$d6b03c30$6400a8c0@it0>
+	id <S283291AbRLDTEo>; Tue, 4 Dec 2001 14:04:44 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3859 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283282AbRLDTD0>;
+	Tue, 4 Dec 2001 14:03:26 -0500
+Date: Tue, 4 Dec 2001 17:03:06 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Giacomo Catenazzi <cate@dplanet.ch>, <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <20011204123620.I16578@thyrsus.com>
+Message-ID: <Pine.LNX.4.33L.0112041702380.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16BKsI-1gn0XAC@fmrl04.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel will not do any printk debug output. The kernel
-will boot silently. Only the output of userland processes will
-make outputs to the console.
-This patch is not for big systems like desktop or server. It is 
-designed for systems with a very small footprint, like a toaster 
-or a dvd player.
-On this kind of systems the hardware normaly never change 
-and there is not very much memory.
+On Tue, 4 Dec 2001, Eric S. Raymond wrote:
 
-Am Dienstag, 4. Dezember 2001 18:40 schrieb Tommy Faasen:
-> Can you show an example what is printed now?
+> > Don't do it!
+> > A stable kernel should be stable also on the building tools.
 >
-> Thanks
-> ----- Original Message -----
-> From: "Stefani Seibold" <stefani@seibold.net>
-> To: <torvalds@transmeta.com>; <alan@lxorguk.ukuu.org.uk>
-> Cc: <linux-kernel@vger.kernel.org>; <Stefani@seibold.net>
-> Sent: Tuesday, December 04, 2001 5:40 PM
-> Subject: patch for suppress printk messages
->
+> That will be Marcelo's call, not mine.
+
+Ohhh, that sounds a lot like "I'm not the maintainer, I'm
+not responsible for the code I submit"  ;)))
+
+*runs like hell*
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

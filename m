@@ -1,61 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRBTXkc>; Tue, 20 Feb 2001 18:40:32 -0500
+	id <S129107AbRBTXqM>; Tue, 20 Feb 2001 18:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130937AbRBTXkM>; Tue, 20 Feb 2001 18:40:12 -0500
-Received: from snoopy.apana.org.au ([202.12.87.129]:33803 "HELO
-	snoopy.apana.org.au") by vger.kernel.org with SMTP
-	id <S129107AbRBTXkH>; Tue, 20 Feb 2001 18:40:07 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-In-Reply-To: <20010219115314.A6724@almesberger.net>
-	<Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
-From: Brian May <bam@snoopy.apana.org.au>
-X-Home-Page: http://snoopy.apana.org.au/~bam/
-Date: 21 Feb 2001 10:39:48 +1100
-In-Reply-To: jgarzik@mandrakesoft.com's message of "19 Feb 01 11:07:02 GMT"
-Message-ID: <844rxohqkb.fsf@snoopy.apana.org.au>
+	id <S130300AbRBTXqD>; Tue, 20 Feb 2001 18:46:03 -0500
+Received: from code.and.org ([63.113.167.33]:972 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S129107AbRBTXpr>;
+	Tue, 20 Feb 2001 18:45:47 -0500
+To: hps@tanstaafl.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DNS goofups galore...
+In-Reply-To: <95ulrk$aik$1@forge.intermeta.de> <nn4rxz7lqy.fsf@code.and.org>
+	<96c39t$o1g$1@forge.intermeta.de>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 20 Feb 2001 18:45:21 -0500
+In-Reply-To: "Henning P. Schmiedehausen"'s message of "Tue, 13 Feb 2001 19:52:29 +0000 (UTC)"
+Message-ID: <nn1yssudf2.fsf@code.and.org>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+"Henning P. Schmiedehausen" <hps@tanstaafl.de> writes:
 
-    Jeff> FWIW, -every single- Windows driver source code I've seen
-    Jeff> has been bloody awful.  Asking them to release that code
-    Jeff> would probably result in embarrassment.  Same reasoning why
-    Jeff> many companies won't release hardware specifications...  The
-    Jeff> internal docs are bad.  Really bad.
+> james@and.org (James Antill) writes:
+> 
+> >"Henning P. Schmiedehausen" <hps@tanstaafl.de> writes:
+> 
+> >> % telnet mail.bar.org smtp
+> >> 220 mail.foo.org ESMTP ready
+> >>     ^^^^^^^^^^^^
+> >> 
+> >> This kills loop detection. Yes, it is done this way =%-) and it breaks
+> >> if done wrong.
+> 
+> > This is humour, yeh ?
+> 
+> No.
 
-Speaking as a user, I would much prefer to use an open source driver
-that is "bloody awful" rather then a closed source driver that still
-might be "bloody awful", unless I am confident that the vendor will
-support me if I encounter a bug. (IMHO "bloody awful" means "awfully
-buggy").
+ This was a comment on the "loop detection" claim.
 
-In the past, I have had a case where my AGFA scanner stopped working,
-as the software kept coming up with illegal operation errors.
-Technical support were not the least bit interested in helping (no one
-else has reported having the same problem), but instead blamed the
-problem on my computer (try reinstalling it again, maybe this time it
-will work?) Or: bring the scanner in, and if the same problem occurs
-on our computer, we will fix it, otherwise we will have to charge you
-for testing it.
+[snip ... domain example]
 
-At one stage I tricked the consultant into copying down the CPU
-register information, but I got the strong impression that they
-weren't interested in diagnosing the bug (they probably didn't have the
-programmers anymore).
+> No. This is a misconfiguration. Yes, RFC821 is a bit rusty but as far
+> as I know, nothing has superseded it yet. And Section 3.7 states
+> clearly:
+> 
+>       Whenever domain names are used in SMTP only the official names are
+>       used, the use of nicknames or aliases is not allowed.
 
-I ended up having to reinstall the entire MS-operating system on the
-computer so it would work again. However, my feeling is that if I knew
-what the problem was, it would have been easy to work around, eg. by
-editing the appropriate entry in the system registry. I couldn't do
-determine this myself though, without access to the source code.
+ _In_ SMTP, that doesn't say anything about MX records to me and even
+if it does it's very old and needs to change.
 
-(the scanner in question died about 1 month after warranty expired,
-with very little use, so I went and purchased a HP scanner instead.)
+> And the 220 Message is defined as
+> 
+> 220 <domain>
+
+ So... you should have the reverse for the ip address after the
+220. Which most people do (but not all, mainly due to there not being
+enough ips).
+
+[snip CNAME lesson]
+
+ The question was, why can't you use CNAMEs. You said 'because of loop
+detection'. I said 'But that doesn't work anyway, because you can have
+to names pointing at one machine without a CNAME record ... and that
+needs to, and currently does, work'.
+
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+ Let me put it this way...
+
+tanstaafl.de.		IN MX	50 mail.hometree.net.
+tanstaafl.de.		IN MX	10 mail.intermeta.de.
+intermeta.de.		IN MX	50 mail.hometree.net.
+intermeta.de.		IN MX	10 mail.intermeta.de.
+
+mail.hometree.net.	IN A	194.231.17.49
+mail.intermeta.de.	IN A	212.34.181.3
+
+49.17.231.194.in-addr.arpa.  IN PTR  limes.hometree.net.
+3.181.34.212.in-addr.arpa.  IN PTR  babsi.intermeta.de.
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

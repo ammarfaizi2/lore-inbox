@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbTFCXgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 19:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFCXgA
+	id S261939AbTFCXlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 19:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTFCXlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 19:36:00 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30896 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261868AbTFCXf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 19:35:59 -0400
-Date: Wed, 4 Jun 2003 01:49:02 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Arne Brutschy <abrutschy@xylon.de>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Re[2]: [PATCH] ide driver 2.4.21-rc6
-In-Reply-To: <1821158975.20030603152224@xylon.de>
-Message-ID: <Pine.SOL.4.30.0306040131330.26979-100000@mion.elka.pw.edu.pl>
+	Tue, 3 Jun 2003 19:41:49 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:56582 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261876AbTFCXlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 19:41:45 -0400
+Date: Wed, 4 Jun 2003 01:55:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Witold Krecicki <adasi@kernel.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.70-bk-20030603] oldconfig always asking for machine type
+ (x86)
+In-Reply-To: <1054668864.12364.8.camel@samael.culm.net>
+Message-ID: <Pine.LNX.4.44.0306040154220.12110-100000@serv>
+References: <1054668864.12364.8.camel@samael.culm.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-It MUST work.
+On 3 Jun 2003, Witold Krecicki wrote:
 
-Clean your kernel source with 'make mrproper' (just in case) and compile
-again with Special FastTrak Feature enabled (CONFIG_PDC202XX_FORCE=y).
+> choice[1-4]:
+> Even if I'm doing this once after another, this a lil' bit complicates
+> creating binary packages with kernel, as building it should not wait for
+> any user input/interaction.
 
-If it really won't work contact me.
---
-Bartlomiej
+Could you send me your .config?
+Thanks.
 
-On Tue, 3 Jun 2003, Arne Brutschy wrote:
-
-> Bartlomiej Zolnierkiewicz wrote:
-> BZ> What about turning on "Special FastTrak Feature" instead...
-> Didn't work for me, don't know why.
->
-> Arne
-
-
+bye, Roman
 

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVCPRT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVCPRYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVCPRT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 12:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVCPRT4
+	id S262701AbVCPRYM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVCPRYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 12:19:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19129 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262700AbVCPRTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 12:19:52 -0500
-Date: Wed, 16 Mar 2005 09:19:43 -0800
-From: Greg KH <greg@kroah.com>
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11 USB broken on VIA computer (not just ACPI)
-Message-ID: <20050316171943.GC8602@kroah.com>
-References: <4237A5C1.5030709@sbcglobal.net> <20050315203914.223771b2.akpm@osdl.org> <4237C40C.6090903@sbcglobal.net> <20050315213110.75ad9fd5.akpm@osdl.org> <4237C61A.6040501@sbcglobal.net> <20050315215447.7975a0ff.akpm@osdl.org> <4237D92A.3040109@sbcglobal.net>
+	Wed, 16 Mar 2005 12:24:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37257 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262701AbVCPRYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:24:08 -0500
+Date: Wed, 16 Mar 2005 09:19:07 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jacques Basson <jacques_basson@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: softdog.c kernel 2.4.29
+Message-ID: <20050316121907.GB12881@logos.cnet>
+References: <1110959428.10190.5.camel@lancelot.advanced-imaging-technologies>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4237D92A.3040109@sbcglobal.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <1110959428.10190.5.camel@lancelot.advanced-imaging-technologies>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 01:58:50AM -0500, Robert W. Fuller wrote:
-> >Are you running the latest BIOS?
+
+Hi Jacques
+
+On Wed, Mar 16, 2005 at 09:50:27AM +0200, Jacques Basson wrote:
+> Hi
 > 
-> The manufacturer, Tyan, didn't produce more than a handful of BIOS'es 
-> within a matter of months after they started producing the board.  They 
-> haven't released an update since 2000.
+> There is a bug in the softdog.c (v 0.05) in the 2.4 kernel series
+> (certainly in 2.4.29 and there are no references to it in the latest
+> Changelog) that won't reboot the machine if /dev/watchdog is closed
+> unexpectedly and nowayout is not set.
 
-I used to have this motherboard, and Randy Dunlap and I spent a lot of
-time to try to get this to work properly.  Just give up and go by a
-motherboard that actually has a sane bios, or, buy a USB pci card (less
-than $20).
+Yup, thanks. Applied.
 
-Sorry,
-
-greg k-h
+> diff -Naur softdog.c.orig softdog.c
+> --- softdog.c.orig      2003-11-28 20:26:20.000000000 +0200
+> +++ softdog.c   2005-03-16 09:12:34.000000000 +0200
+> @@ -124,7 +124,7 @@
+>          *      Shut off the timer.
+>          *      Lock it in if it's a module and we set nowayout
+>          */
+> -       if (expect_close || nowayout == 0) {
+> +       if (expect_close && nowayout == 0) {
+>                 del_timer(&watchdog_ticktock);
+>         } else {
+>                 printk(KERN_CRIT "SOFTDOG: WDT device closed
+> unexpectedly.  WDT will not stop!\n");

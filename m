@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSIXHQG>; Tue, 24 Sep 2002 03:16:06 -0400
+	id <S261596AbSIXHTB>; Tue, 24 Sep 2002 03:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbSIXHQG>; Tue, 24 Sep 2002 03:16:06 -0400
-Received: from unthought.net ([212.97.129.24]:48874 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S261593AbSIXHQE>;
-	Tue, 24 Sep 2002 03:16:04 -0400
-Date: Tue, 24 Sep 2002 09:21:17 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@zip.com.au>
-Subject: jbd bug(s) (?)
-Message-ID: <20020924072117.GD2442@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	id <S261597AbSIXHTB>; Tue, 24 Sep 2002 03:19:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16141 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261596AbSIXHTA>;
+	Tue, 24 Sep 2002 03:19:00 -0400
+Message-ID: <3D9012FB.7040700@pobox.com>
+Date: Tue, 24 Sep 2002 03:23:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       cgl_discussion mailing list <cgl_discussion@osdl.org>,
+       evlog mailing list <evlog-developers@lists.sourceforge.net>,
+       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
+       Linus Torvalds <torvalds@home.transmeta.com>,
+       Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
+       Mike Sullivan <sullivam@us.ibm.com>
+Subject: Re: [PATCH-RFC} 3 of 4 - New problem logging macros, plus template
+ generation
+References: <20020924070706.D3A332C189@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-First:
-
-In Linux-2.4.19, I was wondering about the following:
-
-In fs/jbd/commit.c:583, we find the following:
- /* AKPM: buglet - add `i' to tmp! */
- for (i = 0; i < jh2bh(descriptor)->b_size; i += 512) {
-         journal_header_t *tmp =
-                 (journal_header_t*)jh2bh(descriptor)->b_data;
-         tmp->h_magic = htonl(JFS_MAGIC_NUMBER);
-         tmp->h_blocktype = htonl(JFS_COMMIT_BLOCK);
-         tmp->h_sequence = htonl(commit_transaction->t_tid);
- }
+Rusty Russell wrote:
+> In message <3D9000B9.4000001@pobox.com> [Jeff Garzik] write[s]:
+>>Changing every printk() in the damn kernel?
+>>Come on dude, I _know_ you have more taste than that.
+> 
+> I'm not interested in changing all the printks.  I'm interested in
+> designing the simplest regularized logging interface I can.  If it's
+> done right, driver authors will migrate to it because it's easier for
+> them, and their bug reports become clearer, and sysadmins get happier.
 
 
-As I see it, this means that jbd using filesystems (ext3) will only
-remember writing *ONE* entry from the journal.
+Thanks for saying that out loud.
 
-Isn't this a problem ?
+So, IOW, IBM makes the API, and expects everyone else to step up and do 
+the huge amount of grunt work...  Nice.
 
-Second:
+"If it's done right," there need not be massive changes at all.
+More tomorrow.
 
-The jbd superblocks contains an index into the journal for the first
-transaction - but there is only *one* copy of the index, and there is no
-reasonable way to detect if it got written correctly to disk.
-
-If the system loses power while updating the superblock, and only *half*
-of this index is written correctly, we have a journal which we cannot
-reach.
-
-Sort of removes the point of having the journal in the first place. (If
-my above assertion is true).
-
-As far as I know, Tux2 solves this problem by keeping multiple indexes
-(yes it uses phase trees and not a journal, but Tux2 root nodes and the
-journal index are identical wrt. this problem).
-
-If one keeps two blocks holding:
-  index
-  timestamp
-  CRC
-one can consider the two blocks and disregard the ones with invalid CRC.
-This leaves us with one or two blocks left - we then pick the one with
-the highest timestamp - and we are then guaranteed to *always* have a
-valid index.
-
-(The above works when the timestamp is incremented for every write,
-index updates are written alternating between the two blocks, and the
-complete block is sync()ed before the other is written to)
-
-Wouldn't something like this be required for a journalling fs to be
-worth anything ?
-
-I know the window is rather small for half an index to be written - but
-that doesn't mean it can't happen.
+	Jeff, just another unpaid IBM worker...
 
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+

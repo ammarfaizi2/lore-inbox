@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTI3Vzd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 17:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTI3Vzd
+	id S261818AbTI3Xyr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 19:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTI3Xw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 17:55:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:207 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261719AbTI3Vz3 (ORCPT
+	Tue, 30 Sep 2003 19:52:27 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:18436 "EHLO panda.sul.com.br")
+	by vger.kernel.org with ESMTP id S261797AbTI3XwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 17:55:29 -0400
-Date: Tue, 30 Sep 2003 14:35:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Simon Kirby <sim@netnation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test5-bk13] SIGSTOPping tar extraction process causes
- other I/O processes to block
-Message-Id: <20030930143503.4b66c4c4.akpm@osdl.org>
-In-Reply-To: <20030930183948.GA31055@netnation.com>
-References: <20030930183948.GA31055@netnation.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 30 Sep 2003 19:52:12 -0400
+Date: Wed, 1 Oct 2003 20:51:44 -0300
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
+Message-ID: <20031001235144.GB1318@cathedrallabs.org>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc> <20030930125126.GA24122@ucw.cz> <20030930132134.GA17242@cathedrallabs.org> <20030930134453.GA25198@ucw.cz> <20030930140521.GB17242@cathedrallabs.org> <20030930141651.GB25492@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930141651.GB25492@ucw.cz>
+From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Kirby <sim@netnation.com> wrote:
->
-> I was extracting a large tarball of 2 MB image files and running and
-> apt-get remove at the same time, realized the disk was thrashing back
-> and forth, and decided to suspend the tar process until the apt-get was
-> finished.  When I suspended the tar, apt-get never finished.  Right-alt
-> SysRQ (SysRQ-T) dumped the following traces for the processes in
-> question:
+> Ahh, I think I remember. Well, you can still try with atkbd_softrepeat=1
+> to see if the too fast autorepeat still happens if software autorepeat
+> is used. It doesn't work with test6, but test7 will hopefully include a
+> fix.
+it's already fixed in test6 :)
 
-If you still have the full sysrq trace, please send it along.  Need to know
-what kjournald was up to..
+thanks,
+
+-- 
+aris
+

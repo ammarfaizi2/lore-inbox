@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUDKJ5s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 05:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUDKJ5s
+	id S262316AbUDKKhH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 06:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUDKKhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 05:57:48 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:63174 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262309AbUDKJ5s (ORCPT
+	Sun, 11 Apr 2004 06:37:07 -0400
+Received: from kilobug.org ([62.212.118.231]:38807 "EHLO drizzt.home")
+	by vger.kernel.org with ESMTP id S262316AbUDKKhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 05:57:48 -0400
-Message-Id: <200404110957.i3B9vgF21362@owlet.beaverton.ibm.com>
-To: shai@ftcon.com
-cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Darren Hart'" <dvhltc@us.ibm.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>, ak@suse.de,
-       "'Martin J Bligh'" <mjbligh@us.ibm.com>, akpm@osdl.org,
-       "'Ingo Molnar'" <mingo@elte.hu>
-Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch 
-In-reply-to: Your message of "Sun, 11 Apr 2004 01:57:10 PDT."
-             <200404110857.BIS60109@ms6.netsolmail.com> 
-Date: Sun, 11 Apr 2004 02:57:42 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Sun, 11 Apr 2004 06:37:06 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Any plan for inclusion of linux-wlan-ng ?
+Mail-Copies-To: nobody
+From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
+Organization: HurdFr - http://hurdfr.org
+X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+Date: Sun, 11 Apr 2004 12:37:03 +0200
+Message-ID: <plopm3lll26bsg.fsf@drizzt.kilobug.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Can SLIT/SRAT be used here to define topology for the generic case?
-    
-    SRAT is being used by i386 to build zonelists, but not for the scheduler -
-    any good reason why?
 
-I can think of some possible reasons, but I'm not familiar with SLIT/SRAT
-... can you describe it for me?
+Hello,
 
-Rick
+I was just  wondering is there is any  plan of including linux-wlan-ng
+into  the 2.6  kernel. Does  someone know  about that  ? If  not, does
+someone know why ?
+
+-- 
+Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

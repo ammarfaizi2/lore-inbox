@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbTEZSFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 14:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTEZSFw
+	id S261989AbTEZSGW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 14:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTEZSGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 14:05:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29889 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262138AbTEZSFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 14:05:49 -0400
-Date: Mon, 26 May 2003 20:18:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-Message-ID: <20030526181852.GL845@suse.de>
-References: <1053972773.2298.177.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 May 2003 14:06:22 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:25269 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261989AbTEZSGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 14:06:18 -0400
+From: Eric <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: New make config options
+Date: Mon, 26 May 2003 13:18:24 -0500
+User-Agent: KMail/1.5.1
+References: <200305261004.25297.eric@cisu.net> <200305261724.23712.rudmer@legolas.dynup.net>
+In-Reply-To: <200305261724.23712.rudmer@legolas.dynup.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1053972773.2298.177.camel@mulgrave>
+Message-Id: <200305261318.24887.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 26 2003, James Bottomley wrote:
-> 
->     On Mon, May 26 2003, Linus Torvalds wrote:
->     > > What does the block layer need, that it doesn't have now?
->     > 
->     > Exactly. I'd _love_ for people to really think about this.
->     
->     In discussion with Jeff, it seems most of what he wants is already
->     there. He just doesn't know it yet :-)
->     
->     Maybe that's my problem as well, maybe the code / comments / doc /
->     whatever is not clear enough.
->     
-> My wishlist for this would be:
-> 
-> 1. Unified SG segment allocation.  The SCSI layer currently has a
-> mempool implementation to cope with this, is there a reason it can't
-> become block generic?
+On Monday 26 May 2003 10:24 am, Rudmer van Dijk wrote:
+> what about `make allmodconfig` ??
+>
+Now if we can convince someone to code it :(
+I wish I could throw something together myself but I can only suggest the 
+ideas.  Hopefully someone with the time/skills/interest can put something 
+together to do this. I would have no problems testing the feature if someone 
+else who could write it needs some help testing.
 
-Of course that is doable, when I killed scsi_dma.c it was just a direct
-replacement. Given that IDE had no such dynamic sg list allocation
-requirements, it stayed in SCSI. Overdesign is never good :)
+> then you have a .config with most things as module and you can always use
+> `make menuconfig` to adjust it.
 
-> 2. Device locality awareness.  Quite a bit of the esoteric SCSI queueing
-> code occurs because we have two type of queue events:
-> a. device can't accept another command---stop queue and restart when the
-> device sends a completion back
+Great idea. Not really a button in make menuconfig, but a make allmodconfig 
+and it resets everythign to modules. Then you could use the regualr make 
+config facility to tune it. There would be no need to hack up make 
+menuconfig.
 
-This should be doable.
+> BTW try a `make help` to see all other make options.
+Are you suggesting this as a feature? Lol, i tried make help and it there was 
+no rule for it. 2.4.20 kernel.
 
-> b. the host adapter is out of resources for *all* its devices.  Block
-> all device queues until we free some resources (again, usually a
-> returning command).
-
-This is harder, because it involves more than one specific queue.
-
-> 3. Perhaps some type of unified command handling.  At the moment, we all
-> seem to allocate DMA'able regions for our commands/taskfiles/whatever
-> and attach them to reqest->special.  Then we need to release them again
-> before completing the request.
-> 
-> 4. Same thing goes for sense buffers.
-
-Completely agree.
-
-> 5. There needs to be some amalgam of the SCSI code for dynamic tag
-> command queue depth handling.
-
-Again, block layer queueing was designed for what I needed (ide tcq) and
-no overdesign was attempted. If you describe what you need, I'd be very
-happy to oblige and add those bits. Some decent depth change handling, I
-presume?
-
--- 
-Jens Axboe
-
+----------------------
+Eric Bambach   
+Eric@CISU.net 
+----------------------

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRI1Jv4>; Fri, 28 Sep 2001 05:51:56 -0400
+	id <S273870AbRI1JvH>; Fri, 28 Sep 2001 05:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275994AbRI1Jvt>; Fri, 28 Sep 2001 05:51:49 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:1284 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S275990AbRI1Jvj>;
-	Fri, 28 Sep 2001 05:51:39 -0400
-Date: Fri, 28 Sep 2001 11:52:03 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.9-ac16] usb serial compile error.
-Message-ID: <20010928115203.F21524@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+	id <S275994AbRI1Ju5>; Fri, 28 Sep 2001 05:50:57 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:12549 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S273870AbRI1Jun>;
+	Fri, 28 Sep 2001 05:50:43 -0400
+Date: Fri, 28 Sep 2001 12:51:00 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bobby Hitt <bobhitt@bscnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2GB File limitation
+Message-ID: <20010928125100.B1144@mea-ext.zmailer.org>
+In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome> <Pine.LNX.4.33.0109281011010.2517-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <Pine.LNX.4.33.0109281011010.2517-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 28, 2001 at 10:13:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling a USB serial driver (mct_u232 in my case) 
-without USB generic serial support, the compile process
-stops because of undefined 'vendor' and 'product'
-symbols.
+On Fri, Sep 28, 2001 at 10:13:09AM +0200, Ingo Molnar wrote:
+> On Fri, 28 Sep 2001, Bobby Hitt wrote:
+> > Is someone working on a way to overcome the 2GB file limitation in
+> > Linux? I currently backup several servers using a dedicated hard drive
+> > for the backups. Recently I saw one backup die saying the the file
+> > size had been exceeded. I've never had good luck with tape backups,
+> > yes they backup, but whenever I really need a file, it can't be
+> > retrieved.
+> 
+> file sizes up to ~ 2 TB are supported under the 2.4 kernel. (or 2.2 kernel
+> + patches) Most utilities are updated to use O_LARGEFILE properly, in any
+> recent 2.4-based Linux distribution. I regularly use 6-10 GB files.
 
-The attached patch corrects this issue.
+  Like Ingo says, most of modern distributions begin to work with
+  O_LARGEFILE  properly, but still some utilities fail it.
 
-Stelian.
+  Your older backup application program may fail it too.
 
---- linux-2.4.9-ac16/drivers/usb/serial/usbserial.c.orig	Fri Sep 28 11:35:39 2001
-+++ linux-2.4.9-ac16/drivers/usb/serial/usbserial.c	Fri Sep 28 11:35:52 2001
-@@ -323,11 +323,10 @@
- static void generic_write_bulk_callback	(struct urb *urb);
- static void generic_shutdown		(struct usb_serial *serial);
- 
--
--#ifdef CONFIG_USB_SERIAL_GENERIC
- static __u16	vendor	= 0x05f9;
- static __u16	product	= 0xffff;
- 
-+#ifdef CONFIG_USB_SERIAL_GENERIC
- static struct usb_device_id generic_device_ids[2]; /* Initially all zeroes. */
- 
- /* All of the device info needed for the Generic Serial Converter */
+  The solution could be as simple as piping the backup material
+  into another program, which then pipes it out, e.g.:
+	'|dd bs=1M of=/backups/fileNNN'
 
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+> 	Ingo
+
+/Matti Aarnio

@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUKFQyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKFREB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUKFQyp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 11:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUKFQyp
+	id S261423AbUKFREB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 12:04:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbUKFREB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 11:54:45 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:61825 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261420AbUKFQyn (ORCPT
+	Sat, 6 Nov 2004 12:04:01 -0500
+Received: from [213.189.196.2] ([213.189.196.2]:12812 "HELO msn.com")
+	by vger.kernel.org with SMTP id S261423AbUKFRD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 11:54:43 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Sat, 6 Nov 2004 12:03:58 -0500
+Message-ID: <998101c4c434$76a031d0$d06facf4@DeatilsRevealed89yTwtthjvnwuoycx>
+From: "Business Consultant Group" 
+	<DeatilsRevealed89yTwtthjvnwuoycx@msn.com>
+To: "opp-list" <linux-kernel@vger.kernel.org>
+Subject: You deserve the Truth!
+Date: Sat, 06 Nov 2004 18:11:48 -0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16781.436.710721.667909@gargle.gargle.HOWL>
-Date: Sat, 6 Nov 2004 19:54:12 +0300
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-In-Reply-To: <20041106153209.GC3851@dualathlon.random>
-References: <20041105200118.GA20321@logos.cnet>
-	<200411051532.51150.jbarnes@sgi.com>
-	<20041106012018.GT8229@dualathlon.random>
-	<418C2861.6030501@cyberone.com.au>
-	<20041106015051.GU8229@dualathlon.random>
-	<16780.46945.925271.26168@thebsh.namesys.com>
-	<20041106153209.GC3851@dualathlon.random>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
- > On Sat, Nov 06, 2004 at 02:37:05PM +0300, Nikita Danilov wrote:
- > > We need page-reservation API of some sort. There were several attempts
- > > to introduce this, but none get into mainline.
- > 
- > they're already in under the name of mempools
+Why the heck did you live in restraint?
+Don't get pushed into nonsense Opport-unities all the time!... 
+Well, you tried that already!.. with a grief ending. 
+Really? ...Never have considered taking a Professional's Advice?
+One thing for sure: I know, The Right Marketing Details, the -Ins and -Outs
 
-I am talking about slightly different thing. Think of some operation
-that calls find_or_create_page(). find_or_create_page() doesn't know
-about memory reserved in mempools, it uses alloc_page() directly. If one
-wants to guarantee that compound operation has enough memory to
-complete, memory should be reserved at the lowest level---in the page
-allocator.
+have been intentionally hidden from you as You are Not hitting 200,000/YR
+yet!
 
- > 
- > I'm perfectly aware the fs tends to be the less correct places in terms
- > of allocations, and luckily it's not an heavy memory user, so I still
+Be Ready to experience your Life in Pros-perity.
+Send a quick message to ExperienceLife@mighty.co.za
+and put  " Show me Life " in the top line.
+Also send your PH# if you desire to receive a Professional's personal
+advice.
 
-Either you are kidding, or we are facing very different workloads. In
-the world of file-system development, file-system is (not surprisingly)
-single largest memory consumer.
+OR: get un-list-ed by emailing to  AwayNow@mighty.co.za with  " Away Please
+" in the sub-ject-line.
+Thanks kindly for your time.
 
- > have to see a deadlock in getblk or create_buffers or similar. It's
- > mostly a correctness issue (math proof it can't deadlock, right now it
- > can if more tasks all get stuck in getblk at the same time during a hard
- > oom condition etc..).
 
-Add here mmap that can dirty all physical memory behind your back, and
-delayed disk block allocation that forces ->writepage() to allocate
-potentially huge extent when memory is already tight and hope of having
-a proof becomes quite remote.
-
-Nikita.

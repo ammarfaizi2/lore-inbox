@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278468AbRJZN06>; Fri, 26 Oct 2001 09:26:58 -0400
+	id <S278465AbRJZN0I>; Fri, 26 Oct 2001 09:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278470AbRJZN0j>; Fri, 26 Oct 2001 09:26:39 -0400
-Received: from [202.54.64.2] ([202.54.64.2]:38918 "EHLO ganesh.ctd.hctech.com")
-	by vger.kernel.org with ESMTP id <S278468AbRJZN0e>;
-	Fri, 26 Oct 2001 09:26:34 -0400
-Message-ID: <EF836A380096D511AD9000B0D021B52723D9DE@narmada.ctd.hcltech.com>
-From: "ASAI THAMBI S.P - CTD, Chennai." <sp_asai@ctd.hcltech.com>
-To: linux-kernel@vger.kernel.org
-Subject: open a file in kernel mode in solaris
-Date: Fri, 26 Oct 2001 18:55:32 +0530
-Importance: high
-X-Priority: 1
+	id <S278468AbRJZNZ6>; Fri, 26 Oct 2001 09:25:58 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:11529 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S278465AbRJZNZq>; Fri, 26 Oct 2001 09:25:46 -0400
+Message-ID: <3BD9647A.B6244D05@firsdown.demon.co.uk>
+Date: Fri, 26 Oct 2001 14:26:18 +0100
+From: Dave Garry <daveg@firsdown.demon.co.uk>
+Organization: Daemon Solutions Ltd
+X-Mailer: Mozilla 4.51C-Caldera [en] (X11; I; Linux 2.2.5 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Tim Waugh <twaugh@redhat.com>
+CC: junio@siamese.dhis.twinsun.com, bill davidsen <davidsen@tmr.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+In-Reply-To: <20011024230917.H7544@redhat.com> <ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com> <20011025165226.T7544@redhat.com> <7vofmuu9d7.fsf@siamese.dhis.twinsun.com> <20011026104125.Z7544@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux, 
-we can open a file in kernel mode using some functions like set_fs(),
-get_fs()...
-Moreover to call sys-open, we do so thru sys_call_table[__NR_open].
+Tim Waugh wrote:
+> 
+> On Fri, Oct 26, 2001 at 12:51:48AM -0700, junio@siamese.dhis.twinsun.com wrote:
+> 
+> > >From the original poster's description, 2.4.10 claimed to have
+> > detected both address and irq for parport0, while 2.4.12,
+> > according to the your response, could not tell that IRQ=7.  Do
+> > you mean that the logic which made 2.4.10 to claime to have
+> > detected IRQ=7 was faulty and the logic in 2.4.12 is being
+> > careful not to misdetect?
+> 
+> Oh, I see.  No, this is a regression.  Please try this patch:
 
+Firstly, I was unable to apply this patch on 2.4.13...
 
-In Solaris, 
-how can we do this?
+I'm now running 2.4.14-pre2, still had difficulty applying
+the patch, and ended up patching parport_pc.c by hand. (?)
 
-asai. 
+However, loading the parport_pc module, with NO arguments,
+like I was doing up till 2.4.10, and it still does not
+recognise the port as being in ECP mode:
 
+[root@p450 /root]# modprobe parport_pc
+[root@p450 /root]# dmesg -c
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: irq 7 detected
+parport0: cpp_daisy: aa5500ff(98)
+parport0: assign_addrs: aa5500ff(98)
+parport0: faking semi-colon
+parport0: Printer, Hewlett-Packard HP LaserJet 1100
 
-***********************************************************************
-Disclaimer: 
-This document is intended for transmission to the named recipient only.  If
-you are not that person, you should note that legal rights reside in this
-document and you are not authorized to access, read, disclose, copy, use or
-otherwise deal with it and any such actions are prohibited and may be
-unlawful. The views expressed in this document are not necessarily those of
-HCL Technologies Ltd. Notice is hereby given that no representation,
-contract or other binding obligation shall be created by this e-mail, which
-must be interpreted accordingly. Any representations, contractual rights or
-obligations shall be separately communicated in writing and signed in the
-original by a duly authorized officer of the relevant company.
-***********************************************************************
+If I load the module WITH arguments, something I've never
+had to do in the past, it works:
 
+[root@p450 /root]# modprobe parport_pc io=0x378 irq=7
+[root@p450 /root]# dmesg -c
+parport0: PC-style at 0x378 (0x778), irq 7, using FIFO [PCSPP,TRISTATE,COMPAT,ECP]
+parport0: cpp_daisy: aa5500ff(98)
+parport0: assign_addrs: aa5500ff(98)
+parport0: faking semi-colon
+parport0: Printer, Hewlett-Packard HP LaserJet 1100
 
+I'm still unsure why I NEED to supply arguments
+to this module.
+
+Regards.
+
+-- 
+Dave Garry,
+Daemon Solutions Ltd

@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270425AbTGPIbO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270412AbTGPIbO
+	id S270440AbTGPIdD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270427AbTGPIch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:31:14 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:31456 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270425AbTGPIYq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:24:46 -0400
-Date: Wed, 16 Jul 2003 10:37:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jamie Lokier <jamie@shareable.org>, Kent Borg <kentborg@borg.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa
-Message-ID: <20030716083758.GA246@elf.ucw.cz>
-References: <20030715182117.BE2841675D3@smtp-out1.iol.cz> <20030715212210.GB10046@hell.org.pl>
+	Wed, 16 Jul 2003 04:32:37 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:25515 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S270420AbTGPI3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:29:51 -0400
+Date: Wed, 16 Jul 2003 01:44:26 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow unattended nfs3/krb5 mounts
+Message-ID: <20030716014426.A9725@google.com>
+References: <20030715232605.A9418@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030715212210.GB10046@hell.org.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030715232605.A9418@google.com>; from fcusack@fcusack.com on Tue, Jul 15, 2003 at 11:26:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jul 15, 2003 at 11:26:05PM -0700, Frank Cusack wrote:
+> - This doesn't actually work as-is.  A separate patch is needed for
+>   rpc_setbufsize() which I will provide separately, after getting
+>   feedback for this patch.
 
-> Thus wrote pavel@ucw.cz:
-> > Anyway, depending on acpi is wrong and needs to be fixed in 2.7.
-> 
-> Could you elaborate on that? Do you mean S4, or any suspend state in
-> general?
+Since I don't expect a known-broken patch to be applied ... here's
+the bufsize patch.
 
-It would be nice to have arch-neutral way to enter suspend to ram and
-suspend to disk. Being arch-neutral, it may not depend on ACPI.
+	- fix null dereference on xprt->inet if !connected,
+	  which happens if a rpc cred wasn't available (root+auth_gss case)
+	- set bufsize on reconnect
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+diff -uNrp linux-2.6.0-test1.2/net/sunrpc/clnt.c linux-2.6.0-test1.3/net/sunrpc/clnt.c
+--- linux-2.6.0-test1.2/net/sunrpc/clnt.c	Tue Jul 15 23:29:15 2003
++++ linux-2.6.0-test1.3/net/sunrpc/clnt.c	Wed Jul 16 00:02:31 2003
+@@ -385,7 +385,8 @@ rpc_setbufsize(struct rpc_clnt *clnt, un
+ 	xprt->rcvsize = 0;
+ 	if (rcvsize)
+ 		xprt->rcvsize = rcvsize + RPC_SLACK_SPACE;
+-	xprt_sock_setbufsize(xprt);
++	if (xprt_connected(xprt))
++		xprt_sock_setbufsize(xprt);
+ }
+ 
+ /*
+diff -uNrp linux-2.6.0-test1.2/net/sunrpc/xprt.c linux-2.6.0-test1.3/net/sunrpc/xprt.c
+--- linux-2.6.0-test1.2/net/sunrpc/xprt.c	Tue Jul 15 23:29:15 2003
++++ linux-2.6.0-test1.3/net/sunrpc/xprt.c	Wed Jul 16 00:02:37 2003
+@@ -436,6 +436,7 @@ xprt_connect(struct rpc_task *task)
+ 		goto out_write;
+ 	}
+ 	xprt_bind_socket(xprt, sock);
++	xprt_sock_setbufsize(xprt);
+ 
+ 	if (!xprt->stream)
+ 		goto out_write;

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265231AbUAJPQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 10:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUAJPQd
+	id S265212AbUAJPLu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 10:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUAJPLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 10:16:33 -0500
-Received: from gprs214-70.eurotel.cz ([160.218.214.70]:385 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265231AbUAJPQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 10:16:32 -0500
-Date: Sat, 10 Jan 2004 16:15:42 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: George Anzinger <george@mvista.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: kgdb cleanups
-Message-ID: <20040110151542.GC532@elf.ucw.cz>
-References: <20040109183826.GA795@elf.ucw.cz> <3FFF2304.8000403@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFF2304.8000403@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sat, 10 Jan 2004 10:11:50 -0500
+Received: from fep03.swip.net ([130.244.199.131]:45009 "EHLO
+	fep03-svc.swip.net") by vger.kernel.org with ESMTP id S265212AbUAJPLs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 10:11:48 -0500
+Message-ID: <3FFFDE8D.4070808@free.fr>
+Date: Sat, 10 Jan 2004 12:14:21 +0100
+From: Jean-Luc Fontaine <jfontain@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IDE performance drop between 2.4.23 and 2.6.0: fixed in 2.6.1
+References: <freemail.20031125173908.53283@fm3.freemail.hu> <3FEB2BA4.3040707@free.fr>
+In-Reply-To: <3FEB2BA4.3040707@free.fr>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >No real code changes, but cleanups all over the place. What about
-> >applying?
-> >
-> >Ouch and arch-dependend code is moved to kernel/kgdb.c. I'll probably
-> >do x86-64 version so that is rather important.
-> >
-> >								Pavel
-> A few comments:
-> 
-> I like the code seperation.  Does it follow what Amit is doing?  It would 
-> be nice if Amit's version and this one could come together around
-> >this.
+Using hdparm -Tt /dev/hdb:
 
-No, it does not follow Amit's work.
+on 2.4:
+~ Timing buffer-cache reads:   168 MB in  2.01 seconds =  83.58 MB/sec
+~ Timing buffered disk reads:   44 MB in  3.12 seconds =  14.10 MB/sec
+on 2.6.0:
+~ Timing buffer-cache reads:   172 MB in  2.02 seconds =  84.95 MB/sec
+~ Timing buffered disk reads:   34 MB in  3.08 seconds =  11.04 MB/sec
+on 2.6.1:
+~ Timing buffer-cache reads:   172 MB in  2.01 seconds =  85.14 MB/sec
+~ Timing buffered disk reads:   44 MB in  3.07 seconds =  14.35 MB/sec
 
-...and that's a problem because Amit's work looks way better than
-this. I guess I need to start again, relative to Amit's patches this
-time.
+and that straight after boot, without any tweaking from hdparm.
 
-								Pavel
+Great job: many thanks!
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+- --
+Jean-Luc Fontaine
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE//96KkG/MMvcT1qQRAlxgAJ4hSX+ZmR9VxyfMDVxDiqiUxDHbHgCfWZK2
+VVr7uDsdWt7lUKtdp+94+oE=
+=09ZJ
+-----END PGP SIGNATURE-----
+

@@ -1,103 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUHHIDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUHHIVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUHHIDP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 04:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUHHIDP
+	id S264097AbUHHIVz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 04:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUHHIVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 04:03:15 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:9213 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265207AbUHHIDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 04:03:04 -0400
-Date: Sun, 8 Aug 2004 01:22:03 -0700 (PDT)
-From: Ram Pai <linuxram@us.ibm.com>
-X-X-Sender: ram@dyn319181.beaverton.ibm.com
-Reply-To: linuxram@us.ibm.com
-To: "Mr. Berkley Shands" <berkley@cse.wustl.edu>
-cc: linux-kernel@vger.kernel.org, <akpm@osdl.org>
-Subject: Re: Fast patch for Severe I/O performance regression 2.6.6 to 2.6.7
- or 2.6.8-rc3
-In-Reply-To: <4113C7BA.6060608@cse.wustl.edu>
-Message-ID: <Pine.LNX.4.44.0408080104270.23623-200000@dyn319181.beaverton.ibm.com>
-Organization: IBM Linux Technology Center
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="789158165-1675623982-1091953318=:23623"
+	Sun, 8 Aug 2004 04:21:55 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:10150 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S264097AbUHHIVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 04:21:52 -0400
+Date: Sun, 8 Aug 2004 10:21:33 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408080821.i788LXAm007388@burner.fokus.fraunhofer.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+	---->	This is a resend as it seems that somebody did remove
+		linux-kernel@vger.kernel.org
 
---789158165-1675623982-1091953318=:23623
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+>From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
 
-On Fri, 6 Aug 2004, Mr. Berkley Shands wrote:
+>> I can just that if you set 64KiB now, it'll be a much better alround
+>> value.
 
-> in 2.6.8-rc3/mm/readahead.c line 475 (about label do_io:)
-> #if 0
->             ra->next_size = min(average , (unsigned long)max);
-> #endif
-> 
-> the comment for the above is here after an lseek. The lseek IS inside 
-> the window, but the code will always
-> destroy the window and start again. The above patch corrects the 
-> performance problem,
-> but it would be better to do nothing if the lseek is still within the 
-> read ahead window.
+>very good, it works with 64kB:
 
-Ok. I can see your point. I did introduce a subtle change in behavior
-in 2.6.8-rc3. The change in behavior is: the current window got populated
-based on the average number of contiguous pages accessed  in the past.
-Earlier to that patch, the current window got populated based on the
-amount of locality in the current window, seen in the past.
+>    887         /*
+>    888          * First try to raise the DMA limit to a moderate value that
+>    889          * most likely does not use up all kernel memory.
+>    890          */
+>    891         //val = 126*1024;
+>    892         val = 64*1024;
 
-Try this patch and see if things get back to normal. This patch 
-populates the current window based on the average amount of locality 
-noticed in the current window. It should help your case, but who knows
-which other benchmark will scream :( . Its hard to keep every workload happy.
+>now cdrecord will happily use the scsi-linux-sg driver even for the IDE
+>burners connected to the "Digitus" controllers handled by the siimage driver.
 
-In any case try and see if this helps your case atleast. Meanwhile I will
-run my set of benchmarks and see what gets effected. 
+So you found a nasty bug in the Linux kernel :-(
 
-RP
+The official behavior for SG_SET_RESERVED_SIZE is:
 
+1)	You call SG_SET_RESERVED_SIZE with whatever size val you like
 
-> 
-> berkley
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+2)	It says "thank you" and _always_ returns success
 
---789158165-1675623982-1091953318=:23623
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="thread_readahead.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0408080121580.23623@dyn319181.beaverton.ibm.com>
-Content-Description: 
-Content-Disposition: attachment; filename="thread_readahead.patch"
+3)	You call SG_GET_RESERVED_SIZE to read the value set up
+	in the kernel. This value is not directly related to the value
+	used with SG_SET_RESERVED_SIZE. The proposal from Douglas
+	Gilbert was to always use 512 KB. I am unhappy with this behavior
+	but I have to take it as it has been defined by the Author :-(
+	He told me that the value returned with SG_GET_RESERVED_SIZE
+	is the value available for DMA and may be much smaller than
+	the size used with SG_SET_RESERVED_SIZE.
 
-LS0tIGxpbnV4LTIuNi44LXJjMy9tbS9yZWFkYWhlYWQuYwkyMDA0LTA4LTAz
-IDE0OjI2OjQ2LjAwMDAwMDAwMCAtMDcwMA0KKysrIHJhbS9saW51eC0yLjYu
-OC1yYzMvbW0vcmVhZGFoZWFkLmMJMjAwNC0wOC0wOCAwNzo0NTo0MC41NTk0
-MzEyODAgLTA3MDANCkBAIC0zODgsMTAgKzM4OCw3IEBAIHBhZ2VfY2FjaGVf
-cmVhZGFoZWFkKHN0cnVjdCBhZGRyZXNzX3NwYWMNCiAJCWdvdG8gZG9faW87
-DQogCX0NCiANCi0JaWYgKG9mZnNldCA9PSByYS0+cHJldl9wYWdlICsgMSkg
-ew0KLQkJaWYgKHJhLT5zZXJpYWxfY250IDw9IChtYXggKiAyKSkNCi0JCQly
-YS0+c2VyaWFsX2NudCsrOw0KLQl9IGVsc2Ugew0KKwlpZiAob2Zmc2V0IDwg
-cmEtPnN0YXJ0IHx8IG9mZnNldCA+IChyYS0+c3RhcnQgKyByYS0+c2l6ZSkp
-IHsNCiAJCS8qDQogCQkgKiB0byBhdm9pZCByb3VuZGluZyBlcnJvcnMsIGVu
-c3VyZSB0aGF0ICdhdmVyYWdlJw0KIAkJICogdGVuZHMgdG93YXJkcyB0aGUg
-dmFsdWUgb2YgcmEtPnNlcmlhbF9jbnQuDQpAQCAtNDAyLDkgKzM5OSwxMyBA
-QCBwYWdlX2NhY2hlX3JlYWRhaGVhZChzdHJ1Y3QgYWRkcmVzc19zcGFjDQog
-CQl9DQogCQlyYS0+YXZlcmFnZSA9IChhdmVyYWdlICsgcmEtPnNlcmlhbF9j
-bnQpIC8gMjsNCiAJCXJhLT5zZXJpYWxfY250ID0gMTsNCisJfSBlbHNlIHsN
-CisJCWlmIChyYS0+c2VyaWFsX2NudCA8PSAobWF4ICogMikpDQorCQkJcmEt
-PnNlcmlhbF9jbnQrKzsNCiAJfQ0KIAlyYS0+cHJldl9wYWdlID0gb2Zmc2V0
-Ow0KIA0KKw0KIAlpZiAob2Zmc2V0ID49IHJhLT5zdGFydCAmJiBvZmZzZXQg
-PD0gKHJhLT5zdGFydCArIHJhLT5zaXplKSkgew0KIAkJLyoNCiAJCSAqIEEg
-cmVhZGFoZWFkIGhpdC4gIEVpdGhlciBpbnNpZGUgdGhlIHdpbmRvdywgb3Ig
-b25lDQo=
---789158165-1675623982-1091953318=:23623--
+AGAIN: I am unhappy with this behavior but this _is_ the official behavior.
+If the current Linux kernel for some reasons does not behave this way it
+is broken and needs to be fixed.
+
+See also: http://www.mail-archive.com/cdwrite@other.debian.org/msg00232.html
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,32 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S288158AbSA2Biy>; Mon, 28 Jan 2002 20:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S287699AbSA2Bip>; Mon, 28 Jan 2002 20:38:45 -0500
-Received: from web9204.mail.yahoo.com ([216.136.129.27]:28762 "HELO web9204.mail.yahoo.com") by vger.kernel.org with SMTP id <S287303AbSA2Bik>; Mon, 28 Jan 2002 20:38:40 -0500
-Message-ID: <20020129013837.53539.qmail@web9204.mail.yahoo.com>
-Date: Mon, 28 Jan 2002 17:38:37 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-To: linux-kernel@vger.kernel.org, louisg00@bellsouth.net
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S289981AbSA3QVK>; Wed, 30 Jan 2002 11:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S289962AbSA3QT2>; Wed, 30 Jan 2002 11:19:28 -0500
+Received: from [216.247.238.190] ([216.247.238.190]:56589 "HELO pakistanmail.com") by vger.kernel.org with SMTP id <S289939AbSA3QSv>; Wed, 30 Jan 2002 11:18:51 -0500
+From: grumph@pakistanmail.com
+Reply-to: grumph@pakistanmail.com
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, hpa@zytor.com
+X-CC-Sender: grumph@pakistanmail.com
+Date: Wed, 30 Jan 2002 18:14:45 +0100
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Message-id: <3c580c3a.4074.0@pakistanmail.com>
+X-User-Info: 217.70.229.45
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assuming you're talking about rmap12a, yes. 
-on http://www.dynamicbullet.com/rmap.html
-there's a link to a patch that adds rmap
-to 2.4.18pre7
+
+What can a patchbot be trusted to do properly?  (see below)
+---------------------------------------------------
+Linus got his style of working and he's got no intention whatsoever to
+change that. So what is needed is a bot that works according to Linus' 
+taste, but goes behind his back when it comes to informing the poor 
+patch submitters....
+
+As always, simplicity rules. 
+
+None of this relies on a bot handling actual patching of code in the
+tree. A live, human (most of you, I assume) being will have to review
+and manually apply the patch.
+
+None of this requires Linus to change his habits, he could still apply
+any patches sent to torvalds@transmeta. Trusted people could still send
+Linus patches directly.
+
+But the newbies and untrusted guys without an established relationship to
+a trusted kernel developer get a little help to keep their patch updated. 
+
+It is not going to help on bad person chemistry or bad code. But it
+could weed out the obvious non-starters and help people get it right,
+without bothering busy kernel developers.
 
 
--Alex
+What can a patchbot be trusted to do properly?
+---------------------------------------------------
+- receive mail sent to: patch-2.5-linus@kernel or patch-2.4-marcelo@kernel
+ (you get the idea; version and tree)
+- patch-id assignment for tracking of patches accepted by bot
+- sender authentication/confirmation, as for mailing list subscriptions
+- verify that patch 
+	- applies to latest tree
+	- isn't oversized (by some definition)
+	- is correctly formatted
+	- contains a rationale (in some predefined format)
+- route patch to correct maintainer(s), based on the files it touches
+	(may require some initial work)
+- inform sender that patch was forwarded to <maintainer>
+- inform sender that patch was automatically rejected because it:
+	- does not apply to latest tree
+	- is too big/touches too many files
+	- does not contain aforementioned rationale
+	- isn't formatted according to CodingStyle (Does current code?)
+- inform sender that patch did not end up in next snap of tree, 
+	possibly because of:
+	- conflict with other patch
+	- a human didn't like the taste of it (-EBADTASTE)
+	- maintainer has not reviewed the patch yet
+	(use the above assigned patch-id to detect if patch was applied)
+- ask sender to rediff, review and resubmit patch 
+  The bot could do this by itself. But it isn't linus-style.
+  The sender should maintain his own patch.
+- inform the sender how to kill a patch-id from being processed	
+- automatically kill patch-ids from being processed if sender does not 
+  respond within <time> after response from bot.
+- automatically kill patch-ids from being processed if patch gets applied in
 
->Ok, has anyone ported the latest patch to 2.4.18-pre7 yet??
->
->--Louis
+  next snapshot
+- killfile abusers (needs policy)
+- publish patches on kernel.org and linux-kernel as they pass initial
+  filtering
+----------------------------------------------------------
 
+Questions:
+Will Linus immediately killfile mail sent from this bot?
+Will hpa host it at kernel.org?
+Will someone write the code if it gets thumbs up from linus/hpa?
+Is it going to make a difference?
 
-
-
-__________________________________________________
-Do You Yahoo!?
-Great stuff seeking new owners in Yahoo! Auctions! 
-http://auctions.yahoo.com
+_______________________________________________________________________
+Get your free @pakistanmail.com email address   http://pakistanmail.com

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265508AbUAICLF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 21:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265625AbUAICLE
+	id S266397AbUAIC0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 21:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266401AbUAIC0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 21:11:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265508AbUAICLD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 21:11:03 -0500
-Date: Thu, 8 Jan 2004 18:11:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Isaac Claymore <clay@exavio.com.cn>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1-rc2-mm1][BUG] kernel BUG at mm/rmap.c:305!
-Message-Id: <20040108181116.530608a0.akpm@osdl.org>
-In-Reply-To: <20040109013553.GA3755@exavio.com.cn>
-References: <1073605394.1070.3.camel@debian>
-	<20040109013553.GA3755@exavio.com.cn>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 21:26:00 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:14596 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S266397AbUAICZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 21:25:59 -0500
+Date: Fri, 9 Jan 2004 03:22:37 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Tim Cambrant <tim@cambrant.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Cleanup patches - comparison is always [true|false] + unsigned/signed
+ compare, and similar issues.   (consolidating existing threads)
+In-Reply-To: <20040109013735.GU1882@matchmail.com>
+Message-ID: <Pine.LNX.4.56.0401090319540.11276@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0401081847190.10083@jju_lnx.backbone.dif.dk>
+ <20040108192539.GA11663@cambrant.com> <20040109013735.GU1882@matchmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Isaac Claymore <clay@exavio.com.cn> wrote:
->
-> I got a similar problem after running rc2-mm1 for about 12 hours,
->  and my window manager got killed as a result.
 
-Sorry, it's a turkey.  rc3-mm1 will be better, I promise.
+On Thu, 8 Jan 2004, Mike Fedyk wrote:
+
+> On Thu, Jan 08, 2004 at 08:25:39PM +0100, Tim Cambrant wrote:
+> > project like this is going down. Posting cleanup-patches once a week
+> > to LKML is probably not the way to go, since most of them will be
+> > ignored and/or flamed.
+>
+> Use the trivial patch monkey for this, it will save you a lot of headache.
+>
+Good idea. I'll feed patches there, and only there unless someone
+expresses a wish to have them send to lkml as well.
+
+
+-- Jesper Juhl
 

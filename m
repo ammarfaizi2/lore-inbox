@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUJLTRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJLTXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267730AbUJLTRT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUJLTPx
+	id S267588AbUJLTXc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJLTXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:15:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4841 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267713AbUJLTNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:13:22 -0400
-Date: Tue, 12 Oct 2004 21:14:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Valdis.Kletnieks@vt.edu
-Cc: Mathieu Segaud <matt@minas-morgul.org>, sboyce@blueyonder.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1 Oops [2]
-Message-ID: <20041012191435.GA3310@elte.hu>
-References: <416B9517.7010708@blueyonder.co.uk> <877jpwi8cg.fsf@barad-dur.crans.org> <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 12 Oct 2004 15:23:32 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:43203 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S267678AbUJLTUO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 15:20:14 -0400
+Message-ID: <416C2DFE.2030006@rtr.ca>
+Date: Tue, 12 Oct 2004 15:18:22 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: driver hacking tips (was Re: [PATCH] QStor SATA/RAID driver for
+ 2.6.9-rc3)
+References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i			nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165	A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca	>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.	A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.607090	4@rtr.ca> <1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca>	<1097250465.2412.49.camel@mulgrave> 	<416C0D55.1020603@rtr.ca>	<1097601478.2044.103.camel@mulgrave>  <416C12CC.1050301@rtr.ca> <1097602220.2044.119.camel@mulgrave> <416C157A.6030400@rtr.ca> <416C177B.6030504@pobox.com> <416C19B9.7000806@rtr.ca> <416C2189.4080302@pobox.com>
+In-Reply-To: <416C2189.4080302@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ >Storage drivers that want to handle long-running events,
+ >or events that need process context, typically want to
+ >either fire off events _asynchronously_ via schedule_work(),
+ >or have a long-running thread that does nothing but processes
+ >an internal driver event queue.
 
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+At driver module unload time, is there any way to guarantee
+that all pending "schedule_work()" events have been processed?
 
-> I started seeing the same problem on -rc4-mm1, and couldn't figure out
-> why I didn't see it on -rc3-mm3.  Finally figured out that it was
-> because the -rc3-mm3 had a -VP patch on it, and the -rc4-mm1 didn't
-> (because of the UP build problems in -T5).  Ingo's patch also reverts
-> that patch, so I got the fix 'free of charge'....
-> 
-> Ingo: Was that intentional, or it just happened?
+How?
 
-was intentional - such small fixes are typical in the -VP patches since
-i first have to merge it and get it work on my testboxes, so if any
-last-minute bug slips into -mm i add the fix to VP.
-
-	Ingo
+Thanks
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267540AbUJRUSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUJRUJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267540AbUJRUSa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUJRUS3
+	id S267850AbUJRUJv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267759AbUJRUI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:18:29 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:30993 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267540AbUJRUQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:16:04 -0400
-Date: Mon, 18 Oct 2004 22:21:47 +0200
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       penguinppc-team@lists.penguinppc.org
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041018202147.GA28720@hh.idb.hist.no>
-References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org> <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be> <87y8i8p1jq.fsf@bytesex.org> <20041017120728.GC10532@admingilde.org> <20041018083632.GE3065@bytesex> <20041018113929.GB3618@admingilde.org> <20041018121033.GB5106@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018121033.GB5106@bytesex>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Mon, 18 Oct 2004 16:08:28 -0400
+Received: from mail.citnet.ru ([212.1.224.54]:31399 "HELO mail.ti.ru")
+	by vger.kernel.org with SMTP id S267633AbUJRUFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:05:51 -0400
+Message-ID: <41742215.8020005@quadra.ru>
+Date: Tue, 19 Oct 2004 00:05:41 +0400
+From: Oleg Makarenko <mole@quadra.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: James Morris <jmorris@redhat.com>
+CC: Matt Domsch <Matt_Domsch@dell.com>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: using crypto_digest() on non-kmalloc'd memory failures
+References: <Xine.LNX.4.44.0410181534180.24062-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0410181534180.24062-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 02:10:33PM +0200, Gerd Knorr wrote:
-> On Mon, Oct 18, 2004 at 01:39:29PM +0200, Martin Waitz wrote:
-> > hi :)
-> > 
-> > > Whenever writing to the gfx memory before finishing the initialization
-> > > is harmless or not probably depends on the hardware, I'd better not
-> > > count on it ...
-> > 
-> > when the application tries to access the framebuffer memory then
-> > the driver is asked to map the corresponding page.
-> 
-> On first access only, and even that only if the driver doesn't map the
-> pages at mmap() time already.  Not a single fb driver seems to map the
-> pages lazy today, grepping in drivers/video for nopage handles shows
-> nothing.  I'm not sure you can actually do that for iomem mappings.
-> 
-Isn't it possible for the driver to unmap the mapping when
-suspending?  Then you're guaranteed to get that first access.
+James Morris wrote:
 
-This can be simplified to a all-or-nothing approach, it is not
-necessary to fault the pages in individually.
+>On Mon, 18 Oct 2004, Matt Domsch wrote:
+>
+>  
+>
+>>James, David,
+>>
+>>Oleg noted that when we call crypto_digest() on memory allocated as a
+>>static array in a module, rather than kmalloc(GFP_KERNEL), it returns
+>>incorrect data, and with other functions, a kernel panic.
+>>
+>>Thoughts as to why this may be?  Oleg's test patch appended.
+>>    
+>>
+>
+>I don't recall the exact details, but it's related to using kmap in the 
+>core crypto code.
+>
+>
+>- James
+>  
+>
+So to calculate digest on some static data I need to copy them to 
+kmalloc'ed memory first, right?
 
-Helge Hafting
+Can this copying be somehow avoided?
+
+And one more question on crypto api. It looks like it is not very 
+effective for a single byte "block" ciphers as arc4. The overhead is 
+probably too big. Just look at the loop in cipher.c/crypt() and the code 
+in arc4.c/arc4_crypt(). All this code is called for every single clear 
+text byte. Right? Looks like an overkill for bsize == 1.
+
+Is there any better way to use crypto api for arc4 or similar ciphers? 
+Cipher block size is not always a natural choice for the crypto_yield(). 
+Especially for fast ciphers (arc4) and small "block" sizes (arc4 again).
+
+Or have I missed something obvious?
+
+=oleg
+

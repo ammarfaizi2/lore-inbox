@@ -1,106 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281234AbRLDWIQ>; Tue, 4 Dec 2001 17:08:16 -0500
+	id <S283545AbRLDWLx>; Tue, 4 Dec 2001 17:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283545AbRLDWIE>; Tue, 4 Dec 2001 17:08:04 -0500
-Received: from nrg.org ([216.101.165.106]:50194 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S283540AbRLDWHx>;
-	Tue, 4 Dec 2001 17:07:53 -0500
-Date: Tue, 4 Dec 2001 14:06:51 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Robert Love <rml@tech9.net>
-cc: george anzinger <george@mvista.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improve spinlock debugging
-In-Reply-To: <1007499102.1303.24.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0112041321080.595-100000@cosmic.nrg.org>
+	id <S283540AbRLDWLn>; Tue, 4 Dec 2001 17:11:43 -0500
+Received: from h24-80-196-159.gv.shawcable.net ([24.80.196.159]:34564 "EHLO
+	trevor.house-net.ca") by vger.kernel.org with ESMTP
+	id <S283556AbRLDWL2>; Tue, 4 Dec 2001 17:11:28 -0500
+Message-ID: <007801c17d10$8a21bc60$0a49a8c0@dagate.trevor>
+From: "Trevor Smith" <trevorlsmith@home.com>
+To: "Edward Muller" <emuller@learningpatterns.com>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Dave Jones" <davej@suse.de>, "Eric S. Raymond" <esr@thyrsus.com>,
+        <linux-kernel@vger.kernel.org>, "Christoph Hellwig" <hch@caldera.de>,
+        "Keith Owens" <kaos@ocs.com.au>, <kbuild-devel@lists.sourceforge.net>,
+        <torvalds@transmeta.com>
+In-Reply-To: <E16BM38-0003K1-00@the-village.bc.nu>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Tue, 4 Dec 2001 14:10:04 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Dec 2001, Robert Love wrote:
-> On Tue, 2001-12-04 at 15:30, george anzinger wrote:
+> > That's been the case all along, sans python2. Newer kernels need newer
+> > tools. That's always been the case.
 >
-> > spin_lockirq
-> >
-> > spin_unlock
-> >
-> > restore_irq
->
-> Given this order, couldn't we _always_ not touch the preempt count since
-> irq's are off?
+> Not during stable releases. In fact we've jumped through hoops several
+times
+> to try and keep egcs built kernels working
 
-Not with the current spinlock usage in the kernel.
-spin_lock/spin_unlock are used both nested when interrupts are known to
-be disabled (as above) or, more commonly,
+Are we not talking about the 2.5 kernel build tree? My understanding of the
+numbering of kernels is that the 2.4.x tree is stable; and the 2.5.x tree is
+the new development tree
 
-	spin_lock_irqsave(a, flags)
+If the suggestion was to alter the 2.4 tree in a way that required
+additional tools; I could understand the concern; the 2.5 tree is unstable;
+and so to go from 2.5.a to 2.5.b I expect to have to be really carefull and
+*READ* the release notes; similarly from 2.2.x to 2.4.x; but 2.4.a to 2.4.b
+I generally detar the tree; copy my .config over check with menuconfig that
+things make sense; build the kernel and expect things to work; release notes
+you ask? ..I only glance at them to see if anything strikes my eye; but they
+are not read completely
 
-	spin_lock(b)
-
-	spin_unlock(b)
-
-	spin_unlock_irqrestore(a, flags)
-
-and when interrupts are enabled:
-
-	spin_lock(c)
-
-	spin_unlock(c)
-
-We don't need to preempt count the former but we do the latter, but
-there's no way to tell the difference without a runtime check for
-interrupt state.
-
-In IRIX we changed the name of the former, nested versions to:
-
-	spin_lock_irqsave(a, flags)
-
-	nested_spin_lock(b)
-
-	nested_spin_unlock(b)
-
-	spin_unlock_irqrestore(a, flags)
-
-The nested version contained an assertion that interrupts were disabled
-in DEBUG kernels.  We wouldn't need to count the nested_spin_lock
-versions.
-
-
-> Further, since I doubt we ever see:
->
-> 	spin_lock_irq
-> 	restore_irq
-> 	spin_unlock
-
-I hope not, since that would be a bug.
-
-> and the common use is:
->
-> 	spin_lock_irq
-> 	spin_unlock_irq
->
-> Isn't it safe to have spin_lock_irq *never* touch the preempt count?
-
-No, because of
-
-> > spin_lockirq
-> >
-> > spin_unlock
-> >
-> > restore_irq
-
-(which does occasionally occur in the kernel).  The spin_unlock is going
-to decrement the count, so the spin_lock_irqsave must increment it.  If
-we had, and used, a nested_spin_unlock, we could then have spin_lock_irq
-never touch the preempt count.
-
-[And if we could guarantee that all spinlocks we held for only a few 10s
-of microseconds at the most (a big "if"), we could make them all into
-spin_lock_irqs and then we wouldn't need the preempt count at all.  This
-is how REAL/IX and IRIX implemented kernel preemption.]
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Trevor
 

@@ -1,55 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVBBW0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVBBWRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbVBBW0f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVBBWWS
+	id S262800AbVBBWRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:17:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVBBWM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 17:22:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32169 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262289AbVBBWTo (ORCPT
+	Wed, 2 Feb 2005 17:12:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36229 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262554AbVBBWMM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 17:19:44 -0500
-Date: Wed, 2 Feb 2005 14:19:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] SuperHyway bus support
-Message-ID: <20050202221907.GA13680@kroah.com>
-References: <20041027075248.GA26760@pointless.research.nokia.com> <20050107072222.GB24441@kroah.com> <20050107094103.GA7408@pointless.research.nokia.com> <20050107162945.GA19043@pointless.research.nokia.com> <20050112081722.GA2745@kroah.com> <20050112124836.GA9315@pointless.research.nokia.com> <20050201220552.GA13994@kroah.com> <20050202071001.GB25641@linux-sh.org>
+	Wed, 2 Feb 2005 17:12:12 -0500
+Date: Wed, 2 Feb 2005 14:11:17 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org, <dtor_core@ameritech.net>,
+       zaitcev@redhat.com
+Subject: Re: Touchpad problems with 2.6.11-rc2
+Message-ID: <20050202141117.688c8dd3@localhost.localdomain>
+In-Reply-To: <m3lla64r3w.fsf@telia.com>
+References: <20050123190109.3d082021@localhost.localdomain>
+	<m3acqr895h.fsf@telia.com>
+	<20050201234148.4d5eac55@localhost.localdomain>
+	<m3lla64r3w.fsf@telia.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202071001.GB25641@linux-sh.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 09:10:01AM +0200, Paul Mundt wrote:
-> On Tue, Feb 01, 2005 at 02:05:52PM -0800, Greg KH wrote:
-> > On Wed, Jan 12, 2005 at 02:48:36PM +0200, Paul Mundt wrote:
-> > > Yes, it would seem that way. Here we go again:
-> > > 
-> > >  drivers/sh/Makefile                      |    6 
-> > >  drivers/sh/superhyway/Makefile           |    7 +
-> > >  drivers/sh/superhyway/superhyway-sysfs.c |   45 ++++++
-> > >  drivers/sh/superhyway/superhyway.c       |  201 +++++++++++++++++++++++++++++++
-> > >  include/linux/superhyway.h               |   79 ++++++++++++
-> > >  5 files changed, 338 insertions(+)
-> > 
-> > Sorry for taking so long on this.  I've added it to my trees and it will
-> > show up in the next -mm releases.  After 2.6.11 is out I'll forward it
-> > on to Linus.
-> > 
-> There's an older version of this patch currently still in -mm, so this
-> patch won't actually apply there directly. I can send an incremental -mm
-> patch that gets the current -mm implementation up to date with these
-> changes (or if Andrew can back out the current patch in -mm and apply this
-> one in place, that works too).
+On 02 Feb 2005 21:57:39 +0100, Peter Osterlund <petero2@telia.com> wrote:
 
-If Andrew could just drop the patch in his tree, he will get this
-version in through the bk-drivers tree that he pulls into the -mm
-releases.
+> Please try this patch instead. It works well with my alps touchpad. (I
+> don't have a synaptics touchpad.) It does the following:
+> 
+> * Compensates for the lack of floating point arithmetic by keeping
+>   track of remainders from the integer divisions.
+> * Removes the xres/yres scaling so that you get the same speed in the
+>   X and Y directions even if your screen is not square.
+> * Sets scale factors so that the speed for synaptics and alps should
+>   be equal to each other and equal to the synaptics speed from 2.6.10.
 
-thanks,
+Thanks a lot, Peter. I think I like the result even better than the one
+after the simple-minded removal that I posted. It's possible that when
+I accepted the case of (pktcount == 1) it hurt smoothness.
 
-greg k-h
+Do you think it makes sense to zero fractions when pktcount is dropped?
+Also, I think the extra unary minus is uncoth.
+
+-- Pete
+
+--- linux-2.6.11-rc2/drivers/input/mousedev.c	2005-01-22 14:54:14.000000000 -0800
++++ linux-2.6.11-rc2-lem/drivers/input/mousedev.c	2005-02-02 14:03:07.000000000 -0800
+@@ -71,6 +71,7 @@
+ 	struct mousedev_hw_data packet;
+ 	unsigned int pkt_count;
+ 	int old_x[4], old_y[4];
++	int frac_dx, frac_dy;
+ 	unsigned long touch;
+ };
+ 
+@@ -117,24 +118,31 @@
+ 
+ static void mousedev_touchpad_event(struct input_dev *dev, struct mousedev *mousedev, unsigned int code, int value)
+ {
+-	int size;
++	int size, tmp;
++	enum {  FRACTION_DENOM = 100 };
+ 
+ 	if (mousedev->touch) {
++		size = dev->absmax[ABS_X] - dev->absmin[ABS_X];
++		if (size == 0) size = xres;
+ 		switch (code) {
+ 			case ABS_X:
+-				size = dev->absmax[ABS_X] - dev->absmin[ABS_X];
+-				if (size == 0) size = xres;
+ 				fx(0) = value;
+-				if (mousedev->pkt_count >= 2)
+-					mousedev->packet.dx = ((fx(0) - fx(1)) / 2 + (fx(1) - fx(2)) / 2) * xres / (size * 2);
++				if (mousedev->pkt_count >= 2) {
++					tmp = ((value - fx(2)) * (250 * FRACTION_DENOM)) / size;
++					tmp += mousedev->frac_dx;
++					mousedev->packet.dx = tmp / FRACTION_DENOM;
++					mousedev->frac_dx = tmp - mousedev->packet.dx * FRACTION_DENOM;
++				}
+ 				break;
+ 
+ 			case ABS_Y:
+-				size = dev->absmax[ABS_Y] - dev->absmin[ABS_Y];
+-				if (size == 0) size = yres;
+ 				fy(0) = value;
+-				if (mousedev->pkt_count >= 2)
+-					mousedev->packet.dy = -((fy(0) - fy(1)) / 2 + (fy(1) - fy(2)) / 2) * yres / (size * 2);
++				if (mousedev->pkt_count >= 2) {
++					tmp = ((fy(2) - value) * (250 * FRACTION_DENOM)) / size;
++					tmp += mousedev->frac_dy;
++					mousedev->packet.dy = tmp / FRACTION_DENOM;
++					mousedev->frac_dy = tmp - mousedev->packet.dy * FRACTION_DENOM;
++				}
+ 				break;
+ 		}
+ 	}
+@@ -268,6 +276,8 @@
+ 			clear_bit(0, &mousedev_mix.packet.buttons);
+ 		}
+ 		mousedev->touch = mousedev->pkt_count = 0;
++		mousedev->frac_dx = 0;
++		mousedev->frac_dy = 0;
+ 	}
+ 	else
+ 		if (!mousedev->touch)

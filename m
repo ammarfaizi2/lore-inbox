@@ -1,75 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130000AbQLTA4R>; Tue, 19 Dec 2000 19:56:17 -0500
+	id <S130021AbQLTBB3>; Tue, 19 Dec 2000 20:01:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130021AbQLTA4H>; Tue, 19 Dec 2000 19:56:07 -0500
-Received: from mail18.scannet.dk ([194.255.42.18]:32517 "HELO
-	mail18.scannet.dk") by vger.kernel.org with SMTP id <S130000AbQLTAz6> convert rfc822-to-8bit;
-	Tue, 19 Dec 2000 19:55:58 -0500
-From: Jesper Juhl <juhl@eisenstein.dk>
-Date: Tue, 19 Dec 2000 15:31:13 GMT
-Message-ID: <20001219.15311300@jju.hyggekrogen.dk>
-Subject: Platform string wrong for AlphaServer 400 4/233
-To: linux-kernel@vger.kernel.org
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S130380AbQLTBBT>; Tue, 19 Dec 2000 20:01:19 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:25084 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S130021AbQLTBBH>; Tue, 19 Dec 2000 20:01:07 -0500
+Date: Tue, 19 Dec 2000 20:39:26 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Russell Nelson <nelson@crynwr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.2 - cs89x0 - unchecked kmalloc
+Message-ID: <20001219203926.M764@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Russell Nelson <nelson@crynwr.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
-
-This is a minor issue, but I thought I'd report it anyway.
-
-When I do a 
-
-# cat /proc/cpuinfo
-
-on my AlphaServer 400 4/233 I get the following (IMHO wrong) output:
-
-cpu                     : Alpha
-cpu model               : EV45
-cpu variation           : 7
-cpu revision            : 0
-cpu serial number       :
-system type             : Avanti
-system variation        : 0
-system revision         : 0
-system serial number    :
-cycle frequency [Hz]    : 233334892 est.
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 34
-max. addr. space #      : 63
-BogoMIPS                : 229.11
-kernel unaligned acc    : 0 (pc=0,va=0)
-user unaligned acc      : 0 (pc=0,va=0)
-platform string         : AlphaStation 400 4/233
-cpus detected           : 1                                               
-                    
+Please consider applying
 
 
-The problem is that the 'Platform string' is set to 'AlphaStation 400 
-4/233' when this machine is quite clearly (it's printed on it) a 
-'AlphaServer 400 4/233' ( It is this machine: 
-http://www5.compaq.com/alphaserver/archive/400/alphaserver400.html ).
+                        - Arnaldo
 
-It's nothing important, and it runs Linux just fine. Just thought it 
-would be nice to see it fixed (if it is at all possible to tell the two 
-different systems apart from the kernels point of view).
-
-
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
-
-
-PS. Please CC all replies to me as I am not subscribed to the list.
-
-
+--- linux-2.2.19-2/drivers/net/cs89x0.c	Mon Aug  9 16:05:05 1999
++++ linux-2.2.19-2.acme/drivers/net/cs89x0.c	Tue Dec 19 20:25:12 2000
+@@ -27,6 +27,8 @@
+                     : is running from all accounts.
+                     
+   Alan Cox          : Removed 1.2 support, added 2.1 extra counters.
++
++  Arnaldo Melo	    : release resources on failure in cs89x0_probe1
+ */
+ 
+ static char *version =
+@@ -249,13 +251,17 @@
+ 	struct net_local *lp;
+ 	static unsigned version_printed = 0;
+ 	int i;
++	char priv_alloced_here = 0;
+ 	unsigned rev_type = 0;
+ 	int eeprom_buff[CHKSUM_LEN];
+ 
+ 	/* Initialize the device structure. */
+ 	if (dev->priv == NULL) {
+ 		dev->priv = kmalloc(sizeof(struct net_local), GFP_KERNEL);
++		if (!dev->priv)
++			return -ENOMEM;
+                 memset(dev->priv, 0, sizeof(struct net_local));
++		priv_alloced_here = 1;
+         }
+ 	lp = (struct net_local *)dev->priv;
+ 
+@@ -265,12 +271,12 @@
+ 	if (ioaddr & 1) {
+ 		ioaddr &= ~1;
+ 		if ((inw(ioaddr + ADD_PORT) & ADD_MASK) != ADD_SIG)
+-			return ENODEV;
++			goto err;
+ 		outw(PP_ChipID, ioaddr + ADD_PORT);
+ 	}
+ 
+ 	if (inw(ioaddr + DATA_PORT) != CHIP_EISA_ID_SIG)
+-		return ENODEV;
++		goto err;
+ 
+ 	/* Fill in the 'dev' fields. */
+ 	dev->base_addr = ioaddr;
+@@ -388,6 +394,11 @@
+ 
+ 	printk("\n");
+ 	return 0;
++err:	if (priv_alloced_here) {
++		kfree(dev->priv);
++		dev->priv = NULL;
++	}
++	return -ENODEV;
+ }
+ 
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288253AbSACQuJ>; Thu, 3 Jan 2002 11:50:09 -0500
+	id <S288261AbSACQxJ>; Thu, 3 Jan 2002 11:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288254AbSACQuB>; Thu, 3 Jan 2002 11:50:01 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:17412 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S288251AbSACQtP>;
-	Thu, 3 Jan 2002 11:49:15 -0500
-To: Edgar Toernig <froese@gmx.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <E16Lvh8-0006E6-00@the-village.bc.nu>
-	<25193.1010018130@redhat.com> <3C347CC3.E7154C36@gmx.de>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <3C347CC3.E7154C36@gmx.de>
-Date: 03 Jan 2002 18:48:56 +0200
-Message-ID: <87lmffwfbb.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S288257AbSACQvf>; Thu, 3 Jan 2002 11:51:35 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:32783 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288256AbSACQvQ>;
+	Thu, 3 Jan 2002 11:51:16 -0500
+Date: Thu, 3 Jan 2002 14:51:01 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@zip.com.au>, "M. Edward Borasky" <znmeb@aracnet.com>,
+        Art Hays <art@lsr.nei.nih.gov>, <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd etc hogging machine
+In-Reply-To: <E16M72b-0008B8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0201031448410.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Edgar" == Edgar Toernig <froese@gmx.de> writes:
+On Thu, 3 Jan 2002, Alan Cox wrote:
 
-Edgar> David Woodhouse wrote:
->> 
->> What part of 'undefined behaviour' is so difficult for people to understand?
+> 2.4.1x VM code is performing better under light loads but its
+> absolutely and completely hopeless under a real paging load. 2.4.17-aa
+> is somewhat better interestingly.
 
-Edgar> The behaviour is undefined by the C standard.  But the mentioned
-Edgar> pointer arithmetic is defined in the environment where it has been
-Edgar> used.  GCC tries to optimize undefined C-standard behaviour.  And
-Edgar> IMHO that's the point.  It may optimize defined behaviour and should
-Edgar> not touch things undefined by the standard.
+A quick 'make -j bzImage' test I did yesterday got the system
+to use near 70% of its CPU time in user mode and 30% in system
+mode. This was with 2.4.17-rmap-10b, btw.
 
-How do you imagine that "not touch" ? like "#if 0 ... #endif" ?
+Though I have to admit the rmap patches should be considered
+experimental, the last one does seem to survive some loads
+where the standard kernel falls over ;)
 
-Edgar> PS: Hey, we are talking about C, the de luxe assembler! *g*
+regards,
 
-Standard is a standard. Broken code is broken code. Sometimes you can
-get away with it, sometimes you can't and when you can't you fix the
-code.  Or define your own standard and make a compiler implementing
-it.
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

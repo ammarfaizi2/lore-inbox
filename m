@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132643AbRDKQwB>; Wed, 11 Apr 2001 12:52:01 -0400
+	id <S132644AbRDKQol>; Wed, 11 Apr 2001 12:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132651AbRDKQvv>; Wed, 11 Apr 2001 12:51:51 -0400
-Received: from mx3.port.ru ([194.67.23.37]:31504 "EHLO smtp3.port.ru")
-	by vger.kernel.org with ESMTP id <S132643AbRDKQvl>;
-	Wed, 11 Apr 2001 12:51:41 -0400
-From: info <5740@mail.ru>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: 2.4.3 compile error No 3
-Date: Wed, 11 Apr 2001 20:34:26 +0400
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain
-Cc: linux-kernel@vger.kernel.org, John Jasen <jjasen@datafoundation.com>
-In-Reply-To: <4AC3B9077C6@vcnet.vc.cvut.cz>
-In-Reply-To: <4AC3B9077C6@vcnet.vc.cvut.cz>
+	id <S132636AbRDKQoc>; Wed, 11 Apr 2001 12:44:32 -0400
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:22020 "HELO
+	zcamail03.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S132642AbRDKQoW>; Wed, 11 Apr 2001 12:44:22 -0400
+Message-ID: <3AD489D1.D5FCCB4B@zk3.dec.com>
+Date: Wed, 11 Apr 2001 12:44:01 -0400
+From: Peter Rival <frival@zk3.dec.com>
+Organization: Tru64 QMG Performance Engineering
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01041120540000.05702@sh.lc>
-Content-Transfer-Encoding: 8bit
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alpha "process table hang"
+In-Reply-To: <20010411104040.A8773@draal.physics.wisc.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Чтв, 12 Апр 2001, в сообщении на тему "Re: 2.4.3 compile error No 3", Petr Vandrovec написал:
-> On 11 Apr 01 at 20:15, info wrote:
-> > 
-> > By the way, I thung that it is a good idea - to modify
-> > xconfig/meniconfig script  in manner to make disable ipx if sysctl
-> > setted off - like in many other cross-dependance options. 
-> 
-> Without sysctl you cannot disable Netbios propagation packet routing.
-> And no machine with enabled Netbios routing passes our 'you must not
-> participate in broadcast storms' test if it has enabled more than
-> one IPX frame on each interface. So you'll get disconnected from our 
-> university net.
->                                     Petr Vandrovec
->                                     vandrove@vc.cvut.cz
+You wouldn't happen to have khttpd loaded as a module, would you?  I've seen
+this type of problem caused by that before...
 
-Sorry, Petr, I can't understand your mind: my knowlege in programming
-and English isn't enougth.
+ - Pete
 
-My user's mind was: if sysctl is needed for ipx, then:
-1-st variant -  to modify config script in such manner that sysctl
-turned on automatically (maybe as other needable functions, if they
-are) if ipx selected. 
-2-nd variant - to modify it in such manner that you can't select ipx
-before you select sysctl 
+Bob McElrath wrote:
 
-The second variant is more easy (for example: you can't select reiserfs now
-if you doesn't select one of another option, I don't remember it's
-name).
-But  the first way is more user-friendly. This is the same principle
-as in rpm during installation. For example: when I select in Mandrake
-installer that I want to have Klyx in my KDE, the installer
-automatically select tetex, latex, ghostscript and other packages.
-Because klyx can't work without them. It is very  comfortable for
-user.
+> I've been experiencing a particular kind of hang for many versions
+> (since 2.3.99 days, recently seen with 2.4.1, 2.4.2, and 2.4.2-ac4) on
+> the alpha architecture.  The symptom is that any program that tries to
+> access the process table will hang. (ps, w, top) The hang will go away
+> by itself after ~10minutes - 1 hour or so.  When it hangs I run ps and
+> see that it gets halfway through the process list and hangs.  The
+> process that comes next in the list (after hang goes away) almost always
+> has nonsensical memory numbers, like multi-gigabyte SIZE.
+>
+> Linux draal.physics.wisc.edu 2.3.99-pre5 #8 Sun Apr 23 16:21:48 CDT 2000
+> alpha unknown
+>
+> Gnu C                  2.96
+> Gnu make               3.78.1
+> binutils               2.10.0.18
+> util-linux             2.11a
+> modutils               2.4.5
+> e2fsprogs              1.18
+> PPP                    2.3.11
+> Linux C Library        2.2.1
+> Dynamic linker (ldd)   2.2.1
+> Procps                 2.0.7
+> Net-tools              1.54
+> Kbd                    0.94
+> Sh-utils               2.0
+> Modules Loaded         nfsd lockd sunrpc af_packet msdos fat pas2 sound
+> soundcore
+>
+> Has anyone else seen this?  Is there a fix?
+>
+> -- Bob
+>
+> Bob McElrath (rsmcelrath@students.wisc.edu)
+> Univ. of Wisconsin at Madison, Department of Physics
+>
+>   ------------------------------------------------------------------------
+>    Part 1.2Type: application/pgp-signature
 
-I think that you, as kernel programmer, work with .config
-directly. But  I - as user - work only on level of "menu xconfig"
-screen when I try to compile.
-
-I speake only about user's friendlyness of kernel config screen, not
-about frames and other programming topics. I don't know what is it at
-all. It is not my user's level.

@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266276AbUBDCGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 21:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266275AbUBDCGZ
+	id S265987AbUBDC0L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 21:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUBDC0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 21:06:25 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:33213 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S266276AbUBDCEb convert rfc822-to-8bit
+	Tue, 3 Feb 2004 21:26:11 -0500
+Received: from [200.115.201.252] ([200.115.201.252]:26374 "EHLO
+	reloco.dhis.org") by vger.kernel.org with ESMTP id S265987AbUBDC0I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 21:04:31 -0500
-content-class: urn:content-classes:message
+	Tue, 3 Feb 2004 21:26:08 -0500
+Message-ID: <4020583D.7050605@hotmail.com>
+Date: Tue, 03 Feb 2004 23:26:05 -0300
+From: =?ISO-8859-1?Q?Nicol=E1s_Lichtmaier?= <niqueco@hotmail.com>
+Reply-To: jnl@synapsis-sa.com.ar
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Date: Tue, 3 Feb 2004 18:01:20 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3673@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Thread-Index: AcPquwK7oNlswVjuRUyx5H9dvCdeTAAA6KVw
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "Greg KH" <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>
-Cc: "Troy Benjegerdes" <hozer@hozed.org>,
-       "Woodruff, Robert J" <woody@jf.intel.com>,
-       <infiniband-general@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Feb 2004 02:01:20.0484 (UTC) FILETIME=[C87F3240:01C3EAC2]
+To: linux-kernel@vger.kernel.org
+Subject: Bug in 2.6.1's PPP? Stack trace included.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good I think the InfiniBand community would like to get some of the 
-code into 2.6. 
+Trying to build a tunnel with ppp+ssh I've been getting ESRCH whith 
+ping. And these kernel messages:
 
-The access layer is all loadable modules and does not require any kernel
-changes. 
-But we will need to look into integrating it into the build environment 
-(and provide a patch for that). 
+Badness in local_bh_enable at kernel/softirq.c:121
+Call Trace:
+ [<c01206e4>] local_bh_enable+0x70/0x72
+ [<d009baac>] ppp_async_push+0x88/0x151 [ppp_async]
+ [<d009b402>] ppp_asynctty_wakeup+0x2d/0x5e [ppp_async]
+ [<c01c189f>] pty_unthrottle+0x58/0x5a
+ [<c01be685>] check_unthrottle+0x39/0x3b
+ [<c01be6f6>] n_tty_flush_buffer+0x13/0x55
+ [<c01c1c5a>] pty_flush_buffer+0x66/0x68
+ [<c01bb5a1>] do_tty_hangup+0x3a3/0x3f0
+ [<c01bc861>] release_dev+0x665/0x691
+ [<c013ce45>] zap_pmd_range+0x47/0x61
+ [<c013cea2>] unmap_page_range+0x43/0x69
+ [<c01bcbd5>] tty_release+0xf/0x15
+ [<c014b1f6>] __fput+0xdd/0xef
+ [<c0149b6f>] filp_close+0x59/0x86
+ [<c011e360>] put_files_struct+0x84/0xe9
+ [<c011eee4>] do_exit+0x14f/0x32f
+ [<c011f145>] do_group_exit+0x34/0x72
+ [<c0108f75>] sysenter_past_esp+0x52/0x71
+ 
+Badness in local_bh_enable at kernel/softirq.c:121
 
-We will work with the InfiniBand HCA vendors, such as Mellanox and
-Fujitsu, to 
-get the 2.6 code tested on the hardware and put together a patch that
-can be submitted for review by the larger linux community. If you would
-like to see the code before we
-run it on 2.6, we could possibly do that as well. 
+I hope it helps.
 
-
-woody
-
-
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Tuesday, February 03, 2004 5:03 PM
-To: Woodruff, Robert J
-Cc: Troy Benjegerdes; Woodruff, Robert J;
-infiniband-general@lists.sourceforge.net; linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
-
-
-On Tue, Feb 03, 2004 at 04:17:36PM -0800, Woodruff, Robert J wrote:
-> 
-> I heard from a friend of mine that 2.6 was closed to new features.
-> What sayith the community on allowing additional experimental drivers
-> (like the infiniband access layer) into 2.6 ? Can we still submit
-> something or do we have to wait till 2.7 ?
-
-If it's a subsystem that does not touch any of the existing kernel (with
-the exception of adding it to the build and Kconfig), then it probably
-will not be a problem to add.
-
-But then again, that all depends on what the code looks like, and none
-of us have seen that yet :)
-
-thanks,
-
-greg k-h
+Thanks.

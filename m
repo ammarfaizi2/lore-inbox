@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVA3LjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVA3Lm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVA3LjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 06:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVA3LjE
+	id S261680AbVA3Lm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 06:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVA3Lm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 06:39:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32264 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261681AbVA3Liq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 06:38:46 -0500
-Date: Sun, 30 Jan 2005 12:38:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
-       Nathan Scott <nathans@sgi.com>
-Subject: Re: 2.6.11-rc2-mm2
-Message-ID: <20050130113842.GE3185@stusta.de>
-References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org>
+	Sun, 30 Jan 2005 06:42:58 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:15879 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261680AbVA3Lm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 06:42:57 -0500
+Subject: Re: MOD_USE_INC_COUNT and MOD_USE_DEC_COUNT
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lethalman <lethalman88@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c79c69b305013003355b5c86bc@mail.gmail.com>
+References: <c79c69b305013003355b5c86bc@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 30 Jan 2005 12:42:50 +0100
+Message-Id: <1107085371.4178.56.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050129235653.1d9ba5a9.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 11:56:53PM -0800, Andrew Morton wrote:
-> Paul Blazejowski <diffie@gmail.com> wrote:
-> >
-> > Kernel compile errors here, i think this might be XFS related...
-> > 
-> >  fs/built-in.o(.text+0x52a93): In function `linvfs_decode_fh':
-> >  : undefined reference to `find_exported_dentry'
-> >  make: *** [.tmp_vmlinux1] Error 1
+On Sun, 2005-01-30 at 12:35 +0100, Lethalman wrote:
+> What's the corrispective name of these macros in the 2.6.x kernel?
 > 
-> bix:/home/akpm> grep EXPORT x
-> CONFIG_XFS_EXPORT=y
-> CONFIG_EXPORTFS=m
-> 
-> That isn't going to work.  Something like this, perhaps?
-> 
-> --- 25/fs/xfs/Kconfig~a	2005-01-29 23:55:53.643674392 -0800
-> +++ 25-akpm/fs/xfs/Kconfig	2005-01-29 23:56:26.435689248 -0800
-> @@ -22,7 +22,8 @@ config XFS_FS
->  
->  config XFS_EXPORT
->  	bool
-> -	default y if XFS_FS && EXPORTFS
-> +	depends on XFS_FS
-> +	select EXPORTFS
->...
 
-Since nothing selects XFS_EXPORT, XFS_EXPORT will _never_ be enabled 
-with this patch.
+you shouldn't need them if your code sets the .owner field properly of
+the respective datastructures. Eg they are replaced by a proper (ok some
+people consider that debatable) refcounting scheme, not just renamed.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

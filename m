@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbTBEXOO>; Wed, 5 Feb 2003 18:14:14 -0500
+	id <S261624AbTBEXVo>; Wed, 5 Feb 2003 18:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbTBEXOO>; Wed, 5 Feb 2003 18:14:14 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:42513
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261527AbTBEXON>; Wed, 5 Feb 2003 18:14:13 -0500
-Message-ID: <3E419CB8.5090601@rackable.com>
-Date: Wed, 05 Feb 2003 15:22:32 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre4aa1
-References: <20030131014020.GA8395@dualathlon.random> <3E419A43.7070100@rackable.com> <20030205231627.GS19678@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2003 23:23:45.0141 (UTC) FILETIME=[A0B91A50:01C2CD6D]
+	id <S265135AbTBEXVn>; Wed, 5 Feb 2003 18:21:43 -0500
+Received: from bitmover.com ([192.132.92.2]:38840 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261624AbTBEXVn>;
+	Wed, 5 Feb 2003 18:21:43 -0500
+Date: Wed, 5 Feb 2003 15:31:15 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Matt Reppert <arashi@yomerashi.yi.org>
+Cc: Andrew Morton <akpm@digeo.com>, andrea@suse.de, lm@bitmover.com,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030205233115.GB14131@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Matt Reppert <arashi@yomerashi.yi.org>,
+	Andrew Morton <akpm@digeo.com>, andrea@suse.de, lm@bitmover.com,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205141104.6ae9e439.arashi@yomerashi.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030205141104.6ae9e439.arashi@yomerashi.yi.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+> (BTW, Larry, the bk binaries segfault on my (glibc 2.3.1) i686 system. Any
+> chance we could see binaries linked against 2.3.x? There's NSS badness between
+> 2.2 and 2.3 that causes even static binaries to segfault ... )
 
->On Wed, Feb 05, 2003 at 03:12:03PM -0800, Samuel Flory wrote:
->  
->
->>Is the dac960 compile still broken?  Or did it break again?
->>
->>make[3]: Entering directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
->>gcc -D__KERNEL__ -I/stuff/src/linux-2.4.21-pre4-aa1/include -Wall 
->>-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
->>-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
->>-nostdinc -iwithprefix include -DKBUILD_BASENAME=DAC960  -DEXPORT_SYMTAB 
->>-c DAC960.c
->>DAC960.c: In function `DAC960_ProcessCompletedBuffer':
->>DAC960.c:3029: warning: passing arg 1 of `blk_finished_io' makes pointer 
->>from integer without a cast
->>DAC960.c:3029: too few arguments to function `blk_finished_io'
->>make[3]: *** [DAC960.o] Error 1
->>make[3]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
->>make[2]: *** [first_rule] Error 2
->>make[2]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
->>make[1]: *** [_subdir_block] Error 2
->>make[1]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers'
->>make: *** [_dir_drivers] Error 2
->>    
->>
->
->It was supposed to be fixed I need to re-check.. (I usually don't
->compile it so I didn't notice sorry)
->  
->
+Yes, NSS in glibc is the world's worst garbage.  Glibc segfaults if there
+is no /etc/nsswitch.conf.  Nice.
 
-
-  Just wondering it looked familar.  I think I've  got the patch someone 
-posted a while back.
-
+We can go buy another machine for glibc2.3, I just need to know what redhat
+release uses that.  If there isn't one, what distro uses that?
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

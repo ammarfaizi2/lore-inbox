@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUDHRtm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRtm
+	id S262113AbUDHRwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:49:42 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:45022 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262078AbUDHRtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:49:36 -0400
-Date: Thu, 8 Apr 2004 18:49:32 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rmap: page_mapping barrier
-In-Reply-To: <20040408151245.GA31667@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0404081805280.7404-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 8 Apr 2004 13:52:13 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9137
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262100AbUDHRwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 13:52:01 -0400
+Date: Thu, 8 Apr 2004 19:51:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
+Message-ID: <20040408175158.GK31667@dualathlon.random>
+References: <Pine.LNX.4.44.0404081500520.7116-100000@localhost.localdomain> <1081435237.1885.144.camel@mulgrave> <20040408151415.GB31667@dualathlon.random> <1081438124.2105.207.camel@mulgrave> <20040408153412.GD31667@dualathlon.random> <1081439244.2165.236.camel@mulgrave> <20040408161610.GF31667@dualathlon.random> <1081441791.2105.295.camel@mulgrave> <20040408171017.GJ31667@dualathlon.random> <1081446226.2105.402.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1081446226.2105.402.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Apr 2004, Andrea Arcangeli wrote:
-> On Thu, Apr 08, 2004 at 02:22:29PM +0100, Hugh Dickins wrote:
-> > My page_mapping(page) says PageAnon(page)? NULL: page->mapping;
-> > I've just realized, looking again at sync_page but it goes way
-> > beyond it, that we need smp barriers of some kind somewhere,
-> > don't we?  That is, we cannot just write the address of one of
-> > our non-address_space structures into page->mapping, without
-> > being very careful that others will see the PageAnon and treat
-> > it as NULL.  There are places all over using page_mapping(page)
-> > while another cpu might be right in page_add_rmap.  I go very
-> > mushy when it comes to barriers, you understand them better
-> > than most, any idea what we need to do in page_mapping(page),
-> > and when setting and clearing PageAnon?
+On Thu, Apr 08, 2004 at 12:43:45PM -0500, James Bottomley wrote:
+> On Thu, 2004-04-08 at 12:10, Andrea Arcangeli wrote:
+> > I said above per-arch abstraction, a per-arch abstraction isn't an irq
+> > safe spinlock, we cannot add an irq safe spinlock there, it'd be too bad
+> > for all the common archs that don't need to walk those lists (actually
+> > trees in my -aa tree) from irq context.
 > 
-> could you elaborate those many places that execute page_mapping while
-> the other cpu does page_add_rmap or page_remove_rmap?
+> I think we agree on the abstraction thing.  I was more wondering what
+> you thought was so costly about an irq safe spinlock as opposed to an
+> ordinary one?  Is there something adding to this cost I don't know
+> about?  i.e. should we be thinking about something like RCU or phased
+> tree approach to walking the mapping lists?
 
-Good challenge.  I thought they were all over, but closer inspection
-shows almost all seem safe.  I can't quite bring myself to say
-"all are safe".  Most of them (e.g. in arch's flush_dcache_page)
-look like they're called when we know there's a real file mapping
-(might be truncated beneath us, but won't turn anon), and we could
-BUG_ON(PageAnon(page)) - but I don't feel quite sure enough to do
-that (nor to use straight page->mapping instead).
+that path can take as long as timeslice to run, not taking interrupts
+for a whole scheduler timeslice is pretty bad.
 
-> If the VM does a page_mapping in the pagecache layer in my tree, that
-> means we already executed page_add_rmap long before calling
-> __add_to_page_cache, the __add_to_page_cache/__remove_from_page_cache
-> spinlocks are enough to serialize PageAnon. That covers sync_page and
-> the rest of the pagecache layer.
-
-I'd expected set_page_dirty to be a problem (it often has been),
-but failed to find a problematic instance: there's a nice habit
-of doing the set_page_dirty before lowering mapcount.
-
-The one instance I am still a little worried about is sync_page:
-I didn't follow your argument above.  But I think I'm remembering
-a time long past when there was code which did lock_page on a page
-without holding a reference to that page (in which case it could
-turn into something else by the time lock acquired); but we don't
-do that now - find_lock_page is good, and you've put a good
-BUG_ON(PageAnon(page)) into it.
-
-> There's just one place that I'm wondering about and it's page_mapping in
-> memory.c but it only changes a mark_page_accessed so I don't see any
-> trouble whatever happens there (mark_page_accessed can be run on any
-> random page anytime and it cannot do any harm). I believe we can live
-> with that race just fine, it's controlled by mark_page_accessed
-> internally by checking PageLru inside the zone->lru_lock.
-
-As you say, it wouldn't be a problem anyway; but that one is perfectly
-okay because it's before the page_remove_rmap, so it's either stably
-PageAnon there, or stably !PageAnon.
-
-There's an (I think) unstable one in refill_inactive_zone, below
-the ancient FIXME, but again that's entirely safe because we don't
-dereference mapping, and it doesn't matter if we sometimes make a
-wrong decision.
-
-I think, ignore my PageAnon barrier concern; but allow me
-to say "I told you so" if we ever do find such a race.
-
-Hugh
-
+Note that the data structure will become a tree soon, but a prio-tree,
+walking it with RCU lockless sounds very tricky to me, but it may be
+doable. For the short term I doubt you want the RCU prio-tree, I guess
+you want to stabilze the kernel first with the irq safe spinlock, then
+you can try to hack on the prio-tree to read it in a lockless fascion.
+If you can make the reading lockless we can giveup the abstraction too,
+since we can make all archs walk with lockless, but warning, freeing
+vmas in rcu callbacks means freeing mm in rcu callbacks, that then means
+freeing pgd in rcu callbacks, the whole mm layer will collapse on you as
+soon as you try to read that tree without any locking, only the inode
+will be still there as far as you've a reference on the page (and as far
+as you don't use nonlinear :-/ ).

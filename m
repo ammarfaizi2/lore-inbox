@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261234AbREPMVE>; Wed, 16 May 2001 08:21:04 -0400
+	id <S261906AbREPMp7>; Wed, 16 May 2001 08:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261905AbREPMUy>; Wed, 16 May 2001 08:20:54 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:15859 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S261234AbREPMUl>; Wed, 16 May 2001 08:20:41 -0400
-Date: Wed, 16 May 2001 14:20:36 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: Jonathan Lundell <jlundell@pobox.com>
-cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <p0510033db727cdc4a244@[207.213.214.37]>
-Message-ID: <Pine.LNX.4.33.0105161408570.10700-100000@kenzo.iwr.uni-heidelberg.de>
+	id <S261907AbREPMps>; Wed, 16 May 2001 08:45:48 -0400
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:28932 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S261906AbREPMpj>; Wed, 16 May 2001 08:45:39 -0400
+Message-ID: <3B02766E.8F6A040B@cc.gatech.edu>
+Date: Wed, 16 May 2001 08:45:34 -0400
+From: Josh Fryman <fryman@cc.gatech.edu>
+Organization: CoC, GaTech
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oystein Viggen <oysteivi@tihlde.org>
+CC: Helge Hafting <helgehaf@idb.hist.no>,
+        "Chemolli Francesco (USI)" <ChemolliF@GruppoCredit.it>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it>
+		<3B0261EC.23BE5EF0@idb.hist.no> <031ypp1oi2.fsf@colargol.tihlde.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001, Jonathan Lundell wrote:
+Oystein Viggen wrote:
+> What happens if I insert a hard drive from another computer which also
+> has partitions named "home", "usr", and soforth?
 
-> >The 2.4 kernel allows you to rename an interface.  So you can build
-> >a little database of (MAC address/name) pairs. Apply this after booting
-> >and before bringing up the interfaces and everything has the name
-> >you wanted, based on MAC address.
->
-> There's a bit of a catch 22, though, if you don't have unique MAC
-> addresses in the system (across multiple interfaces).
+not to belabor the obvious, but there are a lot of issues with this
+particular approach.  
 
-The same situation appears when using bonding.o. For several years,
-Don Becker's (and derived) network drivers support changing MAC address
-when the interface is down. So Al's /dev/eth/<n>/MAC has different values
-depending on whether bonding is active or not. Should /dev/eth/<n>/MAC
-always have the original value (to be able to uniquely identify this card)
-or the in-use value (used by ARP, I believe) ? Or maybe have a
-/dev/eth/<n>/MAC_in_use ?
+for those who advocate writing some form of signature into an NVM 
+space on each device that can support it (and using this signature 
+to appropriately configure the right device), there are obvious
+solutions: (1) use a "motherboard serial number" or (2) the infamous
+CPU serial number pre-pended to whatever tag for disk/cdrw/etc.
+thus, it's easy to know when a device has just been moved within the
+same machine, or has been relocated to a new machine.  no conflict
+will be found.
 
-Sincerely,
+for those who are willing to take a step back and look at the big
+picture, (a) not every device on the planet has a unique key 
+associated with it as many people keep pointing out; (b) not every
+device has some area of "user" (eg, not hardware manufacturer) space
+that can be programmed that is NVM.  if you have a situation of
+BOTH (a) and (b) then you are screwed, period.  use an arbitrary
+ordering, as there's no other possible choice - and no way to 
+preserve anything.  note that "arbitrary" can just be "sequential
+scan of bus + assign based on sequence # found" to get pseudo-logical 
+ordering *just as easily* as doing "scan bus + randomly assign"  
 
-Bogdan Costescu
+if however you can do either (a) or (b), then the problem is solved.
 
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+the more interesting question is: for what class of devices does
+neither unique-key or storage-NVM exist?  and are they important?
 
-
+serial ports, for example, are important.  if i am monitoring a UPS
+on ttyS0 and it suddenly gets remapped on the next boot to ttyS9,
+that would be bad.  likewise printers and such.  but is there any 
+kind of unique key or trigger that can be found for them?

@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbVCJUQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCJUWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbVCJUQi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVCJUQg
+	id S263020AbVCJUWM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCJUWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:16:36 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50313 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263107AbVCJUNR (ORCPT
+	Thu, 10 Mar 2005 15:22:11 -0500
+Received: from imag.imag.fr ([129.88.30.1]:3311 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S263000AbVCJUUC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 15:13:17 -0500
-Date: Thu, 10 Mar 2005 12:11:24 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy (Version 9) +
- prezeroing (Version 4)
-Message-Id: <20050310121124.488cb7c5.pj@engr.sgi.com>
-In-Reply-To: <1110478613.16432.36.camel@localhost>
-References: <20050307193938.0935EE594@skynet.csn.ul.ie>
-	<1110239966.6446.66.camel@localhost>
-	<Pine.LNX.4.58.0503101421260.2105@skynet>
-	<20050310092201.37bae9ba.pj@engr.sgi.com>
-	<1110478613.16432.36.camel@localhost>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 15:20:02 -0500
+Date: Thu, 10 Mar 2005 21:19:24 +0100 (MET)
+From: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
+X-X-Sender: colbuse@ensisun
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][SPARC64][kernel 2.4] __show_regs() calls to printk()
+Message-ID: <Pine.GSO.4.40.0503102050160.27735-100000@ensisun>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Thu, 10 Mar 2005 21:19:58 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave wrote:
-> Perhaps default policies inherited from a cpuset, but overridden by
-> other APIs would be a good compromise.
 
-Perhaps.  The madvise() and numa calls (mbind, set_mempolicy) only
-affect the current task, as is usually appropriate for calls that allow
-specification of specific address ranges (strangers shouldn't be messing
-in my address space).  Some external means to set default policy for
-whole tasks seems to be needed, as well, which could well be via the
-cpuset.
+Hello,
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+in the file arch/sparc64/kernel/process.c, the function __show_regs()
+prints the content of the registers four by four, but every register's
+content needs 16 caracters to be printed; the name of the register needs 4
+caracters; and one caracter is needed to separate this value from the next
+register's name.
+
+Therefore, it uses 84 caracters per line, but the VT100 has only 80, so we
+are using two lines instead of only one, shortening the content of the
+(eventual) Oops one could sent.
+
+I think we could perform better, by suppressing the space between the name
+of the register and it's value. By this way, instead of writing :
+
+g4: fffff80000000000 g5: 0000000000000004 g6: fffff80001348000 g7: 000000000000
+0000
+
+we would have :
+
+g4:fffff80000000000 g5:0000000000000004 g6:fffff80001348000 g7:0000000000000000
+
+It remains fully understandable, I think. Alternately, we could print only
+3 registers per line, but since the registers are grouped 8 by 8,
+it would be less logical.
+
+This would also have a sense for Sparc32 computers, and, in the same file,
+for the functions show_stackframe and show_regwindow.
+
+Any comments? Should I make a patch?
+
+
+--
+Emmanuel Colbus
+Club GNU/Linux
+ENSIMAG - Departement Telecoms
+
+
+

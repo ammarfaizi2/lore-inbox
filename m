@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317603AbSHZTlE>; Mon, 26 Aug 2002 15:41:04 -0400
+	id <S318293AbSHZTdi>; Mon, 26 Aug 2002 15:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317892AbSHZTlE>; Mon, 26 Aug 2002 15:41:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56816 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317603AbSHZTlC>;
-	Mon, 26 Aug 2002 15:41:02 -0400
-Message-ID: <3D6A8536.83B30C18@mvista.com>
-Date: Mon, 26 Aug 2002 12:44:54 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Aleksandar Kacanski <kacanski@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Memory leak
-References: <Pine.LNX.3.95.1020826152100.6296B-100000@chaos.analogic.com>
+	id <S318294AbSHZTdh>; Mon, 26 Aug 2002 15:33:37 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:31456 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S318293AbSHZTdf>; Mon, 26 Aug 2002 15:33:35 -0400
+Date: Mon, 26 Aug 2002 12:27:52 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Volker Kuhlmann <list0570@paradise.net.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel losing time
+Message-ID: <20020826122752.A1547@linux-m68k.org>
+References: <20020825105500.GE11740@paradise.net.nz> <Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm> <20020825215515.GA2965@debill.org> <1030320314.16766.25.camel@irongate.swansea.linux.org.uk> <20020826011332.GA8440@paradise.net.nz> <1030356936.16651.37.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1030356936.16651.37.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 26, 2002 at 11:15:36AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Mon, 26 Aug 2002, Aleksandar Kacanski wrote:
-> 
-> > Hello,
-> > I am running 2.4.18-3 version of the kernel on smp dual
-> > processor and 1GB of RAM. My memory usage is increasing and
-> > I can't find what exactly is eating memory. Top and proc
-> > are reporting increases, but I would like to know of a
-> > better way of tracing usage of memory and possible leak in
-> > application(s).
-> >
-> > Please reply to kacanski@yahoo.com
-> > thanks                Sasha
-> >
-> >
-> 
-> Applications that use malloc() and friends, get more memory from
-> the kernel by resetting the break address. It's called "morecore()".
-> You can put a procedure, perhaps off SIGALRM, that periodically
-> checks the break address and writes it to a log. Applications
-> that end up with an ever-increasing break address have memory
-> leaks. Note that the break address is almost never set back.
-> This is not an error; malloc() assumes that if you used a lot
-> of memory once, you'll probably use it again. Check out sbrk()
-> and brk() in the man pages.
+On Mon, Aug 26, 2002 at 11:15:36AM +0100, Alan Cox wrote:
 
-But this all comes back when the application ends.  You
-should be able to see the memory reappear when the app
-terminates.
+> ISA multi I/O without hdparm -u has sometimes done this kind of thing
+> (since its slow and PIO). 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+actually it still does that in 2.4.18 at least, even with 
+hdparm -u. The effect is not dramatic though, less than
+a second/day with normal activity. I've only noticed it 
+while debugging the genrtc driver.
+
+Richard

@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273996AbRI3TTG>; Sun, 30 Sep 2001 15:19:06 -0400
+	id <S274001AbRI3T3Q>; Sun, 30 Sep 2001 15:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273992AbRI3TS5>; Sun, 30 Sep 2001 15:18:57 -0400
-Received: from pat.uio.no ([129.240.130.16]:57839 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S273996AbRI3TSk>;
-	Sun, 30 Sep 2001 15:18:40 -0400
-To: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client woes [kernel 2.4.10]
-In-Reply-To: <20010928220342.A18562@florence.intimate.mysticnet.org.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 30 Sep 2001 21:19:05 +0200
-In-Reply-To: Chris Wilson's message of "Fri, 28 Sep 2001 22:03:42 +0100"
-Message-ID: <shslmiwwkpi.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S274002AbRI3T24>; Sun, 30 Sep 2001 15:28:56 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:62363 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S274001AbRI3T2u>;
+	Sun, 30 Sep 2001 15:28:50 -0400
+Message-ID: <3BB7728D.A691A9FB@candelatech.com>
+Date: Sun, 30 Sep 2001 12:29:17 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Belinda <belinda_ye@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: inb() and outb()
+In-Reply-To: <20010930190954.18227.qmail@web13904.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Chris Wilson <chris@chris-wilson.co.uk> writes:
+Belinda wrote:
+> 
+> Hi, all
+> 
+> I wrote a simple program with inb() and outb().
+> However, it reports the segmentation error when
+> running it.
+> 
+> The code follows as:
+> ---------------------------------
+> #include <asm/io.h>
+> 
+> #define LPT 0x378
+>    
 
-     > [Please CC me if you have any suggestions.]  I'm a bit hazy on
-     > the details, but the synopsis is:
+You need to add something like this in your main method before
+calling write_LPT.
 
-     > NFSv3 filesystems, same problem when mounted from either an
-     > IRIX 6.5.12m or Linux/i386 2.4.10 server.
+See 'man ioperm' for more info..
 
-     > 2.4.7: all files are visible all of the time.  2.4.10: some
-     > files are invisible to some processes.
+if (ioperm(LPT, 3, 1)) {
+      printf("Sorry, you were not able to gain access to the ports\n");
+      printf("You must be root to run this program\n");
+      exit(1);
+}
 
-     > The processes that I have noticed to be affected are the likes
-     > of netscape, all gtk applications and find; perl globbing and
-     > its readdir function similarly miss files. OTOH, grep and ls
-     > function fine.
 
-     > I'm not certain [read: no idea] what the connection is between
-     > the files that do disappear. It does not appear to be simply
-     > inode related, but those modified by the Linux client do seem
-     > more vulnerable.
+> void write_LPT(unsigned char byte)
+> {
+>     outb(byte, LPT);
+> }
+> 
+> int main()
+> {
+>    write_LPT(LPT);
+>    printf("Value:%c", inb(LPT));
+> 
+> }
+> ------------------------------------------------------
+> 
+> Thanks,
+> 
+> Belinda
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Listen to your Yahoo! Mail messages from any phone.
+> http://phone.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-     > Unfortunately, I only had time to switch back in an old kernel
-     > and confirm the issue before leaving work. The diff inside
-     > fs/nfs appeared small, but so do icebergs. ;)
-
-Known glibc bug. If you had trawled the archives a bit you would have
-found it.
-
-Set 32bitclients on the server and apply
-
-   http://www.fys.uio.no/~trondmy/src/2.4.10/linux-2.4.10-seekdir.dif
-
-Cheers,
-  Trond
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

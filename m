@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSEYSes>; Sat, 25 May 2002 14:34:48 -0400
+	id <S315204AbSEYSgq>; Sat, 25 May 2002 14:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315204AbSEYSer>; Sat, 25 May 2002 14:34:47 -0400
-Received: from relay02.valueweb.net ([216.219.253.236]:56328 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S315202AbSEYSep>; Sat, 25 May 2002 14:34:45 -0400
-Message-ID: <3CEFD8CE.37B28513@opersys.com>
-Date: Sat, 25 May 2002 14:32:46 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Kurt Wall <kwall@kurtwerks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <20020524223950.D22643@work.bitmover.com> <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm> <20020525091444.H28795@work.bitmover.com> <3CEFB9C6.FC21D7CB@opersys.com> <20020525134709.L405@marta>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315210AbSEYSgp>; Sat, 25 May 2002 14:36:45 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:11678 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315204AbSEYSgn>; Sat, 25 May 2002 14:36:43 -0400
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Sat, 25 May 2002 11:02:08 PDT."
+             <20020525110208.A15969@work.bitmover.com> 
+Date: Sat, 25 May 2002 20:26:12 +0200
+Message-Id: <20020525182617.D627E11972@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20020525110208.A15969@work.bitmover.com> you wrote:
+> On Sat, May 25, 2002 at 07:50:30PM +0200, Wolfgang Denk wrote:
+> > I do like it very much when all code I write is GPLed, but there  are
+> > situations  where  a there are good reasons for some application code
+> > to remain closed. 
+> 
+> Yeah, like you're trying to make money.  Which is fine.  But if that 
 
-Kurt Wall wrote:
-> Sorry, I must have lost track of this argument. I thought the point of
-> contention was the RTLinux patent, which seems pretty clear on the key
-> issue: if your stuff is GPL, we're GPL; if you make money, we want a slice
-> of the pie. Now it almost sounds like you're telling us that the real
-> issue is that you can't make your own Linux-as-nonfree-rtos. Well, I'm not
-> very smart, so maybe I've misunderstood.
+No. Actually this is _NOT_ my concern. I get payed for the software I
+develop no matter if it's free software or propretary stuff, so  from
+the monetary point of view I don't have to care.
 
-Don't take my word for it. Here's an article written by Jerry Epplin in
-February 2001:
-http://www.linuxdevices.com/articles/AT2094189920.html
+> "application" needs to use the RT/Linux patent in order to work, it
+> either has to buy a license or be GPLed.
 
-He ends his article with the following:
-"It seems to me, RTLinux is a fine system with great potential when thought
-of as an open-source project. I'm not sure it will fare as well when looked
-at as a commercial RTOS."
+But this is an ADDITIONAL restriction, which violates the GPL,  which
+is the base of the RTL code, or isn't it?
 
-As for my own opinion, please reread my first post. It clearly says that
-the current rtlinux patent situation (in its entirety) is a show-stopper
-for Linux. Everything I said after that all boils down to explaining this
-point of view.
+> It's somewhat two faced that the protesters here are arguing that
+> everything has to be free in order for Linux to be used as a RT platform,
+> but then come back and complain that the FSMlabs patent says everything
+> has to be free if you don't want to pay.
 
-> That dog won't hunt. There are more players in the Linux embedded/RT space
-> than RTAI and RTLinux, which you have conveniently overlooked throughout
-> this entire thread. Maybe at this time none of them are ready for $300
-> IPO pops, but you can't make the argument that "RT is closed to Linux"
-> when your only data points are RTAI and RTLinux.
+What they say (in public), and what they actually do,  are  different
+things.
 
-Care to look at the VDC report conducted over 11,000 developers. Result:
-the #1 fact inhibiting Linux's adoption in the embedded space is
-"real-time limitations."
+> Maybe Victor should have used a different model: if no money changes hands,
+> then it's free to use the patent, if money changes hand, FSMlabs wants a 
 
-Don't listen to me, listen to 11,000 developers ...
+Define  "if  money  changes  hand".  Let's  say  I  develop  a  smart
+controller  software for disk drives, and I give it (maybe for money,
+maybe for free, maybe under  GPL  or  not)  to  IBM  and  Maxtor  and
+Seagate.  The  disk manufacturers make modifications to the code, and
+embed it into their disk drives. Then they sell the  drives  to  Dell
+and HP and ... Those sell PCs to many, many vendors, who sell the PCs
+to you and men and ...
 
-Karim
+> cut.  I think that was the intent, but as with all things, it's hard to 
+> state that clearly in a legal document.  If that was the intent, I support
+> it, I think it's perfectly reasonable.  
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+If that was the case, Victor should have been  able  to  explain  his
+intentions to anybody in public. Why did he never do that? But spread
+FUD instead?
+
+Wolfgang Denk
+
+-- 
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+"If that makes any sense to you, you have a big problem."
+                                  -- C. Durance, Computer Science 234

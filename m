@@ -1,42 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265803AbRFXXu6>; Sun, 24 Jun 2001 19:50:58 -0400
+	id <S265806AbRFYAAW>; Sun, 24 Jun 2001 20:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265804AbRFXXui>; Sun, 24 Jun 2001 19:50:38 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:57644
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S265803AbRFXXu0>; Sun, 24 Jun 2001 19:50:26 -0400
-Date: Sun, 24 Jun 2001 16:50:24 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: landley@webofficenow.com,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010624165024.H8832@work.bitmover.com>
-Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
-	landley@webofficenow.com,
-	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-	Timur Tabi <ttabi@interactivesi.com>,
-	"linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain> <20010624234101.A1619@werewolf.able.es> <01062412555901.03436@localhost.localdomain> <20010625003002.A1767@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010625003002.A1767@werewolf.able.es>; from jamagallon@able.es on Mon, Jun 25, 2001 at 12:30:02AM +0200
+	id <S265810AbRFYAAN>; Sun, 24 Jun 2001 20:00:13 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:7691 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265806AbRFYAAE>; Sun, 24 Jun 2001 20:00:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        phillips@bonn-fries.net (Daniel Phillips)
+Subject: Re: FAT32 superiority over ext2 :-)
+Date: Mon, 25 Jun 2001 02:03:07 +0200
+X-Mailer: KMail [version 1.2]
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org,
+        viro@math.psu.edu, phillips@bonn-fries.net, chaffee@cs.berkeley.edu,
+        storner@image.dk, mnalis-umsdos@voyager.hr
+In-Reply-To: <200106242349.f5ONnhP34041@saturn.cs.uml.edu>
+In-Reply-To: <200106242349.f5ONnhP34041@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Message-Id: <0106250203070J.00430@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
-> They use fork().
-> They port their app to solaris.
-> The performance sucks.
-> It is not Solaris fault.
-> It is linux fast fork() ...
+On Monday 25 June 2001 01:49, Albert D. Cahalan wrote:
+> Daniel Phillips writes:
+> > On Monday 25 June 2001 00:54, Albert D. Cahalan wrote:
+> >> By dumb luck (?), FAT32 is compatible with the phase-tree algorithm
+> >> as seen in Tux2. This means it offers full data integrity.
+> >> Yep, it whips your typical journalling filesystem. Look at what
+> >> we have in the superblock (boot sector):
+> >>
+> >>     __u32  fat32_length;  /* sectors/FAT */
+> >>     __u16  flags;         /* bit 8: fat mirroring, low 4: active fat */
+> >>     __u8   version[2];    /* major, minor filesystem version */
+> >>     __u32  root_cluster;  /* first cluster in root directory */
+> >>     __u16  info_sector;   /* filesystem info sector */
+> >>
+> >> All in one atomic write, one can...
+> >>
+> >> 1. change the active FAT
+> >> 2. change the root directory
+> >> 3. change the free space count
+> >>
+> >> That's enough to atomically move from one phase to the next.
+> >> You create new directories in the free space, and make FAT
+> >> changes to an inactive FAT copy. Then you write the superblock
+> >> to atomically transition to the next phase.
+> >
+> > Yes, FAT is what inspired me to go develop the algorithm.  However, two
+> > words: 'lost clusters'.  Now that may just be an implemenation detail ;-)
+>
+> What lost clusters?
+>
+> Set bit 8 of "flags" (A_BF_BPBExtFlags to Microsoft) to disable
+> FAT mirroring. Then the low 4 bits are a 0-based value that
+> indicates which copy of the FAT should be used.
+>
+> Assume we have 2 copies of the FAT, as is (was?) common. I'll call
+> them X and Y. When we mount the filesystem, we disable FAT mirroring
+> and mark FAT X active.
+>
+> Now we can make changes to FAT Y without affecting filesystem
+> integrity. Windows will not use FAT Y. As is usual with the
+> phase-tree algorithm, we use free space to create a new structure
+> beside the old one.
+>
+> Time for a phase change:
+>
+> We have FAT Y, currently inactive, updated on disk.
+> FAT X is active; it describes the current on-disk state.
+> We have a new root directory on disk, sitting in free space.
+> We have a new filesystem info sector on disk, sitting in free space.
+>
+> We write one single sector, then:
+>
+> FAT X becomes inactive, and will not be used by Windows.
+> FAT Y becomes active; it describes the new on-disk state.
+> The old root directory is marked free in FAT Y. Good!
+> The old filesystem info sector is marked free in FAT Y. Good!
+>
+> Once the superblock goes to disk, FAT X may be written to.
 
-One for the quotes page, eh?  We're terribly sorry, we'll get busy on adding
-some delay loops in Linux so it too can be slow.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+When can we expect the patch?
+
+--
+Daniel

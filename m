@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVDEStv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVDESw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVDEStv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVDEStT
+	id S261913AbVDESw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVDESvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:49:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:33203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261909AbVDESrr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:47:47 -0400
-Message-ID: <4252DD15.5020605@osdl.org>
-Date: Tue, 05 Apr 2005 11:46:45 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 5 Apr 2005 14:51:21 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:60126 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S261916AbVDEStO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:49:14 -0400
+Date: Tue, 5 Apr 2005 14:49:07 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+In-Reply-To: <20050405183141.GA27195@muc.de>
+Message-ID: <Pine.LNX.4.58.0504051444240.13242@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+ <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+ <20050405183141.GA27195@muc.de>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
-Subject: Re: [PATCH] network configs: disconnect network options from drivers
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org> <4251A830.5030905@osdl.org> <20050404215554.GA29170@mars.ravnborg.org> <4251C9A5.3020704@osdl.org> <20050405154538.GA9130@mars.ravnborg.org>
-In-Reply-To: <20050405154538.GA9130@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Mon, Apr 04, 2005 at 04:11:33PM -0700, Randy.Dunlap wrote:
-> 
->>- in Networking support, move Network testing and Netpoll
->>support to the end of the menu (basically put the devel.
->>tools toward the bottom of the menu)
-> 
-> Done
-> 
-> 
->>- I would rather not "hide" Amateur Radio, IrDA, and
->>Bluetooth in the Networking protocols area, but have them
->>near 802.1x and ATM in the top-level Networking support
->>menu.  How does that sound to you?
-> 
-> Done
-> 
-> I've made them with separate menu's that you have to enter to enable
-> them.
-> Also pushed out xfrm stuff to net/xfrm/Kconfig
-> Several other small adjustments.
-> In the Networking menu the submenu's are grouped in beginning and in the
-> end now.
-> 
-> I thought of creating a Kconfig.netfilter for the common netfilter
-> stuff. But in the end did not do it - felt there was plenty of new small
-> files being created already.
-
-It would make sense to isolate the netfilter options, but that can
-be done later.
-But you are right about "plenty of new small files."
-
-I would move Frame Diverter (NET_DIVERT) from the end of the
-net/core/Kconfig file to the top of the same file....
-and then ship it.  :)
 
 
-> Comments welcome.
+On Tue, 5 Apr 2005, Andi Kleen wrote:
 
-Thanks for doing this.
+> Some more debugging first might be good. Perhaps it is the same issue
+> many Nvidia boards have with the APIC timer override being wrong;
+> although in this case it should more not tick at all, but might
+> be still worth a try.
+> Try booting with acpi_skip_timer_override
 
--- 
-~Randy
+That doesn't work on x86_64, because unfortunately I think
+arch/x86_64/kernel/setup.c is missing the code to parse for that option.
+
+
+I'll add in the code from arch/i386/kernel/setup.c, rebuild the kernel and
+see what happens.
+
+-Chris

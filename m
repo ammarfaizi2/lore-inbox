@@ -1,106 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267008AbTAFMxz>; Mon, 6 Jan 2003 07:53:55 -0500
+	id <S266116AbTAFNId>; Mon, 6 Jan 2003 08:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267010AbTAFMxz>; Mon, 6 Jan 2003 07:53:55 -0500
-Received: from f17.sea2.hotmail.com ([207.68.165.17]:30981 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S267008AbTAFMxx>;
-	Mon, 6 Jan 2003 07:53:53 -0500
-X-Originating-IP: [218.75.193.47]
-From: "fretre lewis" <fretre3618@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI code:  why need  outb (0x01, 0xCFB); ?
-Date: Mon, 06 Jan 2003 13:02:25 +0000
+	id <S266353AbTAFNIc>; Mon, 6 Jan 2003 08:08:32 -0500
+Received: from pc-62-31-66-84-ed.blueyonder.co.uk ([62.31.66.84]:12417 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S266116AbTAFNIc>; Mon, 6 Jan 2003 08:08:32 -0500
+Subject: Re: 2.4.21-pre2 stalls out when running unixbench
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Andrew Morton <akpm@digeo.com>, joe.korty@ccur.com,
+       Andreas Dilger <adilger@clusterfs.com>, rusty@rustcorp.com.au,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, hch@sgi.com,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <200301061215.h06CFheY001499@darkstar.example.net>
+References: <200301061215.h06CFheY001499@darkstar.example.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Jan 2003 13:20:35 +0000
+Message-Id: <1041859235.2690.48.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F17iUZDh5d0g4ucajQi00016e97@hotmail.com>
-X-OriginalArrivalTime: 06 Jan 2003 13:02:25.0434 (UTC) FILETIME=[DBE4BFA0:01C2B583]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-  I am learning code about pci_check_direct(), at arch/i386/kernel/pci-pc.c
+On Mon, 2003-01-06 at 12:15, John Bradford wrote:
 
-the PCI spec v2.0 say: ( page32)
+> What!?  I'm suprised that no userspace applications were broken by
+> sync returning before the data is safely on oxide, even though it
+> doesn't violate the POSIX spec.
 
-"Anytime a host bridge sees a full DWORD I/O write from the host to
-CONFIG_ADDRESS, the bridge must latch the data into its CONFIG_ADDRESS
-register. On full DWORD I/O reads to CONFIG_ADDRESS,the bridge must return
-the
-data in CONFIG_ADDRESS. Any other types of accesses to this
-address(non-DWORD)
-have no effect on CONFIG_ADDRESS and are excuted as normal I/O transaction
-on PCI bus......"
+sync(2) syncs _everything_ --- every M/O or floppy disk, every
+filesystem no matter if it's fat or native Unix.  It's way too
+heavyweight for most applications which have synchronisation
+requirements, when fsync() or O_SYNC are much more precise.
 
-CONFIG_ADDRESS = 0xcf8
-CONFIG_DATA = 0xcfc
+I think I can recall one or two mutterings about people worried about
+theoretical risks of doing things like "lilo; sync; reboot", but that's
+a different class of risk altogether.  (It's complicated by the problem
+that after a sync, ext3 guarantees that the data and metadata is on
+disk, but it may still be in the journal, so lilo won't necessarily see
+the right stuff with sync() alone --- ext3 plays extra tricks when it
+sees bmap to try to solve this.)
 
-so I think "outb (0x01, 0xCFB);" just is a normal write to a device at port
-address 0xCFB (maybe wrong,fix me), then my questions are:
-
-1. which device is at port address 0xCFB?
-
-2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for THIS
-device?, it'seem that PCI spec v2.0 not say anything about it?
-
-3. why need "outb (0x01, 0xCFB);" before configuration operation "outl
-(0x80000000, 0xCF8);" if check configuration type 1? and why need "outb
-(0x00, 0xCFB);" before "outb (0x00, 0xCF8);" if check configuration type 2?
-
-please help me, thanks a lot.
-
-406 static struct pci_ops * __devinit pci_check_direct(void)
-407 {
-408         unsigned int tmp;
-409         unsigned long flags;
-410
-411         __save_flags(flags); __cli();
-412
-413         /*
-414          * Check if configuration type 1 works.
-415          */
-416         if (pci_probe & PCI_PROBE_CONF1) {
-417                 outb (0x01, 0xCFB);  <<<=========
-418                 tmp = inl (0xCF8);
-419                 outl (0x80000000, 0xCF8);
-420                 if (inl (0xCF8) == 0x80000000 &&
-421                     pci_sanity_check(&pci_direct_conf1)) {
-422                         outl (tmp, 0xCF8);
-423                         __restore_flags(flags);
-424                         printk(KERN_INFO "PCI: Using configuration type
-1\n");
-425                         request_region(0xCF8, 8, "PCI conf1");
-426                         return &pci_direct_conf1;
-427                 }
-428                 outl (tmp, 0xCF8);
-429         }
-430
-431         /*
-432          * Check if configuration type 2 works.
-433          */
-434         if (pci_probe & PCI_PROBE_CONF2) {
-435                 outb (0x00, 0xCFB);   <<<=========
-436                 outb (0x00, 0xCF8);
-437                 outb (0x00, 0xCFA);
-438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
-439                     pci_sanity_check(&pci_direct_conf2)) {
-440                         __restore_flags(flags);
-441                         printk(KERN_INFO "PCI: Using configuration type
-2\n");
-442                         request_region(0xCF8, 4, "PCI conf2");
-443                         return &pci_direct_conf2;
-444                 }
-445         }
-446
-447         __restore_flags(flags);
-448         return NULL;
-449 }
-450
-451 #endif
-
-
-
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE* 
-http://join.msn.com/?page=features/virus
+--Stephen
 

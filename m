@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUIECxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUIECzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266133AbUIECxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 22:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUIECxZ
+	id S266136AbUIECzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 22:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIECzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 22:53:25 -0400
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:36447 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266133AbUIECxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 22:53:24 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: external firewire dvd writer
-Date: Sat, 4 Sep 2004 21:53:19 -0500
-User-Agent: KMail/1.6.2
-Cc: Clemens Schwaighofer <cs@tequila.co.jp>
-References: <413A799C.1000505@tequila.co.jp> <413A7B61.2000603@tequila.co.jp>
-In-Reply-To: <413A7B61.2000603@tequila.co.jp>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409042153.20030.dtor_core@ameritech.net>
+	Sat, 4 Sep 2004 22:55:19 -0400
+Received: from [61.48.52.95] ([61.48.52.95]:25587 "EHLO freya.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S266136AbUIECzO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 22:55:14 -0400
+Date: Sun, 5 Sep 2004 10:49:53 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200409051749.i85Hnrx03529@freya.yggdrasil.com>
+To: airlied@linux.ie, faith@valinux.com
+Subject: linux-2.6.9-rc1-bk11/driver/char/drm/gamma_drm.c does not compile
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 September 2004 09:35 pm, Clemens Schwaighofer wrote:
-> Clemens Schwaighofer wrote:
-> | Hi,
-> |
-> | I have an external Pioneer DVD writer which I connect via Firewire to my
-> | laptop. So when I turn it on I get this in my dmesg:
-> 
-> and I idiot totaly forgot to give the key information :)
-> 
-> its a 2.6.8.1-mm4 kernel, but I had the same issue with a vaniall
-> 2.6.8.1 kernel
-> 
+	drivers/char/drm/gramm_drm.c compiled under bk10, but fails
+to compile under bk11.  I think the bad patch was "DRM initial function
+table support", at the URL
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109395880025924&w=2 .
 
-Did you compile SCSI CD-ROM support? If you did try loading sr_mod. Works 
-fine here, just don't forget to rmmod sr_mod before turning off the DVD
-as it seems that there is a problem with hot removal either in sr_mod or
-in firewire system (I am inclned to say its sr_mod as sd_mod seems to
-handle surprise removal OK).
+	It looks like gamma_driver_register_fns() tries to set some
+nonexistant fields in dev->fn_tbl to point to some nonexistant
+subroutines.  I would guess that the lines from gamma_dma.c can just
+be deleted, but perhaps this compile error indicates some more
+substantial version skew. 
 
--- 
-Dmitry
+drivers/char/drm/gamma_dma.c: In function `gamma_driver_register_fns':
+drivers/char/drm/gamma_dma.c:943: error: structure has no member named `dma_flush_block_and_flush'
+drivers/char/drm/gamma_dma.c:944: error: structure has no member named `dma_flush_unblock'
+
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

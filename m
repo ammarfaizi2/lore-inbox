@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVANFvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVANF6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVANFvy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 00:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVANFvy
+	id S261594AbVANF6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 00:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVANF6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 00:51:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20373 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261326AbVANFvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 00:51:52 -0500
-Message-ID: <41E75DE5.4020108@pobox.com>
-Date: Fri, 14 Jan 2005 00:51:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mitch Sako <msako@cadence.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata 2.6.10 limitation?
-References: <6.1.2.0.2.20050113163537.03cb9208@mailhub>
-In-Reply-To: <6.1.2.0.2.20050113163537.03cb9208@mailhub>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 00:58:24 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:13330 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261594AbVANF6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 00:58:22 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: short read from /dev/urandom
+Date: Fri, 14 Jan 2005 05:56:41 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <cs7mup$hgo$1@abraham.cs.berkeley.edu>
+References: <41E7509E.4030802@redhat.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1105682201 17944 128.32.168.222 (14 Jan 2005 05:56:41 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Fri, 14 Jan 2005 05:56:41 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitch Sako wrote:
-> 
->> Is there a limitation to the number of SATA drives for libata that can 
->> be loaded to a 32bit Intel machine running 2.6.10?  I'm trying to 
->> setup six JBOD drives using 3 Promise cards or 3 Silicon Image cards 
->> or 2 Promise TX4 cards and I'm seeing a problem with /dev/sde (the 
->> fifth drive out of six) only.  I'm getting SCSI errors and machine 
->> hangs on the fifth drive only.
+Ulrich Drepper  wrote:
+>The /dev/urandom device is advertised as always returning the requested 
+>number of bytes.
 
-There is no limitation to the number of cards or devices.
-
-	Jeff
-
-
-
+True.  Arguably, the solution is to fix the documentation.
+Why not make /dev/urandom like every other kind of fd in the world,
+and make no promises about whether a read() will always return as
+many bytes as requested?  Is there any reason /dev/urandom fds special?

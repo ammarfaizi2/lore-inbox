@@ -1,106 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315182AbSFIUyA>; Sun, 9 Jun 2002 16:54:00 -0400
+	id <S315200AbSFIU7c>; Sun, 9 Jun 2002 16:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315200AbSFIUx7>; Sun, 9 Jun 2002 16:53:59 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:53518 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315182AbSFIUx6>;
-	Sun, 9 Jun 2002 16:53:58 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206092053.g59Krsl506602@saturn.cs.uml.edu>
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-To: nmiell@attbi.com (Nicholas Miell)
-Date: Sun, 9 Jun 2002 16:53:54 -0400 (EDT)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        adelton@informatics.muni.cz (Jan Pazdziora), christoph@lameter.com,
-        linux-kernel@vger.kernel.org, adelton@fi.muni.cz
-In-Reply-To: <1023648813.1188.19.camel@entropy> from "Nicholas Miell" at Jun 09, 2002 11:53:32 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S315202AbSFIU7b>; Sun, 9 Jun 2002 16:59:31 -0400
+Received: from mta06-svc.ntlworld.com ([62.253.162.46]:53232 "EHLO
+	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S315200AbSFIU7a>; Sun, 9 Jun 2002 16:59:30 -0400
+From: Chris Rankin <cj.rankin@ntlworld.com>
+Message-Id: <200206092059.g59KxUAf000925@twopit.underworld>
+Subject: [SysRq-M] Memory error in 2.4.19-pre9-ac3
+To: linux-kernel@vger.kernel.org
+Date: Sun, 9 Jun 2002 21:59:30 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Miell writes:
+Hi,
 
-> Putting shortcut support into the VFAT driver is as bad a decision as
-> the automatic text-file CRLF->LF conversions was, for several reasons.
+I am running 2.4.19-pre9-ac3 on a dual PIII (SMP, 1.25 GB memory,
+devfs, ext3, ALSA-CVS, lm-sensors-2.6.3) and I am getting memory
+errors after a few days of uptime. This error has happened after only
+4 days, for example. I have managed to obtain "SysRq-M" output before
+the box had a chance to oops or crash, but I don't know how useful
+this might be. Does anyone have any other suggestions for tracking
+this problem down? I am already compiling with CONFIG_DEBUG_HIGHMEM.
 
-No, NOTHING done with VFAT is as bad as the text conversion.
-That one was not implementable in any sane way, unless you
-think sequential read-only access (like /proc) is sane.
+Cheers,
+Chris
 
-> First of all, some programs (WINE) will actually want to use the .lnk
-> files, and transparently converting them to symlinks will complicate
-> that.
+Jun  9 19:59:27 twopit kernel: Trying to vfree() nonexistent vm area (f8872000)
+Jun  9 20:27:31 twopit kernel: SysRq : Show Memory
+Jun  9 20:27:31 twopit kernel: Mem-info:
+Jun  9 20:27:31 twopit kernel: Free pages:      140936kB (  2272kB HighMem)
+Jun  9 20:27:31 twopit kernel: Zone:DMA freepages: 13552kB min:  4224kB low:  4352kB high:  4480kB
+Jun  9 20:27:31 twopit kernel: Zone:Normal freepages:125112kB min:  3576kB low: 16636kB high: 23676kB
+Jun  9 20:27:31 twopit kernel: Zone:HighMem freepages:  2272kB min:  1020kB low:  6136kB high:  9204kB
+Jun  9 20:27:31 twopit kernel: Free pages:      140936kB (  2272kB HighMem)
+Jun  9 20:27:31 twopit kernel: ( Active: 94312, inactive_dirty: 167988, inactive_clean: 4989, free: 35234 )
+Jun  9 20:27:31 twopit kernel: 100*4kB 98*8kB 89*16kB 62*32kB 32*64kB 12*128kB 1*256kB 0*512kB 1*1024kB 2*2048kB = 13552kB)
+Jun  9 20:27:31 twopit kernel: 1038*4kB 1158*8kB 317*16kB 214*32kB 133*64kB 83*128kB 27*256kB 24*512kB 14*1024kB 23*2048kB = 125112kB)
+Jun  9 20:27:31 twopit kernel: 16*4kB 94*8kB 15*16kB 2*32kB 2*64kB 2*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB = 2272kB)
+Jun  9 20:27:31 twopit kernel: Swap cache: add 0, delete 0, find 0/0, race 0+0
+Jun  9 20:27:31 twopit kernel: Free swap:       498004kB
+Jun  9 20:27:31 twopit kernel: 327648 pages of RAM
+Jun  9 20:27:31 twopit kernel: 98272 pages of HIGHMEM
+Jun  9 20:27:31 twopit kernel: 5096 reserved pages
+Jun  9 20:27:31 twopit kernel: 244072 pages shared
+Jun  9 20:27:31 twopit kernel: 0 pages swap cached
+Jun  9 20:27:31 twopit kernel: 0 pages in page table cache
+Jun  9 20:27:31 twopit kernel: Buffer memory:    62560kB
+Jun  9 20:27:31 twopit kernel: Cache memory:   877552kB
+Jun  9 20:27:31 twopit kernel:     CLEAN: 182972 buffers, 731888 kbyte, 184 used (last=182969), 0 locked, 0 dirty
+Jun  9 20:27:31 twopit kernel:     DIRTY: 4 buffers, 16 kbyte, 4 used (last=4), 0 locked, 4 dirty
 
-WINE needs to be able to handle a symlink on ext2, so it can
-damn well convert back. It's OK to give WINE some hack to get at
-the content; it's not OK to hack bash to interpret .lnk files.
-
-> More importantly, shortcuts are a hell of a lot more complicated than
-> has been implied. Not only can they point to local files or UNCs (the
-> \\server\share\path notation), they can also point to any object in the
-> (Windows) shell's namespace, which includes lots of virtual objects that
-> don't actually exist on disk.
-
-One can live with an occasional broken symlink:
-"foo" --> "[UNIMPLEMENTED LINK TYPE]"
-
-> Finally, I haven't seen any justification for why symlinks on VFAT are
-> needed, beyond some vague statements that it's useful when dual booting.
-> Face it, VFAT isn't a Unix filesystem and introducing ugly hacks to make
-> it more similar to one will only cause problems in the long run. If you
-> want symlinks, use a real filesystem or use umsdos on your favorite FAT
-> filesystem. (Assuming that umsdos still works...).
-
-Umsdos is evil.
-
-1. the /DOS thing, done iff mounted on /
-2. the fake "hard links" that any user can mess up
-
-Umsdos did help with Linux acceptance though. Lots of people
-installed Linux for the first time as Slackware on umsdos.
-It's sad that modern installers no longer have this ability.
-It was this, and support for crap hardware, that gave Linux
-the edge over BSD in the early days.
-
-Today the situation is a little different. We have devfs,
-so we don't need device files on the root filesystem.
-vfat gives us long filenames. We have per-process namespaces
-that could be used to assign a separate /tmp to each user,
-thus keeping files separated by UID. It would be pretty
-reasonable to create an almost-normal Linux system on vfat.
-Copy the setuid stuff to ramfs at boot, use "mount --bind"
-and the namespaces to write-protect stuff a user shouldn't
-be able to touch, etc. It all works out great. Best of all,
-the FAT32 data structures can support the phase-tree
-algorithm for perfect data integrity.
-
-System start up is like this:
-
-mount -t vfat /dev/hda1 /     # done by kernel
-mount -t devfs none /dev      # done by kernel
-mount -t ramfs none /linux/setuid
-tar zxf linux/setuid.tgz
-mount --bind /linux/setuid/su /bin/su
-mount --bind /linux/setuid/passwd /usr/bin/passwd
-mount --bind /linux/setuid/chfn /usr/bin/chfn
-...
-
-Then for a login, create a new namespace.
-Remount _everything_ read-only to protect it.
-(or implement a per-mount uid/gid feature)
-Overmount stuff that a normal user shouldn't
-even be able to read, or abuse a DOS attribute
-bit for this purpose. Mount a per-user /tmp and
-home directory. Deliver mail to home directories.
-
-Don't bother commenting on the above unless
-you know about the per-process namespaces.
-They are critical to doing multi-user on vfat.
-
-The only thing left is to make sure every app
-can handle failure to create a hard link.
-
+Jun  9 20:28:52 twopit kernel: SysRq : Show Memory
+Jun  9 20:28:52 twopit kernel: Mem-info:
+Jun  9 20:28:52 twopit kernel: Free pages:      216512kB ( 67528kB HighMem)
+Jun  9 20:28:52 twopit kernel: Zone:DMA freepages: 13552kB min:  4224kB low:  4352kB high:  4480kB
+Jun  9 20:28:52 twopit kernel: Zone:Normal freepages:135432kB min:  3576kB low: 16636kB high: 23676kB
+Jun  9 20:28:52 twopit kernel: Zone:HighMem freepages: 67528kB min:  1020kB low:  6136kB high:  9204kB
+Jun  9 20:28:52 twopit kernel: Free pages:      216512kB ( 67528kB HighMem)
+Jun  9 20:28:52 twopit kernel: ( Active: 77325, inactive_dirty: 167921, inactive_clean: 3476, free: 54128 )
+Jun  9 20:28:52 twopit kernel: 100*4kB 98*8kB 89*16kB 62*32kB 32*64kB 12*128kB 1*256kB 0*512kB 1*1024kB 2*2048kB = 13552kB)
+Jun  9 20:28:52 twopit kernel: 2*4kB 1034*8kB 521*16kB 219*32kB 133*64kB 87*128kB 28*256kB 26*512kB 16*1024kB 27*2048kB = 135432kB)
+Jun  9 20:28:52 twopit kernel: 1562*4kB 1872*8kB 786*16kB 298*32kB 126*64kB 44*128kB 19*256kB 9*512kB 1*1024kB 0*2048kB = 67528kB)
+Jun  9 20:28:52 twopit kernel: Swap cache: add 0, delete 0, find 0/0, race 0+0
+Jun  9 20:28:52 twopit kernel: Free swap:       498004kB
+Jun  9 20:28:52 twopit kernel: 327648 pages of RAM
+Jun  9 20:28:52 twopit kernel: 98272 pages of HIGHMEM
+Jun  9 20:28:52 twopit kernel: 5096 reserved pages
+Jun  9 20:28:52 twopit kernel: 229908 pages shared
+Jun  9 20:28:52 twopit kernel: 0 pages swap cached
+Jun  9 20:28:52 twopit kernel: 0 pages in page table cache
+Jun  9 20:28:52 twopit kernel: Buffer memory:    62572kB
+Jun  9 20:28:52 twopit kernel: Cache memory:   876624kB
+Jun  9 20:28:52 twopit kernel:     CLEAN: 182906 buffers, 731624 kbyte, 179 used (last=182847), 0 locked, 0 dirty
+Jun  9 20:28:52 twopit kernel:     DIRTY: 13 buffers, 52 kbyte, 8 used (last=11), 0 locked, 13 dirty

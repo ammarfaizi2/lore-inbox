@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261507AbSJMMZe>; Sun, 13 Oct 2002 08:25:34 -0400
+	id <S261508AbSJMMfi>; Sun, 13 Oct 2002 08:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSJMMZe>; Sun, 13 Oct 2002 08:25:34 -0400
-Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:63994 "EHLO
-	mg.homelinux.net") by vger.kernel.org with ESMTP id <S261507AbSJMMZd>;
-	Sun, 13 Oct 2002 08:25:33 -0400
-Date: Sun, 13 Oct 2002 14:31:05 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Strange load spikes on 2.4.19 kernel
-Message-ID: <20021013123105.GA6304@gintaras>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33.0210130202070.17395-100000@coffee.psychology.mcmaster.ca> <113001c27282$93955eb0$1900a8c0@lifebook>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <113001c27282$93955eb0$1900a8c0@lifebook>
-User-Agent: Mutt/1.4i
-X-Message-Flag: If you do not see this message correctly, stop using Outlook.
-X-GPG-Fingerprint: 8121 AD32 F00A 8094 748A  6CD0 9157 445D E7A6 D78F
-X-GPG-Key: http://ice.dammit.lt/~mgedmin/mg-pgp-key.txt
-X-URL: http://ice.dammit.lt/~mgedmin/
+	id <S261509AbSJMMfi>; Sun, 13 Oct 2002 08:35:38 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:65177 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S261508AbSJMMfh>; Sun, 13 Oct 2002 08:35:37 -0400
+Message-ID: <3DA969F0.1060109@metaparadigm.com>
+Date: Sun, 13 Oct 2002 20:41:20 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Mark Peloquin <markpeloquin@hotmail.com>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 04:34:21PM +1000, Rob Mueller wrote:
-> Also Let me do a calculation, though I have no idea if this is right or
-> not...
-> a) the first item in the uptime output is 'system load average for the last
-> 1 minute'
-> b) it seems to only update/recalculate every 5 seconds
-> c) it jumps from < 1 to 20 in 1 interval (eg 5 seconds)
+On 10/13/02 01:14, Mark Peloquin wrote:
+> On 2002-10-12 13:32:33, Christoph Hellwig wrote:
+>
+>> The problem in my eyes is that large
+>> parts of what evms does should be in the higher layers, i.e. the
+>> block layer, but they implement their own new layer as the consumer > of
+>> those.  i.e. instead of using the generic block layer structures to
+>> present a volume/device they use their own,
 > 
-> This means that for it to jump from < 1 to 20 in 5 seconds, there must be on
-> average about 60/5 * 20 = 240 processes blocked over those 5 seconds waiting
-> for run time of some sort for the load to jump 20 points. Is that right?
+> 
+> More accurately, we do use generic block layers structures to present 
+> volumes that are visible to the user/system.
 
-Load is an exponential average, recalculated according to this formula
-(see CALC_LOAD in sched.h) every five seconds:
+Exactly. I think Christoph is comparing it to the original md
+architecture thich was more of an evolutionary design on the existing
+block layer - it is merely an artifact of this that intermediary
+devices were present (and consuming minors) - in a well architected
+volume manager, this is not necessary or desirable - not presenting
+the intermediary devices is IMHO also a saftey feature preventing
+access to devices that shouldn't be accessed.
 
-  load1 = load1 * exp + n * (1 - exp)
+>> private structures that
+>> need hacks to get the access right (pass-through ioctls) and need
+>> constant resyncing with the native structures in the case where we
+>> have both (the lowest layer).
+> 
+> 
+> The point of contention is that EVMS does not provide generic access 
+> (block layer operations) to the components that make up the volume, but 
+> only to the user/system accessible volumes themselves. EVMS consumes 
+> (primarily disk) devices and produces volumes. The intermediate points 
+> are abstracted by the volume manager.
 
-where exp = 1/exp(5sec/1min) ~= 1884/2048 ~= 0.92
-      n = the number of running tasks at the moment
+Yes, considering the abstraction (and the futureproofing this provides),
+it would not make sense to bind these logical nodes to the orthogonal
+block layer - which would probably also make maintenance more complex
+in the future. I guess one of the advantages of the EVMS approach
+is the ability for the core code to fit more easily with less changes
+into kernels with differing block layers (2.4,2.5,future).
 
-To jump from 0.21 to 27.65 in 5 second (1 update), n would have to be
-343.  Wow.  (Substituting the numbers for 5 and 15 minute averages I get
-n of about 362 and 352).
-
-Can somebody check my math?
-
-Marius Gedminas
--- 
-Never trust a computer you can't repair yourself.
+~mc
 

@@ -1,197 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280820AbRKON37>; Thu, 15 Nov 2001 08:29:59 -0500
+	id <S280825AbRKONaj>; Thu, 15 Nov 2001 08:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280825AbRKON3s>; Thu, 15 Nov 2001 08:29:48 -0500
-Received: from sushi.toad.net ([162.33.130.105]:37254 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S280820AbRKON3q>;
-	Thu, 15 Nov 2001 08:29:46 -0500
-Subject: [PATCH] parport_pc to use pnpbios_register_driver() #4
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1005752791.8923.44.camel@thanatos>
-In-Reply-To: <Pine.LNX.4.33.0111140935350.791-100000@vaio>  
-	<15273.1005733037@redhat.com>  <1005752791.8923.44.camel@thanatos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 15 Nov 2001 08:30:02 -0500
-Message-Id: <1005831004.26182.16.camel@thanatos>
-Mime-Version: 1.0
+	id <S280827AbRKONaU>; Thu, 15 Nov 2001 08:30:20 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:52946 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S280825AbRKONaK>; Thu, 15 Nov 2001 08:30:10 -0500
+Date: Thu, 15 Nov 2001 14:30:03 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: mdharm-usb@one-eyed-alien.net
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] add a remark that CONFIG_USB_STORAGE needs SCSI
+Message-ID: <Pine.NEB.4.40.0111151424130.7895-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> What I would rather do is write parport_pc consistently
-> with how all other drivers are written.  Then if we
-> decide to set all this up more intelligently in the
-> future we can make a global change.
+Hi Matthew,
 
-Since everyone except parport_pc simply does:
-   #ifdef CONFIG_PNPBIOS
-   ...
-   #endif
-(i.e., no "|| defined(CONFIG_PNPBIOS_MODULE)") I have
-changed my patch to be consistent with that practice.
+I found it non-intuitively while looking for CONFIG_USB_STORAGE in "make
+menuconfig" that it needs SCSI enabled, so I made the small patch below
+(against 2.4.15-pre4) that adds a comment that "SCSI support is needed for
+USB Mass Storage support" if SCSI isn't enabled.
 
-Other changes:
-- Merge init_pnp040x into callback
-- Use a buffer to build up message
 
-This patch has been tested with the new modutils, and
-the modules.pnpbiosmap file is correctly generated.
+--- drivers/usb/Config.in.old	Thu Nov 15 14:16:30 2001
++++ drivers/usb/Config.in	Thu Nov 15 14:21:00 2001
+@@ -32,15 +32,19 @@
+ comment 'USB Device Class drivers'
+ dep_tristate '  USB Audio support' CONFIG_USB_AUDIO $CONFIG_USB $CONFIG_SOUND
+ dep_tristate '  USB Bluetooth support (EXPERIMENTAL)' CONFIG_USB_BLUETOOTH $CONFIG_USB $CONFIG_EXPERIMENTAL
+-dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
+-   dep_mbool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG $CONFIG_USB_STORAGE
+-   dep_mbool '    Datafab MDCFE-B Compact Flash Reader support' CONFIG_USB_STORAGE_DATAFAB $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+-   dep_mbool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM  $CONFIG_USB_STORAGE
+-   dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
+-   dep_mbool '    Microtech CompactFlash/SmartMedia support' CONFIG_USB_STORAGE_DPCM $CONFIG_USB_STORAGE
+-   dep_mbool '    HP CD-Writer 82xx support' CONFIG_USB_STORAGE_HP8200e $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+-   dep_mbool '    SanDisk SDDR-09 (and other SmartMedia) support' CONFIG_USB_STORAGE_SDDR09 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+-   dep_mbool '    Lexar Jumpshot Compact Flash Reader' CONFIG_USB_STORAGE_JUMPSHOT $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++if [ "$CONFIG_SCSI" = "n" ]; then
++   comment '  SCSI support is needed for USB Mass Storage support'
++else
++   dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
++      dep_mbool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG $CONFIG_USB_STORAGE
++      dep_mbool '    Datafab MDCFE-B Compact Flash Reader support' CONFIG_USB_STORAGE_DATAFAB $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++      dep_mbool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM  $CONFIG_USB_STORAGE
++      dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
++      dep_mbool '    Microtech CompactFlash/SmartMedia support' CONFIG_USB_STORAGE_DPCM $CONFIG_USB_STORAGE
++      dep_mbool '    HP CD-Writer 82xx support' CONFIG_USB_STORAGE_HP8200e $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++      dep_mbool '    SanDisk SDDR-09 (and other SmartMedia) support' CONFIG_USB_STORAGE_SDDR09 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++      dep_mbool '    Lexar Jumpshot Compact Flash Reader' CONFIG_USB_STORAGE_JUMPSHOT $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
++fi
+ dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_USB
+ dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
 
---
-Thomas Hood
 
-The patch:
---- linux-2.4.13-ac8_ORIG/drivers/parport/parport_pc.c	Fri Oct 26 18:13:48 2001
-+++ linux-2.4.13-ac8/drivers/parport/parport_pc.c	Thu Nov 15 08:21:35 2001
-@@ -63,7 +63,7 @@
- #include <linux/parport_pc.h>
- #include <asm/parport.h>
- 
--#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-+#ifdef CONFIG_PNPBIOS
- #include <linux/pnp_bios.h>
- #endif
- 
-@@ -2818,30 +2818,36 @@
- 	return count;
- }
- 
--#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-+#ifdef CONFIG_PNPBIOS
- 
--#define UNSET(res)   ((res).flags & IORESOURCE_UNSET)
--
--int init_pnp040x(struct pci_dev *dev)
-+/* formerly init_pnp040x() */
-+static int __devinit parport_pc_pnpbios_probecb( struct pci_dev *dev, const struct pnpbios_device_id *id )
- {
-+#define UNSET(res)   ((res).flags & IORESOURCE_UNSET)
- 	int io,iohi,irq,dma;
-+	char buffer[256], *bufw;
-+
-+	bufw = buffer;
- 
--	printk(KERN_INFO
--		"parport: PnP BIOS reports device %s %s (node number 0x%x) is ",
-+	bufw+=sprintf(bufw,
-+		"parport: PnP BIOS reports device %s %s (node number 0x%x) is",
- 		dev->name, dev->slot_name, dev->devfn
- 	);
- 
- 	if ( UNSET(dev->resource[0]) ) {
--		printk("not configured.\n");
-+		bufw+=sprintf(bufw, " not configured.");
-+		printk(KERN_INFO "%s\n", buffer);
- 		return 0;
- 	}
--	io  = dev->resource[0].start;
--	printk("configured to use io 0x%04x",io);
-+
-+	io = dev->resource[0].start;
-+	bufw+=sprintf(bufw," configured to use io 0x%04x",io);
-+
- 	if ( UNSET(dev->resource[1]) ) {
- 		iohi = 0;
- 	} else {
- 		iohi = dev->resource[1].start;
--		printk(", io 0x%04x",iohi);
-+		bufw+=sprintf(bufw,", io 0x%04x",iohi);
- 	}
- 
- 	if ( UNSET(dev->irq_resource[0]) ) {
-@@ -2849,10 +2855,10 @@
- 	} else {
- 		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
- 			irq = PARPORT_IRQ_NONE;
--			printk(", irq disabled");
-+			bufw+=sprintf(bufw,", irq disabled");
- 		} else {
- 			irq = dev->irq_resource[0].start;
--			printk(", irq %d",irq);
-+			bufw+=sprintf(bufw,", irq %d",irq);
- 		}
- 	}
- 
-@@ -2861,23 +2867,38 @@
- 	} else {
- 		if ( dev->dma_resource[0].start == (unsigned long)-1 ) {
- 			dma = PARPORT_DMA_NONE;
--			printk(", dma disabled");
-+			bufw+=sprintf(bufw,", dma disabled");
- 		} else {
- 			dma = dev->dma_resource[0].start;
--			printk(", dma %d",dma);
-+			bufw+=sprintf(bufw,", dma %d",dma);
- 		}
- 	}
--
--	printk("\n");
-+	printk(KERN_INFO "%s.\n", buffer);
- 
- 	if (parport_pc_probe_port(io,iohi,irq,dma,NULL))
- 		return 1;
- 
- 	return 0;
--}
- #undef UNSET
-+}
-+
-+static struct pnpbios_device_id parport_pc_pnpbios_tbl[] __devinitdata = {
-+	/*  id, driver_data */
-+	{ "PNP0400",  },
-+	{ "PNP0401",  },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(pnpbios, parport_pc_pnpbios_tbl);
- 
--#endif 
-+static struct pnpbios_driver parport_pc_pnpbios_drv = {
-+	/* node: */
-+	name:         "parport_pc",
-+	id_table:     parport_pc_pnpbios_tbl,
-+	probe:        parport_pc_pnpbios_probecb,
-+	remove:       NULL
-+};
-+#endif
- 
- /* This function is called by parport_pc_init if the user didn't
-  * specify any ports to probe.  Its job is to find some ports.  Order
-@@ -2892,19 +2913,14 @@
- static int __init parport_pc_find_ports (int autoirq, int autodma)
- {
- 	int count = 0, r;
--	struct pci_dev *dev;
- 
- #ifdef CONFIG_PARPORT_PC_SUPERIO
- 	detect_and_report_winbond ();
- 	detect_and_report_smsc ();
- #endif
- 
--#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
--	dev=NULL;
--	while ((dev=pnpbios_find_device("PNP0400",dev)))
--		count+=init_pnp040x(dev);
--        while ((dev=pnpbios_find_device("PNP0401",dev)))
--                count+=init_pnp040x(dev);
-+#ifdef CONFIG_PNPBIOS
-+	count += pnpbios_register_driver(&parport_pc_pnpbios_drv);
- #endif
- 
- 	/* Onboard SuperIO chipsets that show themselves on the PCI bus. */
-@@ -3015,6 +3031,10 @@
- 
- 	if (!user_specified)
- 		pci_unregister_driver (&parport_pc_pci_driver);
-+
-+#ifdef CONFIG_PNPBIOS
-+	pnpbios_unregister_driver(&parport_pc_pnpbios_drv);
-+#endif
- 
- 	while (p) {
- 		tmp = p->next;
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

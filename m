@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUFUPi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUFUPmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUFUPi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 11:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUFUPi6
+	id S266294AbUFUPmY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 11:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUFUPmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 11:38:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43738 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266274AbUFUPiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 11:38:25 -0400
-Date: Mon, 21 Jun 2004 17:38:17 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>,
-       Laurent Pinchart <laurent.pinchart@skynet.be>,
-       Mailinglist <mjpeg-users@lists.sf.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let VIDEO_ZORAN depend on I2C_ALGOBIT
-Message-ID: <20040621153817.GD28607@fs.tum.de>
+	Mon, 21 Jun 2004 11:42:24 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15007 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266283AbUFUPlu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 11:41:50 -0400
+Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Guido Guenther <agx@sigxcpu.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040621071159.GA7017@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix>
+	 <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix>
+	 <20040616070326.GE28487@bogon.ms20.nix>
+	 <20040620192549.GA4307@bogon.ms20.nix> <1087791100.24157.9.camel@gaston>
+	 <20040621071159.GA7017@bogon.ms20.nix>
+Content-Type: text/plain
+Message-Id: <1087832204.22683.11.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 10:36:44 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following compile error occurs with VIDEO_ZORAN=y and I2C_ALGOBIT=n
-in 2.6.7-mm1 (but it's not specific to -mm):
+On Mon, 2004-06-21 at 02:11, Guido Guenther wrote:
+> On Sun, Jun 20, 2004 at 11:11:41PM -0500, Benjamin Herrenschmidt wrote:
+> > On Sun, 2004-06-20 at 14:25, Guido Guenther wrote:
+> > > Hi,
+> > > On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
+> > > > here's another piece of rivafb fixing that helps the driver on ppc
+> > > > pbooks again a bit further. It corrects several wrong NV_ARCH_20
+> > > > settings which are actually NV_ARCH_10 as determined by the PCIId.
+> > > Any comments on this patch?
+> > 
+> > I don't, but did you ask on the linux-fbdev list ?
+> I've sent a patch to James several weeks ago that removes the complete
+> table with NV_ARCH_ mappings and uses PCI-IDs instead. He applied it to
+> the fbdev tree, but it didn't end up in Linus tree yet.
+> This patch just fixes what's obviously wrong. More cleanup to come once
+> rivafb is in a usable shape for me again.
 
-<--  snip  -->
+Ok, well, it looks good to me. There is no active maintainer for rivafb
+so, I suppose if nobody complains of breakage, it should be fine.
 
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x3861d3): In function `zoran_register_i2c':
-: undefined reference to `i2c_bit_add_bus'
-drivers/built-in.o(.text+0x3861e9): In function `zoran_unregister_i2c':
-: undefined reference to `i2c_bit_del_bus'
-make: *** [.tmp_vmlinux1] Error 1
+Ben.
 
-<--  snip  -->
-
-
-The following patch fixes this issue:
-
-
---- linux-2.6.7-mm1-full/drivers/media/video/Kconfig.old	2004-06-21 17:35:29.000000000 +0200
-+++ linux-2.6.7-mm1-full/drivers/media/video/Kconfig	2004-06-21 17:35:50.000000000 +0200
-@@ -155,7 +155,7 @@
- 
- config VIDEO_ZORAN
- 	tristate "Zoran ZR36057/36067 Video For Linux"
--	depends on VIDEO_DEV && PCI && I2C
-+	depends on VIDEO_DEV && PCI && I2C_ALGOBIT
- 	help
- 	  Say Y for support for MJPEG capture cards based on the Zoran
- 	  36057/36067 PCI controller chipset. This includes the Iomega
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

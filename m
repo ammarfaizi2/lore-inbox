@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281371AbRKTUrs>; Tue, 20 Nov 2001 15:47:48 -0500
+	id <S281373AbRKTUw6>; Tue, 20 Nov 2001 15:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281403AbRKTUri>; Tue, 20 Nov 2001 15:47:38 -0500
-Received: from mustard.heime.net ([194.234.65.222]:35050 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S281371AbRKTUr2>; Tue, 20 Nov 2001 15:47:28 -0500
-Date: Tue, 20 Nov 2001 21:47:15 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: New ac patch???
-In-Reply-To: <E165TW2-0003UJ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0111202146260.17569-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281392AbRKTUwi>; Tue, 20 Nov 2001 15:52:38 -0500
+Received: from adsl-63-194-247-216.dsl.lsan03.pacbell.net ([63.194.247.216]:31619
+	"EHLO www.vinyltribe.com") by vger.kernel.org with ESMTP
+	id <S281373AbRKTUw3>; Tue, 20 Nov 2001 15:52:29 -0500
+Subject: Invalidate: Busy Buffer with no LVM code
+From: Emiliano Garcia <emi@vinyltribe.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 20 Nov 2001 12:50:28 -0800
+Message-Id: <1006289428.1976.0.camel@workstation>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right now I've fed all the stuff I feel makes sense to Linus for 2.4.15.
-> Once 2.4.15 is out I'll send some more bits to Marcelo, and also some bits
-> to Linus that are 2.5 material (eg PnPBIOS). The only "-ac" patch as such
-> would be for 32bit quota and other oddments so I don't think its worth the
-> effort.
+I've compiled my 2.4.13 kernel on my server with no LVM support and I
+still get hundreds of "Invalidate: Busy Buffer" in my dmesg on heavy
+disk I/O. 
 
-Will this include the patches to allow for /proc/sys/vm/(min|max)-readahead
-soon?
+Thanks for your help,
 
-thanks
+Emi.
 
-roy
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
-Computers are like air conditioners.
-They stop working when you open Windows.
 

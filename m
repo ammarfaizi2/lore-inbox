@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265592AbRGJIPd>; Tue, 10 Jul 2001 04:15:33 -0400
+	id <S265934AbRGJIWo>; Tue, 10 Jul 2001 04:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265913AbRGJIPY>; Tue, 10 Jul 2001 04:15:24 -0400
-Received: from jalon.able.es ([212.97.163.2]:18878 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S265592AbRGJIPI>;
-	Tue, 10 Jul 2001 04:15:08 -0400
-Date: Tue, 10 Jul 2001 10:16:05 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: problems with lo and AF_NETLINK
-Message-ID: <20010710101605.A3984@werewolf.able.es>
-Mime-Version: 1.0
+	id <S265916AbRGJIWX>; Tue, 10 Jul 2001 04:22:23 -0400
+Received: from pat.uio.no ([129.240.130.16]:43748 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S265915AbRGJIWV>;
+	Tue, 10 Jul 2001 04:22:21 -0400
+MIME-Version: 1.0
+Message-ID: <15178.47928.328862.678031@charged.uio.no>
+Date: Tue, 10 Jul 2001 10:22:16 +0200
+To: Craig Soules <soules@happyplace.pdl.cmu.edu>
+Cc: jrs@world.std.com, linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+In-Reply-To: <Pine.LNX.3.96L.1010709175623.16113S-100000@happyplace.pdl.cmu.edu>
+In-Reply-To: <15178.3722.86802.671534@charged.uio.no>
+	<Pine.LNX.3.96L.1010709175623.16113S-100000@happyplace.pdl.cmu.edu>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>>>>> " " == Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
 
-With latest 2.4.6-ac2, my lo interface setup looks like broken.
-Initscripts use /sbin/ip (it is a Mandrake Cooker box) to query the interface,
-and it only gets 'refused connections'. I think it worked with previous
-kernels.
+     > On Mon, 9 Jul 2001, Trond Myklebust wrote:
+    >> If the client discovers that the cache is invalid, it clears
+    >> it, and refills the cache. We then start off at the next cookie
+    >> after the last read cookie. Test it on an ordinary filesystem
+    >> and you'll see the exact same behaviour. The act of creating or
+    >> deleting files is *not* supposed invalidate the readdir offset.
 
-This is an strace of the problem:
-werewolf:~# strace ip -o link
-...
-socket(PF_NETLINK, SOCK_RAW, 0)         = 3
-bind(3, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\0\0\0\0\0\0\0\0\353\215\5\10"}, 12) = 0
-getsockname(3, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\215\17\0\0\0\0\0\0\353\215\5\10"}, [12]) = 0
-time(NULL)                              = 994752488
-sendto(3, "\24\0\0\0\22\0\1\3\351\267J;\0\0\0\0\21\362\5\10", 20, 0, {sin_family=AF_NETLINK, {sa_family=16, sa_data="\0\0\0\0\0\0\0\0\0\0`d\5\10"}, 12) = -1 ECONNREFUSED (Connection refused)
-write(2, "Cannot send dump request: Connec"..., 45Cannot send dump request: Connection refused
-) = 45
-_exit(1)                                = ?
+     > I would say that assuming that the readdir cookie is an offset
+     > is a break in the spec.  In fact, there are a few things in the
+     > spec which I'd like to point out.  First of all, "All of the
+     > procedures in the NFS protocol are assumed to be synchronous."
+     > Which means that you should not even be making asynchronous
+     > remove calls.  Second, the server is meant to be "as stateless
+     > as possible."  I would argue that this means that you should
+     > not make assumptions about the cookie's state if another
+     > operation is interposed between two readdir() operations.  As
+     > an aside, by adding a translation layer to the cookies (as
+     > suggested by an earlier post) would break this, as the server
+     > would have to store that state in the event of a server crash,
+     > thus breaking the spec.
 
-I saw that NETLINK support has changed a bit in ac series:
+Imagine if somebody gives you a 1Gb directory. Would it or would it
+not piss you off if your file pointer got reset to 0 every time
+somebody created a file?
 
-Netlink device emulation
-CONFIG_NETLINK_DEV
-  This option will be removed soon. Any programs that want to use
-  character special nodes like /dev/tap0 or /dev/route (all with major
-  number 36) need this option, and need to be rewritten soon to use
-  the real netlink socket.
-  This is a backward compatibility option, choose Y for now.
+The current semantics are scalable. Anything which resets the file
+pointer upon change of a file/directory/whatever isn't...
 
-I have activated it, but nothing changes. Any idea ?
-
-Thanks.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.1 (Cooker) for i586
-Linux werewolf 2.4.6-ac2 #1 SMP Sun Jul 8 23:57:11 CEST 2001 i686
+Cheers,
+  Trond

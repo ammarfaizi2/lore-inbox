@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSILUue>; Thu, 12 Sep 2002 16:50:34 -0400
+	id <S317282AbSILUsb>; Thu, 12 Sep 2002 16:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317984AbSILUue>; Thu, 12 Sep 2002 16:50:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:47117 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317404AbSILUuc>;
-	Thu, 12 Sep 2002 16:50:32 -0400
-To: Alan Cox <alan@redhat.com>
-Cc: rml@tech9.net (Robert Love), mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4-ac task->cpu abstraction and optimization
-References: <15744.57073.2852.707839@kim.it.uu.se.suse.lists.linux.kernel> <200209122022.g8CKMJS15137@devserv.devel.redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Sep 2002 22:55:20 +0200
-In-Reply-To: Alan Cox's message of "12 Sep 2002 22:28:54 +0200"
-Message-ID: <p73bs73udvr.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317286AbSILUsb>; Thu, 12 Sep 2002 16:48:31 -0400
+Received: from [198.99.130.100] ([198.99.130.100]:42624 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S317282AbSILUsa>;
+	Thu, 12 Sep 2002 16:48:30 -0400
+Message-Id: <200209122055.g8CKtJ401569@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: Re: UML 2.5.34 
+In-Reply-To: Your message of "Thu, 12 Sep 2002 12:51:04 PDT."
+             <3D80F028.5941CCD@digeo.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Sep 2002 16:55:19 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> writes:
+akpm@digeo.com said:
+> And Linus has merged it.
+> Congratulations, Jeff. 
 
-> >  > also took a look at your patch -- looks good, you should submit it to
-> >  > Marcelo... it cannot hurt for 2.4.
-> > 
-> > I might do that, unless Alan plans on pushing the -ac sched.c stuff to
-> > Marcelo, in which case my patch would just confuse things. Alan?
-> 
-> I'd like to see it in 2.4 base. Its really Marcelo's call.
+Thanks!  It's great to finally have it in.
 
-One imho major problem with the new scheduler is that its new
-sched_yield breaks programs like OpenOffice, who rely on the old
-sched_yield behaviour. With new scheduler and 2.5 yield  OpenOffice
-can be completely starved just by a kernel compile because sched_yield
-kills all its time slices.
+				Jeff
 
-I don't think a stable release should break programs in such a way.
-
--Andi

@@ -1,99 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131746AbQK3JPB>; Thu, 30 Nov 2000 04:15:01 -0500
+        id <S131814AbQK3JRl>; Thu, 30 Nov 2000 04:17:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131814AbQK3JOv>; Thu, 30 Nov 2000 04:14:51 -0500
-Received: from ruddock-207.caltech.edu ([131.215.90.207]:17420 "EHLO
-        agard.caltech.edu") by vger.kernel.org with ESMTP
-        id <S131746AbQK3JOg>; Thu, 30 Nov 2000 04:14:36 -0500
-Message-ID: <3A261326.B6F9B9D9@its.caltech.edu>
-Date: Thu, 30 Nov 2000 00:43:18 -0800
-From: James Lamanna <jlamanna@its.caltech.edu>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+        id <S131882AbQK3JRc>; Thu, 30 Nov 2000 04:17:32 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:23961 "EHLO
+        smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+        id <S131814AbQK3JRU>; Thu, 30 Nov 2000 04:17:20 -0500
+Message-ID: <3A2613D5.AE8A00B8@haque.net>
+Date: Thu, 30 Nov 2000 03:46:13 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pdc202xx driver problems
+To: Greg KH <greg@wirex.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Keyspan USB PDA adapter && test12pre3 hang
+In-Reply-To: <3A25EB64.3462AE4D@haque.net> <20001129234420.A7196@wirex.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using kernel 2.4.0-test10...
-It seems to detect the controller card and the drives, but
-they are not assigned to any devices after boot up.
-I know that the RAID won't work, but I guess I thought 
-it would setup the 2 drives I have connected.
+That fixed it. Thanks
 
-Any suggestions?
-Thanks,
---James Lamanna
+Greg KH wrote:
+> Are you using the usb-uhci host driver?
+> 
+> If so, the following fix from Georg Acher should do the trick:
+> 
+> -----
+> Replace line 275 (insert_td())
+> qh->hw.qh.element = virt_to_bus (new) | UHCI_PTR_TERM;
+> by
+> qh->hw.qh.element = virt_to_bus (new) ;
+> 
+> -----
+> 
+> Let me (and the list) know if this doesn't fix your problem.
+> 
+> greg k-h
+> 
 
-Here is some info:
-dmesg:
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PDC20265: IDE controller on PCI bus 00 dev 88
-PDC20265: chipset revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit DISABLED Primary PCI Mode Secondary PCI Mode.
-PDC20265: FORCING BURST BIT 0x00 -> 0x01 ACTIVE
-    ide0: BM-DMA at 0x6400-0x6407, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x6408-0x640f, BIOS settings: hdc:DMA, hdd:pio
-PDC20267: IDE controller on PCI bus 00 dev 58
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
-Mode.
-PDC20267: neither IDE port enabled (BIOS)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-          This line is interesting I thought...
+-- 
 
-/proc/pci:
-Bus  0, device  11, function  0:
-    RAID bus controller: Promise Technology, Inc. 20267 (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=32.
-      I/O at 0x9400 [0x9407].
-      I/O at 0x9000 [0x9003].
-      I/O at 0x8800 [0x8807].
-      I/O at 0x8400 [0x8403].
-      I/O at 0x8000 [0x803f].
-      Non-prefetchable 32 bit memory at 0xd5000000 [0xd501ffff].
-  Bus  0, device  17, function  0:
-    Unknown mass storage controller: Promise Technology, Inc. 20265 (rev
-2).
-      IRQ 10.
-      Master Capable.  Latency=32.
-      I/O at 0x7800 [0x7807].
-      I/O at 0x7400 [0x7403].
-      I/O at 0x7000 [0x7007].
-      I/O at 0x6800 [0x6803].
-      I/O at 0x6400 [0x643f].
-      Non-prefetchable 32 bit memory at 0xd4800000 [0xd481ffff].
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-/proc/ide/pdc202xx:
-                                PDC20265 Chipset.
-------------------------------- General Status 
-Burst Mode                           : enabled
-Host Mode                            : Normal
-Bus Clocking                         : 33 PCI Internal
-IO pad select                        : 10 mA
-Status Polling Period                : 5
-Interrupt Check Status Polling Delay : 7
---------------- Primary Channel ---------------- Secondary Channel
--------------
-                enabled                          enabled
-66 Clocking     disabled                         disabled
-           Mode PCI                         Mode PCI
-                FIFO Empty                       FIFO Empty   
---------------- drive0 --------- drive1 -------- drive0 ----------
-drive1 ------
-DMA enabled:    no               no              yes               no
-DMA Mode:       NOTSET           NOTSET          NOTSET           
-NOTSET
-PIO Mode:       NOTSET            NOTSET           NOTSET           
-NOTSET
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

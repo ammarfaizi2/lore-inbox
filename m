@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129214AbQJ3BJt>; Sun, 29 Oct 2000 20:09:49 -0500
+	id <S129223AbQJ3BjQ>; Sun, 29 Oct 2000 20:39:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129660AbQJ3BJj>; Sun, 29 Oct 2000 20:09:39 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:12550 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129214AbQJ3BJY>;
-	Sun, 29 Oct 2000 20:09:24 -0500
-Message-ID: <39FCCA3C.27EDB2FF@mandrakesoft.com>
-Date: Sun, 29 Oct 2000 20:09:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rasmus Andersen <rasmus@jaquet.dk>
-CC: Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org,
-        David Hinds <dhinds@valinux.com>, corey@world.std.com
-Subject: Re: Compile error in drivers/ide/osb4.c in 240-t10p6
-In-Reply-To: <20001029144822.B622@jaquet.dk> <m13psPR-000OXnC@amadeus.home.nl> <20001029231257.J625@jaquet.dk>
+	id <S129247AbQJ3BjH>; Sun, 29 Oct 2000 20:39:07 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:44805 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129223AbQJ3Biz>; Sun, 29 Oct 2000 20:38:55 -0500
+Date: Sun, 29 Oct 2000 18:35:31 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Message-ID: <20001029183531.A7155@vger.timpanogas.org>
+In-Reply-To: <39FCB09E.93B657EC@timpanogas.org> <E13q2R7-0006S7-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E13q2R7-0006S7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 30, 2000 at 12:04:23AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> Thanks for the pointer. However my test build still barfs in the final
-> link phase because we (in t10p6) morphed drivers/pcmcia/cs.c::pcmcia_
-> request_irq into (the static) cs_request_irq. The rename part
-> broke the two other places in cs.c where pcmcia_request_irq was
-> referenced and the static part made its usage in drivers/net/pcmcia/
-> ray_cs.c a bit awkward.
+On Mon, Oct 30, 2000 at 12:04:23AM +0000, Alan Cox wrote:
+> > It's still got some problems with NFS (I am seeing a few RPC timeout
+> > errors) so I am backreving to 2.2.17 for the Ute-NWFS release next week,
+> > but it's most impressive.
 > 
-> Since I won't presume to question the decision to rename the function
-> the following patch propagates the rename to the rest of the kernel.
-> Furthermore, I presumed to remove the static part so that the ray_cs
-> driver was free to use it. I have added David Hinds and Corey Thomas
-> (the raylink driver maintainer) to the cc on this mail so they can
-> decide what the proper solution is.
+> Can you send a summary of the NFS reports to nfs-devel@linux.kernel.org
 
-This is what went to Linus, and David Hinds ack'd it.
+Yes.  I just went home, so I am emailing from my house.  I'll post late 
+tonight or in the morning.  Performance on 100Mbit with NFS going 
+Linux->Linux is getting better throughput than IPX NetWare Client -> 
+NetWare 5.x on the same network by @ 3%.  When you start loading up a 
+Linux server, it drops off sharply and NetWare keeps scaling, however, 
+this does indicate that the LAN code paths are equivalent relative to 
+latency vs. MSM/TSM/HSM in NetWare.  NetWare does better caching 
+(but we'll fix this in Linux next).  I think the ring transitions to 
+user space daemons are what are causing the scaling problems 
+Linux vs. NetWare.
 
-http://gtf.org/garzik/kernel/files/patches/2.4/2.4.0-test10/pcmcia-2.4.0.10.6.patch.gz
+:-)
 
-	Jeff
-
-
-
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

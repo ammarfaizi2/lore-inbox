@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbRFLRVn>; Tue, 12 Jun 2001 13:21:43 -0400
+	id <S261289AbRFLRVw>; Tue, 12 Jun 2001 13:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261881AbRFLRVc>; Tue, 12 Jun 2001 13:21:32 -0400
-Received: from firewall.ocs.com.au ([203.34.97.9]:18163 "EHLO ocs4.ocs-net")
-	by vger.kernel.org with ESMTP id <S261289AbRFLRVX>;
-	Tue, 12 Jun 2001 13:21:23 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Ulrich.Weigand@de.ibm.com
-cc: "David S. Miller" <davem@redhat.com>, DJBARROW@de.ibm.com,
-        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: bug in /net/core/dev.c 
-In-Reply-To: Your message of "Tue, 12 Jun 2001 19:05:01 +0200."
-             <C1256A69.005DDF6B.00@d12mta11.de.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Jun 2001 03:20:37 +1000
-Message-ID: <11349.992366437@ocs4.ocs-net>
+	id <S261881AbRFLRVp>; Tue, 12 Jun 2001 13:21:45 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:41738 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S261289AbRFLRVi>;
+	Tue, 12 Jun 2001 13:21:38 -0400
+Date: Tue, 12 Jun 2001 18:20:58 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+In-Reply-To: <E159r7y-0001cO-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106121818030.30835-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jun 2001 19:05:01 +0200, 
-Ulrich.Weigand@de.ibm.com wrote:
->Keith, it's probably much easier to just change arch/s390/Makefile
->to link the S/390 drivers *after* all common drivers by moving
->drivers/s390/io.o to $DRIVERS instead of $CORE_FILES.
+Hi Shawn.
 
-That should work, although it would be yet another (and different) way
-of doing things.  Your method would not work for SCSI drivers, they
-have to go in the middle of drivers/scsi/Makefile.
+On Tue, 12 Jun 2001, Alan Cox wrote:
 
-That last point is only relevant if s390 supports native SCSI.  SCSI
-disks emulating 33[89]0 does not count, the cpu does not issue SCSI
-commands.  Are there any native SCSI devices for s390 or do they all
-emulate IBM devices?  I can just see somebody trying to fit SCSI
-commands into a CCW and IOB :).
+ >> The sales guy who is promoting it says this is apparently a
+ >> new card and he claims he can get specs from engineering.
+
+ > Rotfl. Nobody has been able to get remotely useful docs out of
+ > Intel on their 1Gbit ethernet.
+
+Shawn, I'd suggest you tell the said sales guy that IF he can get you
+the FULL specs TOGETHER WITH permission to freely distribute them, AND
+"a friend of yours who knows how to read such specs" confirms that
+they are indeed FULL specs, then you'll consider buying some of the
+cards, but if not, you're not interested...
+
+Best wishes from Riley.
 

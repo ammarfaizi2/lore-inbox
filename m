@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292963AbSBVTjn>; Fri, 22 Feb 2002 14:39:43 -0500
+	id <S292965AbSBVTkD>; Fri, 22 Feb 2002 14:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292967AbSBVTjg>; Fri, 22 Feb 2002 14:39:36 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:56900 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S292963AbSBVTjV>; Fri, 22 Feb 2002 14:39:21 -0500
-Date: Fri, 22 Feb 2002 20:39:02 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64GB (i386) kernel config + PAGE_OFFSET change
-Message-ID: <20020222203902.K5004@dualathlon.random>
-In-Reply-To: <200202221809.g1MI9n109591@eng2.beaverton.ibm.com> <Pine.LNX.4.21.0202221857540.1856-100000@localhost.localdomain>
+	id <S292968AbSBVTj4>; Fri, 22 Feb 2002 14:39:56 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:10379
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S292965AbSBVTjr>; Fri, 22 Feb 2002 14:39:47 -0500
+Date: Fri, 22 Feb 2002 12:37:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Christoph Hellwig <hch@caldera.de>, lm@bitmover.com, hpa@kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 bitkeeper repository
+Message-ID: <20020222193723.GL719@opus.bloom.county>
+In-Reply-To: <20020222160657.A7914@caldera.de> <Pine.LNX.4.33L.0202221625480.7820-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0202221857540.1856-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.33L.0202221625480.7820-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 07:20:57PM +0000, Hugh Dickins wrote:
-> if necessary, but so far nobody has wanted it enough to make the change.
+On Fri, Feb 22, 2002 at 04:26:42PM -0300, Rik van Riel wrote:
+> On Fri, 22 Feb 2002, Christoph Hellwig wrote:
+> 
+> > the Linux 2.4 repository at linux.bkbbits.net is orphaned short after
+> > it got created.  Ist there any chance we could see continguous checkins
+> > for it?
+> >
+> > I think it might be a good idea to get it automatically checked in once
+> > Marcelo uploads a new (pre-) patch as part of the kernel.org
+> > notification procedure (is this possible, Peter?).
+> >
+> > If there is no way to automate it I would volunteer to do the checkins,
+> > but for that I'd need write permissions to the repository.
+> 
+> I've got a script here which pretty much automates the
+> checkins of incremental patches, it should be trivial
+> for Peter to call that from his script that creates the
+> incremental diffs.
 
-exactly, and if somebody wants to make that change only make sure to
-left it inside some #ifdef, so we don't slowdown the 3G standard option.
+If you have a pristine tree, adding incremental diffs is:
+bk import -tpatch ../patch-2.4.X-preY-preZ . && bk tag v2.4.X-preZ
+Which is what I do for the PPC's kernel.org-only tree(s).
 
-Andrea
+Larry or Cort Dougan came up w/ a script ages ago to do it w/o
+incrmenetal diffs and to make a backup as well.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

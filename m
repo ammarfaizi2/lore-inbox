@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUHJQgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUHJSA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUHJQgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUHJQgK
+	id S267507AbUHJSA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267612AbUHJR5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:36:10 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:17682 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S267511AbUHJQOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:14:12 -0400
-Date: Tue, 10 Aug 2004 11:13:30 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss update [7/8] bump read ahead to 1024
-Message-ID: <20040810161330.GG19909@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 10 Aug 2004 13:57:16 -0400
+Received: from 209-128-98-078.bayarea.net ([209.128.98.78]:22946 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S267588AbUHJRwP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 13:52:15 -0400
+Message-ID: <41190B1F.4020202@zytor.com>
+Date: Tue, 10 Aug 2004 17:51:27 +0000
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: bsd pts now climbs continuously
+References: <Pine.LNX.4.30.0408091609100.31211-200000@link>	 <1092086245.14770.2.camel@localhost.localdomain>	 <cf9hm5$tsu$1@terminus.zytor.com> <1092137890.16939.8.camel@localhost.localdomain>
+In-Reply-To: <1092137890.16939.8.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> On Maw, 2004-08-10 at 05:07, H. Peter Anvin wrote:
+> 
+>>>ssh breaks at 9999 which is fun too. It runs out of buffer space
+>>>although because its been properly coded it doesn't overrun it just
+>>>starts corrupting utmp
+>>>
+>>
+>>This I believe is a glibc bug, and really needs to be fixed.
+>>Unfortunately glibc's handling of utmp is just incredibly broken.
+> 
+> 
+> How remarkable given the snprintf line in question is in the sshd
+> source code.
+> 
 
-Patch 7 of 8
-This patch changes our read_ahead to 1024. This has been shown to increase
-performance. Please consider this for inclusion. Patch applies to 2.6.8-rc4.
-Please apply in order.
+OK, that wasn't the bug I was thinking about, then :)
 
-Thanks,
-mikem
--------------------------------------------------------------------------------
-diff -burpN lx268-rc3-p006/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
---- lx268-rc3-p006/drivers/block/cciss.c	2004-08-05 14:16:11.567565000 -0500
-+++ lx268-rc3/drivers/block/cciss.c	2004-08-06 10:15:31.934926352 -0500
-@@ -115,7 +115,7 @@ static struct board_type products[] = {
- /*define how many times we will try a command because of bus resets */
- #define MAX_CMD_RETRIES 3
- 
--#define READ_AHEAD 	 256
-+#define READ_AHEAD 	 1024
- #define NR_CMDS		 384 /* #commands that can be outstanding */
- #define MAX_CTLR 8
- 
+I was referring to the "line id" stuff in utmp, which really seems too 
+broken to live.

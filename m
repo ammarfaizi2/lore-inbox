@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262082AbTCHQoQ>; Sat, 8 Mar 2003 11:44:16 -0500
+	id <S262084AbTCHQzB>; Sat, 8 Mar 2003 11:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262094AbTCHQoQ>; Sat, 8 Mar 2003 11:44:16 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:34027 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S262082AbTCHQoP>;
-	Sat, 8 Mar 2003 11:44:15 -0500
-Date: Sat, 8 Mar 2003 17:54:47 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <18084636656.20030308175447@tnonline.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x IDE: Statis=0x58 - Drive not ready for command
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S262085AbTCHQzB>; Sat, 8 Mar 2003 11:55:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53265 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262084AbTCHQzA>; Sat, 8 Mar 2003 11:55:00 -0500
+Date: Sat, 8 Mar 2003 17:05:32 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+       Chris Dukes <pakrat@www.uk.linux.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Robin Holt <holt@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: Make ipconfig.c work as a loadable module.
+Message-ID: <20030308170532.D1896@flint.arm.linux.org.uk>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+	Chris Dukes <pakrat@www.uk.linux.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	netdev@oss.sgi.com
+References: <Pine.LNX.4.44.0303081132030.12316-100000@kenzo.iwr.uni-heidelberg.de> <m14r6dlu4w.fsf@frodo.biederman.org> <20030308161936.C1896@flint.arm.linux.org.uk> <m1zno5kdnz.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1zno5kdnz.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Mar 08, 2003 at 09:48:16AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 08, 2003 at 09:48:16AM -0700, Eric W. Biederman wrote:
+> I can change the contents of my ramdisk as easily as I can change
+> the kernel command line.  For the complex setups just placing
+> a configuration file in the ramdisk is what seems to work the best
+> in practice.
 
-I get lots of errors like these:
+You'll forgive me if I don't think that "change the contents of ramdisk"
+is as easy as changing the kernel command line.
 
-kernel: PDC202XX: Secondary channel reset.
-kernel: hdh: drive not ready for command
-kernel: ide3: reset: success
-kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: hdf: drive not ready for command
-kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: hdh: drive not ready for command
-kernel: hdh: status timeout: status=0xd0 { Busy }
-kernel: PDC202XX: Secondary channel reset.
-kernel: hdh: drive not ready for command
-kernel: ide3: reset: success
+Last time I checked, to change the contents of a ramdisk image, you needed
+to ungzip it, mount it, make some changes, unmount it, re-gzip it, and
+re-install the thing.  Or, in the case of initramfs, you need to rebuild
+the kernel image.  Compare this to changing the kernel command line from
+"root=/dev/hda1" to "root=/dev/nfs ip=dhcp" in the boot loader by hitting
+a few keys on the keyboard before the kernel loads, and I think you'll
+start to get my point here.
 
-* Running virtually every kernel since 2.4.17-2.4-21-x.
-* All harddrives UDMA100.
-* Tried with DMA and unmask IRQ off.
-* Tried with and without ACPI, APIC and APM.
-* Happens to all harddrives.
-* Cabling,  power,  hardware  and drives thorowly checked and replaced
-  for testing.
-* Tested with one VIA KT266a motherboard and two Intel 440BX
-* SMART values good.
-* To all my testing I have not found any problems with the hardware.
-* When to many of these IDE error occur the system freezes.
-* Errors occur with the internal controller as well as the two Promise
-  PDC20268 (U100 Tx2) controllers.
-
-What  should  I do to fix this? I do not want to run Windows as I need
-LVM to manage the diskspace. Windows does however run very stable.
-
-Any tips or ideas are welcome!
-
-Regards,
-Anders
-
-
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,77 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266520AbTGEWZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 18:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbTGEWZ2
+	id S266526AbTGEW2f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 18:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbTGEW2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 18:25:28 -0400
-Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:9040 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S266520AbTGEWZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 18:25:27 -0400
-Date: Sat, 05 Jul 2003 18:39:41 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-In-reply-to: <20030705235131.A10511@electric-eye.fr.zoreil.com>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, netdev@oss.sgi.com
-Message-id: <200307051839.50327.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <E19YtAq-0006Xf-00@calista.inka.de>
- <200307051700.32533.jeffpc@optonline.net>
- <20030705235131.A10511@electric-eye.fr.zoreil.com>
+	Sat, 5 Jul 2003 18:28:35 -0400
+Received: from maile.telia.com ([194.22.190.16]:39877 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id S266526AbTGEW2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 18:28:31 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Mike Keehan <mike_keehan@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Synaptics driver on HP6100 and 2.5.73
+References: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
+	<m2brwb9rzi.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Jul 2003 00:41:05 +0200
+In-Reply-To: <m2brwb9rzi.fsf@telia.com>
+Message-ID: <m2fzlkbnr2.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Peter Osterlund <petero2@telia.com> writes:
 
-On Saturday 05 July 2003 17:51, Francois Romieu wrote:
-> Jeff Sipek <jeffpc@optonline.net> :
-> > The thing is that x86 is here to stay for quite some time. Even if 64-bit
-> > processors take over the market, you will have so many "old" computers
-> > that can:
-> >
-> > - - be thrown out
-> > - - donated to some institution
-> > - - converted to routers, and other "embedded" systems
-> >
-> > Plus, they will be dirt cheap.
->
-> - the PCI bus don't/won't/can't handle multiple 10 Gb/s adapters;
+> Mike Keehan <mike_keehan@yahoo.com> writes:
+> 
+> > The touchpad is recognised OK when the kernel boots,
+> > and my usb
+> > connected mouse works fine.  But I get the following
+> > message in
+> > the syslog when I try to use the mousepad or any of
+> > the buttons :-
+> > 
+> >     ... kernel: Synaptics driver lost sync at 1st byte
+> > 
+> > Relevant /var/log/dmesg content:-
+> > 
+> >  drivers/usb/core/usb.c: registered new driver hid
+> >  drivers/usb/input/hid-core.c: v2.0:USB HID core
+> > driver
+> >  mice: PS/2 mouse device common for all mice
+> >  synaptics reset failed
+> >  synaptics reset failed
+> >  synaptics reset failed
+> 
+> The logs from your other mail show that the touchpad is still in
+> relative mode (using 3 byte packets) instead of absolute mode (using 6
+> byte packets.) I don't know why this happens, but ...
 
-Ok, so let's stay in the range of gigabit ethernet...
+OK, the problem is that the touchpad needs a lot of time to wake up
+after a reset command. As we found out in private conversation, 3
+seconds is barely enough, so I suggest the following patch to fix the
+problem:
 
-> - nobody sane would recycle x86 systems as core routers after having bought
->   a few Gb/s link.
+--- linux/drivers/input/mouse.resume/psmouse-base.c	Sat Jul  5 23:39:14 2003
++++ linux/drivers/input/mouse/psmouse-base.c	Sun Jul  6 00:23:17 2003
+@@ -201,7 +201,7 @@
+ 	psmouse->cmdcnt = receive;
+ 
+ 	if (command == PSMOUSE_CMD_RESET_BAT)
+-                timeout = 2000000; /* 2 sec */
++                timeout = 4000000; /* 4 sec */
+ 
+ 	if (command & 0xff)
+ 		if (psmouse_sendbyte(psmouse, command & 0xff))
 
-When you have "a few Gb/s links" you would not use your beloved Pentium 100 
-MHz to do the job, instead you would go for something like 1.5 GHz P4 or 
-Athlon, both of which would be cheaper than the new 64-bit architecture.
-
-Jeff.
-
-P.S. I just looked up the cheapest gigabit copper I could find in 10 seconds, 
-and I found: D-Link DGE-500T for $36.27 this is just 4 times the price of the 
-cheapest fast ethernet I found on the same site (cdw.com - they are not the 
-cheapest, but I like them)
-
-- -- 
-A computer without Microsoft is like chocolate cake without mustard.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/B1OxwFP0+seVj/4RAkWfAJ9lYLk9zwpR2LpVLgVIDLovQewZKwCeLivr
-bRCwwzVIj29rmxiT5tpmkaM=
-=HXK9
------END PGP SIGNATURE-----
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

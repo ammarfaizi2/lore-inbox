@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264409AbUEDPAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUEDPBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUEDPAf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 11:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbUEDPAf
+	id S264426AbUEDPBs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 11:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbUEDPBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 11:00:35 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:10989 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264409AbUEDPAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 11:00:32 -0400
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-From: john stultz <johnstul@us.ibm.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Andrew Morton <akpm@osdl.org>, george@mvista.com,
-       kaukasoi@elektroni.ee.tut.fi, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-In-Reply-To: <Pine.LNX.4.53.0405040804180.2215@gockel.physik3.uni-rostock.de>
-References: <403D0F63.3050101@mvista.com>
-	 <1077760348.2857.129.camel@cog.beaverton.ibm.com>
-	 <403E7BEE.9040203@mvista.com>
-	 <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-	 <403E8D5B.9040707@mvista.com>
-	 <1081895880.4705.57.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de>
-	 <1081967295.4705.96.camel@cog.beaverton.ibm.com>
-	 <20040415103711.GA320@elektroni.ee.tut.fi>
-	 <Pine.LNX.4.53.0404151302140.28278@gockel.physik3.uni-rostock.de>
-	 <20040415161436.GA21613@elektroni.ee.tut.fi>
-	 <Pine.LNX.4.53.0405011540390.25435@gockel.physik3.uni-rostock.de>
-	 <20040501184105.2cd1c784.akpm@osdl.org>
-	 <Pine.LNX.4.53.0405020352480.26994@gockel.physik3.uni-rostock.de>
-	 <1083638458.9664.134.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0405040804180.2215@gockel.physik3.uni-rostock.de>
+	Tue, 4 May 2004 11:01:47 -0400
+Received: from ns.suse.de ([195.135.220.2]:42887 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264426AbUEDPB0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 11:01:26 -0400
+Subject: [PATCH] Invalid notify_change(symlink, [ATTR_MODE]) in nfsd
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Olaf Kirch <okir@suse.de>
 Content-Type: text/plain
-Message-Id: <1083682764.4324.33.camel@leatherman>
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1083682588.1444.24.camel@winden.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 04 May 2004 07:59:25 -0700
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 04 May 2004 16:56:28 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-03 at 23:12, Tim Schmielau wrote:
-> On Mon, 3 May 2004, john stultz wrote:
-> > 	This patch polishes up Tim Schmielau's (tim@physik3.uni-rostock.de) fix
-> > for jiffies_to_clock_t() and jiffies_64_to_clock_t(). The issues
-> > observed was w/ /proc output not matching up to wall time due to
-> > accumulated error caused by HZ not being exactly 1000 on i386 systems.
-> > The solution is to correct that error by using the more accurate
-> > TICK_NSEC in our calculation. 
-> 
-> I wonder whether it's conceptually correct to use jiffies for accurate 
-> long-time measurements at all. ntpd is there for a reason. Using both
-> corrected, accurate and freely running clocks IMHO is calling for trouble. 
-> This might be something to think about for 2.7.
+notify_change() gets called with at most the ATTR_MODE flag set for
+symlinks, but it should be called with the ATTR_MODE flag cleared.
+This triggers a bug in fs/reiserfs/xattr_acl.c (reiserfs plus acl
+patches), and perhaps on other file systems, too. (On ext2/ext3 symlinks
+have no ->setattr, there the bug does not trigger.)
 
-Indeed. Moving away from jiffies as a time counter and more of an
-interrupt counter is important. That allows for implementations of
-variable HZ and other things the high-res timer folks want without
-affecting the time keeping code. 
+	int
+	reiserfs_acl_chmod (struct inode *inode)
+	{
+        	struct posix_acl *acl, *clone;
+	        int error;
 
-Roughly, I'd like to see the time code for all arches in 2.7 to look
-like:
+==>	        if (S_ISLNK(inode->i_mode))
+==>	                return -EOPNOTSUPP;
 
-u64 system_time 	/* NTP adjusted nanosecs since boot */
-u64 wall_time_offset	/* offset to system_time for time of day */
-u64 offset_base		/* last read raw hw value */
 
-ts_read(): 
-        returns the raw cycle value from the hardware timesource
-        (TSC/ACPI PM/HPET)
-ts_delta(now, then):
-        returns the difference between two raw cycle values
-ts_cyc2ns(cycles):
-        converts a cycle value to ns
+This is the fix -- please apply.
 
-monotonic_clock(): 
-        returns NTP adjusted nanoseconds since boot
-        ie: system_time +
-        	NTP_GUNK(ts_cyc2ns(ts_delta(ts_read(),offset_base)))
-gettimeofday(): 
-        returns monotonic_clock() + sys_time_offset
-settimeofday(): 
-        adjusts only sys_time_offset
-time_interrupt_hook(): 
-        updates system_time. called by timer interrupt atleast once
-        every hardware cycle (ie: before the hardware counter
-        overflows), but otherwise unaffected by lost interrupts, etc.
-        ie: 
-                then = offset_base
-                now = ts_read()
-                system_time += NTP_GUNK(ts_cyc2ns(ts_delta(now, then)));
-                DO_MORE_NTP_GUNK()
+Index: linux-2.6.6-rc3/fs/nfsd/vfs.c
+===================================================================
+--- linux-2.6.6-rc3.orig/fs/nfsd/vfs.c
++++ linux-2.6.6-rc3/fs/nfsd/vfs.c
+@@ -1212,7 +1212,7 @@ nfsd_symlink(struct svc_rqst *rqstp, str
+ 		if (EX_ISSYNC(fhp->fh_export))
+ 			nfsd_sync_dir(dentry);
+ 		if (iap) {
+-			iap->ia_valid &= ATTR_MODE /* ~(ATTR_MODE|ATTR_UID|ATTR_GID)*/;
++			iap->ia_valid &= ~ATTR_MODE;
+ 			if (iap->ia_valid) {
+ 				iap->ia_valid |= ATTR_CTIME;
+ 				iap->ia_mode = (iap->ia_mode&S_IALLUGO)
 
-And ignoring the magic NTP_GUNK macros, that's all there is to it
-(Although don't kid your self, the NTP_GUNK is nasty). 
 
-Of course, with this approach, we actually have to be able to trust the
-hardware 100%. With the current state of i386 hw having serious problems
-w/ reliable timesources, this may be difficult. 
-
-I've got a bigger proposal (with proper credits to Keith Mannthey and
-George Anzinger for reviews and corrections) that I wrote up awhile
-back, and I'll likely send it out if this sketch gathers any interest.  
-
-thanks
--john
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 

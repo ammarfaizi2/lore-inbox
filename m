@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277756AbRJMLFi>; Sat, 13 Oct 2001 07:05:38 -0400
+	id <S277821AbRJMLdu>; Sat, 13 Oct 2001 07:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277720AbRJMLF2>; Sat, 13 Oct 2001 07:05:28 -0400
-Received: from pop.gmx.net ([213.165.64.20]:38923 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S276857AbRJMLFO>;
-	Sat, 13 Oct 2001 07:05:14 -0400
-Message-ID: <004801c153d6$ffc398c0$0100005a@host1>
-From: "peter k." <spam-goes-to-dev-null@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: iptables v1.2.3: can't initialize iptables table `filter': Module is wrong version
-Date: Sat, 13 Oct 2001 13:05:33 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S277720AbRJMLdk>; Sat, 13 Oct 2001 07:33:40 -0400
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:18822 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S278236AbRJMLdf>; Sat, 13 Oct 2001 07:33:35 -0400
+Date: Sat, 13 Oct 2001 07:34:06 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: gcc 3.0.1 fails to compile 8139too.c in 2.4.12ac1
+Message-ID: <20011013073406.A5374@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iptables keeps telling me that whenever i run it although i got the latest
-kernel, latest iptables and all modules required for iptables are loaded (it
-also doesnt work when i compile them into the kernel)!
-anyone got an idea how to fix this?
+In linux-2.4.1-ac12, drivers/net/8139too.c makes gcc 3.0.1 fail; gcc 2.95.3
+compiles the same code correctly.  This, of course, is something the gcc
+folks need to address, but I post it here fyi.
 
+# gcc --version
+3.0.1
+...
 
-[root@HOST2 /]# iptables -L
-iptables v1.2.3: can't initialize iptables table `filter': Module is wrong
-version
-Perhaps iptables or your kernel needs to be upgraded.
-[root@HOST2 /]# cat /proc/version
-Linux version 2.4.12 (root@HOST2) (gcc version 2.96 20000731 (Mandrake Linux
-8.1 2.96-0.62mdk)) #1 Sat Oct 13 12:12:08 CEST 2001
-[root@HOST2 /]# grep _NF_ /usr/src/linux/.config
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-# CONFIG_IP_NF_QUEUE is not set
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-# CONFIG_IP_NF_MATCH_MULTIPORT is not set
-# CONFIG_IP_NF_MATCH_TOS is not set
-# CONFIG_IP_NF_MATCH_TCPMSS is not set
-CONFIG_IP_NF_MATCH_STATE=m
-# CONFIG_IP_NF_MATCH_UNCLEAN is not set
-# CONFIG_IP_NF_MATCH_OWNER is not set
-CONFIG_IP_NF_FILTER=m
-# CONFIG_IP_NF_TARGET_REJECT is not set
-# CONFIG_IP_NF_TARGET_MIRROR is not set
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-# CONFIG_IP_NF_TARGET_REDIRECT is not set
-CONFIG_IP_NF_NAT_FTP=m
-# CONFIG_IP_NF_MANGLE is not set
-CONFIG_IP_NF_TARGET_LOG=m
-# CONFIG_IP_NF_TARGET_TCPMSS is not set
-# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+gcc -D__KERNEL__ -I/usr/kernel/linux-2.4.12ac1/include -Wall \
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer \
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 \
+-march=i686    -c -o 8139too.o 8139too.c
+8139too.c: In function `netdev_ethtool_ioctl':
+8139too.c:2419: Unrecognizable insn:
+(insn/i 612 1054 1051 (parallel[ 
+            (set (reg:SI 6 ebp)
+                (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; \
+sbbl $0,%0") ("=&r") 0[ 
+                        (reg/v:SI 1 edx [166])
+                        (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                (const_int -352 [0xfffffea0])) 0)
+                        (mem/s:SI (plus:SI (reg:SI 0 eax [174])
+                                (const_int 12 [0xc])) 0)
+                    ] 
+                    [ 
+                        (asm_input:SI ("1"))
+                        (asm_input:SI ("g"))
+                        (asm_input:SI ("g"))
+                    ] \
+("/usr/kernel/linux-2.4.12ac1/include/asm/uaccess.h") 558))
+            (set (reg/v:SI 1 edx [166])
+                (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; \
+sbbl $0,%0") ("=r") 1[ 
+                        (reg/v:SI 1 edx [166])
+                        (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                (const_int -352 [0xfffffea0])) 0)
+                        (mem/s:SI (plus:SI (reg:SI 0 eax [174])
+                                (const_int 12 [0xc])) 0)
+                    ] 
+                    [ 
+                        (asm_input:SI ("1"))
+                        (asm_input:SI ("g"))
+                        (asm_input:SI ("g"))
+                    ] \
+("/usr/kernel/linux-2.4.12ac1/include/asm/uaccess.h") 558))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 598 (insn_list 605 (nil)))
+    (nil))
+8139too.c:2419: Internal compiler error in \
+reload_cse_simplify_operands, at reload1.c:8355
 
-
-
-
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

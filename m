@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbTAIKYI>; Thu, 9 Jan 2003 05:24:08 -0500
+	id <S264940AbTAIKeM>; Thu, 9 Jan 2003 05:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbTAIKYI>; Thu, 9 Jan 2003 05:24:08 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:30377 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S262506AbTAIKYI>; Thu, 9 Jan 2003 05:24:08 -0500
-Date: Thu, 9 Jan 2003 11:32:47 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Andrew McGregor <andrew@indranet.co.nz>,
-       Fabio Massimo Di Nitto <fabbione@fabbione.net>, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: ipv6 stack seems to forget to send ACKs
-In-Reply-To: <20030108224339.GO22951@wiggy.net>
-Message-ID: <Pine.LNX.4.44.0301091131370.29527-100000@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264944AbTAIKeL>; Thu, 9 Jan 2003 05:34:11 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:3090 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S264940AbTAIKeC>;
+	Thu, 9 Jan 2003 05:34:02 -0500
+Date: Thu, 9 Jan 2003 11:42:47 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: MB without keyboard controller / USB-only keyboard ?
+Message-Id: <20030109114247.211f7072.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The fact that this problem does not seem to occur when using a window
-> XP client seems to contradict the suggestions that it may be a router
-> problem.
-What other linux clients support streaming on ip6 ? patched mpg123 maybe?
-What XP client are you using ?
+Hello all,
 
-Maybe it is a client issue, you say the client stops sending ACKs, maybe
-the client code is buggy.
+how do I work with a mb that contains no keyboard controller, but has only USB
+for keyboard and mouse?
+While booting the kernel I get:
 
-> Wichert.
-Maciej.
+pc_keyb: controller jammed (0xFF)
 
+(a lot of these :-)
 
+and afterwards I cannot use the USB keyboard.
+Everything works with a mb that contains a keyboard-controller, but where I use a
+USB keyboard.
+
+-- 
+Regards,
+Stephan

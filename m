@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268296AbTCCCWi>; Sun, 2 Mar 2003 21:22:38 -0500
+	id <S268294AbTCCCwB>; Sun, 2 Mar 2003 21:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268308AbTCCCWi>; Sun, 2 Mar 2003 21:22:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38161 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268296AbTCCCWh>;
-	Sun, 2 Mar 2003 21:22:37 -0500
-Message-ID: <3E62BED0.8040204@pobox.com>
-Date: Sun, 02 Mar 2003 21:32:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: nickn <nickn@www0.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com> <20030303004728.GA5856@www0.org>
-In-Reply-To: <20030303004728.GA5856@www0.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268308AbTCCCwA>; Sun, 2 Mar 2003 21:52:00 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:39184 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S268294AbTCCCwA>; Sun, 2 Mar 2003 21:52:00 -0500
+Date: Mon, 3 Mar 2003 03:02:24 +0000
+From: John Levon <levon@movementarian.org>
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Multiple & vs. && and | vs. || bugs in 2.4.20
+Message-ID: <20030303030223.GA48286@compsoc.man.ac.uk>
+References: <20030302121425.GA27040@defiant> <3E6247F7.8060301@redhat.com> <1046656929.16780.13.camel@voyager.tbdnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046656929.16780.13.camel@voyager.tbdnetworks.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18pgDh-0007RK-00*UOUsE8ikmxw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nickn wrote:
-> On Sun, Mar 02, 2003 at 12:12:58PM -0500, Jeff Garzik wrote:
-> 
->>My counter-question is, why not improve an _existing_ open source SCM to 
->>read and write BitKeeper files?  Why do we need yet another brand new 
->>project?
-> 
-> 
-> Or improve BK to export and import on demand of an existing open source SCM.
+On Sun, Mar 02, 2003 at 06:03:57PM -0800, Norbert Kiesel wrote:
 
+> What's IMHO more important is that the original code was producing the
+> correct result, so the patch for acm.c is not really necessary.  This is
+> also true for the patches for gus_midi.c, gus-wave.c, and i2c-proc.c.
 
-That may be possible with OpenCM, but it's a bit of a stretch for the 
-other existing SCMs.  Regardless, if BK can export metadata to an open 
-format (such as a defined XML spec), then the SCM interchange 
-possibilities are only limited by a programmer's time and imagination.
+Even the patch isn't *necessary* (i.e. does not change behaviour) it's
+still a good idea.
 
-	Jeff
+I've been working on a -Wboolean-bitops. It seems to work at least a
+bit, but I don't really know anything about gcc so it's probably
+brain-damaged. Alas, current gcc CVS seems to have real issues with the
+kernel ATM (as in, segfaults on scripts/empty.c immediately).
 
-
-
+regards
+john

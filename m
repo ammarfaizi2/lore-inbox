@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbULIVQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULIV3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbULIVQH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 16:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULIVQA
+	id S261626AbULIV3n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 16:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbULIV3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 16:16:00 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:9638 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261625AbULIVPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 16:15:47 -0500
-From: kernel-stuff@comcast.net
-To: Imanpreet Singh Arora <imanpreet@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question from Russells Spinlocks 
-Date: Thu, 09 Dec 2004 21:15:46 +0000
-Message-Id: <120920042115.25628.41B8C082000394E30000641C220076219400009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Nov 22 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Thu, 9 Dec 2004 16:29:43 -0500
+Received: from waste.org ([209.173.204.2]:55987 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261626AbULIV3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 16:29:41 -0500
+Date: Thu, 9 Dec 2004 13:29:36 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Concurrent access to /dev/urandom
+Message-ID: <20041209212936.GO8876@waste.org>
+References: <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041209015705.GB6978@thunk.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spinlocks are used in situations where multiple threads contend for a lock and they can possibly run on more than one CPU. Example - Thread A is executing on CPU-A, Thread B in executing on CPU-B. They contend for a lock L1.  A acquires the lock first. B tries (on CPU-B) to acquire the lock L1 and finds it is not free - so it just spins (executes a no-op kind of loop ) until Thread A relinquishes the lock L1. 
-Spinlocks are used in cases where the operation performed under a lock is short one - takes very less time. In these type of cases, spinning is less costlier than sleeping which involves scheduler overhead.
-So if we take out CPU-B from the above equation - there is no chance for Thread B to execute to contend for lock L1 without thread A going to sleep. That's why spinlocks are useless on 1 CPU machine.
+On Wed, Dec 08, 2004 at 08:57:05PM -0500, Theodore Ts'o wrote:
+> On Wed, Dec 08, 2004 at 01:56:14PM -0800, Matt Mackall wrote:
+> > 
+> > Ted, I think this is a bit more straightforward than your patch, and
+> > safer as it protects get_random_bytes() and internal extract_entropy()
+> > users. And I'd be leery of your get_cpu() trick due to preempt
+> > issues.
+> > 
+> 
+> I'm concerned that turning off interrupts during even a single SHA-1
+> transform will put us above the radar with respect to the preempt
+> latency statistics again.  We could use a separate spinlock that only
+> pretects the mix_ptr and mixing access to the pool, so we're at least
+> not disabling interrupts, but we still are holding a spinlock across a
+> cryptographic operation.
 
- The comment about  atomic_t - It is due to the fact that some ( IA-32 for e.g.) architectures guarantees atomicity of integer operations for only 24 bits. So you could possibly manipulate only 24 out of the 32 bits atomically - that's the hardware guarantee. The comments reflect this fact. (Pointers are 32bits on IA32 so it applies to pointer as well.)
+It's been suggested to me that a sequence lock might be the right
+approach to this, which I'll try to take a look at this evening. Also,
+I'm going to time the lock hold time in my previous more conventional
+patch and see what kind of neighborhood we're in.
 
-Correct me if I am wrong :) !
-
-Parag
-
-
-> 
-> Hello there,
-> 
->     I was reading Russell's guide on spinlocks, and I have some 
-> questions regarding it.
-> 
-> 
->     Question-->    Russell says that in case of non-SMP machines 
-> spinlocks don't exist _at_ALL_. Well they should do something don't they 
-> like disable interrupts and premptations. I checked linux/spinlock well 
-> they DO NOT do anything atleast not when DEBUG_SPINLOCKS == 0. My 
-> understanding is that since they aren't used anywhere outside kernel and 
-> drivers(?), they can't be prempted. At least that is what I have read.
-> 
-> 
-> What does the comment about gcc while defining atomic_t signify?
->              --> What about the comment about the limit of 24 bits on 
-> atomic_t?    
->              a)    Atomic operations on integers are guranteed only if 
-> there value can be stored in 24 bits.
->              b)    Atomic operations are guranteed only if the pointer 
-> has 8 MSbits set zero.
-> 
-> 
-> -- 
-> Imanpreet Singh Arora
-> 
-> Even if you are on the right track you are going to get runover if you just sit 
-> there.
-> 	-- Will Rogers
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Mathematics is the supreme nostalgia of our time.

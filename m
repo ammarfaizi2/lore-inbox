@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265150AbSJWSc1>; Wed, 23 Oct 2002 14:32:27 -0400
+	id <S265146AbSJWSiy>; Wed, 23 Oct 2002 14:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265151AbSJWSc1>; Wed, 23 Oct 2002 14:32:27 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:40601 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265150AbSJWSc0>; Wed, 23 Oct 2002 14:32:26 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 23 Oct 2002 11:47:33 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <20021023133900.B27433@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210231144500.1581-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265151AbSJWSiy>; Wed, 23 Oct 2002 14:38:54 -0400
+Received: from crack.them.org ([65.125.64.184]:62213 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S265146AbSJWSix>;
+	Wed, 23 Oct 2002 14:38:53 -0400
+Date: Wed, 23 Oct 2002 14:45:19 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: Frank Cornelis <fcorneli@elis.rug.ac.be>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] extended ptrace
+Message-ID: <20021023184519.GA18122@nevyn.them.org>
+Mail-Followup-To: Paul Larson <plars@linuxtestproject.org>,
+	Frank Cornelis <fcorneli@elis.rug.ac.be>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0210231656080.19811-100000@trappist.elis.rug.ac.be> <1035387198.3447.39.camel@plars> <20021023160144.GA11558@nevyn.them.org> <1035388815.5646.42.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1035388815.5646.42.camel@plars>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Benjamin LaHaise wrote:
+On Wed, Oct 23, 2002 at 11:00:13AM -0500, Paul Larson wrote:
+> On Wed, 2002-10-23 at 11:01, Daniel Jacobowitz wrote:
+> > On Wed, Oct 23, 2002 at 10:33:17AM -0500, Paul Larson wrote:
+> > > On Wed, 2002-10-23 at 10:01, Frank Cornelis wrote:
+> > > > Hi,
+> > > > 
+> > > > A new extended ptrace patch is available at:
+> > > > 	http://www.elis.rug.ac.be/~fcorneli/downloads/devel/exptrace-0.3.1.patch.gz
+> > > Do you (or anyone else) have any good tests for this, or even ptrace in
+> > > general?  I'm working on some ptrace tests for LTP, but if someone
+> > > already has something to contribute it would save me some time. :)
+> > 
+> > GDB and gdbserver get a good range of it; just pick a couple of the
+> > standard tests (to avoid problems with all the GDB bugs the testsuite
+> > turns up :).  I have some more precise tests but they're for
+> > features that haven't been accepted yet.
+> Precise tests that can be automated and ran under our test harness are
+> more along the lines of what I'm looking for.  If those features do go
+> in, it might be nice to have them in LTP if you don't mind.
 
-> On Wed, Oct 23, 2002 at 09:49:54AM -0700, Dan Kegel wrote:
-> > Furthermore, epoll is nice because it delivers one-shot readiness change
-> > notification (I used to think that was a drawback, but coding
-> > nonblocking OpenSSL apps has convinced me otherwise).
-> > I may be confused, but I suspect the async poll being proposed by
-> > Ben only delivers absolute readiness, not changes in readiness.
-> >
-> > I think epoll is worth having, even if Ben's AIO already handled
-> > networking properly.
->
-> That depends on how it compares to async read/write, which hasn't
-> been looked into yet.  The way the pipe code worked involved walking
-> the page tables, which is still quite expensive for small data sizes.
-> With the new code, the CPU's tlb will be used, which will make a big
-> difference, especially for the case where only a single address space
-> is in use on the system.
+No, I mean from GDB's automated regression suite.  Build gdb from
+source and 'make check' to see it.  There's a lot of tests which fail
+for reasons you aren't interested in, but a lot of them could just be
+incorporated.
 
-Ben, does it work at all currently read/write requests on sockets ? I
-would like to test AIO on networking using my test http server, and I was
-thinking about using poll() for async accept and AIO for read/write. The
-poll() should be pretty fast because there's only one fd in the set and
-the remaining code will use AIO for read/write. Might this work currently ?
-
-
-
-- Davide
-
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

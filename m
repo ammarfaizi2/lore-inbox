@@ -1,82 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261466AbTCVAhU>; Fri, 21 Mar 2003 19:37:20 -0500
+	id <S261475AbTCVAht>; Fri, 21 Mar 2003 19:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261475AbTCVAhU>; Fri, 21 Mar 2003 19:37:20 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:5360 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S261466AbTCVAhS>; Fri, 21 Mar 2003 19:37:18 -0500
-Date: Fri, 21 Mar 2003 16:47:08 -0800
-From: Chris Wright <chris@wirex.com>
-To: Greg KH <greg@kroah.com>
-Cc: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
-       mc@cs.stanford.edu
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-Message-ID: <20030321164708.F646@figure1.int.wirex.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Junfeng Yang <yjf@stanford.edu>,
-	linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU> <20030321161550.D646@figure1.int.wirex.com> <20030322003251.GA18359@kroah.com>
+	id <S261533AbTCVAht>; Fri, 21 Mar 2003 19:37:49 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:12416 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261475AbTCVAhp>; Fri, 21 Mar 2003 19:37:45 -0500
+Date: Sat, 22 Mar 2003 09:47:36 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: module for legacy PC9800 ide
+Message-ID: <20030322004736.GA1033@yuzuki.cinet.co.jp>
+References: <200303211928.h2LJSjWS025795@hraefn.swansea.linux.org.uk> <20030321185905.A7664@infradead.org> <1048278284.5718.87.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030322003251.GA18359@kroah.com>; from greg@kroah.com on Fri, Mar 21, 2003 at 04:32:51PM -0800
+In-Reply-To: <1048278284.5718.87.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
+On Fri, Mar 21, 2003 at 08:24:44PM +0000, Alan Cox wrote:
+> On Fri, 2003-03-21 at 18:59, Christoph Hellwig wrote:
+> > On Fri, Mar 21, 2003 at 07:28:45PM +0000, Alan Cox wrote:
+> > > +	/* These ports are probably used by IDE I/F.  */
+> > > +	request_region(0x430, 1, "ide");
+> > > +	request_region(0x435, 1, "ide");
+> > 
+> > No error chechking?
 > 
-> Ugh, that's pretty bad.  That whole chunk of debug code should just be
-> replaced with a call to usb_serial_debug_data() like the other
-> usb-serial drivers do.
+> If it fails you have a rather bigger problem on your hands.
 > 
-> Patches welcomed :)
+> I agree however - Osamu, can you fix this
+Thanks.
+Could you plese replace patch by this one.
+Some PC-98 has these port, not all PC-98. These ports are connected to
+IDE chip. But driver doesn't use these ports. So I added a warning
+messeage.
 
-Something like this?
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
-
-===== drivers/usb/serial/kobil_sct.c 1.5 vs edited =====
---- 1.5/drivers/usb/serial/kobil_sct.c	Wed Mar 12 14:57:33 2003
-+++ edited/drivers/usb/serial/kobil_sct.c	Fri Mar 21 16:50:56 2003
-@@ -406,8 +406,6 @@
- 	int result = 0;
- 	int todo = 0;
- 	struct kobil_private * priv;
--	int i;
--	char *data;
- 
- 	if (count == 0) {
- 		dbg("%s - port %d write request of 0 bytes", __FUNCTION__, port->number);
-@@ -421,19 +419,6 @@
- 		return -ENOMEM;
- 	}
- 
--	// BEGIN DEBUG
--	data = (unsigned char *) kmalloc((3 * count + 10) * sizeof(char), GFP_KERNEL);  
--	if (! data) {
--		return (-1);
--	}
--	memset(data, 0, (3 * count + 10));
--	for (i = 0; i < count; i++) { 
--		sprintf(data +3*i, "%02X ", buf[i]); 
--	} 
--	dbg(" %d --> %s", port->number, data );
--	kfree(data);
--	// END DEBUG
--
- 	// Copy data to buffer
- 	if (from_user) {
- 		if (copy_from_user(priv->buf + priv->filled, buf, count)) {
-@@ -442,6 +427,8 @@
- 	} else {
- 		memcpy (priv->buf + priv->filled, buf, count);
- 	}
+--- /dev/null	2002-08-31 08:31:37.000000000 +0900
++++ linux/drivers/ide/legacy/pc9800.c	2003-03-22 09:09:25.000000000 +0900
+@@ -0,0 +1,84 @@
++/*
++ *  ide_pc9800.c
++ *
++ *  Copyright (C) 1997-2000  Linux/98 project,
++ *			     Kyoto University Microcomputer Club.
++ */
 +
-+	usb_serial_debug_data (__FILE__, __FUNCTION__, count, priv->buf + priv->filled);
- 
- 	priv->filled = priv->filled + count;
- 
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/ioport.h>
++#include <linux/ide.h>
++#include <linux/init.h>
++
++#include <asm/io.h>
++#include <asm/pc9800.h>
++
++#define PC9800_IDE_BANKSELECT	0x432
++
++#undef PC9800_IDE_DEBUG
++
++static void pc9800_select(ide_drive_t *drive)
++{
++#ifdef PC9800_IDE_DEBUG
++	byte old;
++
++	/* Too noisy: */
++	/* printk(KERN_DEBUG "pc9800_select(%s)\n", drive->name); */
++
++	outb(0x80, PC9800_IDE_BANKSELECT);
++	old = inb(PC9800_IDE_BANKSELECT);
++	if (old != HWIF(drive)->index)
++		printk(KERN_DEBUG "ide-pc9800: switching bank #%d -> #%d\n",
++			old, HWIF(drive)->index);
++#endif
++	outb(HWIF(drive)->index, PC9800_IDE_BANKSELECT);
++}
++
++void __init ide_probe_for_pc9800(void)
++{
++	u8 saved_bank;
++
++	if (!PC9800_9821_P() /* || !PC9821_IDEIF_DOUBLE_P() */)
++		return;
++
++	if (!request_region(PC9800_IDE_BANKSELECT, 1, "ide0/1 bank")) {
++		printk(KERN_ERR
++			"ide: bank select port (%#x) is already occupied!\n",
++			PC9800_IDE_BANKSELECT);
++		return;
++	}
++
++	/* Do actual probing. */
++	if ((saved_bank = inb(PC9800_IDE_BANKSELECT)) == (u8) ~0
++	    || (outb(saved_bank ^ 1, PC9800_IDE_BANKSELECT),
++		/* Next outb is dummy for reading status. */
++		outb(0x80, PC9800_IDE_BANKSELECT),
++		inb(PC9800_IDE_BANKSELECT) != (saved_bank ^ 1))) {
++		printk(KERN_INFO
++			"ide: pc9800 type bank selecting port not found\n");
++		release_region(PC9800_IDE_BANKSELECT, 1);
++		return;
++	}
++
++	/* Restore original value, just in case. */
++	outb(saved_bank, PC9800_IDE_BANKSELECT);
++
++	/* These ports are reseved by IDE I/F.  */
++	if (!request_region(0x430, 1, "ide") ||
++	    !request_region(0x435, 1, "ide")) {
++		printk(KERN_WARNING
++			"ide: IO port 0x430 and 0x435 are reserved for IDE"
++			" the card using these ports may not work\n");
++	}
++
++	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET] == HD_DATA &&
++	    ide_hwifs[1].io_ports[IDE_DATA_OFFSET] == HD_DATA) {
++		ide_hwifs[0].chipset = ide_pc9800;
++		ide_hwifs[0].mate = &ide_hwifs[1];
++		ide_hwifs[0].selectproc = pc9800_select;
++		ide_hwifs[1].chipset = ide_pc9800;
++		ide_hwifs[1].mate = &ide_hwifs[0];
++		ide_hwifs[1].selectproc = pc9800_select;
++	}
++}

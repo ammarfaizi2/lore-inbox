@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266267AbUG0FcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266246AbUG0Fel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266267AbUG0FcH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 01:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0FcH
+	id S266246AbUG0Fel (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 01:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUG0Fel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 01:32:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3764 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266267AbUG0FcF (ORCPT
+	Tue, 27 Jul 2004 01:34:41 -0400
+Received: from main.gmane.org ([80.91.224.249]:1260 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266246AbUG0Fej (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 01:32:05 -0400
-Date: Mon, 26 Jul 2004 22:30:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, dipankar@in.ibm.com
-Subject: Re: [patch] Use kref for struct file.f_count refcounter
-Message-Id: <20040726223036.281106c5.akpm@osdl.org>
-In-Reply-To: <20040726150312.GJ1231@obelix.in.ibm.com>
-References: <20040726150312.GJ1231@obelix.in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 27 Jul 2004 01:34:39 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Wireless devices and route settings
+Date: Mon, 26 Jul 2004 22:34:35 -0700
+Message-ID: <pan.2004.07.27.05.34.35.543474@triplehelix.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-193-193.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
->
-> This patch makes use of the kref api for the 
->  struct file.f_count refcounter.  This depends
->  on the new kref apis kref_read and kref_put_last
->  added by means of my earlier patch today.
+Hello,
 
-Sorry, but I can't really see how this improves anything.  It'll slow
-things down infinitesimally and it forces the reader to look elsewhere in
-the tree to see what's going on.
+So, I have a wireless interface on a 'guest' Linux box (running 2.6.7-rc1,
+not bothered to compile a new kernel yet.) It is a fair distance away from
+the access point and sometimes goes out of range.
+
+Usually it can go out of range and come back in range without the user
+noticing anything has happened. But once in a while, when the connection
+is especially poor, the interface will go down and lose its default route.
+When it comes back, it retains its IP, but does not keep the default route.
+This makes the internet unusable on this machine until i cycle ifdown/ifup
+which I cannot rely on guests to do.
+
+There is no daemon watching the network interfaces at all that might be
+doing this (I'm pretty sure), so I was hoping linux-kernel might know.
+
+Here's to a prompt solution..
+
+-- 
+Joshua Kwan
+
 

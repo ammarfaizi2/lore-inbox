@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUJNQEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUJNQI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266491AbUJNQEh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 12:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUJNQEg
+	id S266512AbUJNQI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 12:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUJNQI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 12:04:36 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266491AbUJNQDg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 12:03:36 -0400
-Date: Thu, 14 Oct 2004 12:03:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	Thu, 14 Oct 2004 12:08:27 -0400
+Received: from mail.dif.dk ([193.138.115.101]:27314 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266512AbUJNQID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 12:08:03 -0400
+Date: Thu, 14 Oct 2004 18:05:16 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
 To: James Colannino <lkml@colannino.org>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Spam on the list
 In-Reply-To: <416EA06E.3050608@colannino.org>
-Message-ID: <Pine.LNX.4.53.0410141201470.7694@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0410141756330.19691@jjulnx.backbone.dif.dk>
 References: <416EA06E.3050608@colannino.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -25,20 +24,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, 14 Oct 2004, James Colannino wrote:
 
-> I was just thinking that the list receives a lot of spam.  Shouldn't the
-> list be locked down to be posted to by subsribers only as to curb the
-> bulk of that spam?  That's how most mailing lists I'm on are and it
-> works well.  Please don't flame me for this... :)  Just thought I'd
-> mention it.
->
-> James
+> Date: Thu, 14 Oct 2004 08:51:10 -0700
+> From: James Colannino <lkml@colannino.org>
+> To: linux-kernel@vger.kernel.org
+> Subject: Spam on the list
+> 
+> I was just thinking that the list receives a lot of spam. 
 
-Most of the spam comes from spam-machines that pretend that
-they are vger.kernel.org. Anything on vger.kernel.org isn't
-going to help that.
+Compared to my ordinary mailboxes (both private and work) the amount of 
+spam I get from lkml is quite small.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+
+> Shouldn't the list
+> be locked down to be posted to by subsribers only as to curb the bulk of that
+> spam? 
+
+The traditional reply to that is no. It would prevent a lot of bug-reports 
+from users from reaching the list as well as other useful stuff from 
+people who want to contribute one or two things but don't actually want to 
+read the list.
+
+This is actually covered in the LKML FAQ (http://www.tux.org/lkml/), take 
+a look at these entries: 
+
+http://www.tux.org/lkml/#s3-3
+
+http://www.tux.org/lkml/#s3-14
+A small quote from that one "...Some of the good kernel development people 
+cannot keep up with the volume on linux-kernel. But they do occasionally 
+post. Therefore we need to keep the submissions open for "everybody". Some 
+of the other important people have two or three Email addresses. They too 
+need to post from different addresses. ..."
+
+
+--
+Jesper Juhl
 

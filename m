@@ -1,90 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267020AbSKWSXy>; Sat, 23 Nov 2002 13:23:54 -0500
+	id <S267036AbSKWSZk>; Sat, 23 Nov 2002 13:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbSKWSXy>; Sat, 23 Nov 2002 13:23:54 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:39691 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S267020AbSKWSXx>;
-	Sat, 23 Nov 2002 13:23:53 -0500
-Date: Sat, 23 Nov 2002 19:25:47 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Hard Lockup with 2.4.20-rc3 and ISDN (ippp)
-Message-Id: <20021123192547.5f084d4e.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0211230908590.23257-100000@chaos.physics.uiowa.edu>
-References: <20021123123322.3e6ef7c2.skraw@ithnet.com>
-	<Pine.LNX.4.44.0211230908590.23257-100000@chaos.physics.uiowa.edu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267039AbSKWSZk>; Sat, 23 Nov 2002 13:25:40 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:64815
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267036AbSKWSZj>; Sat, 23 Nov 2002 13:25:39 -0500
+Date: Sat, 23 Nov 2002 13:36:29 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5] SCSI hosts.c missing device_register
+Message-ID: <Pine.LNX.4.50.0211231336020.1462-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Nov 2002 09:12:21 -0600 (CST)
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
+Does this patch look correct? Please CC as i am not subscribed.
 
-> Yup, my bad. Could you confirm that the attached patch which I sent to 
-> Marcelo already fixes it?
+SCSI subsystem driver Revision: 1.00
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0256725
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c0256725>]    Not tainted
+EFLAGS: 00010246
+EIP is at device_del+0x35/0xa0
+eax: c0662cac   ebx: c0514230   ecx: 00000000   edx: 00000000
+esi: c0662ca4   edi: 00000000   ebp: 00000000   esp: c15b9f1c
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 1, threadinfo=c15b8000 task=cff86040)
+Stack: c0662ca4 c0662c00 c0662c00 c025679b c0662ca4 c15b9f40 c02cfbbf c0662ca4
+       c0662c00 00000000 00000000 00000001 dead4ead c15b9f50 c15b9f50 c0144ed1
+       cffeb080 00000286 00000000 00000000 00000330 c05edbc6 c0662c00 cfd58424
+Call Trace:
+ [<c025679b>] device_unregister+0xb/0x16
+ [<c02cfbbf>] scsi_unregister+0xbf/0x140
+ [<c0144ed1>] kfree+0x61/0xe0
+ [<c02cffd8>] scsi_register_host+0x28/0xb0
+ [<c01050b0>] init+0x80/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c0108e05>] kernel_thread_helper+0x5/0x10
 
-Hello Kai, hello Marcelo,
+Code: 89 4a 04 89 40 04 89 11 89 d9 8b 56 04 89 46 08 8b 06 89 02
 
-I can confirm that below patch you sent fixes the lockup issue that came up
-with rc3.
+Index: linux-2.5.49/drivers/scsi/hosts.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.49/drivers/scsi/hosts.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 hosts.c
+--- linux-2.5.49/drivers/scsi/hosts.c	23 Nov 2002 02:56:36 -0000	1.1.1.1
++++ linux-2.5.49/drivers/scsi/hosts.c	23 Nov 2002 08:50:22 -0000
+@@ -467,6 +467,7 @@
+ 		DEVICE_NAME_SIZE-1);
+ 	sprintf(shost->host_driverfs_dev.bus_id, "scsi%d",
+ 		shost->host_no);
++	device_register(&shost->host_driverfs_dev);
 
-Regards,
-Stephan
-
-
-> -----------------------------------------------------------------------------
-> ChangeSet@1.795.1.2, 2002-11-22 15:24:43-06:00, kai@tp1.ruhr-uni-bochum.de
->   ISDN: Fix the fix
->   
->   Argh, I must have been asleep or something. The original patch by Herbert
->   Xu was right, I extended it to cover more error paths and broke it in 
->   doing so. Now fixed again.
-> 
->   
-> ---------------------------------------------------------------------------
-> 
-> diff -Nru a/drivers/isdn/isdn_ppp.c b/drivers/isdn/isdn_ppp.c
-> --- a/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
-> +++ b/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
-> @@ -1147,7 +1147,7 @@
->  		printk(KERN_ERR "isdn_ppp_xmit: lp->ppp_slot(%d)\n",
->  			mlp->ppp_slot);
->  		kfree_skb(skb);
-> -		goto unlock;
-> +		goto out;
->  	}
->  	ipts = ippp_table[slot];
->  
-> @@ -1155,7 +1155,7 @@
->  		if (ipts->debug & 0x1)
->  			printk(KERN_INFO "%s: IP frame delayed.\n", netdev->name);
->  		retval = 1;
-> -		goto unlock;
-> +		goto out;
->  	}
->  
->  	switch (ntohs(skb->protocol)) {
-> @@ -1169,7 +1169,7 @@
->  			printk(KERN_ERR "isdn_ppp: skipped unsupported protocol:
->  			%#x.\n", 
->  			       skb->protocol);
->  			dev_kfree_skb(skb);
-> -			goto unlock;
-> +			goto out;
->  	}
->  
->  	lp = isdn_net_get_locked_lp(nd);
-> @@ -1336,6 +1336,7 @@
->  
->   unlock:
->  	spin_unlock_bh(&lp->xmit_lock);
-> + out:
->  	return retval;
->  }
->  
+ 	shost->eh_notify = &sem;
+ 	kernel_thread((int (*)(void *)) scsi_error_handler, (void *) shost, 0);
+-- 
+function.linuxpower.ca

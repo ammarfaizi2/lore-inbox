@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289880AbSAKCMj>; Thu, 10 Jan 2002 21:12:39 -0500
+	id <S289836AbSAKCZl>; Thu, 10 Jan 2002 21:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289877AbSAKCM3>; Thu, 10 Jan 2002 21:12:29 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:61116 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S289836AbSAKCMO>; Thu, 10 Jan 2002 21:12:14 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
-Date: Fri, 11 Jan 2002 03:10:59 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020111021221Z289836-13997+3739@vger.kernel.org>
+	id <S289837AbSAKCZc>; Thu, 10 Jan 2002 21:25:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:1155 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289836AbSAKCZN>;
+	Thu, 10 Jan 2002 21:25:13 -0500
+Date: Thu, 10 Jan 2002 18:24:16 -0800 (PST)
+Message-Id: <20020110.182416.85412060.davem@redhat.com>
+To: gibbs@scsiguy.com
+Cc: ncm-nospam@cantrip.org, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: bad patch in aic7xxx_linux.c 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200201101759.g0AHxGg81428@aslan.scsiguy.com>
+In-Reply-To: <20020110074240.B25480@cantrip.org>
+	<200201101759.g0AHxGg81428@aslan.scsiguy.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 00:52:16AM, khromy wrote:
-> On Thu, Jan 10, 2002 at 07:43:04PM -0500, Ed Tomlinson wrote:
-> > Incase I messed up removing and repatch I tried from a clean kernel with
-> > the same results.
-> > Any one else seeing this?
->
-> Yes.. This is a PII350 with 128MiB... If anybody needs any more info let
-> me know.
+   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+   Date: Thu, 10 Jan 2002 10:59:16 -0700
 
--H5 (-G1, latest I've tried worked)
+   >One can guess, but there are no addresses for anyone noted there later 
+   >than 1999.  In particular, Justin's address isn't listed.
+   
+   I monitor this list.  A Yahoo search using my name provides several
+   hits for my email address.
 
-1 GHz Athlon II, 640 MB 
-hang hard right after
-Initializing RT netlink socket
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+Your contact information really ought to be up to date in
+the sources and linux/MAINTAINERS

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbTKETsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbTKETsr
+	id S263179AbTKETuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTKETuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:48:47 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16538 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263172AbTKETsi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:48:38 -0500
-Date: Wed, 5 Nov 2003 11:41:31 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: jt@hpl.hp.com
-Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6 IrDA] IrNET status event Oops
-Message-Id: <20031105114131.4433ec2f.davem@redhat.com>
-In-Reply-To: <20031105194042.GC24323@bougret.hpl.hp.com>
-References: <20031105194042.GC24323@bougret.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 5 Nov 2003 14:50:39 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4736 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263179AbTKETu0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 14:50:26 -0500
+Message-Id: <200311051950.hA5JoO0s002149@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: balaji raghavan <braghava@usc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Pseudo disk interface 
+In-Reply-To: Your message of "Wed, 05 Nov 2003 11:04:38 PST."
+             <e9bdb4e9ef4a.e9ef4ae9bdb4@usc.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <e9bdb4e9ef4a.e9ef4ae9bdb4@usc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-1047330874P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 05 Nov 2003 14:50:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Nov 2003 11:40:42 -0800
-Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
+--==_Exmh_-1047330874P
+Content-Type: text/plain; charset=us-ascii
 
-> ir2609_irnet_ppp_open_race-2.diff :
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 	o [CRITICA] Prevent sending status event to dead/kfree sockets
-> 	o [CORRECT] Disable PPP access before deregistration
-> 		PPP deregistration might sleep -> race condition
+On Wed, 05 Nov 2003 11:04:38 PST, balaji raghavan <braghava@usc.edu>  said:
 
-Applied, thanks.
+>     Is there a some kind of __disk_abstraction__ existent in Linux? I am
+> trying to write a Cryptographic disk driver for linux. But AFAIK, I would have
+> to write a pseudo disk interface viz. some disk abstraction driver. Can anyone
+> help me on this?
+
+See these:
+
+drivers/block/loop.c
+drivers/block/cryptoloop.c
+
+
+
+--==_Exmh_-1047330874P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/qVR/cC3lWbTT17ARAhT9AKDIk6Meo7nkKiv/hwc2lwDKPy+aEQCfSNfe
+xI6Ai1ZTIRug8hnEZz/1Es8=
+=T2LH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1047330874P--

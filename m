@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbRENObA>; Mon, 14 May 2001 10:31:00 -0400
+	id <S262103AbRENOfl>; Mon, 14 May 2001 10:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262090AbRENOav>; Mon, 14 May 2001 10:30:51 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:60639 "EHLO
+	id <S262105AbRENOfb>; Mon, 14 May 2001 10:35:31 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:62944 "EHLO
 	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262100AbRENOai>; Mon, 14 May 2001 10:30:38 -0400
-Date: Mon, 14 May 2001 15:30:37 +0100 (BST)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Reply-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+	id <S262103AbRENOfP>; Mon, 14 May 2001 10:35:15 -0400
+Message-Id: <5.1.0.14.2.20010514153419.00a7cec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 14 May 2001 15:35:22 +0100
 To: Linus Torwalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.5-pre1: tiny NLS include fix
-Message-ID: <Pine.SOL.3.96.1010514152513.13662A-200000@libra.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-989850637=:13662"
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] 2.4.5-pre1: tiny NLS include fix
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.3.96.1010514152513.13662A-200000@libra.cus.cam.ac
+ .uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+At 15:30 14/05/01, Anton Altaparmakov wrote:
+>Please apply attached patch. It puts a #ifndef;#define;#endif block around
+>the contents of linux/include/linux to allow for multiple #includes of
 
----559023410-851401618-989850637=:13662
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+s#linux/include/linux#linux/include/linux/nls.h#
 
-Linus,
+Anton
 
-Please apply attached patch. It puts a #ifndef;#define;#endif block around
-the contents of linux/include/linux to allow for multiple #includes of
-<linux/nls.h>.
+><linux/nls.h>.
+>
+>Best regards,
+>
+>         Anton
+>--
+>Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+>Linux NTFS maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+>ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+>
+>--- linux/include/linux/nls.h.old       Mon May 14 15:20:16 2001
+>+++ linux/include/linux/nls.h   Mon May 14 15:24:41 2001
+>@@ -1,3 +1,6 @@
+>+#ifndef _LINUX_NLS_H
+>+#define _LINUX_NLS_H
+>+
+>  #include <linux/init.h>
+>
+>  /* unicode character */
+>@@ -28,3 +31,6 @@
+>  extern int utf8_mbstowcs(wchar_t *, const __u8 *, int);
+>  extern int utf8_wctomb(__u8 *, wchar_t, int);
+>  extern int utf8_wcstombs(__u8 *, const wchar_t *, int);
+>+
+>+#endif /* _LINUX_NLS_H */
+>+
 
-Best regards,
-
-	Anton
 -- 
 Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
 ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-
----559023410-851401618-989850637=:13662
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nls.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.3.96.1010514153037.13662B@libra.cus.cam.ac.uk>
-Content-Description: 
-
-LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvbmxzLmgub2xkCU1vbiBNYXkgMTQg
-MTU6MjA6MTYgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvbmxzLmgJ
-TW9uIE1heSAxNCAxNToyNDo0MSAyMDAxDQpAQCAtMSwzICsxLDYgQEANCisj
-aWZuZGVmIF9MSU5VWF9OTFNfSA0KKyNkZWZpbmUgX0xJTlVYX05MU19IDQor
-DQogI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4NCiANCiAvKiB1bmljb2RlIGNo
-YXJhY3RlciAqLw0KQEAgLTI4LDMgKzMxLDYgQEANCiBleHRlcm4gaW50IHV0
-ZjhfbWJzdG93Y3Mod2NoYXJfdCAqLCBjb25zdCBfX3U4ICosIGludCk7DQog
-ZXh0ZXJuIGludCB1dGY4X3djdG9tYihfX3U4ICosIHdjaGFyX3QsIGludCk7
-DQogZXh0ZXJuIGludCB1dGY4X3djc3RvbWJzKF9fdTggKiwgY29uc3Qgd2No
-YXJfdCAqLCBpbnQpOw0KKw0KKyNlbmRpZiAvKiBfTElOVVhfTkxTX0ggKi8N
-CisNCg==
----559023410-851401618-989850637=:13662--

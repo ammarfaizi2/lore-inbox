@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288819AbSAIF3n>; Wed, 9 Jan 2002 00:29:43 -0500
+	id <S288821AbSAIFbE>; Wed, 9 Jan 2002 00:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288820AbSAIF3e>; Wed, 9 Jan 2002 00:29:34 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65451 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S288819AbSAIF30>; Wed, 9 Jan 2002 00:29:26 -0500
-Date: Tue, 8 Jan 2002 22:29:37 -0700
-Message-Id: <200201090529.g095TbA29299@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Kervin Pierre <kpierre@fit.edu>
-Cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: fs corruption recovery?
-In-Reply-To: <3C3BC38C.7010808@fit.edu>
-In-Reply-To: <3C3BB082.8020204@fit.edu>
-	<20020108200705.S769@lynx.adilger.int>
-	<200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
-	<3C3BC38C.7010808@fit.edu>
+	id <S288823AbSAIFax>; Wed, 9 Jan 2002 00:30:53 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:47884 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S288821AbSAIFai>; Wed, 9 Jan 2002 00:30:38 -0500
+Date: Wed, 9 Jan 2002 14:28:37 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
+Message-Id: <20020109142837.3ee52fe0.rusty@rustcorp.com.au>
+In-Reply-To: <a1gcme$18t$1@cesium.transmeta.com>
+In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>
+	<20020108201451.088f7f99.rusty@rustcorp.com.au>
+	<a1f9j9$5i9$1@cesium.transmeta.com>
+	<20020109120108.39bcf7ad.rusty@rustcorp.com.au>
+	<a1gcme$18t$1@cesium.transmeta.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kervin Pierre writes:
-> Do you still have any of those scripts around? Or can you give me a 
-> general idea of how you used debugfs to retrieve your files?
+On 8 Jan 2002 19:16:30 -0800
+"H. Peter Anvin" <hpa@zytor.com> wrote:
+> So you chown an entry, then a module is unloaded and reloaded, now
+> what happens?
 
-http://www.atnf.csiro.au/~rgooch/linux/
+Sorry, was responding to the second sentence, not the first:
 
-> I was actually expecting to spend a few hundred instead of a few
-> thousand.
+> However, procfs has no permission control
+> system set up, unlike /dev.  This is inherent; adjusting sysctls is a
+> root-only function and cannot be made otherwise.
 
-That was a quote?
+In practice, my /proc/sys perms are four bits: ALL READ, ALL WRITE, ROOT READ, ROOT WRITE.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Hope that helps,
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVCEMjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVCEMok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbVCEMjb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 07:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVCEMjb
+	id S262911AbVCEMok (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 07:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVCEMoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 07:39:31 -0500
-Received: from mail.aei.ca ([206.123.6.14]:44791 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S263019AbVCEMjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 07:39:25 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Ian Pilcher <i.pilcher@comcast.net>
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-Date: Sat, 5 Mar 2005 07:39:26 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050304222146.GA1686@kroah.com> <d0bejc$r11$1@sea.gmane.org>
-In-Reply-To: <d0bejc$r11$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Mar 2005 07:44:39 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:530 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263051AbVCEMo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 07:44:26 -0500
+Date: Sat, 5 Mar 2005 12:44:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>, Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
+       Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH][MMC] Secure Digital (SD) support
+Message-ID: <20050305124420.A342@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
+	Richard Purdie <rpurdie@rpsys.net>
+References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503050739.26651.tomlins@cam.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4229A4B4.1000208@drzeus.cx>; from drzeus-list@drzeus.cx on Sat, Mar 05, 2005 at 01:23:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 March 2005 00:08, Ian Pilcher wrote:
-> Greg KH wrote:
-> > Anything else anyone can think of?  Any objections to any of these?
-> > I based them off of Linus's original list.
-> 
-> Must already be in Linus tree (i.e. 2.6.X+1)?
+On Sat, Mar 05, 2005 at 01:23:16PM +0100, Pierre Ossman wrote:
+> I can make a new patch or you can just undo that line once you've 
+> applied the current one.
 
-How about must be logicily fixed in the Linus tree - Linus does not have to have the 
-same patch...
+I'd rather not just apply this patch - there's rather a lot there to
+just apply on top of what's already merged.
 
-Ed
+Is there any chance you can split it up into a smaller set of changes
+so it's more obvious what's going on at each stage please?
+
+We'll also need to run this by Linus first, explaining why you believe
+it's now ok to merge this.  (Added Linus...)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

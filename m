@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131565AbRAITz2>; Tue, 9 Jan 2001 14:55:28 -0500
+	id <S131850AbRAIT4S>; Tue, 9 Jan 2001 14:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131517AbRAITzS>; Tue, 9 Jan 2001 14:55:18 -0500
-Received: from 041imtd176.chartermi.net ([24.247.41.176]:8595 "EHLO
-	oof.netnation.com") by vger.kernel.org with ESMTP
-	id <S130231AbRAITzN>; Tue, 9 Jan 2001 14:55:13 -0500
-Date: Tue, 9 Jan 2001 14:53:52 -0500
-From: Simon Kirby <sim@stormix.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zlatko Calusic <zlatko@iskon.hr>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-Message-ID: <20010109145352.A23691@stormix.com>
-In-Reply-To: <dnbstgewoj.fsf@magla.iskon.hr> <Pine.LNX.4.10.10101091041150.2070-100000@penguin.transmeta.com>
+	id <S129733AbRAITz7>; Tue, 9 Jan 2001 14:55:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:33296 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130231AbRAITz0>; Tue, 9 Jan 2001 14:55:26 -0500
+Date: Tue, 9 Jan 2001 20:54:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010109205420.H29904@athlon.random>
+In-Reply-To: <20010109183808.A12128@suse.de> <Pine.LNX.4.30.0101091935461.7155-100000@e2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.10.10101091041150.2070-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 09, 2001 at 10:47:57AM -0800
+In-Reply-To: <Pine.LNX.4.30.0101091935461.7155-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 07:38:28PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 10:47:57AM -0800, Linus Torvalds wrote:
-
-> And this _is_ a downside, there's no question about it. There's the worry
-> about the potential loss of locality, but there's also the fact that you
-> effectively need a bigger swap partition with 2.4.x - never mind that
-> large portions of the allocations may never be used. You still need the
-> disk space for good VM behaviour.
+On Tue, Jan 09, 2001 at 07:38:28PM +0100, Ingo Molnar wrote:
 > 
-> There are always trade-offs, I think the 2.4.x tradeoff is a good one.
+> On Tue, 9 Jan 2001, Jens Axboe wrote:
+> 
+> > > > ever seen, this is why i quoted it - the talk was about block-IO
+> > > > performance, and Stephen said that our block IO sucks. It used to suck,
+> > > > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
+> > >
+> > > Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
+> > > and I'll be a happy man
+> >
+> > No problem, apply blk-13B and you'll get 512K chunks for SCSI and RAID.
+> 
+> i cannot agree more - Jens' patch did wonders to IO performance here. It
 
-Hmm, perhaps you could clarify...
+BTW, I noticed what is left in blk-13B seems to be my work (Jens's fixes for
+merging when the I/O queue is full are just been integrated in test1x). The
+512K SCSI command, wake_up_nr, elevator fixes and cleanups and removal of the
+bogus 64 max_segment limit in scsi.c that matters only with the IOMMU to allow
+devices with sg_tablesize <64 to do SG with 64 segments were all thought and
+implemented by me. My last public patch with most of the blk-13B stuff in it
+was here:
 
-For boxes that rarely ever use swap with 2.2, will they now need more
-swap space on 2.4 to perform well, or just boxes which don't have enough
-RAM to handle everything nicely?
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/2.4.0-test7/blkdev-3
 
-I've always been tending to make swap partitions smaller lately, as it
-helps in the case where we have to wait for a runaway process to eat up
-all of the swap space before it gets killed.  Making the swap size
-smaller speeds up the time it takes for this to happen, albeit something
-which isn't supposed to happen anyway.
+I sumbitted a later revision of the above blkdev-3 to Jens and he kept nicely
+maintaining it in sync with 2.4.x-latest.
 
-Simon-
+My blkdev tree is even more advanced but I didn't had time to update with 2.4.0
+and marge it with Jens yet (I just described to Jens what "more advanced"
+means though, in practice it means something like a x2 speedup in tiotest seek
+write numbers, streaming I/O doesn't change on highmem boxes but it doesn't
+hurt lowmem boxes anymore). Current blk-13B isn't ok for integration yet
+because it hurts with lowmem (try with mem=32m with your scsi array that gets
+512K*512 requests in flight :) and it's not able to exploit the elevator as
+well as my tree even on highmemory machines. So I'd wait until I merge the last
+bits with Jens (I raised the QUEUE_NR_REQUESTS to 3000) before inclusion.
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+Confirm Jens?
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUJNPwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUJNP4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUJNPwS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 11:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUJNPwS
+	id S266386AbUJNP4o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 11:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUJNP4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 11:52:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266362AbUJNPwA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 11:52:00 -0400
-Date: Thu, 14 Oct 2004 11:50:31 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules?
-Message-ID: <20041014155030.GD26025@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	David Howells <dhowells@redhat.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	"Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-	David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Joy Latten <latten@us.ibm.com>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1097507755.318.332.camel@hades.cambridge.redhat.com> <1097534090.16153.7.camel@localhost.localdomain> <1097570159.5788.1089.camel@baythorne.infradead.org> <27277.1097702318@redhat.com> <16349.1097752!349@redhat.com> <17271.1097756056@redhat.com> <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com> <Pine.GSO.4.61.0410141617100.21062@waterleaf.sonytel.be> <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com> <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Oct 2004 11:56:43 -0400
+Received: from mail5.dslextreme.com ([66.51.199.81]:6788 "HELO
+	mail5.dslextreme.com") by vger.kernel.org with SMTP id S266386AbUJNP4m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 11:56:42 -0400
+Message-ID: <416EA06E.3050608@colannino.org>
+Date: Thu, 14 Oct 2004 08:51:10 -0700
+From: James Colannino <lkml@colannino.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040821
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Spam on the list
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 11:40:54AM -0400, Richard B. Johnson wrote:
+I was just thinking that the list receives a lot of spam.  Shouldn't the 
+list be locked down to be posted to by subsribers only as to curb the 
+bulk of that spam?  That's how most mailing lists I'm on are and it 
+works well.  Please don't flame me for this... :)  Just thought I'd 
+mention it.
 
- > Here is the same configuration, built on the linux-2.6.8 machine.
+James
 
-.config's from both please ?
+-- 
+My blog: http://www.crazydrclaw.com/
+My homepage: http://james.colannino.org/
 
-		Dave
+"You can only find truth with logic if you have already found truth without it." --G. K. Chesterton
 

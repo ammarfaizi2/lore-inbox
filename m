@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbTCaAat>; Sun, 30 Mar 2003 19:30:49 -0500
+	id <S261335AbTCaA1H>; Sun, 30 Mar 2003 19:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbTCaAat>; Sun, 30 Mar 2003 19:30:49 -0500
-Received: from c-30a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.48]:47559
-	"EHLO zaphod.guide") by vger.kernel.org with ESMTP
-	id <S261339AbTCaAas>; Sun, 30 Mar 2003 19:30:48 -0500
-To: linux-kernel@vger.kernel.org
-Subject: assertion failed in tcp.c & af_inet.c
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 31 Mar 2003 02:41:39 +0200
-Message-ID: <yw1xy92wxt8c.fsf@zaphod.guide>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+	id <S261338AbTCaA1H>; Sun, 30 Mar 2003 19:27:07 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33734 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261335AbTCaA1G>;
+	Sun, 30 Mar 2003 19:27:06 -0500
+Message-ID: <32798.4.64.238.61.1049071088.squirrel@webmail.osdl.org>
+Date: Sun, 30 Mar 2003 16:38:08 -0800 (PST)
+Subject: Re: 2.5.59: Input subsystem initialised really late
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Cc: <vojtech@suse.cz>
+X-Mailer: SquirrelMail (version 1.2.11 [cvs])
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+on 18-jan-2003 Russell King wrote:
+It appears to be impossible to get a SysRQ-T dump out of a kernel which has
+hung during (eg) the SCSI initialisation with 2.5.
 
-I keep getting these messages in the kernel log:
+Unlike previous 2.4 kernels, the keyboard is no longer initialised until
+fairly late - after many of the other drivers have initialised.
+Unfortunately, this means that it is quite difficult to debug these hangs
+(we'll leave discussion about in-kernel debuggers for another time!)
 
-KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
-KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+Can we initialise the input subsystem earlier (eg, after pci bus
+initialisation, before disks etc) so that we do have the ability to use the
+SysRQ features?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+and Vojtech replied:
+I think this should be possible, yes.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It seems to be related to accepting an incoming connection.
+Any updates to this?  Any clues?
 
-The kernel is 2.4.21-pre4 on Alpha.  The machine is behind a firewall
-that forwards connections so some ports to this machine.
+I have changed 5 module_inits to be run a little earlier in the initcall
+sequence (the 5 being:  atkbd_init, kbd_init, serio_init, input_init,
+and chr_dev_init).
+However, this still isn't enough to allow keyboard input (like
+ctrl-S, ctrl-Q, SysRq) during init messages as can be done with 2.4.20.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Thanks,
+~Randy
+
+
+

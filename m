@@ -1,74 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVBHCKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVBHCLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVBHCKT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 21:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVBHCKT
+	id S261385AbVBHCLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 21:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVBHCLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 21:10:19 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:12726 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261383AbVBHCKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 21:10:11 -0500
-Message-ID: <42081F87.4040707@comcast.net>
-Date: Mon, 07 Feb 2005 21:10:15 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: =?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Filesystem linking protections
-References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net> <20050207120516.A24171@build.pdx.osdl.net> <4207EBD4.9090104@comcast.net> <20050207144734.C469@build.pdx.osdl.net>
-In-Reply-To: <20050207144734.C469@build.pdx.osdl.net>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 7 Feb 2005 21:11:03 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:18439 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261385AbVBHCKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 21:10:48 -0500
+Message-Id: <200502080210.j182Aioh007619@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8) 
+In-Reply-To: Your message of "Tue, 08 Feb 2005 01:48:40 GMT."
+             <cu95po$3ch$1@abraham.cs.berkeley.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net> <200502072241.j17MfTfP027969@turing-police.cc.vt.edu>
+            <cu95po$3ch$1@abraham.cs.berkeley.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1107828644_17298P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Feb 2005 21:10:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--==_Exmh_1107828644_17298P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <20601.1107828643.1@turing-police.cc.vt.edu>
 
+On Tue, 08 Feb 2005 01:48:40 GMT, David Wagner said:
 
+> How would /etc/passwd get clobbered?  Are you thinking that a tmp
+> cleaner run by cron might delete /tmp/whatever (i.e., delete the hardlink
+> you created above)?  But deleting /tmp/whatever is safe; it doesn't affect
+> /etc/passwd.  I'm guessing I'm probably missing something.
 
-Chris Wright wrote:
-> * John Richard Moser (nigelenki@comcast.net) wrote:
-> 
->>Yes, mkdtemp() and mkstemp().
->>
->>Of course we can't always rely on programmers to get it right, so the
->>idea here is to make sure we ask broken code to behave nicely, and stab
->>it in the face if it doesn't.  Please try to examine this in that scope.
-> 
-> 
-> It's fine for hardened distro.  But still inappropriate for mainline.
-> 
+The attack is to hardlink some tempfile name to some file you want over-written.
+This usually involves just a little bit of work, such as recognizing that a given
+root cronjob uses an unsafe predictable filename in /tmp (look at the Bugtraq or
+Full-Disclosure archives, there's plenty).  Then you set a little program that
+sleep()s till a few seconds before the cronjob runs, does a getpid(), and then
+sprays hardlinks into the next 15 or 20 things that mktemp() will generate...
 
-Perhaps in mainline as an option?  The [*] notations next to things are
-really nice, they let you turn kernel stuff on and off :)  It's
-appropriate for mainline to support added security isn't it?  I think
-following the path of supporting-but-not-forcing is the best route,
-because it encourages people to account for systems which may take
-advantage of such options, and thus leads to a software base in which
-it's quite sane to actually enable those options globally.
+Consider how bash implements "here" scripts:
 
-That's just how I think though.
+#!/bin/bash
+echo << EOF
+some trash
+EOF
 
-> thanks,
-> -chris
+Now let's look at the strace (snipped for brevity..)
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+statfs("/tmp", {f_type="EXT2_SUPER_MAGIC", f_bsize=1024, f_blocks=253871, f_bfree=213773, f_bavail=200666, f_files=65536, f_ffree=65445, f_fsid={0, 0}, f_namelen=255, f_frsize=1024}) = 0
+time(NULL)                              = 1107828098
+open("/tmp/sh-thd-1107848098", O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_LARGEFILE, 0600) = 3
+dup(3)                                  = 4
+fcntl64(4, F_GETFL)                     = 0x8001 (flags O_WRONLY|O_LARGEFILE)
+fstat64(4, {st_mode=S_IFREG|0600, st_size=0, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7d71000
+_llseek(4, 0, [0], SEEK_CUR)            = 0
+write(4, "some trash\n", 11)            = 11
+close(4)                                = 0
+munmap(0xb7d71000, 4096)                = 0
+open("/tmp/sh-thd-1107848098", O_RDONLY|O_LARGEFILE) = 4
+close(3)                                = 0
+unlink("/tmp/sh-thd-1107848098")        = 0
+fcntl64(0, F_GETFD)                     = 0
+fcntl64(0, F_DUPFD, 10)                 = 10
+fcntl64(0, F_GETFD)                     = 0
+fcntl64(10, F_SETFD, FD_CLOEXEC)        = 0
+dup2(4, 0)                              = 0
+close(4)                                = 0
+
+Wow - if my /tmp was on the same partition, and I'd hard-linked that
+file to /etc/passwd, it would be toast now if root had run it.
+
+You usually can't control what gets written - but often it's sufficient for the
+attacker to simply get a file clobbered....
+
+--==_Exmh_1107828644_17298P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFCCB+GhDd4aOud5P8RAlD9AJ45JTY20WY6qHe0h0ZIcFasgxJDtACbB1aB
-i4hytMAy6Cs1AUNXC296JOk=
-=oLVs
+iD8DBQFCCB+kcC3lWbTT17ARAk6cAJsGraJ70YanDb/7BKDJaFcrZROK/ACfeg/4
+PMGCx4VYkpMalFt05xyHdCM=
+=kzJ1
 -----END PGP SIGNATURE-----
+
+--==_Exmh_1107828644_17298P--

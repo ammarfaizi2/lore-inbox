@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbSI0PMg>; Fri, 27 Sep 2002 11:12:36 -0400
+	id <S261724AbSI0POI>; Fri, 27 Sep 2002 11:14:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbSI0PMg>; Fri, 27 Sep 2002 11:12:36 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:27405 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261722AbSI0PMc>;
-	Fri, 27 Sep 2002 11:12:32 -0400
-Date: Fri, 27 Sep 2002 08:16:10 -0700
-From: Greg KH <greg@kroah.com>
-To: James Leone <berthabrains@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Web Camera
-Message-ID: <20020927151610.GA11080@kroah.com>
-References: <20020927070118.GB9243@kroah.com> <20020927074953.38216.qmail@web13115.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S262516AbSI0POI>; Fri, 27 Sep 2002 11:14:08 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:18915 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261724AbSI0POA>; Fri, 27 Sep 2002 11:14:00 -0400
+Date: Fri, 27 Sep 2002 08:04:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: dipankar@in.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <502559422.1033113869@[10.10.2.3]>
+In-Reply-To: <20020927152833.D25021@in.ibm.com>
+References: <20020927152833.D25021@in.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20020927074953.38216.qmail@web13115.mail.yahoo.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 12:49:53AM -0700, James Leone wrote:
-> 
-> --- Greg KH <greg@kroah.com> wrote:
-> > On Thu, Sep 26, 2002 at 11:53:15PM -0700, James
-> > Leone wrote:
-> > > Quickcam Express USB fx broken. Status?
-> > 
-> > Ah, to return to the good old days of detailed error
-> > messages, that
-> > contain volumes of information allowing everyone to
-> > instantly know what
-> > the sender has done, and is reporting...
-> > 
-> > How about reading REPORTING-BUGS and sending us
-> > that.  Then we might
-> > have a snowball's chance of understanding what you
-> > mean by this message.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> Bug report:
-> 
-> Plug camera into usb port
-> 
-> push button
-> 
-> no pictures
-> 
-> You plug, no play
-> 
-> How come Bill Gates figured this out?
-> 
-> I know he's not as dumb as I am.
+>> > What application were you all running ?
 
-Ah a troll.  How nice.  Have fun.  Good luck.
+Kernel compile on NUMA-Q looks like this:
 
-greg k-h
+125673 total
+82183 default_idle
+6134 do_anonymous_page
+4431 page_remove_rmap
+2345 page_add_rmap
+2288 d_lookup
+1921 vm_enough_memory
+1883 __generic_copy_from_user
+1566 file_read_actor
+1381 .text.lock.file_table           <-------------
+1168 find_get_page
+1116 get_empty_filp
+
+Presumably that's the same thing? Interestingly, if I look back at 
+previous results, I see it's about twice the cost in -mm as it is 
+in mainline, not sure why ... at least against 2.5.37 virgin it was.
+
+> Please try running the files_struct_rcu patch where fget() is lockfree
+> and let me know what you see.
+
+Will do ... if you tell me where it is ;-)
+
+M.
+

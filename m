@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbUKSTAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbUKSTGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbUKSTAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 14:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKSTAJ
+	id S261524AbUKSTGA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 14:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUKSTGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:00:09 -0500
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:33406 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261534AbUKSTAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:00:04 -0500
-Message-ID: <419E42B3.8070901@wanadoo.fr>
-Date: Fri, 19 Nov 2004 20:00:03 +0100
-From: Eric Pouech <pouech-eric@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040115
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Mike Hearn <mh@codeweavers.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: ptrace single-stepping change breaks Wine
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-In-Reply-To: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 19 Nov 2004 14:06:00 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:14163 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261524AbUKSTF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 14:05:57 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041118164612.GA17040@elte.hu>
+References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>
+	 <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
+	 <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
+	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
+	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
+	 <20041118164612.GA17040@elte.hu>
+Content-Type: text/plain
+Date: Fri, 19 Nov 2004 20:05:56 +0100
+Message-Id: <1100891156.6119.8.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath a écrit :
->>No, TIF_SINGLESTEP gets set even when the _user_ set TF. It is just a flag
->>saying that we should re-enable TF when we get back to user space.
->>
->>So TIF_SINGLESTEP in no way implies that TF was set by a debugger.
-> 
-> 
-> Ok, whatever.  I'm not really sure its use for the single-step stuff in
-> Davide Libenzi's changes doesn't change the expected behavior for the
-> nondebugger case, but it's too early in the morning to think hard about that.
-> 
-> Your change hit only one spot of three in arch/i386/kernel/signal.c where
-> PT_PTRACED is now tested and it should be a "is PTRACE_SINGLESTEP in effect?"
-> test.  Also the same spots in native and 32-bit emul for x86-64.
-> 
-> 
-> Thanks,
-> Roland
-> 
-the first patch put in BK by Linus doesn't fix the problem. Any plan to fix the 
-two other spots Roland mentionned ?
-A+
+Hi Ingo,
+
+in 29-4 I get a lot of these lines in my log:
+
+drivers/usb/input/hid-core.c: input irq status -71 received
+
+29-0 didn't do that.
+
+Kind regards,
+
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
 

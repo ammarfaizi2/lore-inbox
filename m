@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTGAPIR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 11:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTGAPIR
+	id S262482AbTGAPNC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 11:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTGAPNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 11:08:17 -0400
-Received: from relay5.ftech.net ([195.200.0.100]:11431 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id S262409AbTGAPIQ (ORCPT
+	Tue, 1 Jul 2003 11:13:02 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:15292 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262482AbTGAPNB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 11:08:16 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E25C962@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Krzysztof Halasa'" <khc@pm.waw.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.22-pre2
-Date: Tue, 1 Jul 2003 16:22:37 +0100 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 1 Jul 2003 11:13:01 -0400
+Date: Tue, 1 Jul 2003 17:27:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GSM PCMCIA cards?
+Message-ID: <20030701172718.A11446@ucw.cz>
+References: <20030701115354.7810e350.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030701115354.7810e350.skraw@ithnet.com>; from skraw@ithnet.com on Tue, Jul 01, 2003 at 11:53:54AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcello,
-	Yes please do that.  There are people who want it in.
+On Tue, Jul 01, 2003 at 11:53:54AM +0200, Stephan von Krawczynski wrote:
 
-Kevin Curtis
-Linux Development
-FarSite Communications Ltd
-kevin.curtis@farsite.co.uk
-tel:   +44 1256 330461
-fax:  +44 1256 854931
-http://www.farsite.co.uk
+> does anybody use a GSM PCMCIA card under Linux? What vendor?
 
------Original Message-----
-From: Krzysztof Halasa [mailto:khc@pm.waw.pl]
-Sent: 28 June 2003 00:39
-To: Marcelo Tosatti
-Cc: lkml
-Subject: Re: Linux 2.4.22-pre2
+SonyEricsson/AnyCom GC75 works OK, looks like a serial modem. Triband.
 
-
-Hi,
-
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-
-> Here goes -pre2 with a big number of changes, including the new aic7xxx
-> driver.
-> 
-> I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
-> short.
-
-What's wrong with the generic HDLC update then? Are you going to apply it?
-
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-or http://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-
-Yes, it applies to 2.4.21-pre7 and later kernels, including 2.4.22-pre2.
-I hope it will require "-R" to apply it to pre3...
-
-TIA.
 -- 
-Krzysztof Halasa
-Network Administrator
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

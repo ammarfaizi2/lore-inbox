@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUCPTNh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 14:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbUCPTNh
+	id S261396AbUCPTOe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 14:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUCPTOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 14:13:37 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:58301
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261357AbUCPTNM
+	Tue, 16 Mar 2004 14:14:34 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:10508 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261396AbUCPTOX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 14:13:12 -0500
-Date: Tue, 16 Mar 2004 14:22:26 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, EVMS <evms-devel@lists.sourceforge.net>
-Subject: Re: deactivate dm disks?
-Message-ID: <20040316142226.A13765@animx.eu.org>
-References: <20040315205650.A11865@animx.eu.org> <200403160917.03810.kevcorry@us.ibm.com>
+	Tue, 16 Mar 2004 14:14:23 -0500
+Date: Tue, 16 Mar 2004 20:14:26 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>, Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client
+ isolation
+Message-Id: <20040316201426.1d01f1d3.khali@linux-fr.org>
+In-Reply-To: <20040316154454.GA13854@kroah.com>
+References: <4056C805.8090004@convergence.de>
+	<20040316154454.GA13854@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <200403160917.03810.kevcorry@us.ibm.com>; from Kevin Corry on Tue, Mar 16, 2004 at 09:17:03AM -0600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I was playing with evms (2.2 kernel 2.6.3 vanilla) and some reason, it
-> > grabbed my usb disk (sde) and won't let go of it.  Is there any way I can
-> > make it let go of the disk?  It grabbed sde1 and sde2 of the disk.
-> 
-> You can put entries in your /etc/evms.conf file to tell EVMS to ignore certain 
-> disks (e.g. if you don't want it to examine sde). See the "legacy_devices" 
-> section (for 2.4 kernels) and/or the "sysfs_devices" section (for 2.6 
-> kernels).
+> Yeah, right now it's up to the chip drivers to be honest.  If you want
+> to implement a change to do this instead, I'll be glad to apply it.
 
-Ok, great, that works.
+Does this mean that i2c_client would get an additional ".class" struct
+element, of the same nature of the ".class" struct element of
+i2c_adapter?
 
-> > I tried the deactivate which just gave me an invalid argument. I really do
-> > not wish to reboot this machine just to remove the usb disk.
-> 
-> If you have the "dmsetup" tool, you can issue a "dmsetup remove_all" command 
-> to deactivate all the DM devices. Just make sure all the DM devices are 
-> unmounted, or it won't actually release the underlying disks. Dmsetup is part 
-> of the device-mapper package, available at ftp://sources.redhat.com/pub/dm/.
+This sounds interesting. That way, the "compatibility" check would move
+down to i2c-core and neither the bus drivers nor the chip drivers would
+have to care (apart from defining this .class element). Sounds really
+nice indeed.
 
-Ahh, thanks.  That did the trick.
+I guess that chip drivers would be allowed to define only one class
+while adapters could possibly define more than one?
 
-> > I also noticed it wanted to grab my partitions on sda which were already
-> > mounted and couldn't grab them.
-> 
-> Again, you can add an "exclude" entry in your /etc/evms.conf if you want EVMS 
-> to ignore sda. Otherwise, have a look at
-> http://evms.sf.net/install/kernel.html#bdclaim
+We also would want to introduce an I2C_ADAP_CLASS_ANY define, which
+would be what the eeprom driver would use, for example (since it can be
+hosted on any kind of bus). Generic bus drivers such as i2c-parport
+would also use I2C_ADAP_CLASS_ANY, since the nature of the hosted chips
+is unknown.
 
-I think I'll only give it disks that I want in evms.  The "sde" is a USB
-disk that I move around alot.
-
-If you're not the right person to ask, please direct me to someone else.
-I was going to do a raid5 across a few disks (this is in the future not
-now).  Is there any way to add disks to that raid5 using evms?
+Having clients define a class sounds also interesting from a
+user-space's point of view. If we would export this information through
+sysfs for example, programs such as "sensors" could limit their work to
+chips of the correct class (I2C_ADAP_CLASS_SMBUS at the moment, but a
+renaming is planned).
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

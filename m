@@ -1,47 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265764AbTL3L7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 06:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265765AbTL3L7h
+	id S265765AbTL3MDN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 07:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTL3MDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 06:59:37 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:38339 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265764AbTL3L7g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 06:59:36 -0500
-Date: Tue, 30 Dec 2003 09:58:19 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4] Is a negative rsect in /proc/partitions normal?
-In-Reply-To: <20031230024331.GN1882@matchmail.com>
-Message-ID: <Pine.LNX.4.58L.0312300958050.22101@logos.cnet>
-References: <20031230014429.GL1882@matchmail.com> <20031229191106.I6209@schatzie.adilger.int>
- <20031230024331.GN1882@matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Tue, 30 Dec 2003 07:03:13 -0500
+Received: from dsl-217-155-72-205.zen.co.uk ([217.155.72.205]:7692 "EHLO
+	nicole.computer-surgery.co.uk") by vger.kernel.org with ESMTP
+	id S265765AbTL3MDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 07:03:09 -0500
+Date: Tue, 30 Dec 2003 12:02:37 +0000
+To: Christophe Saout <christophe@saout.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.18] oops in lvm or raid
+Message-ID: <20031230120237.GA13811@computer-surgery.co.uk>
+References: <20031229145936.GA19936@computer-surgery.co.uk> <1072718170.5152.130.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+In-Reply-To: <1072718170.5152.130.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.3.28i
+X-GPG-Fingerprint: ADAD DF3A AE05 CA28 3BDB  D352 7E81 8852 817A FB7B
+X-GPG-Key: 1024D/817AFB7B (wwwkeys.uk.pgp.net)
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> struct hd_struct in include/linux/genhd.h:61 has them all unsigned int.
->
-> How's this patch look against 2.4.23?
->
-> --- drivers/block/genhd.c.orig	2003-12-29 18:35:35.000000000 -0800
-> +++ drivers/block/genhd.c	2003-12-29 18:40:11.000000000 -0800
-> @@ -201,7 +201,7 @@
->
->  			disk_round_stats(hd);
->  			seq_printf(s, "%4d  %4d %10d %s "
-> -				      "%d %d %d %d %d %d %d %d %d %d %d\n",
-> +				      "%u %u %u %u %u %u %u %u %u %u %u\n",
->  				      gp->major, n, gp->sizes[n],
->  				      disk_name(gp, n, buf),
->  				      hd->rd_ios, hd->rd_merges,
+On Mon, Dec 29, 2003 at 06:16:10PM +0100, Christophe Saout wrote:
+> Am Mo, den 29.12.2003 schrieb Roger Gammans um 15:59:
+>=20
+> > Dec 29 13:15:23 turin kernel: lvm -- giving up to snapshot /dev/rootvg/=
+data_root on /dev/rootvg/data_20031218: out of spa
+> > Dec 29 13:15:23 turin kernel: Unable to handle kernel paging request at=
+ virtual address 00015618
+> > Dec 29 13:15:23 turin kernel:  printing eip:
+> > Dec 29 13:15:23 turin kernel: c4847a7c
+> >                               c4847a7c -> lvm_snapshot_remap_block (c48=
+47a0c)
+> >
+> > This is a stock kernel (bf2.4) from debian stable (Version: 2.4.18-5)
+>=20
+> LVM1 snapshotting in the plain 2.4.18 kernel is known to have bugs.
 
-Looks good, applied.
+Ah. Ok.
+But to be honest I could have (and indeed should have) deleted the sanpshot=
+=20
+before doing the write to the volume which caused the snapshot ot=20
+run out of space. As long as the snapshot intergrity is good I'm happy.
+
+My real worry is taht this was triggered by a raid problem and we've got
+serious data corruption in both the ext3 and lvm metadata.
+
+> You should upgrade to the latest LVM 1.0.8 kernel code. Well, I can't
+> access the Sistina website at the moment. I'm sure you can find a
+> lvm_1.0.8.tar.gz (or lvm_1.0.7.tar.gz which also has most bugs fixed)
+> somewhere.
+
+The site seems to be back now.
+
+> [snip]=20
+> Or you can upgrade to the 2.4.23 kernel, I think it contains the LVM
+> 1.0.7 code.
+
+Ok. We need to make some sort of decision here about what kernel to use
+then there has been an degree of discusson about exactly how
+conservative we should be anyway . Does 2.4.23 have the vfs-locking
+patch ?
+
+TTFN
+--=20
+Roger. 	                        Home| http://www.sandman.uklinux.net/
+Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
+Work|Independent Sys Consultant | http://www.computer-surgery.co.uk/
+So what are the eigenvalues and eigenvectors of 'The Matrix'? --anon
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/8WldfoGIUoF6+3sRAht1AKC9Zml66AfP3tdTQOfwFm5w/eAlxwCfdA/F
+dbgxfFLzmo01th57/G0iVuk=
+=HHcR
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--

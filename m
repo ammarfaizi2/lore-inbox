@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311072AbSCHUYX>; Fri, 8 Mar 2002 15:24:23 -0500
+	id <S311081AbSCHU0D>; Fri, 8 Mar 2002 15:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311077AbSCHUYD>; Fri, 8 Mar 2002 15:24:03 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50182 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S311072AbSCHUXw>;
-	Fri, 8 Mar 2002 15:23:52 -0500
-Date: Fri, 8 Mar 2002 17:22:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Pau Aliagas <linuxnow@wanadoo.es>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <Pine.LNX.4.44.0203082059180.2580-100000@pau.intranet.ct>
-Message-ID: <Pine.LNX.4.44L.0203081721050.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S311078AbSCHUZn>; Fri, 8 Mar 2002 15:25:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21776 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311079AbSCHUZl>; Fri, 8 Mar 2002 15:25:41 -0500
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 8 Mar 2002 20:40:46 +0000 (GMT)
+Cc: frankeh@watson.ibm.com (Hubertus Franke),
+        rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com> from "Linus Torvalds" at Mar 08, 2002 11:22:20 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16jRAU-0007QU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Pau Aliagas wrote:
-> On Fri, 8 Mar 2002, Rik van Riel wrote:
-> > On Fri, 8 Mar 2002, Pau Aliagas wrote:
-> >
-> > > I'd recommend everybody to give arch a try.
-> >
-> > If you could setup a public arch repository of the 2.4 / 2.5
-> > kernel of which everybody can copy/clone their arch kernel
-> > repository, that would be a good start.
->
-> It is not necessary to setup a central repository.
->
-> We need a reference archive to keep in sync with; then everybody
-> branches from there and syncs back and forth.
+> So I would suggest making the size (and thus alignment check) of locks at
+> least 8 bytes (and preferably 16). That makes it slightly harder to put
+> locks on the stack, but gcc does support stack alignment, even if the code
+> sucks right now.
 
-Exactly!  Now, is there some arch fan willing to setup this
-initial repository ?
-
-> > That would give us some real way to compare the two tools.
->
-> It seems obvious that bitkeeper is in very good shape; I'm not at all
-> against people using, but I'm sure that if a few people tried arch,
-> they'd be gratefully surprised.
-
-Having an initial repository would get a lot of people
-(including me, once I have a bit of time) to try out
-arch.
-
-regards,
-
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Can we go to cache line alignment - for an array of locks thats clearly
+advantageous
 

@@ -1,57 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUG3JCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUG3JLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUG3JCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 05:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUG3JCJ
+	id S267664AbUG3JLt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 05:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUG3JLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 05:02:09 -0400
-Received: from styx.suse.cz ([82.119.242.94]:32898 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S267657AbUG3JCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 05:02:04 -0400
-Date: Fri, 30 Jul 2004 11:03:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Paul Jackson <pj@sgi.com>, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-Message-ID: <20040730090354.GA2012@ucw.cz>
-References: <87llh3ihcn.fsf@ibmpc.myhome.or.jp> <20040728231548.4edebd5b.pj@sgi.com> <87oelzjhcx.fsf@ibmpc.myhome.or.jp> <20040729024931.4b4e78e6.pj@sgi.com> <20040729162423.7452e8f5.akpm@osdl.org> <20040729165152.492faced.pj@sgi.com> <87pt6e2sm3.fsf@devron.myhome.or.jp> <20040730002706.2330974d.pj@sgi.com> <20040730080757.GA1068@ucw.cz> <20040730084103.GA5261@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730084103.GA5261@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+	Fri, 30 Jul 2004 05:11:49 -0400
+Received: from webmail-benelux.tiscali.be ([62.235.14.106]:56284 "EHLO
+	mail.tiscali.be") by vger.kernel.org with ESMTP id S267665AbUG3JLn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 05:11:43 -0400
+Date: Fri, 30 Jul 2004 11:11:32 +0200
+Message-ID: <40FB9ACA0000533F@ocpmta1.freegates.net>
+In-Reply-To: <1090945884.30149.1.camel@dionysus>
+From: "Joel Soete" <soete.joel@tiscali.be>
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+To: "Jon Oberheide" <jon@oberheide.org>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Daniel Jacobowitz" <dan@debian.org>,
+       "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="========/40FB9ACA0000533F/mail.tiscali.be"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 10:41:03AM +0200, Andries Brouwer wrote:
 
-> On Fri, Jul 30, 2004 at 10:07:57AM +0200, Vojtech Pavlik wrote:
+--========/40FB9ACA0000533F/mail.tiscali.be
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Hello *,
+
 > 
-> > Let me summarize.
-> > 
-> > In the past, the kernel had various different values of NR_KEYS, in this
-> > order: 128, 512, 256, 255.
-> > 
-> > 128 was not enough, 512 didn't fit in a byte (while allowed to address
-> > all keycodes the input layer uses), 256 broke some apps that relied on
-> > unsigned char counters,
+> FYI, lvalue casts are treated as errors in gcc 3.5.
 > 
-> Can you elaborate on this part? Which applications broke?
+According to this kind remark, I think so that following attachement patc=
+hes
+would be interesting.
+Thanks for all relevant remarks to help me to make stuff cleaner.
 
-Hmm, so bk says it was the other way around:
+Joel
 
-128, 256, 512, 255
+PS: I don't yet review the lib/crc32.c (sorry I need more effort to revie=
+w)
 
-And 256 probably worked for most people, except loadkeys had to be
-changed not to #define NR_KEYS itself. So now I believe that 256 could
-actually be safe.
 
-> Revert Andrew's patch: yes.
-> Choosing 255/256 - I have no opinion yet, my opinion will depend
-> on your answer to the above "Which applications broke?".
+-------------------------------------------------------------------------=
+--
+Tiscali ADSL LIGHT, 19,95 EUR/mois pendant 6 mois, c'est le moment de fai=
+re
+le pas!
+http://reg.tiscali.be/default.asp?lg=3Dfr
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+
+
+
+--========/40FB9ACA0000533F/mail.tiscali.be
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="drivers-video-fbcon.diff"
+
+LS0tIGxpbnV4LTIuNC4yNy1yYzMtcGE2bW0vZHJpdmVycy92aWRlby9mYmNvbi5jLk9yaWcJMjAw
+NC0wNi0yOSAxMDo0NzozMS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNC4yNy1yYzMtcGE2
+bW0vZHJpdmVycy92aWRlby9mYmNvbi5jCTIwMDQtMDctMzAgMDk6MjE6NDMuMjk1ODI4NTIwICsw
+MjAwCkBAIC0xODc3LDcgKzE4NzcsMTAgQEAKICAgICAgICBmb250IGxlbmd0aCBtdXN0IGJlIG11
+bHRpcGxlIG9mIDI1NiwgYXQgbGVhc3QuIEFuZCAyNTYgaXMgbXVsdGlwbGUKICAgICAgICBvZiA0
+ICovCiAgICAgayA9IDA7Ci0gICAgd2hpbGUgKHAgPiBuZXdfZGF0YSkgayArPSAqLS0odTMyICop
+cDsKKyAgICB3aGlsZSAocCA+IG5ld19kYXRhKSB7CisJcCAtPSA0OworCWsgKz0gKih1MzIgKilw
+OworICAgIH0KICAgICBGTlRTVU0obmV3X2RhdGEpID0gazsKICAgICAvKiBDaGVjayBpZiB0aGUg
+c2FtZSBmb250IGlzIG9uIHNvbWUgb3RoZXIgY29uc29sZSBhbHJlYWR5ICovCiAgICAgZm9yIChp
+ID0gMDsgaSA8IE1BWF9OUl9DT05TT0xFUzsgaSsrKSB7Cg==
+
+
+--========/40FB9ACA0000533F/mail.tiscali.be
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="fs-readdir.diff"
+
+LS0tIGxpbnV4LTIuNC4yNy1yYzMtcGE2bW0vZnMvcmVhZGRpci5jLk9yaWcJMjAwNC0wNi0yOSAx
+MToxODo0Ni4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNC4yNy1yYzMtcGE2bW0vZnMvcmVh
+ZGRpci5jCTIwMDQtMDctMjkgMTI6NTQ6NDUuMDAwMDAwMDAwICswMjAwCkBAIC0yNjQsNyArMjY0
+LDcgQEAKIAlwdXRfdXNlcihyZWNsZW4sICZkaXJlbnQtPmRfcmVjbGVuKTsKIAljb3B5X3RvX3Vz
+ZXIoZGlyZW50LT5kX25hbWUsIG5hbWUsIG5hbWxlbik7CiAJcHV0X3VzZXIoMCwgZGlyZW50LT5k
+X25hbWUgKyBuYW1sZW4pOwotCSgoY2hhciAqKSBkaXJlbnQpICs9IHJlY2xlbjsKKwlkaXJlbnQg
+PSAoc3RydWN0IGxpbnV4X2RpcmVudCAqKSgoY2hhciAqKWRpcmVudCArIHJlY2xlbik7CiAJYnVm
+LT5jdXJyZW50X2RpciA9IGRpcmVudDsKIAlidWYtPmNvdW50IC09IHJlY2xlbjsKIAlyZXR1cm4g
+MDsKQEAgLTM0Nyw3ICszNDcsNyBAQAogCWNvcHlfdG9fdXNlcihkaXJlbnQsICZkLCBOQU1FX09G
+RlNFVCgmZCkpOwogCWNvcHlfdG9fdXNlcihkaXJlbnQtPmRfbmFtZSwgbmFtZSwgbmFtbGVuKTsK
+IAlwdXRfdXNlcigwLCBkaXJlbnQtPmRfbmFtZSArIG5hbWxlbik7Ci0JKChjaGFyICopIGRpcmVu
+dCkgKz0gcmVjbGVuOworCWRpcmVudCA9IChzdHJ1Y3QgbGludXhfZGlyZW50NjQgKikoKGNoYXIg
+KilkaXJlbnQgKyByZWNsZW4pOwogCWJ1Zi0+Y3VycmVudF9kaXIgPSBkaXJlbnQ7CiAJYnVmLT5j
+b3VudCAtPSByZWNsZW47CiAJcmV0dXJuIDA7Cg==
+
+
+--========/40FB9ACA0000533F/mail.tiscali.be
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kernel-sysctl.diff"
+
+LS0tIGxpbnV4LTIuNC4yNy1yYzMtcGE2bW0va2VybmVsL3N5c2N0bC5jLk9yaWcJMjAwNC0wNi0y
+OSAwOTowMzo0Mi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNC4yNy1yYzMtcGE2bW0va2Vy
+bmVsL3N5c2N0bC5jCTIwMDQtMDctMjkgMTE6NDE6MzAuMDIxMDk0ODI0ICswMjAwCkBAIC04ODMs
+MTQgKzg4MywxNSBAQAogCQogCWZvciAoOyBsZWZ0ICYmIHZsZWZ0LS07IGkrKywgZmlyc3Q9MCkg
+ewogCQlpZiAod3JpdGUpIHsKKwkJCXAgPSBidWZmZXI7CiAJCQl3aGlsZSAobGVmdCkgewogCQkJ
+CWNoYXIgYzsKLQkJCQlpZiAoZ2V0X3VzZXIoYywgKGNoYXIgKikgYnVmZmVyKSkKKwkJCQlpZiAo
+Z2V0X3VzZXIoYywgcCkpCiAJCQkJCXJldHVybiAtRUZBVUxUOwogCQkJCWlmICghaXNzcGFjZShj
+KSkKIAkJCQkJYnJlYWs7CiAJCQkJbGVmdC0tOwotCQkJCSgoY2hhciAqKSBidWZmZXIpKys7CisJ
+CQkJcCsrOwogCQkJfQogCQkJaWYgKCFsZWZ0KQogCQkJCWJyZWFrOwpAQCAtMTAzNiwxNCArMTAz
+NywxNSBAQAogCQogCWZvciAoOyBsZWZ0ICYmIHZsZWZ0LS07IGkrKywgbWluKyssIG1heCsrLCBm
+aXJzdD0wKSB7CiAJCWlmICh3cml0ZSkgeworCQkJcCA9IGJ1ZmZlcjsKIAkJCXdoaWxlIChsZWZ0
+KSB7CiAJCQkJY2hhciBjOwotCQkJCWlmIChnZXRfdXNlcihjLCAoY2hhciAqKSBidWZmZXIpKQor
+CQkJCWlmIChnZXRfdXNlcihjLCBwKSkKIAkJCQkJcmV0dXJuIC1FRkFVTFQ7CiAJCQkJaWYgKCFp
+c3NwYWNlKGMpKQogCQkJCQlicmVhazsKIAkJCQlsZWZ0LS07Ci0JCQkJKChjaGFyICopIGJ1ZmZl
+cikrKzsKKwkJCQlwKys7CiAJCQl9CiAJCQlpZiAoIWxlZnQpCiAJCQkJYnJlYWs7CkBAIC0xMTM3
+LDE0ICsxMTM5LDE1IEBACiAJCiAJZm9yICg7IGxlZnQgJiYgdmxlZnQtLTsgaSsrLCBmaXJzdD0w
+KSB7CiAJCWlmICh3cml0ZSkgeworCQkJcCA9IChjaGFyICopYnVmZmVyOwogCQkJd2hpbGUgKGxl
+ZnQpIHsKIAkJCQljaGFyIGM7Ci0JCQkJaWYgKGdldF91c2VyKGMsIChjaGFyICopIGJ1ZmZlcikp
+CisJCQkJaWYgKGdldF91c2VyKGMsIHApKQogCQkJCQlyZXR1cm4gLUVGQVVMVDsKIAkJCQlpZiAo
+IWlzc3BhY2UoYykpCiAJCQkJCWJyZWFrOwogCQkJCWxlZnQtLTsKLQkJCQkoKGNoYXIgKikgYnVm
+ZmVyKSsrOworCQkJCXArKzsKIAkJCX0KIAkJCWlmICghbGVmdCkKIAkJCQlicmVhazsK
+
+--========/40FB9ACA0000533F/mail.tiscali.be--

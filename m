@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbTJETe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTJETe7
+	id S263788AbTJETbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTJETbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:34:59 -0400
-Received: from h1ab.lcom.net ([216.51.237.171]:6016 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S263805AbTJETe4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:34:56 -0400
-Date: Sun, 5 Oct 2003 14:34:54 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: aironet cannot talk to base station
-Message-ID: <20031005193453.GC3445@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Sun, 5 Oct 2003 15:31:17 -0400
+Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:39048 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S263788AbTJETbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:31:15 -0400
+Message-ID: <3F80717E.6060300@comcast.net>
+Date: Sun, 05 Oct 2003 12:31:10 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030927
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test6-mm4
+X-Enigmail-Version: 0.76.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again.
+I'm having a problem booting 2.6.0-test6-mm(2-4) when using an initrd.
+Seems that the initrd never gets loaded, and the root filesystem never
+gets mounted as a result. Reverting RD0-initrd-B6.patch allows initrd to
+work again, and my machine to boot. I'm using a standard non-initramfs
+initrd and a devfs enabled SMP kernel. I don't see any of the printk's
+regarding ramdisk/initrd in any boot messages prior to panic. Let me
+know if you need anything else. Thanks,
 
-The aironet driver under 2.6.0-test6-bk6 doesn't seem to be able to see
-  my access point anymore.  /proc/driver/aironet/eth1/Config is set the same
-  between 2.4.21 and 2.6.0-test6-bk6, yet the 2.4 driver can talk to the
-  base station and the 2.6 driver cannot.  Indeed, no AP is listed in Status,
-  and a MAC of all FFs is listed in iwconfig's AP listing.
-Any ideas?  I see no oopses, just no traffic.  The radio is going, and I
-  can see the lights blinking.
-Thanks again!
+-Walt
 
--Joseph
+mice: PS/2 mouse device common for all mice
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Translated Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+NET: Registered protocol family 2
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP: Hash tables configured (established 16384 bind 16384)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+ACPI: (supports S0 S5)
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+Kernel panic: VFS: Unable to mount root fs on hda3
 
--- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+

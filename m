@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbTGOQIj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGOQHr
+	id S268811AbTGOQM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268747AbTGOQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:07:47 -0400
-Received: from main.gmane.org ([80.91.224.249]:11656 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268685AbTGOQHU (ORCPT
+	Tue, 15 Jul 2003 12:11:35 -0400
+Received: from [64.105.205.123] ([64.105.205.123]:37693 "HELO borg.org")
+	by vger.kernel.org with SMTP id S268736AbTGOQIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:07:20 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: nick black <dank@suburbanjihad.net>
-Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
-Date: Tue, 15 Jul 2003 16:16:38 +0000 (UTC)
-Message-ID: <bf19d5$d00$1@main.gmane.org>
-References: <1058285021.2209.13.camel@beowulf.cryptocomm.com>
-Reply-To: dank@reflexsecurity.com
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Tue, 15 Jul 2003 12:08:46 -0400
+Date: Tue, 15 Jul 2003 12:23:36 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Pavel Machek <pavel@suse.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030715122336.B12505@borg.org>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030713133517.GD19132@mail.jlokier.co.uk>; from jamie@shareable.org on Sun, Jul 13, 2003 at 02:35:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1058285021.2209.13.camel@beowulf.cryptocomm.com>, Adam Voigt wrote:
-> Let me know if I'm being stupid, but here's the error I get,
-> and my .config is below:
-> 
-> 
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x66e7a): In function `matroxfb_set_par':
->: undefined reference to `default_grn'
-> drivers/built-in.o(.text+0x66e7f): In function `matroxfb_set_par':
->: undefined reference to `default_blu'
-> drivers/built-in.o(.text+0x66e93): In function `matroxfb_set_par':
->: undefined reference to `color_table'
-> drivers/built-in.o(.text+0x66e9b): In function `matroxfb_set_par':
->: undefined reference to `default_red'
-> make: *** [.tmp_vmlinux1] Error 1
+On Sun, Jul 13, 2003 at 02:35:17PM +0100, Jamie Lokier wrote:
+> I'd be inclined to initiate suspend-to-disk when the laptop's lid is
+> closed
 
-you'll need to build VT support.
+Please don't suspend my notebook when the lid is closed.  I frequently
+want it running when closed.  It is OK to turn off the backlight when
+closed (which my Vaio does), but don't show down my CPU or network
+just because I am not typing or looking at the screen.
 
--- 
-nick black <dank@reflexsecurity.com>
-"np:  nondeterministic polynomial-time
-the class of dashed hopes and idle dreams." - the complexity zoo
 
+-kb, the Kent who sometimes just closes his notebook before hopping
+off the bus, and who sometimes plugs it in to power and network when
+at home but leaves the lid closed.

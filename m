@@ -1,51 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVCDC6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVCDDaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVCDC6n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVCDCsY
+	id S262831AbVCDDaz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 22:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVCDDSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 21:48:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:719 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262785AbVCCXuX (ORCPT
+	Thu, 3 Mar 2005 22:18:25 -0500
+Received: from mail.dif.dk ([193.138.115.101]:57822 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262752AbVCDCsB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:50:23 -0500
-Date: Thu, 3 Mar 2005 15:49:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Canter <marcus@vfxcomputing.com>
-Cc: rlrevell@joe-job.com, nish.aravamudan@gmail.com, drzeus-list@drzeus.cx,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-Message-Id: <20050303154929.1abd0a62.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>
-References: <4227085C.7060104@drzeus.cx>
-	<29495f1d05030309455a990c5b@mail.gmail.com>
-	<Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
-	<1109875926.2908.26.camel@mindpipe>
-	<Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
-	<1109876978.2908.31.camel@mindpipe>
-	<Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 21:48:01 -0500
+Date: Fri, 4 Mar 2005 03:48:57 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][8/10] verify_area cleanup : x86_64 and ia64
+Message-ID: <Pine.LNX.4.62.0503040339560.2801@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Canter <marcus@vfxcomputing.com> wrote:
->
-> 
-> To close this issue out of the LKML and alsa-devel, a bug report has been 
-> written.
-> 
-> It appears to be an issue with the 'headphone jack sense' (as kde labels 
-> it).  The issue is in the way the 8x0 addresses the docking station/port 
-> replicator's audio output jack.  The mentioned quick fix does not work for 
-> using the ds/pr audio output, but does resolve it for a user that is only 
-> using headphones/internal speakers.
 
-But there was a behavioural change: applications which worked in 2.6.10
-don't work in 2.6.11, is that correct?
+This is the patch that converts verify_area to access_ok for the x86_64 
+and ia64 archs.
 
-If so, the best course of action is to change the kernel so those
-applications work again.  Can that be done?
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -urp linux-2.6.11-orig/arch/ia64/ia32/ia32_signal.c linux-2.6.11/arch/ia64/ia32/ia32_signal.c
+--- linux-2.6.11-orig/arch/ia64/ia32/ia32_signal.c	2005-03-02 08:37:31.000000000 +0100
++++ linux-2.6.11/arch/ia64/ia32/ia32_signal.c	2005-03-03 23:28:49.000000000 +0100
+@@ -778,7 +778,7 @@ restore_sigcontext_ia32 (struct pt_regs 
+ 		struct _fpstate * buf;
+ 		err |= __get_user(buf, &sc->fpstate);
+ 		if (buf) {
+-			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
++			if (!access_ok(VERIFY_READ, buf, sizeof(*buf)))
+ 				goto badframe;
+ 			err |= restore_i387(buf);
+ 		}
+@@ -978,7 +978,7 @@ sys32_sigreturn (int arg0, int arg1, int
+ 	sigset_t set;
+ 	int eax;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+@@ -1010,7 +1010,7 @@ sys32_rt_sigreturn (int arg0, int arg1, 
+ 	sigset_t set;
+ 	int eax;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/ia64/ia32/sys_ia32.c linux-2.6.11/arch/ia64/ia32/sys_ia32.c
+--- linux-2.6.11-orig/arch/ia64/ia32/sys_ia32.c	2005-03-02 08:38:12.000000000 +0100
++++ linux-2.6.11/arch/ia64/ia32/sys_ia32.c	2005-03-03 23:28:49.000000000 +0100
+@@ -2402,12 +2402,11 @@ sys32_epoll_ctl(int epfd, int op, int fd
+ {
+ 	mm_segment_t old_fs = get_fs();
+ 	struct epoll_event event64;
+-	int error = -EFAULT;
++	int error;
+ 	u32 data_halfword;
+ 
+-	if ((error = verify_area(VERIFY_READ, event,
+-				 sizeof(struct epoll_event32))))
+-		return error;
++	if (!access_ok(VERIFY_READ, event, sizeof(struct epoll_event32)))
++		return -EFAULT;
+ 
+ 	__get_user(event64.events, &event->events);
+ 	__get_user(data_halfword, &event->data[0]);
+@@ -2437,9 +2436,8 @@ sys32_epoll_wait(int epfd, struct epoll_
+ 	}
+ 
+ 	/* Verify that the area passed by the user is writeable */
+-	if ((error = verify_area(VERIFY_WRITE, events,
+-				 maxevents * sizeof(struct epoll_event32))))
+-		return error;
++	if (!access_ok(VERIFY_WRITE, events, maxevents * sizeof(struct epoll_event32)))
++		return -EFAULT;
+ 
+ 	/*
+  	 * Allocate space for the intermediate copy.  If the space needed
+diff -urp linux-2.6.11-orig/arch/ia64/kernel/ptrace.c linux-2.6.11/arch/ia64/kernel/ptrace.c
+--- linux-2.6.11-orig/arch/ia64/kernel/ptrace.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.11/arch/ia64/kernel/ptrace.c	2005-03-03 23:55:33.000000000 +0100
+@@ -1074,15 +1074,12 @@ ptrace_getregs (struct task_struct *chil
+ 	struct ia64_fpreg fpval;
+ 	struct switch_stack *sw;
+ 	struct pt_regs *pt;
+-	long ret, retval;
++	long ret, retval = 0;
+ 	char nat = 0;
+ 	int i;
+ 
+-	retval = verify_area(VERIFY_WRITE, ppr,
+-			     sizeof(struct pt_all_user_regs));
+-	if (retval != 0) {
++	if (!access_ok(VERIFY_WRITE, ppr, sizeof(struct pt_all_user_regs)))
+ 		return -EIO;
+-	}
+ 
+ 	pt = ia64_task_regs(child);
+ 	sw = (struct switch_stack *) (child->thread.ksp + 16);
+@@ -1105,8 +1102,6 @@ ptrace_getregs (struct task_struct *chil
+ 	    || access_uarea(child, PT_NAT_BITS, &nat_bits, 0))
+ 		return -EIO;
+ 
+-	retval = 0;
+-
+ 	/* control regs */
+ 
+ 	retval |= __put_user(pt->cr_iip, &ppr->cr_iip);
+@@ -1223,16 +1218,13 @@ ptrace_setregs (struct task_struct *chil
+ 	struct switch_stack *sw;
+ 	struct ia64_fpreg fpval;
+ 	struct pt_regs *pt;
+-	long ret, retval;
++	long ret, retval = 0;
+ 	int i;
+ 
+ 	memset(&fpval, 0, sizeof(fpval));
+ 
+-	retval = verify_area(VERIFY_READ, ppr,
+-			     sizeof(struct pt_all_user_regs));
+-	if (retval != 0) {
++	if (!access_ok(VERIFY_READ, ppr, sizeof(struct pt_all_user_regs)))
+ 		return -EIO;
+-	}
+ 
+ 	pt = ia64_task_regs(child);
+ 	sw = (struct switch_stack *) (child->thread.ksp + 16);
+@@ -1246,8 +1238,6 @@ ptrace_setregs (struct task_struct *chil
+ 		return -EIO;
+ 	}
+ 
+-	retval = 0;
+-
+ 	/* control regs */
+ 
+ 	retval |= __get_user(pt->cr_iip, &ppr->cr_iip);
+diff -urp linux-2.6.11-orig/arch/x86_64/ia32/ia32_aout.c linux-2.6.11/arch/x86_64/ia32/ia32_aout.c
+--- linux-2.6.11-orig/arch/x86_64/ia32/ia32_aout.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.11/arch/x86_64/ia32/ia32_aout.c	2005-03-03 23:28:49.000000000 +0100
+@@ -182,9 +182,9 @@ static int aout_core_dump(long signr, st
+ 
+ /* make sure we actually have a data and stack area to dump */
+ 	set_fs(USER_DS);
+-	if (verify_area(VERIFY_READ, (void *) (unsigned long)START_DATA(dump), dump.u_dsize << PAGE_SHIFT))
++	if (!access_ok(VERIFY_READ, (void *) (unsigned long)START_DATA(dump), dump.u_dsize << PAGE_SHIFT))
+ 		dump.u_dsize = 0;
+-	if (verify_area(VERIFY_READ, (void *) (unsigned long)START_STACK(dump), dump.u_ssize << PAGE_SHIFT))
++	if (!access_ok(VERIFY_READ, (void *) (unsigned long)START_STACK(dump), dump.u_ssize << PAGE_SHIFT))
+ 		dump.u_ssize = 0;
+ 
+ 	set_fs(KERNEL_DS);
+diff -urp linux-2.6.11-orig/arch/x86_64/ia32/ia32_signal.c linux-2.6.11/arch/x86_64/ia32/ia32_signal.c
+--- linux-2.6.11-orig/arch/x86_64/ia32/ia32_signal.c	2005-03-02 08:38:32.000000000 +0100
++++ linux-2.6.11/arch/x86_64/ia32/ia32_signal.c	2005-03-03 23:28:49.000000000 +0100
+@@ -256,7 +256,7 @@ ia32_restore_sigcontext(struct pt_regs *
+ 		err |= __get_user(tmp, &sc->fpstate);
+ 		buf = compat_ptr(tmp);
+ 		if (buf) {
+-			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
++			if (!access_ok(VERIFY_READ, buf, sizeof(*buf)))
+ 				goto badframe;
+ 			err |= restore_i387_ia32(current, buf, 0);
+ 		} else {
+@@ -285,7 +285,7 @@ asmlinkage long sys32_sigreturn(struct p
+ 	sigset_t set;
+ 	unsigned int eax;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+ 	    || (_COMPAT_NSIG_WORDS > 1
+@@ -317,7 +317,7 @@ asmlinkage long sys32_rt_sigreturn(struc
+ 
+ 	frame = (struct rt_sigframe __user *)(regs->rsp - 4);
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/x86_64/ia32/sys_ia32.c linux-2.6.11/arch/x86_64/ia32/sys_ia32.c
+--- linux-2.6.11-orig/arch/x86_64/ia32/sys_ia32.c	2005-03-02 08:38:07.000000000 +0100
++++ linux-2.6.11/arch/x86_64/ia32/sys_ia32.c	2005-03-03 23:52:28.000000000 +0100
+@@ -85,7 +85,7 @@ int cp_compat_stat(struct kstat *kbuf, s
+ 		return -EOVERFLOW;
+ 	if (kbuf->size >= 0x7fffffff)
+ 		return -EOVERFLOW;
+-	if (verify_area(VERIFY_WRITE, ubuf, sizeof(struct compat_stat)) ||
++	if (!access_ok(VERIFY_WRITE, ubuf, sizeof(struct compat_stat)) ||
+ 	    __put_user (old_encode_dev(kbuf->dev), &ubuf->st_dev) ||
+ 	    __put_user (kbuf->ino, &ubuf->st_ino) ||
+ 	    __put_user (kbuf->mode, &ubuf->st_mode) ||
+@@ -128,7 +128,7 @@ cp_stat64(struct stat64 __user *ubuf, st
+ 	typeof(ubuf->st_gid) gid = 0;
+ 	SET_UID(uid, stat->uid);
+ 	SET_GID(gid, stat->gid);
+-	if (verify_area(VERIFY_WRITE, ubuf, sizeof(struct stat64)) ||
++	if (!access_ok(VERIFY_WRITE, ubuf, sizeof(struct stat64)) ||
+ 	    __put_user(huge_encode_dev(stat->dev), &ubuf->st_dev) ||
+ 	    __put_user (stat->ino, &ubuf->__st_ino) ||
+ 	    __put_user (stat->ino, &ubuf->st_ino) ||
+@@ -262,7 +262,7 @@ sys32_rt_sigaction(int sig, struct sigac
+ 	if (act) {
+ 		compat_uptr_t handler, restorer;
+ 
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+ 		    __get_user(restorer, &act->sa_restorer)||
+@@ -301,7 +301,7 @@ sys32_rt_sigaction(int sig, struct sigac
+ 			set32.sig[1] = (old_ka.sa.sa_mask.sig[0] >> 32);
+ 			set32.sig[0] = old_ka.sa.sa_mask.sig[0];
+ 		}
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(ptr_to_compat(old_ka.sa.sa_handler), &oact->sa_handler) ||
+ 		    __put_user(ptr_to_compat(old_ka.sa.sa_restorer), &oact->sa_restorer) ||
+ 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags) ||
+@@ -322,7 +322,7 @@ sys32_sigaction (int sig, struct old_sig
+ 		compat_old_sigset_t mask;
+ 		compat_uptr_t handler, restorer;
+ 
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+ 		    __get_user(restorer, &act->sa_restorer) ||
+@@ -338,7 +338,7 @@ sys32_sigaction (int sig, struct old_sig
+         ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(ptr_to_compat(old_ka.sa.sa_handler), &oact->sa_handler) ||
+ 		    __put_user(ptr_to_compat(old_ka.sa.sa_restorer), &oact->sa_restorer) ||
+ 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags) ||
+@@ -567,7 +567,7 @@ sys32_sysinfo(struct sysinfo32 __user *i
+ 		s.freehigh >>= bitcount;
+ 	}
+ 
+-	if (verify_area(VERIFY_WRITE, info, sizeof(struct sysinfo32)) ||
++	if (!access_ok(VERIFY_WRITE, info, sizeof(struct sysinfo32)) ||
+ 	    __put_user (s.uptime, &info->uptime) ||
+ 	    __put_user (s.loads[0], &info->loads[0]) ||
+ 	    __put_user (s.loads[1], &info->loads[1]) ||
+@@ -782,7 +782,7 @@ sys32_adjtimex(struct timex32 __user *ut
+ 
+ 	memset(&txc, 0, sizeof(struct timex));
+ 
+-	if(verify_area(VERIFY_READ, utp, sizeof(struct timex32)) ||
++	if (!access_ok(VERIFY_READ, utp, sizeof(struct timex32)) ||
+ 	   __get_user(txc.modes, &utp->modes) ||
+ 	   __get_user(txc.offset, &utp->offset) ||
+ 	   __get_user(txc.freq, &utp->freq) ||
+@@ -807,7 +807,7 @@ sys32_adjtimex(struct timex32 __user *ut
+ 
+ 	ret = do_adjtimex(&txc);
+ 
+-	if(verify_area(VERIFY_WRITE, utp, sizeof(struct timex32)) ||
++	if (!access_ok(VERIFY_WRITE, utp, sizeof(struct timex32)) ||
+ 	   __put_user(txc.modes, &utp->modes) ||
+ 	   __put_user(txc.offset, &utp->offset) ||
+ 	   __put_user(txc.freq, &utp->freq) ||
+diff -urp linux-2.6.11-orig/arch/x86_64/kernel/signal.c linux-2.6.11/arch/x86_64/kernel/signal.c
+--- linux-2.6.11-orig/arch/x86_64/kernel/signal.c	2005-03-02 08:38:13.000000000 +0100
++++ linux-2.6.11/arch/x86_64/kernel/signal.c	2005-03-03 23:28:49.000000000 +0100
+@@ -121,7 +121,7 @@ restore_sigcontext(struct pt_regs *regs,
+ 		err |= __get_user(buf, &sc->fpstate);
+ 
+ 		if (buf) {
+-			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
++			if (!access_ok(VERIFY_READ, buf, sizeof(*buf)))
+ 				goto badframe;
+ 			err |= restore_i387(buf);
+ 		} else {
+@@ -147,7 +147,7 @@ asmlinkage long sys_rt_sigreturn(struct 
+ 	unsigned long eax;
+ 
+ 	frame = (struct rt_sigframe __user *)(regs->rsp - 8);
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame))) { 
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame))) { 
+ 		goto badframe;
+ 	} 
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set))) { 
+
 

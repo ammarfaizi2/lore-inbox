@@ -1,80 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264239AbTLJXMl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 18:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLJXMl
+	id S264273AbTLJXUS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 18:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTLJXUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 18:12:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30953 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264239AbTLJXMj (ORCPT
+	Wed, 10 Dec 2003 18:20:17 -0500
+Received: from mail4.bluewin.ch ([195.186.4.74]:8626 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264273AbTLJXUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 18:12:39 -0500
-Date: Wed, 10 Dec 2003 15:11:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Hua Zhong <hzhong@cisco.com>, "'Arjan van de Ven'" <arjanv@redhat.com>,
-       Valdis.Kletnieks@vt.edu, "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.10.10312101109380.3805-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.58.0312101452300.1273@home.osdl.org>
-References: <Pine.LNX.4.10.10312101109380.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Dec 2003 18:20:09 -0500
+Date: Thu, 11 Dec 2003 00:17:30 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Rik van Riel <riel@redhat.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031210231729.GC28912@k3.hellgate.ch>
+Mail-Followup-To: Rik van Riel <riel@redhat.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Con Kolivas <kernel@kolivas.org>,
+	Chris Vine <chris@cvine.freeserve.co.uk>,
+	linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+References: <20031210135829.GA18370@k3.hellgate.ch> <Pine.LNX.4.44.0312100919090.3900-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312100919090.3900-100000@chimarrao.boston.redhat.com>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Dec 2003 16:04:16 -0500, Rik van Riel wrote:
+> > For me this discussion just confirmed that my approach fails to draw
+> > much interest, either because there are better alternatives or because
+> > heavy paging and medium thrashing are generally not considered
+> > interesting problems.
+> 
+> I'm willing to take over this work if you really want
+> to throw in the towel.  It has to be done, simply to
+> make Linux better able to deal with load spikes.
 
+I am willing to keep my work up if I don't have to pull this alone. As
+far as thrashing is concerned, the VM changed significanly even during
+the -test series and I expect that to continue once 2.6.0 is released.
+It would be good to get help from the people who made those changes --
+they should know their stuff best, after all.
 
-On Wed, 10 Dec 2003, Andre Hedrick wrote:
->
-> How can the additional words alter the mean of GPL itself?
+For one, we could look at the regression in test3 which might be easier
+to fix than others because the changes haven't been buried under dozens
+of later kernels. Some time ago, I took some notes about how the two
+patches I mentioned in an earlier message worked together to change
+the pageout patterns. Is that something we could start with?
 
-They can't.
+Setting up some regular regression testing for new kernels might be a
+good idea, too. Otherwise it's going to be Sisyphus work. For the time
+being I can continue the testing, provided the harddisk that miraculously
+survived hundreds of hours of thrashing tests keeps going.
 
-But they _can_ alter your ability to sue. In particular, if you publicly
-state that you will not sue anybody over something, they can now use that
-statement to make future plans. If at a later date you decide to sue them
-anyway, they can point the judge at your earlier statement, and claim
-estoppel against you.
+> Under light to moderate overload, a load controlled system
+> will be more responsive than a thrashing system.
 
-So note how the license itself didn't change - but your ability to
-_enforce_ the license has changed by virtue of you stating that you won't.
+That I doubt. 2.4 is very responsive under light overload -- every
+process is mostly in memory and ready to grab a few missing pages at any
+time. Once you add load control, you have processes that are completely
+evicted and stunned when they are needed. Of course it's a matter of
+definition, too, so I'd go even as far as saying:
 
-So while I publicaly say that I'm a lazy bastard, and the less I have to
-do with lawyers, the better - I won't actually say that I will never sue
-anybody. I'll say that it is "unlikely", or that people would have to
-irritate me mightily.
+- It is light thrashing when load control has no advantage.
 
-For most developers that literally doesn't much matter what they say. Even
-when _I_ say something, that doesn't really matter to what other
-developers do, and while it could potentially limit me from enforcing _my_
-copyrights, it doesn't stop others from enforcing theirs. So my random
-email ramblings should really be construed as my opinions rather than any
-legally relevant stuff.
+- It is medium thrashing when using load control is a toss-up. Probably
+  better throughput, but somewhat higher latency.
 
-However, the few extra lines in the main COPYING file end up being
-somewhat binding to others, simply because they are _so_ public (they are,
-after all, in the _main_ COPYING file) and they have been there pretty
-much since the beginning, that they would basically end up being a very
-strong argument in any legal case where some random kernel developer would
-try to argue that it doesn't cover "their" code.
+- It is heavy thrashing when load control is a winner in both regards.
 
-You don't have to agree to them, btw - you can remove them from the copy
-of Linux you distribute, since the GPL in no way requires you to keep
-them. They're not part of the copyright license per se, they are expressly
-marked as being my personal viewpoint.  I suspect that if you do, you'll
-find companies that would be slightly more nervous to work with you,
-though.
+I just made this up. It neatly resolves all arguments about when load
+control is appropriate. Yeah, so it's a circular definition. Sue me.
 
-But nobody has really ever argued against the clause, even originally. And
-in this particular discussion, I don't believe anybody is actually arguing
-against it now either. The legal meaning of it may be under discussion,
-but I don't think anybody is really even _trying_ to argue that it should
-be removed and that we should suddenly try to claim that any future user
-programs have to be GPL'd.
+> Heavy overload is probably a "docter, it hurts ..." case.
 
-Quite the reverse - I think everybody involved would argue that that would
-just be crazy talk.
+That's pretty much my thinking, too. Might still be worthwhile adding
+some load control if there are more people like wli's Russian guy.
 
-			Linus
+Roger

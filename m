@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268237AbUH2Rmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUH2Ro7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268237AbUH2Rmo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 13:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUH2Rmo
+	id S268236AbUH2Ro7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 13:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268238AbUH2Ro7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 13:42:44 -0400
-Received: from dp.samba.org ([66.70.73.150]:6355 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S268225AbUH2Rmi (ORCPT
+	Sun, 29 Aug 2004 13:44:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18581 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268236AbUH2Ro6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 13:42:38 -0400
-Date: Sun, 29 Aug 2004 10:42:36 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040829174236.GA21873@jeremy1>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com> <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <1093789802.27932.41.camel@localhost.localdomain>
+	Sun, 29 Aug 2004 13:44:58 -0400
+Date: Sun, 29 Aug 2004 10:44:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ffb drm dead code removal..
+Message-Id: <20040829104408.2ff7e32c.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0408291342170.3682@skynet>
+References: <Pine.LNX.4.58.0408291342170.3682@skynet>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093789802.27932.41.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 03:30:03PM +0100, Alan Cox wrote:
-> 
-> Openoffice does this in user space and the user space vfs code desktops
-> use can handle zips so this "just works" already including over NFS,
-> unlike a kernel proposed method.
+On Sun, 29 Aug 2004 13:45:14 +0100 (IST)
+Dave Airlie <airlied@linux.ie> wrote:
 
-Hurrah for OpenOffice. Now all you need to do is to
-persuade Microsoft to store Word files in the same
-format......
+> 	I want to apply the following to the ffb DRM it is dead code as
+> the DRM doesn't use the macro anymore... if you have no issues I'll send
+> it on to Linus..
 
-Jeremy.
+Looks fine to me.

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262053AbTCMDAf>; Wed, 12 Mar 2003 22:00:35 -0500
+	id <S262128AbTCMDXz>; Wed, 12 Mar 2003 22:23:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262118AbTCMDAf>; Wed, 12 Mar 2003 22:00:35 -0500
-Received: from almesberger.net ([63.105.73.239]:19460 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262053AbTCMDAe>; Wed, 12 Mar 2003 22:00:34 -0500
-Date: Thu, 13 Mar 2003 00:11:09 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030313001109.Y2791@almesberger.net>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311192639.E72163C5BE@mx01.nexgo.de> <20030312031407.W2791@almesberger.net> <20030313024421.9C6DC109407@mx12.arcor-online.net>
+	id <S262141AbTCMDXz>; Wed, 12 Mar 2003 22:23:55 -0500
+Received: from imap.gmx.net ([213.165.64.20]:2089 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262128AbTCMDXx>;
+	Wed, 12 Mar 2003 22:23:53 -0500
+Message-Id: <5.2.0.9.2.20030313042854.00c56550@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Thu, 13 Mar 2003 04:39:11 +0100
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.64-mm2->4 hangs on contest
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <200303131222.12588.kernel@kolivas.org>
+References: <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
+ <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
+ <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030313024421.9C6DC109407@mx12.arcor-online.net>; from phillips@arcor.de on Thu, Mar 13, 2003 at 03:48:17AM +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Naming is a matter of taste, and you ought to be able to do it according to 
-> your own taste, including hooking in your own name-generating script.
+At 12:22 PM 3/13/2003 +1100, Con Kolivas wrote:
+>On Wed, 12 Mar 2003 23:30, Mike Galbraith wrote:
+> > At 10:19 PM 3/12/2003 +1100, Con Kolivas wrote:
+> > >On Wed, 12 Mar 2003 21:37, Mike Galbraith wrote:
+> > > > >Is this in addition to your previous errr hack or instead of?
+> > > >
+> > > > Instead of.  The buttugly patch destroyed interactivity.  This one
+> > > > cures starvation, and interactivity is really nice.
+> > >
+> > >Ok that fixes the "getting stuck in process load" but it still hangs on
+> > >contest. I'll just have to give mm5 a go and see if whatever problem that
+> > > was went away in the mean time.
+> >
+> > (%$&#!!)
+>
+>No need to curse. Turns out this is an unrelated bug with the anticipatory
+>scheduler which akpm is onto. Your fix worked fine for the scheduler based
+>hang.
 
-Yup, what I mean is that the system shouldn't have to depend on a
-human-usable name. It's usually very hard to generate unique names
-that are also human-friendly, so I think it's better not to try in
-the first place. (Just look at e-mail message-ids for an example.)
+Nope (drat), not quite.  I fixed the parse Mem: booboo, and see occasional 
+hangs doing complete irman test runs.  The process load works fine, but the 
+other two loads will hang once in a while.
 
-> > I think, for simplicity, changesets should just carry their history
-> > with them. This can later be compressed, e.g. by omitting items
-> > before major convergence points (releases), by using automatically
-> > generated reference points, or simply by fetching additional
-> > information from a repository if needed (hairy).
-> 
-> I would not call that hairy, it sounds more like fun.
+> > Oh well, Ingo probably has it nailed already anyway.
+>
+> > (but meanwhile, where's your website again?)
+>
+>contest?
+>http://contest.kolivas.org
 
-I called it hairy, because you need to retrieve something from a
-machine that may not be available at that time. Waiting until it
-comes back usually isn't a choice. Of course, this information
-may be replicated on other machines that are available, and that
-your repository/agent knows of, etc.
+Yeah, thanks.
 
-In any case, this would be an optimization. Bandwidth and disk
-space are cheap, so it's not so bad to carry a few kB of history
-around for each file.
+         -Mike 
 
-> getting the underlying framework to function properly.  Larry is entirely 
-> correct in pointing out that it's hard, though in my opinion, not nearly as 
-> hard as kernel development.  Your edit/compile/test cycle is a fraction as 
-> long for one thing.
-
-Oh, I'd say it's an entirely different type of development. The
-kernel has to deal with real-time concurrency and subtle
-performance issues. An SCM can quite easily eliminate concurrency
-to the point that all operations become nice, linear batch jobs
-on a completely static data set. On the other hand, the SCM is
-likely to work on more complex data structures, and will have a
-closer interaction with what is user policy.
-
-While performance is certainly an important issue for an SCM, I'd
-expect this to be something that can be safely ignored for a good
-while during development. (I'm a firm believer in the
-prototype-burn-rewrite-burn_again-... type of software development.
-Maybe this shows :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

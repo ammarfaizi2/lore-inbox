@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVBDAOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVBDAXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVBDAOn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:14:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVBDAOm
+	id S261246AbVBDAXw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbVBDAXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:14:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24019 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261760AbVBDAOb (ORCPT
+	Thu, 3 Feb 2005 19:23:51 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:51860 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S261778AbVBDAXn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:14:31 -0500
-Date: Thu, 3 Feb 2005 16:19:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, zach.brown@oracle.com
-Subject: Re: [Patch] invalidate range of pages after direct IO write
-Message-Id: <20050203161927.0090655c.akpm@osdl.org>
-In-Reply-To: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>
-References: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Feb 2005 19:23:43 -0500
+Date: Fri, 04 Feb 2005 09:23:47 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+Cc: Koichi Suzuki <koichi@intellilink.co.jp>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       suparna bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <m1fz0f9g20.fsf@ebiederm.dsl.xmission.com>
+References: <20050202161108.18D7.ODA@valinux.co.jp> <m1fz0f9g20.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <20050204090151.18F0.ODA@valinux.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown <zach.brown@oracle.com> wrote:
->
-> After a direct IO write only invalidate the pages that the write intersected.
-> invalidate_inode_pages2_range(mapping, pgoff start, pgoff end) is added and
-> called from generic_file_direct_IO().  This doesn't break some subtle agreement
-> with some other part of the code, does it?
+Hi,
 
-It should be OK.
+On 02 Feb 2005 07:45:11 -0700
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Note that the same optimisation should be made in the call to
-unmap_mapping_range() in generic_file_direct_IO().  Currently we try and
-unmap the whole file, even if we're only writing a single byte.  Given that
-you're now calculating iov_length() in there we might as well use that
-number a few lines further up in that function.
+> 
+> And the feedback begins :)
+> 
+> Itsuro Oda <oda@valinux.co.jp> writes:
+> 
+> > Hi,
+> > 
+> > I don't like calling crash_kexec() directly in (ex.) panic().
+> > It should be call_dump_hook() (or something like this).
+> > 
+> > I think the necessary modifications of the kernel is only:
+> > - insert the hooks that calls a dump function when crash occur
+> crash_kexec()
+> > - binding interface that binds a dump function to the hook
+> >   (like register_dump_hook())
+> sys_kexec_load(...);
 
-Note that invalidate_inode_pages[_range2] also does the unmapping thing -
-in the direct-io case we don't expect that path th ever trigger: the only
-way we'll find mapped pages here is if someone raced and faulted a page
-back in.
+For example there are pepole who want to execute a built in kernel
+debugger when the system is crashed. or there are pepole who
+believe the diskdump is the best dump tool :-)
 
-Reading the code, I'm unable to convince myself that it won't go into an
-infinite loop if it finds a page at page->index = -1.  But I didn't try
-very hard ;)
+So I think a sort of hook is better than calling crash_kexec 
+directly. (May I make a patch ?)
 
-Minor note on this:
+Thanks.
+-- 
+Itsuro ODA <oda@valinux.co.jp>
 
-	return invalidate_inode_pages2_range(mapping, 0, ~0UL);
-
-I just use `-1' there.  We don't _know_ that pgoff_t is an unsigned long. 
-Some smarty may come along one day and make it unsigned long long, in which
-case the code will break.  Using -1 here just works everywhere.
-
-I'll make that change and plop the patch into -mm, but we need to think
-about the infinite-loop problem..

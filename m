@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbTD3Vv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbTD3Vv6
+	id S262475AbTD3VuT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbTD3VuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:51:58 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:9446 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S262451AbTD3VvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:51:03 -0400
-Date: Wed, 30 Apr 2003 17:59:50 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Loading a module multtiple times
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-ID: <200304301803_MC3-1-36C6-148@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Wed, 30 Apr 2003 17:50:19 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:62983 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262467AbTD3VuQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:50:16 -0400
+Date: Wed, 30 Apr 2003 23:59:09 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Gabriel Devenyi <devenyga@mcmaster.ca>
+Cc: khc@pm.waw.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.5.68 - Fix module_put after return statement
+Message-ID: <20030430235909.A26059@electric-eye.fr.zoreil.com>
+References: <200305011548.16524.devenyga@mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305011548.16524.devenyga@mcmaster.ca>; from devenyga@mcmaster.ca on Thu, May 01, 2003 at 03:48:15PM -0400
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
+Gabriel Devenyi <devenyga@mcmaster.ca> :
+[linux-2.5.68/drivers/net/wan/c101.c]
 
->  Error inserting 'dummy1.ko': -1 File exists
+Already fixed in Linus's repository.
 
-  Duplicate kobject/sysfs name?
-
-------
- Chuck
+--
+Ueimor

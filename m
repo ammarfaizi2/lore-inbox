@@ -1,47 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131058AbRAEQ7P>; Fri, 5 Jan 2001 11:59:15 -0500
+	id <S130670AbRAERLu>; Fri, 5 Jan 2001 12:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130883AbRAEQ7F>; Fri, 5 Jan 2001 11:59:05 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:26753 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131090AbRAEQ6u>; Fri, 5 Jan 2001 11:58:50 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010105085514.A12902@bluemug.com> 
-In-Reply-To: <20010105085514.A12902@bluemug.com>  <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com> <E14EEr4-000697-00@the-village.bc.nu> 
-To: Mike Touloumtzis <miket@bluemug.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Lang <david.lang@digitalinsight.com>,
-        Daniel Phillips <phillips@innominate.de>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown? 
+	id <S130155AbRAERLj>; Fri, 5 Jan 2001 12:11:39 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:14088 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S129436AbRAERLd>; Fri, 5 Jan 2001 12:11:33 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Daniel Phillips <phillips@innominate.de>
+cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        linux-kernel@vger.kernel.org
+Message-ID: <862569CB.005E6373.00@smtpnotes.altec.com>
+Date: Fri, 5 Jan 2001 11:11:27 -0600
+Subject: Re: Change of policy for future 2.2 driver submissions
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Jan 2001 16:57:42 +0000
-Message-ID: <11503.978713862@redhat.com>
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-miket@bluemug.com said:
->  Many newer cell phones, even low spec ones, will have a software
-> power switch (usually with a hardware override after about 5 seconds
-> of continuous press).  There are many other concessions that need to
-> be made to power efficiency, like the ability to toggle power to even
-> very minor peripherals and chips (not only each CPU and DSP, but the
-> bus controllers and UARTs connecting things together).  These things
-> sell in the millions, so their designers can easily budget the custom
-> logic.
 
-Even if it only costs pennies - why on earth would someone want to add 
-logic to a board when they could just fix the software?
+In other words, there's no longer any such thing as a "stable" branch.  The
+whole point of having separate production and development branches was to have
+one in which each succeeding patch could be counted upon to be more reliable
+than the last.  If new development is going into the "stable" kernels, then
+there's no way to be certain that the latest patches don't have more bugs than
+the earlier ones, at least not without thoroughly testing them.  And if testing
+is necessary, then we might as well just use the development kernels for
+everything, because we have to test them anyway.
 
-It soon adds up when you ship a million units.
+Wayne
+
+
+
+
+Daniel Phillips <phillips@innominate.de> on 01/05/2001 06:52:00 AM
+
+To:   Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+      linux-kernel@vger.kernel.org
+cc:    (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Change of policy for future 2.2 driver submissions
+
+
+
+Mark Hahn wrote:
+> > I personaly do not trust the 2.4.x kernel entirely yet, and would prefer to
+> ...
+> > afraid that this may partialy criple 2.2 driver development.
+>
+> egads!  how can there be "development" on a *stable* kernel line?
+>
+> maybe this is the time to reconsider terminology/policy:
+> does "stable" mean "bugfixes only"?
+> or does it mean "development kernel for conservatives"?
+
+It means development kernel for those who don't have enough time to
+debug the main kernel as well as their own project.  The stable branch
+tends to be *far* better documented than the bleeding edge branch.  Try
+to find documentation on the all-important page cache, for example.  It
+makes a whole lot of sense to develop in the stable branch, especially
+for new kernel developers, providing, of course, that the stable branch
+has the basic capabilities you need for your project.
+
+Alan isn't telling anybody which branch to develop in - he's telling
+people what they have to do if they want their code in his tree.  This
+means that when you develop in the stable branch you've got an extra
+step to do at the end of your project: port to the unstable branch.
+This only has to be done once and your code *will* get cleaned up a lot
+in the process.  (It's amazing how the prospect of merging 500 lines of
+rejected patch tends to concentrate the mind.)  I'd even suggest another
+step after that: port your unstable version back to the stable branch,
+and both versions will be cleaned up.
 
 --
-dwmw2
+Daniel
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+
 
 
 -

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263389AbREXGiP>; Thu, 24 May 2001 02:38:15 -0400
+	id <S263354AbREXGtq>; Thu, 24 May 2001 02:49:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263390AbREXGiG>; Thu, 24 May 2001 02:38:06 -0400
-Received: from web11607.mail.yahoo.com ([216.136.172.59]:30474 "HELO
-	web11607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263389AbREXGhz>; Thu, 24 May 2001 02:37:55 -0400
-Message-ID: <20010524063754.5547.qmail@web11607.mail.yahoo.com>
-Date: Wed, 23 May 2001 23:37:54 -0700 (PDT)
-From: John Lenton <jlenton@yahoo.com>
-Subject: how to crash 2.4.4 w/SBLive
-To: linux-kernel@vger.kernel.org
+	id <S263361AbREXGth>; Thu, 24 May 2001 02:49:37 -0400
+Received: from [195.211.46.202] ([195.211.46.202]:53573 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S263354AbREXGt2>;
+	Thu, 24 May 2001 02:49:28 -0400
+Date: Thu, 24 May 2001 08:46:29 +0200 (CEST)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG][PATCH] linux-2.4.5-pre5/drivers/isdn/avmb1/capifs.c
+Message-ID: <Pine.LNX.4.33.0105240844030.941-100000@titan.lahn.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found to my dismay that it's extremely easy to crash 2.4.4 if
-it has a Live! in it. I have no way of getting at the oops, but
-somebody out there probably has both this soundcard and a serial
-console (or somethin').
-I present it in the form of a script, but you'll probably have
-no problem realizing where the problem is. The number of
-"writers" never gets past 64. I guess the 65th should probably
-get the same as the 2nd writer does on other cards...
+Hello lkml!
 
-As usual, let me know if this is useless without the lspci
---more-magic thing.
+capifs.c is broken in 2.4.5-pre5:
+- A forward declaration of capifs_new_inode() is needed
+- The semicolon at the end of line musrt be deleted
+- struct inode * was not declared
 
-Cheers,
-j.
+--- linux-2.4.5/drivers/isdn/avmb1/capifs.c.orig	Thu May 24 08:42:43 2001
++++ linux-2.4.5/drivers/isdn/avmb1/capifs.c	Thu May 24 08:43:15 2001
+@@ -142,6 +142,7 @@
+ static int capifs_root_readdir(struct file *,void *,filldir_t);
+ static struct dentry *capifs_root_lookup(struct inode *,struct dentry *);
+ static int capifs_revalidate(struct dentry *, int);
++static struct inode *capifs_new_inode(struct super_block *sb);
 
-----
-#!/bin/sh
+ static struct file_operations capifs_root_operations = {
+ 	read:		generic_read_dir,
+@@ -491,9 +492,9 @@
+ }
+ #endif
 
-setup () {
-	dd bs=1M count=10 </dev/urandom >/tmp/noise 2> /dev/null
-}
+-static struct inode *capifs_new_inode(struct super_block *sb);
++static struct inode *capifs_new_inode(struct super_block *sb)
+ {
+-	inode = new_inode(sb);
++	struct inode *inode = new_inode(sb);
+ 	if (inode) {
+ 		inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 		inode->i_blocks = 0;
 
-noise () {
-	cat /tmp/noise > /dev/dsp &
-}
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
 
-setup
-i=0
-while (noise); do
-	i=$(( $i+1 ))
-	echo $i
-done
-----
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/

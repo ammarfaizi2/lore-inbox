@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUIKOK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUIKOOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268158AbUIKOK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 10:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIKOK3
+	id S268155AbUIKOOw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIKOOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 10:10:29 -0400
-Received: from ozlabs.org ([203.10.76.45]:26347 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268158AbUIKOK0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 10:10:26 -0400
-Date: Sun, 12 Sep 2004 00:10:02 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
-Message-ID: <20040911141001.GD32755@krispykreme>
-References: <20040911082810.10372.86008.84920@sam.engr.sgi.com> <20040911082834.10372.51697.75658@sam.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911082834.10372.51697.75658@sam.engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040818i
+	Sat, 11 Sep 2004 10:14:52 -0400
+Received: from YahooBB219043194082.bbtec.net ([219.43.194.82]:63493 "HELO
+	sailpennylane.com") by vger.kernel.org with SMTP id S268155AbUIKOOu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 10:14:50 -0400
+Date: Sat, 11 Sep 2004 14:15:49 +0000
+From: larry@starbase.neosoft.com
+Subject: Microsoft disc ounts
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <9H0BK3862352E3K1@vger.kernel.org>
+In-Reply-To: <9H0BK3862352E3K1@vger.kernel.org>
+Message-ID: <8KK3L13AHA158D0F@starbase.neosoft.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+software disc ounts
+Games X Copy - 25
+and
+Adobe Streamline 4.0 - 60
+Maya 6.0 Unlimited - 150
+Windows 2000 Server - 50
+Adobe Photoshop cs - 80   
+Adobe Illustrator 10 - 80
+Games X Copy - 25
+and
+and
+Roxio Easy Media Creator 7 - 30
+and
+and
+and
+Borland Delphi 7 Professional - 70
+Microsoft Windows 2000 Professional - 50
+and
+and a lot more http://www.ellyw.biz/
 
-Hi Paul,
-
-> Initialize the top cpuset to only have the online
-> CPUs and Nodes, rather than all possible.  This
-> seems more natural to the observer.
-
-How does this change interact with CPU hotplug?
-
-Anton

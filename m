@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269629AbUICJkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269592AbUICJp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269629AbUICJkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICJkI
+	id S269592AbUICJp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICJk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:40:08 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19364 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S269620AbUICJjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:39:24 -0400
-Date: Fri, 3 Sep 2004 11:39:02 +0200 (DFT)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@isabelle.frec.bull.fr
-To: Simon Derr <Simon.Derr@bull.net>
-cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
-In-Reply-To: <Pine.A41.4.53.0409031056280.122970@isabelle.frec.bull.fr>
-Message-ID: <Pine.A41.4.53.0409031134040.122970@isabelle.frec.bull.fr>
-References: <Pine.A41.4.53.0409010924250.122970@isabelle.frec.bull.fr>
- <20040901163436.263802bc.akpm@osdl.org> <Pine.A41.4.53.0409020917350.122970@isabelle.frec.bull.fr>
- <20040902155758.1eba30a5.akpm@osdl.org> <Pine.A41.4.53.0409031056280.122970@isabelle.frec.bull.fr>
+	Fri, 3 Sep 2004 05:40:56 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:64918 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S269602AbUICJk2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:40:28 -0400
+X-Envelope-From: kraxel@bytesex.org
+To: Frederik Deweerdt <frederik.deweerdt@laposte.net>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/4] v4l: bttv driver update.
+References: <20040831152405.GA15658@bytesex>
+	<20040901073206.GA21887@gilgamesh.home.res>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 02 Sep 2004 09:39:00 +0200
+In-Reply-To: <20040901073206.GA21887@gilgamesh.home.res>
+Message-ID: <87acw9i0h7.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, Simon Derr wrote:
+Frederik Deweerdt <frederik.deweerdt@laposte.net> writes:
 
-> On Thu, 2 Sep 2004, Andrew Morton wrote:
->
-> > Simon Derr <Simon.Derr@bull.net> wrote:
-> > >
-> > > @@ -140,13 +145,17 @@
-> > >   	struct sysfs_buffer * buffer = file->private_data;
-> > >   	ssize_t retval = 0;
-> > >
-> > >  -	if (!*ppos) {
-> > >  +	down(&buffer->sem);
-> > >  +	if ((!*ppos) || (!buffer->page)) {
-> > >   		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
-> > >  -			return retval;
-> > >  +			goto out;
-> >
-> > Why are we testing *ppos at all in here?
->
-> And if we open a sysfs file with O_RDWR, and write() into it, then this is
-> needed if we want to read(), because else the buffer will have been
-> allocated, but ops->show() not called. I'm not too sure about this being
-> useful either.
+> Le Tue, Aug 31, 2004 at 05:24:05PM +0200, Gerd Knorr écrivit:
+> >   Hi,
+> [...] 
+> > -	rc=bttv_I2CRead(btv,(PX_I2C_PIC<<1),NULL);
+> > +	rc=bttv_I2CRead(btv,(PX_I2C_PIC<<1),0);
+> 
+> Sorry if it's irrelevant here, but I though there had been a 
+> campaign advocating "NULL instead of 0 in the Linux Kernel"?
+> Ref: http://lkml.org/lkml/2004/7/8/9
 
-Hmmm...
-We are still screwed if we read at offset >0 after a write.
+Oops, that one slipped through when merging the 2.6.9-rc1 changes into
+my tree.  Chunk can be dropped.
 
-Possible fix would be to add a 'dirty' flag to the sysfs_buffer when
-write() is called, so we force a call to fill_read_buffer() on the next
-read().
+  Gerd
 
-Or maybe simply forbid O_RDWR open() ? Are they of any use ?
+-- 
+return -ENOSIG;

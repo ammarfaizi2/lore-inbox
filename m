@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbTCYBNg>; Mon, 24 Mar 2003 20:13:36 -0500
+	id <S261313AbTCYBSr>; Mon, 24 Mar 2003 20:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbTCYBNg>; Mon, 24 Mar 2003 20:13:36 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:61334 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261316AbTCYBNg>; Mon, 24 Mar 2003 20:13:36 -0500
-Date: Tue, 25 Mar 2003 01:24:35 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: conntrack related slab corruption in 2.5.65
-Message-ID: <20030325012428.GA8048@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Martin Josefsson <gandalf@wlug.westbo.se>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030324220404.GB3034@suse.de> <1048545120.14720.45.camel@tux.rsn.bth.se>
+	id <S261317AbTCYBSr>; Mon, 24 Mar 2003 20:18:47 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5136 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261313AbTCYBSq>;
+	Mon, 24 Mar 2003 20:18:46 -0500
+Date: Mon, 24 Mar 2003 17:29:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.65
+Message-ID: <20030325012923.GA10879@kroah.com>
+References: <10482950873871@kroah.com> <10482950921680@kroah.com> <20030325093550.GD1083@zaurus.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1048545120.14720.45.camel@tux.rsn.bth.se>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030325093550.GD1083@zaurus.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 11:32:01PM +0100, Martin Josefsson wrote:
+On Tue, Mar 25, 2003 at 10:35:50AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > +	.name		= "ADM1021-MAX1617",
+> 
+> Why dash here
+> 
+> > +	.name		= "LM75 sensor",
+> 
+> And space here? Also you should have 
+> either 2x "sensor" or none at all. 
 
- > Are you using a conntrack helper (ie. ip_conntrack_ftp) ?
- > If so then this is fixed in -mm. If not then this is another bug that I
- > need to track down.
+What do you mwan "2x"?  I just shortened that name up to fit within the
+16 characters that we are allowed for driver names.  If you can come up
+with some better ones, please let me know.
 
-Yep, I was. Thanks for the patch, I'll give it a spin.
+thanks,
 
-		Dave
-
+greg k-h

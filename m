@@ -1,79 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUEQWzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbUEQW6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUEQWzf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbUEQWzf
+	id S263033AbUEQW6V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUEQW6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:55:35 -0400
-Received: from legolas.restena.lu ([158.64.1.34]:3752 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263024AbUEQWzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:55:13 -0400
-Subject: Re: 2.6.6-xx locks up hard (nforce 2)
-From: Craig Bradney <cbradney@zip.com.au>
-To: Tim Krieglstein <tstone@fachschaft.informatik.tu-darmstadt.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040517223550.GA7631@host02.fachschaft.informatik.tu-darmstadt.de>
-References: <20040517223550.GA7631@host02.fachschaft.informatik.tu-darmstadt.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Kpa4/bGsW0Yn5lFNkbTz"
-Message-Id: <1084834509.14114.7.camel@amilo.bradney.info>
+	Mon, 17 May 2004 18:58:20 -0400
+Received: from grouse.mail.pas.earthlink.net ([207.217.120.116]:45299 "EHLO
+	grouse.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S263033AbUEQW57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 18:57:59 -0400
+Subject: Re: HDIO_SET_DMA failed: with nforce2 board
+From: Mike Kordik <Mike@Kordik.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200405171813.07359.bzolnier@elka.pw.edu.pl>
+References: <pan.2004.05.17.02.15.01.317598@kordik.net>
+	 <200405171434.24417.bzolnier@elka.pw.edu.pl>
+	 <22324.64.214.120.194.1076836710.squirrel@www.kordik.net>
+	 <200405171813.07359.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1084834674.3436.7.camel@Jacob>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 18 May 2004 00:55:09 +0200
+Date: Mon, 17 May 2004 18:57:54 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-05-17 at 12:13, Bartlomiej Zolnierkiewicz wrote:
+> On Sunday 15 of February 2004 10:18, mike@kordik.net wrote:
+> > > On Monday 17 of May 2004 13:39, Mike Kordik wrote:
+> > >> On Mon, 2004-05-17 at 07:13, Bartlomiej Zolnierkiewicz wrote:
+> > >> > On Monday 17 of May 2004 04:15, Mike wrote:
+> > >> > > I have an nforce2 based board and I cannot enable dma.
+> > >> >
+> > >> > 'dmesg' output, please
+> > >>
+> > >> I posted using PAN and I am trying to respond with PAM but todays posts
+> > >> and some of yesterdays are not showing up. I do not know what the
+> > >> problem is but I apologize for responding this way. Here is my dmesg
+> > >> output:
+> > >
+> > > OK, thanks.
+> > >
+> > >> Linux version 2.6.4-rc1-mm1 (root@cdimage) (gcc version 3.3.3 20040217
+> > >> (Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Mon May 17 00:17:40 EDT 2004
+> > >
+> > > ...
+> > >
+> > >> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> > >> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> > >> idebus=xx
+> > >> pnp: the driver 'ide' has been registered
+> > >> hda: Maxtor 6Y120L0, ATA DISK drive
+> > >> hdb: WDC WD1600BB-00HTA0, ATA DISK drive
+> > >> hdc: MATSHITADVD-ROM SR-8582, ATAPI CD/DVD-ROM drive
+> > >> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > >> ide1 at 0x170-0x177,0x376 on irq 15
+> > >
+> > > AMD/nVidia IDE driver didn't recognize the controller
+> > > (or driver wasn't compiled in for some reason).
+> > >
+> > > I need full .config and 'lspci -vvv' output to know more.
+> > >
+> > > Bartlomiej
+> >
+> > Bartlomiej,
+> >      Thank you for your help!
+> >
+> > I double checked my boot partition to make sure I actually had copied over
+> > the latest kernel I had compiled and it has the right date and time stamp
+> > on it.
+> >
+> > The info you requessted.
+> >
+> > .config:
+> 
+> Weird, everything looks OK.  Can you retest with vanilla 2.6.4-rc1?
+> 
 
---=-Kpa4/bGsW0Yn5lFNkbTz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Bartlomiej,
+	I am running Gentoo and there is not an ebuild for the Vanilla kernel
+for 2.6. I know I can still build it but since you said that I had
+everything configured correctly I got to thinking. I had remembered a
+"feature" to rebuild the kernel cleanly, mrproper, so I gave it a shot.
+I did a make mrproper and rebuilt the kernel as normal. Now the nforce2
+chipset is detected on boot and DMA is on! 
 
-On Tue, 2004-05-18 at 00:35, Tim Krieglstein wrote:
-> Hi=20
->=20
-> I have a serious problem with the newer kernel versions. Every Version
-> of 2.6.6((-mm[123])*) locks up hard, no network no pinging no input.
-> Just plain noting :(. The systems seems to boot up fine but after a few
-> seconds after X has started everything locks up. Currently i am running
-> the 2.6.5 version which has been running stable for days. I didn't tried
-> the the mm versions of the 2.6.5 flavour (or probably i tested them but
-> i forgot...). I know that there are broken out patches available, but
-> before starting binary search on the single patches i hope i get an
-> educated guess? I have already taken out an rtl8169 network card. But
-> still lockups (the cards drivers seemed to be very bogus in earlier
-> versions till 2.6.4 or so). Attached there will be the lspci output and
-> my kernel config.=20
->=20
-> Appendix: Ok, i glanced over the list-archives (i am not subscribed) and
-> under the topic "IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=3D1 +
-> [PATCH]for idle=3DC1halt, 2.6.5 " seem to be some fixes, i haven't tried
-> yet. The thread was spread over different directorys and i didn't get
-> the point. However lspci -xxx -vvv gives me the following error:
-> pcilib: sysfs_read: tried to read 256 bytes at 0, but got only 64
-> lspci: Unable to read 256 bytes of configuration space. Do these fixes
-> help me in my problem?
->=20
-> System is Debian sid.=20
+Thank you so much for your time and the help you have given me. :)
 
-The IO APIC idle c1 halt patches should work fine on 2.6.5 and stop
-nforce related hanging. 2.6.6 is supposed to have the "correct" fix for
-the BIOS issues. Perhaps there is something else wrong with the system?
-Others will have more input.. Im yet to try 2.6.6 on the nforce system
-here due to the IDE caching issues.
-
-Craig
-
---=-Kpa4/bGsW0Yn5lFNkbTz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAqULNi+pIEYrr7mQRAk1qAKCMbtoN/rH1dRtj46mWjRciY6mMewCgqcKk
-ycuh9g7wOBNm9nDXZo0orhA=
-=DuKX
------END PGP SIGNATURE-----
-
---=-Kpa4/bGsW0Yn5lFNkbTz--
+Kindest regards,
+Mike
 

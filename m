@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271627AbRIVQ2J>; Sat, 22 Sep 2001 12:28:09 -0400
+	id <S271809AbRIVQ23>; Sat, 22 Sep 2001 12:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRIVQ17>; Sat, 22 Sep 2001 12:27:59 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48140 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271627AbRIVQ1k>; Sat, 22 Sep 2001 12:27:40 -0400
-Subject: Re: [patch] block highmem zero bounce v14
-To: arjanv@redhat.com (Arjan van de Ven)
-Date: Sat, 22 Sep 2001 17:32:43 +0100 (BST)
-Cc: axboe@suse.de (Jens Axboe), arjanv@redhat.com (Arjan van de Ven),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Linux Kernel),
-        davem@redhat.com (David S. Miller)
-In-Reply-To: <20010922071839.A10727@devserv.devel.redhat.com> from "Arjan van de Ven" at Sep 22, 2001 07:18:39 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kphr-0003dS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S271818AbRIVQ2U>; Sat, 22 Sep 2001 12:28:20 -0400
+Received: from server1200.net ([209.239.42.69]:23558 "EHLO server1200.net")
+	by vger.kernel.org with ESMTP id <S271809AbRIVQ2J>;
+	Sat, 22 Sep 2001 12:28:09 -0400
+Date: Sat, 22 Sep 2001 12:33:24 -0400
+From: "Ian D . Stewart" <idstewart@compuvative.com>
+To: Stephen Torri <storri@ameritech.net>
+Cc: "D . Stimits" <stimits@idcomm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Serial Ports
+Message-ID: <20010922123324.A4677@localhost.ameritech.net>
+In-Reply-To: <3B96C783.8BC8E29B@idcomm.com> <Pine.LNX.4.33.0109061624320.1443-100000@base.torri.linux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0109061624320.1443-100000@base.torri.linux>; from storri@ameritech.net on Thu, Sep 06, 2001 at 16:27:06 -0400
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nope; without that it was still bust.
-> Megaraid broke (and 3ware most likely as well) because  it had broken code
-> for the "only 1 scatter gather element" case....
 
-Yet more evidence that it belongs in 2.5 first. Auditing every scsi driver
-for that error (and I bet someone had it first and it was copied..) is
-a big job
+On 2001.09.06 16:27:06 -0400 Stephen Torri wrote:
+
+> 
+> I have noticed that serial ports change IRQ to either 3 or 4. There is no
+> reason for this behavior. I have created a perl script to create a log
+> containing the irqs assigned and their ioports. Is there anything else I
+> could log that might unmask the problem?
+> 
+> So far if the serials are assigned to IRQ 4 then the sync with the palm
+> pilot doesn't work (/dev/pilot = /dev/ttyS0). If its IRQ 3 then it does.
+
+As I understand it, /dev/ttyS0-3 are set to industry standard values on
+startup (they are not probed).  The values can be changed using the
+command-line utility setserial.  You can specify non-standard values in an
+rc.serial conf file which will be read on startup.
+
+The setserial manpage covers this is some detail.
+
+
+HTH,
+Ian
+
+-- 
+"God may have mercy.  We will not."
+--Senator John S. McCain (R-AZ)
+

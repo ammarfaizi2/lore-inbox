@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130370AbRBAOjw>; Thu, 1 Feb 2001 09:39:52 -0500
+	id <S129336AbRBAOlM>; Thu, 1 Feb 2001 09:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129336AbRBAOjm>; Thu, 1 Feb 2001 09:39:42 -0500
-Received: from m2ep.pp.htv.fi ([212.90.64.98]:56850 "EHLO m2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S130370AbRBAOj3>;
-	Thu, 1 Feb 2001 09:39:29 -0500
-Date: Thu, 1 Feb 2001 16:38:48 +0200 (EET)
-From: Timo Jantunen <jeti@iki.fi>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at inode.c:889!
-In-Reply-To: <200101311942.f0VJgSD23675@webber.adilger.net>
-Message-ID: <Pine.LNX.4.30.0102011617190.781-100000@limbo.null.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S130364AbRBAOlC>; Thu, 1 Feb 2001 09:41:02 -0500
+Received: from oxmail3.ox.ac.uk ([129.67.1.180]:4309 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S129336AbRBAOlA>;
+	Thu, 1 Feb 2001 09:41:00 -0500
+Date: Thu, 1 Feb 2001 14:40:52 +0000
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Serious reproducible 2.4.x kernel hang
+Message-ID: <20010201144052.B27009@sable.ox.ac.uk>
+In-Reply-To: <Pine.LNX.4.30.0102011406210.14706-100000@ferret.lmh.ox.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0102011406210.14706-100000@ferret.lmh.ox.ac.uk>; from chris@scary.beasts.org on Thu, Feb 01, 2001 at 02:14:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Andreas Dilger wrote:
+Chris Evans writes:
+> I've just managed to reproduce this personally on 2.4.0. I've had a report
+> that 2.4.1 is also affected. Both myself and the other person who
+> reproduced this have SMP i686 machines, which may or may not be relevant.
+> 
+> To reproduce, all you need to do is get my vsftpd ftp server:
+> ftp://ferret.lmh.ox.ac.uk/pub/linux/vsftpd-0.0.9.tar.gz
 
-> Below is a patch which should fix this.  It _should_ prevent you from
-> mounting this filesystem in the first place, and should also stop the BUG
-> in inode.c.  I'm not 100% sure of correctness, however:
+I got this just before lunch too. I was trying out 2.4.1 + zerocopy
+(with netfilter configured off, see the sendfile/zerocopy thread for
+more details and hardware specs) and tried running vsftpd on the
+slower machine instead of the faster machine as before. I connected
+to vsftpd with an ftp client and got a
+    500 OOPS: chdir
+    Login failed.
+    421 Service not available, remote server has closed connection
+(ftpd's idea of an OOPS; not the kernel's idea of an oops, of course).
+That was probably because I hadn't configured the directory properly
+but following that the machine hung, in the following way: userland
+hung: no more logins, existent xterm processes didn't refresh their
+windows on my (remote) display. The machine was still pingable, though.
 
-I tried to reproduce the BUG message, but I was unable to get to the same
-situation again. (I tried to create several different RAID0 partitions,
-format them to ext2 and tried mounting the partitions alone. I did get some
-weird messages from partitions I did manage to mount (what you would expect
-from mounting such partitions) but no more BUG messages.)
+I configured Magic SysRq into the kernel but hadn't played with it
+before so I hadn't enabled it in /proc (D'oh. Next time I'll know.)
+As in Chris' case, vzftpd was a zombie (so Foo-ScrollLock told me) and
+all other processes were looking OK in R or S state.
 
-So unfortunately I can't help you to check if your fix works.
+Looking at the kernel's EIP every so often to see what was going
+showed remove_wait_queue, add_wait_queue, skb_recv_datagram and
+wait_for_packet mostly. Random thought: if vsftpd did a sendfile and
+then exited, becoming a zombie, could there be a problem with
+tearing down a sendfile mapping? I'm off to read some code.
 
+--Malcolm
 
-// /
-....................................Timo Jantunen  ......................
-       ZZZ      (Used to represent :Kuunsäde 8 A 28: Email: jeti@iki.fi :
-the  sound of  a person  snoring.) :02210 Espoo    : http://iki.fi/jeti :
-Webster's  Encyclopedic Unabridged :Finland        : GSM+358-40-5763131 :
-Dictionary of the English Language :...............:....................:
-
+-- 
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264669AbRGIS7z>; Mon, 9 Jul 2001 14:59:55 -0400
+	id <S264754AbRGITbG>; Mon, 9 Jul 2001 15:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264689AbRGIS7o>; Mon, 9 Jul 2001 14:59:44 -0400
-Received: from mons.uio.no ([129.240.130.14]:10134 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S264669AbRGIS71>;
-	Mon, 9 Jul 2001 14:59:27 -0400
+	id <S264779AbRGITa5>; Mon, 9 Jul 2001 15:30:57 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:62474 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S264754AbRGITaq>;
+	Mon, 9 Jul 2001 15:30:46 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107091930.f69JUiZ290389@saturn.cs.uml.edu>
+Subject: Re: increasing the TASK_SIZE
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Mon, 9 Jul 2001 15:30:44 -0400 (EDT)
+Cc: ernest@newton.physics.drexel.edu (Ernest N. Mamikonyan),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010709141528.A18653@mea-ext.zmailer.org> from "Matti Aarnio" at Jul 09, 2001 02:15:28 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-ID: <15177.65286.592796.329570@charged.uio.no>
-Date: Mon, 9 Jul 2001 20:59:18 +0200
-To: Craig Soules <soules@happyplace.pdl.cmu.edu>
-Cc: jrs@world.std.com, linux-kernel@vger.kernel.org
-Subject: NFS Client patch
-In-Reply-To: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu>
-In-Reply-To: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
+Matti Aarnio writes:
 
-     > Hello, I hope that I am sending this to the appropriate people.
-     > I have been working on a project known as Self-Securing Storage
-     > here at Carnegie Mellon University.  We have developed our
-     > storage server to act as an NFSv2 server, and have been using
-     > the Linux NFSv2 client to do our benchmarking. I have run
-     > across a small problem with the 2.4 implementation of the Linux
-     > NFSv2 client.
+> It is absolutely impossible to get it into anything above
+> the 4.0 GB limit.   This hard limit is buried inside the i386
+> (and all of its successors) memory addressing, and mapping
+> hardware.  There is a choke-point of 32 address bits along
+> the way, which prevents going above 4.0 GB most effectively.
 
-     > The problem is in the readdir() operation.  The current cookie
-     > for a given readdir operation is being stored in the file
-     > descriptor.  The problem is that it is not being reset to 0 if
-     > a change has been made to the directory as is indicated in the
-     > NFSv2 spec.  This problem is often seen when doing an operation
-     > such as rm -rf to a large directory tree due to the
-     > asynchronous remove operation that has been implemented.
+Is is possible. It just won't perform well. You have to do
+a paging-like trick on that choke point. You also need a
+modified compiler that does LP64 on x86.
 
-The NFSv2 spec says no such thing. It simply says that you set the
-cookie to zero when you want to start at the beginning of the
-directory. This is only needed when we want to reread the directory
-into the page cache.
+Use 13 bits of the segment register for the top of your address
+space. Segments are 512 MB. Use the low 3 GB of the choke point
+for greater compatibility with regular apps and kernel code.
+Keep all but 6 segments invalid, so that faults can be used to
+change the 512-MB windows through the choke point.
 
-Your patch will automatically lead to duplicate entries in readdir()
-on most if not all servers whenever the attributes on the inode have
-been refreshed (whether or not the cache has been invalidated). That's
-a bug...
+So that gets you 4 TB of address space. (8192 segments, each of
+which is 512 MB) You may shrink the segments a bit to reduce your
+fault rate, but giving up some of that nice address space.
+Yes I'm aware that one must move page table chunks and invalidate
+stuff while adjusting the segments -- that is part of the fun!
 
-Cheers,
-   Trond
+If you actually want arrays larger than 512 MB, well then your
+performance gets even worse. The compiler has to do nasty stuff to
+normalize your pointers after every pointer arithmetic operation.
+
+Compiler: write a new back end
+Libc: redo much of the assembly
+Kernel: new fault handler, copy_to_user, copy_from_user...
+
+You might need to use an IP32L64 compiler for the kernel. That
+won't be nice for performance, but not too much of a disaster.
+Maybe pointers get padding to carry bits through casts.
+
+BTW Ernest, nobody does this. It would likely be just a toy
+due to the bad performance. You really ought to get 64-bit
+hardware or find some way to use multiple processes. Toys can
+be fun though, and this one is nice for cleaning up 32-bit code.
+

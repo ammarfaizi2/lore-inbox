@@ -1,231 +1,236 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSE0D7w>; Sun, 26 May 2002 23:59:52 -0400
+	id <S310206AbSE0EFQ>; Mon, 27 May 2002 00:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310206AbSE0D7v>; Sun, 26 May 2002 23:59:51 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:3344 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S310190AbSE0D7t>; Sun, 26 May 2002 23:59:49 -0400
-Date: Sun, 26 May 2002 20:57:09 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Copyright Violation (Re: [patch] New driver for Artop [Acard]
- controllers.)
-In-Reply-To: <1022460150.11859.187.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205261916570.3010-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314106AbSE0EFQ>; Mon, 27 May 2002 00:05:16 -0400
+Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:60350 "EHLO
+	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S310206AbSE0EFN>; Mon, 27 May 2002 00:05:13 -0400
+Date: Mon, 27 May 2002 00:10:16 -0400
+From: sean darcy <seandarcy@hotmail.com>
+Subject: Re: [PATCH] Re: usb mass storage fails in 2.5.18
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3CF1B1A8.30706@hotmail.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+In-Reply-To: <fa.j16a1tv.1q4sio7@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK. Did that. Got a *lot* more stuff from dmesg. But still doesn't work. 
+Still nothing in /proc/bus/usb.
 
-Alan,
+FWIW, the camera is a Sony DSC-p71 - not one of the cameras listed in 
+dmesg. Do I need to edit unnatural?  It does work, however, in 2.4.18.
 
-So look for yourself, this is extracted straight out if the patch
-submitted to LKML.  It is very clear, without the NDA Documentation and no
-hardware to perform a clean-room new driver.  Without the is information,
-one could not write a driver for the hardware.
+Anything else you'd like me to try?
 
-Now to quote Vojtech,
+thanks for the help.
+jay
 
-"After getting a couple reports that the Artop driver doesn't work, I
-decided to take a look at it ... well and I decided that this is
-impossible to debug, so I rewrote it from scratch instead. I have no
-documentation nor the actual hardware, so it may be wrong somewhere,
-but I think definitely less wrong than the original one."
+  usb snips from dmesg:
+
+hcd.c: usb-uhci-hcd @ 00:04.2, Intel Corp. 82371AB PIIX4 USB
+hcd.c: irq 14, io base 0000d400
+hcd.c: new USB bus registered, assigned bus number 1
+usb-uhci-hcd.c: Detected 2 ports
+hcd.c: 00:04.2 root hub device address 1
+usb.c: kmalloc IF dbbcbec0, numif 1
+usb.c: new device strings: Mfr=3, Product=2, SerialNumber=1
+usb.c: USB device number 1 default language ID 0x0
+Manufacturer: Linux 2.5.18 usb-uhci-hcd
+Product: Intel Corp. 82371AB PIIX4 USB
+SerialNumber: 00:04.2
+hub.c: USB hub found at /
+hub.c: 2 ports detected
+hub.c: standalone hub
+hub.c: ganged power switching
+hub.c: global over-current protection
+hub.c: Port indicators are not supported
+hub.c: power on to power good time: 2ms
+hub.c: hub controller current requirement: 0mA
+hub.c: port removable status: RR
+hub.c: local power source is good
+hub.c: no over-current condition exists
+hub.c: enabling power on all ports
+usb.c: hub driver claimed interface dbbcbec0
+usb.c: kusbd: /sbin/hotplug add 1
+usb.c: kusbd policy returned 0xfffffffe
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+......
+hub.c: port 1, portstatus 101, change 1, 12 Mb/s
+hub.c: hub / port 1 connection change
+hub.c: hub / port 1, portstatus 101, change 1, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 103, change 0, 12 Mb/s
+hub.c: new USB device 00:04.2-1, assigned address 2
+usb.c: kmalloc IF dbb392e0, numif 1
+usb.c: new device strings: Mfr=1, Product=2, SerialNumber=0
+usb.c: USB device number 2 default language ID 0x409
+Manufacturer: Sony
+Product: Sony DSC
+usb-storage: act_altsettting is 0
+usb-storage: id_index calculated to be: 20
+usb-storage: Array length appears to be: 67
+usb-storage: Vendor: Sony
+usb-storage: Product: DSC-S30/S70/S75/505V/F505/F707
+usb-storage: USB Mass Storage device detected
+usb-storage: Endpoints: In: 0xdbb4e3f4 Out: 0xdbb4e3e0 Int: 0xdbb4e408 
+(Period 255)
+usb-storage: New GUID 054c00100000000000000000
+usb-storage: Transport: Control/Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: *** thread sleeping.
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage: 12 00 00 00 24 00 00 00 00 00 00 00
+usb-storage: Invoking Mode Translation
+usb-storage: Call to usb_stor_control_msg() returned 6
+usb-storage: usb_stor_transfer_partial(): xfer 36 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 36/36
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: CB data stage result is 0x0
+usb-storage: -- CB transport device requiring auto-sense
+usb-storage: Issuing auto-REQUEST_SENSE
+usb-storage: Call to usb_stor_control_msg() returned 6
+usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: CB data stage result is 0x0
+usb-storage: -- Result from auto-sense is 0
+usb-storage: -- code: 0x70, key: 0x5, ASC: 0x20, ASCQ: 0x0
+usb-storage: Illegal Request: invalid command operation code
+usb-storage: scsi cmd done, result=0x2
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1/0)
+[REPEATED 7 TIMES]
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+usb.c: usb-storage driver claimed interface dbb392e0
+usb.c: kusbd: /sbin/hotplug add 2
+hub.c: port 2, portstatus 101, change 1, 12 Mb/s
+hub.c: hub / port 2 connection change
+hub.c: hub / port 2, portstatus 101, change 1, 12 Mb/s
+hub.c: port 2, portstatus 101, change 0, 12 Mb/s
+hub.c: port 2, portstatus 101, change 0, 12 Mb/s
+hub.c: port 2, portstatus 101, change 0, 12 Mb/s
+hub.c: port 2, portstatus 101, change 0, 12 Mb/s
+hub.c: port 2, portstatus 103, change 0, 12 Mb/s
+hub.c: new USB device 00:04.2-2, assigned address 3
+usb.c: kmalloc IF dbb39460, numif 1
+usb.c: new device strings: Mfr=0, Product=0, SerialNumber=0
+hub.c: USB hub found at 2
+hub.c: 4 ports detected
+hub.c: part of a compound device
+hub.c: ganged power switching
+hub.c: global over-current protection
+hub.c: Port indicators are not supported
+hub.c: power on to power good time: 20ms
+hub.c: hub controller current requirement: 10mA
+hub.c: port removable status: RRRF
+hub.c: local power source is good
+hub.c: no over-current condition exists
+hub.c: enabling power on all ports
+usb.c: hub driver claimed interface dbb39460
+usb.c: kusbd: /sbin/hotplug add 3
+hub.c: port 1, portstatus 100, change 0, 12 Mb/s
+hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+hub.c: port 3, portstatus 100, change 0, 12 Mb/s
+hub.c: port 4, portstatus 101, change 1, 12 Mb/s
+hub.c: hub 2 port 4 connection change
+hub.c: hub 2 port 4, portstatus 101, change 1, 12 Mb/s
+hub.c: port 4, portstatus 101, change 0, 12 Mb/s
+hub.c: port 4, portstatus 101, change 0, 12 Mb/s
+hub.c: port 4, portstatus 101, change 0, 12 Mb/s
+hub.c: port 4, portstatus 101, change 0, 12 Mb/s
+hub.c: port 4, portstatus 103, change 10, 12 Mb/s
+hub.c: new USB device 00:04.2-2.4, assigned address 4
+usb.c: kmalloc IF dbb395e0, numif 1
+usb.c: skipped 1 class/vendor specific interface descriptors
+usb.c: new device strings: Mfr=0, Product=0, SerialNumber=0
+usb.c: unhandled interfaces on device
+usb.c: USB device 4 (vend/prod 0x452/0x51) is not claimed by any active 
+driver.
+   Length              = 18
+   DescriptorType      = 01
+   USB version         = 1.00
+   Vendor:Product      = 0452:0051
+   MaxPacketSize0      = 8
+   NumConfigurations   = 1
+   Device version      = 2.06
+   Device Class:SubClass:Protocol = 00:00:00
+     Per-interface classes
+Configuration:
+   bLength             =    9
+   bDescriptorType     =   02
+   wTotalLength        = 0022
+   bNumInterfaces      =   01
+   bConfigurationValue =   01
+   iConfiguration      =   00
+   bmAttributes        =   40
+   MaxPower            =  100mA
+
+   Interface: 0
+   Alternate Setting:  0
+     bLength             =    9
+     bDescriptorType     =   04
+     bInterfaceNumber    =   00
+     bAlternateSetting   =   00
+     bNumEndpoints       =   01
+     bInterface Class:SubClass:Protocol =   03:00:00
+     iInterface          =   00
+     Endpoint:
+       bLength             =    7
+       bDescriptorType     =   05
+       bEndpointAddress    =   81 (in)
+       bmAttributes        =   03 (Interrupt)
+       wMaxPacketSize      = 0008
+       bInterval           =   20
+usb.c: kusbd: /sbin/hotplug add 4
+hub.c: port 1, portstatus 100, change 0, 12 Mb/s
+hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+hub.c: port 3, portstatus 100, change 0, 12 Mb/s
+hub.c: port 4, portstatus 103, change 0, 12 Mb/s
+hub.c: port 1, portstatus 103, change 0, 12 Mb/s
+hub.c: port 2, portstatus 103, change 0, 12 Mb/s
 
 
-*****************
-ChangeSet@1.657, 2002-05-24 15:34:29+02:00, vojtech@twilight.ucw.cz
-  This is a new driver for the Artop (Acard) controllers. It's completely
-  untested, as I have never seen the hardware. However, I suspect it is
-  much less broken than the previous one ...
-
-<comment>
-For starters he has no hardware and no documents, and he has read my
-copyrighted source code, thus there is no way for him to have a clean room
-model.
-</comment>
-
-+/*
-+ *
-+ * $Id: aec62xx.c,v 1.0 2002/05/24 14:37:19 vojtech Exp $
-  *
-- * Version 0.11        March 27, 2002
-+ *  Copyright (c) 2002 Vojtech Pavlik
-  *
-- * Copyright (C) 1999-2000     Andre Hedrick (andre@linux-ide.org)
-+ *  Based on the work of:
-+ *     Andre Hedrick
-+ */
-
-<comment>
-All that has to be done is return proper CopyRight clauses.
-</comment>
-
-+static unsigned char aec_cyc2udma[17] = { 0, 0, 7, 6, 5, 4, 4, 3, 3, 2, 2, 2,
-2, 1, 1, 1, 1 };
-
--
--struct chipset_bus_clock_list_entry aec62xx_base [] = {
--#ifdef CONFIG_BLK_DEV_IDEDMA
--       {       XFER_UDMA_6,    0x41,   0x06,   0x31,   0x07    },
--       {       XFER_UDMA_5,    0x41,   0x05,   0x31,   0x06    },
--       {       XFER_UDMA_4,    0x41,   0x04,   0x31,   0x05    },
--       {       XFER_UDMA_3,    0x41,   0x03,   0x31,   0x04    },
--       {       XFER_UDMA_2,    0x41,   0x02,   0x31,   0x03    },
--       {       XFER_UDMA_1,    0x41,   0x01,   0x31,   0x02    },
--       {       XFER_UDMA_0,    0x41,   0x01,   0x31,   0x01    },
--
--       {       XFER_MW_DMA_2,  0x41,   0x00,   0x31,   0x00    },
--       {       XFER_MW_DMA_1,  0x42,   0x00,   0x31,   0x00    },
--       {       XFER_MW_DMA_0,  0x7a,   0x00,   0x0a,   0x00    },
--#endif /* CONFIG_BLK_DEV_IDEDMA */
--       {       XFER_PIO_4,     0x41,   0x00,   0x31,   0x00    },
--       {       XFER_PIO_3,     0x43,   0x00,   0x33,   0x00    },
--       {       XFER_PIO_2,     0x78,   0x00,   0x08,   0x00    },
--       {       XFER_PIO_1,     0x7a,   0x00,   0x0a,   0x00    },
--       {       XFER_PIO_0,     0x70,   0x00,   0x00,   0x00    },
--       {       0,              0x00,   0x00,   0x00,   0x00    }
--};
-
-<comment>
-New table is purely derived from the previous table.
-It is clever to hide the push/pull in the index based on the card.
-This will generate the associated pairs identically from the static table.
-</comment>
-
-+#define AEC_MISC               0x49
-
- static unsigned int __init aec62xx_ata66_check(struct ata_channel *ch)
- {
--       u8 mask = ch->unit ? 0x02 : 0x01;
--       u8 ata66 = 0;
-+       unsigned char t;
-
--       pci_read_config_byte(ch->pci_dev, 0x49, &ata66);
--
--       return ((ata66 & mask) ? 0 : 1);
-+       pci_read_config_byte(ch->pci_dev, AEC_MISC, &t);
-+       return ((t & (1 << ch->unit)) ? 0 : 1);
- }
-
-<comment>
-Here he moves a specified pci-config space register to a define.
-Next he trades the mask for a bit shift.
-Next he renames the test variable.
-</comment>
 
 
--       pci_read_config_word(dev, 0x40|(2*drive->dn), &d_conf);
--       tmp0 = pci_bus_clock_list(speed, aec62xx_base);
--       SPLIT_BYTE(tmp0,tmp1,tmp2);
--       MAKE_WORD(d_conf,tmp1,tmp2);
--       pci_write_config_word(dev, 0x40|(2*drive->dn), d_conf);
 
--static int aec6260_tune_chipset(struct ata_device *drive, byte speed)
--{
--       struct pci_dev *dev = drive->channel->pci_dev;
--       byte unit               = (drive->select.b.unit & 0x01);
--       u8 ultra_pci = drive->channel->unit ? 0x45 : 0x44;
--       byte drive_conf         = 0x00;
-
--static int aec6210_tune_chipset(struct ata_device *drive, byte speed)
--{
--       pci_read_config_byte(dev, 0x54, &ultra);
--       tmp1 = ((0x00 << (2*drive->dn)) | (ultra & ~(3 << (2*drive->dn))));
--       ultra_conf = pci_bus_clock_list_ultra(speed, aec62xx_base);
--       tmp2 = ((ultra_conf << (2*drive->dn)) | (tmp1 & ~(3 << (2*drive->dn))));
--       pci_write_config_byte(dev, 0x54, tmp2);
-
-+#define AEC_DRIVE_TIMING       0x40
-+#define AEC_UDMA_NEW           0x44
-+#define AEC_UDMA_OLD           0x54
-
-+       pci_write_config_byte(dev, AEC_DRIVE_TIMING + dn,
-+               (FIT(timing->active, 0, 15) << 4) | FIT(timing->recover, 0, 15));
-+
-+       pci_read_config_byte(dev, AEC_UDMA_NEW + (dn >> 1), &t);
-+       t &= ~(0xf << ((dn & 1) << 2));
-+       if (timing->udma)
-+               t |= aec_cyc2udma[FIT(timing->udma, 2, 16)] << ((dn & 1) << 2);
-+       pci_write_config_byte(dev, AEC_UDMA_NEW + (dn >> 1), t);
-
-<comment>
-These are a little more difficult to see
-Here he adds a skip masking order to merge timings into one call.
-</comment>
-
-*****************
-
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-AEC6280R: IDE controller on PCI bus 02 dev 20
-AEC6280R: chipset revision 2
-AEC6280R: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-    ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:pio
-AEC6880R: IDE controller on PCI bus 02 dev 28
-AEC6880R: chipset revision 2
-AEC6880R: not 100% native mode: will probe irqs later
-    ide4: BM-DMA at 0xb400-0xb407, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0xb408-0xb40f, BIOS settings: hdk:pio, hdl:pio
-
-Controller: 0
-Chipset: AEC865
---------------- Primary Channel ---------------- Secondary Channel -------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              no              yes               no
-DMA Mode:       UDMA(5)           PIO(?)         UDMA(5)            PIO(?)
-
-Controller: 1 
-Chipset: AEC865
---------------- Primary Channel ---------------- Secondary Channel -------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              no              yes               no
-DMA Mode:       UDMA(6)           PIO(?)         UDMA(6)            PIO(?)
-
-Nor could one know the detection difference between the two chipset with
-the same device id and revision.
-
-02:04.0 SCSI storage controller: Artop Electronic Corp: Unknown device 0009 (rev 02)
-02:05.0 SCSI storage controller: Artop Electronic Corp: Unknown device 0009 (rev 02)
-
-
-On 27 May 2002, Alan Cox wrote:
-
-> On Mon, 2002-05-27 at 00:08, Andre Hedrick wrote:
-> > All of the original code described how to make the hardware operate.  If
-> > your code makes the hardware operate, then it uses material copyrighted 
-> > and owned by me.
+Andries.Brouwer@cwi.nl wrote:
+> In 2.5.16 - 2.5.18 there is one bad bug in usb-storage
+> fixed by the 1-char patch below. Other things are wrong,
+> but try this first.
 > 
-> Really. You think if I read a GPL'd example of a piece of code I can't
-> write a non GPL'd one. Companies use two sets of people to ensure that
-> there are no questions (one set write the spec, the other to write from
-> that spec in a different building).
+> Andries
 > 
-> > I suggest you think real hard and long about your decisions to go about
-> > calling derived works from stolen/deleted Copyrights. 
-> 
-> Rude yes, but derived work.. open question. I guess Eben can give you a
-> reasonably sane opinion if its so important.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> --- /linux/2.5/linux-2.5.18/linux/drivers/usb/storage/transport.c       Tue May 
+> 21 07:07:37 2002
+> +++ /linux/2.5/linux-2.5.18a/linux/drivers/usb/storage/transport.c      Sun May 
+> 26 00:32:48 2002
+> @@ -430,7 +430,7 @@
+>  
+>         /* fill the URB */
+>         FILL_CONTROL_URB(us->current_urb, us->pusb_dev, pipe, 
+> -                        (unsigned char*) &dr, data, size, 
+> +                        (unsigned char*) dr, data, size, 
+>                          usb_stor_blocking_completion, NULL);
+>  
+>         /* submit the URB */
 
 
 

@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUJDUkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUJDUmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268470AbUJDUkr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUJDUkr
+	id S268479AbUJDUmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268482AbUJDUmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:40:47 -0400
-Received: from zero.aec.at ([193.170.194.10]:35854 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268470AbUJDUkm (ORCPT
+	Mon, 4 Oct 2004 16:42:32 -0400
+Received: from mail.dif.dk ([193.138.115.101]:62935 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268479AbUJDUlo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:40:42 -0400
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.9-rc3-mm[12]: x86-64-clustered-apic-support.patch problem
-References: <2LHjU-fJ-49@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 04 Oct 2004 22:40:34 +0200
-In-Reply-To: <2LHjU-fJ-49@gated-at.bofh.it> (Rafael J. Wysocki's message of
- "Mon, 04 Oct 2004 22:10:14 +0200")
-Message-ID: <m3pt3yushp.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Mon, 4 Oct 2004 16:41:44 -0400
+Date: Mon, 4 Oct 2004 22:49:07 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry Ewing <lewing@isc.tamu.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] How about making Tux official - it's about time...
+In-Reply-To: <20041004203521.GE30858@thundrix.ch>
+Message-ID: <Pine.LNX.4.61.0410042246270.2925@dragon.hygekrogen.localhost>
+References: <20041004203521.GE30858@thundrix.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> writes:
+On Mon, 4 Oct 2004, Tonnerre wrote:
 
-> Andrew,
->
-> The patch x86-64-clustered-apic-support.patch causes the 2.6.9-rc3-mm[12] 
-> kernel to crash at startup on a single-CPU AMD64 box :
+> Salut,
+> On Mon, Oct 04, 2004 at 10:39:10PM +0200, Jesper Juhl wrote:
+> > Also, on a related note; how about a PNG version instead of a GIF in
+> the 
+> > kernel source? PNG is a nice open format, GIF has this unpleasant
+> patent 
+> > smell...?
+> The LZW  patent from Unisys has  timed out some monthes  ago. The only
+> point that's left against GIF is that it's terribly ugly.
 
-This untested patch may fix it. Does it?
+Yes, you are right. I was aware of the patent expiration (should probably 
+have said), but the smell lingers ;)  but yes, a PNG could be nicer as 
+well simply by having more colours available, GIF's are sadly limited 
+there.
 
--Andi
+--
+Jesper Juhl
 
-Index: linux/arch/x86_64/kernel/genapic.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/genapic.c	2004-10-03 16:28:07.%N +0200
-+++ linux/arch/x86_64/kernel/genapic.c	2004-10-03 17:05:10.%N +0200
-@@ -27,7 +27,7 @@
- extern struct genapic apic_cluster;
- extern struct genapic apic_flat;
- 
--struct genapic *genapic;
-+struct genapic *genapic = &apic_flat;
- 
- 
- /*
 

@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbTKTCka (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 21:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTKTCk3
+	id S264277AbTKTDHV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 22:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTKTDHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 21:40:29 -0500
-Received: from relay-4v.club-internet.fr ([194.158.96.115]:23205 "EHLO
-	relay-4v.club-internet.fr") by vger.kernel.org with ESMTP
-	id S264228AbTKTCk2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 21:40:28 -0500
-From: pinotj@club-internet.fr
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Thu, 20 Nov 2003 03:40:27 CET
+	Wed, 19 Nov 2003 22:07:21 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43922 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264277AbTKTDHS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 22:07:18 -0500
+Subject: Re: high res timestamps and SMP
+From: john stultz <johnstul@us.ibm.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FBBF148.20203@nortelnetworks.com>
+References: <3FBBF148.20203@nortelnetworks.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069297341.23568.130.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet2.1069296027.2246.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 Nov 2003 19:02:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----Message d'origine----
->Date: Wed, 19 Nov 2003 18:09:43 -0800
->De: Andrew Morton <akpm@osdl.org>
->A: pinotj@club-internet.fr
->Copie à: linux-kernel@vger.kernel.org
->Sujet: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-[...]
->>  Is there any thing I can do to help figure out where does the problem comes from ? 
->
->Well it's interesting that it is repeatable.
->First thing to do is to eliminate hardware failures:
->
->1: Is the oops always the same, or does the machine crash in other ways, with different backtraces?
+On Wed, 2003-11-19 at 14:40, Chris Friesen wrote:
+> We have a requirement to have high-res timestamps available on SMP systems.
+> 
+> Assuming that we are running identical cpus, is a sync-up at boot time 
+> enough to give usable time values, or do I need to do force periodic 
+> re-syncs?
 
-Well, I can't check right know but seemed to be the same. I will keep the next 5 oops with same distro and make a diff to be sure.
+If the cpus (or their time stamp counter) are all driven by the same
+signal and you do not suffer from NUMA effects, then syncing them should
+be enough. 
 
->2: Try running memtest86 on that machine for 12 hours or more.
+However, if you suffer from NUMA effects, or if the counters are not
+driven off the same signal, its likely you could run into problems. 
 
-OK
+> We're currently looking at MIPS, x86 (Xeons), and PPC.
 
->3: Can the problem be reproduced on other machines?
+o No clue on MIPS.
 
-Unfortunately, I can't use any other computer for this (or I will lose some friends :-) If there was already some reports about this bug, it can be good to compare the hardware and/or environment with these others people.
+o The x86 TSC is a horrible time source, but may work well enough on
+simple SMP systems. 
 
->4: try a different compiler version.
+o PPC has a nice in-cpu time-base register (ppc folks, feel free to
+smack or correct me on this) which is driven off the bus-clock and is
+synced in hardware. 
 
-I already tried gcc 3.2.3 and 3.3.1 (2.95.3 to be confirmed)
 
-I will make the tests (1, 2 and confirmed 4) and give you the results tomorrow.
-
-Just an idea: could it be an ACPI problem ?
-I will try some boot parameters too, to be sure...
-
->Thanks.
-
-Your welcome
-
-Jerome Pinot
+good luck!
+-john
 

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262087AbREVQTY>; Tue, 22 May 2001 12:19:24 -0400
+	id <S262106AbREVQVE>; Tue, 22 May 2001 12:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262106AbREVQTO>; Tue, 22 May 2001 12:19:14 -0400
-Received: from idiom.com ([216.240.32.1]:10759 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S262087AbREVQTF>;
-	Tue, 22 May 2001 12:19:05 -0400
-Message-ID: <3B0A90F5.1778837B@namesys.com>
-Date: Tue, 22 May 2001 09:16:53 -0700
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Ricardo Galli <gallir@uib.es>
-CC: linux-kernel@vger.kernel.org, timothy@monkey.org,
-        Guillem Cantallops Ramis <guillem@cantallops.net>,
-        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
-        reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: New XFS, ReiserFS and Ext2 benchmarks
-In-Reply-To: <LOEGIBFACGNBNCDJMJMOAEAGCJAA.gallir@uib.es>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S262576AbREVQUy>; Tue, 22 May 2001 12:20:54 -0400
+Received: from dhcp04.gb.nrao.edu ([192.33.116.206]:16644 "EHLO
+	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
+	id <S262106AbREVQUo>; Tue, 22 May 2001 12:20:44 -0400
+Date: Tue, 22 May 2001 12:20:35 -0400
+Message-Id: <200105221620.f4MGKZ602140@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN is on!
+In-Reply-To: <20010522185935.M5947@mea-ext.zmailer.org>
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>
+	<Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
+	<200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
+	<20010522185935.M5947@mea-ext.zmailer.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli wrote:
+Matti Aarnio writes:
+> On Tue, May 22, 2001 at 09:06:25AM -0400, Richard Gooch wrote:
+> ...
+> > Sure, Dave is being bloody-minded, but that's the only way we'll see
+> > people get off their fat, lazy asses and fix their broken systems.
+> > In fact, hopefully he's still in a dark mood, and he may take up the
+> > suggestion to bounce mails of the following type:
+> > - MIME encoded
+> > - HTML encoded
+> > - quoted printables (those stupid "=20" things are particuarly hard to
+> >   read).
+> 
+>   Bounces to where ?
 
-> I was equally suprised, not only due to the wall-clock time but also to the
-> CPU. So, I think the cache is the major player when compiling a kernel that
-> was _just_ copied from another file system (still in buffer/cache).
-You might consider rebooting to flush the cache.
+To the sender, of course, who is the evil culprit.
 
-Hans
+>   And for that matter, people who you do want to punish do run MUAs,
+>   which happily open up everything -- except these bounce reports
+>   VGER generates.  But then, vger sends those reports to
+>   linux-kernel-owner, who needs no additional punishment...
+
+I don't understand what you mean here. Are you saying that these
+MUAs which generate horrible messages drop bounces on the floor?!?
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

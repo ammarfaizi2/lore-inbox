@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132822AbRDXGac>; Tue, 24 Apr 2001 02:30:32 -0400
+	id <S132825AbRDXGgc>; Tue, 24 Apr 2001 02:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132825AbRDXGaN>; Tue, 24 Apr 2001 02:30:13 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:27141 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S132822AbRDXGaD>;
-	Tue, 24 Apr 2001 02:30:03 -0400
-Message-ID: <3AE51D6A.BA19B084@megapathdsl.net>
-Date: Mon, 23 Apr 2001 23:30:02 -0700
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
-X-Accept-Language: en
+	id <S132829AbRDXGgX>; Tue, 24 Apr 2001 02:36:23 -0400
+Received: from ns2.Deuroconsult.com ([193.226.167.164]:2053 "EHLO
+	marte.Deuroconsult.com") by vger.kernel.org with ESMTP
+	id <S132825AbRDXGgO>; Tue, 24 Apr 2001 02:36:14 -0400
+Date: Tue, 24 Apr 2001 09:37:17 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: linux-kernel@vger.kernel.org
+Subject: disable_irq don't work corectly (ps2/kbd related)
+Message-ID: <Pine.LNX.4.20.0104240918240.2993-100000@marte.Deuroconsult.com>
 MIME-Version: 1.0
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Semi-OT] Dual Athlon support in kernel
-In-Reply-To: <9DD550E9A9B0D411A16700D0B7E38BA4255520@mail.degrp.org> <20010424081512.D16845@athlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Tue, Apr 24, 2001 at 08:03:18AM +0200, Antwerpen, Oliver wrote:
-> > I am also highly interested in information about dual Athlon (which
-> > kernel/compiler/tools to use?), as we will get a dual Athlon sample before
-> 
-> kernel >= 2.4.3 (better >= 2.4.4pre2 for other rasons) compiled for K7 and
-> CONFIG_SMP=y, compiler as usual for the kernel gcc 2.95.[43] or egcs 1.1.2.
+Hi, guys!
 
-With the recent development kernels, an Athlon SMP kernel boots and runs
-fine
-on a uniprocessor Athlon machine.  This was busted until a few weeks
-ago.
-I don't have a SMP Athlon box to test with, so I can't help you there.
+I made a module that in init_module issue a "disable_irq (1)" and in
+remove_module "enable_irq (1)".
 
-	Miles
+Of course that I connect from the network to remove the module :))
+
+This module don't works as expected. It disables the keyboard and the PS/2
+mouse (irq 12)! Not from the beggining. After I insert the module, the
+mouse works till I press a key.
+
+What can be the problem?
+
+Thank you very much!
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro
+A new Linux distribution: http://l13plus.deuroconsult.ro
+http://www2.deuroconsult.ro/~catab
+
+

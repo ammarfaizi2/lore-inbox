@@ -1,102 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269276AbRGaMWt>; Tue, 31 Jul 2001 08:22:49 -0400
+	id <S269277AbRGaMZT>; Tue, 31 Jul 2001 08:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269275AbRGaMWj>; Tue, 31 Jul 2001 08:22:39 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:51979 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S269272AbRGaMW0>; Tue, 31 Jul 2001 08:22:26 -0400
-Message-ID: <3B66A305.E1A17E3A@namesys.com>
-Date: Tue, 31 Jul 2001 16:22:29 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Rik van Riel <riel@conectiva.com.br>, Christoph Hellwig <hch@caldera.de>,
-        linux-kernel@vger.kernel.org, Vitaly Fertman <vitaly@namesys.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption (patch to cause redhat to unmount 
- reiserfs on halt included)
-In-Reply-To: <Pine.LNX.4.33L.0107301858350.5582-100000@duckman.distro.conectiva> <3B65E0FE.CC84FF98@namesys.com> <20010731133443.N9244@khan.acc.umu.se>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S269278AbRGaMZA>; Tue, 31 Jul 2001 08:25:00 -0400
+Received: from oe31.law3.hotmail.com ([209.185.240.24]:62475 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S269277AbRGaMYx>;
+	Tue, 31 Jul 2001 08:24:53 -0400
+X-Originating-IP: [64.108.8.236]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "christophe =?ISO-8859-1?Q?barb=E9" ?= <christophe.barbe@lineo.fr>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com> <20010731140927.A31267@pc8.lineo.fr>
+Subject: [OT] Test mail
+Date: Tue, 31 Jul 2001 07:28:28 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2479.0006
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Message-ID: <OE31VvPdLFYxc9NUpua000030da@hotmail.com>
+X-OriginalArrivalTime: 31 Jul 2001 12:24:57.0207 (UTC) FILETIME=[CF638870:01C119BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-David Weinehall wrote:
+Think what you like.
 
-> > Every major kernel component should have a #define which if on checks
-> > every imaginable thing the developer can think of to check regardless
-> > of how slow it makes the code go to check it.  Then, when users (or at
-> > least as usefully, developers adding a new feature) have bugs in that
-> > component, they can turn it on.
-> 
-> Ugh! I think you need to have a little chat with Linus about this
-> opinion of yours on how to use #ifdef / #endif in code... I'm not all
-> that sure he'll agree with you.
+No matter what a shrink wrap (or Click-Wrap) agreement states, license
+agreements can not, and do not invalidate my rights (and my copyright)
+to what I write myself.  Not in the country anyway.
 
-I didn't say he would agree with me, in fact I am sure he doesn't alike
-assertions in the code.  I merely said it should be done.:-)  As a final little
-quibble, let me mention that nikita has created macros that neatly hide the
-#ifdefs, and sent them out for testing.
+The problem is a combination of over zealousness and bigotry.  Period.
+Use what you like, please allow me to do the same.
 
-We will consider pulling all but the essential assertions out of ReiserFS. 
-Sigh.  This is the difference between engineering, and marketing.  As an
-engineer, I said overengineer the checks so that our testing process will catch
-more things, and then #define them out so that there is no performance cost. 
-Perfectly logical.  Then along come the distros, and they turn on debugging,
-they don't tell the users that debugging is on, and users think we are slower
-than other filesystems when we are just configured exactly as we tell the users
-not to configure us, sigh.
+Scott
 
-I'll try simply ensuring that users are warned that debugging is on first.  Of
-course, with the way syslog is usually misconfigured on most distros we'll have
-to be careful to ensure that they ever see the messages....  Should I ask
-whether, with ReiserFS debugging on, and the default syslog.conf, the assertions
-being checked for on these particular distros ever reach the users?  Better I
-not ask....?
+----- Original Message -----
+From: "christophe barbé" <christophe.barbe@lineo.fr>
+To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, July 31, 2001 7:09 AM
+Subject: Re: Test mail
 
-If Chris wants to run ReiserFS with the checks on, fine, he is a user, and he at
-least knows he is doing it, but when a distro does it without warning users the
-FS is crippled it is really foul.
 
-Well, if any of you users out there are interested in knowing practical details
-of how to overcome the shovelware, even more important than recompiling your
-kernel, these patches will help.  Note the cute patch that causes reiserfs to
-get unmounted rather than unpowered by these folks so concerned about corruption
-of data.:-O  I am merely passing these patches onwards, I have not verified that
-they are correct (because I lack a redhat machine to test on).  If RedHat could
-confirm that the patch is correct it would be nice, and mindboggling as well.
+Hi William Scott Lockwood III,
 
-Vitaly, make sure these are on our website.
+In your mails, you use outlook and hotmail together.
+This is a mistake.
 
->From Dustin Byford:
+Outlook is a "not so bad idea" but which comes with a collection of
+security holes. Eudora is definetly a better choice.
 
---- rc.sysinit.orig     Mon Jul 30 22:58:45 2001
-+++ rc.sysinit  Mon Jul 30 22:57:16 2001
-@@ -211,7 +211,8 @@
+Hotmail is a http-based mail owned by microsoft. And all contents which
+go
+in it become potential Microsoft content (there's a kind of implicit
+copyright transfert between you end Microsoft).
+You should read carrefully what you have (implicitly perhaps) signed.
+You should avoid Hotmail. This is not related to M$ against Linux but to
+your rights (to access and only you to your data)  against M$ profits.
+From
+the Microsoft point of view, Hotmail License is an improvment over the
+way
+they lock their clients by using proprietary (embraced-and-extanded)
+protocols and standarts.
+Hotmail was the first site to use Microsoft Passport, which is the a
+draft
+of .Net. If you accept Hotmail today you will accept the worst of .Net
+tomorrow.
 
-  _RUN_QUOTACHECK=0
-  ROOTFSTYPE=`grep " / " /proc/mounts | awk '{ print $3 }'`
--if [ -z "$fastboot" -a "$ROOTFSTYPE" != "nfs" ]; then
-+if [ -z "$fastboot" -a "$ROOTFSTYPE" != "nfs" \
-+                    -a "$ROOTFSTYPE" != "reiserfs" ]; then
+btw You said that Microsoft comes with good solutions.
+This view (linux is not user friendly) is partly wrong because what is
+said
+to be not user friendly is caused by people not accepting differences.
+M$ users are scared by what we call the unix-way.
 
-          STRING=$"Checking root filesystem"
-         echo $STRING
+To conclude and I will stop following this thread, I'm against adding IQ
+test in the lkml subscribe process.
 
->From David Rees:
+Christophe
 
---- halt.orig   Mon Jul 30 17:26:24 2001
-+++ halt        Mon Jul 30 17:26:36 2001
-@@ -165,7 +165,7 @@
- 
- # Remount read only anything that's left mounted.
- #echo $"Remounting remaining filesystems (if any) readonly"
--mount | awk '/ext2/ { print $3 }' | while read line; do
-+mount | awk '/ext2|reiserfs/ { print $3 }' | while read line; do
-     mount -n -o ro,remount $line
- done
+PS: I don't remember the name but there is a unix tool that provide
+everything for MsExchange sharing facilities.
+
+Le mar, 31 jui 2001 13:42:20, William Scott Lockwood III a écrit :
+> Sick?  No.
+>
+> As much as we dislike M$'s marketing practices, one has to admit that
+> they DO come up with some GOOD solutions to problems, they just bundle
+> them into BAD implementations that are non-free.
+>
+> As I said earlier, the problem isn't hotmail - the problem is
+attitudes
+> like yours.
+>
+> Scott
+>
+> ----- Original Message -----
+> From: "christophe barbé" <christophe.barbe@lineo.fr>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, July 31, 2001 3:34 AM
+> Subject: Re: Test mail
+>
+>
+>
+> Le lun, 30 jui 2001 22:23:03, William Scott Lockwood III a écrit :
+> > Basically, I use a hotmail and Outlook Express to help me SORT
+> messages
+> > on LKML.  It makes it MUCH easier for me to find the messages I want
+> to
+> > read vs the rest of the noise that I don't understand yet.
+>
+> Sick ...
+>
+> And btw you should read the various HotMail agreements you have
+signed.
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+--
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

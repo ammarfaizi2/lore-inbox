@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTDWQUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTDWQUa
+	id S264115AbTDWQVi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTDWQVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:20:30 -0400
-Received: from pop.gmx.net ([213.165.65.60]:60429 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263475AbTDWQU3 (ORCPT
+	Wed, 23 Apr 2003 12:21:38 -0400
+Received: from pat.uio.no ([129.240.130.16]:53383 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264115AbTDWQVh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:20:29 -0400
-Date: Wed, 23 Apr 2003 18:32:30 +0200
-From: Marc Giger <gigerstyle@gmx.ch>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-Id: <20030423183230.33a11a36.gigerstyle@gmx.ch>
-In-Reply-To: <21660000.1051114998@[10.10.2.4]>
-References: <21660000.1051114998@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 12:21:37 -0400
+To: tobias@stud.cs.uit.no
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: nfsroot.c + ipconfig.c (2.4.20)
+References: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 23 Apr 2003 18:33:39 +0200
+In-Reply-To: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no>
+Message-ID: <shs8yu1uqak.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
 
-> Not certain if this is kernel or ALSA specific. In 2.4.x OSS volume levels
-> were remembered for the various mixers. Now all of them always default to 0
-> at bootup. I never ran ALSA with the 2.4 series, but it would be nice to
-> remember volumes.
-> Should I be bugging the alsa-project people instead?
-> 
-> Steps to reproduce:
-> Set a volume level, reboot, level has been reset.
+Read the fine HOWTO:
 
-This is and was always so. The alsa-people provides the tool "alsactl"
-to save and restore the soundcard settings..
+   ftp://ftp.uninett.no/pub/linux/docs/HOWTO/mini/NFS-Root
 
-greets
-
-Marc
+Cheers,
+  Trond

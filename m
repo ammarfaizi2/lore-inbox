@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270734AbTHFREG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 13:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTHFREG
+	id S270671AbTHFQ4s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270730AbTHFQ4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 13:04:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40131 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270734AbTHFRC4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 13:02:56 -0400
-Subject: Re: [RFC][PATCH] linux-2.6.0-test2_mtrr-race-fix_A0
-From: Mark Haverkamp <markh@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matt <colpatch@us.ibm.com>, "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <1060136258.10738.31.camel@cog.beaverton.ibm.com>
-References: <1060136258.10738.31.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1060189373.10672.7.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 06 Aug 2003 10:02:53 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 12:56:47 -0400
+Received: from proibm3.procempa.com.br ([200.248.222.108]:24481 "EHLO
+	portoweb.com.br") by vger.kernel.org with ESMTP id S270671AbTHFQ4p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:56:45 -0400
+Date: Wed, 6 Aug 2003 13:58:30 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, <faith@valinux.com>,
+       <dri-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <Mitch@0Bits.COM>
+Subject: Re: any DRM update scheduled for 2.4.23-pre?
+In-Reply-To: <200308061714.36595.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44.0308061357480.4381-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-05 at 19:17, john stultz wrote:
-> All, 
 
 
+On Wed, 6 Aug 2003, Marc-Christian Petersen wrote:
+
+> On Wednesday 06 August 2003 16:51, Mikael Pettersson wrote:
 > 
-> Amazingly this has been in the kernel for about a year, yet its not
-> bothered me until very recently. Go figure. 
-
-I started seeing this on an 8-way after the mtrr_init function was
-changed from core_initcall to subsys_initcall.
-
+> Hi Mikael,
 > 
-> Please review and comment on the following fix. Please let me know if
-> I'm just wrong and the final flagging is more needed then I think. 
-
-I applied this patch and so far I have been able to boot every time
-without a hang on my 8-way.
-
-Mark.
-
-
+> > Is anyone planning to update the apparently obsolete(*)
+> > DRM drivers currently in 2.4.22-pre/rc for 2.4.23?
 > 
-> thanks
-> -john
+> I have a pending DRM 4.3 update for .23-pre1. Marcelo did not accept it for 
+> .22 ( I sent it first while -pre9 time or so. )
+> 
+> It's a complete DRM-4.3 tree. He has to decide between an update of existing 
+> 4.2 code or an addition of a new subdirectory drm-4.3 + proper config.in 
+> entry.
 
--- 
-Mark Haverkamp <markh@osdl.org>
+Does DRM 4.3 work with both XFree 4.2 and 4.3 ? 
+
+I dont so, right?
 

@@ -1,49 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318249AbSIOV2R>; Sun, 15 Sep 2002 17:28:17 -0400
+	id <S318266AbSIOVl7>; Sun, 15 Sep 2002 17:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318266AbSIOV2Q>; Sun, 15 Sep 2002 17:28:16 -0400
-Received: from packet.digeo.com ([12.110.80.53]:49813 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S318249AbSIOV2Q>;
-	Sun, 15 Sep 2002 17:28:16 -0400
-Message-ID: <3D85004E.59A4AE9F@digeo.com>
-Date: Sun, 15 Sep 2002 14:49:02 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org,
-       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Subject: Re: Revealing benchmarks and new version of contest.
-References: <1032087616.3d846840e6eb1@kolivas.net> <3D84F2D3.2FDB1368@digeo.com>
+	id <S318268AbSIOVl6>; Sun, 15 Sep 2002 17:41:58 -0400
+Received: from p0254.as-l042.contactel.cz ([194.108.237.254]:4224 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S318266AbSIOVl5>;
+	Sun, 15 Sep 2002 17:41:57 -0400
+Date: Sun, 15 Sep 2002 23:37:33 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: axboe@suse.de
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH?] 2.5.34-bk: ide interfaces sharing same irq broken...
+Message-ID: <20020915213733.GA13938@ppc.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2002 21:33:06.0308 (UTC) FILETIME=[7A995440:01C25CFF]
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> ..
-> I'll go see if Jens' deadline-iosched-5 patch fixes it.
+Hi Jens,
+  can you look at attached patch? Without this patch my machine dies while
+probing IDE with endless stream of 'unexpected irq'.
 
-Can't tell. It triggers the "IDE-fails-to-deliver-IO-completion"
-lockup which has been lurking around the tree for a couple of months.
+  Problem is both primary and secondary channels of my PDC20265 use irq 10. 
+When we probe first interface, everything is fine, as irq 10 is disabled, 
+and so irq assertion is silently ignored (but it would die if I'll start 
+using USB which also wants irq 10...). But when secondary channel was 
+probed, irq 10 was asserted, and things went really wrong... So I made 
+disable_irq() unconditional: I see no reason why it should depend on 
+ack_intr. Any code which will cause IRQ assertion, and does not install 
+either IRQ handler, or which does not disable that IRQ, is buggy.
 
-#0  io_schedule () at /usr/src/25/include/asm/atomic.h:122
-#1  0xc01305b4 in __lock_page (page=0xc10b6df0) at filemap.c:370
-#2  0xc013164e in read_cache_page (mapping=0xc3e0e244, index=0, filler=0xc01495e0 <blkdev_readpage>, data=0x0)
-    at /usr/src/25/include/linux/pagemap.h:86
-#3  0xc016c352 in read_dev_sector (bdev=0xc3cf7f60, n=0, p=0xc3fcbec4) at check.c:447
-#4  0xc016c764 in msdos_partition (state=0xc3cf6000, bdev=0xc3cf7f60) at msdos.c:397
-#5  0xc016c016 in check_partition (hd=0xc3da6800, bdev=0xc3cf7f60) at check.c:241
-#6  0xc016c134 in register_disk (disk=0xc3da6800, dev={value = 5632}, minors=64, ops=0xc0340cf0, size=120064896) at check.c:381
-#7  0xc0221bb0 in idedisk_attach (drive=0xc03b0230) at ide-disk.c:1710
-#8  0xc021df60 in ata_attach (drive=0xc03b0230) at ide.c:2449
-#9  0xc021ed15 in ide_register_driver (driver=0xc0340de0) at ide.c:3427
-#10 0xc0221bd1 in idedisk_init () at ide-disk.c:1725
-#11 0xc034c8d4 in do_initcalls () at main.c:483
-#12 0xc034c903 in do_basic_setup () at main.c:515
+  Another problem I noticed is that actual probe code in probe_hwif between
+disable_irq() and enable_irq() could change hwif->irq, and so we could
+enable irq we did not disable (it happened to me after I removed ack_intr
+test: irq is 0 on entry when probing onboard VIA, but on exit it is 14... 
+so we enabled irq 14 source without previously disabling it, and it caused 
+bad things to happen).
 
-No quick fix here; this is all going to take some time to
-work through :(
+  This patch makes disabling IRQ during probe unconditional, and makes sure
+that we enable same irq we disabled.
+
+  Of course that moving init_irq call before probe would be nicer, and
+it would solve also pending edge-triggered IRQ, but unfortunately as
+code is currently written, we do not know IRQ until after probe, and
+at this point we already asserted IRQ, even on PCI devices which can
+share IRQ with someone else.
+
+  After this patch, and after commenting out "ide_intr: unexpected interrupt"
+printk in ide.c:ide_intr system works finally fine.
+						Thanks,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
+
+P.S.: I set 'Cc' list to my best knowledge. If you feel that you
+are missing (Andre & Alan, I believe that you both work on 2.4 only),
+add yourself to the "IDE DRIVER [GENERAL]" entry in MAINTAINERS. There
+is still Martin listed there.
+
+diff -urdN linux/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
+--- linux/drivers/ide/ide-probe.c	2002-09-15 20:31:55.000000000 +0200
++++ linux/drivers/ide/ide-probe.c	2002-09-15 22:55:41.000000000 +0200
+@@ -592,6 +592,7 @@
+ {
+ 	unsigned int unit;
+ 	unsigned long flags;
++	unsigned int irqd;
+ 
+ 	if (hwif->noprobe)
+ 		return;
+@@ -623,8 +624,14 @@
+ 		return;	
+ 	}
+ 
+-	if (hwif->hw.ack_intr && hwif->irq)
++	/* We must always disable IRQ, as probe_for_drive will assert IRQ, but
++	   we'll install our IRQ driver much later... */
++	if ((1 || hwif->hw.ack_intr) && hwif->irq) {
+ 		disable_irq(hwif->irq);
++		irqd = hwif->irq;
++	} else {
++		irqd = 0;	/* Use 0... IDE does not support using irq=0 at all... */
++	}
+ 
+ 	local_irq_set(flags);
+ 	/*
+@@ -659,8 +666,9 @@
+ 
+ 	}
+ 	local_irq_restore(flags);
+-	if (hwif->hw.ack_intr && hwif->irq)
+-		enable_irq(hwif->irq);
++	/* Use cached IRQ number. It might be (and is...) changed by probe code above */
++	if (irqd)
++		enable_irq(irqd);
+ 
+ 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
+ 		ide_drive_t *drive = &hwif->drives[unit];

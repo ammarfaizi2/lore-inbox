@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265057AbTFLXeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 19:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFLXeJ
+	id S265060AbTFLXe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 19:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTFLXe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 19:34:09 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:9626 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265057AbTFLXeG
+	Thu, 12 Jun 2003 19:34:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39160 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265060AbTFLXev
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 19:34:06 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 12 Jun 2003 16:45:51 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Patrick Mochel <mochel@osdl.org>
-cc: Robert Love <rml@tech9.net>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 12 Jun 2003 19:34:51 -0400
 Subject: Re: [PATCH] udev enhancements to use kernel event queue
-In-Reply-To: <Pine.LNX.4.44.0306121629590.11379-100000@cherise>
-Message-ID: <Pine.LNX.4.55.0306121645290.3626@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0306121629590.11379-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <16105.3943.510055.309447@nanango.paulus.ozlabs.org>
+References: <1055460564.662.339.camel@localhost>
+	 <Pine.LNX.4.44.0306121629590.11379-100000@cherise>
+	 <16105.3943.510055.309447@nanango.paulus.ozlabs.org>
+Content-Type: text/plain
+Message-Id: <1055461816.662.350.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 12 Jun 2003 16:50:16 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jun 2003, Patrick Mochel wrote:
+On Thu, 2003-06-12 at 16:40, Paul Mackerras wrote:
 
->
-> > > +	spin_lock(&sequence_lock);
-> > > +	seq = sequence_num++;
-> > > +	spin_unlock(&sequence_lock);
-> > > +
-> > > +	envp [i++] = scratch;
-> > > +	scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
-> >
-> > Nice thinking. It is a shame we need a lock for this, but we don't have
-> > an atomic_inc_and_return().
->
-> Those were my sentiments exactly:
->
-> 16:21  * mochel searches for atomic_inc_and_read() :)
->
-> It seems like the following should work. Would someone mind commenting on
-> it?
+> BZZZT.  If another CPU is also doing atomic_inc_and_read you could end
+> up with both calls returning the same value.
 
-It does not Pat, look at the generated asm.
+That is what I thought. Damn.
 
+> You can't do atomic_inc_and_read on 386.  You can on cpus that have
+> cmpxchg (e.g. later x86).  You can also on machines with load-locked
+> and store-conditional instructions (alpha, ppc, probably most other
+> RISCs).
 
+So this is doable on everything but old i386 chips... hrm.
 
-- Davide
+	Robert Love
 

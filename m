@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBDRTj>; Sun, 4 Feb 2001 12:19:39 -0500
+	id <S129090AbRBDRW3>; Sun, 4 Feb 2001 12:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129090AbRBDRT3>; Sun, 4 Feb 2001 12:19:29 -0500
-Received: from [206.191.149.217] ([206.191.149.217]:15599 "EHLO
-	ursa.seattlefirewall.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129031AbRBDRTP>; Sun, 4 Feb 2001 12:19:15 -0500
-Date: Sun, 4 Feb 2001 09:18:43 -0800 (PST)
-From: Tom Eastep <teastep@seattlefirewall.dyndns.org>
-To: "Michael B. Trausch" <fd0man@crosswinds.net>
-cc: Josh Myer <jbm@joshisanerd.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Major Clock Drift
-In-Reply-To: <Pine.LNX.4.21.0102040756120.5276-100000@fd0man.accesstoledo.com>
-Message-ID: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org>
+	id <S129854AbRBDRWT>; Sun, 4 Feb 2001 12:22:19 -0500
+Received: from sv.moemoe.gr.jp ([211.10.15.35]:53520 "HELO mail.moemoe.gr.jp")
+	by vger.kernel.org with SMTP id <S129090AbRBDRWP>;
+	Sun, 4 Feb 2001 12:22:15 -0500
+Date: Mon, 05 Feb 2001 02:22:11 +0900
+From: Keitaro Yosimura <ramsy@linux.or.jp>
+To: axel@uni-paderborn.de, alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
+Subject: Configure.help typo fix
+Cc: linux-kernel@vger.kernel.org, takei@webmasters.gr.jp
+Message-Id: <20010205021325.755D.RAMSY@linux.or.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spoke Michael B. Trausch:
+Hi. Axel Boldt, Alan Cox, Linus Torvalds.
 
-> On Sat, 3 Feb 2001, Josh Myer wrote:
->
-> > Hello all,
-> >
-> > I know this _really_ isn't the forum for this, but a friend of mine has
-> > noticed major, persistent clock drift over time. After several weeks, the
-> > clock is several minutes slow (always slow). Any thoughts on the
-> > cause? (Google didn't show up anything worthwhile in the first couple of
-> > pages, so i gave up).
-> >
->
-> I'm having the same problem here.  AMD K6-II, 450 MHz, VIA Chipset, Kernel
-> 2.4.1.
->
+We found Configure.help typo. please fix it.
 
-I've discovered that heavy use of vesafb can be a major source of clock
-drift on my system, especially if I don't specify "ypan" or "ywrap". On my
-system (similar Hw/Sw configuration to yours), a 2.4 kernel "make dep"
-from a vesafb console will cause the system clock to drift 10-12 seconds.
-With "ywrap", I can do an entire kernel build and only loose 5 seconds or
-so. Even with "ywrap", the drift causes ntpd to loose synchronization. If
-I build the kernel from an xterm window, ntpd does not loose sync and
-there is no apparent clock drift.
+==== for 2.2.X
+--- linux.orig/Documentation/Configure.help	Mon Feb  5 02:07:04 2001
++++ linux/Documentation/Configure.help	Mon Feb  5 02:07:52 2001
+@@ -1530,7 +1530,7 @@
+   inserted in and removed from the running kernel whenever you want).
+   If you want to compile it as a module, say M here and read
+   Documentation/modules.txt. You will get modules called i2o_core.o
+-  and i20_config.o. 
++  and i2o_config.o. 
+ 
+   If unsure, say N.
+ 
+==== for 2.4.X
+--- linux.orig/Documentation/Configure.help	Mon Feb  5 02:09:05 2001
++++ linux/Documentation/Configure.help	Mon Feb  5 02:09:50 2001
+@@ -2572,7 +2572,7 @@
+   inserted in and removed from the running kernel whenever you want).
+   If you want to compile it as a module, say M here and read
+   Documentation/modules.txt. You will get modules called i2o_core.o
+-  and i20_config.o. 
++  and i2o_config.o. 
+ 
+   If unsure, say N.
+ 
+====
 
-The video on this system is an onboard ATI 3D Rage LT Pro; I use vesafb
-rather than atyfb because the latter screws up X.
-
--Tom
--- 
-Tom Eastep             \ Alt Email: tom@seattlefirewall.dyndns.org
-ICQ #60745924           \ Websites: http://seawall.sourceforge.net
-teastep@evergo.net       \          http://seattlefirewall.dyndns.org
-Shoreline, Washington USA \___________________________________________
+<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
+<|> mailto:ramsy@linux.or.jp
+<|> http://jla.linux.or.jp/index.html
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

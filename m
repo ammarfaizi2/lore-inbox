@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVAMXrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVAMXnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVAMXrD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVAMXns
+	id S261823AbVAMXnG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVAMXjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:43:48 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:702 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261810AbVAMXlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:41:32 -0500
-Date: Thu, 13 Jan 2005 15:41:28 -0800
-From: Greg KH <greg@kroah.com>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] release_pcibus_dev() crash
-Message-ID: <20050113234128.GA2847@kroah.com>
-References: <1105576756.8062.17.camel@sinatra.austin.ibm.com> <1105638551.30960.16.camel@sinatra.austin.ibm.com> <20050113181850.GA24952@kroah.com> <200501131021.19434.jbarnes@engr.sgi.com> <20050113183729.GA25049@kroah.com> <1105647135.30960.22.camel@sinatra.austin.ibm.com> <20050113202532.GA30780@kroah.com> <1105649679.30960.27.camel@sinatra.austin.ibm.com> <20050113210501.GA31402@kroah.com> <1105651078.30960.33.camel@sinatra.austin.ibm.com>
+	Thu, 13 Jan 2005 18:39:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19460 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261765AbVAMX37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 18:29:59 -0500
+Date: Fri, 14 Jan 2005 00:29:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: dri-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Compile bug in Direct Rendering Manager (kernel 2.6.11-rc1)
+Message-ID: <20050113232943.GO29578@stusta.de>
+References: <41E6525E.6030200@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105651078.30960.33.camel@sinatra.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41E6525E.6030200@gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 03:17:58PM -0600, John Rose wrote:
-> > Closer (you forgot a changelog entry too...)
+On Thu, Jan 13, 2005 at 11:50:06AM +0100, Luca Falavigna wrote:
 > 
-> Just to be a brat, I'll point out that I couldn't find a single user of
-> CLASS_DEVICE_ATTR that explicitly cleans things up like we're doing here.  That
-> would include firmware and net-sysfs stuff.  Maybe enforcing such a policy upon
-> device removal would increase participation :)  But okay, here's another try:
-
-Yeah, I know everyone doesn't do it, but I'm trying to get them all to,
-and when I have a chance to point it out and fix it, I am.  Just like
-now, thanks for putting up with me :)
-
-> During the course of a hotplug removal of a PCI bus, release_pcibus_dev()
-> attempts to remove attribute files from a kobject directory that no longer
-> exists.  This patch moves these calls to pci_remove_bus(), where they can work
-> as intended.
+> While compiling kernel 2.6.11-rc1, make exits with a lot of errors concerning
+> Direct Rendering Manager. Here is some info I've grabbed:
 > 
-> Signed-off-by: John Rose <johnrose@austin.ibm.com>
+> [...]
+> CC [M]  drivers/char/drm/gamma_drv.o
+> drivers/char/drm/gamma_drv.c:39:22: drm_auth.h: No such file or directory
+>...
+> make[3]: *** [drivers/char/drm/gamma_drv.o] Error 1
+>...
+> [...]
+> CONFIG_DRM=m
+> CONFIG_DRM_TDFX=m
+> CONFIG_DRM_GAMMA=m
+>...
 
-Looks good, applied, thanks.
+The more interestion options would have been:
+CONFIG_EXPERIMENTAL=y
+# CONFIG_CLEAN_COMPILE is not set
+CONFIG_BROKEN=y
 
-greg k-h
+If you answer "yes" to
+
+  "Prompt for development and/or incomplete code/drivers"
+
+and "no" to
+
+  "Select only drivers expected to compile cleanly"
+
+it souldn't be a big surprise if a driver doesn't compile.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

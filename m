@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUJ0Cwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbUJ0C5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUJ0Cwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbUJ0Cwu
+	id S261599AbUJ0C5A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUJ0C5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:52:50 -0400
-Received: from gold.pobox.com ([208.210.124.73]:53726 "EHLO gold.pobox.com")
-	by vger.kernel.org with ESMTP id S261600AbUJ0Cwf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:52:35 -0400
-Date: Tue, 26 Oct 2004 19:52:22 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>, jbaron@redhat.com,
-       alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: Linux 2.4.28-rc1
-Message-ID: <20041027025222.GB9375@ip68-4-98-123.oc.oc.cox.net>
-References: <417E5904.9030107@ttnet.net.tr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417E5904.9030107@ttnet.net.tr>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 26 Oct 2004 22:57:00 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:63839 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261599AbUJ0C4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 22:56:48 -0400
+Message-ID: <417F0E6C.60104@yahoo.com.au>
+Date: Wed, 27 Oct 2004 12:56:44 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com> <20041027005425.GO14325@dualathlon.random> <20041027005637.GP14325@dualathlon.random> <20041027013522.GR14325@dualathlon.random>
+In-Reply-To: <20041027013522.GR14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 05:02:44PM +0300, O.Sezer wrote:
-> There are many lost/forgotten patches posted here on lkml. Since 2.4.28
-> is near and 2.4 is going into "deep maintainance" mode soon, I gathered
-> a short list of some of them.  There, sure, are many more of them,  but
-> here it goes.
-> I think they deserve a re-review and re-consideration for inclusion.
-[snip]
+Andrea Arcangeli wrote:
+> this _incremental_ 2/? patch should fix the longtanding kswapd issue
+> vs protection algorithm, now lowmem_reserve (partly hidden by the lack
+> of lowmem_reserve/protection or equivalent band-aid enabled in 2.6.9).
+> 
+> --- 2-kswapd-balance/include/linux/mmzone.h.~1~	2004-10-27 03:17:07.207812600 +0200
+> +++ 2-kswapd-balance/include/linux/mmzone.h	2004-10-27 03:26:22.673369000 +0200
+> @@ -273,7 +273,7 @@ void __get_zone_counts(unsigned long *ac
+>  void get_zone_counts(unsigned long *active, unsigned long *inactive,
+>  			unsigned long *free);
+>  void build_all_zonelists(void);
+> -void wakeup_kswapd(struct zone *zone);
+> +void wakeup_kswapd(struct zone *zone, int classzone_idx);
+>  
+>  /*
+>   * zone_idx() returns 0 for the ZONE_DMA zone, 1 for the ZONE_NORMAL zone, etc.
+> --- 2-kswapd-balance/mm/page_alloc.c.~1~	2004-10-27 03:17:07.215811384 +0200
+> +++ 2-kswapd-balance/mm/page_alloc.c	2004-10-27 03:24:31.351292528 +0200
+> @@ -641,7 +641,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+>  	}
+>  
+>  	for (i = 0; (z = zones[i]) != NULL; i++)
+> -		wakeup_kswapd(z);
+> +		wakeup_kswapd(z, classzone_idx);
+>  
+>  	/*
+>  	 * Go through the zonelist again. Let __GFP_HIGH and allocations
+> --- 2-kswapd-balance/mm/vmscan.c.~1~	2004-10-27 03:14:22.563842288 +0200
+> +++ 2-kswapd-balance/mm/vmscan.c	2004-10-27 03:26:57.462080312 +0200
+> @@ -1169,11 +1169,11 @@ static int kswapd(void *p)
+>  /*
+>   * A zone is low on free memory, so wake its kswapd task to service it.
+>   */
+> -void wakeup_kswapd(struct zone *zone)
+> +void wakeup_kswapd(struct zone *zone, int classzone_idx)
+>  {
+>  	if (zone->present_pages == 0)
+>  		return;
+> -	if (zone->free_pages > zone->pages_low)
+> +	if (zone->free_pages > zone->pages_low + zone->lowmem_reserve[classzone_idx])
+>  		return;
+>  	if (!waitqueue_active(&zone->zone_pgdat->kswapd_wait))
+>  		return;
 
-Here's another one:
-Jason Baron: 2.4.28-pre3 tty/ldisc fixes
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109604869516678&w=2
-
-AFAICT the above patch is the fix for:
-CAN-2004-0814: Linux terminal layer races
-http://marc.theaimsgroup.com/?l=bugtraq&m=109837405025108&w=2
-
-This patch seems to be working fine for me, but I don't know if anyone
-else has really tested it at all, nor do I know (one way or the other)
-if the security issues are serious enough to apply this for 2.4.28-rc
-and not 2.4.29-pre. Also, I'm running on a single-processor system with
-no HyperThreading, so if there are any SMP-related issues then I have no
-way of experiencing them.
-
-Anyway, since it's a security fix (unless I'm mistaken), I guess it's
-worth considering for inclusion...
-
--Barry K. Nathan <barryn@pobox.com>
-
+I don't think this is required, because by the time __alloc_pages
+reaches wakeup_kswapd, it would have checked one zone with a
+->lowmem_reserve of 0, and found it to be low on pages. Thus
+wakeup_kswapd will wake it up.

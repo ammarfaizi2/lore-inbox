@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314221AbSEMQdq>; Mon, 13 May 2002 12:33:46 -0400
+	id <S314227AbSEMQgP>; Mon, 13 May 2002 12:36:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314227AbSEMQdp>; Mon, 13 May 2002 12:33:45 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:7107 "EHLO
+	id <S314239AbSEMQgO>; Mon, 13 May 2002 12:36:14 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19909 "EHLO
 	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S314221AbSEMQdm>; Mon, 13 May 2002 12:33:42 -0400
-Date: Mon, 13 May 2002 12:32:37 -0400
+	id <S314227AbSEMQgM>; Mon, 13 May 2002 12:36:12 -0400
+Date: Mon, 13 May 2002 12:36:08 -0400
 From: Pete Zaitcev <zaitcev@redhat.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Strange s390 code in 2.4.19-pre8
-Message-ID: <20020513123237.C6208@devserv.devel.redhat.com>
-In-Reply-To: <20020513122330.B6208@devserv.devel.redhat.com> <Pine.LNX.4.44.0205131125250.19498-100000@chaos.physics.uiowa.edu>
+To: linux-kernel@vger.kernel.org
+Cc: "Woodruff, Robert J" <woody@co.intel.com>
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+Message-ID: <20020513123608.D6208@devserv.devel.redhat.com>
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0BFB7E68@orsmsx108.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,18 +20,13 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Mon, 13 May 2002 11:30:06 -0500 (CDT)
-> From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+> From: "Woodruff, Robert J" <woody@co.intel.com>
+> Date: Mon, 13 May 2002 09:25:41 -0700
 
-> I think I see two easy way to resolve the problem:
-> o backport the Rules.make change (it's been in 2.5 for months w/o even
->   anybody noticing it, so it's definitely stable)
-> o Move the EXPORT_SYMBOL() in drivers/isdn/hisax/fsm.o into
->   drivers/isdn/hisax/config.o
+> Soliciting specific topics that people would like to discuss at the LSM
+> InfiniBand BOF.
 
-If ISDN people are willing to do that, it would be a great
-relief. I did not raise this question because undoubtedly
-they were using fsm.c first, so it was s390 mistake (accorting
-to the comment in the drivers/s390/net/fsm.c).
+N.B.: Woody means OLS BOF here (dunno where "LSM" comes from).
+ http://www.linuxsymposium.org/2002/bofs.php
 
 -- Pete

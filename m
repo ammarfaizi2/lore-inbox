@@ -1,90 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262022AbSIYQay>; Wed, 25 Sep 2002 12:30:54 -0400
+	id <S262021AbSIYQad>; Wed, 25 Sep 2002 12:30:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbSIYQay>; Wed, 25 Sep 2002 12:30:54 -0400
-Received: from pc-62-31-66-34-ed.blueyonder.co.uk ([62.31.66.34]:15748 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S262022AbSIYQaw>; Wed, 25 Sep 2002 12:30:52 -0400
-Date: Wed, 25 Sep 2002 17:36:05 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@zip.com.au>, Stephen Tweedie <sct@redhat.com>
-Subject: Re: jbd bug(s) (?)
-Message-ID: <20020925173605.A12911@redhat.com>
-References: <20020924072117.GD2442@unthought.net>
-Mime-Version: 1.0
+	id <S262022AbSIYQad>; Wed, 25 Sep 2002 12:30:33 -0400
+Received: from packet.digeo.com ([12.110.80.53]:3526 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262021AbSIYQac>;
+	Wed, 25 Sep 2002 12:30:32 -0400
+Message-ID: <3D91E5DC.665EB3AC@digeo.com>
+Date: Wed, 25 Sep 2002 09:35:40 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: frankeh@watson.ibm.com
+CC: Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] recognize MAP_LOCKED in mmap() call
+References: <OFC0C42F8D.E1325D58-ON86256C38.00695CD8@hou.us.ray.com> <3D88D9DE.2FB9A23D@digeo.com> <200209251142.29341.frankeh@watson.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020924072117.GD2442@unthought.net>; from jakob@unthought.net on Tue, Sep 24, 2002 at 09:21:17AM +0200
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Sep 2002 16:35:41.0236 (UTC) FILETIME=[963CEF40:01C264B1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Sep 24, 2002 at 09:21:17AM +0200, Jakob Oestergaard wrote:
- 
-> In Linux-2.4.19, I was wondering about the following:
+Hubertus Franke wrote:
 > 
-> In fs/jbd/commit.c:583, we find the following:
->  /* AKPM: buglet - add `i' to tmp! */
->  for (i = 0; i < jh2bh(descriptor)->b_size; i += 512) {
-
-> As I see it, this means that jbd using filesystems (ext3) will only
-> remember writing *ONE* entry from the journal.
-
-> Isn't this a problem ?
-
-Nah.  In fact I should just remove the loop entirely.  For commit
-processing, only the header at the very, very start of a commit block
-is cared about --- that way, we get atomic commits even if the commit
-block is partially written out-of-order on disk.  As long as sector
-writes within the fs block are atomic, the header remains intact.
-
-> The jbd superblocks contains an index into the journal for the first
-> transaction - but there is only *one* copy of the index, and there is no
-> reasonable way to detect if it got written correctly to disk.
+> ...
+> This is what the manpage says...
 > 
-> If the system loses power while updating the superblock, and only *half*
-> of this index is written correctly, we have a journal which we cannot
-> reach.
+>        mlockall  disables  paging  for  all pages mapped into the
+>        address space of the calling process.  This  includes  the
+>        pages  of  the  code,  data  and stack segment, as well as
+>        shared libraries, user space kernel  data,  shared  memory
+>        and  memory  mapped files. All mapped pages are guaranteed
+>        to be resident  in  RAM  when  the  mlockall  system  call
+>        returns  successfully  and  they are guaranteed to stay in
+>        RAM until the pages  are  unlocked  again  by  munlock  or
+>        munlockall  or  until  the  process  terminates  or starts
+>        another program with exec.  Child processes do not inherit
+>        page locks across a fork.
+> 
+> Do you read that all pages must be faulted in apriori ?
 
-Again, only the data in the first sector matters there, and we assume
-that disks write individual sectors atomically, or return IO failure
-if things get messed up.  And the index sector is not updated all that
-frequently anyway --- maybe once or twice per journal wrap, but it
-doesn't have to be written for each transaction.
+For MCL_FUTURE.
 
-> Sort of removes the point of having the journal in the first place. (If
-> my above assertion is true).
+> Or is it sufficient to to make sure non of the currently mapped
+> pages are swapped out and future swapout is prohibited.
 
-Actually, the number of single points of failure in a filesystem is
-huge.  If we lose, say, the root directory, we're toast too (and that
-can be due to an inode block or a directory block failure); similarly,
-other key directories are critical, and within the journal itself, an
-unreadable metadata descriptor block will rend parts of the journal
-unusable for recovery.  
-
-So if we detect incomplete sector writes, we can recover by forcing a
-fsck, but if you want to be able to survive actual data loss, you need
-raid.
-
-> one can consider the two blocks and disregard the ones with invalid CRC.
-> This leaves us with one or two blocks left - we then pick the one with
-> the highest timestamp - and we are then guaranteed to *always* have a
-> valid index.
-
-> Wouldn't something like this be required for a journalling fs to be
-> worth anything ?
-
-No, ext3 just relies on the sector atomicity guarantees instead.
-There _are_ multi-sector data structures in the journal, but those are
-all protected by the sector-atomic commit block --- if we don't see
-the commit sector, then we ignore all of the blocks of the prior
-transaction in the log, and the commit sector is never written until
-we've got a guarantee that the whole of the preceding blocks are
-consistent on-disk.
-
-Cheers, 
- Stephen
+I'd say that we should try to make all the pages present.  But
+if it's a problem for (say) a hugepage implementation then it's
+unlikely that the world would end if these things were still
+demand paged in.

@@ -1,48 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265085AbRFUSVg>; Thu, 21 Jun 2001 14:21:36 -0400
+	id <S265090AbRFUS1Q>; Thu, 21 Jun 2001 14:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265086AbRFUSV0>; Thu, 21 Jun 2001 14:21:26 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:42502
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S265085AbRFUSVR>; Thu, 21 Jun 2001 14:21:17 -0400
-Date: Thu, 21 Jun 2001 14:20:45 -0400
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>
-cc: Stefan.Bader@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: correction: fs/buffer.c underlocking async pages
-Message-ID: <555590000.993147645@tiny>
-In-Reply-To: <20010621191522.B28327@athlon.random>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S265091AbRFUS1G>; Thu, 21 Jun 2001 14:27:06 -0400
+Received: from riker.skynet.be ([195.238.3.132]:55781 "EHLO riker.skynet.be")
+	by vger.kernel.org with ESMTP id <S265090AbRFUS07>;
+	Thu, 21 Jun 2001 14:26:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: bart deglorie <bart.deglorie@skynet.be>
+To: arnevanhove@hotmail.com, juan.f@pi.be, renaultje@tiscalinet.be,
+        buzby@tiscalinet.be, <lugwv@progpc40.vub.ac.be>,
+        linux-kernel@vger.kernel.org
+Subject: oops iets vergeten
+Date: Thu, 21 Jun 2001 20:27:38 -0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <01062120273800.01295@maxx>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, June 21, 2001 07:15:22 PM +0200 Andrea Arcangeli
-<andrea@suse.de> wrote:
-
-> On Thu, Jun 21, 2001 at 09:56:04AM -0700, Linus Torvalds wrote:
->  What's the problem with the existing code, and why do people want to add
-> a
->> (unnecessary) new bit?
-> 
-> there's no problem with the existing code, what I understood is that
-> they cannot overwrite the ->b_end_io callback in the lowlevel blkdev
-> layer or the page will be unlocked too early.
-
-Just to be more explicit, the big problem is mixing different async
-callbacks on the same page.  The patch would also allow things like this:
-
-fs_specific_end_io() {
-    do something special
-    end_buffer_io_async()
-}
-
--chris
-
-
+http://members.tripodnet.nl/ammer2/

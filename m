@@ -1,112 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJRTv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUJRTuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267737AbUJRTv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbUJRTu6
+	id S267702AbUJRTuE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUJRTpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:50:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267730AbUJRTt3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:49:29 -0400
-Date: Mon, 18 Oct 2004 15:49:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] in i386 semaphores.
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3017FBE1C@scl-exch2k.phoenix.com>
-Message-ID: <Pine.LNX.4.61.0410181529350.4356@chaos.analogic.com>
-References: <5F106036E3D97448B673ED7AA8B2B6B3017FBE1C@scl-exch2k.phoenix.com>
+	Mon, 18 Oct 2004 15:45:31 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:33960 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S267649AbUJRToC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:44:02 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Martin Waitz <tali@admingilde.org>
+Date: Mon, 18 Oct 2004 12:43:41 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <4173BA7D.32320.11833A1D@localhost>
+In-reply-to: <20041018114443.GC3618@admingilde.org>
+References: <416FB29A.11731.1C46848@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Aleksey Gorelov wrote:
+Martin Waitz <tali@admingilde.org> wrote:
 
->
-> Hi.
->
-> I sent this yesterday, but seems like it missed the list somehow :
->
->  There are several assembly 'helpers' in arch/i386/semaphore.c, for
-> example, __up_wakeup. __up_wakeup's purpose is to call C function:
-> asmlinkage void __up(struct semaphore *sem)
->
-> this is how it does it:
->
-> 	pushl %eax
-> 	pushl %edx
-> 	pushl %ecx
-> 	call __up
-> 	popl %ecx
-> 	popl %edx
-> 	popl %eax
->
+> On Fri, Oct 15, 2004 at 11:20:58AM -0700, Kendall Bennett wrote:
+> > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > > It doesn't imply this at all. You set an initial mode with the BIOS
+> > > during boot up. When your initrd runs you gain the ability to flip mode
+> > > and do cool stuff - arguably it doesn't even need to be in initrd.
+> > 
+> > That works great on x86, but this solution was developed for PowerPC and 
+> > MIPS embedded systems development not x86 desktop systems. For those 
+> > platforms you either need a boot loader that can bring up the system into 
+> > graphics mode
+> 
+> not neccessarily.
+> 
+> If anything goes wrong before console is initialized, then that
+> could be displayed by the firmware. Is there any arch which doesn't
+> have some basic text-output functunality in its firmware? 
 
-__up is declared 'asmlinkage', which means that conventional
-'C' calling convention is used, that eax and/or edx/eax pair
-is used for return values and the input values are pushed on
-  the stack. The last parameter passed is a pointer in %ecx.
+I am not sure what you mean by basic text output? If you mean to a 
+display, then yes, embedded boxes using U-Boot and OpenBIOS usually do 
+not have any text output. But if you mean serial output that is usually 
+the method of choice for the embedded machines that don't have support 
+for a physical display in the firmware.
 
-Therefore, the called 'C' function, that 'knows' only about
-the first parameter passed, will get the correct pointer value.
-The 'C' function also never changes the value of that pointer,
-only something that it points to.
+Regards,
 
-Now, wake_up() gets a pointer to the variable sem->wait. wake_up()
-never modifies 'sem', only sem->wait.
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
 
->  As one can see, actual parameter in %ecx is not only being copied in
-> formal parameter sem (which is correct), but also being restored from it
-> after function call via %ecx (which is incorrect). Since formal
-> parameter is not a constant one, it may be overwritten inside C
-> function, or gcc may (and in fact does that in some cases) use it for
-> something else.
-> If we want to keep %ecx, correct behavior would be
->
+~ SciTech SNAP - The future of device driver technology! ~
 
-
-> 	pushl %ecx
-> 	pushl %ecx
-> 	call _up
-> 	add $4, %ecx
-> 	popl %ecx
->
-
-Very wrong. In fact, it would unbalance the stack. The register
-value, %ecx must be restored exactly as the code does it. One
-can't assume that %ecx magically got changed and needs to be
-'corrected'.
-
-Maybe you meant:
-
- 	pushl	%eax
- 	pushl	%edx
- 	pushl	%ecx
- 	call	__up
- 	addl	$0x04, %esp	# Bypass ecx on stack
- 	popl	%edx
- 	popl	%eax
-
-At least the stack would be correct and the return-address wouldn't
-be clobbered. However, now ecx ends up being whatever value some
-called 'C' function left it. This will result in a system failure
-because previous code expected all registers to be preserved.
-
-> Above applies for other functions in semaphore.c in latest 2.6 kernels.
-> 2.4 might also be affected.
->
-> Thanks,
-> Aleks.
->
-
-It 'taint broke. Don't "fix" it.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
 

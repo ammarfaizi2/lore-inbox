@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312706AbSCZUdm>; Tue, 26 Mar 2002 15:33:42 -0500
+	id <S312465AbSCZUmc>; Tue, 26 Mar 2002 15:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312708AbSCZUdW>; Tue, 26 Mar 2002 15:33:22 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44292
+	id <S312474AbSCZUmX>; Tue, 26 Mar 2002 15:42:23 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46084
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312706AbSCZUdT>; Tue, 26 Mar 2002 15:33:19 -0500
-Date: Tue, 26 Mar 2002 12:32:53 -0800 (PST)
+	id <S312465AbSCZUmM>; Tue, 26 Mar 2002 15:42:12 -0500
+Date: Tue, 26 Mar 2002 12:42:03 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Stephen Samuel <samuel@bcgreen.com>,
-        Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
-        linux-kernel@vger.kernel.org
-Subject: CBDTPA (Re: SSSCA Hits the Senate) son of SSSCA
-In-Reply-To: <3CA0671D.2020808@ngforever.de>
-Message-ID: <Pine.LNX.4.10.10203261232190.2450-100000@master.linux-ide.org>
+To: Kai-Boris Schad <kschad@correo.e-technik.uni-ulm.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Update: Kernel 2.4.17/19-pre4  with VT8367 [KT266] crashes on
+ heavy ide load togeter with heavy network load
+In-Reply-To: <200203261904.UAA08226@correo.e-technik.uni-ulm.de>
+Message-ID: <Pine.LNX.4.10.10203261241130.2450-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://www.politechbot.com/docs/cbdtpa/
+00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
+00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+00:0b.0 RAID bus controller: HighPoint Technologies, Inc.: Unknown device 0008 (rev 07)
+00:0b.1 RAID bus controller: HighPoint Technologies, Inc.: Unknown device 0008 (rev 07)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 (rev 0b)
 
-On Tue, 26 Mar 2002, Thunder from the hill wrote:
+Nope I can crash it randomly  :-/
 
-> Stephen Samuel wrote:
-> > But how are you going to compile your FIRST kernel?? At some point
-> > you'll need a compiler, and they'll insist that the limitations go into
-> > that first compiler that someone gets.
-> So either you can spell bytecode (but then you'll need an editor) or you
-> have it done before SSSCA takes over your computer.
-> Another problem: if it also applies to hardware, why did I get this new
-> raid5 controller a year ago? And what about all those people who just 
-> got latest hardware? Is it illegal?
-> I think there'll be another kind of dealers after that.
+
+On Tue, 26 Mar 2002, Kai-Boris Schad wrote:
+
+> Hi !
 > 
-> Regards,
-> Thunder
-> -- 
-> Thunder from the hill.
-> Citizen of our universe.
+> First thanks a lot for the good ideas and comments on my previous posting. I 
+> updated the kernel to 2.4.19-pre4 and it seem's to improve the situation. 
+> There  was no crash with the RTL Network Card but the system response boged 
+> down sometimes for a few (up to 10) seconds. Then I tried the same togeter 
+> with the "3com 3c905C" networkcard and the system hung a few seconds after 
+> starting the copy-commands "dd count=16M if=/dev/zero of=/home/test0&" and
+>  "cp /home/zero /dev/null&" and "ico" on an remote terminal for network load. 
+> Thus my personal work arround would be to use the rtl network card - but 
+> there remains this problem.
 > 
+> Kai
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

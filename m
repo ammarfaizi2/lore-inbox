@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271542AbTGQSfa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271541AbTGQSfW
+	id S271552AbTGQSjc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271539AbTGQShq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:35:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15505 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S271469AbTGQSe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:34:59 -0400
-Date: Thu, 17 Jul 2003 15:46:11 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Jim Gifford <maillist@jg555.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre6 deadlock
-In-Reply-To: <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02>
-Message-ID: <Pine.LNX.4.55L.0307171545460.1789@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
- <003501c34572$4113f0c0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307081551480.21543@freak.distro.conectiva>
- <020301c3459b$942a1860$3400a8c0@W2RZ8L4S02> <1057703020.5568.10.camel@dhcp22.swansea.linux.org.uk>
- <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva>
- <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
- <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
- <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
- <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
- <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
- <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 14:37:46 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:29340 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271041AbTGQSfQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 14:35:16 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 17 Jul 2003 20:43:26 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] bttv documentation update
+Message-ID: <20030717184326.GA22025@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
-Jim,
+This patch updates the bttv documentation with the latest 
+card list changes and new entries.
 
-I just noticed your kernel is tained.
+Please apply,
 
-For what reason?
+  Gerd
 
+diff -u linux-2.6.0-test1/Documentation/video4linux/bttv/CARDLIST linux/Documentation/video4linux/bttv/CARDLIST
+--- linux-2.6.0-test1/Documentation/video4linux/bttv/CARDLIST	2003-07-17 18:55:00.977444723 +0200
++++ linux/Documentation/video4linux/bttv/CARDLIST	2003-07-17 19:13:34.169364573 +0200
+@@ -30,7 +30,7 @@
+   card=28 - Terratec TerraTV+ Version 1.1 (bt878)
+   card=29 - Imagenation PXC200
+   card=30 - Lifeview FlyVideo 98 LR50
+-  card=31 - Formac iProTV
++  card=31 - Formac iProTV, Formac ProTV I (bt848)
+   card=32 - Intel Create and Share PCI/ Smart Video Recorder III
+   card=33 - Terratec TerraTValue Version Bt878
+   card=34 - Leadtek WinFast 2000/ WinFast 2000 XP
+@@ -94,9 +94,16 @@
+   card=92 - Osprey 2000
+   card=93 - IDS Eagle
+   card=94 - Pinnacle PCTV Sat
+-  card=95 - Formac ProTV II
++  card=95 - Formac ProTV II (bt878)
+   card=96 - MachTV
+   card=97 - Euresys Picolo
++  card=98 - ProVideo PV150
++  card=99 - AD-TVK503
++  card=100 - Hercules Smart TV Stereo
++  card=101 - Pace TV & Radio Card
++  card=102 - IVC-200
++  card=103 - Grand X-Guard / Trust 814PCI
++  card=104 - Nebula Electronics DigiTV
+ 
+ tuner.o
+   type=0 - Temic PAL (4002 FH5)
+@@ -139,3 +146,4 @@
+   type=37 - LG PAL (newer TAPC series)
+   type=38 - Philips PAL/SECAM multi (FM1216ME MK3)
+   type=39 - LG NTSC (newer TAPC series)
++  type=40 - HITACHI V7-J180AT
+
+-- 
+sigfault

@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314141AbSDVMoJ>; Mon, 22 Apr 2002 08:44:09 -0400
+	id <S314143AbSDVMww>; Mon, 22 Apr 2002 08:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314143AbSDVMoI>; Mon, 22 Apr 2002 08:44:08 -0400
-Received: from zero.tech9.net ([209.61.188.187]:14854 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314141AbSDVMoH>;
-	Mon, 22 Apr 2002 08:44:07 -0400
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam4
-From: Robert Love <rml@tech9.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Norbert Kiesel <nkiesel@tbdnetworks.com>, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20020422074013.GA7294@werewolf.able.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 22 Apr 2002 08:44:01 -0400
-Message-Id: <1019479445.940.4.camel@phantasy>
-Mime-Version: 1.0
+	id <S314154AbSDVMwv>; Mon, 22 Apr 2002 08:52:51 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:25754 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314143AbSDVMwu>;
+	Mon, 22 Apr 2002 08:52:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Date: Sun, 21 Apr 2002 14:53:13 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zGq9-0001EW-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-04-22 at 03:40, J.A. Magallon wrote:
-
-> >1) sched.c complains about missing local_bh_count, TQUEUE_BH, ...
-
-you need to #include linux/interrupts.h in sched.c
-
-> Yup, there are files not covered by 20-sched-O1-rml-1.
-> Fast search:
+On Sunday 21 April 2002 06:13, Linus Torvalds wrote:
+> On Sun, 21 Apr 2002, Alexander Viro wrote:
+> > "Linus documentation".
 > 
-> werewolf:/usr/src/linux# grep -r SCHED_YIELD *
-> arch/alpha/mm/fault.c:          current->policy |= SCHED_YIELD;
-> arch/mips/mm/fault.c:           tsk->policy |= SCHED_YIELD;
-> arch/ppc/mm/fault.c:            current->policy |= SCHED_YIELD;
-> arch/m68k/mm/fault.c:           current->policy |= SCHED_YIELD;
-> arch/arm/mm/fault-common.c:     tsk->policy |= SCHED_YIELD;
-> arch/sh/mm/fault.c:             current->policy |= SCHED_YIELD;
-> arch/ia64/mm/fault.c:           current->policy |= SCHED_YIELD;
-> arch/mips64/mm/fault.c:         tsk->policy |= SCHED_YIELD;
-> arch/s390/mm/fault.c:           tsk->policy |= SCHED_YIELD;
-> arch/s390x/mm/fault.c:          tsk->policy |= SCHED_YIELD;
-> init/do_mounts.c:                       current->policy |= SCHED_YIELD;
+> In fact, we might as well have a whole subdirectory on "Managing Linus",
+> which some people have become very good at.
 
-I did not touch the arch-dependent code because there are other changes
-the arches require that need to be made ...
+Kidding I hope?  What would a reasonable name be?
 
-	Robert Love
+In principle, would you accept a patch that moves the Bitkeeper docs to a web
+site, with a URL and blurb in SubmittingPatches?
 
+> The BK docs that people are so in a huff over really _are_ less about BK
+> itself, and almost entirely about how to use it to interface with me. Read
+> them - they are just a "SubmittingPatches" for BK, along with scripts to
+> automate it to get the format that I have found to be useful.
+
+For what it's worth, seeing all the Linus-oriented docs together in one
+Documentation directory would be helpful in general.  On the downside, it
+might appear to be kind of fence around your personal involvement with the
+kernel, and it's hard to see why that would be good.
+
+I think you're kidding though, it's hard to tell.
+
+> Rememebr how many times people have asked for automated tools, and for
+> getting notification about when I've applied a patch? You've got it. It's
+> all there.
+
+I hope I made it clear that I believe BK is helping Linux.  Furthermore, I
+don't see why Larry should not collect some advertising for his contribution.
+Within limits.  IMHO, we're on the wrong side of the limit at the moment,
+and moving further with no sign of moderating.
+
+> Side note: remember the discussion that pushed me to _try_ BK in the first
+> place?
+> 
+> Who was it that said "Be careful what you pray for"? ;)
+
+I pray for a truly free Bitkeeper.  Shows you what damn good praying does ;-)
+
+-- 
+Daniel

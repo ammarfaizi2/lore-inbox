@@ -1,200 +1,373 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVACC3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVACCxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVACC3j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 21:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVACC3i
+	id S261282AbVACCxv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 21:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVACCxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 21:29:38 -0500
-Received: from hs-grafik.net ([80.237.205.72]:27586 "EHLO
-	ds80-237-205-72.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id S261281AbVACC3V (ORCPT
+	Sun, 2 Jan 2005 21:53:51 -0500
+Received: from mx.freeshell.org ([192.94.73.21]:40169 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S261282AbVACCxf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 21:29:21 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: This time? Bug in Reiser4 or usb or hardware flaw?
-Date: Mon, 3 Jan 2005 03:29:16 +0100
-User-Agent: KMail/1.7.1
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
+	Sun, 2 Jan 2005 21:53:35 -0500
+Date: Mon, 3 Jan 2005 02:53:33 +0000 (UTC)
+From: Roey Katz <roey@sdf.lonestar.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+In-Reply-To: <200501020152.32207.dtor_core@ameritech.net>
+Message-ID: <Pine.NEB.4.61.0501030250200.13940@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+ <200501011631.36884.dtor_core@ameritech.net> <Pine.NEB.4.61.0501020622080.16181@sdf.lonestar.org>
+ <200501020152.32207.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501030329.16836@zodiac.zodiac.dnsalias.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dmitry, here is an output listing of a diff I did between the 
+.configs of the nonworking 2.6.10 and  the working 2.6.7.
 
-while copying larger amounts (15GB) of data from a ext2 to a reiser4 partition 
-on a usb hdd, everything failed and I had to reboot. Dunno if its reiser4 or 
-usb thats failing here, though. The kernel was not going to see the external 
-hdd again.
-Heres dmesg output:
 
-drivers/usb/input/hid-core.c: input irq status -71 received
-SCSI error : <2 0 0 0> return code = 0x70000
-[Several times]
-end_request: I/O error, dev sda, sector 9747239
-drivers/usb/input/hid-core.c: input irq status -71 received
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 9747247
-[Several times]
-end_request: I/O error, dev sda, sector 9747551
-drivers/usb/input/hid-core.c: input irq status -71 received
-SCSI error : <2 0 0 0> return code = 0x70000
-[and so on until:]
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 10442831
-drivers/usb/input/hid-core.c: input irq status -71 received
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 67002 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 67002: -5
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 67002 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 67002: -5
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 67002 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 67002: -5
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 65574 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 65574: -5
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 65574 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 65574: -5
-SCSI error : <2 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 278048163
-reiser4[cp(15674)]: key_warning (fs/reiser4/plugin/object.c:97)[nikita-717]:
-WARNING: Error for inode 65574 (-5)
-reiser4[cp(15674)]: write_sd_by_inode_common (fs/reiser4/plugin/object.c:480)
-[nikita-2221]:
-WARNING: Failed to save sd for 65574: -5
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-drivers/usb/input/hid-core.c: input irq status -71 received
-usb 1-3: USB disconnect, address 7
-usb 1-3.1: USB disconnect, address 8
-usb 1-3.1.1: USB disconnect, address 10
-usb 1-3.4: USB disconnect, address 9
-scsi2 (0:0): rejecting I/O to device being removed
-[often..]
-scsi2 (0:0): rejecting I/O to device being removed
-attempt to access beyond end of device
-sda3: rw=1, want=267627019, limit=44949870
-reiser4[khubd(129)]: reiser4_handle_error (fs/reiser4/vfs_ops.c:1433)
-[foobar-42]:
-reiser4 panicked cowardly: Filesystem error occured
+- Roey
 
-------------[ cut here ]------------
-kernel BUG at fs/reiser4/debug.c:131!
-invalid operand: 0000 [#1]
-PREEMPT 
-Modules linked in: nls_cp437
-CPU:    0
-EIP:    0060:[<c017ebf9>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.10-rc3-mm1-jedi2-orig) 
-EIP is at reiser4_do_panic+0x15/0xd3
-eax: 00000000   ebx: dfc12000   ecx: ffffffff   edx: 00000000
-esi: 00000000   edi: dfc12000   ebp: dfc13c54   esp: dfc13c1c
-ds: 007b   es: 007b   ss: 0068
-Process khubd (pid: 129, threadinfo=dfc12000 task=dfe34540)
-Stack: c04378a0 c0681ac0 cb111800 c019abaf c04337b0 c0433505 00000599 c8bc3fc0 
-       c0195607 d1bc3040 00000000 dfc13c94 dfc13c9c c0195622 000016b2 dfc12000 
-       c018a3af c018a4a5 00000001 dfc13c9c 00000001 d96f3800 dfc13c94 00000000 
-Call Trace:
- [<c019abaf>] encode_inode_size+0x0/0x17
- [<c0195607>] finish_all_fq+0x8f/0x91
- [<c0195622>] current_atom_finish_all_fq+0x19/0x5d
- [<c018a3af>] current_atom_complete_writes+0xe/0x22
- [<c018a4a5>] commit_current_atom+0xe2/0x1d7
- [<c018ad88>] try_commit_txnh+0x116/0x192
- [<c018ae2c>] commit_txnh+0x28/0x9f
- [<c0189d4e>] txn_end+0x2c/0x30
- [<c0189d5a>] txn_restart+0x8/0x15
- [<c018a5c7>] force_commit_atom_nolock+0x2d/0x3f
- [<c018a726>] txnmgr_force_commit_all+0xf9/0x116
- [<c01992d4>] writeout+0x21/0xa8
- [<c019935b>] reiser4_sync_inodes+0x0/0x9f
- [<c01993b7>] reiser4_sync_inodes+0x5c/0x9f
- [<c019935b>] reiser4_sync_inodes+0x0/0x9f
- [<c016c5b5>] sync_sb_inodes+0x19/0x1b
- [<c016c708>] sync_inodes_sb+0x6f/0x89
- [<c014e156>] fsync_super+0xa/0x88
- [<c014e1f0>] fsync_bdev+0x1c/0x43
- [<c0163951>] __invalidate_device+0x57/0x59
- [<c02c63d5>] invalidate_partition+0x2c/0x42
- [<c017be3d>] del_gendisk+0x17/0xb2
- [<c02f9be6>] sd_remove+0x17/0x50
- [<c02bdaad>] device_release_driver+0x6d/0x6f
- [<c02bdc93>] bus_remove_device+0x52/0x8e
- [<c02bcd8a>] device_del+0x5a/0x8f
- [<c02f7206>] scsi_remove_device+0x4d/0xa9
- [<c02f65f2>] scsi_forget_host+0x39/0x78
- [<c02f0a1d>] scsi_remove_host+0x8/0x5e
- [<c0323e69>] storage_disconnect+0x7b/0x90
- [<c030d1ba>] usb_unbind_interface+0x6e/0x70
- [<c02bdaad>] device_release_driver+0x6d/0x6f
- [<c02bdc93>] bus_remove_device+0x52/0x8e
- [<c02bcd8a>] device_del+0x5a/0x8f
- [<c0313fdf>] usb_disable_device+0xa0/0xd5
- [<c030f153>] usb_disconnect+0x8b/0x134
- [<c030f1d7>] usb_disconnect+0x10f/0x134
- [<c0310968>] hub_port_connect_change+0x383/0x3a2
- [<c0310bbe>] hub_events+0x237/0x36a
- [<c0310d24>] hub_thread+0x33/0x104
- [<c0128d94>] autoremove_wake_function+0x0/0x43
- [<c0102dbe>] ret_from_fork+0x6/0x14
- [<c0128d94>] autoremove_wake_function+0x0/0x43
- [<c0310cf1>] hub_thread+0x0/0x104
- [<c0101291>] kernel_thread_helper+0x5/0xb
-Code: 42 70 e8 4b c0 28 00 eb 9a 8d 42 70 e8 41 c0 28 00 eb d0 90 90 90 83 ec 
-0c 89 5c 24 08 8b 4c 24 10 8b 1d a0 1a 68 c0 85 db 74 1c <0f> 0b 83 00 9d 2e 
-43 c0 c7 04 24 c7 cc 44 c0 c7 44 24 04 c0 1a 
- <6>note: khubd[129] exited with preempt_count 1
-scsi2 (0:0): rejecting I/O to device being removed
-scsi2 (0:0): rejecting I/O to device being removed
-scsi2 (0:0): rejecting I/O to device being removed
-Buffer I/O error on device sda1, logical block 819213
-lost page write due to I/O error on sda1
-scsi2 (0:0): rejecting I/O to device being removed
+-------- diff 2.6.10/.config 2.6.7/.config ------
 
-I had to use sysrq to reboot, reboot would just hang as would lsusb.
-USB enviroment is an ICH-4 ehci, one hub and an icy-box. uhci drivers not 
-compiled.
+3,4d2
+< # Linux kernel version: 2.6.10
+< # Sat Jan  1 01:15:22 2005
+10d7
+< CONFIG_GENERIC_IOMAP=y
+16a14
+> CONFIG_STANDALONE=y
+18d15
+< CONFIG_LOCK_KERNEL=y
+23d19
+< CONFIG_LOCALVERSION=""
+32d27
+< CONFIG_KOBJECT_UEVENT=y
+38d32
+< # CONFIG_KALLSYMS_EXTRA_PASS is not set
+40a35,38
+> CONFIG_IOSCHED_NOOP=y
+> CONFIG_IOSCHED_AS=y
+> CONFIG_IOSCHED_DEADLINE=y
+> CONFIG_IOSCHED_CFQ=y
+42,47d39
+< CONFIG_SHMEM=y
+< CONFIG_CC_ALIGN_FUNCTIONS=0
+< CONFIG_CC_ALIGN_LABELS=0
+< CONFIG_CC_ALIGN_LOOPS=0
+< CONFIG_CC_ALIGN_JUMPS=0
+< # CONFIG_TINY_SHMEM is not set
+57d48
+< # CONFIG_MODULE_SRCVERSION_ALL is not set
+86d76
+< # CONFIG_MEFFICEON is not set
+141d130
+< # CONFIG_PM_DEBUG is not set
+142a132
+> # CONFIG_PM_DISK is not set
+155d144
+< # CONFIG_ACPI_VIDEO is not set
+160d148
+< # CONFIG_ACPI_IBM is not set
+162d149
+< CONFIG_ACPI_BLACKLIST_YEAR=0
+180d166
+< # CONFIG_CPU_FREQ_DEBUG is not set
+188d173
+< CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+198d182
+< CONFIG_X86_POWERNOW_K8_ACPI=y
+204d187
+< # CONFIG_X86_CPUFREQ_NFORCE2 is not set
+209,213d191
+< # shared options
+< #
+< # CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
+<
+< #
+224c202
+< CONFIG_PCI_MSI=y
+---
+> # CONFIG_PCI_USE_VECTOR is not set
+232,237c210
+< # PCCARD (PCMCIA/CardBus) support
+< #
+< # CONFIG_PCCARD is not set
+<
+< #
+< # PC-card bridges
+---
+> # PCMCIA/CardBus support
+238a212
+> # CONFIG_PCMCIA is not set
+266,268c240
+< CONFIG_STANDALONE=y
+< CONFIG_PREVENT_FIRMWARE_BUILD=y
+< CONFIG_FW_LOADER=m
+---
+> # CONFIG_FW_LOADER is not set
+291,297d262
+< CONFIG_PNP=y
+< # CONFIG_PNP_DEBUG is not set
+<
+< #
+< # Protocols
+< #
+< CONFIG_PNPACPI=y
+311,312c276
+< CONFIG_BLK_DEV_SX8=y
+< # CONFIG_BLK_DEV_UB is not set
+---
+> CONFIG_BLK_DEV_CARMEL=y
+314d277
+< CONFIG_BLK_DEV_RAM_COUNT=16
+316d278
+< CONFIG_INITRAMFS_SOURCE=""
+318,328d279
+< CONFIG_CDROM_PKTCDVD=m
+< CONFIG_CDROM_PKTCDVD_BUFFERS=8
+< # CONFIG_CDROM_PKTCDVD_WCACHE is not set
+<
+< #
+< # IO Schedulers
+< #
+< CONFIG_IOSCHED_NOOP=y
+< CONFIG_IOSCHED_AS=y
+< CONFIG_IOSCHED_DEADLINE=y
+< CONFIG_IOSCHED_CFQ=y
+339d289
+< CONFIG_BLK_DEV_IDE_SATA=y
+346c296
+< # CONFIG_BLK_DEV_IDESCSI is not set
+---
+> CONFIG_BLK_DEV_IDESCSI=m
+347a298
+> # CONFIG_IDE_TASKFILE_IO is not set
+354d304
+< CONFIG_BLK_DEV_IDEPNP=y
+364a315
+> CONFIG_BLK_DEV_ADMA=y
+398c349
+< CONFIG_SCSI=y
+---
+> CONFIG_SCSI=m
+404c355
+< CONFIG_BLK_DEV_SD=y
+---
+> CONFIG_BLK_DEV_SD=m
+409c360
+< CONFIG_CHR_DEV_SG=y
+---
+> CONFIG_CHR_DEV_SG=m
+428d378
+< # CONFIG_SCSI_3W_9XXX is not set
+435,448c385,387
+< # CONFIG_MEGARAID_NEWGEN is not set
+< # CONFIG_MEGARAID_LEGACY is not set
+< CONFIG_SCSI_SATA=y
+< CONFIG_SCSI_SATA_AHCI=y
+< # CONFIG_SCSI_SATA_SVW is not set
+< # CONFIG_SCSI_ATA_PIIX is not set
+< # CONFIG_SCSI_SATA_NV is not set
+< CONFIG_SCSI_SATA_PROMISE=y
+< CONFIG_SCSI_SATA_SX4=y
+< # CONFIG_SCSI_SATA_SIL is not set
+< # CONFIG_SCSI_SATA_SIS is not set
+< # CONFIG_SCSI_SATA_ULI is not set
+< # CONFIG_SCSI_SATA_VIA is not set
+< # CONFIG_SCSI_SATA_VITESSE is not set
+---
+> # CONFIG_SCSI_ADVANSYS is not set
+> # CONFIG_SCSI_MEGARAID is not set
+> # CONFIG_SCSI_SATA is not set
+456d394
+< # CONFIG_SCSI_INITIO is not set
+465c403
+< CONFIG_SCSI_QLA2XXX=y
+---
+> CONFIG_SCSI_QLA2XXX=m
+485d422
+< CONFIG_MD_RAID10=m
+489d425
+< CONFIG_MD_FAULTY=m
+531,533d466
+< CONFIG_INET_TUNNEL=m
+< CONFIG_IP_TCPDIAG=m
+< CONFIG_IP_TCPDIAG_IPV6=y
+539d471
+< CONFIG_INET6_TUNNEL=m
+560a493,494
+> # CONFIG_NET_FASTROUTE is not set
+> # CONFIG_NET_HW_FLOWCONTROL is not set
+566d499
+< # CONFIG_NET_CLS_ROUTE is not set
+582d514
+< # CONFIG_NET_SB1000 is not set
+645d576
+< # CONFIG_R8169_NAPI is not set
+647d577
+< # CONFIG_VIA_VELOCITY is not set
+716,717c646
+< CONFIG_SERIO_PCIPS2=y
+< # CONFIG_SERIO_RAW is not set
+---
+> CONFIG_SERIO_PCIPS2=m
+749,750c678
+< CONFIG_SERIAL_8250=y
+< # CONFIG_SERIAL_8250_CONSOLE is not set
+---
+> CONFIG_SERIAL_8250=m
+763c691
+< CONFIG_SERIAL_CORE=y
+---
+> CONFIG_SERIAL_CORE=m
+769a698
+> # CONFIG_QIC02_TAPE is not set
+780c709
+< CONFIG_HW_RANDOM=m
+---
+> # CONFIG_HW_RANDOM is not set
+805a735
+> # CONFIG_DRM_GAMMA is not set
+812d741
+< # CONFIG_HPET is not set
+826d754
+< CONFIG_I2C_ALGOPCA=m
+849d776
+< # CONFIG_I2C_STUB is not set
+853d779
+< # CONFIG_I2C_PCA_ISA is not set
+860,862d785
+< # CONFIG_SENSORS_ADM1025 is not set
+< # CONFIG_SENSORS_ADM1026 is not set
+< # CONFIG_SENSORS_ADM1031 is not set
+868d790
+< # CONFIG_SENSORS_LM63 is not set
+870d791
+< # CONFIG_SENSORS_LM77 is not set
+875d795
+< # CONFIG_SENSORS_LM87 is not set
+878,879d797
+< # CONFIG_SENSORS_PC87360 is not set
+< # CONFIG_SENSORS_SMSC47M1 is not set
+898,902d815
+< # Dallas's 1-wire bus
+< #
+< # CONFIG_W1 is not set
+<
+< #
+934d846
+< # CONFIG_VIDEO_OVCAMCHIP is not set
+961a874
+> # CONFIG_MDA_CONSOLE is not set
+1003d915
+< # CONFIG_SND_ATIIXP_MODEM is not set
+1038c950
+< # USB devices
+---
+> # ALSA USB devices
+1041d952
+< # CONFIG_SND_USB_USX2Y is not set
+1060,1063d970
+< # CONFIG_USB_SUSPEND is not set
+< # CONFIG_USB_OTG is not set
+< CONFIG_USB_ARCH_HAS_HCD=y
+< CONFIG_USB_ARCH_HAS_OHCI=y
+1073d979
+< # CONFIG_USB_SL811_HCD is not set
+1083,1086d988
+<
+< #
+< # NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be 
+needed;see USB_STORAGE Help for more information
+< #
+1089d990
+< # CONFIG_USB_STORAGE_RW_DETECT is not set
+1100c1001
+< # USB Input Devices
+---
+> # USB Human Interface Devices (HID)
+1136a1038
+> # CONFIG_USB_PWC is not set
+1138d1039
+< # CONFIG_USB_SN9C102 is not set
+1139a1041
+> # CONFIG_USB_W9968CF is not set
+1142c1044
+< # USB Network Adapters
+---
+> # USB Network adaptors
+1172d1073
+< # CONFIG_USB_PHIDGETKIT is not set
+1177,1180d1077
+< # USB ATM/DSL drivers
+< #
+<
+< #
+1186,1193d1082
+< # MMC/SD Card support
+< #
+< CONFIG_MMC=m
+< # CONFIG_MMC_DEBUG is not set
+< CONFIG_MMC_BLOCK=m
+< # CONFIG_MMC_WBSD is not set
+<
+< #
+1222d1110
+< CONFIG_DNOTIFY=y
+1234d1121
+< CONFIG_UDF_NLS=y
+1242,1243d1128
+< CONFIG_FAT_DEFAULT_CODEPAGE=437
+< CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+1257,1258d1141
+< CONFIG_TMPFS_XATTR=y
+< CONFIG_TMPFS_SECURITY=y
+1292d1174
+< # CONFIG_RPCSEC_GSS_SPKM3 is not set
+1334d1215
+< # CONFIG_NLS_ASCII is not set
+1359,1360c1240,1242
+< CONFIG_MAGIC_SYSRQ=y
+< CONFIG_SCHEDSTATS=y
+---
+> CONFIG_EARLY_PRINTK=y
+> # CONFIG_DEBUG_STACKOVERFLOW is not set
+> # CONFIG_DEBUG_STACK_USAGE is not set
+1361a1244
+> CONFIG_MAGIC_SYSRQ=y
+1363,1364c1246
+< # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+< # CONFIG_DEBUG_KOBJECT is not set
+---
+> # CONFIG_DEBUG_PAGEALLOC is not set
+1366a1249
+> # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+1368,1372d1250
+< CONFIG_EARLY_PRINTK=y
+< # CONFIG_DEBUG_STACKOVERFLOW is not set
+< # CONFIG_KPROBES is not set
+< # CONFIG_DEBUG_STACK_USAGE is not set
+< # CONFIG_DEBUG_PAGEALLOC is not set
+1380d1257
+< # CONFIG_KEYS is not set
+1394d1270
+< CONFIG_CRYPTO_WP512=m
+1399c1275
+< CONFIG_CRYPTO_AES_586=m
+---
+> CONFIG_CRYPTO_AES=m
+1402d1277
+< CONFIG_CRYPTO_TEA=m
+1404,1405d1278
+< CONFIG_CRYPTO_KHAZAD=m
+< CONFIG_CRYPTO_ANUBIS=m
+1414d1286
+< CONFIG_CRC_CCITT=m
+1419,1420d1290
+< CONFIG_GENERIC_HARDIRQS=y
+< CONFIG_GENERIC_IRQ_PROBE=y
+1421a1292
+> CONFIG_X86_STD_RESOURCES=y
 
-regards
-Alex
-
--- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVCMW0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVCMWaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVCMW0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 17:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVCMW0Z
+	id S261476AbVCMWaw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 17:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCMWaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 17:26:25 -0500
-Received: from stark.xeocode.com ([216.58.44.227]:11141 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S261485AbVCMW0V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 17:26:21 -0500
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: linux-kernel@vger.kernel.org, Greg Stark <gsstark@mit.edu>
-Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
-References: <87u0ng90mo.fsf@stark.xeocode.com>
-	<200503130152.52342.pmcfarland@downeast.net>
-In-Reply-To: <200503130152.52342.pmcfarland@downeast.net>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 13 Mar 2005 17:26:12 -0500
-Message-ID: <874qff89ob.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 13 Mar 2005 17:30:52 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:51979 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261476AbVCMWar (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 17:30:47 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-libc-headers 2.6.11.0
+Date: Sun, 13 Mar 2005 23:29:46 +0100
+User-Agent: KMail/1.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503132329.46461.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <pmcfarland@downeast.net> writes:
+Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+Changes:
+- updated to 2.6.11 (added asm-frv)
+- some minor fixes
 
-> On Saturday 12 March 2005 01:31 pm, Greg Stark wrote:
-> > OSS Audio doesn't work properly for Quake3 in 2.6.10 but it worked in
-> > 2.6.6. In fact I have the same problems in 2.6.9-rc1 so I assume 2.6.9 is
-> > affected as well. This is with the Intel i810 drivers.
-> 
-> Why are you not using ALSA?
+The server hosting my page was down for a week or so. I don't provide any 
+official mirrors, but you can get llh from anywhere (gazillions of 
+LinuxFromScrach mirrors for example). I believe that should be enough 
+(right?).
 
-Well frankly because whenever I tried it it didn't work. The i810 drivers were
-*completely* broken in the 2.6 kernel I original installed, 2.6.5 I think.
+I bet somebody will ask what's with llh's vs. kernel's 2.6.x.y versioning, but 
+let's just assume people can figure it out for themselves (iow -- I'll wait 
+for the first actual question before I update llh's FAQ).
 
-In any case I understood that Quake doesn't work with alsa drivers because it
-depends on mmapped output which they don't support at all. Or something like
-that. I gave up on them when I found OSS worked reliably.
 
-Until someone broke it between 2.6.6 and 2.6.9. How likely are the 2.6.6
-drivers to compile with 2.6.10? Is it worth trying?
+Happy hacking.
 
 -- 
-greg
-
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAORgv>; Mon, 15 Jan 2001 12:36:51 -0500
+	id <S129401AbRAORjL>; Mon, 15 Jan 2001 12:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAORgl>; Mon, 15 Jan 2001 12:36:41 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:34250 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129835AbRAORgX>; Mon, 15 Jan 2001 12:36:23 -0500
-Date: Mon, 15 Jan 2001 18:24:12 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: "Dunlap, Randy" <randy.dunlap@intel.com>,
-        "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: The latest instance in the A20 farce
-In-Reply-To: <3A5CF9C2.CE5EFF42@transmeta.com>
-Message-ID: <Pine.GSO.3.96.1010115182005.16619Q-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S130075AbRAORjB>; Mon, 15 Jan 2001 12:39:01 -0500
+Received: from mx5.sac.fedex.com ([199.81.194.37]:4620 "EHLO mx5.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S129401AbRAORix>;
+	Mon, 15 Jan 2001 12:38:53 -0500
+To: Wayne.Brown@altec.com
+Cc: Jeff Chua <jchua@fedex.com>, Alan Shutko <ats@acm.org>,
+        linux-kernel@silk.corp.fedex.com
+Subject: Re: linmodem????
+In-Reply-To: <862569D5.005B7D66.00@smtpnotes.altec.com>
+From: Gary Lawrence Murphy <garym@canada.com>
+X-Home-Page: http://www.teledyn.com
+Organization: T(c)Inc Business Innovation through Open Source Computing
+Date: 15 Jan 2001 12:37:22 -0500
+Message-ID: <m3lmscn2ct.fsf@maya.dyndns.org>
+Reply-To: Gary Lawrence Murphy <garym@canada.com>
+X-Url: http://www.teledyn.com/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, H. Peter Anvin wrote:
 
-> URRRK.  I get a feeling these specs are either there to make life extra
-> difficult for programmers, because the people that design them are too
-> stupid to tie their own shoes, or because they want nothing but M$
-> factory-installed to work.  
+And it works for me under Mandrake 7.1 on an acer330T; I haven't tried
+the 2.4 trick yet, and there was a simple patch to one include file to
+use ppp under 2.2.16, but beyond that, it works flawlessly.
 
- The page is titled "PC DESIGN GUIDE - For the Microsoft Windows Family of
-Operating Systems," so what do you expect? 
+for those who haven't found it, I have a help-page for Acer laptop
+users at http://www.teledyn.com/help/acer330T.html
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
+Business Innovations Through Open Source Systems: http://www.teledyn.com
+"Computers are useless.  They can only give you answers."(Pablo Picasso)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,135 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263251AbTCUCtA>; Thu, 20 Mar 2003 21:49:00 -0500
+	id <S263249AbTCUCkd>; Thu, 20 Mar 2003 21:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263260AbTCUCtA>; Thu, 20 Mar 2003 21:49:00 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:59776 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S263251AbTCUCsy>; Thu, 20 Mar 2003 21:48:54 -0500
-Date: Fri, 21 Mar 2003 11:59:07 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (11/14) PCI
-Message-ID: <20030321025907.GK1847@yuzuki.cinet.co.jp>
-References: <20030321022850.GA1767@yuzuki.cinet.co.jp>
+	id <S263252AbTCUCkc>; Thu, 20 Mar 2003 21:40:32 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:49598 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S263249AbTCUCj4>; Thu, 20 Mar 2003 21:39:56 -0500
+Date: Thu, 20 Mar 2003 18:50:46 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: george anzinger <george@mvista.com>
+Cc: john stultz <johnstul@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Clock monotonic  a suggestion
+Message-ID: <20030321025045.GX2835@ca-server1.us.oracle.com>
+References: <3E7A59CD.8040700@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030321022850.GA1767@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3E7A59CD.8040700@mvista.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac1. (11/14)
+On Thu, Mar 20, 2003 at 04:16:13PM -0800, george anzinger wrote:
+> Define CLOCK_MONOTONIC to be the same as
+> (gettimeofday() + wall_to_monotonic).
+> ...
+> Both clocks will tick at the same rate, even under NTP corrections.
+> The conversion is a simple (well almost simple) add.
+> Both clocks will have the same resolution.
 
-Small changes for PCI support.
-Fix for difference of IRQ numbers and IO addresses.
+	The issue for CLOCK_MONOTONIC isn't one of resolution.  The
+issue is one of accuracy.  If the monotonic clock is ever allowed to
+have an offset or a fudge factor, it is broken.  Asking the monotonic
+clock for time must always, without fail, return the exact, accurate
+time since boot (or whatever sentinal time) in the the units monotonic
+clock is using.  This precludes gettimeofday().
+	If the system is delayed (udelay() or such) by a driver or 
+something for 10 seconds, then you have this (assume gettimeofday is
+in seconds for simplicity):
 
-Regards,
-Osamu Tomita
+1    gettimeofday = 1000000000
+2    driver delays 10s
+3    gettimeofday = 1000000000
+4    timer notices lag and adjusts
+5    gettimeofday = 1000000010
 
-diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
---- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
-+++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
-@@ -5,6 +5,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/pci_ids.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -25,6 +26,7 @@
- 
- static struct irq_routing_table *pirq_table;
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
-  * Avoid using: 13, 14 and 15 (FP error and IDE).
-@@ -36,6 +38,20 @@
- 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
- 	0, 0, 0, 0, 1000, 100000, 100000, 100000
- };
-+#else
-+/*
-+ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
-+ * Avoid using: 8, 9 and 15 (FP error and IDE).
-+ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
-+ *                                 and parallel)
-+ */
-+unsigned int pcibios_irq_mask = 0xff78;
-+
-+static int pirq_penalty[16] = {
-+	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
-+	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
-+};
-+#endif
- 
- struct irq_router {
- 	char *name;
-@@ -612,6 +628,17 @@
- 		r->set(pirq_router_dev, dev, pirq, 11);
- 	}
- 
-+#ifdef CONFIG_X86_PC9800
-+	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
-+		if (pci_find_device(PCI_VENDOR_ID_INTEL,
-+				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
-+			if (mask & 0x0040) {
-+				mask &= 0x0040;	/* assign IRQ 6 only */
-+				printk("pci-irq: Use IRQ6 for CardBus controller\n");
-+			}
-+		}
-+	}
-+#endif
- 	/*
- 	 * Find the best IRQ to assign: use the one
- 	 * reported by the device if possible.
-diff -Nru linux/drivers/pcmcia/yenta.c linux98/drivers/pcmcia/yenta.c
---- linux/drivers/pcmcia/yenta.c	2002-11-18 13:29:48.000000000 +0900
-+++ linux98/drivers/pcmcia/yenta.c	2002-11-19 11:02:09.000000000 +0900
-@@ -8,6 +8,7 @@
-  * 	Dynamically adjust the size of the bridge resource
-  * 	
-  */
-+#include <linux/config.h>
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/sched.h>
-@@ -510,6 +511,7 @@
- 	add_timer(&socket->poll_timer);
- }
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Only probe "regular" interrupts, don't
-  * touch dangerous spots like the mouse irq,
-@@ -520,6 +522,10 @@
-  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
-  */
- static u32 isa_interrupts = 0x0ef8;
-+#else
-+/* Default to 12, 10, 6, 5, 3. */
-+static u32 isa_interrupts = 0x1468;
-+#endif
- 
- static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
- {
-diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
---- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
-+++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
-@@ -17,7 +17,11 @@
- #endif
- 
- extern unsigned long pci_mem_start;
-+#ifdef CONFIG_X86_PC9800
-+#define PCIBIOS_MIN_IO		0x4000
-+#else
- #define PCIBIOS_MIN_IO		0x1000
-+#endif
- #define PCIBIOS_MIN_MEM		(pci_mem_start)
- 
- void pcibios_config_init(void);
+	In the usual case, if a program calls gettimeofday() between 3
+and 4, the program gets the wrong time.  For most programs, this doesn't
+matter.  CLOCK_MONOTONIC is designed for those uses where it absolutely
+matters.  If an application queries CLOCK_MONOTONIC at 3.5, it must
+return 1000000010, not 1000000000.
+
+Joel
+-- 
+
+"A narcissist is someone better looking than you are."  
+         - Gore Vidal
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

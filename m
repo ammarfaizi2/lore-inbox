@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272279AbTG3Wq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 18:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272286AbTG3Wq1
+	id S272224AbTG3WqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 18:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272279AbTG3WqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 18:46:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272279AbTG3WqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 18:46:22 -0400
-Date: Wed, 30 Jul 2003 15:34:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mremap sleeping in incorrect context
-Message-Id: <20030730153439.7df44a69.akpm@osdl.org>
-In-Reply-To: <1059586337.2420.44.camel@gaston>
-References: <1059586337.2420.44.camel@gaston>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 30 Jul 2003 18:46:07 -0400
+Received: from smtp-node1.eclipse.net.uk ([212.104.129.76]:35342 "EHLO
+	smtp1.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S272224AbTG3WqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 18:46:04 -0400
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0t2 Hangs randomly
+Date: Wed, 30 Jul 2003 23:46:01 +0100
+User-Agent: KMail/1.5.2
+References: <3F27817A.8000703@gts.it>
+In-Reply-To: <3F27817A.8000703@gts.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307302346.02989.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Wednesday 30 Jul 2003 09:27, Stefano Rivoir wrote:
+> I'm experiencing hard rand lockups using kernel 2.6.0: they are not
+> predictable, nor I can find a way to reproduce them. They can occur
+> while working with an app, while browsing the fs (I use KDE) or
+> while resuming after the screensaver, or anything else. They can
+> occur after one hour or 15 minutes, and there's not any strange
+> "jerkiness" activity before, nor an intense disk work.
 >
-> Just had that in my log, running 2.6.0-test2. I'm not familiar
-> with this code, but Arjan says this is an old problem that was
-> fixed ages ago, maybe the fix was lost ?
-> 
-> Debug: sleeping function called from invalid context at
-> mm/page_alloc.c:545
-> Call trace:
->  [c000c1a8] dump_stack+0x18/0x28
->  [c0021044] __might_sleep+0x6c/0x84
->  [c004e33c] __alloc_pages+0x338/0x33c
->  [c0014940] pte_alloc_one+0x24/0x160
->  [c005c224] pte_alloc_map+0x88/0x2a8
->  [c0065a40] move_one_page+0xd0/0x2a4
->  [c0065c6c] move_page_tables+0x58/0xb8
->  [c0065d60] move_vma+0x94/0x824
->  [c00666f4] do_mremap+0x204/0x468
->  [c00669d4] sys_mremap+0x7c/0xcc
+> After the hang, the disk starts working for a while, then I have
+> to reset w/button, and nothing is left on the various system logs.
 
-oops.  What are your CONFIG_HIGHMEM and CONFIG_HIGHPTE settings there?
+What makes you think this is a hang?  Does the disc activity stop?  If you 
+press the caps lock or num lock keys does the LED light up?  What I'm asking 
+is could it have been swapping for some reason?  I've had the system go 
+unresponsive on me quite recently, also when running KDE.  It easilly took a 
+two or more minutes to start responding again.  The disc light stayed active 
+all the time it wasn't responding.
+
+-- 
+Ian.
+

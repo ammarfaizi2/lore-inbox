@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbUAHO6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 09:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUAHO6g
+	id S264479AbUAHOyk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 09:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUAHOyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 09:58:36 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14862 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264925AbUAHO6d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 09:58:33 -0500
-Date: Thu, 8 Jan 2004 09:46:23 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Thomas Fischbach <webmaster@kennygno.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: can't mount encrypted dvd with 2.6.0
-In-Reply-To: <20040108150917.18537b1e@kyp.intra>
-Message-ID: <Pine.LNX.3.96.1040108094236.12465C-101000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/SIGNED; PROTOCOL="application/pgp-signature"; MICALG=pgp-sha1; BOUNDARY="Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc"
-Content-ID: <Pine.LNX.3.96.1040108094236.12465D@gatekeeper.tmr.com>
+	Thu, 8 Jan 2004 09:54:40 -0500
+Received: from h80ad37a4.dhcp.vt.edu ([128.173.55.164]:21120 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264479AbUAHOyi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 09:54:38 -0500
+Message-Id: <200401081454.i08EsZBu005830@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jens Axboe <axboe@suse.de>
+Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: blockfile access patterns logging 
+In-Reply-To: Your message of "Thu, 08 Jan 2004 15:39:08 +0100."
+             <20040108143908.GA8688@suse.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040108120008.GA7415@outpost.ds9a.nl> <200401081430.i08EUVfx005021@turing-police.cc.vt.edu>
+            <20040108143908.GA8688@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1359036619P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 08 Jan 2004 09:54:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+--==_Exmh_-1359036619P
+Content-Type: text/plain; charset=us-ascii
 
---Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.3.96.1040108094236.12465E@gatekeeper.tmr.com>
+On Thu, 08 Jan 2004 15:39:08 +0100, Jens Axboe said:
 
-On Thu, 8 Jan 2004, Thomas Fischbach wrote:
+> For laptops, it's often most interesting to find out _what_ process
+> dirtied what data (which in turn caused bdflush to sync it), or what
+> process keeps doing small reads. And block_dump does exactly that (it
+> was invented for exactly that purpose :)
 
-> On 7 Jan 2004 23:07:45 GMT
-> davidsen@tmr.com (bill davidsen) wrote:
-> 
-> > In article <20040107151948.4376d881@kyp.intra>,
-> > Thomas Fischbach  <webmaster@kennygno.net> wrote:
-> > 
-> > | if I create an encrypted iso image:
-> > | dd if=/dev/zero of=/files/image.iso bs=512 count=$((1024*4400))
-> > | losetup -e aes -k 256 /dev/loop1 /files/image.iso
-> > | mkisofs -r -o /dev/loop1 /files/stuff/*
-> > ===> try adding -pad here
-> 
-> [...]
-> 
-> I think -pad is used by default.
+I submit that "what process ID did it" is even more remote from the disk
+than "what inode" ;)
 
--pad is used by default on cdrecord, but not on mkisofs AFAIK. Since you
-didn't specify how you did the burn, or I missed it, I thought it was
-worth a try in case you were using some other software.
+> I don't think you understand what Bert is looking for. He explicitly
+> mentions that the machine is very idle, so he's probably looking for
+> culprits that spin up the drive occasionally.
 
-> 
-> I tried the patch from Ben and it works.
-> http://testing.lkml.org/slashdot.php?mid=442410
+Oh, I understand very well.. Been there myself.  I'd just forgotten that
+the laptop patch provided the process-ID information. ;)
 
-Then hopefully it will appear in a future bk after additional testing.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
---Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc
-Content-Type: APPLICATION/PGP-SIGNATURE
-Content-ID: <Pine.LNX.3.96.1040108094236.12465F@gatekeeper.tmr.com>
-Content-Description: 
+--==_Exmh_-1359036619P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE//WSNhty018ANwB4RAr18AJ9YTifHbmGt3cGql4eWWXD+qUANCwCcC7uj
-svUELgyxPMCaHsgKRPhUbzk=
-=xBQG
+iD8DBQE//W8rcC3lWbTT17ARAmu5AJ9ZoZCj755T/j0YA/nidjzQjvf6MgCgmF4M
+KfhlQNSWsuYlVYuguDHPw+4=
+=nqr4
 -----END PGP SIGNATURE-----
 
---Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc--
+--==_Exmh_-1359036619P--

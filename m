@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUGPFRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUGPFRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUGPFRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUGPFQK
+	id S266467AbUGPFRs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUGPFQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:16:10 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:40406 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266450AbUGPFEK (ORCPT
+	Fri, 16 Jul 2004 01:16:04 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:44701 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266389AbUGPE70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 01:04:10 -0400
-Subject: PATCH: Fix ftdi_sio oops in 2.4 (applicable to 2.6 too?)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: BRyder@users.sourceforge.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1089953837.3486.72.camel@nigel-laptop.wpcb.org.au>
+	Fri, 16 Jul 2004 00:59:26 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.6 
+In-reply-to: Your message of "Tue, 01 Jun 2004 14:20:13 MST."
+             <1086124813.2309.4.camel@d-mpk14-95-140> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 16 Jul 2004 14:57:18 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Jul 2004 14:59:20 +1000
+Message-ID: <7588.1089953960@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 01 Jun 2004 14:20:13 -0700, 
+Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
+>On Mon, 2004-05-24 at 15:48 +1000, Keith Owens wrote:
+>>   If you maintain an architecture specific kdb patch, please upgrade to
+>>   kdb v4.4 and send it to me.
+>
+>OK, here is a first pass at updating the sparc64 kdb to kernel 2.6.6 and
+>kdb 4.4
+>
+>http://members.dslextreme.com/~tomduffy/kdb-v4.4-2.6.6-sparc64-1.bz2
 
-I used to get an oopses when disconnecting my serial console, which runs
-via the ftdi_sio driver. The cause turned out to be that the
-ASYNC_LOW_LATENCY flag being set causes the driver to schedule while in
-an interrupt handler (because it tries to take a spinlock). This little
-patch against 2.4.26 removes the setting of the LOW_LATENCY flag and
-thus the oops. There may well be a better solution, but I send this for
-your consideration (please excuse the source tree names).
-
-Regards,
-
-Nigel
-
-diff -ruN software-suspend-core-2.0.0.99/drivers/usb/serial/ftdi_sio.c software-suspend-core-2.0.0.99A/drivers/usb/serial/ftdi_sio.c
---- software-suspend-core-2.0.0.99/drivers/usb/serial/ftdi_sio.c	2004-04-16 23:46:16.000000000 +1000
-+++ software-suspend-core-2.0.0.99A/drivers/usb/serial/ftdi_sio.c	2004-07-11 15:25:12.000000000 +1000
-@@ -1038,7 +1038,7 @@
-         init_waitqueue_head(&priv->delta_msr_wait);
- 	/* This will push the characters through immediately rather
- 	   than queue a task to deliver them */
--	priv->flags = ASYNC_LOW_LATENCY;
-+	//priv->flags = ASYNC_LOW_LATENCY;
- 
- 	/* Increase the size of read buffers */
- 	if (port->bulk_in_buffer) {
-
+Thanks.  Uploaded to ftp://oss.sgi.com/projects/kdb/download/v4.4
 

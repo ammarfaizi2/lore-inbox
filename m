@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUIIRZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUIIRYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUIIRZI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUIIRZI
+	id S266449AbUIIRYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUIIRYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 13:25:08 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:64498 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S266425AbUIIRW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 13:22:56 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch][9/9] block: remove bio walking
-Date: Thu, 9 Sep 2004 19:10:57 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>
-References: <200409082127.04331.bzolnier@elka.pw.edu.pl> <200409091628.25304.bzolnier@elka.pw.edu.pl> <20040909155420.D6434@flint.arm.linux.org.uk>
-In-Reply-To: <20040909155420.D6434@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	Thu, 9 Sep 2004 13:24:19 -0400
+Received: from holomorphy.com ([207.189.100.168]:49585 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266449AbUIIRXq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:23:46 -0400
+Date: Thu, 9 Sep 2004 10:23:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+       piggin@cyberone.com.au
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-ID: <20040909172332.GZ3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ray Bryant <raybry@sgi.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+	piggin@cyberone.com.au
+References: <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909030916.GR3106@holomorphy.com> <414065A8.20508@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409091910.57137.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <414065A8.20508@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 September 2004 16:54, Russell King wrote:
-> On Thu, Sep 09, 2004 at 04:28:25PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > On Thursday 09 September 2004 16:04, Russell King wrote:
-> > > On Thu, Sep 09, 2004 at 03:53:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Thursday 09 September 2004 10:03, Russell King wrote:
-> > > > > On Wed, Sep 08, 2004 at 09:27:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > > > [patch] block: remove bio walking
-> > > > > > 
-> > > > > > IDE driver was the only user of bio walking code.
-> > > > 
-> > > > was in -bk10 :-(
-> > > > 
-> > > > > The MMC driver also uses this.  Please don't remove.
-> > > > 
-> > > > OK I'll just drop this patch but can't we also use scatterlists in MMC?
-> > > > 
-> > > > The point is that I now think bio walking was a mistake and accessing
-> > > > bios directly from low-level drivers is a layering violation (thus
-> > > > all the added complexity). Moreover with fixed IDE PIO and without
-> > > > bio walking code it should be possible to shrink struct request by
-> > > > removing all "current" entries.
-> > > 
-> > > I'm wondering whether it is legal to map onto SG lists and then do PIO.
-> > > Provided we don't end up using the DMA API and then using PIO to the
-> > > original pages, it should work.
-> > 
-> > Yes, it actually works fine. See the other patches from the patchkit. :-)
-> 
-> Actually, if you've only tested x86, you don't know if it works fine.
-> x86 is a rather benign architecture when it comes to testing whether
-> various interfaces are being used correctly.
+William Lee Irwin III wrote:
+>> Please log periodic snapshots of /proc/vmstat during runs on kernel
+>> versions before and after major behavioral shifts.
 
-x86 only
+On Thu, Sep 09, 2004 at 09:16:08AM -0500, Ray Bryant wrote:
+> Attached is the output you requested for two kernel versions: 2.6.8.1-mm4 
+> and 2.6.9-rc1-mm3 + the nrmap_patch (that patch didn't make much difference 
+> so this should be good enough for comparison purposes, and it was the 
+> kernel I had built.)
+> Because there are so many parameters in /proc/vmstat, I had to split the
+> output up (more or less arbitarily) into three files to get something you 
+> could actually look at with an editor.  Even then it requires 100 columns 
+> or so.
 
-This forced me into rechecking everything and I found one issue:
-in ide_pio_sector() sg->length should be used instead of sg_dma_len(sg).
+This will do fine. I'll examine these for anomalous maintenance of
+statistics and/or operational variables used to drive page replacement.
 
-With this fixed patchkit should work on any arch
-(testing and comments are welcomed of course).
+Thanks.
 
-> > > However, using the SG lists does finally provide us with a nice way to
-> > > ensure that we have the right information to finally fix IDE wrt the
-> > > PIO cache issues (dirty cache lines being left in the page cache.)
-> > 
-> > Could you explain the issue a bit more?
-> 
-> Essentially, kernel PIO writes data into the page cache, and that action
-> may leave data in the CPU's caches.  Since the kernels mappings may not
-> be coherent with mappings in userspace, data written to the kernel
-> mappings may remain in the data cache, and stale data would be visible
-> to user space.
-> 
-> There has been talk about using flush_dcache_page() to resolve
-> this issue, but I'm not sure what the outcome was.  Certainly
-> flush_dcache_page() is supposed to be used before the data in the
-> kernels page cache is read or written.
-> 
-> See Documentation/cachetlb.txt for further information on this
-> interface.
 
-Thanks, now I understand the problem.
+-- wli

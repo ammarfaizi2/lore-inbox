@@ -1,64 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264253AbTCXPz0>; Mon, 24 Mar 2003 10:55:26 -0500
+	id <S264259AbTCXP63>; Mon, 24 Mar 2003 10:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264254AbTCXPz0>; Mon, 24 Mar 2003 10:55:26 -0500
-Received: from files.ssi.bg ([217.79.71.21]:50953 "HELO files.ssi.bg")
-	by vger.kernel.org with SMTP id <S264253AbTCXPzZ>;
-	Mon, 24 Mar 2003 10:55:25 -0500
-Date: Mon, 24 Mar 2003 18:01:25 +0200
-From: Alexander Atanasov <alex@ssi.bg>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux@brodo.de, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
- looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-Message-Id: <20030324180125.2606b046.alex@ssi.bg>
-In-Reply-To: <1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
-	<1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S264260AbTCXP63>; Mon, 24 Mar 2003 10:58:29 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:26892 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264259AbTCXP60>; Mon, 24 Mar 2003 10:58:26 -0500
+Date: Mon, 24 Mar 2003 17:09:21 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andries Brouwer <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH 1/3] revert register_chrdev_region change
+In-Reply-To: <20030324150458.A19789@infradead.org>
+Message-ID: <Pine.LNX.4.44.0303241701150.5042-100000@serv>
+References: <Pine.LNX.4.44.0303240023420.9053-100000@serv>
+ <20030324142515.GA10462@win.tue.nl> <20030324150458.A19789@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+Hi,
 
-On 24 Mar 2003 13:59:33 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Mon, 24 Mar 2003, Christoph Hellwig wrote:
 
-> On Mon, 2003-03-24 at 09:55, Alexander Atanasov wrote:
-> > i can't reproduce the hang but it seems that drives without driver
-> > can get both in ata_unused and idedefault_driver.drives and lists go
-> > nuts. It kills ata_unused and uses idedefault_driver.drives only,
-> > boots fine here. I'd guess you have ide-cd as module, and the two
-> > drives handled by it couse the trouble - first joins the lists
-> > second couses the loop.
-> 
-> We need to know the difference between the two really so I would much
-> rather ensure we don't end up on both lists at once (which is a bug)
-> than lose a list
-> 
+> If you look at Roman's patches they don't even hinder your dev_t enlargement
+> but they provide a singificant benefit.   Now I'm personally not yet
+> completly happy with his interface either because he still uses the
+> major/minor split, but I'm working on fixing this properly.
 
-	I don't understand, what's the difference and how the list is lost?
-ata_unused used to hold all drives that were not claimed by any driver,
-now idedefault_driver claims all that drives, all drives go in the .list
-of its driver. ide_register_driver wants to take all unused drives and
-attach them to the newly registered driver, so take all drives that use
-idedefault_driver, and try, if they fail to find a driver they end up
-again with the same driver and list (idedefault_driver). I think
-idedefault_driver.list and ata_unused became dublicates, and the proper
-place is to hold drives with no real driver is idedefault_driver, so the
-patch. list from ata_unused becomes idedefault_driver.list, and does
-exactly the same as ata_unused. I want to understand where i'm wrong, 
-please?
+BTW I have an updated patch, which stores the major char_device at 
+(0,major), so the remaining space is free for whatever you need.
+Below is a patch which shows how drivers/usb/core/file.c could look 
+after this. There are of course further cleanups possible. :)
 
-The bug is there,  and waiting to explode, keeping both lists would mean to 
-add one more  list head  in ide_drive_t,  is that the fix you want?
+bye, Roman
 
---
-have fun,
-alex
+diff -Nurp -X /home/roman/nodiff linux-2.5.65-bk4-cdev3/drivers/usb/core/file.c linux-2.5.65-bk4-cdev4/drivers/usb/core/file.c
+--- linux-2.5.65-bk4-cdev3/drivers/usb/core/file.c	2003-03-24 10:26:47.000000000 +0100
++++ linux-2.5.65-bk4-cdev4/drivers/usb/core/file.c	2003-03-24 14:13:37.000000000 +0100
+@@ -32,41 +32,9 @@ devfs_handle_t usb_devfs_handle;	/* /dev
+ EXPORT_SYMBOL(usb_devfs_handle);
  
+ #define MAX_USB_MINORS	256
+-static struct file_operations *usb_minors[MAX_USB_MINORS];
+-static spinlock_t minor_lock = SPIN_LOCK_UNLOCKED;
+-
+-static int usb_open(struct inode * inode, struct file * file)
+-{
+-	int minor = minor(inode->i_rdev);
+-	struct file_operations *c;
+-	int err = -ENODEV;
+-	struct file_operations *old_fops, *new_fops = NULL;
+-
+-	spin_lock (&minor_lock);
+-	c = usb_minors[minor];
+-
+-	if (!c || !(new_fops = fops_get(c))) {
+-		spin_unlock(&minor_lock);
+-		return err;
+-	}
+-	spin_unlock(&minor_lock);
+-
+-	old_fops = file->f_op;
+-	file->f_op = new_fops;
+-	/* Curiouser and curiouser... NULL ->open() as "no device" ? */
+-	if (file->f_op->open)
+-		err = file->f_op->open(inode,file);
+-	if (err) {
+-		fops_put(file->f_op);
+-		file->f_op = fops_get(old_fops);
+-	}
+-	fops_put(old_fops);
+-	return err;
+-}
+ 
+ static struct file_operations usb_fops = {
+ 	.owner =	THIS_MODULE,
+-	.open =		usb_open,
+ };
+ 
+ int usb_major_init(void)
+@@ -107,12 +75,9 @@ void usb_major_cleanup(void)
+  * device, and 0 on success, alone with a value that the driver should
+  * use in start_minor.
+  */
+-int usb_register_dev (struct file_operations *fops, int minor, int num_minors, int *start_minor)
++int usb_register_dev (struct file_operations *fops, int minor, int *start_minor)
+ {
+ 	int i;
+-	int j;
+-	int good_spot;
+-	int retval = -EINVAL;
+ 
+ #ifdef CONFIG_USB_DYNAMIC_MINORS
+ 	/* 
+@@ -123,37 +88,29 @@ int usb_register_dev (struct file_operat
+ 	minor = 0;
+ #endif
+ 
+-	dbg ("asking for %d minors, starting at %d", num_minors, minor);
++	dbg ("asking for 1 minors, starting at %d", minor);
+ 
+ 	if (fops == NULL)
+-		goto exit;
++		return  -EINVAL;
+ 
+ 	*start_minor = 0; 
+-	spin_lock (&minor_lock);
+ 	for (i = minor; i < MAX_USB_MINORS; ++i) {
+-		if (usb_minors[i])
+-			continue;
+-
+-		good_spot = 1;
+-		for (j = 1; j <= num_minors-1; ++j)
+-			if (usb_minors[i+j]) {
+-				good_spot = 0;
+-				break;
++		cdev = cdget(MKDEV(USB_MAJOR, i));
++		if (!cdev->cd_fops) {
++			down(&cdev->cd_sem);
++			if (!cdev->cd_fops) {
++				dbg("found a minor chunk free, starting at %d", i);
++				cdev->cd_fops = fops;
++				up(&cdev->cd_sem);
++				start_minor = i;
++				return 0;
+ 			}
+-		if (good_spot == 0)
+-			continue;
+-
+-		*start_minor = i;
+-		dbg("found a minor chunk free, starting at %d", i);
+-		for (i = *start_minor; i < (*start_minor + num_minors); ++i)
+-			usb_minors[i] = fops;
+-
+-		retval = 0;
+-		goto exit;
++			up(&cdev->cd_sem);
++		}
++		cdput(cdev);
+ 	}
+-exit:
+-	spin_unlock (&minor_lock);
+-	return retval;
++
++	return -EBUSY;
+ }
+ EXPORT_SYMBOL(usb_register_dev);
+ 
+@@ -169,16 +126,21 @@ EXPORT_SYMBOL(usb_register_dev);
+  * 
+  * This should be called by all drivers that use the USB major number.
+  */
+-void usb_deregister_dev (int num_minors, int start_minor)
++void usb_deregister_dev (int minor)
+ {
+ 	int i;
+ 
+ 	dbg ("removing %d minors starting at %d", num_minors, start_minor);
+ 
+-	spin_lock (&minor_lock);
+-	for (i = start_minor; i < (start_minor + num_minors); ++i)
+-		usb_minors[i] = NULL;
+-	spin_unlock (&minor_lock);
++	cdev = cdget(MKDEV(USB_MAJOR, minor));
++	down(&cdev->cd_sem);
++	if (cdev->cd_fops) {
++		cdev->cd_fops = NULL;
++		cdput(cdev);
++	} else
++		printk("usb_deregister_dev: releasing invalid dev %d\n", minor);
++	up(&cdev->cd_sem);
++	cdput(cdev);
+ }
+ EXPORT_SYMBOL(usb_deregister_dev);
+ 
+

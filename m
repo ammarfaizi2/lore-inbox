@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273515AbSISVbK>; Thu, 19 Sep 2002 17:31:10 -0400
+	id <S273623AbSISVjm>; Thu, 19 Sep 2002 17:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273463AbSISVbJ>; Thu, 19 Sep 2002 17:31:09 -0400
-Received: from sky.skycomputers.com ([198.4.246.2]:47757 "HELO
-	sky.skycomputers.com") by vger.kernel.org with SMTP
-	id <S273440AbSISVar> convert rfc822-to-8bit; Thu, 19 Sep 2002 17:30:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Brian Waite <waite@skycomputers.com>
-To: Bill Davidsen <davidsen@tmr.com>, Patrick Mansfield <patmans@us.ibm.com>
-Subject: Re: [RFC] [PATCH] 0/7 2.5.35 SCSI multi-path
-Date: Thu, 19 Sep 2002 17:29:24 -0400
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <Pine.LNX.3.96.1020919171118.24603A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020919171118.24603A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209191729.24069.waite@skycomputers.com>
+	id <S273664AbSISVjm>; Thu, 19 Sep 2002 17:39:42 -0400
+Received: from pc-80-195-34-180-ed.blueyonder.co.uk ([80.195.34.180]:16516
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S273623AbSISVjm>; Thu, 19 Sep 2002 17:39:42 -0400
+Date: Thu, 19 Sep 2002 22:44:36 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Duncan Sands <duncan.sands@math.u-psud.fr>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: fsync 50 times slower after 2.5.27
+Message-ID: <20020919224436.E2831@redhat.com>
+References: <200209190222.33276.duncan.sands@math.u-psud.fr> <3D891BD1.8F774946@digeo.com> <200209192032.25933.duncan.sands@math.u-psud.fr> <3D8A4016.F364B303@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D8A4016.F364B303@digeo.com>; from akpm@digeo.com on Thu, Sep 19, 2002 at 02:22:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is why we had to make another abstraction layer that was the "uniqueness 
-driver" This allowed the admin to configure a device without seial numbers to 
-be multipathed if they knew it was multipathed by explicitly specifing the 
-host bus, target, lun of all the paths to a speciic device. We never got the 
-chance to develop an intellegent way a determining multipathed-ness so we 
-left it to the user. Not ideal but it worked for our customer.  I would like 
-to think there is a better way to determind uniqueness, but the nice thing 
-was we made the uniquness driver a module that could be replaced, thus 
-letting us develop new uniqueness algorithms in the future. I think the 
-concept is good, maybe not the implimentation. It also allows you to say you 
-don't like how we do... well you know the rest 
+Hi,
 
+On Thu, Sep 19, 2002 at 02:22:30PM -0700, Andrew Morton wrote:
 
-Thanks
-Brian
+> Thanks for testing.  The semantics of sched_yield() have changed
+> significantly in 2.5.  Probably correctly, but it is breaking a
+> few things which were tuned for the old semantics.  Amongst those
+> things are OpenOffice and, it seems, ext3 transaction batching.
+> 
+> The transaction batching does good things under some situations,
+> and we want it to keep working.  I'll sit tight for the while, see
+> where shed_yield() behaviour ends up.  If we still have a problem
+> then probably a schedule_timeout(1) in there would suffice.
 
-On Thursday 19 September 2002 5:16 pm, Bill Davidsen wrote:
-> On Wed, 18 Sep 2002, Patrick Mansfield wrote:
-> > Devices without serial numbers are treated as if they had different
-> > serial numbers, they show up as if there was no multi-path support.
->
-> That doesn't solve the problem, does it? If you have two devices w/o
-> serial they could look like one with multipath, with the change you note
-> that is prevented by making a single multipath device w/o serial look like
-> two. I have visions of programs using /dev/st0 and /dev/st1, having used
-> backup programs which grabbed every drive with a tape ready.
->
-> It is indeed a messy problem.
+Actually, with a proper yield() implementation, we can achieve the
+same effect by making the commit thread do the yield itself before
+locking down the transaction.  Having _every_ sync thread do a yield
+itself before calling for a commit is probably overkill.
 
+--Stephen

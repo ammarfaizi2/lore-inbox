@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277718AbRJIFAg>; Tue, 9 Oct 2001 01:00:36 -0400
+	id <S277721AbRJIFBi>; Tue, 9 Oct 2001 01:01:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277719AbRJIFA1>; Tue, 9 Oct 2001 01:00:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:56714 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277718AbRJIFAT>;
-	Tue, 9 Oct 2001 01:00:19 -0400
-Date: Mon, 08 Oct 2001 22:00:28 -0700 (PDT)
-Message-Id: <20011008.220028.131917699.davem@redhat.com>
-To: rgooch@ras.ucalgary.ca
-Cc: arjan@fenrus.demon.nl, kravetz@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200110090455.f994tNB22322@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca>
-	<20011004.145239.62666846.davem@redhat.com>
-	<200110090455.f994tNB22322@vindaloo.ras.ucalgary.ca>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277720AbRJIFB2>; Tue, 9 Oct 2001 01:01:28 -0400
+Received: from bacon.van.m-l.org ([208.223.154.200]:7552 "EHLO
+	bacon.van.m-l.org") by vger.kernel.org with ESMTP
+	id <S277721AbRJIFBR>; Tue, 9 Oct 2001 01:01:17 -0400
+Date: Tue, 9 Oct 2001 01:01:47 -0400 (EDT)
+From: George Greer <greerga@m-l.org>
+X-X-Sender: <greerga@bacon.van.m-l.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] change name of rep_nop
+In-Reply-To: <Pine.LNX.4.30.0110090120540.5479-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0110090059210.11296-100000@bacon.van.m-l.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Gooch <rgooch@ras.ucalgary.ca>
-   Date: Mon, 8 Oct 2001 22:55:23 -0600
+On Tue, 9 Oct 2001, Dave Jones wrote:
 
-   So what exactly is the difference between our "delayed FPU restore
-   upon trap" (which I think of as lazy FPU saving), and the "lazy FP"
-   saving in the comments?
+>On Tue, 9 Oct 2001, Alan Cox wrote:
+>
+>> That raises the question of whether x86 should seperate the "386" "486" ..
+>> kernels by adding "Generic" for building a kernel that has all the work
+>> arounds for everyones randomly buggy processors
+>
+>How do you propose to do this without turning setup.c and friends
+>into a #ifdef nightmare ? setup_intel.c, setup_amd.c etc ??
 
-Save always on swithching OUT from a task vs. save only when some
-different task asks for the FPU.
+I did a patch for that in the 2.2.x days that simply modified the existing
+#ifdef's to be more specific.  The Configure file then set define_bool
+options correctly for whatever option you chose. It was a very simple
+strategy, but not a completely comprehensive patch.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+-- 
+George Greer, greerga@m-l.org
+http://www.m-l.org/~greerga/
+

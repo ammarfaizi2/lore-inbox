@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135927AbRDTODM>; Fri, 20 Apr 2001 10:03:12 -0400
+	id <S135926AbRDTOG3>; Fri, 20 Apr 2001 10:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135924AbRDTODA>; Fri, 20 Apr 2001 10:03:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29701 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135927AbRDTOCr>; Fri, 20 Apr 2001 10:02:47 -0400
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-To: esr@thyrsus.com
-Date: Fri, 20 Apr 2001 15:03:06 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        acahalan@cs.uml.edu (Albert D. Cahalan),
-        willy@ldl.fc.hp.com (Matthew Wilcox),
-        james.rich@m.cc.utah.edu (james rich), linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-In-Reply-To: <20010420095302.A5674@thyrsus.com> from "Eric S. Raymond" at Apr 20, 2001 09:53:02 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135925AbRDTOGT>; Fri, 20 Apr 2001 10:06:19 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:2835 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135924AbRDTOGE> convert rfc822-to-8bit; Fri, 20 Apr 2001 10:06:04 -0400
+From: s-jaschke@t-online.de (Stefan Jaschke)
+Reply-To: stefan@jaschke-net.de
+Organization: jaschke-net.de
+To: Francois Romieu <romieu@cogenit.fr>
+Subject: Re: epic100 error
+Date: Fri, 20 Apr 2001 16:05:04 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042010222601.06730@antares> <20010420122507.A32759@se1.cogenit.fr>
+In-Reply-To: <20010420122507.A32759@se1.cogenit.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qbV6-0001KI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01042016050400.01202@antares>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, so maybe I'm being stupid.  But the implication of this talk of separate
-> port trees and architecture merges is that these guys periodically send big
-> resync patches to you and Linus.
-> 
-> If that's not what's going on, what is?
+On Friday 20 April 2001 12:25, Francois Romieu wrote:
+> What happen's if you compile 2.4.2 epic100 driver in a 2.4.3 tree (I) ?
+> I would really appreciate if you could give a look at (I).
 
-People send batches of small fixes to Linus or to me. So for example the S/390
-folks send me things like 'fix the mm layer to match the changes in 2.4.3'
-and 'Update the DASD storage driver'. Each of which fixes one thing or one
-set of things and is easy to check on its own
+I copied epic100.c from 2.4.2 into the 2.4.4-pre4 tree and it compiles and works without 
+problems. 
+This gives me a workable solution :-)
+
+Cheers,
+Stefan
 

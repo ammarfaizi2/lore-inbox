@@ -1,96 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbTFJBOk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 21:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTFJBOk
+	id S262366AbTFJBgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 21:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTFJBgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 21:14:40 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:3203
+	Mon, 9 Jun 2003 21:36:15 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:19843
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262430AbTFJBOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 21:14:38 -0400
-Date: Mon, 9 Jun 2003 21:17:11 -0400 (EDT)
+	id S262366AbTFJBgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 21:36:12 -0400
+Date: Mon, 9 Jun 2003 21:38:16 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 X-X-Sender: zwane@montezuma.mastecende.com
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-In-Reply-To: <Pine.GSO.3.96.1030609135224.2806A-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.50.0306092112250.19137-100000@montezuma.mastecende.com>
-References: <Pine.GSO.3.96.1030609135224.2806A-100000@delta.ds2.pg.gda.pl>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: linux-kernel@vger.kernel.org, "" <willy@w.ods.org>, "" <gibbs@scsiguy.com>,
+       "" <marcelo@conectiva.com.br>, "" <green@namesys.com>
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030609171011.7f940545.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+ <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
+ <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <20030605181423.GA17277@alpha.home.local> <20030608131901.7cadf9ea.skraw@ithnet.com>
+ <20030608134901.363ebe42.skraw@ithnet.com> <20030609171011.7f940545.skraw@ithnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jun 2003, Maciej W. Rozycki wrote:
+On Mon, 9 Jun 2003, Stephan von Krawczynski wrote:
 
->  Why do you consider the systems broken?
-
-Not necessarily broken, just no reporting of APIC capability. Not that i 
-should expect better from Intel (c.f. HT bit, SEP on PPro etc)
-
-> > Regardless i'll update the patch.
+> During the whole testing with SMP I recognised that the tar-verify always
+> brought up "content differs" warnings. Which basically means that the filesize
+> is ok but the content is not. As there might be various causes for this (bad
+> tape, bad drive, bad cabling) I did not give very much about it. But it turns
+> out there are no more such warnings when using an UP kernel (on the same box
+> with the complete same hardware including tapes).
 > 
->  Great!
+> >From this experience I would conclude the following (for my personal test
+> case):
 
-How about we only clear smp_found_config when forced.
+Can you also try this with 2.5?
 
-Index: linux-2.5/arch/i386/kernel/apic.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
-retrieving revision 1.42
-diff -u -p -B -r1.42 apic.c
---- linux-2.5/arch/i386/kernel/apic.c	26 May 2003 23:59:58 -0000	1.42
-+++ linux-2.5/arch/i386/kernel/apic.c	10 Jun 2003 00:14:37 -0000
-@@ -602,6 +602,15 @@ static void apic_pm_activate(void) { }
-  */
- int dont_enable_local_apic __initdata = 0;
- 
-+static int __init nolapic_setup(char *str)
-+{
-+	dont_enable_local_apic = 1;
-+	smp_found_config = 0;
-+	return 1;
-+}
-+
-+__setup("nolapic", nolapic_setup);
-+
- static int __init detect_init_APIC (void)
- {
- 	u32 h, l, features;
-@@ -609,7 +618,7 @@ static int __init detect_init_APIC (void
- 
- 	/* Disabled by DMI scan or kernel option? */
- 	if (dont_enable_local_apic)
--		return -1;
-+		goto no_apic;
- 
- 	/* Workaround for us being called before identify_cpu(). */
- 	get_cpu_vendor(&boot_cpu_data);
-@@ -665,6 +674,7 @@ static int __init detect_init_APIC (void
- 	return 0;
- 
- no_apic:
-+	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
- 	printk("No local APIC present or hardware disabled\n");
- 	return -1;
- }
-Index: linux-2.5/Documentation/kernel-parameters.txt
-===================================================================
-RCS file: /home/cvs/linux-2.5/Documentation/kernel-parameters.txt,v
-retrieving revision 1.24
-diff -u -p -B -r1.24 kernel-parameters.txt
---- linux-2.5/Documentation/kernel-parameters.txt	6 Jun 2003 15:55:40 -0000	1.24
-+++ linux-2.5/Documentation/kernel-parameters.txt	10 Jun 2003 00:14:38 -0000
-@@ -625,6 +625,9 @@ running once the system is up.
- 
- 	nointroute	[IA-64]
- 
-+	nolapic		[IA-32, APIC]
-+			Disable Local APIC.
-+
- 	nomce		[IA-32] Machine Check Exception
- 
- 	noresume	[SWSUSP] Disables resume and restore original swap space.
+> 1) aic-driver has problems with smp/up switching (meaning crashes when trying
+> an SMP build with nosmp). This is completely reproducable.
+
+Can you also try an SMP kernel with noapic?
+
+> 2) aic-driver (almost no matter what version) has problems with SMP setup and
+> tape drives. Obviously data integrity is not given. This is completely
+> reproducable in my test setup.
+
+I have had problems with symmetric interrupt handling but can normally get 
+it working with noapic. And no it doesn't appear to be an interrupt 
+routing problem on my box (If it is someone please clearly state what the 
+exact problem is to me)
+
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSKRJbo>; Mon, 18 Nov 2002 04:31:44 -0500
+	id <S261857AbSKRJig>; Mon, 18 Nov 2002 04:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSKRJbo>; Mon, 18 Nov 2002 04:31:44 -0500
-Received: from CPE-203-51-30-76.nsw.bigpond.net.au ([203.51.30.76]:18427 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S261799AbSKRJbn>; Mon, 18 Nov 2002 04:31:43 -0500
-Message-ID: <3DD8B521.19184544@eyal.emu.id.au>
-Date: Mon, 18 Nov 2002 20:38:41 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-rc1-ac4 i686)
+	id <S261855AbSKRJig>; Mon, 18 Nov 2002 04:38:36 -0500
+Received: from packet.digeo.com ([12.110.80.53]:7099 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261836AbSKRJie>;
+	Mon, 18 Nov 2002 04:38:34 -0500
+Message-ID: <3DD8B6B9.E9EAD230@digeo.com>
+Date: Mon, 18 Nov 2002 01:45:29 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RTL8139D support for 2.4?
+To: lkml <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: Re: scsi in 2.5.48
+References: <3DD8AF65.BF2EF851@digeo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2002 09:45:29.0547 (UTC) FILETIME=[3AD5B9B0:01C28EE7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently got a local (Australian, NetComm) NIC that uses a 8139D.
-The standard 8139too seems to work with it but I wonder if I can
-get something more out of a driver that has extra support.
+Andrew Morton wrote:
+> 
+> Appears to be DOA.  Just a simple mke2fs hangs in get_request_wait().
 
-The vendor supplies a driver in
-	http://www.netcomm.com.au/one/support/drivers/NP1100_4.exe
-which contains
-	np11004.c
+This makes it work again.
 
-This is a modified rtl8139.c, based on a reasonably old version
-	1.11 7/14/2000
-The latest rtl8139.c I found is
-	1.20 6/21/2002
 
-2.4 does not anymore contain the rtl8139.c driver, but has moved
-to the 8139too.c
+--- 25/drivers/scsi/scsi_lib.c~scsi-plug	Mon Nov 18 01:42:40 2002
++++ 25-akpm/drivers/scsi/scsi_lib.c	Mon Nov 18 01:42:44 2002
+@@ -1024,7 +1024,6 @@ void scsi_request_fn(request_queue_t * q
+ 			/* can happen if the prep fails 
+ 			 * FIXME: elv_next_request() should be plugging the
+ 			 * queue */
+-			blk_plug_device(q);
+ 			break;
+ 		}
+ 
 
-Rather than use a vendor driver, is there support for this chip
-in a current (2.4) driver?
-
-Anyone knows the difference between the 8139C and 8139D?
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+_

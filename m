@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315898AbSEGTCW>; Tue, 7 May 2002 15:02:22 -0400
+	id <S315945AbSEGTEg>; Tue, 7 May 2002 15:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315952AbSEGTCV>; Tue, 7 May 2002 15:02:21 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:11524 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315898AbSEGTCU>;
-	Tue, 7 May 2002 15:02:20 -0400
-Date: Tue, 7 May 2002 11:02:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020507180237.GA1396@kroah.com>
-In-Reply-To: <20020507171946.29430@mailhost.mipsys.com> <Pine.LNX.4.33.0205071053070.6307-100000@segfault.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 09 Apr 2002 16:52:37 -0700
+	id <S315946AbSEGTEf>; Tue, 7 May 2002 15:04:35 -0400
+Received: from pD9E23EE2.dip.t-dialin.net ([217.226.62.226]:31131 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315945AbSEGTEf>; Tue, 7 May 2002 15:04:35 -0400
+Date: Tue, 7 May 2002 13:04:34 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: pfn-Functionset out of order for sparc64 in current Bk tree?
+Message-ID: <Pine.LNX.4.44.0205051708420.23089-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 11:29:10AM -0700, Patrick Mochel wrote:
-> 
-> Which gives you a default name for the device. With /sbin/hotplug, simple 
-> userspace policy, and symlinks in /dev, you can emulate the current device 
-> hierarchy. So, you get a device naming solution that gives you only the 
-> device names for the devices you have. 
-> 
-> This approach also de-emphasizes the dependency on major and minor 
-> numbers. If device nodes are created in kernel space initially, userspace 
-> doesn't need to know what the major/minor is for a particular device. The 
-> symlink to the device node is all that's need to operate on the device. 
-> 
-> Without the need to coordinate between kernel and userspace, at least some 
-> majors/minors can be dynamically allocated as the subsystems and devices 
-> are registered with the core. (These can then be exported via files in 
-> driverfs). (This is similar to the dynamic allocation of minor numbers in 
-> the USB subsystem that showed up recently...)
+Hi,
 
-And is exactly why this showed up in the USB subsystem :)
+Someone introduced, by Linus' request I remember, pfn_valid() instead of 
+PAGE_INVALID() and such. Now I try to compile on Sparc, and /mm/memory.c 
+is the first file which hits missing macros: pte_pfn, pfn_valid, 
+pfn_to_page nd pfn_pte. I grepped for some declaration and hit only the 
+two in the two-/three-level pagetable of i386. The only other occurrences 
+of pte_pfn in *.[ch] were uses, not declarations. Global grep returned 
+only two more occurrences in the Changeset.
 
-> Oh, and it's with a modern, clean filesystem, 1/5 the size of devfs. 
+ - pfn_to_page(pfn) is declared as (mem_map + (pfn)) for i386. Can this 
+   apply to Sparc64 as well?
+ - pte_pfn(x) is declared as
+   ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
+   in 2-level pgtable,
+   (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
+   in 3-level. I suppose 2-level shouldn't exactly match here, how far 
+   must the 3-level version be changed in order to fit sparc64? A lot?
+ - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
+   on Sparc64 either?
+ - pfn_pte(page,prot) is defined as
+   __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+   How far does this go for Sparc64?
 
-And it removes the dependency of devfsd and its interface, replacing it
-with the existing /sbin/hotplug interface.  This allows different people
-to implement different naming schemes if they so desire, moving naming
-policy out of the kernel into userspace, where it belongs.
+The compile error was:
 
-Yes, there will probably be a "default" naming scheme, matching what we
-have today, but the ability to replace it with another one is _so_ much
-easier than having to try to tie into devfsd (like the devreg
-implementation does: http://www-124.ibm.com/devreg/ )
+# sparc64-linux-gcc -D__KERNEL__ -I/usr/src/thunder-2.5/include -Wall 
+-Wstrict-pr\ototypes -Wno-trigraphs -O2  -fno-strict-aliasing -fno-common 
+-m64 -pipe -mno-f\pu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 
+-fcall-used-g5 -fcall-used-g7 -W\no-sign-compare -Wa,--undeclared-regs -pg 
+-DKBUILD_BASENAME=memory  -c -o mm/m\emory.o mm/memory.c
+mm/memory.c: In function `__free_pte':
+mm/memory.c:80: warning: implicit declaration of function `pte_pfn'
+mm/memory.c:81: warning: implicit declaration of function `pfn_valid'
+mm/memory.c:83: warning: implicit declaration of function `pfn_to_page'
+mm/memory.c:83: warning: assignment makes pointer from integer without a 
+cast
+mm/memory.c: In function `copy_page_range':
+mm/memory.c:289: warning: assignment makes pointer from integer without a 
+cast
+mm/memory.c: In function `zap_pte_range':
+mm/memory.c:369: warning: assignment makes pointer from integer without a 
+cast
+mm/memory.c: In function `follow_page':
+mm/memory.c:490: warning: return makes pointer from integer without a cast
+mm/memory.c: In function `remap_pte_range':
+mm/memory.c:879: invalid type argument of `->'
+mm/memory.c:880: warning: implicit declaration of function `pfn_pte'
+mm/memory.c: In function `do_wp_page':
+mm/memory.c:996: warning: assignment makes pointer from integer without a 
+cast
+
+							       Regards,
+								Thunder
+--
+if (errno == ENOTAVAIL)
+    fprintf(stderr, "Error: Talking to Microsoft server!\n");
 
 
-greg k-h

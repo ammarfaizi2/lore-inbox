@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbTARGCr>; Sat, 18 Jan 2003 01:02:47 -0500
+	id <S262602AbTARGBJ>; Sat, 18 Jan 2003 01:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbTARGCr>; Sat, 18 Jan 2003 01:02:47 -0500
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:12254
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id <S262604AbTARGCq>; Sat, 18 Jan 2003 01:02:46 -0500
-Message-ID: <3E28F016.4050404@tupshin.com>
-Date: Fri, 17 Jan 2003 22:11:34 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented?
-References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com>
-In-Reply-To: <20030118052919.GA22751@work.bitmover.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262604AbTARGBJ>; Sat, 18 Jan 2003 01:01:09 -0500
+Received: from dp.samba.org ([66.70.73.150]:42636 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262602AbTARGBJ>;
+	Sat, 18 Jan 2003 01:01:09 -0500
+Date: Sat, 18 Jan 2003 17:05:22 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: recent change to exit_mmap
+Message-ID: <20030118060522.GE7800@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
 
->As far as I can tell your complaint is that you can't have access to
->the up to minute source view without using something which violates
->your politics.
->
->  
->
-I agree with your sentiment, but you mis-characterize one thing. Jamie 
-was stating that his interpretation of the BitKeeper license forbade him 
-to use the free version of BitKeeper because of some of his non-kernel 
-related activities. This does seem to be a fair interpretation of the 
-license, according to clause 3-d, and has nothing to do with his 
-politics. Jamie is stating that it would be illegal for him to use 
-BitKeeper. Whether or not you agree with the use of BitKeeper for linux 
-kernel maintenance, it would seem like this is an unnecessarily onerous 
-clause that prevents some individuals from participating on an equal 
-footing with everybody else.
+Hi,
 
--Tupshin
+On ppc64 a 32bit task has 4GB and a 64bit task has 2TB of address space.
 
+We use a bit in the thread struct to decide which limit to apply against
+TASK_SIZE:
 
-Clause 3-d:
-            Notwithstanding  any  other  terms  in  this  License, this
-            License is not available to You if You and/or your employer
-            develop,  produce, sell, and/or resell a product which con-
-            tains substantially similar capabilities of  the  BitKeeper
-            Software,  or,  in the reasonable opinion of BitMover, com-
-            petes with the BitKeeper Software.
+#define TASK_SIZE (test_thread_flag(TIF_32BIT) ? \
+                TASK_SIZE_USER32 : TASK_SIZE_USER64)
 
+The TIF_32BIT flag gets set in the arch specific SET_PERSONALITY hook
+in load_elf_binary.
 
+After the recent changes in mm/mmap.c, the following sequence of events
+happens:
+
+1. a 64bit task tries to exec a 32bit one
+2. we reach load_elf_binary
+3. call SET_PERSONALITY which sets TIF_32BIT to true
+4. call flush_old_exec->exec_mmap->mmput->exit_mmap
+5. call unmap_vmas(,,,,TASK_SIZE,) which only flushes mappings below 4GB
+6. BUG_ON in exit_mmap
+
+It seems with the TIF_32BIT scheme we have a window between
+SET_PERSONALITY until exec returns where TASK_SIZE might be considered
+incorrect (although at which exact point to you decide that, yes we are
+now in the new context).
+
+Any ideas on how to fix this? Maybe we can move SET_PERSONALITY down
+after flush_old_exec.
+
+Anton

@@ -1,39 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVALSVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVALSao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVALSVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 13:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVALSVu
+	id S261193AbVALSao (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 13:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVALSan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 13:21:50 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:33712 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261265AbVALSUH
+	Wed, 12 Jan 2005 13:30:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42142 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261193AbVALSae
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 13:20:07 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-Date: Wed, 12 Jan 2005 18:20:02 +0000
-User-Agent: KMail/1.7.2
-References: <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <20050112174101.GA5838@infradead.org> <Pine.LNX.4.58.0501120951140.10806@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0501120951140.10806@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 13:30:34 -0500
+Date: Wed, 12 Jan 2005 13:06:12 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112150611.GB32024@logos.cnet>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501121820.02337.andrew@walrond.org>
-X-Spam-Score: 4.3 (++++)
+In-Reply-To: <20050112094807.K24171@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 17:52, Christoph Lameter wrote:
-> On Wed, 12 Jan 2005, Christoph Hellwig wrote:
-> > These smaller systems are more likely x86/x86_64 machines ;-)
->
-> But they will not have been build in 1998 either like the machine I used
-> for the i386 tests. Could you do some tests on contemporary x86/x86_64
-> SMP systems with large memory?
 
-I have various dual x86_64 systems with 1-4Gb ram. What tests do you want run?
+Hi Chris!
 
-Andrew Walrond
+On Wed, Jan 12, 2005 at 09:48:07AM -0800, Chris Wright wrote:
+> This same discussion is taking place in a few forums.  Are you opposed to
+> creating a security contact point for the kernel for people to contact
+> with potential security issues?  This is standard operating procedure
+> for many projects and complies with RFPolicy.
+> 
+> http://www.wiretrip.net/rfp/policy.html
+> 
+> Right now most things come in via 1) lkml, 2) maintainers, 3) vendor-sec.
+> It would be nice to have a more centralized place for all of this
+> information to help track it, make sure things don't fall through
+> the cracks, and make sure of timely fix and disclosure.
+
+I very much like the idea and I also think a "official" list of kernel security issues and 
+respective fixes is very much required, since not every Linux distribution is supposed
+to have kernel developers working for them, going through the whole changelogs 
+looking for security issues, which is just silly.
+
+Disclosing and bookkeeping of security issues is a job of the Linux kernel team.
+
+Alan used to list down security fixes between each v2.2 release, v2.4 has never 
+had such an official list (I'm trying to write CAN numbers on the changelogs lately), 
+neither v2.6. Its not a practical thing for Linus/Andrew to do, its a lot of
+work.
+
+It would be interesting to have all developers to know about such initiative 
+and have them send their security fixes to be logged and disclosed - its obviously
+impossible for you to read all changes in the kernel. And have Linus/Andrew 
+advocate in favour of it.
+
+IMO such initiative needs to be known by all contributors for
+it to be effective.
+
+> In addition, I think it's worth considering keeping the current stable
+> kernel version moving forward (point releases ala 2.6.x.y) for critical
+> (mostly security) bugs.  If nothing else, I can provide a subset of -ac
+> patches that are only that.
+
+Yes, -ac has been playing that role. It is general consensus that 
+such point releases are required. 
+
+Linus doesnt do it because it is too much extra work him (and he is focused
+on other things), glad you have stepped up.
+
+> I volunteer to help with _all_ of the above.  It's what I'm here for.
+> Use me, abuse me ;-)
+
+You've been doing a lot of security work/auditing in the kernel for a long time, 
+which fits the job position nicely.
+
+I'm willing to help.
+

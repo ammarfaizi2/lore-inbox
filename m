@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263311AbSITS73>; Fri, 20 Sep 2002 14:59:29 -0400
+	id <S263323AbSITTWy>; Fri, 20 Sep 2002 15:22:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263323AbSITS73>; Fri, 20 Sep 2002 14:59:29 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:40841
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S263311AbSITS72>; Fri, 20 Sep 2002 14:59:28 -0400
-Message-ID: <3D8B7157.6040205@redhat.com>
-Date: Fri, 20 Sep 2002 12:04:55 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020812
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de>
-X-Enigmail-Version: 0.65.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263326AbSITTWy>; Fri, 20 Sep 2002 15:22:54 -0400
+Received: from [216.38.156.94] ([216.38.156.94]:38407 "EHLO
+	mail.networkfab.com") by vger.kernel.org with ESMTP
+	id <S263323AbSITTWx>; Fri, 20 Sep 2002 15:22:53 -0400
+Subject: Re: USB - scanner - devel
+From: Dmitri <dmitri@users.sourceforge.net>
+To: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
+Cc: sane-devel@www.mostang.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020920184530.84F7F6511A@mallaury.noc.nerim.net>
+References: <20020920184530.84F7F6511A@mallaury.noc.nerim.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iN4whEiyzr2YVN1ayJyD"
+Organization: 
+Message-Id: <1032550079.13913.51.camel@usb.networkfab.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 20 Sep 2002 12:27:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Adrian Bunk wrote:
+--=-iN4whEiyzr2YVN1ayJyD
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> My personal estimation is that Debian will support kernel 2.4 in it's
-> stable distribution until 2006 or 2007 (this is based on the experience
-> that Debian usually supports two stable kernel series and the time between
-> stable releases of Debian is > 1 year). What is the proposed way for
-> distributions to deal with this?
+On Fri, 2002-09-20 at 11:45, Yann E. MORIN wrote:
 
-Two ways:
+> I've just had a brand new Canon CanoScan N676U. I hope it works great as =
+it
+> is not yet supported by Sane. That's why I volunteer to add support for t=
+his
+> device in Sane.
+>=20
+> Could someone please point me to documents / source code / URLs / RFC /
+> whatever is of interest to start coding a new backend for sane and to
+> understand USB programming (kernel Guys, ideas?) ?
 
-- - continue to use the old code
+A generic USB scanner driver is already available. It might work for
+you; then all you need is to add SANE backend (or to hack an existing
+one). If the USB driver works (it is simple) then you don't need to know
+anything about USB.
 
-- - backport the required functionality
+The USB development mailing list can be found at
+http://www.linux-usb.org/
+
+Dmitri
 
 
-Note that not all the changes Ingo made have to be ported back to 2.4. 
-Only those required for correct execution, not the optimizations.
+--=-iN4whEiyzr2YVN1ayJyD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Whether Marcello is interested in this I cannot say, I doubt it though. 
-  But this does not mean you cannot have such a kernel in Debian.
-
-- -- 
-- ---------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQE9i3Fb2ijCOnn/RHQRAlC+AJ9kXWMdkfuORtodijTXQ+Hnah0ZYQCfZkOT
-Axzw/z1VEFVXIQdZ4d8PLe4=
-=ptvg
+iD8DBQA9i3a/XksyLpO6T4IRAlF3AJ9Nb43gdo7g8q3VlsKd5X124xDRDgCfawhH
+623DhJeOP6WGccBRVfH8tzE=
+=kara
 -----END PGP SIGNATURE-----
+
+--=-iN4whEiyzr2YVN1ayJyD--
 

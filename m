@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSE2IkT>; Wed, 29 May 2002 04:40:19 -0400
+	id <S314525AbSE2IkP>; Wed, 29 May 2002 04:40:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSE2IkS>; Wed, 29 May 2002 04:40:18 -0400
-Received: from gw.lowendale.com.au ([203.26.242.120]:55367 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S314546AbSE2IkR>; Wed, 29 May 2002 04:40:17 -0400
-Date: Wed, 29 May 2002 19:25:16 +1000 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: odd timer bug, similar to VIA 686a symptoms
-Message-ID: <Pine.LNX.4.05.10205291912340.2523-100000@marina.lowendale.com.au>
+	id <S314548AbSE2IkO>; Wed, 29 May 2002 04:40:14 -0400
+Received: from mail.ellinger.de ([213.221.125.211]:45740 "EHLO
+	mail.ellinger.de") by vger.kernel.org with ESMTP id <S314525AbSE2IkO> convert rfc822-to-8bit;
+	Wed, 29 May 2002 04:40:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rainer Ellinger <rainer@ellinger.de>
+Organization: Rainers Rechenzentrum
+Message-Id: <200205291038.37240@ellinger.de>
+To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+Subject: Re: module question
+Date: Wed, 29 May 2002 10:40:02 +0200
+In-Reply-To: <03781128C7B74B4DBC27C55859C9D7380984062E@es06snlnt>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Shipman, Jeffrey E wrote:
+> I have been assigned to a project where we are trying to fool
+> OS footprinters into thinking the machine is running another
+> OS. I was thinking I could write a module which registers
 
-Using Vojtech's arch/i386/kernel/time.c patch ported to 2.2[1], I recently
-got the "via686a" bug check triggered after the machine suspended itself
-due low battery, including the following lines grepped and snipped out of
-kern.log:
+Some links that might be interesting for you:
 
-May 28 11:19:49 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-May 28 11:19:50 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-May 28 11:19:51 gull kernel: timer.c: VIA bug check triggered. Value read 65499 [0xffdb], re-read 65484 [0xffcc]
-May 28 11:19:52 gull kernel: timer.c: VIA bug check triggered. Value read 65498 [0xffda], re-read 65484 [0xffcc]
-May 28 11:19:53 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-May 28 11:19:54 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65485 [0xffcd]
-May 28 11:19:55 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-May 28 11:19:56 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-May 28 11:19:57 gull kernel: timer.c: VIA bug check triggered. Value read 65499 [0xffdb], re-read 65484 [0xffcc]
-May 28 11:19:58 gull kernel: timer.c: VIA bug check triggered. Value read 65497 [0xffd9], re-read 65483 [0xffcb]
+http://ippersonality.sourceforge.net/
+http://www.stearns.org/p0f/
 
-Anyone got any good theories what's going on here, given that this is a
-~1995 vintage laptop with a Pentium-120 (which I'm assured doesn't have a
-VIA 686a ;-)?
-
-Thanks,
-Neale.
-
-[1] OK, I stuffed part of the porting of Vojtech's patch (revised version
-to come Real Soon Now) but that shouldn't affect the validity of the
-greppage from kern.log
-
-
+-- 
+rainer@ellinger.de

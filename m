@@ -1,43 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSGBUkn>; Tue, 2 Jul 2002 16:40:43 -0400
+	id <S316896AbSGBUfU>; Tue, 2 Jul 2002 16:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSGBUkm>; Tue, 2 Jul 2002 16:40:42 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.34.67]:30066 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S310190AbSGBUkl>;
-	Tue, 2 Jul 2002 16:40:41 -0400
-Date: Tue, 2 Jul 2002 02:47:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Robert Love <rml@ufl.edu>
-Cc: Pradeep Padala <ppadala@cise.ufl.edu>,
-       Andrew D Kirch <Trelane@Trelane.Net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace vs /proc
-Message-ID: <20020702004706.GB107@elf.ucw.cz>
-References: <Pine.LNX.4.44.0206201742170.18444-100000@lin114-02.cise.ufl.edu> <1024609747.922.0.camel@sinai>
+	id <S316897AbSGBUfT>; Tue, 2 Jul 2002 16:35:19 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:40199 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S316896AbSGBUfS>; Tue, 2 Jul 2002 16:35:18 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: viro@math.psu.edu
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Filter /proc/mounts based on process root dir
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1024609747.922.0.camel@sinai>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+Date: Tue, 02 Jul 2002 13:37:22 -0700
+Message-Id: <E17PUOo-0003ol-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > As far as I could investigate, I didn't find any such interface in linux. 
-> > Programs like strace do the tracing through ptrace only.
-> > 
-> > Please let me know if you know more about this.
-> 
-> There is no such interface in Linux and currently no plans to develop a
-> Solaris-style /proc.
+This patch causes /proc/mounts to only display entries for mountpoints
+within the current process root. This makes df and friends behave more
+nicely in a chroot jail or with rootfs.
 
-I believe such proc interface is wrong thing to do. ptrace() is really
-very *very* special thing, and you don't want it hidden in some kind
-of /proc magic.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Most of the logic in proc_check_root() is moved to a new function,
+is_namespace_subdir(), which checks whether the given mount/dentry
+refers to a subdirectory of the process root directory in the current
+namespace. show_vfsmount() now returns without adding an output line if
+is_namespace_subdir() returns false for a given mountpoint.
+
+Paul
+
+diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/fs/namespace.c linux-2.5.24-mounts/fs/namespace.c
+--- linux-2.5.24/fs/namespace.c	Wed Jun 26 01:07:20 2002
++++ linux-2.5.24-mounts/fs/namespace.c	Wed Jun 26 01:17:42 2002
+@@ -38,6 +38,36 @@
+ 	return tmp & hash_mask;
+ }
+ 
++/* Check whether the given mount/dentry is contained within our root */
++int is_namespace_subdir(struct vfsmount *vfsmnt, struct dentry *dentry) {
++    
++	struct vfsmount *our_vfsmnt;
++	struct dentry   *our_root;
++	int res = 0;
++	
++	spin_lock(&dcache_lock); /* also protects access to current->fs */
++	
++	our_vfsmnt = current->fs->rootmnt;
++	our_root = current->fs->root;
++
++	while(vfsmnt != our_vfsmnt) {
++		if(vfsmnt == vfsmnt->mnt_parent) 
++			goto out;
++		dentry = vfsmnt->mnt_mountpoint;
++		vfsmnt = vfsmnt->mnt_parent;
++	}
++	
++	if(!is_subdir(dentry, our_root))
++		goto out;
++	
++	res = 1;
++ out:
++	spin_unlock(&dcache_lock);
++	return res;
++}
++
++
++
+ struct vfsmount *alloc_vfsmnt(char *name)
+ {
+ 	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL); 
+@@ -212,6 +242,9 @@
+ 	struct proc_fs_info *fs_infop;
+ 	char *path_buf, *path;
+ 
++	if(!is_namespace_subdir(mnt, mnt->mnt_root))
++		return 0;
++
+ 	path_buf = (char *) __get_free_page(GFP_KERNEL);
+ 	if (!path_buf)
+ 		return -ENOMEM;
+diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/fs/proc/base.c linux-2.5.24-mounts/fs/proc/base.c
+--- linux-2.5.24/fs/proc/base.c	Tue Jun 18 19:11:46 2002
++++ linux-2.5.24-mounts/fs/proc/base.c	Wed Jun 26 01:19:01 2002
+@@ -265,42 +265,19 @@
+ 
+ static int proc_check_root(struct inode *inode)
+ {
+-	struct dentry *de, *base, *root;
+-	struct vfsmount *our_vfsmnt, *vfsmnt, *mnt;
++	struct dentry *root;
++	struct vfsmount *mnt;
+ 	int res = 0;
+ 
+ 	if (proc_root_link(inode, &root, &vfsmnt)) /* Ewww... */
+ 		return -ENOENT;
+-	read_lock(&current->fs->lock);
+-	our_vfsmnt = mntget(current->fs->rootmnt);
+-	base = dget(current->fs->root);
+-	read_unlock(&current->fs->lock);
+ 
+-	spin_lock(&dcache_lock);
+-	de = root;
+-	mnt = vfsmnt;
++	if(!is_namespace_subdir(mnt, root))
++		res = -EACCES;
+ 
+-	while (vfsmnt != our_vfsmnt) {
+-		if (vfsmnt == vfsmnt->mnt_parent)
+-			goto out;
+-		de = vfsmnt->mnt_mountpoint;
+-		vfsmnt = vfsmnt->mnt_parent;
+-	}
+-
+-	if (!is_subdir(de, base))
+-		goto out;
+-	spin_unlock(&dcache_lock);
+-
+-exit:
+-	dput(base);
+-	mntput(our_vfsmnt);
+ 	dput(root);
+ 	mntput(mnt);
+ 	return res;
+-out:
+-	spin_unlock(&dcache_lock);
+-	res = -EACCES;
+-	goto exit;
+ }
+ 
+ static int proc_permission(struct inode *inode, int mask)
+diff -Naur -X /mnt/elbrus/home/pmenage/dontdiff linux-2.5.24/include/linux/namespace.h linux-2.5.24-mounts/include/linux/namespace.h
+--- linux-2.5.24/include/linux/namespace.h	Tue Jun 18 19:11:55 2002
++++ linux-2.5.24-mounts/include/linux/namespace.h	Tue Jun 25 19:35:25 2002
+@@ -43,5 +43,6 @@
+ 	atomic_inc(&namespace->count);
+ }
+ 
++extern int is_namespace_subdir(struct vfsmount *, struct dentry *);
+ #endif
+ #endif
+
+
+

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbTIOPKE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 11:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbTIOPKE
+	id S261433AbTIOPFq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 11:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTIOPFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 11:10:04 -0400
-Received: from pat.uio.no ([129.240.130.16]:18584 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261460AbTIOPKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 11:10:01 -0400
+	Mon, 15 Sep 2003 11:05:46 -0400
+Received: from pc3-hitc2-5-cust152.lutn.cable.ntl.com ([81.99.82.152]:55461
+	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
+	id S261433AbTIOPFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 11:05:44 -0400
+Message-ID: <3F65D69B.5000707@reactivated.net>
+Date: Mon, 15 Sep 2003 16:11:23 +0100
+From: Daniel Drake <dsd@reactivated.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16229.54852.834931.495479@charged.uio.no>
-Date: Mon, 15 Sep 2003 11:09:56 -0400
-To: Norbert Preining <preining@logic.at>
+To: Nick Piggin <piggin@cyberone.com.au>, alan@lxorguk.ukuu.org.uk,
+       amir@montilio.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
-In-Reply-To: <20030915093110.GD2268@gamma.logic.tuwien.ac.at>
-References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
-	<shs3cezap0u.fsf@charged.uio.no>
-	<20030915093110.GD2268@gamma.logic.tuwien.ac.at>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Subject: Re: Developing Kernel Code newbie
+References: <000d01c37b5f$47722b80$1101a8c0@CARTMAN> <3F6579CD.5010609@cyberone.com.au> <3F658B36.2010503@reactivated.net> <3F658BF1.6070703@cyberone.com.au>
+In-Reply-To: <3F658BF1.6070703@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Norbert Preining <preining@logic.at> writes:
 
-     > Hmmm, that sounds very strange, since I used the same gcc for
-     > the previous kernels (pre3 and before), too!?
 
-If it's gcc-3.3.2-0pre3 (the current most recent gcc in sid) then I
-spent most of Saturday compiling various kernels (including a 2.4.22
-that used to work). Every kernel I compiled with that particular
-revision showed the ide-scsi irq timeout bug on bootup. Furthermore,
-/dev/hdc was unreadable...
+Nick Piggin wrote:
+> If you are a _programming_ beginner, you're setting your sights a too high
+> and will probably get frustrated.
 
-Dropping back to gcc-3.2 and the same kernel, same config,
-same... works fine (including 2.4.23-pre4).
+I'm not a beginner to programming, been doing it since an early age. 
+That said, I have very little experience of "pro" programming - I am 
+still in full time education.
+Still, it is definately a high target, and will take some time getting 
+used to.
 
-Now it may indeed be that the problem is a missing 'barrier()' or
-something like that in the ide code, but I haven't got the time to try
-to track it down...
+I wrote my first patch yesterday, very very basic but its a start! (just 
+simply makes the usblp driver output its debug info into dmesg when 
+CONFIG_USB_DEBUG is set).
 
-Cheers,
-  Trond
+Alan Cox wrote:
+ > The kernel is cool, but it is a large piece of code with a lot of ideas
+ > in it that some folks find challenging (interrupts, multiprocessing,
+ > threads and locking) [One thing to be said at least the Java taught
+ > university folks understand some of this unlike those they used to feed
+ > pascal]
+ >
+ > Have fun but if you find the kernel daunting and hard work, don't give
+ > up but pick up something smaller, easier to understand and use a
+ > debugger on - like desktop applications, then come back and try the
+ > kernel again later.
+
+I think thats where I'm heading, thanks for the advice.
+
+
+
+Amir: Here are a few URL's I have stored for this topic. I have yet to 
+study them in detail.
+
+http://jungla.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+http://www.kernelnewbies.org
+http://en.tldp.org/LDP/khg/HyperNews/get/khg.html
+
+Thanks.
+

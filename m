@@ -1,119 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269523AbTGOTVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbTGOTVq
+	id S269194AbTGOTU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269506AbTGOTU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:21:46 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.29]:23935 "EHLO
-	mwinf0204.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S269523AbTGOTVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:21:40 -0400
-Date: Tue, 15 Jul 2003 21:35:45 +0200
-From: "Jean-Luc Coulon (f5ibh)" <jean-luc.coulon@wanadoo.fr>
+	Tue, 15 Jul 2003 15:20:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:52917 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269194AbTGOTUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 15:20:46 -0400
+Message-Id: <200307151935.h6FJZak09872@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org
-Subject: Matrox Millenium and framebuffer
-Message-ID: <20030715193545.GA1024@tangerine>
+cc: kernelnewbies@nl.linux.org
+Subject: [STP] stp 2.1.0 escapes, re-aim re-announce, results
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.12
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Jul 2003 12:35:36 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've a Matrox Millenium card and I want to run the framebuffer.
-I've set the following configuration :
+Several items in one email, more text than data, sorry. 
+We've done an update of the Scalable Test Platform code, (rev 2.1.0)
+ added a BK repo in addition to Sourceforge CVS, _we think STP is much better 
+now.
+The email to the test requestors is much improved, especially when the
+kernel fails, and the results are more complete.
 
-# Frame-buffer support
-#
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_CLGEN is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_PM3 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_VESA is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_HGA is not set
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_MILLENIUM=y
-# CONFIG_FB_MATROX_MYSTIQUE is not set
-# CONFIG_FB_MATROX_G450 is not set
-# CONFIG_FB_MATROX_G100A is not set
-CONFIG_FB_MATROX_PROC=m
-# CONFIG_FB_MATROX_MULTIHEAD is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_INTEL is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_MFB=y
-# CONFIG_FBCON_CFB2 is not set
-# CONFIG_FBCON_CFB4 is not set
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-# CONFIG_FBCON_AFB is not set
-# CONFIG_FBCON_ILBM is not set
-# CONFIG_FBCON_IPLAN2P2 is not set
-# CONFIG_FBCON_IPLAN2P4 is not set
-# CONFIG_FBCON_IPLAN2P8 is not set
-# CONFIG_FBCON_MAC is not set
+If you've tried us in the past, give it another go, send your cards, letters 
+and
+complaints on in. Also, any suggestions for new tests are most appreciated. 
 
+Speaking of new tests, the AIM 7/9 rework, "reaim" is now running on STP and
+code bundles are available. I hope to actually finish working on the code 
+sometime
+after OLS, please send patches/complaints to me.
 
-And I pass the parameter video=matrox to the kernel.
-I tried video=matrox:vesa=<something> without any success.
+There is a comparison graph and reports on 7 recent kernels at:
+http://www.osdl.org/archive/cliffw/reaim/index.html 
+We are looking for some better ways of doing results via email. The reaim test
+does produce lovely graphs, (if i do say so myself)
+ which is why i'm sending pointers to Web pages.
 
-Here are the boot lines from dmesg :
+We're talking about a magic-results-diff generator on 
+stp-devel@lists.sourceforge.net,
+please join the agru^H^H^H^H fun.
 
-[root@tangerine] /usr/src/linux/drivers/video/matrox # dmesg | more
-Linux version 2.4.21 (root@tangerine) (version gcc 3.3.1 20030626 
-(Debian prerel
-ease)) #1 mar jui 15 18:40:01 CEST 2003 matroxfb_Ti3026.c
-BIOS-provided physical RAM map:50.h     matroxfb_Ti3026.h
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)s 
-matroxfb_base.c  BIOS-e820: 0000000000100000 - 0000000017ffc000 
-(usable)ess /boot/
-config
-  BIOS-e820: 0000000017ffc000 - 0000000017fff000 (ACPI data)
-  BIOS-e820: 0000000017fff000 - 0000000018000000 (ACPI NVS)s /boot/
-config-2.4.21  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-383MB LOWMEM available.
-On node 0 totalpages: 98300
-zone(0): 4096 pages.
-zone(1): 94204 pages.
-zone(2): 0 pages.
-Kernel command line: root=/dev/hda2 reboot=warm hdc=ide-scsi hdd=ide-
-scsi pci=bi
-osirq video=matrox
-ide_setup: hdc=ide-scsi
-ide_setup: hdd=ide-scsi
-Initializing CPU#0
-Detected 501.160 MHz processor.
-Console: colour VGA+ 80x25
+Quick text summary:
 
-If I compile a vesa framebuffer, it works but not accelerated.
+Rough Averages
+2.4.21 Peak load Test: Maximum Jobs per Minute 5220.50 (average of 3 runs)
+2.4.21 run two Peak load Test: Maximum Jobs per Minute 5177.56 (average of 3 
+runs)
+2.5.71 Peak load Test: Maximum Jobs per Minute 5337.25 (average of 3 runs)
+2.5.72 Peak load Test: Maximum Jobs per Minute 5344.51 (average of 3 runs)
+2.5.74 Peak load Test: Maximum Jobs per Minute 5314.85 (average of 3 runs)
+2.5.75 Peak load Test: Maximum Jobs per Minute 5375.74 (average of 3 runs)
+2.5.75-mm1 Peak load Test: Maximum Jobs per Minute 5265.65 (average of 3 runs)
+2.6.0-test1 Peak load Test: Maximum Jobs per Minute 5368.09 (average of 3 runs)
 
----
-Regards
-	Jean-Luc
+cliffw 
+OSDL
 
-----------------------------------------------------------------------------
-Jean-Luc Coulon
-28 rue d'Evette
-90350 Evette-Salbert
-FRANCE

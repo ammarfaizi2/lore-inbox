@@ -1,84 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263693AbTEEQ6W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTEEQ6U
+	id S263717AbTEEQ4c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTEEQ4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:58:20 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:32709 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263715AbTEEQ4l (ORCPT
+	Mon, 5 May 2003 12:56:02 -0400
+Received: from mail.goshen.edu ([199.8.232.22]:63956 "EHLO mail.goshen.edu")
+	by vger.kernel.org with ESMTP id S263700AbTEEQyu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:56:41 -0400
-Date: Mon, 5 May 2003 10:06:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Jonathan Brassow <brassow@sistina.com>
+	Mon, 5 May 2003 12:54:50 -0400
+Subject: Re: partitions in meta devices
+From: Ezra Nugroho <ezran@goshen.edu>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: garbage in /proc/partitions (kernel 2.4.20)
-Message-Id: <20030505100620.4dccbc9b.rddunlap@osdl.org>
-In-Reply-To: <CC0FB215-7F1A-11D7-86A4-000393B0089A@sistina.com>
-References: <CC0FB215-7F1A-11D7-86A4-000393B0089A@sistina.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <3EB69883.8090609@gmx.net>
+References: <1052153060.29588.196.camel@ezran.goshen.edu>
+		<3EB693B1.9020505@gmx.net> <1052153834.29676.219.camel@ezran.goshen.edu> 
+	<3EB69883.8090609@gmx.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
+Date: 05 May 2003 12:21:24 -0500
+Message-Id: <1052155284.29676.250.camel@ezran.goshen.edu>
+Mime-Version: 1.0
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 May 2003 11:58:30 -0500 Jonathan Brassow <brassow@sistina.com> wrote:
+On Mon, 2003-05-05 at 11:59, Carl-Daniel Hailfinger wrote:
+> Ezra Nugroho wrote:
+> > On Mon, 2003-05-05 at 11:39, Carl-Daniel Hailfinger wrote:
+> > 
+> >>Ezra Nugroho wrote:
+> >>
+> >>>however, I couldn't create any file system for them, or mount them.
+> >>>/dev/md0px just don't exist.
+> >>>
+> >>
+> >>Please reboot after partitioning.
+> > 
+> > I did. Nothing changed. fdisk reported the changes still.
+> 
+> OK. Maybe I wasn't clear enough.
+> 1. Partition a drive
+> 2. Reboot
+> 3. Now the kernel should see the partitions and let you create file
+> systems on them.
 
-| There is garbage in the /proc/partions "file" when the partition 
-| information exceeds the page size.  It is a problem that lies in the 
-| interaction between linux/fs/seq_file.c:seq_read() and the 
-| seq_operations defined in linux/drivers/block/genhd.c.
-| 
-| I believe that the offending is in the following section of seq_read():
-|          /* we need at least one record in buffer */
-|          while (1) {
-|                  pos = m->index;
-|                  p = m->op->start(m, &pos);
-|                  err = PTR_ERR(p);
-|                  if (!p || IS_ERR(p))
-|                          break;
-|                  err = m->op->show(m, p);
-|                  if (err)
-|                          break;
-|                  if (m->count < m->size)
-|                          goto Fill;
-|                  m->op->stop(m, p);
-|                  kfree(m->buf);
-|                  m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
-|                  if (!m->buf)
-|                          goto Enomem;
-|          }
-| 
-| What seems to happen is that the partition information does not fit in 
-| m-buf, so 2x the amount of memory is allocated.  However, "count" 
-| doesn't seem to be reset, so really, there is still only one page to 
-| use instead of two (count points to the end of the first page).  Again 
-| we malloc more space - this time 4 pages worth.  Count is still not 
-| reset, but now we have 2 pages worth of space to use and the operations 
-| succeed.  When the buffer is copied to user space, we have a whole 
-| bunch of garbage, followed by the correct information.
-| 
-| On the surface, it would appear that the right thing to do is set 
-| "count" to zero at the end of the while loop.
-| diff -urN linux-2.4.20/fs/seq_file.c linux-2.4.20-patched/fs/seq_file.c
-| --- linux-2.4.20/fs/seq_file.c  Sat Nov 17 20:16:22 2001
-| +++ linux-2.4.20-patched/fs/seq_file.c  Fri May  2 14:16:41 2003
-| @@ -94,6 +94,7 @@
-|                  m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
-|                  if (!m->buf)
-|                          goto Enomem;
-| +               m->count = 0;
-|          }
-|          m->op->stop(m, p);
-|          goto Done;
-| 
+Did all that, kernel didn't see the partition.
+ 
+> You rebooted and fdisk sees the partitions now. Fine. Please try to
+> mke2fs /dev/md0p1
 
-Correct patch is already in 2.4.21-rc1 (and likely before -rc1).
+This didn't work, because /dev/md0p1 doesn't exists.
 
---
-~Randy
+> That should work. If it doesn't, devfs could be the problem.
+
+It could be.
+ 
+> Could you please tell us which kernel version you're using?
+
+My linux is:
+Linux version 2.4.20 (root@localhost) (gcc version 3.2.2)
+
+kernel config related to raid:
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+CONFIG_MD_MULTIPATH=m
+# CONFIG_BLK_DEV_LVM is not set
+
+
+My raidtab is:
+       raiddev /dev/md0
+           raid-level              5
+           nr-raid-disks           3
+           nr-spare-disks          0
+           persistent-superblock   1
+           chunk-size              32
+           parity-algorithm        left-symmetric
+
+           device                  /dev/hdc
+           raid-disk               0
+           device                  /dev/hde
+           raid-disk               1
+           device                  /dev/hdg
+           raid-disk               2
+
+
+any idea?
+

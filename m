@@ -1,80 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUBBUnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUBBT7p
+	id S265838AbUBBU3I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBU25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:59:45 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:21133 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265916AbUBBT6s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:58:48 -0500
-Date: Mon, 2 Feb 2004 20:58:47 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 29/42]
-Message-ID: <20040202195847.GC6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+	Mon, 2 Feb 2004 15:28:57 -0500
+Received: from ns.suse.de ([195.135.220.2]:41689 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265766AbUBBU21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 15:28:27 -0500
+Date: Mon, 2 Feb 2004 20:51:39 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
+Message-ID: <20040202195139.GB2534@pingi3.kke.suse.de>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <401E4A80.4050907@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+In-Reply-To: <401E4A80.4050907@web.de>
+User-Agent: Mutt/1.4.1i
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.4.21-166-default i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 02, 2004 at 02:02:56PM +0100, Todor Todorov wrote:
+> Hello everyone,
+> 
+> didn't find any more applicabale mailing list, so here it goes:
+> 
 
-matroxfb_g450.c:134: warning: duplicate `const'
-matroxfb_g450.c:135: warning: duplicate `const'
-matroxfb_g450.c:561: warning: unused variable `minfo'
-matroxfb_maven.c:359: warning: duplicate `const'
-matroxfb_maven.c:360: warning: duplicate `const'
-
-Remove const qualifier, it's useless.
-Remove unused variable.
-
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/video/matrox/matroxfb_g450.c linux-2.4/drivers/video/matrox/matroxfb_g450.c
---- linux-2.4-vanilla/drivers/video/matrox/matroxfb_g450.c	Fri Jun 13 16:51:37 2003
-+++ linux-2.4/drivers/video/matrox/matroxfb_g450.c	Sat Jan 31 18:20:31 2004
-@@ -128,8 +128,8 @@
- }
- 
- static void g450_compute_bwlevel(CPMINFO int *bl, int *wl) {
--	const int b = ACCESS_FBINFO(altout.tvo_params.brightness) + BLMIN;
--	const int c = ACCESS_FBINFO(altout.tvo_params.contrast);
-+	int b = ACCESS_FBINFO(altout.tvo_params.brightness) + BLMIN;
-+	int c = ACCESS_FBINFO(altout.tvo_params.contrast);
- 
- 	*bl = max(b - c, BLMIN);
- 	*wl = min(b + c, WLMAX);
-@@ -558,8 +558,6 @@
- }
- 
- static int matroxfb_g450_verify_mode(void* md, u_int32_t arg) {
--	MINFO_FROM(md);
--	
- 	switch (arg) {
- 		case MATROXFB_OUTPUT_MODE_PAL:
- 		case MATROXFB_OUTPUT_MODE_NTSC:
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/video/matrox/matroxfb_maven.c linux-2.4/drivers/video/matrox/matroxfb_maven.c
---- linux-2.4-vanilla/drivers/video/matrox/matroxfb_maven.c	Fri Jun 13 16:51:37 2003
-+++ linux-2.4/drivers/video/matrox/matroxfb_maven.c	Sat Jan 31 18:20:47 2004
-@@ -353,8 +353,8 @@
- 
- static void maven_compute_bwlevel (const struct maven_data* md,
- 				   int *bl, int *wl) {
--	const int b = md->primary_head->altout.tvo_params.brightness + BLMIN;
--	const int c = md->primary_head->altout.tvo_params.contrast;
-+	int b = md->primary_head->altout.tvo_params.brightness + BLMIN;
-+	int c = md->primary_head->altout.tvo_params.contrast;
- 
- 	*bl = max(b - c, BLMIN);
- 	*wl = min(b + c, WLMAX);
+try the actual I4L for 2.6 patch in 
+ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
 
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Una donna sposa un uomo sperando che cambi, e lui non cambiera`. Un
-uomo sposa una donna sperando che non cambi, e lei cambiera`.
+Karsten Keil
+SuSE Labs
+ISDN development

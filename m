@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315451AbSEUTLd>; Tue, 21 May 2002 15:11:33 -0400
+	id <S315452AbSEUTOS>; Tue, 21 May 2002 15:14:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315452AbSEUTLc>; Tue, 21 May 2002 15:11:32 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:2956 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S315451AbSEUTLb>;
-	Tue, 21 May 2002 15:11:31 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200205211910.XAA06681@sex.inr.ac.ru>
-Subject: Re: [PATCH] Tasklet cleanup
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Tue, 21 May 2002 23:10:22 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <E17A4GO-0003uj-00@wagner.rustcorp.com.au> from "Rusty Russell" at May 21, 2 05:40:55 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S315454AbSEUTOR>; Tue, 21 May 2002 15:14:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30220 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315452AbSEUTOQ>;
+	Tue, 21 May 2002 15:14:16 -0400
+Message-ID: <3CEA9C42.B2871594@zip.com.au>
+Date: Tue, 21 May 2002 12:13:06 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Meelis Roos <mroos@linux.ee>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.17: ide & ext2 unresolved symbols in modules
+In-Reply-To: <Pine.GSO.4.43.0205212200500.19324-100000@romulus.cs.ut.ee>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Meelis Roos wrote:
+> 
+> depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/drivers/ide/ide-disk.o
+> depmod:         udma_tcq_enable
 
-> Alexey, not sure why you exported tasklet_vec & tasklet_hi_vec?
+Not sure.
 
-Maybe, they were used in some inlines, when the exports were added.
-Maybe, it was a mud. If they can be static... amen.
+> depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/drivers/ide/ide-mod.o
+> depmod:         blk_get_request
 
-Alexey
+Needs exporting.  I'll let Jens do that...
+
+> depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/fs/ext2/ext2.o
+> depmod:         write_mapping_buffers
+
+Needs to be exported.  I'll fix that.
+
+Thanks.
+
+-

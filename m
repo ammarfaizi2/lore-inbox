@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSFDMXP>; Tue, 4 Jun 2002 08:23:15 -0400
+	id <S316598AbSFDMcP>; Tue, 4 Jun 2002 08:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316598AbSFDMXO>; Tue, 4 Jun 2002 08:23:14 -0400
-Received: from pat.uio.no ([129.240.130.16]:20632 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S316342AbSFDMXN>;
-	Tue, 4 Jun 2002 08:23:13 -0400
-To: Matthias Welk <welk@fokus.gmd.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs slowdown since 2.5.4
-In-Reply-To: <200206041253.44446.welk@fokus.gmd.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 Jun 2002 14:23:07 +0200
-Message-ID: <shsg0032pxw.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S316600AbSFDMcO>; Tue, 4 Jun 2002 08:32:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:62917 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S316598AbSFDMcN>;
+	Tue, 4 Jun 2002 08:32:13 -0400
+Date: Tue, 4 Jun 2002 14:32:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 RAID5 compile error
+Message-ID: <20020604123205.GD1105@suse.de>
+In-Reply-To: <04cf01c20b2d$96097030$f6de11cc@black> <20020604115132.GZ1105@suse.de> <15612.43734.121255.771451@notabene.cse.unsw.edu.au> <20020604115842.GA5143@suse.de> <15612.44897.858819.455679@notabene.cse.unsw.edu.au> <20020604122105.GB1105@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Matthias Welk <welk@fokus.gmd.de> writes:
+On Tue, Jun 04 2002, Jens Axboe wrote:
+> plug? Wrt umem, it seems you could keep 'card' in the queuedata. Same
+> for raid5 and conf.
 
-     > Hi, since 2.5.4 I noticed a big slowdown in nfs.  It seems that
-     > this is related to the changes in the nfs-lookup code, because
-     > now most traffic via nfs is for lookup- and getattr-calls as
-     > you can see in the attached tcpdump log.  I'v also attached a
-     > log of nfsstat, which shows this problem too.
+Ok by actually looking at it, both card and conf are the queues
+themselves. So I'd say your approach is indeed a bit overkill. I'll send
+a patch in half an hour for you to review.
 
-Tough... Those extra checks are needed in order to ensure data cache
-correctness on file open().
+-- 
+Jens Axboe
 
-If you think you don't need them because the files that you are
-reading are known never to change on the server, you can try mounting
-with the 'nocto' mount option.
-
-Cheers,
-  Trond

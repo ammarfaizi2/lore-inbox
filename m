@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRKMQud>; Tue, 13 Nov 2001 11:50:33 -0500
+	id <S276751AbRKMQyX>; Tue, 13 Nov 2001 11:54:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276707AbRKMQu0>; Tue, 13 Nov 2001 11:50:26 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:10001 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S276477AbRKMQsw>;
-	Tue, 13 Nov 2001 11:48:52 -0500
-Date: Tue, 13 Nov 2001 09:47:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.4.14 in USB? Appletalk?
-Message-ID: <20011113094752.D31479@kroah.com>
-In-Reply-To: <1005626975.3296.2.camel@gromit.house>
+	id <S276477AbRKMQyN>; Tue, 13 Nov 2001 11:54:13 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:24594 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S274757AbRKMQyH>; Tue, 13 Nov 2001 11:54:07 -0500
+Date: Tue, 13 Nov 2001 16:53:54 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: dalecki@evision.ag
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Merge BUG in 2.4.15-pre4 serial.c
+Message-ID: <20011113165354.D21298@flint.arm.linux.org.uk>
+In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu> <3BF14F14.21D66343@evision-ventures.com> <20011113162111.B21298@flint.arm.linux.org.uk> <3BF15A72.793A1BF2@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1005626975.3296.2.camel@gromit.house>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 16 Oct 2001 16:19:01 -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF15A72.793A1BF2@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Nov 13, 2001 at 06:37:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 11:49:34PM -0500, Michael Rothwell wrote:
-> This oops is from booting a RH 7.2 system after installing 2.4.14 +
-> ext3.
+On Tue, Nov 13, 2001 at 06:37:54PM +0100, Martin Dalecki wrote:
+> Pushing the port numbers artificially behind doesn't make sense for me
+> and makes some setserial unknown tricks neccessary for irtty setup.
 
-Can you try 2.4.15-pre4?  This problem should be fixed in that version.
+The key words here are "for me".
 
-thanks,
+What setserial "unknown tricks" are you referring to?
 
-greg k-h
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317115AbSHAVSf>; Thu, 1 Aug 2002 17:18:35 -0400
+	id <S317072AbSHAVMR>; Thu, 1 Aug 2002 17:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSHAVSf>; Thu, 1 Aug 2002 17:18:35 -0400
-Received: from nemesis.systems.pipex.net ([62.241.160.8]:29588 "EHLO
-	nemesis.systems.pipex.net") by vger.kernel.org with ESMTP
-	id <S317115AbSHAVSd>; Thu, 1 Aug 2002 17:18:33 -0400
-Subject: 2.4.19-rc5: boot failure with IO-APIC built in
-From: Alastair Stevens <alastair@camlinux.co.uk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020720194403.B21534@lostlogicx.com>
-References: <1027026004.13704.6.camel@dolphin.entropy.net>
-	<20020718202641.A1645@lostlogicx.com> 
-	<20020720194403.B21534@lostlogicx.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Aug 2002 22:21:57 +0100
-Message-Id: <1028236918.1625.5.camel@dolphin.entropy.net>
-Mime-Version: 1.0
+	id <S317102AbSHAVMQ>; Thu, 1 Aug 2002 17:12:16 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:46347 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317072AbSHAVMQ>; Thu, 1 Aug 2002 17:12:16 -0400
+Date: Thu, 1 Aug 2002 23:15:36 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: manipulating sigmask from filesystems and drivers 
+In-Reply-To: <Pine.LNX.4.33.0208011348430.12015-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208012313200.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear kernel hackers:
+Hi,
 
-Just an observation with the latest kernel here. I previously had
-problems compiling kernels (eg 2.4.19-rc2-ac2) *unless* both LOCAL-APIC
-and IO-APIC were configured in. This is now solved, in that I can
-compile with or without IO-APIC.
+On Thu, 1 Aug 2002, Linus Torvalds wrote:
 
-However, I just built 2.4.19-rc5 with them *both* selected, and it
-wouldn't boot. My system is an Athlon XP / Abit KR7A mboard / Via KT266A
-running RH 7.3 - am I doing something wrong?
+> Go read the standards. Some IO is not interruptible.
 
-I have now rebuilt with just LOCAL-APIC and without IO-APIC and it's
-running like a baby :-)
+Which standard? Which "some IO"?
+Some programs rely on interruptable IO, e.g. to implement timeouts.
+/me is confused.
 
-Hope this is helpful....
-Cheers
-Alastair
-
--- 
- \\ Alastair Stevens                        Cambridge
-  \\ Technical Director                        /     \..-^..^...
-   \\                                          |Linux solutions \
-    \\ 01223 813774                            \     /........../
-     \\ www.camlinux.co.uk                      '-=-'
-      --
+bye, Roman
 

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280586AbRKYAk1>; Sat, 24 Nov 2001 19:40:27 -0500
+	id <S280588AbRKYAls>; Sat, 24 Nov 2001 19:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280588AbRKYAkR>; Sat, 24 Nov 2001 19:40:17 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:23287 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S280586AbRKYAkN>;
-	Sat, 24 Nov 2001 19:40:13 -0500
-Date: Sun, 25 Nov 2001 01:40:08 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML 1.9.0 is available
-Message-ID: <20011125014008.I5770@khan.acc.umu.se>
-In-Reply-To: <20011124192639.A5607@thyrsus.com>
+	id <S280591AbRKYAli>; Sat, 24 Nov 2001 19:41:38 -0500
+Received: from bexfield.research.canon.com.au ([203.12.172.125]:25952 "HELO
+	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S280588AbRKYAl0>;
+	Sat, 24 Nov 2001 19:41:26 -0500
+Date: Sun, 25 Nov 2001 11:41:18 +1100
+From: Cameron Simpson <cs@zip.com.au>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jochen Striepe <jochen@tolot.escape.de>, rpjday <rpjday@mindspring.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+Message-ID: <20011125114118.A4894@zapff.research.canon.com.au>
+Reply-To: cs@zip.com.au
+In-Reply-To: <20011123094313.GB190@tolot.miese-zwerge.org> <Pine.LNX.4.33L.0111230747410.4079-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011124192639.A5607@thyrsus.com>; from esr@thyrsus.com on Sat, Nov 24, 2001 at 07:26:39PM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33L.0111230747410.4079-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Nov 23, 2001 at 07:48:13AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 24, 2001 at 07:26:39PM -0500, Eric S. Raymond wrote:
-> The latest version is always available at http://www.tuxedo.org/~esr/cml2/
-> 
-> Release 1.9.0: Sat Nov 24 18:50:22 EST 2001
-> 	* Sync with 2.4.15/2.5.0 (except for SH port).
+On Fri, Nov 23, 2001 at 07:48:13AM -0200, Rik van Riel <riel@conectiva.com.br> wrote:
+| On Fri, 23 Nov 2001, Jochen Striepe wrote:
+| > I am *much* more irritated by:
+| > $ uname -r
+| > 2.4.15-greased-turkey
+| 
+| Would you really have preferred 2.4.15-sitting-duck  ?
 
-And when will SH be sync'ed?
+Given what just happened with inode caches in 2.4.15, maybe more apt :-(
+-- 
+Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
 
-> 	* Correct a minor bug in validation of trit expressions.
-> 	* Improved visibility computation: symbols with ancestors
-> 	  frozen at n are no longer saved to config.out.
-> 
-> This version corresponds to the kernel and config state as of the 2.5.0 fork.
-> 
-> The bug list is empty.   The to-do list is empty.  This code is ready.
-
-Can't wait to see CML2 in the kernel.
-
-
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Ride to not crash. Dress to crash. Live to ride to not crash again.
+	- Lawrence Smith, DoD#i, lawrence@msc.cornell.edu

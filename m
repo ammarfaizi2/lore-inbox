@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbSKGPwp>; Thu, 7 Nov 2002 10:52:45 -0500
+	id <S261301AbSKGPxM>; Thu, 7 Nov 2002 10:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261331AbSKGPwp>; Thu, 7 Nov 2002 10:52:45 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:38576 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261330AbSKGPwo>; Thu, 7 Nov 2002 10:52:44 -0500
-Date: Thu, 7 Nov 2002 16:59:51 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Corey Minyard <cminyard@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NMI handling rework
-In-Reply-To: <3DCA99F4.4090703@mvista.com>
-Message-ID: <Pine.GSO.3.96.1021107165401.5894D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261317AbSKGPxM>; Thu, 7 Nov 2002 10:53:12 -0500
+Received: from c2bapps5.btconnect.com ([193.113.209.26]:14987 "HELO
+	c2bapps5.btconnect.com") by vger.kernel.org with SMTP
+	id <S261301AbSKGPxK>; Thu, 7 Nov 2002 10:53:10 -0500
+Subject: [patch] Documentation/DocBook/journal-api.sgml
+From: Andy Wallace <andyw2@btconnect.com>
+To: rgammans@computer-surgery.co.uk, sct@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-As+AUut6GaTdgHKmiDdG"
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Nov 2002 16:01:08 +0000
+Message-Id: <1036684868.2032.76.camel@pavilion>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1-pre3 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, Corey Minyard wrote:
 
-> >How? The NMI interrupt should be internally masked till IRET. I think your 
-> >code is ok, but i don't see how it takes care of concurrent users such as 
-> >oprofile and the nmi watchdog, the nmi watchdog already programs its own 
-> >interrupt interval if its shared, what is the intended base NMI interval? 
-> >How about handlers requiring a different interrupt interval? I have code 
-> >which does the following;
-> >
-> NMIs cannot be masked, they are by definition non-maskable :-).  You can 
-> get an NMI while executing an NMI.
+--=-As+AUut6GaTdgHKmiDdG
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
- Not on the i386 family.  Once an NMI is accepted by the CPU, it gets
-internally masked until an iret instruction gets executed.  If another NMI
-happens maenwhile, it's latched by the processor internally and dispatched
-as soon as NMIs are unmasked.  Further NMIs received when masked are lost. 
+Hi,
 
- Check datasheets for details.
+make psdocs failed to compile journal-api.sgml for me with a couple of
+errors on 2.5.46.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+The attached patch fixes these errors and allows it to compile
+successfully.
+
+Cheers,
+
+Andy Wallace
+
+
+
+
+
+--=-As+AUut6GaTdgHKmiDdG
+Content-Disposition: attachment; filename=psdocs.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=psdocs.patch; charset=ISO-8859-15
+
+--- journal-api.old.sgml	Thu Nov  7 15:16:36 2002
++++ journal-api.sgml	Thu Nov  7 15:14:12 2002
+@@ -208,7 +208,7 @@
+ if you allow unprivileged userspace to trigger codepaths containing these
+ calls.
+=20
+-<para>
++</para>
+ </sect1>
+ <sect1>
+ <title>Summary</title>
+@@ -244,7 +244,8 @@
+    }
+    journal_destroy(my_jrnl);
+ </programlisting>
+-
++</para>
++</sect1>
+ </chapter>
+=20
+   <chapter id=3D"adt">
+
+--=-As+AUut6GaTdgHKmiDdG--
 

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311960AbSDFQSJ>; Sat, 6 Apr 2002 11:18:09 -0500
+	id <S312526AbSDFQaP>; Sat, 6 Apr 2002 11:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312563AbSDFQSI>; Sat, 6 Apr 2002 11:18:08 -0500
-Received: from cannabis.daphnes.RO ([194.105.18.252]:46597 "HELO
-	cannabis.daphnes.ro") by vger.kernel.org with SMTP
-	id <S311960AbSDFQSI>; Sat, 6 Apr 2002 11:18:08 -0500
-Date: Sat, 6 Apr 2002 19:17:15 +0300 (EEST)
-From: halfdead <halfdead@daphnes.ro>
-X-X-Sender: <halfdead@daphnes.ro>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.x kernels vs. IDT
-In-Reply-To: <Pine.GSO.4.21.0204061107230.632-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0204061911310.21482-100000@daphnes.ro>
+	id <S312544AbSDFQaP>; Sat, 6 Apr 2002 11:30:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7951 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312526AbSDFQaO>; Sat, 6 Apr 2002 11:30:14 -0500
+Date: Sat, 6 Apr 2002 08:29:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Dave Hansen <haveblue@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [WTF] ->setattr() locking changes
+In-Reply-To: <Pine.GSO.4.21.0204060034240.28391-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0204060818440.16963-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey all! with the risk of being annoying i post again this message because
-i am not sure the last i did found its way to the list due to some unknown
-delays in majordomo`s subscribing procedure. so, here it is my problem in
-detail:
-i experience a weird IDT issue on kernels 2.4.x. what i want to do
-is finding the address of a certain IDT gate but when i try to read memory
-from ring0 at that location it segfaults. the code is in assembler.
 
-.bss
-idtr:
-.double
-.text
+On Sat, 6 Apr 2002, Alexander Viro wrote:
+>
+> 	a) where the hell is update to Documentation/filesystems/* ?
+> 	b) Dave, meet grep.  grep, meet Dave.  Have a happy relationship...
 
-get_gate:
-        movl    $0x80, %eax
-        sidt    idtr
-        movl    idtr+2, %ebx
-        leal    (%ebx, %eax, 8), %ebx
-        movw    (%ebx), %cx     <- segfault
+Al, don't blame Dave, blame me. I told Dave to use i_sem instead of a 
+special semaphore, just because it seems to be the right thing.
 
-as far as i know, i retrieve the correct IDT base, but after the leal
-instruction, %ebx has some unusual value. i suspect that either leal
-instruction is misimplemented in gcc/as compilers or the kernel doesn`t
-give me the right IDT. anyway, it could also be some obscure coding error
-but i strongly doubt it.
-i cannot find out why is this happening.. i would apreciate any help that i
-can get.
+> _Please_, grep before doing global changes.  Trivial search for
+> notify_change() would show several calls under ->i_sem.  E.g. one
+> in fs/nfsd/vfs.c.  Or in hpfs_unlink().
 
+Hmm.. I don't think the fs/nfsd/vfs.c case is "obviously" under i_sem.  
+Certainly not from grepping. Where?
 
-best regards,
-halfdead
+The hpfs/namei.c one definitely needs the removal of the up/down, though. 
+Altghough for the life of me I don't see why the filesystem _does_ that at 
+all, since it should have been done by the upper layers already, no?
+
+Oh, and Andrew pointed out that in the ext3 case the BKL was forgotten.
+
+		Linus
 

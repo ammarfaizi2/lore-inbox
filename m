@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbTFRPqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 11:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTFRPqi
+	id S265304AbTFRPx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 11:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTFRPx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 11:46:38 -0400
-Received: from nx5.HRZ.Uni-Dortmund.DE ([129.217.131.21]:23589 "EHLO
-	nx5.hrz.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265304AbTFRPqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 11:46:06 -0400
-Date: Wed, 18 Jun 2003 17:55:34 +0200 (CEST)
-From: Ingo Buescher <usenet-2003@r-arcology.de>
-X-X-Sender: gallatin@nathan.cybernetics.com
+	Wed, 18 Jun 2003 11:53:59 -0400
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:19075 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S265304AbTFRPx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 11:53:58 -0400
+From: jlnance@unity.ncsu.edu
+Date: Wed, 18 Jun 2003 12:07:54 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Cursor in 2.4.21
-In-Reply-To: <20030618144919.2493.qmail@mail.ec-red.com>
-Message-ID: <Pine.LNX.4.56.0306181754330.11809@anguna.ploreargvpf.pbz>
-References: <20030618144919.2493.qmail@mail.ec-red.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: socket vs pipe difference in /proc/pid/fd
+Message-ID: <20030618160754.GA14475@ncsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003, Sergio Aguayo wrote:
+Hello All,
+    I am running 2.4.20 and have run into something that may be a bug.
 
-> Date: Wed, 18 Jun 2003 09:49:19 -0500
-> From: Sergio Aguayo <sergioag@ec-red.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: PROBLEM: Cursor in 2.4.21
->
-> Greetings,
->
-> I've found a little bug with the cursor under kernel 2.4.21. I'm using the
-> NVIDIA TNT2 frambuffer and the cursor appears ok, but there are to "cursors"
-> on the first pixels of the screen (up). These bug wasn't present in 2.4.20.
->
+I am hacking some stuff together to debug a distributed application.
+As part of this, I attempt to open /proc/pid/fd/0 and /proc/pid/fd/1
+for a process.  These descriptors are a socket, created with the
+socketpair() system call in the processes parent.  When I try to
+open these sockets, from the shell, I get a message about the open
+failing due to the /proc/pid/fd/0 being an invalid devicde.
 
-Same here. The very first line appears to be blue (also using rivafb on a
-nvidia tnt2 card).
+If I change the parent application so that it uses 2 pipes rather than
+a socketpair, then I have no problems opening the /proc files.
 
-> Sergio Aguayo
+Is this difference between pipes and sockets deliberate?
 
-IB
--- 
-"The only purpose for which power can be rightfully exercised over any
-member of a civilized community, against his will, is to prevent harm
-to others. His own good, either physical or moral, is not a sufficient
-warrant" -- John Stuart Mill, "On Liberty", 1859
+Thanks,
+
+Jim

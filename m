@@ -1,120 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271033AbTHLSH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 14:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271038AbTHLSH0
+	id S271021AbTHLSFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 14:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTHLSFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 14:07:26 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:34791 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S271033AbTHLSHW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 14:07:22 -0400
-Message-ID: <3F392CD5.3080400@free.fr>
-Date: Tue, 12 Aug 2003 20:07:17 +0200
-From: Florent Coste <coste.florent@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: fr
-MIME-Version: 1.0
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re 2.6.0-test2-mm4 (pppd problem)
-References: <3F2F0ED0.4060707@free.fr>	<20030804225737.007b6934.akpm@osdl.org>	<3F317097.4070401@free.fr> <20030806143251.6b84c749.akpm@osdl.org> <3F334304.9070502@free.fr>
-In-Reply-To: <3F334304.9070502@free.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Aug 2003 14:05:42 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:41952 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S271021AbTHLSFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 14:05:39 -0400
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Subject: Re: PPPoE Oops with 2.4.22-rc
+References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu> <Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
+Organization: Who, me?
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.22-rc2-gzp1 (i686))
+Message-ID: <39a.3f392c6f.86e8b@gzp1.gzp.hu>
+Date: Tue, 12 Aug 2003 18:05:35 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+* Marcelo Tosatti <marcelo@conectiva.com.br>:
 
->
->> Florent Coste <coste.florent@free.fr> wrote:
->>  
->>
->>> - test2-mm2 :  pppd starts ok (i use & follow 2.5.x & 2.6-test 
->>> branch since ~2.5.40 .... 2.5.72-mm2 was ok for instance)
->>> - test2-mm3-1 : pppd does not start, kobject badness trace, full 
->>> traces in my last email and parts above :
->>>   
->>
->>
->> The `badness' thing is just telling us that netdevices aren't fully 
->> up to
->> speed with the kobject layer yet.  Don't worry about that.
->>
->> As for the ppp problem: don't know, sorry.  There was a small change 
->> in ppp
->> between those two kernel versions, so it would be useful if you could 
->> do a
->> `patch -R' of the below, see if that fixes mm3-1.  Thanks.
->
-Andrew,
+|> EIP:    0010:[<e0ed9bce>]    Tainted: PF
+| 
+| Why is your kernel tainted?
 
-Sorry for the late reply :
+As your request I have reproduced the oops without alsa and
+webcam modules loaded in:
 
-I made the patch -R of ppp stuf against mm3-1 : same result as with the 
-patch.
+http://gzp.odpn.net/tmp/linux-pppoe-oops/dmesg-stock-2.4.22-rc2
+http://gzp.odpn.net/tmp/linux-pppoe-oops/ksymoops-stock-2.4.22-rc2
 
-I thought making a  strace -f pppd of both a working kernel (test2-mm2) 
-and the first non working
-(test2-mm3-1) can be usefull, strace result files are available at 
-http://coste.florent.free.fr
+ksymoops 2.4.9 on i686 2.4.22-rc2-gzp1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2-gzp1/ (default)
+     -m /usr/src/linux/System.map (default)
 
-(pid of mm3 have been changed to match the ones of mm2 so that the diff 
-is easy to read).
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-I also made the same test with test2-mm4 : same result as mm3-1. I'll 
-test 2.6.0-test3(-mm1)  soon
+Oops: 0002
+CPU:    0
+EIP:    0010:[<e095ebce>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: de1647a0   ebx: de0e13c0   ecx: c02747a8   edx: 00000000
+esi: de1647a0   edi: 00000000   ebp: ddfc7ef4   esp: ddfc7ebc
+ds: 0018   es: 0018   ss: 0018
+Process pppd (pid: 366, stackpage=ddfc7000)
+Stack: 0000a247 de1647ca ddfc7ef4 0000001e ddfcb5c0 ddfc7ef4 0000001e bffffd28 
+       c01cb4cd ddfcb5c0 ddfc7ef4 0000001e 00000002 00000000 00000018 00000000 
+       ecc10400 74658784 fc003168 00004015 04090000 de0c0000 08086094 00000001 
+Call Trace:    [<c01cb4cd>] [<c01495bd>] [<c01cbfc5>] [<c010744f>]
+Code: ff 8a e8 00 00 00 0f 94 c0 84 c0 75 24 c7 44 24 08 60 00 00 
 
-Great Regards,
 
-Florent
+>>EIP; e095ebce <[pppoe]pppoe_connect+1ce/220>   <=====
 
->>
->> diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
->> --- a/drivers/char/tty_io.c    Wed Aug  6 14:30:49 2003
->> +++ b/drivers/char/tty_io.c    Wed Aug  6 14:30:49 2003
->> @@ -611,6 +611,8 @@
->>         (tty->driver->stop)(tty);
->> }
->>
->> +EXPORT_SYMBOL(stop_tty);
->> +
->> void start_tty(struct tty_struct *tty)
->> {
->>     if (!tty->stopped || tty->flow_stopped)
->> @@ -628,6 +630,8 @@
->>         (tty->ldisc.write_wakeup)(tty);
->>     wake_up_interruptible(&tty->write_wait);
->> }
->> +
->> +EXPORT_SYMBOL(start_tty);
->>
->> static ssize_t tty_read(struct file * file, char * buf, size_t count, 
->>             loff_t *ppos)
->> diff -Nru a/drivers/net/ppp_async.c b/drivers/net/ppp_async.c
->> --- a/drivers/net/ppp_async.c    Wed Aug  6 14:30:49 2003
->> +++ b/drivers/net/ppp_async.c    Wed Aug  6 14:30:49 2003
->> @@ -891,6 +891,11 @@
->>             process_input_packet(ap);
->>         } else if (c == PPP_ESCAPE) {
->>             ap->state |= SC_ESCAPE;
->> +        } else if (I_IXON(ap->tty)) {
->> +            if (c == START_CHAR(ap->tty))
->> +                start_tty(ap->tty);
->> +            else if (c == STOP_CHAR(ap->tty))
->> +                stop_tty(ap->tty);
->>         }
->>         /* otherwise it's a char in the recv ACCM */
->>         ++n;
->>
->>
->>
->>  
->>
->
->
->
->
+>>eax; de1647a0 <_end+1decf3b0/20610c70>
+>>ebx; de0e13c0 <_end+1de4bfd0/20610c70>
+>>ecx; c02747a8 <irq_stat+8/20>
+>>esi; de1647a0 <_end+1decf3b0/20610c70>
+>>ebp; ddfc7ef4 <_end+1dd32b04/20610c70>
+>>esp; ddfc7ebc <_end+1dd32acc/20610c70>
+
+Trace; c01cb4cd <sys_connect+7d/b0>
+Trace; c01495bd <fcntl_setlk+8d/1d0>
+Trace; c01cbfc5 <sys_socketcall+b5/270>
+Trace; c010744f <system_call+33/38>
+
+Code;  e095ebce <[pppoe]pppoe_connect+1ce/220>
+00000000 <_EIP>:
+Code;  e095ebce <[pppoe]pppoe_connect+1ce/220>   <=====
+   0:   ff 8a e8 00 00 00         decl   0xe8(%edx)   <=====
+Code;  e095ebd4 <[pppoe]pppoe_connect+1d4/220>
+   6:   0f 94 c0                  sete   %al
+Code;  e095ebd7 <[pppoe]pppoe_connect+1d7/220>
+   9:   84 c0                     test   %al,%al
+Code;  e095ebd9 <[pppoe]pppoe_connect+1d9/220>
+   b:   75 24                     jne    31 <_EIP+0x31> e095ebff <[pppoe]pppoe_connect+1ff/220>
+Code;  e095ebdb <[pppoe]pppoe_connect+1db/220>
+   d:   c7 44 24 08 60 00 00      movl   $0x60,0x8(%esp,1)
+Code;  e095ebe2 <[pppoe]pppoe_connect+1e2/220>
+  14:   00 
+
+
+1 warning issued.  Results may not be reliable.
 
 

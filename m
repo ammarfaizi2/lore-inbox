@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbUKHT31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUKHTe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUKHT31 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 14:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUKHQtO
+	id S261195AbUKHTe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 14:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUKHTcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:49:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3715 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261883AbUKHPWC (ORCPT
+	Mon, 8 Nov 2004 14:32:52 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11958 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261217AbUKHTbT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 10:22:02 -0500
-Date: Mon, 8 Nov 2004 07:21:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: adaplas@pol.net
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
-In-Reply-To: <200411081706.55261.adaplas@hotpop.com>
-Message-ID: <Pine.LNX.4.58.0411080719460.24286@ppc970.osdl.org>
-References: <200411080521.iA85LbG6025914@hera.kernel.org>
- <1099893447.10262.154.camel@gaston> <200411081706.55261.adaplas@hotpop.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 14:31:19 -0500
+Subject: Re: [PATCH] Oops in aio_free_ring on 2.6.9
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-aio@kvack.org, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
+References: <1099683260.12365.348.camel@bluebox>
+	 <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1099942211.12365.372.camel@bluebox>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 08 Nov 2004 11:30:12 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-11-06 at 19:43, Linus Torvalds wrote:
 
-
-On Mon, 8 Nov 2004, Antonino A. Daplas wrote:
+> I don't disagree with the bug, but I disagree with the fix. 
 > 
-> How about this patch?  This is almost the original macro in riva_hw.h,
-> with the __force annotation.
+> In my opinion, the problem is that "info->nr_pages" is _wrong_. It's wrong 
+> because it has been initialized to a bogus value. 
+> 
+> I'd much prefer this alternate appended patch. Can you verify that it also 
+> fixes the problem (we can drop the bogus info->nr_pages initialization, 
 
-Why not just use __raw_readl/__raw_writel?
+You're right, that is a better fix.  The aio code is not my current area
+of expertise, as I've demonstrated. :)
 
-That's what they exist for, and they still do any IO accesses correctly, 
-which a direct store does not do (it would seriously break on older 
-alphas, for example).
+Your patch also fixes the problem.
 
-Of course, clearly the thing has never worked on things like alphas 
-anyway, but the point is that accessing IO memory with direct loads and 
-stores really _is_ fundamentally wrong, even if it happens to work on many 
-architectures. The keyword is "happens". 
+Thanks,
 
-		Linus
+--Darrick
+

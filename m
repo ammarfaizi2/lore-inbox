@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317987AbSGPUXt>; Tue, 16 Jul 2002 16:23:49 -0400
+	id <S317992AbSGPUZx>; Tue, 16 Jul 2002 16:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317990AbSGPUXs>; Tue, 16 Jul 2002 16:23:48 -0400
-Received: from ns.suse.de ([213.95.15.193]:8723 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317987AbSGPUXs>;
-	Tue, 16 Jul 2002 16:23:48 -0400
-Date: Tue, 16 Jul 2002 22:26:40 +0200
-From: Andi Kleen <ak@suse.de>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Second x86-64 kernel snapshot based on 2.4.19rc1 released
-Message-ID: <20020716222640.A10397@wotan.suse.de>
-References: <20020716220302.A5400@wotan.suse.de> <3D347F9B.58740355@nortelnetworks.com>
+	id <S317993AbSGPUZw>; Tue, 16 Jul 2002 16:25:52 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:33182 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317992AbSGPUZv>; Tue, 16 Jul 2002 16:25:51 -0400
+Date: Tue, 16 Jul 2002 16:27:34 -0400
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+To: Shawn <core@enodev.com>
+Cc: linux-kernel@vger.kernel.org, Stelian Pop <stelian.pop@fr.alcove.com>,
+       Gerhard Mack <gmack@innerfire.net>
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716162733.A603@shookay.newview.com>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	Shawn <core@enodev.com>, linux-kernel@vger.kernel.org,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	Gerhard Mack <gmack@innerfire.net>
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D347F9B.58740355@nortelnetworks.com>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020716152231.B6254@q.mn.rr.com>; from core@enodev.com on Tue, Jul 16, 2002 at 03:22:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 04:18:35PM -0400, Chris Friesen wrote:
-> Andi Kleen wrote:
+On Tue, Jul 16, 2002 at 03:22:31PM -0500, Shawn wrote:
+> In this case, can you use a RAID mirror or something, then break it?
 > 
-> > - vsyscalls are currently disabled because they trigger too many linker bugs together
-> > with HPET timers. The vsyscall pages just call normal syscalls.
+> Also, there's the LVM snapshot at the block layer someone already
+> mentioned, which when used with smaller partions is less overhead.
+> (less FS delta)
 > 
-> I assume that the linker is going to get fixed before general x86-64 release so
-> these can be used together?
+> This problem isn't that complex.
 
-Yes, the problem is being worked on.
+I agree but I guess that if Matthias asked the question that way, he
+probably meant he doesn't have a raid mirror or "something" (as you
+say)... If you didn't plan your install (meaning you don't have the nice
+raid or anything else), you're basically screwed...
 
--Andi
+-- 
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+    It is exactly because a man cannot do a thing that he is a
+                      proper judge of it.
+                      -- Oscar Wilde

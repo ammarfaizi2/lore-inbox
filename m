@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272913AbRIPWq7>; Sun, 16 Sep 2001 18:46:59 -0400
+	id <S272899AbRIPWqu>; Sun, 16 Sep 2001 18:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272898AbRIPWqu>; Sun, 16 Sep 2001 18:46:50 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:22745 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S272913AbRIPWqj>;
-	Sun, 16 Sep 2001 18:46:39 -0400
-Date: Sun, 16 Sep 2001 23:47:00 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>, Andreas Steinmetz <ast@domdv.de>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: broken VM in 2.4.10-pre9
-Message-ID: <180945403.1000684019@[169.254.62.211]>
-In-Reply-To: <Pine.LNX.4.33.0109161415340.22182-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0109161415340.22182-100000@penguin.transmeta.com>
+	id <S272898AbRIPWqj>; Sun, 16 Sep 2001 18:46:39 -0400
+Received: from alb-66-24-179-104.nycap.rr.com ([66.24.179.104]:12036 "EHLO
+	incandescent") by vger.kernel.org with ESMTP id <S272899AbRIPWqb>;
+	Sun, 16 Sep 2001 18:46:31 -0400
+Date: Sun, 16 Sep 2001 18:46:51 -0400
+From: Andres Salomon <saloma@rpi.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 3c515 warnings
+Message-ID: <20010916184651.A703@mp3revolution.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux incandescent 2.4.10-pre9 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+I'm not sure what happened to the full_duplex variable in 3c515.c, but
+it was ignored by the driver anyways.  The attached patch removes the
+MODULE_PARM references to the variable (which would cause a warning
+to be spewed when you tried to modprobe the driver).  Diff'd against
+2.4.10-pre9, please apply.
 
+BTW, does anyone actually use this driver?  I'm cleaning it up a bit,
+and possibly (if I have the time) syncing w/ becker's latest; 
+if anyone's interested in testing it out, let me know.
 
---On Sunday, 16 September, 2001 2:28 PM -0700 Linus Torvalds 
-<torvalds@transmeta.com> wrote:
+-- 
+"Any OS is only as good as its admin, and you obviously suck."
+	-- Ian Gulliver, http://orbz.org/mail/mansunix.txt
 
->  - age a non-referenced page on a list: move to "next" list downwards (ie
->    free if already inactive, move to inactive if currently active)
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="duplex_arg.diff"
 
-Do you still make the distinction between Inactive Clean
-and Inactive Dirty (& just move to appropriate list)?
+--- linux/drivers/net/3c515.c	Sun Sep 16 00:11:42 2001
++++ linux.dilinger/drivers/net/3c515.c	Sun Sep 16 12:49:56 2001
+@@ -84,12 +84,10 @@
+ MODULE_DESCRIPTION("3Com 3c515 Corkscrew driver");
+ MODULE_PARM(debug, "i");
+ MODULE_PARM(options, "1-" __MODULE_STRING(8) "i");
+-MODULE_PARM(full_duplex, "1-" __MODULE_STRING(8) "i");
+ MODULE_PARM(rx_copybreak, "i");
+ MODULE_PARM(max_interrupt_work, "i");
+ MODULE_PARM_DESC(debug, "3c515 debug level (0-6)");
+ MODULE_PARM_DESC(options, "3c515: Bits 0-2: media type, bit 3: full duplex, bit 4: bus mastering");
+-MODULE_PARM_DESC(full_duplex, "(ignored)");
+ MODULE_PARM_DESC(rx_copybreak, "3c515 copy breakpoint for copy-only-tiny-frames");
+ MODULE_PARM_DESC(max_interrupt_work, "3c515 maximum events handled per interrupt");
+ 
 
-Effectively this is just a 'binary' aging function (OK position
-on the list matters too). Others on the list have observed
-page->age performs in a binary manner anyhow with exponential
-aging.
-
-How do you balance between Inactive Clean before Inactive Dirty
-and avoid evicting many (infrequently used) code pages at
-the expense of many (historic, even less frequently used) dirty
-data pages? Or don't we care?
-
---
-Alex Bligh
+--C7zPtVaVf+AK4Oqc--

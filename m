@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261781AbSI2UV5>; Sun, 29 Sep 2002 16:21:57 -0400
+	id <S261667AbSI2Umq>; Sun, 29 Sep 2002 16:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261773AbSI2UVN>; Sun, 29 Sep 2002 16:21:13 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:272 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S261793AbSI2UT2>; Sun, 29 Sep 2002 16:19:28 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-In-Reply-To: <Pine.LNX.4.44.0209291511250.24805-100000@montezuma.mastecende.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Sun, 29 Sep 2002 22:24:41 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, twaugh@redhat.com,
-       serial24@macrolink.com, Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17vkcL-0007OZ-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S261779AbSI2Ump>; Sun, 29 Sep 2002 16:42:45 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:34014 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S261667AbSI2Umo>; Sun, 29 Sep 2002 16:42:44 -0400
+Date: Sun, 29 Sep 2002 13:48:38 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: PROBLEM: kernel BUG in usb-ohci.c:902!
+To: Franco Saliola <saliola@polygon.math.cornell.edu>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3D976726.4070909@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I submitted both a parport sharing (i am using interrupt driven parport, 
-> which is needed due to both serial ports using the same irq) and netmos 
-> patch a while ago, Tim was concerned about issues encountered 
-> by folks previously wrt the netmos.
+Hmm, if I look at that line in the 2.4.20-pre7 kernel, I see:
 
-What are these issues?  If they are caused by IRQ sharing between
-parallel and serial ports, and parport works fine in polling mode
-(it does for me, I've done quite a lot of printing), I'd suggest
-to use polling for now, and leave IRQ sharing support for later...
+	/* likely some interface's driver has a refcount bug */
+	err ("bus %s devnum %d deletion in interrupt",
+			ohci->ohci_dev->slot_name, usb_dev->devnum);
+	BUG ();
 
-Serial ports are more important for me right now, but 2S1P cards
-are easier to find and even cheaper (!) than 2S cards...  There is
-a disadvantage - extra slot (or holes in the back of the box) needed
-for the two DB9 connectors connected to the card with ribbon cables.
+That BUG() has been an "oops now predictably, or oops later randomly"
+situation, and EVERY (!!!) time it's been an issue, the problem has
+been traced to exactly what that comment says:  some interface's
+driver has bogus disconnect() processing, and is not cleaning up. (*)
 
-The parport_serial / serial link order issue is quite old - is
-everyone using modular kernels (not affected by it) these days?
-Perhaps all of parport_serial should still be CONFIG_EXPERIMENTAL ;)
+It's likely the problem is in the driver for one of your USB devices.
+Given what I saw, it sure looks like "prism2_usb" is the problem.
 
-Marek
+And from what I saw last time I looked at that driver, I can VERY
+easily believe that ... in fact I think I've seen similar reports
+show up before, that's why I took a look at it.  The prism2_usb folk
+need to make sure their disconnect() routine (a) prevents all further
+driver requests to that device, (b) unlinks all urbs it submitted,
+and (c) waits for them to finish unlinking.
+
+- Dave
+
+(*) Maybe a better response would be to just leak memory, but
+     that's how the ohci driver evolved ... it took a long time
+     to establish that the oopsing was really caused by bogus
+     disconnect() processing in the layered usb device handling.
+
+
 

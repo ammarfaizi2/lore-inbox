@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269318AbUIYNOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUIYNP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269318AbUIYNOC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 09:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269322AbUIYNOB
+	id S269325AbUIYNP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 09:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269323AbUIYNP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 09:14:01 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:928 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S269318AbUIYNN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 09:13:59 -0400
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Kevin Fenzi <kevin@scrye.com>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <415562FE.3080709@yahoo.com.au>
-References: <20040924021956.98FB5A315A@voldemort.scrye.com>
-	 <20040924143714.GA826@openzaurus.ucw.cz>
-	 <20040924210958.A3C5AA2073@voldemort.scrye.com>
-	 <1096069216.3591.16.camel@desktop.cunninghams>
-	 <20040925014546.200828E71E@voldemort.scrye.com>
-	 <1096113235.5937.3.camel@desktop.cunninghams>
-	 <415562FE.3080709@yahoo.com.au>
+	Sat, 25 Sep 2004 09:15:28 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:40926 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S269322AbUIYNPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 09:15:12 -0400
+Subject: Re: [RFC] put symbolic links between drivers and modules in the
+	sysfs tree
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: greg@kroah.com, Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040925073819.GT23987@parcelfarce.linux.theplanet.co.uk>
+References: <1095701390.2016.34.camel@mulgrave> 
+	<20040925073819.GT23987@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain
-Message-Id: <1096117054.5937.23.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 25 Sep 2004 23:03:23 +1000
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 25 Sep 2004 09:14:34 -0400
+Message-Id: <1096118081.1715.3.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Sat, 2004-09-25 at 22:22, Nick Piggin wrote:
-> Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Sat, 2004-09-25 at 11:45, Kevin Fenzi wrote:
+On Sat, 2004-09-25 at 03:38, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Mon, Sep 20, 2004 at 01:29:44PM -0400, James Bottomley wrote:
+> > This functionality is essential for us to work out which drivers are
+> > supplied by which modules.  We use this in turn to work out which
+> > modules are necessary to find the root device (and hence what
+> > initrd/initramfs needs to insert).
 > 
-> >>What causes memory to be so fragmented? 
-> > 
-> > 
-> > Normal usage; the pattern of pages being freed and allocated inevitably
-> > leads to fragmentation. The buddy allocator does a good job of
-> > minimising it, but what is really needed is a run-time defragmenter. I
-> > saw mention of this recently, but it's probably not that practical to
-> > implement IMHO.
-> > 
-> 
-> Well, by this stage it looks like memory is already pretty well shrunk
-> as much as it is going to be, which means that even a pretty capable
-> defragmenter won't be able to do anything.
+> So what will your userland code do when you run it on a system with
+> non-modular kernel currently running?
 
-Surely it would be able to rearrange pages to get a contiguous megabyte?
-Regardless, not using order 8 allocations seems to me to be a better
-solution (but then I have a barrow^H^H^H^H^H^Hpatch to push once I finish my current round
-of cleanups :>).
+Not put a module in the initial ramdisk, since it would be unnecessary. 
+The only information the patch seeks to add is the linkage between
+driver and module.  So you can work back from sysfs to know which
+devices have which modules
 
-Nigel
+> IOW, that's a fundamentally broken interface - you really want the same
+> information regardless of modular vs. built-in.
+
+Not really.  It you argue this about module *parameters*, I might agree,
+but not about what driver goes with what module...if the driver is build
+in, then the answer is a simple "none" and the link doesn't exist.
+
+James
+
 

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130267AbQLIFbY>; Sat, 9 Dec 2000 00:31:24 -0500
+	id <S129784AbQLIGD6>; Sat, 9 Dec 2000 01:03:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130277AbQLIFbO>; Sat, 9 Dec 2000 00:31:14 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:14526 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130267AbQLIFa7>; Sat, 9 Dec 2000 00:30:59 -0500
-Message-ID: <3A31BC6D.1CFB5221@haque.net>
-Date: Sat, 09 Dec 2000 00:00:29 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129801AbQLIGDt>; Sat, 9 Dec 2000 01:03:49 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:50657 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129784AbQLIGDj>; Sat, 9 Dec 2000 01:03:39 -0500
+Date: Sat, 9 Dec 2000 05:32:54 +0000 (GMT)
+From: davej@suse.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11
+Message-ID: <Pine.LNX.4.21.0012090527490.9650-100000@neo.local>
 MIME-Version: 1.0
-To: Ben Ford <ben@kalifornia.com>
-CC: Chris Lattner <sabre@nondot.org>, linux-kernel@vger.kernel.org,
-        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.LNX.4.21.0012081626140.7741-100000@www.nondot.org> <3A31B8CC.7030604@kalifornia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was just an example. Basically, you'd be able to do in with just
-about any language that has ORBit bindings.
 
-Ben Ford wrote:
-> Why would you *ever* want to write a device driver in perl???
+David Woodhouse (dwmw2@infradead.org) wrote...
+
+> Can you reproduce it with bcrl's patch below: 
+
+Did nothing for me. gcc still got a sig11 after a while.
+Took three runs of 'make bzImage' before it completed.
+
+I wondered if I'd been unlucky enough to have been sent a
+replacement K6-2 which was also screwed, but as I mentioned
+earlier, this box runs fine under 2.2
+
+btw, I was unsubscribed from all lists at vger yesterday,
+for reasons currently unknown to me. Did this happen to anyone
+else, or did my mail setup break something?
+
+regards,
+
+Davej.
 
 -- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSGNTib>; Sun, 14 Jul 2002 15:38:31 -0400
+	id <S317030AbSGNTkG>; Sun, 14 Jul 2002 15:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSGNTia>; Sun, 14 Jul 2002 15:38:30 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:18630 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317022AbSGNTia>; Sun, 14 Jul 2002 15:38:30 -0400
-Date: Sun, 14 Jul 2002 21:58:01 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Bart Verwilst <verwilst@gentoo.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sa2opl3 driver b0rkage?
-In-Reply-To: <200207142033.29721.verwilst@gentoo.org>
-Message-ID: <Pine.LNX.4.44.0207142149040.13686-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317034AbSGNTkF>; Sun, 14 Jul 2002 15:40:05 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:65297 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317030AbSGNTkC>; Sun, 14 Jul 2002 15:40:02 -0400
+Date: Sun, 14 Jul 2002 21:42:50 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Cc: Sean Neakums <sneakums@zork.net>, Joerg Schilling <schilling@fokus.gmd.de>
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020714194250.GC13867@louise.pinerecords.com>
+References: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de> <20020714184006.GA13867@louise.pinerecords.com> <20020714190657.GB13867@louise.pinerecords.com> <20020714191524.GB9202@zork.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020714191524.GB9202@zork.net>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 40 days, 10:24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, Bart Verwilst wrote:
-
-> I'm using kernel 2.4.19-pre7-ac2, and since i upgraded, arts (KDE's sound 
-> server) keeps on crashing every few minutes :o( I have an OPL3SA2 sound card.
-
-Have you tried going back to a 'working' kernel?
-
-> 	- opl3sa2 update                                     (Zwane Mwaikambo)   <---  
-
-That was mostly cleanups, i haven't changed anything which could possibly 
-affect playback.
-
-> Several KDE bugreports say the same thing, for example:
+> > > > A Pentium 1200 running Linux-2.5.25 (ext3) results in:
+> > > > 
+> > > > # star -xp -time < rock.tar.bz2
+> > > > star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+> > > > star: 10372 blocks + 1536 bytes (total of 106210816 bytes = 103721.50k).
+> > > > star: Total time 3190.483sec (32 kBytes/sec)
+> > > > 53:10.490r 12.299u 2970.099s 93% 0M 0+0k 0st 0+0io 4411pf+0w
+> > > > 
+> > > > You see, during the 53:20, the machine is only 7% idle!
+> > > 
+> > > A Pentium 1200, eh?
+> > > More like Pentium 120 or star just doesn't cut it.
+> > 
+> > Now I'm actually pretty sure you meant 386DX/33!
+> > 
+> > I don't know whom you're trying to fool, but even my P2/233
+> > can get the work done in under 5 minutes:
+> > 
+> > kala@hubert:/tmp$ time tar xjf rock.tar.bz2
+> > 
+> > real    4m50.598s
+> > user    0m36.700s
+> > sys     1m51.860s
+> > 
+> > Linux 2.4.19-pre10-ac2, reiserfs 3.6.
 > 
-> http://bugs.kde.org/db/32/32415.html
+> Aha, but reiserfs's directories are indexed, are they not?  Whereas
+> ext3's directories are flat and require a linear search for lookups
+> and modifications.  This may be what Joerg's example highlights.
 
-Irregardless, i'll give it a test and give you some feedback
+Unfortunately, I don't have an ext3 partition handy to perform a quick
+test, but the following Joerg's accusation has been invalidated nonetheless:
 
-Cheers,
-	Zwane
+> Solaris and FreeBSD put all the effort into one filesystem trying to make
+> it as good as possible. In Linux, it seems that nobody prooved the overall
+> concept of the kernel.
 
--- 
-function.linuxpower.ca
+If that's the case, how come a Linux-powered Pentium 233 can do in
+5 minutes for what a Solaris-powered Pentium 800 needs 7 minutes?
 
+I believe Joerg owes a big big apology to Al Viro here.
+
+T.

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAIHxY>; Tue, 9 Jan 2001 02:53:24 -0500
+	id <S129383AbRAIIKr>; Tue, 9 Jan 2001 03:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAIHxO>; Tue, 9 Jan 2001 02:53:14 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:45812 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129267AbRAIHxM>; Tue, 9 Jan 2001 02:53:12 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva>
-Organisation: SAP LinuxLab
-Date: 09 Jan 2001 08:52:59 +0100
-In-Reply-To: Rik van Riel's message of "Mon, 8 Jan 2001 16:30:10 -0200 (BRDT)"
-Message-ID: <qwwelydgo10.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129538AbRAIIK2>; Tue, 9 Jan 2001 03:10:28 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:64243 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S129383AbRAIIKT>;
+	Tue, 9 Jan 2001 03:10:19 -0500
+Date: Tue, 9 Jan 2001 09:09:36 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010109090936.A2900@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010108213036.T27646@athlon.random> <Pine.GSO.4.21.0101081537570.4061-100000@weyl.math.psu.edu> <20010108225605.Y27646@athlon.random> <93diet$aqc$1@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <93diet$aqc$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 08, 2001 at 03:28:29PM -0800
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Mon, Jan 08, 2001 at 03:28:29PM -0800, Linus Torvalds wrote:
 
-On Mon, 8 Jan 2001, Rik van Riel wrote:
-> And when the bit changes again, the page can be evicted
-> from memory just fine. In the mean time, the locked pages
-> will also have undergone normal page aging and at unlock
-> time we know whether to swap out the page or not.
->
-> I agree that this scheme has a higher overhead than your
-> idea, but it also seems to be a bit more flexible and
-> simple.  Alternatively, we could just scan the wired_list
-> once a minute and move the unwired pages to the active
-> list.
+> But at least "rmdir `pwd`" is not _required_ to fail, like rmdir("."/"..").
 
-At IPC_UNLOCK there is no reference to the pages locked by this
-segment available. We could perhaps move the whole locked list to the
-active list if we unlock any segment.
+"rmdir `pwd`" is required to fail (at least under csh, bash, ksh) if the
+path component contains a white space and thereof it can't be a valid
+replacement for Andreas "rmdir ." which was what Al initially suggested.
 
-Second point: How do we handle out of swap? I do not think that we
-should lock these pages but keep them in the active list.
+Yes, I'm very pickey about that; but hey, I don't want to force anyone
+to write GNU/Linux like rms; just valid shell code. :)
 
-Greetings
-		Christoph
+I hope you now agree that "rmdir `pwd`" makes not much sense - except in
+bug reports for bash, csh and ksh scripts or in scripts dedicated to
+the Win32 environment :)
 
+-- 
+
+  ciao - 
+    Stefan
+
+" Lession 1: Quoting.                   Lession 2: Power up the machine. "
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

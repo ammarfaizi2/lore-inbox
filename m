@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316093AbSETQAt>; Mon, 20 May 2002 12:00:49 -0400
+	id <S316099AbSETQND>; Mon, 20 May 2002 12:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316096AbSETQAs>; Mon, 20 May 2002 12:00:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46600 "EHLO
+	id <S316105AbSETQNC>; Mon, 20 May 2002 12:13:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29961 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316093AbSETQAr>; Mon, 20 May 2002 12:00:47 -0400
-Date: Mon, 20 May 2002 09:00:53 -0700 (PDT)
+	id <S316099AbSETQNC>; Mon, 20 May 2002 12:13:02 -0400
+Date: Mon, 20 May 2002 09:13:22 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, <alan@lxorguk.ukuu.org.uk>
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: <E179fAd-0005vs-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0205200856460.23874-100000@home.transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.16
+In-Reply-To: <15592.61285.98743.781939@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0205200904461.23874-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,26 +20,59 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 20 May 2002, Rusty Russell wrote:
+On Mon, 20 May 2002, Paul Mackerras wrote:
 >
-> Not quite:
-> 	copy_from_user(xxx);
->
-> Is my suggestion.  No error return.
+> This patch splits up the existing tlb_remove_page into
+> tlb_remove_tlb_entry (for pages that are/were mapped into userspace)
+> and tlb_remove_page, as you suggested.  It also adds the necessary
+> stuff for PPC, which has its own include/asm-ppc/tlb.h now.  This
+> works on at least one PPC machine. :)
 
-The fact is, that that would still make you have to audit all the users,
-AND you'd be left up shit creek for the users who _need_ the error return,
-so now you not only have to fix all existing broken stuff, you have to fix
-the _correct_ stuff too some strange way. I agree with returning SIGSEGV,
-but it is NOT a _replacement_ for getting the right error return from
-read/write.
+Hmm.. The PPC <asm/tlb.h> seems to be largely a simplified version of
+the asm-generic one, with no support for the UP optimization, for example.
 
-So what's your point? You want to dumb down the interfaces until you can't
-make mistakes, and only idiots will be able to use the system.
+And that UP optimization should be perfectly correct even on PPC, so you
+apparently lost something in the translation.
 
-As long as you continue to push an interface that DOES NOT WORK, there's
-no way you can win this argument. read()/write() _needs_ to work, and
-that's not a "warm and fuzzy" kind of thing you can play with.
+I'd actually rather try to share more of the code, if possible.
+
+That does involve putting some of the helper functions in the native
+asm/tlb.h file, so I would suggest somehting along the line of
+
+ - asm-i386/tlb.h:
+
+	/*
+	 * x86 doesn't need to do any per-TLB work,
+	 * or care about VMA ranges
+	 */
+	#define tlb_flush_one_page(tlb,page,address) do { } while (0)
+	#define tlb_start_vma(tlb,vma) do { } while (0)
+	#define tlb_end_vma(tlb,vma) do { } while (0)
+
+	#include <asm-generic/tlb.h>
+
+ - asm-ppc/tlb.h:
+
+
+	static inline void tlb_flush_one_page(tlb, page, address)
+	{
+		if (tlb->nr == 0)
+			tlb->start = address;
+		else if (address - tlb->end > 32 * PAGE_SIZE) {
+			tlb_flush_mmu(tlb);
+			tlb->start = address;
+		}
+		tlb->end = address;
+	}
+	#define tlb_start_vma(tlb,vma) do { } while (0)
+	#define tlb_end_vma(tlb,vma) tlb_flush_mmu(tlb)
+
+	#include <asm-generic/tlb.h>
+
+See what I mean? You can share all the generic stuff, and only differ in
+the details.
+
+I think.
 
 		Linus
 

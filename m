@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbUCONQT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 08:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUCONQT
+	id S261959AbUCONNh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 08:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUCONNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 08:16:19 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:52694 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262562AbUCONQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 08:16:17 -0500
-Date: Mon, 15 Mar 2004 14:16:01 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Ian Kent <raven@themaw.net>
-Cc: Carsten Otte <cotte@freenet.de>, linux-kernel@vger.kernel.org,
-       mszeredi@inf.bme.hu, herbert@13thfloor.at
-Subject: Re: unionfs
-Message-ID: <20040315131601.GC16615@wohnheim.fh-wedel.de>
-References: <200403151235.25877.cotte@freenet.de> <20040315121934.GB16615@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0403152045290.14862@raven.themaw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 15 Mar 2004 08:13:36 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:6153 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261959AbUCONNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 08:13:35 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] WOLK v2.0 for Kernel v2.6.4
+Date: Mon, 15 Mar 2004 14:13:13 +0100
+User-Agent: KMail/1.6.1
+Cc: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
+References: <200403142314.37398@WOLK>
+In-Reply-To: <200403142314.37398@WOLK>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0403152045290.14862@raven.themaw.net>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200403151413.13643@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 March 2004 20:47:05 +0800, Ian Kent wrote:
-> On Mon, 15 Mar 2004, [iso-8859-1] Jörn Engel wrote:
-> > 
-> > You could also have some sort of 'hidden symlink', i.e. something that
-> > behaves just like a file but is in fact a link to some other
-> > filesystem.  If that other filesystem is not accessable, all
-> > operations return -EIO.
-> 
-> Sounds a bit untidy.
+On Sunday 14 March 2004 23:14, Marc-Christian Petersen wrote:
 
-If you have a cleaner idea, I'm open for suggestions.
+Hi again,
 
-> Has anyone checked http://www.filesystems.org/
-> 
-> What do you think?
+> o   added:    Allow reading last block (write not)		(Andrea Arcangeli)
 
-Looks like an abstraction layer that still assumes a 1:1 mapping
-between filesystems and devices, so it doesn't help.  Did I miss
-something?
+my bad, this should be:
 
-Jörn
 
--- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
+ o    fixed:    reading the last block on a bdev		(Chris Mason)
+
+
+it is this fix: 
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1608.83.55?nav=index.html|
+ChangeSet@-7d
+
+
+Thanks to Jens for noticing this.
+
+ciao, Marc

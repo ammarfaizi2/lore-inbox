@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317385AbSIATeW>; Sun, 1 Sep 2002 15:34:22 -0400
+	id <S317396AbSIATgK>; Sun, 1 Sep 2002 15:36:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317392AbSIATeW>; Sun, 1 Sep 2002 15:34:22 -0400
-Received: from mail.libertysurf.net ([213.36.80.91]:43812 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S317385AbSIATeV> convert rfc822-to-8bit; Sun, 1 Sep 2002 15:34:21 -0400
-Date: Sun, 1 Sep 2002 23:19:08 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: groudier@localhost.my.domain
-To: Terry Barnaby <terry@beam.ltd.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel lockup with BVM SCSI controller on MCPN765 PPC
- board
-In-Reply-To: <3D6F4A3A.50806@beam.ltd.uk>
-Message-ID: <20020901225240.W6132-100000@localhost.my.domain>
+	id <S317402AbSIATgK>; Sun, 1 Sep 2002 15:36:10 -0400
+Received: from pat.uio.no ([129.240.130.16]:40703 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317396AbSIATgH>;
+	Sun, 1 Sep 2002 15:36:07 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15730.27952.29723.552617@charged.uio.no>
+Date: Sun, 1 Sep 2002 21:40:32 +0200
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+In-Reply-To: <1030906488.2145.104.camel@ldb>
+References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
+	<1030822731.1458.127.camel@ldb>
+	<15729.17279.474307.914587@charged.uio.no>
+	<1030835635.1422.39.camel@ldb>
+	<15730.4100.308481.326297@charged.uio.no>
+	<15730.8121.554630.859558@charged.uio.no>
+	<1030890022.2145.52.camel@ldb>
+	<15730.17171.162970.367575@charged.uio.no>
+	<1030906488.2145.104.camel@ldb>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Luca Barbieri <ldb@ldb.ods.org> writes:
 
-On Fri, 30 Aug 2002, Terry Barnaby wrote:
+     > And, in the common case of open, why do you need to copy the
+     > structure to check permissions?  I think that open should just
+     > check the current values.  open might want to copy credentials
 
-> Hi,
->
-> We have a major problem with using a BVM SCSI controller on a Motorola
-> MCPN765 PowerPC Compact PCI Motherboard. When the SCSI driver module is
-> loaded and starts to perform SCSI device interrogation the system will
-> completely lock up.
-> It appears that the hardware is locked up, the kernel locks up during
-> a low level serial console print routine (serial_console_write). No interrupts
-> occur (we have even disabled interrupts in the serial_console_write routine
-> to make sure).
-> The BVM SCSI controller is based on the LSI53C1010-66 chip and we are using the
-> sym53c8xx_2 SCSI driver (although the same problem occurs with the
-> sym53c8xx SCSI driver.
-> We are using MontaVista Linux 2.1 with the 2.4.17 kernel.
->
-> Using this SCSI controller board with a Motorola MCP750 PowerPC motherboard
-> works fine. One of the differences between the Motherboards is that the
-> MCPN765 has a 66MHz/64bit PCI bus while the MCP750 has a 33MHz/32bit PCI bus.
-> The MCPN765 uses a Hawk ASIC for Memory/PCI bus control.
->
-> We have been attempting to debug the driver to find the cause but have been
-> hitting brick walls. The system appears to lock up when the SCSI board
-> is performing a DataIn phase under the control of its on-board SCRIPTS processor.
->
-> As the system has completely locked up we have not been able to find the cause.
-> Any information on possible causes or ideas on how to proceed would be most
-> appreciated.
+Because, as has been explained to you, we have things like Coda,
+Intermezzo, NFS, for which this is insufficient.
 
-The software driver hasn't any handle on the actual differences between
-the BUS that leads to failure and the one that allows success:
+     > in case you want to do the inode lookup asynchronously but then
+     > it doesn't make sense to optimize for this since you already
+     > have the huge disk read penalty.  BTW, the 2.5.32 open does the
+     > check in vfs_permission without copying anything.  Anyway it's
+     > just a 3 long copy plus an atomic inc vs. 1 long copy and
+     > atomic inc.  And if you don't need the groups array, it's just
+     > a 2 longs copy that on some architectures with very slow atomic
+     > operations (e.g. sparc) is much better.
 
-1) The PCI clock is full hardware dependant. There is nothing software can
-   change here.
+But we we do need to check the groups array in the VFS. And as Linus
+pointed out, there is a good case for passing info from the
+user_struct too (crypto), etc...
 
-2) Same for the PCI BUS path. A 64 bit PCI BUS just allows to transfer 64
-   bit of data per BUS cycle but a 32 bit PCI BUS can only transfer 32 bit
-   per PCI cycle.
-
-3) Both PCI BUSes width allows 64 bit memory addressing.
-
-As we know, PCI device drivers relies on kernel generic PCI driver that
-provides configuration access and DMA address translation services. The
-kernel PCI related code uses machine-dependent and bridge-dependant
-methods. So, IMO, there is far more places than just the driver code that
-are involved in the failure you report (including the related pieces of
-hardware).
-
-I would suggest you to check the following at first:
-
-1) Give a look at the PCI configuration space of the chip (or report it).
-   For example, a base address that doesn't fit in 32 bit is very
-   uncommon. Etc...
-
-2) Configure the driver for 32 bit DMA (DMA MODE = 0). This will ensure
-   that all DMA addresses will fit in 32 bit and that no PCI dual cycle
-   will occur on behalf of the 1033-66 chip.
-
- Gérard.
-
+Cheers,
+  Trond

@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130539AbRASGmh>; Fri, 19 Jan 2001 01:42:37 -0500
+	id <S129757AbRASG4t>; Fri, 19 Jan 2001 01:56:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRASGm1>; Fri, 19 Jan 2001 01:42:27 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:32004 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S130539AbRASGmO>;
-	Fri, 19 Jan 2001 01:42:14 -0500
-Date: Fri, 19 Jan 2001 04:42:13 -0200
-From: Rogerio Brito <rbrito@iname.com>
+	id <S129908AbRASG4k>; Fri, 19 Jan 2001 01:56:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38149 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129757AbRASG4a>; Fri, 19 Jan 2001 01:56:30 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: VIA chipset discussion
-Message-ID: <20010119044213.A779@iname.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com> <20010118020408.A4713@iname.com> <20010118121356.A28529@frednet.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010118121356.A28529@frednet.dyndns.org>
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Date: 18 Jan 2001 22:55:59 -0800
+Organization: Transmeta Corporation
+Message-ID: <948odv$963$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10101171659160.10878-100000@penguin.transmeta.com> <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 18 2001, Matthew Fredrickson wrote:
-> BTW, are you having any trouble with your ps/2 mouse port in X?
+In article <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>,
+Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
+>
+>What about getting rid of both that and the pointer, and just
+>hanging that data on the end as a variable length array?
+>
+>struct kiovec2{
+>  int nbufs;
+>  /* ... */
+>  struct kiobuf[0];
+>}
 
-	Like I said in the previous e-mail, I'm using right now an
-	Asus A7V mobo with Linus' stock kernel 2.2.18 with André's
-	patches.
+If the struct ends up having lots of other fields, yes.
 
-	I'm using basically a Debian potato here with XFree86 3.3.6
-	and a Microsoft Intellimouse (with IMPS/2 protocol) and
-	everything seems to be working fine. Before my brand new 40GB
-	Samsung HD died, I was using a more modified potato, including
-	XFree86 4.0.1e (or 4.0.1f, I don't remember). Everything was
-	also working fine with this older setup.
+On the other hand, if one basic form of kiobuf's ends up being really
+just the array and the number of elements, there are reasons not to do
+this. One is that you can "peel" off parts of the buffer, and split it
+up if (for example) your driver has some limitation to the number of
+scatter-gather requests it can make. For example, you may have code that
+looks roughly like
 
-> On my new ASUS board, ps/2 mouse devices (just in X, gpm works fine)
-> act a little crazy (random mouse movement, random clicking, etc.,
-> except I'm not the one doing all the random movement).  I'm not sure
-> what it is, though I do know it's not as bad once I upgraded from
-> 2.2.18pre21 to 2.4.0.
+	.. int nr, struct kibuf *buf ..
 
-	I usually only follow Alan's pre series when things are broken
-	with the final releases, so I don't know about 2.2.18preX. I'm
-	sorry that I can't help.
+	while (nr > MAX_SEGMENTS) {
+		lower_level(MAX_SEGMENTS, buf);
+		nr -= MAX_SEGMENTS;
+		buf += MAX_SEGMENTS;
+	}
+	lower_level(nr, buf);
 
-> I think I'm going to try using the mouse as a usb device and see if
-> I still have trouble.
+which is rather awkward to do if you tie "nr" and the array too closely
+together. 
 
-	Unfortunately, I have never ever seen a USB device, so I have
-	no experience here to help you.
+(Of course, the driver could just split them up - take it from the
+structure and pass them down in the separated manner. I don't know which
+level the separation is worth doing at, but I have this feeling that if
+the structure ends up being _only_ the nbufs and bufs, they should not
+be tied together.)
 
-> Anyway, just wondering if you're seeing the same problem.
-
-	No, but have you tried changing the mouse? I've had problems
-	with a Matrox G400 AGP 16MB monohead that I purchased when I
-	got my system. It did crash when X was running in Linux and
-	FreeBSD (and many versions of X, for that matter), but under
-	Windows it worked flawlessly.
-
-	When I used Matrox's drivers with XFree86 4.x, it worked
-	perfectly.  I changed my Matrox and now I'm using a new one
-	under X 3.3.6 under potato (a stable platform that I use) and
-	everything is fine).
-
-	So, perhaps you could try changing your mouse?
-
-
-	[]s, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

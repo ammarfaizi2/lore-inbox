@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHCVTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266863AbUHCVXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUHCVTz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUHCVTz
+	id S266863AbUHCVXG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266858AbUHCVXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:19:55 -0400
-Received: from web14921.mail.yahoo.com ([216.136.225.5]:48224 "HELO
-	web14921.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266864AbUHCVTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:19:49 -0400
-Message-ID: <20040803211948.59456.qmail@web14921.mail.yahoo.com>
-Date: Tue, 3 Aug 2004 14:19:48 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Jesse Barnes <jbarnes@engr.sgi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <200408021903.39273.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
+	Tue, 3 Aug 2004 17:23:06 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:46816 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S266863AbUHCVXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 17:23:01 -0400
+Date: Tue, 3 Aug 2004 23:22:31 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040803212231.GJ2241@dualathlon.random>
+References: <20040803210737.GI2241@dualathlon.random> <Pine.LNX.4.44.0408031712371.5948-100000@dhcp83-102.boston.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408031712371.5948-100000@dhcp83-102.boston.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is saying that my AGP bridge chip has a ROM right?
+On Tue, Aug 03, 2004 at 05:13:56PM -0400, Rik van Riel wrote:
+> On Tue, 3 Aug 2004, Andrea Arcangeli wrote:
+> 
+> > > -	if (shmflg & SHM_HUGETLB)
+> > > +	if (shmflg & SHM_HUGETLB) {
+> > > +		/* hugetlb_zero_setup takes care of mlock user accounting */
+> > >  		file = hugetlb_zero_setup(size);
+> > > +		shp->mlock_user = current->user;
+> > > +	} else {
+> 
+> > where do you change mlock_user in chown?
+> 
+> You don't.  Normal users aren't allowed to chown each
+> other's files, nor are they allowed to "give away" one
+> of their files to somebody else.
+> 
+> On unlock the quota gets deducted from the user who
+> created the hugetlbfs file.
+> 
+> This means there shouldn't be security issues with this
+> approach.  Let me know if I've overlooked one.
 
-00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (rev
-02) (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, fast devsel, latency 64
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: fe900000-feafffff
-        Prefetchable memory behind bridge: f0000000-f7ffffff
-        Expansion ROM at 0000d000 [disabled] [size=4K]
- 
-Each of my video controllers has one too:
-
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV250 If
-[Radeon 9000] (rev 01) (prog-if 00 [VGA])
-        Subsystem: C.P. Technology Co. Ltd RV250 If [Radeon 9000 Pro
-"Evil Commando"]
-        Flags: stepping, 66Mhz, medium devsel, IRQ 177
-        Memory at f4000000 (32-bit, prefetchable) [disabled]
-[size=fea00000]
-        I/O ports at de00 [disabled] [size=256]
-        Memory at fe9e0000 (32-bit, non-prefetchable) [disabled]
-[size=64K]
-        Expansion ROM at 00020000 [disabled]
-        Capabilities: <available only to root>
- 
-02:02.0 VGA compatible controller: ATI Technologies Inc Rage 128 PD/PRO
-TMDS (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc Rage 128 AIW
-        Flags: bus master, stepping, medium devsel, latency 64, IRQ 209
-        Memory at f8000000 (32-bit, prefetchable) [size=fe800000]
-        I/O ports at ce00 [size=256]
-        Memory at fe7dc000 (32-bit, non-prefetchable) [size=16K]
-        Expansion ROM at 00020000 [disabled]
-        Capabilities: <available only to root>
-
-Both of the video ROMs are at 00020000, won't they end up on top of
-each other when enabled?
-
-With the patch the video ROMs are in sysfs but the AGP bridge one is
-not.
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+I agree there aren't security issues, but it's still very wrong to
+charge the old user if the admin gives the locked ram to a new user.
+This erratic behaviour shows how much the rlimit approch is flawed for
+named fs objects that have nothing to do with the transient task that
+created them.

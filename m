@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbUKPQl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbUKPQjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUKPQl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:41:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUKPQju
+	id S262024AbUKPQjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUKPQgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:39:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27861 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262020AbUKPQgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:36:51 -0500
-Date: Tue, 16 Nov 2004 08:33:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041116163314.GA6264@kroah.com>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+	Tue, 16 Nov 2004 11:36:32 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:47326 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S262020AbUKPQgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 11:36:04 -0500
+Date: Tue, 16 Nov 2004 17:25:54 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc2
+Message-ID: <20041116162553.GA32470@bogon.ms20.nix>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 03:01:10PM +0100, Miklos Szeredi wrote:
-> > "fuse/version" you have in /proc while it belongs to /proc
-> > "fuse/dev"     you have in /proc while it belongs to /dev
+Hi,
+On Sun, Nov 14, 2004 at 06:49:04PM -0800, Linus Torvalds wrote:
 > 
-> Well, 'Documentation/devices.txt' says:
-> 
->   THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
->   TREE.  At Linus' request, no more allocations will be made official
->   for Linus' kernel tree; the 3 June 2001 version of this list is the
->   official final version of this registry.
+> Ok, the -rc2 changes are almost as big as the -rc1 changes, and we should 
+> now calm down, so I do not want to see anything but bug-fixes until 2.6.10 
+> is released. Otherwise we'll never get there.
+here's a simple compile fix necessary due to dev.power changes:
 
-Not true, you can get new numbers.
+--- linux-2.6.10-rc2/drivers/macintosh/mediabay.c.orig	2004-11-16 17:13:53.165493040 +0100
++++ linux-2.6.10-rc2/drivers/macintosh/mediabay.c	2004-11-16 17:16:13.587145704 +0100
+@@ -713,13 +713,13 @@
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+-	if (state != mdev->ofdev.dev.power_state && state >= 2) {
++	if (state != mdev->ofdev.dev.power.power_state && state >= 2) {
+ 		down(&bay->lock);
+ 		bay->sleeping = 1;
+ 		set_mb_power(bay, 0);
+ 		up(&bay->lock);
+ 		msleep(MB_POLL_DELAY);
+-		mdev->ofdev.dev.power_state = state;
++		mdev->ofdev.dev.power.power_state = state;
+ 	}
+ 	return 0;
+ }
+@@ -728,8 +728,8 @@
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+-	if (mdev->ofdev.dev.power_state != 0) {
+-		mdev->ofdev.dev.power_state = 0;
++	if (mdev->ofdev.dev.power.power_state != 0) {
++		mdev->ofdev.dev.power.power_state = 0;
+ 
+ 	       	/* We re-enable the bay using it's previous content
+ 	       	   only if it did not change. Note those bozo timings,
 
-Don't put things that should be in /dev into /proc, not allowed.
-
-> So placing it in /proc doesn't seem to me such a bad idea.
-
-No.  Actually, put it in sysfs, and then udev will create your /dev node
-for you automatically.  And in sysfs you can put your other stuff
-(version, etc.) which is the proper place for it.
-
-thanks,
-
-greg k-h
+Signed-off-by: Guido Guenther <agx@sigxpcu.org>
+Cheers,
+ -- Guido

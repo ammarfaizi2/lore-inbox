@@ -1,91 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSGZDQD>; Thu, 25 Jul 2002 23:16:03 -0400
+	id <S316739AbSGZDW4>; Thu, 25 Jul 2002 23:22:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSGZDQD>; Thu, 25 Jul 2002 23:16:03 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:25085 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S316728AbSGZDQC>;
-	Thu, 25 Jul 2002 23:16:02 -0400
-Date: Thu, 25 Jul 2002 23:19:14 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
+	id <S316746AbSGZDW4>; Thu, 25 Jul 2002 23:22:56 -0400
+Received: from web20705.mail.yahoo.com ([216.136.226.178]:57614 "HELO
+	web20705.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316739AbSGZDWz>; Thu, 25 Jul 2002 23:22:55 -0400
+Message-ID: <20020726031413.83575.qmail@web20705.mail.yahoo.com>
+Date: Thu, 25 Jul 2002 20:14:13 -0700 (PDT)
+From: abhishek Sinha <aby_sinha@yahoo.com>
+Subject: Intel Plumas Chipset and 100Mhz PCI cards
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.28: "bad: schedule() with irqs disabled!"
-Message-ID: <20020726031914.GA32749@www.kroptech.com>
-Mime-Version: 1.0
+Cc: aby_sinha@yahoo.com
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.28 compiled for SMP+preempt (and running on 2 CPU SMP box) I get...
+Hello List member
 
-bad: schedule() with irqs disabled!
+I am using Intel ClearWater SE7500CW2 motherboard
+which uses Pentium 4 based Xeon processors.Also the
+motherboard has 2 PCI/PCI-X 64 bit 100Mhz slots.I am
+trying to use Intel PCI-X Gigabit Card on the
+machine.It works fine but when i check the /proc
+entry, here is what i find.
 
-...followed by a backtrace early in the boot process. Without preempt this 
-notice does not appear. Below is a decoded version followed by the original
-with several lines of context in case that is of use.
+/proc/net/PRO_LAN_Adapters/eth2 
 
---Adam
+escription                      Intel(R) PRO/1000
+Network Connection
+Part_Number                      a50484-006
+Driver_Name                      e1000
+Driver_Version                   4.3.2
+PCI_Vendor                       0x8086
+PCI_Device_ID                    0x1009
+PCI_Subsystem_Vendor             0x8086
+PCI_Subsystem_ID                 0x1109
+PCI_Revision_ID                  0x02
+PCI_Bus                          2
+PCI_Slot                         1
+PCI_Bus_Type                     PCI
+PCI_Bus_Speed                    66MHz
+PCI_Bus_Width                    64-bit
+IRQ                              24
+System_Device_Name               eth2
+Current_HWaddr                   00:02:B3:9E:5A:1A
+Permanent_HWaddr                 00:02:B3:9E:5A:1A
 
-ksymoops 2.4.1 on i686 2.5.28.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.28/ (default)
-     -m /boot/System.map-2.5.28 (default)
+Link                             up
+Speed                            1000
+Duplex                           Full
+State                            up
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+Rx_Packets                       0
+Tx_Packets                       0
+Rx_Bytes                         0
+Tx_Bytes                         0
+Rx_Errors                        0
+Tx_Errors                        0
+Rx_Dropped                       0
+Tx_Dropped                       0
+Multicast                        0
+Collisions                       0
+Rx_Length_Errors                 0
+Rx_Over_Errors                   0
+Rx_CRC_Errors                    0
+Rx_Frame_Errors                  0
+Rx_FIFO_Errors                   0
+Rx_Missed_Errors                 0
+Tx_Aborted_Errors                0
+Tx_Carrier_Errors                0
+Tx_FIFO_Errors                   0
+Tx_Heartbeat_Errors              0
+Tx_Window_Errors                 0
+Tx_Abort_Late_Coll               0
+Tx_Deferred_Ok                   0
+Tx_Single_Coll_Ok                0
+Tx_Multi_Coll_Ok                 0
+Rx_Long_Length_Errors            0
+Rx_Short_Length_Errors           0
+Rx_Align_Errors                  0
+Rx_Flow_Control_XON              0
+Rx_Flow_Control_XOFF             0
+Tx_Flow_Control_XON              0
+Tx_Flow_Control_XOFF             0
+Rx_CSum_Offload_Good             0
+Rx_CSum_Offload_Errors           0
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-Warning (compare_maps): ksyms_base symbol GPLONLY___wake_up_sync not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_idle_cpu not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_set_cpus_allowed not found in System.map.  Ignoring ksyms_base entry
-c9fd1f84 c0288240 c0346436 c0313900 c0119844 00000000 00000001 00000000 
-       c02dd7fe c028723d 00000001 00000000 00000000 00000000 00000000 c02dfac5 
-       00000bd1 c02d8000 00000286 c02c0724 c02d9f94 c01154ec 00000000 c02d8000 
-Call Trace: [<c0119844>] [<c01154ec>] [<c0115505>] [<c0119850>] 
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-Trace; c0119844 <printk+144/180>
-Trace; c01154ec <__wake_up+2c/50>
-Trace; c0115505 <__wake_up+45/50>
-Trace; c0119850 <printk+150/180>
+PHY_Media_Type                   Fiber
 
 
-6 warnings issued.  Results may not be reliable.
+The card shows up as 66 Mhz slot even if the PCI slot
+is offering 100Mhz speed.Then i checked with the
+latest version of the intel e1000 driver.
 
+In one of the files e1000_proc.c this is what i found.
 
-CPU0: Intel 00/01 stepping 09
-per-CPU timeslice cutoff: 730.16 usecs.
-task migration cache decay timeout: 1 msecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000004
-ESR value after enabling vector: 00000000
-Booting processor 1/1 eip 2000
-Initializing CPU#1
-bad: schedule() with irqs disabled!
-c9fd1f84 c0288240 c0346436 c0313900 c0119844 00000000 00000001 00000000 
-       c02dd7fe c028723d 00000001 00000000 00000000 00000000 00000000 c02dfac5 
-       00000bd1 c02d8000 00000286 c02c0724 c02d9f94 c01154ec 00000000 c02d8000 
-Call Trace: [<c0119844>] [<c01154ec>] [<c0115505>] [<c0119850>] 
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 397.31 BogoMIPS
-CPU: Before vendor init, caps: 0000fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 8K, L1 D cache: 8K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0000fbff 00000000 00000000 00000000
-Intel machine check reporting enabled on CPU#1.
-CPU:     After generic, caps: 0000fbff 00000000 00000000 00000000
-CPU:             Common caps: 0000fbff 00000000 00000000 00000000
-CPU1: Intel 00/01 stepping 09
-Total of 2 processors activated (787.45 BogoMIPS).
+static char *
+ e1000_proc_bus_speed(void *data, size_t len, char
+*buf)
+ {
+  e1000_bus_speed bus_speed = *(e1000_bus_speed
+*)data;
+         sprintf(buf,
+                 bus_speed == e1000_bus_speed_33  ?
+33MHz"  :
+                 bus_speed == e1000_bus_speed_66  ?
+"66MHz"  :
+                 bus_speed == e1000_bus_speed_100 ?
+"100MHz" :
+                 bus_speed == e1000_bus_speed_133 ?
+"133MHz" :
+                 "UNKNOWN");
+         return buf;
+ }
 
+So i guess this means that the driver does recognise
+the bus speed of 100Mhz. I also went and looked into 
+the data sheet of the PCI hub on the motherboard which
+ is in the link below:
+
+ftp://download.intel.com/design/chipsets/e7500/datashts/29073201.pdf
+
+In page 50, a CNF register is defined which seems to
+support configuration ar 100 Mhz or 133 Mhz.
+ 
+
+So now i am wondering whether /proc is given me the
+wrong information of its a limitation of the kernel
+that it cant recognise e1000 driver.Currently i am
+using the 2.4.18 kernel and am wondering if this
+chipset support is available in linux kernel? 
+
+Given the slightest hint i am willing to work on it to
+find out the solution; Any help will be greatly
+appreciated.Please cc: me the answers /suggestions
+since i am not on the list
+
+Thanking all
+
+abhishek Sinha
+
+___
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Health - Feel better, live better
+http://health.yahoo.com

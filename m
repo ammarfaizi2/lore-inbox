@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268846AbRHBHpB>; Thu, 2 Aug 2001 03:45:01 -0400
+	id <S268850AbRHBHwV>; Thu, 2 Aug 2001 03:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268847AbRHBHov>; Thu, 2 Aug 2001 03:44:51 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21818 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268846AbRHBHof>; Thu, 2 Aug 2001 03:44:35 -0400
-Date: Thu, 2 Aug 2001 09:45:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeremy Higdon <jeremy@classic.engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: changes to kiobuf support in 2.4.(?)4
-Message-ID: <20010802094517.I29065@athlon.random>
-In-Reply-To: <10108012254.ZM192062@classic.engr.sgi.com> <20010802084259.H29065@athlon.random> <andrea@suse.de> <10108020031.ZM229058@classic.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10108020031.ZM229058@classic.engr.sgi.com>; from jeremy@classic.engr.sgi.com on Thu, Aug 02, 2001 at 12:31:52AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S268849AbRHBHwM>; Thu, 2 Aug 2001 03:52:12 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25083 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S268847AbRHBHwA>; Thu, 2 Aug 2001 03:52:00 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108020751.f727pnMf010874@webber.adilger.int>
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
+In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+ "from Richard Gooch at Aug 2, 2001 00:42:00 am"
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Date: Thu, 2 Aug 2001 01:51:48 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        devfs-announce-list@mobilix.ras.ucalgary.ca
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 12:31:52AM -0700, Jeremy Higdon wrote:
-> By "mmap callback", you're referring to the mmap entry in the file_operations
-> structure?
+Richard writes:
+>   Hi, all. Below is my second cut of a patch that adds support for
+> large numbers of SCSI discs (approximately 2144). I'd like people to
+> try this out. I've fixed a couple of "minor" typos that happened to
+> disable sd detection. I've also tested this patch: it works fine on my
+> 3 drive system. In addition, I've switched to using vmalloc() for key
+> data structures, so the kmalloc() limitations shouldn't hit us. I've
+> added an in_interrupt() test to sd_init() just in case.
 
-yes.
+The real question is whether this code is limited to adding only SCSI
+major numbers, or if it could be used to assign major numbers to
+other subsystems (sorry I haven't looked at the code yet)?
 
-> I am doing direct I/O.  I'm using the kiobuf to hold the page addresses
-> of the user's data buffer, but I'm calling directly into my driver
-> after doing the map_user_kiobuf() (I have a read/write request, a file
-> offset, a byte count, and a set of pages to DMA into/out of, and that
-> gets directly translated into a SCSI command).
-> 
-> It turns out that the old kmem_cache_alloc was very lightweight, so I
-> could get away with doing it once per I/O request, so I would indeed
-> profit by going back to a light weight kiobuf, or at least an optional
-> allocation of the bh and blocks arrays (perhaps turn them into pointers
-> to arrays?).
+ From our discussion last week, it _should_ be able to assign major
+numbers to other systems like EVMS, which you would probably want to
+use on top of those 2144 SCSI disks anyways.  However, since you are
+billing this as the "2144 SCSI disk patch", I thought I would confirm.
 
-I see your problem and it's a valid point indeed. But could you actually
-allocate the kiobuf in the file->f_iobuf pointer? I mean: could you
-allocate it at open/close too?  That would be the way I prefer since you
-would need to allocate the bh anyways later (but with a flood of
-alloc/free). So if you could move the kiobufs allocation out of the fast
-path you would get a benefit too I believe.
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Andrea

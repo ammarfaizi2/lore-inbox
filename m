@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264112AbTKUAEW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 19:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264133AbTKUAEW
+	id S264073AbTKUAAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 19:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTKUAAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 19:04:22 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:59609 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264112AbTKUAD7 (ORCPT
+	Thu, 20 Nov 2003 19:00:37 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:50866 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264073AbTKUAAc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 19:03:59 -0500
-Date: Thu, 20 Nov 2003 16:03:58 -0800
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Thu, 20 Nov 2003 19:00:32 -0500
+Date: Thu, 20 Nov 2003 16:00:31 -0800
+To: "Mudama, Eric" <eric_mudama@maxtor.com>
 Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Announce: ndiswrapper
-Message-ID: <20031121000358.GA17894@bougret.hpl.hp.com>
+Message-ID: <20031121000031.GA17869@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC5036.3020503@pobox.com> <20031120052659.GF22764@holomorphy.com> <1069311243.5185.192.camel@gaston> <20031120172729.GC14608@bougret.hpl.hp.com> <1069372639.876.39.camel@gaston>
+References: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1069372639.876.39.camel@gaston>
+In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com>
 User-Agent: Mutt/1.3.28i
 Organisation: HP Labs Palo Alto
 Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
@@ -28,13 +28,23 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21, 2003 at 10:57:19AM +1100, Benjamin Herrenschmidt wrote:
+On Thu, Nov 20, 2003 at 04:53:12PM -0700, Mudama, Eric wrote:
 > 
-> Except when Apple provides built-in Broadcom chipset in all new
-> recent Macs...
+> I think the point being made is "Why spend an extra $150 on a PCMCIA wifi
+> card when there's an integrated wifi device already in the laptop that
+> ndiswrapper will allow to sortof work?"
+> 
+> The person who bought this laptop and wants to run linux on it might not
+> have the extra money handy to use buying additional hardware.
+> 
+> Not my point of view, but definitely "a" point of view.
+> 
+> --eric
 
-	Only one world : monopoly...
-
-> Ben.
+	My point is : why buy this laptop if it's not 100%
+supported ? They are plenty of other laptops...
+	I can guarantee you that I'm more picky and more cheap than
+anyone when choosing laptops, and I always get something 100%
+supported.
 
 	Jean

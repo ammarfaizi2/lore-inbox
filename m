@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317161AbSEXPb0>; Fri, 24 May 2002 11:31:26 -0400
+	id <S317152AbSEXPae>; Fri, 24 May 2002 11:30:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317158AbSEXPbZ>; Fri, 24 May 2002 11:31:25 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:58356 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317157AbSEXPbY>; Fri, 24 May 2002 11:31:24 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E17BGhc-0006V7-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mulix@actcom.co.il (Muli Ben-Yehuda), linux-kernel@vger.kernel.org
-Subject: Re: ppp_deflate.o taints the kernel? 
-Mime-Version: 1.0
+	id <S317154AbSEXPad>; Fri, 24 May 2002 11:30:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48140 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317152AbSEXPac>; Fri, 24 May 2002 11:30:32 -0400
+Subject: Re: Quota patches
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Fri, 24 May 2002 16:43:47 +0100 (BST)
+Cc: jack@suse.cz (Jan Kara), nathans@sgi.com (Nathan Scott),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CEE49C3.4050202@evision-ventures.com> from "Martin Dalecki" at May 24, 2002 04:10:11 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 24 May 2002 16:31:11 +0100
-Message-ID: <29311.1022254271@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BHEJ-0006ed-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If we can do it for quota - we could possible remove the
+> IPC_OLD variant away as well. It's looong overdue by now,
+> becouse the IPC_OLD was not standard conformant anyway.
+> 
+> I would be really really glad to do it iff ACK-ed.
 
-alan@lxorguk.ukuu.org.uk said:
->  FAQ item - BSD license doesnt guarantee we have source. If its GPL
-> compatible someone should slap a GPL header on our copy and be done
-> with it
+More code that takes almost no space, ensures old systems still work and 
+old XFree86 still runs on new kernels. Why remove it ?
 
-It's already marked 'Dual BSD/GPL' in your tree and in 2.5, I believe.
-I fixed it when I did the zlib changes.
-
---
-dwmw2
-
-
+If you want to design a mathematically elegant and small ultra clean OS go
+do it. Linux however has to work in the real world not in the happy clueless
+world of pure mathematical elegance

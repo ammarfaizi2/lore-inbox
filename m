@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbTDWK6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 06:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbTDWK6L
+	id S263995AbTDWK5f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 06:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTDWK5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 06:58:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:55175 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263996AbTDWK6I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 06:58:08 -0400
-Date: Wed, 23 Apr 2003 07:11:30 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted: A decent assembler
-In-Reply-To: <200304230701_MC3-1-359E-3C3@compuserve.com>
-Message-ID: <Pine.LNX.4.53.0304230706420.20223@chaos>
-References: <200304230701_MC3-1-359E-3C3@compuserve.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Apr 2003 06:57:35 -0400
+Received: from mxout4.netvision.net.il ([194.90.9.27]:41104 "EHLO
+	mxout4.netvision.net.il") by vger.kernel.org with ESMTP
+	id S263995AbTDWK5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 06:57:34 -0400
+Date: Wed, 23 Apr 2003 14:20:38 +0200
+From: Nir Livni <nir_l3@netvision.net.il>
+Subject: Re: FileSystem Filter Driver
+To: linux-kernel@vger.kernel.org
+Cc: Nir L <nir_l3@netvision.net.il>
+Message-id: <000d01c30992$c35e7ad0$4ee1db3e@pinguin>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <000501c30983$1ffb8950$ade1db3e@pinguin>
+ <20030423010518.GA6009@wind.cocodriloo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Chuck Ebbert wrote:
-
->
->   Output from 'make bzImage' after making some changes:
->
->         Error: non-constant expression in ".if" statement.
->
->
->   Why is the kernel using a 1-pass assembler?
->
-
-Well it isn't. The AT&T clone assembler will resolve forward
-references and it does it by using as many passes as necessary.
-It even has a 'reasonable' MACRO capability. I use it quite a
-bit to minimize the code-size or to maximize performance in
-embedded systems.
-
-Your error shown above is a real error. If you expose the code
-that it barfed on, maybe somebody could help you fix the code.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+> On Wed, Apr 23, 2003 at 12:28:33PM +0200, Nir Livni wrote:
+> > Hi all,
+> > I am looking for information about writing a FileSystem Filter Driver on
+RH.
+> > Any documentation or source code samples whould be appreciated.
+> >
+> > Please make sure you CC' me on any answer for this post, because I am
+not
+> > registered (yet ?)
+> >
+> > Thanks,
+> > Nir
+>
+> The reference implementation for a filesystem is ext2fs, which
+> you can have a look at in fs/ext2 on a unpacked kernel tree.
+> Have also a look at fs/ramfs which is a bit simpler but does
+> not deal with block devices.
+>
+
+My goal is to write a driver that runs above the filesystem driver, and
+filters calls to this driver.
+Actually, it should pass all calls to the filesystem driver, except very few
+that it should fail for "Access Denied". Are there any simple examples for
+that matter ?
+
+Thanks,
+Nir
+
+> Also have a look at the linux-kernel and linux-fsdevel mailing list
+> archives.
+>
+> Greets, Antonio.
+>
 

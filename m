@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317473AbSHLIEr>; Mon, 12 Aug 2002 04:04:47 -0400
+	id <S317482AbSHLIR1>; Mon, 12 Aug 2002 04:17:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317482AbSHLIEr>; Mon, 12 Aug 2002 04:04:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:26757 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317473AbSHLIEp>;
-	Mon, 12 Aug 2002 04:04:45 -0400
-Date: Mon, 12 Aug 2002 12:07:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>,
-       <julliard@winehq.com>, <ldb@ldb.ods.org>
-Subject: Re: [patch] tls-2.5.31-C3
-In-Reply-To: <20020812173404.39d3abab.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0208121205170.2561-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317493AbSHLIR0>; Mon, 12 Aug 2002 04:17:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:6889 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S317482AbSHLIR0>;
+	Mon, 12 Aug 2002 04:17:26 -0400
+Date: Mon, 12 Aug 2002 17:45:30 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+Message-Id: <20020812174530.398156a1.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0208091813470.1165-100000@home.transmeta.com>
+References: <3D5464E3.74ED07CC@zip.com.au>
+	<Pine.LNX.4.44.0208091813470.1165-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Aug 2002 18:33:09 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
-On Mon, 12 Aug 2002, Stephen Rothwell wrote:
+> 	repeat:
+> 		kmap_atomic(..); // this increments preempt count
+> 		nr = copy_from_user(..);
 
-> > -	.quad 0x0040920000000000	/* 0x40 APM set up for bad BIOS's */
-> > -	.quad 0x00409a0000000000	/* 0x48 APM CS    code */
-> > -	.quad 0x00009a0000000000	/* 0x50 APM CS 16 code (16 bit) */
-> > -	.quad 0x0040920000000000	/* 0x58 APM DS    data */
-> > +	.quad 0x0040920000000000	/* 0x80 APM set up for bad BIOS's */
-> > +	.quad 0x00409a0000000000	/* 0x88 APM CS    code */
-> > +	.quad 0x00009a0000000000	/* 0x90 APM CS 16 code (16 bit) */
-> > +	.quad 0x0040920000000000	/* 0x98 APM DS    data */
-> 
-> I just lost 0x40 which needs to be exactly 0x40 if it is do its job
-> (i.e. cope with brain dead BIOS writers using 0x40 as a segment offset
-> in protected mode ...
+Please please please use a different name for "I know I'm not preemptible but
+I can handle it" or a flag or something.
 
-you can save/restore 0x40 in kernel-space if you need to no problem.
+That leaves us with the possibility of a BUG() in the "normal" copy_to/from_user
+for all those "I'm holding a spinlock while copying to userspace wheeee!" bugs.
+Very common mistake for new kernel authors.
 
-> The idea is that segment 0x40 maps from physical address 0x400 to the
-> end of the first physical page.  As a real mode program would (more or
-> less) expect it to.
+With the preempt count we have an easy way of detecting this at runtime: I'd
+like to keep that.
 
-so you are using the kernel's GDT in real mode as well?
-
-	Ingo
-
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316750AbSGBLdZ>; Tue, 2 Jul 2002 07:33:25 -0400
+	id <S316768AbSGBLf4>; Tue, 2 Jul 2002 07:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSGBLdY>; Tue, 2 Jul 2002 07:33:24 -0400
-Received: from skiathos.physics.auth.gr ([155.207.123.3]:17116 "EHLO
-	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S316750AbSGBLdX>; Tue, 2 Jul 2002 07:33:23 -0400
-Date: Tue, 2 Jul 2002 14:35:33 +0300 (EET DST)
-From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-To: Bongani <bonganilinux@mweb.co.za>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EXT3 errors
-In-Reply-To: <1025583346.3267.7.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0207021433140.1168-100000@skiathos.physics.auth.gr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316770AbSGBLfz>; Tue, 2 Jul 2002 07:35:55 -0400
+Received: from pc-62-30-72-191-ed.blueyonder.co.uk ([62.30.72.191]:51840 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S316768AbSGBLfy>; Tue, 2 Jul 2002 07:35:54 -0400
+Date: Tue, 2 Jul 2002 12:37:18 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [OKS] Module removal
+Message-ID: <20020702123718.A4711@redhat.com>
+References: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Jul 01, 2002 at 01:48:55PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Jul 2002, Bongani wrote:
+Hi,
 
-> On Mon, 2002-07-01 at 23:38, Andrew Morton wrote:
-> > Bongani wrote:
-> > > Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
-> > > ext3_new_block: Allocating block in system zone - block = 32802
-> > Your filesystem is wrecked.  Did you get some I/O errors?
->
-> I found these from the day before
->
-> Jun 30 12:31:00 localhost kernel: hdb: dma_intr: status=0x51 {DriveReady
-> SeekComplete Error }
-> Jun 30 12:31:00 localhost kernel: hdb: dma_intr: error=0x84
-> {DriveStatusError BadCRC }
+> The suggestion was made that kernel module removal be depreciated or
+> removed. I'd like to note that there are two common uses for this
+> capability, and the problems addressed by module removal should be kept in
+> mind. These are in addition to the PCMCIA issue raised.
+ 
+> 1 - conversion between IDE-CD and IDE-SCSI. Some applications just work
+> better (or usefully at all) with one or the other driver used to read CDs.
 
-Ah, so you hard disk is wrecked too...
+The proposal was to deprecate module removal, *not* to deprecate
+dynamic registration of devices.  If you want to maintain the above
+functionality, then there's no reason why a device can't be
+deregistered from one driver and reregistered on another while both
+drivers are present.  Note that the scsi stack already allows you to
+dynamically register and deregister specific targets on the fly.
 
-See what badblocks -v on the damaged partition device has to say...
+> 2 - restarting NICs when total reinitialization is needed. In server
+> applications it's sometimes necessary to move or clear a NIC connection,
+> force renegotiation because the blade on the switch was set wrong, etc.
+> It's preferable to take down one NIC for a moment than suffer a full
+> outage via reboot.
 
--K.
+Again, you might want to do this even with a non-modular driver, or if
+you had one module driving two separate NICs --- the shutdown of one
+card shouldn't necessarily require the removal of the module code from
+the kernel, which is all Rusty was talking about doing.
 
-
+Cheers,
+ Stephen

@@ -1,187 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUHZMJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUHZMWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268775AbUHZMJC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 08:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUHZMH2
+	id S268920AbUHZMWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 08:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUHZMU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 08:07:28 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:491 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268849AbUHZLw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:52:59 -0400
-Date: Thu, 26 Aug 2004 20:58:06 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: [RFC] buddy allocator without bitmap [1/4]
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Message-id: <412DD04E.1040003@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
+	Thu, 26 Aug 2004 08:20:56 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:18647 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S268798AbUHZMKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 08:10:37 -0400
+Date: Thu, 26 Aug 2004 14:07:53 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+       John Stultz <johnstul@us.ibm.com>, albert@users.sourceforge.net,
+       george@mvista.com, hirofumi@mail.parknet.co.jp,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+In-Reply-To: <20040826040436.360f05f7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
+References: <87smcf5zx7.fsf@devron.myhome.or.jp> <20040816124136.27646d14.akpm@osdl.org>
+ <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
+ <412285A5.9080003@mvista.com> <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+ <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
+ <1092787863.2429.311.camel@cog.beaverton.ibm.com> <1092781172.2301.1654.camel@cube>
+ <1092791363.2429.319.camel@cog.beaverton.ibm.com>
+ <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
+ <20040819191537.GA24060@elektroni.ee.tut.fi> <20040826040436.360f05f7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is 2nd part of patches, for zone initialization.
+On Thu, 26 Aug 2004, Andrew Morton wrote:
 
-New member, zone->aligned_order and zone->nr_mem_map is added to zone.
+> Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi> wrote:
+> >
+> > On Wed, Aug 18, 2004 at 09:42:17AM +0200, Tim Schmielau wrote:
+> > > Updated patch below. It's not very well tested, but it compiles, boots, 
+> > > and fixes the problem on i386 with the default HZ=1000 and USER_HZ=100.
+> > 
+> > Yes, it works nicely now.
+> 
+> So...  is this settled now?
+> 
+> If so, could you (Tim) please send out a fresh, changelogged version of the
+> patch for review?
+> 
+> Thanks.
 
-aligned_order indicates memmap is aligned below this order.
-nr_mem_map    indicates memmap is diveded into nr_mem_map.
-
-How these works ? prease see patch 4th ;), there are used to
-coalesce pages.
-
--- Kame
-
-==================
-This patch removes bitmap allocation in zone_init_free_lists() and
-page_to_bitmap_size();
-
-And new added member zone->aligned_order is initialized.
-
-zone->alined_order guarantees "zone is aligned to (1 << zone->aligned_order)
-contiguous pages"
-
-If zone->alined_order == MAX_ORDER, zone is completely aligned, and
-every page is guaranteed to have its buddy page in any order.
-
-zone->aligned_order is used in free_pages_bulk() to skip range checking.
-By using this, if order < zone->aligned_order,
-we do not have to worry about "a page can have its buddy in an order or not?"
-
-This would work well in several architectures.
-
-But my ia64 box shows zone->aligned_order=0 .....this aligned_order would not
-be helpful in some environment.
-
--- Kame
+I still want to do some basic testing, (boot with different values of HZ /
+USER_HZ, check that I didn't spoil the OOM killer), and we might have some
+arguments about the helper functions, but it might already go into -mm as
+it is:
 
 
----
+Derive process start times from the posix_clock_monotonic notion of 
+uptime instead of "jiffies", consistent with the earlier change to 
+/proc/uptime itself.
+(http://linus.bkbits.net:8080/linux-2.5/cset@3ef4851dGg0fxX58R9Zv8SIq9fzNmQ?na%0Av=index.html|src/.|src/fs|src/fs/proc|related/fs/proc/proc_misc.c)
 
- linux-2.6.8.1-mm4-kame-kamezawa/mm/page_alloc.c |   78 +++++++++++-------------
- 1 files changed, 38 insertions(+), 40 deletions(-)
+Process start times are reported to userspace in units of 1/USER_HZ since
+boot, thus applications as procps need the value of "uptime" to convert
+them into absolute time.
 
-diff -puN mm/page_alloc.c~eliminate-bitmap-init mm/page_alloc.c
---- linux-2.6.8.1-mm4-kame/mm/page_alloc.c~eliminate-bitmap-init	2004-08-26 08:42:33.572192352 +0900
-+++ linux-2.6.8.1-mm4-kame-kamezawa/mm/page_alloc.c	2004-08-26 08:42:33.577191592 +0900
-@@ -1499,6 +1499,30 @@ static void __init calculate_zone_totalp
- 	printk(KERN_DEBUG "On node %d totalpages: %lu\n", pgdat->node_id, realtotalpages);
- }
+Currently "uptime" is derived from an ntp-corrected time base, but process
+start time is derived from the free-running "jiffies" counter.
+This results in inaccurate, drifting process start times as seen by the
+user, even if the exported number stays constant, because the users notion
+of "jiffies" changes in time.
 
-+/*
-+ * calculate_aligned_order()
-+ * this function calculates an upper bound order of alignment
-+ * of buddy pages. if order < zone->aligned_order, every page
-+ * are guaranteed to have its buddy.
-+ */
-+void __init calculate_aligned_order(struct zone *zone,
-+				    unsigned long start_pfn,
-+				    unsigned long nr_pages)
-+{
-+	int order, page_idx;
-+	unsigned long mask;
-+	
-+	page_idx = start_pfn - zone->zone_start_pfn;
-+	
-+	for (order = 0 ; order < MAX_ORDER; order++) {
-+		mask = 1UL << order;
-+		if ((page_idx & mask) || (nr_pages & mask))
-+			break;
-+	}
-+	if (order < zone->aligned_order)
-+		zone->aligned_order = order;
-+	printk("Aligned order of %s is %d \n",zone->name, zone->aligned_order);
-+}
+It's John Stultz's patch anyways, which I only messed up a bit, but since
+people started trading signed-off lines on lkml:
 
- /*
-  * Initially all pages are reserved - free ones are freed
-@@ -1510,7 +1534,9 @@ void __init memmap_init_zone(unsigned lo
- {
- 	struct page *start = pfn_to_page(start_pfn);
- 	struct page *page;
--
-+	unsigned long saved_start_pfn = start_pfn;
-+	struct zone *zonep = zone_table[NODEZONE(nid, zone)];
-+	
- 	for (page = start; page < (start + size); page++) {
- 		set_page_zone(page, NODEZONE(nid, zone));
- 		set_page_count(page, 0);
-@@ -1524,51 +1550,20 @@ void __init memmap_init_zone(unsigned lo
+Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
+
+
+--- linux-2.6.8.1-oom/fs/proc/array.c	2004-08-17 21:38:54.000000000 +0200
++++ linux-2.6.8.1-oom-uf/fs/proc/array.c	2004-08-25 23:24:20.000000000 +0200
+@@ -356,7 +356,11 @@ int proc_pid_stat(struct task_struct *ta
+ 	read_unlock(&tasklist_lock);
+ 
+ 	/* Temporary variable needed for gcc-2.96 */
+-	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
++	/* convert timespec -> nsec*/
++	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
++				+ task->start_time.tv_nsec;
++	/* convert nsec -> ticks */
++	start_time = nsec_to_clock_t(start_time);
+ 
+ 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
+
+--- linux-2.6.8.1-oom/include/linux/acct.h	2004-08-17 21:38:55.000000000 +0200
++++ linux-2.6.8.1-oom-uf/include/linux/acct.h	2004-08-25 23:50:15.000000000 +0200
+@@ -172,17 +172,24 @@ static inline u32 jiffies_to_AHZ(unsigne
  #endif
- 		start_pfn++;
- 	}
--}
--
--/*
-- * Page buddy system uses "index >> (i+1)", where "index" is
-- * at most "size-1".
-- *
-- * The extra "+3" is to round down to byte size (8 bits per byte
-- * assumption). Thus we get "(size-1) >> (i+4)" as the last byte
-- * we can access.
-- *
-- * The "+1" is because we want to round the byte allocation up
-- * rather than down. So we should have had a "+7" before we shifted
-- * down by three. Also, we have to add one as we actually _use_ the
-- * last bit (it's [0,n] inclusive, not [0,n[).
-- *
-- * So we actually had +7+1 before we shift down by 3. But
-- * (n+8) >> 3 == (n >> 3) + 1 (modulo overflows, which we do not have).
-- *
-- * Finally, we LONG_ALIGN because all bitmap operations are on longs.
-- */
--unsigned long pages_to_bitmap_size(unsigned long order, unsigned long nr_pages)
--{
--	unsigned long bitmap_size;
--
--	bitmap_size = (nr_pages-1) >> (order+4);
--	bitmap_size = LONG_ALIGN(bitmap_size+1);
--
--	return bitmap_size;
-+	/* Because memmap_init_zone() is called in suitable way
-+	 * even if zone has memory holes,
-+	 * calling calculate_aligned_order(zone) here is reasonable
-+	 */
-+	calculate_aligned_order(zonep, saved_start_pfn, size);
-+	
-+	zonep->nr_mem_map++;
  }
-
- void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone, unsigned long size)
+ 
+-static inline u64 jiffies_64_to_AHZ(u64 x)
++static inline u64 nsec_to_AHZ(u64 x)
  {
- 	int order;
--	for (order = 0; ; order++) {
--		unsigned long bitmap_size;
--
-+	for (order = 0 ; order < MAX_ORDER ; order++) {
- 		INIT_LIST_HEAD(&zone->free_area[order].free_list);
--		if (order == MAX_ORDER-1) {
--			zone->free_area[order].map = NULL;
--			break;
--		}
--
--		bitmap_size = pages_to_bitmap_size(order, size);
--		zone->free_area[order].map =
--		  (unsigned long *) alloc_bootmem_node(pgdat, bitmap_size);
- 	}
+-#if (TICK_NSEC % (NSEC_PER_SEC / AHZ)) == 0
+-#if HZ != AHZ
+-	do_div(x, HZ / AHZ);
+-#endif
+-#else
+-	x *= TICK_NSEC;
++#if (NSEC_PER_SEC % AHZ) == 0
+ 	do_div(x, (NSEC_PER_SEC / AHZ));
++#elif (AHZ % 512) == 0
++	x *= AHZ/512;
++	do_div(x, (NSEC_PER_SEC / 512));
++#else
++	/* 
++         * max relative error 5.7e-8 (1.8s per year) for AHZ <= 1024,
++         * overflow after 64.99 years.
++         * exact for AHZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
++         */
++	x *= 9;
++	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (AHZ/2))
++	                          / AHZ));
+ #endif
+-       return x;
++	return x;
  }
+ 
+ #endif  /* __KERNEL */
 
-@@ -1682,6 +1677,9 @@ static void __init free_area_init_core(s
- 		if ((zone_start_pfn) & (zone_required_alignment-1))
- 			printk("BUG: wrong zone alignment, it will crash\n");
+--- linux-2.6.8.1-oom/include/linux/sched.h	2004-08-17 21:38:55.000000000 +0200
++++ linux-2.6.8.1-oom-uf/include/linux/sched.h	2004-08-25 23:24:20.000000000 +0200
+@@ -457,7 +457,7 @@ struct task_struct {
+ 	struct timer_list real_timer;
+ 	unsigned long utime, stime, cutime, cstime;
+ 	unsigned long nvcsw, nivcsw, cnvcsw, cnivcsw; /* context switch counts */
+-	u64 start_time;
++	struct timespec start_time;
+ /* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
+ 	unsigned long min_flt, maj_flt, cmin_flt, cmaj_flt;
+ /* process credentials */
 
-+		zone->aligned_order = MAX_ORDER;
-+		zone->nr_mem_map = 0;
+--- linux-2.6.8.1-oom/include/linux/times.h	2004-08-17 00:13:35.000000000 +0200
++++ linux-2.6.8.1-oom-uf/include/linux/times.h	2004-08-25 23:24:20.000000000 +0200
+@@ -55,6 +55,26 @@ static inline u64 jiffies_64_to_clock_t(
+ }
+ #endif
+ 
++static inline u64 nsec_to_clock_t(u64 x)
++{
++#if (NSEC_PER_SEC % USER_HZ) == 0
++	do_div(x, (NSEC_PER_SEC / USER_HZ));
++#elif (USER_HZ % 512) == 0
++	x *= USER_HZ/512;
++	do_div(x, (NSEC_PER_SEC / 512));
++#else
++	/* 
++         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
++         * overflow after 64.99 years.
++         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
++         */
++	x *= 9;
++	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2))
++	                          / USER_HZ));
++#endif
++	return x;
++}
 +
- 		memmap_init(size, nid, j, zone_start_pfn);
+ struct tms {
+ 	clock_t tms_utime;
+ 	clock_t tms_stime;
 
- 		zone_start_pfn += size;
+--- linux-2.6.8.1-oom/kernel/acct.c	2004-08-17 21:38:55.000000000 +0200
++++ linux-2.6.8.1-oom-uf/kernel/acct.c	2004-08-25 23:24:20.000000000 +0200
+@@ -384,6 +384,8 @@ static void do_acct_process(long exitcod
+ 	unsigned long vsize;
+ 	unsigned long flim;
+ 	u64 elapsed;
++	u64 run_time;
++	struct timespec uptime;
+ 
+ 	/*
+ 	 * First check to see if there is enough free_space to continue
+@@ -401,7 +403,13 @@ static void do_acct_process(long exitcod
+ 	ac.ac_version = ACCT_VERSION | ACCT_BYTEORDER;
+ 	strlcpy(ac.ac_comm, current->comm, sizeof(ac.ac_comm));
+ 
+-	elapsed = jiffies_64_to_AHZ(get_jiffies_64() - current->start_time);
++	/* calculate run_time in nsec*/
++	do_posix_clock_monotonic_gettime(&uptime);
++	run_time = (u64)uptime.tv_sec*NSEC_PER_SEC + uptime.tv_nsec;	
++	run_time -= (u64)current->start_time.tv_sec*NSEC_PER_SEC 
++					+ current->start_time.tv_nsec;
++	/* convert nsec -> AHZ */
++	elapsed = nsec_to_AHZ(run_time);
+ #if ACCT_VERSION==3
+ 	ac.ac_etime = encode_float(elapsed);
+ #else
 
-_
+--- linux-2.6.8.1-oom/kernel/fork.c	2004-08-17 21:38:55.000000000 +0200
++++ linux-2.6.8.1-oom-uf/kernel/fork.c	2004-08-25 23:24:20.000000000 +0200
+@@ -961,7 +961,7 @@ struct task_struct *copy_process(unsigne
+ 	p->utime = p->stime = 0;
+ 	p->cutime = p->cstime = 0;
+ 	p->lock_depth = -1;		/* -1 = no lock */
+-	p->start_time = get_jiffies_64();
++	do_posix_clock_monotonic_gettime(&p->start_time);
+ 	p->security = NULL;
+ 	p->io_context = NULL;
+ 	p->audit_context = NULL;
 
+--- linux-2.6.8.1-oom/mm/oom_kill.c	2004-08-24 17:40:58.000000000 +0200
++++ linux-2.6.8.1-oom-uf/mm/oom_kill.c	2004-08-25 23:32:03.000000000 +0200
+@@ -26,6 +26,7 @@
+ /**
+  * oom_badness - calculate a numeric value for how bad this task has been
+  * @p: task struct of which task we should calculate
++ * @p: current uptime in seconds
+  *
+  * The formula used is relatively simple and documented inline in the
+  * function. The main rationale is that we want to select a good task
+@@ -41,7 +42,7 @@
+  *    of least surprise ... (be careful when you change it)
+  */
+ 
+-static unsigned long badness(struct task_struct *p)
++static unsigned long badness(struct task_struct *p, unsigned long uptime)
+ {
+ 	unsigned long points, cpu_time, run_time, s;
+ 
+@@ -56,12 +57,16 @@ static unsigned long badness(struct task
+ 	points = p->mm->total_vm;
+ 
+ 	/*
+-	 * CPU time is in seconds and run time is in minutes. There is no
+-	 * particular reason for this other than that it turned out to work
+-	 * very well in practice.
++	 * CPU time is in tens of seconds and run time is in thousands
++         * of seconds. There is no particular reason for this other than
++         * that it turned out to work very well in practice.
+ 	 */
+ 	cpu_time = (p->utime + p->stime) >> (SHIFT_HZ + 3);
+-	run_time = (get_jiffies_64() - p->start_time) >> (SHIFT_HZ + 10);
++
++	if (uptime >= p->start_time.tv_sec)
++		run_time = (uptime - p->start_time.tv_sec) >> 10;
++	else
++		run_time = 0;
+ 
+ 	s = int_sqrt(cpu_time);
+ 	if (s)
+@@ -111,10 +116,12 @@ static struct task_struct * select_bad_p
+ 	unsigned long maxpoints = 0;
+ 	struct task_struct *g, *p;
+ 	struct task_struct *chosen = NULL;
++	struct timespec uptime;
+ 
++	do_posix_clock_monotonic_gettime(&uptime);
+ 	do_each_thread(g, p)
+ 		if (p->pid) {
+-			unsigned long points = badness(p);
++			unsigned long points = badness(p, uptime.tv_sec);
+ 			if (points > maxpoints) {
+ 				chosen = p;
+ 				maxpoints = points;

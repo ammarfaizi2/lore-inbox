@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129875AbQJ3Xxs>; Mon, 30 Oct 2000 18:53:48 -0500
+	id <S129054AbQJ3X6i>; Mon, 30 Oct 2000 18:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbQJ3Xxj>; Mon, 30 Oct 2000 18:53:39 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:65287 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129416AbQJ3Xx0>; Mon, 30 Oct 2000 18:53:26 -0500
-Message-ID: <39FE090E.A3AC48F3@timpanogas.org>
-Date: Mon, 30 Oct 2000 16:49:34 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010302325240.16101-100000@imladris.demon.co.uk>
+	id <S129416AbQJ3X63>; Mon, 30 Oct 2000 18:58:29 -0500
+Received: from ns.caldera.de ([212.34.180.1]:11783 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129054AbQJ3X6V>;
+	Mon, 30 Oct 2000 18:58:21 -0500
+Date: Tue, 31 Oct 2000 00:57:40 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+Subject: Re: test10-pre7
+Message-ID: <20001031005740.A17150@caldera.de>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <20001031004500.A16524@caldera.de> <Pine.LNX.4.10.10010301548150.3595-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10010301548150.3595-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 03:51:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-David/Alan,
-
-Andre Hedrick is now the CTO of TRG and Chief Scientist over Linux
-Development.  After talking 
-to him, we are going to do our own ring 0 2.4 and 2.2.x code bases for
-the MANOS merge.  
-the uClinux is interesting, but I agree is limited.  
-
-MANOS schedules should be unaffected.  The current DLL prototype of
-Linux 2.2 is ring 0, but I shudder at trying to merge all the changes
-I've done to it into core 2.2.X as a .config
-option.  There's also the gravity well forces of different views to this
-effort.  With Andre 
-on the job, I am more confident in co-opting the Linux drivers and just
-biting the bullet 
-on the support issues, and doing a full fork of Linux.
-
-Jeff
-
-David Woodhouse wrote:
+On Mon, Oct 30, 2000 at 03:51:53PM -0800, Linus Torvalds wrote:
+> I hate your patch.
 > 
-> On Mon, 30 Oct 2000, Ingo Molnar wrote:
+> I'd rather see "Rules.make" just base itself entirely off the new-style
+> Makefiles, and have it use "$(obj-y)" instead of O_OBJS etc.
 > 
-> > On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
-> >
-> > > Is there an option to map Linux into a flat address space [...]
-> >
-> > nope, Linux is fundamentally multitasked.
+> Then, _old_style Makefiles could be fixed up by doing a
 > 
-> uClinux may be able to do this, at the cost of a dramatically reduced
-> userspace functionality.
-> 
-> --
-> dwmw2
+> 	include Compat.make
+
+That can't be done.
+Old-style Makefiles are playing dirty tricks with defining
+L_TARGET and then using O_TARGET for linking some onjects into
+an intermediate object.
+
+But the patch I have proposed is _not_ a resend of that old patch.
+Instead this is a separate Makefile.inc that does not include the
+old Rules.make - because it needs to do the different handling of
+symtab objects - and btw it gets simpler because much of the Rule.make
+logic is similar to the list-style makefiles.
+
+So Rule.make would only be for the old-style Makefiles that should be
+killed as fast as possible.
+
+	Christoph
+
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

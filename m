@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVC2Vcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVC2Veo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVC2Vcu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVC2Vac
+	id S261483AbVC2Veo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVC2VdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:30:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13201 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261511AbVC2V3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:29:53 -0500
-Date: Tue, 29 Mar 2005 16:29:49 -0500
-From: Neil Horman <nhorman@redhat.com>
-To: jamal <hadi@cyberus.ca>
-Cc: Neil Horman <nhorman@redhat.com>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, netdev <netdev@oss.sgi.com>
-Subject: Re: [Patch] net: fix build break when CONFIG_NET_CLS_ACT is not set
-Message-ID: <20050329212949.GR22447@hmsendeavour.rdu.redhat.com>
-References: <20050329202506.GI22447@hmsendeavour.rdu.redhat.com> <1112130720.1076.112.camel@jzny.localdomain> <20050329211741.GL22447@hmsendeavour.rdu.redhat.com> <1112131560.1079.115.camel@jzny.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112131560.1079.115.camel@jzny.localdomain>
-User-Agent: Mutt/1.4.1i
+	Tue, 29 Mar 2005 16:33:08 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:37560 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261461AbVC2Vcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 16:32:42 -0500
+Date: Tue, 29 Mar 2005 22:32:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: David Howells <dhowells@redhat.com>, Ian Molton <spyro@f2s.com>,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+In-Reply-To: <20050325162926.6d28448b.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> 
+    <4243A257.8070805@yahoo.com.au> 
+    <20050325092312.4ae2bd32.davem@davemloft.net> 
+    <20050325162926.6d28448b.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 04:26:00PM -0500, jamal wrote:
-> On Tue, 2005-03-29 at 16:17, Neil Horman wrote:
-> 
-> > No worries.  What exactly is the point of contention on netdev? (I'm not
-> > currently following that list).  My patch seems to follow the common practice
-> > for CONFIG_NET_CLS_ACT, in that all references to the action member of the
-> > appropriate struct are themselves ifdef-ed.
-> 
-> We are trying to kill appearance of any #ifdef CONFIG_NET_CLS_ACT in the
-> classifiers. The patch you sent is correct except it will introduce
-> an ifdef that we are trying to kill. The current workaround is to turn
-> on CONFIG_NET_CLS_ACT in the kernel build.
-> 
-> cheers,
-> jamal
-> 
-Gotcha.  That seems like a pretty good idea. :)  Thanks!
-Neil
+On Fri, 25 Mar 2005, David S. Miller wrote:
 
-> 
-> 
+[ of flush_tlb_pgtables ]
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+> Since sparc64 is the only user of this thing...
+
+Not quite.  sparc64 is the only user which makes any use of the
+addresses passed to it, but frv does a little assembler with it,
+and arm26 does a printk - eh? I'd take that to mean that it never
+gets called there, but I don't see what prevents it, before or now.
+Ian, does current -mm give you "flush_tlb_pgtables" printks?
+
+> Let's make it so that the flush can be queued up
+> at pmd_clear() time, as that's what we really want.
+> 
+> Something like:
+> 
+> 	pmd_clear(mm, vaddr, pmdp);
+> 
+> I'll try to play with something like this later.
+
+Depends really on what DavidH wants there, not clear to me.
+I suspect Ian can live without his printk!
+
+Hugh

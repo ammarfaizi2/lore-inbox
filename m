@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263926AbUCZEHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 23:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbUCZEHJ
+	id S263921AbUCZEMt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 23:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbUCZEMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 23:07:09 -0500
-Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:41940 "EHLO
-	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S263926AbUCZEHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 23:07:06 -0500
-Date: Thu, 25 Mar 2004 23:06:50 -0500 (EST)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@azure.engin.umich.edu
-To: Andrea Arcangeli <andrea@suse.de>
-cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
-       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
- fix
-In-Reply-To: <20040325225919.GL20019@dualathlon.random>
-Message-ID: <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
-References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain>
- <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
- <20040325225919.GL20019@dualathlon.random>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Mar 2004 23:12:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:61674 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263921AbUCZEMs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 23:12:48 -0500
+Date: Fri, 26 Mar 2004 01:13:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: John Lee <johnl@aurema.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O(1) Entitlement Based Scheduler v1.1
+Message-Id: <20040326011325.53275600.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0403261053040.8120-100000@johnl.sw.oz.au>
+References: <p73hdwda0qt.fsf@brahms.suse.de>
+	<Pine.LNX.4.44.0403261053040.8120-100000@johnl.sw.oz.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Mar 2004 11:02:36 +1100 (EST)
+John Lee <johnl@aurema.com> wrote:
 
-Hi Andrea,
+> I'm glad to hear that the interactivity now works well for you, and that 
+> it seems to be behaving itself over a period of days.
 
-I am yet to look at the new -aa you released. A small change is
-required below. Currently, I cannot generate a patch. Sorry. Please
-fix it by hand. Thanks.
+There seem to be still small issues, but I wasn't able to pinpoint them
+to a scenario (I'm not even 100% sure they are related to the CPU scheduler, could
+be IO elevator or VM too). Just thought I would mention them. Occassionally 
+(very seldom, saw it two times yesterday) I have visible stalls (2-3s) of my xterms. 
+It doesn't seem to be  related to direct visible background load (but i wasn't 
+able yet to get a top up during such a stall) I don't remember these stalls from 
+the non Entitlement kernel. They only happen very rarely so it could be 
+something unrelated too. I know the report is probably too vague to be useful.
 
->
-> -	list_for_each_entry(vma, list, shared) {
-> +	vma = __vma_prio_tree_first(root, &iter, h_pgoff, h_pgoff);
-
-This should be:
-	vma = __vma_prio_tree_first(root, &iter, h_pgoff, ULONG_MAX);
-
-> +	while (vma) {
->  		unsigned long h_vm_pgoff;
-[snip]
-> +		vma = __vma_prio_tree_next(vma, root, &iter, h_pgoff, h_pgoff);
->  	}
-
-and here it should be:
-		vma = __vma_prio_tree_next(vma, root, &iter,
-						h_pgoff, ULONG_MAX);
-
-Thanks,
-Rajesh
-
+-Andi

@@ -1,82 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTINKzR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 06:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTINKzR
+	id S262372AbTINLR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 07:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTINLRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 06:55:17 -0400
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:48861
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S262363AbTINKzM (ORCPT
+	Sun, 14 Sep 2003 07:17:17 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:50078 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262366AbTINLRO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 06:55:12 -0400
-Date: Sun, 14 Sep 2003 06:55:09 -0400
-From: Sean Estabrooks <seanlkml@rogers.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: ebiederm@xmission.com, davids@webmaster.com, der.eremit@email.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-Message-Id: <20030914065509.33e31035.seanlkml@rogers.com>
-In-Reply-To: <Pine.LNX.4.10.10309131030590.16744-100000@master.linux-ide.org>
-References: <m14qzjmp0d.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.10.10309131030590.16744-100000@master.linux-ide.org>
-Organization: 
-X-Mailer: Sylpheed version 0.9.4-gtk2-20030802 (GTK+ 2.2.3; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.103.233.222] using ID <seanlkml@rogers.com> at Sun, 14 Sep 2003 06:54:44 -0400
+	Sun, 14 Sep 2003 07:17:14 -0400
+Message-ID: <3F644E36.5010402@colorfullife.com>
+Date: Sun, 14 Sep 2003 13:17:10 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] add likely around access_ok for uaccess
+Content-Type: multipart/mixed;
+ boundary="------------050303000609020108050308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Sep 2003 10:34:12 -0700 (PDT)
-Andre Hedrick <andre@linux-ide.org> wrote:
-> 
-> On 11 Sep 2003, Eric W. Biederman wrote:
-> 
-> > "David Schwartz" <davids@webmaster.com> writes:
-> > 
-> > > 	The GPL_ONLY stuff is an attempt to restrict use. There is nothing
-> > > inherently wrong with attempts to restrict use. One could argue that the
-> > > root permission check on 'umount' is a restriction on use. Surely the GPL
-> > > doesn't mean you can't have any usage restrictions at all.
-> > 
-> > No the GPL_ONLY stuff is an attempt to document that there is no conceivable
-> > way that using a given symbol does not create a derived work.  
-> 
-> Bzzit ... GPL_ONLY stuff is an attempt to retrict usage by removing access
-> to the unprotectable API.  And for anyone claiming there is not API to
-> protect, the kernel source is the manual to the API.  The foolish intent
-> and design to hide the API has caused the kernel itself to become the
-> manual.
-> 
-> This is even obvious to people, like myself, who are not lawyers.
+This is a multi-part message in MIME format.
+--------------050303000609020108050308
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Andre,
+Hi,
 
-You seem to be mixing two forms of "use"; the right to use GPL'd source
-and the right to use an operational Linux kernel.    
+while trying to figure out why sysv msg is around 30% slower than pipes 
+for data transfers I noticed that gcc's autodetection (3.2.2) guesses 
+the "if(access_ok())" tests in uaccess.h wrong and puts the error memset 
+into the direct path and the copy out of line.
 
-You are free to take the source and do whatever you want with it, restricted
-only by the terms of the GPL.  Other people have the right to do the same.
-There is nothing in the GPL that says how a program must behave when 
-_executing_.  Therefore, if you don't like how the resulting executable 
-operates, _tough_.   Your option, and the _freedom_ provided by the GPL, 
-is to fork the source. 
+The attached patch adds likely to the tests - any objections? What about 
+the archs except i386?
 
-No different than a kernel provided by the Church of Holy Computation 
-which refuses to operate on Sunday.   You may disagree with the 
-restriction, but surely they are free to add such a restriction to their
-kernel source.
+--
+    Manfred
 
-As it stands, you are complaining about a _runtime_ restriction;  ignoring 
-your ability to change the source.   By insisting that other people remove 
-checks for license type, you are trying to restrict  what others do with 
-_their_ source.  By design, the kernel is already full of runtime restrictions. 
-There is nothing special about a runtime limitation imposed on modules 
-lacking the GPL symbol.   Just to drive the point home,  please consider that there is nothing wrong with a kernel that refuses 
-to load modules that _DO_ contain the GPL symbol.
+--------------050303000609020108050308
+Content-Type: text/plain;
+ name="patch-uaccess-likely"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-uaccess-likely"
 
-In short, fork off...
-Sean
+--- 2.6/include/asm-i386/uaccess.h	2003-09-12 21:53:58.000000000 +0200
++++ build-2.6/include/asm-i386/uaccess.h	2003-09-14 12:56:19.000000000 +0200
+@@ -300,7 +300,7 @@
+ 	long __pu_err = -EFAULT;					\
+ 	__typeof__(*(ptr)) *__pu_addr = (ptr);				\
+ 	might_sleep();						\
+-	if (access_ok(VERIFY_WRITE,__pu_addr,size))			\
++	if (likely(access_ok(VERIFY_WRITE,__pu_addr,size)))			\
+ 		__put_user_size((x),__pu_addr,(size),__pu_err,-EFAULT);	\
+ 	__pu_err;							\
+ })							
+@@ -510,7 +510,7 @@
+ direct_copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+ 	might_sleep();
+-	if (access_ok(VERIFY_WRITE, to, n))
++	if (likely(access_ok(VERIFY_WRITE, to, n)))
+ 		n = __direct_copy_to_user(to, from, n);
+ 	return n;
+ }
+@@ -535,7 +535,7 @@
+ direct_copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
+-	if (access_ok(VERIFY_READ, from, n))
++	if (likely(access_ok(VERIFY_READ, from, n)))
+ 		n = __direct_copy_from_user(to, from, n);
+ 	else
+ 		memset(to, 0, n);
+
+--------------050303000609020108050308--
 

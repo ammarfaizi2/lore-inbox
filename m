@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290356AbSBFJEO>; Wed, 6 Feb 2002 04:04:14 -0500
+	id <S289757AbSBFJLo>; Wed, 6 Feb 2002 04:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290361AbSBFJEC>; Wed, 6 Feb 2002 04:04:02 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:51073 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S290356AbSBFJDi>; Wed, 6 Feb 2002 04:03:38 -0500
-Message-Id: <200202060903.g1693QMp001682@tigger.cs.uni-dortmund.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: "Drew P. Vogel" <dvogel@intercarve.net>, linux-kernel@vger.kernel.org
-Subject: Re: opening a bzImage? 
-In-Reply-To: Message from Roy Sigurd Karlsbakk <roy@karlsbakk.net> 
-   of "Tue, 05 Feb 2002 16:40:48 +0100." <Pine.LNX.4.30.0202051640210.13730-100000@mustard.heime.net> 
-Date: Wed, 06 Feb 2002 10:03:26 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289766AbSBFJLe>; Wed, 6 Feb 2002 04:11:34 -0500
+Received: from dsl-213-023-043-188.arcor-ip.net ([213.23.43.188]:21169 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289757AbSBFJLU>;
+	Wed, 6 Feb 2002 04:11:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: How to check the kernel compile options ?
+Date: Wed, 6 Feb 2002 10:15:49 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <2006875340.1012946564@[195.224.237.69]> <3C605910.6060907@zytor.com>
+In-Reply-To: <3C605910.6060907@zytor.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16YOBB-0002Mx-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk <roy@karlsbakk.net> said:
-> No. Not yet. I'm trying to put some pressure on them first. Trying to be a
-> little polite..
+On February 5, 2002 11:13 pm, H. Peter Anvin wrote:
+> Alex Bligh - linux-kernel wrote:
+> 
+> > 
+> > I would be surprised if there is anyone on this list
+> > who has not lost at some point either the .config, the
+> > kysms, or something similar associated with at least
+> > one build they've made.
+> > 
+> 
+> 
+> Sure.  And people have lost their root filesystems due to "rm -rf /".
+> That doesn't mean we build the entire (real) root filesystem into the kernel.
 
-I doubt it very much that the FSF will get into this, the kernel is GPL(ish),
-but not by the FSF, but by Linus.
+Well, it seems to be down to you and Arjan aguing that this usability
+improvement isn't needed, vs quite a few *users* who are complaining about
+the current state of things, as well they should because it's less good than
+it could be.
 
-What exactly do you want? A bzImage is essentially a stripped executable,
-gzipped and then appended to a bootloader. Once I got inside this (forget
-the reason) by simply looking for the gzip header (file(1)'s magic is of
-help here), dd(1)'ed the compressed tail to a file, and gunzip(1)'ed the
-result. Look at your nearest kernel's build process...
-
-As the executable is compiled with -O2 -fomit-frame-pointer and stripped,
-it won't be much use by itself anyway. Probably the System.map file (if
-extant) is more useful, or at least required to make sense of the kernel.
-Or you could futz around in /dev/{,k}mem...
 -- 
-Horst von Brand			     http://counter.li.org # 22616
+Daniel

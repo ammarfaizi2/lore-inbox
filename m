@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263179AbSJFAyG>; Sat, 5 Oct 2002 20:54:06 -0400
+	id <S263197AbSJFA4t>; Sat, 5 Oct 2002 20:56:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263189AbSJFAyG>; Sat, 5 Oct 2002 20:54:06 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:25099
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263179AbSJFAyE>; Sat, 5 Oct 2002 20:54:04 -0400
-Subject: Re: New BK License Problem?
-From: Robert Love <rml@tech9.net>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20021005175349.B9032@work.bitmover.com>
-References: <20021005173057.J12580@work.bitmover.com>
-	<Pine.LNX.4.44L.0210052150480.22735-100000@imladris.surriel.com> 
-	<20021005175349.B9032@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 21:00:04 -0400
-Message-Id: <1033866007.1247.4393.camel@phantasy>
-Mime-Version: 1.0
+	id <S263225AbSJFA4q>; Sat, 5 Oct 2002 20:56:46 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:43668
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S263197AbSJFA4o>; Sat, 5 Oct 2002 20:56:44 -0400
+Date: Sat, 5 Oct 2002 21:00:06 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Gigi Duru <giduru@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <20021006005048.GH10722@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0210052056210.20917-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 20:53, Larry McVoy wrote:
+On Sat, 5 Oct 2002, William Lee Irwin III wrote:
 
-> If this turns into a serious thing we could polish up the bkbits.net
-> infrastructure and provide it with one extra URL that lets you get 
-> gnu style patches.  I already have the code for this, I just have it
-> disabled for bandwidth reasons.
+> I actually find this relatively disturbing:
+> 
+> Memory: 2584k/4352k available (881k kernel code, 1380k reserved, 171k data, 56k
+> init, 0k hi)
+> 
+> To truly scale this far downward finding ways to use less than 40% of
+> RAM on things allocated at or before boot-time seems necessary,
+> especially trimming down that 881KB.
+> 
+> I'll have to apologize that it's unlikely I'll be able to take any
+> direct action toward addressing this problem as my focus is elsewhere,
+> but I consider this a valid and even important concern.
 
-So are you saying I could look at Linus's tree on bkbits.net and click
-on a changeset and get a GNU diff?
+Indeed, the box in question didn't require any more memory for its 
+application so that somewhat bloated kernel was sufficient. I could have 
+saved a bit more by removing a lot of drivers, e.g. IDE
 
-That would be amazingly good of you, Larry.
+	Zwane
 
-	Robert Love
-
+-- 
+function.linuxpower.ca
 

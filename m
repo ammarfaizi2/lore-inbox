@@ -1,98 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290825AbSBLRVU>; Tue, 12 Feb 2002 12:21:20 -0500
+	id <S290500AbSBLRWu>; Tue, 12 Feb 2002 12:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290968AbSBLRVL>; Tue, 12 Feb 2002 12:21:11 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:23565 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S290779AbSBLRVG>; Tue, 12 Feb 2002 12:21:06 -0500
-Date: Tue, 12 Feb 2002 09:20:53 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] accel wrapper again
-In-Reply-To: <Pine.GSO.4.21.0202120913150.12840-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.10.10202120900200.18583-100000@www.transvirtual.com>
+	id <S290503AbSBLRWo>; Tue, 12 Feb 2002 12:22:44 -0500
+Received: from dsl-213-023-043-038.arcor-ip.net ([213.23.43.38]:60032 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290500AbSBLRVk>;
+	Tue, 12 Feb 2002 12:21:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Tue, 12 Feb 2002 18:23:16 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ageE-0001Te-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > +void fbcon_accel_clear(struct vc_data *vc, struct display *p, int sy, int sx,
-> > +		       int height, int width)
-> > +{
-> > +	struct fb_info *info = p->fb_info;
-> > +	struct fb_fillrect region;
-> > +
-> > +	region.color = attr_bgcol_ec(p,vc);
-> > +	region.dx = sx * fontwidth(p);
-> > +	region.dy = sy * fontheight(p);
-> > +	region.width = width * fontwidth(p);
-> > +	region.height = height * fontheight(p);
-> > +	region.rop = ROP_COPY;
-> > +
-> > +	info->fbops->fb_fillrect(info, &region);
+On February 12, 2002 05:38 pm, Bill Davidsen wrote:
+> On Tue, 12 Feb 2002, Daniel Phillips wrote:
 > 
-> So now fb_fillrect.color is always the index into the console palette?
+> > On February 11, 2002 08:05 pm, Bill Davidsen wrote:
+> 
+> > > Did I miss discussion of an option to put it somewhere other than as part
+> > > of the kernel? Sorry, I missed that.
+> > 
+> > It's a trick question?  The config option would let you specify that no 
+> > kernel config information at all would be stored with or in the kernel.  No 
+> > cost, no memory footprint.  And I would get to have the extra warm n fuzzy 
+> > usability I tend to go on at such lengths about.  So we're both happy, right? 
+> > 
+> > I'd even remain happy if the option were set *off* by default.
+> 
+> No trick other than to read what I said in either of the previous posts...
+> the question was not how to avoid having the useful feature, but how to
+> put it somewhere to avoid increasing the kernel size. I suggested in the
+> modules directory, either as a text file or as a module.
 
-Yes. Well more like it is a index into struct fb_cmap. In theory you can
-call xxxfb_fillrect outside of the console system and pass in any value
-for region.color. That value would just mean look at entry x. Now the code
-in xxxfb_fillrect would do its magic for you. BTW I have thought about
-adding ioctls to call the accel functions for the purpose of testing the
-drivers accel code. It would not be meant to stay in. Just for testing
-purposes only. 
+We are in violent agreement, I'm not sure where the misunderstanding came from.
+Yes, the leading idea is to put it in a module.  In fact a patch exists, though
+it may have issues, it's been a while since I looked at it.
 
-> Is there any way to specify a color that's not in the console palette? This is
-> very useful in {true,direct}color modes.
+Besides that, it's been suggested to stick it only the end of bzImage in a way
+that some utility can find it, so that it never gets loaded into memory or does
+and is immediately discarded.  Bootfs might be another way to go, or maybe
+that's just a way of making the module solution more elegant.  Personally, I
+think that making it a module is obviously the right way to go.  The exact
+details of how the module would work haven't been hashed out yet, at least,
+not recently.  I presume the module should be compressed.  Perhaps it should
+only work in conjunction with some user space utility, allowing the config
+info to be expressed even more compactly than otherwise possible.  There is a
+lot of room for creative compression here - I roughed out a design at one point
+that would be able to represent the config information in something like a
+couple hundred bytes, when the compile is from a standard tree.  This is cute,
+but it's probably more cute than necessary.
 
-Yes. All I did was hide the details into xxxfb_fillrect. For example I
-have been working with Denis on a new NeoMagic fdev driver converted over
-to the new api. For example I have inside neofb_fillrect:
+> Disabling the feature is not the same as making it work optimally.
+> I like making it a module because it's obvious that modules_install is
+> needed. I see zero added utility from having it part of the kernel or
+> nothing, it's useful even to people booting from ROM, small /boot
+> partitions, etc.
 
-switch (info->var.bits_per_pixel)
-{
-	case 8:
-        	par->neo2200->fgColor = rect->color;
-                break;
-        case 16:
-                par->neo2200->fgColor = 
-				((u16*)(info->pseudo_palette))[rect->color];
-		break;
-}
+OK, my apologies for misinterpreting your position.
 
-The power here is that pseudo_palette is void thus it could be anything. A
-struct defining register values to be passed to the hardware etc. Another
-thing is pseudo_palette has no size constrant. At present alot of drivers
-implement it as 16/17 entries. It could be 10,000. Nothinmg stops us from
-doing this. The upper layers don;t have to worry about the details of
-what pseudo_palette is.
-
-> How does imageblit work for the logo now, i.e. does an image contain console
-> palette indices too?
-
-Yes. 
-
-struct fb_image {
-        __u32 width;    /* Size of image */
-        __u32 height;
-        __u16 dx;       /* Where to place image */
-        __u16 dy;
-        __u32 fg_color; /* Only used when a mono bitmap */
-        __u32 bg_color;
-        __u8  depth;    /* Dpeth of the image */
-        char  *data;    /* Pointer to image data */
-};
-
-data is a collect of indices into the current struct fb_cmap for the case
-of a color image. For mono the data is a bitmap and we use the fg_color
-and bg_color values. They too are indices into the current struct fb_cmap.
-
-
-
-
-
+-- 
+Daniel

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264605AbRFPKMn>; Sat, 16 Jun 2001 06:12:43 -0400
+	id <S264606AbRFPKRd>; Sat, 16 Jun 2001 06:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264608AbRFPKMd>; Sat, 16 Jun 2001 06:12:33 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:59652 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S264605AbRFPKMS>;
-	Sat, 16 Jun 2001 06:12:18 -0400
-Date: Fri, 15 Jun 2001 15:14:15 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VGA handling was [Re: Going beyond 256 PCI buses]
-Message-ID: <20010615151415.A37@toy.ucw.cz>
-In-Reply-To: <15145.19442.773217.177804@pizda.ninka.net> <Pine.LNX.4.10.10106141650490.12951-100000@transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10106141650490.12951-100000@transvirtual.com>; from jsimmons@transvirtual.com on Thu, Jun 14, 2001 at 04:55:31PM -0700
+	id <S264607AbRFPKRX>; Sat, 16 Jun 2001 06:17:23 -0400
+Received: from [212.18.228.90] ([212.18.228.90]:60683 "HELO
+	carrot.linuxgrrls.org") by vger.kernel.org with SMTP
+	id <S264606AbRFPKRF>; Sat, 16 Jun 2001 06:17:05 -0400
+Message-ID: <3B2B31C7.5020708@linuxgrrls.org>
+Date: Sat, 16 Jun 2001 11:15:35 +0100
+From: Rachel Greenham <rachel@linuxgrrls.org>
+Organization: LinuxGrrls.Org
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac6 i686; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
+In-Reply-To: <Pine.LNX.4.33.0106151858540.12619-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thomas Molina wrote:
 
-> Yes I know. Also each card needs it own special functions to handle
-> programming the CRTC, SEQ registers etc. Perhaps for real multihead
-> support I guess the user will have to use fbdev. vgacon can just exist for
-> single head systems. I guess it is time to let vga go. It is old technology. 
+>So is there no correlation from particular hardware to problems reported?
+>I'm running the A7V133 with a Western Digital WD300BB UDMA 5 drive on
+>kernel 2.4.5 with no trouble.
+>
+Well, I don't know. I'd guess there'd *have* to be some correlation, but 
+we're not gathering enough information to see the pattern. ie: which 
+BIOS version, what exact BIOS options are set, what processor/speed, 
+what memory, what exact model of hard disk... We just may not have a big 
+enough sample size. Even in my case the crashes aren't predictable in 
+nature - 2.4.4 passed my bonnie test the first time, making me think the 
+problem was introduced in 2.4.5, and only failed later in normal usage - 
+next time I tested it it failed in the first minute or so. *Most* of the 
+time failures occur during the bonnie test, but at all sorts of random 
+times during the test.
 
-It is still faster than fbdev, and not all cards have fbdev drivers. This
-should work with any vga card, right?
-								Pavel
+<redundant>as long as you're sure you do have DMA enabled that is - SuSE 
+at least leaves it disabled by default, under which conditions all 
+kernels are stable for me</redundant>
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Rachel
+
 

@@ -1,30 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275441AbTHIXNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 19:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275436AbTHIXM1
+	id S275434AbTHIXM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 19:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275436AbTHIXM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 19:12:27 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:53732 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S275435AbTHIXMY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 19:12:24 -0400
-From: pavel@ucw.cz
-To: "=?ISO-8859-1?Q?Flameeyes?=" <dgp85@users.sourceforge.net>
-Cc: "=?ISO-8859-1?Q?LKML?=" <linux-kernel@vger.kernel.org>,
-       "=?ISO-8859-1?Q??= =?ISO-8859-1?Q?LIRC_list?=" 
-	<lirc-list@lists.sourceforge.net>
-Subject: =?ISO-8859-1?Q?Re:_[PATCH]_lirc_for_2.5/2.6_kernels_?=
-Date: 10 Aug 2003 01:11:31 +0000
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030809231326.BCA9B167ACA@smtp-out1.iol.cz>
+	Sat, 9 Aug 2003 19:12:26 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:52218 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id S275434AbTHIXMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 19:12:23 -0400
+Message-ID: <3F358011.7060605@oracle.com>
+Date: Sun, 10 Aug 2003 01:13:21 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030723
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ruben Puettmann <ruben@puettmann.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre10 Problems with radeonfb and suspend mode
+References: <20030804181307.GB31178@puettmann.net> <20030809155916.GA28820@puettmann.net>
+In-Reply-To: <20030809155916.GA28820@puettmann.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok i've tested it out. If i'll build in-kernel bttv and pass to kernel
-> the parameters for the card, lirc_gpio is checked 
+Ruben Puettmann wrote:
+> On Mon, Aug 04, 2003 at 08:13:07PM +0200,  wrote:
+> 
+>>        hello,
+>>
+>>If i load the radeonfb module and send my thinkpad with apm -s to
+>>suspend all seems fine but on comming back the screen is still black.
+>>
+>>Kernel: 2.4.22-pre10 
+>>Hardware: Thinkpad R40 2722 / Sony Z1
+>>          01:00.0 VGA compatible controller: ATI Technologies Inc 
+>>          Radeon Mobility M7 LW [Radeon Mobility 7500]
+>>
+> 
+> 
+> Later Tests show that :
+> 
+> #! /usr/bin/bash
+> rmmod radeonfb
+> sleep 10
+> modprobe radeonfb 
+> 
+> freeze the laptop. 
 
-That looks like bug that needs fixing to me.
-Late_initcall() or reordering linking should help
+Interesting - I sent Ben an Oops I got from rmmod'ing radeonfb
+  (same ATI card as yours on a Dell Latitude C640)... but then
+  again I have bigger issues with the framebuffer than that :)
+
+
+Ciao,
+
+--alessandro
+
+  "Prima di non essere sincera / Pensa che ti tradisci solo tu"
+       (Vasco Rossi, 'Prima di partire per un lungo viaggio')
+

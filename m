@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261646AbSKHGGF>; Fri, 8 Nov 2002 01:06:05 -0500
+	id <S261661AbSKHGMu>; Fri, 8 Nov 2002 01:12:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261650AbSKHGGF>; Fri, 8 Nov 2002 01:06:05 -0500
-Received: from cburnett.student.iastate.edu ([64.113.73.249]:33555 "HELO
-	candysporks.org") by vger.kernel.org with SMTP id <S261646AbSKHGGE>;
-	Fri, 8 Nov 2002 01:06:04 -0500
-Message-ID: <1036735964.3dcb55dc6f784@www.candysporks.org>
-Date: Fri,  8 Nov 2002 00:12:44 -0600
-From: Colin Burnett <cburnett@candysporks.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: pure raw eth sockets
+	id <S261662AbSKHGMu>; Fri, 8 Nov 2002 01:12:50 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:35005 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261661AbSKHGMt>; Fri, 8 Nov 2002 01:12:49 -0500
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu
+Subject: [PATCH] 2.5.46: switch quota and BSD acct off for busy fs?
+Date: Fri, 08 Nov 2002 07:19:07 +0100
+Message-ID: <87adkkoa78.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm at a complete road block here and I appreciate any help!
+do_umount() does DQUOT_OFF() and acct_auto_close() before actually
+unmounting the fs. I guess, this is wrong, as long as the fs is busy.
 
-I'm trying to write a packet generator that generates a packet down to the
-destination/src mac address of an eth frame.  However, nothing I find seems to
-explain how to do this let alone if it is possible.  As example (for
-familiarity), implementing a RARP client (and server).  I first create a socket:
+Possible fix below. Comments?
 
-socket(PF_INET, SOCK_PACKET, ETH_P_RARP)
+Regards, Olaf.
 
-After generating an entire packet (eth frame + RARP request) and sending it via
-sendto, tcpdump shows that my packet was encapsulated as the data for an IP
-packet.  Definitely not what I want and I suspect it is because I'm passing the
-PF_INET domain (it assuming IP?).
-
-So how would I go about implement sending a RARP request (obviously I'm doing
-something wrong or assuming something wrong)?  Or more generally, how do I get
-pure raw socket access?
--- 
-
-
-Colin Burnett
+--- a/fs/namespace.c	Sat Oct  5 18:45:36 2002
++++ b/fs/namespace.c	Fri Nov  8 07:07:55 2002
+@@ -334,6 +334,8 @@
+ 	down_write(&current->namespace->sem);
+ 	spin_lock(&dcache_lock);
+ 
++	retval = -EBUSY;
++	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
+ 	if (atomic_read(&sb->s_active) == 1) {
+ 		/* last instance - try to be smart */
+ 		spin_unlock(&dcache_lock);
+@@ -344,8 +346,6 @@
+ 		security_ops->sb_umount_close(mnt);
+ 		spin_lock(&dcache_lock);
+ 	}
+-	retval = -EBUSY;
+-	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
+ 		if (!list_empty(&mnt->mnt_list))
+ 			umount_tree(mnt);
+ 		retval = 0;

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUIWXDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267537AbUIWXDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUIWXDK (ORCPT <rfc822;willy@w.ods.org>);
+	id S267537AbUIWXDK (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Sep 2004 19:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267535AbUIWWzo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUIWXAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:55:44 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:1706 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S267517AbUIWWw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:52:29 -0400
-Date: Fri, 24 Sep 2004 00:52:21 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: yoshfuji@linux-ipv6.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: ArcNet and 2.6.8.1
-In-Reply-To: <20040923152411.1d1a08d2.davem@davemloft.net>
-Message-Id: <Pine.OSF.4.05.10409240033480.21511-100000@da410.ifa.au.dk>
+	Thu, 23 Sep 2004 19:00:24 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:61924 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267511AbUIWW7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 18:59:25 -0400
+Subject: Re: undecoded slave?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: tabris <tabris@tabris.net>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200409231630.49153.tabris@tabris.net>
+References: <200409222357.39492.tabris@tabris.net>
+	 <200409231314.55547.bzolnier@elka.pw.edu.pl>
+	 <200409231630.49153.tabris@tabris.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095976607.7277.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 23 Sep 2004 22:56:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And I only want to explain why you don't see ArcNet used much with Linux
-:-)
+On Iau, 2004-09-23 at 21:30, tabris wrote:
+>         Serial Number:      D3000000
+>         Firmware Revision:  DAK019K0
 
-Oh well, I'll try to see if I can get time to make it stable with
-preemption on. Is preemption safe enough to ensure SMP safe or would I
-have to test on at least a hyperthreading machine as well?
+>         Model Number:       Maxtor 4D060H3
+>         Serial Number:      D3000000
+>         Firmware Revision:  DAH017K0
 
-Esben
-
-
-On Thu, 23 Sep 2004, David S. Miller wrote:
-
-> 
-> I have not argued the technical pros and cons of arcnet.
-> 
-> I have merely stated that since you are the first person
-> reporting the OOPS, it is indicative that not many people
-> are testing arcnet in the 2.6.x kernel.
-> 
-
+Thats not a good sign for your drives, they seem to have lost their
+serial numbers.
 

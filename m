@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261924AbREMVoC>; Sun, 13 May 2001 17:44:02 -0400
+	id <S261927AbREMVoC>; Sun, 13 May 2001 17:44:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261927AbREMVnv>; Sun, 13 May 2001 17:43:51 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:53134 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261922AbREMVnk>;
-	Sun, 13 May 2001 17:43:40 -0400
-Date: Sun, 13 May 2001 23:43:34 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105132143.XAA39600.aeb@vlet.cwi.nl>
-To: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [NEW SCSI DRIVER] for 53c700 chip and NCR_D700 card against 2.4.4
+	id <S261922AbREMVnw>; Sun, 13 May 2001 17:43:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23816 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261924AbREMVnu>; Sun, 13 May 2001 17:43:50 -0400
+Subject: Re: PROBLEM: IDE dma_intr error on VIA chipset
+To: yann.chachkoff@mailandnews.com (gros)
+Date: Sun, 13 May 2001 22:39:53 +0100 (BST)
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+In-Reply-To: <01051022565000.01576@Terminus.magellan.fpms.ac.be> from "gros" at May 10, 2001 10:56:50 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14z3aj-0006zE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> New SCSI driver for 53c700 chip
+>  Whenever a hard disk access is attempted, I get the following messages:
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-Good!
+That is a cable problem
 
-If I am not mistaken, Richard Hirst has also done work on this thing.
+> This error did not appear under previous versions of the kernel (2.2.x).
 
-The Panther/lp486e/PWS/... has on-board ethernet (82596)
-and this now works under both 2.2 and 2.4.
-It also has on-board SCSI (NCR 53c700-66), maybe memory mapped,
-I forget. Maybe nobody knows the addresses.
-It would be somewhat interesting to get that thing to work as well.
+2.2.x doesnt attempt UDMA
 
-Andries
+> The hard disk does not show any sign of hardware failure under other 
+> operating systems.
+
+and windows fails down to lower speeds without telling you

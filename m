@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTIGTbk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 15:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbTIGTbj
+	id S261367AbTIGTmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 15:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTIGTmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 15:31:39 -0400
-Received: from aeimail.aei.ca ([206.123.6.14]:47826 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261428AbTIGTbi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 15:31:38 -0400
-Subject: 2.6.0-test4-mm5 multiple oopsen
-From: Shane Shrybman <shrybman@aei.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062963095.2557.6.camel@mars.goatskin.org>
+	Sun, 7 Sep 2003 15:42:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24307 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261408AbTIGTmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 15:42:19 -0400
+Date: Sun, 7 Sep 2003 21:42:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Peter Daum <gator@cs.tu-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 with CONFIG_M686: networking broken
+Message-ID: <20030907194209.GJ14436@fs.tum.de>
+References: <20030907151422.GX14436@fs.tum.de> <Pine.LNX.4.30.0309072019040.8020-100000@swamp.bayern.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Sep 2003 15:31:35 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0309072019040.8020-100000@swamp.bayern.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a few oopsen while playing with v4l2/bttv and the latest mplayer.
-The oops log was rather large so I am not posting it here. It and the
-dmesg output can be found here:
+On Sun, Sep 07, 2003 at 08:38:57PM +0200, Peter Daum wrote:
 
-http://zeke.yi.org/linux/2.6.0-test4-mm5.v4l2-bttv.oops
+> Hi Adrian,
 
-http://zeke.yi.org/linux/2.6.0-test4-mm5.dmesg
+Hi Peter,
 
-I am not subscribed so please cc me.
+> Your patch did the trick!
 
-Regards,
+thanks for your report!
 
-Shane
+Your thoroughly problem description ad testing was the reason why I was 
+able to think about this possible reason.
+
+> (Since this looks like a pretty general issue, I guess, that
+> means that there were some more problems besides the
+> networking-stuff that I stumbled across?)
+
+It's a pretty general issue and althought whatever triggered it for you 
+was introduced in 2.4.22, it isn't new.
+
+I'll send a slightly different patch for inclusion in 2.4.23.
+
+> Thanks a bunch,
+>                          Peter
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

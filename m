@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312573AbSDENKN>; Fri, 5 Apr 2002 08:10:13 -0500
+	id <S312575AbSDENNn>; Fri, 5 Apr 2002 08:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312575AbSDENKE>; Fri, 5 Apr 2002 08:10:04 -0500
-Received: from nextgeneration.speedroad.net ([195.139.232.50]:63155 "HELO
-	nextgeneration.speedroad.net") by vger.kernel.org with SMTP
-	id <S312573AbSDENJ4>; Fri, 5 Apr 2002 08:09:56 -0500
-Message-ID: <20020405130948.17108.qmail@nextgeneration.speedroad.net>
-From: "Arnvid Karstad" <arnvid@karstad.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Problems rebooting from linux to windows...
-Date: Fri, 05 Apr 2002 15:09:48 +0200
+	id <S312576AbSDENNd>; Fri, 5 Apr 2002 08:13:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49300 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312575AbSDENNX>;
+	Fri, 5 Apr 2002 08:13:23 -0500
+Date: Fri, 05 Apr 2002 05:07:06 -0800 (PST)
+Message-Id: <20020405.050706.109220970.davem@redhat.com>
+To: jurgen@pophost.eunet.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre6 doesn't compile on Alpha and sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020405130224.GF22422@sparkie.is.traumatized.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+   From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
+   Date: Fri, 5 Apr 2002 15:02:24 +0200
 
-recently I've seen a few problems with several laptops and if one are so 
-unfortunate that one needs to reboot into Windows after a session in linux.
-Normal restart of windows never have a problem on the same machines, but if 
-you go from Linux to for instance Windows by shutdown -r or reboot it will 
-freeze half way into the booting process. 
+   On Fri, Apr 05, 2002 at 03:00:11PM +0200, Jurgen Philippaerts wrote:
+   > On Fri, Apr 05, 2002 at 02:00:14PM +0200, Alexander Viro wrote:
+   > > 
+   > > > init/do_mounts.c:45: parse error before `mount_initrd'
+   > > [snip]
+   > > 
+   > > Looks like a missing init.h - sorry, this sucker didn't get caught (on
+   > > x86 slab.h ends up pulling it in, on alpha it doesn't).
+   > > 
+   > > Fix: add #include <linux/init.h> in init/do_mounts.c
+   > 
+   > same on sparc64.
+   > adding the extra #include fixes it.
+   
+   but then it goes wrong with `make modules`
+   
+Add include of linux/init.h, fix declarations of TS_open and
+TS_release to return int instead of ssize_t.
 
-A power cycle will hower fix this. 
-
-Anyone got an idea about where to start looking? 
-
-Best regards 
-
-Arnvid Karstad
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVBHJdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVBHJhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVBHJdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 04:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVBHJdM
+	id S261495AbVBHJhb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 04:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVBHJhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 04:33:12 -0500
-Received: from penguin.cohaesio.net ([212.97.129.34]:23445 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261493AbVBHJdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 04:33:08 -0500
-From: Anders Saaby <as@cohaesio.com>
-Organization: Cohaesio A/S
-To: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-Subject: Re: linux-2.6.11-rc3: XFS internal error xfs_da_do_buf(1) at line 2176 of file fs/xfs/xfs_da_btree.c.
-Date: Tue, 8 Feb 2005 10:33:59 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <42078B74.2080306@mnsu.edu> <200502071713.03158.as@cohaesio.com> <42079DCF.4070907@mnsu.edu>
-In-Reply-To: <42079DCF.4070907@mnsu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Feb 2005 04:37:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6529 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261495AbVBHJhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 04:37:22 -0500
+Date: Tue, 8 Feb 2005 10:37:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3-mm1 bad scheduling while atomic + lockup
+Message-ID: <20050208093713.GC15985@suse.de>
+References: <1865944987.20050207081532@dns.toxicfilms.tv> <20050208010024.7071e5f7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502081034.04849.as@cohaesio.com>
-X-OriginalArrivalTime: 08 Feb 2005 09:33:08.0051 (UTC) FILETIME=[32B52A30:01C50DC1]
+In-Reply-To: <20050208010024.7071e5f7.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 February 2005 17:56, Jeffrey E. Hundstad wrote:
-> Anders Saaby wrote:
-> >Is this system running SMP og UP?
->
-> UP
+On Tue, Feb 08 2005, Andrew Morton wrote:
+> Maciej Soltysiak <solt2@dns.toxicfilms.tv> wrote:
+> >
+> > Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> >  Feb  6 17:07:47 dns kernel: ide: failed opcode was: unknown
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> >  Feb  6 17:07:47 dns kernel: ide: failed opcode was: unknown
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> >  Feb  6 17:07:47 dns kernel: ide: failed opcode was: unknown
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >  Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> >  Feb  6 17:07:47 dns kernel: ide: failed opcode was: unknown
+> >  Feb  6 17:07:47 dns kernel: scheduling while atomic: swapper/0x00010001/0
+> >  Feb  6 17:07:47 dns kernel:  [schedule+1379/1392] schedule+0x563/0x570
+> >  Feb  6 17:07:47 dns kernel:  [__call_console_drivers+87/96] __call_console_drivers+0x57/0x60
+> >  Feb  6 17:07:47 dns kernel:  [__mod_timer+350/480] __mod_timer+0x15e/0x1e0
+> >  Feb  6 17:07:47 dns kernel:  [schedule_timeout+99/192] schedule_timeout+0x63/0xc0
+> >  Feb  6 17:07:47 dns kernel:  [process_timeout+0/16] process_timeout+0x0/0x10
+> >  Feb  6 17:07:47 dns kernel:  [ide_pin_hwgroup+97/208] ide_pin_hwgroup+0x61/0xd0
+> >  Feb  6 17:07:47 dns kernel:  [ide_set_xfer_rate+28/96] ide_set_xfer_rate+0x1c/0x60
+> >  Feb  6 17:07:47 dns kernel:  [check_dma_crc+72/112] check_dma_crc+0x48/0x70
+> >  Feb  6 17:07:47 dns kernel:  [do_reset1+99/544] do_reset1+0x63/0x220
+> >  Feb  6 17:07:47 dns kernel:  [ide_do_reset+23/32] ide_do_reset+0x17/0x20
+> >  Feb  6 17:07:47 dns kernel:  [ide_error+143/160] ide_error+0x8f/0xa0
+> >  Feb  6 17:07:47 dns kernel:  [ide_dma_intr+91/192] ide_dma_intr+0x5b/0xc0
+> >  Feb  6 17:07:47 dns kernel:  [ide_dma_intr+0/192] ide_dma_intr+0x0/0xc0
+> >  Feb  6 17:07:47 dns kernel:  [ide_intr+246/432] ide_intr+0xf6/0x1b0
+> >  Feb  6 17:07:47 dns kernel:  [handle_IRQ_event+48/112] handle_IRQ_event+0x30/0x70
+> >  Feb  6 17:07:47 dns kernel:  [__do_IRQ+230/352] __do_IRQ+0xe6/0x160
+> >  Feb  6 17:07:47 dns kernel:  [__do_softirq+120/144] __do_softirq+0x78/0x90
+> >  Feb  6 17:07:47 dns kernel:  [do_IRQ+35/64] do_IRQ+0x23/0x40
+> >  Feb  6 17:07:47 dns kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+> 
+> The bug is in serialize-access-to-ide-devices.patch, which is only in -mm.
+> 
+> 	interrupt
+> 	->IO error
+> 	  ->ide_set_xfer_rate
+> 	    ->ide_pin_hwgroup
+> 	      ->schedule_timeout
+> 	        ->axboe!
 
-Ouch OK. Then I at least haven't seen it before.
+:-)
+
+The thing wants a rewrite. Ideally the serializing point would be a
+special request. The patch is still better than nothing right now, it's
+really easy to hang the device with hdparm in -linus since it's
+impossible to guess when it is safe to issue tuning actions from user
+space.
 
 -- 
-Med venlig hilsen - Best regards - Meilleures salutations
+Jens Axboe
 
-Anders Saaby
-Systems Engineer
-------------------------------------------------
-Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
-Phone: +45 45 880 888 - Fax: +45 45 880 777
-Mail: as@cohaesio.com - http://www.cohaesio.com
-------------------------------------------------

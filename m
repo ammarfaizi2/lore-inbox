@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbUJ2JEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263172AbUJ2JLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbUJ2JEA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 05:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2JD7
+	id S263172AbUJ2JLl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 05:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUJ2JLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 05:03:59 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:17156 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261390AbUJ2JDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 05:03:53 -0400
-Subject: Re: [PATCH[ Export __PAGE_KERNEL_EXEC for modules (vmmon)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041028221148.GE24972@vana.vc.cvut.cz>
-References: <20041028221148.GE24972@vana.vc.cvut.cz>
-Content-Type: text/plain
-Message-Id: <1099040620.2641.11.camel@laptop.fenrus.org>
+	Fri, 29 Oct 2004 05:11:41 -0400
+Received: from gprs214-50.eurotel.cz ([160.218.214.50]:9856 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263172AbUJ2JKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 05:10:25 -0400
+Date: Fri, 29 Oct 2004 11:10:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Shaohua Li <shaohua.li@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [swsusp] print error message when swapping is disabled
+Message-ID: <20041029091012.GA1003@elf.ucw.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD3057563D61B@pdsmsx402.ccr.corp.intel.com> <Pine.LNX.4.44.0410291500250.29394-100000@mazda.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 29 Oct 2004 11:03:41 +0200
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410291500250.29394-100000@mazda.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 00:11 +0200, Petr Vandrovec wrote:
-> Hello Ingo,
->   recently support for NX on i386 arrived to 2.6.x kernel, and I have
-> some problems building code which uses vmap since then - PAGE_KERNEL_EXEC
+Hi!
 
-why are you vmap'ing *executable* kernel memory?
-That sounds very wrong.... very very wrong. The module loader needs it,
-sure, but that's not modular. What on earth are you doing ????
+> > Another case is PSE disabled. Should notify this to user also. 
+> 
+> Here is a patch to address it.
 
+Patch is okay (but I rararely see this kind of failure in
+wild). Please submit via akpm.
 
+Anyway, the most common problem these days is that one of devices
+vetoes the suspend. In such case code does the right thing, but
+without any message to the user... and that is kind of confusing.
 
+Patch printing "swsusp failed because device XXXX vetoed it" would be
+very welcome.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

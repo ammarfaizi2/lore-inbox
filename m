@@ -1,48 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUJLBqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUJLBsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUJLBqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 21:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUJLBqU
+	id S268248AbUJLBsV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 21:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJLBsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 21:46:20 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:50087 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266892AbUJLBqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 21:46:19 -0400
-Message-ID: <416B375B.2010508@us.ibm.com>
-Date: Mon, 11 Oct 2004 18:46:03 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 21:48:21 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4356 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268248AbUJLBr7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 21:47:59 -0400
+Date: Tue, 12 Oct 2004 02:47:56 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4: "console=" parameter ignored
+Message-ID: <Pine.LNX.4.58L.0410120132390.27716@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-To: Dave Airlie <airlied@linux.ie>
-CC: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [patch] drm core internal versioning..
-References: <Pine.LNX.4.58.0410100050160.6083@skynet>
-In-Reply-To: <Pine.LNX.4.58.0410100050160.6083@skynet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
-> An issue raised by DRM people with the new drm core is how to stop users
-> shotting themselves in the foot when upgrading drm modules from CVS and
-> mixing up cores and drivers...
-> 
-> This patch (against DRM CVS) proposes a simple internal version that gets
-> passed from the module to the core, when built in-kernel, it gets set to
-> default DRM_INTERNAL_VERSION_KERNEL, when built in DRM CVS or snapshot, it
-> gets DRM_INTERNAL_VERSION_EXTERNAL, a core built in one will refuse to
-> load a module build in the other..
-> 
-> This is quite a simple solution that should stop the most obvious issue,
-> it doesn't stop people updating CVS drivers on top of themselves but my
-> view is anyone doing this is either following our scripts or knows what
-> they are doing...
+Hello,
 
-I guess I don't get it.  We want to prevent a DRM module that requires 
-core API N with a drm_core that exports M, M != N, right?  So why not do 
-that?  In that model don't you just need DRM_INTERNAL_VERSION?  With the 
-setup you propose it seems like we could still have problems.  If a user 
-installs a snapshot, then installs just a DRM from a later snapshot, etc.
+ I've noticed that under specific circumstances the "console=" kernel 
+parameter is ignored.  This happens when EARLY_PRINTK is enabled and the 
+serial console is the only available.  In this case unregister_console() 
+when called for the early console sets preferred_console back to -1 
+replacing the value that was recorded by console_setup() -- the order of 
+calls is as follows:
+
+1. register_console() -- for the early console,
+
+2. console_setup() -- recording the console index for the real console,
+
+3. unregister_console() -- for the early console, erasing the console
+   index recorded above,
+
+4. register_console() -- for the real console, picking up the first device
+   available, instead of the selected one.
+
+I've observed this problem with a DECstation system using ttyS3 -- its
+default console device from the firmware's point of view.
+
+ The solution is to restore the setting of "console=" upon
+unregister_console().  Here is a patch that works for me -- run-time
+tested with a snapshot of 2.4.26.  I've prepared a coresponding patch for
+2.6, that I'll send separately.
+
+ Please apply.
+
+  Maciej
+
+patch-mips-2.4.26-20040809-console-0
+diff -up --recursive --new-file linux-mips-2.4.26-20040809.macro/kernel/printk.c linux-mips-2.4.26-20040809/kernel/printk.c
+--- linux-mips-2.4.26-20040809.macro/kernel/printk.c	2003-12-18 03:57:27.000000000 +0000
++++ linux-mips-2.4.26-20040809/kernel/printk.c	2004-09-25 20:54:21.000000000 +0000
+@@ -95,6 +95,7 @@ static unsigned long log_end;			/* Index
+ static unsigned long logged_chars;		/* Number of chars produced since last read+clear operation */
+ 
+ struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
++static int selected_console = -1;
+ static int preferred_console = -1;
+ 
+ /* Flag: console code may call schedule() */
+@@ -140,12 +141,12 @@ static int __init console_setup(char *st
+ 	for(i = 0; i < MAX_CMDLINECONSOLES && console_cmdline[i].name[0]; i++)
+ 		if (strcmp(console_cmdline[i].name, name) == 0 &&
+ 			  console_cmdline[i].index == idx) {
+-				preferred_console = i;
++				selected_console = i;
+ 				return 1;
+ 		}
+ 	if (i == MAX_CMDLINECONSOLES)
+ 		return 1;
+-	preferred_console = i;
++	selected_console = i;
+ 	c = &console_cmdline[i];
+ 	memcpy(c->name, name, sizeof(c->name));
+ 	c->options = options;
+@@ -586,6 +587,9 @@ void register_console(struct console * c
+ 	int     i;
+ 	unsigned long flags;
+ 
++	if (preferred_console < 0)
++		preferred_console = selected_console;
++
+ 	/*
+ 	 *	See if we want to use this console driver. If we
+ 	 *	didn't select a console we take the first one
+@@ -675,7 +679,7 @@ int unregister_console(struct console * 
+ 	 * would prevent fbcon from taking over.
+ 	 */
+ 	if (console_drivers == NULL)
+-		preferred_console = -1;
++		preferred_console = selected_console;
+ 		
+ 
+ 	release_console_sem();

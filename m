@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265420AbSJRUER>; Fri, 18 Oct 2002 16:04:17 -0400
+	id <S265459AbSJRUKz>; Fri, 18 Oct 2002 16:10:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265422AbSJRUER>; Fri, 18 Oct 2002 16:04:17 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:10244 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265420AbSJRUEQ>;
-	Fri, 18 Oct 2002 16:04:16 -0400
-Date: Fri, 18 Oct 2002 21:01:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: ebuddington@wesleyan.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can chroot be made safe for non-root?
-Message-ID: <20021018190101.GE237@elf.ucw.cz>
-References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
+	id <S265465AbSJRUKy>; Fri, 18 Oct 2002 16:10:54 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:6272 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S265459AbSJRUKy>;
+	Fri, 18 Oct 2002 16:10:54 -0400
+Date: Fri, 18 Oct 2002 22:16:55 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 and ISDN?
+Message-ID: <20021018201655.GA7262@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> I am eager to be able to sandbox my processes on a system without the
-> help of suid-root programs (as I prefer to have none of these on my
-> system).
+where could I learn how to use ISDN under 2.5 (not obsolete) with a AVM
+A1?
 
-You can do that using ptrace. subterfugue.sf.net.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+All was working perfectly with 2.4...
+
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

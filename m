@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTHVAoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTHVAoo
+	id S262967AbTHVAkb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbTHVAkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:44:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43394 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262971AbTHVAom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:44:42 -0400
-Subject: [PATCH] libaio-0.3.96 fix io_queue_wait compatibility
-From: Daniel McNeil <daniel@osdl.org>
-To: "linux-aio@kvack.org" <linux-aio@kvack.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-b3awYQAAUe3In6Lf7rhk"
-Organization: 
-Message-Id: <1061513079.32556.5.camel@ibm-c.pdx.osdl.net>
+	Thu, 21 Aug 2003 20:40:31 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11528
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262967AbTHVAk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 20:40:29 -0400
+Date: Thu, 21 Aug 2003 17:40:28 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: vijayan prabhakaran <pvijayan@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Read in ext3
+Message-ID: <20030822004028.GE1040@matchmail.com>
+Mail-Followup-To: vijayan prabhakaran <pvijayan@rediffmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20030822000926.17486.qmail@webmail6.rediffmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Aug 2003 17:44:39 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030822000926.17486.qmail@webmail6.rediffmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 22, 2003 at 12:09:26AM -0000, vijayan prabhakaran wrote:
+> 
+> Hi,
+> 
+> I have a doubt on how ext3 handles read in this specific case.
+> 
+> Assume that a page is written to the journal but not yet updated
+> to its actual location and before updating the actual copy the 
+> page
+> gets invalidated. Now if a read comes to the same
+> data, which block will be read: the journal copy or the actual
+> copy ?
+> 
+> First of all, will this situation ever occur ? The page will be
+> marked dirty until it is written to its actual location so it 
+> may
+> never get invalidated until it is written to the actual
+> location!
 
---=-b3awYQAAUe3In6Lf7rhk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The page will be in memory until the transaction has finished.  The
+transaction won't finish until it has been moved from the journal to its
+final location on disk.
 
-libaio-0.3.96 fixes the dynamic linking problem I was having with
-libaio-0.3.93, still it has broken backward compatibility with
-io_queue_wait().  Here's patch that fixes it.  I've tested binaries
-compiled with libaio-0.3.13 and run them on libaio-0.3.96+patch on
-2.6.0-test2-mm4.
+Once that has happened the page can be freed.  Now, if the page is
+invalidated in the middle of the transaction, all future accesses will come
+from memory until that page is flushed, or cleaned.
 
-Daniel
-
-
---=-b3awYQAAUe3In6Lf7rhk
-Content-Disposition: attachment; filename=patch.libaio-0.3.96.compat.io_queue_wait
-Content-Type: text/x-patch; name=patch.libaio-0.3.96.compat.io_queue_wait; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -rupN -X /home/daniel/dontdiff libaio-0.3.96/src/compat-0_1.c libaio-0.3.96.fix/src/compat-0_1.c
---- libaio-0.3.96/src/compat-0_1.c	2003-05-20 08:54:50.000000000 -0700
-+++ libaio-0.3.96.fix/src/compat-0_1.c	2003-08-21 17:16:46.000000000 -0700
-@@ -38,9 +38,12 @@ int compat0_1_io_cancel(io_context_t ctx
- }
- 
- SYMVER(compat0_1_io_queue_wait, io_queue_wait, 0.1);
--int compat0_1_io_queue_wait(io_context_t ctx, struct iocb *iocb, const struct timespec *when)
-+int compat0_1_io_queue_wait(io_context_t ctx, const struct timespec *when)
- {
--	return -ENOSYS;
-+	struct timespec timeout;
-+	if (when)
-+		timeout = *when;
-+	return io_getevents(ctx, 0, 0, NULL, when ? &timeout : NULL);
- }
- 
- 
-
---=-b3awYQAAUe3In6Lf7rhk--
-
+IIUC, ext3 never reads from the journal (unless you're doing a recovery).
+The journal just shows on disk what is already in memory so it can be
+recovered after an abnormal shutdown.

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUANNyg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 08:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUANNyg
+	id S261539AbUANOLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 09:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUANOLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 08:54:36 -0500
-Received: from ns.suse.de ([195.135.220.2]:22676 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261522AbUANNye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 08:54:34 -0500
-Date: Wed, 14 Jan 2004 14:54:33 +0100
-From: Olaf Hering <olh@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: bad scancode for USB keyboard
-Message-ID: <20040114135433.GA26587@suse.de>
-References: <3FF6EFE0.9030109@develer.com> <3FFB6A5D.9030606@olaussons.net> <3FFB6E9E.6040500@develer.com> <20040107085104.GA14771@ucw.cz> <20040111163050.GA28671@zombie.inka.de> <20040111184445.GA30711@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040111184445.GA30711@ucw.cz>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Wed, 14 Jan 2004 09:11:50 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:18962 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261539AbUANOLq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 09:11:46 -0500
+Message-ID: <400550EF.3090207@aitel.hist.no>
+Date: Wed, 14 Jan 2004 15:23:43 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm3 sound oops
+References: <20040114014846.78e1a31b.akpm@osdl.org>
+In-Reply-To: <20040114014846.78e1a31b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Jan 11, Vojtech Pavlik wrote:
+This happened to mozilla:
 
-> On Sun, Jan 11, 2004 at 05:30:50PM +0100, Eduard Bloch wrote:
-> 
-> > #include <hallo.h>
-> > * Vojtech Pavlik [Wed, Jan 07 2004, 09:51:04AM]:
-> > 
-> > > The reason is that this key is not the ordinary backslash-bar key, it's
-> > > the so-called 103rd key on some european keyboards. It generates a
-> > > different scancode.
-> > 
-> > Fine, but there are a lot of USB keyboard that _work_ that way, where
-> > the "103rd" key is really positioned as the one and the only one '# key.
-> > And the current stable X release does NOT know about the new scancode.
-> > You realize that you intentionaly broke compatibility within a stable
-> > kernel release?
-> 
-> Good point. And I'm suffering the consequences already. Up to the
-> change, I didn't know that so many keyboards are actually using this
-> key, so I supposed it'll be a rather low-impact change. I stand
-> corrected now.
-> 
-> Linus, Andrew, please apply this fix:
-> 
-> ChangeSet@1.1511, 2004-01-11 19:41:05+01:00, vojtech@suse.cz
->   input: Fix emulation of PrintScreen key and 103rd Euro key for XFree86.
+Unable to handle kernel paging request at virtual address e295f000
+ printing eip:
+c02985b3
+*pde = 1fe08067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c02985b3>]    Not tainted VLI
+EFLAGS: 00010202
+EIP is at resample_expand+0x169/0x333
+eax: c02985b3   ebx: 00000000   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: e295b5a2   ebp: e295effe   esp: d8ffbe2c
+ds: 007b   es: 007b   ss: 0068
+Process mozilla-bin (pid: 798, threadinfo=d8ffa000 task=d9c7c080)
+Stack: c0298676 c02985b3 dfc87310 dfc872f0 00000000 00000004 00000004 00000001 
+       00000000 0000023d 00001169 00000800 dfc87280 d9292880 c0298bc6 dfc87280 
+       d9292d00 d9292880 00000800 00001169 dfc87280 00000800 00001169 d6193680 
+Call Trace:
+ [<c0298676>] resample_expand+0x22c/0x333
+ [<c02985b3>] resample_expand+0x169/0x333
+ [<c0298bc6>] rate_transfer+0x34/0x3e
+ [<c02963d6>] snd_pcm_plug_write_transfer+0x8b/0xbd
+ [<c0292b67>] snd_pcm_oss_write2+0xce/0x116
+ [<c0293088>] snd_pcm_oss_sync1+0x49/0xdb
+ [<c0118417>] default_wake_function+0x0/0x12
+ [<c02a228c>] snd_pcm_format_set_silence+0x69/0x176
+ [<c029321c>] snd_pcm_oss_sync+0x102/0x197
+ [<c02941e6>] snd_pcm_oss_release+0x22/0x6d
+ [<c01420ea>] __fput+0x37/0x9b
+ [<c0140f28>] filp_close+0x59/0x62
+ [<c0140f76>] sys_close+0x45/0x50
+ [<c0360847>] syscall_call+0x7/0xb
+ [<c036007b>] direct_csum_partial_copy_generic+0xf33/0x15b8
 
-I tried the 2.6.1-mm2 tree and changed the 84 to 43, but that doesnt
-help my USB keyboard. Showkey does still show 84.
+Code: 22 8b 44 24 10 ff 4c 24 10 85 c0 0f 8e 80 00 00 00 8b 44 24 04 ff e0 0f b6 45 00 eb 07 0f b6 45 00 83 f0 80 89 c6 c1 e6 08 eb 5d <8b> 75 00 eb 58 8b 75 00 eb 34 eb 39 eb 3d 8b 45 00 89 c6 c1 ee 
 
-static unsigned short x86_keycodes[256] =
-...
-         80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-...
+I use ALSA with oss emulation, and the following hw driver:
+Intel i8x0/MX440, SiS 7012; Ali 5455; NForce Audio; AMD768/8111
+The kernel is monolithic and optimized for size.
 
-Maybe adbhid needs a similar tweak? I could not find the place, yet.
+The machine survived just fine, only mozilla got stuck and had to be killed.
 
+Helge Hafting
 
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG

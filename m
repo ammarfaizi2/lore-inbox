@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286606AbRLUWAn>; Fri, 21 Dec 2001 17:00:43 -0500
+	id <S286603AbRLUWCx>; Fri, 21 Dec 2001 17:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286605AbRLUWAd>; Fri, 21 Dec 2001 17:00:33 -0500
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:16402 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S286603AbRLUWAP>; Fri, 21 Dec 2001 17:00:15 -0500
-Message-ID: <3C23B0AF.311FE86A@ixiacom.com>
-Date: Fri, 21 Dec 2001 13:59:11 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.17
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286610AbRLUWCn>; Fri, 21 Dec 2001 17:02:43 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58807 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286603AbRLUWC1>; Fri, 21 Dec 2001 17:02:27 -0500
+Date: Fri, 21 Dec 2001 15:02:23 -0700
+Message-Id: <200112212202.fBLM2N717016@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Gregor Suhr <Gregor@Suhr.home.cs.tu-berlin.de>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe  devfs
+In-Reply-To: <3C23A022.5040307@Suhr.home.cs.tu-berlin.de>
+In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
+	<200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
+	<3C227F0E.E6A9CF76@zip.com.au>
+	<3C23842A.20407@Suhr.home.cs.tu-berlin.de>
+	<200112211926.fBLJQ7814544@vindaloo.ras.ucalgary.ca>
+	<3C23A022.5040307@Suhr.home.cs.tu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-Marcelo wrote:
-> > Um, what happened to the idea of 'no changes between the last
-> > release candidate and final'?
-> 
-> I haven't said that, did I?
-> 
-> I said I would make -rc kernels which would not add any new _feature_.
+Gregor Suhr writes:
+> >
+> >
+> >
+> >Now this is useful information! I see what's caused this: the second
+> >mount of devfs (because you're using initrd) is creating the
+> >devfsd_event slab cache again, which is a bug. I've appended a patch
+> >which fixes this. Please test it out and let me know how it goes.
+> >
+> I applied the patch to 2.4.17 and it seems to work well (the system came 
+> up).
 
-Sorry; I must have misunderstood.  But I think lwn.net 
-misunderstood, too; http://lwn.net/2001/1213/kernel.php3
-says "Marcelo's stated plan is to have the final release be the same 
-as the last release candidate; the hope is to be done with surprises 
-caused by last-minute patches."
+Great.
 
-I guess I and lwn.net were projecting our desires onto Marcello's statements?
+> Do you have an idea how I can solve the err. -17 error or may i realy 
+> ignore it?
 
-- Dan
+I've added a section to the devfs FAQ to answer this.
+http://www.atnf.csiro.au/~rgooch/linux/docs/devfs.html
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

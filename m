@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVAQUW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVAQUZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262869AbVAQUW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 15:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVAQUW5
+	id S262870AbVAQUZt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 15:25:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbVAQUZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 15:22:57 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:22728 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262869AbVAQUWy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 15:22:54 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jan Hubicka <jh@suse.cz>,
-       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
-	<20050114205651.GE17263@kam.mff.cuni.cz>
-	<Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
-	<cs9v6f$3tj$1@terminus.zytor.com>
-	<Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
-	<1105955608.6304.60.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
-	<41EBFF87.6080105@zytor.com>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 17 Jan 2005 21:22:53 +0100
-In-Reply-To: <41EBFF87.6080105@zytor.com> (H. Peter Anvin's message of "Mon,
- 17 Jan 2005 10:10:15 -0800")
-Message-ID: <m1wtubvm8y.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 17 Jan 2005 15:25:48 -0500
+Received: from opersys.com ([64.40.108.71]:43528 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262870AbVAQUZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 15:25:39 -0500
+Message-ID: <41EC20FB.9030506@opersys.com>
+Date: Mon, 17 Jan 2005 15:32:59 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       LKML <linux-kernel@vger.kernel.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>	 <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>	 <41E7A7A6.3060502@opersys.com>	 <Pine.LNX.4.61.0501141626310.6118@scrub.home>	 <41E8358A.4030908@opersys.com>	 <Pine.LNX.4.61.0501150101010.30794@scrub.home>	 <41E899AC.3070705@opersys.com>	 <Pine.LNX.4.61.0501160245180.30794@scrub.home>	 <41EA0307.6020807@opersys.com>	 <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com>	 <1105925842.13265.364.camel@tglx.tec.linutronix.de>	 <41EB21C2.3020608@opersys.com> <1105964417.13265.406.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1105964417.13265.406.camel@tglx.tec.linutronix.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> Tigran Aivazian wrote:
->> On Mon, 17 Jan 2005, Arjan van de Ven wrote:
->>
->>>> Actually, having cc'd Linus made me think very _carefully_ about what I
->>>> say and I went and checked how the userspace does it, as I couldn't
->>>> believe that such fine piece of software as gdb would be broken as well.
->>>> And to my surprize I discovered that gdb (when a program is
->>>> compiled with
->>>> -g) works fine! I.e. it shows the function arguments correctly. And
->>>
->>> so why don't you use kgdb instead of kdb ?
->> If kdb was some dead unmaintained piece of software then, yes, I
->> would follow your advice and switch to kgdb. But kdb is a very nice
->> and actively maintained piece of work, so it should be fixed to show
->> the parameter values correctly in the backtrace.
->
-> That's a kdb maintainer issue.  The x86-64 folks have nicely provided
-> a set of libraries to do backtraces, etc.  Your previous rant is just
-> so far off base it's not even funny.
+Thomas Gleixner wrote:
+> Sorting out disabled events is the filtering you have to do in kernel
+> and you should do it in the hot path or remove the unneccecary
+> tracepoints at compiletime. 
 
-To be fair there isn't a nice library for it on x86-64.  There
-is libunwind on IA64, but afaik nobody ported it to x86-64 yet.
+Do you actually read my replies or do you just grep for something
+you can object to? If you care to read my replies you will see that
+this has already been answered.
 
-Just various projects have their own private unwind
-implementation. The kernel including KDB has always lived with
-imprecise backtraces and no argument printing. I don't think it has
-been a show stopper so far.  If you really want the arguments you can
-always use kgdb.
+> You are not answering my argument. 8MB/sec is an event frequency of
+> 128hz when we assume 64byte/event. It's one event every 8us. So every
+> unneccecary computation, every leaving the hotpath for nothing is just
+> giving you performance loss.
 
-However I'm not sure we really want libunwind in the kernel anyways
-(not even in KDB ;-) If anything better something stripped down and 
-simple which libunwind isn't.
+I have, you just choose not to read. Here's what I said earlier:
+> Note, however, that we are thinking of dropping the lockless scheme
+> for now. We will pick up this discussion separately further down the
+> road.
 
-Unfortunately dwarf2 is not exactly a simple spec so implementing
-a new backtracer for the kernel is not a trivial task. 
+IOW, we will be using cli/sti. So there is no "leaving the hotpath".
 
--Andi
+> I said:
+> 
+>>>Sorting out disabled events in the hot path 
+> 
+> 
+> s/Sorting/Filtering/
+> 
+> I never said this should not be done.
+
+You're either on crack or I don't know how to read english. Here's what
+you said:
+> Sorting out disabled events in the hot path and moving the if
+> (pid/gid/grp) whatever stuff into userspace postprocessing is not an
+> alien request.
+
+Clearly you are suggesting to moving the filtering into user-space.
+
+> Seperating layers as I suggested before is not making it a generic
+> debugging tool. It makes parts of those layers available for other usage
+> and gives us the chance to reuse the parts for cleaning up already
+> available code which has the same hardwired structure.
+
+This has already been answered.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

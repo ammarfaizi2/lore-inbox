@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUJNL1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJNLaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUJNL1d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 07:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUJNL1c
+	id S261474AbUJNLaE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 07:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJNLaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 07:27:32 -0400
-Received: from imap.gmx.net ([213.165.64.20]:40078 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261724AbUJNL1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 07:27:18 -0400
-X-Authenticated: #4399952
-Date: Thu, 14 Oct 2004 13:42:50 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       jackit-devel@lists.sourceforge.net
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-Message-ID: <20041014134250.3139153b@mango.fruits.de>
-In-Reply-To: <20041014131604.106496fe@mango.fruits.de>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	<20041011215909.GA20686@elte.hu>
-	<20041012091501.GA18562@elte.hu>
-	<20041012123318.GA2102@elte.hu>
-	<20041012195424.GA3961@elte.hu>
-	<20041013061518.GA1083@elte.hu>
-	<20041014002433.GA19399@elte.hu>
-	<20041014105711.654efc56@mango.fruits.de>
-	<20041014091953.GA21635@elte.hu>
-	<20041014120007.01c26760@mango.fruits.de>
-	<15261.195.245.190.94.1097749350.squirrel@195.245.190.94>
-	<20041014124845.5daecec2@mango.fruits.de>
-	<416E5AF6.8080802@cybsft.com>
-	<20041014131604.106496fe@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 14 Oct 2004 07:30:04 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5799 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261474AbUJNL3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 07:29:49 -0400
+Date: Thu, 14 Oct 2004 06:29:38 -0500
+From: Robin Holt <holt@sgi.com>
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: Yet another crash dump tool
+Message-ID: <20041014112938.GE19122@lnx-holt.americas.sgi.com>
+References: <20041014074718.26E6.ODA@valinux.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014074718.26E6.ODA@valinux.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> nah, this worked very well for all other versions of the VP patches. right
-> now i'm building U0 w/o PREEMPT_REALTIME, to see if i still get the
-> exception.
+On Thu, Oct 14, 2004 at 08:05:41AM +0900, Itsuro Oda wrote:
+> Hello,
 > 
+> We released a crash dump tool called "mini kernel dump".
+> 
+> Please see the following URL to get the motivation and the
+> overview of the mini kernel dump.
+> http://mkdump.sourceforge.net/
+> 
+> http://sourceforge.net/projects/mkdump/ 
 
-jackd seems to work fine w/o PREEMPT_REALTIME (otherwise identical config).
+I am not sure why this is such a huge improvement.  The one
+concern I have is you blindly are copying all of memory to the
+dump device.  Can you dump device span multiple volumes?  If I
+have a system using 1TB of physical memory, but 98% of that
+is allocated as huge TLB pages for users, do I _REALLY_ need to
+dump them all?
 
-flo
+lkcd, and I would hope others, only dump kernel pages unless
+configured to do otherwise.  More importantly lkcd can
+eliminate page cache and buffer cache pages.  Those types of
+pages are seldom relevant to figuring out what actually went
+wrong.
+
+Realistically, if the basic structures telling you whether pages
+are used by the kernel or not are so messed up you can not use
+them for dumping, they have probably been allocated to multiple
+users and will be riddled with inconsistent information.
+
+Robin Holt

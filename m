@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261449AbREZPbf>; Sat, 26 May 2001 11:31:35 -0400
+	id <S261351AbREZPdF>; Sat, 26 May 2001 11:33:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261471AbREZPb0>; Sat, 26 May 2001 11:31:26 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:35856 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261449AbREZPbO>; Sat, 26 May 2001 11:31:14 -0400
-Date: Sat, 26 May 2001 17:30:51 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+	id <S261471AbREZPbs>; Sat, 26 May 2001 11:31:48 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:58886 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261351AbREZPbY>;
+	Sat, 26 May 2001 11:31:24 -0400
+Date: Sat, 26 May 2001 12:31:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-Message-ID: <20010526173051.B9634@athlon.random>
-In-Reply-To: <20010526171459.Y9634@athlon.random> <Pine.LNX.4.21.0105261219360.30264-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0105261219360.30264-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 26, 2001 at 12:22:59PM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.21.0105260818150.3684-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105261229160.30264-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 12:22:59PM -0300, Rik van Riel wrote:
-> On Sat, 26 May 2001, Andrea Arcangeli wrote:
-> 
-> > @@ -1416,11 +1416,9 @@
-> >  	 */
-> >  	run_task_queue(&tq_disk);
-> >  
-> > -	/* 
-> > -	 * Set our state for sleeping, then check again for buffer heads.
-> > -	 * This ensures we won't miss a wake_up from an interrupt.
-> > -	 */
-> > -	wait_event(buffer_wait, nr_unused_buffer_heads >= MAX_BUF_PER_PAGE);
-> > +	current->policy |= SCHED_YIELD;
-> > +	__set_current_state(TASK_RUNNING);
-> > +	schedule();
-> >  	goto try_again;
-> >  }
-> 
-> This cannot possibly fix the problem because this code is
-> never reached.
-> 
-> What was observed in the backtraces by arjan, ben, marcelo
-> and people at IBM was:
-> 
-> create_buffers -> get_unused_buffer_head -> __alloc_pages
-> 
-> with the system looping infinitely in __alloc_pages. The
-> code you are changing above ONLY gets reached in case the
-> __alloc_pages (and thus, get_unused_buffer_head) returns
-> failure.
+On Sat, 26 May 2001, Linus Torvalds wrote:
 
-Fine, then post the strict __alloc_pages patch, after that you will run
-into the above code. Those are different issues, like I'm claiming since
-the first place, your patch didn't addressed the above.
+> Oh, and I still _do_ think that we should rename the silly "async"
+> flag as "can_do_io", and then use that to determine whether to do
+> SLAB_KERNEL or SLAB_BUFFER. That would make more things able to do IO,
+> which in turn should help balance things out.
 
-I definitely agree that if __alloc_pages itself deadlocks the above
-cannot make differences.
+Agreed, this simplifies things a lot.
 
-Andrea
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

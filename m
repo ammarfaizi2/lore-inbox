@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKCXmB>; Fri, 3 Nov 2000 18:42:01 -0500
+	id <S129066AbQKCXwP>; Fri, 3 Nov 2000 18:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbQKCXlw>; Fri, 3 Nov 2000 18:41:52 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:13585 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129033AbQKCXlc>;
-	Fri, 3 Nov 2000 18:41:32 -0500
-Date: Sat, 4 Nov 2000 00:41:29 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>, kuznet@ms2.inr.ac.ru,
-        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        davies@maniac.ultranet.com
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-Message-ID: <20001104004129.C5173@gruyere.muc.suse.de>
-In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> <200011031937.WAA10753@ms2.inr.ac.ru> <20001103160108.D16644@ganymede.isdn.uiuc.edu> <3A033C82.114016A0@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S131828AbQKCXwG>; Fri, 3 Nov 2000 18:52:06 -0500
+Received: from mta01.mail.au.uu.net ([203.2.192.81]:1271 "EHLO
+	mta01.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
+	id <S129066AbQKCXvw>; Fri, 3 Nov 2000 18:51:52 -0500
+Message-ID: <3A034F28.5DB994F4@valinux.com>
+Date: Sat, 04 Nov 2000 10:50:00 +1100
+From: Gareth Hughes <gareth@valinux.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.4.0-test9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, dledford@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: SETFPXREGS fix
+In-Reply-To: <20001103174105.C857@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A033C82.114016A0@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Nov 03, 2000 at 05:30:26PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 05:30:26PM -0500, Jeff Garzik wrote:
-> Bill Wendling wrote:
-> > 
-> > Also sprach kuznet@ms2.inr.ac.ru:
-> > } > de4x5 is probably also buggy in regard to this.
-> > }
-> > } de4x5 is hopeless. I added nice comment in softnet to it.
-> > } Unfortunately it was lost. 8)
-> > }
-> > } Andi, neither you nor me nor Alan nor anyone are able to audit
-> > } all this unnevessarily overcomplicated code. It was buggy, is buggy
-> > } and will be buggy. It is inavoidable, as soon as you have hundreds
-> > } of drivers.
-> > }
-> > If they are buggy and unsupported, why aren't they being expunged from
-> > the main source tree and placed into a ``contrib'' directory or something
-> > for people who may want those drivers?
+Andrea Arcangeli wrote:
 > 
-> de4x5 is stable.  Its hopeless to add stuff to it, or try to any fix of
-> the (IMHO small) issues, but its fine as is.  For maintenance issues,
-> its PCI support will be eliminated in 2.5.x because it is a duplicate of
-> support in the tulip driver.
+> --- 2.4.0-test10/arch/i386/kernel/i387.c        Thu Nov  2 20:58:58 2000
+> +++ PIII/arch/i386/kernel/i387.c        Thu Nov  2 18:44:36 2000
+> @@ -440,8 +436,25 @@
+>  int set_fpxregs( struct task_struct *tsk, struct user_fxsr_struct *buf )
+>  {
+>         if ( HAVE_FXSR ) {
+> -               __copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
+> -                                 sizeof(struct user_fxsr_struct) );
+> +               long mxcsr;
+> +
+> +               if (__copy_from_user(&tsk->thread.i387.fxsave, (void *)buf,
+> +                                    (long) &((struct user_fxsr_struct *)
+> +                                             0)->mxcsr))
+> +                       return -EFAULT;
+> +               if (__get_user(mxcsr,
+> +                              &((struct user_fxsr_struct *) buf)->mxcsr))
+> +                       return -EFAULT;
+> +               /* bit 6 and 31-16 must be zero for security reasons */
+> +               mxcsr &= 0xffbf;
+> +               tsk->thread.i387.fxsave.mxcsr = mxcsr;
+> +               if (__copy_from_user(&tsk->thread.i387.fxsave.reserved,
+> +                                    &((struct user_fxsr_struct *)
+> +                                      buf)->reserved,
+> +                                    sizeof(struct user_fxsr_struct)-
+> +                                    (long) &((struct user_fxsr_struct *)
+> +                                             0)->reserved))
+> +                       return -EFAULT;
+>                 return 0;
+>         } else {
+>                 return -EIO;
 
-de4x5 is stable, but tends to perform badly under load, mostly because
-it doesn't use rx_copybreak and overflows standard socket buffers with its
-always MTU sized skbuffs.
+Why do all three copies?  Why not copy it once and mask out the mxcsr
+value when it's in tsk->thread.i387.fxsave.mxcsr?  Seems to be an overly
+complex fix.
 
+	if ( HAVE_FXSR ) {
+		if ( __copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
+					sizeof(struct user_fxsr_struct) ) )
+			return -EFAULT;
+		/* bit 6 and 31-16 must be zero for security reasons */
+		tsk->thread.i387.fxsave.mxcsr &= 0x0000ffbf;
+		return 0;
+	}
 
--Andi
+-- Gareth
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

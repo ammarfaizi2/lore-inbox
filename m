@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSGKXgJ>; Thu, 11 Jul 2002 19:36:09 -0400
+	id <S313087AbSGKXek>; Thu, 11 Jul 2002 19:34:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317846AbSGKXgI>; Thu, 11 Jul 2002 19:36:08 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64526 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313508AbSGKXgH>; Thu, 11 Jul 2002 19:36:07 -0400
-Subject: Re: OLS RAS BoFs was [STATUS 2.5]  July 10, 2002
-To: richardj_moore@uk.ibm.com (Richard J Moore)
-Date: Fri, 12 Jul 2002 01:00:06 +0100 (BST)
-Cc: joe.perches@spirentcom.com (Perches Joe),
-       alan@lxorguk.ukuu.org.uk ('Alan Cox'), thunder@ngforever.de,
-       "Cc:_bunk"@fs.tum.de (Cc: bunk), boissiere@adiglobal.com,
-       linux-kernel@vger.kernel.org, kessler@us.ibm.com ('Larry Kessler'),
-       Martin.Bligh@us.ibm.com ('Martin.Bligh@us.ibm.com'),
-       ajh@linuxsymposium.org (Andrew J. Hutton)
-In-Reply-To: <OF3DAC5334.C06FB755-ON85256BF3.007168B9@portsmouth.uk.ibm.com> from "Richard J Moore" at Jul 11, 2002 09:51:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313508AbSGKXek>; Thu, 11 Jul 2002 19:34:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23221 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S313087AbSGKXei>;
+	Thu, 11 Jul 2002 19:34:38 -0400
+Date: Thu, 11 Jul 2002 19:37:17 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Daniel Phillips <phillips@arcor.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>, adam@yggdrasil.com,
+       R.E.Wolff@bitwizard.nl, linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit
+In-Reply-To: <Pine.LNX.4.44.0207112059580.8911-100000@serv>
+Message-ID: <Pine.GSO.4.21.0207111928390.9488-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Snqx-0001sd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am waiting to hear from Andrew Hutton - I have the MP3 files available
-> (240Mb) and ready for him to host of the OLS website. Anyone else care to
-> host them - Larry can we put them on sourceforge systemras?
 
-I can host them for now if you want
+
+On Thu, 11 Jul 2002, Roman Zippel wrote:
+
+> > In short, it's close to the truth, but it's not quite there in its current
+> > form.  Al said as much himself.
+> 
+> He was talking about a generic interface. I stared now long enough at
+> that code, could anyone point me to where exactly is there a race in
+> the filesystem code??? IMO it's more complex than necessary (because it
+> has to work around the problem that unregister can't fail), but it should
+> work.
+
+For filesystems the only currently existing race is in the case when
+init_module() registers one, then decides to bail out and unregisters it.
+If somebody finds the thing between register/unregister the current code
+is screwed.  And no, "don't block in between" is not viable - typically
+the reason of failure is failing allocation and/or timeouts on some sort
+of probing.
+
+As for determining the loading/normal/unloading - we _already_ have that
+state, no need to introduce new fields.  How do you think try_inc_mod_count()
+manages to work?  Exactly - there's a field of struct module that contains
+a bunch of flags.  And no, Daniel's ramblings (from what I've seen quoted)
+are pure BS - there's no need to mess with "oh, but I refuse to be
+unregistered"; proper refcounting is easy for normal cases.
+
+> BTW this example shows also the limitation of the current module
+> interface. It's impossible for a module to control itself, whether it can
+> be unloaded or not. All code for this must be outside of this module,
+> after __MOD_DEC_USE_COUNT() the module must not be touched anymore (so
+> this call can't be inside of a module).
+
+It's not needed.  I don't see where this ret-rmmod crap is coming from -
+module uses some interface and decisions about holding it pinned belong
+to that interface.  Plain, simple and works for all normal drivers.
+
+/me ponders removing Daniel from killfile and decides that it's not worth
+the trouble...
+

@@ -1,42 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbRGFPCn>; Fri, 6 Jul 2001 11:02:43 -0400
+	id <S266714AbRGFPGe>; Fri, 6 Jul 2001 11:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266713AbRGFPCe>; Fri, 6 Jul 2001 11:02:34 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:22802 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S266712AbRGFPC2>; Fri, 6 Jul 2001 11:02:28 -0400
-Date: Fri, 6 Jul 2001 17:02:33 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thibaut Laurent <thibaut@celestix.com>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-Message-ID: <20010706170233.X2425@athlon.random>
-In-Reply-To: <20010704232816.B590@marvin.mahowi.de> <20010705162035.Q17051@athlon.random> <3B447B6D.C83E5FB9@redhat.com> <20010705164046.S17051@athlon.random> <20010705233200.7ead91d5.thibaut@celestix.com> <20010706144311.J2425@athlon.random> <20010706221853.3391f528.thibaut@celestix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010706221853.3391f528.thibaut@celestix.com>; from thibaut@celestix.com on Fri, Jul 06, 2001 at 10:18:53PM +0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S266719AbRGFPGY>; Fri, 6 Jul 2001 11:06:24 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:15807 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S266714AbRGFPGJ>; Fri, 6 Jul 2001 11:06:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: The SUID bit (was Re: [PATCH] more SAK stuff)
+Date: Fri, 6 Jul 2001 06:04:40 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200107060145.f661j5v74941@saturn.cs.uml.edu>
+In-Reply-To: <200107060145.f661j5v74941@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Message-Id: <01070606044004.00596@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 06, 2001 at 10:18:53PM +0800, Thibaut Laurent wrote:
-> Confirmed. I tried both pre2 and pre3
-> 
-> 2.4.7-pre2 + 00_ksoftirqd-7 + your last "bug" patch --> boot failed
-> 2.4.7-pre3 + 00_ksoftirqd-7 + your last "bug" patch --> boot ok
+On Thursday 05 July 2001 21:45, Albert D. Cahalan wrote:
 
-perfect.
+> Oh, cry me a river. You can set the RUID, EUID, SUID, and FUID
+> in that same parent process or after you fork().
 
-> BTW, is there some kind of doc regarding all the patches in
-> ftp.kernel.org/pub/linux/kernel/people/andrea/kernels ?
-> Especially, what each of them is meant for.
+Okay, I'll bite.
 
-there are the .log files for each patchkit, most of the time I only
-document the diffs between different patchkits since it's faster that
-way but if lots of people asks for that I can automate the build of the
-whole description for every patchkit too.
+The file user ID is fine, the effective user ID is what the suid bit sets to 
+root of course, the saved user id is irrelevant to this (haven't encountered 
+something that actually cares about it yet, and yes I have been checking 
+source code when I bump into a problem).
 
-Andrea
+But the actual uid (real user ID) ain't root, and an euid of root doesn't let 
+me change the uid itself to root, or at least I haven't figured out how.  
+(And haven't really tried: there are some things that might conceivably care 
+whether you really are root or not, but the samba change password command 
+isn't one of them.  I have a password protected cgi accessed via ssl which 
+allows the manipulation of a limited subset of samba users, and the samba 
+tool will happily let me change anybody's password as suid root.  But to add 
+a user, the script has to append an entry to the file manually and then 
+change the password from "racecondition" (which it is) to whatever the user's 
+password should be.  I could patch and ship nonstandard samba binaries, but 
+that makes automatic upgrades problematic.  (And samba, being a net 
+accessable server, REALLY needs to be kept up to date.))
+
+Do you have a code example of how a program with euid root can change its 
+actual uid (which several programs check when they should be checking euid, 
+versions of dhcpcd before I complained about it case in point)?
+
+Some of it's misguided "policy", assuming that the suid bit is on the 
+executable itself instead of its parent process.  A check and an error "Thou 
+shalt not set this suid root" is fairly common on things that can be securely 
+run from a daemon running AS root.  So apparently, the obvious way to fix it 
+is to relax the security restrictions even MORE, which is silly.
+
+> Since you didn't set all the UID values, I have to wonder what
+> else you forgot to do. Maybe you shouldn't be messing with
+> setuid programming.
+
+Ah, the BSD attitude.  If you don't already know it, you should die rather 
+than try to learn it.  Anybody who isn't perfect should leave us alone, we 
+LIKE our user base small. :)
+
+Following this logic, nobody should use Linux because the kernel has 
+repeatedly shipped with holes allowing people to hack root, gaping big holes 
+like the insmod `;rm -rf /` thing last year.  Apparently we should all be 
+using an early 90's version of netware or some kind of embedded system 
+audited for stack overflows and burned in ROM...
+
+Rob
+
+(Reference dilbert: "Here's a quarter kid, go buy yourself a real computer."  
+That's a nice way to recruit new users to help politically support decss or 
+convince video card manufacturers to release source code to their 3d drivers, 
+winmodems, funky encryption in USB audio, slipping registration stuff in the 
+ATA spec...)

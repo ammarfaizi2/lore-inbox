@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277532AbRJJXf7>; Wed, 10 Oct 2001 19:35:59 -0400
+	id <S277533AbRJJXma>; Wed, 10 Oct 2001 19:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277530AbRJJXfu>; Wed, 10 Oct 2001 19:35:50 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:60176 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S277532AbRJJXfe>; Wed, 10 Oct 2001 19:35:34 -0400
-Date: Thu, 11 Oct 2001 00:36:02 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
-Message-ID: <20011011003602.B84467@compsoc.man.ac.uk>
-In-Reply-To: <3BC4E8AD.72F175E3@us.ibm.com> <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+	id <S277540AbRJJXmU>; Wed, 10 Oct 2001 19:42:20 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:37640 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S277533AbRJJXmB>; Wed, 10 Oct 2001 19:42:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Date: Wed, 10 Oct 2001 19:42:31 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>,
+        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random>
+In-Reply-To: <20011010153653.Q726@athlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011010234211Z277533-761+17907@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 06:21:01PM -0400, Ricky Beam wrote:
+On Wednesday 10 October 2001 09:36, Andrea Arcangeli wrote:
+> On Wed, Oct 10, 2001 at 08:00:04AM -0400, safemode wrote:
+> > OK, i copied the mp3 into /dev/shm and without any renicing of anything
+> > it plays fine during dbench 32.  so the problem is disk access taking too
+> > long.
+> >
+> > Which is strange since i'm running dbench on a separate hdd on a totally
+> > different controller.
+>
+> then if you know it's not disk congestion, it's most probably due the vm
+> write throttling.
+>
+> Andrea
 
-> On Wed, 10 Oct 2001, Mingming cao wrote:
-> >I read the man page of
-> >rmdir(2).  It says in this case EBUSY error should be returned.  I
-> >suspected this is a bug and added a check in vfs_rmdir(). The following
-> >patch is against 2.4.10 and has been verified.  Please comment and
-> >apply.
-> 
-> The bug is in the manpage.  This was discussed over a year ago (some time
-
-Well, the manpage only states what certain error nr. returns may mean, not what
-will be returned when. Do you have an improvement on :
-
-       EBUSY  pathname is the current working directory or root directory of some process.
-
-regards
-john
-
--- 
-"Beware of bugs in the above code; I have only proved it correct, not tried
-it."
-	- Donald Knuth
+How is it that a process at the same priority as allowed to throttle the 
+kernel's vm and starve other processes at the same priority.  That sounds 
+like dbench is being allowed to preempt other processes at the same priority. 
+ even if it is indirect preemption. The effect is the same. 

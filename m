@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131080AbQK2S6w>; Wed, 29 Nov 2000 13:58:52 -0500
+        id <S129961AbQK2TAW>; Wed, 29 Nov 2000 14:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131136AbQK2S6m>; Wed, 29 Nov 2000 13:58:42 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:32772
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S131080AbQK2S6a>; Wed, 29 Nov 2000 13:58:30 -0500
-Date: Wed, 29 Nov 2000 10:27:17 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Kurt Garloff <kurt@garloff.de>
-cc: --Damacus Porteng-- <kernel@bastion.yi.org>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-SCSI/HPT366 Problem
-In-Reply-To: <20001129191402.F5891@garloff.etpnet.phys.tue.nl>
-Message-ID: <Pine.LNX.4.10.10011291025411.1743-100000@master.linux-ide.org>
+        id <S130216AbQK2TAO>; Wed, 29 Nov 2000 14:00:14 -0500
+Received: from pop.gmx.net ([194.221.183.20]:38600 "HELO mail.gmx.net")
+        by vger.kernel.org with SMTP id <S129961AbQK2S75>;
+        Wed, 29 Nov 2000 13:59:57 -0500
+Message-ID: <03e501c05811$0ea8b680$a00b07d5@default>
+From: "Andreas Eibach" <a.eibach@gmx.net>
+To: <barryn@pobox.com>, <linux-kernel@vger.kernel.org>
+Cc: <hahn@coffee.psychology.mcmaster.ca>
+In-Reply-To: <200011151958.LAA09896@cx518206-b.irvn1.occa.home.com>
+Subject: Re: [BUG?] AMD 5x86 and 2.4 (was Re: [BUG?] AMD K5 and 2.4)
+Date: Mon, 27 Nov 2000 02:25:14 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Kurt Garloff wrote:
 
-> Strange. If you read data from the harddisk on an IDE channel and write it
-> (with cdrecord) to some CDRW on the same IDE channel, you have to expect
-> trouble: As with IDE there is no disconnect from the bus (as opposed to
-> SCSI), you risk buffer underruns. 
-> A lockup however is not to be expected :-(
 
-It is completely expected bacause of teh active timing changes done on
-this chipset design.  The timings are for ATA DMA and not ATAPI.
-You should expect a 100% hardlock on mistimed IO access.
+> It looks like I was mistaken in my original message. I have an AMD 5x86,
+not
+> a K5.
 
-Cheers,
+Careful.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+AFAIK, '5x86' (without anything added) is a description for Cyrix/IBM
+processors ONLY.
+5x86/6x86/6x86MX are _also_ Cyrix names for CPUs.
+'MMX' is a registered (!) trademark by Intel Corp., so Cyrix were obliged to
+choose another name for the MMX technology (sorta) that they used in their
+CPUs. They named it 'MX' and appended this to the name.
+
+Nevertheless, you are right. You do NOT have a K5.
+
+The *correct* name for your processor is 'Am5x86', though, which is a
+trademark of AMD, by the way.
+
+Andreas
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

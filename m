@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292273AbSCDJTY>; Mon, 4 Mar 2002 04:19:24 -0500
+	id <S292281AbSCDJUY>; Mon, 4 Mar 2002 04:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292281AbSCDJTO>; Mon, 4 Mar 2002 04:19:14 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:32392 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S292273AbSCDJTG>; Mon, 4 Mar 2002 04:19:06 -0500
-Date: Mon, 4 Mar 2002 10:18:55 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Ookhoi <ookhoi@humilis.net>
-Cc: John Weber <john.weber@linuxhq.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.6-pre2 and ALSA Sound
-Message-ID: <20020304091855.GB25326@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Ookhoi <ookhoi@humilis.net>, John Weber <john.weber@linuxhq.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C7F321B.2040603@linuxhq.com> <20020301164724.GB31210@come.alcove-fr> <20020302184450.W8078@humilis>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020302184450.W8078@humilis>
-User-Agent: Mutt/1.3.25i
+	id <S292289AbSCDJUF>; Mon, 4 Mar 2002 04:20:05 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:47834 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S292281AbSCDJTu>;
+	Mon, 4 Mar 2002 04:19:50 -0500
+Date: Mon, 4 Mar 2002 10:19:22 +0100 (MET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Dave Jones <davej@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH] hitfb ported to new api.
+In-Reply-To: <Pine.LNX.4.10.10203020939140.28753-100000@www.transvirtual.com>
+Message-ID: <Pine.GSO.4.21.0203041015440.29240-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 02, 2002 at 06:44:50PM +0100, Ookhoi wrote:
+On Sat, 2 Mar 2002, James Simmons wrote:
+> +static struct fb_var_screeninfo hitfb_var __initdata = {
+> +	0, 0, 0, 0, 0, 0, 0, 0,
+> +	{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0},
+> +	0, FB_ACTIVATE_NOW, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+> +	0, FB_VMODE_NONINTERLACED
+>  };
 
-> > > Anyone else having trouble with ALSA YMFPCI?  Everything compiles,
-> > > but I can't hear a thing (even with OSS compatibility enabled).
-> > 
-> > It does work for me at least, on a VAIO C1VE, kernel 2.5.6-pre2.
-> 
-> Can you also record sound via the microphone?
+> +static struct fb_fix_screeninfo hitfb_fix __initdata = {
+> +	"Hitachi HD64461",(unsigned long) NULL, 0, FB_TYPE_PACKED_PIXELS,
+> +	0, FB_VISUAL_TRUECOLOR, 0, 0, 0, 0, (unsigned long) NULL, 0, 
+> +	FB_ACCEL_NONE
+>  };
 
-Yes.
+Suggestion: use the new-style struct initialization. It's less error-prone, and
+you can get rid of the 0/NULL values.
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

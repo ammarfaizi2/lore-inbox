@@ -1,143 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbUKPHHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbUKPHWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbUKPHHS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 02:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUKPHHS
+	id S261934AbUKPHWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 02:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUKPHWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 02:07:18 -0500
-Received: from HELIOUS.MIT.EDU ([18.238.1.151]:37287 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261930AbUKPHG1 (ORCPT
+	Tue, 16 Nov 2004 02:22:49 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:11690 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261930AbUKPHWg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 02:06:27 -0500
-Date: Tue, 16 Nov 2004 02:04:13 -0500
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Tejun Heo <tj@home-tj.org>, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Message-ID: <20041116070413.GJ29574@neo.rr.com>
-Mail-Followup-To: ambx1@neo.rr.com,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-	Tejun Heo <tj@home-tj.org>,
-	Patrick Mochel <mochel@digitalimplant.org>
-References: <20041109223729.GB7416@kroah.com> <200411092249.44561.dtor_core@ameritech.net> <20041116061315.GG29574@neo.rr.com> <200411160137.57402.dtor_core@ameritech.net>
+	Tue, 16 Nov 2004 02:22:36 -0500
+Date: Tue, 16 Nov 2004 02:21:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ULi SATA fixes, new support
+Message-ID: <20041116072131.GA32560@havoc.gtf.org>
+Reply-To: linux-ide@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411160137.57402.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6+20040722i
-From: ambx1@neo.rr.com (Adam Belay)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 01:37:57AM -0500, Dmitry Torokhov wrote:
-> On Tuesday 16 November 2004 01:13 am, Adam Belay wrote: 
-> > An Alternative Solution
-> > =======================
-> > 
-> > Why not have a file named "bind".  We can write the name of the driver we want
-> > bound to the device.  When we want to unbind the driver we could do something
-> > like this:
-> > 
-> > # echo "" > bind
-> > or
-> > # echo 0 > bind
-> > 
-> > At least then we only have the link and the "bind" file to worry about.  I've
-> > also been considering more inventive solutions (like deleting the symlink will
-> > cause the driver to unbind). But it could get complex very quickly.  Really, 
-> > we need to discuss this more.
-> >
-> 
-> I'd like having one node as well. Right now serio bus uses "drvctl" and supports
 
-Great!  I'm glad we agree.
-
-> the following operations:
->  - "none" to unbind;
->  - "rescan" to unbind if bound and then find appropriate driver;
->  - "reconnect" to reinitialize hardware without inbinding (so exesting input
->    devices will be kept intact)
->  - <driver name> to unbind if bound and try to bind.
-> 
-> There was also ide of changing commands to form "CMD [DRIVER] [ARGS...]:
-> "detach", "rescan", "reconnect", "attach <driver_name>"
-> 
-
-These additional features bring up another issue that we may want the driver
-model to handle.  Basically, I think we should allow devices to be started and
-stopped.
-
-So it would look something like this:
-
-struct device_driver {
-	char			* name;
-	struct bus_type		* bus;
-
-	struct semaphore	unload_sem;
-	struct kobject		kobj;
-	struct list_head	devices;
-
-	int	(*probe)	(struct device * dev);
-	int	(*start)	(struct device * dev); <-----
-	int	(*stop)		(struct device * dev); <-----
-	int 	(*remove)	(struct device * dev);
-	void	(*shutdown)	(struct device * dev);
-	int	(*suspend)	(struct device * dev, u32 state, u32 level);
-	int	(*resume)	(struct device * dev, u32 level);
-};
-
-"*probe"
-- determine if this driver is able to handle this device
-- if so create data structures that can store information about the device
-- bind the device to the driver and display additional config attributes.
-
-At this point userspace can set up the configuration of this specific binding
-instance.  The configuration options would primarily be things that cannot be
-modified while the device is in use.  It can be loaded from a cache so that it
-is consistent between reboots, hotplugs etc.  This would sort of replace
-module parameters.
-
-Now that the user has specific his or her config preferences we can go to
-"*start"
-
-"*start"
-- parse resource information
-- fill in device/driver data structures with information
-- prepare the device to actually be used
-
->From this point the device would be completely usable.
-
-Then at a later time, when the device...
-- is no longer needed
-- resources need to be rebalanced
-- the user wants to remove the device in the near future
-
-"*stop"
-- safely stop the upper class layer
-- free resources, and reset device specific data
-
-And we're ready for the next step. (which may even include another *start)
-
-This would easily allow for things like "reconnect", which would simply be a
-"*stop" follow by a "*start".
-
-Comments?
+Another one just checked into libata-dev-2.6.
 
 
-> My bind mode patch is somewhat independent of "drvctl" as it just adds a new
-> attribute - "bind_mode" to all devices and drivers. It can be either "auto"
-> or "manual" and device/drivers that are set as manual mode will be ignored
-> by driver core and will only be bound when user explicitely asks to do that.
-> This is useful when you want "penalize" one driver over another, like
-> psmouse/serio_raw.
+ drivers/scsi/sata_uli.c |   51 +++++++++++++++++++++---------------------------
+ 1 files changed, 23 insertions(+), 28 deletions(-)
 
-That's actually a really interesting idea.  In some cases we may not want the
-kernel automatically binding drivers.  A question would be should this feature
-be disabled on a per device basis or globally?  If it's globally then should
-it occur after init is done.  And if that's the case, couldn't we free the
-device ID tables and handle everything from userspace.  I'm sure there are
-some problems with this but I figured I'd mention it as well.
+through these ChangeSets:
 
-Thanks,
-Adam
+<jgarzik@pobox.com> (04/11/16 1.2169)
+   [libata sata_uli] add 5281 support, fix SATA phy setup for others
+   
+   Contributed by Peer Chen @ ULi and tested by a user.
+
+diff -Nru a/drivers/scsi/sata_uli.c b/drivers/scsi/sata_uli.c
+--- a/drivers/scsi/sata_uli.c	2004-11-16 02:19:58 -05:00
++++ b/drivers/scsi/sata_uli.c	2004-11-16 02:19:58 -05:00
+@@ -32,16 +32,18 @@
+ #include <linux/libata.h>
+ 
+ #define DRV_NAME	"sata_uli"
+-#define DRV_VERSION	"0.2"
++#define DRV_VERSION	"0.5"
+ 
+ enum {
+ 	uli_5289		= 0,
+ 	uli_5287		= 1,
++	uli_5281		= 2,
+ 
+ 	/* PCI configuration registers */
+-	ULI_SCR_BASE		= 0x90, /* sata0 phy SCR registers */
+-	ULI_SATA1_OFS		= 0x10, /* offset from sata0->sata1 phy regs */
+-
++	ULI5287_BASE		= 0x90, /* sata0 phy SCR registers */
++	ULI5287_OFFS		= 0x10, /* offset from sata0->sata1 phy regs */
++	ULI5281_BASE		= 0x60, /* sata0 phy SCR  registers */
++	ULI5281_OFFS		= 0x60, /* offset from sata0->sata1 phy regs */
+ };
+ 
+ static int uli_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
+@@ -51,6 +53,7 @@
+ static struct pci_device_id uli_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_AL, 0x5289, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5289 },
+ 	{ PCI_VENDOR_ID_AL, 0x5287, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5287 },
++	{ PCI_VENDOR_ID_AL, 0x5281, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5281 },
+ 	{ }	/* terminate list */
+ };
+ 
+@@ -125,33 +128,15 @@
+ MODULE_DEVICE_TABLE(pci, uli_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+ 
+-static unsigned int get_scr_cfg_addr(unsigned int port_no, unsigned int sc_reg)
++static unsigned int get_scr_cfg_addr(struct ata_port *ap, unsigned int sc_reg)
+ {
+-	unsigned int addr = ULI_SCR_BASE + (4 * sc_reg);
+-
+-	switch (port_no) {
+-	case 0:
+-		break;
+-	case 1:
+-		addr += ULI_SATA1_OFS;
+-		break;
+-	case 2:
+-		addr += ULI_SATA1_OFS*4;
+-		break;
+-	case 3:
+-		addr += ULI_SATA1_OFS*5;
+-		break;
+-	default:
+-		BUG();
+-		break;
+-	}
+-	return addr;
++	return ap->ioaddr.scr_addr + (4 * sc_reg);
+ }
+ 
+ static u32 uli_scr_cfg_read (struct ata_port *ap, unsigned int sc_reg)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+-	unsigned int cfg_addr = get_scr_cfg_addr(ap->port_no, sc_reg);
++	unsigned int cfg_addr = get_scr_cfg_addr(ap, sc_reg);
+ 	u32 val;
+ 
+ 	pci_read_config_dword(pdev, cfg_addr, &val);
+@@ -161,7 +146,7 @@
+ static void uli_scr_cfg_write (struct ata_port *ap, unsigned int scr, u32 val)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+-	unsigned int cfg_addr = get_scr_cfg_addr(ap->port_no, scr);
++	unsigned int cfg_addr = get_scr_cfg_addr(ap, scr);
+ 
+ 	pci_write_config_dword(pdev, cfg_addr, val);
+ }
+@@ -222,9 +207,11 @@
+ 		rc = -ENOMEM;
+ 		goto err_out_regions;
+ 	}
+-
++	
+ 	switch (board_idx) {
+ 	case uli_5287:
++		probe_ent->port[0].scr_addr = ULI5287_BASE;
++		probe_ent->port[1].scr_addr = ULI5287_BASE + ULI5287_OFFS;
+        		probe_ent->n_ports = 4;
+ 
+        		probe_ent->port[2].cmd_addr = pci_resource_start(pdev, 0) + 8;
+@@ -232,19 +219,27 @@
+ 		probe_ent->port[2].ctl_addr =
+ 			(pci_resource_start(pdev, 1) | ATA_PCI_CTL_OFS) + 4;
+ 		probe_ent->port[2].bmdma_addr = pci_resource_start(pdev, 4) + 16;
++		probe_ent->port[2].scr_addr = ULI5287_BASE + ULI5287_OFFS*4;
+ 
+ 		probe_ent->port[3].cmd_addr = pci_resource_start(pdev, 2) + 8;
+ 		probe_ent->port[3].altstatus_addr =
+ 		probe_ent->port[3].ctl_addr =
+ 			(pci_resource_start(pdev, 3) | ATA_PCI_CTL_OFS) + 4;
+ 		probe_ent->port[3].bmdma_addr = pci_resource_start(pdev, 4) + 24;
++		probe_ent->port[3].scr_addr = ULI5287_BASE + ULI5287_OFFS*5;
+ 
+ 		ata_std_ports(&probe_ent->port[2]);
+ 		ata_std_ports(&probe_ent->port[3]);
+ 		break;
+ 
+ 	case uli_5289:
+-		/* do nothing; ata_pci_init_native_mode did it all */
++		probe_ent->port[0].scr_addr = ULI5287_BASE;
++		probe_ent->port[1].scr_addr = ULI5287_BASE + ULI5287_OFFS;
++		break;
++
++	case uli_5281:
++		probe_ent->port[0].scr_addr = ULI5281_BASE;
++		probe_ent->port[1].scr_addr = ULI5281_BASE + ULI5281_OFFS;
+ 		break;
+ 
+ 	default:

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUDWTxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUDWTzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUDWTxP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 15:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUDWTxO
+	id S261204AbUDWTzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 15:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUDWTzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 15:53:14 -0400
-Received: from ns.suse.de ([195.135.220.2]:13727 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261156AbUDWTxL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 15:53:11 -0400
-Subject: [PATCH] reiserfs v3 patches for 2.6.6-rc2
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
-Content-Type: text/plain
-Message-Id: <1082750045.12989.199.camel@watt.suse.com>
+	Fri, 23 Apr 2004 15:55:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11529 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261204AbUDWTzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 15:55:10 -0400
+Date: Fri, 23 Apr 2004 20:55:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Simon Kelley <simon@thekelleys.org.uk>
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Message-ID: <20040423205504.B2896@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcel Holtmann <marcel@holtmann.org>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org,
+	Simon Kelley <simon@thekelleys.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net> <1082723147.1843.14.camel@merlin>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 23 Apr 2004 15:54:06 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1082723147.1843.14.camel@merlin>; from marcel@holtmann.org on Fri, Apr 23, 2004 at 02:25:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Fri, Apr 23, 2004 at 02:25:49PM +0200, Marcel Holtmann wrote:
+> I haven't tested it yet, but the same problem should apply to the
+> bt3c_cs driver for the 3Com Bluetooth card. Are there any patches
+> available that integrates the PCMCIA subsystem into the driver model, so
+> we don't have to hack around it if a firmware download is needed?
 
-Thanks to Andrew for helping to test and feed many of the reiserfs
-patches into mainline.  I've rediffed against the current -mm and linus
-trees:
+Not yet.  It's something we're working towards, but its going to be
+some time yet.  There's a fair queue of long outstanding patches
+which need to be processed first.
 
-ftp.suse.com/pub/people/mason/patches/reiserfs/2.6.6-rc2
+Plus, before we can consider driver model in PCMCIA, we need to get
+the object lifetimes properly sorted.
 
-The directory includes a series file to tell you the order to apply the
-patches.  The same series file should work with -mm kernels as well
-right now.
-
-New in this patch set is data=journal support, which fills out the
-compatibility list with the 2.4.x reiserfs data logging patches.  Other
-patches include:
-
-xattrs and acls (Jeff Mahoney)
-warning/error messages that include device names (Jeff Mahoney)
-quotas
-block allocator improvements
-metadata readahead for some types of tree searches
-
-data=journal is experimental, but most of the code changes don't kick in
-unless you mount with data=journal.
-
-The rest of the patches should be stable.
-
--chris
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

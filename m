@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbSLBUJl>; Mon, 2 Dec 2002 15:09:41 -0500
+	id <S264963AbSLBUJA>; Mon, 2 Dec 2002 15:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbSLBUJl>; Mon, 2 Dec 2002 15:09:41 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:58884 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S264940AbSLBUJf>; Mon, 2 Dec 2002 15:09:35 -0500
-Date: Mon, 2 Dec 2002 23:16:24 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: "'Richard Henderson'" <rth@twiddle.net>,
-       "'Bjoern Brauel'" <bjb@gentoo.org>, linux-kernel@vger.kernel.org
-Subject: Re: kernel build of 2.5.50 fails on Alpha
-Message-ID: <20021202231624.A1571@jurassic.park.msu.ru>
-References: <20021201201122.A31609@twiddle.net> <001001c29a3c$d65eaf80$3640a8c0@boemboem>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <001001c29a3c$d65eaf80$3640a8c0@boemboem>; from folkert@vanheusden.com on Mon, Dec 02, 2002 at 08:55:59PM +0100
+	id <S264975AbSLBUJA>; Mon, 2 Dec 2002 15:09:00 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:28310 "EHLO
+	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S264963AbSLBUI7>; Mon, 2 Dec 2002 15:08:59 -0500
+Date: Mon, 2 Dec 2002 18:16:01 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: =?iso-8859-1?q?Kurt=20Johnson?= <gorydetailz@yahoo.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: small doubt about fair-scheduler patch
+In-Reply-To: <20021202192553.87887.qmail@web13204.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44L.0212021814060.15981-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 08:55:59PM +0100, Folkert van Heusden wrote:
-> I'm afraid that one won't compile:
-> 
-> arch/alpha/kernel/pci.c: In function `pcibios_fixup_final':
-> arch/alpha/kernel/pci.c:128: `ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS' undeclared
+On Mon, 2 Dec 2002, Kurt Johnson wrote:
 
-My fault. Please try this.
+> Im using your fair scheduler patch (2.4.19-fairsched),
 
-Ivan.
+> Without the fairsched patch, ps output is normal, eg,
+> init is always the first process listed,
 
---- 2.5.50/include/asm-alpha/dma.h	Wed Nov  6 01:44:33 2002
-+++ linux/include/asm-alpha/dma.h	Mon Dec  2 23:07:29 2002
-@@ -112,9 +112,9 @@
- # elif defined(CONFIG_ALPHA_RUFFIAN)
- #  define MAX_ISA_DMA_ADDRESS		ALPHA_RUFFIAN_MAX_ISA_DMA_ADDRESS
- # elif defined(CONFIG_ALPHA_SABLE)
--#  define MAX_ISA_DMA_ADDRESS		ALPHA_SABLE_MAX_DMA_ISA_ADDRESS
-+#  define MAX_ISA_DMA_ADDRESS		ALPHA_SABLE_MAX_ISA_DMA_ADDRESS
- # elif defined(CONFIG_ALPHA_ALCOR)
--#  define MAX_ISA_DMA_ADDRESS		ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS
-+#  define MAX_ISA_DMA_ADDRESS		ALPHA_ALCOR_MAX_ISA_DMA_ADDRESS
- # else
- #  define MAX_ISA_DMA_ADDRESS		ALPHA_MAX_ISA_DMA_ADDRESS
- # endif
+> Im just wondering, is this
+> purely aesthetically or is there something fishy?
+
+The fairsched patch reorders processes on the tasklist so
+that the processes of a user all get CPU time alternately.
+
+It's just a cosmetic issue, caused by the fact that procfs
+walks that same list to display all the tasks and now that
+list can get reordered ...
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

@@ -1,69 +1,61 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVBAFGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVAJAiT (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 9 Jan 2005 19:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVAJAiS
+	id S261546AbVBAFGw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 00:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVBAFGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 19:38:18 -0500
-Received: from server2.pe-servers.com ([64.71.151.83]:62593 "EHLO
-	server2.pe-servers.com") by vger.kernel.org with ESMTP
-	id S262023AbVAJAgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 19:36:11 -0500
-Subject: TSUNAMI RELIEF AIDS APPEAL
-From: stones <tsunamirehab@hotmail.com>
-X-Priority: 3 (Normal)
+	Tue, 1 Feb 2005 00:06:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261546AbVBAFGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 00:06:50 -0500
+Date: Mon, 31 Jan 2005 21:06:35 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Peter Osterlund <petero2@telia.com>, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: Touchpad problems with 2.6.11-rc2
+Message-ID: <20050131210635.3c582934@localhost.localdomain>
+In-Reply-To: <200501312240.35776.dtor_core@ameritech.net>
+References: <20050123190109.3d082021@localhost.localdomain>
+	<m3acqr895h.fsf@telia.com>
+	<20050131151549.26f437b0@localhost.localdomain>
+	<200501312240.35776.dtor_core@ameritech.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: RLSP Mailer
-Message-Id: <E1Cnlr3-0006K7-Hn@server2.pe-servers.com>
-Date: Sun, 09 Jan 2005 14:48:13 -0800
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server2.pe-servers.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
-X-AntiAbuse: Sender Address Domain - server2.pe-servers.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262036AbVAJAiT@vger.kernel.org>
 
+On Mon, 31 Jan 2005 22:40:35 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-Dear Sir/Madam,
+> > Suddenly, touchpad motions started to cause wild movements in it became
+> > impossible to do anything due to a focus loss (of course, I had plenty of
+> > modified files open :-)
 
-We are from a small village in the Aceh Region in Indonesia affected by the recent Tsunami Quakes/floods Disaster that swept through South Eastern Asia.
+> > psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
+> > psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
+> > psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
+> > psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
+> > psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
+> > psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
 
-We have been rendered homeless and have lost all we have in life. Many foreign tourists also were affected by the quakes/floods.
+> 1. Have you tried using external PS/2 mouse?
+> 2. Have you plugged/unplugged into a port replicator?
 
-Since we have no other way to survive as of now and have lost most of our relations and children, we have decided to write this letter of APPEAL FOR DONATIONS.
+I have Dell Latitude D600, which does not have an external PS/2 port.
 
-We will be very grateful if you can assist us with any amount of money to enable us start a new lease of life. Our little business have been swept off by the floods and we cannot go and steal. All we need is money to rehabilitate and start business again to make a living. No amount is too small to assist in this relief efforts.
+But actually, I was caught away from home, working from a library, so I did
+not have either PS/2 or USB mouse. I moved the cursor persistently for a
+few minutes until I managed to raise a window in such way that it got the
+focus, then I saved all files and closed all windows from the keyboard,
+so no harm done, no problem.
 
-We are sending this mail to many people all over the world for assistance as we can't help ourselves. The United Nations and other world bodies/organisations are helping but the funds are not well circulated. So we need your assistance.
+The kernel was running without resetafter set, unfortunately.
 
-Sir/Madam we pray that God/Allah will reward you abundantly for listening to the voice of the less privileged and people whose lives have been devastated by a natural disaster.
+If you have a patch which prints offending data from pktbuffer, I can
+run that next time.
 
-Any donation can be sent either by Western Union Money Transfer Services or Money Gram Transfer to: 
-
-Mr. Musliman Musliman
-Kp Kurus RT 009-RT0089
-Utara, Jakarta,
-Indonesia,
-14130.
-
-As soon as you effect the Payment, email me the relevant Money Transfer details vis: Money transfer control number, senders name and address as it appears in the transfer receipt, amount sent, test question and answer (if any). 
-
-My email for further contact is: tsunamirehab@netscape.net
-
-Your assistance will be appreciated. Thanks for your anticipated cooperation.
-
-Mr. Musliman Musliman
-For: Aceh Victims of Tsunami
-Indonesia
-email: tsoonamirehab@netscape.net
-
-___________________________________________________________________________
-Mail sent from Penny's Research service at 
-- http://iresearch-solutions.com
+Have a great day,
+-- Pete

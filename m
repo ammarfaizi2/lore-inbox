@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262248AbRENQRT>; Mon, 14 May 2001 12:17:19 -0400
+	id <S262259AbRENQYt>; Mon, 14 May 2001 12:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262245AbRENQRJ>; Mon, 14 May 2001 12:17:09 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:63672 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262248AbRENQRC>;
-	Mon, 14 May 2001 12:17:02 -0400
-Message-ID: <3B0004F7.4C54E2E4@mandrakesoft.com>
-Date: Mon, 14 May 2001 12:16:55 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
-X-Accept-Language: en
+	id <S262265AbRENQYj>; Mon, 14 May 2001 12:24:39 -0400
+Received: from dyn7d0.dhcp.lancs.ac.uk ([148.88.247.208]:516 "EHLO
+	dyn7d0.dhcp.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S262259AbRENQYg>; Mon, 14 May 2001 12:24:36 -0400
+Date: Sat, 12 May 2001 12:46:40 +0100 (BST)
+From: Stephen Torri <s.torri@lancaster.ac.uk>
+X-X-Sender: <torri@dyn7d0.dhcp.lancs.ac.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOPS on 2.4.4-ac4
+In-Reply-To: <E14yNPC-0001te-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105121244020.3535-100000@dyn7d0.dhcp.lancs.ac.uk>
 MIME-Version: 1.0
-To: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Manuel A. McLure" <mmt@unify.com>,
-        "Rasmus =?iso-8859-1?Q?B=F8g?= Hansen" <moffe@amagerkollegiet.dk>,
-        ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>,
-        "Dunlap, Randy" <randy.dunlap@intel.com>,
-        Martin Diehl <mdiehlcs@compuserve.de>,
-        Adrian Cox <adrian@humboldt.co.uk>, Capricelli Thomas <orzel@kde.org>,
-        Ian Bicking <ianb@colorstudy.com>, John R Lenton <john@grulic.org.ar>,
-        Jens Dreger <Jens.Dreger@physik.fu-berlin.de>,
-        David Hansen <David.Hansen@physik.fu-berlin.de>
-Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
-In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com> <20010514172104.A2160@pua.nirvana>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Axel Thimm wrote:
-> 
-> On Sun, May 13, 2001 at 01:28:06PM -0400, Jeff Garzik wrote:
-> > For those of you with Via interrupting routing issues (or
-> > interrupt-not-being-delivered issues, etc), please try out this patch
-> > and let me know if it fixes things.  It originates from a tip from
-> > Adrian Cox... thanks Adrian!
-> 
-> Unfortunately the patch does not trigger here. nr_ioapics is zero on my UP
-> KT133A board. Was this patch for MP only?
+The nvidia driver has been fine for me up to 2.4.2-ac20. I am going to
+update to 2.4.4-ac8 today. In regards to the module the source code is
+available from nvidia for inspection. The library that they want you to
+use with it is binary only. The library should be source code as well but
+the powers that be have said otherwise.
 
-Not for MP only, but mostly such:  UP systems with IO-APIC, or MP
-systems.
+I will keep tabs on the release for kernel oops as well. I am using XFree
+4.0.3 with NVIDIA-0.9-769
+
+Stephen
+
+On Sat, 12 May 2001, Alan Cox wrote:
+
+> > > Ok, I will remove vmware and switch from the nvidia driver the nv
+> driver from > XFree 4.3. Maybe I get the oops again.
+>
+> Let me know if you do. I've got some other dmfe reports I'm looking at so its
+> quite possible that is the trigger, but this time I'll be able to know its not
+> giant binary stuff 8)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+-----------------------------------------------
+Buyer's Guide for a Operating System:
+Don't care to know: Mac
+Don't mind knowing but not too much: Windows
+Hit me! I can take it!: Linux
+
+

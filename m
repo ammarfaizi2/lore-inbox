@@ -1,262 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVBXXkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVBYAi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbVBXXkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVBXXf3
+	id S262604AbVBYAi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVBXXtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:35:29 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:166 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262563AbVBXXbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:31:15 -0500
-Message-ID: <421E63C1.3030703@acm.org>
-Date: Thu, 24 Feb 2005 17:31:13 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] I2C patch 4 - Add a timer to the I2C core
-Content-Type: multipart/mixed;
- boundary="------------050300080804090004000803"
+	Thu, 24 Feb 2005 18:49:05 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62985 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262576AbVBXXio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:38:44 -0500
+Date: Fri, 25 Feb 2005 00:38:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/mxser.c cleanups
+Message-ID: <20050224233842.GU8651@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050300080804090004000803
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch contains the following cleanups:
+- make two needlessly global structs static
+- remove the unused global function SDS_PORT8_DTR
 
-This is one in a series of patches for adding a non-blocking interface 
-to the I2C driver for supporting the IPMI SMBus driver.
+Alan already ACK'ed this patch.
 
---------------050300080804090004000803
-Content-Type: text/plain;
- name="i2c_add_timer.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2c_add_timer.diff"
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Add a timer to the I2C layer.  This doesn't do much until the
-non-blocking code shows up.
+---
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+This patch was already sent on:
+- 31 Jan 2005
 
-Index: linux-2.6.11-rc4/drivers/i2c/i2c-core.c
-===================================================================
---- linux-2.6.11-rc4.orig/drivers/i2c/i2c-core.c
-+++ linux-2.6.11-rc4/drivers/i2c/i2c-core.c
-@@ -33,6 +33,12 @@
- #include <asm/uaccess.h>
+ drivers/char/mxser.c |   21 ++-------------------
+ 1 files changed, 2 insertions(+), 19 deletions(-)
+
+--- linux-2.6.11-rc2-mm2-full/drivers/char/mxser.c.old	2005-01-31 13:20:44.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/mxser.c	2005-01-31 13:22:07.000000000 +0100
+@@ -179,7 +179,7 @@
  
+ #define UART_TYPE_NUM	2
  
-+static int i2c_stop_timer(struct i2c_adapter * adap);
-+static void i2c_start_timer(struct i2c_adapter * adap,
-+			    struct i2c_op_q_entry * entry);
-+
-+#define USEC_PER_JIFFIE (1000000 / HZ)
-+
- static LIST_HEAD(adapters);
- static LIST_HEAD(drivers);
- static DECLARE_MUTEX(core_lists);
-@@ -143,6 +149,19 @@
- 	list_add_tail(&adap->list,&adapters);
- 	INIT_LIST_HEAD(&adap->clients);
- 
-+	adap->timer = kmalloc(sizeof(*adap->timer), GFP_KERNEL);
-+	if (!adap->timer) {
-+		res = -ENOMEM;
-+		goto out_unlock;
-+	}
-+		
-+	init_timer(&adap->timer->timer);
-+	spin_lock_init(&adap->timer->lock);
-+	adap->timer->deleted = 0;
-+	adap->timer->running = 0;
-+	adap->timer->next_call_time = 0;
-+	adap->timer->adapter = adap;
-+
- 	/* Add the adapter to the driver core.
- 	 * If the parent pointer is not set up,
- 	 * we add this adapter to the host bus.
-@@ -185,6 +204,7 @@
- 	struct i2c_driver *driver;
- 	struct i2c_client *client;
- 	int res = 0;
-+	unsigned long flags;
- 
- 	down(&core_lists);
- 
-@@ -237,6 +257,17 @@
- 	device_unregister(&adap->dev);
- 	list_del(&adap->list);
- 
-+	/* Stop the timer and free its memory */
-+	spin_lock_irqsave(&adap->timer->lock, flags);
-+	if (i2c_stop_timer(adap)) {
-+		spin_unlock_irqrestore(&adap->timer->lock, flags);
-+		kfree(adap->timer);
-+	} else {
-+		adap->timer->deleted = 1;
-+		spin_unlock_irqrestore(&adap->timer->lock, flags);
-+	}
-+	adap->timer = NULL;
-+
- 	/* wait for sysfs to drop all references */
- 	wait_for_completion(&adap->dev_released);
- 	wait_for_completion(&adap->class_dev_released);
-@@ -583,6 +614,83 @@
- module_exit(i2c_exit);
- 
- /* ----------------------------------------------------
-+ * Timer operations
-+ * ----------------------------------------------------
-+ */
-+static void i2c_handle_timer(unsigned long data);
-+
-+static void i2c_start_timer(struct i2c_adapter * adap,
-+			    struct i2c_op_q_entry * entry)
-+{
-+	unsigned int wait_jiffies;
-+	struct i2c_timer *t = adap->timer;
-+	unsigned long flags;
-+
-+	wait_jiffies = ((entry->call_again_us + USEC_PER_JIFFIE - 1)
-+			/ USEC_PER_JIFFIE);
-+	if (wait_jiffies == 0)
-+		wait_jiffies = 1;
-+	/* This won't be polled from the user code, so
-+	   start a timer to poll it. */
-+	spin_lock_irqsave(&t->lock, flags);
-+	if (! t->running) {
-+		t->timer.expires = jiffies + wait_jiffies;
-+		t->timer.data = (unsigned long) t;
-+		t->timer.function = i2c_handle_timer;
-+		t->running = 1;
-+		t->next_call_time = wait_jiffies * USEC_PER_JIFFIE;
-+		add_timer(&t->timer);
-+		t->sequence = adap->timer_sequence;
-+	}
-+	spin_unlock_irqrestore(&t->lock, flags);
-+}
-+
-+/* Returns true if the timer is stopped (or was not running), false if
-+   not.  Must be called with the timer lock held. */
-+static int i2c_stop_timer(struct i2c_adapter * adap)
-+{
-+	return (!adap->timer->running || del_timer(&adap->timer->timer));
-+}
-+
-+static void i2c_handle_timer(unsigned long data)
-+{
-+	struct i2c_timer      * t = (void *) data;
-+	struct i2c_adapter    * adap;
-+	unsigned long         flags;
-+	struct i2c_op_q_entry * entry;
-+	unsigned int          sequence_match;
-+
-+	spin_lock_irqsave(&t->lock, flags);
-+	if (t->deleted) {
-+		spin_unlock_irqrestore(&t->lock, flags);
-+		kfree(t);
-+		return;
-+	}
-+
-+	adap = t->adapter;
-+	t->running = 0;
-+	sequence_match = adap->timer_sequence == t->sequence;
-+	spin_unlock_irqrestore(&t->lock, flags);
-+
-+	entry = i2c_entry_get(adap);
-+	pr_debug("i2c_handle_timer: %p %p\n", adap, entry);
-+	if (!entry)
-+		return;
-+
-+	if (sequence_match) {
-+		/* Poll will go here. */
-+
-+		if (!entry_completed(entry))
-+			i2c_start_timer(adap, entry);
-+	} else if (entry->use_timer)
-+		/* We raced in timer deletion, just restart the
-+		   timer if necessary. */
-+		i2c_start_timer(adap, entry);
-+
-+	i2c_entry_put(adap, entry);
-+}
-+
-+/* ----------------------------------------------------
-  * the functional interface to the i2c busses.
-  * ----------------------------------------------------
-  */
-@@ -1425,6 +1533,21 @@
- 	if (atomic_dec_and_test(&e->completed)) {
- 		/* We are the lucky winner!  We get to clean up the
- 		   entry. */
-+		if (e->use_timer) {
-+			unsigned long    flags;
-+			struct i2c_timer *t = adap->timer;
-+			spin_lock_irqsave(&t->lock, flags);
-+			if (!i2c_stop_timer(adap))
-+				/* If we are unable to stop the timer, that
-+				   means the timer has gone off but has not
-+				   yet run the first part of the handler call.
-+				   Increment the sequence so the timer handler
-+				   can detect this. */
-+				adap->timer_sequence++;
-+			else
-+				t->running = 0;
-+			spin_unlock_irqrestore(&t->lock, flags);
-+		}
- 		if (e->complete)
- 			e->complete(adap, e);
- 	}
-Index: linux-2.6.11-rc4/include/linux/i2c.h
-===================================================================
---- linux-2.6.11-rc4.orig/include/linux/i2c.h
-+++ linux-2.6.11-rc4/include/linux/i2c.h
-@@ -35,6 +35,7 @@
- #include <linux/completion.h>
- #include <linux/list.h>
- #include <linux/spinlock.h>
-+#include <linux/timer.h>
- #include <asm/semaphore.h>
- #include <asm/atomic.h>
- 
-@@ -244,6 +245,21 @@
+-unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
++static unsigned int Gmoxa_uart_id[UART_TYPE_NUM] = {
+ 	MOXA_MUST_MU150_HWID,
+ 	MOXA_MUST_MU860_HWID
+ };
+@@ -197,7 +197,7 @@
+ 	long max_baud;
  };
  
- /*
-+ * The timer has it's own separately allocated data structure because
-+ * it needs to be able to exist even if the adapter is deleted (due to
-+ * timer cancellation races).
-+ */
-+struct i2c_timer {
-+	spinlock_t lock;
-+	int deleted;
-+	struct timer_list timer;
-+	int running;
-+	unsigned int next_call_time;
-+	struct i2c_adapter *adapter;
-+	unsigned int sequence;
-+};
-+
-+/*
-  * i2c_adapter is the structure used to identify a physical i2c bus along
-  * with the access algorithms necessary to access it.
-  */
-@@ -265,6 +281,11 @@
+-struct mxpciuart_info Gpci_uart_info[UART_INFO_NUM] = {
++static struct mxpciuart_info Gpci_uart_info[UART_INFO_NUM] = {
+ 	{MOXA_OTHER_UART, 16, 16, 16, 14, 14, 1, 921600L},
+ 	{MOXA_MUST_MU150_HWID, 64, 64, 64, 48, 48, 16, 230400L},
+ 	{MOXA_MUST_MU860_HWID, 128, 128, 128, 96, 96, 32, 921600L}
+@@ -3174,22 +3174,5 @@
+ 	outb(0x00, port + 4);
+ }
  
- 	struct semaphore bus_lock;
- 
-+	/* Used to time non-blocking operations.  The sequence is used
-+	   to handle race conditions in the timer handler. */
-+	struct i2c_timer *timer;
-+	unsigned int timer_sequence;
-+
- 	int timeout;
- 	int retries;
- 	struct device dev;		/* the adapter device */
+-// added by James 03-05-2004.
+-// for secure device server:
+-// stat = 1, the port8 DTR is set to ON.
+-// stat = 0, the port8 DTR is set to OFF.
+-void SDS_PORT8_DTR(int stat)
+-{
+-	int _sds_oldmcr;
+-	_sds_oldmcr = inb(mxvar_table[7].base + UART_MCR);	// get old MCR
+-	if (stat == 1) {
+-		outb(_sds_oldmcr | 0x01, mxvar_table[7].base + UART_MCR);	// set DTR ON
+-	}
+-	if (stat == 0) {
+-		outb(_sds_oldmcr & 0xfe, mxvar_table[7].base + UART_MCR);	// set DTR OFF
+-	}
+-	return;
+-}
+-
+ module_init(mxser_module_init);
+ module_exit(mxser_module_exit);
 
---------------050300080804090004000803--

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUDWTqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUDWTxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUDWTqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 15:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUDWTqb
+	id S261156AbUDWTxP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 15:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUDWTxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 15:46:31 -0400
-Received: from mail.kroah.org ([65.200.24.183]:4286 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261179AbUDWTqa (ORCPT
+	Fri, 23 Apr 2004 15:53:14 -0400
+Received: from ns.suse.de ([195.135.220.2]:13727 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261156AbUDWTxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 15:46:30 -0400
-Date: Fri, 23 Apr 2004 12:46:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Simon Kelley <simon@thekelleys.org.uk>
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Message-ID: <20040423194605.GA7824@kroah.com>
-References: <200404230142.46792.dtor_core@ameritech.net> <200404230802.42293.dtor_core@ameritech.net> <1082730412.23959.118.camel@pegasus> <200404231156.03106.dtor_core@ameritech.net> <20040423171614.GA13835@kroah.com> <1082746253.23959.126.camel@pegasus>
+	Fri, 23 Apr 2004 15:53:11 -0400
+Subject: [PATCH] reiserfs v3 patches for 2.6.6-rc2
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
+Content-Type: text/plain
+Message-Id: <1082750045.12989.199.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1082746253.23959.126.camel@pegasus>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 23 Apr 2004 15:54:06 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 08:50:54PM +0200, Marcel Holtmann wrote:
-> Hi Greg,
-> 
-> > Much nicer (well, in a wierd way at least.)  It seems that the pcmcia
-> > system is intregrated into the driver model.  Why not push it down into
-> > the individual pcmcia drivers so you don't have to do this GetSysDevice
-> > kind of hack still?
-> 
-> let's split the patch into a PCMCIA subsystem part and atmel_cs part and
-> even if it looks like a hack we need it, because otherwise the atmel_cs
-> and bt3c_cs drivers are broken now.
+Hello all,
 
-Well, they have always been broken, it's just that now you get an
-obvious oops message :)
+Thanks to Andrew for helping to test and feed many of the reiserfs
+patches into mainline.  I've rediffed against the current -mm and linus
+trees:
 
-thanks,
+ftp.suse.com/pub/people/mason/patches/reiserfs/2.6.6-rc2
 
-greg k-h
+The directory includes a series file to tell you the order to apply the
+patches.  The same series file should work with -mm kernels as well
+right now.
+
+New in this patch set is data=journal support, which fills out the
+compatibility list with the 2.4.x reiserfs data logging patches.  Other
+patches include:
+
+xattrs and acls (Jeff Mahoney)
+warning/error messages that include device names (Jeff Mahoney)
+quotas
+block allocator improvements
+metadata readahead for some types of tree searches
+
+data=journal is experimental, but most of the code changes don't kick in
+unless you mount with data=journal.
+
+The rest of the patches should be stable.
+
+-chris
+
+

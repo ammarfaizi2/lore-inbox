@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUJGNVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUJGNVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUJGNVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUJGNVM
+	id S264997AbUJGNVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUJGNVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 09:21:12 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:25609 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265029AbUJGNRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 09:17:37 -0400
-Date: Thu, 7 Oct 2004 14:17:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org, benh@kernel.crashing.org,
-       paulus@samba.org, greg@kroah.com
-Subject: Re: [Kernel-janitors] [PATCH 2.6][1/12] arch/ppc/kernel/pci.c replace pci_find_device with pci_get_device
-Message-ID: <20041007141731.A11865@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-	kernel-janitors@lists.osdl.org, benh@kernel.crashing.org,
-	paulus@samba.org, greg@kroah.com
-References: <298570000.1096930681@w-hlinder.beaverton.ibm.com> <20041005104443.A16871@infradead.org> <3550000.1097094201@w-hlinder.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3550000.1097094201@w-hlinder.beaverton.ibm.com>; from hannal@us.ibm.com on Wed, Oct 06, 2004 at 01:23:21PM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 7 Oct 2004 09:21:16 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:18317 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S264997AbUJGNT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 09:19:26 -0400
+Date: Thu, 7 Oct 2004 14:19:04 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@hibernia.jakma.org
+To: Martijn Sipkema <msipkema@sipkema-digital.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+In-Reply-To: <001c01c4ac76$fb9fd190$161b14ac@boromir>
+Message-ID: <Pine.LNX.4.61.0410071413050.304@hibernia.jakma.org>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
+ <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
+ <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
+ <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com>
+ <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir>
+ <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 01:23:21PM -0700, Hanna Linder wrote:
-> --On Tuesday, October 05, 2004 10:44:43 AM +0100 Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > what about adding a for_each_pci_dev macro that nicely hides these AND_ID
-> > iterations?
-> > 
-> 
-> OK. How about this? Following are two patches that I used to test this
-> new macro on my T23. I found roughly 54 other places this macro can
-> be used.
+On Thu, 7 Oct 2004, Martijn Sipkema wrote:
 
-Looks good to me
+> Would you care to provide any real answers or are you just telling
+> me to shut up because whatever Linux does is good, and not appear
+> unreasonable by adding a ;) ..?
 
----end quoted text---
+No, I'm saying it's simple good practice to set O_NONBLOCK on sockets 
+if one expects not to block - any other expectation is not robust, 
+never mind what POSIX says about select().
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+You know you are getting old when you think you should drive the speed limit.
+ 		-- E.A. Gilliam

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTFZS3u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 14:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTFZS3u
+	id S262312AbTFZSdU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 14:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFZSdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 14:29:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:11147 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262273AbTFZS3t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 14:29:49 -0400
-Date: Thu, 26 Jun 2003 11:40:33 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-       Scott Robert Ladd <coyote@coyotegulch.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030626184033.GA14299@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Scott Robert Ladd <coyote@coyotegulch.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-	lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-References: <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com> <20030623150616.GA20103@work.bitmover.com> <1056382357.29264.281.camel@passion.cambridge.redhat.com> <20030623153952.GB20103@work.bitmover.com> <20030626174520.GA3710@fs.tum.de>
+	Thu, 26 Jun 2003 14:33:20 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:7590 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262312AbTFZSdR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 14:33:17 -0400
+Date: Thu, 26 Jun 2003 11:47:30 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.73-osdl3
+Message-Id: <20030626114730.1dd4e490.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030626174520.GA3710@fs.tum.de>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 26, 2003 at 07:45:21PM +0200, Adrian Bunk wrote:
-> > That's probably a good enough test case.  Explain to me how your support
-> > contracts are ever going to provide enough money to redo GCC or build
-> > something equally substantial.
-> 
-> [incremental changes given as example]
+http://developer.osdl.org/shemminger/patches/patch-2.5.73-osdl3.bz2
 
-Incremental changes != redo.  Redo is a ~$10M project.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Updated to latest version:
+o Pentium Performance Counters		(Mikael Pettersson)
+
+Bug fixes:
+o Allow kernel build without hotplug
+
+New
+o NUMA text replication			(Dave Hansen)
+o Kexec 				(Eric Biederman, Andy Pfiffer)
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+  includes relayfs
+o Lockmeter				(John Hawkes)
+o Atomic 64 bit i_size access		(Daniel McNeil)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+

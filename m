@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVAOF5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVAOF7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVAOF5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVAOF5r
+	id S262220AbVAOF7V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVAOF7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:57:47 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:46222 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262217AbVAOF5p (ORCPT
+	Sat, 15 Jan 2005 00:59:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:3619 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262220AbVAOF7L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:57:45 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jan 2005 00:59:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MjVMecholSdXIzrdS6XdG/eOspR/Qhu6FBDM4HrS0cfqzp8oV1tuoAIAn0uyXgJJAc5O/OpdvWQU1mJqtUH7hg3MzbHZZc8jHjLO4nFaf+56fHQAfv6sCYXn2krFE9uftkz2UfrbnF0YIchZfMiBBd7PHQRmlTaPbTtuYgfKf90=
+Message-ID: <9e4733910501142159c3a13a7@mail.gmail.com>
+Date: Sat, 15 Jan 2005 00:59:08 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: chasing the four level page table
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1brbrwc89.fsf@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16872.45268.823377.293250@napali.hpl.hp.com>
-Date: Fri, 14 Jan 2005 21:57:40 -0800
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davidm@hpl.hp.com, schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: sparse warning, or why does jifies_to_msecs() return an int?
-In-Reply-To: <Pine.LNX.4.58.0501142020130.2310@ppc970.osdl.org>
-References: <200501150221.j0F2L2aD021862@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0501142020130.2310@ppc970.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+References: <9e47339105010609175dabc381@mail.gmail.com>
+	 <9e4733910501061205354c9508@mail.gmail.com>
+	 <20050106214159.GG16373@redhat.com>
+	 <9e47339105010721225c0cfb32@mail.gmail.com>
+	 <csa0kn$4eg$1@terminus.zytor.com> <m1brbrwc89.fsf@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 14 Jan 2005 20:29:07 -0800 (PST), Linus Torvalds <torvalds@osdl.org> said:
+On Sat, 15 Jan 2005 05:24:54 +0100, Andi Kleen <ak@muc.de> wrote:
+> it wants to get at a AGP page outside get_user_pages doesn't work for
+> this because the AGP hole is often outside mem_map. For that a
+> nice helper is missing.
+> 
+> I'm not 100% we really want a helper because it's rather obscure
+> requirement, unlikely to be useful for others, and it may be better
+> to keep it in DRM.
 
-  >> Is there are a good reason to constrain the return value to 4
-  >> billion msecs?  If so, what's the proper way to shut up sparse?
+Wouldn't it be better as a helper where the memory management people
+maintain it? For example I only work on x86, are there cross platform
+issues? Also, the DRM code is missing the page_table_lock around the
+calls too.
 
-  Linus> There's no good way to shut up sparse, I think. The fact is,
-  Linus> we _are_ losing bits, but it doesn't matter much in this
-  Linus> case.
-
-Yes, you're right.
-
-  Linus> I think "jiffies_to_msecs(MAX_JIFFY_OFFSET)" is fundamentally
-  Linus> a suspect operation (since the ranges are different for the
-  Linus> two types), and I think that the sparse warnign is correct,
-  Linus> but it's one of those "doing the wrong thing is not always
-  Linus> wrogn enough to matter".
-
-How about something along the lines of the attached?  The test in
-msecs_to_jiffies is non-sensical for HZ>=1000 because
-
- (a) jiffies_to_msecs(x) <= x, if HZ >= 1000, and
- (b) MAX_UINT <= MAX_ULONG
-
-	--david
-
-===== include/linux/jiffies.h 1.11 vs edited =====
---- 1.11/include/linux/jiffies.h	2005-01-04 18:48:02 -08:00
-+++ edited/include/linux/jiffies.h	2005-01-14 21:52:46 -08:00
-@@ -276,8 +276,10 @@
- 
- static inline unsigned long msecs_to_jiffies(const unsigned int m)
- {
-+#if HZ < 1000
- 	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
- 		return MAX_JIFFY_OFFSET;
-+#endif
- #if HZ <= 1000 && !(1000 % HZ)
- 	return (m + (1000 / HZ) - 1) / (1000 / HZ);
- #elif HZ > 1000 && !(HZ % 1000)
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUEFMxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUEFM4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUEFMxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 08:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUEFMwg
+	id S261931AbUEFM4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 08:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUEFM4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 08:52:36 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31675 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261718AbUEFMwK
+	Thu, 6 May 2004 08:56:16 -0400
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:4071 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261931AbUEFMz7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 08:52:10 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: Force IDE cache flush on shutdown
-Date: Thu, 6 May 2004 14:36:58 +0200
-User-Agent: KMail/1.5.3
-References: <20040506070449.GA12862@devserv.devel.redhat.com> <20040506115220.A14669@infradead.org> <20040506113309.GB16548@devserv.devel.redhat.com>
-In-Reply-To: <20040506113309.GB16548@devserv.devel.redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
+	Thu, 6 May 2004 08:55:59 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Thu, 6 May 2004 09:55:57 -0300
+User-Agent: KMail/1.6.2
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <200405051312.30626.dominik.karall@gmx.net> <c7bin8$fg7$1@gatekeeper.tmr.com> <200405060104.55340.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405060104.55340.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405061436.58692.bzolnier@elka.pw.edu.pl>
+Message-Id: <200405060955.57856.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 of May 2004 13:33, Arjan van de Ven wrote:
-> On Thu, May 06, 2004 at 11:52:20AM +0100, Christoph Hellwig wrote:
-> > > +	idedisk_driver.gen_driver.shutdown = ide_drive_shutdown;
-> >
-> > isn't idedisk_driver initialized statically somewhere?  You should
-> > probably
->
-> ok ok you win
->
-> diff -purN linux-2.6.5/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
-> --- linux-2.6.5/drivers/ide/ide-disk.c	2004-05-06 13:26:53.350284720 +0200
-> +++ linux/drivers/ide/ide-disk.c	2004-05-06 13:32:01.322465832 +0200
-> @@ -1725,6 +1725,9 @@ static ide_driver_t idedisk_driver = {
->  	.drives			= LIST_HEAD_INIT(idedisk_driver.drives),
->  	.start_power_step	= idedisk_start_power_step,
->  	.complete_power_step	= idedisk_complete_power_step,
-> +	.gen_driver = {
-> +		.shutdown	= ide_drive_shutdown,
-> +	},
->  };
->
-> @@ -1820,6 +1823,23 @@ static int idedisk_revalidate_disk(struc
->  	return 0;
->  }
->
-> +static int ide_drive_shutdown(struct device * dev)
-> +{
-> +	ide_drive_t * drive = container_of(dev,ide_drive_t,gendev);
-> +
-> +	/* safety checks */
-> +	if (!drive->present)
-> +		return 0;
+Bartlomiej Zolnierkiewicz wrote:
+> Making 4kb stacks default in -mm is very good idea so it will get necessary
+> testing and fixing before being integrated into mainline.
 
-not needed / BUG_ON
+Then let us test with _AND_ without 4KSTACKS.
 
-> +	if (drive->media != ide_disk)
-> +		return 0;
+I love the -mm three, but I use a nvidia GFX card too. Making 4KSTACkS 
+permanent excludes me from more testing.
 
-not needed / BUG_ON
-
-> +	printk("Flushing cache: %s \n", drive->name);
-> +	ide_cacheflush_p(drive);
-> +	/* give the hardware time to finish; it may return prematurely to cheat
-> */ +	mdelay(300);
-
-I really don't like it.
-
-Is this delay arbitrary or you know about such devices?
-
-> +	return 0;
-> +}
-> +
-> +
->  static struct block_device_operations idedisk_ops = {
->  	.owner		= THIS_MODULE,
->  	.open		= idedisk_open,
-
+Best regards,
+Norberto

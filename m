@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129084AbRBIU1V>; Fri, 9 Feb 2001 15:27:21 -0500
+	id <S129595AbRBIUbL>; Fri, 9 Feb 2001 15:31:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129176AbRBIU1M>; Fri, 9 Feb 2001 15:27:12 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:24843 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129084AbRBIU1I>;
-	Fri, 9 Feb 2001 15:27:08 -0500
-Message-ID: <3A84528B.388D1419@mandrakesoft.com>
-Date: Fri, 09 Feb 2001 15:26:51 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-        jes@linuxcare.com, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.30.0102091213250.31024-100000@age.cs.columbia.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129259AbRBIUav>; Fri, 9 Feb 2001 15:30:51 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:4356 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S129176AbRBIUao>;
+	Fri, 9 Feb 2001 15:30:44 -0500
+Date: Fri, 9 Feb 2001 21:30:32 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Dimitromanolakis Apostolos <apdim@ovelix.softnet.tuc.gr>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] drivers/media/radio/radio-maxiradio.c - 2.4.1-ac8
+Message-ID: <20010209213032.A1191@se1.cogenit.fr>
+In-Reply-To: <20010206224451.A24412@ensta.fr> <Pine.LNX.4.10.10102072245460.17074-300000@kythira.softlab.tuc.gr> <20010209210806.A1001@se1.cogenit.fr> <3A844FFC.D0087A3E@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A844FFC.D0087A3E@mandrakesoft.com>
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> ... and use both SET_MODULE_OWNER and STAR_MOD_*_USE_COUNT. It's along the
-> lines of what I was thinking -- though I don't think it's very clean.
-
-It's about the best you can do, considering the 'no ifdefs in raw'
-axiom..  Better suggestions are certainly welcome.
-
-
-> And one more question: is 2.2.x compatibility stuff acceptable in a 2.4
-> driver, given that all that stuff is in *one* #ifdef and not sprinkled
-> throughout the file?
-
-I have no problem with such overall, as long as the 2.2 section is
-self-contained and mostly out of the mainline code.
-
-	Jeff
+Jeff Garzik <jgarzik@mandrakesoft.com> écrit :
+[...]
+> Patch looks ok.  Further change:  move pci_enable_device above the
+> request_region call.  request_region calls pci_resource_start(), which
+> may not return a proper value if called before pci_enable_device.
 
 
+--- linux-2.4.1-ac8.orig/drivers/media/radio/radio-maxiradio.c	Fri Feb  9 15:01:57 2001
++++ linux-2.4.1-ac8/drivers/media/radio/radio-maxiradio.c	Fri Feb  9 16:25:37 2001
+@@ -318,15 +318,15 @@
+ 
+ static int __devinit maxiradio_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
++	if (pci_enable_device(pdev))
++	        goto err_out;
++
+ 	if(!request_region(pci_resource_start(pdev, 0),
+ 	                   pci_resource_len(pdev, 0), "Maxi Radio FM 2000")) {
+ 	        printk(KERN_ERR "radio-maxiradio: can't reserve I/O ports\n");
+ 	        goto err_out;
+ 	}
+ 
+-	if (pci_enable_device(pdev))
+-	        goto err_out_free_region;
+-
+ 	radio_unit.io = pci_resource_start(pdev, 0);
+ 	init_MUTEX(&radio_unit.lock);
+ 	maxiradio_radio.priv = &radio_unit;
+@@ -376,9 +376,7 @@
+ 
+ int __init maxiradio_radio_init(void)
+ {
+-	int count = pci_register_driver(&maxiradio_driver);
+-	
+-	if(count > 0) return 0; else return -ENODEV;
++	return pci_module_init(&maxiradio_driver);
+ }
+ 
+ void __exit maxiradio_radio_exit(void)
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

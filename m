@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318218AbSIOTHH>; Sun, 15 Sep 2002 15:07:07 -0400
+	id <S318194AbSIOTZf>; Sun, 15 Sep 2002 15:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318219AbSIOTHG>; Sun, 15 Sep 2002 15:07:06 -0400
-Received: from dsl-213-023-020-240.arcor-ip.net ([213.23.20.240]:10624 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318218AbSIOTHF>;
-	Sun, 15 Sep 2002 15:07:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 21:10:41 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209151206440.1200-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0209151206440.1200-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qen4-00008R-00@starship>
+	id <S318196AbSIOTZf>; Sun, 15 Sep 2002 15:25:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:29841 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318194AbSIOTZe>;
+	Sun, 15 Sep 2002 15:25:34 -0400
+Date: Sun, 15 Sep 2002 21:30:09 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
+       jonathan@buzzard.org.uk
+Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
+Message-ID: <20020915213009.A53847@ucw.cz>
+References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org> <20020915154248.GA3647@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020915154248.GA3647@elf.ucw.cz>; from pavel@ucw.cz on Sun, Sep 15, 2002 at 05:42:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 September 2002 21:08, Linus Torvalds wrote:
-> On Sun, 15 Sep 2002, Linus Torvalds wrote:
+On Sun, Sep 15, 2002 at 05:42:48PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> > ... or are at least capable to add a patch on their own.
+> > You've just made the driver horribly racy on SMP or preempt
+> > systems..
 > 
-> Actually, in BK-current you don't even need to do that, as UML has been 
-> integrated into 2.5.x for a few days now.
-> 
-> I'll make a 2.5.35 later today, assuming no new threading bugs crop up. 
-> And then you can use a debugger on a bog-standard kernel, and maybe this 
-> issue won't come up ever again.
-> 
-> Yeah, right.
+> Well, as long as toshiba does not make SMP notebooks, we are safe ;-).
 
-I use UML all the time.  It's great, but it doesn't work for SMP debugging.
-
-By the way, thanks much for integrating UML.
+... or preempt. Which doesn't really depend on Toshiba.
 
 -- 
-Daniel
+Vojtech Pavlik
+SuSE Labs

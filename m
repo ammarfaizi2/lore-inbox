@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271688AbTG2MkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271686AbTG2MkA
+	id S271413AbTG2Mev (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271419AbTG2Mev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:40:00 -0400
-Received: from firewall.mdc-dayton.com ([12.161.103.180]:31714 "EHLO
-	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
-	id S271688AbTG2Mj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:39:57 -0400
-From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-To: "Krzysztof Halasa" <khc@pm.waw.pl>
-Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
-Subject: RE: Problems related to DMA or DDR memory on Intel 845 chipset?
-Date: Tue, 29 Jul 2003 08:51:19 -0500
-Message-ID: <PMEMILJKPKGMMELCJCIGKELACDAA.kfrazier@mdc-dayton.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <m3u1962qir.fsf@defiant.pm.waw.pl>
+	Tue, 29 Jul 2003 08:34:51 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:30796 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S271413AbTG2Meu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:34:50 -0400
+Date: Tue, 29 Jul 2003 08:34:25 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Kurt Wall <kwall@kurtwerks.com>,
+       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test2: gcc-3.3.1 warning.
+Message-ID: <20030729083425.O1336@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1059396053.442.2.camel@lorien> <20030728225017.GJ32673@louise.pinerecords.com> <20030729002221.GD263@kurtwerks.com> <20030729045512.GM32673@louise.pinerecords.com> <20030729092857.GA28348@werewolf.able.es> <20030729093521.GA1286@louise.pinerecords.com> <20030729094820.GC28348@werewolf.able.es> <20030729095858.GB1286@louise.pinerecords.com> <20030729101126.GC29124@werewolf.able.es> <20030729102007.GC1286@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030729102007.GC1286@louise.pinerecords.com>; from szepe@pinerecords.com on Tue, Jul 29, 2003 at 12:20:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa writes:
+On Tue, Jul 29, 2003 at 12:20:07PM +0200, Tomas Szepe wrote:
+> > What is the difference between backporting a patch from 3.3.1-pre to 3.3,
+> > and using 3.3.1-pre directly ? Ah, that you get less bug corrected.
+> 
+> Large.  3.3 is a development series.  It DOES introduce new stuff.
 
->Are you using some standard PCI bridge by chance? Are you sure it isn't
->a hardware (design or manufacturing) problem with the device (bridge)?
+That's incorrect. gcc-3_3-branch is stable branch, the difference between
+3.3 and 3.3.1-pre is mostly bugfixes. Of course, some new things appear
+on the branch from time to time, but it is very different from GCC trunk
+where development occurs.
+gcc-3_2-branch does not introduce any new stuff, since similarly
+to gcc-2_95-branch is dead (only gcc-3_2-rhl8-branch is maintained still).
 
-We are using the ASUS P4PE MoBo - Uses Intel 845PE chipset.  The message
-file indicates:
-
-Transparant bridge - Intel Corp. 82801BA/CA/DB PCI bridge
-
->How do you check interrupt request state?
-I assume you are referring to the kernel debug stuff that I added?  The
-routine I added simply read the Interrupt Mask Register (IMR), Interrupt
-Request Register (IRR) and the Interrupt Service Register (ISR).  The IMR
-shows that our IRQ is not masked off.  The IRR shows that there is currently
-no interrupt pending for our IRQ.  The ISR shows that we are not currently
-servicing our IRQ.
-
-Regards,
-Kathy
-
-
+	Jakub

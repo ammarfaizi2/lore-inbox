@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290844AbSARVnC>; Fri, 18 Jan 2002 16:43:02 -0500
+	id <S290842AbSARVrm>; Fri, 18 Jan 2002 16:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290845AbSARVmw>; Fri, 18 Jan 2002 16:42:52 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:40203 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S290844AbSARVmn>; Fri, 18 Jan 2002 16:42:43 -0500
-Date: Fri, 18 Jan 2002 21:42:35 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: dan@embeddededge.com, hozer@drgw.net, linux-kernel@vger.kernel.org,
-        groudier@free.fr, mattl@mvista.com
+	id <S290846AbSARVrc>; Fri, 18 Jan 2002 16:47:32 -0500
+Received: from host155.209-113-146.oem.net ([209.113.146.155]:38902 "EHLO
+	tibook.netx4.com") by vger.kernel.org with ESMTP id <S290842AbSARVrP>;
+	Fri, 18 Jan 2002 16:47:15 -0500
+Message-ID: <3C4897BD.1080503@embeddededge.com>
+Date: Fri, 18 Jan 2002 16:46:37 -0500
+From: Dan Malek <dan@embeddededge.com>
+Organization: Embedded Edge, LLC.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.11-pre6-ben0 ppc; en-US; 0.8) Gecko/20010419
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: hozer@drgw.net, linux-kernel@vger.kernel.org, groudier@free.fr
 Subject: Re: pci_alloc_consistent from interrupt == BAD
-Message-ID: <20020118214235.I2059@flint.arm.linux.org.uk>
-In-Reply-To: <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com> <20020118212949.H2059@flint.arm.linux.org.uk> <20020118.133306.118980313.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020118.133306.118980313.davem@redhat.com>; from davem@redhat.com on Fri, Jan 18, 2002 at 01:33:06PM -0800
+In-Reply-To: <20020118130209.J14725@altus.drgw.net> <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com> <20020118212949.H2059@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 18, 2002 at 01:33:06PM -0800, David S. Miller wrote:
-> Encapsultate the page table allocation core interfaces into
-> __whatever_alloc() routines that take a GFP arg perhaps?
-> It is like a 15 minute hack.
+Russell King wrote:
 
-That may be, but there's all the page table manipulation code that goes
-along with it as well.  Yes, a similar thing could be done with that,
-it needs someone with the time to look into it and cook up a patch.
+> ..... The problem currently is
+> that there is no way for the page table allocation functions to know
+> that they should be using atomic and emergency pool memory allocations.
 
-(I've got my hands full, so I'm not eager to pick this up right now).
+Hmmm...I thought they already do this.  I always assumed the gfp_flag passed
+into alloc_pages would find its way all of the way through the page table
+allocation as well.  You just have to be ready to handle the case where
+it returns with an -ENOMEM :-).
 
-> BTW, the USB host controller drivers do this (allocate potentially
-> from interrupts) so anyone using USB on ARM...
 
-Well, I've got a BUG() in there that'll trigger when pci_alloc_consistent()
-is called from IRQ, and so far no one has reported an incidence of
-that occuring, despite there being USB OHCI controllers available on ARM.
-Maybe no one is pushing USB hard enough on ARM to cause these allocations,
-I don't know.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	-- Dan
 

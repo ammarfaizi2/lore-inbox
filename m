@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTEPOKI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 10:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEPOKH
+	id S264445AbTEPO17 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 10:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEPO17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 10:10:07 -0400
-Received: from host81-136-151-182.in-addr.btopenworld.com ([81.136.151.182]:35806
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP id S264449AbTEPOKF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 10:10:05 -0400
-Subject: Re: VRRP
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Chien-Lung Wu <cwu@deltartp.com>
+	Fri, 16 May 2003 10:27:59 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:894 "EHLO
+	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S264445AbTEPO16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 10:27:58 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>, Greg KH <greg@kroah.com>,
+       davem@redhat.com
+Subject: Re: [PATCH][ATM] add reference counting to atm_dev
+Date: Fri, 16 May 2003 16:40:43 +0200
+User-Agent: KMail/1.5.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A4E787A2467EF849B00585F14C900559068A84@18.172.in-addr.arpa>
-References: <A4E787A2467EF849B00585F14C900559068A84@18.172.in-addr.arpa>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RblzIXnc+a3eCmFpjOMB"
-Organization: 
-Message-Id: <1053094632.2358.15.camel@sherbert>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 May 2003 15:17:12 +0100
+References: <200305151432.h4FEW5Gi012599@locutus.cmf.nrl.navy.mil>
+In-Reply-To: <200305151432.h4FEW5Gi012599@locutus.cmf.nrl.navy.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305161640.43804.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 15 May 2003 16:32, chas williams wrote:
+> In message <20030515052041.GA5995@kroah.com>,Greg KH writes:
+> >It's not really bothering me, just wondering when it will go away (I see
+> >it when building one of the USB ATM drivers...)
+>
+> the MOD_* functions in the speedtch driver don't need to be there.
+> since 2.3.something (if i remember correctly) the reference counting
+> has been handled by the upper layer (ala fops_get/fops_put).  the
+> following patch removes these extra bits:
 
---=-RblzIXnc+a3eCmFpjOMB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Chas, thanks for the patch.  I agree that it is correct.  However,
+I was wondering about ioctl and proc calls.  Can the ATM layer call
+a driver's ioctl routine before opening a vcc?  If so, does it take a
+reference to the module first (I didn't spot anything)?  Also, are
+calls to a driver's proc_read routine protected against module
+unloading races (I confess I didn't take the time to look into this,
+because my own driver does not sleep in proc_read)?
 
-On Fri, 2003-05-16 at 14:19, Chien-Lung Wu wrote:
-> 	Do anyone know that Linux is able to support  VRRP (Virtual
-> Redundency Router protocol)?
-> Which version? and where can I download?
-> Thanks.
+All the best,
 
-Not really a kernel question I don't think, but check out:
-http://keepalived.sf.net/
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
-
---=-RblzIXnc+a3eCmFpjOMB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+xPLokbV2aYZGvn0RAiy1AJ4kUZwxkiXeGiaMKQBjc8jeJGltpgCfZzUa
-WnFRuNLW0ZPlqnskTZI77kY=
-=cDTv
------END PGP SIGNATURE-----
-
---=-RblzIXnc+a3eCmFpjOMB--
-
+Duncan.

@@ -1,78 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbTJPFTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 01:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTJPFTz
+	id S262725AbTJPFlT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 01:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTJPFlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 01:19:55 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:25232 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262730AbTJPFTx (ORCPT
+	Thu, 16 Oct 2003 01:41:19 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:20681 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262725AbTJPFlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 01:19:53 -0400
-Date: Thu, 16 Oct 2003 07:19:51 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, action list
-Message-ID: <20031016051951.GP20846@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <20031014214311.GC933@inwind.it> <16710000.1066170641@flay> <20031014155638.7db76874.cliffw@osdl.org> <20031015124842.GE20846@lug-owl.de> <20031015131015.GR16158@holomorphy.com> <20031015181658.GA9652@iram.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V807UU2SgBo1k3+M"
-Content-Disposition: inline
-In-Reply-To: <20031015181658.GA9652@iram.es>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Thu, 16 Oct 2003 01:41:16 -0400
+Message-ID: <3F8E2F68.7010007@colorfullife.com>
+Date: Thu, 16 Oct 2003 07:40:56 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: William Lee Irwin III <wli@holomorphy.com>, albertogli@telpin.com.ar,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
+References: <20031016025554.GH4292@telpin.com.ar>	<20031015211918.1a70c4d2.akpm@osdl.org>	<20031016044334.GE4461@holomorphy.com> <20031015215824.165dc4c7.akpm@osdl.org>
+In-Reply-To: <20031015215824.165dc4c7.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------060109060908060804080900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060109060908060804080900
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---V807UU2SgBo1k3+M
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andrew Morton wrote:
 
-On Wed, 2003-10-15 20:16:58 +0200, Gabriel Paubert <paubert@iram.es>
-wrote in message <20031015181658.GA9652@iram.es>:
-> On Wed, Oct 15, 2003 at 06:10:15AM -0700, William Lee Irwin III wrote:
-> > On Tue, 2003-10-14 15:56:38 -0700, cliff white <cliffw@osdl.org>
-> > Can you quantify the performance impact of cmov emulation (or whatever
-> > it is)? I have a vague notion it could be hard given the daunting task
-> > of switching userspace around to verify it.
-> The other problem of the 386 is that it has a fundamental MMU flaw:
-> no write protection on kernel mode accesses to user space, which makes=20
-> put_user() intrinsically racy on a 386 and way more bloated when it is
-> inlined (access_ok has to call a function which searches the VMA tree).
+>I'm thinking we need to stuff builtin_return_address(0) into the object and
+>write a dumper, but I haven't looked into that.  Maybe I can persuade
+>Manfred to cook up a custom patch to do that?  Just for size-4096?  Something
+>really crude will be fine.
+>  
+>
+I've attached something: with the patch applied, `echo "size-4096 0 0 0" 
+ > /proc/slabinfo` dumps all caller addresses.
 
-However, this problem exists since the very first hour. Linux once
-really ran quite well on those machines...
+It works fine and dumps all 25 outstanding objects of my bochs setup - 
+you might have to limit the dumps if you have 100k objects.
 
-I've rebooted my P-Classic router last night. Maybe I can see (in two
-weeks or in a month or the like...) why it slows down, even with 32MB
-RAM...
+--
+    Manfred
 
-MfG, JBG
+--------------060109060908060804080900
+Content-Type: text/plain;
+ name="patch-slab-extended-last-user"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-slab-extended-last-user"
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+--- 2.6/mm/slab.c	2003-10-09 21:23:19.000000000 +0200
++++ build-2.6/mm/slab.c	2003-10-16 07:32:06.000000000 +0200
+@@ -1891,6 +1891,15 @@
+ 		*dbg_redzone1(cachep, objp) = RED_ACTIVE;
+ 		*dbg_redzone2(cachep, objp) = RED_ACTIVE;
+ 	}
++	{
++		int objnr;
++		struct slab *slabp;
++
++		slabp = GET_PAGE_SLAB(virt_to_page(objp));
++
++		objnr = (objp - slabp->s_mem) / cachep->objsize;
++		slab_bufctl(slabp)[objnr] = (int)caller;
++	}
+ 	objp += obj_dbghead(cachep);
+ 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
+ 		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
+@@ -1952,12 +1961,14 @@
+ 		objnr = (objp - slabp->s_mem) / cachep->objsize;
+ 		check_slabp(cachep, slabp);
+ #if DEBUG
++#if 0
+ 		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
+ 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
+ 						cachep->name, objp);
+ 			BUG();
+ 		}
+ #endif
++#endif
+ 		slab_bufctl(slabp)[objnr] = slabp->free;
+ 		slabp->free = objnr;
+ 		STATS_DEC_ACTIVE(cachep);
+@@ -2694,6 +2705,22 @@
+ 	.show	= s_show,
+ };
+ 
++static void do_dump_slabp(kmem_cache_t *cachep)
++{
++	struct list_head *q;
++
++	check_irq_on();
++	spin_lock_irq(&cachep->spinlock);
++	list_for_each(q,&cachep->lists.slabs_full) {
++		struct slab *slabp;
++		int i;
++		slabp = list_entry(q, struct slab, list);
++		for (i=0;i<cachep->num;i++)
++			printk(KERN_DEBUG "obj %p/%d: %p\n", slabp, i, (void*)(slab_bufctl(slabp)[i]));
++	}
++	spin_unlock_irq(&cachep->spinlock);
++}
++
+ #define MAX_SLABINFO_WRITE 128
+ /**
+  * slabinfo_write - Tuning for the slab allocator
+@@ -2734,6 +2761,7 @@
+ 			    batchcount < 1 ||
+ 			    batchcount > limit ||
+ 			    shared < 0) {
++				do_dump_slabp(cachep);
+ 				res = -EINVAL;
+ 			} else {
+ 				res = do_tune_cpucache(cachep, limit, batchcount, shared);
 
---V807UU2SgBo1k3+M
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--------------060109060908060804080900--
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/jip3Hb1edYOZ4bsRAq0bAKCC7qdYU8HDX/3srDgnQPweBWZDtwCfXwm8
-fNWiZn4AN8iHO5Nd7On/9ls=
-=om0F
------END PGP SIGNATURE-----
-
---V807UU2SgBo1k3+M--

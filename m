@@ -1,117 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbUB0QFV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 11:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUB0QFV
+	id S263035AbUB0QJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 11:09:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbUB0QJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 11:05:21 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:48585 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263013AbUB0QFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 11:05:08 -0500
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-From: Christophe Saout <christophe@saout.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-In-Reply-To: <20040226200244.GH3883@waste.org>
-References: <20040219170228.GA10483@leto.cs.pocnet.net>
-	 <20040219111835.192d2741.akpm@osdl.org>
-	 <20040220171427.GD9266@certainkey.com>
-	 <20040221021724.GA8841@leto.cs.pocnet.net>
-	 <20040224191142.GT3883@waste.org>
-	 <1077651839.11170.4.camel@leto.cs.pocnet.net>
-	 <20040224203825.GV3883@waste.org> <20040225214308.GD3883@waste.org>
-	 <1077824146.14794.8.camel@leto.cs.pocnet.net>
-	 <20040226200244.GH3883@waste.org>
-Content-Type: text/plain
-Message-Id: <1077897901.29711.44.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 17:05:01 +0100
+	Fri, 27 Feb 2004 11:09:27 -0500
+Received: from mail.oatmail.org ([198.145.35.3]:7697 "EHLO mail.oatmail.org")
+	by vger.kernel.org with ESMTP id S263035AbUB0QJX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 11:09:23 -0500
+Message-ID: <403F6BB0.3060404@oatmail.org>
+Date: Fri, 27 Feb 2004 08:09:20 -0800
+From: Brad Davidson <kiloman@oatmail.org>
+User-Agent: Mozilla Thunderbird 0.5a (20031216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: drivers/ide/ppc/pmac.c:1955: `ide_dma_intr` undeclared (first use
+ in this function) 2.6.3.bk4
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do, den 26.02.2004 schrieb Matt Mackall um 21:02:
+I have a G3 Pismo laptop, and use the 'Builtin PowerMac IDE support' 
+(BLK_DEV_IDE_PMAC) driver for the IDE controller. If I enable 'PowerMac 
+IDE DMA support' (BLK_DEV_IDEDMA_PMAC) but NOT 'Generic PCI bus-master 
+DMA support' (BLK_DEV_IDEDMA_PCI), I get the following error while building:
 
-> User is giving us the size of his buffer, not the size of the tfm
-> which we already know. We refuse to copy if buffer is not big enough,
-> otherwise return number of bytes copied.
+drivers/ide/ppc/pmac.c: In function `pmac_ide_dma_read':
+drivers/ide/ppc/pmac.c:1955: `ide_dma_intr' undeclared (first use in 
+this function)
+drivers/ide/ppc/pmac.c:1955: (Each undeclared identifier is reported 
+only once
+drivers/ide/ppc/pmac.c:1955: for each function it appears in.)
+drivers/ide/ppc/pmac.c: In function `pmac_ide_dma_write':
+drivers/ide/ppc/pmac.c:1986: `ide_dma_intr' undeclared (first use in 
+this function)
+drivers/ide/ppc/pmac.c: In function `pmac_ide_setup_dma':
+drivers/ide/ppc/pmac.c:2161: `__ide_dma_off_quietly' undeclared (first 
+use in this function)
+drivers/ide/ppc/pmac.c:2162: `__ide_dma_on' undeclared (first use in 
+this function)
+drivers/ide/ppc/pmac.c:2171: `__ide_dma_verbose' undeclared (first use 
+in this function)
+drivers/ide/ppc/pmac.c:2172: `__ide_dma_timeout' undeclared (first use 
+in this function)
+make[2]: *** [drivers/ide/ppc/pmac.o] Error 1
+make[1]: *** [drivers/ide] Error 2
+make: *** [drivers] Error 2
 
-Well, I would usually except the user knows what he does, but okay, if
-you think that's safer. It requires the user to carry the size of the
-buffer around. Assuming he kmallocs the buffer in one function with the
-correct size and wants to use it in another function (a mempool or
-something, who knows). He doesn't know the size of the buffer there.
+It appears to be reasonable to require BLK_DEV_IDEDMA_PCI to get 
+BLK_DEV_IDEDMA_PMAC. This patch adds a dependency on BLK_DEV_IDEDMA_PCI 
+to the BLK_DEV_IDEDMA_PMAC Kconfig section. Dependencies on 
+BLK_DEV_IDEPCI and PCI may be required as well since you need them to 
+get BLK_DEV_IDEDMA_PCI, but I thought that would be redundant so I 
+didn't include them in the list.
 
-> This may seem a little
-> redundant for the on-stack usage of the API, but may make sense in
-> other cases.
+I seem to remember running in to the same dependency in the 2.4 series, 
+I'll test when I get the chance.
 
-It may, yes. But I don't think this kind of thing is done elsewhere in
-the kernel. It's okay for things like user space libraries where the
-libraries and users can be compiled separately to catch problems with
-ABI changes, but in the kernel? I think it's overkill.
- 
-These things should be caught using BUG_ONs if you thing someone might
-get them wrong somehow und in the future if something changes. But now
-if they add additional parameters.
+This patch is against 2.6.3-bk4, but since it's just a one liner, it 
+should apply to whatever is current.
 
-> > > +void crypto_cleanup_copy_tfm(char *user_tfm)
-> > > +{
-> > > +	crypto_exit_ops((struct crypto_tfm *)user_tfm);
-> > 
-> > This looks dangerous. The algorithm might free a buffer. This is only
-> > safe if we introduce per-algorithm copy methods that also duplicate
-> > external buffers.
-> 
-> I'm currently working under the assumption that such external buffers
-> are unnecessary but I haven't done the audit. If and when such code
-> exist, such code should be added, yes. Hence the comment in the copy
-> function:
-> 
-> +       /* currently assumes shallow copy is sufficient */
+--- linux-2.6.3-bk4/drivers/ide/Kconfig 2004-02-23 02:55:06.000000000 -0800
++++ linux-2.6.3-bk4-bdavidson/drivers/ide/Kconfig       2004-02-27 
+07:54:05.019756592 -0800
+@@ -816,7 +816,7 @@
 
-Ok, I see.
+  config BLK_DEV_IDEDMA_PMAC
+         bool "PowerMac IDE DMA support"
+-       depends on BLK_DEV_IDE_PMAC
++       depends on BLK_DEV_IDE_PMAC && BLK_DEV_IDEDMA_PCI
+         help
+           This option allows the driver for the built-in IDE controller on
+           Power Macintoshes and PowerBooks to use DMA (direct memory 
+access)
 
-We could add some functions so that everything is symmetric:
-(the names with a star are already existing)
+--
 
-*crypto_alloc_tfm
-\_ crypto_init_tfm
+I also noticed that BLK_DEV_IDEPCI says:
+default BLK_DEV_IDEDMA_PMAC if PPC_PMAC && BLK_DEV_IDEDMA_PMAC
+which seems circular to me. There may be a good reason for it, but I 
+thought I'd bring it up.
 
-*crypto_free_tfm
-\_ crypto_release_tfm
-
-crypto_clone_tfm
-\_ crypto_copy_tfm
-
-crypto_get_alg_size
-\_crypto_get_tfm_size
-
-crypto_init_tfm does everything but the kmalloc
-crypto_release_tfm everything but the kfree
-
-So crypto_alloc_tfm and crypto_release_tfm can be changed to call
-crypto_init_fdm and crypto_release_tfm plus crypto_get_alg_size/kmalloc
-and kfree.
-
-crypto_clone_tfm calls crypto_get_tfm_size, kmalloc and crypto_copy_tfm.
-crypto_copy_tfm copies the tfm structure, cares about algorithm
-reference counting and calls a (new) copy method. This copy method
-should copy things in its context like kmalloc'ed structures (or
-increment a reference count if it's a static memory structure or
-something). (however kmalloc's should be avoided if possible, the
-variable sized context provides some flexibility)
-
-crypto_get_alg_size returns the size of the tfm structure when algorithm
-name and flags are given, crypto_get_tfm size returns the size of an
-existing tfm structure.
-
-So we can also directly initialize a tfm structure on a stack, not only
-copy it to a stack. Very flexible.
-
-What do you think?
-
-
+-Brad

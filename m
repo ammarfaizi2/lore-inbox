@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbSJVS7O>; Tue, 22 Oct 2002 14:59:14 -0400
+	id <S264878AbSJVTCZ>; Tue, 22 Oct 2002 15:02:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264813AbSJVS7O>; Tue, 22 Oct 2002 14:59:14 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:38308 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264812AbSJVS7J>;
-	Tue, 22 Oct 2002 14:59:09 -0400
-Date: Tue, 22 Oct 2002 12:05:03 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: andy barlak <andyb@island.net>
-Cc: Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: INQUIRY VPD page 0 hangs disk [was scsi_error device offline fix]
-Message-ID: <20021022120503.A4185@eng2.beaverton.ibm.com>
-Mail-Followup-To: andy barlak <andyb@island.net>,
-	Mike Anderson <andmike@us.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <20021022083815.A61@eng2.beaverton.ibm.com> <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>; from andyb@island.net on Tue, Oct 22, 2002 at 09:14:55AM -0700
+	id <S264879AbSJVTCZ>; Tue, 22 Oct 2002 15:02:25 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:63911 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264878AbSJVTCX>;
+	Tue, 22 Oct 2002 15:02:23 -0400
+To: Andrew Morton <akpm@digeo.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch 
+In-reply-to: Your message of Tue, 22 Oct 2002 11:49:11 PDT.
+             <3DB59DA7.453F89E2@digeo.com> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <8135.1035313589.1@us.ibm.com>
+Date: Tue, 22 Oct 2002 12:06:29 -0700
+Message-Id: <E1844MH-00027H-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 09:14:55AM -0700, andy barlak wrote:
+In message <3DB59DA7.453F89E2@digeo.com>, > : Andrew Morton writes:
+> Dave McCracken wrote:
+> > 
+> > And
+> >   3) The current large page implementation is only for applications
+> >      that want anonymous *non-pageable* shared memory.  Shared page
+> >      tables reduce resource usage for any shared area that's mapped
+> >      at a common address and is large enough to span entire pte pages.
+> >      Since all pte pages are shared on a COW basis at fork time, children
+> >      will continue to share all large read-only areas with their
+> >      parent, eg large executables.
+> > 
 > 
-> On Tue, 22 Oct 2002, Patrick Mansfield wrote:
-> > Try removing the scsi_load_identifier call in scsi_scan.c and
-> > see if you can boot. And/or get sg_utils and on your 2.4 system
-> > send a INQUIRY page 0 to the device, and see if that hangs or
-> > not, like:
+> How important is that in practice?
 > 
+> Seems that large pages are the preferred solution to the "Oracle
+> and DB2 use gobs of pagetable" problem because large pages also
+> reduce tlb reload traffic.
 > 
-> On this 2.4.19 box with the Buslogic 958, that command hangs:
-> # ./sg_inq -e -o=0 /dev/sg1
-> EVPD INQUIRY, page code=0x00:
-> 
+> So once that's out of the picture, what real-world, observed,
+> customers-are-hurting problem is solved by pagetable sharing?
 
-That really sucks.
+If the shared pte patch had mmap support, then all shared libraries
+would benefit.  Might need to align them to 4 MB boundaries for best
+results, which would also be easy for libraries with unspecified
+attach addresses (e.g. most shared libraries).
 
-If you remove the scsi_load_identifier, does 2.5 boot?
-
-We can black list your device, never sending it INQUIRY page 0.
-
-Since there is one disk like yours out there, there are probably more,
-so we should add a module/boot and maybe config time option to disable
-the INQUIRY page 0.
-
-Anyone have some other suggestion, besides throwing away the disk?
-
--- Patrick Mansfield
+gerrit

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbULZVlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbULZVya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbULZVlh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 16:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbULZVlh
+	id S261172AbULZVya (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 16:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULZVya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 16:41:37 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:27545 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261170AbULZVlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 16:41:36 -0500
-Subject: Re: lease.openlogging.org is unreachable
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: M?ns Rullg?rd <mru@inprovide.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041226181837.GA28786@work.bitmover.com>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-	 <20041226011222.GA1896@work.bitmover.com>
-	 <20041226030957.GA8512@work.bitmover.com> <yw1x7jn5bbj1.fsf@inprovide.com>
-	 <20041226160205.GB26574@work.bitmover.com> <yw1xmzw19bnn.fsf@inprovide.com>
-	 <20041226181837.GA28786@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1104093456.16487.0.camel@localhost.localdomain>
+	Sun, 26 Dec 2004 16:54:30 -0500
+Received: from gprs214-34.eurotel.cz ([160.218.214.34]:32384 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261172AbULZVy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 16:54:28 -0500
+Date: Sun, 26 Dec 2004 22:54:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to hang 2.6.9 using serial port and FB console
+Message-ID: <20041226215411.GA1810@elf.ucw.cz>
+References: <20041226143118.GA5169@beton.cybernet.src> <20041226145334.GC1668@gallifrey> <20041226162426.GC5859@beton.cybernet.src>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 26 Dec 2004 20:37:38 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041226162426.GC5859@beton.cybernet.src>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-12-26 at 18:18, Larry McVoy wrote:
-> The other answer, which I'm happy to consider, is to come up with a unique
-> id on a per host basis and use that for the leases.  That's not a fun task,
-> does anyone have code (BSD license please) which does that?
+Hi!
 
-libuuid does that on straight statistical probability - what properties
-do you want your id to have ?
+> >   I wonder - is the board sending a 'break' signal to the PC? I just
+> > remember years ago you could almsot lock machines up by constantly
+> > sending break.
+> 
+> But in this case the kernel doesn't care if you run it on a console without
+> a fancy background picture and hangs when you run it on a fancy background
+> picture.
+> 
+> The picture is what seems to be evil here.
 
+Picture is not in vanilla kernel => complain to gentoo.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265362AbUFRQCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265262AbUFRQFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265362AbUFRQCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265343AbUFRP7W
+	id S265262AbUFRQFR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUFRQDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:59:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47552 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265285AbUFRP57
+	Fri, 18 Jun 2004 12:03:36 -0400
+Received: from bay4-f14.bay4.hotmail.com ([65.54.171.14]:27913 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265302AbUFRQCH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:57:59 -0400
-Message-ID: <40D310F5.2050706@pobox.com>
-Date: Fri, 18 Jun 2004 11:57:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: hetfield666@virgilio.it
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.x ALSA sound is pretty broken
-References: <1087567432.9282.17.camel@blight.blight> <1087567977.9285.21.camel@blight.blight>
-In-Reply-To: <1087567977.9285.21.camel@blight.blight>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 12:02:07 -0400
+X-Originating-IP: [80.119.5.232]
+X-Originating-Email: [denisdupeyron@msn.com]
+From: "Denis Dupeyron" <denisdupeyron@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to add reiser4 to 2.6.7-ck1
+Date: Fri, 18 Jun 2004 16:02:06 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY4-F14cx3Vp20N39x0001f6d4@hotmail.com>
+X-OriginalArrivalTime: 18 Jun 2004 16:02:06.0690 (UTC) FILETIME=[9A8B9C20:01C4554D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hetfield wrote:
-> i forgot to say that some applications doesn't work properly
-> 
-> example: "beep"  when i execute beep i hear no sounds, neither from speakers (audio card)
-> nor from internal pc speaker.
+Hi,
 
-This has nothing to do with ALSA -- you are probably not loading the PC 
-speaker driver.
+I have made a small patch to add reiser4 to kernel 2.6.7-ck1. In case you're 
+interested I posted it on the gentoo forums, here:
 
-	Jeff
+http://forums.gentoo.org/viewtopic.php?t=187237
+
+Denis.
+
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.click-url.com/go/onm00200413ave/direct/01/
 

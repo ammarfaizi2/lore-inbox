@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262363AbSKNTHB>; Thu, 14 Nov 2002 14:07:01 -0500
+	id <S261594AbSKNTTS>; Thu, 14 Nov 2002 14:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262380AbSKNTHA>; Thu, 14 Nov 2002 14:07:00 -0500
-Received: from vir1.relay.fluke.com ([129.196.184.25]:23671 "EHLO
-	vir1.relay.fluke.com") by vger.kernel.org with ESMTP
-	id <S262363AbSKNTGk>; Thu, 14 Nov 2002 14:06:40 -0500
-Date: Thu, 14 Nov 2002 11:13:35 -0800 (PST)
-From: David Dyck <david.dyck@fluke.com>
-X-X-Sender: <dcd@dd.tc.fluke.com>
-To: Danny ter Haar <dth@ncc1701.cistron.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-rc1-ac2
-In-Reply-To: <ar0jt6$fas$1@ncc1701.cistron.net>
-Message-ID: <Pine.LNX.4.33.0211141111400.252-100000@dd.tc.fluke.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 14 Nov 2002 19:13:34.0363 (UTC) FILETIME=[ED50E6B0:01C28C11]
+	id <S262380AbSKNTTS>; Thu, 14 Nov 2002 14:19:18 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42156 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261594AbSKNTTR>; Thu, 14 Nov 2002 14:19:17 -0500
+Subject: Re: [patch] remove hugetlb syscalls
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David.Mosberger@acm.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <15827.61722.800066.756875@panda.mostang.com>
+References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
+	<08a601c28bbb$2f6182a0$760010ac@edumazet>
+	<20021114141310.A25747@infradead.org> <ugel9oavk4.fsf@panda.mostang.com>
+	<1037298675.16000.47.camel@irongate.swansea.linux.org.uk> 
+	<15827.61722.800066.756875@panda.mostang.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Nov 2002 19:52:12 +0000
+Message-Id: <1037303532.15996.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-11-14 at 18:53, David Mosberger-Tang wrote:
+> But that's excactly the point.  The hugepage interface returns a
+> different kind of virtual memory.  There are tons of programs out
+> there using mmap().  If such a program gets fed a path to the
+> hugepagefs, it might end up with huge pages without knowing anything
+> about huge pages.  For the most part, that might work fine, but it
+> could lead to subtle failures.
 
-On Thu, 14 Nov 2002 at 16:44 -0000, Danny ter Haar <dth@ncc1701.cistron.net...:
+Your argument makes sense. You are arguing
 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586   -nostdinc -iwithprefix include -DKBUILD_BASENAME=rmap  -c -o rmap.o rmap.c
-> In file included from rmap.c:31:
-> /usr/src/linux-2.4.20-rc1-ac2/include/asm/smplock.h:17: warning: `kernel_locked' redefined
- ....
-> make[3]: *** [rmap.o] Error 1
+I created it with weirdass syscall, magically all my libraries and other
+apps will know this so not use mremap etc on that space.
 
-I turned off the include of smplock, and the file rmap.c compiles.
-
-#if 0
-#include <asm/smplock.h>
-#endif
-
-What was <asm/smplock.h> providing to rmap.c?
+Thats complete donkey poo
 

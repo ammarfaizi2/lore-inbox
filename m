@@ -1,38 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVDEIFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDEIFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVDEIFK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDEH7M
+	id S261599AbVDEIFI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVDEH7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:59:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43484 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261602AbVDEHpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:45:53 -0400
-Date: Tue, 5 Apr 2005 08:45:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405074530.GF26208@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050405000524.592fc125.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 5 Apr 2005 03:59:02 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:24241 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261607AbVDEHpQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:45:16 -0400
+Message-ID: <425241F7.4020300@zytor.com>
+Date: Tue, 05 Apr 2005 00:44:55 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] biarch compiler support for i386
+References: <42522CB8.1010007@zytor.com> <20050405073828.GD26208@infradead.org>
+In-Reply-To: <20050405073828.GD26208@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  bk-audit.patch
+Christoph Hellwig wrote:
+> Given that the same logic applies to various other ports maybe it should
+> go into a common Makefile fragment?
 
-This introduces various AUDIT_ARCH numerical constants, which is a blatantly
-stupid idea.  We already have a way to uniquely identify architectures, and
-that's the ELF headers, no need for another parallel namespace.
+Alas, the *details* are different for each architecture.
 
-(btw, could you please add to all patches who's responsible for them,
-bk-audit.patch doesn't tell)
+	-hpa

@@ -1,115 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbTLUXrs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 18:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTLUXrs
+	id S264257AbTLVAKu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 19:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTLVAKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 18:47:48 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:37578 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264255AbTLUXrh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 18:47:37 -0500
-Message-ID: <3FE630D7.7070007@pacbell.net>
-Date: Sun, 21 Dec 2003 15:46:31 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-net@vger.kernel.org, jgarzik@pobox.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let USB_{PEGASUS,USBNET} depend on NET_ETHERNET
-References: <20031221022242.GT12750@fs.tum.de>
-In-Reply-To: <20031221022242.GT12750@fs.tum.de>
-Content-Type: multipart/mixed;
- boundary="------------080504040508000509010204"
+	Sun, 21 Dec 2003 19:10:50 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:33929 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264257AbTLVAKs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 19:10:48 -0500
+Date: Mon, 22 Dec 2003 01:10:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Raul Miller <moth@magenta.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: user problem with usb duo mouse and keyboard
+Message-ID: <20031222001039.GA16419@ucw.cz>
+References: <20031221154331.Z28449@links.magenta.com> <20031221213950.GA14664@ucw.cz> <20031221170323.D28449@links.magenta.com> <20031221223443.GA15744@ucw.cz> <20031221175121.E28449@links.magenta.com> <20031221230042.GA15960@ucw.cz> <20031221182757.F28449@links.magenta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031221182757.F28449@links.magenta.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080504040508000509010204
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Dec 21, 2003 at 06:27:57PM -0500, Raul Miller wrote:
 
-Adrian Bunk wrote:
-> I observed the following small problem in 2.6:
+> On Mon, Dec 22, 2003 at 12:00:42AM +0100, Vojtech Pavlik wrote:
+> > hid-core.c includes hid.h, which in turn, if DEBUG is defined, includes
+> > hid-debug.h. That last file defines some functions (hid_dump_input,
+> > hid_dump_device), which are called by hid-core.c.
+> ...
+> > This is the problem! Don't ever use usbkbd and usbmouse. Use hid
+> > instead.
 > 
-> - MII depends on NET_ETHERNET
-> - USB_PEGASUS and USB_USBNET select MII, but they depend only on NET
->  
-> The patch below lets USB_PEGASUS and USB_USBNET depend on NET_ETHERNET 
-> instead of NET to fix this issue.
+> Oh!
+> 
+> And, looking at the docs on those modules, I see nice big warnings that
+> say something similar...
+> 
+> Looking further, these modules where build and installed by default
+> when I installed my system (debian, with the 2.4.18-bf2.4 kernel), and
+> I've been carrying forward that configuration on my hand-built kernels,
+> and never realized I needed to get rid of those modules.
+> 
+> I see the hid-debug messages in syslog now, but the keyboard and mouse
+> are working properly as well.  Do you want to pursue this any further?
+> [If so, I can send you the messages.]
 
-Actually how about this one instead?  The PEGASUS bit is the same.
-The difference is that MII (and CRC32) are only attributed to the
-driver code that needs those ... AX8817X needs both, ZAURUS just
-needs CRC32.  The core (which should eventually become a separate
-module) shouldn't depend on those modules at all.
+If they are working, then no.
 
-Also both CDCETHER and AX8817X are marked as non-experimental;
-I recall Dave Hollis submitted a patch to do that for AX8817X,
-and CDCETHER now seems to have gotten enough success reports too.
+> [It's perhaps of note that the extra keys on the keyboard are reported
+> as scancode 0 by showkey (with other release scan codes) when plugged
 
-- Dave
+This is normal. This is because the keycodes are above 128 and that's
+all that you can fit into a single signed byte.
 
+> in via usb and which have different keypress scan codss when plugged as
+> a ps/2 keyboard.]
 
---------------080504040508000509010204
-Content-Type: text/plain;
- name="kconf.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kconf.patch"
+This is also normal and can be fixed via the setkeycodes utility. The
+driver cannot be preconfigured for every PS/2 keyboard out there,
+because their scancodes conflict. On USB the configuration is static,
+because USB carries much more information about the keys.
 
---- 1.12/drivers/usb/net/Kconfig	Sat Sep 27 03:23:06 2003
-+++ edited/drivers/usb/net/Kconfig	Sun Dec 21 15:24:41 2003
-@@ -69,7 +69,7 @@
- 
- config USB_PEGASUS
- 	tristate "USB Pegasus/Pegasus-II based ethernet device support"
--	depends on USB && NET
-+	depends on USB && NET_ETHERNET
- 	select MII
- 	---help---
- 	  Say Y here if you know you have Pegasus or Pegasus-II based adapter.
-@@ -96,8 +96,6 @@
- config USB_USBNET
- 	tristate "Multi-purpose USB Networking Framework"
- 	depends on USB && NET
--	select CRC32
--	select MII
- 	---help---
- 	  This driver supports several kinds of network links over USB,
- 	  with "minidrivers" built around a common network driver core
-@@ -206,6 +204,7 @@
- config USB_ZAURUS
- 	boolean "Sharp Zaurus (stock ROMs)"
- 	depends on USB_USBNET
-+	select CRC32
- 	default y
- 	help
- 	  Choose this option to support the usb networking links used by
-@@ -217,9 +216,7 @@
- 
- config USB_CDCETHER
- 	boolean "CDC Ethernet support (smart devices such as cable modems)"
--	# experimental primarily because cdc-ether was.
--	# make it non-experimental after more interop testing
--	depends on USB_USBNET && EXPERIMENTAL
-+	depends on USB_USBNET
- 	default y
- 	help
- 	  This option supports devices conforming to the Communication Device
-@@ -247,7 +244,9 @@
- 
- config USB_AX8817X
- 	boolean "ASIX AX88172 Based USB 2.0 Ethernet Devices"
--	depends on USB_USBNET && EXPERIMENTAL
-+	depends on USB_USBNET && NET_ETHERNET
-+	select CRC32
-+	select MII
- 	default y
- 	help
- 
+> [[There's a slight chance that [to avoid confused messages from other
+> people in my situation] a warning message from hid about usbkbd and
+> usbmouse would be a good idea.]]
 
---------------080504040508000509010204--
+Maybe. But fortunately current distros get it right.
 
+> Thank you very much.
+> Sorry about the confusion,
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291399AbSBSNK6>; Tue, 19 Feb 2002 08:10:58 -0500
+	id <S291390AbSBSNXn>; Tue, 19 Feb 2002 08:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291397AbSBSNKs>; Tue, 19 Feb 2002 08:10:48 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25102 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291393AbSBSNKn>;
-	Tue, 19 Feb 2002 08:10:43 -0500
-Date: Tue, 19 Feb 2002 10:10:28 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] reduce struct_page size
-In-Reply-To: <Pine.LNX.4.33.0202181806340.24597-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0202191009260.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291397AbSBSNXd>; Tue, 19 Feb 2002 08:23:33 -0500
+Received: from ns.suse.de ([213.95.15.193]:32779 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291390AbSBSNXT>;
+	Tue, 19 Feb 2002 08:23:19 -0500
+Date: Tue, 19 Feb 2002 14:23:12 +0100
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Whitespace PCI cleanups
+Message-ID: <20020219142312.B8293@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Pavel Machek <pavel@suse.cz>, Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020218181623.GA122@elf.ucw.cz> <20020219102752.7dd1e21c.rusty@rustcorp.com.au> <20020219090721.GB8851@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020219090721.GB8851@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Tue, Feb 19, 2002 at 10:07:21AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Linus Torvalds wrote:
-> On Mon, 18 Feb 2002, Rik van Riel wrote:
-> >
-> > o page->zone is shrunk from a pointer to an index into a small
-> >   array of zones ... this means we have space for 3 more chars
-> >   in the struct page to other stuff (say, page->age)
->
-> Why not put "page->zone" into the page flags instead?
+On Tue, Feb 19, 2002 at 10:07:21AM +0100, Pavel Machek wrote:
 
-Done.  I'll resubmit the patch with this change once I've
-tested the thing, in an hour or two.
+ > I did not want to give it to *two* maintainers for tracking, because
+ > you might potentially stomp on each other. 
 
-regards,
+ I don't think thats an issue. Even if Rusty and myself both
+ send the same small bits to Linus, it doubles the chances of him
+ not dropping the patch for no reason.
 
-Rik
+ Whilst I'm chainsawing up some of the bigger bits, if the smaller
+ bits go to Linus through Rusty, that makes everyones life easier.
+ Having both of us pick up small bits isn't so much duplicating
+ work, its an extra safety net of sorts. If I overlook something,
+ maybe Rusty will pick it up, and vice versa.
+
+ Hopefully Rusty will get a good acceptance on small bits before
+ he ends up with a huge collection 8-)
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

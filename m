@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277068AbRJDBkP>; Wed, 3 Oct 2001 21:40:15 -0400
+	id <S277071AbRJDBmg>; Wed, 3 Oct 2001 21:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277070AbRJDBkF>; Wed, 3 Oct 2001 21:40:05 -0400
-Received: from dclient217-162-20-87.hispeed.ch ([217.162.20.87]:44403 "EHLO
-	pismo") by vger.kernel.org with ESMTP id <S277068AbRJDBjs> convert rfc822-to-8bit;
-	Wed, 3 Oct 2001 21:39:48 -0400
-Subject: Re: Panic on PowerPC
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <daenzer@debian.org>
-To: =?us-ascii?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
-In-Reply-To: <20011003222219.A487@iname.com>
-In-Reply-To: <20011003222219.A487@iname.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.14 (Preview Release)
-Date: 04 Oct 2001 03:40:06 +0200
-Message-Id: <1002159607.2363.16.camel@pismo>
-Mime-Version: 1.0
+	id <S277072AbRJDBmZ>; Wed, 3 Oct 2001 21:42:25 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:1209 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S277071AbRJDBmP>;
+	Wed, 3 Oct 2001 21:42:15 -0400
+Date: Wed, 3 Oct 2001 21:39:50 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: <kuznet@ms2.inr.ac.ru>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+        <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
+        <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <20011003213010.F3780@redhat.com>
+Message-ID: <Pine.GSO.4.30.0110032130370.8016-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-04 at 03:22, =?us-ascii?Q?Rog=E9rio?= Brito wrote:
-
-> >>NIP; c0005d58 <__sti+8/50>   <=====
-> Trace; c01758c8 <rtc_init+b8/16c>
-> Trace; c016576c <do_initcalls+30/50>
-> Trace; c01657b8 <do_basic_setup+2c/3c>
-> Trace; c00038a4 <init+14/1b0>
-> Trace; c00062a4 <kernel_thread+34/40>
-
-Disable CONFIG_RTC, only enable CONFIG_PPC_RTC in the kernel config.
 
 
--- 
-Earthling Michel Dänzer (MrCooper)/ Debian GNU/Linux (powerpc) developer
-XFree86 and DRI project member   /  CS student, Free Software enthusiast
+On Wed, 3 Oct 2001, Benjamin LaHaise wrote:
+
+> On Wed, Oct 03, 2001 at 09:10:10PM -0400, jamal wrote:
+> > > Well, this sounds like a 2.5 patch.  When do we get to merge it?
+> >
+> >
+> > It is backward compatible to 2.4 netif_rx() which means it can go in now.
+> > The problem is netdrivers that want to use the interface have to be
+> > morphed.
+>
+> I'm alluding to the fact that we need a place to put in-development patches.
+>
+
+Sorry ;-> Yes, where is is 2.5 again? ;->
+
+> > As a general disclaimer, i really dont mean to put down Ingo's efforts i
+> > just think the irq mitigation idea as is now is wrong for both 2.4 and 2.5
+>
+> What is your solution to the problem?  Leaving it up to the driver authors
+> doesn't work as they're not perfect.  Yes, drivers should attempt to do a
+> good job at irq mitigation, but sometimes a safety net is needed.
+>
+
+To be honest i am getting a little nervous with what i saw in something
+that seems to be a stable kernel. I was nervous  when i saw ksoftirq, but
+its already in there. I think we can use the ksoftirq replacement pending
+testing to show if latency is improved. I have time this weekend, if that
+patch can be isolated it can be tested with NAPI etc.
+As for the irq mitigation, in its current form it is insufficient; but
+would be OK to go into 2.5 with plans to go and implement the isolation
+feature. I would put NAPI into this same category. We can then backport
+both back to 2.4.
+With current 2.4, i say yes, we leave it to the drivers (and infact claim
+we have a sustainable solution if conformed to)
+
+cheers,
+jamal
+

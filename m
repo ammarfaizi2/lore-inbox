@@ -1,25 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264189AbUDBVe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbUDBVdW
+	id S264187AbUDBVhe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUDBVhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:33:22 -0500
-Received: from gprs214-45.eurotel.cz ([160.218.214.45]:6528 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264179AbUDBVcI (ORCPT
+	Fri, 2 Apr 2004 16:37:33 -0500
+Received: from gprs214-45.eurotel.cz ([160.218.214.45]:9856 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264187AbUDBVfP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:32:08 -0500
-Date: Fri, 2 Apr 2004 22:48:55 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "La Monte H.P. Yarroll" <piggy@timesys.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Fix sys_time() to get subtick correction from the new xtim
-Message-ID: <20040402204855.GH195@elf.ucw.cz>
-References: <405ED918.2010803@timesys.com>
+	Fri, 2 Apr 2004 16:35:15 -0500
+Date: Fri, 2 Apr 2004 23:35:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ross Biro <ross.biro@gmail.com>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
+       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040402213504.GA246@elf.ucw.cz>
+References: <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <2B32499D.222B761B@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <405ED918.2010803@timesys.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2B32499D.222B761B@mail.gmail.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,31 +30,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-
-> --- lkml/arch/ia64/ia32/sys_ia32.c~fix-all-time-sys_time        
-> 2004-03-16 10:01:23.000000000 -0500
-> +++ lkml-piggy/arch/ia64/ia32/sys_ia32.c        2004-03-16 
-> 10:01:23.000000000 -0500
-> @@ -1678,10 +1678,11 @@ asmlinkage long
-> sys32_time (int *tloc)
-> {
->        int i;
-> +       struct timeval tv;
-> +
-> +       do_gettimeofday(&tv);
-> +       i = tv.tv_sec;
+On Pá 02-04-04 11:28:55, Ross Biro wrote:
+> On Fri, 2 Apr 2004 20:23:58 +0200, Pavel Machek <pavel@ucw.cz> wrote:
+> > > > > If you really want cowlinks and hardlinks to be intermixed freely, I'd
+> > > > > happily agree with you as soon as you can define the behaviour for all
+> > > > > possible cases in a simple document and none of them make me scared
+> > > > > again.  Show me that it is possible and makes sense.
 > 
-> -       /* SMP: This is fairly trivial. We grab CURRENT_TIME and
-> -          stuff it to user space. No side effects */
-> -       i = get_seconds();
->        if (tloc) {
->                if (put_user(i, tloc))
->                        i = -EFAULT;
+> Maybe it's easiest to view the proposed copyfile() as being
+> semantically equivalent to cp from the point of view of anything above
+> the actual file system (modulo running out of space at weird times)
 
-This patch likely suffered some whitespace damage, and you probably
-want to correct tabs vs. spacing in indentation.
+Yes, this is what I was trying to propose.
 								Pavel
-
 -- 
 When do you have a heart between your knees?
 [Johanka's followup: and *two* hearts?]

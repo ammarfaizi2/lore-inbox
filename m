@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265640AbSKDNDa>; Mon, 4 Nov 2002 08:03:30 -0500
+	id <S265988AbSKDNAc>; Mon, 4 Nov 2002 08:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265990AbSKDND3>; Mon, 4 Nov 2002 08:03:29 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:62351 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265640AbSKDND0>; Mon, 4 Nov 2002 08:03:26 -0500
-Subject: Re: interrupt checks for spinlocks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
-       Benjamin LaHaise <bcrl@redhat.com>
-In-Reply-To: <20021104003906.GB12891@holomorphy.com>
-References: <20021103220816.GY16347@holomorphy.com>
-	<Pine.LNX.4.44.0211031612250.954-100000@blue1.dev.mcafeelabs.com> 
-	<20021104003906.GB12891@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 13:31:30 +0000
-Message-Id: <1036416690.1106.27.camel@irongate.swansea.linux.org.uk>
+	id <S265640AbSKDNAc>; Mon, 4 Nov 2002 08:00:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:8576 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262510AbSKDNAb>;
+	Mon, 4 Nov 2002 08:00:31 -0500
+Date: Mon, 04 Nov 2002 05:59:51 -0800 (PST)
+Message-Id: <20021104.055951.41634255.davem@redhat.com>
+To: benoit-lists@fb12.de
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH] tcp hang solved
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021104123824.A29797@turing.fb12.de>
+References: <UTC200211040027.gA40RQ103595.aeb@smtp.cwi.nl>
+	<20021104.023620.20862097.davem@redhat.com>
+	<20021104123824.A29797@turing.fb12.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-04 at 00:39, William Lee Irwin III wrote:
-> That would appear to require cycle detection, but it sounds like a
-> potential breakthrough usage of graph algorithms in the kernel.
-> (I've always been told graph algorithms would come back to haunt me.)
-> Or maybe not, deadlock detection has been done before.
+   From: Sebastian Benoit <benoit-lists@fb12.de>
+   Date: Mon, 4 Nov 2002 12:38:25 +0100
+   
+   This bug was introduced in 2.5.43-bk1, previous versions are ok.
+   I think it might be 
+   ChangeSet 1.781.1.68 2002/10/15 19:01:33 kuznet@mops.inr.ac.ru
+   but i'm not sure.
 
-For a spinlock it doesn't appear to be insoluble.
+It's not possible, if this functions modified here did not work you
+would not be able to make any connections at all.
 
-Suppose we do the following
-
-For
-	spin_lock(&foo)
-
-	current->waiting = foo;
-	foo->waiting += current;
-
-	If foo is held
-		Check if foo is on current->locks
-			If it is then we shot ourself in the foot
-		Check if any member of foo->waiting is waiting on a lock
-			we hold (in current->locks)
-			If it is then we shot ourselves in both feet
-		
-	When we get the lock
-	foo->waiting -= current;
-	foo->held = current;
-	current->locks = foo;
-
-For
-	spin_unlock(&foo)
-	
-	if(current->locks != foo)
-		We released the locks in the wrong order
-
-	remoe foo from current->locks
-
-
-
-Alan
+Can you try reverting the networking changesets one by one until
+the problem goes away?
 

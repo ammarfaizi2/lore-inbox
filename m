@@ -1,89 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVAGSNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVAGSSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVAGSNA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 13:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAGSLo
+	id S261371AbVAGSSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 13:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVAGSRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 13:11:44 -0500
-Received: from mail.tyan.com ([66.122.195.4]:58123 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261434AbVAGSIC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 13:08:02 -0500
-Message-ID: <3174569B9743D511922F00A0C94314230729130F@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, jamesclv@us.ibm.com, suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Fri, 7 Jan 2005 10:19:39 -0800 
+	Fri, 7 Jan 2005 13:17:08 -0500
+Received: from dialin-145-254-060-130.arcor-ip.net ([145.254.60.130]:50184
+	"EHLO spit.home") by vger.kernel.org with ESMTP id S261424AbVAGSP4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 13:15:56 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] fs/hfsplus/: misc cleanups
+Date: Fri, 7 Jan 2005 16:23:46 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050107012615.GB14108@stusta.de>
+In-Reply-To: <20050107012615.GB14108@stusta.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501071623.48201.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hard_smp_processor_id is CPU physical apicid.
-Boot_cpu_id is boot_cpu_physical_apicid.
+Hi,
 
-There is two configuration that we need to enable APIC_EXT_ID.
-1. 8 way + dual core --- 8*2 + 2 +1 = 19, the cpu will use 0-15, and ioapic
-need to use 16 above.
-2. 4 way + 7 amd 8131 + 1 8111 --- 4+7*2+1=19
+On Friday 07 January 2005 02:26, Adrian Bunk wrote:
 
-After enabling APIC_EXT_ID, the K8 can use 256 apicid. But the io apic
-device (amd 8131 and 8111) still need to use 0-15. So We need to use 16
-above for cpu apic id.
+> +#define hfs_bnode_split hfsplus_bnode_split
+> +static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd);
+> +
+> +#define hfs_brec_update_parent hfsplus_brec_update_parent
+> +static int hfs_brec_update_parent(struct hfs_find_data *fd);
+> +
+> +#define hfs_btree_inc_height hfsplus_btree_inc_height
+> +static int hfs_btree_inc_height(struct hfs_btree *);
 
-The BIOS or LinuxBIOS will set the apic id of CPU to 16 later. Or that's to
-say
-Apicid = initial apic id + apicid_offset.
+If these functions become static, the defines are not needed anymore. This 
+code is "shared" with hfs and only kernel wide visible functions are renamed 
+this way.
 
-When dual core is used and nb_cfg_54 is set, node 0 will use initial apicid
-0/1 for core0 and core1. after setting apicid_offset. Apicid will be 16/17.
-
-Without subtract boot_cpu_id, phys_pkg_id will return 8.
-With that, It will return 0.
-
-The c->x86_apicid is initial apic id and it is by cupid(0x1).
-
-I guess for one core old cpu
-nb_cfg_54 can not be set, and node 0 will use initial apidid 0. After
-setting apicid_offset. Apicid will be 16.
-
-Without subtract boot_cpu_id, phys_pkg_id will return 16.
-With that, It will return 0.
-
-YH
-
------Original Message-----
-From: Andi Kleen [mailto:ak@muc.de] 
-Sent: Friday, January 07, 2005 4:25 AM
-To: YhLu
-Cc: Matt Domsch; linux-kernel@vger.kernel.org; discuss@x86-64.org;
-jamesclv@us.ibm.com; suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
-
-On Thu, Jan 06, 2005 at 06:53:11PM -0800, YhLu wrote:
-> static unsigned int phys_pkg_id(int index_msb)
-> {
->         return hard_smp_processor_id() >> index_msb;
-> }
-> 
-> In arch/x86_64/kernel/genapic_cluster.c
-> 
-> Should be changed to 
-> 
-> static unsigned int phys_pkg_id(int index_msb)
-> {
->         /* physical apicid, so we need to substract offset */
->         return (hard_smp_processor_id() - boot_cpu_id) >> index_msb;
-> }
-
-Why? 
-
-If you want a patch merged you need to supply some more explanation
-please.
-
-Also cc Suresh & James for comment.
-
--Andi
+bye, Roman

@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUH1UcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267764AbUH1UQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265973AbUH1UcE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUH1Ub6
+	id S267764AbUH1UQq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUH1UQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:31:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13983 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265973AbUH1U3m (ORCPT
+	Sat, 28 Aug 2004 16:16:01 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:35789 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267958AbUH1UPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:29:42 -0400
-Date: Sat, 28 Aug 2004 22:31:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Schmitt <pnambic@unu.nu>
-Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q3
-Message-ID: <20040828203116.GA29686@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys> <1093715573.8611.38.camel@krustophenia.net> <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu>
+	Sat, 28 Aug 2004 16:15:35 -0400
+Date: Sat, 28 Aug 2004 22:14:35 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
+Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
+Message-ID: <20040828201435.GB25523@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+	Paul Jackson <pj@sgi.com>
+References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408282210.03568.pnambic@unu.nu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040828195647.GP5492@holomorphy.com>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 28 Aug 2004 12:56:47 -0700, William Lee Irwin III wrote:
+> These numbers are somewhat at variance with my experience in the area,
+> as I see that the internal algorithms actually dominate the runtime
+> of the /proc/ algorithms. Could you describe the processes used for the
+> benchmarks, e.g. typical /proc/$PID/status and /proc/$PID/maps for them?
 
-* Daniel Schmitt <pnambic@unu.nu> wrote:
+The status/maps numbers below are not only typical, but identical for
+all tasks. I'm forking off a defined number of children and then query
+their status from the parent.
 
-> > there's a Kconfig chunk missing from the Q0/Q1 patches, i've uploaded Q2
-> > that fixes this:
-> >
-> This breaks here unless CONFIG_SMP is defined, with the following error:
-> 
->   CC      arch/i386/kernel/asm-offsets.s
-> In file included from arch/i386/kernel/asm-offsets.c:7:
-> include/linux/sched.h: In function `lock_need_resched':
-> include/linux/sched.h:983: error: structure has no member named `break_lock'
-> 
-> Probably missing a check for CONFIG_SMP around the need_lockbreak
-> defines in sched.h, and maybe also in cond_resched_lock().
+Because I was interested in delivery overhead, I built on purpose a
+benchmark without computationally expensive fields. Expensive field
+computation hurts /proc more than nproc because the latter allows you
+to have only the currently needed fields computed.
 
-doh - right indeed. -Q3 has this fixed, it is at:
+Roger
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q3
+Name:   nprocbench
+State:  T (stopped)
+SleepAVG:       0%
+Tgid:   6400
+Pid:    6400
+PPid:   2120
+TracerPid:      0
+Uid:    1000    1000    1000    1000
+Gid:    100     100     100     100
+FDSize: 32
+Groups: 4 10 11 18 19 20 27 100 250 
+VmSize:     1336 kB
+VmLck:         0 kB
+VmRSS:       304 kB
+VmData:      144 kB
+VmStk:        16 kB
+VmExe:        12 kB
+VmLib:      1140 kB
+Threads:        1
+SigPnd: 0000000000000000
+ShdPnd: 0000000000080000
+SigBlk: 0000000000000000
+SigIgn: 0000000000000000
+SigCgt: 0000000000000000
+CapInh: 0000000000000000
+CapPrm: 0000000000000000
+CapEff: 0000000000000000
 
-ontop of the usual:
-
-  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
-
-        Ingo
-
+08048000-0804b000 r-xp 00000000 03:45 160990     /home/rl/nproc/nprocbench
+0804b000-0804c000 rw-p 00002000 03:45 160990     /home/rl/nproc/nprocbench
+0804c000-0806d000 rw-p 0804c000 00:00 0 
+40000000-40013000 r-xp 00000000 03:42 11356336   /lib/ld-2.3.3.so
+40013000-40014000 rw-p 00012000 03:42 11356336   /lib/ld-2.3.3.so
+40014000-40015000 rw-p 40014000 00:00 0 
+40032000-4013c000 r-xp 00000000 03:42 11356337   /lib/libc-2.3.3.so
+4013c000-40140000 rw-p 00109000 03:42 11356337   /lib/libc-2.3.3.so
+40140000-40142000 rw-p 40140000 00:00 0 
+bfffc000-c0000000 rw-p bfffc000 00:00 0 
+ffffe000-fffff000 ---p 00000000 00:00 0 

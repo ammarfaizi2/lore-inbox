@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318122AbSIIR3m>; Mon, 9 Sep 2002 13:29:42 -0400
+	id <S317752AbSIIRbD>; Mon, 9 Sep 2002 13:31:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318139AbSIIR3l>; Mon, 9 Sep 2002 13:29:41 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:50928 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318122AbSIIR3h>; Mon, 9 Sep 2002 13:29:37 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 9 Sep 2002 11:32:19 -0600
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: pwaechtler@mac.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 10/10 sound/oss/dmasound/dmasound_q40.c
-Message-ID: <20020909173219.GU7887@clusterfs.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	pwaechtler@mac.com,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200209091007.g89A7dZH010390@smtp-relay02.mac.com> <Pine.LNX.4.44.0209090841400.1641-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209090841400.1641-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S318139AbSIIRbC>; Mon, 9 Sep 2002 13:31:02 -0400
+Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:22167 "EHLO
+	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S317752AbSIIRax>; Mon, 9 Sep 2002 13:30:53 -0400
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: <root@chaos.analogic.com>
+Cc: "'David S. Miller'" <davem@redhat.com>, <phillips@arcor.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Calculating kernel logical address ..
+Date: Mon, 9 Sep 2002 10:31:44 -0700
+Message-ID: <019f01c25826$c553f310$9e10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.3.95.1020909132344.17307A-100000@chaos.analogic.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 09, 2002  09:07 -0700, Linus Torvalds wrote:
-> The reasons your emails seem to be considered spammish by spamassassing 
-> is:
-> 
-> 	tests=MSG_ID_ADDED_BY_MTA_2,NO_REAL_NAME,DATE_IN_FUTURE
-> 
-> That seems to have happened with patch 5/10, for example.
 
-LOL.  My spamassassin marked 5/10 in the "P O R N_10" group, and
-"DATE_IN_PAST_96_XX", but it was rescued by "UNIFIED_PATCH" and "AWL"
-(spamassassin 2.31, but with some scores I set myself).  It got marked
-that way because of the triple-x beside "fixme".  I have AWL set as a
-pretty small negative number because people start spamming (viruses more)
-with sender addresses of real people on l-k.
+The virt_to_bus() macro would work only for kernel logical addresses. I am
+trying to find a portable way to figure out the kernel logical address of a
+user buffer so that I could use virt_to_bus() for DMA. The user address is
+mmap'ed from kmalloc'ed buffer in the mmap() entry of my driver. Now when
+the user wants to send this data to the PCI device, it makes an ioctl call
+and give the user address to the driver. Now driver has to figure out the
+kernel logical address for DMA.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Thanks,
+Imran.
+
+-----Original Message-----
+From: Richard B. Johnson [mailto:root@chaos.analogic.com]
+Sent: Monday, September 09, 2002 10:30 AM
+To: Imran Badr
+Cc: 'David S. Miller'; phillips@arcor.de; linux-kernel@vger.kernel.org
+Subject: RE: Calculating kernel logical address ..
+
+
+On Mon, 9 Sep 2002, Imran Badr wrote:
+
+>
+> So, what you gurus suggest me to do? How can I get physical address of a
+> user buffer (which was originally mmap'ed() from a kmalloc() allocation)
+and
+> which would also be protable across multiple platforms?
+>
+> Thanks.
+> Imran.
+
+I think there is a virt_to_bus() macro and its inverse. The 'bus' address
+is what you need to give to bus-masters that do DMA. This is different
+than virt_to_phys(), which happens to be the same on some platforms
+but would not be the same on those, like PPC (Motorola), which have
+separate address spaces for different things (RAM, I/O, etc).
+
+Isn't this what you want?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+
 

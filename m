@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278077AbRJPD0w>; Mon, 15 Oct 2001 23:26:52 -0400
+	id <S278076AbRJPD3N>; Mon, 15 Oct 2001 23:29:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278076AbRJPD0q>; Mon, 15 Oct 2001 23:26:46 -0400
-Received: from codepoet.org ([166.70.14.212]:8556 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S278077AbRJPD0V>;
-	Mon, 15 Oct 2001 23:26:21 -0400
-Date: Mon, 15 Oct 2001 21:26:56 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jc <jcb@jcb.yi.org>, linux-kernel@vger.kernel.org
-Subject: Re: APM driver thoughts
-Message-ID: <20011015212656.A32274@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, jc <jcb@jcb.yi.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011016011352.A10744@athena> <E15tHSK-0003pA-00@the-village.bc.nu>
+	id <S278515AbRJPD3G>; Mon, 15 Oct 2001 23:29:06 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:8999 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S278076AbRJPD11>; Mon, 15 Oct 2001 23:27:27 -0400
+Subject: Re: VM
+From: Robert Love <rml@tech9.net>
+To: Patrick McFarland <unknown@panax.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011015232245.F1314@localhost>
+In-Reply-To: <20011015211216.A1314@localhost>
+	<9qg46l$378$1@penguin.transmeta.com> <20011015230836.B1314@localhost>
+	<1003202139.1192.3.camel@phantasy> <20011015231702.E1314@localhost>
+	<1003202417.861.6.camel@phantasy>  <20011015232245.F1314@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
+Date: 15 Oct 2001 23:28:08 -0400
+Message-Id: <1003202891.863.1.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15tHSK-0003pA-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: 2.4.9-ac18-rmk1, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Oct 16, 2001 at 12:47:36AM +0100, Alan Cox wrote:
-> > well ..
-> > since 2.4.10 , apm -s (suspend) does not work on dell c600
-> > what was changed ?
-> 
-> Should be fixed in 2.4.12-ac
+On Mon, 2001-10-15 at 23:22, Patrick McFarland wrote:
+> Okay, I might. Just a small question, tho, how often is ac patches put out
+> on avg? Weekly? Biweekly?
 
-apm suspend suspends but will not resume on my 
-Dell Latitude C800 under 2.4.12-ac2 or any 
-other 2.4.x kernel I've tried.  Latest bios
-is installed (A17), grub is in the MBR,
+Look at the timestamps.  A couple times a week to daily.  Note at this
+point its all stable series stuff: driver updates, bug fixes, etc.
 
- -Erik
+This is why Alan is stable.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+	Robert Love
+

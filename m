@@ -1,90 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263072AbTJOMqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 08:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTJOMqJ
+	id S263081AbTJOMsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 08:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTJOMsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 08:46:09 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30852
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S263072AbTJOMqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 08:46:05 -0400
-Date: Wed, 15 Oct 2003 14:46:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ernie Petrides <petrides@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4.23-pre7] alternate fix for BUG() in exec_mmap()
-Message-ID: <20031015124610.GB1735@velociraptor.random>
-References: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
+	Wed, 15 Oct 2003 08:48:47 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:51668 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263081AbTJOMsn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 08:48:43 -0400
+Date: Wed, 15 Oct 2003 14:48:42 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, action list
+Message-ID: <20031015124842.GE20846@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <20031014214311.GC933@inwind.it> <16710000.1066170641@flay> <20031014155638.7db76874.cliffw@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dn4iaw7gNQO9SGk8"
 Content-Disposition: inline
-In-Reply-To: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20031014155638.7db76874.cliffw@osdl.org>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 09:11:27PM -0400, Ernie Petrides wrote:
-> Yes, this in fact necessary.  I have retested with the locking sequence
-> shown above and verified that the problem is still fixed.
-> 
-> Further, I've discovered that in my original version, with the mmap_sem
-> held across mm_release() and exit_aio(), there are potential deadlocks
-> in at least the following hypothetical calling trees:
-> 
-> 	mm_release()
-> 	  put_user()
-> 	    direct_put_user()
-> 	      __put_user_check()
-> 	        __put_user_size()
-> 	          __put_user_asm()
-> 	            [page fault]
-> 	                do_page_fault()
-> 	                  down_read(&mm->mmap_sem)
-> 
-> 	exit_aio()
-> 	  aio_cancel_all()
-> 	    async_poll_cancel()
-> 	      aio_put_req()
-> 	        put_ioctx()
-> 	          __put_ioctx()
-> 	            aio_free_ring()
-> 	              down_write(&ctx->mm->mmap_sem)
-> 
-> The corrected patch against 2.4.23-pre7, which restores the fast path in
-> exec_mmap() and adds the holding of "mmap_sem" across only the exit_mmap()
-> call, is attached below.  Since "mmap_sem" locking is conceptually higher
-> than file system locks in the locking hierarchy, the whole calling tree
-> from exit_mmap() on down (including potential fput() calls) should be
-> safe to run with "mmap_sem" owned.
-> 
-> Thanks for the help.
-> 
-> Cheers.  -ernie
-> 
-> 
-> 
-> --- linux-2.4.23-pre7/fs/exec.c.orig
-> +++ linux-2.4.23-pre7/fs/exec.c
-> @@ -426,6 +426,13 @@ static int exec_mmap(void)
->  	struct mm_struct * mm, * old_mm;
->  
->  	old_mm = current->mm;
-> +	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
-> +		mm_release();
-> +		down_write(&old_mm->mmap_sem);
-> +		exit_mmap(old_mm);
-> +		up_write(&old_mm->mmap_sem);
-> +		return 0;
-> +	}
->  
->  	mm = mm_alloc();
->  	if (mm) {
 
-looks fine thanks.
+--dn4iaw7gNQO9SGk8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andrea
+On Tue, 2003-10-14 15:56:38 -0700, cliff white <cliffw@osdl.org>
+wrote in message <20031014155638.7db76874.cliffw@osdl.org>:
+> On Tue, 14 Oct 2003 15:30:41 -0700
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> > > 7) Do come in suggesting anything I might have forgotten
+
+> Marco, if you could supply time on a small client box, and a desired .con=
+fig,
+> we can add you as a Tinderbox client,
+>  then you have a place to point people when the size increases.=20
+
+I can put on the table:
+
+486SLC, 12MB RAM
+i386, 8MB RAM (hey, this box is nearly build up by discrete parts:)
+Am386, 8MB RAM
+P-Classic, 32MB RAM (even that much RAM can go short after an uptme of
+about a month...)
+
+Unfortunately, you need an additional kernel patch because nearly all
+distros are using mach=3D=3Di486 which gives you nice sigills on an i386
+otherwise...
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--dn4iaw7gNQO9SGk8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/jUIpHb1edYOZ4bsRAi3kAJ4jaHIHfqxfBbR9ARWdkuUMPZTBZgCgkfo9
+GmxJ6IS6bpRdMlsM36dB45A=
+=r2jd
+-----END PGP SIGNATURE-----
+
+--dn4iaw7gNQO9SGk8--

@@ -1,138 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266731AbSLJHsA>; Tue, 10 Dec 2002 02:48:00 -0500
+	id <S262604AbSLJIO0>; Tue, 10 Dec 2002 03:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266733AbSLJHsA>; Tue, 10 Dec 2002 02:48:00 -0500
-Received: from packet.digeo.com ([12.110.80.53]:39332 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266731AbSLJHr6>;
-	Tue, 10 Dec 2002 02:47:58 -0500
-Message-ID: <3DF59DF7.F1E18835@digeo.com>
-Date: Mon, 09 Dec 2002 23:55:35 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+	id <S266708AbSLJIO0>; Tue, 10 Dec 2002 03:14:26 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59133 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262604AbSLJIOY>;
+	Tue, 10 Dec 2002 03:14:24 -0500
+Message-ID: <3DF5A3C3.1E395B4E@mvista.com>
+Date: Tue, 10 Dec 2002 00:20:19 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Kingsley Cheung <kingsley@aurema.com>
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [TRIVIAL PATCH 2.4.20] madvise_willneed makes bad limit comparison
-References: <20021209150426.D12270@aurema.com> <3DF43855.19F24E73@digeo.com> <20021210170841.D8843@aurema.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Dec 2002 07:55:35.0885 (UTC) FILETIME=[85CB3FD0:01C2A021]
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Daniel Jacobowitz <dan@debian.org>, Jim Houston <jim.houston@ccur.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
+       ralf@gnu.org, willy@debian.org
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+References: <Pine.LNX.4.44.0212091051120.1282-100000@home.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------17292DAD0F344CC3AB29DAE9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kingsley Cheung wrote:
+
+This is a multi-part message in MIME format.
+--------------17292DAD0F344CC3AB29DAE9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Linus Torvalds wrote:
 > 
->...
-> So then something of the following without the check is more
-> appropriate or a starting point then?
+> On Mon, 9 Dec 2002, Martin Schwidefsky wrote:
+> >
+> > I had been looking at 2.5.50, we had a different meaning of current.
+> > If you are saying that for any implementation of nanosleep I have to implement
+> > the -ERESTART_RESTARTBLOCK thingy anyway, then I better start with it.
 > 
+> You don't _have_ to. An architecture for which restarting is just too
+> painful can just always choose to return -EINTR, that should be ok. That's
+> how nanosleep() used to work before - it may not be 100% SuS compliant,
+> but it's not as if anybody really cares, I suspect.
+> 
+>                 Linus
+> 
+You know, if we unwind to where we started all this, Jim was
+saying that nanosleep did not know it was being restarted. 
+You then introduced the restart block AND the new system
+call.  What if we take a more conservative approach, i.e.
+keep the restart block, toss the restart syscall and the
+"fn" entry in favor of a "restart" flag.  This flag would be
+cleared ALWAYS in the deliver path.  We could use the
+current -ENOHAND and what it does in the no delivery path
+(i.e. backs up PC).  What we would then have is a restarted
+system call with a way to KNOW it was restarted AND a way to
+save info it needs to do the restart.  
 
-Looks good to me.   Here's a 2.5 version...
+Attached is a patch to take 2.5.50-bk7 to what I am
+suggesting.  -ERESTART_RESTARTBLOCK is no longer used (I did
+not remove the definition), but rather the system call would
+return one of the restart system call error codes (-ENOHAND
+comes to mind) and at the same time set up the restart
+block.  On each entry the system call would check to see if
+the restart_block.fl was set and if so, do the restart thing
+using the saved info.  It would be required to clear
+restart_block.fl once it found it set...
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------17292DAD0F344CC3AB29DAE9
+Content-Type: text/plain; charset=us-ascii;
+ name="restart-2.5.50-bk7.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="restart-2.5.50-bk7.patch"
 
- include/linux/mm.h |    1 +
- mm/filemap.c       |   12 +-----------
- mm/madvise.c       |   23 +++++------------------
- mm/readahead.c     |   13 +++++++++++++
- 4 files changed, 20 insertions(+), 29 deletions(-)
-
---- 25/mm/filemap.c~max_sane_readahead	Mon Dec  9 23:44:47 2002
-+++ 25-akpm/mm/filemap.c	Mon Dec  9 23:47:14 2002
-@@ -898,20 +898,10 @@ static ssize_t
- do_readahead(struct address_space *mapping, struct file *filp,
- 	     unsigned long index, unsigned long nr)
- {
--	unsigned long max;
--	unsigned long active;
--	unsigned long inactive;
--
- 	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage)
- 		return -EINVAL;
- 
--	/* Limit it to a sane percentage of the inactive list.. */
--	get_zone_counts(&active, &inactive);
--	max = inactive / 2;
--	if (nr > max)
--		nr = max;
--
--	do_page_cache_readahead(mapping, filp, index, nr);
-+	do_page_cache_readahead(mapping, filp, index, max_sane_readahead(nr));
- 	return 0;
- }
- 
---- 25/mm/readahead.c~max_sane_readahead	Mon Dec  9 23:44:55 2002
-+++ 25-akpm/mm/readahead.c	Mon Dec  9 23:48:39 2002
-@@ -465,3 +465,16 @@ void handle_ra_miss(struct address_space
- 			ra->next_size = min;
+--- /usr/src/linux-2.5.50-bk7-posix/arch/i386/kernel/signal.c~	Sat Dec  7 21:36:11 2002
++++ /usr/src/linux-2.5.50-bk7-posix/arch/i386/kernel/signal.c	Tue Dec 10 00:06:10 2002
+@@ -505,9 +505,8 @@
+ 	/* Are we from a system call? */
+ 	if (regs->orig_eax >= 0) {
+ 		/* If so, check system call restarting.. */
++                current_thread_info()->restart_block.fl = 0;
+ 		switch (regs->eax) {
+-		        case -ERESTART_RESTARTBLOCK:
+-				current_thread_info()->restart_block.fn = do_no_restart_syscall;
+ 			case -ERESTARTNOHAND:
+ 				regs->eax = -EINTR;
+ 				break;
+@@ -591,10 +590,6 @@
+ 		    regs->eax == -ERESTARTSYS ||
+ 		    regs->eax == -ERESTARTNOINTR) {
+ 			regs->eax = regs->orig_eax;
+-			regs->eip -= 2;
+-		}
+-		if (regs->eax == -ERESTART_RESTARTBLOCK){
+-			regs->eax = __NR_restart_syscall;
+ 			regs->eip -= 2;
+ 		}
  	}
- }
-+
-+/*
-+ * Given a desired number of PAGE_CACHE_SIZE readahead pages, return a
-+ * sensible upper limit.
-+ */
-+unsigned long max_sane_readahead(unsigned long nr)
-+{
-+	unsigned long active;
-+	unsigned long inactive;
-+
-+	get_zone_counts(&active, &inactive);
-+	return min(nr, inactive / 2);
-+}
---- 25/include/linux/mm.h~max_sane_readahead	Mon Dec  9 23:47:45 2002
-+++ 25-akpm/include/linux/mm.h	Mon Dec  9 23:48:06 2002
-@@ -524,6 +524,7 @@ void page_cache_readaround(struct addres
- 			   unsigned long offset);
- void handle_ra_miss(struct address_space *mapping, 
- 		    struct file_ra_state *ra);
-+unsigned long max_sane_readahead(unsigned long nr);
- 
- /* Do stack extension */
- extern int expand_stack(struct vm_area_struct * vma, unsigned long address);
---- 25/mm/madvise.c~max_sane_readahead	Mon Dec  9 23:52:37 2002
-+++ 25-akpm/mm/madvise.c	Mon Dec  9 23:52:41 2002
-@@ -51,36 +51,23 @@ static long madvise_behavior(struct vm_a
- }
- 
- /*
-- * Schedule all required I/O operations, then run the disk queue
-- * to make sure they are started.  Do not wait for completion.
-+ * Schedule all required I/O operations.  Do not wait for completion.
+--- /usr/src/linux-2.5.50-bk7-posix/include/linux/thread_info.h~	Sat Dec  7 21:36:43 2002
++++ /usr/src/linux-2.5.50-bk7-posix/include/linux/thread_info.h	Tue Dec 10 00:12:31 2002
+@@ -11,7 +11,7 @@
+  * System call restart block. 
   */
- static long madvise_willneed(struct vm_area_struct * vma,
- 			     unsigned long start, unsigned long end)
- {
--	long error = -EBADF;
--	struct file * file;
--	unsigned long size, rlim_rss;
-+	struct file *file = vma->vm_file;
+ struct restart_block {
+-	long (*fn)(struct restart_block *);
++	long fl;
+ 	unsigned long arg0, arg1, arg2;
+ };
  
--	/* Doesn't work if there's no mapped file. */
- 	if (!vma->vm_file)
--		return error;
--	file = vma->vm_file;
--	size = (file->f_dentry->d_inode->i_size + PAGE_CACHE_SIZE - 1) >>
--							PAGE_CACHE_SHIFT;
-+		return -EBADF;
- 
- 	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
- 	if (end > vma->vm_end)
- 		end = vma->vm_end;
- 	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
- 
--	/* Make sure this doesn't exceed the process's max rss. */
--	error = -EIO;
--	rlim_rss = current->rlim ?  current->rlim[RLIMIT_RSS].rlim_cur :
--				LONG_MAX; /* default: see resource.h */
--	if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
--		return error;
--
--	do_page_cache_readahead(file->f_dentry->d_inode->i_mapping, file, start, end - start);
-+	do_page_cache_readahead(file->f_dentry->d_inode->i_mapping,
-+			file, start, max_sane_readahead(end - start));
- 	return 0;
+--- /usr/src/linux-2.5.50-bk7-posix/include/asm-i386/thread_info.h~	Sat Dec  7 21:36:41 2002
++++ /usr/src/linux-2.5.50-bk7-posix/include/asm-i386/thread_info.h	Tue Dec 10 00:09:32 2002
+@@ -68,7 +68,7 @@
+ 	.preempt_count	= 1,			\
+ 	.addr_limit	= KERNEL_DS,		\
+ 	.restart_block = {			\
+-		.fn = do_no_restart_syscall,	\
++		.fl = 0,			\
+ 	},					\
  }
  
 
-_
+
+--------------17292DAD0F344CC3AB29DAE9--
+

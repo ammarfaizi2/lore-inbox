@@ -1,101 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTDYTv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 15:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTDYTv6
+	id S263854AbTDYT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTDYT74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 15:51:58 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:42926 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id S263737AbTDYTv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 15:51:56 -0400
-From: folkert@vanheusden.com
-Date: Fri, 25 Apr 2003 22:04:07 +0200 (CEST)
-To: <linux-kernel@vger.kernel.org>
-Subject: problems with orinoco_plx and prims I card with version 0.13d of
- the drivers (fwd)
-Message-ID: <Pine.LNX.4.33.0304252203280.3618-100000@muur.intranet.vanheusden.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Apr 2003 15:59:56 -0400
+Received: from smtp01.web.de ([217.72.192.180]:51493 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263854AbTDYT7y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 15:59:54 -0400
+Date: Fri, 25 Apr 2003 22:25:12 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] Remove unused function from fs/isofs/rock.c
+Message-Id: <20030425222512.4d831ebb.l.s.r@web.de>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-I have Prism I compatible card with intersil firmware version 0.8.3.
-I'm using linux kernel 2.4.20 with orinoco-drivers 0.13d
-The network-card is a SMC EZ Connect Wireless PCI Card. According to the
-manual, it is a SMC2602W.
-The card sits in a Pentium 233MMX (pentium-i so to say).
+find_rock_ridge_relocation() has been unused since 2.4.0-test11 -- time
+to bury it. The patch below applies to 2.5 up to the latest -bk, compiles
+fine, and is untested.
 
-When I load the drivers, I get:
-Apr 24 21:43:45 hobbel kernel: hermes.c: 4 Dec 2002 David Gibson
-<hermes@gibson.dropbear.id.au>
-Apr 24 21:43:45 hobbel kernel: orinoco.c 0.13d (David Gibson
-<hermes@gibson.dropbear.id.au> and others)
-Apr 24 21:43:45 hobbel kernel: orinoco_plx.c 0.13d (Daniel Barlow
-<dan@telent.net>, David Gibson <hermes@gibson.dropbear.id.au>)
-Apr 24 21:43:45 hobbel kernel: orinoco_plx: CIS:
-8801:03:1F00:BA00:B4FF:8817:D04:D067:235A:5208:21FF:F41D:8705:ED01:2F67:C55A:
-Apr 24 21:43:45 hobbel kernel: orinoco_plx: Local Interrupt already
-enabled
-Apr 24 21:43:45 hobbel kernel: Detected Orinoco/Prism2 PLX device at
-00:0e.0 irq:15, io addr:0x6600
-Apr 24 21:43:45 hobbel kernel: eth0: Station identity 001f:0003:0000:0008
-Apr 24 21:43:45 hobbel kernel: eth0: Looks like an Intersil firmware
-version 0.8.3
-Apr 24 21:43:45 hobbel kernel: eth0: Ad-hoc demo mode supported
-Apr 24 21:43:45 hobbel kernel: eth0: IEEE standard IBSS ad-hoc mode
-supported
-Apr 24 21:43:45 hobbel kernel: eth0: WEP supported, 104-bit key
-Apr 24 21:43:45 hobbel kernel: eth0: MAC address 00:04:E2:2A:42:0B
-Apr 24 21:43:45 hobbel kernel: eth0: Station name "Prism  I"
-Apr 24 21:43:45 hobbel kernel: eth0: ready
+Is there an active maintainer for isofs?
 
-All fine up to there.
-But then I try to configure the card, and then things go wrong:
-
-iwconfig eth0 essid "VANHEUSDENDOTCOM"
-iwconfig eth0 channel 6
-iwconfig eth0 mode Managed
-
-After the first command I get:
-Apr 24 21:44:34 hobbel kernel: hermes @ IO
-0x6600: Timeout waiting for command completion.
-Apr 24 21:44:34 hobbel kernel: eth0: Unable to disable port while
-reconfiguring card
-Apr 24 21:44:34 hobbel kernel: eth0: Resetting instead...
-
-The channel-command completely fails! And that is strange since it worked
-before (with the standard drivers from kernel 2.4.20).
-
-After that, everything keeps on failing:
-Apr 24 21:44:38 hobbel kernel: hermes @ IO 0x6600: Timeout waiting for
-command completion.
-Apr 24 21:44:38 hobbel kernel: eth0: Error -110 setting multicast list.
-Apr 24 21:45:00 hobbel kernel: hermes @ IO 0x6600: Timeout waiting for
-command completion.
-Apr 24 21:45:00 hobbel kernel: eth0: Error -110 setting MAC address
-Apr 24 21:45:00 hobbel kernel: eth0: Error -110 configuring card
-Apr 24 21:45:02 hobbel kernel: hermes @ IO 0x6600: Timeout waiting for
-command completion.
-Apr 24 21:45:02 hobbel kernel: eth0: Error -110 setting MAC address
-Apr 24 21:45:02 hobbel kernel: eth0: Error -110 configuring card
-Apr 24 21:45:02 hobbel kernel: hermes @ IO 0x6600: Error -16 issuing
-command.
-Apr 24 21:45:02 hobbel kernel: eth0: Error -16 setting MAC address
-Apr 24 21:45:02 hobbel kernel: eth0: Error -16 configuring card
-Apr 24 21:45:08 hobbel kernel: hermes @ IO 0x6600: Error -16 issuing
-command.
-
-I cannot ping anything on the network, then.
-(the accesspoint and its configuration is actually working fine: I have a
-belkin-card in my laptop which works like a charm)
-
-If I can test anything to fix this problem, new drivers, new kernel,
-whatever: no problem!
+René
 
 
-Folkert
 
-
+diff -ur linux-2.5.68-bk6/fs/isofs/rock.c~ linux-2.5.68-bk6/fs/isofs/rock.c
+--- linux-2.5.68-bk6/fs/isofs/rock.c~	2002-12-16 03:08:09.000000000 +0100
++++ linux-2.5.68-bk6/fs/isofs/rock.c	2003-04-25 21:35:14.000000000 +0200
+@@ -84,76 +84,6 @@
+     printk("Unable to read rock-ridge attributes\n");    \
+   }}
+ 
+-/* This is the inner layer of the get filename routine, and is called
+-   for each system area and continuation record related to the file */
+-
+-int find_rock_ridge_relocation(struct iso_directory_record * de, 
+-			       struct inode * inode) {
+-  int flag;
+-  int len;
+-  int retval;
+-  unsigned char * chr;
+-  CONTINUE_DECLS;
+-  flag = 0;
+-  
+-  /* If this is a '..' then we are looking for the parent, otherwise we
+-     are looking for the child */
+-  
+-  if (de->name[0]==1 && de->name_len[0]==1) flag = 1;
+-  /* Return value if we do not find appropriate record. */
+-  retval = isonum_733 (de->extent);
+-  
+-  if (!ISOFS_SB(inode->i_sb)->s_rock) return retval;
+-
+-  SETUP_ROCK_RIDGE(de, chr, len);
+- repeat:
+-  {
+-    int rrflag, sig;
+-    struct rock_ridge * rr;
+-    
+-    while (len > 1){ /* There may be one byte for padding somewhere */
+-      rr = (struct rock_ridge *) chr;
+-      if (rr->len == 0) goto out; /* Something got screwed up here */
+-      sig = isonum_721(chr);
+-      chr += rr->len; 
+-      len -= rr->len;
+-
+-      switch(sig){
+-      case SIG('R','R'):
+-	rrflag = rr->u.RR.flags[0];
+-	if (flag && !(rrflag & RR_PL)) goto out;
+-	if (!flag && !(rrflag & RR_CL)) goto out;
+-	break;
+-      case SIG('S','P'):
+-	CHECK_SP(goto out);
+-	break;
+-      case SIG('C','L'):
+-	if (flag == 0) {
+-	  retval = isonum_733(rr->u.CL.location);
+-	  goto out;
+-	}
+-	break;
+-      case SIG('P','L'):
+-	if (flag != 0) {
+-	  retval = isonum_733(rr->u.PL.location);
+-	  goto out;
+-	}
+-	break;
+-      case SIG('C','E'):
+-	CHECK_CE; /* This tells is if there is a continuation record */
+-	break;
+-      default:
+-	break;
+-      }
+-    }
+-  }
+-  MAYBE_CONTINUE(repeat, inode);
+-  return retval;
+- out:
+-  if(buffer) kfree(buffer);
+-  return retval;
+-}
+-
+ /* return length of name field; 0: not found, -1: to be ignored */
+ int get_rock_ridge_filename(struct iso_directory_record * de,
+ 			    char * retname, struct inode * inode)
+diff -ur linux-2.5.68-bk6/include/linux/iso_fs.h~ linux-2.5.68-bk6/include/linux/iso_fs.h
+--- linux-2.5.68-bk6/include/linux/iso_fs.h~	2002-12-16 03:08:11.000000000 +0100
++++ linux-2.5.68-bk6/include/linux/iso_fs.h	2003-04-25 21:35:37.000000000 +0200
+@@ -224,8 +224,6 @@
+ extern int get_rock_ridge_filename(struct iso_directory_record *, char *, struct inode *);
+ extern int isofs_name_translate(struct iso_directory_record *, char *, struct inode *);
+ 
+-extern int find_rock_ridge_relocation(struct iso_directory_record *, struct inode *);
+-
+ int get_joliet_filename(struct iso_directory_record *, unsigned char *, struct inode *);
+ int get_acorn_filename(struct iso_directory_record *, char *, struct inode *);
+ 

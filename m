@@ -1,102 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbUCAVGt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 16:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUCAVGt
+	id S261437AbUCAVIM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 16:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUCAVIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 16:06:49 -0500
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:51891 "EHLO
-	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261435AbUCAVGq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 16:06:46 -0500
-Subject: Re: ALSA Issues in 2.6.3
-From: Andreas Boman <aboman@eiwaz.com>
-To: Andrew D Kirch <trelane@trelane.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040301152357.0431ce83.trelane@trelane.net>
-References: <20040301152357.0431ce83.trelane@trelane.net>
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1078175250.2663.17.camel@asgaard.midgaard.us>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 
-Date: Mon, 01 Mar 2004 16:07:30 -0500
-Content-Transfer-Encoding: 7BIT
+	Mon, 1 Mar 2004 16:08:12 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:19895 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S261437AbUCAVIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 16:08:09 -0500
+Message-ID: <4043A633.5090208@backtobasicsmgmt.com>
+Date: Mon, 01 Mar 2004 14:08:03 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: Nigel Kukard <nkukard@lbsd.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.3] Sysfs breakage - tun.ko
+References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com> <20040301124723.P22989@build.pdx.osdl.net>
+In-Reply-To: <20040301124723.P22989@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have oss emulation compiled in (or loaded modules)? If so make
-sure that the oss pcm and master volumes are not muted. 
+Chris Wright wrote:
 
+> Why don't you use:
+> 	.devfs_name = "net/tun",
 
-	Andreas
+That seems fine, if it will do the job.
 
+> Or fix userspace apps?  Or switch to udev with devfs rules emulated and a
+> rule for the tun/tap driver?
 
-
-On Mon, 2004-03-01 at 15:23 -0500, Andrew D Kirch wrote:
-> I've noted repeated issues being discussed in #ALSA on freenode regarding the upgraded 1.0.2 alsa drivers in 2.6.3.  The general symptoms appear to be that the card refuses to play sound.  My configuration (Though i8x0 and emu10k1 have also been blaimed) is a via 8237 southbridge with integrated realtek sound.  The modules load without error and the speakers give an audible pop as if the card is unmuting, the speakers pop again, and no other sound is to be heard.  Playback of audio fails in mplayer, alsaplayer, esd, artsd, mpg123, all of which were compiled against alsa, of interest is that xmms will also "play" without sound.  The spectrum analyzer functions properly showing that audio is being processed, however with the already mentioned lack of actual sound.  I'm utterly befuddled to explain the cause of this, so I won't call it a bug, more an issue (I'd also assume it's been discussed already today or recently, but I just subscribed.)  I would be grateful for an answer in advance as to what might be causing this, I fully believe all settings are correct (MAIN and PCM are unmuted and at 75%, speakers are plugged in correctly, chip is enabled in bios, and detected in lspci)  For sanity reasons I am including pastes of /proc/modules, and lspci.  All other complaints are from upgrades to 2.6.3.  Alsa-libs and alsa-utils 1.0.2 are installed.
-> 
-> My system is as follows:
-> Gigabyte GA-K8VNXP
-> AMD Athlon 64 3200+ 1mb L2
-> 1gb Corsair XMS PRO series memory
-> pny Geforce 4 ti 4200
-> 40gb maxtor harddrive
-> via_rhine eth0
-> rtl8169 eth1
-> 8237 southbridge
-> 
-> gentoo64 root # lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 South]
-> 00:0f.0 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-> 00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> 00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> 00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> 00:10.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
-> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
-> 00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 (rev 10)
-> 00:14.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8025 (rev 01)
-> 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> 01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] (rev a3)
-> 
-> gentoo64 root # cat /proc/modules
-> nvidia 2564596 0 - Live 0xffffffffa00c9000
-> parport_pc 36696 0 - Live 0xffffffffa00bf000
-> parport 39532 1 parport_pc, Live 0xffffffffa00b4000
-> r8169 10692 0 - Live 0xffffffffa00b0000
-> via_rhine 18888 0 - Live 0xffffffffa00aa000
-> mii 4544 1 via_rhine, Live 0xffffffffa00a7000
-> snd_via82xx 23392 3 - Live 0xffffffffa00a0000
-> snd_ac97_codec 63044 1 snd_via82xx, Live 0xffffffffa008f000
-> gameport 4032 1 snd_via82xx, Live 0xffffffffa008d000
-> snd_mpu401_uart 6400 1 snd_via82xx, Live 0xffffffffa008a000
-> snd_rawmidi 21024 1 snd_mpu401_uart, Live 0xffffffffa0083000
-> uhci_hcd 28960 0 - Live 0xffffffffa007a000
-> ohci_hcd 17220 0 - Live 0xffffffffa0074000
-> ide_tape 51232 0 - Live 0xffffffffa0066000
-> st 35484 0 - Live 0xffffffffa005c000
-> sbp2 22088 0 - Live 0xffffffffa0055000
-> ohci1394 30852 0 - Live 0xffffffffa004c000
-> ieee1394 72200 2 sbp2,ohci1394, Live 0xffffffffa0039000
-> usb_storage 67008 0 - Live 0xffffffffa0027000
-> hid 23744 0 - Live 0xffffffffa0020000
-> ehci_hcd 23364 0 - Live 0xffffffffa0019000
-> usbcore 96240 7 uhci_hcd,ohci_hcd,usb_storage,hid,ehci_hcd, Live 0xffffffffa0000000
-> 
-> Thanks of course doubly if this is a stupid question.
-> 
-> 
-> Andrew Kirch
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+This is a stable kernel series; these kinds of userspace-breakage 
+changes are not supposed to happen. Personally I have already started 
+migrating my systems to udev, but it will take some time to complete 
+that. Regardless, this would be a userspace-incompatible change if using 
+.devfs_name won't do the job.

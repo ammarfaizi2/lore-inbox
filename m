@@ -1,72 +1,123 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971080-15443>; Sun, 19 Jul 1998 01:31:42 -0400
-Received: from noc.nyx.net ([206.124.29.3]:2426 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <971108-15443>; Sun, 19 Jul 1998 01:31:28 -0400
-Date: Sun, 19 Jul 1998 00:51:37 -0600 (MDT)
-From: Colin Plumb <colin@nyx.net>
-Message-Id: <199807190651.AAA26297@nyx10.nyx.net>
-X-Nyx-Envelope-Data: Date=Sun Jul 19 00:51:37 1998, Sender=colin, Recipient=linux-kernel@vger.rutgers.edu, Valsender=colin@localhost
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: current pointer question/suggestion
+Received: by vger.rutgers.edu id <971129-15443>; Sun, 19 Jul 1998 04:43:50 -0400
+Received: from [192.116.142.129] ([192.116.142.129]:63995 "EHLO blinky.bfr.co.il" ident: "hjstein") by vger.rutgers.edu with ESMTP id <970893-15443>; Sun, 19 Jul 1998 04:43:35 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Harvey J. Stein" <hjstein@bfr.co.il>, linux-kernel@vger.rutgers.edu
+Subject: Probability of being unable to allocate w/o swapping.
+References: <Pine.LNX.3.96.980715094419.10708F-100000@penguin.transmeta.com> <m2ww9fdphk.fsf@blinky.bfr.co.il>
+CC: hjstein@bfr.co.il
+From: hjstein@bfr.co.il (Harvey J. Stein)
+Date: 19 Jul 1998 13:03:40 +0300
+In-Reply-To: hjstein@bfr.co.il's message of "15 Jul 1998 19:54:15 +0300"
+Message-ID: <m2k95anon7.fsf_-_@blinky.bfr.co.il>
+X-Mailer: Gnus v5.6.4/Emacs 19.34
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Okay, here's the scoop:
-We need some way for processor to tell themselves apart.
-Since they all share memory, the only way to do it is with some
-per-processor register.  We could, in theory, use something
-in the APIC, but that's slow ans cumbersome.
+hjstein@bfr.co.il (Harvey J. Stein) writes:
 
-Currently onm Intel it's stored in the Task Register.
-This holds the TSS segement selector, which points to
-the TSS, which holds the holds the ring 0 stack pointer,
-which tells us where the current process structure is, which
-contains the processor number.  (Whew!)
+ > Linus Torvalds <torvalds@transmeta.com> writes:
+ > 
+ >  > On 15 Jul 1998, Harvey J. Stein wrote:
+ >  > > The math isn't quite right.  Consider:
+ >  > > 
+ >  > > 1st hole placed on 1st page.
+ >  > > 
+ >  > > 2nd hole placed on 4th page.
+ >  > > 
+ >  > > There are now x-5 places to place the 3rd hole, not x-4.
+ >  > 
+ >  > No, the thing is that you also have to worry about the alignement: we get
+ >  > a 8kB area only if we have two consecutive 4kB holes that are also
+ >  > aligned. 
+ >  > 
+ >  > As such 0+1 would be a 8kB area, and 4+5 would be one, but 3+4 and 1+2
+ >  > would not.
+ > 
+ > Ok.  In that case I'm not counting the right thing.  I'll redo my
+ > computations and see what happens.
 
-The advantage is that the stack pointer is already loaded on
-entry to kernel space, so only the last part of the dereferencing chain
-needs to be done.
+Ok.  I worked it out (with the help of my office mate).  Memory looks
+like this:
 
-If we could only get a processor number, it would be possible to use
-that as an offset in a table of "what's that processor running" to get
-the current process, so finding the current process and the current
-processor are really the same problem.  It's just that finding the
-current process is more common.
+  -- -- | -- -- | -- -- | ...
 
-The use of the stack pointer has the wonderful advantage of portability
-across a considerable number of platforms.  The hack doesn't depend on
-the existence of a task register or whatever, just some mechanism
-to load a unique per-process kernel stack pointer on entry to kernel
-space.  Most processors have some provision for doing this, so this
-piggybacks on that existing mechanism.
+The -- represent pages.  The | just divide all pages into pairs (which
+I'll call buckets).
 
-Another possibility that some people are mentioning is to use the
-memory management system.  These are independent per-processor
-(and thus making a coordinated change is hard), so seem like
-an obvious place to hide per-processor information.
+Suppose there are x pages (x/2 buckets).  Suppose that y pages are
+free.
 
-Changing memory mappings, while faster than file access, is
-expensive when compared to a simple system call like getpid().
-It's one of the biggest costs of task switching.  It's Bad.
+We can make a 2 page allocation iff there are 2 consecutive aligned
+pages.  The latter holds iff there are 2 free pages in one of the
+above buckets.
 
-However, one possibility is to have a per-processor page at
-a fixed kernel virtual address that can contain a pointer to the
-current task and any other desired per-processor information.
+Thus, the number of memory configurations in which we can't make a 2
+page allocation is the number of ways to place the free pages such
+that there's at most 1 free page in each bucket.
 
-The only costs are:
-- This steals a TLB slot if it's used, or requires a TLB walk if it's not.
-- Before switching to each task, you need to update its in-memory page
-  tables to point to the current processor's local page.  Note that
-  this does *not* require a TLB flush.
-- On a PPro, you can use the globla bit to prevent the mapping being
-  flushed on a context switch, but otherwise, this will incur
-  a TLM miss the first time it's used.
+The number of ways to do this, not counting the position of the free
+page in each bucket, is just the number of ways to choose y buckets,
+which is x/2 choose y.
 
-The somewhere on the per-processor page you can install a current
-pointer and finding the current process becomes a pretty simple matter.
+The number of ways to do this, accounting for the free page internal
+bucket position is (x/2 choose y) * 2^y.  I.e. - multiply by the
+number of ways to arrange the free pages in the chosen buckets.
 
-Still, the advantages over the current sp-based scheme are unclear,
-and the costs, while low, are not zero.
+The total number of ways to allocate the free pages is just (x choose
+y).
+
+Thus, the probability of having to swap is:
+
+   (x/2 choose y) * 2^y
+   --------------------
+       (x choose y)
+
+(where x choose y = x!/(y!(x-y)!) = the number of ways to select y
+items from a set of x items).
+
+I've appended Linus' original table along with the percentage of "bad"
+configurations as computed by the above formula.  BTW, the numbers
+start out higher & drop off slower (as X increases with Y/X = %
+free memory/100 held constant).  Actually, the old numbers for X total
+pages are almost identical to the new numbers for 2X total pages, so
+any arguments about machines with n MB will basically carry over to
+machines with 2*n MB.  The "Orig %" & "By above" columns are the
+% chance that there are no pair of free pages that are adjacent &
+aligned.
+
+  total pgs  free pgs  tot mb  % free     Orig %    By above
+  X =  1024, Y =   20 (  4MB, 2% free) = 68.6673%   82.765%
+  X =  1024, Y =   51 (  4MB, 5% free) =  7.6047%   26.974%
+  X =  1024, Y =   81 (  4MB, 8% free) =  0.1245%    3.212%
+     			     
+  X =  2048, Y =   40 (  8MB, 2% free) = 46.2224%   67.816%
+  X =  2048, Y =  102 (  8MB, 5% free) =  0.5488%    7.083%
+  X =  2048, Y =  163 (  8MB, 8% free) =  0.0001%    0.090%
+     			     
+  X =  4096, Y =   81 ( 16MB, 2% free) = 20.1256%   44.623%
+  X =  4096, Y =  204 ( 16MB, 5% free) =  0.0029%    0.488%
+  X =  4096, Y =  327 ( 16MB, 8% free) =  0.0000%    0.00007101%
+     			     
+  X =  8192, Y =  163 ( 32MB, 2% free) =  3.8125%   19.312%
+  X =  8192, Y =  409 ( 32MB, 5% free) =  0.0000%    0.0021999%
+  X =  8192, Y =  655 ( 32MB, 8% free) =  0.0000%    0.4401e-10%
+     			     
+  X = 16384, Y =  327 ( 64MB, 2% free) =  0.1368%    3.6167%
+  X = 16384, Y =  819 ( 64MB, 5% free) =  0.0000%    0.4463e-7%
+  X = 16384, Y = 1310 ( 64MB, 8% free) =  0.0000%    0.1851e-22%
+     			     
+  X = 32768, Y =  655 (128MB, 2% free) =  0.0002%    0.1268%
+  X = 32768, Y = 1638 (128MB, 5% free) =  0.0000%    0.1939e-16%
+  X = 32768, Y = 2621 (128MB, 8% free) =  0.0000%    0.2989e-47%
+     			     
+  X = 65536, Y = 1310 (256MB, 2% free) =  0.0000%    0.0001592%
+  X = 65536, Y = 3276 (256MB, 5% free) =  0.0000%    0.3659e-35%
+  X = 65536, Y = 5242 (256MB, 8% free) =  0.0000%    0.8538e-97%
+
 -- 
-	-Colin
+Harvey J. Stein
+BFM Financial Research
+hjstein@bfr.co.il
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

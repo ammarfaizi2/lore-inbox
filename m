@@ -1,82 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287542AbRLaPfG>; Mon, 31 Dec 2001 10:35:06 -0500
+	id <S287543AbRLaPi0>; Mon, 31 Dec 2001 10:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287543AbRLaPe5>; Mon, 31 Dec 2001 10:34:57 -0500
-Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:46610 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S287542AbRLaPet>;
-	Mon, 31 Dec 2001 10:34:49 -0500
-Date: Mon, 31 Dec 2001 08:03:37 +0000 (/etc/localtime)
-From: <gmack@innerfire.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Timothy Covell <timothy.covell@ashavan.org>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-In-Reply-To: <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0112310757510.26107-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287544AbRLaPiQ>; Mon, 31 Dec 2001 10:38:16 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:48648 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S287543AbRLaPiG>;
+	Mon, 31 Dec 2001 10:38:06 -0500
+Date: Mon, 31 Dec 2001 16:38:00 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: brian@worldcontrol.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bounce from andre@linuxdiskcert.org
+Message-Id: <20011231163800.57cda2f7.skraw@ithnet.com>
+In-Reply-To: <20011231013817.A3377@top.worldcontrol.com>
+In-Reply-To: <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com>
+	<200112301911.UAA07512@webserver.ithnet.com>
+	<20011231013817.A3377@top.worldcontrol.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Dec 2001, Linus Torvalds wrote:
+On Mon, 31 Dec 2001 01:38:17 -0800
+brian@worldcontrol.com wrote:
 
-> Date: Sun, 30 Dec 2001 16:19:15 -0800 (PST)
-> From: Linus Torvalds <torvalds@transmeta.com>
-> To: Timothy Covell <timothy.covell@ashavan.org>
-> Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
->      Linux Frame Buffer Device Development
->     <linux-fbdev-devel@lists.sourceforge.net>,
->      Marcelo Tosatti <marcelo@conectiva.com.br>
-> Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-> 
-> 
-> On Sun, 30 Dec 2001, Timothy Covell wrote:
-> >
-> > 	When X11 locks up, I can still kill it and my box lives.  When
-> > framebuffers crash, their is no recovery save rebooting.  Back in 1995
-> > I thought that linux VTs and X11 implemenation blew Solaris out of the
-> > water, and now we want throw away our progress?  I'm still astounded
-> > by the whole "oooh I can see  a penquin while I boot-up" thing?
-> > Granted, frame buffers have usage in embedded systems, but do they
-> > really have to be so deeply integrated??
-> 
-> They aren't.
-> 
-> No sane person should use frame buffers if they have the choice.
-> 
-> Like your mama told you: "Just say no". Use text-mode and X11, and be
-> happy.
-> 
-> Some people don't have the choice, of course.
-> 
-> 		Linus
+> On Sun, Dec 30, 2001 at 08:11:31PM +0100, Stephan von Krawczynski wrote:
+> > Nope. My personal experience with these orbses is: f*ck them.         
+> > A good lot of them are _not_ contacting blacklisted ISPs. But on the  
+> > other hand, some at least allow fast _unlisting_.                     
+> > I give you the simple and well-thought hint _not_ to use a mail       
+> > configuration relying on _external_ databases whatsoever.
 
-Like the no choice if having one's 11 year old syster try to use the
-thing?
+> [...] 
+> Would you like to be cc'ed on my spam folder?  50 to 100 spams a day?
+> Try being a member of the internet since the darpanet days and having
+> 1400 domains with your email address.
 
-Text-mode and X11 seem to work fine if you walk on egg shells but just try
-switching from console to text mode and back again several
-times.  Eventually it _will_ crash.  Or worse yet mix svgalib and X11.
+Two notes on that:
+1) Please re-read my mail. I wrote "_external_ databases". I did not tell you
+to _not_ filter _yourself_. 2) We are just on the brink of the "communication
+century". Even if you don't like it, direct communication between people grows
+immensly, whereas broadcasting the same information to many people is stepping
+back. The reason is simple: people are beginning to dislike filtered (read 
+censored) information quite a bit, they have simply been told lies too often.
+SPAM is of nature broadcasted information, but anyway you would probably not
+mind getting the complete same info as a mail _only_ addressed to you. Still
+you would choose to delete it, because it may be of no special interest for
+you, but you would most certainly not get that angry about it. What I basically
+want to say: just live with it. I personally decided so, because I can very
+well see the good point: no need to rely on censored (may be for political or
+economical reasons) (tv-)broadcasted information about the world out there.
+Today you can just talk to a lot of people around the world _personally_.
 
-My brother and sister both used to crash my system at least 3 times a week  
-before framebuffer + fbdev came into play.
+> Not an easy task.  At least in my country and specifically the
+> internet people are free to interact with others in the way they
+> find best.
 
-	Gerhard
+Well, I think this is good, you don't?
 
+> Some people have spam filters, some don't.
 
+In the end it's all a matter of who to trust more: yourself or others.
 
- 
+Just to give you a small glimpse: I get several hundred mails a day, my top day
+in 2001 reached 832. Interestingly spam is no more than about 5%, and I use
+_no_ filter at all (besides my brain :-).
 
+And to end it: I don't want to have _any_ worldcontrol ;-)
 
+Regards,
+Stephan
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+PS: If you want to go ahead in this talk, please keep it off LKML, it doesn't
+look like common interest to me.

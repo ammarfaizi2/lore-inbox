@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131886AbQL2VfZ>; Fri, 29 Dec 2000 16:35:25 -0500
+	id <S132387AbQL2Vfr>; Fri, 29 Dec 2000 16:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132340AbQL2VfQ>; Fri, 29 Dec 2000 16:35:16 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:22536 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S131886AbQL2VfJ>; Fri, 29 Dec 2000 16:35:09 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Dave Gilbert <gilbertd@treblig.org>
-Date: Sat, 30 Dec 2000 08:04:25 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14924.64601.485759.167765@notabene.cse.unsw.edu.au>
+	id <S132384AbQL2Vfg>; Fri, 29 Dec 2000 16:35:36 -0500
+Received: from [195.84.105.112] ([195.84.105.112]:63498 "HELO
+	petrus.schuldei.org") by vger.kernel.org with SMTP
+	id <S132383AbQL2Vfb>; Fri, 29 Dec 2000 16:35:31 -0500
+Date: Fri, 29 Dec 2000 22:08:20 +0100
+From: Andreas Schuldei <andreas@schuldei.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
-In-Reply-To: message from Dave Gilbert on Friday December 29
-In-Reply-To: <Pine.LNX.4.10.10012291946180.26235-100000@tardis.home.dave>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: ext2's inode i_version gone, what now? (stable branch)
+Message-ID: <20001229220820.C28926@sigrid.schuldei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday December 29, gilbertd@treblig.org wrote:
-> Hi,
->   On the server:
-> 
-> bash$ ls -l
-> total 21
-> drwxrwxrwx  11 root     root         2048 Jul 23 02:32 arm
-> lrwxrwxrwx   1 root     root           14 Aug 22  1999 dg ->
-> /home/gilbertd
-> drwxr-xr-x   6 root     root         1024 Mar 21  1999 ftp
-> drwx------   5 g3oag    g3oag        1024 Oct  3  1999 g3oag
-> drwxr-xr-x 164 gilbertd gilbertd    12288 Dec 29 19:42 gilbertd
-....
-> 
-> on the client:
-> 
-> [root@sol home]# ls -l
-> ls: gilbertd: No such file or directory
-> total 9
-> drwxrwxrwx   11 root     root         2048 Jul 23 02:32 arm
-> lrwxrwxrwx    1 root     root           14 Aug 22  1999 dg -> /home/gilbertd
-> drwxr-xr-x    6 root     root         1024 Mar 21  1999 ftp
-> drwx------    5 1000     1000         1024 Oct  3 1999 g3oag
-....
-> -------------------------
-> 
-> So where did the gilbertd directory go ?
+I try to use the Steganographic filesystem stegfs on top of a 2.2.18 kernel,
+while the stegfs patch was against 2.2.14. The patch applied allmost clean,
+but that was easy to fix. 
 
-Is there any chance that /home/gilbertd is a mount point?
-Can you show us your /etc/exports, just incase there is something
-significant there?
-Can you get a tcpdump (-s 1024) of the network traffic while this is
-happening?
+However a real problem (for me) is that the author (whom I can not reach by
+email) build stegfs on top of the ext2 filesystem. There he uses ext2's inode
+structure and at some places reads/writes from ext2 inode's i_version.
+However, this is not there in ext2_fs_i.h. But I am working with source for
+2.2.18 and a lot could have happend since 2.2.14. I would not have expected
+the inode struct to change, though.
 
-NeilBrown
+Why was it taken away? How is compatibility maintained? What could I use 
+instead to fix the problem?
+
+Anyone who is interested in this:
+http://ban.joh.cam.ac.uk/~adm36/StegFS/download.html
+
+the error happens at 
+make[3]: Entering directory `/usr/src/linux/fs/stegfs'
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o inode.o inode.c
+inode.c: In function `stegfs_read_inode':
+inode.c:1376: structure has no member named `i_version'
+inode.c: In function `stegfs_update_inode':
+inode.c:1785: structure has no member named `i_version'
+
+please cc me, I am not on this list.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130147AbRAZVON>; Fri, 26 Jan 2001 16:14:13 -0500
+	id <S130937AbRAZVOC>; Fri, 26 Jan 2001 16:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRAZVOC>; Fri, 26 Jan 2001 16:14:02 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:4814 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S130147AbRAZVNx>; Fri, 26 Jan 2001 16:13:53 -0500
-Date: Fri, 26 Jan 2001 22:13:36 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Stefani Seibold <stefani@seibold.net>
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: patch for 2.4.0 disable printk
-Message-ID: <20010126221336.A9040@khan.acc.umu.se>
-In-Reply-To: <01012621460200.01354@deepthought.seibold.net>
+	id <S130320AbRAZVNw>; Fri, 26 Jan 2001 16:13:52 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:9824
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S130147AbRAZVNm>; Fri, 26 Jan 2001 16:13:42 -0500
+Date: Fri, 26 Jan 2001 22:13:35 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [uPATCH][Probably fucked up] arch/i386/kernel/io_apic.c: missing extern? (241p10)
+Message-ID: <20010126221335.B612@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.4i
-In-Reply-To: <01012621460200.01354@deepthought.seibold.net>; from stefani@seibold.net on Fri, Jan 26, 2001 at 09:46:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 09:46:02PM +0100, Stefani Seibold wrote:
-> Hi Linus,
-> Hi Alan,
-> Hi everybody,
-> 
-> this kernel patch allows to disable all printk messages, by
-> overloading the printk function with a dummy printk macro.
-> 
-> This patch is usefull for embedded systems, where the hardware never
-> changes and normaly no textconsole is attachted nor any user will see
-> the boot messages. Also, it is nice for rescue disks.
-> 
-> On my system this saves about 10% of disk- and ramspace.
-> 
-> For example: My standart desktop kernel is 994834 bytes, without
-> printk messages it is only 899664 bytes long. The basic kernel ram
-> usage is also 10% less than the same kernel with printk messages.
+Hi.
 
-This could probably be a useful hack, but I suggest you move the
-config-option to the "Kernel hacking"-section.
+In arch/i386/kernel we declare nr_ioapics in both io_apic.c and mpparse.c.
+I guess that one of them should be an 'extern' declaration? In the patch
+below I have guessed that it is io_apic.c that is missing it since (AFAICS)
+never assign to nr_ioapic in this file. 
+
+But I am in way over my head here so please be gentle when you point
+out my mistake.
+
+The patch (against 241p10 and ac11):
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+--- linux-ac11-clean/arch/i386/kernel/io_apic.c	Thu Jan 25 20:48:51 2001
++++ linux-ac11/arch/i386/kernel/io_apic.c	Fri Jan 26 21:59:16 2001
+@@ -38,7 +38,7 @@
+ /*
+  * # of IRQ routing registers
+  */
+-int nr_ioapics;
++extern int nr_ioapics;
+ int nr_ioapic_registers[MAX_IO_APICS];
+ 
+ #if CONFIG_SMP
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+Freedom of the press is limited to those who own one.
+                                 - A.J. Liebling 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

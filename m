@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTAaWih>; Fri, 31 Jan 2003 17:38:37 -0500
+	id <S262808AbTAaWhB>; Fri, 31 Jan 2003 17:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbTAaWih>; Fri, 31 Jan 2003 17:38:37 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:26807 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262821AbTAaWif>;
-	Fri, 31 Jan 2003 17:38:35 -0500
-Message-Id: <200301312247.h0VMlxB09932@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OSDL][BENCHMARK] OSDL-DBT-2 - 2.4 vs 2.5 4-way/8-way with vmstat 
-In-Reply-To: Message from Andrew Morton <akpm@digeo.com> 
-   of "Fri, 31 Jan 2003 14:13:50 PST." <20030131141350.370c287a.akpm@digeo.com>
+	id <S262821AbTAaWhB>; Fri, 31 Jan 2003 17:37:01 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:19849 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S262808AbTAaWhB>;
+	Fri, 31 Jan 2003 17:37:01 -0500
+Date: Fri, 31 Jan 2003 14:46:27 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Larry McVoy <lm@bitmover.com>, bitkeeper-announce@bitmover.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Bitkeeper-announce] Re: bkbits.net downtime
+Message-ID: <20030131224627.GA1686@f00f.org>
+References: <200301312114.h0VLEmC11997@work.bitmover.com> <20030131145018.N3904@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 31 Jan 2003 14:47:59 -0800
-From: Cliff White <cliffw@osdl.org>
+Content-Disposition: inline
+In-Reply-To: <20030131145018.N3904@schatzie.adilger.int>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Cliff White <cliffw@osdl.org> wrote:
-> >
-> > http://www.osdl.org/projects/dbt2dev/results/8way/LKML2/data/296/vmstat.out
-> 
-> That's progress, thanks.
-> 
-> It is useful to show the collection interval of vmstat in the reports.  Is
-> that `vmstat 1' or `vmstat 1000'?
+On Fri, Jan 31, 2003 at 02:50:18PM -0700, Andreas Dilger wrote:
 
-vmstat interval is 60 seconds, you are right, we'll fix the report. 
-> 
-> This workload appears to be performing concurrent disk reads and writes.  If
-> these are _really_ happening at the same time (ie: if vmstat hasn't confused
-> me) then it could well be the case that the throughput improvement comes from
-> the I/O scheduler's tendency to service reads more promptly when there is a
-> lot of writeback happening.
+> Actually, with BK it should be possible to have read only clones on
+> multiple servers, should it not?  Not that I'm saying BK should foot
+> the bill to do that, but having read-only clones of the primary
+> kernel trees would avoid most downtime.
 
-Re concurrent IO:
-The offical answer from the dba's: "Well, it tries" 
-There are multiple user proccessess doing queries and commits. 
-There should be a difference between the cached and non-cached runs, as 
-the cached runs should not be doing much writing, except to the log device.
+At the risk of suggesting something insanely complex...
 
-Every 10 minutes in all workloads, the database flushes cache to the 
-datafiles,
-which should produce a noticeable peak in activity. 
+... assuming BK read-only copies do work, why not actually have 'bk
+pull' for hosts which can serve RO copies of the trees?  You
+could use SRV records to locate these transparently to what has been
+deployed now (I'm not really a fan of rfc2782.txt but nonetheless it
+exists and others are using it, so it's a 'standard' of sorts).
 
-These loads suck up all the memory they can, so anything that gives us more 
-free memory should
-be goodness. We think we are also seeing improvements in 2.5 in free memory, 
-but
-we don't know for sure where is best to look and how best to prove it. 
-Any advice?
-> 
-> If so then you can expect to see wild swings in results as you wend your way
-> through recent 2.5 kernels :(.  I'm working on settling that all down. 
-> 2.5.59-mm7 should do well.
-> 
-Hopefully we can get some results for you on that kernel. 
-cliffw
+Presumably doing something like this means you could have many people
+voluntarily providing RO trees for different projects and lessen the
+load on the bitmover infrastructure...
 
+
+
+  --cw

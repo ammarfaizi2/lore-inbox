@@ -1,90 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTEWMHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 08:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTEWMHF
+	id S264037AbTEWM1y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 08:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTEWM1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 08:07:05 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:44689 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S264029AbTEWMHE
+	Fri, 23 May 2003 08:27:54 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:32414 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264037AbTEWM1v
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 08:07:04 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 23 May 2003 13:49:59 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC][2.5] generic_usercopy() function (resend, forgot the patches)
-Message-ID: <20030523114959.GA7081@bytesex.org>
-References: <3ECDEBC5.5030608@convergence.de> <20030523104722.B15725@infradead.org> <3ECDF3B1.8090902@convergence.de>
+	Fri, 23 May 2003 08:27:51 -0400
+Date: Fri, 23 May 2003 18:13:24 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, ivg2@cornell.edu,
+       linux-kernel@vger.kernel.org, greg@kroah.com, tytso@us.ibm.com
+Subject: Re: kernel BUG at include/linux/dcache.h:271!
+Message-ID: <20030523124324.GA1661@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <200305211911.51467.ivg2@cornell.edu> <20030522115702.GA1150@in.ibm.com> <20030522151954.1230ef53.akpm@digeo.com> <20030523062508.GN812@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ECDF3B1.8090902@convergence.de>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030523062508.GN812@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>+generic_usercopy(struct inode *inode, struct file *file,
-
-> >The name is a bit mislead.  maybe ioctl_usercopy?  ioctl_uaccess?
+On Fri, May 23, 2003 at 08:25:08AM +0200, Jens Axboe wrote:
+> On Thu, May 22 2003, Andrew Morton wrote:
+> > Maneesh Soni <maneesh@in.ibm.com> wrote:
+> > >
+> > > ramdisk 
+> > >  - should have separate queues on for each ramdisk
+> > > 
+> > > elevator 
+> > >  - should not re-register already registered queue in elv_register_queue
+> > > 
+> > > sysfs 
+> > >  - should handle kobject with multiple parent kobjects 
+> > 
+> > I can't think of anywhere else where we are likely to want to support
+> > multiple devices from a single queue in this manner, so perhaps the best
+> > solution is to remove the exceptional case: allocate a separate queue for
+> > each ramdisk instance.
+> > 
+> > Jens, do you agree?
 > 
-> These are both fine IMHO.
-
-I'd pick ioctl_usercopy() because the name is much like
-the well-known copy_(from|to)_user functions.
-
-> >Also file/inode should go away from the prototype (and the callback).
-> >Only file is needed because inode == file->f_dentry->d_inode, and even
-> >that one should be just some void *data instead.
+> Completely and utterly agree :)
 > 
-> I only copied the function from videodev.c and renamed it, so please 
-> don't blame me for the way stuff is done there. 8-)
+> -- 
+> Jens Axboe
 
-I've just pass through what the fops->ioctl() function is called with.
-Sure file* is enougth?  If so, why the fops->ioctl() function is called
-with both file and inode?
+Hi,
 
-I think my v4l drivers just need file->priv_data (havn't looked at the
-code through), so some void *data would work equally well for them.
+The following patch provides a separate queue for each ramdisk instance
+and the BUG is not seen now.
 
-> >>+	case _IOC_READ: /* some v4l ioctls are marked wrong ... */
-> >That's crap.  Please move this workaround to v4l not into generic code.
-> 
-> Is it possible to fix the definitons of the v4l ioctls instead without 
-> breaking binary compatiblity?
+Please check whether it is ok or not.
 
-Not trivial.  You'll have to support both old and new (fixed) ioctl
-numbers, otherwise you'll break existing binaries.  Using the new ones
-internally and mapping the old to the new ones somehow might work.
+Thanks,
+Maneesh
 
-> >>+	case _IOC_WRITE:
-> >>+	case (_IOC_WRITE | _IOC_READ):
-> >>+		if (_IOC_SIZE(cmd) <= sizeof(sbuf)) {
-> >>+			parg = sbuf;
-> >>+		} else {
-> >>+			/* too big to allocate from stack */
-> >>+			mbuf = kmalloc(_IOC_SIZE(cmd),GFP_KERNEL);
-> >>+			if (NULL == mbuf)
-> >>+				return -ENOMEM;
-> >>+			parg = mbuf;
-> >
-> >
-> >I wonder whether you should just kmalloc always. 
+ drivers/block/rd.c |   19 +++++++++++++------
+ 1 files changed, 13 insertions(+), 6 deletions(-)
 
-Point of implementing it this way is that (a) the kmalloc()/kfree()
-isn't for free and (b) we shouldn't use plenty of stack memory.  So
-using kmalloc for big chunks and allocate from stack for the small ones
-looks like a good compromise to me.
+diff -puN drivers/block/rd.c~multiqueue_ramdisk drivers/block/rd.c
+--- linux-2.5.69/drivers/block/rd.c~multiqueue_ramdisk	2003-05-23 16:04:38.000000000 +0530
++++ linux-2.5.69-maneesh/drivers/block/rd.c	2003-05-23 17:45:24.000000000 +0530
+@@ -67,6 +67,7 @@
+ 
+ static struct gendisk *rd_disks[NUM_RAMDISKS];
+ static struct block_device *rd_bdev[NUM_RAMDISKS];/* Protected device data */
++static struct request_queue *rd_queue;
+ 
+ /*
+  * Parameters for the boot-loading of the RAM disk.  These are set by
+@@ -308,12 +309,11 @@ static void __exit rd_cleanup (void)
+ 		del_gendisk(rd_disks[i]);
+ 		put_disk(rd_disks[i]);
+ 	}
+-
++	kfree(rd_queue);
+ 	devfs_remove("rd");
+ 	unregister_blkdev(RAMDISK_MAJOR, "ramdisk" );
+ }
+ 
+-static struct request_queue rd_queue;
+ /* This is the registration and initialization section of the RAM disk driver */
+ static int __init rd_init (void)
+ {
+@@ -333,23 +333,28 @@ static int __init rd_init (void)
+ 			goto out;
+ 	}
+ 
++	rd_queue = kmalloc(NUM_RAMDISKS * sizeof(struct request_queue),
++			     GFP_KERNEL);
++	if (!rd_queue)
++		goto out;
++
+ 	if (register_blkdev(RAMDISK_MAJOR, "ramdisk")) {
+ 		err = -EIO;
+-		goto out;
++		goto out_queue;
+ 	}
+ 
+-	blk_queue_make_request(&rd_queue, &rd_make_request);
+-
+ 	devfs_mk_dir("rd");
+ 
+ 	for (i = 0; i < NUM_RAMDISKS; i++) {
+ 		struct gendisk *disk = rd_disks[i];
+ 
++		blk_queue_make_request(&rd_queue[i], &rd_make_request);
++
+ 		/* rd_size is given in kB */
+ 		disk->major = RAMDISK_MAJOR;
+ 		disk->first_minor = i;
+ 		disk->fops = &rd_bd_op;
+-		disk->queue = &rd_queue;
++		disk->queue = &rd_queue[i];
+ 		sprintf(disk->disk_name, "ram%d", i);
+ 		sprintf(disk->devfs_name, "rd/%d", i);
+ 		set_capacity(disk, rd_size * 2);
+@@ -362,6 +367,8 @@ static int __init rd_init (void)
+ 	       NUM_RAMDISKS, rd_size, rd_blocksize);
+ 
+ 	return 0;
++out_queue:
++	kfree(rd_queue);
+ out:
+ 	while (i--)
+ 		put_disk(rd_disks[i]);
 
-> Since this function is always used in user context and the memory is 
-> always freed afterwards, it should be possible to use vmalloc() or a 
-> static buffer (what's the maximum size?) instead.
+_
 
-static buffer?  You are kidding, are you?
-
-  Gerd
+ 
 
 -- 
-sigfault
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

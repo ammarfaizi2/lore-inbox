@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADWIz>; Thu, 4 Jan 2001 17:08:55 -0500
+	id <S130024AbRADWJp>; Thu, 4 Jan 2001 17:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130024AbRADWIp>; Thu, 4 Jan 2001 17:08:45 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:2316 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129324AbRADWI3>;
-	Thu, 4 Jan 2001 17:08:29 -0500
-Date: Thu, 4 Jan 2001 22:04:33 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Andreas Dilger <adilger@enel.ucalgary.ca>,
-        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
-Message-ID: <20010104220433.T1290@redhat.com>
-In-Reply-To: <20010103121609.C1290@redhat.com> <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S131061AbRADWJf>; Thu, 4 Jan 2001 17:09:35 -0500
+Received: from colorfullife.com ([216.156.138.34]:13574 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130024AbRADWJV>;
+	Thu, 4 Jan 2001 17:09:21 -0500
+Message-ID: <3A54F49D.1584571A@colorfullife.com>
+Date: Thu, 04 Jan 2001 23:09:33 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: ilh@sls.lcs.mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jan 03, 2001 at 11:12:48AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Anybody get this working with 2.2.18 or 2.4.0-prerelease?
+> I can't seem to get the on-board 3c905c to work.
 
-On Wed, Jan 03, 2001 at 11:12:48AM -0500, Alexander Viro wrote:
-> 
-> On Wed, 3 Jan 2001, Stephen C. Tweedie wrote:
-> 
-> > Having preallocated blocks allocated immediately is deliberate:
-> > directories grow slowly and remain closed most of the time, so the
-> > normal preallocation regime of only preallocating open files and
-> > discarding preallocation on close just doesn't work.
-> 
-> Erm. For directories we would not have the call of discard_prealloc()
-> on close(2) - they have NULL ->release() anyway and for them it would
-> happen only on ext2_put_inode(), i.e. upon the final dput(). Which would
-> not happen while some descendent would stay in dcache.
-> 
-> IOW, if directory is really going to grow (which normally mean that we
-> are busily writing into files in it or its subdirectories) we will not
-> get discard_prealloc() until it's all over.
+Everything except the NIC works?
 
-The problem with directories is that they don't always grow rapidly
-like that.  Spool directories are perfect examples of directories
-which grow sporadically over a long time, which is why we wanted
-persistent preallocation.
+> I've seen it without an interrupt assignment in
+> /proc/interrupts. With Red Hat's pump (DHCP), it sends 
+> packets out but doesn't seem to see the response. 
 
-The most common instance where that happens to regular files is the
-case of log files, but those tend to be held open even while idle so
-the preallocation persists anyway.
+What do you mean with "without an interrupt assignment"?
+Is there no line for ethx in /proc/interrupt, or the number of
+interrupts remains 0?
 
---Stephen
+what does `lspic -vxx` say about the interrupt number?
+
+Is there a BIOS setting similar to "Pnp aware OS"? For the 2.2 kernel
+that must be "No", 2.2 might run with "Yes", but I'm not sure if the
+850i board is supported.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

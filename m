@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265321AbTABQ6r>; Thu, 2 Jan 2003 11:58:47 -0500
+	id <S265262AbTABQ4j>; Thu, 2 Jan 2003 11:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265351AbTABQ6r>; Thu, 2 Jan 2003 11:58:47 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:7303 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S265321AbTABQ6q>; Thu, 2 Jan 2003 11:58:46 -0500
-Message-ID: <20030102150554.85844.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Luca z" <luca22@mail.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 02 Jan 2003 10:05:54 -0500
-Subject: Re: 2-4-18 crash trying to blank a CD
-X-Originating-Ip: 151.30.212.48
-X-Originating-Server: ws1-8.us4.outblaze.com
+	id <S265321AbTABQ4j>; Thu, 2 Jan 2003 11:56:39 -0500
+Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:28369 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265262AbTABQ4i>; Thu, 2 Jan 2003 11:56:38 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 2 Jan 2003 09:04:57 -0800
+Message-Id: <200301021704.JAA00852@adam.yggdrasil.com>
+To: James.Bottomley@steeleye.com
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+Cc: akpm@digeo.com, david-b@pacbell.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley wrote:
+>adam@yggdrasil.com said:
+>> 	Let me clarify or revise my request.  By "show me or invent an
+>> example" I mean describe a case where this would be used, as in
+>> specific hardware devices that Linux has trouble supporting right now,
+>> or specific programs that can't be run efficiently under Linux, etc.
+>> What device would need to do this kind of allocation?  Why haven't I
+>> seen requests for this from people working on real device drivers?
+>> Where is this going to make the kernel smaller, more reliable, faster,
+>> more maintainable, able to make a computer do something it could do
+>> before under Linux, etc.?
 
-> > Dec 30 16:19:46 koala kernel: scsi : aborting command due to timeout : pid 5233
-> > 8, scsi0, channel 0, id 1, lun 0 Read (10) 00 00 13 80 dd 00 00 01 00 
-> > Dec 30 16:19:46 koala kernel: SCSI host 0 abort (pid 52338) timed out - resetti
-> > ng
-> 
-> How long after you start the command ? Basically the kernel has
-> discovered that the command in question took longer than the timeout
-> cdrecord told it to allow. It is then trying to get the system back.
+>I'm not really the right person to be answering this.  For any transfer you 
+>set up (which encompasses all of the SCSI stuff bar target mode and AENs) you 
+>should have all the resources ready and waiting in the interrupt, and so never 
+>require an in_interrupt allocation.
 
-Thank you for your fast response. The problem was the other ATAPI drive
-on the same IDE cable. It is died now, those were the synthomps.
+>However, for unsolicited transfer requests---the best example I can think of 
+>would be incoming network packets---it does make sense:  You allocate with 
+>GFP_ATOMIC, if the kernel can fulfil the request, fine; if not, you drop the 
+>packet on the floor.  Now, whether there's an unsolicited transfer that's 
+>going to require coherent memory, that I can't say.  It does seem to be 
+>possible, though.
 
-> > and after some time it hard freezes, nothing responds, i can't switch numlock
-> > off and i can't change to console (i am in XWindow).
+	When a network device driver receives a packet, it gives the
+network packet that it pre-allocated to the higher layers with
+netif_rx() and then allocates a net packet with dev_alloc_skb(), but
+that is non-consistent "streaming" memory.  The consistent memory is
+general for the DMA gather-scatter stub(s), which is (are) generally
+reused since the receive for the packet that arrived has been
+completed.
 
-Actually it freezed the time needed to blank the CD, about 20 minutes and then
-it reborn.
-Thank you again.
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Meet Singles
-http://corp.mail.com/lavalife
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

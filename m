@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132683AbRDBLT4>; Mon, 2 Apr 2001 07:19:56 -0400
+	id <S132677AbRDBLgJ>; Mon, 2 Apr 2001 07:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132678AbRDBLTq>; Mon, 2 Apr 2001 07:19:46 -0400
-Received: from ns.caldera.de ([212.34.180.1]:51720 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S132677AbRDBLTd>;
-	Mon, 2 Apr 2001 07:19:33 -0400
-Date: Mon, 2 Apr 2001 13:18:35 +0200
-Message-Id: <200104021118.NAA12450@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: WRohdewald@dplanet.ch (Wolfgang Rohdewald)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 breaks iBCS2: Patch
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010402095543.AEEF0400D2@poboxes.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S132678AbRDBLf7>; Mon, 2 Apr 2001 07:35:59 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:23996 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S132677AbRDBLfx>; Mon, 2 Apr 2001 07:35:53 -0400
+Message-ID: <3AC871ED.2050009@AnteFacto.com>
+Date: Mon, 02 Apr 2001 13:34:53 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.8.1) Gecko/20010326
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: New directions for kernel development
+In-Reply-To: <BFECLKCMHDOFPPMBMMDKAEALCAAA.torvalds@transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010402095543.AEEF0400D2@poboxes.com> you wrote:
-> Btw will iBCS2 ever be ported to the 2.4 kernel? I'm stuck with 2.2
-> until this is ported.
+I actually agree with most these points,
+not.
+Many a true word was said in jest :-)
 
-It has been superceeded by linux-abi.  Look at http://linux-abi.sourceforge.net
-for deatils.
+Padraig.
 
-	Christoph
+Linus Torvalds wrote:
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+> Hi all,
+[snip]
+

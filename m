@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUGHPa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263831AbUGHPaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUGHPa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUGHPa2
+	id S263831AbUGHPaI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUGHPaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:30:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:9962 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264246AbUGHPaX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:30:23 -0400
-Date: Thu, 8 Jul 2004 08:28:13 -0700
-From: Greg KH <greg@kroah.com>
-To: linas@austin.ibm.com
-Cc: Linda Xie <lxiep@us.ibm.com>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] 2.6 PCI Hotplug: receive PPC64 EEH events
-Message-ID: <20040708152813.GB12854@kroah.com>
-References: <20040707155907.G21634@forte.austin.ibm.com> <40EC9A02.1000507@us.ibm.com> <20040707190642.J21634@forte.austin.ibm.com> <20040708060933.GE548@kroah.com> <20040708102425.L21634@forte.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708102425.L21634@forte.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 8 Jul 2004 11:30:08 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:2008 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263831AbUGHPaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 11:30:04 -0400
+Date: Thu, 8 Jul 2004 16:30:07 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+In-Reply-To: <87hdsih7d9.fsf@sanosuke.troilus.org>
+Message-ID: <Pine.HPX.4.58L.0407081601580.28859@punch.eng.cam.ac.uk>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0407080707010.21439@chaos>
+ <Pine.HPX.4.58L.0407081224460.28859@punch.eng.cam.ac.uk>
+ <Pine.LNX.4.53.0407081030320.21855@chaos> <87hdsih7d9.fsf@sanosuke.troilus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 10:24:25AM -0500, linas@austin.ibm.com wrote:
-> On Wed, Jul 07, 2004 at 11:09:33PM -0700, Greg KH wrote:
-> > > pci_scan_child_bus() is currently ...
-> >
-> > It's in the latest -bk tree, right?
-> 
-> yes, it looks correct in the current tree (it wasn't when 
-> I'd previously cloned).    It's possible I'm not using bk correctly;
-> once I've modified a file, 'bk pull' never merges in newer changes 
-> made upstream.  So I have to 'bk clone' all the time, which is a 
-> pain in the neck. What am I doing wrong?
+On Thu, 8 Jul 2004, Michael Poole wrote:
+> Could you please elaborate the rules of English in which "An integer
+> constant expresion with the value 0 [...] is called a null pointer
+> constant" does not mean that 0 is a null pointer?  0 is certainly an
+> integer constant expression with the value 0, so there must be
+> something extraordinarily subtle in the second half of the sentence.
 
-Not checking in your file before pulling.
+He's emphasising the difference between "null pointer constant"  and "null
+pointer", however NULL is defined as "an implementation-defined null
+pointer constant", so any subtle issues regarding 0 apply equally well to
+NULL.
 
-greg k-h
+Someone pointed out that there can be a difference between 0 and NULL when
+passing the value to a function lacking a prototype. There's no guarantee
+that the null pointers of different types have the same representation, so
+passing NULL into such a function without an explicit cast would also be
+incorrect.
+
+Peter

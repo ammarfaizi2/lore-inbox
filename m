@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUHZEmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUHZEod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267558AbUHZEmO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 00:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267578AbUHZEmN
+	id S267507AbUHZEod (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 00:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHZEod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 00:42:13 -0400
-Received: from ozlabs.org ([203.10.76.45]:1739 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267626AbUHZEln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 00:41:43 -0400
-Date: Thu, 26 Aug 2004 14:41:13 +1000
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] reduce size of struct inode on 64bit
-Message-ID: <20040826044113.GA10843@krispykreme>
-Mime-Version: 1.0
+	Thu, 26 Aug 2004 00:44:33 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:19323 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267507AbUHZEoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 00:44:30 -0400
+To: jmerkey@comcast.net
+Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+X-Message-Flag: Warning: May contain useful information
+References: <082620040421.9849.412D655C000690BA000026792200735446970A059D0A0306@comcast.net>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 25 Aug 2004 21:42:28 -0700
+In-Reply-To: <082620040421.9849.412D655C000690BA000026792200735446970A059D0A0306@comcast.net> (jmerkey@comcast.net's
+ message of "Thu, 26 Aug 2004 04:21:48 +0000")
+Message-ID: <52n00ibjd7.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+X-OriginalArrivalTime: 26 Aug 2004 04:42:28.0354 (UTC) FILETIME=[17441620:01C48B27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    jmerkey> That incredibly useful patch for 2.4.X that Andrea wrote
+    jmerkey> that splits the kernel user space into 1GB/2GB/3GB
+    jmerkey> sections I ported to 2.6.8.1 and posted it to:
 
-Reduce the size of struct inode on 64bit architectures by reducing padding.
-This assumes spinlocks are 32bit or less which is the case on most
-architectures.
+    jmerkey> ftp.kernel.org:/pub/linux/kernel/people/jmerkey/patches/linux-2.6.8.1-highmem-split-08-25-04.patch
 
-This reduces inode structs by 24 bytes on ppc64, and on ext2 increases
-the number of inodes in a 4kB slab from 5 to 6.
+This is indeed pretty useful.  A few comments on your version of the patch:
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+ - might as well post a patch this small inline
+ - In Kconfig, what happens if someone turns on highmem?  It seems all
+   the USER_XXX choices depend on NOHIGHMEM.  also, the config option
+   probably needs at least some help text.
+ - the change to vmlinux.ld.S can be dropped from future versions
+   (Linus merged this post-2.6.8)
+ - why create PAGE_OFFSET_RAW in asm-generic, when it depends on
+   i386-only config symbols and is only used in i386?
+ - what's the reason for the odd rewrite of free_one_pgd()? it looks
+   equivalent (and misindented)
 
---
-
- gr_work-anton/include/linux/fs.h |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-diff -puN include/linux/fs.h~reduce_inode include/linux/fs.h
---- gr_work/include/linux/fs.h~reduce_inode	2004-08-25 22:38:03.543805050 -0500
-+++ gr_work-anton/include/linux/fs.h	2004-08-25 22:38:03.556802993 -0500
-@@ -335,14 +335,14 @@ struct address_space {
- 	struct inode		*host;		/* owner: inode, block_device */
- 	struct radix_tree_root	page_tree;	/* radix tree of all pages */
- 	spinlock_t		tree_lock;	/* and spinlock protecting it */
--	unsigned long		nrpages;	/* number of total pages */
--	pgoff_t			writeback_index;/* writeback starts here */
--	struct address_space_operations *a_ops;	/* methods */
--	struct prio_tree_root	i_mmap;		/* tree of private mappings */
- 	unsigned int		i_mmap_writable;/* count VM_SHARED mappings */
-+	struct prio_tree_root	i_mmap;		/* tree of private mappings */
- 	struct list_head	i_mmap_nonlinear;/*list VM_NONLINEAR mappings */
- 	spinlock_t		i_mmap_lock;	/* protect tree, count, list */
- 	atomic_t		truncate_count;	/* Cover race condition with truncate */
-+	unsigned long		nrpages;	/* number of total pages */
-+	pgoff_t			writeback_index;/* writeback starts here */
-+	struct address_space_operations *a_ops;	/* methods */
- 	unsigned long		flags;		/* error bits/gfp mask */
- 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
- 	spinlock_t		private_lock;	/* for use by the address_space */
-@@ -437,6 +437,7 @@ struct inode {
- 	unsigned long		i_version;
- 	unsigned long		i_blocks;
- 	unsigned short          i_bytes;
-+	unsigned char		i_sock;
- 	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
- 	struct semaphore	i_sem;
- 	struct rw_semaphore	i_alloc_sem;
-@@ -456,6 +457,8 @@ struct inode {
- 	struct cdev		*i_cdev;
- 	int			i_cindex;
- 
-+	__u32			i_generation;
-+
- 	unsigned long		i_dnotify_mask; /* Directory notify events */
- 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
- 
-@@ -463,11 +466,9 @@ struct inode {
- 	unsigned long		dirtied_when;	/* jiffies of first dirtying */
- 
- 	unsigned int		i_flags;
--	unsigned char		i_sock;
- 
- 	atomic_t		i_writecount;
- 	void			*i_security;
--	__u32			i_generation;
- 	union {
- 		void		*generic_ip;
- 	} u;
-_
+Thanks,
+  Roland

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264248AbRFIH6d>; Sat, 9 Jun 2001 03:58:33 -0400
+	id <S264079AbRFIIHn>; Sat, 9 Jun 2001 04:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264270AbRFIH6X>; Sat, 9 Jun 2001 03:58:23 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15624 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264248AbRFIH6M>; Sat, 9 Jun 2001 03:58:12 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: temperature standard - global config option?
-Date: 9 Jun 2001 00:57:42 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9fsktm$nhv$1@cesium.transmeta.com>
-In-Reply-To: <20010608140553.C20944@alcove.wittsend.com> <200106082116.f58LGd2497562@saturn.cs.uml.edu> <20010608191600.A12143@alcove.wittsend.com>
+	id <S264389AbRFIIHd>; Sat, 9 Jun 2001 04:07:33 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29201 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264079AbRFIIHZ>;
+	Sat, 9 Jun 2001 04:07:25 -0400
+Date: Sat, 9 Jun 2001 05:07:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Derek Glidden <dglidden@illusionary.com>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <E157kwK-0000U0-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0106090506130.14934-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010608191600.A12143@alcove.wittsend.com>
-By author:    "Michael H. Warfield" <mhw@wittsend.com>
-In newsgroup: linux.dev.kernel
-> 
-> 	Yes, bits are free, sort of...  That's why an extra decimal
-> place is "ok".  Keeping precision within an order of magnitude of
-> accuracy is within the realm of reasonable.  Running out to two decimal
-> places for this particular application is just silly.  If it were for
-> calibrated lab equipment, fine.  But not for CPU temperatures.
-> 
+On Wed, 6 Jun 2001, Alan Cox wrote:
 
-Do you want to bet that that is going to remain the case, or are you
-just assuming the current state of the art will continue to be used
-forever?  That is extremely poor interface design.  Designing
-interfaces is NOT the same thing as judging science fairs and
-presenting data.
+> Similarly its desirable as paging rates increase to ensure that
+> everything gets some running time to make progress even at the cost of
+> interactivity. This is something BSD does that we don't. Arguably
+> nowdays its reasonable to claim you should have enough ram to avoid
+> the total thrash state that BSD handles this way o course
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+During last week's holidays I've started working on some load
+control code for Linux. The basic mechanisms are working, the
+only problem is that it doesn't actually prevent thrashing yet ;)
+
+http://www.surriel.com/patches/2.4/2.4.5-ac5-swapper
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

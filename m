@@ -1,119 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVAFOxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVAFOyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVAFOxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 09:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbVAFOwx
+	id S262847AbVAFOyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 09:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbVAFOyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 09:52:53 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:13514 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262849AbVAFOvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 09:51:13 -0500
-Subject: Re: [PATCH] Enhanced Trusted Path Execution (TPE) Linux Security
-	Module
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       narahimi@us.ibm.com
-In-Reply-To: <20050105212629.K469@build.pdx.osdl.net>
-References: <1104979908.8060.34.camel@localhost.localdomain>
-	 <20050105212629.K469@build.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HJXTnNKRD2mOq06ty1k2"
-Date: Thu, 06 Jan 2005 15:50:40 +0100
-Message-Id: <1105023040.4028.36.camel@localhost.localdomain>
+	Thu, 6 Jan 2005 09:54:21 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:15015 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262847AbVAFOyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 09:54:15 -0500
+Date: Thu, 6 Jan 2005 14:53:56 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>, ak@suse.de,
+       mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com, VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
+Message-ID: <20050106145356.GA18725@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
+	ak@suse.de, mingo@elte.hu, rlrevell@joe-job.com,
+	linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+	gordon.jin@intel.com, alsa-devel@lists.sourceforge.net,
+	greg@kroah.com, VANDROVE@vc.cvut.cz
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106140636.GE25629@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 06, 2005 at 04:06:36PM +0200, Michael S. Tsirkin wrote:
+> > It should be, unless there's some problem.  In maybe a week or so.
+> 
+> To make life bearable for out-of kernel modules, the following patch
+> adds 2 macros so that existance of unlocked_ioctl and ioctl_compat
+> can be easily detected.
 
---=-HJXTnNKRD2mOq06ty1k2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-El mi=E9, 05-01-2005 a las 21:26 -0800, Chris Wright escribi=F3:
-> * Lorenzo Hern=E1ndez Garc=EDa-Hierro (lorenzo@gnu.org) wrote:
-> > This patch adds support for an enhanced Trusted Path Execution (TPE)
-> > subsystem relying in the Linux Security Modules framework.
-> > It's a rewrite of the IBM's TPE LSM module by Niki A. Rahimi, which
-> > adds a couple of improvements and feature enhancements.
->=20
-> Thanks for taking interest and working on this.
-
-NP, this is just for fun and maybe for doing something useful for
-others.
-
-> > The most notable of them are support for per-gid basis access control
-> > lists in runtime and kernel-configuration time (adds support for truste=
-d
-> > and untrusted user groups), procfs interface for statistics and runtime
-> > information and debugging capabilities (for limiting the garbage
-> > messages).
->=20
-> How does per-gid help in this case (esp. the desktop scenario you
-> mentioned)?  And the /proc/tpe file might as well go under sysfs with
-> the rest of the other entries instead of cluttering /proc.
-
-It helps if you are going to trust a whole group of users.
-The procfs entry goes inside proc to make it clearly accessible for the
-immediate users, and /proc, in my opinion, is the legacy interface for
-such type of things (even the input can not be handled as a sysctl as
-grsec's tpe does, because we handle complete acl's and not just one
-trusted group nor user).
-Anyway, if i must do it i will do it, it's not a problem (i think so).
-
-> > The reasons that give sense for including this, are that standard
-> > Vanilla kernels have SELinux and LSM (SELinux already supports TPE
-> > functionalities), but SELinux has less possibilities of being used by
-> > those desktop or just not experienced users who are not already using
-> > their distribution-specific SELinux implementation, even if they want
-> > simple protections for their every-day system use, also, the
-> > availability of some patch-sets with security enhancements (like
-> > grsecurity) distracts users of being using the LSM framework or even
-> > SELinux itself, in addition, this TPE has more features than
-> > grsecurity's one in terms of per-users and groups acl basis, which make
-> > easy the management of the TPE protection.
-> > In short, after a first review you can see that it could worthy to
-> > include this in the kernel sources.
->=20
-> The two biggest issues are 1) it's trivial to bypass:
-> $ /lib/ld.so /untrusted/path/to/program
-> and 2) that there's no (visible/vocal) user base calling for the feature.
-
-About the point 1), yesterday i wrote just a simple regression test
-(that can be found at the same place as the patch) and of course it
-bypasses, this is an old commented problem, Stephen suggested the use of
-the mmap and mprotect hooks, so, i will have a look at them but i'm not
-sure on how to (really) prevent the dirty,old trick.
-About 2), just give it a chance, maybe it's useful and my work is not
-completely nonsense.=20
-
-> So working those issues will help make a better case for mainline
-> inclusion.
-
-OK, i will try to work on them but i can't promise, this is my second
-month playing around with kernel hacking (and almost C programming), so,
-i'll need one or two nights to see how to get it ;-)
-
-Thanks for the comments and your attention,
-Cheers.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-
---=-HJXTnNKRD2mOq06ty1k2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB3VBADcEopW8rLewRAikeAJ9z/Plbyugoro+NPthH/k3bER/+VQCgptu6
-Xg5J/4rxzFVN3yXCsz1IiTo=
-=ZAZk
------END PGP SIGNATURE-----
-
---=-HJXTnNKRD2mOq06ty1k2--
+That's not the way we're making additions.  Get your code merged and
+there won't be any need to detect the feature.
 

@@ -1,90 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVCPMan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVCPMc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVCPMan (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 07:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVCPMan
+	id S262559AbVCPMc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 07:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVCPMc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 07:30:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:52674 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262557AbVCPMab (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 07:30:31 -0500
-Date: Wed, 16 Mar 2005 04:30:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: noahm@csail.mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: OOM problems with 2.6.11-rc4
-Message-Id: <20050316043005.3e2a0ef5.akpm@osdl.org>
-In-Reply-To: <20050316003134.GY7699@opteron.random>
-References: <20050315204413.GF20253@csail.mit.edu>
-	<20050316003134.GY7699@opteron.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 07:32:27 -0500
+Received: from alog0049.analogic.com ([208.224.220.64]:9601 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262559AbVCPMb4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 07:31:56 -0500
+Date: Wed, 16 Mar 2005 07:29:42 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Tom Felker <tfelker2@uiuc.edu>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bogus buffer length check in linux-2.6.11  read()
+In-Reply-To: <200503152056.16287.tfelker2@uiuc.edu>
+Message-ID: <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com>
+References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
+ <200503152056.16287.tfelker2@uiuc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
+On Tue, 15 Mar 2005, Tom Felker wrote:
+
+> On Tuesday 15 March 2005 11:59 am, linux-os wrote:
+>> The attached file shows that the kernel thinks it's doing
+>> something helpful by checking the length of the input
+>> buffer for a read(). It will return "Bad Address" until
+>> the length is 1632 bytes.  Apparently the kernel thinks
+>> 1632 is a good length!
+>>
+>> Did anybody consider the overhead necessary to do this
+>> and the fact that the kernel has no way of knowing if
+>> the pointer to the buffer is valid until it actually
+>> does the write. What was wrong with copy_to_user()?
+>> Why is there the additional bogus check?
 >
-> This below is an untested attempt at bringing dquot a bit more in line
->  with the API, to make the whole thing a bit more consistent,
 
-Like this?  (Noah, don't bother testing this one)
+Again. Assume NOTHING. Execute the code. There is NO data
+being obtained from standard input. The blocking read from
+standard input returns immediately without anybody hitting
+any keys whatsover. No data are generated or read.
 
+This is because somebody wrongly added code that they
+wrongly thought would prevent writing beyond a user's
+allocated space.
 
+This means that the read() is no longer perfectly happy
+to corrupt all of the user's memory which is the defacto
+correct response for a bad buffer as shown. Instead, some
+added "check in software" claims to prevent this, but
+is wrong anyway because it can't possibly know how much
+data area is available.
 
-Fix some bugs spotted by Andrea Arcangeli <andrea@suse.de>
+> I don't think that's what's happening.  The kernel is perfectly happy to read
+> data into any virtual address range that your process can legally write to -
+> this includes any part of the heap and any part of the stack.  The kernel
+> can't check whether writing to the given address would clobber the stack or
+> heap - it's your memory, you manage it.  The kernel's notion of an "invalid
+> address" is very simple, and doesn't include every address that you would
+> consider invalid from a C perspective.
+>
+> So what's probably happening is that your stack is (1632+256) bytes tall,
+> including the buffer you allocated.  (Stack grows downward on i386.)  So
+> ideally you read less than 256 bytes.  If you read more than 256 but less
+> than 1888 bytes, the read would damage other elements on the stack, but it is
+> OK as far as the kernel is concerned.  But if you read more than that, you're
+> asking the kernel to write to an address that is higher than the highest
+> address of the stack (the address of the bottom element), and this address
+> isn't mapped into your process, so you get EINVAL.
+>
+> If you were to type more than 256 (but less than 1888) characters before
+> pressing enter, the read would silently overflow the buffer, thus clobbering
+> the stack, including the return address of main().  So when main tried to
+> return, you'd get a segfault.  Somebody with assembly skills could probably
+> craft a string which, when your program reads it, would take control of the
+> program.
+>
+> -- 
+> Tom Felker, <tcfelker@mtco.com>
+> <http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+>
+> No army can withstand the strength of an idea whose time has come.
+>
 
-- When we added /proc/sys/vm/vfs_cache_pressure we forgot to allow it to
-  tune the dquot and mbcache slabs as well.
-
-- Reduce lock contention in shrink_dqcache_memory().
-
-- Use dqstats.free_dquots in shrink_dqcache_memory(): this is the count of
-  reclaimable objects.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/fs/dquot.c   |   12 +++++-------
- 25-akpm/fs/mbcache.c |    2 +-
- 2 files changed, 6 insertions(+), 8 deletions(-)
-
-diff -puN fs/dquot.c~slab-shrinkers-use-vfs_cache_pressure fs/dquot.c
---- 25/fs/dquot.c~slab-shrinkers-use-vfs_cache_pressure	2005-03-16 04:22:01.000000000 -0800
-+++ 25-akpm/fs/dquot.c	2005-03-16 04:27:09.000000000 -0800
-@@ -505,14 +505,12 @@ static void prune_dqcache(int count)
- 
- static int shrink_dqcache_memory(int nr, unsigned int gfp_mask)
- {
--	int ret;
--
--	spin_lock(&dq_list_lock);
--	if (nr)
-+	if (nr) {
-+		spin_lock(&dq_list_lock);
- 		prune_dqcache(nr);
--	ret = dqstats.allocated_dquots;
--	spin_unlock(&dq_list_lock);
--	return ret;
-+		spin_unlock(&dq_list_lock);
-+	}
-+	return (dqstats.free_dquots / 100) * sysctl_vfs_cache_pressure;
- }
- 
- /*
-diff -puN fs/mbcache.c~slab-shrinkers-use-vfs_cache_pressure fs/mbcache.c
---- 25/fs/mbcache.c~slab-shrinkers-use-vfs_cache_pressure	2005-03-16 04:22:01.000000000 -0800
-+++ 25-akpm/fs/mbcache.c	2005-03-16 04:24:43.000000000 -0800
-@@ -225,7 +225,7 @@ mb_cache_shrink_fn(int nr_to_scan, unsig
- 						   e_lru_list), gfp_mask);
- 	}
- out:
--	return count;
-+	return (count / 100) * sysctl_vfs_cache_pressure;
- }
- 
- 
-_
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

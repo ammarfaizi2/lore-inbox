@@ -1,63 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276591AbRJPS0v>; Tue, 16 Oct 2001 14:26:51 -0400
+	id <S276612AbRJPSiN>; Tue, 16 Oct 2001 14:38:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276612AbRJPS0m>; Tue, 16 Oct 2001 14:26:42 -0400
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:39946 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S276591AbRJPS0d>; Tue, 16 Oct 2001 14:26:33 -0400
-Message-Id: <200110161827.f9GIR5m09115@enterprise.bidmc.harvard.edu>
+	id <S276622AbRJPSiD>; Tue, 16 Oct 2001 14:38:03 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:3850 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S276612AbRJPSiB>;
+	Tue, 16 Oct 2001 14:38:01 -0400
+Date: Tue, 16 Oct 2001 20:38:21 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13pre3aa1
+Message-Id: <20011016203821.54c6a959.skraw@ithnet.com>
+In-Reply-To: <E15tUgv-0000Oh-00@Princess>
+In-Reply-To: <20011016110708.D2380@athlon.random>
+	<E15tTMq-0000E6-00@Princess>
+	<20011016152126.01d58180.skraw@ithnet.com>
+	<E15tUgv-0000Oh-00@Princess>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-X-KMail-Redirect-From: Kristofer T. Karas <ktk@enterprise.bidmc.harvard.edu>
-Subject: Re: [ntp:hackers] Linux feature
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu> (by way of
-	Kristofer T. Karas <ktk@enterprise.bidmc.harvard.edu>)
-Date: Tue, 16 Oct 2001 14:27:05 -0400
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 15 Oct 2001, at 21:16, David L. Mills wrote:
-> > My Linux test box backroom.udel.edu has gone nuts. [...]
-> > However, the step correction requested is only partially implemented
-> > by the Linux kernel, so the frequency correction is in error. [...]
+On Tue, 16 Oct 2001 15:55:27 +0200 Allan Sandfeld <linux@sneulv.dk> wrote:
 
-The slew rate in the kernel (sans PPSkit patch) is small relative to other
-implementations; and the error in the clock circuitry of the typical PC is
-worse than other implementations; and the kernel default is to talk to IDE
-disk drives with interrupts disabled, unless you tell it your IDE drive is
-not so crippled.  All of these compound the timekeeping problem, perhaps to
-the point where the slew rate simply cannot compensate.  If this is the case,
-then you could expect to see a time offset curve that approximates a sawtooth
-wave, with step adjustments occurring on the sharp edge.  I don't have enough
-data  to know if that's what's happening here.
+> On Tuesday 16 October 2001 15:21, you wrote:
+> >
+> > On my system I cannot see anything the like. Look at the execution time.
+> > Ok, I must admit: I do not use brain-dead K stuff (warning: this is a very
+> > personal opinion, don't flame me here :-).
+> >
+> > What does your setup look like? Have you ever tested without K?
+> >
+> No, I havent tried it without K. The system is quite responsive if I only run
 
-I would use the 'adjtimex' program when booting your test platform to ensure
-the tick value is optimal.  Also, issue the command "hdparm -u 1 /dev/hda" if
-your test platform uses an IDE disk; warning: if you have an old vintage box,
-this could cause harm, so read the man page for 'hdparm'.
+> updatedb, and swap around in either text-linux or a simple X setup. When 
+> looking closer at the problem, it is the combination of running kmail with 
+> HUGE folders (think linux-kernel archive), apt-get and anacron that thrashes 
+> the system. All of these have a "relative" low impact when running alone or 
+> two and two.
+> It might be "what you expect" abusing the system like that. But as I said, it
 
-On Tuesday 16 October 2001 02:48 am, Ulrich Windl wrote:
-> I think in standard Linux a running
-> adjtime() continues even after setting the time, and MOD_OFFSET and
-> adjtime() both use the same variable, so don't expect the other to
-> finish once you have used one of both. Is that the problem?
+> is not a problem in 2.4.11-pre1 and 2.4.12-ac3. 
+> 
+> Princess:/home# cat /proc/meminfo
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  196304896 192466944  3837952        0  1327104 33628160
+> Swap: 255426560 64491520 190935040
+> MemTotal:       191704 kB
+> MemFree:          3748 kB
+> MemShared:           0 kB
+> Buffers:          1296 kB
+> Cached:          28196 kB
+> SwapCached:       4644 kB
+> Active:          23344 kB
+> Inactive:        10792 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       191704 kB
+> LowFree:          3748 kB
+> SwapTotal:      249440 kB
+> SwapFree:       186460 kB
+> 
+> Princess:/proc# uname -r
+> 2.4.13-pre2
+> 
+> Princess:/proc# df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/hda3             18975356   9843804   8167652  55% /
+> /dev/hda1                 7318      7241         0 100% /boot
+> 
+>  15:52:56 up  1:03,  2 users,  load average: 3.44, 3.95, 3.16
+> 90 processes: 86 sleeping, 2 running, 2 zombie, 0 stopped
+> CPU states:  23.7% user,   3.4% system,   0.0% nice,  73.0% idle
+> Mem:    191704K total,   188024K used,     3680K free,     2652K buffers
+> Swap:   249440K total,    61744K used,   187696K free,    21268K cached
+> 
+> 
+> Does all this help you?
 
-Uh, unless I'm totally whacked, I should think so.  Once a step adjustment
-has been made, the very data from which a slew adjustment is calculated is no
-longer relevant; continuing to slew will undo the good of the step, worsening
-timekeeping but in the other direction (leading to oscillation if the slew is
-not cancelled or adjusted).
+Hm, from looking at the presented numbers I tend to believe that you are
+driving this system up to the limits. Very possible that ac kernels deal a bit
+better with the situation because of neat swap-management. But very much of
+your mem is really used by appilcations and very few (in comparison) is used by
+page cache, so there is not really much room to play with. If I were to give
+advice, I'd either
+a) buy mem (something like additional 256 MB)
+or
+b) throw away K, and replace by more resource-conscious stuff like wm, or/and
+an acceptable mail-client like sylpheed.
+Both would do quantum-leaps in your configuration, compared to very small
+playground left for vm treatment. Whatever is swapped could be the wrong thing,
+depending on your further actions.
+Try it and compare the time and memory consumption for:
+a) Startup
+b) Exit
+c) Starting your mail-client
+d) updatedb
+with K and with wm (just to mention a nice example)
 
-> > One more example where Linux refuses to conform to
-> > conventional semantics. Game over.
+> Notice this is not worst case, just what I could reproduce by starting 
+> updatedb and checksecurity while answering your mail. Switchtime from desktop
 
-Dave, "Game Over" is not a terribly helpful strategy if the goal is to help
-Linux do the right thing.  Better would be if you would look at the code in
-question and provide some constructive critique.  Ulrich and the people on
-linux-kernel will cheerfully implement needed functionality if the father of
-the mechanism blesses it so.
+> to desktop is 1 minute.
 
-Kris
+Sure. I would say it swaps the hell out. K tends to be the wrong choice in a
+less-than-completely-oversized system. As I said, Riks vm may help you _this
+time_. But possibly only up to the next K release, where everything is again
+slower, bigger and more unstable. Solve the problem, do not maneuver around it.
+
+Just my personal opinion.
+
+Regards,
+Stephan
+
+

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267339AbSLEPte>; Thu, 5 Dec 2002 10:49:34 -0500
+	id <S267341AbSLEQHG>; Thu, 5 Dec 2002 11:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267341AbSLEPte>; Thu, 5 Dec 2002 10:49:34 -0500
-Received: from twinlark.arctic.org ([208.44.199.239]:44685 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S267339AbSLEPtd>; Thu, 5 Dec 2002 10:49:33 -0500
-Date: Thu, 5 Dec 2002 07:57:08 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: linux-kernel@vger.kernel.org
-Subject: HTB unsable? (was Re: 2.4.20-ac1 unstable on dual athlon)
-In-Reply-To: <Pine.LNX.4.50.0212041511240.31554-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.50.0212050752150.26454-100000@twinlark.arctic.org>
-References: <Pine.LNX.4.50.0212041511240.31554-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267342AbSLEQHF>; Thu, 5 Dec 2002 11:07:05 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:39952 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267341AbSLEQHF>; Thu, 5 Dec 2002 11:07:05 -0500
+Message-Id: <200212051614.gB5GEUN02667@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Patrick Mochel <mochel@osdl.org>
+cc: Greg KH <greg@kroah.com>, James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BKPATCH] bus notifiers for the generic device model 
+In-Reply-To: Message from Patrick Mochel <mochel@osdl.org> 
+   of "Wed, 04 Dec 2002 21:50:25 CST." <Pine.LNX.4.33.0212042135420.924-100000@localhost.localdomain> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 05 Dec 2002 10:14:30 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Dec 2002, dean gaudet wrote:
+mochel@osdl.org said:
+> I don't see how your patch adresses chaining; there is only one
+> notifier  per bus type. 
 
-> i've got a dual athlon 1.4GHz / 760MP (tyan 2462) which has been solid on
-> 2.4.19-pre7-ac4, but which reboot twice in 2 days with 2.4.20-ac1.
->
-> i then added "noapic" and the 2.4.20-ac1 kernel lasted all of 5 minutes
-> before rebooting.
->
-> no messages appeared on serial console.
->
-> the kernel configs differed only in that i enabled HTB on the 2.4.20-ac1
-> kernel.  i've now patched the 2.4.19-pre7-ac4 kernel with HTB and i'll run
-> with this for a while.  below is the config i used for 2.4.20-ac1.
+Well, you can do it by storing the pointer privately and hijacking it.  
+However, I think we'd use the existing kernel notifier chain stuff for that if 
+it is valuable.
 
-the system rebooted after 8 hours with the 2.4.19-pre7-ac4 + HTB kernel as
-well... so perhaps the relevent change is the use of HTB.
+> Along they way, we've found several things stand in the way of making
+> this  a smooth transition, so the plan is to stick with the bus
+> intermediaries  until the infrastructure matures enough to tackle
+> those problems more  easily.  
 
-or perhaps my hardware has gone bad.
+I'm happy with keeping probe and remove in the bus specific driver template 
+and having the <bustype>_add_driver install generic device probe and remove 
+routines to handle these cases.  My point was that the docs implied I should 
+use the generic driver probe and remove routines, which I can't without some 
+type of functionality like this.
 
-these reboots without anything logged are frustrating.
+If you envisage us never eliminating the driver specific probe and remove 
+routines, I'm happy.  I'm less happy if there will come a day when I have to 
+revisit all the converted drivers to do the elimination.
 
--dean
+James
+
+

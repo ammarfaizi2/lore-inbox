@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUH1TsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267671AbUH1TvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267708AbUH1TsC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUH1Trt
+	id S267671AbUH1TvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267696AbUH1Ts6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:47:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18304 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267666AbUH1TrK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:47:10 -0400
-Date: Sat, 28 Aug 2004 12:45:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Speed up the cdrw packet writing driver
-Message-Id: <20040828124519.0caf23bf.akpm@osdl.org>
-In-Reply-To: <m3zn4ff6jy.fsf@telia.com>
-References: <m33c2py1m1.fsf@telia.com>
-	<20040823114329.GI2301@suse.de>
-	<m3llg5dein.fsf@telia.com>
-	<20040824202951.GA24280@suse.de>
-	<m3hdqsckoo.fsf@telia.com>
-	<20040825065055.GA2321@suse.de>
-	<m3u0unwplj.fsf@telia.com>
-	<20040828130757.GA2397@suse.de>
-	<m3zn4ff6jy.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 28 Aug 2004 15:48:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25745 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267671AbUH1Tp3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 15:45:29 -0400
+Date: Sat, 28 Aug 2004 20:45:26 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
+       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
+       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040828194526.GL21964@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <20040828182954.GJ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281132480.2295@ppc970.osdl.org> <20040828185613.GK21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408281201290.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> Is this a general VM limitation? Has anyone been able to saturate the
->  write bandwidth of two different block devices at the same time, when
->  they operate at vastly different speeds (45MB/s vs 5MB/s), and when
->  the writes are large enough to cause memory pressure?
+On Sat, Aug 28, 2004 at 12:16:47PM -0700, Linus Torvalds wrote:
+> So if we do support it, I think we should just make the attribute point
+> look exactly like a normal directory, since that path would work as-is. If
+> we don't support it (and at directory points), we might want to just
+> consider it a special root.
+> 
+> NOTE! Anybody who tries to use the "getcwd()" string as a real path is 
+> already broken - you have pathname permissions that may not make it 
+> possible to look up the path you see.
 
-I haven't explicitly tested the pdflush code in a while, and I never tested
-on devices with such disparate bandwidth.  But it _should_ work.
-
-The basic deign of the pdflush writeback path is:
-
-	for ( ; ; ) {
-		for (each superblock) {
-			if (no pdflush thread is working this sb's queue &&
-			    the superblock's backingdev is not congested) {
-				do some writeout, up to congestion, trying
-				to not block on request queue exhaustion
-			}
-		}
-		blk_congestion_wait()
-	}
-
-So it basically spins around all the queues keeping them full in a
-non-blocking manner.
-
-There _are_ times when pdflush will accidentally block.  Say, doing a
-metadata read.  In that case other pdflush instances will keep other queues
-busy.
-
-I tested it up to 12 disks.  Works OK.
+OK, forget getcwd().  What does lookup of .. do from that point?  *Especially*
+for stuff you've got from regular files.  That's the decision that needs to
+be made.

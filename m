@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272630AbTG3B6J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 21:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272647AbTG3B6J
+	id S272628AbTG3CIa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 22:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272640AbTG3CIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 21:58:09 -0400
-Received: from niobium.golden.net ([199.166.210.90]:31964 "EHLO
-	niobium.golden.net") by vger.kernel.org with ESMTP id S272630AbTG3B6H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 21:58:07 -0400
-Date: Tue, 29 Jul 2003 21:57:56 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS weirdness in 2.6.0-test1
-Message-ID: <20030730015756.GA2137@linux-sh.org>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030725151127.GA2947@linux-sh.org> <16161.25923.623651.618044@charged.uio.no> <20030726015007.GA18944@linux-sh.org> <16166.46256.737464.27553@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-In-Reply-To: <16166.46256.737464.27553@charged.uio.no>
-User-Agent: Mutt/1.4.1i
+	Tue, 29 Jul 2003 22:08:30 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:30177 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S272628AbTG3CI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 22:08:29 -0400
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bernardo Innocenti <bernie@develer.com>,
+       Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+References: <200307232046.46990.bernie@develer.com>
+	<200307240007.15377.bernie@develer.com>
+	<20030723222747.GF643@alpha.home.local>
+	<200307242227.16439.bernie@develer.com>
+	<20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
+	<1059518889.6838.19.camel@dhcp22.swansea.linux.org.uk>
+	<20030729230657.GL16051@ip68-0-152-218.tc.ph.cox.net>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 30 Jul 2003 11:07:24 +0900
+In-Reply-To: <20030729230657.GL16051@ip68-0-152-218.tc.ph.cox.net>
+Message-ID: <buoptjsepib.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Rini <trini@kernel.crashing.org> writes:
+> And wouldn't it be nice to have one 'policy enforcing tool' or whatever
+> that you feed it policy_desktop.txt, policy_embedded_in_my_fridge.txt or
+> policy_enterprise.txt ?
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, but not nice enough to justify requiring more memory or whatever
+(of course just that one feature's not going to make much difference,
+but in aggregate, they might).
 
-On Tue, Jul 29, 2003 at 07:53:52PM +0200, Trond Myklebust wrote:
-> > NFS: server cheating in read reply: count 1526 > recvd 1000
-> > NFS: server cheating in read reply: count 4096 > recvd 1000
-> > NFS: server cheating in read reply: count 1583 > recvd 1000
->=20
-> Does the following patch fix it?
->=20
-Yes, this seems to work fine. I've been running this for awhile now
-under relative load, and haven't seen any data corruption.
-
-Thanks!
-
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/JyYj1K+teJFxZ9wRAiAmAJ4gCe973AjdFnr64AeERqxjV2g//QCdF4PO
-6O/ZayTaMSHXR/yYLNOi7Fw=
-=v2Mq
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+-Miles
+-- 
+Run away!  Run away!

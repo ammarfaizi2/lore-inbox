@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUGQSrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUGQSwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUGQSrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 14:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGQSrV
+	id S261378AbUGQSwt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 14:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUGQSwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 14:47:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:11177 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261232AbUGQSrT (ORCPT
+	Sat, 17 Jul 2004 14:52:49 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:23773 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261378AbUGQSwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 14:47:19 -0400
-MIME-Version: 1.0
+	Sat, 17 Jul 2004 14:52:47 -0400
+Date: Sat, 17 Jul 2004 20:52:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Move cache_reap out of timer context
+Message-ID: <20040717185256.GA5815@elte.hu>
+References: <20040714180942.GA18425@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16633.20767.128875.570852@cargo.ozlabs.ibm.com>
-Date: Sun, 18 Jul 2004 02:17:35 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jhf@rivenstone.net (Joseph Fannin), linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: 2.6.7-mm7
-In-Reply-To: <20040709141103.592c4655.akpm@osdl.org>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	<20040709203852.GA1997@samarkand.rivenstone.net>
-	<20040709141103.592c4655.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20040714180942.GA18425@sgi.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
 
-> hm, OK.  It could be that the debug patch is a bit too aggressive, or that
-> ppc got lucky and happens to always be in state TASK_RUNNING when these
-> calls to schedule() occur.
+* Dimitri Sivanich <sivanich@sgi.com> wrote:
+
+> I'm submitting two patches associated with moving cache_reap
+> functionality out of timer context.  Note that these patches do not
+> make any further optimizations to cache_reap at this time.
 > 
-> Maybe this task incorrectly has _TIF_NEED_RESCHED set?
-
-Is CONFIG_PREEMPT enabled?
-
-> Anyway, ppc guys: please take a look at the results from
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/broken-out/detect-too-early-schedule-attempts.patch
-> and check that the kernel really should be calling schedule() at this time
-> and place, let us know?
+> The first patch adds a function similiar to schedule_delayed_work to
+> allow work to be scheduled on another cpu.
 > 
-> Thanks.
+> The second patch makes use of schedule_delayed_work_on to schedule
+> cache_reap to run from keventd.
 > 
-> >  The first one looks like:
-> >
-> > Calibrating delay loop... 1064.96 BogoMIPS
-> > Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-> > Badness in schedule at kernel/sched.c:2153
-> > Call trace:
-> >  [c00099e4] dump_stack+0x18/0x28
-> >  [c0006bac] check_bug_trap+0x84/0xac
-> >  [c0006d38] ProgramCheckException+0x164/0x1a4
-> >  [c0006240] ret_from_except_full+0x0/0x4c
-> >  [c02021bc] schedule+0x24/0x684
-> >  [c0005e80] syscall_exit_work+0x108/0x10c
-> >  [c02e0ad0] proc_root_init+0x14c/0x158
-> >  [00000000] 0x0
-> >  [c02ce5a0] start_kernel+0x158/0x184
-> >  [000035fc] 0x35fc
+> These patches apply to 2.6.8-rc1.
+> 
+> Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
 
-This looks like CONFIG_PREEMPT is enabled and _TIF_NEED_RESCHED is set
-at the end of handling a system call.  AFAICS i386 will also call
-schedule in these circumstances.  Does this mean we shouldn't do
-system calls until the scheduler is running?
+looks good to me and i agree with moving this unbound execution-time
+function out of irq context. I suspect this should see some -mm testing
+first/too?
 
-Paul.
+	Ingo

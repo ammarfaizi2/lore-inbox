@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265357AbUBER34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 12:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUBER34
+	id S266496AbUBERb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 12:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266499AbUBERb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 12:29:56 -0500
-Received: from virgo.i-cable.com ([203.83.111.75]:35724 "HELO
-	virgo.i-cable.com") by vger.kernel.org with SMTP id S265357AbUBER3v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 12:29:51 -0500
-Message-ID: <168301c3ec0e$24698be0$b8560a3d@kyle>
-From: "Kyle" <kyle@southa.com>
-To: "Bas Mevissen" <ml@basmevissen.nl>
-Cc: <linux-kernel@vger.kernel.org>
-References: <164601c3ec06$be8bd5a0$b8560a3d@kyle> <40227C20.80404@basmevissen.nl> <167301c3ec0d$4d8508c0$b8560a3d@kyle> <40227D9D.2070704@basmevissen.nl>
-Subject: Re: ICH5 with 2.6.1 very slow
-Date: Fri, 6 Feb 2004 01:33:17 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 5 Feb 2004 12:31:56 -0500
+Received: from mail.kroah.org ([65.200.24.183]:30668 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266496AbUBERbx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 12:31:53 -0500
+Date: Thu, 5 Feb 2004 09:30:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Azog <slashmail@arnor.net>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Tom Rini <trini@kernel.crashing.org>,
+       Andre Noll <noll@mathematik.tu-darmstadt.de>,
+       Linux-Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] remove USB_SCANNER
+Message-ID: <20040205173032.GI12546@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <slrnc1l72v.9m.noll@localhost.mathematik.tu-darmstadt.de> <20040130230633.GZ6577@stop.crashing.org> <20040202214326.GA574@kroah.com> <20040205003136.GQ26093@fs.tum.de> <20040205011423.GA6092@kroah.com> <1076001658.3225.101.camel@moria.arnor.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076001658.3225.101.camel@moria.arnor.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hdparm /dev/hda
-/dev/hda:
-multcount = 16 (on)
-IO_support = 1 (32-bit)
-unmaskirq = 1 (on)
-using_dma = 1 (on)
-keepsettings = 0 (off)
-readonly = 0 (off)
-readahead = 256 (on)
-geometry = 30401/255/63, sectors = 488397168, start = 0
+On Thu, Feb 05, 2004 at 09:20:58AM -0800, Azog wrote:
+> 
+> So, what are you all using / recommending for user space configuration
+> and control of a USB scanner under 2.6? 
 
-tried with hdparm -a8192 /dev/hda, not much different
-/dev/hdc same as /dev/hda
+xsane should work just fine, using libusb/usbfs.
 
-Kyle
------ Original Message ----- 
-From: "Bas Mevissen" <ml@basmevissen.nl>
-To: "Kyle" <kyle@southa.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, February 06, 2004 1:30 AM
-Subject: Re: ICH5 with 2.6.1 very slow
+As this driver is no longer needed, and the driver is broken and no one
+has stepped up to fix it for over a month now, I'm removing it from the
+kernel tree.
 
+thanks,
 
-> Kyle wrote:
->
-> > Yes they are PATA, I expect something like 40-50MB/s, now my much slower
-> > Celeron 1.3T with 80GB/2M perform better than my ICH5!
-> >
->
-> What does 'hdparm /dev/hdX' say (X=a,b,c...)?
->
-> Bas.
->
->
->
-
+greg k-h

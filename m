@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVCLD5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVCLD72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVCLD5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 22:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVCLD5S
+	id S261411AbVCLD72 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 22:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCLD71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 22:57:18 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:59321 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261851AbVCLD5H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 22:57:07 -0500
-Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino
-	speedstep even more broken than in 2.6.10
-From: Adam Belay <abelay@novell.com>
-To: Felix von Leitner <felix-linuxkernel@fefe.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       cpufreq@ZenII.linux.org.uk
-In-Reply-To: <20050311173517.7fe95918.akpm@osdl.org>
-References: <20050311202122.GA13205@fefe.de>
-	 <20050311173517.7fe95918.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 22:54:18 -0500
-Message-Id: <1110599659.12485.279.camel@localhost.localdomain>
+	Fri, 11 Mar 2005 22:59:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261411AbVCLD7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 22:59:24 -0500
+Date: Fri, 11 Mar 2005 22:58:09 -0500
+From: Dave Jones <davej@redhat.com>
+To: Mike Werner <werner@sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: AGP bogosities
+Message-ID: <20050312035809.GB8654@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Mike Werner <werner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <1110563965.4822.22.camel@eeyore> <200503111004.31311.jbarnes@engr.sgi.com> <200503111927.04807.werner@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503111927.04807.werner@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-11 at 17:35 -0800, Andrew Morton wrote:
-> Felix von Leitner <felix-linuxkernel@fefe.de> wrote:
-> >
-> > Finally Centrino SpeedStep.
-> > I have a "Intel(R) Pentium(R) M processor 1.80GHz" in my notebook.
-> > Linux does not support it.  This architecture has been out there for
-> > months now, and there even was a patch to support it posted here a in
-> > October last year or so.  Linux still does not include it.  Until
-> > 2.6.11-rc4-bk8 or so, the old patched file from back then still worked.
-> > Now it doesn't.  Because some interface changed.  Now what?  Using a
-> > Centrino notebook without CPU throttling is completely out of the
-> > question.  Linux might as well not boot on it at all.
-> 
-> Could you please dig out the old patch, send it?
+On Fri, Mar 11, 2005 at 07:27:04PM -0800, Mike Werner wrote:
+ > On Friday 11 March 2005 10:04, Jesse Barnes wrote:
+ > > On Friday, March 11, 2005 9:59 am, Bjorn Helgaas wrote:
+ > > > > Right, it's a special agp driver, sgi-agp.c.
+ > > >
+ > > > Where's sgi-agp.c?  The HP (ia64-only at the moment) code is hp-agp.c.
+ > > > It does make a fake PCI dev for the bridge because DRM still seemed to
+ > > > want that.
+ > > 
+ > > I think Mike posted it but hasn't submitted it to Dave yet since it needed 
+ > > another change that only just made it into the ia64 tree.
+ > > 
+ > > Jesse
+ > > 
+ > Hi,
+ > sgi-agp.c was sent to Dave about 2 weeks ago. I assumed he was waiting for the TIO header
+ > files to make it from the ia64 tree into Linus's tree.
 
-Why not use ACPI for CPU scaling?
+Actually I just got swamped with other stuff, and dropped the ball.
+I still have the patch in my queue though, so I can push that along.
 
-Thanks,
-Adam
+Are those headers in mainline yet ?
 
+		Dave
 

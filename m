@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUJZXSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbUJZXZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUJZXSq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 19:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUJZXSp
+	id S261538AbUJZXZc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 19:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUJZXZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 19:18:45 -0400
-Received: from router.emperor-sw2.exsbs.net ([208.254.201.37]:56235 "EHLO
-	sade.emperorlinux.com") by vger.kernel.org with ESMTP
-	id S261535AbUJZXSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 19:18:30 -0400
-From: "Lincoln D. Durey" <durey@EmperorLinux.com>
-Organization: EmperorLinux
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Sony S170 + 1GB ram => Yenta: ISA IRQ mask 0x0000
-Date: Tue, 26 Oct 2004 19:18:23 -0400
-User-Agent: KMail/1.5.4
-References: <200410261342.33924.durey@EmperorLinux.com> <Pine.LNX.4.58.0410261117530.28839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410261117530.28839@ppc970.osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, David Hinds <dhinds@sonic.net>,
-       Emperor Research <research@EmperorLinux.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Oct 2004 19:25:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32641 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261538AbUJZXZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 19:25:27 -0400
+Date: Tue, 26 Oct 2004 16:29:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: tharbaugh@lnxi.com
+Cc: klibc@zytor.com, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: chicken/egg between pipefs and initramfs/hotplug
+Message-Id: <20041026162922.0e9f7f88.akpm@osdl.org>
+In-Reply-To: <1098729008.19348.80.camel@tubarao>
+References: <1098729008.19348.80.camel@tubarao>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410261918.23502.durey@EmperorLinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Thayne Harbaugh <tharbaugh@lnxi.com> wrote:
+>
+> It appears that linux/init/main.c:init() has a chicken/egg problem.
+> Apparently modprobe and other programs need a pipe and pipefs isn't
+> mounted until later on in do_basic_setup()/do_initcalls().  That means
+> that linux/fs/pipe.c:static struct vfsmount *pipe_mnt;  isn't
+> initialized and blows up when it's derefernced in
+> linux/fs/pipe.c:get_pipe_inode().
 
-> Anyway, the problem seems to be that you are doing something bad with the
-> user-defined RAM map, for some reason that is not obvious at all. Your
-> bootup clearly shows:
+That's a bit sad.  Does this fix it?
 
-> which means that the BIOS marks the 0x000000003ff70000 - 0000000040000000
-> region properly reserved, but you bave overridden this (incorrectly)
-> with:
-
-OK, we don't do anything explicit to set the RAM map.  so we looked at 
-setup.c to see where that might get triggered, and it gets turned on by 
-"mem=".  But we don't use mem=... (meanwhile someone runs cat 
-/proc/cmdline...)
-
-Where did that mem=1048000K come from ? (not me)
-
-well, it must be the boot loader, as the kernel didn't add that, and we 
-didn't ... looking at the GRUB source ... ARGH: we see in stage2/boot.c in 
-that big comment about boot proto 2.03 that grub is indeed adding kernel 
-command line options, (even to 2.4.24 and 2.6.8).  How can this be?  Their 
-code says it shouldn't, but it does.
-
-This now works fine with GRUB's --no-mem-option added.  Never in all this 
-time have I seen GRUB trigger this piece of code and write mem= in on its 
-own.  Oh well.
-
- -- Lincoln @ EmperorLinux     http://www.EmperorLinux.com
+--- 25/fs/pipe.c~a	Tue Oct 26 16:28:44 2004
++++ 25-akpm/fs/pipe.c	Tue Oct 26 16:28:52 2004
+@@ -718,5 +718,5 @@ static void __exit exit_pipe_fs(void)
+ 	mntput(pipe_mnt);
+ }
+ 
+-module_init(init_pipe_fs)
++fs_initcall(init_pipe_fs)
+ module_exit(exit_pipe_fs)
+_
 

@@ -1,53 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUFDJmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265691AbUFDJpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265684AbUFDJmH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 05:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbUFDJmG
+	id S265691AbUFDJpX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 05:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUFDJpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 05:42:06 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:1477 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265684AbUFDJi4 (ORCPT
+	Fri, 4 Jun 2004 05:45:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30087 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265691AbUFDJnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 05:38:56 -0400
-Date: Fri, 4 Jun 2004 11:39:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040604093958.GE11034@elte.hu>
-References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <40BF201F.2020701@quark.didntduck.org>
+	Fri, 4 Jun 2004 05:43:09 -0400
+Date: Fri, 4 Jun 2004 11:42:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org
+Subject: Re: ide errors in 7-rc1-mm1 and later
+Message-ID: <20040604094256.GM1946@suse.de>
+References: <1085689455.7831.8.camel@localhost> <200405271928.33451.edt@aei.ca> <200406032207.25602.edt@aei.ca> <20040603193107.54308dc9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40BF201F.2020701@quark.didntduck.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040603193107.54308dc9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 03 2004, Andrew Morton wrote:
+> Ed Tomlinson <edt@aei.ca> wrote:
+> >
+> > Hi,
+> > 
+> > I am still getting these ide errors with 7-rc2-mm2.  I  get the errors even
+> > if I mount with barrier=0 (or just defaults).  It would seem that something is 
+> > sending my drive commands it does not understand...  
+> > 
+> > May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> > May 27 18:18:05 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> > 
+> > How can we find out what is wrong?
+> > 
+> > This does not seem to be an error that corrupts the fs, it just slows things 
+> > down when it hits a group of these.  Note that they keep poping up - they
+> > do stop (I still get them hours after booting).
+> 
+> Jens, do we still have the command bytes available when this error hits?
 
-* Brian Gerst <bgerst@didntduck.org> wrote:
+It's not trivial, here's a hack that should dump the offending opcode
+though.
 
-> Wine breaks because of the part of exec-shield that relocates shared
-> libs to low addresses, where the (stripped) Windows binaries expect to
-> be loaded at.  NX stack doesn't affect it.
+--- linux-2.6.7-rc2-mm2/drivers/ide/ide.c~	2004-06-04 11:32:49.286777112 +0200
++++ linux-2.6.7-rc2-mm2/drivers/ide/ide.c	2004-06-04 11:41:47.338870307 +0200
+@@ -438,6 +438,30 @@
+ #endif	/* FANCY_STATUS_DUMPS */
+ 		printk("\n");
+ 	}
++	{
++		struct request *rq;
++		int opcode = 0x100;
++
++		spin_lock(&ide_lock);
++		rq = HWGROUP(drive)->rq;
++		spin_unlock(&ide_lock);
++		if (!rq)
++			goto out;
++		if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
++			char *args = rq->buffer;
++			if (args)
++				opcode = args[0];
++		} else if (rq->flags & REQ_DRIVE_TASKFILE) {
++			ide_task_t *args = rq->special;
++			if (args) {
++				task_struct_t *tf = (task_struct_t *) args->tfRegister;
++				opcode = tf->command;
++			}
++		}
++
++		printk("ide: failed opcode was %x\n", opcode);
++	}
++out:
+ 	local_irq_restore(flags);
+ 	return err;
+ }
 
-I think Wine could get around this by creating a dummy ELF section in
-the Wine binary that covers the first 1GB or so. Wine could still use
-ordinary dynamic libraries - those would go above that 1GB. Then once
-Wine has loaded up it can munmap() that first 1GB.
+-- 
+Jens Axboe
 
-(this would not work if Wine has to dlopen() new libraries after this
-phase - does that happen?)
-
-	Ingo

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278118AbRJRUPx>; Thu, 18 Oct 2001 16:15:53 -0400
+	id <S278124AbRJRURM>; Thu, 18 Oct 2001 16:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278120AbRJRUPd>; Thu, 18 Oct 2001 16:15:33 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11027 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278118AbRJRUPX>;
-	Thu, 18 Oct 2001 16:15:23 -0400
-Date: Thu, 18 Oct 2001 18:15:47 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fork() failing
-In-Reply-To: <Pine.LNX.4.21.0110181647000.12429-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0110181813030.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278121AbRJRURG>; Thu, 18 Oct 2001 16:17:06 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:21754 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S278120AbRJRUQx>; Thu, 18 Oct 2001 16:16:53 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 18 Oct 2001 14:17:14 -0600
+To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+Cc: "'Andrew Morton'" <akpm@zip.com.au>,
+        "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: Re: Kernel performance in reference to 2.4.5pre1
+Message-ID: <20011018141714.M1144@turbolinux.com>
+Mail-Followup-To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>,
+	'Andrew Morton' <akpm@zip.com.au>,
+	"Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>,
+	"HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D57F@xfc01.fc.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D57F@xfc01.fc.hp.com>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Marcelo Tosatti wrote:
-> On Thu, 18 Oct 2001, Rik van Riel wrote:
+Andrew Morton [mailto:akpm@zip.com.au] wrote:
+> SFS is a rather specialised workload, and synchronous NFS exports
+> are not a thing which gets a lot of attention.  It could be one
+> small, hitherto unnoticed change which caused this performance
+> regression.  And it appears that the change occurred between 2.4.5
+> and 2.4.7.
 
-> > Actually, I guess we could define this to be the same point
-> > where we'd end up freeing memory in order to satisfy our
-> > allocation.
->
-> Just remember that if we give __GFP_FAIL a "give me memory if its
-> available" meaning we simply can't use it for stuff like pagecache
-> prefetching --- its _too_ fragile.
+Cary, also note that Andrew did some work with ext3 which can greatly
+improve the performance of synchronous I/O.  Granted, it doesn't fix
+any performance issues in the VM or VFS that may have been introduced,
+but if you are looking for good benchmark numbers, give ext3 a try.
 
-IMHO it makes perfect sense, since at this point, one more
-allocation _will_ push us over the limit and let kswapd go
-to work to free up more memory.
+Use a large journal to avoid journal flushes for sync I/O.  See:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99650624414465&w=4
 
-We just need to make sure that the "wake up kswapd and maybe
-help free memory" point is EXACTLY the same as the __GFP_FAIL
-failure point.
-
-Unless off course I'm overlooking something ... in that case
-I'd appreciate it if you could point it out to me ;)
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

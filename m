@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280474AbRKNLWT>; Wed, 14 Nov 2001 06:22:19 -0500
+	id <S280495AbRKNLsm>; Wed, 14 Nov 2001 06:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280480AbRKNLWJ>; Wed, 14 Nov 2001 06:22:09 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:16140 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S280474AbRKNLWE>; Wed, 14 Nov 2001 06:22:04 -0500
-Date: Wed, 14 Nov 2001 12:22:01 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x has finally made it!
-Message-ID: <20011114122201.A3255@ralph.dt.e-technik.uni-dortmund.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011113171836.A14967@emma1.emma.line.org> <200111140618.fAE6II9122454@saturn.cs.uml.edu>
+	id <S280484AbRKNLsW>; Wed, 14 Nov 2001 06:48:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19587 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280480AbRKNLsS>;
+	Wed, 14 Nov 2001 06:48:18 -0500
+Date: Wed, 14 Nov 2001 03:48:15 -0800 (PST)
+Message-Id: <20011114.034815.35015101.davem@redhat.com>
+To: tip@internetwork-ag.de
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org, linux-ppp@vger.kernel.org
+Subject: Re: [PATCH] ppp_generic causes skput:under: w/ pppoatm andvc-encaps
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BF251C6.23CD1243@internetwork-ag.de>
+In-Reply-To: <3BF190F0.3FB26BD0@internetwork-ag.de>
+	<20011113.210221.55509229.davem@redhat.com>
+	<3BF251C6.23CD1243@internetwork-ag.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <200111140618.fAE6II9122454@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2001, Albert D. Cahalan wrote:
+   From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+   Date: Wed, 14 Nov 2001 12:13:10 +0100
+   
+   that is - of course - a more pppoatm specific fix BUT my concern
+   ist that PPP requires (!) to have at least 2 bytes headroom [when
+   using PPP_FILTER] (which is NOT noted), and isn't it good practice
+   to check for room before claiming it?
 
-> Really, this isn't a big deal. Maybe it wasn't the best choice.
-> The drive probably lies to the OS anyway, so get over it.
+Ignore my comments, I thought this was happening on output.
+Yes, it seems ppp_generic should be verifying the headroom.
 
-The drive lies to the OS exactly when a fast write cache is configured.
-
--- 
-Matthias Andree
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTFVP5x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 11:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTFVP5x
+	id S264447AbTFVQAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 12:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTFVQAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 11:57:53 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:45959 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S264379AbTFVP5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 11:57:53 -0400
-Date: Sun, 22 Jun 2003 18:11:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rick A. Hohensee" <rickh@capaccess.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Now that the 0 Penguin
-Message-ID: <20030622161145.GA501@elf.ucw.cz>
-References: <fc.0010c7b20092aa700010c7b20092aa70.92aa79@capaccess.org> <20030622142122.GB652@zaurus.ucw.cz> <fc.0010c7b2009307600010c7b20092aa70.930763@capaccess.org>
+	Sun, 22 Jun 2003 12:00:47 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:7693 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264535AbTFVQAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 12:00:46 -0400
+Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers  needed
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>
+In-Reply-To: <200306230158.45201.kernel@kolivas.org>
+References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+	 <200306222345.52676.kernel@kolivas.org>
+	 <1056296401.712.9.camel@teapot.felipe-alfaro.com>
+	 <200306230158.45201.kernel@kolivas.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1056298486.601.25.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc.0010c7b2009307600010c7b20092aa70.930763@capaccess.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 22 Jun 2003 18:14:47 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2003-06-22 at 17:58, Con Kolivas wrote:
+> On Mon, 23 Jun 2003 01:40, Felipe Alfaro Solana wrote:
+> > On Sun, 2003-06-22 at 15:45, Con Kolivas wrote:
+> > > > Feel free to test it and comment. Things to look for - the dreaded
+> > > > audio skip under load, and X remaining interactive during sustained use
+> > > > under load.
+> >
+> > I must say this seems to be getting better, but I still prefer Mike's
+> > patches. With the latest sleep decay patch and 2.5.72-mm3, I can still
+> > easily starve XMMS audio for a long time (~5 seconds) on my 700Mhz
+> > Pentium III laptoñ (running RHL9 and KDE 3.1.2) simply by running "while
+> > true; do a=2; done" on a konsole window. Dragging a window fast enough
+> > also starves XMMS for ~5 seconds just until the scheduler adjusts the
+> > priorities.
+> >
+> > XMMS is running with an effective priority of 15 (that's what top says).
+> > "while true; do a=2; done" starts with a priority of 15 (which causes
+> > XMMS to stop playing sound), then it is detected as a CPU hog and every
+> > second its priority is increased by one. When its priority reaches 20,
+> > XMMS starts playing again.
+> >
+> > When I move windows around fast enough. the X server starts with a
+> > priority of 15, starving XMMS. If I keep moving windows around for a
+> > long time, X's priority starts increasing by one, until it reaches 20.
+> > At this moment, it stops disturbing XMMS audio playback.
+> >
+> > I've been playing with scheduler parameters, mainly by reducing
+> > MAX_SLEEP_AVG to (HZ) and STARVATION_LIMIT to (HZ). This seems to help a
+> > lot, although I can still make XMMS skip sound every once a bit.
+> > However, mplayer is a really hard one: I have been unable to make it
+> > skip sound yet.
+> 
+> Yes Mike's patches are definitely better. My patches are designed for the 
+> 2.4-ck patchset which has other workarounds that augment this patch; however 
+> these workarounds are harder to stomach for mainstream kernels (read nasty 
+> hacks). I thought I'd offer the not so nasty sleep_decay patch in 2.5 form 
+> for perusal and comments since people are more willing to test 2.5 patches.
 
-> That's my first post in what, 6 months? A year? How often do you see the
-> string "SuSE" in l-k? Now that the 0 Penguin doesn't work for Microsoft,
-> ya worried?
+Well, it's nice to know.
+I'm willing to test nearly any 2.5 patch. So, I'll gladly test any other
+ideas or patches you (or others) might have.
+Thanks!
 
-Your mail had
-
-* misleading subject.
-
-* massive crossposting to totally unrelated lists.
-
-* was full of advertising.
-
-* was unrelated to kernel.
-
-* was trying to badmouth transmeta.
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,51 +1,57 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUEAEHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUDLFOO (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 12 Apr 2004 01:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUDLFOO
+	id S261939AbUEAEHV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 00:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUEAEHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 01:14:14 -0400
-Received: from utilsc01.rightnowtech.com ([216.136.168.81]:57756 "EHLO
-	utilsc01.rightnowtech.com") by vger.kernel.org with ESMTP
-	id S262770AbUDLFON convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 01:14:13 -0400
+	Sat, 1 May 2004 00:07:21 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:64216 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261939AbUEAEHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 00:07:20 -0400
+From: Lev Makhlis <mlev@despammed.com>
+To: Michael Brown <mebrown@michaels-house.net>
+Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATE 2
+Date: Fri, 30 Apr 2004 23:07:43 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200404302009.49576.mlev@despammed.com> <1083382335.1203.2975.camel@debian>
+In-Reply-To: <1083382335.1203.2975.camel@debian>
 MIME-Version: 1.0
-Message-Id: <407A25A3.000003.09644@websc-utils01.int.rightnowtech.com>
-Date: Sun, 11 Apr 2004 22:14:11 -0700 (PDT)
-To: linux-kernel@vger.kernel.org
-From: support@lantronix.com
-Reply-To: support@lantronix.com
-Subject: Re: illegal...
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405010007.43171.mlev@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 
-Response
----------------------------------------------------------------
-Dear Customer,
+On Friday 30 April 2004 23:32, Michael Brown wrote:
+> On Fri, 2004-04-30 at 19:09, Lev Makhlis wrote:
+> > > +	for (fp = 0xF0000; fp < 0xFFFFF; fp += 16) {
+> > > +		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
+> > > +		if (memcmp(table_eps->anchor, "_SM_", 4)!=0)
+> > > +			continue;
+> >
+> > This is fine for x86 and x86_64, but for ia64 -- don't you need
+> > to get the SMBIOS entry point from the EFI table?
+>
+> Sorry, but I am not familiar with how SMBIOS tables work on IA64
+> architecture, and in fact, the DMI spec says nothing about how it
+> differs on IA64, that I can see.
+>
+> Can you please send me a URL with this information? I have access to
+> some IA64 machines. I will add this code if I have a spec.
+> --
+> Michael
 
-Your question has NOT been submitted.
+The EFI spec is here: http://developer.intel.com/technology/efi/EFI_110.htm
+(SMBIOS pointer is mentioned in section 4.3), but arch/ia64/kernel/efi*.c
+already reads EFI.  You may want to look at dmidecode
+(http://freshmeat.net/projects/dmidecode/), which has code to read
+/proc/efi/systab (which, last I checked, itself required a patch).
+In kernel space, I think you could just use efi.smbios, but I'm not an expert
+on that myself.
 
-To submit a question to Lantronix Support, please click one of the links below:
-Post-Sales:
-http://ltxfaq.custhelp.com/cgi-bin/ltxfaq.cfg/php/enduser/ask.php 
-
-Pre-Sales:
-http://www.lantronix.com/howtobuy/salesinfo/index.html 
-
-You may also call our Technical Support Department during our normal business hours (between 6:00 am 5:30 pm Pacific Time, Monday through Friday) at 800-422-7044 (U.S. & Canada) or 949-453-3990 (worldwide).
-
-You may also find the answer to your questions in our Technical FAQ section of our WebSite at:
-http://www.lantronix.com/support 
-
-To download a manual for your Lantronix product, click the link below:
-http://www.lantronix.com/support/docs/ 
-
-Regards,
-Lantronix Technical Services
----------------------------------------------------------------
-***************************************************************
-
+Lev
 

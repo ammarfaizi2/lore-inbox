@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267256AbSK3OvS>; Sat, 30 Nov 2002 09:51:18 -0500
+	id <S267259AbSK3PSu>; Sat, 30 Nov 2002 10:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbSK3OvS>; Sat, 30 Nov 2002 09:51:18 -0500
-Received: from zork.zork.net ([66.92.188.166]:23999 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S267256AbSK3OvR>;
-	Sat, 30 Nov 2002 09:51:17 -0500
+	id <S267261AbSK3PSu>; Sat, 30 Nov 2002 10:18:50 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:22021 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id <S267259AbSK3PSt>;
+	Sat, 30 Nov 2002 10:18:49 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] Linux 2.4.20-jam0
-References: <20021129233807.GA1610@werewolf.able.es>
-	<3DE80AB6.611F3A8C@digeo.com> <20021130144541.GA2517@werewolf.able.es>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: ARGUMENTUM AD BACULUM, DENIAL OF THE
- ANTECEDENT
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sat, 30 Nov 2002 14:58:42 +0000
-In-Reply-To: <20021130144541.GA2517@werewolf.able.es> ("J.A. Magallon"'s
- message of "Sat, 30 Nov 2002 15:45:41 +0100")
-Message-ID: <6u3cpj3xzx.fsf@zork.zork.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: Re: hda: task_no_data_intr
+References: <34e8.3de88c28.44a4f@gzp1.gzp.hu> <200211301345.gAUDjoiZ000163@darkstar.example.net>
+Organization: Who, me?
+User-Agent: tin/1.5.16-20021120 ("Spiders") (UNIX) (Linux/2.4.20-gzp2 (i686))
+Message-ID: <9f8.3de8d895.50aae@gzp1.gzp.hu>
+Date: Sat, 30 Nov 2002 15:26:13 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  J.A. Magallon quotation:
+* John Bradford <john@grabjohn.com>:
 
-> Thanks, I will add it...
-> BTW, who puts names to options ? Wouldn't be more intuitive to add options
-> like 'ialloc_std' or 'ialloc_orlov' ? Too late to change this ?
+|> Tried with 3 different hard disks, and got the same message
+|> every time.
+| 
+| Are they all of a similar age/capacity?
 
-There isn't exactly a whole lot of contention in the mount-options
-namespace.  And neither orlov not ialloc_orlov is in any way
-"intuitive".  However, orlov is more guessable, to my mind, than
-ialloc_orlov.
+QUANTUM FIREBALL ST4.3A from 1998
+QUANTUM Pioneer SG 1GB from ~1996
+WD Caviar 1GB from ~1998
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+|> Seems like I'm also unable to make ext3 fs on the disks.
+| 
+| What is the exact problem?
+
+mke2fs -j says 'no such file: mke2fs' at building the
+filesystem on the 1GB disks, and I'm able to make ext3 on
+the 4.3 Quantum, but I'm unable to mount it as ext3:
+
+EXT2-fs warning (device ide0(3,1)): ext2_read_super: mounting ext3 filesystem as ext2
+

@@ -1,48 +1,201 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310652AbSCPVcF>; Sat, 16 Mar 2002 16:32:05 -0500
+	id <S310656AbSCPVdy>; Sat, 16 Mar 2002 16:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310681AbSCPVbt>; Sat, 16 Mar 2002 16:31:49 -0500
-Received: from isis.telemach.net ([213.143.65.10]:37380 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S310652AbSCPVb2>;
-	Sat, 16 Mar 2002 16:31:28 -0500
-Date: Sat, 16 Mar 2002 22:32:09 +0100
-From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+	id <S310681AbSCPVdl>; Sat, 16 Mar 2002 16:33:41 -0500
+Received: from smokey.blackcatnetworks.co.uk ([212.135.138.139]:37015 "EHLO
+	smokey.blackcatnetworks.co.uk") by vger.kernel.org with ESMTP
+	id <S310656AbSCPVdV>; Sat, 16 Mar 2002 16:33:21 -0500
+Date: Sat, 16 Mar 2002 21:33:20 +0000
+From: Alex Walker <alex@x3ja.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Compile problems with 2.5.7-pre2
-Message-Id: <20020316223209.6f670304.Gregor.Fajdiga@telemach.net>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Oops in 2.5.7-pre2: ACPI?
+Message-ID: <20020316213319.Q9664@x3ja.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="oLBj+sq0vYjzfsbl"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day,
 
-I get a compile error when trying to compile above mentioned kernel version.
-The message is:
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-acct.c:237: parse error before "do"
-acct.c:380: parse error before "do"
-acct.c:386: parse error before '&' token
-acct.c:388: warning: type defaults to `int' in declaration of `do_acct_process'
-acct.c:388: warning: parameter names (without types) in function declaration
-acct.c:388: conflicting types for `do_acct_process'
-acct.c:299: previous declaration of `do_acct_process'
-acct.c:388: warning: data definition has no type or storage class
-acct.c:389: warning: type defaults to `int' in declaration of `fput'
-acct.c:389: warning: parameter names (without types) in function declaration
-acct.c:389: conflicting types for `fput'
-/usr/src/linux-2.5.5/include/linux/file.h:36: previous declaration of `fput'
-acct.c:389: warning: data definition has no type or storage class
-acct.c:390: parse error before '}' token
-make[2]: *** [acct.o] Error 1
-make[1]: *** [first_rule] Error 2
-make: *** [_dir_kernel] Error 2
+Please CC me in!
 
-My config-file contents are as follows:
+Please find attached details of an oops I get in 2.5.7-pre2 with the
+attached config.
 
+Up to 2.5.7-pre1 ACPI worked fine with System, Processor and Button
+options enabled.
+
+If I disable all the options, leaving just ACPI support, it still oopss.
+
+If I disable ACPI totally, it boots fine.
+If I disable Power management, but leave ACPI and option selected, it
+also oopss.
+
+The only change I have made to the vanilla tree is the changes is
+fs/reiserfs/journal.c that I was told about on here the other day.
+
+Alex
+
+-- 
+      ALEX|X3JA
+   alex@x3ja.co.uk
+    ICQ: 1523424
+MSN: x3ja@hotmail.com
+
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="boot-2.5.7-pre2"
+
+
+LILO 22.2 boot: 2.5.7-p2 console=ttyS0 console=tty0
+Loading 2.5.7-p2...................
+Linux version 2.5.7-pre2 (alex@numbers) (gcc version 2.95.4 20011002 (Debian prerelease)) #4 Sat Mar 16 19:04:35 GMT 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000013fc0000 (usable)
+ BIOS-e820: 0000000013fc0000 - 0000000013ff8000 (ACPI data)
+ BIOS-e820: 0000000013ff8000 - 0000000014000000 (ACPI NVS)
+ BIOS-e820: 00000000ffb80000 - 00000000ffc00000 (reserved)
+ BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+319MB LOWMEM available.
+On node 0 totalpages: 81856
+zone(0): 4096 pages.
+zone(1): 77760 pages.
+zone(2): 0 pages.
+ACPI: RSDP (v000 AMI                        ) @ 0x000ff980
+ACPI: RSDT (v001 GATEWA EA81510A 08193.01059) @ 0x13ff0000
+ACPI: FADT (v001 GATEWA EA81510A 08193.01059) @ 0x13ff1000
+ACPI: BOOT (v001 GATEWA EA81510A 08193.01059) @ 0x13ff4000
+Kernel command line: BOOT_IMAGE=2.5.7-p2 ro root=306 console=ttyS0 console=tty0
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 930.255 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 1854.66 BogoMIPS
+Memory: 321056k/327424k available (1485k kernel code, 5980k reserved, 494k data, 208k init, 0k highmem)
+Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Pentium III (Coppermine) stepping 06
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 930.2694 MHz.
+..... host bus clock speed is 132.8955 MHz.
+cpu: 0, clocks: 1328955, slice: 664477
+CPU0<T0:1328944,T1:664464,D:3,S:664477,C:1328955>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+ACPI: Bus Driver revision 20020308
+ACPI: Core Subsystem revision 20020308
+PCI: PCI BIOS revision 2.10 entry at 0xfda95, last bus=2
+PCI: Using configuration type 1
+ACPI: Interpreter enabled
+kernel BUG at /store/src/linux-2.5.7-pre2/include/linux/device.h:140!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01d8fba>]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: c13e4d80   ecx: 00000004   edx: c02e1c00
+esi: c13e4c25   edi: c13e4de9   ebp: 00000000   esp: c13edf30
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, threadinfo=c13ec000 task=c13ea040)
+Stack: c13e4c00 c13e4de9 c01d334b c13e4d80 c13e4c2c 00000000 c13e4c00 c13edfac 
+       c01d4399 c13e4c00 00000000 00000006 c13edfcc 00000000 c13e4c00 c02a6229 
+       00000005 c13edfa4 c01d2a0b c137d3c0 00000001 00000005 00000000 c033af50 
+Call Trace: [<c01d334b>] [<c01d4399>] [<c01d2a0b>] [<c01c323a>] [<c010506e>] 
+   [<c01055fc>] 
+
+Code: 0f 0b 8c 00 c0 77 2a c0 ff 42 78 8b 43 10 83 c0 08 8b 50 04 
+ <0>Kernel panic: Attempted to kill init!
+ 
+
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ksymoops-2.5.7-pre2"
+
+ksymoops 2.4.3 on i686 2.5.7-pre1.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.5.7-pre2/ (specified)
+     -m /boot/System.map-2.5.7-pre2 (specified)
+
+No modules in ksyms, skipping objects
+cpu: 0, clocks: 1328955, slice: 664477
+kernel BUG at /store/src/linux-2.5.7-pre2/include/linux/device.h:140!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01d8fba>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: c13e4d80   ecx: 00000004   edx: c02e1c00
+esi: c13e4c25   edi: c13e4de9   ebp: 00000000   esp: c13edf30
+ds: 0018   es: 0018   ss: 0018
+Stack: c13e4c00 c13e4de9 c01d334b c13e4d80 c13e4c2c 00000000 c13e4c00 c13edfac 
+       c01d4399 c13e4c00 00000000 00000006 c13edfcc 00000000 c13e4c00 c02a6229 
+       00000005 c13edfa4 c01d2a0b c137d3c0 00000001 00000005 00000000 c033af50 
+Call Trace: [<c01d334b>] [<c01d4399>] [<c01d2a0b>] [<c01c323a>] [<c010506e>] 
+   [<c01055fc>] 
+Code: 0f 0b 8c 00 c0 77 2a c0 ff 42 78 8b 43 10 83 c0 08 8b 50 04 
+
+>>EIP; c01d8fba <device_register+6a/e0>   <=====
+Trace; c01d334a <acpi_device_register+72/7c>
+Trace; c01d4398 <acpi_bus_add+360/39c>
+Trace; c01d2a0a <acpi_ut_release_mutex+7e/88>
+Trace; c01c323a <acpi_install_notify_handler+18a/194>
+Trace; c010506e <init+1e/160>
+Trace; c01055fc <kernel_thread+28/38>
+Code;  c01d8fba <device_register+6a/e0>
+00000000 <_EIP>:
+Code;  c01d8fba <device_register+6a/e0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01d8fbc <device_register+6c/e0>
+   2:   8c 00                     movl   %es,(%eax)
+Code;  c01d8fbe <device_register+6e/e0>
+   4:   c0                        (bad)  
+Code;  c01d8fbe <device_register+6e/e0>
+   5:   77 2a                     ja     31 <_EIP+0x31> c01d8fea <device_register+9a/e0>
+Code;  c01d8fc0 <device_register+70/e0>
+   7:   c0 ff 42                  sar    $0x42,%bh
+Code;  c01d8fc4 <device_register+74/e0>
+   a:   78 8b                     js     ffffff97 <_EIP+0xffffff97> c01d8f50 <device_register+0/e0>
+Code;  c01d8fc6 <device_register+76/e0>
+   c:   43                        inc    %ebx
+Code;  c01d8fc6 <device_register+76/e0>
+   d:   10 83 c0 08 8b 50         adc    %al,0x508b08c0(%ebx)
+Code;  c01d8fcc <device_register+7c/e0>
+  13:   04 00                     add    $0x0,%al
+
+ <0>Kernel panic: Attempted to kill init!
+
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="config-2.5.7-pre2"
 
 #
 # Automatically generated by make menuconfig: don't edit
@@ -62,7 +215,7 @@ CONFIG_EXPERIMENTAL=y
 #
 CONFIG_NET=y
 CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_BSD_PROCESS_ACCT=y
 CONFIG_SYSCTL=y
 
 #
@@ -79,9 +232,9 @@ CONFIG_KMOD=y
 # CONFIG_M486 is not set
 # CONFIG_M586 is not set
 # CONFIG_M586TSC is not set
-CONFIG_M586MMX=y
+# CONFIG_M586MMX is not set
 # CONFIG_M686 is not set
-# CONFIG_MPENTIUMIII is not set
+CONFIG_MPENTIUMIII=y
 # CONFIG_MPENTIUM4 is not set
 # CONFIG_MK6 is not set
 # CONFIG_MK7 is not set
@@ -99,28 +252,28 @@ CONFIG_X86_POPAD_OK=y
 # CONFIG_RWSEM_GENERIC_SPINLOCK is not set
 CONFIG_RWSEM_XCHGADD_ALGORITHM=y
 CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
 CONFIG_X86_TSC=y
 CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_F00F_BUG=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
 # CONFIG_TOSHIBA is not set
 # CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
 CONFIG_NOHIGHMEM=y
 # CONFIG_HIGHMEM4G is not set
 # CONFIG_HIGHMEM4G_HIGHPTE is not set
 # CONFIG_HIGHMEM64G is not set
 # CONFIG_HIGHMEM64G_HIGHPTE is not set
 # CONFIG_MATH_EMULATION is not set
-# CONFIG_MTRR is not set
+CONFIG_MTRR=y
 # CONFIG_SMP is not set
 CONFIG_PREEMPT=y
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 CONFIG_HAVE_DEC_LOCK=y
 
 #
@@ -138,16 +291,28 @@ CONFIG_PCI_GOANY=y
 CONFIG_PCI_BIOS=y
 CONFIG_PCI_DIRECT=y
 CONFIG_PCI_NAMES=y
-CONFIG_EISA=y
+# CONFIG_EISA is not set
 # CONFIG_MCA is not set
-# CONFIG_HOTPLUG is not set
+CONFIG_HOTPLUG=y
+
+#
+# PCMCIA/CardBus support
+#
 # CONFIG_PCMCIA is not set
+# CONFIG_PCMCIA_SA1100 is not set
+
+#
+# PCI Hotplug Support
+#
 # CONFIG_HOTPLUG_PCI is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ is not set
+# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
+# CONFIG_HOTPLUG_PCI_IBM is not set
 CONFIG_KCORE_ELF=y
 # CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=y
+# CONFIG_BINFMT_AOUT is not set
 CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
+# CONFIG_BINFMT_MISC is not set
 CONFIG_PM=y
 # CONFIG_APM is not set
 
@@ -159,39 +324,27 @@ CONFIG_PM=y
 #
 # Parallel port support
 #
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_AMIGA is not set
-# CONFIG_PARPORT_MFC3 is not set
-# CONFIG_PARPORT_ATARI is not set
-# CONFIG_PARPORT_GSC is not set
-# CONFIG_PARPORT_SUNBPP is not set
-# CONFIG_PARPORT_OTHER is not set
-# CONFIG_PARPORT_1284 is not set
+# CONFIG_PARPORT is not set
 
 #
 # Plug and Play configuration
 #
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
+# CONFIG_PNP is not set
+# CONFIG_ISAPNP is not set
+# CONFIG_PNPBIOS is not set
 
 #
 # Block devices
 #
-CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_FD=m
 # CONFIG_BLK_DEV_XD is not set
 # CONFIG_PARIDE is not set
 # CONFIG_BLK_CPQ_DA is not set
 # CONFIG_BLK_CPQ_CISS_DA is not set
 # CONFIG_CISS_SCSI_TAPE is not set
 # CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_LOOP is not set
-# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
 # CONFIG_BLK_DEV_RAM is not set
 # CONFIG_BLK_DEV_INITRD is not set
 
@@ -214,14 +367,15 @@ CONFIG_PACKET=y
 # CONFIG_PACKET_MMAP is not set
 # CONFIG_NETLINK_DEV is not set
 # CONFIG_NETFILTER is not set
-# CONFIG_FILTER is not set
+CONFIG_FILTER=y
 CONFIG_UNIX=y
 CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
+CONFIG_IP_MULTICAST=y
 # CONFIG_IP_ADVANCED_ROUTER is not set
 # CONFIG_IP_PNP is not set
 # CONFIG_NET_IPIP is not set
 # CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
 # CONFIG_ARPD is not set
 # CONFIG_INET_ECN is not set
 # CONFIG_SYN_COOKIES is not set
@@ -266,7 +420,7 @@ CONFIG_BLK_DEV_IDE=y
 # CONFIG_BLK_DEV_HD_IDE is not set
 # CONFIG_BLK_DEV_HD is not set
 CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
+CONFIG_IDEDISK_MULTI_MODE=y
 # CONFIG_IDEDISK_STROKE is not set
 # CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
 # CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
@@ -278,7 +432,7 @@ CONFIG_BLK_DEV_IDEDISK=y
 # CONFIG_BLK_DEV_COMMERIAL is not set
 # CONFIG_BLK_DEV_TIVO is not set
 # CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDECD=m
 # CONFIG_BLK_DEV_IDETAPE is not set
 # CONFIG_BLK_DEV_IDEFLOPPY is not set
 # CONFIG_BLK_DEV_IDESCSI is not set
@@ -367,12 +521,11 @@ CONFIG_NETDEVICES=y
 # ARCnet devices
 #
 # CONFIG_ARCNET is not set
-# CONFIG_DUMMY is not set
+CONFIG_DUMMY=m
 # CONFIG_BONDING is not set
 # CONFIG_EQUALIZER is not set
 # CONFIG_TUN is not set
 # CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
 
 #
 # Ethernet (10 or 100Mbit)
@@ -383,7 +536,16 @@ CONFIG_NET_ETHERNET=y
 # CONFIG_SUNBMAC is not set
 # CONFIG_SUNQE is not set
 # CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
+CONFIG_NET_VENDOR_3COM=y
+# CONFIG_EL1 is not set
+# CONFIG_EL2 is not set
+# CONFIG_ELPLUS is not set
+# CONFIG_EL16 is not set
+# CONFIG_EL3 is not set
+# CONFIG_3C515 is not set
+# CONFIG_ELMC is not set
+# CONFIG_ELMC_II is not set
+CONFIG_VORTEX=m
 # CONFIG_LANCE is not set
 # CONFIG_NET_VENDOR_SMC is not set
 # CONFIG_NET_VENDOR_RACAL is not set
@@ -435,7 +597,14 @@ CONFIG_NE2K_PCI=m
 # CONFIG_FDDI is not set
 # CONFIG_HIPPI is not set
 # CONFIG_PLIP is not set
-# CONFIG_PPP is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+CONFIG_PPP_ASYNC=m
+# CONFIG_PPP_SYNC_TTY is not set
+# CONFIG_PPP_DEFLATE is not set
+# CONFIG_PPP_BSDCOMP is not set
+# CONFIG_PPPOE is not set
 # CONFIG_SLIP is not set
 
 #
@@ -459,7 +628,14 @@ CONFIG_NE2K_PCI=m
 #
 # "Tulip" family network device support
 #
-# CONFIG_NET_TULIP is not set
+CONFIG_NET_TULIP=y
+# CONFIG_DE2104X is not set
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+# CONFIG_DE4X5 is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_DM9102 is not set
 
 #
 # Amateur Radio support
@@ -499,8 +675,8 @@ CONFIG_SOUND_GAMEPORT=y
 # CONFIG_GAMEPORT_PCIGAME is not set
 # CONFIG_GAMEPORT_FM801 is not set
 # CONFIG_GAMEPORT_CS461x is not set
-# CONFIG_SERIO is not set
-# CONFIG_SERIO_SERPORT is not set
+CONFIG_SERIO=y
+CONFIG_SERIO_SERPORT=m
 # CONFIG_INPUT_JOYSTICK is not set
 # CONFIG_JOYSTICK_ANALOG is not set
 # CONFIG_JOYSTICK_A3D is not set
@@ -528,33 +704,37 @@ CONFIG_SOUND_GAMEPORT=y
 CONFIG_VT=y
 CONFIG_VT_CONSOLE=y
 CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
+CONFIG_SERIAL_CONSOLE=y
 # CONFIG_SERIAL_EXTENDED is not set
 # CONFIG_SERIAL_NONSTANDARD is not set
 CONFIG_UNIX98_PTYS=y
 CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
 
 #
 # I2C support
 #
-# CONFIG_I2C is not set
+CONFIG_I2C=m
+# CONFIG_I2C_ALGOBIT is not set
+# CONFIG_I2C_ALGOPCF is not set
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
 
 #
 # Mice
 #
 # CONFIG_BUSMOUSE is not set
-# CONFIG_MOUSE is not set
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
 # CONFIG_QIC02_TAPE is not set
 
 #
 # Watchdog Cards
 #
 # CONFIG_WATCHDOG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_NVRAM is not set
+CONFIG_INTEL_RNG=m
+CONFIG_NVRAM=m
 CONFIG_RTC=y
 # CONFIG_DTLK is not set
 # CONFIG_R3964 is not set
@@ -565,49 +745,92 @@ CONFIG_RTC=y
 # Ftape, the floppy tape device driver
 #
 # CONFIG_FTAPE is not set
-# CONFIG_AGP is not set
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+# CONFIG_AGP_I810 is not set
+# CONFIG_AGP_VIA is not set
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_SWORKS is not set
 # CONFIG_DRM is not set
 # CONFIG_MWAVE is not set
 
 #
 # Multimedia devices
 #
-# CONFIG_VIDEO_DEV is not set
+CONFIG_VIDEO_DEV=y
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_PROC_FS=y
+# CONFIG_I2C_PARPORT is not set
+# CONFIG_VIDEO_PMS is not set
+# CONFIG_VIDEO_CPIA is not set
+# CONFIG_VIDEO_SAA5249 is not set
+# CONFIG_TUNER_3036 is not set
+# CONFIG_VIDEO_STRADIS is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_ZORAN_BUZ is not set
+# CONFIG_VIDEO_ZORAN_DC10 is not set
+# CONFIG_VIDEO_ZORAN_LML33 is not set
+# CONFIG_VIDEO_ZR36120 is not set
+# CONFIG_VIDEO_MEYE is not set
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_CADET is not set
+# CONFIG_RADIO_RTRACK is not set
+# CONFIG_RADIO_RTRACK2 is not set
+# CONFIG_RADIO_AZTECH is not set
+# CONFIG_RADIO_GEMTEK is not set
+# CONFIG_RADIO_GEMTEK_PCI is not set
+# CONFIG_RADIO_MAXIRADIO is not set
+# CONFIG_RADIO_MAESTRO is not set
+# CONFIG_RADIO_MIROPCM20 is not set
+# CONFIG_RADIO_MIROPCM20_RDS is not set
+# CONFIG_RADIO_SF16FMI is not set
+# CONFIG_RADIO_TERRATEC is not set
+# CONFIG_RADIO_TRUST is not set
+# CONFIG_RADIO_TYPHOON is not set
+# CONFIG_RADIO_ZOLTRIX is not set
 
 #
 # File systems
 #
 # CONFIG_QUOTA is not set
 # CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
+# CONFIG_AUTOFS4_FS is not set
 CONFIG_REISERFS_FS=y
 # CONFIG_REISERFS_CHECK is not set
-CONFIG_REISERFS_PROC_INFO=y
+# CONFIG_REISERFS_PROC_INFO is not set
 # CONFIG_ADFS_FS is not set
 # CONFIG_ADFS_FS_RW is not set
 # CONFIG_AFFS_FS is not set
 # CONFIG_HFS_FS is not set
 # CONFIG_BFS_FS is not set
-# CONFIG_EXT3_FS is not set
-# CONFIG_JBD is not set
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
 # CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=m
+CONFIG_FAT_FS=y
 CONFIG_MSDOS_FS=m
 # CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=m
+CONFIG_VFAT_FS=y
 # CONFIG_EFS_FS is not set
 # CONFIG_JFFS_FS is not set
 # CONFIG_JFFS2_FS is not set
 # CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
+# CONFIG_TMPFS is not set
 CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
+CONFIG_ISO9660_FS=m
 CONFIG_JOLIET=y
 # CONFIG_ZISOFS is not set
 # CONFIG_JFS_FS is not set
 # CONFIG_JFS_DEBUG is not set
 # CONFIG_JFS_STATISTICS is not set
-# CONFIG_MINIX_FS is not set
+CONFIG_MINIX_FS=m
 # CONFIG_VXFS_FS is not set
 # CONFIG_NTFS_FS is not set
 # CONFIG_NTFS_RW is not set
@@ -632,15 +855,17 @@ CONFIG_EXT2_FS=y
 #
 # CONFIG_CODA_FS is not set
 # CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFS_V3 is not set
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
 # CONFIG_ROOT_NFS is not set
-# CONFIG_NFSD is not set
-# CONFIG_NFSD_V3 is not set
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
 # CONFIG_NFSD_TCP is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-# CONFIG_SMB_FS is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
 # CONFIG_NCP_FS is not set
 # CONFIG_NCPFS_PACKET_SIGNING is not set
 # CONFIG_NCPFS_IOCTL_LOCKING is not set
@@ -655,20 +880,33 @@ CONFIG_EXT2_FS=y
 #
 # Partition Types
 #
-# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
 CONFIG_MSDOS_PARTITION=y
-# CONFIG_SMB_NLS is not set
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+CONFIG_SMB_NLS=y
 CONFIG_NLS=y
 
 #
 # Native Language Support
 #
 CONFIG_NLS_DEFAULT="iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
+CONFIG_NLS_CODEPAGE_437=y
 # CONFIG_NLS_CODEPAGE_737 is not set
 # CONFIG_NLS_CODEPAGE_775 is not set
 CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
+# CONFIG_NLS_CODEPAGE_852 is not set
 # CONFIG_NLS_CODEPAGE_855 is not set
 # CONFIG_NLS_CODEPAGE_857 is not set
 # CONFIG_NLS_CODEPAGE_860 is not set
@@ -686,8 +924,8 @@ CONFIG_NLS_CODEPAGE_852=m
 # CONFIG_NLS_CODEPAGE_874 is not set
 # CONFIG_NLS_ISO8859_8 is not set
 # CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_1=y
+# CONFIG_NLS_ISO8859_2 is not set
 # CONFIG_NLS_ISO8859_3 is not set
 # CONFIG_NLS_ISO8859_4 is not set
 # CONFIG_NLS_ISO8859_5 is not set
@@ -696,10 +934,10 @@ CONFIG_NLS_ISO8859_2=m
 # CONFIG_NLS_ISO8859_9 is not set
 # CONFIG_NLS_ISO8859_13 is not set
 # CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
+CONFIG_NLS_ISO8859_15=m
 # CONFIG_NLS_KOI8_R is not set
 # CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
+CONFIG_NLS_UTF8=m
 
 #
 # Console drivers
@@ -721,80 +959,32 @@ CONFIG_SOUND=y
 #
 # Open Sound System
 #
-CONFIG_SOUND_PRIME=m
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_MIDI_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_MIDI_VIA82CXXX is not set
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
-# CONFIG_SOUND_AD1816 is not set
-# CONFIG_SOUND_SGALAXY is not set
-# CONFIG_SOUND_ADLIB is not set
-# CONFIG_SOUND_ACI_MIXER is not set
-# CONFIG_SOUND_CS4232 is not set
-# CONFIG_SOUND_SSCAPE is not set
-# CONFIG_SOUND_GUS is not set
-# CONFIG_SOUND_VMIDI is not set
-# CONFIG_SOUND_TRIX is not set
-# CONFIG_SOUND_MSS is not set
-# CONFIG_SOUND_MPU401 is not set
-# CONFIG_SOUND_NM256 is not set
-# CONFIG_SOUND_MAD16 is not set
-# CONFIG_SOUND_PAS is not set
-# CONFIG_PAS_JOYSTICK is not set
-# CONFIG_SOUND_PSS is not set
-CONFIG_SOUND_SB=m
-CONFIG_SOUND_AWE32_SYNTH=m
-# CONFIG_SOUND_WAVEFRONT is not set
-# CONFIG_SOUND_MAUI is not set
-# CONFIG_SOUND_YM3812 is not set
-# CONFIG_SOUND_OPL3SA1 is not set
-# CONFIG_SOUND_OPL3SA2 is not set
-# CONFIG_SOUND_YMFPCI is not set
-# CONFIG_SOUND_YMFPCI_LEGACY is not set
-# CONFIG_SOUND_UART6850 is not set
-# CONFIG_SOUND_AEDSP16 is not set
-# CONFIG_SOUND_TVMIXER is not set
+# CONFIG_SOUND_PRIME is not set
 
 #
 # Advanced Linux Sound Architecture
 #
 CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-# CONFIG_SND_SEQ_DUMMY is not set
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
 CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=m
 # CONFIG_SND_RTCTIMER is not set
 # CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
+CONFIG_SND_DEBUG=y
+# CONFIG_SND_DEBUG_MEMORY is not set
+CONFIG_SND_DEBUG_DETECT=y
 
 #
 # Generic devices
 #
 # CONFIG_SND_DUMMY is not set
-# CONFIG_SND_VIRMIDI is not set
+CONFIG_SND_VIRMIDI=m
 # CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
 
 #
 # ISA devices
@@ -831,7 +1021,7 @@ CONFIG_SND_SEQUENCER_OSS=y
 #
 # CONFIG_SND_ALI5451 is not set
 # CONFIG_SND_CS46XX is not set
-# CONFIG_SND_EMU10K1 is not set
+CONFIG_SND_EMU10K1=m
 # CONFIG_SND_KORG1212 is not set
 # CONFIG_SND_NM256 is not set
 # CONFIG_SND_RME96 is not set
@@ -841,7 +1031,7 @@ CONFIG_SND_SEQUENCER_OSS=y
 # CONFIG_SND_ALS4000 is not set
 # CONFIG_SND_CMIPCI is not set
 # CONFIG_SND_ENS1370 is not set
-CONFIG_SND_ENS1371=y
+# CONFIG_SND_ENS1371 is not set
 # CONFIG_SND_ES1938 is not set
 # CONFIG_SND_ES1968 is not set
 # CONFIG_SND_MAESTRO3 is not set
@@ -855,7 +1045,85 @@ CONFIG_SND_ENS1371=y
 #
 # USB support
 #
-# CONFIG_USB is not set
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_LONG_TIMEOUT is not set
+# CONFIG_USB_EHCI_HCD is not set
+# CONFIG_USB_OHCI_HCD is not set
+CONFIG_USB_UHCI_ALT=y
+# CONFIG_USB_OHCI is not set
+CONFIG_USB_AUDIO=m
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_HP8200e is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+CONFIG_USB_HID=y
+# CONFIG_USB_HIDDEV is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_SCANNER is not set
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_HPUSBSCSI is not set
+# CONFIG_USB_IBMCAM is not set
+CONFIG_USB_OV511=m
+# CONFIG_USB_PWC is not set
+# CONFIG_USB_SE401 is not set
+# CONFIG_USB_STV680 is not set
+# CONFIG_USB_VICAM is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_DABUSB is not set
+# CONFIG_USB_KONICAWC is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_CDCETHER is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_SERIAL_GENERIC is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+# CONFIG_USB_SERIAL_IPAQ is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_KLSI is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_AUERSWALD is not set
 
 #
 # Bluetooth support
@@ -874,12 +1142,8 @@ CONFIG_MAGIC_SYSRQ=y
 #
 # Library routines
 #
-# CONFIG_CRC32 is not set
+CONFIG_CRC32=m
 # CONFIG_ZLIB_INFLATE is not set
 # CONFIG_ZLIB_DEFLATE is not set
 
-
-Please CC me, to Gregor.Fajdiga@guest.arnes.si
-
-Regards,
-Grega Fajdiga
+--oLBj+sq0vYjzfsbl--

@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317926AbSGWDyB>; Mon, 22 Jul 2002 23:54:01 -0400
+	id <S317929AbSGWEBf>; Tue, 23 Jul 2002 00:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317928AbSGWDyB>; Mon, 22 Jul 2002 23:54:01 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:14471 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S317926AbSGWDyA>;
-	Mon, 22 Jul 2002 23:54:00 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207230356.HAA15253@sex.inr.ac.ru>
+	id <S317940AbSGWEBf>; Tue, 23 Jul 2002 00:01:35 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56582 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317929AbSGWEBf>; Tue, 23 Jul 2002 00:01:35 -0400
+Date: Mon, 22 Jul 2002 22:04:37 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: kuznet@ms2.inr.ac.ru
+Cc: "David S. Miller" <davem@redhat.COM>, linux-kernel@vger.kernel.org
 Subject: Re: read/recv sometimes returns EAGAIN instead of EINTR on SMP
-To: davem@redhat.COM (David S. Miller)
-Date: Tue, 23 Jul 2002 07:56:39 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020722.195749.34129476.davem@redhat.com> from "David S. Miller" at Jul 23, 2 07:15:00 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Message-ID: <20020723010437.GC2292@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	kuznet@ms2.inr.ac.ru, "David S. Miller" <davem@redhat.COM>,
+	linux-kernel@vger.kernel.org
+References: <20020722.195749.34129476.davem@redhat.com> <200207230356.HAA15253@sex.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207230356.HAA15253@sex.inr.ac.ru>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Em Tue, Jul 23, 2002 at 07:56:39AM +0400, kuznet@ms2.inr.ac.ru escreveu:
+> Second, I never understood what is the problem with SIGURG.
+> That's why it lives untouched.
 
->    If one process tries to read non-blocking from a tcp socket (domain sockets work
->    fine), and another process sends the reading process signals, then sometimes
->    select() returns with the indication that the socket is readable,
->    but the subsequent read returns EAGAIN - instead of EINTR which
->    would have been the correct return code. This only happenes on SMP
->    machines.
-> 
-> I think EAGAIN is the correct return value.  This behavior has been
-> there since the stone ages of TCP and I remember Alan specifically
-> auditing all of this stuff long ago wrt. POSIX compliance.
+Andi once described it to me and recently he described it to jamesm that
+has done work on this area, but I think he is busy now and haven't had a
+chance to finish, James?
 
-However, I suspect this is bug. At least this behavior is absolutely
-unjustified and unintelligible. If socket has something to read,
-we have no reasons to interrupt.
-
-                /* We need to check signals first, to get correct SIGURG
-                 * handling. FIXME: Need to check this doesnt impact 1003.1g
-                 * and move it down to the bottom of the loop
-                 */
-
-First, the first sentence contradicts to the second. The second is right,
-the first sounds strange.
-
-Second, I never understood what is the problem with SIGURG.
-That's why it lives untouched.
-
-Alexey
+- Arnaldo

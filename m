@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132050AbQLHWzU>; Fri, 8 Dec 2000 17:55:20 -0500
+	id <S131947AbQLHW7a>; Fri, 8 Dec 2000 17:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132049AbQLHWzC>; Fri, 8 Dec 2000 17:55:02 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:3282 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S131803AbQLHWy4>;
-	Fri, 8 Dec 2000 17:54:56 -0500
-Date: Fri, 8 Dec 2000 14:24:27 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S . Miller" <davem@redhat.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: GlobeCom 2000 -> Networking papers
-Message-ID: <20001208142427.C26305@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S131814AbQLHW7U>; Fri, 8 Dec 2000 17:59:20 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:3588 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131947AbQLHW7B>; Fri, 8 Dec 2000 17:59:01 -0500
+Date: Fri, 8 Dec 2000 22:24:55 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: Mark Vojkovich <mvojkovich@valinux.com>, Andi Kleen <ak@suse.de>,
+        Rainer Mager <rmager@vgkk.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11
+In-Reply-To: <20001208161645.A6075@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.30.0012082224110.1210-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Fri, 8 Dec 2000, Jeff V. Merkey wrote:
 
-	I was a GlobeCom 2 weeks ago, and I noticed a few articles
-relevant to Linux networking that you might be interested in
-reading...
+> I have not seen it on UP systems either.  I only see it on SMP systems.
+> After trying very hard last night, I was able to get my 4 x PPro system to
+> do it with 2.4.0-12.  It seems related to loading in some way.  If you
+> have more than two processors, the loading is less since there's more
+> processors, and for whatever reason, it makes it harder to produce
+> whatever race condition is causing it.  I can get it to happen
+> pretty easily on a 2 x PII system.
 
-On ECN :
-------
-	Archan Misra, John Baras & Teunis Ott. Generalised TCP
-Congestion Avoidance and its Effect on Bandwidth Sharing and
-Variability. GlobeCom 2000 (GI2b-2).
-	The response to an ECN by the end node should not be as
-drastic as to a packet loss (divide window by two) to make traffic
-smoother. Can't find paper on the web, but they have the full PhD
-Dissertation :
-		http://www.isr.umd.edu/TechReports/CSHCN/2000/CSHCN_PhD_2000-1/CSHCN_PhD_2000-1.pdf
+Can you reproduce it with bcrl's patch below:
 
-	Srisankar Kunniyur & R. Srikant. A Decentralised Adaptive ECN
-Marking Algorithm.
-	How to optiomally mark packets with ECN in the routers. Good,
-but fail to address cohexistence problem (mix of ECN and non ECN
-traffic). Available at :
-		http://www.comm.csl.uiuc.edu/~kunniyur/research.html
+Index: mm/memory.c
+===================================================================
+RCS file: /net/passion/inst/cvs/linux/mm/memory.c,v
+retrieving revision 1.2.2.40
+diff -u -r1.2.2.40 memory.c
+--- mm/memory.c	2000/12/05 13:33:39	1.2.2.40
++++ mm/memory.c	2000/12/08 22:24:09
+@@ -860,6 +860,7 @@
+ 	/*
+ 	 * Ok, we need to copy. Oh, well..
+ 	 */
++	set_pte(page_table, pte);
+ 	spin_unlock(&mm->page_table_lock);
+ 	new_page = page_cache_alloc();
+ 	if (!new_page)
+@@ -870,6 +871,12 @@
+ 	 * Re-check the pte - we dropped the lock
+ 	 */
+ 	if (pte_same(*page_table, pte)) {
++		/* We are changing the pte, so get rid of the old
++		 * one to avoid races with the hardware, this really
++		 * only affects the accessed bit here.
++		 */
++		pte = ptep_get_and_clear(page_table);
++
+ 		if (PageReserved(old_page))
+ 			++mm->rss;
+ 		break_cow(vma, old_page, new_page, address, page_table);
+@@ -1216,12 +1223,14 @@
+ 		return do_swap_page(mm, vma, address, pte,
+pte_to_swp_entry(entry), write_access);
+ 	}
 
-On Header compression :
----------------------
-	Lars-Ake Larzon, Hans Hannu, Lars-Erik Jonsson, Krister
-Svanbro. Efficient Transport of Voice over IP over Cellular Links.
-	Describes ROCCO, a RTP robust header compression scheme. No
-paper available, but the IETF working group has more recent work :
-		http://www.ietf.org/ids.by.wg/rohc.html
++	entry = ptep_get_and_clear(pte);
+ 	if (write_access) {
+ 		if (!pte_write(entry))
+ 			return do_wp_page(mm, vma, address, pte, entry);
 
-	My personal comment : It would be nice if someone would allow
-the use of those header compression schemes (ROCCO as well as regular
-VJ) over regular Ethernet adapters and not only within PPP.
-	The reason is that IP over IrDA (IrLAN) and IP over BlueTooth
-(PAN) use Ethernet encapsulation, and don't use PPP. 802.11 and other
-wireless LANs use regular Ethernet frames natively. All those
-technologies, due to their low bandwidth, could make good use of it...
+ 		entry = pte_mkdirty(entry);
+ 	}
++
+ 	entry = pte_mkyoung(entry);
+ 	establish_pte(vma, address, pte, entry);
+ 	spin_unlock(&mm->page_table_lock);
 
-	Have fun...
 
-	Jean
+-- 
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

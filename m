@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQLEMDT>; Tue, 5 Dec 2000 07:03:19 -0500
+	id <S129718AbQLEMj1>; Tue, 5 Dec 2000 07:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQLEMDJ>; Tue, 5 Dec 2000 07:03:09 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:36756 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129655AbQLEMCy>; Tue, 5 Dec 2000 07:02:54 -0500
-Date: Tue, 5 Dec 2000 03:31:52 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
+	id <S129878AbQLEMjR>; Tue, 5 Dec 2000 07:39:17 -0500
+Received: from finch-post-10.mail.demon.net ([194.217.242.38]:30473 "EHLO
+	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129718AbQLEMjA>; Tue, 5 Dec 2000 07:39:00 -0500
+Date: Tue, 5 Dec 2000 12:04:10 +0000 (GMT)
+From: Steve Hill <steve@navaho.co.uk>
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: Patch: linux-2.4.0-test12-pre5/fs/udf/inode.c writepage still had extra parameter
-Message-ID: <20001205033152.A6613@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Subject: Serial Console
+Message-ID: <Pine.LNX.4.21.0012051202120.1578-100000@sorbus.navaho>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-	Apparently, in linux 2.4.0-test12-pre5,
-address_space_operations->writepage went from having two parameters
-to just one.  fs/udf/inode.c apparently was overlooked in the patch.
-Here is the one line change.
+I'm building boxes with the console set to /dev/ttyS0.  However, I can't
+guarantee that there will always be a term plugged into the serial
+port.  If there is no term on the port, eventually the buffer fills and
+any processes that write to the console (i.e. init) block.  Is there some
+option somewhere to stop this happening (i.e. either ignoring the
+flow-control or just allowing the buffer to overflow)?
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="writepage.diffs"
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
 
-Index: linux/fs/udf/inode.c
-===================================================================
-RCS file: /usr/src.repository/repository/linux/fs/udf/inode.c,v
-retrieving revision 1.22
-diff -u -r1.22 inode.c
---- linux/fs/udf/inode.c	2000/12/05 10:21:27	1.22
-+++ linux/fs/udf/inode.c	2000/12/05 11:27:54
-@@ -202,7 +202,7 @@
- 	mark_buffer_dirty(bh);
- 	udf_release_data(bh);
- 
--	inode->i_data.a_ops->writepage(NULL, page);
-+	inode->i_data.a_ops->writepage(page);
- 	UnlockPage(page);
- 	page_cache_release(page);
- 
 
---pWyiEgJYm5f9v55/--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

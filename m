@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUAPT4G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUAPT4F
+	id S265802AbUAPT55 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUAPT55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:56:05 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:52989 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S265801AbUAPT4A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:56:00 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Pavel Machek <pavel@suse.cz>, Aaron Lehmann <aaronl@vitelus.com>
-Subject: Re: [PATCH] stronger ELF sanity checks v2
-Date: Fri, 16 Jan 2004 13:55:23 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Eric Youngdale <eric@andante.org>,
-       Eric Youngdale <ericy@cais.com>
-References: <Pine.LNX.4.56.0401130228490.2265@jju_lnx.backbone.dif.dk> <20040113033234.GD2000@vitelus.com> <20040116160841.GA302@elf.ucw.cz>
-In-Reply-To: <20040116160841.GA302@elf.ucw.cz>
-MIME-Version: 1.0
-Message-Id: <04011613552300.04912@tabby>
-Content-Transfer-Encoding: 8bit
+	Fri, 16 Jan 2004 14:57:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61104 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265802AbUAPT4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:56:18 -0500
+Date: Fri, 16 Jan 2004 11:52:37 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "raymond jennings" <highwind747@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] - run-length compaction of block numbers
+Message-Id: <20040116115237.08b65335.rddunlap@osdl.org>
+In-Reply-To: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com>
+References: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 January 2004 10:08, Pavel Machek wrote:
-> Hi!
->
-> > On Tue, Jan 13, 2004 at 02:55:07AM +0100, Jesper Juhl wrote:
-> > > Here's the second version of my patch to add better sanity checks for
-> > > binfmt_elf
-> >
-> > I assume this breaks Brian Raiter's tiny ELF executables[1]. Even
-> > though these binaries are evil hacks that don't comply to standards
-> > and serve no serious purpose, I'm not sure what the purpose of the
-> > sanity checks is. Are there any risks associated with running
-> > non-compliant ELF executables? (Now that I mention it, the
->
-> You get vy ugly behaviour. If you compile executable with huge static
-> data, it will compile okay, link okay, *launch okay* and die on
-> segfault. That's wrong, it should have died on -ENOMEM during exec.
-> 								Pave
+On Fri, 16 Jan 2004 11:38:59 -0800 "raymond jennings" <highwind747@hotmail.com> wrote:
 
-Wouldn't that depend on the overcommit options?
+| Is there any value in creating a new filesystem that encodes long contiguous 
+| blocks as a single block run instead of multiple block numbers?  A long file 
+| may use only a few block runs instead of many block numbers if there is 
+| little fragmentation (usually the case).  Also dynamic allocation of 
+| inodes...etc.  The details are long; anyone interested can e-mail me 
+| privately.
 
-With permitted overcommit -
-	compile/link ok
-	launch - segfault/-ENOMEM if heap/stack + static data UPDATES exceed
-		 system capacity
-Without overcommit:
-	-ENOMEM if the heap/stack can't be initialized; as in even the
-		first page of the heap/stack fails - and before actual
-		launch completes, as the situation you describe.
+You mean line ext3fs + extents, or like JFS or XFS, which use extents?
 
-If static data is just referenced, it should page in, and get dropped.
+--
+~Randy
+Everything is relative.

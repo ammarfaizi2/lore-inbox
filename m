@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267973AbUHUWIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267963AbUHUWMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267973AbUHUWIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 18:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267965AbUHUWIy
+	id S267963AbUHUWMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 18:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267955AbUHUWL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 18:08:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55979 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267955AbUHUWIP (ORCPT
+	Sat, 21 Aug 2004 18:11:59 -0400
+Received: from gate.ebshome.net ([66.92.248.57]:10149 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S267963AbUHUWLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 18:08:15 -0400
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] improve OProfile on many-way systems
-Date: Sat, 21 Aug 2004 18:06:31 -0400
-User-Agent: KMail/1.6.2
-Cc: John Levon <levon@movementarian.org>, oprofile-list@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, anton@samba.org, phil.el@wanadoo.fr
-References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org>
-In-Reply-To: <20040821135833.6b1774a8.akpm@osdl.org>
-MIME-Version: 1.0
+	Sat, 21 Aug 2004 18:11:43 -0400
+Date: Sat, 21 Aug 2004 15:11:41 -0700
+From: Eugene Surovegin <ebs@ebshome.net>
+To: "David N. Welton" <davidw@dedasys.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
+Message-ID: <20040821221140.GA24479@gate.ebshome.net>
+Mail-Followup-To: "David N. Welton" <davidw@dedasys.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1092569364.9539.16.camel@gaston> <873c2n41hs.fsf@dedasys.com> <1092668911.9539.55.camel@gaston> <87llgfdqb7.fsf@dedasys.com> <874qn353on.fsf@dedasys.com> <1092729140.9539.129.camel@gaston> <87k6vytbjo.fsf@dedasys.com> <1092732749.10506.151.camel@gaston> <87isbh6hxd.fsf@dedasys.com> <871xi0te7o.fsf@dedasys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408211806.32566.jbarnes@sgi.com>
+In-Reply-To: <871xi0te7o.fsf@dedasys.com>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, August 21, 2004 4:58 pm, Andrew Morton wrote:
-> John Levon <levon@movementarian.org> wrote:
-> > Anton prompted me to get this patch merged.  It changes the core buffer
-> >  sync algorithm of OProfile to avoid global locks wherever possible.
-> >  Anton tested an earlier version of this patch with some success. I've
-> >  lightly tested this applied against 2.6.8.1-mm3 on my two-way machine.
->
-> OK.  Oprofile isn't the most commonly tested part of the kernel.  Given
-> that you've "lightly tested" it, how do we know when it has had sufficient
-> testing for its swim upstream?
+On Sat, Aug 21, 2004 at 10:42:51PM +0200, David N. Welton wrote:
+> The only thing that jumps out at me is that arch/ppc/mm/cachemap.c
+> 'moved' to arch/ppc/kernel/dma-mapping.c and seems to have changed
+> some as well. 
 
-I'll give it a go on Monday, when I have some more time reserved on the 512p 
-system.  Last time I tried enabling oprofile, the system wouldn't boot or at 
-least got so slow that I didn't want to wait for it (i.e. init started, but 
-the system pretty much hung part way through the init scripts).
+dma-mapping.c is used only on non-coherent cache CPUs (like 4xx, 8xx). 
+It's not relevant and is not even compiled for powermacs.
 
-If it boots, I'll try collecting some info.  John, will the oprofile tools in 
-RHEL3 work with 2.6.8.1-mm3 + these patches?
+Eugene
 
-Thanks,
-Jesse
+

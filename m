@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbTE1V43 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 17:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTE1V43
+	id S261249AbTE1WBO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 18:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTE1WBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 17:56:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25843 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S261222AbTE1V40
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 17:56:26 -0400
-Subject: [announce] procps 2.0.13 with NPTL enhancements
-From: Robert Love <rml@tech9.net>
-To: procps-list@redhat.com
-Cc: linux-kernel@vger.kernel.org, riel@nl.linux.org
-Content-Type: text/plain
-Message-Id: <1054134550.783.102.camel@localhost>
+	Wed, 28 May 2003 18:01:14 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:21651 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261249AbTE1WBM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 18:01:12 -0400
+Date: Thu, 29 May 2003 00:14:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.21-rc4] Fix oom killer braindamage
+Message-ID: <20030528221414.GC667@elf.ucw.cz>
+References: <200305272104.05802.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271611410.9487@freak.distro.conectiva> <200305272118.29554.m.c.p@wolk-project.de> <200305272127.53355.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271631020.9487@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
-Date: 28 May 2003 15:09:10 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0305271631020.9487@freak.distro.conectiva>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am ecstatic beyond words to announce the release of procps version
-2.0.13. This release contains a number of NPTL-related enhancements,
-courtesy of Alexander Larsson of Red Hat. Some of the enhancements are
-generic in nature, and thus also benefit non-NPTL applications.
+Hi!
 
-I encourage everyone to give this a try, especially 2.5 users.
+> > > > Not suitable for -rc. Btw, -rc5 is already at bkbits.net.
+> > BTW: This breaks _nothing_. It _fixes_ an annoying bug! ;)
+> 
+> You're not completly sure it doesnt break nothing. MM/VM can be reallly
+> subtle and nasty at times.
 
-Tarball, RPM packages, and CVS information is available at:
-
-	http://tech9.net/rml/procps/
-	http://sources.redhat.com/procps/
-
-Change Log:
-
-        - fix top(1) -p flag behavior (Lars Holmberg)
-        - do not qsort the process list if we are not sorting  
-          (Alexander Larsson)
-        - read tgid from /proc/pid/status if it exists
-          (Alexander Larsson)
-        - PROC_SKIPTHREADS flag for ps_readproc() to force only 
-          reading of (tgid != pid) to avoid lots of syscalls
-          (Alexander Larsson)
-        - Look at PM->flags in ps_readproc() to avoid reading
-          /proc files files that are not needed. (Alexander Larsson)
-        - Support FILLMEM, FILLCMD, FILLENV, FILLWCHAN for above.
-          (Alexander Larsson)
-        - Fix wchan decoding bug (Alexander Larsson)
-        - Fix for ticks going backward and cleanup (Denis Vlasenko)
-
-And other misc. cleanups and changes.
-
-Enjoy,
-
-	Robert "Why the Hell am I maintaining this" Love
-
+OOM killer is nor subtle nor nasty. And not normally used. That patch
+really should be safe.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbTHSTsE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbTHSTrN
+	id S261396AbTHSTiE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTHSThr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:47:13 -0400
-Received: from web41411.mail.yahoo.com ([66.218.93.77]:58765 "HELO
-	web41411.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261337AbTHSTqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:46:45 -0400
-Message-ID: <20030819194644.26776.qmail@web41411.mail.yahoo.com>
-Date: Tue, 19 Aug 2003 12:46:44 -0700 (PDT)
-From: Rock Gordon <rockgordon@yahoo.com>
-Subject: init consumes 99% cpu, syslog Z
-To: linux-kernel@vger.kernel.org
+	Tue, 19 Aug 2003 15:37:47 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31495 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261385AbTHSTfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:35:51 -0400
+Message-ID: <3F427BE0.2040306@zytor.com>
+Date: Tue, 19 Aug 2003 12:34:56 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv
 MIME-Version: 1.0
+To: David Schwartz <davids@webmaster.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+References: <MDEHLPKNGKAHNMBLJOLKIEMNFDAA.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEMNFDAA.davids@webmaster.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Schwartz wrote:
+>>>	There is no mechanism that is guaranteed to terminate a
+>>>process other than
+>>>sending yourself an exception that is not caught. So in cases
+>>>where you must
+>>>guarantee that your process terminates, it is perfectly
+>>>reasonable to send
+>>>yourself a SIGILL.
+> 
+> 
+>>exit(2)?
+> 
+> 
+> 	And what if a registered 'atexit' function needs to acquire a mutex that is
+> held by a thread that's in an endless loop? What if a standard I/O stream
+> has buffered data for a local disk that failed? I'm looking for a mechanism
+> that is guaranteed to terminate a process immediately.
+> 
 
-I am using linux-2.4.18 (vanilla, from ftp.kernel.org)
-on a RedHat 7.3 release. The filesystem is XFS. When
-doing heavy I/O (16 processes each writing or reading
-between 2 and 5 GB of data to a 2TB XFS filesystem), I
-see wierd unsolvable problems -
+Correction...
 
-Firstly, init all of a sudden starts consuming upwards
-of 99% cpu (the profiler shows that it spends most of
-it's time in the functions
-send_sig_info()/force_sig_info()). Pretty soon (10-15
-seconds or so), syslogd becomes a zombie, with init
-still spinning in R mode.
+_exit(2).
 
-Absolutely nothing in /var/log/messages; and dmesg
-shows nothing either. No visible barfing. And this
-goes on and on.
+There is no exit(2); I was talking about _exit(2) and you're talking
+about exit(3).
 
-Any process I run after this keeps getting segfaults,
-and also ends up becoming a zombie. This problem
-repeats exactly on other identical machines.
+_exit(2) *is* guaranteed to terminate a process immediately.
 
-The system is a dual-CPU 2.4Ghz Dell 2650 machine and
-the problems show up without hyperthreading too. The
-problem shows up without XFS too.
+	-hpa
 
-Any ideas/suggestions?
-
-Thanks and Regards,
-Rocky
-
-PS: I am not on the list.
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbRF0ODO>; Wed, 27 Jun 2001 10:03:14 -0400
+	id <S264964AbRGAEAA>; Sun, 1 Jul 2001 00:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261881AbRF0ODE>; Wed, 27 Jun 2001 10:03:04 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:48844 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261942AbRF0OCy>; Wed, 27 Jun 2001 10:02:54 -0400
-Importance: Normal
-Subject: printk and sk_buffs
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.6  December 14, 2000
-Message-ID: <OFC7C24EA9.6CB8EE5C-ONC1256A78.004CC2C0@de.ibm.com>
-From: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
-Date: Fri, 27 Jul 2001 16:02:40 +0200
-X-MIMETrack: Serialize by Router on d12ml040/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 27/06/2001 16:02:41
+	id <S264967AbRGAD7u>; Sat, 30 Jun 2001 23:59:50 -0400
+Received: from www.microgate.com ([216.30.46.105]:61966 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S264964AbRGAD7g>; Sat, 30 Jun 2001 23:59:36 -0400
+Message-ID: <005e01c101e2$4dac51e0$0201a8c0@mojo>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010630173558.A8066@vger.timpanogas.org>
+Subject: Re: NWFS Submitted to Alan Cox
+Date: Sat, 30 Jun 2001 22:59:59 -0500
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I do not fully unterstandt the printk code, so perhaps somebody can answer
-me this (probably stupid ;) ) question:
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 
-If I do a printk, is there a packet (aka a sk_buff) created? If I turn on
-debugging in my code, I see a huge pile of sk_buffs which are allocated but
-which do not get in touch with the "essential" parts of the network-code
-(e.g. ip_rcv) where I have modified some code. I can't explain it to me
-fully, but perhaps someone of yours has a suitable answer.
+> Novell has recently threatened to try to take my house and
+> assets if I post any more NWFS releases or MANOS.
+[snip]
+> They are wounded in the market ...
 
-Thanks in advance.
+A quote for the lumbering lizards at Novell
+as they stumble torwards the tarpits:
 
-Regards,
-Jens Hoffrichter
+These moments will be lost in time
+like tears in the rain...
+time to die.
+
+--
+Paul Fulghum
+paulkf@microgate.com
+
 

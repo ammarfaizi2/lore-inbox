@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRGEW6l>; Thu, 5 Jul 2001 18:58:41 -0400
+	id <S265405AbRGEXCl>; Thu, 5 Jul 2001 19:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265405AbRGEW6b>; Thu, 5 Jul 2001 18:58:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52750 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265402AbRGEW6T>; Thu, 5 Jul 2001 18:58:19 -0400
-Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Thu, 5 Jul 2001 23:57:11 +0100 (BST)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
-In-Reply-To: <9515.994372983@redhat.com> from "David Woodhouse" at Jul 05, 2001 11:43:03 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265461AbRGEXCc>; Thu, 5 Jul 2001 19:02:32 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57873 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265405AbRGEXCW>;
+	Thu, 5 Jul 2001 19:02:22 -0400
+Date: Thu, 5 Jul 2001 16:00:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: about include/linux/macros.h ...
+Message-ID: <20010705160033.C6136@kroah.com>
+In-Reply-To: <20010705151725.A6021@kroah.com> <XFMail.20010705153503.davidel@xmailserver.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15II3b-0003T8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010705153503.davidel@xmailserver.org>; from davidel@xmailserver.org on Thu, Jul 05, 2001 at 03:35:03PM -0700
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Life's a bitch.
-> cf. get_user(__ret_gu, __val_gu); (on i386)
+On Thu, Jul 05, 2001 at 03:35:03PM -0700, Davide Libenzi wrote:
 > 
-> Time to invent a gcc extension which gives us unique names? :)
+> Ok, let's continue like this :
 
-#define min(a,b) __magic_minfoo(a,b, __var##__LINE__, __var2##__LINE__)
+I know, look at the ones that I am personally responsible for:
 
-#define __magic_minfoo(A,B,C,D) \
-	{ typeof(A) C = (A)  .... }
+./drivers/usb/serial/usbserial.c:#define MAX(a,b)    (((a)>(b))?(a):(b))
+./drivers/usb/serial/io_edgeport.h:  #define MAX(a,b)        (((a)>(b))?(a):(b))
 
+I'm not disagreeing about the current mess, just trying to explain why
+this mess is there.
 
-Alan
-
+greg k-h

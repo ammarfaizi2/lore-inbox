@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbUCKCea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 21:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUCKCea
+	id S261532AbUCKCnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 21:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUCKCnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 21:34:30 -0500
-Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:5248 "EHLO
-	jm.kir.nu") by vger.kernel.org with ESMTP id S262959AbUCKCe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 21:34:28 -0500
-Date: Wed, 10 Mar 2004 18:31:41 -0800
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: James Ketrenos <jketreno@linux.co.intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+	Wed, 10 Mar 2004 21:43:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3977 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261532AbUCKCnW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 21:43:22 -0500
+Message-ID: <404FD23C.4020205@pobox.com>
+Date: Wed, 10 Mar 2004 21:43:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+CC: James Ketrenos <jketreno@linux.co.intel.com>, jt@hpl.hp.com,
        Christoph Hellwig <hch@infradead.org>,
        "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
-Message-ID: <20040311023141.GB3738@jm.kir.nu>
-References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com> <404FA6AC.7040009@linux.co.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404FA6AC.7040009@linux.co.intel.com>
-User-Agent: Mutt/1.5.6i
+References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com> <404FA6AC.7040009@linux.co.intel.com> <20040311023141.GB3738@jm.kir.nu>
+In-Reply-To: <20040311023141.GB3738@jm.kir.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 05:37:16PM -0600, James Ketrenos wrote:
+Jouni Malinen wrote:
+> done, I would hope to get the code merged into the kernel tree either
+> with full Host AP driver or separately. One option would be to first add
+> Host AP driver in its current structure (i.e., everything in
+> drivers/net/wireless) and then create a new directory (net/ieee80211 ?)
+> for generic IEEE 802.11 functionality and start moving things like the
+> IEEE 802.11 encryption into the new location.
 
-> I'd like to get WEP into IPW2100 as soon as possible, and would like to do 
-> so in a way that would make transitioning to a common 802.11 layer seamless 
-> (or at least reasonably isolated).  Any suggestions on how to best do this, 
-> or where we might be able to help, would be much appreciated.
+Given the discussion today, I think my preference is to merge all of 
+HostAP into the wireless-2.6 tree I just created, then submit patches to 
+that which create and populate net/802_11.  Once the work on that is 
+mostly done, it can get merged back into the main upstream tree.
 
-Host AP driver (http://hostap.epitest.fi/) has generic (i.e., hardware
-independent) implementation of IEEE 802.11 encryption for WEP, TKIP, and
-CCMP. These functions take in skb's with IEEE 802.11 headers and
-encrypt/decrypt the frames. I haven't yet taken a look at your IPW2100
-driver, but if you are including IEEE 802.11 headers in the skb's at
-some point, I would assume that the WEP implementation from Host AP
-driver would work fine with that driver, too.
+	Jeff
 
-The current implementation has hardware independent module (hostap.ko)
-that exports the crypto functions for IEEE 802.11 skb's. Both client
-station and AP is supported. (To be honest, there is probably still
-couple of small Prism2-specific parts in hostap.ko, but not in the
-crypto parts and I'm in the process of getting rid of the remaining
-wlan hardware dependent parts).
 
-I'm in the process of replacing the algorithm parts (RC4, Michael MIC,
-AES-CCM) with crypto API versions so that only the IEEE 802.11 specific
-parts (like format of the IV/packet number, replay protection,
-pseudo-header for authentication) remain in the implementation and
-low-level crypto algorithms can share code with other uses. Once this is
-done, I would hope to get the code merged into the kernel tree either
-with full Host AP driver or separately. One option would be to first add
-Host AP driver in its current structure (i.e., everything in
-drivers/net/wireless) and then create a new directory (net/ieee80211 ?)
-for generic IEEE 802.11 functionality and start moving things like the
-IEEE 802.11 encryption into the new location.
 
--- 
-Jouni Malinen                                            PGP id EFC895FA

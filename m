@@ -1,82 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267671AbSLSXdf>; Thu, 19 Dec 2002 18:33:35 -0500
+	id <S267698AbSLSXim>; Thu, 19 Dec 2002 18:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267680AbSLSXde>; Thu, 19 Dec 2002 18:33:34 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28945
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267671AbSLSXda>; Thu, 19 Dec 2002 18:33:30 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E0253D9.94961FB@digeo.com>
-References: <200212200850.32886.conman@kolivas.net>
-	 <1040337982.2519.45.camel@phantasy>  <3E0253D9.94961FB@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040341293.2521.71.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 18:41:34 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267699AbSLSXil>; Thu, 19 Dec 2002 18:38:41 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:14720 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S267698AbSLSXik> convert rfc822-to-8bit; Thu, 19 Dec 2002 18:38:40 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] scheduler tunables with contest - starvation_limit
+Date: Fri, 20 Dec 2002 10:48:50 +1100
+User-Agent: KMail/1.4.3
+Cc: Robert Love <rml@tech9.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212201048.52690.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 18:18, Andrew Morton wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> That is too often not the case.
+osdl, contest, tunable - starvation limit on 2.5.52-mm1
 
-I knew you would say that!
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         39.7    179     0       0       1.10
+sta_lim2000 [3]         39.7    181     0       0       1.10
 
-> I can get the desktop machine working about as comfortably
-> as 2.4.19 with:
-> 
-> # echo 10 > max_timeslice 
-> # echo 0 > prio_bonus_ratio 
-> 
-> ie: disabling all the fancy new scheduler features :(
-> 
-> Dropping max_timeslice fixes the enormous stalls which happen
-> when an interactive process gets incorrectly identified as a
-> cpu hog.  (OK, that's expected)
+cacherun:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         36.7    194     0       0       1.01
+sta_lim2000 [3]         37.0    194     0       0       1.02
 
-Curious why you need to drop max_timeslice, too.  Did you do that
-_before_ changing the interactivity estimator?  Dropping max_timeslice
-closer to min_timeslice would do away with a lot of effect of the
-interactivity estimator, since bonuses and penalties would be less
-apparent.
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         48.2    146     10      47      1.33
+sta_lim2000 [3]         45.6    157     7       37      1.26
 
-There would still be (a) the improved priority given to interactive
-processes and (b) the reinsertion into the active away done to
-interactive processes.
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         57.9    158     1       10      1.60
+sta_lim2000 [3]         54.3    153     1       10      1.50
 
-Setting prio_bonus_ratio to zero would finish off (a) and (b).  It would
-also accomplish the effect of setting max_timeslice low, without
-actually doing it.
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         72.9    125     1       8       2.01
+sta_lim2000 [3]         67.6    130     1       9       1.87
 
-Thus, can you try putting max_timeslice back to 300?  You would never
-actually use that range, mind you, except for niced/real-time
-processes.  But at least then the default timeslice would be a saner
-100ms.
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         89.6    98      12      19      2.47
+sta_lim2000 [3]         79.9    104     11      19      2.21
 
-> I don't expect the interactivity/cpuhog estimator will ever work
-> properly on the desktop, frankly.  There will always be failure
-> cases when a sudden swing in load causes it to make the wrong
-> decision.
-> 
-> So it appears that to stem my stream of complaints we need to
-> merge scheduler_tunables.patch and edit my /etc/rc.local.
+io_other:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         68.1    124     8       19      1.88
+sta_lim2000 [3]         68.5    116     9       20      1.89
 
-I am glad sched-tune helped identify and fix the issue.  I would have no
-problem merging this to Linus.  I actually have a 2.5.52 patch out which
-is a bit cleaner - it removes the defines completely and uses the new
-variables.  More proper for the long term.  Feel free to push what you
-have, too.
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         49.9    151     5       6       1.38
+sta_lim2000 [3]         50.9    150     5       6       1.41
 
-But that in no way precludes not fixing what we have, because good
-algorithms should not require tuning for common cases.  Period.
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         43.8    167     0       9       1.21
+sta_lim2000 [3]         43.5    168     0       9       1.20
 
-	Robert Love
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+sta_lim1000 [3]         106.8   77      36      2       2.95
+sta_lim2000 [3]         112.4   73      36      2       3.10
 
+Slight balance changes here. Most io things take slightly longer with lower 
+starvation limit and mem_load takes less time.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+AlriF6dfvkL3i1gRAugYAJ93cYDhjqXjM4TIZsLF+zvUtMoJ5QCfS5EC
+nIPWPR1JF0awLBCvL1uBzJ4=
+=eU+1
+-----END PGP SIGNATURE-----

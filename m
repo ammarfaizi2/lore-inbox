@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266461AbUA2WVk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 17:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266464AbUA2WVk
+	id S266469AbUA2WkT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266471AbUA2WkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 17:21:40 -0500
-Received: from smtp07.auna.com ([62.81.186.17]:40623 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S266461AbUA2WVh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 17:21:37 -0500
-Date: Thu, 29 Jan 2004 23:21:35 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
-       sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] i2c driver fixes for 2.6.2-rc2
-Message-ID: <20040129222135.GC5768@werewolf.able.es>
-References: <20040127233242.GA28891@kroah.com> <20040129004402.GC5830@werewolf.able.es> <1075365845.4018c7d5353d7@imp.gcu.info>
+	Thu, 29 Jan 2004 17:40:19 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:53768 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266469AbUA2WkL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:40:11 -0500
+Date: Thu, 29 Jan 2004 23:52:40 +0100
+To: venom@sns.it
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Florian Huber <florian.huber@mnet-online.de>,
+       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+Message-ID: <20040129225240.GA3118@hh.idb.hist.no>
+References: <20040127205324.A19913@infradead.org> <Pine.LNX.4.43.0401281021030.31225-100000@cibs9.sns.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1075365845.4018c7d5353d7@imp.gcu.info> (from khali@linux-fr.org on Thu, Jan 29, 2004 at 09:44:05 +0100)
-X-Mailer: Balsa 2.0.16
+In-Reply-To: <Pine.LNX.4.43.0401281021030.31225-100000@cibs9.sns.it>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2004.01.29, Jean Delvare wrote:
-> Quoting "J.A. Magallon" <jamagallon@able.es>:
+On Wed, Jan 28, 2004 at 10:24:14AM +0100, venom@sns.it wrote:
 > 
-> > After upgrading to sensors 2.8.3 (first I compiled it, then installed
-> > the Makdrake package when appeared), my temperatures are still
-> > mutiplied by 10. I use 2.6.2-rc2-mm1.
-> > 
-> > Any ideas ?
 > 
-> As stated on our kernel 2.6 dedicated page [1]: You need lm_sensors CVS
-> for kernels 2.6.2-rc1 and later.
+> On Tue, 27 Jan 2004, Christoph Hellwig wrote:
+> >
+> > Yes, it does.  But JFS should get the right size from the gendisk anyway.
+> > Or did you create the raid with the filesystem already existant?  While that
+> > appears to work for a non-full ext2/ext3 filesystem it's not something you
+> > should do because it makes the filesystem internal bookkeeping wrong and
+> > you'll run into trouble with any filesystem sooner or later.
+> >
+> In most situation to create a new FS on a RAID1 MD is not an option.
+> It happens that you have to mirror a partition, maybe alarge one, and it
+> already had a filesystem on top of it. Then what should you do?
+> backup, mirror and then restore? Sometimes it is not possible this too.
+> Then you accept to deal with the possible problems...
 > 
-> We plan to release lm_sensors 2.8.4 as soon as Linux 2.6.2 final is
-> there.
-> 
-> [1] http://secure.netroedge.com/~lm78/kernel26.html
-> 
+If you need to mirror it - then you have an empty mirror disk ready, right?
+Create a degraded array on the mirror disk, then make a fs there. Then
+copy everything over from the original partition.  After this, change
+the original partition to raid and add it to the other array. (It will
+then be updated from the copy). 
 
-Thanks, I dled the cvs version and my redings look normal now:
 
-werewolf:~# sensors
-w83781d-isa-0290
-Adapter: ISA adapter
-VCore 1:   +1.97 V  (min =  +1.90 V, max =  +2.10 V)              
-VCore 2:   +2.02 V  (min =  +1.90 V, max =  +2.10 V)              
-+3.3V:     +3.23 V  (min =  +3.14 V, max =  +3.46 V)              
-+5V:       +4.97 V  (min =  +4.73 V, max =  +5.24 V)              
-+12V:     +12.04 V  (min = +11.37 V, max = +12.59 V)              
--12V:     -12.18 V  (min = -12.57 V, max = -11.35 V)       ALARM  
--5V:       -4.96 V  (min =  -5.25 V, max =  -4.74 V)       ALARM  
-CPU0 Fan: 4470 RPM  (min = 84375 RPM, div = 2)              ALARM  
-CPU1 Fan: 4470 RPM  (min =   -1 RPM, div = 2)              ALARM  
-CPU0 Tmp:    +41°C  (high =    +0°C, hyst =   +64°C)   ALARM  
-CPU1 Tmp:  +44.5°C  (high =   +80°C, hyst =   +75°C)          
-vid:      +2.000 V
+This approach works with all filesystems, including those that
+cannot be resized.  Data is copied twice instead of once, but
+teh copying step will defragment files and you have the option
+of changing filesystem or take advantage of sparse files if
+you so wish.
 
-One question: is there any reference of what do temperature sensors
-measure exactly ? IE, I have a dual PII box, that temperatures are
-for both processors, one processor and the mobo, two sensors on
-different points in the mobo, ??
-
-TIA
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.2-rc2-jam1 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))
+Helge Hafting

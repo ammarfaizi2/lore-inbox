@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265989AbUBJR3P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUBJR0a
+	id S266102AbUBJRkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbUBJRj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:26:30 -0500
-Received: from hera.kernel.org ([63.209.29.2]:48339 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265989AbUBJRZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:25:44 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Very preliminary dynamic pty patch
-Date: Tue, 10 Feb 2004 17:25:36 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0b46g$ulg$1@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076433936 31409 63.209.29.3 (10 Feb 2004 17:25:36 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 10 Feb 2004 17:25:36 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 10 Feb 2004 12:39:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37835 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266078AbUBJRiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:38:19 -0500
+Message-ID: <402916F8.8050008@pobox.com>
+Date: Tue, 10 Feb 2004 12:38:00 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thomas Horsten <thomas@horsten.com>
+CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: ATARAID userspace configuration tool
+References: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk>
+In-Reply-To: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try it out and send me the oopsen :)
+Thomas Horsten wrote:
+> - Is there a "recommended" way to enumerate all block devices (not
+> partitions) from userside? Since this is ATA RAID, I could of course just
+> read the ideX majors from /proc/devices and try all the minors, but I
+> would prefer to get a list of all detected block devices in a portable
+> way.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/dynpty-test-1.patch
+sysfs, definitely.
 
-The patch is against current 2.6 top of tree.
 
-	-hpa
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+> - After I have used the DM (and possible MD for some RAID types) to map
+> the ataraid devices, is there a way to remove the partitions from the
+> underlying disks from the kernel? This was my main reason for wanting to
+> do kernel-level autodetection of these arrays, so I could prevent add_disk
+> from being called and analysing the partition table (on these BIOS RAIDs,
+> in striped mode the first disk contains the partition table for the entire
+> array in sector 0, and if the user (or a script) tries to mount the
+> partitions (or even read the extended partition table) it may try to read
+> after the end of the disk and will in any case use wrong sector numbers -
+> leading to possible disk corruption.
+
+You have control of what happens to the devices.  If you don't want them 
+probed for partitions, they won't be..
+
+
+> On top of this it would be useful to make the underlying devices
+> inaccessible after the mapped device is created (to prevent people from
+> doing things like fdisk /dev/hda, when what they really wanted was
+> something like fdisk /dev/ataraid/disc).
+
+This would be something to talk with the md maintainer about, I think. 
+I'm not sure we want to do this, since the user may have a valid reason 
+to access the underlying disk.
+
+	Jeff
+
+
+

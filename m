@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKFMQy>; Mon, 6 Nov 2000 07:16:54 -0500
+	id <S129055AbQKFMXF>; Mon, 6 Nov 2000 07:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129057AbQKFMQo>; Mon, 6 Nov 2000 07:16:44 -0500
-Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:26865 "EHLO
-	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S129033AbQKFMQa>; Mon, 6 Nov 2000 07:16:30 -0500
-Date: Mon, 6 Nov 2000 13:16:19 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] document ECN in 2.4 Configure.help
-Message-ID: <20001106131618.B5696@uni-mainz.de>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200011060615.WAA05490@cx518206-b.irvn1.occa.home.com> <200011060703.XAA23404@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <200011060703.XAA23404@pizda.ninka.net>; from davem@redhat.com on Sun, Nov 05, 2000 at 11:03:00PM -0800
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S129044AbQKFMWz>; Mon, 6 Nov 2000 07:22:55 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:46086 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129040AbQKFMWo>; Mon, 6 Nov 2000 07:22:44 -0500
+Message-Id: <200011061221.eA6CL5w05402@pincoya.inf.utfsm.cl>
+To: FORT David <epopo@onetelnet.fr>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: modular kernel 
+In-Reply-To: Message from FORT David <epopo@onetelnet.fr> 
+   of "Sat, 04 Nov 2000 22:09:43 BST." <3A047B17.EEF036A6@onetelnet.fr> 
+Date: Mon, 06 Nov 2000 09:21:04 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2000 at 11:03:00PM -0800, David S. Miller wrote:
-...
-> OH, btw, for all folks out there.  If there ever is an instance where
-> I (Alexey too) send email directly to your email address (not via
-> linux-kernel for example) your site will be effectively ECN tested.
-> We run ECN on all the time on our workstations.  (it's actually nice,
-> a lot of crap web sites I used to visit occaisionally are no longer
-> reachable :-) the only major loss is theregister.co.uk :-( )
-...
+FORT David <epopo@onetelnet.fr> said:
+> Taco Witte wrote:
 
-Well, that can be fixed quite easily: install a local junkbuster and
-set it to proxy requests to theregister.co.uk via one of the public
-junkbuster proxies. That has the nice side effect of killing unwanted
-ads as well... ;-)
+> > Some days ago, I read about the idea of a completely modular kernel.
 
-Cheers,
-  Dominik
+[...]
+
+> Looks like the beginning of a new flame war.
+
+Yep. About a very old bone, to boot.
+
+Please go *read* what was said on the list before and refrain from posting
+on the subject.
 -- 
-http://petition.eurolinux.org/index_html - No Software Patents In Europe!
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

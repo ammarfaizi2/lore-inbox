@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264394AbTFKLqN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 07:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTFKLqN
+	id S264379AbTFKLq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 07:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTFKLq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 07:46:13 -0400
-Received: from mrburns.nildram.co.uk ([195.112.4.54]:44560 "EHLO
-	mrburns.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S264394AbTFKLqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 07:46:11 -0400
-Date: Wed, 11 Jun 2003 12:59:55 +0100
-From: Joe Thornber <thornber@sistina.com>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] dm: Repair persistent minors
-Message-ID: <20030611115954.GB8862@fib011235813.fsnet.co.uk>
-References: <20030611100542.GD2499@fib011235813.fsnet.co.uk> <E19Q2ho-0001NC-00@calista.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E19Q2ho-0001NC-00@calista.inka.de>
-User-Agent: Mutt/1.5.4i
+	Wed, 11 Jun 2003 07:46:29 -0400
+Received: from [200.244.152.3] ([200.244.152.3]:11478 "EHLO
+	lablinux.ipiranga.com.br") by vger.kernel.org with ESMTP
+	id S264379AbTFKLq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 07:46:27 -0400
+Message-ID: <3EE7193F.40405@ipiranga.com.br>
+Date: Wed, 11 Jun 2003 08:57:51 -0300
+From: =?ISO-8859-1?Q?Jos=E9_Francisco_Ribeiro_Neto?= 
+	<xyko@ipiranga.com.br>
+Reply-To: xyko_ig@ig.com.br
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: pt-br, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: xyko_ig@ig.com.br
+Subject: Wrong number of cpus detected/reported - thanks for everyboy - problem
+ solved
+X-Priority: 1 (highest)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 12:19:48PM +0200, Bernd Eckenfels wrote:
-> In article <20030611100542.GD2499@fib011235813.fsnet.co.uk> you wrote:
-> > Split the dm_create() function into two variants, depending on whether
-> > you want the device to have a specific minor number.  This avoids
-> > the broken overloading of the minor argument to the old dm_create().
-> 
-> why dont you just call dm_create_with_minor() from dm_create and skip the
-> create_aux function?
+Hi all,
 
-Because I'm trying to avoid having a special value to the 'minor' arg
-to indicate that we can use any minor.
+I would like to thank for those fantastic people of the list that are 
+always ready to help the community. You are the really power of free 
+software.
 
-> the create_aux function is pretty badly named, me
-> thinks. you sould at least call it dm_create_aux.
+Special thanks to
 
-I use the dm_ prefix for external functions.
+Robinson Maureira Castillo
+John Appleby
+Sam Flory
+Steven Cole
+Alan Cox
+Mikpe
+David Schwartz
+Timoty Miller
+Jordan Breeding
+John Lauro
 
-- Joe
+who answered my question.
+
+Best regards from Brasil to everybody.
+
+José Francisco Ribeiro Neto ( Xyko )
+

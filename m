@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbTE0K6l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 06:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTE0K6l
+	id S263239AbTE0LEE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 07:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTE0LEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 06:58:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6379 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263235AbTE0K6k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 06:58:40 -0400
-Date: Tue, 27 May 2003 12:11:53 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, matthew@wil.cx,
-       parisc-linux@parisc-linux.org
-Subject: Re: [patch] kill lvm from parisc
-Message-ID: <20030527111153.GD15709@parcelfarce.linux.theplanet.co.uk>
-References: <UTC200305262220.h4QMKo712570.aeb@smtp.cwi.nl>
+	Tue, 27 May 2003 07:04:04 -0400
+Received: from guri.is.kpn.be ([193.74.71.22]:30115 "EHLO guri.is.kpn.be")
+	by vger.kernel.org with ESMTP id S263239AbTE0LED (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 07:04:03 -0400
+Date: Tue, 27 May 2003 13:19:23 +0200
+To: linux-kernel@vger.kernel.org
+Subject: should-fix(?) list
+Message-ID: <20030527111923.GA386@gouv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <UTC200305262220.h4QMKo712570.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
+From: Leopold Gouverneur <lgouv@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 12:20:50AM +0200, Andries.Brouwer@cwi.nl wrote:
-> CONFIG_BLK_DEV_LVM is gone, but there is still some associated code.
-> This is the parisc part.
+At least for me! in 2.5.70:
 
-it's already gone from the parisc tree and will be picked up whenever
-linus gets round to releasing 2.5.70 and we submit a patch.  please stop
-resending.
+1) drivers/char/ftape don't compile( it uses deprecated sti, save_flags
+etc ...)
+I tried to "fix" it by applying a patch posted some time ago on this
+list. It compiled wonderfully but trashed my hard diks even more
+wonderfully :(
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+2)net/core/dev.c spits tons of "fix old protocol handler
+pppoe_rcv+0x0/0x150!" to my console to the point of slowing down my adsl
+connection by 50%. I "fixed" it by commenting out print_symbol line.Not
+very clever but got my old connection speed back whithout any apparent 
+ill effect, so ...
+
+3) drivers/ide/pci/hpt336 slows down the disk on it from 35MB/sec in 2.4 
+to 24MB/sec. I presume it's the specific driver because for my other
+devices on piix the performance is exactly the same in 2.4 and 2.5.
+
+Thanks for listening!
+
+

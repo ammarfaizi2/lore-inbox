@@ -1,36 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315449AbSIHWsp>; Sun, 8 Sep 2002 18:48:45 -0400
+	id <S315472AbSIHWug>; Sun, 8 Sep 2002 18:50:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSIHWsp>; Sun, 8 Sep 2002 18:48:45 -0400
-Received: from web40004.mail.yahoo.com ([66.218.78.22]:36406 "HELO
-	web40004.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S315449AbSIHWsp>; Sun, 8 Sep 2002 18:48:45 -0400
-Message-ID: <20020908225322.55836.qmail@web40004.mail.yahoo.com>
-Date: Sun, 8 Sep 2002 15:53:22 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Atech Pro II flash card reader(s)
-To: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
+	id <S315483AbSIHWug>; Sun, 8 Sep 2002 18:50:36 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:26358 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S315472AbSIHWuf>; Sun, 8 Sep 2002 18:50:35 -0400
+Date: Sun, 8 Sep 2002 23:55:58 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "H. J. Lu" <hjl@lucon.org>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Odd problem with ACPI and i386 kernel
+In-Reply-To: <20020908153539.A21352@lucon.org>
+Message-ID: <Pine.LNX.4.44.0209082346340.2119-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to make an Atech Pro II card reader work under Linux. Everywhere I
-look it says that it is supported under Linux, but I can't find a single thing
-anywhere on the Internet using Google. I did find this page using the Google
-Groups searcher:
+On Sun, 8 Sep 2002, H. J. Lu wrote:
+> I have a very strange problem with ACPI and i386 kernel. I built an
+> i386 kernel with ACPI for RedHat installation since my new P4 machines
+> needs ACPI to get IRQ. It works fine on my ASUS P4B533-E MB with Intel
+> 845E chipset. However, on my Sony VAIO GRX560 which is a P4 1.6GHz
+> with Intel 845 chipset, the machine will reboot as soon as the kernel
+> starts to run. I tracked it down to CONFIG_X86_INVLPG. If I enable
+> it, kernel will be fine. Has anyone else seen this?
 
-http://groups.google.com/groups?q=Atech+USB+Linux&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=slrnaie1su.1f9.danceswithcrows%40samantha.crow202.dyndns.org&rnum=1
-(sorry 'bout the long URL)
+Yes, I sent Marcelo the patch below on 27th Aug, it's in 2.4.20-pre5.
+I sent Linus a similar patch (copied to LKML) for the 2.5 tlbflush.h,
+but he didn't care for its "cpu_has_pge" test, nor did he put in its
+#define cpu_has_invlpg	(boot_cpu_data.x86 > 3)
+replacement: I'll resend.
 
-Can anyone help me?
+CONFIG_M386 kernel running on PPro+ processor with X86_FEATURE_PGE may
+set _PAGE_GLOBAL bit: then __flush_tlb_one must use invlpg instruction.
 
-Thanks,
+The need for this was shown by a recent HyperThreading discussion.
+Marc Dietrich reported (LKML 22 Aug) that CONFIG_M386 CONFIG_SMP kernel
+on P4 Xeon did not support HT: his dmesg showed acpi_tables_init failed
+from bad table data due to unflushed TLB: he confirms patch fixes it.
 
-Brad
+No tears would be shed if CONFIG_M386 could not support HT, but bad TLB
+is trouble.  Same CONFIG_M386 bug affects CONFIG_HIGHMEM's kmap_atomic,
+and potentially dmi_scan (now using set_fixmap via bt_ioremap).  Though
+it's true that none of these uses really needs _PAGE_GLOBAL bit itself.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+Patch below to 2.4.20-pre4 or 2.4.20-pre4-ac2: please apply.
+I'll mail Linus and Dave separately with the 2.5 version.
+
+Hugh
+
+--- 2.4.20-pre4/include/asm-i386/pgtable.h	Thu Aug 22 20:59:51 2002
++++ linux/include/asm-i386/pgtable.h	Fri Aug 23 00:11:39 2002
+@@ -82,11 +82,19 @@
+ 	} while (0)
+ #endif
+ 
+-#ifndef CONFIG_X86_INVLPG
+-#define __flush_tlb_one(addr) __flush_tlb()
++#define __flush_tlb_single(addr) \
++	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
++
++#ifdef CONFIG_X86_INVLPG
++# define __flush_tlb_one(addr) __flush_tlb_single(addr)
+ #else
+-#define __flush_tlb_one(addr) \
+-__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
++# define __flush_tlb_one(addr)						\
++	do {								\
++		if (cpu_has_pge)					\
++			__flush_tlb_single(addr);			\
++		else							\
++			__flush_tlb();					\
++	} while (0)
+ #endif
+ 
+ /*
+

@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVCCF13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVCCFb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVCCF13 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 00:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVCCF1P
+	id S261460AbVCCFb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVCCFX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:27:15 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:49533 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261495AbVCCFY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:24:58 -0500
-Message-ID: <42269FA4.5020009@yahoo.com.au>
-Date: Thu, 03 Mar 2005 16:24:52 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>	<20050302174507.7991af94.akpm@osdl.org>	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>	<20050302185508.4cd2f618.akpm@osdl.org>	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com> <20050302201425.2b994195.akpm@osdl.org>
-In-Reply-To: <20050302201425.2b994195.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 00:23:57 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:19984 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261484AbVCCFUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:20:34 -0500
+Date: Thu, 3 Mar 2005 00:20:21 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11
+Message-ID: <20050303052021.GK7828@mythryan2.michonline.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Matthias Andree <matthias.andree@gmx.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050302103158.GA13485@merlin.emma.line.org> <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, Mar 02, 2005 at 07:46:05AM -0800, Linus Torvalds wrote:
+> (In contrast the full ChangeLog was missing because the generation script
+> I use is not exactly the smart way, so it's O(slow(n)), where slow is n**3 
+> or worse, so the log from the last -rc release is fast, but going back all 
+> the way to 2.6.10 took long long enough that I didn't wait for it).
 
->Christoph Lameter <clameter@sgi.com> wrote:
->
->>On Wed, 2 Mar 2005, Andrew Morton wrote:
->>
->>
->>>>Earlier releases back in September 2004 had some pte locking code (and
->>>>AFAIK Nick also played around with pte locking) but that
->>>>was less efficient than atomic operations.
->>>>
->>>How much less efficient?
->>>Does anyone else have that code around?
->>>
->>Nick may have some data. It got far too complicated too fast when I tried
->>to introduce locking for individual ptes. It required bit
->>spinlocks for the pte meaning multiple atomic operations.
->>
->
->One could add a spinlock to the pageframe, or use hashed spinlocking.
->
->
+Is there some reason why
+	bk changes -aem -rv2.6.10..+ | shortlog
+isn't sufficient?
 
-I did have a version using bit spin locks in the pte on ia64. That
-only works efficiently on architectures who's MMU hardware won't
-concurrently update the pte (so you can do non-atomic pte operations
-and non-atomic unlocks on a locked pte).
+I'd guess your script will want to calculate the 2.6.10 part
+automatically, but that seems to run in a second or so on my machine,
+from a largely cold cache.  I *think* this gets all the changes where a
+-d (date) based method gets very confused by parallel trees.  Am I
+missing something?
 
-I pretty much solved all the efficiency problems IIRC. Of course
-this doesn't work on i386 or x86_64.
+-- 
 
-Having a spinlock for example per pte page might be another good
-option that we haven't looked at.
-
->>One
->>would have to check for the lock being active leading to significant code
->>changes.
->>
->
->Why?
->
->
-
-When using per-pte locks on ia64 for example, the low level code that
-walks page tables and sets dirty, accessed, etc bits needs to be made
-aware of the pte lock. But Keith made me up a little patch to do this,
-and it is pretty simple.
-
-
+Ryan Anderson
+  sometimes Pug Majere

@@ -1,376 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271313AbUJVNLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271303AbUJVNPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271313AbUJVNLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271321AbUJVNIj
+	id S271303AbUJVNPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271271AbUJVNNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:08:39 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:2481 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271310AbUJVNAa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:00:30 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 22 Oct 2004 14:50:29 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: bttv IR input update
-Message-ID: <20041022125029.GA5352@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 22 Oct 2004 09:13:14 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:40894 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S271320AbUJVNIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 09:08:22 -0400
+Message-ID: <4179063C.9020504@yahoo.com.au>
+Date: Fri, 22 Oct 2004 23:08:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Hawkes <hawkes@oss.sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, jbarnes@sgi.com,
+       hawkes@sgi.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH, 2.6.9] improved load_balance() tolerance for pinned tasks
+References: <200410201936.i9KJa4FF026174@oss.sgi.com>
+In-Reply-To: <200410201936.i9KJa4FF026174@oss.sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------080003010803080502060405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+This is a multi-part message in MIME format.
+--------------080003010803080502060405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is a update for the IR input modules for the bttv driver.
-It adds IR support to more TV cards and has some some minor
-cleanups.
+John Hawkes wrote:
+> A large number of processes that are pinned to a single CPU results in
+> every other CPU's load_balance() seeing this overloaded CPU as "busiest",
+> yet move_tasks() never finds a task to pull-migrate.  This condition
+> occurs during module unload, but can also occur as a denial-of-service
+> using sys_sched_setaffinity().  Several hundred CPUs performing this
+> fruitless load_balance() will livelock on the busiest CPU's runqueue
+> lock.  A smaller number of CPUs will livelock if the pinned task count
+> gets high.  This simple patch remedies the more common first problem:
+> after a move_tasks() failure to migrate anything, the balance_interval
+> increments.  Using a simple increment, vs.  the more dramatic doubling of
+> the balance_interval, is conservative and yet also effective.
+> 
+> John Hawkes
+> 
 
-It also removes all trailing whitespaces.  I've a script to remove
-them from my sources now, that should kill those no-op whitespace
-changes in my patches after merging this initial cleanup.
+John and I also discussed a slightly more sophisticated algorithm
+for this that would try to be a bit smarter about the reason for
+balance failures (described in the changelog).
 
-  Gerd
+John, this works quite well here, would you have any objections
+using it instead? Does it cure your problems there?
 
-Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+
+--------------080003010803080502060405
+Content-Type: text/x-patch;
+ name="sched-lb-pinned.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-lb-pinned.patch"
+
+
+
+John Hawkes explained the problem best:
+	A large number of processes that are pinned to a single CPU results
+	in every other CPU's load_balance() seeing this overloaded CPU as
+	"busiest", yet move_tasks() never finds a task to pull-migrate.  This
+	condition occurs during module unload, but can also occur as a
+	denial-of-service using sys_sched_setaffinity().  Several hundred
+	CPUs performing this fruitless load_balance() will livelock on the
+	busiest CPU's runqueue lock.  A smaller number of CPUs will livelock
+	if the pinned task count gets high.
+	
+Expanding slightly on John's patch, this one attempts to work out
+whether the balancing failure has been due to too many tasks pinned
+on the runqueue. This allows it to be basically invisible to the
+regular blancing paths (ie. when there are no pinned tasks). We can
+use this extra knowledge to shut down the balancing faster, and ensure
+the migration threads don't start running which is another problem
+observed in the wild.
+
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+
+
 ---
- drivers/media/video/ir-kbd-gpio.c |  107 ++++++++++++++++++++++++++++--
- drivers/media/video/ir-kbd-i2c.c  |   47 ++++++-------
- 2 files changed, 125 insertions(+), 29 deletions(-)
 
-diff -up linux-2.6.9-rc2/drivers/media/video/ir-kbd-gpio.c linux/drivers/media/video/ir-kbd-gpio.c
---- linux-2.6.9-rc2/drivers/media/video/ir-kbd-gpio.c	2004-09-14 10:37:16.000000000 +0200
-+++ linux/drivers/media/video/ir-kbd-gpio.c	2004-09-17 14:56:37.457852450 +0200
-@@ -1,5 +1,6 @@
--
- /*
-+ * $Id: ir-kbd-gpio.c,v 1.10 2004/09/15 16:15:24 kraxel Exp $
-+ *
-  * Copyright (c) 2003 Gerd Knorr
-  * Copyright (c) 2003 Pavel Machek
-  *
-@@ -45,7 +46,7 @@ static IR_KEYTAB_TYPE ir_codes_avermedia
- 	[ 60 ] = KEY_KP9,
- 
- 	[ 48 ] = KEY_EJECTCD,     // Unmarked on my controller
--	[  0 ] = KEY_POWER, 
-+	[  0 ] = KEY_POWER,
- 	[ 18 ] = BTN_LEFT,        // DISPLAY/L
- 	[ 50 ] = BTN_RIGHT,       // LOOP/R
- 	[ 10 ] = KEY_MUTE,
-@@ -74,6 +75,45 @@ static IR_KEYTAB_TYPE ir_codes_avermedia
- 	[  1 ] = KEY_BLUE,        // unmarked
- };
- 
-+/* Matt Jesson <dvb@jesson.eclipse.co.uk */
-+static IR_KEYTAB_TYPE ir_codes_avermedia_dvbt[IR_KEYTAB_SIZE] = {
-+	[ 0x28 ] = KEY_KP0,         //'0' / 'enter'
-+	[ 0x22 ] = KEY_KP1,         //'1'
-+	[ 0x12 ] = KEY_KP2,         //'2' / 'up arrow'
-+	[ 0x32 ] = KEY_KP3,         //'3'
-+	[ 0x24 ] = KEY_KP4,         //'4' / 'left arrow'
-+	[ 0x14 ] = KEY_KP5,         //'5'
-+	[ 0x34 ] = KEY_KP6,         //'6' / 'right arrow'
-+	[ 0x26 ] = KEY_KP7,         //'7'
-+	[ 0x16 ] = KEY_KP8,         //'8' / 'down arrow'
-+	[ 0x36 ] = KEY_KP9,         //'9'
-+
-+	[ 0x20 ] = KEY_LIST,        // 'source'
-+	[ 0x10 ] = KEY_TEXT,        // 'teletext'
-+	[ 0x00 ] = KEY_POWER,       // 'power'
-+	[ 0x04 ] = KEY_AUDIO,       // 'audio'
-+	[ 0x06 ] = KEY_ZOOM,        // 'full screen'
-+	[ 0x18 ] = KEY_VIDEO,       // 'display'
-+	[ 0x38 ] = KEY_SEARCH,      // 'loop'
-+	[ 0x08 ] = KEY_INFO,        // 'preview'
-+	[ 0x2a ] = KEY_REWIND,      // 'backward <<'
-+	[ 0x1a ] = KEY_FASTFORWARD, // 'forward >>'
-+	[ 0x3a ] = KEY_RECORD,      // 'capture'
-+	[ 0x0a ] = KEY_MUTE,        // 'mute'
-+	[ 0x2c ] = KEY_RECORD,      // 'record'
-+	[ 0x1c ] = KEY_PAUSE,       // 'pause'
-+	[ 0x3c ] = KEY_STOP,        // 'stop'
-+	[ 0x0c ] = KEY_PLAY,        // 'play'
-+	[ 0x2e ] = KEY_RED,         // 'red'
-+	[ 0x01 ] = KEY_BLUE,        // 'blue' / 'cancel'
-+	[ 0x0e ] = KEY_YELLOW,      // 'yellow' / 'ok'
-+	[ 0x21 ] = KEY_GREEN,       // 'green'
-+	[ 0x11 ] = KEY_CHANNELDOWN, // 'channel -'
-+	[ 0x31 ] = KEY_CHANNELUP,   // 'channel +'
-+	[ 0x1e ] = KEY_VOLUMEDOWN,  // 'volume -'
-+	[ 0x3e ] = KEY_VOLUMEUP,    // 'volume +'
-+};
-+
- static IR_KEYTAB_TYPE winfast_codes[IR_KEYTAB_SIZE] = {
- 	[  5 ] = KEY_KP1,
- 	[  6 ] = KEY_KP2,
-@@ -130,7 +170,7 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
- 	[  6 ] = KEY_KP7,
- 	[ 10 ] = KEY_KP8,
- 	[ 18 ] = KEY_KP9,
--	
-+
- 	[  3 ] = KEY_TUNER,       // TV/FM
- 	[  7 ] = KEY_SEARCH,      // scan
- 	[ 28 ] = KEY_ZOOM,        // full screen
-@@ -140,7 +180,7 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
- 	[ 20 ] = KEY_CHANNELDOWN,
- 	[ 22 ] = KEY_CHANNELUP,
- 	[ 24 ] = KEY_MUTE,
--	
-+
- 	[  0 ] = KEY_LIST,        // source
- 	[ 19 ] = KEY_INFO,        // loop
- 	[ 16 ] = KEY_LAST,        // +100
-@@ -151,6 +191,47 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
- 	[ 15 ] = KEY_STOP,         // freeze
- };
- 
-+/* Attila Kondoros <attila.kondoros@chello.hu> */
-+static IR_KEYTAB_TYPE ir_codes_apac_viewcomp[IR_KEYTAB_SIZE] = {
-+
-+	[  1 ] = KEY_KP1,
-+	[  2 ] = KEY_KP2,
-+	[  3 ] = KEY_KP3,
-+	[  4 ] = KEY_KP4,
-+	[  5 ] = KEY_KP5,
-+	[  6 ] = KEY_KP6,
-+	[  7 ] = KEY_KP7,
-+	[  8 ] = KEY_KP8,
-+	[  9 ] = KEY_KP9,
-+	[  0 ] = KEY_KP0,
-+	[ 23 ] = KEY_LAST,        // +100
-+	[ 10 ] = KEY_LIST,        // recall
-+
-+
-+	[ 28 ] = KEY_TUNER,       // TV/FM
-+	[ 21 ] = KEY_SEARCH,      // scan
-+	[ 18 ] = KEY_POWER,       // power
-+	[ 31 ] = KEY_VOLUMEDOWN,  // vol up
-+	[ 27 ] = KEY_VOLUMEUP,    // vol down
-+	[ 30 ] = KEY_CHANNELDOWN, // chn up
-+	[ 26 ] = KEY_CHANNELUP,   // chn down
-+
-+	[ 17 ] = KEY_VIDEO,       // video
-+	[ 15 ] = KEY_ZOOM,        // full screen
-+	[ 19 ] = KEY_MUTE,        // mute/unmute
-+	[ 16 ] = KEY_TEXT,        // min
-+
-+	[ 13 ] = KEY_STOP,        // freeze
-+	[ 14 ] = KEY_RECORD,      // record
-+	[ 29 ] = KEY_PLAYPAUSE,   // stop
-+	[ 25 ] = KEY_PLAY,        // play
-+
-+	[ 22 ] = KEY_GOTO,        // osd
-+	[ 20 ] = KEY_REFRESH,     // default
-+	[ 12 ] = KEY_KPPLUS,      // fine tune >>>>
-+	[ 24 ] = KEY_KPMINUS      // fine tune <<<<
-+};
-+
- /* ---------------------------------------------------------------------- */
- 
- struct IR {
-@@ -202,7 +283,7 @@ static void ir_handle_key(struct IR *ir)
- 			return;
- 		ir->last_gpio = gpio;
- 	}
--	
-+
- 	/* extract data */
- 	data = ir_extract_bits(gpio, ir->mask_keycode);
- 	dprintk(DEVNAME ": irq gpio=0x%x code=%d | %s%s%s\n",
-@@ -284,6 +365,14 @@ static int ir_probe(struct device *dev)
- 		ir->polling      = 50; // ms
- 		break;
- 
-+	case BTTV_AVDVBT_761:
-+	/* case BTTV_AVDVBT_771: */
-+		ir_codes         = ir_codes_avermedia_dvbt;
-+		ir->mask_keycode = 0x0f00c0;
-+		ir->mask_keydown = 0x000020;
-+		ir->polling      = 50; // ms
-+		break;
-+
- 	case BTTV_PXELVWPLTVPAK:
- 		ir_codes         = ir_codes_pixelview;
- 		ir->mask_keycode = 0x003e00;
-@@ -308,6 +397,12 @@ static int ir_probe(struct device *dev)
- 		ir->mask_keycode = 0x0008e000;
- 		ir->mask_keydown = 0x00200000;
- 		break;
-+	case BTTV_APAC_VIEWCOMP:
-+		ir_codes         = ir_codes_apac_viewcomp;
-+		ir->mask_keycode = 0x001f00;
-+		ir->mask_keyup   = 0x008000;
-+		ir->polling      = 50; // ms
-+		break;
- 	}
- 	if (NULL == ir_codes) {
- 		kfree(ir);
-@@ -317,7 +412,7 @@ static int ir_probe(struct device *dev)
- 	/* init hardware-specific stuff */
- 	bttv_gpio_inout(sub->core, ir->mask_keycode | ir->mask_keydown, 0);
- 	ir->sub = sub;
--	
-+
- 	/* init input device */
- 	snprintf(ir->name, sizeof(ir->name), "bttv IR (card=%d)",
- 		 sub->core->type);
-diff -up linux-2.6.9-rc2/drivers/media/video/ir-kbd-i2c.c linux/drivers/media/video/ir-kbd-i2c.c
---- linux-2.6.9-rc2/drivers/media/video/ir-kbd-i2c.c	2004-09-14 10:34:32.000000000 +0200
-+++ linux/drivers/media/video/ir-kbd-i2c.c	2004-09-17 14:56:37.460851888 +0200
-@@ -1,4 +1,6 @@
- /*
-+ * $Id: ir-kbd-i2c.c,v 1.8 2004/09/15 16:15:24 kraxel Exp $
-+ *
-  * keyboard input driver for i2c IR remote controls
-  *
-  * Copyright (c) 2000-2003 Gerd Knorr <kraxel@bytesex.org>
-@@ -156,7 +158,7 @@ module_param(debug, int, 0644);    /* de
- static inline int reverse(int data, int bits)
- {
- 	int i,c;
--	
-+
- 	for (c=0,i=0; i<bits; i++) {
- 		c |= (((data & (1<<i)) ? 1:0)) << (bits-1-i);
- 	}
-@@ -193,7 +195,7 @@ static int get_key_haup(struct IR *ir, u
- static int get_key_pixelview(struct IR *ir, u32 *ir_key, u32 *ir_raw)
- {
-         unsigned char b;
--	
-+
- 	/* poll IR chip */
- 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
- 		dprintk(1,"read error\n");
-@@ -207,7 +209,7 @@ static int get_key_pixelview(struct IR *
- static int get_key_pv951(struct IR *ir, u32 *ir_key, u32 *ir_raw)
- {
-         unsigned char b;
--	
-+
- 	/* poll IR chip */
- 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
- 		dprintk(1,"read error\n");
-@@ -218,7 +220,7 @@ static int get_key_pv951(struct IR *ir, 
- 	if (b==0xaa)
- 		return 0;
- 	dprintk(2,"key %02x\n", b);
--	
-+
- 	*ir_key = b;
- 	*ir_raw = b;
- 	return 1;
-@@ -227,26 +229,26 @@ static int get_key_pv951(struct IR *ir, 
- static int get_key_knc1(struct IR *ir, u32 *ir_key, u32 *ir_raw)
- {
- 	unsigned char b;
--	
-+
- 	/* poll IR chip */
- 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
- 		dprintk(1,"read error\n");
- 		return -EIO;
- 	}
--	
-+
- 	/* it seems that 0xFE indicates that a button is still hold
- 	   down, while 0xFF indicates that no button is hold
- 	   down. 0xFE sequences are sometimes interrupted by 0xFF */
--	
-+
- 	dprintk(2,"key %02x\n", b);
--	
-+
- 	if (b == 0xFF)
- 		return 0;
--	
-+
- 	if (b == 0xFE)
- 		/* keep old data */
- 		return 1;
--	
-+
- 	*ir_key = b;
- 	*ir_raw = b;
- 	return 1;
-@@ -323,7 +325,7 @@ static struct i2c_driver driver = {
-         .detach_client  = ir_detach,
- };
- 
--static struct i2c_client client_template = 
-+static struct i2c_client client_template =
- {
-         I2C_DEVNAME("unset"),
-         .driver = &driver
-@@ -336,7 +338,7 @@ static int ir_attach(struct i2c_adapter 
- 	char *name;
- 	int ir_type;
-         struct IR *ir;
--		
-+
-         if (NULL == (ir = kmalloc(sizeof(struct IR),GFP_KERNEL)))
-                 return -ENOMEM;
- 	memset(ir,0,sizeof(*ir));
-@@ -400,14 +402,14 @@ static int ir_attach(struct i2c_adapter 
- 	input_register_device(&ir->input);
- 	printk(DEVNAME ": %s detected at %s [%s]\n",
- 	       ir->input.name,ir->input.phys,adap->name);
--	       
-+
- 	/* start polling via eventd */
- 	INIT_WORK(&ir->work, ir_work, ir);
- 	init_timer(&ir->timer);
- 	ir->timer.function = ir_timer;
- 	ir->timer.data     = (unsigned long)ir;
- 	schedule_work(&ir->work);
--	
-+
- 	return 0;
- }
- 
-@@ -430,16 +432,16 @@ static int ir_detach(struct i2c_client *
- 
- static int ir_probe(struct i2c_adapter *adap)
- {
--	
-+
- 	/* The external IR receiver is at i2c address 0x34 (0x35 for
- 	   reads).  Future Hauppauge cards will have an internal
- 	   receiver at 0x30 (0x31 for reads).  In theory, both can be
- 	   fitted, and Hauppauge suggest an external overrides an
--	   internal. 
--	   
--	   That's why we probe 0x1a (~0x34) first. CB 
-+	   internal.
-+
-+	   That's why we probe 0x1a (~0x34) first. CB
- 	*/
--	
-+
- 	static const int probe_bttv[] = { 0x1a, 0x18, 0x4b, 0x64, 0x30, -1};
- 	static const int probe_saa7134[] = { 0x7a, -1};
- 	const int *probe = NULL;
-@@ -478,13 +480,12 @@ MODULE_AUTHOR("Gerd Knorr, Michal Kochan
- MODULE_DESCRIPTION("input driver for i2c IR remote controls");
- MODULE_LICENSE("GPL");
- 
--static int ir_init(void)
-+static int __init ir_init(void)
- {
--	i2c_add_driver(&driver);
--	return 0;
-+	return i2c_add_driver(&driver);
- }
- 
--static void ir_fini(void)
-+static void __exit ir_fini(void)
- {
- 	i2c_del_driver(&driver);
- }
+ linux-2.6-npiggin/kernel/sched.c |   34 +++++++++++++++++++++++-----------
+ 1 files changed, 23 insertions(+), 11 deletions(-)
 
--- 
-return -ENOSIG;
+diff -puN kernel/sched.c~sched-lb-pinned kernel/sched.c
+--- linux-2.6/kernel/sched.c~sched-lb-pinned	2004-10-22 22:36:05.000000000 +1000
++++ linux-2.6-npiggin/kernel/sched.c	2004-10-22 22:36:05.000000000 +1000
+@@ -1626,7 +1626,7 @@ void pull_task(runqueue_t *src_rq, prio_
+  */
+ static inline
+ int can_migrate_task(task_t *p, runqueue_t *rq, int this_cpu,
+-		     struct sched_domain *sd, enum idle_type idle)
++		     struct sched_domain *sd, enum idle_type idle, int *pinned)
+ {
+ 	/*
+ 	 * We do not migrate tasks that are:
+@@ -1636,8 +1636,10 @@ int can_migrate_task(task_t *p, runqueue
+ 	 */
+ 	if (task_running(rq, p))
+ 		return 0;
+-	if (!cpu_isset(this_cpu, p->cpus_allowed))
++	if (!cpu_isset(this_cpu, p->cpus_allowed)) {
++		*pinned++;
+ 		return 0;
++	}
+ 
+ 	/* Aggressive migration if we've failed balancing */
+ 	if (idle == NEWLY_IDLE ||
+@@ -1658,11 +1660,11 @@ int can_migrate_task(task_t *p, runqueue
+  */
+ static int move_tasks(runqueue_t *this_rq, int this_cpu, runqueue_t *busiest,
+ 		      unsigned long max_nr_move, struct sched_domain *sd,
+-		      enum idle_type idle)
++		      enum idle_type idle, int *all_pinned)
+ {
+ 	prio_array_t *array, *dst_array;
+ 	struct list_head *head, *curr;
+-	int idx, pulled = 0;
++	int idx, pulled = 0, pinned = 0;
+ 	task_t *tmp;
+ 
+ 	if (max_nr_move <= 0 || busiest->nr_running <= 1)
+@@ -1706,7 +1708,7 @@ skip_queue:
+ 
+ 	curr = curr->prev;
+ 
+-	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle)) {
++	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
+ 		if (curr != head)
+ 			goto skip_queue;
+ 		idx++;
+@@ -1732,6 +1734,9 @@ skip_queue:
+ 		goto skip_bitmap;
+ 	}
+ out:
++	*all_pinned = 0;
++	if (unlikely(pinned >= max_nr_move) && pulled == 0)
++		*all_pinned = 1;
+ 	return pulled;
+ }
+ 
+@@ -1906,7 +1911,7 @@ static int load_balance(int this_cpu, ru
+ 	struct sched_group *group;
+ 	runqueue_t *busiest;
+ 	unsigned long imbalance;
+-	int nr_moved;
++	int nr_moved, all_pinned;
+ 
+ 	spin_lock(&this_rq->lock);
+ 	schedstat_inc(sd, lb_cnt[idle]);
+@@ -1945,11 +1950,16 @@ static int load_balance(int this_cpu, ru
+ 		 */
+ 		double_lock_balance(this_rq, busiest);
+ 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
+-						imbalance, sd, idle);
++						imbalance, sd, idle,
++						&all_pinned);
+ 		spin_unlock(&busiest->lock);
+ 	}
+-	spin_unlock(&this_rq->lock);
++	/* All tasks on this runqueue were pinned by CPU affinity */
++	if (unlikely(all_pinned))
++		goto out_balanced;
+ 
++	spin_unlock(&this_rq->lock);
++	
+ 	if (!nr_moved) {
+ 		schedstat_inc(sd, lb_failed[idle]);
+ 		sd->nr_balance_failed++;
+@@ -2004,7 +2014,7 @@ static int load_balance_newidle(int this
+ 	struct sched_group *group;
+ 	runqueue_t *busiest = NULL;
+ 	unsigned long imbalance;
+-	int nr_moved = 0;
++	int nr_moved = 0, all_pinned;
+ 
+ 	schedstat_inc(sd, lb_cnt[NEWLY_IDLE]);
+ 	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE);
+@@ -2024,7 +2034,7 @@ static int load_balance_newidle(int this
+ 
+ 	schedstat_add(sd, lb_imbalance[NEWLY_IDLE], imbalance);
+ 	nr_moved = move_tasks(this_rq, this_cpu, busiest,
+-					imbalance, sd, NEWLY_IDLE);
++			imbalance, sd, NEWLY_IDLE, &all_pinned);
+ 	if (!nr_moved)
+ 		schedstat_inc(sd, lb_failed[NEWLY_IDLE]);
+ 
+@@ -2085,6 +2095,7 @@ static void active_load_balance(runqueue
+ 	do {
+ 		runqueue_t *rq;
+ 		int push_cpu = 0;
++		int all_pinned;
+ 
+ 		if (group == busy_group)
+ 			goto next_group;
+@@ -2106,7 +2117,8 @@ static void active_load_balance(runqueue
+ 		if (unlikely(busiest == rq))
+ 			goto next_group;
+ 		double_lock_balance(busiest, rq);
+-		if (move_tasks(rq, push_cpu, busiest, 1, sd, SCHED_IDLE)) {
++		if (move_tasks(rq, push_cpu, busiest, 1,
++					sd, SCHED_IDLE, &all_pinned)) {
+ 			schedstat_inc(busiest, alb_lost);
+ 			schedstat_inc(rq, alb_gained);
+ 		} else {
+
+_
+
+--------------080003010803080502060405--

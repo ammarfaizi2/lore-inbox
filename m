@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVDEJ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVDEJb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVDEJ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVDEJ10
+	id S261663AbVDEJb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDEJbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:27:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51857 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261649AbVDEJYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:24:47 -0400
-Date: Tue, 5 Apr 2005 11:24:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Adam Belay <abelay@novell.com>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: [RFC] Driver States
-Message-ID: <20050405092423.GA7254@elf.ucw.cz>
-References: <1111963367.3503.152.camel@localhost.localdomain> <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net> <1112222717.3503.213.camel@localhost.localdomain>
+	Tue, 5 Apr 2005 05:31:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41438 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261665AbVDEJaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:30:52 -0400
+Date: Tue, 5 Apr 2005 10:30:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Dave Airlie <airlied@gmail.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405093020.GA28620@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paul Mackerras <paulus@samba.org>, Dave Airlie <airlied@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405074405.GE26208@infradead.org> <21d7e99705040502073dfa5e5@mail.gmail.com> <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112222717.3503.213.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Btw, some more comments on the 32bit compat code in drm:
 
-> > You have a few things here that can easily conflict, and that will be
-> > developed at different paces. I like the direction that it's going, but
-> > how do you intend to do it gradually. I.e. what to do first?
-> 
-> I think the first step would be for us to all agree on a design, whether
-> it be this one or another, so we can began planning for long term
-> changes.
-> 
-> My arguments for these changes are as follows:
+ - instead of set_fs & co and passing kernel addresses to drm_ioctl
+   please use compat_alloc_user_space()
 
-0. I do not see how to gradually roll this in.
+ - this:
 
->      4. Having responsibilities at each driver level encourages a
->         layered and object based design, reducing code duplication and
->         complexity.
++ifeq ($(CONFIG_COMPAT),y)
++drm-objs    += drm_ioc32.o
++radeon-objs += radeon_ioc32.o
++endif
 
-Unfortunately, you'll be retrofiting this to existing drivers. AFAICS,
-trying to force existing driver to "layered and object based design"
-can only result in mess.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+   should be written as
+
+drm-$(CONFIG_COMPAT)	+= drm_ioc32.o
+radeon-$(CONFIG_COMPAT)	+= radeon_ioc32.o
+
+   and everything else should use foo-y instead of foo-objs
+
+ - the magic CONFIG_COMPAT changes for SHM handles should only be done when
+   a module is set.  CONFIG_COMPAT is set for mostly 64bit systems that can
+   run 32bit code and drm shouldn't behave differently just because we can
+   run 32bit code.

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAECF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVAECHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVAECF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAECFz
+	id S262187AbVAECHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVAECHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:05:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16834 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262185AbVAECFr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:05:47 -0500
-Date: Tue, 4 Jan 2005 18:05:43 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050104180541.P2357@build.pdx.osdl.net>
-References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us> <1104865198.8346.8.camel@krustophenia.net> <1104878646.17166.63.camel@localhost.localdomain> <20050104175043.H469@build.pdx.osdl.net> <1104890131.18410.32.camel@krustophenia.net>
-Mime-Version: 1.0
+	Tue, 4 Jan 2005 21:07:13 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:5305 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262187AbVAECHF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:07:05 -0500
+To: Ray Bryant <raybry@sgi.com>
+Cc: Hirokazu Takahashi <taka@valinux.co.jp>, Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, stevel@mvista.com
+Subject: Re: page migration patchset
+References: <41DB35B8.1090803@sgi.com>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 05 Jan 2005 03:07:03 +0100
+In-Reply-To: <41DB35B8.1090803@sgi.com> (Ray Bryant's message of "Tue, 04
+ Jan 2005 18:32:56 -0600")
+Message-ID: <m1wtusd3y0.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1104890131.18410.32.camel@krustophenia.net>; from rlrevell@joe-job.com on Tue, Jan 04, 2005 at 08:55:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> The last time I checked users could belong to more than one group.  Am I
-> missing something?
+Ray Bryant <raybry@sgi.com> writes:
 
-No, you're not.  I think Alan's just saying the gid based checks
-are suboptimal if there's a cleaner way to do it (to which I agree).
-Personally, I don't have a big problem with the Realtime LSM.  I've helped
-you with it, and suggested a few times that I'd prefer it to be generic;
-but never stepped up to deliver code of that sort.  Since it's your itch,
-you've scratched it, and it's quite simple and contained, I consider
-it acceptable.
+> http://sr71.net/patches/2.6.10/2.6.10-mm1-mhp-test7/
+>
+> A number of us are interested in using the page migration patchset by itself:
+>
+> (1)  Myself, for a manual page migration project I am working on.  (This
+>       is for migrating jobs from one set of nodes to another under batch
+>       scheduler control).
+> (2)  Marcello, for his memory defragmentation work.
+> (3)  Of course, the memory hotplug project itself.
+>
+> (there are probably other "users" that I have not enumerated here).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Could you coordinate that with Steve Longerbeam (cc'ed) ? 
+
+He has a NUMA API extension ready to be merged into -mm* that also
+does kind of page migration when changing the policies of files.
+
+-Andi
+

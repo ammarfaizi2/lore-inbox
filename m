@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131712AbQLQUyi>; Sun, 17 Dec 2000 15:54:38 -0500
+	id <S130485AbQLQVD3>; Sun, 17 Dec 2000 16:03:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131856AbQLQUy2>; Sun, 17 Dec 2000 15:54:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:21262 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131712AbQLQUyR>; Sun, 17 Dec 2000 15:54:17 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
-Date: 17 Dec 2000 12:23:33 -0800
-Organization: Transmeta Corporation
-Message-ID: <91j7c5$pl1$1@penguin.transmeta.com>
-In-Reply-To: <20001217192351.A18244@pcep-jamie.cern.ch> <Pine.LNX.4.10.10012171200310.25447-100000@penguin.transmeta.com> <20001217140530.A14173@vger.timpanogas.org>
+	id <S130613AbQLQVDT>; Sun, 17 Dec 2000 16:03:19 -0500
+Received: from [216.120.107.189] ([216.120.107.189]:49933 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S130485AbQLQVDL>; Sun, 17 Dec 2000 16:03:11 -0500
+Date: Sun, 17 Dec 2000 12:32:37 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: set_rtc_mmss: can't update from 0 to 59
+Message-ID: <20001217123237.B11947@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="d9ADC0YsG2v16Js0"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001217140530.A14173@vger.timpanogas.org>,
-Jeff V. Merkey <jmerkey@vger.timpanogas.org> wrote:
->
->Try thinking about the work to do model (since task queues are so similiar)
->Having to "kick" these things should be automatic in the kernel.  I could
->do a lot of cool stuff with this in there, manos aside.....
 
-No, the "kicking" should _not_ be automatic.
+--d9ADC0YsG2v16Js0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Th ewhol epoint of a lot of the task queues is that they are manual. The
-main use for them (apart from the tty layer, which could easily use
-something else) is the disk starter - where we want to delay the
-submission of requests to the disk until we've aggregated as many as
-possible. Which means that the "tq_disk" queue must absolutely not be
-kicked automatically.
+I was trying to figure out why I periodically get the message=20
 
-		Linus
+set_rtc_mmss: can't update from 0 to 59
+
+on my console.  It appears that the kernel is attempting to update my CMOS
+clock for me, based on the more accurate data being provided by my xntpd.
+
+According to the notes in the code, this should work if my RTC is less than
+15 minutes off... which I can guarantee it is.  Accoring to hwclock, it's
+less than a second off.
+
+So, what's causing this message?
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+Okay, this isn't funny anymore! Let me down!  I'll tell Bill on you!!
+					-- Microsoft Salesman
+User Friendly, 4/1/1998
+
+--d9ADC0YsG2v16Js0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6PSLlz64nssGU+ykRAsG8AJ9J1dBvHmDL+Ku/lIRAzlnhtCgHPQCfeS5i
+S2V3SUsHLuz352XgCSXg9jc=
+=eLww
+-----END PGP SIGNATURE-----
+
+--d9ADC0YsG2v16Js0--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

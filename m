@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289484AbSAVWRV>; Tue, 22 Jan 2002 17:17:21 -0500
+	id <S289487AbSAVWRL>; Tue, 22 Jan 2002 17:17:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289486AbSAVWRL>; Tue, 22 Jan 2002 17:17:11 -0500
-Received: from ns.suse.de ([213.95.15.193]:36626 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289484AbSAVWRD>;
-	Tue, 22 Jan 2002 17:17:03 -0500
-Date: Tue, 22 Jan 2002 23:17:02 +0100
-From: Andi Kleen <ak@suse.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Message-ID: <20020122231702.A30689@wotan.suse.de>
-In-Reply-To: <200201171351.g0HDpdK05456@bliss.uni-koblenz.de.suse.lists.linux.kernel> <mailman.1011289920.22682.linux-kernel2news@redhat.com> <20020122123220.A27968@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020122123220.A27968@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S289486AbSAVWRC>; Tue, 22 Jan 2002 17:17:02 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:4871 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S289484AbSAVWQr>; Tue, 22 Jan 2002 17:16:47 -0500
+Date: Tue, 22 Jan 2002 17:16:45 -0500
+Message-Id: <200201222216.g0MMGj317058@enterprise.bidmc.harvard.edu>
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: linux-kernel@vger.kernel.org
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [Patch - 2.4.17++] Fix undefined ksym in minix.o, ext2.o, sysv.o
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 12:32:20PM -0500, Pete Zaitcev wrote:
-> Andi, the patch above begs two questions in my mind:
-> 
-> 1. Why to bind to 0 (INADDR_ANY) explicitly? My patch does not bind
-> at all and expects connect() to bind automatically. It is how
-> userland works and it seems to work here as well.
+Marcelo, et al,
 
-No real reason. Should work too. 
+Compiling minix as a module results in an unresolved symbol,
+waitfor_one_page:
 
-> 
-> 2. What did you do to increase the number of unnamed devices?
-> You said the patch "should" work, did that mean you did not test it?
+pinhead:~# depmod -a -e
+depmod: *** Unresolved symbols in
+/lib/modules/BootsAs/n18p4/kernel/fs/minix/minix.o
+depmod:         waitfor_one_page
+pinhead:~#
 
-I didn't, but the original reporter reported that it works for him.
+Looks as if EXT2 and SYSV are also affected.
 
--Andi
+Trivial patch [tested on i386] appended.
+
+Kris
+
+##################
+
+--- linux-2.4.18p6/kernel/ksyms.c	Tue Jan 22 17:12:25 2002
++++ linux/kernel/ksyms.c	Tue Jan 22 17:01:25 2002
+@@ -268,6 +268,9 @@
+ EXPORT_SYMBOL(lock_may_read);
+ EXPORT_SYMBOL(lock_may_write);
+ EXPORT_SYMBOL(dcache_readdir);
++#if defined(CONFIG_EXT2_FS)||defined(CONFIG_MINIX_FS)||defined(CONFIG_SYSV_FS)
++EXPORT_SYMBOL(waitfor_one_page);
++#endif
+ 
+ /* for stackable file systems (lofs, wrapfs, cryptfs, etc.) */
+ EXPORT_SYMBOL(default_llseek);

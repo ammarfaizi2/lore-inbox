@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbUJXNKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbUJXNM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbUJXNKn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUJXNKm
+	id S261471AbUJXNM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUJXNM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:10:42 -0400
-Received: from services.exanet.com ([212.143.73.102]:33104 "EHLO
-	services.exanet.com") by vger.kernel.org with ESMTP id S261470AbUJXNIb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:08:31 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6556.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: PATCH: (as189) Fix incorrect Appletalk DDP multicast address
-Date: Sun, 24 Oct 2004 15:08:29 +0200
-Message-ID: <F8B4823728281C429F53D71695A3AA1E01272A45@hawk.exanet-il.co.il>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH: (as189) Fix incorrect Appletalk DDP multicast address
-Thread-Index: AcSrBZ68nhvuRJwES2Kl1IRBehP9XQOxMxWg
-From: "Shlomi Yaakobovich" <Shlomi@exanet.com>
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>, <acme@conectiva.com.br>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+	Sun, 24 Oct 2004 09:12:26 -0400
+Received: from verein.lst.de ([213.95.11.210]:63653 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261474AbUJXNLw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 09:11:52 -0400
+Date: Sun, 24 Oct 2004 15:11:49 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: peter.hettkamp@t-online.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill useless exports and bookkeeping in bt878.c
+Message-ID: <20041024131149.GB19567@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ - no point in exporting bt878_init_module and bt878_cleanup_module,
+   they are always called on module load/removal
+ - bt878_find_audio_dma and the registered bookeeping is utterly
+   pointless as a registration always heppens on load anyway
 
-Has anyone looked at this ?  Can we expect to see these changes in the next 2.4.x and 2.6.x ?
 
-Thanks,
-Shlomi
-
-> -----Original Message-----
-> From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
-> Sent: Tuesday, October 05, 2004 2:56 PM
-> To: Shlomi Yaakobovich; acme@conectiva.com.br
-> Cc: linux-kernel
-> Subject: Re: PATCH: (as189) Fix incorrect Appletalk DDP 
-> multicast address
-> 
-> 
-> 
-> Arnaldo, 
-> 
-> Can you take care of this for us?
-> 
-> 
-> On Sun, Oct 03, 2004 at 09:50:44AM +0200, Shlomi Yaakobovich wrote:
-> > Hi all,
-> > 
-> > Does anyone know what happened to the patch proposed by Alan Stern:
-> > 
-> > 	http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/1147.html
-> > 
-> > I looked at the latest sources of 2.4 and 2.6 and this 
-> patch was not applied to them. Was there a specific reason, 
-> was this patch not tested or found buggy ?  
-> > I believe I have encountered a bug in the system I'm 
-> running that is related to this, I found this by accident 
-> when debugging appletalk, and found out that someone already 
-> >saw this...
-> > 
-> > Can this patch be applied to the next kernel build ?  I 
-> noticed that it was only for 2.6, I can create a similar 
-> patch for 2.4 if needed, I just need to know if there was 
-> something wrong with it.
-> 
+--- 1.6/drivers/media/dvb/bt8xx/bt878.c	2004-10-21 10:39:27 +02:00
++++ edited/drivers/media/dvb/bt8xx/bt878.c	2004-10-23 14:29:35 +02:00
+@@ -557,52 +557,24 @@
+       .remove 	= __devexit_p(bt878_remove),
+ };
+ 
+-static int bt878_pci_driver_registered = 0;
+-
+-/* This will be used later by dvb-bt8xx to only use the audio
+- * dma of certain cards */
+-int bt878_find_audio_dma(void)
+-{
+-	// pci_register_driver(&bt878_pci_driver);
+-	bt878_pci_driver_registered = 1;
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(bt878_find_audio_dma);
+-
+ /*******************************/
+ /* Module management functions */
+ /*******************************/
+ 
+-int bt878_init_module(void)
++static int bt878_init_module(void)
+ {
+-	bt878_num = 0;
+-	bt878_pci_driver_registered = 0;
+-
+ 	printk(KERN_INFO "bt878: AUDIO driver version %d.%d.%d loaded\n",
+ 	       (BT878_VERSION_CODE >> 16) & 0xff,
+ 	       (BT878_VERSION_CODE >> 8) & 0xff,
+ 	       BT878_VERSION_CODE & 0xff);
+-/*
+-        bt878_check_chipset();
+-*/
+-	/* later we register inside of bt878_find_audio_dma
+-	 * because we may want to ignore certain cards */
+-	bt878_pci_driver_registered = 1;
+ 	return pci_module_init(&bt878_pci_driver);
+ }
+ 
+-void bt878_cleanup_module(void)
++static void bt878_cleanup_module(void)
+ {
+-	if (bt878_pci_driver_registered) {
+-		bt878_pci_driver_registered = 0;
+-		pci_unregister_driver(&bt878_pci_driver);
+-	}
+-	return;
++	pci_unregister_driver(&bt878_pci_driver);
+ }
+ 
+-EXPORT_SYMBOL(bt878_init_module);
+-EXPORT_SYMBOL(bt878_cleanup_module);
+ module_init(bt878_init_module);
+ module_exit(bt878_cleanup_module);
+ 
+===== drivers/media/video/v4l2-common.c 1.4 vs edited =====

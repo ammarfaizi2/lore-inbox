@@ -1,86 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbUKJFVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbUKJGCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbUKJFVr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 00:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbUKJFVq
+	id S261894AbUKJGCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 01:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbUKJGCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 00:21:46 -0500
-Received: from imap.gmx.net ([213.165.64.20]:16024 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261877AbUKJFVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 00:21:20 -0500
-X-Authenticated: #815327
-Message-ID: <4191A549.9060602@gmx.de>
-Date: Wed, 10 Nov 2004 06:21:13 +0100
-From: =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] WOL for sis900
-References: <4183B6B0.7010906@gmx.de> <1100055532.25963.58.camel@localhost.localdomain>
-In-Reply-To: <1100055532.25963.58.camel@localhost.localdomain>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig99E09B220EDCD5393CBDF2B0"
-Content-Transfer-Encoding: 8bit
+	Wed, 10 Nov 2004 01:02:34 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:60891 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261894AbUKJGCd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 01:02:33 -0500
+Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and
+	vmalloc)
+From: Robert Love <rml@novell.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4191A4E2.7040502@gmx.net>
+References: <4191A4E2.7040502@gmx.net>
+Content-Type: text/plain
+Date: Wed, 10 Nov 2004 01:03:17 -0500
+Message-Id: <1100066597.18601.124.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig99E09B220EDCD5393CBDF2B0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Rusty Russell wrote:
-> On Sat, 2004-10-30 at 17:43 +0200, Malte Schröder wrote:
+On Wed, 2004-11-10 at 06:19 +0100, Carl-Daniel Hailfinger wrote:
+> Hi,
 > 
->>Hello,
->>I have applied the patch from http://lkml.org/lkml/2003/7/16/88 manually 
->>to 2.6.7 (also works on 2.6.{8,9}) and have been using it since then.
->>Attached is a diff against 2.6.9.
-> 
-> 
-> Want to change the MODULE_PARM to new-style module_param() calls, too?
+> it seems there is a bunch of drivers which want to allocate memory as
+> efficiently as possible in a wide range of allocation sizes. XFS and
+> NTFS seem to be examples. Implement a generic wrapper to reduce code
+> duplication.
+> Functions have the my_ prefixes to avoid name clash with XFS.
 
-Since I don't exactly know what this means and currently don't have the 
-time to find out I don't think so.
-And if WoL should be done using ethtool, my patch should be ignored and 
-the one of Daniele Venzano (posted to netdev@oss.sgi.com) should be 
-considered.
+No, no, no.  A good patch would be fixing places where you see this.
 
-(Will gather some more background information before posting a patch 
-next time ;) )
+Code needs to conscientiously decide to use vmalloc over kmalloc.  The
+behavior is different and the choice needs to be explicit.
 
-Greets :)
-> 
-> Thanks,
-> Rusty.
+	Robert Love
+ 
 
-
--- 
----------------------------------------
-Malte Schröder
-MalteSch@gmx.de
-ICQ# 68121508
----------------------------------------
-
-
---------------enig99E09B220EDCD5393CBDF2B0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkaVN4q3E2oMjYtURAhT3AJ91CPva2hAcVVA5cpX0RdUOcaVRAQCg2HSh
-HJ752UxgPTB+SiIzmQMhgf4=
-=7P1H
------END PGP SIGNATURE-----
-
---------------enig99E09B220EDCD5393CBDF2B0--

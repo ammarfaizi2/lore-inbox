@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUHABhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUHACSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbUHABhc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 21:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUHABhc
+	id S264857AbUHACSz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 22:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbUHACSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 21:37:32 -0400
-Received: from gate.crashing.org ([63.228.1.57]:35468 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264770AbUHABh3 (ORCPT
+	Sat, 31 Jul 2004 22:18:55 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:49826 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S264857AbUHACSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 21:37:29 -0400
-Subject: Re: Solving suspend-level confusion
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <200407311741.12406.david-b@pacbell.net>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200407310723.12137.david-b@pacbell.net>
-	 <200407311901.17390.oliver@neukum.org>
-	 <200407311741.12406.david-b@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1091324075.7389.41.camel@gaston>
+	Sat, 31 Jul 2004 22:18:53 -0400
+Date: Sun, 1 Aug 2004 05:18:52 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Oops in idepnp_probe -> sysfs_hash_and_remove with pnpbios turned on
+Message-ID: <20040801021852.GA3769@ee.oulu.fi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 01 Aug 2004 11:34:36 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-01 at 10:41, David Brownell wrote:
-> On Saturday 31 July 2004 10:01, Oliver Neukum wrote:
-> > 
-> > Maybe a better approach would be to describe the required features to
-> > the drivers rather than encoding them in a single integer. Rather
-> > like passing a request that states "lowest power level with device state
-> > retained, must not do DMA, enable remote wake up"
-> 
-> A pointer to some sort of struct could be generic and typesafe;
-> better than an integer or enum.
+Hiya
 
-Well... if it gets that complicated, drivers will get it wrong...
+I get this oops on boot when booting a kernel with pnpbios turned on
+on a old thinkpad 600. BIOS seems to be pretty broken on this one, so that
+might be a partial cause. Kernel is a pretty recentish fedora devel one
+so it's basically 2.6.8-rc2'ish in case that matters. 
 
-I'm pretty sure that in real life, drivers only care about 2 states
-at this point, which is the ones needed for suspend to disk and suspend
-to RAM, the later doing a D3. An assitional "standby" state could be
-added later if we want.
+Might contain a few typos, couldn't get a readable photo :-(
 
-If we really want to separate the system "target" state from the device
-state, then we could indeed define a structure, but I doubt this is necessary,
-I think we can get everything working with the current scheme by just slightly
-adjusting the constants to properly differenciate the 2 above defined system
-states.
+Unable to handle kernel NULL pointer derference at virtual address 00000020
+printing eip:
+021a5e21
+*pde = 00000000
+Oops: 00008319
+Modules linked in:
+CPU: 0
+EIP: 0060:[<021a5e21>] Not tainted
+EFLAGS: 000102556 (2.6.7-1.492custom)
+EIP is at sysfs_hash_and_remove+0xf/0x1ce
+eax: 00000000 ebx: 023f8e74 ecx: 00000000 edx: 00000077
+esi: 0235cf10 edi: 023f8e9c ebp: 0000000 esp: 0ff61e68
+ds: 007b es:007b ss:0068
+Process swapper (pid:1, threadinfo=0ff61000 task=0ff4f830)
+Stack: 023f8e74 0235cf10 023f8e74 0fd754c4 ...
+Call trace:
+0222ff4a device_release_driver+0x16/0x46
+0223014c bus_remove_device+0x5c/0x95
+device_del+0x6d/0x8e
+device_unregister+0x8/0x10
+ide_unregister+0x410/0x7c3
+ide_register_hw+0xa7(0x141
+idepnp_probe+0x8c/0xb2
+inode_doinit_with_dentry+0x4b/0x64b
+pnp_device_probe+0x5a/0x77
+bus_match+0x27/0x45
+driver_attach+0x37/0x66
+bus_add_driver+0x77/0x97
+driver_register+0x51/0x58
+pnp_register_driver+0x2b/0x4c
+ide_init+0x44/0x56
 
-The only thing we need to make sure of at this point is that drivers ignore
-states they don't understand so we keep some flexibility to extending the list
-of states.
-
-Part of the confusion at this point is that we are playing with 2 different
-concepts, which are the driver operating state and the device power state.
-
-System suspend wants all drivers to suspend (freeze activity so that a
-consistent state of the driver is kept in memory). It may or may not
-be followed by a device power down.
-
-Dynamic per-device power management would alter the device power state,
-but without putting the driver into a suspended state (actually, the driver
-itself would be responsible to turning the device back on as soon as some kind
-of request comes in).
-
-I think we don't need at this point to provide hooks or abstractions to
-represent these. Doing so would break everything, we don't need to do it
-at this point, we can at least get something reasonably working with our
-current scheme. The device power state policy can remain under driver
-control imho and don't need to be abstracted. At least not now. Let's get
-things working with what we have, for system suspend, and drivers who want
-to do dynamic PM can implement it locally.
-
-Ben.
-
-
+-- 
+Pekka Pietikainen

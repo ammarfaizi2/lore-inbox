@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbSLNSUM>; Sat, 14 Dec 2002 13:20:12 -0500
+	id <S265800AbSLNS0f>; Sat, 14 Dec 2002 13:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265578AbSLNSUM>; Sat, 14 Dec 2002 13:20:12 -0500
-Received: from packet.digeo.com ([12.110.80.53]:31162 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265773AbSLNSUL>;
-	Sat, 14 Dec 2002 13:20:11 -0500
-Message-ID: <3DFB7826.D2EF0263@digeo.com>
-Date: Sat, 14 Dec 2002 10:27:50 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+	id <S265815AbSLNS0f>; Sat, 14 Dec 2002 13:26:35 -0500
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:33740
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id <S265800AbSLNS0e>; Sat, 14 Dec 2002 13:26:34 -0500
+Message-ID: <3DFB79B3.203@tupshin.com>
+Date: Sat, 14 Dec 2002 10:34:27 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Oleg Drokin <green@namesys.com>
-CC: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
-References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214144437.B13549@namesys.com>
-Content-Type: text/plain; charset=us-ascii
+CC: linux-kernel@vger.kernel.org
+Subject: Re: JDIRTY JWAIT errors in 2.4.19
+References: <3DFAF9EF.6000501@tupshin.com> <20021214135550.A13549@namesys.com>
+In-Reply-To: <20021214135550.A13549@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2002 18:27:56.0893 (UTC) FILETIME=[860CA0D0:01C2A39E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sigh...unfortunately that machine didn't have magic SysRq compiled in. 
+I'm going to build an idential kernel with Sysrq and reboot. Maybe I'll 
+see the error again in a month or so ;-(
+
+-Tupshin
+
 Oleg Drokin wrote:
-> 
-> > > +   if ( from != 0 ) {/* First page needs to be partially zeroed */
-> > > +       char *kaddr = kmap_atomic(prepared_pages[0], KM_USER0);
-> > > +       memset(kaddr, 0, from);
-> > > +       kunmap_atomic( kaddr, KM_USER0);
-> > > +       SetPageUptodate(prepared_pages[0]);
-> > > +   }
-> > > +   if ( to != PAGE_CACHE_SIZE ) { /* Last page needs to be partially zeroed */
-> > > +       char *kaddr = kmap_atomic(prepared_pages[num_pages-1], KM_USER0);
-> > > +       memset(kaddr+to, 0, PAGE_CACHE_SIZE - to);
-> > > +       kunmap_atomic( kaddr, KM_USER0);
-> > > +       SetPageUptodate(prepared_pages[num_pages-1]);
-> > > +   }
-> > This seems wrong.  This could be a newly-allocated pagecache page.  It is not
-> > yet fully uptodate.  If (say) the subsequent copy_from_user gets a fault then
-> > it appears that this now-uptodate pagecache page will leak uninitialised stuff?
-> 
-> No, I do not see it. Even if we have somebody already mmapped this part of file,
-> and he got enough of luck that subsequent copy_from_user gets a fault and then
-> this someone gets to CPU and tries to access the page, the SIGBUS should happen
-> because of access to mmaped area beyond end of file as we have not yet updated
-> the file size note that we have this check before this code you pointed out:
->     if ( (pos & ~(PAGE_CACHE_SIZE - 1)) > inode->i_size ) {
-> 
 
-It is not related to mmap.  The exploit would be to pass a partially
-(or fully?) invalid (address, length) pair into the write() system call.
+>Can you please execute SysRq-T, decode it with ksymoops and send us the result?
+>
+>  
+>
+Sigh...unfortunately that machine didn't have magic SysRq compiled in. 
+I'm going to build an identical kernel with Sysrq and reboot. Maybe I'll 
+see the error again in a month or so ;-(
 
-Something like:
+-Tupshin
 
-	fd = creat(...);
-	write(fd, 0, 4095);		/* efault, instantiate 0'th page */
-	lseek(fd, 4096, SEEK_SET);
-	write(fd, "", 1);		/* place the 0'th page inside i_size */
-	lseek(fd, 0, SEEK_SET);
-	read(fd, my_buffer, 4095);	/* now what do we have? */

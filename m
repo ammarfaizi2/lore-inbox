@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268602AbTCCVmh>; Mon, 3 Mar 2003 16:42:37 -0500
+	id <S268312AbTCCVkm>; Mon, 3 Mar 2003 16:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268603AbTCCVmg>; Mon, 3 Mar 2003 16:42:36 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:32103 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S268602AbTCCVmd>; Mon, 3 Mar 2003 16:42:33 -0500
-Date: Mon, 03 Mar 2003 15:52:42 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 2.5.63] Teach page_mapped about the anon flag
-Message-ID: <117290000.1046728362@baldur.austin.ibm.com>
-In-Reply-To: <20030303133539.6594e0b6.akpm@digeo.com>
-References: <20030227025900.1205425a.akpm@digeo.com>
- <200302280822.09409.kernel@kolivas.org>
- <20030227134403.776bf2e3.akpm@digeo.com>
- <118810000.1046383273@baldur.austin.ibm.com>
- <20030227142450.1c6a6b72.akpm@digeo.com>
- <103400000.1046725581@baldur.austin.ibm.com>
- <20030303131210.36645af6.akpm@digeo.com>
- <107610000.1046726685@baldur.austin.ibm.com>
- <20030303133539.6594e0b6.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S268586AbTCCVkm>; Mon, 3 Mar 2003 16:40:42 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:41490 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S268312AbTCCVkl>;
+	Mon, 3 Mar 2003 16:40:41 -0500
+Date: Mon, 3 Mar 2003 22:51:12 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kbuild: Smart notation for non-verbose output
+Message-ID: <20030303215112.GA19798@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Kai.
 
---On Monday, March 03, 2003 13:35:39 -0800 Andrew Morton <akpm@digeo.com>
-wrote:
+Create a nice shorthand to enable the non-verbose output mode.
+make V=1	=> Gives verbose output (default)
+make V=0	=> Gives non-verbose output
 
-> We do need a patch I think.  page_mapped() is still assuming that an
-> all-bits-zero atomic_t corresponds to a zero-value atomic_t.
-> 
-> This does appear to be true for all supported architectures, but it's a
-> bit grubby.
+One of the reasons why people does not use KBUILD_VERBOSE=0 that
+much is simply the typing needed.
+This notation should make it acceptable to type it.
+The usage of "make V=0" is restricted to the command line.
+Anyone that wants to enable the non-verbose mode pr. default shall
+set KBUILD_VERBOSE in the shell.
 
-If that's ever not true then we need extra code to initialize/rezero that
-field, since we assume it's zero on alloc, and the pte_chain code also
-assumes it's zero for a new page.
+	Sam
 
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+===== Makefile 1.391 vs edited =====
+--- 1.391/Makefile	Mon Mar  3 05:55:31 2003
++++ edited/Makefile	Mon Mar  3 22:49:14 2003
+@@ -107,6 +107,11 @@
+ 
+ #	For now, leave verbose as default
+ 
++ifdef V
++  ifeq ("$(origin V)", "command line")
++    KBUILD_VERBOSE = $(V)
++  endif
++endif
+ ifndef KBUILD_VERBOSE
+   KBUILD_VERBOSE = 1
+ endif

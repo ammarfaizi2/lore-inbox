@@ -1,78 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155026AbQAaCYc>; Sun, 30 Jan 2000 21:24:32 -0500
-Received: by vger.rutgers.edu id <S154168AbQAaCXa>; Sun, 30 Jan 2000 21:23:30 -0500
-Received: from dyn-225.linux.theplanet.co.uk ([195.92.192.225]:2960 "EHLO caramon.arm.linux.org.uk") by vger.rutgers.edu with ESMTP id <S155087AbQAaCVy>; Sun, 30 Jan 2000 21:21:54 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200001302349.XAA03967@raistlin.arm.linux.org.uk>
+Received: by vger.rutgers.edu via listexpand id <S155135AbQAaGDJ>; Mon, 31 Jan 2000 01:03:09 -0500
+Received: by vger.rutgers.edu id <S155172AbQAaF42>; Mon, 31 Jan 2000 00:56:28 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:4956 "EHLO smtp1.cern.ch") by vger.rutgers.edu with ESMTP id <S155170AbQAaFxE>; Mon, 31 Jan 2000 00:53:04 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.rutgers.edu
 Subject: Re: DMA changes in 2.3.41 - how the f* do I get this working on ARM?
-To: davem@redhat.com (David S. Miller)
-Date: Sun, 30 Jan 2000 23:49:17 +0000 (GMT)
-Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <200001302211.OAA03036@pizda.ninka.net> from "David S. Miller" at Jan 30, 2000 02:11:49 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+References: <200001300006.AAA02084@raistlin.arm.linux.org.uk> <200001302211.OAA03036@pizda.ninka.net>
+From: Jes Sorensen <Jes.Sorensen@cern.ch>
+Date: 31 Jan 2000 11:02:28 +0100
+In-Reply-To: "David S. Miller"'s message of "Sun, 30 Jan 2000 14:11:49 -0800"
+Message-ID: <d3oga2r22z.fsf@lxplus011.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-David S. Miller writes:
-> You have no mechanism whatsoever to disable the cache on a per-page
-> basis with MMU mappings?  This would very much surprise me.
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-Please see my later mailing about 1MB mappings.  I do not wish to map
-the whole kernel memory in using 4k page tables - that would just too
-sick to even consider.  What if I came up with something which required
-x86 to map in its kernel memory using ptes?  ie, which prevented the
-use of PSEs.  How would that be accepted?  Probably the same way that
-I'm reacting to this change, but on a larger scale.
+David>    From: Russell King <rmk@arm.linux.org.uk> Date: Sun, 30 Jan
+David> 2000 00:06:15 +0000 (GMT)
 
-> For the actual transfers, you can do the dma_cache_*() calls in the
-> pci_{un,}map_streaming() calls.
+>    I would have preferred to have heard about the extent of
+> these changes (and that the dma_cache_* macros were going to be
+> removed, along with my comments marking them with my initials)
+> before it was submitted.
 
-That is what I thought, but the problems I see which this introduces
-are either:
+David> For the actual transfers, you can do the dma_cache_*() calls in
+David> the pci_{un,}map_streaming() calls.
 
-1. pci_map_* needs to handle the cache *and* pci_unmap_* has to as well,
-   thereby expending twice the number of CPU cycles over cache handling
-   that the old way did.
+David> The only place you could possibly need it is for the IDE
+David> scatter list tables, and that would only be if you have _no_
+David> mechanism to disable the CPU cache in the MMU, which I severely
+David> doubt.
 
-2. pci_map_* needs to clean and flush the cache unconditionally, which
-   will result in DMA reads needlessly cleaning stale data out of the
-   cache (with the associated slow bus cycles).
+Hmmm ok I just noticed this and I haven't read that DMA mapping
+document yet. I'll have to look at it to see how it affects PCI
+devices that are 64 bit address capable.
 
-Both of these suffer from at last a doubling of the non-cache-coherentness
-that the old way allowed.
+The one thing for the m68k is that we have very few machines with
+PCI, though we still suffer a lot from the DMA coherency problem on
+the busses we do have.
 
-> The only place you could possibly need it is for the IDE scatter list
-> tables, and that would only be if you have _no_ mechanism to disable
-> the CPU cache in the MMU, which I severely doubt.
+The place where this is a real problem is in drivers where data is
+shared between the adapter and the host CPU, for instance the 53c7xx
+driver. On the m68k we currently use a kernel_set_cachemode() function
+to change the caching of the page allocated for the shared structures,
+but thats a pretty non portable way of doing it. I would like to see
+something a get_free_cachecoherent_page() interface instead, what do
+you think of that?
 
-Read above.
-
-> Actually, don't be pissed, and instead work with us to get your
-> port working again.  The changes were designed so that all of
-> the cache flushing hacks could just dissapear and be hidden
-> within the new interfaces on ports which needed.
-
-Unfortunately, they are not designed well enough.
-
-> I was completely convinced that if all dma mappings were handled
-> explicitly in the manner they are now, none of that crap would be
-> needed anymore.
-
-My main bug bear with this is that there was virtually no evidence of
-discussion of this method of fixing the problem between concerned people
-(ie, architecture maintainers) who would get hit hardest by the change.
-If there was, we wouldn't be in this situation we are now.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | |   http://www.arm.linux.org.uk/~rmk/aboutme.html    /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Jes
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,92 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289919AbSA3QQK>; Wed, 30 Jan 2002 11:16:10 -0500
+	id <S290028AbSA3Q07>; Wed, 30 Jan 2002 11:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289905AbSA3QPq>; Wed, 30 Jan 2002 11:15:46 -0500
-Received: from [216.247.238.190] ([216.247.238.190]:36109 "HELO
-	pakistanmail.com") by vger.kernel.org with SMTP id <S289910AbSA3QOv>;
-	Wed, 30 Jan 2002 11:14:51 -0500
-From: grumph@pakistanmail.com
-Reply-to: grumph@pakistanmail.com
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, hpa@zytor.com
-Date: Wed, 30 Jan 2002 18:09:22 +0100
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Message-id: <3c580b39.3e40.0@pakistanmail.com>
-X-User-Info: 217.70.229.45
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S289975AbSA3QZM>; Wed, 30 Jan 2002 11:25:12 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:48800
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S290018AbSA3QYS>; Wed, 30 Jan 2002 11:24:18 -0500
+Date: Wed, 30 Jan 2002 09:23:03 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130162303.GN25973@opus.bloom.county>
+In-Reply-To: <20020130080308.D18381@work.bitmover.com> <Pine.LNX.4.33L.0201301408540.11594-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0201301408540.11594-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did some thinking just before this thread surfaced.
+On Wed, Jan 30, 2002 at 02:14:52PM -0200, Rik van Riel wrote:
+> On Wed, 30 Jan 2002, Larry McVoy wrote:
+> > On Wed, Jan 30, 2002 at 08:42:33AM -0700, Tom Rini wrote:
+> > > On Tue, Jan 29, 2002 at 11:48:05PM -0800, Linus Torvalds wrote:
+> > > It does in some ways anyhow.  Following things downstream is rather
+> > > painless, but one of the things we in the PPC tree hit alot is when we
+> > > have a new file in one of the sub trees and want to move it up to the
+> > > 'stable' tree
+> >
+> > Summary: only an issue because Linus isn't using BK.
+> 
+> Bitkeeper also seems to have some problems applying out-of-order
+> changesets or applying them partially.
+> 
+> Changesets sent by 'bk send' are also much harder to read than
+> unidiffs ;)
+> 
+> I think for bitkeeper to be useful for the kernel we really need:
+> 
+> 1) 'bk send' format Linus can read easily
 
-What can a patchbot be trusted to do properly?  (see below)
----------------------------------------------------
-Linus got his style of working and he's got no intention whatsoever to
-change that. So what is needed is a bot that works according to Linus' 
-taste, but goes behind his back when it comes to informing the poor 
-patch submitters....
+I think you can do bk send -u which spits out a unified diff in the
+comments of the file or so.
 
-As always, simplicity rules. 
+> 2) the ability to send individual changes (for example, the
+>    foo_net.c fixes from 1.324 and 1.350) in one nice unidiff
 
-None of this relies on a bot handling actual patching of code in the
-tree. A live, human (most of you, I assume) being will have to review
-and manually apply the patch.
+This is sort of what I was getting at, execpt in this case foo_net.c is
+also a new file as well.  Myself and Paul haven't found a good way to do
+this :(
 
-None of this requires Linus to change his habits, he could still apply
-any patches sent to torvalds@transmeta. Trusted people could still send
-Linus patches directly.
-
-But the newbies and untrusted guys without an established relationship to
-a trusted kernel developer get a little help to keep their patch updated. 
-
-It is not going to help on bad person chemistry or bad code. But it
-could weed out the obvious non-starters and help people get it right,
-without bothering busy kernel developers.
-
-
-What can a patchbot be trusted to do properly?
----------------------------------------------------
-- receive mail sent to: patch-2.5-linus@kernel or patch-2.4-marcelo@kernel
- (you get the idea; version and tree)
-- patch-id assignment for tracking of patches accepted by bot
-- sender authentication/confirmation, as for mailing list subscriptions
-- verify that patch 
-	- applies to latest tree
-	- isn't oversized (by some definition)
-	- is correctly formatted
-	- contains a rationale (in some predefined format)
-- route patch to correct maintainer(s), based on the files it touches
-	(may require some initial work)
-- inform sender that patch was forwarded to <maintainer>
-- inform sender that patch was automatically rejected because it:
-	- does not apply to latest tree
-	- is too big/touches too many files
-	- does not compile (hardware reqs.? OSD labs?)
-	- does not contain aforementioned rationale
-	- isn't formatted according to CodingStyle (Does current code?)
-- inform sender that patch did not end up in next snap of tree, 
-	possibly because of:
-	- conflict with other patch
-	- a human didn't like the taste of it (-EBADTASTE)
-	- maintainer has not reviewed the patch yet
-	(use the above assigned patch-id to detect if patch was applied)
-- ask sender to rediff, review and resubmit patch 
-  The bot could do this by itself. But it isn't linus-style.
-  The sender should maintain his own patch.
-- inform the sender how to kill a patch-id from being processed	
-- automatically kill patch-ids from being processed if sender does not 
-  respond within <time>
-- killfile abusers (needs policy)
-- publish patches on kernel.org and linux-kernel as they come in.
-----------------------------------------------------------
-
-Will Linus immediately killfile mail sent from this bot?
-Will hpa host it at kernel.org?
-Will someone write the code if it gets thumbs up from linus/hpa?
-Is it going to make a difference?
-
-_______________________________________________________________________
-Get your free @pakistanmail.com email address   http://pakistanmail.com
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

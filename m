@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274612AbRITTCh>; Thu, 20 Sep 2001 15:02:37 -0400
+	id <S274617AbRITTOa>; Thu, 20 Sep 2001 15:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274613AbRITTC1>; Thu, 20 Sep 2001 15:02:27 -0400
-Received: from ares.sot.com ([195.74.13.236]:54546 "EHLO ares.sot.com")
-	by vger.kernel.org with ESMTP id <S274612AbRITTCN>;
-	Thu, 20 Sep 2001 15:02:13 -0400
-Date: Thu, 20 Sep 2001 22:02:37 +0300 (EEST)
-From: Yaroslav Popovitch <yp@ares.sot.com>
-To: linux-kernel@vger.kernel.org
-Subject: CAPI2 is not compiled by gcc-3.0.1
-Message-ID: <Pine.LNX.4.10.10109202152550.23645-100000@ares.sot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274618AbRITTOU>; Thu, 20 Sep 2001 15:14:20 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:37876 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274617AbRITTOG>;
+	Thu, 20 Sep 2001 15:14:06 -0400
+Date: Thu, 20 Sep 2001 21:13:45 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Chris Mason <mason@suse.com>,
+        Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
+        Andrew Morton <andrewm@uow.edu.au>, Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
+Message-ID: <20010920211345.X729@athlon.random>
+In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com> <773660000.1001006393@tiny>, <773660000.1001006393@tiny>; <20010920204712.T729@athlon.random> <3BAA3C6D.AC20D953@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BAA3C6D.AC20D953@zip.com.au>; from akpm@zip.com.au on Thu, Sep 20, 2001 at 11:58:53AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 20, 2001 at 11:58:53AM -0700, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > ...
+> > --- 2.4.10pre12aa2/fs/buffer.c.~1~      Thu Sep 20 20:14:19 2001
+> > +++ 2.4.10pre12aa2/fs/buffer.c  Thu Sep 20 20:45:58 2001
+> > @@ -2506,7 +2506,7 @@
+> >         spin_unlock(&free_list[isize].lock);
+> > 
+> >         page->buffers = bh;
+> > -       page->flags &= ~(1 << PG_referenced);
+> > +       page->flags |= 1 << PG_referenced;
+> 
+> I don't see how this can change anything - getblk() calls
+> touch_buffer() shortly afterwards, which does the same
+> thing?
 
-I want only report,that isdn/capi.c with enabled CAPI2 is not compiled by
-gcc-3.0.1 due to an internal compiler error:
+I'm worried the page is freed before it has a chance to be found in the
+freelist in smp. The refill_freelist logic is broken too and right fix
+would be much more invasive than the above one liner, we should return
+one bh with b_count just set to 1 to be sure it's not collected away
+under us and we have to try again. But this one probably will do the
+trick too for now. and maybe it really doesn't matter as you say.
 
-Reading specs from /usr/lib/gcc-lib/i386-rpm-linux/3.0.1/specs
-Configured with: ../configure --prefix=/usr --enable-shared
---enable-threads=posix --enable-haifa --host=i386-rpm-linux
-Thread model: posix
-gcc version 3.0.1
- /usr/lib/gcc-lib/i386-rpm-linux/3.0.1/cpp0 -lang-c -v
--I/home/yp/kernel-2.4.10/linux/include -D__GNUC__=3 -D__GNUC_MINOR__=0
--D__GNUC_PATCHLEVEL__=1 -D__ELF__ -Dunix -Dlinux -D__ELF__ -D__unix__
--D__linux__ -D__unix -D__linux -Asystem=posix -D__OPTIMIZE__
--D__STDC_HOSTED__=1 -Wall -Wstrict-prototypes -Wno-trigraphs -Acpu=i386
--Amachine=i386 -Di386 -D__i386 -D__i386__ -D__tune_i686__
--D__tune_pentiumpro__ -D__KERNEL__ -DMODULE -DMODVERSIONS -include
-/home/yp/kernel-2.4.10/linux/include/linux/modversions.h capi.c capi.i
-GNU CPP version 3.0.1 (cpplib) (i386 Linux/ELF)
-ignoring nonexistent directory "/usr/i386-rpm-linux/include"
-ignoring duplicate directory "/usr/include"
-#include "..." search starts here:
-#include <...> search starts here:
- /home/yp/kernel-2.4.10/linux/include
- /usr/include
- /usr/lib/gcc-lib/i386-rpm-linux/3.0.1/include
-End of search list.
- /usr/lib/gcc-lib/i386-rpm-linux/3.0.1/cc1 -fpreprocessed capi.i -quiet
--dumpbase capi.c -mpreferred-stack-boundary=2 -mcpu=i686 -malign-jumps=3
--malign-functions=2 -O2 -Wall -Wstrict-prototypes -Wno-trigraphs -version
--fomit-frame-pointer -fno-strict-aliasing -fno-common -o capi.s
-GNU CPP version 3.0.1 (cpplib) (i386 Linux/ELF)
-GNU C version 3.0.1 (i386-rpm-linux)
-        compiled by GNU C version 3.0.1.
-capi.c: In function `capi_ioctl':
-capi.c:1031: Unrecognizable insn:
-(insn/i 1672 3383 3380 (parallel[ capi.c:1031: Internal error:
-Segmentation fault
+And also the get_hash_table need to touch the buffer since reiserfs
+makes heavy use if it.
 
+just a few ideas.
 
- I already had sent full report to gcc-bugs@gcc.gnu.org
+--- 2.4.10pre12aa2/fs/buffer.c.~1~	Thu Sep 20 20:14:19 2001
++++ 2.4.10pre12aa2/fs/buffer.c	Thu Sep 20 21:06:16 2001
+@@ -598,8 +598,10 @@
+ 		    bh->b_size    == size	&&
+ 		    bh->b_dev     == dev)
+ 			break;
+-	if (bh)
++	if (bh) {
+ 		get_bh(bh);
++		touch_buffer(bh);
++	}
+ 
+ 	return bh;
+ }
+@@ -1181,10 +1183,10 @@
+ 
+ 		/* Insert the buffer into the regular lists */
+ 		__insert_into_queues(bh);
++		touch_buffer(bh);
+ 	out:
+ 		write_unlock(&hash_table_lock);
+ 		spin_unlock(&lru_list_lock);
+-		touch_buffer(bh);
+ 		return bh;
+ 	}
+ 
 
-Cheers,YP 
-
-
+Andrea

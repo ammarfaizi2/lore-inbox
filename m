@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUHPLvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267557AbUHPL7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267554AbUHPLvn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 07:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUHPLvm
+	id S267557AbUHPL7O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 07:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUHPL7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 07:51:42 -0400
-Received: from mail505.nifty.com ([202.248.37.213]:3796 "EHLO
-	mail505.nifty.com") by vger.kernel.org with ESMTP id S267556AbUHPLvP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 07:51:15 -0400
-To: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-From: Tetsuo Handa <a5497108@anet.ne.jp>
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
-In-Reply-To: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
-Message-Id: <200408162049.FFF09413.8592816B@anet.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Mon, 16 Aug 2004 20:51:03 +0900
+	Mon, 16 Aug 2004 07:59:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62184 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267557AbUHPL7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 07:59:12 -0400
+Date: Mon, 16 Aug 2004 13:58:13 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Keith Whitwell <keith@tungstengraphics.com>
+Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: DRM and 2.4 ...
+Message-ID: <20040816115813.GD13029@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com> <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com> <20040816101426.GB31696@devserv.devel.redhat.com> <Pine.LNX.4.58.0408161137330.21177@skynet> <41209DBB.1060909@tungstengraphics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
+Content-Disposition: inline
+In-Reply-To: <41209DBB.1060909@tungstengraphics.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, David.
 
-On Sun, 15 Aug 2004 14:59:52 -0700
-David S. Miller wrote:
-> On Sun, 15 Aug 2004 16:57:58 -0300
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+--3Pql8miugIZX0722
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Aug 16, 2004 at 12:42:51PM +0100, Keith Whitwell wrote:
 > 
-> > On Sun, Aug 15, 2004 at 01:53:49AM +0900, Tetsuo Handa wrote:
-> > > 
-> > > I'm using tg3.o with DHCP and PXE boot environment
-> > > and I updated from 2.4.26 to 2.4.27,
-> > > but tg3.o became not working with IBM BladeCenter.
-> > 
-> > David Miller is the tg3 maintainer, he will help you.
-> 
-> Does manual IP configuration work?
+> Dave's hit the nail on the head here.  If you'd like some changes, feel 
+> free to make suggestions.
 
-'ifconfig eth0 192.168.0.40' and 'route add default gw 192.168.0.1' showed
-no error messages, but 'ping' doesn't reply.
+once the new intel DRM driver hits Linus' tree I want to start an experiment
+to make it look like a linux driver.. (I'm waiting for that driver since
+most of my hw is intel gfx based)
 
- From 2.4.26 till 2.4.27-rc3 were all OK.
-This trouble happens with 2.4.27-rc4 and later.
+--3Pql8miugIZX0722
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---
-I'm sorry, but since yesterday, I temporarily disabled a5497108@anet.ne.jp to reduce spams.
-Please reply to dev_null@anet.ne.jp if you couldn't reply to a5497108@anet.ne.jp .
-Thank you.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBIKFVxULwo51rQBIRAtWtAJ9ltiPJyOBN6HcvCq3/0h5P/ho+lQCfcVJ3
+kQwB+4rPvqQAheSKUImhhIs=
+=4JZ0
+-----END PGP SIGNATURE-----
+
+--3Pql8miugIZX0722--

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282133AbRKWMv5>; Fri, 23 Nov 2001 07:51:57 -0500
+	id <S282135AbRKWM5i>; Fri, 23 Nov 2001 07:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282135AbRKWMvr>; Fri, 23 Nov 2001 07:51:47 -0500
-Received: from ns.krot.org ([193.212.103.165]:47939 "HELO ns.krot.org")
-	by vger.kernel.org with SMTP id <S282133AbRKWMvc> convert rfc822-to-8bit;
-	Fri, 23 Nov 2001 07:51:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: <linux-kernel@vger.kernel.org>
-Subject: Which gcc version?
-Date: Fri, 23 Nov 2001 13:53:13 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S282139AbRKWM53>; Fri, 23 Nov 2001 07:57:29 -0500
+Received: from t2.redhat.com ([199.183.24.243]:60659 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S282135AbRKWM5K>; Fri, 23 Nov 2001 07:57:10 -0500
+Message-ID: <3BFE47A5.94E10E69@redhat.com>
+Date: Fri, 23 Nov 2001 12:57:09 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011123125137Z282133-17408+17815@vger.kernel.org>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+Roy Sigurd Karlsbakk wrote:
+> 
+> hi all
+> 
+> I just wonder...
+> With a clean rh72 install, I've got two gcc versions installed in parllel,
+> 2.96 and 3.0.2. Which one should I use to compile the kernel?
 
-I just wonder...
-With a clean rh72 install, I've got two gcc versions installed in parllel, 
-2.96 and 3.0.2. Which one should I use to compile the kernel?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-thanks
-
-roy
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+See this last line.
+That URL has a nice description..... Also just see Documentation/Changes

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTISTGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 15:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTISTGq
+	id S261693AbTISTIt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 15:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbTISTIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 15:06:46 -0400
-Received: from holomorphy.com ([66.224.33.161]:54492 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261680AbTISTGp (ORCPT
+	Fri, 19 Sep 2003 15:08:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:16066 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261693AbTISTIm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 15:06:45 -0400
-Date: Fri, 19 Sep 2003 12:07:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Olien <dmo@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       piggin@cyberone.com.au, maryedie@osdl.org
-Subject: Re: 2.6.0-test5-mm3 as-iosched Oops running dbt2 workload
-Message-ID: <20030919190752.GC4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Olien <dmo@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, piggin@cyberone.com.au,
-	maryedie@osdl.org
-References: <20030919185621.GA18666@osdl.org>
+	Fri, 19 Sep 2003 15:08:42 -0400
+Date: Fri, 19 Sep 2003 12:06:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 USB problem (uhci)
+Message-ID: <20030919190628.GI6624@kroah.com>
+References: <m2znh1pj5z.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030919185621.GA18666@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <m2znh1pj5z.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 11:56:21AM -0700, Dave Olien wrote:
-> Attached is console output containing a stack trace from an Oops, followed
-> by a Fatal exception, and LOTS of APIC errors.  The machine was hung,
-> printing APIC error messages forever.
-...
->  <0>Kernel panic: Fatal exception in interrupt
-> In interrupt handler - not syncing
->  <6>APIC error on CPU3: 00(08)
-> APIC error on CPU3: 08(08)
+On Thu, Sep 18, 2003 at 08:10:48PM -0700, Jan Rychter wrote:
+> Upon disconnecting an USB mouse from a 2.4.22, I get
+> 
+>   uhci.c: efe0: host controller halted. very bad
+> 
+> and subsequently, the machine keeps on spinning in ACPI C2 state, never
+> going into C3, as it should (since the mouse is the only USB device).
+> 
+> If afterwards I do 'rmmod uhci; modprobe uhci', then the machine starts
+> using the C3 state again.
 
-APIC receive accept error sounds like it kept getting interrupts and
-didn't ack them after it panicked, which is harmless, though irritating.
+If you use the usb-uhci driver, does it also do this?
 
+thanks,
 
--- wli
+greg k-h

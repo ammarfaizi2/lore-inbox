@@ -1,91 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbUAPR61 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 12:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAPR61
+	id S265494AbUAPSJF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 13:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265507AbUAPSJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 12:58:27 -0500
-Received: from smtp02.web.de ([217.72.192.151]:42518 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S265511AbUAPR6Z (ORCPT
+	Fri, 16 Jan 2004 13:09:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33232 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265494AbUAPSJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 12:58:25 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.1-mm4
-Date: Fri, 16 Jan 2004 18:58:15 +0100
-User-Agent: KMail/1.5.4
-References: <20040115225948.6b994a48.akpm@osdl.org>
-In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_3YCCA+zehlKsYVM";
-  charset="iso-8859-1"
+	Fri, 16 Jan 2004 13:09:02 -0500
+Date: Fri, 16 Jan 2004 10:04:45 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: ak@colin2.muc.de, george@mvista.com, ak@muc.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+Message-Id: <20040116100445.0dfde09e.rddunlap@osdl.org>
+In-Reply-To: <20040116011510.GM28521@waste.org>
+References: <1d3r0-1tw-3@gated-at.bofh.it>
+	<1dbI9-89t-7@gated-at.bofh.it>
+	<1dEqx-F0-1@gated-at.bofh.it>
+	<1dMRc-6DQ-3@gated-at.bofh.it>
+	<1e2Mk-6YA-17@gated-at.bofh.it>
+	<1e2Mo-6YA-31@gated-at.bofh.it>
+	<1e3fi-4nG-5@gated-at.bofh.it>
+	<m3ptdlwsf5.fsf@averell.firstfloor.org>
+	<4006512A.7080002@mvista.com>
+	<20040115085217.GA43298@colin2.muc.de>
+	<20040116011510.GM28521@waste.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401161858.15325.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Jan 2004 19:15:10 -0600 Matt Mackall <mpm@selenic.com> wrote:
 
---Boundary-03=_3YCCA+zehlKsYVM
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_3YCCA0kq8snzRZa"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+| On Thu, Jan 15, 2004 at 09:52:17AM +0100, Andi Kleen wrote:
+| > On Thu, Jan 15, 2004 at 12:36:58AM -0800, George Anzinger wrote:
+| > > Now that is interesting.  As I read it, the debug port is programed the 
+| > > same way in all the USB chips (given it exists at all).  AND it is much 
+| > 
+| > Yep, it's not PIO, but polled MMIO. Sorry for spreading misinformation.
+| > 
+| > > easier to use. Anyone care to put together a polling driver that makes it 
+| > > look like RS232 on the host end given that we use a controller to 
+| > > controller cable?
+| > 
+| > I suspect all laptop users with kernel bugs will admire whoever does that ;-)
+| 
+| I've been thinking about doing this, may get around to it eventually.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I'd like to help also, but I don't have ICH4 or other usb-debug
+hardware AFAIK.
 
---Boundary-01=_3YCCA0kq8snzRZa
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
-
-Hi Andrew,
-
-the attached patch fixes a link error of the kernel module 'drivers/scsi/
-pcmcia/aha152x_cs.ko' because of two module_init() and two module_exit()=20
-functions. Now the module links but I did not test it further...
-
-Best regards
-   Thomas Schlichter
-
---Boundary-01=_3YCCA0kq8snzRZa
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="fix-PCMCIA-aha152x.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="fix-PCMCIA-aha152x.diff"
-
-=2D-- linux-2.6.1-mm4/drivers/scsi/aha152x.c.orig	2004-01-16 16:26:09.01891=
-9528 +0100
-+++ linux-2.6.1-mm4/drivers/scsi/aha152x.c	2004-01-16 16:26:42.661805032 +0=
-100
-@@ -3914,5 +3914,7 @@
- 	.use_clustering			=3D DISABLE_CLUSTERING,
- };
-=20
-+#if !defined(PCMCIA)
- module_init(aha152x_init);
- module_exit(aha152x_exit);
-+#endif
-
---Boundary-01=_3YCCA0kq8snzRZa--
-
---Boundary-03=_3YCCA+zehlKsYVM
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBACCY3YAiN+WRIZzQRAlfZAKCcuN+ynR+T6OohW10EwRa6RIRUHwCcDWaM
-80QvtfBEuZeoCteV/lJubtU=
-=MFb+
------END PGP SIGNATURE-----
-
---Boundary-03=_3YCCA+zehlKsYVM--
-
+--
+~Randy
+Everything is relative.

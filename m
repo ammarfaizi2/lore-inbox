@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbTELMzy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 08:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbTELMzx
+	id S262016AbTELMzC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 08:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTELMzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 08:55:53 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:19982 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262099AbTELMzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 08:55:51 -0400
-Date: Mon, 12 May 2003 14:08:34 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl32: kill code duplication (sparc64 tester wanted)
-Message-ID: <20030512140834.A29260@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20030512114055.GA3539@atrey.karlin.mff.cuni.cz> <20030512134353.A28931@infradead.org> <20030512130518.GA15227@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	Mon, 12 May 2003 08:55:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:19611 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262016AbTELMzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 08:55:01 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030512130518.GA15227@atrey.karlin.mff.cuni.cz>; from pavel@ucw.cz on Mon, May 12, 2003 at 03:05:19PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <16063.40072.101121.244892@argo.ozlabs.ibm.com>
+Date: Mon, 12 May 2003 23:07:20 +1000
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MPPE in kernel?
+In-Reply-To: <20030512060210.C29881@google.com>
+References: <20030512045929.C29781@google.com>
+	<16063.38221.73659.403481@argo.ozlabs.ibm.com>
+	<20030512060210.C29881@google.com>
+X-Mailer: VM 7.15 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 03:05:19PM +0200, Pavel Machek wrote:
-> Hi!
-> > I don't have a sparc64, but there's certainly no <asm/mtrr.h> for
-> > > that arch..
+Frank Cusack writes:
+
+> I have the compressor return a 3-valued return code (<0, 0, >0) instead of
+> two-valued (>0, other).  A negative value tells ppp_generic to drop the
+> packet.  0 means the same as it does now--the compressor failed for some
+> reason.  (All current compressors always return 0 or >0, so the negative
+> return is compatible.)
 > 
-> I thought I killed that one?
+> 0 could also mean that CCP isn't up yet, but pppd userland doesn't allow
+> NCP's to come up until CCP completes (iff trying to negotiate MPPE).
 
-The patch you attached added it..
+Hmmm, and are you sure that nothing can cause CCP to go down?  If it
+does then ppp_generic will send data uncompressed.  What would happen
+if an attacker managed to insert a CCP terminate-request into the
+receive stream somehow?
 
-> > Also #including c files is ugly as hell.  What's the #ifdef INCLUDES
-> > supposed to help?
-> 
-> Yes, but do you have better proposal how to kill 4000+ lines of code
-> from each 64-bit architecture?
+I think the whole thing needs a careful audit.  The idea that you fall
+back to sending and receiving uncompressed data if CCP goes down or a
+compressor fails is pretty fundamental to the CCP implementation in
+ppp_generic.
 
-What's the reason you can't build fs/compat_ioctl.c normally and pull
-in the arch magic through a magic asm/ header?  You still haven't answered
-the second question, btw.. 
+Paul.
+

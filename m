@@ -1,116 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263798AbUFFQ0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUFFQdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbUFFQ0F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUFFQ0E
+	id S263795AbUFFQdV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUFFQdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:26:04 -0400
-Received: from may.priocom.com ([213.156.65.50]:905 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S263798AbUFFQZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:25:26 -0400
-Subject: [PATCH] 2.6.6 memory allocation checks in
-	drivers/media/video/v4l1-compat.c
-From: Yury Umanets <torque@ukrpost.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1086539151.2793.98.camel@firefly>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Jun 2004 19:25:51 +0300
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jun 2004 12:33:20 -0400
+Received: from sphinx.mythic-beasts.com ([212.69.37.6]:4244 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id S263795AbUFFQdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 12:33:19 -0400
+Date: Sun, 6 Jun 2004 17:33:06 +0100 (BST)
+From: chris@scary.beasts.org
+X-X-Sender: cevans@sphinx.mythic-beasts.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kalin KOZHUHAROV <kalin@ThinRope.net>,
+       Davide Libenzi <davidel@xmailserver.org>, Robert Love <rml@ximian.com>,
+       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: clone() <-> getpid() bug in 2.6?
+In-Reply-To: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0406061725450.28570@sphinx.mythic-beasts.com>
+References: <40C1E6A9.3010307@elegant-software.com> 
+ <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> 
+ <20040605205547.GD20716@devserv.devel.redhat.com>  <20040605215346.GB29525@taniwha.stupidest.org>
+ <1086475663.7940.50.camel@localhost> <Pine.LNX.4.58.0406051553130.2261@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org> <40C2A6E4.7020103@ThinRope.net>
+ <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Various memory allocation checks in drivers/media/video/v4l1-compat.c
+Hi Linus,
 
- ./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c |   17
-+++++++++++++++
- 1 files changed, 17 insertions(+)
+On Sat, 5 Jun 2004, Linus Torvalds wrote:
 
-Signed-off-by: Yury Umanets <torque@ukrpost.net>
+> But no, even despite the strange usage, this isn't a performance issue.
+> qmail will call "getpid()" a few tens of times per connection because of
+> the wonderful quality of randomness it provides, or something.
 
-diff -rupN ./linux-2.6.6/drivers/media/video/v4l1-compat.c
-./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c
---- ./linux-2.6.6/drivers/media/video/v4l1-compat.c	Mon May 10 05:32:38
-2004
-+++ ./linux-2.6.6-modified/drivers/media/video/v4l1-compat.c	Wed Jun  2
-14:27:21 2004
-@@ -308,6 +308,9 @@ v4l_compat_translate_ioctl(struct inode 
- 		struct video_capability *cap = arg;
- 
- 		cap2 = kmalloc(sizeof(*cap2),GFP_KERNEL);
-+		if (!cap2)
-+			return -ENOMEM;
-+                        
- 		memset(cap, 0, sizeof(*cap));
- 		memset(cap2, 0, sizeof(*cap2));
- 		memset(&fbuf2, 0, sizeof(fbuf2));
-@@ -425,6 +428,8 @@ v4l_compat_translate_ioctl(struct inode 
- 		struct video_window	*win = arg;
- 
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(win,0,sizeof(*win));
- 		memset(fmt2,0,sizeof(*fmt2));
- 
-@@ -464,6 +469,8 @@ v4l_compat_translate_ioctl(struct inode 
- 		int err1,err2;
- 
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(fmt2,0,sizeof(*fmt2));
- 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
- 		drv(inode, file, VIDIOC_STREAMOFF, &fmt2->type);
-@@ -598,6 +605,8 @@ v4l_compat_translate_ioctl(struct inode 
- 						  V4L2_CID_WHITENESS, drv);
- 
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(fmt2,0,sizeof(*fmt2));
- 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
- 		err = drv(inode, file, VIDIOC_G_FMT, fmt2);
-@@ -628,6 +637,8 @@ v4l_compat_translate_ioctl(struct inode 
- 				V4L2_CID_WHITENESS, pict->whiteness, drv);
- 
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(fmt2,0,sizeof(*fmt2));
- 		fmt2->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
- 		err = drv(inode, file, VIDIOC_G_FMT, fmt2);
-@@ -861,6 +872,8 @@ v4l_compat_translate_ioctl(struct inode 
- 		struct video_mmap	*mm = arg;
- 
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(&buf2,0,sizeof(buf2));
- 		memset(fmt2,0,sizeof(*fmt2));
- 		
-@@ -957,6 +970,8 @@ v4l_compat_translate_ioctl(struct inode 
- 		struct vbi_format      *fmt = arg;
- 		
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(fmt2, 0, sizeof(*fmt2));
- 		fmt2->type = V4L2_BUF_TYPE_VBI_CAPTURE;
- 		
-@@ -981,6 +996,8 @@ v4l_compat_translate_ioctl(struct inode 
- 		struct vbi_format      *fmt = arg;
- 		
- 		fmt2 = kmalloc(sizeof(*fmt2),GFP_KERNEL);
-+		if (!fmt2)
-+			return -ENOMEM;
- 		memset(fmt2, 0, sizeof(*fmt2));
- 
- 		fmt2->type = V4L2_BUF_TYPE_VBI_CAPTURE;
+The openssl library seems to have a strange love for getpid() too. At
+least, my old-ish version "openssl-0.9.6b-35.7" does.
+My strace logs show over 50 consecutive getpid() calls during the
+processing of the SSL_accept() routine. (I'm adding SSL support to vsftpd;
+SSL_accept() is called every client connect and also to accept passive
+data connections).
 
--- 
-umka
-
+Cheers
+Chris

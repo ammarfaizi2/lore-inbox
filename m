@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281051AbRKYUiF>; Sun, 25 Nov 2001 15:38:05 -0500
+	id <S281058AbRKYUxG>; Sun, 25 Nov 2001 15:53:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281052AbRKYUh4>; Sun, 25 Nov 2001 15:37:56 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:39213 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S281051AbRKYUhj>; Sun, 25 Nov 2001 15:37:39 -0500
-Message-ID: <3C015681.8080006@blue-labs.org>
-Date: Sun, 25 Nov 2001 15:37:21 -0500
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011120
-X-Accept-Language: en-us
+	id <S281055AbRKYUwz>; Sun, 25 Nov 2001 15:52:55 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:19986 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S281057AbRKYUwk>; Sun, 25 Nov 2001 15:52:40 -0500
+Date: Sun, 25 Nov 2001 13:02:42 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Phil Sorber <aafes@psu.edu>
+cc: Niels Christiansen <nchr@us.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: /var corruption after 2.4.15 and 2.5.0 reboot
+In-Reply-To: <1006720366.4329.18.camel@praetorian>
+Message-ID: <Pine.LNX.4.40.0111251259350.7354-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
-CC: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
-In-Reply-To: <3C013407.7C639D34@jep.dhis.org> <20011125192156.A7274@se1.cogenit.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After you have enabled SMP in a past configuration, to compile without 
-SMP, you must do a 'make distclean'.  It's a bug in the current config 
-stuff that hasn't ever been addressed.
+On 25 Nov 2001, Phil Sorber wrote:
 
-David
+> On Sun, 2001-11-25 at 15:29, Davide Libenzi wrote:
+> >
+> > Pls apply Al's patch or use Linus's -pre01
+>
+> isn't it marcello's pre1 now?
 
-Francois Romieu wrote:
+I meant Linus's 2.5.1-pre1 but I forgot Marcello's 2.4.16-pre1.
+Sorry Marcello :)
 
->Josep Lladonosa i Capell <jep@jep.net.dhis.org> :
->[...]
->
->>just the subject :-)
->>
->
->Compiled fine here. Check your tree/config and provide more info (.config,
->compiler, message) if the problem persists. The file REPORTING-BUGS gives
->some hints.
->
+
+
+
+- Davide
 
 

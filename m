@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262387AbSKCTb6>; Sun, 3 Nov 2002 14:31:58 -0500
+	id <S262334AbSKCTXq>; Sun, 3 Nov 2002 14:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbSKCTb6>; Sun, 3 Nov 2002 14:31:58 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:41695 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S262387AbSKCTbu>; Sun, 3 Nov 2002 14:31:50 -0500
-Date: Sun, 3 Nov 2002 14:38:22 -0500
-From: Matt Zimmerman <mdz@debian.org>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: team@security.debian.org, nethack@packages.debian.org,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Nethack setgid screwup
-Message-ID: <20021103193822.GT31490@mizar.alcor.net>
-Mail-Followup-To: Aaron Lehmann <aaronl@vitelus.com>,
-	team@security.debian.org, nethack@packages.debian.org,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-References: <20021103050042.GA25215@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103050042.GA25215@vitelus.com>
-User-Agent: Mutt/1.4i
+	id <S262335AbSKCTXq>; Sun, 3 Nov 2002 14:23:46 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8976 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262334AbSKCTXp>; Sun, 3 Nov 2002 14:23:45 -0500
+Message-Id: <200211031925.gA3JPHp29128@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
+Date: Sun, 3 Nov 2002 22:17:13 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <1036340272.26281.5.camel@vaarlahti.uworld>
+In-Reply-To: <1036340272.26281.5.camel@vaarlahti.uworld>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 09:00:42PM -0800, Aaron Lehmann wrote:
+On 3 November 2002 14:17, Jussi Laako wrote:
+> On Sun, 2002-11-03 at 18:17, Denis Vlasenko wrote:
+>
+> Jump target 17e0 is aligned (with nops):
+> >     17dd:	88 02                	mov    %al,(%edx)
+> >     17df:	90                   	nop
+> >     17e0:	89 d0                	mov    %edx,%eax
+> >     17e2:	5a                   	pop    %edx
+> >
+> >     17ec:	eb f2                	jmp    17e0
+> > <__constant_memcpy+0x20>
+> >
+> >     17fa:	eb e4                	jmp    17e0
+> > <__constant_memcpy+0x20>
+> >
+> >     1800:	eb de                	jmp    17e0
+> > <__constant_memcpy+0x20>
+> >
+> >     187c:	e9 5f ff ff ff       	jmp    17e0
+> > <__constant_memcpy+0x20> 1881:	eb 0d                	jmp    1890
+> > <__constant_memcpy+0xd0> 1883:	90                   	nop
+>
+> ...
+>
+> >     188f:	90                   	nop
+> >     1890:	c1 e9 02             	shr    $0x2,%ecx
+> >     1893:	89 d7                	mov    %edx,%edi
+>
+> And also jump target 1890 is aligned.
+>
+>
+> I think the penalty of few NOPs is smaller than result of jump to
+> unaligned address. This is especially true with P4 architecture.
 
-> ----- Forwarded message from Alexander Viro <viro@math.psu.edu> -----
-> On Sat, 2 Nov 2002, Linus Torvalds wrote:
-> 
-> > But I like Al's idea of mount binds even more, although it requires maybe
-> > a bit more administration.
-> 
-> OK, will do - will be fun to take a break from drivers/* and devfs excrements
-> I'm digging in...
-> 
-> BTW, here's a fresh demonstration (found half an hour ago) that capabilities
-> do *not* permit more lax attitude when writing stuff with elevated priveleges:
-> 	* /usr/lib/games/nethack/recover is run at the boot time (as root)
-> to recover crashed games.
-> 	* Debian nethack 3.4.0-3.1 has it installed root.games and it
-> is group-writable - cretinism in debian/rules, upstream is not guilty
-> in that (BTW, so is /usr/lib/games/nethack/recover-helper).
-> 	* ergo, any exploitable hole in sgid-games binary (rogue, for
-> instance) is trivially elevated to root exploit.
-
-mizar:[/tmp] dpkg -l nethack
-Desired=Unknown/Install/Remove/Purge/Hold
-| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
-|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
-||/ Name           Version        Description
-+++-==============-==============-============================================
-ii  nethack        3.4.0-3.1      Overhead dungeon-crawler game (dummy package
-mizar:[/tmp] ls -l /usr/lib/games/nethack/recover*
--rwxrwsr-x    1 root     games        6088 2002-07-06 17:54 /usr/lib/games/nethack/recover
--rwxrwxr-x    1 root     root          283 2002-07-06 17:54 /usr/lib/games/nethack/recover-helper
-mizar:[/tmp] grep recover /etc/init.d/nethack
-# Nethack save-file recovery script for Debian
-    test -x /usr/lib/games/nethack/recover-helper || exit 0
-      # Refuse to recover root's nethack files.
-        echo "Ignoring root's Nethack unrecovered save file."
-        # script running as the user which recovers everything
-        su "$owner" -c /usr/lib/games/nethack/recover-helper 
-
-The script has worked this way since at least version 3.3.0-7, which is
-found in Debian 2.2 (potato).  Is there some other situation you found where
-recover would be run as root, other than when explicitly started by root?
-
-This is still a serious bug, of course, and allows gid games to be exploited
-to gain the privileges of a user with a recoverable saved game, but not root
-(at least not trivially).
-
--- 
- - mdz
+Alignment does not eliminate jump. It only moves jump target to 16 byte
+boundary. This _probably_ makes execution slightly faster but on average
+it costs you 7,5 bytes. This price is too high when you take into account
+L1 instruction cache wastage and current bus/core clock ratios.
+--
+vda

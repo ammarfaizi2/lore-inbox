@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272321AbTHIKlM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 06:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272328AbTHIKlM
+	id S272324AbTHILCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 07:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTHILCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 06:41:12 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:62478 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S272321AbTHIKk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 06:40:27 -0400
-Date: Sat, 9 Aug 2003 12:40:24 +0200
-To: gaxt <gaxt@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 cannot mount root fs
-Message-ID: <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
-References: <3F34D0EA.8040006@rogers.com>
+	Sat, 9 Aug 2003 07:02:46 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:38028 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272324AbTHILCp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 07:02:45 -0400
+Subject: Re: Physically contiguous (DMA) memory allocation
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Anthony Truong <Anthony.Truong@mascorp.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1060328695.9074.95.camel@huykhoi>
+References: <1060328695.9074.95.camel@huykhoi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060426740.4937.85.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F34D0EA.8040006@rogers.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Aug 2003 11:59:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sam, 09 Aug 2003, gaxt wrote:
-> Try changing in your bootloader root=/dev/hdb1 to root=341
+On Gwe, 2003-08-08 at 08:44, Anthony Truong wrote:
+> Is there a quick solution to this problem, like increasing the size of
+> the physically contiguous page pool (like in Windows NT and some other
+> OS'es :-( )? (Is it a good idea to make this one of the future
+> enhancements to Linux?)  Or should I write a driver loaded at boot time
+> grabbing the required memory pages and allocating them to my loadable
+> driver when requested?
+> Your suggestion is very much appreciated.
 
-tried it already with 
-	root=0341
-and 
-	root=341
-on the lilo prompt. No change.
+Without source code its hard to tell what you are doing but all
+allocations made with the pci_* API in Linux are contiguous. If your
+hardware requires a single contiguous 30Mb chunk then you have a problem
+and will need to allocate at boot time.
 
-(Beside the kernel telling me:
-	VFS: Cannot mount root fs "341" or "hdb1"
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-BENBURB
-The sort of man who becomes a returning officer.
-			--- Douglas Adams, The Meaning of Liff

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268444AbTCFWQW>; Thu, 6 Mar 2003 17:16:22 -0500
+	id <S268443AbTCFWRP>; Thu, 6 Mar 2003 17:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268445AbTCFWQW>; Thu, 6 Mar 2003 17:16:22 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4612 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268444AbTCFWQU>; Thu, 6 Mar 2003 17:16:20 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303062228.h26MSYYj000170@81-2-122-30.bradfords.org.uk>
+	id <S268452AbTCFWRO>; Thu, 6 Mar 2003 17:17:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50180 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268443AbTCFWRM>; Thu, 6 Mar 2003 17:17:12 -0500
+Date: Thu, 6 Mar 2003 22:27:42 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Michael Hayes <mike@aiinc.ca>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: [PATCH] Fix breakage caused by spelling 'fix'
-To: m.c.p@wolk-project.de (Marc-Christian Petersen)
-Date: Thu, 6 Mar 2003 22:28:34 +0000 (GMT)
-Cc: mike@aiinc.ca, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <200303062259.20480.m.c.p@wolk-project.de> from "Marc-Christian Petersen" at Mar 06, 2003 10:59:20 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20030306222742.L838@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Hayes <mike@aiinc.ca>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <200303062141.h26LfZK19533@aiinc.aiinc.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303062141.h26LfZK19533@aiinc.aiinc.ca>; from mike@aiinc.ca on Thu, Mar 06, 2003 at 01:41:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This fixes a spelling "fix" that resulted in a compile error.
-> > With apologies to Russell King.
-> > diff -ur a/include/asm-arm/proc-fns.h b/include/asm-arm/proc-fns.h
-> > --- a/include/asm-arm/proc-fns.h	Tue Mar  4 19:29:20 2003
-> > +++ b/include/asm-arm/proc-fns.h	Thu Mar  6 11:46:15 2003
-> > @@ -125,7 +125,7 @@
-> >
-> >  #if 0
-> >   * The following is to fool mkdep into generating the correct
-> > - * dependencies.  Without this, it can't figure out that this
-> > + * dependencies.  Without this, it cant figure out that this
-> A spelling fix should be a right spelling fix ;)
+On Thu, Mar 06, 2003 at 01:41:35PM -0800, Michael Hayes wrote:
+> This fixes a spelling "fix" that resulted in a compile error.
 > 
-> So either "cannot" or "can not" but not "cant" :)
+> With apologies to Russell King.
 
-"Can not" is technically wrong.
+Don't bother - its gone in my BK tree, which I'm going to send a request
+to Linus to pull shortly.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104691562715435&w=2
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-I also fell in to this trap.
-
-John.

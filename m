@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291767AbSBNQ0x>; Thu, 14 Feb 2002 11:26:53 -0500
+	id <S291773AbSBNQ3D>; Thu, 14 Feb 2002 11:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291773AbSBNQ0o>; Thu, 14 Feb 2002 11:26:44 -0500
-Received: from angband.namesys.com ([212.16.7.85]:39041 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S291767AbSBNQ0e>; Thu, 14 Feb 2002 11:26:34 -0500
-Date: Thu, 14 Feb 2002 19:26:33 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Sebastian =?koi8-r?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs Corruption with 2.5.5-pre1
-Message-ID: <20020214192633.A2311@namesys.com>
-In-Reply-To: <20020214155716.3b810a91.sebastian.droege@gmx.de> <20020214180501.A1755@namesys.com> <20020214162232.5e59193b.sebastian.droege@gmx.de> <20020214172421.5d8ae63c.sebastian.droege@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020214172421.5d8ae63c.sebastian.droege@gmx.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S291774AbSBNQ2x>; Thu, 14 Feb 2002 11:28:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65291 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291773AbSBNQ2q>; Thu, 14 Feb 2002 11:28:46 -0500
+Date: Thu, 14 Feb 2002 08:27:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Gerd Knorr <kraxel@bytesex.org>, Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, Dave Jones <davej@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <20020214141028.M7940@athlon.random>
+Message-ID: <Pine.LNX.4.33.0202140824200.12749-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Thu, Feb 14, 2002 at 05:24:21PM +0100, Sebastian Dröge wrote:
 
-> reiserfsck --check said I have to do --rebuild-tree because of critical corruption (many "bad_leaf: block xxxxx has wrong order of items")...
+On Thu, 14 Feb 2002, Andrea Arcangeli wrote:
+> >
+> > I've recently changed the code to make it *not* call unmap_kiobuf/vfree
+> > from irq context.  Instead bttv 0.8.x doesn't allow you to close the
+> > device with DMA xfers in flight.  If you try this the release() fops
+> > handler will block until the transfer is done, then unmap_kiobuf from
+> > process context, then return.
+>
+> perfect, that's the right fix for 2.4 (waiting DMA to complete at
+> ->release looks also much saner).
 
-these are 2.5.3 signs.
+I think it's the right fix regardless. We should do as little as possible
+from irq contexts, and that holds _doubly_ true if it mucks with things
+like the page cache.
 
-> after that I booted into 2.4.17. Everything works okay.
-> Then I booted 2.5.5-pre1 and the mysterious files are there again after starting GNOME. I've copied one file to another location but when I reboot into 2.4.17 the files and the copy are gone again...
+> With aio in 2.5 we may want to change this property for the unpinning
+> stage that would be better run asynchronously from irq handlers, but I
+> wouldn't change that for 2.4 (at least until we're forced to ship aio in
+> production on top 2.4, that cannot happen until a final user<->kernel API is
+> registered somewhere).
 
-But GNOME is working, right?
+I'd really really hate to have the IO make pages go away from irq context
+in 2.5.x too. I think async IO should always be started and cleaned up in
+a user context - there simply isn't any reason not to (the notion of doing
+an exit() or execve() with IO still pending to now-dead-memory is rather
+horrible in itself).
 
-> If you need one or two file names or the content of them just ask (They begin with an "^")... then I'll handcopy them ;)
+> I think the foundamental design mistake that leads to __free_pages to
+> fail from irq, is that we allow an anonymous page to reach count 0 and to be
+> still in the LRU (the count == 0 check in shrink_cache is the other side
+> of the hack too). That's the real BUG, that breaks subtly the freelist
+> semantics
 
-I have a better approach.
-Just recreate them (by running GNOME in 2.5.5-pre1?) and then tar them up ;)
-Send the ersulting tar file to me.
+Agreed. We should NEVER free the pages from the irq.
 
-> The format of the partition is 3.6 and another partition with 3.5 format had no errors... Maybe this helps
+		Linus
 
-So now problem only is that there are strange files after GNOME start, right?
-Do these files disa[[ear after you quit GNOME?
-
-> I could build 2.5.5-pre1 without your patch from the last mail but for this try I have build the kernel with it
-I just found this patch is only needed on SMP ;)
-
-Bye,
-    Oleg

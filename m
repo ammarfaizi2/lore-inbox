@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264986AbTFCMwC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:52:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFCMwB
+	id S264991AbTFCMz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbTFCMz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:52:01 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:36516 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S264986AbTFCMv7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:51:59 -0400
-Date: Tue, 3 Jun 2003 15:05:16 +0200
-To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>, mikpe@csd.uu.se,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] Support for mach-xbox (updated)
-Message-ID: <20030603130515.GC22531@h55p111.delphi.afb.lu.se>
-References: <20030603091113.GD13285@h55p111.delphi.afb.lu.se> <20030603125940.GC13838@suse.de>
+	Tue, 3 Jun 2003 08:55:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:2982 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264991AbTFCMz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:55:56 -0400
+Date: Tue, 3 Jun 2003 06:09:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Giuliano Pochini <pochini@shiny.it>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 100Hz v 1000Hz with contest
+Message-ID: <20030603130912.GS8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Con Kolivas <kernel@kolivas.org>,
+	Giuliano Pochini <pochini@shiny.it>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <XFMail.20030603100038.pochini@shiny.it> <200306032036.49790.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030603125940.GC13838@suse.de>
+In-Reply-To: <200306032036.49790.kernel@kolivas.org>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *19NBTY-0006eR-00*SRzbOL7c4kQ*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 01:59:40PM +0100, Dave Jones wrote:
-> Last 4 lines all use spaces instead of tabs.
+On Tue, 3 Jun 2003 18:00, Giuliano Pochini wrote:
+>> Is there any problem using a frequency other than 100 and 1000Hz ?
 
-darn.
+On Tue, Jun 03, 2003 at 08:36:49PM +1000, Con Kolivas wrote:
+> Not at all. These were chosen because they were the default 2.4 (100) and 2.5 
+> (1000) frequencies. The large difference in Hz was postulated to increase the 
+> in-kernel overhead and the amount of time spent tearing down and building up 
+> the cpu cache again. 2.4 running at 1000Hz shows poor performance at high 
+> (>4) loads whereas 2.5 doesn't seem to do this. I originally thought it was 
+> cache thrashing/trashing responsible. However since 2.5 performance is almost 
+> comparable at 100/1000 it seems to be that the pure interrupt overhead in 2.5 
+> is lower?
 
->  >  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
->  > +ifeq ($(CONFIG_X86_XBOX),y)
->  > +#XXX Compiling with optimization makes 1.1-xboxen 
->  > +#    crash while decompressing the kernel
->  > +CFLAGS_misc.o   := -O0
->  > +endif
-> 
-> curious. does it matter which version of gcc you used ?
+You could try profiling cache misses etc.
 
-Yes, only works with gcc3+
+I blame count_active_tasks(). =)
 
-> this sounds like a band-aid for something else that needs fixing.
 
-It sort of is (hence the XXX in the comment). But it's only when paging is
-off. As soon as kernel is running everything is rock solid. It's probably
-related to changed memoryaccess patterns.
-
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+-- wli

@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUG3SU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267780AbUG3SSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267777AbUG3SU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 14:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267781AbUG3SU2
+	id S267780AbUG3SSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 14:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267781AbUG3SSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 14:20:28 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:39417 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267775AbUG3SUP (ORCPT
+	Fri, 30 Jul 2004 14:18:40 -0400
+Received: from omx3-ext.SGI.COM ([192.48.171.20]:2981 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267780AbUG3SR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 14:20:15 -0400
-Date: Fri, 30 Jul 2004 20:20:06 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: List of pending v2.4 kernel bugs
-Message-ID: <20040730182006.GA26545@k3.hellgate.ch>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20040720142640.GB2348@dmt.cyclades> <20040721112336.GA9537@k3.hellgate.ch> <20040730155613.GD2748@logos.cnet> <410A8077.7020308@pobox.com> <20040730172939.GA24235@k3.hellgate.ch> <410A8F17.8070401@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jul 2004 14:17:27 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Matthew Wilcox <willy@debian.org>
+Subject: Re: Exposing ROM's though sysfs
+Date: Fri, 30 Jul 2004 11:12:10 -0700
+User-Agent: KMail/1.6.2
+Cc: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz
+References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301057.12445.jbarnes@engr.sgi.com> <20040730181205.GW10025@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040730181205.GW10025@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <410A8F17.8070401@pobox.com>
-X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407301112.10361.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004 14:10:31 -0400, Jeff Garzik wrote:
-> Those are precisely the changes I am talking about.  I have no idea if 
-> anybody has verified them, and thus, I don't want to push to mainline 
-> until someone does.
+On Friday, July 30, 2004 11:12 am, Matthew Wilcox wrote:
+> How about reading the contents of the ROM at pci_scan_bus() time?  It'd
+> waste a bunch of memory, but hey, people love sysfs.
 
-Hmm.. Maybe I should brush up the multicast testing quick how-to and
-post it somewhere for future reference. There seems to be a distinct
-lack of testing in this area.
+That might be a good solution, actually.  Then it would be cached for devices 
+that don't want you to look at it after they've been POSTed too.
 
-Roger
+Jesse

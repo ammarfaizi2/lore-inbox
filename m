@@ -1,75 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265700AbUAQJ3j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 04:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUAQJ3j
+	id S265999AbUAQJvj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 04:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUAQJvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 04:29:39 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:45481 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S265700AbUAQJ3i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 04:29:38 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>
-Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
-Date: Sat, 17 Jan 2004 14:59:01 +0530
-User-Agent: KMail/1.5
-Cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
-References: <200401161759.59098.amitkale@emsyssoft.com> <20040116215144.GA208@elf.ucw.cz> <40088E9D.1010908@mvista.com>
-In-Reply-To: <40088E9D.1010908@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jan 2004 04:51:39 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:25565 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S265999AbUAQJvh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 04:51:37 -0500
+Date: Sat, 17 Jan 2004 11:51:35 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: Cheng Huang <cheng@cse.wustl.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+Message-ID: <20040117095135.GM1254@edu.joroinen.fi>
+References: <20040115114922.GI1254@edu.joroinen.fi> <006801c3dc74$16e57780$0400a8c0@ChengDELL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200401171459.01794.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <006801c3dc74$16e57780$0400a8c0@ChengDELL>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 17 Jan 2004 6:53 am, George Anzinger wrote:
-> Pavel Machek wrote:
-> > Hi!
-> >
-> >>KGDB 2.0.3 is available at
-> >>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
-> >>
-> >>Ethernet interface still doesn't work. It responds to gdb for a couple of
-> >>packets and then panics. gdb log for ethernet interface is pasted below.
-> >>
-> >>It panics and enter kgdb_handle_exception recursively and silently. To
-> >> see the panic on screen make kgdb_handle_exception return immediately if
-> >> kgdb_connected is non-zero.
-> >>
-> >>Panic trace is pasted below. It panics in skb_release_data. Looks like
-> >> skb handling will have to changed to be have kgdb specific buffers.
-> >
-> > This seems to be needed (if I unselect CONFIG_KGDB_THREAD, I get
-> > compile error on x86-64).
->
-> Amit, could you explain why this is an option?  It seems very useful and
-> not really too much code...
+On Fri, Jan 16, 2004 at 03:02:44PM -0600, Cheng Huang wrote:
+> Thanks for replying. Can you explain a little bit where to get the driver for latest versions? Thanks.
+> 
 
-It saves all registers before switch_to. It does that two times at present. 
-Once (implicit) register save by gcc and an explicit register save in 
-arch/<proc>/kernel/entry.S Second register save in kern_schedule generates a 
-pt_regs structure which gdb can get all registers at once from. If it's 
-omited, gdb has to figure out where gcc has saved registers from the 
-non-standards code in switch_to, which it can't do correctly all the time.
+Copy the promise driver from 2.4.24 kernel to 2.4.18 kernel, and hope it
+works :)
 
-We can have a check for (a new variable) debugger_enabled before calling 
-kern_schedule. That'll be add negligible overhead and will allow extra thread 
-info to be saved only when a debugger is enabled. There will not be any need 
-for CONFIG_KGDB_THREAD also.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+- Pasi Kärkkäinen
+
+> -----Original Message-----
+> From: Pasi K???kk???nen [mailto:pasik@iki.fi] 
+> Sent: Thursday, January 15, 2004 5:49 AM
+> To: Cheng Huang
+> Cc: linux-kernel@vger.kernel.org; cheng@cse.wustl.edu
+> Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+> 
+> On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
+> > I have to use kernel 2.4.18 because I need to install KURT (realtime
+> > linux) with it. However, my system hangs on boot with the following
+> > message:
+> > 
+> > PDC20268: not 100% native mode: will probe irqs later
+> > PDC20268: ROM enabled at 0xff900000
+> >     ide2: BM-DMA at 0xfcc0-0xfcc7, BIOS settings: hde:pio, hdf:pio
+> >     ide3: BM-DMA at 0xfcc8-0xfccf, BIOS settings: hdg:pio, hdh:pio
+> > 
+> > I have tried tricks I could find in through google, like setting boot
+> > parameters "hde=4866,255,63 hde=noprobe hdg=24321,255,163 hdg=noprobe".
+> > But it didn't work.
+> > 
+> > Could anybody provide some clue about how to fix this problem? Thanks
+> > very much.
+> > 
+> 
+> I think there has been a lot of bug fixes in the latest 2.4 kernels for
+> promise cards.
+> 
+> I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
+> 
+> Merge the promise driver from later 2.4.x kernels to 2.4.18 and recompile? 
+> 
+> -- Pasi Kärkkäinen
+>        
+>                                    ^
+>                                 .     .
+>                                  Linux
+>                               /    -    \
+>                              Choice.of.the
+>                            .Next.Generation.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

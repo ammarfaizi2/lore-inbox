@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSBFUhE>; Wed, 6 Feb 2002 15:37:04 -0500
+	id <S290792AbSBFUfq>; Wed, 6 Feb 2002 15:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290798AbSBFUgI>; Wed, 6 Feb 2002 15:36:08 -0500
-Received: from dialin-145-254-146-011.arcor-ip.net ([145.254.146.11]:30446
-	"HELO schottelius.org") by vger.kernel.org with SMTP
-	id <S290797AbSBFUgD>; Wed, 6 Feb 2002 15:36:03 -0500
-Date: Wed, 6 Feb 2002 21:36:21 +0100
-From: Nico Schottelius <nicos-mutt@pcsystems.de>
-To: linuxconsole-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        gpm@lists.linux.it, salvador@inti.gov.ar, jsimmons@transvirtual.com
-Subject: Re: [gpm]Reworking the selection API and moving it to userspace (gpm)?
-Message-ID: <20020206203621.GB541@schottelius.org>
-In-Reply-To: <20020206202415.GV8510@pasky.ji.cz>
+	id <S290797AbSBFUfh>; Wed, 6 Feb 2002 15:35:37 -0500
+Received: from bitmover.com ([192.132.92.2]:22979 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290792AbSBFUfb>;
+	Wed, 6 Feb 2002 15:35:31 -0500
+Date: Wed, 6 Feb 2002 12:35:27 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020206123527.R7674@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Christoph Hellwig <hch@ns.caldera.de>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020206000343.I14622@work.bitmover.com> <200202061935.g16JZLh18377@ns.caldera.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020206202415.GV8510@pasky.ji.cz>
-User-Agent: Mutt/1.3.27i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.4.13
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200202061935.g16JZLh18377@ns.caldera.de>; from hch@ns.caldera.de on Wed, Feb 06, 2002 at 08:35:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Btw, is there a generic way to move repos cloned from Ted's (now
+> orphaned?) 2.4 tree to Linus' official one?
 
---TRYliJ5NKNqkz5bu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You can export the changes you want as a patch and if you ask, we'll send
+you a script which also exports your checkin comments in Linus' nifty
+new email->BK converter.  The format that we like (I believe, Wayne/Linus
+will correct errors) is:
 
-On Wed, Feb 06, 2002 at 09:24:15PM +0100 Petr Baudis put his fingers on the=
- keyboard an wrote:
-> Hello,
->=20
->   About June 2001, in the era of 2.4.7 kernel, there occured a patch on L=
-KML
-> (by Salvador Eduardo Tropea <salvador@inti.gov.ar>), which improved the a=
-ctual
-> selection API of kernel to allow applications to get the content of the
-> selection buffer etc. However, James Simmons said that he will be working=
- on
-> this for 2.5 and move it to userspace completely, reworking gpm.
+### Change the comments to ChangeSet below
+These are the changeset comments, i.e, the email message for the patch.
 
-Possibly I got a mail about that, but as I have a huge backlog, I didn't
-read it.=20
-Possibly I have never heard about that and don't know anything particular a=
-bout
-it.
-But in fact, improving something is generally good and if I have/get some
-information about that, we could include it in gpm.=20
+### Change the comments to include/asm/whatever.h below
+The comments for include/asm/whatever.h
 
-> [..], I would like to ask if there's any movement in this issue.
+In other words
 
-Not here.
+printf("### Change the comments to %s below\n", filename);
 
-> I would be even willing to help, > if possible :).
+And then it can be imported directly.
 
-Sounds good, so you're the person wrinting the patch for gpm ;)
-
---=20
-{Greetings,Gruss},
-Nico Schottelius
-
-I am some kind of busy -
-Do not expect an answer within 24 hours.
-Instead use the telephon: +49 (0) 173 - 750 7022.
-
---TRYliJ5NKNqkz5bu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8YZPEtnlUggLJsX0RAgg/AJ9tgpjJv76G3bxq2aUSxMJK4Ji65ACfXLte
-OqnFgAh8RhfjOWFlGZvskOY=
-=4PNt
------END PGP SIGNATURE-----
-
---TRYliJ5NKNqkz5bu--
+To create an extra script to do this for a bk export -tpatch is straightforward.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

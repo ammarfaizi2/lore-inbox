@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbTAEBjn>; Sat, 4 Jan 2003 20:39:43 -0500
+	id <S262418AbTAEBqU>; Sat, 4 Jan 2003 20:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbTAEBjn>; Sat, 4 Jan 2003 20:39:43 -0500
-Received: from barbelith.montana.com ([66.109.128.41]:28614 "EHLO
-	barbelith.montana.com") by vger.kernel.org with ESMTP
-	id <S262395AbTAEBjm>; Sat, 4 Jan 2003 20:39:42 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-From: Chief Gadgeteer <gadgeteer@elegantinnovations.org>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030105002637.AAA11205@shell.webmaster.com@whenever>
-References: <20030105002637.AAA11205@shell.webmaster.com@whenever>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Jan 2003 18:48:06 -0700
-Message-Id: <1041731292.8962.120.camel@FatBoy>
+	id <S262449AbTAEBqU>; Sat, 4 Jan 2003 20:46:20 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:18193 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S262418AbTAEBqR>; Sat, 4 Jan 2003 20:46:17 -0500
+Date: Sun, 5 Jan 2003 02:54:44 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andreas Dilger <adilger@turbolabs.com>
+Subject: Documentation/BK-usage/bksend problems?
+Message-ID: <20030105015444.GE29511@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andreas Dilger <adilger@turbolabs.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-04 at 17:26, David Schwartz wrote:
-> 	Believe it or not, the easiest way to get rich is to provide people 
-> what they want at a reasonable price. The purpose of money is to 
-> provide an incentive for other people to do what you most need done.
+Hi,
 
-I agree.  Thus, if there is a significant difference in our points of
-view it must be one of semantics as to what "get rich" means.
+is bksend in wide use?
 
-/* opps, this got rather long winded */
+I tried to use it to send a patch to ntp-stable with  the help of this
+tool, and figured that the gnupatch part always omitted the first
+version if you give it a range such as
 
-My main objection is that those who seek to "get rich" then seek to get
-even richer by using their wealth to distort the playing field in their
-favor by various means.  Or those who would claim innocence while
-exploiting non-ethical methods pioneered by others.  The latter would be
-those who take the position that it is OK to leverage the concept of
-"intellectual property" because it is what all the wealthy folks are
-doing.
+bksend -r1.838..1.839.
 
-When I was born (1961) something like 50% of the wealth in the US
-belonged to 40% of the people.  Today, over 90% of the wealth belongs to
-less the 5% of the people. (The statistics in the last two sentences are
-vague memory, I do not stand behind their absolute accuracy.)  When my
-father bought his home in 1970 for $21,000 he was making about $10 an
-hour as a highly skilled carpenter.  Such a highly skilled carpenter in
-the same region makes not quite twice that today.  However, the same
-home now sells for about $145,000 or more than seven times as much.  For
-the majority of Americans these trends hold true i.e. stagnant wages
-while the cost of everything goes through the ceiling.  The exceptions
-to this are those who work in fields that control the flow of
-information in some way.  These methods include such means as lobbying
-successful for laws that promote or protect certain business models,
-limiting who might enter a field by raising the bar to entry, asserting
-"intellectual property" rights, and questionable business practices that
-lead to a market monopoly.
+The changes are fine, for 1.838 and 1.839, but the patch itself only
+contains the effects of 1.839. The attached gzip_uu wrapped bk
+"receive"able stuff is fine again and contains both ChangeSets.
 
-I wonder how it looked to the rest of a society when a power elite
-emerged in the past?  Would there not have been many parallels to what
-we are seeing today?  Would they have not heard many of the same
-arguments being used today?  Would not many of the influential
-dissenters have been bought off by giving them a vested interest in the
-emerging/existent power structure?
+It seems as though it would take "diff 1.839 against 1.838" for bk gnupatch
+and "changesets 1.838 to 1.839 inclusively" for bk send.
 
-As was commented elsewhere in this ridiculous thread, it is funny how
-one's tune changes once they too own a piece of intellectual property.
+If that matters:
+
+BitKeeper/Free version is bk-2.1.6-pre5 20020330075529 for x86-glibc22-linux
 
 -- 
-Chief Gadgeteer
-Elegant Innovations
-
+Matthias Andree

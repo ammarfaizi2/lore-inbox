@@ -1,81 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288864AbSANHYH>; Mon, 14 Jan 2002 02:24:07 -0500
+	id <S288903AbSANH0r>; Mon, 14 Jan 2002 02:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288882AbSANHX6>; Mon, 14 Jan 2002 02:23:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62473 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288864AbSANHXr>;
-	Mon, 14 Jan 2002 02:23:47 -0500
-Date: Mon, 14 Jan 2002 08:23:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: BIO Usage Error or Conflicting Designs
-Message-ID: <20020114082341.F13929@suse.de>
-In-Reply-To: <3C41F772.543C2F85@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C41F772.543C2F85@colorfullife.com>
+	id <S288890AbSANH0j>; Mon, 14 Jan 2002 02:26:39 -0500
+Received: from mailb.telia.com ([194.22.194.6]:32531 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S288903AbSANH00>;
+	Mon, 14 Jan 2002 02:26:26 -0500
+Message-Id: <200201140725.g0E7PkT22694@mailb.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl
+Subject: Re: Alans example against preemtive kernel (Was: Re: [2.4.17/18pre] VM and swap - it's really unusable)
+Date: Mon, 14 Jan 2002 08:22:39 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
+In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
+In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 13 2002, Manfred Spraul wrote:
-> > 
-> > Is this with the highmem debug stuff enabled? That's the only way I can
-> > see this BUG triggering, otherwise q->bounce_pfn _cannot_ be smaller
-> > than the max_pfn.
-> > 
-> Have you tested that?
-> 
-> Unless I misread arch/i386/kernel/setup.c, line 740 to 760, max_pfn is
-> the upper end of the highmem area, if highmem is configured.
-> For non-highmem setup, it's set to min(system_memory, 4 GB).
-> It was a local variable within setup_arch, and someone made it a global
-> variable.
-> 
-> I.e. max_pfn is 1 GB with Andre's setup.
-> 
-> His patch doesn't touch the bounce limit, the default limit from
-> blk_queue_make_request() is used: BLK_BOUNCE_HIGH, which is max_low_pfn.
-> 
-> max_low_pfn is 896 MB.
-> 
-> --> BUG in create_bounce(), because a request comes in with a bounce
-> limit less than the total system memory, and no highmem configured.
+On Saturday den 12 January 2002 19.54, Alan Cox wrote:
+> Another example is in the network drivers. The 8390 core for one example
+> carefully disables an IRQ on the card so that it can avoid spinlocking on
+> uniprocessor boxes.
+>
+> So with pre-empt this happens
+>
+> 	driver magic
+> 	disable_irq(dev->irq)
+> PRE-EMPT:
+> 	[large periods of time running other code]
+> PRE-EMPT:
+> 	We get back and we've missed 300 packets, the serial port sharing
+> 	the IRQ has dropped our internet connection completely.
+>
+> ["Don't do that then" isnt a valid answer here. If I did hold a lock
+>  it would be for several milliseconds at a time anyway and would reliably
+>  trash performance this time]
+>
 
-Indeed, I misread the max_pfn stuff when I added that.
+./drivers/net/8390.c
+I checked the code ./drivers/net/8390.c - this is how it REALLY looks like...
 
---- /opt/kernel/linux-2.5.2-pre11/drivers/block/ll_rw_blk.c	Thu Jan 10 09:56:52 2002
-+++ drivers/block/ll_rw_blk.c	Mon Jan 14 02:21:50 2002
-@@ -1711,7 +1705,11 @@
- 	printk("block: %d slots per queue, batch=%d\n", queue_nr_requests, batch_requests);
- 
- 	blk_max_low_pfn = max_low_pfn;
-+#ifdef CONFIG_HIGHMEM
- 	blk_max_pfn = max_pfn;
-+#else
-+	blk_max_pfn = max_low_pfn;
-+#endif
- 
- #if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_IDE)
- 	ide_init();		/* this MUST precede hd_init */
---- /opt/kernel/linux-2.5.2-pre11/mm/highmem.c	Thu Jan 10 09:56:53 2002
-+++ mm/highmem.c	Mon Jan 14 02:20:53 2002
-@@ -367,12 +367,6 @@
- 		if (pfn >= blk_max_pfn)
- 			return;
- 
--#ifndef CONFIG_HIGHMEM
--		/*
--		 * should not hit for non-highmem case
--		 */
--		BUG();
--#endif
- 		bio_gfp = GFP_NOHIGHIO;
- 		pool = page_pool;
- 	} else {
+	/* Ugly but a reset can be slow, yet must be protected */
+		
+	disable_irq_nosync(dev->irq);
+	spin_lock(&ei_local->page_lock);
+		
+	/* Try to restart the card.  Perhaps the user has fixed something. */
+	ei_reset_8390(dev);
+	NS8390_init(dev, 1);
+		
+	spin_unlock(&ei_local->page_lock);
+	enable_irq(dev->irq);
+
+This should be mostly OK for the preemptive kernel. Swapping the irq and spin 
+lock lines should be preferred. But I think that is the case in SMP too...
+
+Suppose two processors does the disable_irq_nosync - unlikely but possible...
+One gets the spinlock, the other waits
+The first runs through the code, exits the spin lock, enables irq
+The second starts running the code - without irq disabled!!!
+
+This would work in both cases.
+	/* Ugly but a reset can be slow, yet must be protected */
+		
+	spin_lock(&ei_local->page_lock);
+	disable_irq_nosync(dev->irq);
+		
+	/* Try to restart the card.  Perhaps the user has fixed something. */
+	ei_reset_8390(dev);
+	NS8390_init(dev, 1);
+		
+	enable_irq(dev->irq);
+	spin_unlock(&ei_local->page_lock);
+
+/RogerL
+
+
 
 -- 
-Jens Axboe
-
+Roger Larsson
+Skellefteå
+Sweden

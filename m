@@ -1,83 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTKEPYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 10:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbTKEPYZ
+	id S261768AbTKEPrl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 10:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTKEPrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 10:24:25 -0500
-Received: from ns.suse.de ([195.135.220.2]:13520 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262971AbTKEPYX (ORCPT
+	Wed, 5 Nov 2003 10:47:41 -0500
+Received: from ida.rowland.org ([192.131.102.52]:4868 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S261768AbTKEPri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 10:24:23 -0500
-Date: Wed, 5 Nov 2003 16:23:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix rq->flags use in ide-tape.c
-Message-ID: <20031105152319.GW1477@suse.de>
-References: <200311041718.hA4HIBmv027100@hera.kernel.org> <200311051454.27514.bzolnier@elka.pw.edu.pl> <20031105135618.GT1477@suse.de> <200311051616.53701.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311051616.53701.bzolnier@elka.pw.edu.pl>
+	Wed, 5 Nov 2003 10:47:38 -0500
+Date: Wed, 5 Nov 2003 10:47:37 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Jens Axboe <axboe@suse.de>
+cc: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual content
+ is read (only directory structure)
+In-Reply-To: <20031105084002.GX1477@suse.de>
+Message-ID: <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05 2003, Bartlomiej Zolnierkiewicz wrote:
-> On Wednesday 05 of November 2003 14:56, Jens Axboe wrote:
-> > On Wed, Nov 05 2003, Bartlomiej Zolnierkiewicz wrote:
-> > > On Wednesday 05 of November 2003 13:00, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Wednesday 05 of November 2003 09:40, Jens Axboe wrote:
-> > > > > On Tue, Nov 04 2003, Linux Kernel Mailing List wrote:
-> > > > > > ChangeSet 1.1413, 2003/11/04 08:01:30-08:00,
-> > > > > > B.Zolnierkiewicz@elka.pw.edu.pl
-> > > > > >
-> > > > > > 	[PATCH] fix rq->flags use in ide-tape.c
-> > > > > >
-> > > > > > 	Noticed by Stuart_Hayes@Dell.com:
-> > > > >
-> > > > > Guys, this is _way_ ugly. We definitely dont need more crap in
-> > > > > ->flags for private driver use, stuff them somewhere else in the rq.
-> > > > > rq->cmd[0] usage would be a whole lot better. This patch should never
-> > > > > have been merged. If each and every driver needs 5 private bits in
-> > > > > ->flags, well...
-> > > >
-> > > > Yeah, it is ugly.  Using rq->cmd is also ugly as it hides the problem
-> > > > in ide-tape.c, but if you prefer this way I can clean it up.  I just
-> > > > wanted minimal changes to ide-tape.c to make it working.
-> > >
-> > > Also putting these flags in rq->cmd[0] makes it hard to later convert
-> > > ide-tape.c to use rq->cmd[] for storing packet commands.
-> >
-> > What's wrong with just looking at the opcode instead of inventing magic
-> > flags. Seems like _just_ the right thing to do, convert to really using
-> > rq and killing the private command stuff as much as possible. The latter
-> > can wait though, the flag thing really has to go right now.
+On Wed, 5 Nov 2003, Jens Axboe wrote:
+
+> On Tue, Nov 04 2003, Alan Stern wrote:
+> > 
+> > 	1. No, the sg entry was DMA-mapped previously and then unmapped.
+> > The problem Nicholas encountered is an oops that occurs later during a
+> > memcpy, not during a DMA operation.  Apparently the page is not locked in
+> > memory.
 > 
-> It is non-trivial cause it seems packet commands are prepared during
-> processing request, not prior to queuing it.  Also I still don't fully
+> Well what's the difference? Still a driver bug. Where does the dma
+> mapping happen?
 
-Definitely, it can be done at a later stage.
+Sorry, my answer above was wrong.  In Nicholas's particular case there was
+no DMA transfer at all, only memcpy().  There are other cases that do use
+DMA, of course, like the one you were looking at.
 
-> understand driver inner-workings with respect to DSC, "pipeline" and internal
-> commands processing.
 
-I don't blame you :)
-
-> > ide-*.c driver by Gadi are all completely over designed and attempts to
-> > basically implement everything themselves. Horrible.
+> > 	3. What's wrong with sg_adress()?  I notice that bio_data() in 
+> > include/linux/bio.h is practically the same.
 > 
-> Yep, but we should be careful in removing cruft.  I've already had a
-> hard time fixing it after (totally unnecessary and broken)
-> buffer_head->bio conversion.
+> Yeah, bio_data() is not supposed to be used either, but it also has a
+> comment to that effect. sg_address() is worse, because it's readding
+> something that 2.5 explicitly removed to encourage proper use of the pci
+> dma mapping api.
 
-Yup that wasn't a very good conversion... I think I even complained at
-the time to whomever did it. In my opinion, it's better to keep the
-driver broken than accept a bad conversion (someone doing it without
-really understanding the driver nor bio stuff) that makes it compile.
-The latter is what happened.
+Okay.  The real trouble we're facing is that the driver is handed an sg 
+list, but sometimes it has to copy data directly to/from the memory area 
+(via memcpy() for example) rather than doing I/O -- and even when doing 
+I/O it may sometimes have to use PIO rather than DMA.
 
--- 
-Jens Axboe
+Anyway, we have to be able to access the underlying memory for the sg 
+buffer.  The code currently uses
+
+	page_address(sg[i].page) + sg[i].offset
+
+to do this.  Is this now wrong?  And if so, what should it use instead?
+I don't see anything about it in DMA-mapping.txt.
+
+
+> > 	4. What's wrong with kfree() on ptr + offset?  As long as that 
+> > points to the same address as was kmalloc'ed, it should work fine.
+> 
+> Ah you are right, there's nothing wrong with that. It's just the
+> implementation that looks odd. Why not do away with that kmalloc() and
+> virt_to_page(), and just alloc_page() explicitly? Kill the 2.4 ifdefs at
+> the same time.
+
+Certainly the 2.4 ifdefs can go away now.  We use kmalloc() rather than
+alloc_page() because we will have to examine the allocated memory after
+the DMA operation is complete.
+
+
+> > 	5. We are doing DMA into those pages.  What's wrong with that?  
+> > They were allocated using kmalloc, so there should be no difficulty in 
+> > mapping and using them.
+> 
+> Where are they mapped? Are you flushing buffers appropriately?
+
+They are mapped in drivers/usb/core/usb.c:usb_buffer_map_sg().  I don't 
+know what buffers you're referring to.
+
+
+> > 	6. There _are_ checks for kmalloc() failing; they just aren't 
+> > where you would expect to see them.  The check depends on virt_to_page() 
+> > returning 0 when passed an argument of 0.  Maybe that assumption is wrong.
+> > Certainly it wouldn't hurt to do the checking properly.
+> 
+> Irk that's even more ugly... And it's wrong, too.
+
+I'll change it.  But first we better settle the other questions I asked 
+above.
+
+
+> > 	7. DMA-mapping isn't the issue.  The problem is that 
+> > sddr09_read_data() -- not sddr09_read_map() as you seem to have assumed -- 
+> > has been passed an sg entry for which page_address() returns 0.
+> 
+> But why does that happen, if ->page is set? That's the mystery, and that
+> heavily points to a driver bug.
+
+You mean, why does page_address() return 0 if ->page is set?  I don't
+know.  In fact, it's not even certain that ->page _is_ set -- I didn't
+think to print it out in the diagnostic patch.
+
+In any case, it quite likely _does_ point to a driver bug.  But since
+sddr09_read_data() was handed this sg entry and didn't change it, if there
+is such a bug it must lie in a higher-level driver.  Maybe the scsi layer, 
+maybe the block layer, maybe the memory-management system, maybe the file 
+system.  That was my original point.
+
+Alan Stern
 

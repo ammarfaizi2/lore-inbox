@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264398AbUFXMdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUFXMfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbUFXMdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 08:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUFXMdY
+	id S264405AbUFXMfv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 08:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUFXMfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 08:33:24 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:11660 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264398AbUFXMdU (ORCPT
+	Thu, 24 Jun 2004 08:35:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47773 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264405AbUFXMfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 08:33:20 -0400
-Date: Thu, 24 Jun 2004 14:33:19 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Halil Demirezen <kernel@bilmuh.ege.edu.tr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Assistance
-Message-ID: <20040624123319.GP20632@lug-owl.de>
-Mail-Followup-To: Halil Demirezen <kernel@bilmuh.ege.edu.tr>,
-	linux-kernel@vger.kernel.org
-References: <20040624125016.GA9483@bilmuh.ege.edu.tr>
+	Thu, 24 Jun 2004 08:35:40 -0400
+Date: Thu, 24 Jun 2004 14:35:16 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: using gcc built-ins for bitops?
+Message-ID: <20040624123515.GD21376@devserv.devel.redhat.com>
+References: <20040624070936.GB30057@devserv.devel.redhat.com> <20040624020022.0601d4ae.akpm@osdl.org> <20040624113151.GA21376@devserv.devel.redhat.com> <20040624120534.GW21264@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fd8z/cLMmsG+ozCG"
+	protocol="application/pgp-signature"; boundary="f+W+jCU1fRNres8c"
 Content-Disposition: inline
-In-Reply-To: <20040624125016.GA9483@bilmuh.ege.edu.tr>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040624120534.GW21264@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Fd8z/cLMmsG+ozCG
-Content-Type: text/plain; charset=iso-8859-1
+--f+W+jCU1fRNres8c
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2004-06-24 15:50:16 +0300, Halil Demirezen <kernel@bilmuh.ege.edu.t=
-r>
-wrote in message <20040624125016.GA9483@bilmuh.ege.edu.tr>:
-> I need assistance on a small kernel that I am trying to develop.
->=20
-> I have some page specific, device specific problems, Anyone interested
-> who have info on I386 would you please contact me through halil@enux.org
-> mail address.=20
+On Thu, Jun 24, 2004 at 08:05:34AM -0400, Jakub Jelinek wrote:
+> On Thu, Jun 24, 2004 at 01:31:51PM +0200, Arjan van de Ven wrote:
+> > On Thu, Jun 24, 2004 at 02:00:22AM -0700, Andrew Morton wrote:
+> > > For the implementation it would be nice to have the old-style
+> > > implementations in one header and the new-style ones in a separate header. 
+> > > That would create a bit of an all-or-nothing situation, but that should be
+> > > OK?
+> > 
+> > In addition I stuck those in asm-generic since they no longer are
+> > architecture specific....
+> 
+> This is not going to work.
+> Say on x86_64, __builtin_ctzl (~word) ends up __ctzdi2 (~word) call in GCC
+> 3.4.x, which is not defined in the kernel (in 3.5 it will be bsfq).
+> On a bunch of arches which don't have an instruction for ffz operation
+> it will always result in a library call.
 
-What about just explaining your problem and showing the source for your
-driver?
+It's actually fine; the architecture first needs to include this file and
+there it can use the proper ifdefs; the functions themselves don't matter,
+only when they can be used, and the arch still controls that.
 
-MfG, JBG
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---Fd8z/cLMmsG+ozCG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--f+W+jCU1fRNres8c
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFA2soPHb1edYOZ4bsRAik9AJ9p6D1S3/hF8/VpZzjthdzcPRAcEgCfXBl/
-9jqRn0t0M92/5NHW1kn8gsE=
-=fFiq
+iD8DBQFA2sqDxULwo51rQBIRAmK7AKCDcYI/uBAf6t5nw/0xx3Uj8FLGzgCaA0Kf
+Ds/XMGO8dr0exhzoc1SvsCE=
+=p1HF
 -----END PGP SIGNATURE-----
 
---Fd8z/cLMmsG+ozCG--
+--f+W+jCU1fRNres8c--

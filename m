@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTCWDam>; Sat, 22 Mar 2003 22:30:42 -0500
+	id <S262276AbTCWDlw>; Sat, 22 Mar 2003 22:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262260AbTCWDam>; Sat, 22 Mar 2003 22:30:42 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:29192 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262258AbTCWDal>;
-	Sat, 22 Mar 2003 22:30:41 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "John David Anglin" <dave@hiauly1.hia.nrc.ca>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: [Linux-ia64] Announce: modutils 2.4.24 is available 
-In-reply-to: Your message of "Sat, 22 Mar 2003 22:37:43 CDT."
-             <200303230337.h2N3bhAC026836@hiauly1.hia.nrc.ca> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 23 Mar 2003 14:41:33 +1100
-Message-ID: <8942.1048390893@ocs3.intra.ocs.com.au>
+	id <S262289AbTCWDlw>; Sat, 22 Mar 2003 22:41:52 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:36939
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262276AbTCWDlu>; Sat, 22 Mar 2003 22:41:50 -0500
+Date: Sat, 22 Mar 2003 22:49:19 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aic7(censored) dying horribly in 2.5.65-mm2
+In-Reply-To: <Pine.LNX.4.50.0303212048200.28519-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0303222240330.18911-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
+ <411800000.1048276482@aslan.btc.adaptec.com>
+ <Pine.LNX.4.50.0303211842370.28519-100000@montezuma.mastecende.com>
+ <Pine.LNX.4.50.0303212042000.28519-100000@montezuma.mastecende.com>
+ <Pine.LNX.4.50.0303212048200.28519-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Mar 2003 22:37:43 -0500 (EST), 
-"John David Anglin" <dave@hiauly1.hia.nrc.ca> wrote:
->> -#if defined(ARCH_ia64) || defined(ARCH_ppc64)
->> +#if defined(ARCH_ia64) || defined(ARCH_ppc64) || defined(ARCH_hppa64)
->>  #define HAS_FUNCTION_DESCRIPTORS
->>  #endif
->
->The 32-bit hppa port also has function descriptors.
+On Fri, 21 Mar 2003, Zwane Mwaikambo wrote:
 
-They keep coming out of the woodwork :(  Any more architectures using
-function descriptors?  Just add them to the list below.
+> Actually, please disregard that last oops i looked at the version numbers 
+> and they can't have been right. i don't think i booted the right image.
+> 
+> Here are some oopses with 6.2.30, there does appear to be a relation wrt 
+> interrupt routing because if i boot with noapic it passes the boot test 
+> and appears to be functional. If you have any more suggestions please send 
+> them my way, i shall also be trying a number of things.
 
-Index: 24.3/include/util.h
---- 24.3/include/util.h Sun, 23 Mar 2003 13:34:28 +1100 kaos (modutils-2.4/51_util.h 1.4 644)
-+++ 24.3(w)/include/util.h Sun, 23 Mar 2003 14:40:06 +1100 kaos (modutils-2.4/51_util.h 1.4 644)
-@@ -96,7 +96,7 @@ void gzf_close(int fd);
- #define SYMPREFIX "__insmod_";
- extern const char symprefix[10];	/* Must be sizeof(SYMPREFIX), including nul */
- 
--#if defined(ARCH_ia64) || defined(ARCH_ppc64)
-+#if defined(ARCH_ia64) || defined(ARCH_ppc64) || defined(ARCH_hppa) || defined(ARCH_hppa64)
- #define HAS_FUNCTION_DESCRIPTORS
- #endif
- 
+Hi Justin,
+	Ok i enabled the second IOAPIC on my system which didn't make a 
+difference really apart from changing the IRQ assignments. However booting 
+the same SMP kernel with maxcpus=1 (IRQ assignments remains the same and 
+devices are serviced by IOAPIC) i can't reproduce the oopses. Here is 
+one w/o maxcpus... The reason why noapic worked before is because only one cpu was 
+servicing interrupts, however we are serialized per irq line...
 
+Starting system logger: Unable to handle kernel paging request at virtual 
+address 6b6b6b6b
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<6b6b6b6b>]    Not tainted
+EFLAGS: 00010002 VLI
+EIP is at 0x6b6b6b6b
+eax: c17bda10   ebx: 00000000   ecx: cbe31290   edx: 00000000
+esi: 00000001   edi: c0511fa0   ebp: 0000001d   esp: c0511f20
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c0510000 task=c04a12a0)
+Stack: c02ff2dc c17bda10 c17bda10 cbe31290 c0305807 cbe31290 c17bda10 00000296 
+       c011bceb c0511f44 cbffe4f4 04000001 c010bb0d 0000001d cbe31290 c0511fa0 
+       c05063a0 c0510000 c0510000 0000001d c010be49 0000001d c0511fa0 cbffe4f4 
+Call Trace:
+ [<c02ff2dc>] ahc_linux_run_complete_queue+0x3c/0x50
+ [<c0305807>] ahc_linux_isr+0x1d7/0x3a0
+ [<c011bceb>] rebalance_tick+0x3b/0x100
+ [<c010bb0d>] handle_IRQ_event+0x2d/0x50
+ [<c010be49>] do_IRQ+0x109/0x210
+ [<c0106ea0>] default_idle+0x0/0x40
+ [<c010a398>] common_interrupt+0x18/0x20
+ [<c0106ea0>] default_idle+0x0/0x40
+ [<c0106ece>] default_idle+0x2e/0x40
+ [<c0106f5a>] cpu_idle+0x3a/0x50
+ [<c0105000>] rest_init+0x0/0x80
+
+Code:  Bad EIP value.
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+-- 
+function.linuxpower.ca

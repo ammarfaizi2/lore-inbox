@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269979AbUJTUnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270558AbUJTUa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269979AbUJTUnN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270534AbUJTUnJ
+	id S270558AbUJTUa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270547AbUJTU00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:43:09 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:31686 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S269979AbUJTUlu (ORCPT
+	Wed, 20 Oct 2004 16:26:26 -0400
+Received: from pat.uio.no ([129.240.130.16]:4001 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S270561AbUJTUZF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:41:50 -0400
-Date: Wed, 20 Oct 2004 22:41:27 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Pekka Pietikainen <pp@ee.oulu.fi>
-cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-In-Reply-To: <20041019210254.GA561@ee.oulu.fi>
-Message-ID: <Pine.GSO.4.61.0410202240360.19684@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
- <417550FB.8020404@drdos.com> <20041019210254.GA561@ee.oulu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Oct 2004 16:25:05 -0400
+Subject: Re: [PATCH] lockd: replace semaphore, sleep_on
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041020194522.GX16153@parcelfarce.linux.theplanet.co.uk>
+References: <1098299743.20821.54.camel@thomas>
+	 <20041020194522.GX16153@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Date: Wed, 20 Oct 2004 22:24:27 +0200
+Message-Id: <1098303867.5390.74.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
+	RCVD_NUMERIC_HELO 0.33)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Pekka Pietikainen wrote:
-> On Tue, Oct 19, 2004 at 11:38:03AM -0600, Jeff V. Merkey wrote:
-> > On a side note, the GPL buyout previously offered has been modified. We
-> > will be contacting individual contributors and negotiating with each
-> > copyright holder for the code we wish to convert on a case by case basis.
-> 
-> arch/m68k/sun3/leds.c is available (dual BSD/GPL) for the price of two beers 
-> (I believe nobody else has touched it so it should be all mine). 
-> 
-> The other files of the port to that very fine architecture are largely done
-> by other people, so unfortunately I can't relicense those.
 
-Aarghl, a shameless m68k hacker!
+> On Wed, Oct 20, 2004 at 09:15:43PM +0200, Thomas Gleixner wrote:
+> > 
+> > Use wait_event, completion instead of the obsolete sleep_on functions
+> > and the abused semaphore
 
-And I thought we all did it for The Big Fun(tm), and cannot be bought ;-)
+What is the point of all this timeout business when starting/stopping
+lockd? We sure as hell don't want lockd to survive us if we are the
+process that is responsible for killing it, and neither do we want to
+start locking if there is no lockd to handle callbacks.
+Please see the example of rpciod in net/sunrpc/sched.c for how to do
+this correctly.
 
-Gr{oetje,eeting}s,
+As for the client changes to the GRANTED mechanism, where is
+wait_for_completion_timeout() defined? It is not part of Linus' kernel.
 
-						Geert
+Cheers,
+  Trond
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

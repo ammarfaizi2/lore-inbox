@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVASUBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVASULs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVASUBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVASUBy
+	id S261783AbVASULs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVASULs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:01:54 -0500
-Received: from web53810.mail.yahoo.com ([206.190.36.205]:29293 "HELO
-	web53810.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261706AbVASUBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:01:47 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=hfqg1esnYKFY83O/y4vkSJGK62GaXMXOeB8p1ABps07FX+4UKqYwy4KWFyB1rMKzoSdFhz6CcBgQvDvbKjkKTk7r53W7GZJfVFEgXKfxhMvk//U7kAyreODtRM3Xt++O/UO88599RfxKeKC3LgQI8NYo9uzJoYpd8Hn8VDitxTU=  ;
-Message-ID: <20050119200143.52584.qmail@web53810.mail.yahoo.com>
-Date: Wed, 19 Jan 2005 12:01:43 -0800 (PST)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: Re: Linux-tracecalls, a new tool for Kernel development, released
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 19 Jan 2005 15:11:48 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:35491 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261783AbVASULr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:11:47 -0500
+Date: Wed, 19 Jan 2005 21:11:45 +0100
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Daniel Drake <dsd@gentoo.org>, Andrew Morton <akpm@osdl.org>,
+       Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       William Park <opengeometry@yahoo.ca>
+Subject: Re: [PATCH] Wait and retry mounting root device (revised)
+Message-ID: <20050119201145.GA10279@janus>
+References: <20050114002352.5a038710.akpm@osdl.org> <20050116005930.GA2273@zion.rivenstone.net> <41EC7A60.9090707@gentoo.org> <20050118080214.GB8747@pclin040.win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050118080214.GB8747@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only five minutes old, and already a patch ;)
+On Tue, Jan 18, 2005 at 09:02:14AM +0100, Andries Brouwer wrote:
+> 
+> Suppose we have kernel command line options
+> 	rootdev=, rootpttype=, root=, rootfstype=, rootwait=
+> telling the kernel what device is the root device,
+> what type of partition table it has,
+> on which partition the root filesystem lives,
+> what type of filesystem it has,
 
+might as well add rootuuid= for those fs which support it.
 
---- lnxtc.pl-old      2005-01-19 12:09:00.000000000 -0800
-+++ lnxtc.pl-new      2005-01-19 12:09:38.000000000 -0800
-@@ -627,6 +627,7 @@
-    $debug = 0;
- }
-
-+$ENV{'PATH'}='/bin:/usr/bin';
-
- #Redirect standard error to logfile (fatals also to browser)
- unless($nohtml)
-
+-- 
+Frank

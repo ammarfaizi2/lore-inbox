@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266453AbSKKRjL>; Mon, 11 Nov 2002 12:39:11 -0500
+	id <S266837AbSKKRke>; Mon, 11 Nov 2002 12:40:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbSKKRjL>; Mon, 11 Nov 2002 12:39:11 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:25254 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266453AbSKKRjL>;
-	Mon, 11 Nov 2002 12:39:11 -0500
-Message-ID: <3DCFEA8D.9070505@colorfullife.com>
-Date: Mon, 11 Nov 2002 18:36:13 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
+	id <S266849AbSKKRke>; Mon, 11 Nov 2002 12:40:34 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11060 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S266837AbSKKRkb>; Mon, 11 Nov 2002 12:40:31 -0500
+Date: Mon, 11 Nov 2002 17:48:17 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Christoph Hellwig <hch@lst.de>, "Adam J. Richter" <adam@yggdrasil.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] loop sendfile retval
+In-Reply-To: <Pine.LNX.4.44.0211110846270.1805-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0211111731160.1174-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "Srinivasa T.N." <seenutn@cdotb.ernet.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Increasing Message Queue's
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am using RH 7.2 (kernel 2.4.7-10)..
->	I wan't to increase the no. of message queues (right now it is MSGMNI = 
->16)..How to go about it??
+On Mon, 11 Nov 2002, Linus Torvalds wrote:
+> On Mon, 11 Nov 2002, Hugh Dickins wrote:
+> >
+> > Buffer I/O error on device loop: its use of sendfile is (trivially)
+> > broken - retval is usually count done, only an error when negative.
+> 
+> Hmm.. Sendfile can return other values than "count" (ie a partial read).  
+> This return value change makes "do_lo_receive()" lose that information. As 
+> such, the new do_lo_receive() is weaker than the old one.
 
-As root [for example in /etc/rc.local]:
-echo 128 > /proc/sys/kernel/msgnmi
+True, with that patch it's passing back less info than 2.5.47 tried to do;
+but no less than 2.5.46 and earlier, which always returned desc.error and
+ignored the desc.written, desc.count coming back from do_generic_file_read.
+So it's not a regression, but of course you're right that it's weak.
 
-Hmm. The documentation for both the sysv sem and the msg sysctl's is missing in linux/Documentation/sysrq/kernel.txt
---
-	Manfred
+> If fixing the loop code to handle partial IO is too nasty, then I would
+> suggest doing maybe something like
+> 
+> 	if (ret > 0 && ret != bvec->bv_len)
+> 		ret = -EIO;
+> 
+> which at least makes a partial IO an error instead of making it a success 
+> case (the code as-is seems to think that any non-negative return value 
+> means that the IO was fully successful).
+> 
+> > Nearby spinlocking clearly bogus, delete instead of remarking on it.
+> 
+> I'll apply the patch, it looks better than what is there now, but it might 
+> be worth fixing this _right_.
 
+Thanks, that gets it going again.  I'll step aside and leave the correct
+partial handling to those who know loop much better than I - Adam?
 
-
+Hugh
 

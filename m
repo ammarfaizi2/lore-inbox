@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288322AbSACVdf>; Thu, 3 Jan 2002 16:33:35 -0500
+	id <S288331AbSACVfP>; Thu, 3 Jan 2002 16:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288326AbSACVdZ>; Thu, 3 Jan 2002 16:33:25 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:63494 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288322AbSACVdQ>; Thu, 3 Jan 2002 16:33:16 -0500
-Message-ID: <3C34CD08.FC7BEBEF@zip.com.au>
-Date: Thu, 03 Jan 2002 13:28:40 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S288328AbSACVfG>; Thu, 3 Jan 2002 16:35:06 -0500
+Received: from web14911.mail.yahoo.com ([216.136.225.249]:42502 "HELO
+	web14911.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288329AbSACVe4>; Thu, 3 Jan 2002 16:34:56 -0500
+Message-ID: <20020103213455.34699.qmail@web14911.mail.yahoo.com>
+Date: Thu, 3 Jan 2002 16:34:55 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: The CURRENT macro
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.17 crashes on SCSI-errors
-In-Reply-To: <XFMail.20020103130541.R.Oehler@GDImbH.com> from "R.Oehler@GDImbH.com" at Jan 03, 2002 01:05:41 PM <E16M7De-0008Dx-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> 
-> BUG trap. Turn on verbose bug reporting,
+In Alessandro Rubini's book Linux Device Driver(Second
+Edition), Chatper 12, he said that "By accessing the
+fields in the request structure, usually by way of
+CURRENT" and "CURRENT is just a pointer into
+blk_dev[MAJOR_NR].request_queue". I know CURRENT is
+just a macro. Where can I find the definition of this
+macro?
+I just don't know how to get the struct request from
+the request_queue(a request_queue_t struct). CURRENT
+points to which field in the
+blk_dev[MAJOR_NR].request_queue? Thank you very much.
 
-Boy, was that ever a dumb idea.  Rod.  Back.  Pain.
+Michael
 
--
+______________________________________________________ 
+Send your holiday cheer with http://greetings.yahoo.ca

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUAUEDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 23:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUAUEDF
+	id S261563AbUAUEBz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 23:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUAUEBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 23:03:05 -0500
-Received: from dp.samba.org ([66.70.73.150]:22986 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261606AbUAUEC4 (ORCPT
+	Tue, 20 Jan 2004 23:01:54 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52688 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261563AbUAUEBx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 23:02:56 -0500
-Date: Wed, 21 Jan 2004 14:58:56 +1100
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] vmalloc fix
-Message-ID: <20040121035856.GA4372@krispykreme>
+	Tue, 20 Jan 2004 23:01:53 -0500
+Date: Wed, 21 Jan 2004 09:36:33 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Rusty Russell <rusty@au1.ibm.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       rml@tech9.net
+Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
+Message-ID: <20040121093633.A3169@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org> <400CE8DC.70307@cyberone.com.au> <20040120084352.GD15733@hockin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040120084352.GD15733@hockin.org>; from thockin@hockin.org on Tue, Jan 20, 2004 at 12:43:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 20, 2004 at 12:43:52AM -0800, Tim Hockin wrote:
+> IFF the app is designed to handle it.  The existence of a SIGPWR handler
+> does not necessarily imply that, though.  a SIGCPU or something might
+> correlate 1:1 with this, but SIGPWR doesn't.
 
-Hi,
+I agree we should have a separe signal for CPU Hotplug. By default the signal 
+will be ignored, unless a task registers a signal handler for that special 
+signal.
 
-Paul wrote a patch to use some of the rmap infrastructure to flush TLB
-entries on ppc64. When testing it we found a problem in vmalloc where it
-sets up the pte -> address mapping incorrectly. We clear the top bits of
-the address but then forget to pass in the full address to
-pte_alloc_kernel. The end result is the address in page->index is
-truncated.
+That way, tasks which "knowingly" change their CPU affinity will be able to 
+tackle a CPU going down by handling the signal (probably change their CPU 
+affinity again), while tasks which have their CPU affinity changed "unknowingly"
+(by other tasks) will just ignore the signal. The hotplug script interface
+allows the admin to go and change the CPU affinity again for the second class 
+of tasks, if needed.
 
-I fixed it in a similar way to how zeromap_pmd_range etc does it. Im
-guessing no one uses the rmap hooks on vmalloc pages yet, so havent seen
-this problem.
+The only problem with a new signal is conformance to standards (if any).
 
-Anton
+-- 
 
-===== mm/vmalloc.c 1.29 vs edited =====
---- 1.29/mm/vmalloc.c	Wed Oct  8 12:53:44 2003
-+++ edited/mm/vmalloc.c	Wed Jan 21 14:48:23 2004
-@@ -114,15 +114,16 @@
- 			       unsigned long size, pgprot_t prot,
- 			       struct page ***pages)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 
-+	base = address & PGDIR_MASK;
- 	address &= ~PGDIR_MASK;
- 	end = address + size;
- 	if (end > PGDIR_SIZE)
- 		end = PGDIR_SIZE;
- 
- 	do {
--		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, address);
-+		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, base + address);
- 		if (!pte)
- 			return -ENOMEM;
- 		if (map_area_pte(pte, address, end - address, prot, pages))
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

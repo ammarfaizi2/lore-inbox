@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268936AbRHBOJU>; Thu, 2 Aug 2001 10:09:20 -0400
+	id <S268948AbRHBOSA>; Thu, 2 Aug 2001 10:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268945AbRHBOJL>; Thu, 2 Aug 2001 10:09:11 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:52240 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268941AbRHBOJD>; Thu, 2 Aug 2001 10:09:03 -0400
-From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
+	id <S268952AbRHBORv>; Thu, 2 Aug 2001 10:17:51 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40465 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268948AbRHBORf>; Thu, 2 Aug 2001 10:17:35 -0400
+Subject: Re: PCMCIA IDE_CS in 2.4.7
+To: alan@clueserver.org (Alan Olsen)
+Date: Thu, 2 Aug 2001 15:18:43 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.10.10107312226590.26170-100000@clueserver.org> from "Alan Olsen" at Jul 31, 2001 10:42:48 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15209.24275.734360.775764@beta.namesys.com>
-Date: Thu, 2 Aug 2001 18:08:19 +0400
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-CC: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH]: reiserfs: A-panic-in-reiserfs_read_super.patch
-X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
+Message-Id: <E15SJJD-0000eB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+> When I insert the card, I get a beep from the cardmgr program seeing the
+> card being inserted.  Then the whole system refuses to respond to anything
+> on the keyboard.  (I have not tested if the system is reachable by network
+> when that happens.) 
 
-some bug-fixes for reiserfs missed 2.4.8-pre kernels. I am resending
-them.
+Gunther posted this patch ages ago which seems to solve the problem
 
-this patch allows reiserfs to cope with an attempt to mount file-system
-with corrupted super-block: reiserfs stores both version-dependent magic
-and version itself in a super-block. This patch just returns error
-rather than panics if they don't match. Please apply.
-
-[lkml: please CC me, I am not subscribed.]
-
-Nikita.
-diff -rup linux-2.4.8-pre3/fs/reiserfs/super.c linux-2.4.8-pre3.patched/fs/reiserfs/super.c
---- linux-2.4.8-pre3/fs/reiserfs/super.c	Wed Jul  4 13:45:55 2001
-+++ linux-2.4.8-pre3.patched/fs/reiserfs/super.c	Wed Aug  1 21:08:16 2001
-@@ -779,16 +779,23 @@ struct super_block * reiserfs_read_super
+--- linux245.orig/drivers/ide/ide-cs.c  Fri Feb  9 20:40:02 2001
++++ linux/drivers/ide/ide-cs.c  Tue Jun 26 21:22:19 2001
+@@ -324,6 +324,9 @@
+     if (link->io.NumPorts2)
+        release_region(link->io.BasePort2, link->io.NumPorts2);
  
-     if (!(s->s_flags & MS_RDONLY)) {
- 	struct reiserfs_super_block * rs = SB_DISK_SUPER_BLOCK (s);
-+	int old_magic;
++    outb(0x02, ctl_base); // Set nIEN = disable device interrupts
++                         // else it hangs on PCI-Cardbus add-in cards,
+wedging irq
 +
-+	old_magic = strncmp (rs->s_magic,  REISER2FS_SUPER_MAGIC_STRING, 
-+			     strlen ( REISER2FS_SUPER_MAGIC_STRING));
-+	if( old_magic && le16_to_cpu(rs->s_version) != 0 ) {
-+	  dput(s->s_root) ;
-+	  s->s_root = NULL ;
-+	  reiserfs_warning("reiserfs: wrong version/magic combination in the super-block\n") ;
-+	  goto error ;
-+	}
- 
- 	journal_begin(&th, s, 1) ;
- 	reiserfs_prepare_for_journal(s, SB_BUFFER_WITH_SB(s), 1) ;
- 
- 	rs->s_state = cpu_to_le16 (REISERFS_ERROR_FS);
- 
--        if (strncmp (rs->s_magic,  REISER2FS_SUPER_MAGIC_STRING, 
--		     strlen ( REISER2FS_SUPER_MAGIC_STRING))) {
--	    if (le16_to_cpu(rs->s_version) != 0)
--		BUG ();
-+        if ( old_magic ) {
- 	    // filesystem created under 3.5.x found
- 	    if (!old_format_only (s)) {
- 		reiserfs_warning("reiserfs: converting 3.5.x filesystem to the new format\n") ;
+     /* retry registration in case device is still spinning up */
+     for (i = 0; i < 10; i++) {
+        hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
+--- linux245.orig/drivers/ide/ide-probe.c       Sun Mar 18 18:25:02 2001
++++ linux/drivers/ide/ide-probe.c       Tue Jun 26 21:25:07 2001
+@@ -685,6 +685,8 @@
+ #else /* !CONFIG_IDEPCI_SHARE_IRQ */
+                int sa = (hwif->chipset == ide_pci) ? SA_INTERRUPT|SA_SHIRQ
+: SA_INTERRUPT;
+ #endif /* CONFIG_IDEPCI_SHARE_IRQ */
++
++               outb(0x00, hwif->io_ports[IDE_CONTROL_OFFSET]); // clear
+nIEN == enable irqs
+                if (ide_request_irq(hwif->irq, &ide_intr, sa, hwif->name,
+hwgroup)) {
+                        if (!match)
+                                kfree(hwgroup);

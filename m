@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbREOVoI>; Tue, 15 May 2001 17:44:08 -0400
+	id <S261598AbREOVmi>; Tue, 15 May 2001 17:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbREOVoC>; Tue, 15 May 2001 17:44:02 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:22798 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S261601AbREOVnl>; Tue, 15 May 2001 17:43:41 -0400
-Date: Tue, 15 May 2001 17:43:40 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Nicolas Pitre <nico@cam.org>, "H. Peter Anvin" <hpa@transmeta.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261599AbREOVm2>; Tue, 15 May 2001 17:42:28 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29340 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S261598AbREOVmS>; Tue, 15 May 2001 17:42:18 -0400
+Date: Tue, 15 May 2001 15:41:41 -0600
+Message-Id: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        torvalds@transmeta.com (Linus Torvalds),
+        neilb@cse.unsw.edu.au (Neil Brown),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        viro@math.psu.edu
 Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010515174339.A5599@sventech.com>
-In-Reply-To: <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home> <Pine.LNX.4.10.10105151424161.22038-100000@www.transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <Pine.LNX.4.10.10105151424161.22038-100000@www.transvirtual.com>; from James Simmons on Tue, May 15, 2001 at 02:28:11PM -0700
+In-Reply-To: <E14zl9b-0002x9-00@the-village.bc.nu>
+In-Reply-To: <200105151931.f4FJVL830847@vindaloo.ras.ucalgary.ca>
+	<E14zl9b-0002x9-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001, James Simmons <jsimmons@transvirtual.com> wrote:
-> > Personally, I'd really like to see /dev/ttyS0 be the first detected serial
-> > port on a system, /dev/ttyS1 the second, etc.  Currently there are plenty of
-> > different serial hardware with all their own drivers and /dev entries.  For
-> > embedded systems with serial consoles, and also across architectures, this
-> > is a pain since the filesystem and namely /dev/inittab has to be adjusted
-> > for all different types of UARTs.  This is not the case for every different
-> > type of NICs and that's a good thing.
+Alan Cox writes:
+> > 	len = readlink ("/proc/self/3", buffer, buflen);
+> > 	if (strcmp (buffer + len - 2, "cd") != 0) {
+> > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+> > 		exit (1);
 > 
-> I couldn't agree with you more. It gives me headaches at work. One note,
-> their is a except to the eth0 thing. USB to USB networking. It uses usb0,
-> etc. I personally which they use eth0.  
+> And on my box cd is the cabbage dicer whoops
 
-USB to USB networking cables aren't ethernet.
+Actually, no, because it's guaranteed that a trailing "/cd" is a
+CD-ROM. That's the standard.
 
-There are USB to ethernet adapters and they do appear as eth0.
+				Regards,
 
-JE
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

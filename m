@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318758AbSHLRba>; Mon, 12 Aug 2002 13:31:30 -0400
+	id <S318771AbSHLRif>; Mon, 12 Aug 2002 13:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318765AbSHLRak>; Mon, 12 Aug 2002 13:30:40 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:4075 "HELO
-	wind.cocodriloo.com") by vger.kernel.org with SMTP
-	id <S318758AbSHLR3Y>; Mon, 12 Aug 2002 13:29:24 -0400
-Date: Sat, 10 Aug 2002 21:39:11 +0200
-From: wind@cocodriloo.com
-To: linux-kernel@vger.kernel.org
-Subject: [wind@cocodriloo.com: Re: GCC still keeps empty loops?  (was: [patch 4/21] fix ARCH_HAS_PREFETCH)]
-Message-ID: <20020810193911.GB8486@wind.holaquehay.com>
-Mime-Version: 1.0
+	id <S318772AbSHLRif>; Mon, 12 Aug 2002 13:38:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13843 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318771AbSHLRid>;
+	Mon, 12 Aug 2002 13:38:33 -0400
+Message-ID: <3D57F5D6.C54F5A2A@zip.com.au>
+Date: Mon, 12 Aug 2002 10:52:22 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Robert Love <rml@tech9.net>, Skip Ford <skip.ford@verizon.net>,
+       "Adam J. Richter" <adam@yggdrasil.com>, ryan.flanigan@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.31: modules don't work at all
+References: <3D574972.DD878928@zip.com.au> <Pine.LNX.4.44.0208121016001.2274-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Forwarded message from wind@cocodriloo.com -----
-
-Date: Sat, 10 Aug 2002 20:43:13 +0200
-From: wind@cocodriloo.com
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: GCC still keeps empty loops?  (was: [patch 4/21] fix ARCH_HAS_PREFETCH)
-Message-ID: <20020810184313.GA8486@wind.holaquehay.com>
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.LNX.4.44.0208111203520.9930-100000@home.transmeta.com> <20020811210718.B3206@kushida.apsleyroad.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020811210718.B3206@kushida.apsleyroad.org>
-User-Agent: Mutt/1.3.28i
-Status: RO
-
-On Sun, Aug 11, 2002 at 09:07:18PM +0100, Jamie Lokier wrote:
-> Linus Torvalds wrote:
-> > I thought that special case was removed long ago, because it is untenable 
-> > in C++ etc (where such empty loops happen due to various abstraction 
-> > issues, and not optimizing them away is just silly).
-> > 
-> > But testing shows that you're right at least for 2.95 and 2.96. Argh
+Linus Torvalds wrote:
 > 
-> Unbelievably, 3.1 doesn't remove empty loops either.
-> I think there's a case for a compiler flag, `-fremove-empty-loops'.
+> On Sun, 11 Aug 2002, Andrew Morton wrote:
+> >
+> > Yes, that's the problem.   qm_symbols() is performing copy_to_user()
+> > inside lock_kernel() and that's an "atomic copy_to_user()" in 2.5.31.
+> > But only if preempt is selected.  The copy_to_user() doesn't work.
+> >
+> > There's nothing illegal about copy_to_user() inside lock_kernel().
+> >
+> > Linus, we can back out the preempt_count() test in there and
+> > perform the atomic copy_*_user via a current->flags bit, or
+> > we can do something else?
 > 
-> Empty loop delays aren't portable acrosss compilers in general.  If you
-> _really_ want an empty loop that must always work with GCC, it's easy
-> enough to write:
+> Since I'm actually hoping that the kernel lock goes away some day, and I
+> don't want to pollute the stuff that I hope will _not_ go away, I'd prefer
+> a slightly different approach, namely make kernel_lock() special from a
+> preempt_count() angle.
 > 
-> 	for (i = 0; i < 100000; i++)
-> 		__asm__ __volatile__ ("");
-> 
+> In particular, we already "sort" the preemtion count bits according to
+> just how atomic we are, and lock_kernel is certainly "less atomic" than a
+> spinlock. So the logical thing to do (I think) is to just make that more
+> explicit, and make lock_kernel use the low bit of preempt_count, and make
+> regular spinlocks do a "+= 2" instead of a "+= 1".
 
-Of course this delay-loop code will delay a diff. amount of time
-depending on processor speed. Don't we have the bogomips stuff
-exactly for this sort of small wait times?
+Gets tricky with nested lock_kernels.
 
-What about using internal time-counters from various processors (think
-RTDSC on i586+ and it's equivalent on PowerPC, for a start...)
+We can do
 
-I can still the shakeout when most code which assumed 7mhz 68000
-processors for timming got to run on 14mhz 68020 with caches
-on the amiga world... your floppies would change tracks a little
-bit too fast :)
+	if (preempt_count() - current->lock_depth)
 
--- 
-es verano y hace calor, el resto de implicaciones son triviales.
+To ignore the bkl contribution to preempt_count.
 
-::: Antonio Vargas :::
-
------ End forwarded message -----
-
--- 
-es verano y hace calor, el resto de implicaciones son triviales.
-
-::: winden/network :::
+I think that's even usable in generic code, because all architectures
+use lock_depth in the same way.

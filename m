@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbTBARGn>; Sat, 1 Feb 2003 12:06:43 -0500
+	id <S264919AbTBARdH>; Sat, 1 Feb 2003 12:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbTBARGn>; Sat, 1 Feb 2003 12:06:43 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:24047 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S264910AbTBARGm>; Sat, 1 Feb 2003 12:06:42 -0500
-Date: Sat, 1 Feb 2003 18:15:58 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Toon van der Pas <toon@hout.vanvergehaald.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre4+bk: undefined references for smp + apm
-Message-ID: <20030201171558.GA28932@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <20030201153428.GJ5239@riesen-pc.gr05.synopsys.com> <20030201172805.B4845@vdpas.vanvergehaald.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030201172805.B4845@vdpas.vanvergehaald.nl>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	id <S264920AbTBARdG>; Sat, 1 Feb 2003 12:33:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55300 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264919AbTBARdG>;
+	Sat, 1 Feb 2003 12:33:06 -0500
+Message-ID: <3E3C0684.4010806@pobox.com>
+Date: Sat, 01 Feb 2003 12:40:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joakim Tjernlund <Joakim.Tjernlund@lumentis.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NETIF_F_SG question
+References: <004701c2ca03$cb467460$020120b0@jockeXP>
+In-Reply-To: <004701c2ca03$cb467460$020120b0@jockeXP>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toon van der Pas, Sat, Feb 01, 2003 17:28:05 +0100:
-> On Sat, Feb 01, 2003 at 04:34:28PM +0100, Alex Riesen wrote:
-> > 
-> > arch/i386/kernel/kernel.o(.text+0xcd12): In function `apm_save_cpus':
-> > : undefined reference to `set_cpus_allowed'
-> > arch/i386/kernel/kernel.o(.text+0xcdbf): In function `apm_bios_call':
-> > : undefined reference to `set_cpus_allowed'
-> > arch/i386/kernel/kernel.o(.text+0xce56): In function `apm_bios_call_simple':
-> > : undefined reference to `set_cpus_allowed'
+Joakim Tjernlund wrote:
+> I am thinking of implementing harware scatter/gatter support( NETIF_F_SG) in my 
+> ethernet driver. The network device cannot do HW checksuming.
 > 
-> make mrproper
-> 
+> Will the IP stack make use of the SG support and will there be any significant performance
+> improvement?
 
-no, that's not the reason.
 
-set_cpus_allowed doesn't appear anywhere in the tree,
-only apm.c (with CONFIG_SMP defined) references it.
+No; you need HW checksumming for NETIF_F_SG to be useful.
 
--alex
+If HW checksumming is not available, scatter-gather is useless, because 
+the net stack must always make a pass over the data to checksum it. 
+Since it must do that, it can linearize the skb at the same time, 
+eliminating the need for SG.
+
+	Jeff
+
+
 

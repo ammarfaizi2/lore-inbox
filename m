@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbTB0HF5>; Thu, 27 Feb 2003 02:05:57 -0500
+	id <S261495AbTB0HRj>; Thu, 27 Feb 2003 02:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbTB0HF5>; Thu, 27 Feb 2003 02:05:57 -0500
-Received: from viefep15-int.chello.at ([213.46.255.19]:56634 "EHLO
-	viefep15-int.chello.at") by vger.kernel.org with ESMTP
-	id <S264688AbTB0HF4>; Thu, 27 Feb 2003 02:05:56 -0500
-Subject: Re: About /etc/mtab and /proc/mounts
-From: Joseph Wenninger <jowenn@jowenn.at>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E5DB2CA.32539D41@daimi.au.dk>
-References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
-	<buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> 
-	<3E5DB2CA.32539D41@daimi.au.dk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 27 Feb 2003 08:03:42 +0100
-Message-Id: <1046329422.1404.10.camel@jowennmobile>
+	id <S261523AbTB0HRj>; Thu, 27 Feb 2003 02:17:39 -0500
+Received: from coders.eu.org ([212.89.225.150]:61709 "HELO
+	unreal.coders.eu.org") by vger.kernel.org with SMTP
+	id <S261495AbTB0HRj>; Thu, 27 Feb 2003 02:17:39 -0500
+Date: Thu, 27 Feb 2003 08:34:33 +0100
+From: _N3X_ <n3x@coders.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: serial_cs with devfs
+Message-ID: <20030227073433.GA20856@unreal.coders.eu.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: cdrs-0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+in serial_cs.c there is a hardcoded device name in the code, stating
+ttySx, that's not the right thing with devfs..
+here's a patch of my own (should work also on the latest prepatch),
+just to show the problem, i think that the defines around it could be
+more carefully chosen, but what's the deal.. have a nice day.
+_N3X_ <n3x@coders.eu.org>
 
-Am Don, 2003-02-27 um 07.40 schrieb Kasper Dupont:
-> Miles Bader wrote:
-> > 
-> > Kasper Dupont <kasperd@daimi.au.dk> writes:
-> > > I don't think you can put all the information from /etc/mtab
-> > > into /proc/mounts without breaking compatibility.
-> > 
-
-For KDE 3.1 I've written a mount watcher, which checks the modification
-time of the /etc/mtab to recognize mount/unmount activity, which broke
-for linux from scratch( for now, they have updated there install
-instructions), because they linked to /proc/mounts, which doesn't seem
-to support mtime. 
-If the mtab is really completly removed, is there something else I can 
-use to track mount activities from userspace ? I don't want to retrieve
-the whole mounted list all the time and compare each entry to my
-internally stored list, just to find out that nothing has changed
-anyways.
-
-Kind regards
-Joseph Wenninger
+diff -ru linux-2.4.19/drivers/char/pcmcia/serial_cs.c linux-2.4.19-fix/drivers/char/pcmcia/serial_cs.c
+--- linux-2.4.19/drivers/char/pcmcia/serial_cs.c	2001-12-21 18:41:54.000000000 +0100
++++ linux-2.4.19-fix/drivers/char/pcmcia/serial_cs.c	2002-11-06 10:14:07.000000000 +0100
+@@ -256,7 +256,11 @@
+     }
+     
+     info->line[info->ndev] = line;
++#ifdef CONFIG_DEVFS_FS
++    sprintf(info->node[info->ndev].dev_name, "tts/%d", line);
++#else
+     sprintf(info->node[info->ndev].dev_name, "ttyS%d", line);
++#endif /* CONFIG_DEVFS_FS */
+     info->node[info->ndev].major = TTY_MAJOR;
+     info->node[info->ndev].minor = 0x40+line;
+     if (info->ndev > 0)
 

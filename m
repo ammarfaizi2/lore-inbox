@@ -1,102 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbTAIGko>; Thu, 9 Jan 2003 01:40:44 -0500
+	id <S261724AbTAIHCj>; Thu, 9 Jan 2003 02:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbTAIGko>; Thu, 9 Jan 2003 01:40:44 -0500
-Received: from egil.codesourcery.com ([66.92.14.122]:27535 "EHLO
-	egil.codesourcery.com") by vger.kernel.org with ESMTP
-	id <S261693AbTAIGkm>; Thu, 9 Jan 2003 01:40:42 -0500
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Set TIF_IRET in more places
-From: Zack Weinberg <zack@codesourcery.com>
-Date: Wed, 08 Jan 2003 22:49:22 -0800
-In-Reply-To: <20030108162906.GA5995@bjl1.asuk.net> (Jamie Lokier's message
- of "Wed, 8 Jan 2003 16:29:07 +0000")
-Message-ID: <87hecig6ml.fsf@egil.codesourcery.com>
-User-Agent: Gnus/5.090011 (Oort Gnus v0.11) Emacs/21.2 (i386-pc-linux-gnu)
-References: <87isx2dktj.fsf@egil.codesourcery.com>
-	<20030107111905.GA949@bjl1.asuk.net>
-	<87of6s3gm3.fsf@egil.codesourcery.com>
-	<20030107172128.A9592@twiddle.net>
-	<20030108162906.GA5995@bjl1.asuk.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261732AbTAIHCi>; Thu, 9 Jan 2003 02:02:38 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:37899 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S261724AbTAIHCi>; Thu, 9 Jan 2003 02:02:38 -0500
+Subject: 2.4.21-pre3 fails compile of ehci-hcd.c
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 09 Jan 2003 02:11:15 -0500
+Message-Id: <1042096276.8219.126.camel@madmax>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
+Hello All,
 
->
-> It would be quite nice just to have dwarf2 unwind information, with an
-> unwind handler, for the classic non-vsyscall restorer in Glibc.
+Noticed that I could not get patch-2.4.21-pre3 to compile:
 
-A trivial routine that just calls another routine,
+	make[3]: Entering directory `/usr/src/kernels/linux-2.4.20/drivers/usb'
+	ld -m elf_i386 -r -o usbcore.o usb.o usb-debug.o hub.o devio.o inode.o drivers.o devices.o hcd.o
+	gcc -D__KERNEL__ -I/usr/src/kernels/linux-2.4.20/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -iwithprefix include -DKBUILD_BASENAME=ehci_hcd  -c -o hcd/ehci-hcd.o hcd/ehci-hcd.chcd/ehci-hcd.c: In function `ehci_start':
+	hcd/ehci-hcd.c:343: parse error before `;'
+	hcd/ehci-hcd.c:416: parse error before `;'
+	hcd/ehci-hcd.c: In function `ehci_stop':
+	hcd/ehci-hcd.c:501: parse error before `;'
+	hcd/ehci-hcd.c: In function `ehci_irq':
+	hcd/ehci-hcd.c:685: parse error before `;'
 
-extern void g(void);
+I'm not sure why gcc 2.95.3 is failing on the macro expansion, but it is
+turning:
+	ehci_warn (ehci, "illegal capability!\n");
+into:
+	printk("<4>"  "%s %s: "   "illegal capability!\n" , hcd_name, ( ehci   ) ;
+which is missing the ->... structure reference.  The macros in
+ehci-dbg.c work just fine if you give them one or more arguments
+following the format string definition.
 
-void f(void) { g(); asm volatile (""); }
+Compiler is gcc 2.95.3, binutils 2.12.90.0.9 20020526, glibc 2.2.5 on a
+Slackware 8.0 distribution.
 
-[the asm is to prevent sibcall optimization from kicking in] produces
-the assembly dump appended to this message when compiled with -O2
--fexceptions -fomit-frame-pointer.  I do not know what the stuff put
-in .eh_frame means, and it probably isn't exactly right for __restore
-or __restore_rt, but it's a start.
+Kris
 
-> Then MD_FALLBACK_FRAME_STATE_FOR could be removed from GCC on all
-> Linux targets, regardless of kernel version.
 
-I think we'd need to keep it around for the sake of older libcs; it
-shouldn't do any harm.
-
-zw
-
-        .text
-        .p2align 2,,3
-.globl f
-        .type   f,@function
-f:
-.LFB1:
-        subl    $12, %esp
-.LCFI0:
-        call    g
-        addl    $12, %esp
-.LCFI1:
-        ret
-.LFE1:
-.Lfe1:
-        .size   f,.Lfe1-f
-        .section        .eh_frame,"aw",@progbits
-.Lframe1:
-        .long   .LECIE1-.LSCIE1
-.LSCIE1:
-        .long   0x0
-        .byte   0x1
-        .string ""
-        .uleb128 0x1
-        .sleb128 -4
-        .byte   0x8
-        .byte   0xc
-        .uleb128 0x4
-        .uleb128 0x4
-        .byte   0x88
-        .uleb128 0x1
-        .align 4
-.LECIE1:
-.LSFDE1:
-        .long   .LEFDE1-.LASFDE1
-.LASFDE1:
-        .long   .LASFDE1-.Lframe1
-        .long   .LFB1
-        .long   .LFE1-.LFB1
-        .byte   0x4
-        .long   .LCFI0-.LFB1
-        .byte   0xe
-        .uleb128 0x10
-        .byte   0x4
-        .long   .LCFI1-.LCFI0
-        .byte   0xe
-        .uleb128 0x4
-        .align 4
-.LEFDE1:
-        .ident  "GCC: (GNU) 3.2.2 20021231 (Debian prerelease)"

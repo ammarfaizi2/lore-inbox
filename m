@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131447AbRAGTYt>; Sun, 7 Jan 2001 14:24:49 -0500
+	id <S131528AbRAGT1S>; Sun, 7 Jan 2001 14:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131528AbRAGTYj>; Sun, 7 Jan 2001 14:24:39 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:53518 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S131447AbRAGTYZ>;
-	Sun, 7 Jan 2001 14:24:25 -0500
-Date: Sun, 7 Jan 2001 21:24:14 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: jamal <hadi@cyberus.ca>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-Message-ID: <20010107212414.B25659@mea-ext.zmailer.org>
-In-Reply-To: <20010107210036.G25076@mea-ext.zmailer.org> <Pine.GSO.4.30.0101071408140.18916-100000@shell.cyberus.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.30.0101071408140.18916-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Sun, Jan 07, 2001 at 02:10:52PM -0500
+	id <S132252AbRAGT1I>; Sun, 7 Jan 2001 14:27:08 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44303 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131528AbRAGT0z>; Sun, 7 Jan 2001 14:26:55 -0500
+Date: Sun, 7 Jan 2001 11:26:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch (repost): cramfs memory corruption fix
+In-Reply-To: <E14FGG7-0002ff-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101071124540.27944-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 02:10:52PM -0500, jamal wrote:
-> On Sun, 7 Jan 2001, Matti Aarnio wrote:
-> > 	Read what I wrote about the issue to Alan.
-> > 	Ben's code has no problems with receiving VLANs with network
-> > 	cards which have "hardware support" for VLANs.
+
+
+On Sun, 7 Jan 2001, Alan Cox wrote:
+
+> > >ramfs croaks with 'kernel BUG in filemap.c line 2559' anytime I make a
+> > >file in ac2 and ac3.  Works fine in 2.4.0 vanilla.  Should be quite
+> > >repeatable...
 > 
-> OK. I suppose an skb->vlan_tag is passed to the driver and it will know
-> what to do with it (pass it on a descriptor etc).
+> I'll take a look at the ramfs one. I may have broken something else when fixing
+> everything else with ramfs (like unlink) crashing
 
-	Sure, nice.  WHY SHOULD THERE BE MORE LAYER-2 STUFF ADDED TO
-	SKB OBJECTS ?
+Ehh.. Plain 2.4.0 ramfs is fine, assuming you add a "UnlockPage()" to
+ramfs_writepage(). So what do you mean by "fixing everything else"?
 
-	One of important abstraction issues is to isolate device specific
-	new things (like what VLAN/PVC/SVC is used at your favourtite
-	802.1Q/ATM/X.25/FrameRelay connection).
+		Linus
 
-	The less we leak that kind of things to SKB, the better, IMO.
-	They are net_device issues, after all.
-
-	Tell me (if you can), why packet sender calls hardware-header
-	generation for packet, if the card can insert it for you ?
-	Consider the structure of Ethernet MAC header, where is source
-	address ?  Where is the destination address ?  If you write the
-	destination, why should you not write the source there too ?
-
-	No doubt some cards can fill in the source address while doing
-	frame transmit, but is it worth the hazzle ?
-
-> cheers,
-> jamal
-
-/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

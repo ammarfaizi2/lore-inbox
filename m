@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285134AbRLVAMH>; Fri, 21 Dec 2001 19:12:07 -0500
+	id <S284979AbRLVAKr>; Fri, 21 Dec 2001 19:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285280AbRLVALs>; Fri, 21 Dec 2001 19:11:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43270 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285134AbRLVAL2>; Fri, 21 Dec 2001 19:11:28 -0500
-Subject: Re: =?iso-8859-1?Q?Asynchronous_Video_Console_f=FCr_Linux=3F?=
-To: pavel@suse.cz (Pavel Machek)
-Date: Sat, 22 Dec 2001 00:21:32 +0000 (GMT)
-Cc: fm3@os.inf.tu-dresden.de (Frank Mehnert), linux-kernel@vger.kernel.org
-In-Reply-To: <20011218010300.B37@toy.ucw.cz> from "Pavel Machek" at Dec 18, 2001 01:03:01 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285134AbRLVAKh>; Fri, 21 Dec 2001 19:10:37 -0500
+Received: from h00e02954cece.ne.mediaone.net ([24.91.228.68]:7040 "EHLO
+	gonzo.amherst.genlogic.com") by vger.kernel.org with ESMTP
+	id <S284979AbRLVAK1>; Fri, 21 Dec 2001 19:10:27 -0500
+Message-ID: <3C23CF86.6010600@mediaone.net>
+Date: Fri, 21 Dec 2001 19:10:46 -0500
+From: Sam <genlogic@mediaone.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: scsi acard AEC6712D and atp870u.c driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16HZuu-00025K-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > are there exist any projects for connecting video consoles to the Linux
-> > kernel asynchronous? We would like to write a Linux video console for a
-> > (comparatively) slow device which is able to run simple console 
-> > applications upto the fbdev X-server.
-> > 
-> > Please cc your answer to me.
-> 
-> 	I do not know about any such project and yes it would be nice.
-> 
-> Its bad to see find / limited by vesafb speed...
+*please cc the answers to me*
 
-There is no fundamental reason you cannot do this. For the kernel side the
-console driver in text mode already gives you the 80x25 + attributes image
-that you can use to do asynchronous video updates however your hardware
-works.
 
-XFree86 4.x has a shadowfb driver layer which does precisely what you need
-for an asynchronous server engine. In fact for a real life example of 
-XFree86 driving "asynchronous" hardware look at the XFree86 VNC drivers.
+hello
+
+i am using an acer scanwit scanner which comes with the acard AEC6712D 
+scsi controller.
+i am also using the acard driver in 2.4.7 (also tried 2.4.13). ejecting 
+the scanner seems to work (no data sent),
+but scanning and previewing seems to cause problems.
+
+it seems to be the driver that is causing the problems. when it 
+eventually times out,
+i get:
+
+scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0, 
+lun 0 Write (10) 00 82 00 00 01 00 1d e2 00
+working=1 last_cmd=0  quhdu=1a quendu=1a  r 0= a r 1=2c r 2=cf r 3=2a r 
+4= 0 r 5=82 r 6= 0 r 7= 0 r 8= 1 r 9= 0 r a=1d r b=e2 r c= 0 r d= 0 r e= 
+0 r f= 0 r10=3a r11=20 r12= 0 r13= 0 r14= 2 r15=20 r16=80 r1c= 0 r1f=35 
+in_snd= 0  r20= 1 r22= 8 r3a=2b
+ r3b=20
+
+ que cdb=  2a   0  82   0   0   1   0  1d  e2   0  last_lenu= 1de2
+
+i have gotten some suggestions such as
+
+removing
+
+      if (dev->ata_cdbu[0] == READ_CAPACITY) {
+        if (workrequ->request_bufflen > 8) {
+                workrequ->request_bufflen = 0x08;
+        }
+      }
+
+from the driver code, but this just causes the target id (as seen above to be: 0) to be the last command
+so the command it got before was 0xff
+
+as seen from
+if ((j & 0x40) != 0)
+		{
+		     if (dev->last_cmd == 0xff)
+		     {
+			dev->last_cmd = target_id;
+		     }
+		     dev->last_cmd |= 0x40;
+		}
+
+any ideas on what the problem might be? when was the lastest bug update on atp870u.c?
+
+
+thanx,
+
+*please cc the answers to me*
+
+--sam
+
+

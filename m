@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269352AbUHZSy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUHZSy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269352AbUHZSy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269347AbUHZStK
+	id S269360AbUHZSy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUHZSuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:49:10 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:24763 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S269358AbUHZSmI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:42:08 -0400
-X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.23 (Clear:RC:0(150.254.37.14):. Processed in 0.036097 secs)
-Date: Thu, 26 Aug 2004 20:42:07 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: SecureBat! Lite (v2.10.02) Personal
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <89370863.20040826204207@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: Reiser 4
-In-Reply-To: <200408262011.29436.lkml@felipe-alfaro.com>
-References: <006601c48bad$00c4b130$0700a8c0@ti10>
- <200408262011.29436.lkml@felipe-alfaro.com>
-MIME-Version: 1.0
+	Thu, 26 Aug 2004 14:50:00 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43743 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269360AbUHZSlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:41:36 -0400
+Date: Thu, 26 Aug 2004 13:38:34 -0500
+From: John Hesterberg <jh@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       erikj@dbear.engr.sgi.com, limin@engr.sgi.com,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
+Message-ID: <20040826183834.GA11393@sgi.com>
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040825221842.72dd83a4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Aug 25, 2004 at 10:18:42PM -0700, Andrew Morton wrote:
+> Jay Lan <jlan@engr.sgi.com> wrote:
+> >
+> > I have broken up one big CSA kernel patch into four smaller ones
+> >  as attached:
+> > 
+> >       csa_io     - collects io accounting data
+> >       csa_mm     - collects mm accounting data
+> >       csa_eop    - provides a hook to perform end-of-process accounting
+> >       csa_module - builds csa loadable module
+> 
+> More broadly: Help!
+> 
+> I am 100% not in a position to judge whether Linux needs Comprehensive
+> System Accounting, nor am I able to define what the requirements for such a
+> thing should be.  All I can tell from your patch is the quality of its
+> implementation, and that's leaping far, far ahead of where we should be.
 
-FAS> On Thursday 26 August 2004 22:40, Rodrigo FGV wrote:
->> how i convert reiser3.6 to reiser4. this update is safe???
+Linux needs something beyond what it has today, at least for the
+HPC market SGI is familiar with.  We believe it will more generally
+benefit Linux HPC and enterprise markets, which is one reason we've
+released the whole CSA stack as open source.
 
-FAS> Backup / Format / Restore is the only way of migrating to Reiser4 (no magical
-FAS> tool to convert from reiser3-to-reiser4 is available ATM).
-Hans would be ready to write a conversion tool if you sponsor him ;-)
+> 
+> We're going to need help from you, and from all the other stakeholders in
+> judging how useful this feature is to Linux implementors and how well this
+> implementation meets the (unknown) requirements.  See my problem?
+> 
+> I've cc'ed lse-tech, where enterprise folks hang out.  I would request that
+> the people who are stakeholders in this feature
+> 
+> a) stick their hands up
 
-Anyway Hans wrote once, that future format changes in reiser4 should
-be feasible by using a specially written "plugin" for that. (please
-refer to the thread about plugins for details, people argue about
-the terminology here)
+We're running CSA in production on Altix (our Itanium/Linux platform)
+for several years now.
 
->> the reiser4 have any critical bug?? anyone recommend this update???
-Do not use it yet on important data. Please experiment though on data
-you do not really value that much.
+> 
+> b) let us know how important this kind of feature is for their users
 
-I have read a report that reiser4 has a problem with apache
-trying to access .htaccess. Something about reiser4 giving a
-misleading answer to a stat() call or something in that manner.
+A substantial number of our customers require it.  CSA has been
+developed over the years on SGI's HPC systems in response to our
+customers needs.  It's been reimplemented and opensourced for Linux,
+originally as an SGI/LANL collaboration.
 
-Subscribing to Reiserfs Mailinglist <reiserfs-list@namesys.com>
-is also valueable of course.
+> c) review the offered feature set against their requirements
+> 
+> d) let us know how well the implementation fits that requirement and
 
-There truly is a need for a glossary of terms and I belive Hans
-and his crew know that the community needs proper documents
-so that we all can grasp the whole idea behind reiser4 but
-without so called "Hans Talk".
+It fits. :-)
 
-Regards,
-Maciej
+Actually, one secondary feature on our wishlist is 'projects'.
 
+Our customers are tied into the current CSA user interface.
+However, there is lots of room for cooperation under that, particularly
+in the kernel.  We can always consider a migration project as well.
 
+John

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281788AbRK0WoQ>; Tue, 27 Nov 2001 17:44:16 -0500
+	id <S281743AbRK0WnC>; Tue, 27 Nov 2001 17:43:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282961AbRK0WoD>; Tue, 27 Nov 2001 17:44:03 -0500
-Received: from AGrenoble-101-1-7-32.abo.wanadoo.fr ([80.13.189.32]:59521 "EHLO
-	strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281788AbRK0Wnl> convert rfc822-to-8bit; Tue, 27 Nov 2001 17:43:41 -0500
-Message-ID: <3C041805.2060509@wanadoo.fr>
-Date: Tue, 27 Nov 2001 23:47:33 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
+	id <S281788AbRK0Wmw>; Tue, 27 Nov 2001 17:42:52 -0500
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:45061 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S281743AbRK0Wml>;
+	Tue, 27 Nov 2001 17:42:41 -0500
+Date: Tue, 27 Nov 2001 23:41:28 +0100 (CET)
+From: Peter Svensson <petersv@psv.nu>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Bill Davidsen <davidsen@tmr.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Default outgoing IP address?
+In-Reply-To: <Pine.LNX.4.40.0111271435500.10341-100000@waste.org>
+Message-ID: <Pine.LNX.4.33.0111272336290.1086-100000@cheetah.psv.nu>
 MIME-Version: 1.0
-To: Dax Kelson <dax@gurulabs.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: onboard ethernet/sound on Soyo SY-K7V?
-In-Reply-To: <Pine.LNX.4.33.0111271514320.28301-100000@mooru.gurulabs.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson wrote:
+On Tue, 27 Nov 2001, Oliver Xymoron wrote:
 
-> I'm looking a purchasing a dozen computers with the Soyo SY-K7V Dragon 
-> Plus motherboard.  It has the KT266A chipset.
-> 
-> My question is Linux support for the onboard ethernet and sound.  I've 
-> googled all over and haven't come up with a definitive answer.
-> 
-> They are described as "VIA 10/100 Ethernet" and "CMI 8738 Audio chip".
+> I have a host which has canonical address foo, which also happens to be a
+> gateway. Foo happens to be on the local side of the gateway, so when
+> initiating connections, they appear to be from the gateway interface
+> address, bar. This is inconvenient because bar is an address on a network
+> I don't have DNS authority over, etc., so it'd be nice if outgoing
+> connections by default would appear to come from foo.
 
+This should do the trick, or something similar. It changes the default 
+route to prefer another source address if none is set through a bind(2) 
+call.
 
-CMI 8738 has a driver in the current kernel.
-As for VIA 10/100 Ethernet, I dunno... Maybe the via-rhine would work ?
-Not sure, though...
+  ip route chg default via $DEF_GW dev $OUTSIDE_DEV src $MY_CANOICAL_SRC
 
-François
+A variation of this (for a slightly different purpose) is used by me. 
 
-
- > Does anyone know the scoop?
- >
- > Dax
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
 

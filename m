@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSFJHj6>; Mon, 10 Jun 2002 03:39:58 -0400
+	id <S316751AbSFJHna>; Mon, 10 Jun 2002 03:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316751AbSFJHj5>; Mon, 10 Jun 2002 03:39:57 -0400
-Received: from host217-41-51-65.in-addr.btopenworld.com ([217.41.51.65]:19217
-	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
-	id <S316728AbSFJHj4>; Mon, 10 Jun 2002 03:39:56 -0400
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-To: linux-kernel@vger.kernel.org
-From: Joseph Mathewson <joe@mathewson.co.uk>
-Reply-to: joe.mathewson@btinternet.com
-Date: Mon, 10 Jun 2002 08:42:03 +0100
-Message-Id: <TiM$20020610084203$1595@fusion.mathewson.int>
-X-Mailer: TiM infinity-ALPHA6.1b
-X-TiM-Client: fusion.mathewson.int [10.0.1.1]
-In-Reply-To: <Pine.LNX.4.33.0206091502580.17808-100000@melchi.fuller.edu>
-Cc: christoph@lameter.com
-Content-Transfer-Encoding: quoted-printable
+	id <S316753AbSFJHn3>; Mon, 10 Jun 2002 03:43:29 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:15041
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
+	id <S316751AbSFJHn3>; Mon, 10 Jun 2002 03:43:29 -0400
+Message-ID: <20020610074329.24411.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Dag Nygren <dag@newtech.fi>,
+        Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+        linux-kernel@vger.kernel.org, dag@newtech.fi
+Subject: Re: Devfs strangeness in 2.4.18 
+In-Reply-To: Message from Richard Gooch <rgooch@ras.ucalgary.ca> 
+   of "Fri, 07 Jun 2002 10:34:50 MDT." <200206071634.g57GYoi14530@vindaloo.ras.ucalgary.ca> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 10 Jun 2002 10:43:29 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message "Re: vfat patch for shortcut display as symlinks for 2.4.18",
-<<christoph@lameter.com>> wrote:
-
-> > One can also live with "foo.lnk". (It's much easier and
-> saner, too.)
+> Dag Nygren writes:
+> > > Also check that you don't have bogus entries in your dev-state
+> > > area. Mandrake had some configuration problems a few months back.
+> > 
+> > Yess!!!
+> > That's what did it, removing the sg? and st? entries from /lib/dev-state
+> > did the trick. There were some oldies ghosting there. Thanks a lot 
+> > Richard, I didn't even know that there was a dev-state directory to
+> > look for ;-).
 > 
-> No one cannot untar a source tarball with symlinks in a vfat fs without
-> the patch. We cannot live with foo.lnk. Its insane not to carry over the
-> semantics as much as possible.
+> I've added an item to the FAQ about this.
 
-Does the proposed patch give full symlink support or does it just read .lnk
-files?  Most source tarballs will not have .lnk files in them, they will have
-symlinks.  Would tar create the .lnk files if it was extracting to vfat?  If the
-patch gives symlink support in some other way than .lnk files, why can't we just
-use that and not meddle with reading the .lnk files to allow Linux to run in a
-vfat partition.
+A very good idea.
 
-> vfat is the only fs that can be shared between microsoft oses and linux.
-> umsdos mangles filenames and does other ugly things. umsdos is an example
-> of what not to do with a fs. umsdos is a hack. vfat+symlinks is the
-> completion of an implementation.
+> > Is there any comprehensive documentation on devfsd and devfs
+> > anywhere on the net? Could be good to read a bit more about this.
+> 
+> Have you not looked at the FAQ?
 
-This is why I think MS will (and are) killing FAT 32 as quickly as they can (the
-last properly understood MS filesystem...).  To really entice users from Windows
-in the future, this kind of patch is going to have to work on NTFS, not FAT. 
-Now that the NT codebase is the "home" codebase as well (with the advent of XP),
-NTFS is going to take massive inroads into FAT's market share.  And there have
-been rumours for a while that MS SQL Server is going to form the basis of the
-next MS filesystem.
- 
-Joe.
+Yes, but looking for sg and st stuff I didn't looh that carefully.
+What I was missing at that time was a walkthrough of the 
+devfs and devfsd default operations.
 
-+-------------------------------------------------+
-| Joseph Mathewson <joe@mathewson.co.uk>          |
-+-------------------------------------------------+
+Anyway it work beatifully now.
+Thanks again
+
+Dag
+
+

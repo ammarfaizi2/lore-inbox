@@ -1,71 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267420AbUGNOTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUGNOZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267420AbUGNOTB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 10:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267418AbUGNOSA
+	id S267391AbUGNOZI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 10:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUGNOXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 10:18:00 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:16060 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S267423AbUGNOHL (ORCPT
+	Wed, 14 Jul 2004 10:23:11 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:45450 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S267423AbUGNOW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 10:07:11 -0400
-Date: Wed, 14 Jul 2004 23:06:54 +0900 (JST)
-Message-Id: <20040714.230654.58831017.taka@valinux.co.jp>
-To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Cc: linux-mm@kvack.org
-Subject: [PATCH] memory hotremoval for linux-2.6.7 [16/16]
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20040714.224138.95803956.taka@valinux.co.jp>
-References: <20040714.224138.95803956.taka@valinux.co.jp>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 14 Jul 2004 10:22:26 -0400
+Message-ID: <40F541AE.5010902@vision.ee>
+Date: Wed, 14 Jul 2004 17:22:38 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+Organization: Vision
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+References: <20040713122805.GZ21066@holomorphy.com>
+In-Reply-To: <20040713122805.GZ21066@holomorphy.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---- linux-2.6.7.ORG/fs/direct-io.c	Thu Jun 17 15:17:13 2032
-+++ linux-2.6.7/fs/direct-io.c	Thu Jun 17 15:28:44 2032
-@@ -27,6 +27,7 @@
- #include <linux/slab.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/hugetlb.h>
- #include <linux/bio.h>
- #include <linux/wait.h>
- #include <linux/err.h>
-@@ -110,7 +111,11 @@ struct dio {
- 	 * Page queue.  These variables belong to dio_refill_pages() and
- 	 * dio_get_page().
- 	 */
-+#ifndef CONFIG_HUGETLB_PAGE
- 	struct page *pages[DIO_PAGES];	/* page buffer */
-+#else
-+	struct page *pages[HPAGE_SIZE/PAGE_SIZE];	/* page buffer */
-+#endif
- 	unsigned head;			/* next page to process */
- 	unsigned tail;			/* last valid page + 1 */
- 	int page_errors;		/* errno from get_user_pages() */
-@@ -143,9 +148,20 @@ static int dio_refill_pages(struct dio *
- {
- 	int ret;
- 	int nr_pages;
-+	struct vm_area_struct * vma;
- 
--	nr_pages = min(dio->total_pages - dio->curr_page, DIO_PAGES);
- 	down_read(&current->mm->mmap_sem);
-+#ifdef CONFIG_HUGETLB_PAGE
-+	vma = find_vma(current->mm, dio->curr_user_address);
-+	if (vma && is_vm_hugetlb_page(vma)) {
-+		unsigned long n = dio->curr_user_address & PAGE_MASK;
-+		n = (n & ~HPAGE_MASK) >> PAGE_SHIFT;
-+		n = HPAGE_SIZE/PAGE_SIZE - n;
-+		nr_pages = min(dio->total_pages - dio->curr_page, (int)n);
-+	} else
-+#endif
-+		nr_pages = min(dio->total_pages - dio->curr_page, DIO_PAGES);
-+
- 	ret = get_user_pages(
- 		current,			/* Task for fault acounting */
- 		current->mm,			/* whose pages? */
+More violations found.
+
+This time during NFS umount/mount. Since (u)mounting is not always
+the operation that is only done at boot-time (at least in my case), I 
+thought I report.
+
+umount /nfs/dir
+16ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at truncate_inode_pages+0x9d/0x280 and ending at 
+generic_shutdown_super+0xd0/0x190
+ [<c0153340>] generic_shutdown_super+0xd0/0x190
+ [<c0117d30>] dec_preempt_count+0x110/0x120
+ [<c0153340>] generic_shutdown_super+0xd0/0x190
+ [<c0117c70>] dec_preempt_count+0x50/0x120
+ [<c0153cf9>] kill_anon_super+0x9/0x40
+ [<f935884c>] nfs_kill_super+0xc/0x20 [nfs]
+ [<c015317c>] deactivate_super+0x6c/0x90
+ [<c016809b>] sys_umount+0x3b/0x90
+ [<c0164a85>] destroy_inode+0x35/0x40
+ [<c014e645>] __fput+0xb5/0x120
+ [<c0168107>] sys_oldumount+0x17/0x20
+ [<c0103ee1>] sysenter_past_esp+0x52/0x71
+
+mount /nfs/dir
+nfs warning: mount version older than kernel
+15ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at sys_mount+0x78/0x110 and ending at schedule+0x237/0x480
+ [<c0279677>] schedule+0x237/0x480
+ [<c0117d30>] dec_preempt_count+0x110/0x120
+ [<c0279677>] schedule+0x237/0x480
+ [<c0127c21>] worker_thread+0x1d1/0x240
+ [<c0127c72>] worker_thread+0x222/0x240
+ [<c01166f8>] activate_task+0x68/0x80
+ [<c0219800>] fb_flashcursor+0x0/0x80
+ [<c0116d60>] default_wake_function+0x0/0x10
+ [<c0279677>] schedule+0x237/0x480
+ [<c0116d60>] default_wake_function+0x0/0x10
+ [<c0127a50>] worker_thread+0x0/0x240
+ [<c012b2c4>] kthread+0x94/0xa0
+ [<c012b230>] kthread+0x0/0xa0
+ [<c010227d>] kernel_thread_helper+0x5/0x18
+
+umount /nfs/dir
+19ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at generic_shutdown_super+0x69/0x190 and ending at 
+generic_shutdown_super+0xd0/0x190
+ [<c0153340>] generic_shutdown_super+0xd0/0x190
+ [<c0117d30>] dec_preempt_count+0x110/0x120
+ [<c0153340>] generic_shutdown_super+0xd0/0x190
+ [<c0117c70>] dec_preempt_count+0x50/0x120
+ [<c0153cf9>] kill_anon_super+0x9/0x40
+ [<f935884c>] nfs_kill_super+0xc/0x20 [nfs]
+ [<c015317c>] deactivate_super+0x6c/0x90
+ [<c016809b>] sys_umount+0x3b/0x90
+ [<c0164a85>] destroy_inode+0x35/0x40
+ [<c014e645>] __fput+0xb5/0x120
+ [<c0168107>] sys_oldumount+0x17/0x20
+ [<c0103ee1>] sysenter_past_esp+0x52/0x71
+
+Lenar
+
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131207AbRBEXZF>; Mon, 5 Feb 2001 18:25:05 -0500
+	id <S129665AbRBEXTf>; Mon, 5 Feb 2001 18:19:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135979AbRBEXYz>; Mon, 5 Feb 2001 18:24:55 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:53977 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S131207AbRBEXYn>; Mon, 5 Feb 2001 18:24:43 -0500
-Message-ID: <3A7F3619.DC498502@alumni.caltech.edu>
-Date: Mon, 05 Feb 2001 15:24:09 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Reply-To: dank@alumni.caltech.edu
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130435AbRBEXTZ>; Mon, 5 Feb 2001 18:19:25 -0500
+Received: from chaos.ao.net ([205.244.242.21]:55049 "EHLO chaos.ao.net")
+	by vger.kernel.org with ESMTP id <S129665AbRBEXTS>;
+	Mon, 5 Feb 2001 18:19:18 -0500
+Message-Id: <200102052319.f15NJEi19823@vulpine.ao.net>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Tony Finch <dot@dotat.at>, Linus Torvalds <torvalds@transmeta.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: TCP_NOPUSH on FreeBSD, TCP_CORK on Linux (was: Is sendfile all that
-In-Reply-To: <E14Puvx-0004TB-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0/2.4.1 crashes in ext2 
+Date: Mon, 05 Feb 2001 18:19:14 -0500
+From: Dan Merillat <harik@chaos.ao.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > How close is TCP_NOPUSH to behaving identically to TCP_CORK now?
-> > If it does behave identically, it might be time to standardize
-> > the symbolic name for this option, to make apps more portable
-> > between the two OS's.  (It'd be nice to also standardize the
-> > numeric value, in the interest of making the ABI's more compatible, too.)
-> 
-> That one isnt practical because of the way the implementations handle
-> boolean options. BSD uses bitmask based option setting for the basic
-> options and Linus uses switch statements
 
-OK, well, at least a common symbolic name could be chosen.
-- Dan
+Alan Cox writes:
+> > Ok, here's the crash I'm getting in 2.4.0.  Same thing is happening in 2.4.
+1,
+> > but It's dying harder so getting syslog info out is tougher.
+> 
+> What I/O subsystem
+
+Adaptec 2940, although it appears to have been spontainous PCI bus death.
+
+I've never seen a system die like that, so I took a while to rule out
+hardware.  CPU didn't overheat, memory didn't go bad, no drives
+failed...  even checked the PCI sockets for bad seating.  Nada.  Just...
+the motherboard itself died, and only when doing a lot of SCSI I/O.
+
+Rather unusal, it'd been running for a year now without a glitch until
+I installed 2.4.  One of those stupid conincidences.
+
+Sorry for the wasted cycles.
+
+--Dan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

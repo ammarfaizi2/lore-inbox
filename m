@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131054AbRCGMyC>; Wed, 7 Mar 2001 07:54:02 -0500
+	id <S131062AbRCGNEW>; Wed, 7 Mar 2001 08:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131055AbRCGMxw>; Wed, 7 Mar 2001 07:53:52 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:63936 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131054AbRCGMxq>; Wed, 7 Mar 2001 07:53:46 -0500
-Message-ID: <3AA62F4E.AB901CBB@uow.edu.au>
-Date: Wed, 07 Mar 2001 23:53:34 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-CC: "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: spinlock help
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27157@hasmsx52.iil.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131061AbRCGNEM>; Wed, 7 Mar 2001 08:04:12 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:25471 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131060AbRCGNEC>; Wed, 7 Mar 2001 08:04:02 -0500
+Date: Wed, 7 Mar 2001 13:03:20 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ac13 and lp related problem
+Message-ID: <20010307130320.Q4835@redhat.com>
+In-Reply-To: <200103071250.NAA07376@db0bm.ampr.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="eLlMuDqWz6GHXUjE"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103071250.NAA07376@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Wed, Mar 07, 2001 at 01:50:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Hen, Shmulik" wrote:
-> 
-> The kdb trace was accurate, we could actually see the e100 ISR pop from no
-> where right in the middle of our ans_notify every time the TX queue would
-> fill up. When we commented out the call to spin_*_irqsave(), it worked fine
-> under heavy stress for days.
-> 
-> Is it possible it was something wrong with 2.4.0-test10 specifically ?
-> 
 
-Sorry, no.  If spin_lock_irqsave()/spin_unlock_irqrestore()
-were accidentally reenabling interrupts then it would be
-the biggest, ugliest catastrophe since someone put out a kernel
-which forgot to flush dirty inodes to disk :)
+--eLlMuDqWz6GHXUjE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Conceivably it was a compiler bug.  Were you using egcs-1.1.2/x86?
+On Wed, Mar 07, 2001 at 01:50:35PM +0100, f5ibh wrote:
 
--
+> Mar  7 11:55:55 debian-f5ibh lpd[567]: lp: filter 'f' terminated (termsig=13)
+
+Which filter?
+
+Does the patch I posted yesterday help?
+
+Tim.
+*/
+
+--eLlMuDqWz6GHXUjE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6pjGXONXnILZ4yVIRAhuuAJ9wni/jMBt+oALNUcYiMXothAbuhQCfdIXo
+OAXs8uqgjj1GA1Iefi3JJPI=
+=g5Zm
+-----END PGP SIGNATURE-----
+
+--eLlMuDqWz6GHXUjE--

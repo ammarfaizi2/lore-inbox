@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264513AbRFJKKr>; Sun, 10 Jun 2001 06:10:47 -0400
+	id <S264517AbRFJLJj>; Sun, 10 Jun 2001 07:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264514AbRFJKKg>; Sun, 10 Jun 2001 06:10:36 -0400
-Received: from ppp-127-134.15-151.iol.it ([151.15.134.127]:13442 "HELO
-	igor.opun.it") by vger.kernel.org with SMTP id <S264513AbRFJKKV>;
-	Sun, 10 Jun 2001 06:10:21 -0400
-Message-ID: <3B23477F.443D5FC8@alsa-project.org>
-Date: Sun, 10 Jun 2001 12:10:07 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Zach Brown <zab@zabbo.net>
-Cc: Ben Pfaff <pfaffben@msu.edu>, Lukas Schroeder <lukas@edeal.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] ess maestro, support for hardware volume control
-In-Reply-To: <200106091931.f59JVw731673@devserv.devel.redhat.com> <87elst2vr2.fsf@pfaffben.user.msu.edu> <20010609185240.A23980@erasmus.off.net>
+	id <S264521AbRFJLJ3>; Sun, 10 Jun 2001 07:09:29 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:7172 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264518AbRFJLJX>;
+	Sun, 10 Jun 2001 07:09:23 -0400
+Message-ID: <20010608225744.A17144@bug.ucw.cz>
+Date: Fri, 8 Jun 2001 22:57:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Mike Coleman <mkc@mathdogs.com>, Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: (driver) New life for Serial mice
+In-Reply-To: <20010606125556.A1766@suse.cz> <20010606232133.E38@toy.ucw.cz> <20010608181521.A1998@suse.cz> <20010608182046.H13825@atrey.karlin.mff.cuni.cz> <20010608182807.B2083@suse.cz> <87wv6mn2ql.fsf@mathdogs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <87wv6mn2ql.fsf@mathdogs.com>; from Mike Coleman on Fri, Jun 08, 2001 at 03:19:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown wrote:
+Hi!
+
+> > > Can't it make mouse jump forward and back when user suddenly stops?
+> > 
+> > In theory - yes. It doesn't seem to be a problem in practice, though.
+> > It'll happen when a user slows down the mouse pointer motion faster than
+> > exponentially (base 2). I haven't been able to stop that fast.
 > 
-> > I now have a patch that will output the hwv buttons pressed (up,
-> > down, mute) to a new dynamically allocated misc device as letters
-> > u, d, m, instead of directly modifying the mixer.  Anyone want
-> > that?  It's more flexible than either the patch that's currently
-> > in -ac or Lukas's patch, but you need a little userspace daemon
-> > for it to do anything useful.
-> 
-> hmm.. how do the alsa guys deal with hw volume?  I'm not sure I like
-> adding more stuff to the OSS API.
+> Put a big brick on your desktop and $ram$ it with your mouse.  :-)
 
-It's a control separated from master volume. Often there is another
-control that control if the two are linked.
+:-)))))))))))))))))))))
 
-Application may ask notification for controls changes (like the hw
-volume one). This imply that an interrupt is related to this event.
-
+Put warning in Configure.help that this driver is not compatible with
+certain kinds of bricks ;-))))).
+								Pavel
 -- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbUKDMhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbUKDMl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbUKDMhe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 07:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUKDMgf
+	id S262193AbUKDMl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 07:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbUKDMlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 07:36:35 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:7901 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262198AbUKDMf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 07:35:57 -0500
-Date: Thu, 4 Nov 2004 13:36:05 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/12] meye driver update
-Message-ID: <20041104123602.GX3472@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Emmanuel Fleury <fleury@cs.aau.dk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041104111231.GF3472@crusoe.alcove-fr> <1099571129.23751.22.camel@rade7.e.cs.auc.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 07:41:06 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:13490 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S262193AbUKDMjD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 07:39:03 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Thu, 4 Nov 2004 07:39:01 -0500
+User-Agent: KMail/1.7
+Cc: Jan Knutar <jk-lkml@sci.fi>, Tom Felker <tfelker2@uiuc.edu>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411040657.10322.gene.heskett@verizon.net> <200411041412.42493.jk-lkml@sci.fi>
+In-Reply-To: <200411041412.42493.jk-lkml@sci.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1099571129.23751.22.camel@rade7.e.cs.auc.dk>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200411040739.01699.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.11.139] at Thu, 4 Nov 2004 06:39:02 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 01:25:29PM +0100, Emmanuel Fleury wrote:
+On Thursday 04 November 2004 07:12, Jan Knutar wrote:
+>On Thursday 04 November 2004 13:57, Gene Heskett wrote:
+>> I'e had that turned on since forever Jan, but usually, when its
+>> hung someplace, its well and truely hung, and hardware reset
+>> button time.
+>
+>Are you saying that these zombies (or tasks stuck in state D) also
+> make sysrq-T hang, and not list all tasks?
 
-> By the way, is there any news for the development of a driver for the
-> meye of a PCG-C1MZX ?
-> 
-> lspci:
-[...]
-> 0000:00:0a.0 Multimedia controller: Fujitsu Limited.: Unknown device 2011
-[...]
-> 0000:00:12.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-[...]
+I thought I'd test it right now while the system is runnng normally, 
+but I got only a beep from the console, so I went to 
+Documentation/sysrq.txt to make sure I was doing it right, and it is 
+_not_ working right now.  But it is compiled in according to a make 
+xconfig, or a grep of the .config.
 
-> Chipset of the meye (I guess): 
-> 
-> Ricoh Co Ltd RL5c475 (rev 80)
+[root@coyote linux-2.6.10-rc1-bk13]# grep SYSRQ .config
+CONFIG_MAGIC_SYSRQ=y
 
-No, that's the cardbus bridge.
+I get a couple of beeps from the console, but thats the limit of the 
+response, and a tail -f on the log shows nothing.  I also logged into  
+VC2, and tried it there, but that attempt didn't even get me a beep, 
+several times.
 
-The camera is the Fujitsu device (0x10cf/0x2011).
+The keyboard is a cheap ($24) M$ with a few extra buttons that don't 
+do anything along the top.  And getting a bit creaky in its old age, 
+a lot like me, but I'm about 68 years older than the keyboard :)
 
-There is a page at http://r-engine.sourceforge.net/ but the project
-seems dead. The manufacturer has given to several developers the
-docs (under a non redistribution NDA), but nobody wrote some code
-yet.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>    
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

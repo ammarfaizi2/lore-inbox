@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSKERHY>; Tue, 5 Nov 2002 12:07:24 -0500
+	id <S264953AbSKERHt>; Tue, 5 Nov 2002 12:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264951AbSKERHX>; Tue, 5 Nov 2002 12:07:23 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:27795 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S264950AbSKERHL>; Tue, 5 Nov 2002 12:07:11 -0500
-From: "Buddy Lumpkin" <b.lumpkin@attbi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: When laptop is docked, eth0 moves from pcmcia to docking station nic (both work wth same driver)
-Date: Tue, 5 Nov 2002 09:17:30 -0800
-Message-ID: <002601c284ef$395ef5d0$0472e50c@peecee>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S264955AbSKERHs>; Tue, 5 Nov 2002 12:07:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24469 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264953AbSKERHh>;
+	Tue, 5 Nov 2002 12:07:37 -0500
+Date: Tue, 5 Nov 2002 18:14:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+Message-ID: <20021105171409.GA1137@suse.de>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC7FB11.10209@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
- 
-I don't know exactly where to look to solve this problem, so im posting
-here.
- 
-I have a laptop with a 3com PCMCIA NIC and a 3com NIC built into a
-docking station. When I dock my laptop, eth0 becomes the docking station
-NIC. I just want to know where to look to be able to control which
-device becomes which device. Im used to Solaris where a path_to_inst
-file correlates a device path to an instance number and device links are
-made accordingly. Does Linux have a similar capability?
- 
-I wouldn't care so much about this, but vmware acts flaky if you have a
-bridge on both eth0 and eth1 when eth1 disappears.
- 
-Thanks in advance,
- 
---Buddy
+On Tue, Nov 05 2002, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> 
+> >Hi,
+> >
+> >Can it really be that one cannot edit a config file and run make
+> >oldconfig anymore? I'm used to editing an entry in .config and running
+> >oldconfig to fix things up, now it just reenables the option. That's
+> >clearly a major regression.
+> > 
+> >
+> 
+> 
+> It works fine for me :)
+> 
+> I don't think I could survive without the tried and true "vi .config ; 
 
+Well me neither!
+
+> make oldconfig" kernel configurator :)
+
+Hmmm:
+
+axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+641:CONFIG_NFSD_V4=y
+axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
+axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+641:CONFIG_NFSD_V4=n
+axboe@burns:[.]linux-2.5-deadline-rbtree $ make oldconfig
+axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+641:CONFIG_NFSD_V4=y
+
+-- 
+Jens Axboe
 

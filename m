@@ -1,91 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291377AbSBGWaH>; Thu, 7 Feb 2002 17:30:07 -0500
+	id <S291384AbSBGWb7>; Thu, 7 Feb 2002 17:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291378AbSBGW3s>; Thu, 7 Feb 2002 17:29:48 -0500
-Received: from urdvg001.cms.usa.net ([165.212.11.1]:6319 "HELO
-	urdvg001.cms.usa.net") by vger.kernel.org with SMTP
-	id <S291377AbSBGW3f>; Thu, 7 Feb 2002 17:29:35 -0500
-Message-ID: <3C62FE47.6020708@sundanceti.com>
-Date: Thu, 07 Feb 2002 14:23:03 -0800
-From: Craig Rich <craig_rich@sundanceti.com>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Scatter Gather List Questions
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S291355AbSBGWbl>; Thu, 7 Feb 2002 17:31:41 -0500
+Received: from h108-129-61.datawire.net ([207.61.129.108]:34065 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S291378AbSBGWaY>;
+	Thu, 7 Feb 2002 17:30:24 -0500
+Subject: Re: Problem with rmap-12c
+From: Shawn Starr <shawn.starr@datawire.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 07 Feb 2002 17:32:49 -0500
+Message-Id: <1013121170.226.0.camel@unaropia>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff:
+Please do :)
 
-	Hello. Saw this post on the Internet, and was hoping you are still open 
-to answering some questions about scatter/gather lists in Linux.
+I've been noticing those same results. 
 
-	I'm tyring to update the Linux driver for our triple speed Ethernet MAC 
-(we haven't formally given the driver to you yet; I guess we should soon.)
+Shawn.
 
-	Anyhow, I'm trying to find documentation, or examples of how to use the 
-scatter/gather capabilities of Linux, and not having much luck. So 
-basically, I'm not sure where to start. I tried grepping the source as 
-you say below, its not helping much.
-
-	One question I can start with is, how do you use pci_dma_sg?
-
-pci_map_sg(dev, sglist, nents, direction);
-
-	I'm assuming I supply the dev and direction fields. How about the nents 
-field? Is that supposed to be the largest number of fragments I can 
-handle (that's what I assumed.) Finally, the sglist argument has me 
-really confused. Do I have to create this structure in advance (and if 
-so how) or is pci_map_sg supposed to simply give me a pointer back via 
-the sglist argument (that's what I assumed, but that doesn't seem to be 
-the case unless I'm doing something else wrong.)
-
-	Also, were in the source code is pci_map_sg located? I'll admit I'm not 
-an expert at looking through the source code of an OS like Linux, but 
-I'm frustrated by the fact that a simple grep of /usr/src/linux-2.4.2 
-does not show where this function is coded.
-
-	Any help would be greatly appreciated.
-
-> Jeff Garzik  linux-kernel@vger.kernel.org
-> Wed, 14 Nov 2001 20:41:34 -0500
+On Thu, 2002-02-07 at 17:12, Rik van Riel wrote:
+> On 7 Feb 2002, Louis Garcia wrote:
 > 
->     * Previous message: [linux-kernel] Need Info on Checksum Offloading
->     * Next message: [linux-kernel] tty stuff
->     * Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
+> > I tried rmap-12c and had lots of swap usage. I when back to 12a and
+> > everything calmed down. Is their a known problem with 12c?
 > 
-> harish.vasudeva@amd.com wrote:
->> > Hi All,
->> > Could any1 pls direct me wherein i could find some documentation about implementing checksum offloading for my ethernet LAN driver?
+> Nope, but the RSS limit enforcing stuff is a possible
+> suspect.
 > 
+> It turns out I used a "struct pte_t" in over_rss_limit(),
+> which turned into a compiler warning, for which I didn't
+> spot the cause ;)
 > 
-> There is not good documentation.  Feel free to ask me questions, I am
-> the Linux network driver maintainer.
+> A fix for the bug was sent by Roger Larsson, who spotted
+> the fact that "pte_t" already has a "struct" inside it.
 > 
-> First, search the source code in linux/drivers/net/* for
-> NETIF_F_IP_CSUM, NETIF_F_HW_CSUM, skb->csum, and nr_frags.
+> Maybe page aging isn't working in rmap-12c because of this
+> stupid mistake ... but it's a long shot.  Maybe I should
+> release rmap 12d tonight ? ;)
 > 
-> Can I expect an ethernet driver submitted to me, soon?
+> regards,
 > 
-> 	Jeff
-> 
+> Rik
 > -- 
-> Jeff Garzik      | Only so many songs can be sung
-> Building 1024    | with two lips, two lungs, and one tongue.
-> MandrakeSoft     |         - nomeansno
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
 > 
+> http://www.surriel.com/		http://distro.conectiva.com/
 > 
-
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 -- 
-Craig Rich
-Senior Systems Engineer         mailto:craig_rich@sundanceti.com
-Sundance Technology Inc.        http://www.sundanceti.com
-1485 Saratoga Avenue            tel: 408 873 4117 x107
-Suite 200                       fax: 408 996 7064
-San Jose, CA, USA  95129
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+8
 

@@ -1,151 +1,698 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbTDDXxb (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbTDDXxa (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:53:30 -0500
-Received: from mail-6.tiscali.it ([195.130.225.152]:56455 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id S261488AbTDDXx0 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 18:53:26 -0500
-Date: Sat, 5 Apr 2003 02:03:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ingo Molnar <mingo@elte.hu>, hugh@veritas.com, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <20030405000352.GF16293@dualathlon.random>
-References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain> <20030404105417.3a8c22cc.akpm@digeo.com> <20030404214547.GB16293@dualathlon.random> <20030404150744.7e213331.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030404150744.7e213331.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id S261485AbTDDX5w (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbTDDX5w (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:57:52 -0500
+Received: from a089148.adsl.hansenet.de ([213.191.89.148]:3022 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S261485AbTDDX5j (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 18:57:39 -0500
+Message-ID: <3E8E1E91.6080503@portrix.net>
+Date: Sat, 05 Apr 2003 02:08:49 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] convert via686a i2c driver to sysfs
+References: <3E8D3A59.8010401@portrix.net> <20030404173250.GA1537@kroah.com>
+In-Reply-To: <20030404173250.GA1537@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------070402000502000305090902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 03:07:44PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > On Fri, Apr 04, 2003 at 10:54:17AM -0800, Andrew Morton wrote:
-> > > Hugh Dickins <hugh@veritas.com> wrote:
-> > > >
-> > > > Truncating a sys_remap_file_pages file?  You're the first to
-> > > > begin to consider such an absurd possibility: vmtruncate_list
-> > > > still believes vm_pgoff tells it what needs to be done.
-> > > 
-> > > Well I knew mincore() was bust for nonlinear mappings.  Never thought about
-> > > truncate.
-> > 
-> > IMHO sys_remap_file_pages and the nonlinear mapping is an hack and
-> > should be dropped eventually.
+This is a multi-part message in MIME format.
+--------------070402000502000305090902
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Greg KH wrote:
+> On Fri, Apr 04, 2003 at 09:55:05AM +0200, Jan Dittmer wrote:
+
+>>So 
+>>here it goes again. Tested w/ Via KT133A board and using centiVolt and 
+>>deziDegrees. Still waiting for a final decision. My vote goes to 
+>>milliVolt and milliDegree.
 > 
-> It has created exceptional situations which are rather tying our hands in
-> other areas.
 > 
-> > I mean it's not too bad but it's a mere
-> > workaround for:
-> > 
-> > 1) lack of 64bit address space that will be fixed
-> > 2) lack of O(log(N)) mmap, that will be fixed too
+> I thought that was the final decision, as it's what I wrote up in the
+> Documentation/i2c/sysfs-interface document that now's in the kernel :)
 > 
-> Yes, mmap() overhead due to the linear search, VMA space consumption,
-> additional TLB invalidations and additional faults.  The latter could be
-> fixed up via MAP_PREFAULT and are independent of nonlinearity.
-> 
-> Here's Ingo's original summary:
-> 
-> - really complex remappings (used by databases or virtualizing
->   applications) create a *huge* amount of vmas - and vma's are per-process
->   which puts a really big load on kernel memory allocations, especially on
->   32-bit systems. I've seen applications that had a mapping setup that
->   generated 128 *thousand* vmas per process, causing lots of problems.
+> Do you want to change this patch to use those units before I apply it?
 
-the current max map count is 64k so I'm not sure how can he have seen 128k,
-I've to assume the kernel was hacked for it.
+At least I missed the final decision ;-) Anyway, here it goes. Btw. 
+which other chip drivers are currently not worked on and are important? 
+So I'd convert them over the next days?
 
-> 
-> - setting up separate mappings is expensive, causes one pagefault per page
->   and also causes TLB flushes.
-> 
-> - even on 64-bit systems, when mapping really large (terabyte size) and
->   really sparse files, sparse mappings can be a disadvantage - in the
->   worst-case there can be as much as 1 more pagetable page allocated for
-					      ^^^^^^^^^
->   every file page that is mapped in.
+Thanks,
 
-he certainly means 1 vma, not 1 pagetable.
+Jan
 
-> > 1) and 2) are the only reason why there's huge interest in such syscall
-> > right now. So I don't like it too much and I'm not convinced it was
-> > right to merge it in 2.5 given 2) is a software problem and I've the
-> > design to fix it with a rbtree extension, and 1) is an hardware problem
-> > that will be fixed very soon. the API is not too bad but there is a
-> > reason we have the vma for all other mappings.
-> > 
-> > Maybe I'm missing something, I'm curious to hear what you think and what
-> > other cases needs this syscall even after 1) and 2) are fixed.
-> 
-> I think that's right - the system call is very specialised and is targeted at
-> solving problems which have been encountered in a small number of
-> applications, but important ones.
-> 
-> Right now, I do not feel that we are going to be able to come up with an
-> acceptably simple VM which has both nonlinear mappings and objrmap.
 
-that's basically my point. if you allocate the regular rmap then you
-could allocate the vma. and I while some of those apps are important,
-the important ones are solved by the 64bit address space. The others
-would better be fixed so that they don't eat all those vmas. Also I'm
-aware of one single critical app that uses thousand vmas not for the
-same purpose of the ones that will be fixed definitely with the 64bit
-address space.  But such an important app is hurted badly by
-get_unmapped_area only, not at all by the rest of the vma load and
-rbtree lookups. And with remap_file_pages you _lose_ completely the
-get_unmapped_area feature. If you are ok with the remap_file_pages, then
-you could as well use MAP_FIXED and your mmap would just run O(log(N))
-dropping completely the get_unmapped_area load that is the only real
-offender.  The problem is they don't want that, they use
-get_unmapped_area today, and what they want IMHO, is my new design for
-the O(log(N)) mmap w/o MAP_FIXED and w/o addr-hint, _not_
-remap_file_pages. So they can still use get_unmapped_area and it'll run
-as fast as MAP_FIXED, we could completely avoid any additional lookup on
-the rbtree and just use the single lookup checkpoint that also the
-MAP_FIXED just is using to verify and insert in a single walk of the
-tree. This is technically doable as far as I can tell, and I'm going to
-implement it.
+--------------070402000502000305090902
+Content-Type: text/plain;
+ name="sysfsvia"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysfsvia"
 
-So I definitely vote to drop remap_file_pages. I don't have ready right
-now the O(log(N)) get_unmapped_area, that will be tricky, but it's
-definitely doable and it's the next thing I'll work on for 2.5 from my
-part. In the meantime people could use MAP_FIXED (or at least the hint),
-if they can't use MAP_FIXED they can't use remap_file_pages either,
-period. Infact using MAP_FIXED is an order of magnitude simpler.
+===== via686a.c 1.3 vs edited =====
+--- 1.3/drivers/i2c/chips/via686a.c	Wed Apr  2 22:01:10 2003
++++ edited/via686a.c	Sat Apr  5 02:03:55 2003
+@@ -87,9 +87,9 @@
+ static const u8 reghyst[] = { 0x3a, 0x3e, 0x1e };
+ 
+ /* temps numbered 1-3 */
+-#define VIA686A_REG_TEMP(nr)		(regtemp[(nr) - 1])
+-#define VIA686A_REG_TEMP_OVER(nr)	(regover[(nr) - 1])
+-#define VIA686A_REG_TEMP_HYST(nr)	(reghyst[(nr) - 1])
++#define VIA686A_REG_TEMP(nr)		(regtemp[nr])
++#define VIA686A_REG_TEMP_OVER(nr)	(regover[nr])
++#define VIA686A_REG_TEMP_HYST(nr)	(reghyst[nr])
+ #define VIA686A_REG_TEMP_LOW1	0x4b	// bits 7-6
+ #define VIA686A_REG_TEMP_LOW23	0x49	// 2 = bits 5-4, 3 = bits 7-6
+ 
+@@ -369,6 +369,8 @@
+    dynamically allocated, at the same time when a new via686a client is
+    allocated. */
+ struct via686a_data {
++	int sysctl_id;
++
+ 	struct semaphore update_lock;
+ 	char valid;		/* !=0 if following fields are valid */
+ 	unsigned long last_updated;	/* In jiffies */
+@@ -388,16 +390,262 @@
+ static struct pci_dev *s_bridge;	/* pointer to the (only) via686a */
+ 
+ static int via686a_attach_adapter(struct i2c_adapter *adapter);
+-static int via686a_detect(struct i2c_adapter *adapter, int address, int kind);
++static int via686a_detect(struct i2c_adapter *adapter, int address,
++			  unsigned short flags, int kind);
+ static int via686a_detach_client(struct i2c_client *client);
+ 
+-static int via686a_read_value(struct i2c_client *client, u8 register);
+-static void via686a_write_value(struct i2c_client *client, u8 register,
+-				u8 value);
++static inline int via686a_read_value(struct i2c_client *client, u8 reg)
++{
++	return (inb_p(client->addr + reg));
++}
++
++static inline void via686a_write_value(struct i2c_client *client, u8 reg,
++				       u8 value)
++{
++	outb_p(value, client->addr + reg);
++}
++
+ static void via686a_update_client(struct i2c_client *client);
+ static void via686a_init_client(struct i2c_client *client);
+ 
+-static int via686a_id = 0;
++/* following are the sysfs callback functions */
++
++/* 7 voltage sensors */
++static ssize_t show_in(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", IN_FROM_REG(data->in[nr], nr)*10 );
++}
++
++static ssize_t show_in_min(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", IN_FROM_REG(data->in_min[nr], nr)*10 );
++}
++
++static ssize_t show_in_max(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", IN_FROM_REG(data->in_max[nr], nr)*10 );
++}
++
++static ssize_t set_in_min(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10)/10;
++	data->in_min[nr] = IN_TO_REG(val,nr);
++	via686a_write_value(client, VIA686A_REG_IN_MIN(nr), 
++			data->in_min[nr]);
++	return count;
++}
++static ssize_t set_in_max(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10)/10;
++	data->in_max[nr] = IN_TO_REG(val,nr);
++	via686a_write_value(client, VIA686A_REG_IN_MAX(nr), 
++			data->in_max[nr]);
++	return count;
++}
++#define show_in_offset(offset)					\
++static ssize_t 							\
++	show_in##offset (struct device *dev, char *buf)		\
++{								\
++	return show_in(dev, buf, 0x##offset);			\
++}								\
++static ssize_t 							\
++	show_in##offset##_min (struct device *dev, char *buf)	\
++{								\
++	return show_in_min(dev, buf, 0x##offset);		\
++}								\
++static ssize_t 							\
++	show_in##offset##_max (struct device *dev, char *buf)	\
++{								\
++	return show_in_max(dev, buf, 0x##offset);		\
++}								\
++static ssize_t set_in##offset##_min (struct device *dev, 	\
++		const char *buf, size_t count) 			\
++{								\
++	return set_in_min(dev, buf, count, 0x##offset);		\
++}								\
++static ssize_t set_in##offset##_max (struct device *dev,	\
++			const char *buf, size_t count)		\
++{								\
++	return set_in_max(dev, buf, count, 0x##offset);		\
++}								\
++static DEVICE_ATTR(in_input##offset, S_IRUGO, show_in##offset, NULL) 	\
++static DEVICE_ATTR(in_min##offset, S_IRUGO | S_IWUSR, 		\
++		show_in##offset##_min, set_in##offset##_min)	\
++static DEVICE_ATTR(in_max##offset, S_IRUGO | S_IWUSR, 		\
++		show_in##offset##_max, set_in##offset##_max)
++
++show_in_offset(0);
++show_in_offset(1);
++show_in_offset(2);
++show_in_offset(3);
++show_in_offset(4);
++
++/* 3 temperatures */
++static ssize_t show_temp(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", TEMP_FROM_REG10(data->temp[nr])*10 );
++}
++/* more like overshoot temperature */
++static ssize_t show_temp_max(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_over[nr])*10);
++}
++/* more like hysteresis temperature */
++static ssize_t show_temp_min(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_hyst[nr])*10);
++}
++static ssize_t set_temp_max(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	int val = simple_strtol(buf, NULL, 10)/10;
++	data->temp_over[nr] = TEMP_TO_REG(val);
++	via686a_write_value(client, VIA686A_REG_TEMP_OVER(nr), data->temp_over[nr]);
++	return count;
++}
++static ssize_t set_temp_min(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	int val = simple_strtol(buf, NULL, 10)/10;
++	data->temp_hyst[nr] = TEMP_TO_REG(val);
++	via686a_write_value(client, VIA686A_REG_TEMP_HYST(nr), data->temp_hyst[nr]);
++	return count;
++}
++#define show_temp_offset(offset)					\
++static ssize_t show_temp_##offset (struct device *dev, char *buf)	\
++{									\
++	return show_temp(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t								\
++show_temp_##offset##_max (struct device *dev, char *buf)		\
++{									\
++	return show_temp_max(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t								\
++show_temp_##offset##_min (struct device *dev, char *buf)		\
++{									\
++	return show_temp_min(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t set_temp_##offset##_max (struct device *dev, 		\
++		const char *buf, size_t count) 				\
++{									\
++	return set_temp_max(dev, buf, count, 0x##offset - 1);		\
++}									\
++static ssize_t set_temp_##offset##_min (struct device *dev, 		\
++		const char *buf, size_t count) 				\
++{									\
++	return set_temp_min(dev, buf, count, 0x##offset - 1);		\
++}									\
++static DEVICE_ATTR(temp_input##offset, S_IRUGO, show_temp_##offset, NULL) \
++static DEVICE_ATTR(temp_max##offset, S_IRUGO | S_IWUSR, 		\
++		show_temp_##offset##_max, set_temp_##offset##_max) 	\
++static DEVICE_ATTR(temp_min##offset, S_IRUGO | S_IWUSR, 		\
++		show_temp_##offset##_min, set_temp_##offset##_min)	
++
++show_temp_offset(1);
++show_temp_offset(2);
++show_temp_offset(3);
++
++/* 2 Fans */
++static ssize_t show_fan(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf,"%d\n", FAN_FROM_REG(data->fan[nr], 
++				DIV_FROM_REG(data->fan_div[nr])) );
++}
++static ssize_t show_fan_min(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf,"%d\n",
++		FAN_FROM_REG(data->fan_min[nr], DIV_FROM_REG(data->fan_div[nr])) );
++}
++static ssize_t show_fan_div(struct device *dev, char *buf, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf,"%d\n", DIV_FROM_REG(data->fan_div[nr]) );
++}
++static ssize_t set_fan_min(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	int val = simple_strtol(buf, NULL, 10);
++	data->fan_min[nr] = FAN_TO_REG(val, DIV_FROM_REG(data->fan_div[nr]));
++	via686a_write_value(client, VIA686A_REG_FAN_MIN(nr+1), data->fan_min[nr]);
++	return count;
++}
++static ssize_t set_fan_div(struct device *dev, const char *buf, 
++		size_t count, int nr) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	int val = simple_strtol(buf, NULL, 10);
++	int old = via686a_read_value(client, VIA686A_REG_FANDIV);
++	data->fan_div[nr] = DIV_TO_REG(val);
++	old = (old & 0x0f) | (data->fan_div[1] << 6) | (data->fan_div[0] << 4);
++	via686a_write_value(client, VIA686A_REG_FANDIV, old);
++	return count;
++}
++
++#define show_fan_offset(offset)						\
++static ssize_t show_fan_##offset (struct device *dev, char *buf)	\
++{									\
++	return show_fan(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t show_fan_##offset##_min (struct device *dev, char *buf)	\
++{									\
++	return show_fan_min(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t show_fan_##offset##_div (struct device *dev, char *buf)	\
++{									\
++	return show_fan_div(dev, buf, 0x##offset - 1);			\
++}									\
++static ssize_t set_fan_##offset##_min (struct device *dev, 		\
++	const char *buf, size_t count) 					\
++{									\
++	return set_fan_min(dev, buf, count, 0x##offset - 1);		\
++}									\
++static ssize_t set_fan_##offset##_div (struct device *dev, 		\
++		const char *buf, size_t count) 				\
++{									\
++	return set_fan_div(dev, buf, count, 0x##offset - 1);		\
++}									\
++static DEVICE_ATTR(fan_input##offset, S_IRUGO, show_fan_##offset, NULL) \
++static DEVICE_ATTR(fan_min##offset, S_IRUGO | S_IWUSR, 			\
++		show_fan_##offset##_min, set_fan_##offset##_min) 	\
++static DEVICE_ATTR(fan_div##offset, S_IRUGO | S_IWUSR, 			\
++		show_fan_##offset##_div, set_fan_##offset##_div)
++
++show_fan_offset(1);
++show_fan_offset(2);
++
++/* Alarm */
++static ssize_t show_alarm(struct device *dev, char *buf) {
++	struct i2c_client *client = to_i2c_client(dev);
++	struct via686a_data *data = i2c_get_clientdata(client);
++	via686a_update_client(client);
++	return sprintf(buf,"%d\n", ALARMS_FROM_REG(data->alarms));
++}
++static DEVICE_ATTR(alarm, S_IRUGO | S_IWUSR, show_alarm, NULL);
+ 
+ /* The driver. I choose to use type i2c_driver, as at is identical to both
+    smbus_driver and isa_driver, and clients could be of either kind */
+@@ -411,95 +659,19 @@
+ };
+ 
+ 
+-
+-/* The /proc/sys entries */
+-
+-/* -- SENSORS SYSCTL START -- */
+-#define VIA686A_SYSCTL_IN0 1000
+-#define VIA686A_SYSCTL_IN1 1001
+-#define VIA686A_SYSCTL_IN2 1002
+-#define VIA686A_SYSCTL_IN3 1003
+-#define VIA686A_SYSCTL_IN4 1004
+-#define VIA686A_SYSCTL_FAN1 1101
+-#define VIA686A_SYSCTL_FAN2 1102
+-#define VIA686A_SYSCTL_TEMP 1200
+-#define VIA686A_SYSCTL_TEMP2 1201
+-#define VIA686A_SYSCTL_TEMP3 1202
+-#define VIA686A_SYSCTL_FAN_DIV 2000
+-#define VIA686A_SYSCTL_ALARMS 2001
+-
+-#define VIA686A_ALARM_IN0 0x01
+-#define VIA686A_ALARM_IN1 0x02
+-#define VIA686A_ALARM_IN2 0x04
+-#define VIA686A_ALARM_IN3 0x08
+-#define VIA686A_ALARM_TEMP 0x10
+-#define VIA686A_ALARM_FAN1 0x40
+-#define VIA686A_ALARM_FAN2 0x80
+-#define VIA686A_ALARM_IN4 0x100
+-#define VIA686A_ALARM_TEMP2 0x800
+-#define VIA686A_ALARM_CHAS 0x1000
+-#define VIA686A_ALARM_TEMP3 0x8000
+-
+-/* -- SENSORS SYSCTL END -- */
+-
+-#if 0
+-/* These files are created for each detected VIA686A. This is just a template;
+-   though at first sight, you might think we could use a statically
+-   allocated list, we need some way to get back to the parent - which
+-   is done through one of the 'extra' fields which are initialized 
+-   when a new copy is allocated. */
+-static ctl_table via686a_dir_table_template[] = {
+-	{VIA686A_SYSCTL_IN0, "in0", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_in},
+-	{VIA686A_SYSCTL_IN1, "in1", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_in},
+-	{VIA686A_SYSCTL_IN2, "in2", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_in},
+-	{VIA686A_SYSCTL_IN3, "in3", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_in},
+-	{VIA686A_SYSCTL_IN4, "in4", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_in},
+-	{VIA686A_SYSCTL_FAN1, "fan1", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_fan},
+-	{VIA686A_SYSCTL_FAN2, "fan2", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_fan},
+-	{VIA686A_SYSCTL_TEMP, "temp1", NULL, 0, 0644, NULL, &i2c_proc_real,
+-	 &i2c_sysctl_real, NULL, &via686a_temp},
+-	{VIA686A_SYSCTL_TEMP2, "temp2", NULL, 0, 0644, NULL,
+-	 &i2c_proc_real, &i2c_sysctl_real, NULL, &via686a_temp},
+-	{VIA686A_SYSCTL_TEMP3, "temp3", NULL, 0, 0644, NULL,
+-	 &i2c_proc_real, &i2c_sysctl_real, NULL, &via686a_temp},
+-	{VIA686A_SYSCTL_FAN_DIV, "fan_div", NULL, 0, 0644, NULL,
+-	 &i2c_proc_real, &i2c_sysctl_real, NULL, &via686a_fan_div},
+-	{VIA686A_SYSCTL_ALARMS, "alarms", NULL, 0, 0444, NULL,
+-	 &i2c_proc_real, &i2c_sysctl_real, NULL, &via686a_alarms},
+-	{0}
+-};
+-#endif
+-
+-static inline int via686a_read_value(struct i2c_client *client, u8 reg)
+-{
+-	return (inb_p(client->addr + reg));
+-}
+-
+-static inline void via686a_write_value(struct i2c_client *client, u8 reg,
+-				       u8 value)
+-{
+-	outb_p(value, client->addr + reg);
+-}
+-
+ /* This is called when the module is loaded */
+ static int via686a_attach_adapter(struct i2c_adapter *adapter)
+ {
+ 	return i2c_detect(adapter, &addr_data, via686a_detect);
+ }
+ 
+-static int via686a_detect(struct i2c_adapter *adapter, int address, int kind)
++static int via686a_detect(struct i2c_adapter *adapter, int address,
++		   unsigned short flags, int kind)
+ {
+ 	struct i2c_client *new_client;
+ 	struct via686a_data *data;
+ 	int err = 0;
+-	const char *name = "via686a";
++	const char client_name[] = "via686a chip";
+ 	u16 val;
+ 
+ 	/* Make sure we are probing the ISA bus!!  */
+@@ -552,16 +724,49 @@
+ 	new_client->adapter = adapter;
+ 	new_client->driver = &via686a_driver;
+ 	new_client->flags = 0;
++	new_client->dev.parent = &adapter->dev;
+ 
+ 	/* Fill in the remaining client fields and put into the global list */
+-	snprintf(new_client->dev.name, DEVICE_NAME_SIZE, name);
++	snprintf(new_client->dev.name, DEVICE_NAME_SIZE, client_name);
+ 
+-	new_client->id = via686a_id++;
+ 	data->valid = 0;
+ 	init_MUTEX(&data->update_lock);
+ 	/* Tell the I2C layer a new client has arrived */
+ 	if ((err = i2c_attach_client(new_client)))
+ 		goto ERROR3;
++	
++	/* register sysfs hooks */
++	device_create_file(&new_client->dev, &dev_attr_in_input0);
++	device_create_file(&new_client->dev, &dev_attr_in_input1);
++	device_create_file(&new_client->dev, &dev_attr_in_input2);
++	device_create_file(&new_client->dev, &dev_attr_in_input3);
++	device_create_file(&new_client->dev, &dev_attr_in_input4);
++	device_create_file(&new_client->dev, &dev_attr_in_min0);
++	device_create_file(&new_client->dev, &dev_attr_in_min1);
++	device_create_file(&new_client->dev, &dev_attr_in_min2);
++	device_create_file(&new_client->dev, &dev_attr_in_min3);
++	device_create_file(&new_client->dev, &dev_attr_in_min4);
++	device_create_file(&new_client->dev, &dev_attr_in_max0);
++	device_create_file(&new_client->dev, &dev_attr_in_max1);
++	device_create_file(&new_client->dev, &dev_attr_in_max2);
++	device_create_file(&new_client->dev, &dev_attr_in_max3);
++	device_create_file(&new_client->dev, &dev_attr_in_max4);
++	device_create_file(&new_client->dev, &dev_attr_temp_input1);
++	device_create_file(&new_client->dev, &dev_attr_temp_input2);
++	device_create_file(&new_client->dev, &dev_attr_temp_input3);
++	device_create_file(&new_client->dev, &dev_attr_temp_max1);
++	device_create_file(&new_client->dev, &dev_attr_temp_max2);
++	device_create_file(&new_client->dev, &dev_attr_temp_max3);
++	device_create_file(&new_client->dev, &dev_attr_temp_min1);
++	device_create_file(&new_client->dev, &dev_attr_temp_min2);
++	device_create_file(&new_client->dev, &dev_attr_temp_min3);
++	device_create_file(&new_client->dev, &dev_attr_fan_input1);
++	device_create_file(&new_client->dev, &dev_attr_fan_input2);
++	device_create_file(&new_client->dev, &dev_attr_fan_min1);
++	device_create_file(&new_client->dev, &dev_attr_fan_min2);
++	device_create_file(&new_client->dev, &dev_attr_fan_div1);
++	device_create_file(&new_client->dev, &dev_attr_fan_div2);
++	device_create_file(&new_client->dev, &dev_attr_alarm);
+ 
+ 	/* Initialize the VIA686A chip */
+ 	via686a_init_client(new_client);
+@@ -629,7 +834,7 @@
+ 			    FAN_TO_REG(VIA686A_INIT_FAN_MIN, 2));
+ 	via686a_write_value(client, VIA686A_REG_FAN_MIN(2),
+ 			    FAN_TO_REG(VIA686A_INIT_FAN_MIN, 2));
+-	for (i = 1; i <= 3; i++) {
++	for (i = 0; i <= 2; i++) {
+ 		via686a_write_value(client, VIA686A_REG_TEMP_OVER(i),
+ 				    TEMP_TO_REG(VIA686A_INIT_TEMP_OVER));
+ 		via686a_write_value(client, VIA686A_REG_TEMP_HYST(i),
+@@ -670,13 +875,13 @@
+ 			data->fan_min[i - 1] = via686a_read_value(client,
+ 						     VIA686A_REG_FAN_MIN(i));
+ 		}
+-		for (i = 1; i <= 3; i++) {
+-			data->temp[i - 1] = via686a_read_value(client,
++		for (i = 0; i <= 2; i++) {
++			data->temp[i] = via686a_read_value(client,
+ 						 VIA686A_REG_TEMP(i)) << 2;
+-			data->temp_over[i - 1] =
++			data->temp_over[i] =
+ 			    via686a_read_value(client,
+ 					       VIA686A_REG_TEMP_OVER(i));
+-			data->temp_hyst[i - 1] =
++			data->temp_hyst[i] =
+ 			    via686a_read_value(client,
+ 					       VIA686A_REG_TEMP_HYST(i));
+ 		}
+@@ -709,164 +914,12 @@
+ 	up(&data->update_lock);
+ }
+ 
+-
+-/* The next few functions are the call-back functions of the /proc/sys and
+-   sysctl files. Which function is used is defined in the ctl_table in
+-   the extra1 field.
+-   Each function must return the magnitude (power of 10 to divide the date
+-   with) if it is called with operation==SENSORS_PROC_REAL_INFO. It must
+-   put a maximum of *nrels elements in results reflecting the data of this
+-   file, and set *nrels to the number it actually put in it, if operation==
+-   SENSORS_PROC_REAL_READ. Finally, it must get upto *nrels elements from
+-   results and write them to the chip, if operations==SENSORS_PROC_REAL_WRITE.
+-   Note that on SENSORS_PROC_REAL_READ, I do not check whether results is
+-   large enough (by checking the incoming value of *nrels). This is not very
+-   good practice, but as long as you put less than about 5 values in results,
+-   you can assume it is large enough. */
+-/* FIXME, remove these functions, they are here to verify the sysfs conversion
+- * is correct, or not */
+-__attribute__((unused))
+-static void via686a_in(struct i2c_client *client, int operation, int ctl_name,
+-               int *nrels_mag, long *results)
+-{
+-	struct via686a_data *data = i2c_get_clientdata(client);
+-	int nr = ctl_name - VIA686A_SYSCTL_IN0;
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 2;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		via686a_update_client(client);
+-		results[0] = IN_FROM_REG(data->in_min[nr], nr);
+-		results[1] = IN_FROM_REG(data->in_max[nr], nr);
+-		results[2] = IN_FROM_REG(data->in[nr], nr);
+-		*nrels_mag = 3;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		if (*nrels_mag >= 1) {
+-			data->in_min[nr] = IN_TO_REG(results[0], nr);
+-			via686a_write_value(client, VIA686A_REG_IN_MIN(nr),
+-					    data->in_min[nr]);
+-		}
+-		if (*nrels_mag >= 2) {
+-			data->in_max[nr] = IN_TO_REG(results[1], nr);
+-			via686a_write_value(client, VIA686A_REG_IN_MAX(nr),
+-					    data->in_max[nr]);
+-		}
+-	}
+-}
+-
+-__attribute__((unused))
+-static void via686a_fan(struct i2c_client *client, int operation, int ctl_name,
+-		 int *nrels_mag, long *results)
+-{
+-	struct via686a_data *data = i2c_get_clientdata(client);
+-	int nr = ctl_name - VIA686A_SYSCTL_FAN1 + 1;
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		via686a_update_client(client);
+-		results[0] = FAN_FROM_REG(data->fan_min[nr - 1],
+-					  DIV_FROM_REG(data->fan_div
+-						       [nr - 1]));
+-		results[1] = FAN_FROM_REG(data->fan[nr - 1],
+-				 DIV_FROM_REG(data->fan_div[nr - 1]));
+-		*nrels_mag = 2;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		if (*nrels_mag >= 1) {
+-			data->fan_min[nr - 1] = FAN_TO_REG(results[0], 
+-							   DIV_FROM_REG(data->
+-							      fan_div[nr -1]));
+-			via686a_write_value(client,
+-					    VIA686A_REG_FAN_MIN(nr),
+-					    data->fan_min[nr - 1]);
+-		}
+-	}
+-}
+-
+-__attribute__((unused))
+-static void via686a_temp(struct i2c_client *client, int operation, int ctl_name,
+-		  int *nrels_mag, long *results)
+-{
+-	struct via686a_data *data = i2c_get_clientdata(client);
+-	int nr = ctl_name - VIA686A_SYSCTL_TEMP;
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 1;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		via686a_update_client(client);
+-		results[0] = TEMP_FROM_REG(data->temp_over[nr]);
+-		results[1] = TEMP_FROM_REG(data->temp_hyst[nr]);
+-		results[2] = TEMP_FROM_REG10(data->temp[nr]);
+-		*nrels_mag = 3;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		if (*nrels_mag >= 1) {
+-			data->temp_over[nr] = TEMP_TO_REG(results[0]);
+-			via686a_write_value(client,
+-					    VIA686A_REG_TEMP_OVER(nr + 1),
+-					    data->temp_over[nr]);
+-		}
+-		if (*nrels_mag >= 2) {
+-			data->temp_hyst[nr] = TEMP_TO_REG(results[1]);
+-			via686a_write_value(client,
+-					    VIA686A_REG_TEMP_HYST(nr + 1),
+-					    data->temp_hyst[nr]);
+-		}
+-	}
+-}
+-
+-__attribute__((unused))
+-static void via686a_alarms(struct i2c_client *client, int operation, int ctl_name,
+-		    int *nrels_mag, long *results)
+-{
+-	struct via686a_data *data = i2c_get_clientdata(client);
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		via686a_update_client(client);
+-		results[0] = ALARMS_FROM_REG(data->alarms);
+-		*nrels_mag = 1;
+-	}
+-}
+-
+-__attribute__((unused))
+-static void via686a_fan_div(struct i2c_client *client, int operation,
+-		     int ctl_name, int *nrels_mag, long *results)
+-{
+-	struct via686a_data *data = i2c_get_clientdata(client);
+-	int old;
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		via686a_update_client(client);
+-		results[0] = DIV_FROM_REG(data->fan_div[0]);
+-		results[1] = DIV_FROM_REG(data->fan_div[1]);
+-		*nrels_mag = 2;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		old = via686a_read_value(client, VIA686A_REG_FANDIV);
+-		if (*nrels_mag >= 2) {
+-			data->fan_div[1] = DIV_TO_REG(results[1]);
+-			old = (old & 0x3f) | (data->fan_div[1] << 6);
+-		}
+-		if (*nrels_mag >= 1) {
+-			data->fan_div[0] = DIV_TO_REG(results[0]);
+-			old = (old & 0xcf) | (data->fan_div[0] << 4);
+-			via686a_write_value(client, VIA686A_REG_FANDIV,
+-					    old);
+-		}
+-	}
+-}
+-
+-
+ static struct pci_device_id via686a_pci_ids[] __devinitdata = {
+        {
+ 	       .vendor 		= PCI_VENDOR_ID_VIA, 
+ 	       .device 		= PCI_DEVICE_ID_VIA_82C686_4, 
+ 	       .subvendor	= PCI_ANY_ID, 
+ 	       .subdevice	= PCI_ANY_ID, 
+-	       .class		= 0, 
+-	       .class_mask	= 0, 
+-	       .driver_data	= 0, 
+        },
+        { 0, }
+ };
 
-the worst part IMHO is that it screwup the vma making the vma->vm_file
-totally wrong for the pages in the vma. The only way to leave it is:
+--------------070402000502000305090902--
 
-1) to allow it only in a special vma called VM_NONLINEAR allocated via
-   mmap previously
-
-2) such a magic vma will have a null vm_file and it will be
-   totally ignored by the VM
-
-3) the remap_file_pages would then need to be enabled via a sysctl for
-   security reasons (can pin indefinite amounts of ram)
-
-4) no issue with sigbus
-
-5) if a truncate happens in a file, just leave the page mapped, the
-   reference count will leave it allocated and outside the pagecache,
-   and the possibly dirty page will be freed during the zap_pages_ranges
-   of the munmap done on the VM_NONLINAER vm
-
-In the current form it seems totally broken and at the very least the
-above should be done to fix it but I vote to drop it enterely since it
-doesn't worth the complexity IMHO.
-
->From my part I will do all I can to make 64bit to run so much faster
-than whatever remap_file_pages that people won't want to use
-remap_file_pages anyways.
-
-Andrea

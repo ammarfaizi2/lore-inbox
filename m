@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135990AbREBBnN>; Tue, 1 May 2001 21:43:13 -0400
+	id <S136493AbREBBwd>; Tue, 1 May 2001 21:52:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136493AbREBBnD>; Tue, 1 May 2001 21:43:03 -0400
-Received: from [209.191.64.160] ([209.191.64.160]:29957 "HELO linuxninja.org")
-	by vger.kernel.org with SMTP id <S135990AbREBBmx>;
-	Tue, 1 May 2001 21:42:53 -0400
-From: tpepper@vato.org
-Date: Tue, 1 May 2001 18:42:40 -0700
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.4 breaks VMware
-Message-ID: <20010501184240.A28442@cb.vato.org>
-Mime-Version: 1.0
+	id <S136574AbREBBwY>; Tue, 1 May 2001 21:52:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15745 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136493AbREBBwT>;
+	Tue, 1 May 2001 21:52:19 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15087.26704.689029.360584@pizda.ninka.net>
+Date: Tue, 1 May 2001 18:52:16 -0700 (PDT)
+To: tpepper@vato.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.4 breaks VMware
+In-Reply-To: <20010501184240.A28442@cb.vato.org>
+In-Reply-To: <20010501184240.A28442@cb.vato.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Despite VMware's webpage claiming compatibility issues with 2.4.x kernels I'd
-been using it without any problem until I upgraded to 2.4.4.  I couldn't use
-their precompiled modules of course but compiling to match the running kernel
-worked fine previously.
 
-This patch replaces a wee bit of code vmware wanted in include/linux/skbuff.h
-although I'm guessing it was removed for a reason and vmware should be patched
-to use the new method.
+tpepper@vato.org writes:
+ > --- skbuff.h.orig       Tue May  1 18:41:50 2001
+ > +++ skbuff.h    Tue May  1 18:41:55 2001
+ > @@ -244,6 +244,11 @@
+ >  
+ >  /* Internal */
+ >  #define skb_shinfo(SKB)                ((struct skb_shared_info *)((SKB)->end))
+ > +/* for vmware */
+ > +static inline atomic_t *skb_datarefp(struct sk_buff *skb)
+ > +{
+ > +	return (atomic_t *)(skb->end);
+ > +}
 
---- skbuff.h.orig       Tue May  1 18:41:50 2001
-+++ skbuff.h    Tue May  1 18:41:55 2001
-@@ -244,6 +244,11 @@
- 
- /* Internal */
- #define skb_shinfo(SKB)                ((struct skb_shared_info *)((SKB)->end))
-+/* for vmware */
-+static inline atomic_t *skb_datarefp(struct sk_buff *skb)
-+{
-+	return (atomic_t *)(skb->end);
-+}
- 
- /**
-  *     skb_queue_empty - check if a queue is empty
+No, the equivalent is &skb_shinfo(skb)->dataref
 
-
-Tim
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbUKXRwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbUKXReV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbUKXRwu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 12:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUKXRua
+	id S262767AbUKXReV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 12:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbUKXRYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 12:50:30 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:44228 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262770AbUKXRtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 12:49:20 -0500
-Date: Wed, 24 Nov 2004 17:48:58 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Nick Warne <nick@linicks.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.28 -> ch..ch...changes....
-In-Reply-To: <20041124070821.GA8718@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0411241744210.5172-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 24 Nov 2004 12:24:54 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:15543 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262687AbUKXRD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 12:03:28 -0500
+Date: Wed, 24 Nov 2004 08:19:23 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm3
+Message-ID: <20041124161923.GT2714@holomorphy.com>
+References: <20041121223929.40e038b2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041121223929.40e038b2.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Marcelo Tosatti wrote:
-> On Tue, Nov 23, 2004 at 09:36:36PM +0000, Nick Warne wrote:
-> > 
-> > I updated three boxes today to 2.4.28 (from .27), one at work, and two here at 
-> > home (Redhat 7.1+, Slackware 10)
-> > 
-> > I am intrigued terribly by the small footprint of memory usage now.  I have 
-> > gone through the changes file, but can really see nothing (to me, a n00b) 
-> > that would alter that?
-> > 
-> > Can anyone enlighten me?
-> 
-> What do you mean by "memory usage"? SLAB (/proc/slabinfo) buffers
-> or pagecache ?
-> 
-> Whats your workload and what drivers are you using ?
-> 
-> Nothing that I am aware of explains this.
+On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm3/
+> - It's time to shut things down for a 2.6.10 release now.  I'll do another
+>   pass through the -mm lineup for things which should go into 2.6.10.  
+>   If anyone has patches in -mm which they think should go into 2.6.10 please
+>   let me know.  (particularly ppc/ppc64).  The v4l patches certainly look like
+>   they need to go in.
 
-_If_ it's a reduction in /proc/slabinfo's dentry_cache, and
-_if_ these boxes do a lot of removing files from tmpfs,
-then it would be the "tmpfs: stop negative dentries".
+Well, for the record, sparc32 isn't close to surviving the set of
+changes here, where a small set of fixes got virgin 2.6.10-rc2 running.
+The obvious compilefixes and porting the pending bugfixes did not
+suffice.
 
-Hugh
 
+-- wli

@@ -1,79 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287342AbSACPv0>; Thu, 3 Jan 2002 10:51:26 -0500
+	id <S287333AbSACPug>; Thu, 3 Jan 2002 10:50:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287341AbSACPvS>; Thu, 3 Jan 2002 10:51:18 -0500
-Received: from svr3.applink.net ([206.50.88.3]:26896 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S287342AbSACPvH>;
-	Thu, 3 Jan 2002 10:51:07 -0500
-Message-Id: <200201031550.g03FoeSr025794@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Daniel Phillips <phillips@bonn-fries.net>, timothy.covell@ashavan.org,
-        Jonathan Amery <jdamery@chiark.greenend.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Date: Thu, 3 Jan 2002 09:46:57 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011220203223.GO7414@vega.digitel2002.hu> <200201022021.g02KL8Sr021924@svr3.applink.net> <E16LzQ6-00011Q-00@starship.berlin>
-In-Reply-To: <E16LzQ6-00011Q-00@starship.berlin>
+	id <S287330AbSACPu1>; Thu, 3 Jan 2002 10:50:27 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:56471 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S287333AbSACPuR>;
+	Thu, 3 Jan 2002 10:50:17 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A51@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Ricky Beam'" <jfbeam@bluetronic.net>,
+        Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: RE: Two hdds on one channel - why so slow?
+Date: Thu, 3 Jan 2002 07:49:56 -0800 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 22:23, Daniel Phillips wrote:
-> On January 2, 2002 09:17 pm, Timothy Covell wrote:
-> > On Wednesday 02 January 2002 11:17, Jonathan Amery wrote:
-> > > In article <3C2315D6.40105@purplet.demon.co.uk> you write:
-> > > >Engineers not (yet) being familiar with the relatively new SI (and
-> > > > IEEE) binary prefixes is just about acceptable. "Engineers" that
-> > > > misuse k/K and (worse!) m/M should be in a different field entirely.
-> > > > The SI system is generally taught as basic science to pre-teenagers.
-> > > > There is no excuse!
-> > >
-> > >  How many of them learn it though?
-> > >
-> > >  Jonathan (occasionally guilty of s/kB/KB/ himself).
+This has always been a really FUN argument
+
+IDE vs. SCSI
+
+BTW, why not add FC-AL or Serial-ATA into the mix, too?
+
+i just wanted to add one thing.  you guys are all right so
+far, IDE has distinct advantages and so does linux, but you're
+missing something :
+
+SCSI is meant for high performance, high reliability systems.
+it's not that the SCSI protocol is meant for this, but the
+drives are.  the drive quality for SCSI drives is MUCH higher
+examples :
+IBM's flagship 120GXP IDE drive is rated as 1 in 10^13 error rate,
+with 40K start/stop cycles and a three year warranty.
+IBM's 36Z15 SCSI drive is rated at 1 in 10^16 with 50K cycles
+and a FIVE year warranty.
+
+seagate and maxtor have similar differences.
+
+If you're running a production system UNDER LOAD for 24x7 then
+you should be using SCSI.  there's not really any room for
+argument here is there? :)
+
+Dana Lacoste
+Ottawa, Canada
+(Using SCSI on desktop [silly] and in product [woo-hoo!] :)
+
+> -----Original Message-----
+> From: Ricky Beam [mailto:jfbeam@bluetronic.net]
+> Sent: January 3, 2002 00:58
+> To: Mark Hahn
+> Cc: Linux Kernel Mail List
+> Subject: Re: Two hdds on one channel - why so slow?
+> 
+> 
+> On Wed, 2 Jan 2002, Mark Hahn wrote:
+> >my goodness; it's been so long since l-k saw this traditional sport!
+> >nothing much has changed in the intrim: SCSI still costs 
+> 2-3x as much,
+> >and still offers the same, ever-more-niche set of advantages
+> >(decent hotswap, somewhat higher reliability, moderately 
+> higher performance,
+> >easier expansion to more disks and/or other devices.)
+> 
+> If it's so much of a niche (and by extension desired by so 
+> few), why has
+> IDE become more and more like SCSI over the past decade?  IDE is just
+> beginning (over the last 2-3 years) to acquire the features 
+> SCSI has had
+> for over a decade.  Give it another decade and IDE will 
+> simply be a SCSI
+> physical layer.
+> 
+> So summarize a decade old arguement:
+> (IDE Camp)  SCSI sucks because it's too damned expensive.
+> 
+> (SCSI Camp) IDE sucks because it isn't SCSI. [followed by a 
+> long list of
+>             features present in SCSI but not IDE.]
+> 
+> You cannot beat IDE's price/performance with a stick.  However, anyone
+> who cares about system performance (and lifespan) will opt 
+> for the expense
+> of SCSI.
+> 
+> >besides having missed the last 2-3 generations of ATA (which include
+> >things like diskconnect), you have clearly not noticed that 
+> entry-level
+> 
+> And who has diskconnect implemented?  How many devices support it?
+> How many years before most of the hideous data destroying bugs and
+> incompatibilities are rooted out?
+> 
+> >hardware with PoS UDMA100 controllers can sustain more bandwidth than
+> >you can hope to consume (120 MB/s is pretty easy, even on 32x33 PCI!)
+> 
+> ...with only two devices per channel and a rather heavy 
+> penalty for more
+> than one.  SCSI is only significantly penalized when approaching bus
+> saturation.
+> 
+> And looking at the data rates for the Maxtor 160GB drive (infact the
+> entire D540X line)... 43.4M/s to/from media (i.e. cache) with 
+> sustained
+> rates of 35.9/17.8 OD/ID.  Maxtor are the only ones with U133 drives.
+> (And the Maxtor SCSI drives kick that thing's ass... internal rate of
+>  350-622Mb/s for a sustained throughput of 33-55MB/s.  Expensive but
+>  much much faster.)
+> 
+> >> PS: I once turned down a 360MHz Ultra10 in favor of a 
+> 167MHz Ultra1 because
+> >>     of the absolutely shitty IDE performance.  The U1 was 
+> actually faster
+> >>     at compiling software. (Solaris 2.6, btw)
 > >
-> > For the 10th time, the K v. k issue is due to the standards
-> > body ignoring common sense and following tradition instead.
-> > All positive powers of ten should have upper-case letters
-> > 	(D,H,K,M,T,P)
-> > and negative powers of ten should use lower-case letters.
-> > 	(d,c,m,n,p)
->
-> So if the box says '16 mB' flash, that's 16 millibytes, right?
-
-Of course that's what it should mean, but obviously the folks
-who packaged it were not too up on things.  And, let's face
-the music here, if we as group of supposedly smart people
-can't come close to reaching any consensus, can we blame
-marketing folks for mislabeling something???
-
->
-> > The KB meaning 2^10 B instead of 10^3 B is just plain dumb,
-> > and that's why the standards body tried to fix it with KiB.
-> > But again, this solution was considered to look and sound
-> > goofy and to be based on stupid mathematical games;
-> > hence this whole long thread.   <rant>A thread which has shown
-> > to me that most comp. sci. folks lack common sense and
-> > are pendantic to the max.</rant>
->
-> Yes, true, and?
-
-Sorry, I was feeling frustrated and should've kept that internal.
-<rant>
-But the fact is that I've presented what I think are good arguments
-on how to "fix" things in a rational and _consistant_ manner.  
-That is the point of metrics after all, to have a simple, rational,
-and consistant set of units of measurement to replace the
-inconsistant units that were previously used.   If we can't do
-this, then there is no point in converting.   Americans are right
-to continue using English/America/Imperial units if even the
-so called cognescenti can't get metrics right.
-</rant>
-
--- 
-timothy.covell@ashavan.org.
+> >yeah, if Sun can't make IDE scream, then no one can eh?
+> 
+> Linux wasn't any freakin' better at it.  (Sun's IDE still 
+> seriously sucks.)
+> 
+> --Ricky
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284246AbRLFUp0>; Thu, 6 Dec 2001 15:45:26 -0500
+	id <S284237AbRLFUq5>; Thu, 6 Dec 2001 15:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284211AbRLFUpR>; Thu, 6 Dec 2001 15:45:17 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:49282 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S284245AbRLFUny>; Thu, 6 Dec 2001 15:43:54 -0500
-Date: Thu, 6 Dec 2001 15:43:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sebastian Roth <xsebbi@gmx.de>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: spurious interrupt with 2.4.10 and higher ?
-In-Reply-To: <200112062048.45316@xsebbi.de>
-Message-ID: <Pine.LNX.3.95.1011206153911.26428A-100000@chaos.analogic.com>
+	id <S284245AbRLFUp0>; Thu, 6 Dec 2001 15:45:26 -0500
+Received: from mta22-acc.tin.it ([212.216.176.75]:40701 "EHLO fep22-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S285179AbRLFUn5>;
+	Thu, 6 Dec 2001 15:43:57 -0500
+Message-ID: <3C0FD89A.10B28C7B@iname.com>
+Date: Thu, 06 Dec 2001 21:44:10 +0100
+From: Luca Montecchiani <m.luca@iname.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: marcelo@conectiva.com.br
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Sebastian Roth wrote:
+Hisax compile fix :
 
-> hi all!
-> 
-> For a long time, I receive at boot time (and in /var/log/warn) the following 
-> message from the kernel:
-> 
-> Spurious 8259A interrupt: IRQ7
-> 
-> Could you tell me please, what is it? My System works fine but I hate this 
-> message. :-)
-
-I don't have your version of source here at the moment. If it was
-2.4.1, you just comment out line 321 of ../linux/arch/i386/kernel/i8259.c
-and re-compile, re-install. That gets rid of the message.
-
-FYI, unless you get a burst of these things, they are harmless.
+--- drivers/isdn/hisax/config.c.orig    Thu Dec  6 21:34:23 2001
++++ drivers/isdn/hisax/config.c Thu Dec  6 21:34:31 2001
+@@ -485,7 +485,7 @@
+                if (strlen(str) < HISAX_IDSIZE)
+                        strcpy(HiSaxID, str);
+                else
+-                       printk(KERN_WARNING "HiSax: ID too long!")
++                       printk(KERN_WARNING "HiSax: ID too long!");
+        } else
+                strcpy(HiSaxID, "HiSax");
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+ciao,
+luca
+-- 
+----------------------------------------------------------
+Luca Montecchiani <m.luca@iname.com>
+http://www.geocities.com/montecchiani
+SpeakFreely:sflwl -hlwl.fourmilab.ch luca@    ICQ:17655604
+-------------------=(Linux since 1995)=-------------------

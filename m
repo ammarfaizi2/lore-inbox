@@ -1,94 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUFGI43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264348AbUFGI7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbUFGI43 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 04:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUFGI43
+	id S264348AbUFGI7H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 04:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUFGI7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 04:56:29 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:42954 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261939AbUFGI40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 04:56:26 -0400
-Date: Mon, 7 Jun 2004 10:56:25 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: kernel@kolivas.org, linux-kernel@vger.kernel.org
-Subject: BUG in ht-aware scheduler/nice in 2.6.7-rc2 on dual xeon
-Message-ID: <20040607085625.GA11276@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, kernel@kolivas.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 7 Jun 2004 04:59:07 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19334 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S264346AbUFGI52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 04:57:28 -0400
+Message-ID: <40C42E4B.15F1E605@nospam.org>
+Date: Mon, 07 Jun 2004 10:58:51 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Who owns those locks ?
+References: <40A1F4BE.4A298352@nospam.org> <200406031139.58964.bjorn.helgaas@hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------E6F0CA419C6690B42C812999"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con, Ingo, List,
+This is a multi-part message in MIME format.
+--------------E6F0CA419C6690B42C812999
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-I'm overjoyed with decent ht-aware scheduling in 2.6.7-rc2 and it does
-mostly the right thing. However, the 'nice' work by Con shows some slight
-problems.
+Bjorn Helgaas wrote:
+> 
+> On Wednesday 12 May 2004 3:56 am, Zoltan Menyhart wrote:
+> > Got a dead lock ?
+> > No idea how you got there ?
+> >
+> > Why don't you put the ID of the owner of the lock in the lock word ?
+> > Here is your patch for IA-64.
+> > Doesn't cost any additional instruction, you can have it in your
+> > "production" kernel, too.
+> 
+> Whatever happened with this patch?  I really like the idea, but
+> it seems like it died on the vine.  Maybe it's time to clean it
+> up, pull all the bits together, and repost it.
 
-Please find attached program 'eat-time.cc'. Make sure not to compile it with
--O which might confuse things as this program basically does nothing.
+Here you are.
+(I'm still playing with 2.6.5)
 
-Run it without arguments to determine the speed of 1 cpu, it outputs a
-number (megaloops/second). Then start it with that number as a parameter:
+Zoltán Menyhárt
+--------------E6F0CA419C6690B42C812999
+Content-Type: text/plain; charset=us-ascii;
+ name="l"
+Content-Disposition: inline;
+ filename="l"
+Content-Transfer-Encoding: 7bit
 
-Sample:
+--- 2.6.5.ref/include/asm-ia64/spinlock.h	Sun Apr  4 05:36:17 2004
++++ 2.6.5.new/include/asm-ia64/spinlock.h	Wed May 12 13:17:50 2004
+@@ -45,7 +45,8 @@
+ 	asm volatile ("{\n\t"
+ 		      "  mov ar.ccv = r0\n\t"
+ 		      "  mov r28 = ip\n\t"
+-		      "  mov r30 = 1;;\n\t"
++		      /* "  mov r30 = 1;;\n\t" */
++		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
+ 		      "}\n\t"
+ 		      "cmpxchg4.acq r30 = [%1], r30, ar.ccv\n\t"
+ 		      "movl r29 = ia64_spinlock_contention_pre3_4;;\n\t"
+@@ -57,7 +58,8 @@
+ 	asm volatile ("{\n\t"
+ 		      "  mov ar.ccv = r0\n\t"
+ 		      "  mov r28 = ip\n\t"
+-		      "  mov r30 = 1;;\n\t"
++		      /* "  mov r30 = 1;;\n\t" */
++		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
+ 		      "}\n\t"
+ 		      "cmpxchg4.acq r30 = [%1], r30, ar.ccv;;\n\t"
+ 		      "cmp4.ne p14, p0 = r30, r0\n"
+@@ -68,7 +70,8 @@
+ # ifdef CONFIG_ITANIUM
+ 	/* don't use brl on Itanium... */
+ 	/* mis-declare, so we get the entry-point, not it's function descriptor: */
+-	asm volatile ("mov r30 = 1\n\t"
++	asm volatile (/* "  mov r30 = 1;;\n\t" */
++		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
+ 		      "mov ar.ccv = r0;;\n\t"
+ 		      "cmpxchg4.acq r30 = [%0], r30, ar.ccv\n\t"
+ 		      "movl r29 = ia64_spinlock_contention;;\n\t"
+@@ -77,7 +80,8 @@
+ 		      "(p14) br.call.spnt.many b6 = b6"
+ 		      : "=r"(ptr) : "r"(ptr) : IA64_SPINLOCK_CLOBBERS);
+ # else
+-	asm volatile ("mov r30 = 1\n\t"
++	asm volatile (/* "  mov r30 = 1;;\n\t" */
++		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
+ 		      "mov ar.ccv = r0;;\n\t"
+ 		      "cmpxchg4.acq r30 = [%0], r30, ar.ccv;;\n\t"
+ 		      "cmp4.ne p14, p0 = r30, r0\n\t"
+@@ -89,14 +93,17 @@
+ #else /* !ASM_SUPPORTED */
+ # define _raw_spin_lock(x)								\
+ do {											\
+-	__u32 *ia64_spinlock_ptr = (__u32 *) (x);					\
+-	__u64 ia64_spinlock_val;							\
+-	ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, 1, 0);			\
++	__u32	*ia64_spinlock_ptr = (__u32 *) (x);					\
++	__u64	ia64_spinlock_val;							\
++	__u32	new_spinlock_val = (__u32)((__u64) current >> 12);			\
++											\
++	ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, new_spinlock_val, 0);	\
+ 	if (unlikely(ia64_spinlock_val)) {						\
+ 		do {									\
+ 			while (*ia64_spinlock_ptr)					\
+ 				ia64_barrier();						\
+-			ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, 1, 0);	\
++			ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr,	\
++								new_spinlock_val, 0);	\
+ 		} while (ia64_spinlock_val);						\
+ 	}										\
+ } while (0)
+@@ -104,7 +111,7 @@
+ 
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define _raw_spin_unlock(x)	do { barrier(); ((spinlock_t *) x)->lock = 0; } while (0)
+-#define _raw_spin_trylock(x)	(cmpxchg_acq(&(x)->lock, 0, 1) == 0)
++#define _raw_spin_trylock(x)	(cmpxchg_acq(&(x)->lock, 0, (__u32)((__u64) current >> 12)) == 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while ((x)->lock)
+ 
+ typedef struct {
+--- 2.6.5.ref/arch/ia64/kernel/head.S	Wed Apr 21 16:18:26 2004
++++ 2.6.5.new/arch/ia64/kernel/head.S	Wed May 12 16:31:33 2004
+@@ -917,7 +917,8 @@
+ 	ld4 r30=[r31]		// don't use ld4.bias; if it's contended, we won't write the word
+ 	;;
+ 	cmp4.ne p14,p0=r30,r0
+-	mov r30 = 1
++//	mov r30 = 1
++	shr.u r30 = r13, 12	// Current task pointer
+ (p14)	br.cond.sptk.few .wait
+ 	;;
+ 	cmpxchg4.acq r30=[r31], r30, ar.ccv
 
-$ ./eat-time
-592
-$ ./eat-time 592
-99%
-99%
-100%
-etc
+--------------E6F0CA419C6690B42C812999--
 
-Now starting four of these at the same time gives the desired result:
-
-$ ./eat-time 592 & ./eat-time 592 & ./eat-time 592 & ./eat-time 592
-50%
-50%
-50%
-50% 
-etc
-
-This however:
-
-$ ./eat-time 592 & ./eat-time 592 & 
-100%
-99%
-In another xterm:
-$ nice -n +19 ./eat-time 592 & nice -n +19 ./eat-time 592
-5%
-5%
-5%
-
-Fails sometimes, with all processes getting 50%. The above 'screenshot' is
-from the working and expected situation, which happens most of the time.
-
-When it goes wrong, top shows me that Cpu0 and Cpu1 are 100% user, while
-Cpu2 and Cpu3 are both 100% nice.  The niced processes show up in top as
-PRiority 39, the unniced ones (NI = 0) as PR 25.
-
-I've also seen it that Cpu2 and Cpu3 are 100% busy, and 0 and 1 are 100%
-nice.
-
-I'd say this situation happens once every 5 or 8 invocations, and perhaps
-somewhat more when first starting the niced processes.
-
-Perhaps related, when running the above 'nice -n +19' line on its own, I see
-all CPUs getting load over time, the two processes are wandering. After a
-while they settle down, only to go on wandering again some time later, also
-touching configurations where a physical cpu suddenly hosts two processes.
-
-Without nice, two processes get firmly pegged to different physical CPUs.
-
-Anything I can do to help resolve this, just yell.
-
-Thanks!
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

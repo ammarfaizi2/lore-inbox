@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263408AbTJ0DMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 22:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTJ0DMs
+	id S263752AbTJ0DQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 22:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263753AbTJ0DQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 22:12:48 -0500
-Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:57008 "EHLO
-	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S263408AbTJ0DMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 22:12:47 -0500
-From: Dennis Veatch <dveatch@woh.rr.com>
-Reply-To: dveatch@woh.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: Menuconfig encountered an error (follow up)
-Date: Sun, 26 Oct 2003 22:15:34 -0500
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 26 Oct 2003 22:16:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19170 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263752AbTJ0DQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 22:16:15 -0500
+Date: Sun, 26 Oct 2003 19:16:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: Linux 2.6.0-test9
+Message-Id: <20031026191641.497132ec.akpm@osdl.org>
+In-Reply-To: <200310262051.32801.p_christ@hol.gr>
+References: <200310262051.32801.p_christ@hol.gr>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200310262215.34921.dveatch@woh.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mandrake 9.2, kernel source 2.4.22-18mdk
+"P. Christeas" <p_christ@hol.gr> wrote:
+>
+> One more, (as reported a few weeks ago):
+> rmmod aic7xxx 
+> will fail, as this module uses some wrong locks. This will also block sleeping 
+> (tested w. ACPI) if the module is there.
+> IMHO this module is crucial to many systems.
 
-The error;
+The rmmod works OK for me, in the sense that the module is removed, the
+kernel doesn't crash and the module can be reloaded.
 
-Menuconfig has encountered a possible error in one of the kernel's 
-configuration files and is unable to continue. Here is the error report;
+But yes, there are several locking problems in there:
 
-Q> scripts/Menuconfig: line832: MCmenu78: command not found
+- ahc_free() now sleeps, deep down in the kobject layer somewhere (it
+  calls /sbin/hotplug).
+
+  This is a likely fix for that:
+
+--- 25/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c~aic7xxx-sleep-in-spinlock-fix	2003-10-26 18:51:45.000000000 -0800
++++ 25-akpm/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2003-10-26 18:52:11.000000000 -0800
+@@ -100,9 +100,10 @@ ahc_linux_pci_dev_remove(struct pci_dev 
+ 		ahc_lock(ahc, &s);
+ 		ahc_intr_enable(ahc, FALSE);
+ 		ahc_unlock(ahc, &s);
+-		ahc_free(ahc);
+ 	}
+ 	ahc_list_unlock(&l);
++	if (ahc)
++		ahc_free(ahc);
+ }
+ #endif /* !LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0) */
+ 
 
 
-I do not remember what part of the menu I was in when this happened.
+- ahc_linux_kill_dv_thread() is called under ahc_list_lock(), but it sleeps.
 
-It happens when I try to enter Alsa Sound.
 
--- 
-Registered Linux user 193414
-http://counter.li.org
 
-"Trying"? My contribution was much closer to a "feeble wave in the general 
-direction of something that might lead you one step closer to a solution 
-if you squint really hard and do all of the work."
+> I'm just repeating this issue, as I cannot see any patch for that. Justin has 
+> not replied (I will need to be CC'ed). Andrew, who's the maintainer?
+
+Justin is.
+
+> I wish I 
+> could help myself solve that, but fixing SMP-safe locks seems the hardest 
+> thing I could do here. Somebody has to help here.
+
+
+Well we can live with the CONFIG_DEBUG_SPINLOCK_SLEEP warnings I guess. 
+But you don't actually say what goes wrong when you run rmmod.  Does the
+kernel oops?  Lock up?  What?
 

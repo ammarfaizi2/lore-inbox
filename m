@@ -1,46 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311171AbSCSNM5>; Tue, 19 Mar 2002 08:12:57 -0500
+	id <S311194AbSCSNVR>; Tue, 19 Mar 2002 08:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311176AbSCSNMs>; Tue, 19 Mar 2002 08:12:48 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:29349 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S311171AbSCSNMd>; Tue, 19 Mar 2002 08:12:33 -0500
-Date: Tue, 19 Mar 2002 14:11:55 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-In-Reply-To: <Pine.LNX.4.33.0203132006310.28859-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.3.96.1020319134554.12399F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S311195AbSCSNVH>; Tue, 19 Mar 2002 08:21:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:778 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311194AbSCSNUy>; Tue, 19 Mar 2002 08:20:54 -0500
+Subject: Re: C-Media 8738 sound driver + A7M266-D problems.
+To: mark@bish.net (Mark)
+Date: Tue, 19 Mar 2002 13:36:31 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0203182216260.32113-100000@bish.net> from "Mark" at Mar 18, 2002 10:23:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nJmx-0007jQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Ingo Molnar wrote:
+> pass it the '6 speaker' selection which should push the Rear speaker
+> signal out the Line In connector and the Center Speaker Out/ Sub-woofer
+> signal out the Mic In connector.  This does not happen.  I've tried this
 
-> i've written a patch for this, it's enclosed in this email. It implements
-> a brownean motion of IRQs, based on load patterns. The concept works
-> really well on Foster CPUs - eg. it will redirect IRQs to idle CPUs - but
-> if all CPUs are idle then the IRQs are randomly and evenly distributed
-> between CPUs.
-
- A nice idea.  One note though -- the code depends on the TSC to be
-present.  It would be better to use:
-
-if (cpu_has_tsc)
-	rdtscll(random_number);
-
-and either preset random_number to a fixed value or even leave it
-uninitialized to have it somewhat randomly set by what was found at the
-stack for the TSC-less case. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Is your app capable of writing 6 channel audio ?

@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbUCAPWy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 10:22:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUCAPWx
+	id S261336AbUCAPiw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 10:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbUCAPiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 10:22:53 -0500
-Received: from shark.pro-futura.com ([161.58.178.219]:50348 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S261321AbUCAPWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 10:22:52 -0500
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Organization: Croadria Internet usluge
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Known problems with megaraid under 2.4.25 highmem?
-Date: Mon, 1 Mar 2004 16:25:37 +0100
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org, Atul Mukker <atulm@lsil.com>
-References: <200402271107.42050.tvrtko@croadria.com> <Pine.LNX.4.58L.0402271548290.18958@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0402271548290.18958@logos.cnet>
+	Mon, 1 Mar 2004 10:38:52 -0500
+Received: from snota.svorka.net ([194.19.72.11]:31365 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S261336AbUCAPiu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 10:38:50 -0500
+X-Qmail-Scanner-Mail-From: jcb@svorka.no via snota
+X-Qmail-Scanner: 1.20 (Clear:RC:1(194.19.72.100):. Processed in 0.013286 secs)
+Message-ID: <4043590A.80200@svorka.no>
+Date: Mon, 01 Mar 2004 16:38:50 +0100
+From: Jo Christian Buvarp <jcb@svorka.no>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Enrico Demarin <enricod@videotron.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+References: <Pine.LNX.4.44.0403011149560.4148-200000@dmt.cyclades>
+In-Reply-To: <Pine.LNX.4.44.0403011149560.4148-200000@dmt.cyclades>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403011625.37224.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wee :) That was it :)
+Everything looks fine now :)  Great Work :)
 
-> Not known to me...
+I did the -R against linux-2.4.25 :)
+
+--------------------------------------------------------------
+Med vennlig hilsen/Yours sincerely
+Jo Christian Buvarp
+Svorka Aksess
+
+Notice:
+This e-mail may contain confidential and privileged material for the sole use of the intended recipient. Any review or distribution by others is strictly prohibited. If this e-mail is received by others than the intended recipient, please contact the sender and delete all copies.
+
+
+
+Marcelo Tosatti wrote:
+
+>On Sun, 29 Feb 2004, Jo Christian Buvarp wrote:
 >
-> Can you get any traces from the lockup? NMI watchdog or sysrq+p and +t?
+>  
 >
-> Did any previous 2.4.x work reliably?
-
-I can confirm that it is not highmem related because today we had the same 
-lockup on 2.4.25 wo/highmem. Only thing left to be ruled out is grsec patch. 
-It will be tested soon and then I will inform you.
-
-What is the status of megaraid2 driver? Is it safe to use it in production or 
-that isn't recommended?
+>>Okay :)
+>>I've done some tests now, in the following order:
+>>2.4.24-pre3 -> Same problem as before
+>>2.4.24-pre2 -> Same problem as before
+>>2.4.24-pre1 -> Same problem as before
+>>
+>>So it looks like the problematic change was added during 2.4.24-pre1
+>>
+>>To be sure i tested with 2.4.23, and it didn't show anything unusal :)
+>>    
+>>
+>
+>Hi fellows,
+>
+>So it seems the problematic change was added -pre1. Thanks for tracking
+>that down Jo!
+>
+>I suspect the problem is the attached "read last page of file" 
+>modification done by Chuck Lever.
+>
+>Can you guys please apply it with -R to revert and test again?
+>
+>Thank you so much for your help in this!!! 
+>  
+>
 

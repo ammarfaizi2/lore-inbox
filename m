@@ -1,76 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264685AbTFEOGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 10:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264687AbTFEOGj
+	id S264687AbTFEOME (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 10:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTFEOME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 10:06:39 -0400
-Received: from pusa.informat.uv.es ([147.156.10.98]:23683 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S264685AbTFEOGh
+	Thu, 5 Jun 2003 10:12:04 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:4542 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264687AbTFEOMC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 10:06:37 -0400
-Date: Thu, 5 Jun 2003 16:20:05 +0200
-To: linux-kernel@vger.kernel.org
-Subject: GE traffic statistics (/proc/net/dev)
-Message-ID: <20030605142005.GA9292@pusa.informat.uv.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 5 Jun 2003 10:12:02 -0400
+Date: Thu, 05 Jun 2003 07:25:26 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 777] New: vesafb fails to initalize 1GB system memory and 128MB video memory 
+Message-ID: <8580000.1054823126@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
-
-I have a GE NIC card working in receive only mode capturing all traffic at
-80Gbps in a 2-way SMP Pentium-III system.
-
-I found very extrange that, for this device, stats on /proc/net/dev updates 
-each second (more or less), that is, not in sub-second intervals. Again note
-this only happens for this device and not for other NIC card (Fast-Ethernet 
-card, e100).
-
-I'm quite sure that the nic is receiving the traffic smootly, 
-because interrupts are distributed smoothly in the time in /proc/interrupts
-(I talk about sub second intervals here). Tthe GE card makes around 10000 
-ints/second. 
-
-Also I think packets are forwarded to the CPU smoothly (not in chunks each second)
-because measurements of timestamps and RTT calculations I made.
-
-I'm curious why just this device updates stats this way.
-
-I'm running vanilla 2.4.20
+           Summary: vesafb fails to initalize 1GB system memory and 128MB
+                    video memory
+    Kernel Version: 2.5.63 - Current
+            Status: NEW
+          Severity: normal
+             Owner: jsimmons@infradead.org
+         Submitter: crude@copymat.net
+                CC: crude@copymat.net
 
 
-Any comment will be greatly appreciated
-
-Thanks in advance
-
-
-	Ulisses
-
-some aditional info about the GE nic
-
-00:0b.0 Ethernet controller: BROADCOM Corporation NetXtreme BCM5701 Gigabit
-Ethernet (rev 15)
-        Subsystem: 3Com Corporation 3C996B-T 1000BaseTX
-        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 18
-        Memory at f4000000 (64-bit, non-prefetchable) [size=64K]
-        Capabilities: <available only to root>
-
-this card is working in a 32bit bus at 33Mhz
-
-eth1: Tigon3 [partno(3C996B-T) rev 0105 PHY(5701)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:04:76:f6:8a:a0
-tg3: eth1: Link is up at 1000 Mbps, full duplex.
-tg3: eth1: Flow control is off for TX and off for RX.
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
+Distribution: 
+Gentoo Linux 1.4 profile w/ ARCH=~x86 
+Hardware Environment: 
+2xAthlon MP 1900+,Tyan 2462 (AMD 760MP), 1GB memory, VisionTek Gforce 4 Ti4600(128 
+MB) 
+Software Environment: 
+GCC 3.2.3, Glibc 2.3.2 
+Problem Description: 
+trying to use vesafb, and get blank screen (system boots normaly w/ exception of no 
+frambuffer) has something to do with failing to allopcate memory (ioremap i belive) this had 
+been present in 2.4 series as well, untill recently (at least in the ac sources, and 
+gentoo-sources) 
  
+Steps to reproduce: install 1GB of memory, and use a video card w/ 128MB memory and try 
+to use frambuffered console (I have seen behaviour on more than just my card. 
+ 
+I have ported the patch that I had used in the 2.4 series (before gentoo and ac picked it up) 
+ 
+please be kind as I am relativly new to this, and I hope this helps (btw I have been using this 
+patch since 2.5.63, w/ slight change at 2.5.67, on linus's kernel and on the mm tree, and have 
+had no troubles) 
+ 
+______________________________________________ 
+diff -Naur linux-2.5.67/drivers/video/vesafb.c 
+linux-2.5.67-postpatch/drivers/video/vesafb.c 
+--- linux-2.5.67/drivers/video/vesafb.c 2003-04-16 13:29:54.000000000 -0500 
++++ linux-2.5.67-postpatch/drivers/video/vesafb.c       2003-04-09 14:52:46.000000000 -0500 
+@@ -225,7 +225,7 @@ 
+        vesafb_defined.xres = screen_info.lfb_width; 
+        vesafb_defined.yres = screen_info.lfb_height; 
+        vesafb_fix.line_length = screen_info.lfb_linelength; 
+-       vesafb_fix.smem_len = screen_info.lfb_size * 65536; 
++       vesafb_fix.smem_len = screen_info.lfb_width * screen_info.lfb_height * 
+vesafb_defined.bits_per_pixel / 8; 
+        vesafb_fix.visual   = (vesafb_defined.bits_per_pixel == 8) ? 
+                FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR; 
+ 
+________________________________________________ 
+ 
+please let me know what I can do better to make this easier on you.... 
+ 
+Thanks for all your hard work, the 2.6 kernel is going to turn a lot of heads, been nothing but 
+impressed with the developmental branch
+

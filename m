@@ -1,64 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTIPQRN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 12:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTIPQRM
+	id S261844AbTIPQfP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 12:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbTIPQfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 12:17:12 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:39058 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261916AbTIPQRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 12:17:11 -0400
-X-Sender-Authentication: net64
-Date: Tue, 16 Sep 2003 18:17:08 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: alan@lxorguk.ukuu.org.uk, marcelo.tosatti@cyclades.com.br,
-       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-Id: <20030916181708.5b63ed00.skraw@ithnet.com>
-In-Reply-To: <3F6730F6.8040508@techsource.com>
-References: <20030916102113.0f00d7e9.skraw@ithnet.com>
-	<Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet>
-	<20030916153658.3081af6c.skraw@ithnet.com>
-	<1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk>
-	<20030916172057.148a5741.skraw@ithnet.com>
-	<3F6730F6.8040508@techsource.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Sep 2003 12:35:15 -0400
+Received: from infres.enst.fr ([137.194.192.1]:12780 "EHLO infres.enst.fr")
+	by vger.kernel.org with ESMTP id S261844AbTIPQfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 12:35:06 -0400
+Date: Tue, 16 Sep 2003 18:35:04 +0200 (MEST)
+From: Ramon Casellas <casellas@infres.enst.fr>
+X-X-Sender: casellas@gervaise.enst.fr
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug/Oops Power Management with linux-2.6.0-test5-mm2
+In-Reply-To: <Pine.LNX.4.33.0309160856390.958-100000@localhost.localdomain>
+Message-ID: <Pine.SOL.4.40.0309161819150.7029-100000@gervaise.enst.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003 11:49:10 -0400
-Timothy Miller <miller@techsource.com> wrote:
+On Tue, 16 Sep 2003, Patrick Mochel wrote:
 
-> Alan Cox wrote:
-> > The kernel has no idea what you will do with given ram. It does try to
-> > make some guesses but you are basically trying to paper over hardware
-> > limits.
-> 
-> 
-> Maybe not what you WILL DO, but what you HAVE DONE.  Those tasks which 
-> have done the most DMA-requiring I/O could get preference for low 
-> memory.  No?
-> 
-> Yeah, I know.. show you the code.  :)
+>
+> > echo -n mem > /sys/power/state
+> >
+> > PM: Preparing system for suspend
+(...)
+> > MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+> > Bank 1: e200000000000005
+(...)
+> >
 
-That really sounds complex and therefore I would not try that in first place.
-And it does not sound like a solution to my special problem of few tasks
-operating on a lot of data (a lot more than fits to physical mem). For this
-type of situation it would be really intelligent not to give away non-dma-able
-memory. How can the kernel do that?
-At least it knows that there are I/O devices that cannot cope with the mem it
-is presenting. This sounds in fact simple.
-The problem is: what _can_ be done with this type of mem at all?
-It does not even help a lot if there are other devices that can handle it,
-because you still must face the fact of a simple file-copy from such a capable
-device to one that is not.
-No wonder that the gurus did not have any good idea yet ;-)
 
-Regards,
-Stephan
+>
+> Excuse my confusion, but is the machine suspending or is it returning
+> immediately to the command line?
+>
+
+When suspending to mem, actually it "looks like" it suspends. The only
+thing is that the LCD stays "light grey" (yep, I know it is not a
+technical description... :). In order to resume, I have to press the
+thinkpad power button (tap it, if I hold it for several seconds, it just
+powers off). When resuming, there must be a problem with interrumpts (NIC
+and Trackpoint stop working). So, it is not "immediate"
+
+
+
+
+> >
+> > with
+> > echo -n disk > /sys/power/state
+> >
+> > Stopping tasks: ===================================================================
+> >  stopping tasks failed (1 tasks remaining)
+> >  Restarting tasks...<6> Strange, artsd not stopped
+> >   done
+>
+>
+
+Suspend to disk does not work (If I don't kill artsd, cf. previous
+message). If I kill artsd first, :
+Stopping tasks:
+================================================================
+=======|
+Freeing memory: .........................................................|
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+PM: Attempting to suspend to disk.
+PM: snapshotting memory.
+pmdisk is not supported with high- or discontig-mem.
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+hda: completing PM request, resume
+Restarting tasks... done
+
+
+(1 Gb RAM)
+
+In both cases, when suspending to disk, it returns immediately.
+
+
+Thanks,
+R.
+
+
+
+
+
+

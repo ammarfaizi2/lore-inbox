@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315720AbSGFR7l>; Sat, 6 Jul 2002 13:59:41 -0400
+	id <S315721AbSGFSNf>; Sat, 6 Jul 2002 14:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSGFR7k>; Sat, 6 Jul 2002 13:59:40 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:18442 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315720AbSGFR7k>; Sat, 6 Jul 2002 13:59:40 -0400
-Date: Sat, 6 Jul 2002 11:02:11 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alessandro Suardi <alessandro.suardi@oracle.com>
-Subject: Re: 2.5.25 dead kbd and gpm oops (my config error ?)
-In-Reply-To: <Pine.LNX.4.44.0207061928140.1712-100000@kai.makisara.local>
-Message-ID: <Pine.LNX.4.44.0207061100270.26054-100000@www.transvirtual.com>
+	id <S315734AbSGFSNf>; Sat, 6 Jul 2002 14:13:35 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:55825 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S315721AbSGFSNe>;
+	Sat, 6 Jul 2002 14:13:34 -0400
+Message-ID: <3D27347C.29DC9014@tv-sign.ru>
+Date: Sat, 06 Jul 2002 22:18:36 +0400
+From: oleg@tv-sign.ru
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: mingo@elte.hu
+Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling, SCHED_BATCH
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-> I lost my keyboard and USB mouse (no gpm running and no oops).
->
-> The temporary solution seems to be to leave out the drivers for serial i/o
-> in input i/o  drivers.
+I beleive this patch against entry.S should be sufficient:
 
-:-(
+--- entry.S~    Sat Jul  6 21:01:16 2002
++++ entry.S     Sat Jul  6 21:06:14 2002
+@@ -255,7 +255,7 @@
+        testb $_TIF_NEED_RESCHED, %cl
+        jz work_notifysig
+ work_resched:
+-       call schedule
++       call schedule_userspace
+        cli                             # make sure we don't miss an
+interrupt
+                                        # setting need_resched or
+sigpending
+                                        # between sampling and the iret
 
-> There is another keyboard driver unconditionally
-> included and it conflicts with the new i8042 driver. Here is my input
-> configuration:
+Both calls to schedule() at resume_kernel: and work_pending:
+have clear kernel/user return path.
 
-Unfortunely this is a major problem.
+And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
+have policy == SCHED_BATCH.
 
-> I guess this problem will be corrected when the input changes continue.
-
-The problem will go away once pc_keyb.c goes away and every keyboard
-driver moves over to the input api. You will see this change in the next
-few weeks.
-
+No?

@@ -1,87 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279307AbRK2TSZ>; Thu, 29 Nov 2001 14:18:25 -0500
+	id <S282494AbRK2TWZ>; Thu, 29 Nov 2001 14:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280766AbRK2TSP>; Thu, 29 Nov 2001 14:18:15 -0500
-Received: from smtp-rt-11.wanadoo.fr ([193.252.19.62]:6354 "EHLO
-	magnolia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279307AbRK2TSJ>; Thu, 29 Nov 2001 14:18:09 -0500
-Date: Thu, 29 Nov 2001 19:50:00 +0100 (CET)
-From: Pascal Lengard <pascal.lengard@wanadoo.fr>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: <alan@lxorguk.ukuu.org.uk>, <suonpaa@iki.fi>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: apm suspend broken ?
-In-Reply-To: <Pine.LNX.4.33.0111020918020.466-100000@h2o.chezmoi.fr>
-Message-ID: <Pine.LNX.4.33.0111291943410.17742-100000@h2o.chezmoi.fr>
+	id <S280766AbRK2TWQ>; Thu, 29 Nov 2001 14:22:16 -0500
+Received: from irwell.zetnet.co.uk ([194.247.47.48]:51132 "EHLO zetnet.co.uk")
+	by vger.kernel.org with ESMTP id <S282400AbRK2TWD> convert rfc822-to-8bit;
+	Thu, 29 Nov 2001 14:22:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] [2.4.16] comparing CD-RW with CD
+Date: Thu, 29 Nov 2001 13:56:29 +0000
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E169Rg2-0001Mp-00@flat>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, Pascal Lengard wrote:
 
-Hello,
+Hi all,
 
-For anyone of interest:
+I can reliably oops this machine by doing:
+cmp /dev/scd0 /dev/hdb
 
-I tested plain 2.4.16 and the problems with APM are still there ...
+The CD-RW is /dev/scd0 and is using ide-scsi.
 
-Fn+suspend does work "sometimes" (1 out of 5 tests)
+This machine is a AMD K6-2 500, ALI chipset, 160MB RAM.
+/dev/hda is an old Seagate 631MB drive
+/dev/hdb is a DVD-ROM drive.
+/dev/scd0 is /dev/hdc using ide-scsi, - a CD-RW drive
+/dev/hdd is a really old IBM 343MB drive.
 
-When it does not work, the laptop is stuck in a state with lcd screen lighted (but all black)
-pressing Fn+D to turn off the display works and the apm_suspend finish its job (turning off
-all other things like fans ...)
+I had to transcribe the oops by hand as the machine locks. More information 
+available on request. 
 
-Usually when is suspends, it resumes nicely, but sometimes the laptop reboots
-instead of resuming ...  thanks for ext3fs !!
+Regards,
+Charlie
 
-Pascal Lengard
+--------------------- Decoded Oops below
+ksymoops 2.4.3 on i586 2.4.16.  Options used
+     -V (default)
+     -k /var/log/ksymoops/20011129115325.ksyms (specified)
+     -l /var/log/ksymoops/20011129115325.modules (specified)
+     -o /lib/modules/2.4.16/ (default)
+     -m /usr/local/src/linux/System.map (specified)
 
-> Some news about the APM problem on Dell Latitude C600:
-> 
-> On Thu, 1 Nov 2001, Stephen Rothwell wrote:
-> > Can you try the following patch, please?  This is the relevant part of a
-> > patch that was applied to Alan Cox's kernels.
-> 
-> I tested this patch against 2.4.10-pre12 (first version showing problem)
-> and 2.4.13.
-> I tested also plain 2.4.13-ac5 since you (Stephen) said that this patch
-> was taken from the last Alan kernel.
-> 
-> Both kernels show the same behaviour, so please read on since 2.4.13-ac5
-> is impacted by this bug.
-> 
-> I tested the patch against 2.4.10-pre12.
-> (I had to suppress a line in arch/i386/kernel/dmi_scan.c to make it compile
-> since it defined pm_kbd_request_override differently than the definition in
-> keyboard.h) The patch seemed to correct the apm behaviour nicely (I use
-> 'seem' since I tried it only once in a hurry to test against 2.4.13).
-> 
-> So I tested the same patch against 2.4.13. It went through without any
-> reject, compilation was fine also ... I tested also 2.4.13-ac5 and both
-> show the same ill behaviour:
-> 
-> Fn+Suspend (or launching "apm -s") does not ALWAYS suspend the laptop. 
-> Sometimes, it blanks the screen but leaves the lcd light on, the cpu fan is 
-> on also. Pressing Fn+D to turn off the lcd light completes the job and the 
-> laptop finaly suspends completely.
-> Typing "apm -s" shows the same behaviour, it did suspend the laptop ONCE out
-> of 12 tests, all other 11 tests required to press Fn+D after to suspend.
-> 
-> By the way, If I hit ANY key between Fn+Suspend and Fn+D, the keyboard
-> is misbehaving after resume: CapsLock is inverted, Ctrl, Shift and Alt
-> are dead.
-> 
-> Under some rare conditions, apm -s works, but in general, asking the bios 
-> to turn off the lcd light (Fn+D) helps a lot.
-> I guess the keyboard problem is not a real one since if "apm -s" did its job 
-> completely I would no chance to press any key before the lcd light goes off.
-> 
-> Statistically, 2.4.13-ac5 seems to show better luck in suspending (it works
-> correctly more often than 2.4.13+patch from Stephen).
-> 
-> Pascal
-> 
-> 
+ca8394d8
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<ca8394d8>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000051   ebx: c30af000   ecx: c02404d0   edx: 00000177
+esi: c64400c0   edi: 01000000   ebp: c0240410   esp: c139bd6c
+ds: 0018   es: 0018   ss: 0018
+Process syslogd (pid: 156, stackpage=c139b000)
+Stack: c0240410 c129f260 00000296 c02403d0 00000002 c0240451 c016f847 
+c0240410
+       c12849a0 04000010 0000000f c139bde8 ca839468 c0107d6c 0000000f 
+c129f260
+       c139bde8 000001e0 c821bae0 0000000f c139bde0 c0107ed2 0000000f 
+c139bde8
+Call Trace: [<c016f847>] [<ca839468>] [<c0108d6c>] [<c0109c48>]
+   [<c0182b7e>] [<c0182bf7>] [<c0182d54>] [<c0184670>] [<c01b0f68>] 
+[<c0180131>]
+   [<c0180eb7>] [<c0111bf1>] [<c0128483>] [<c012849e>] [<c0138cab>] 
+[<c0138fa8>]
+   [<c0138fe1>] [<c0180f29>] [<c01815b5>] [<c0106b23>]
+Code: ff 47 18 8b 85 c8 00 00 00 ff 70 04 6a 01 e8 e5 fd ff ff 31
+
+>>EIP; ca8394d8 <[ide-scsi]idescsi_pc_intr+70/22c>   <=====
+Trace; c016f846 <ide_intr+f6/14c>
+Trace; ca839468 <[ide-scsi]idescsi_pc_intr+0/22c>
+Trace; c0108d6c <handle_vm86_fault+290/75c>
+Trace; c0109c48 <call_do_IRQ+6/e>
+Trace; c0182b7e <skb_release_data+2/70>
+Trace; c0182bf6 <kfree_skbmem+a/58>
+Trace; c0182d54 <__kfree_skb+110/118>
+Trace; c0184670 <skb_free_datagram+1c/20>
+Trace; c01b0f68 <unix_dgram_recvmsg+f8/108>
+Trace; c0180130 <sock_recvmsg+3c/bc>
+Trace; c0180eb6 <sys_recvfrom+a2/fc>
+Trace; c0111bf0 <schedule+2ac/2d4>
+Trace; c0128482 <__free_pages+1a/1c>
+Trace; c012849e <free_pages+1a/1c>
+Trace; c0138caa <poll_freewait+3a/44>
+Trace; c0138fa8 <do_select+1c4/1dc>
+
+Trace; c0138fe0 <select_bits_free+8/10>
+Trace; c0180f28 <sys_recv+18/20>
+Trace; c01815b4 <sys_socketcall+144/1d4>
+Trace; c0106b22 <system_call+32/40>
+Code;  ca8394d8 <[ide-scsi]idescsi_pc_intr+70/22c>
+00000000 <_EIP>:
+Code;  ca8394d8 <[ide-scsi]idescsi_pc_intr+70/22c>   <=====
+   0:   ff 47 18                  incl   0x18(%edi)   <=====
+Code;  ca8394da <[ide-scsi]idescsi_pc_intr+72/22c>
+   3:   8b 85 c8 00 00 00         mov    0xc8(%ebp),%eax
+Code;  ca8394e0 <[ide-scsi]idescsi_pc_intr+78/22c>
+   9:   ff 70 04                  pushl  0x4(%eax)
+Code;  ca8394e4 <[ide-scsi]idescsi_pc_intr+7c/22c>
+   c:   6a 01                     push   $0x1
+Code;  ca8394e6 <[ide-scsi]idescsi_pc_intr+7e/22c>
+   e:   e8 e5 fd ff ff            call   fffffdf8 <_EIP+0xfffffdf8> 
+ca8392d0 <[ide-scsi]idescsi_end_request+b0/248>
+Code;  ca8394ea <[ide-scsi]idescsi_pc_intr+82/22c>
+  13:   31 00                     xor    %eax,(%eax)
 

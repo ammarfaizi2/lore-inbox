@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbUJ0Dit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUJ0Dit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbUJ0Dit (ORCPT <rfc822;willy@w.ods.org>);
+	id S261340AbUJ0Dit (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Oct 2004 23:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUJ0DgZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbUJ0DgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 23:36:25 -0400
-Received: from relay02.pair.com ([209.68.5.16]:12298 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S261377AbUJ0DfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 23:35:06 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <417F1765.80105@cybsft.com>
-Date: Tue, 26 Oct 2004 22:35:01 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 26 Oct 2004 23:36:11 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:40379 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261345AbUJ0Del (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 23:34:41 -0400
+Message-ID: <417F1746.2080607@yahoo.com.au>
+Date: Wed, 27 Oct 2004 13:34:30 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.3
-References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027014308.GA2222@nietzsche.lynx.com> <417F0222.2060100@cybsft.com> <20041027032906.GA3778@nietzsche.lynx.com>
-In-Reply-To: <20041027032906.GA3778@nietzsche.lynx.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com> <20041027005425.GO14325@dualathlon.random> <417F025F.5080001@yahoo.com.au> <20041027022920.GS14325@dualathlon.random> <417F0FA2.4090800@yahoo.com.au> <20041027032338.GU14325@dualathlon.random>
+In-Reply-To: <20041027032338.GU14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (hui) wrote:
-> On Tue, Oct 26, 2004 at 09:04:18PM -0500, K.R. Foley wrote:
+Andrea Arcangeli wrote:
+> On Wed, Oct 27, 2004 at 01:01:54PM +1000, Nick Piggin wrote:
 > 
->>Bill Huey (hui) wrote:
->>
->>>On Wed, Oct 27, 2004 at 02:15:42AM +0200, Ingo Molnar wrote:
->>>
->>>>i have released the -V0.3 Real-Time Preemption patch, which can be
->>>>downloaded from:
->>>>
->>>>	http://redhat.com/~mingo/realtime-preempt/
+>>Currently it does not overschedule, because one zone is always
+>>going to be low by the time kswapd wakes up. This causes all zones
+>>below to be scanned as well.
 > 
 > 
->>That's because he uploaded V0.3.1.
+> that's quite subtle (after all it's needed only for the numa pgdats) and
+> I agree on the wakeup side, the one thing that is wrong instead is the
+> kswapd-stop side. On that side you really need to know every single zone
+> that has to be balanced.  So whatever, you can't just use pages_high
+> there. I'm creating a zone->max_lowmem_reserve to fix that efficiently
+> (that's recalculated every time with the sysctl and at boot).
 > 
+> However my patch to wakeup_kswapd sure wouldn't hurt there.
 > 
-> Even that top level link/directory doesn't work.
-> 
-> bill
-> 
-> 
-For me it redirects to http://people.redhat.com/mingo/realtime-preempt/ 
-Try that directly.
 
-kr
+You do though... it is right as is (sort of).
+
+It actually can overscan lower zones a little bit, because
+whenever any higher zone in the pgdat is low on memory, then
+it and all zones below it get scanned too.
+
+So if HIGHMEM is low on memory, NORMAL and DMA get scanned
+as well regardless. If NORMAL is low, then DMA gets scanned
+as well.

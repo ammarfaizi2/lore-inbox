@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129978AbRBAHQM>; Thu, 1 Feb 2001 02:16:12 -0500
+	id <S129210AbRBAHxB>; Thu, 1 Feb 2001 02:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129979AbRBAHQD>; Thu, 1 Feb 2001 02:16:03 -0500
-Received: from proxy.povodiodry.cz ([212.47.5.214]:38133 "HELO pc11.op.pod.cz")
-	by vger.kernel.org with SMTP id <S129978AbRBAHPv>;
-	Thu, 1 Feb 2001 02:15:51 -0500
-From: "Vitezslav Samel" <samel@mail.cz>
-Date: Thu, 1 Feb 2001 08:15:44 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problems compiling hdparm with string.h (2.4.x)
-Message-ID: <20010201081544.A29767@pc11.op.pod.cz>
-In-Reply-To: <01020101280700.16535@backfire>
-Mime-Version: 1.0
+	id <S129272AbRBAHwm>; Thu, 1 Feb 2001 02:52:42 -0500
+Received: from smtp.mountain.net ([198.77.1.35]:15121 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S129210AbRBAHwj>;
+	Thu, 1 Feb 2001 02:52:39 -0500
+Message-ID: <3A7915AF.5C9C54CF@mountain.net>
+Date: Thu, 01 Feb 2001 02:52:15 -0500
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: David Ford <david@linux.com>, Stephen Frost <sfrost@snowman.net>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+In-Reply-To: <E14NxKP-0002KH-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01020101280700.16535@backfire>; from gjasny@wh8.tu-dresden.de on Thu, Feb 01, 2001 at 01:28:07AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi!
-
-> I've just tried to compile hdparm v3.9 with a vanilla 2.4.1 tree.
-> Gcc complained about serveral parse errors in /usr/include/linux/string.h.
-> Compiling with an >=ac6 release works fine.
-> Why isn't the little string.h fix not included in 2.4.1?
+Alan Cox wrote:
 > 
-> Regards, Gregor
+> > It's not an incompatibility with the k7 chip, just bad code in
+> > include/asm-i386/string.h. in_interrupt() cannot be called from there.
+> 
+> The string.h code was fine, someone came along and put in a ridiculous loop
+> in the include dependancies and broke it. Nobody has had the time to untangle
+> it cleanly since
 
-	Consider this little patch to hdparm-3.9
+Yes, bitrot. I don't see a rearrangement of system headers happening in 2.4.
+I'm pretty sure if I committed such a patch it would have no measurable
+lifetime.
 
-		Cheers,
-				Vita
+> 
+> > I have posted a patch here many times since last May. Most recent was
+> > Saturday.
+> 
+> uninlining the code is too high a cost.
 
+I question that. Athlon does branch prediction on call targets, function
+calls are cheap. 3dnow saves 25%-50% of cycles on a copy. How many function
+calls can be paid for with 1000 cycles or so?
 
-diff -urN hdparm-3.9.orig/hdparm.c hdparm-3.9/hdparm.c
---- hdparm-3.9.orig/hdparm.c	Sat Feb  5 23:49:30 2000
-+++ hdparm-3.9/hdparm.c	Thu Feb  1 08:13:06 2001
-@@ -16,7 +16,7 @@
- #include <sys/times.h>
- #include <sys/types.h>
- #include <linux/hdreg.h>
--#include <linux/fs.h>
-+#include <sys/mount.h>
- #include <linux/major.h>
- 
- #define VERSION "v3.9"
+My patch still inlines the standard string const_memcpy for the case of
+small known length.
+
+If I configure SMP for a UP box, performance is clearly not my first
+concern. If I have a real SMP Athlon system, performance should not improve
+by only using one processor.
+
+How about we get it to build before we optimize it?
+
+Regards,
+Tom
+
+-- 
+The Daemons lurk and are dumb. -- Emerson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

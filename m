@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbSLTNTy>; Fri, 20 Dec 2002 08:19:54 -0500
+	id <S262038AbSLTNfD>; Fri, 20 Dec 2002 08:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261978AbSLTNTy>; Fri, 20 Dec 2002 08:19:54 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:48067 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261907AbSLTNTx>;
-	Fri, 20 Dec 2002 08:19:53 -0500
-Date: Fri, 20 Dec 2002 14:24:43 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: george anzinger <george@mvista.com>
-Cc: Bjorn Helgaas <bjorn_helgaas@hp.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] joydev: fix HZ->millisecond transformation
-Message-ID: <20021220142443.A26184@ucw.cz>
-References: <200212161227.38764.bjorn_helgaas@hp.com> <3E02F3EE.C1367073@mvista.com>
+	id <S262089AbSLTNfD>; Fri, 20 Dec 2002 08:35:03 -0500
+Received: from slimnet.xs4all.nl ([194.109.194.192]:23945 "EHLO
+	gatekeeper.slim") by vger.kernel.org with ESMTP id <S262038AbSLTNfC>;
+	Fri, 20 Dec 2002 08:35:02 -0500
+Subject: OT: Which Gigabit ethernet card?
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040391936.973.14.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E02F3EE.C1367073@mvista.com>; from george@mvista.com on Fri, Dec 20, 2002 at 02:41:50AM -0800
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-1) 
+Date: 20 Dec 2002 14:45:36 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 02:41:50AM -0800, george anzinger wrote:
-> Bjorn Helgaas wrote:
-> > 
-> > * fix a problem with HZ->millisecond transformation on
-> >   non-x86 archs (from 2.5 change by vojtech@suse.cz)
-> > 
-> > Applies to 2.4.20.
-> > 
-> > diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
-> > --- a/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
-> > +++ b/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
-> > @@ -50,6 +50,8 @@
-> >  #define JOYDEV_MINORS          32
-> >  #define JOYDEV_BUFFER_SIZE     64
-> > 
-> > +#define MSECS(t)       (1000 * ((t) / HZ) + 1000 * ((t) % HZ) / HZ)
-> Uh...                                                
-> ^^^^^^^^^^^^^^^^
-> by definition this is zero, is it not?
+Hi,
 
-No, both parts of the equaition can be nonzero.
+I know this is a bit OT but because here are the kernel driver hackers
+this might be the right place to ask.
 
-Though it might be easier to say (1000 * t) / HZ, now that I think about
-it.
+I am looking for a couple of PCI Gigabit ethernet adapters to play
+around with SAN/NAS stuff like iSCSI and HyperSCSI and the like. There
+are variuos adapters around which work with Linux. My choice would be
+based on the following:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+- Relatively cheap, around $100/EUR100
+- 32 bit/33MHz PCI compatible
+- Low cpu usage
+- Busmaster DMA
+- Opensource Linux driver
+- zero-copy capable
+- etc.
+
+What card is best? 3Com, Intel or National Semi based?
+
+Thanks,
+
+Jurgen
+

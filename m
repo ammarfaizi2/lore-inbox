@@ -1,169 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSJNLGv>; Mon, 14 Oct 2002 07:06:51 -0400
+	id <S264618AbSJNLCt>; Mon, 14 Oct 2002 07:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbSJNLG0>; Mon, 14 Oct 2002 07:06:26 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:23940 "EHLO
+	id <S264619AbSJNLCs>; Mon, 14 Oct 2002 07:02:48 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:17540 "EHLO
 	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S261602AbSJNLFy>; Mon, 14 Oct 2002 07:05:54 -0400
+	id <S264618AbSJNLCq>; Mon, 14 Oct 2002 07:02:46 -0400
 From: Erich Focht <efocht@ess.nec.de>
-Subject: [PATCH] node affine NUMA scheduler 5/5
-Date: Mon, 14 Oct 2002 13:10:33 +0200
+Subject: [PATCH] node affine NUMA scheduler 2/5
+Date: Mon, 14 Oct 2002 13:07:23 +0200
 User-Agent: KMail/1.4.1
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_LPXYZZW8ZQXUIB05U1RL"
-Message-Id: <200210141310.33301.efocht@ess.nec.de>
+  boundary="------------Boundary-00=_BKXY3312VDCJ0C018BKN"
+Message-Id: <200210141307.23442.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_LPXYZZW8ZQXUIB05U1RL
+--------------Boundary-00=_BKXY3312VDCJ0C018BKN
 Content-Type: text/plain;
   charset="iso-8859-15"
 Content-Transfer-Encoding: quoted-printable
 
 ----------  Resent Message  ----------
 
-Subject: [PATCH] node affine NUMA scheduler 5/5
-Date: Fri, 11 Oct 2002 20:00:19 +0200
+Subject: [PATCH] node affine NUMA scheduler 2/5
+Date: Fri, 11 Oct 2002 19:56:22 +0200
 
-And finally the last part:
-> 05-dynamic_homenode-2.5.39-10.patch :
->        Dynamic homenode selection. When pages are allocated or freed
->        they are tracked. The homenode is recalculated dynamically and
->        set to the node where most of the memory of the task is allocate=
-d.
+This is the second part of the node affine NUMA scheduler patches.
+
+> 02-numa_sched_ilb-2.5.39-10.patch :
+>        This patch provides simple initial load balancing during exec().
+>        It is node aware and will select the least loaded node. Also it
+>        does a round-robin initial node selection to distribute the load
+>        better across the nodes.
 
 Erich
 
---------------Boundary-00=_LPXYZZW8ZQXUIB05U1RL
+--------------Boundary-00=_BKXY3312VDCJ0C018BKN
 Content-Type: text/x-diff;
   charset="iso-8859-15";
-  name="05-dynamic_homenode-2.5.39-10.patch"
+  name="02-numa_sched_ilb-2.5.39-10.patch"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="05-dynamic_homenode-2.5.39-10.patch"
+Content-Disposition: attachment; filename="02-numa_sched_ilb-2.5.39-10.patch"
 
+diff -urNp a/fs/exec.c b/fs/exec.c
+--- a/fs/exec.c	Tue Oct  8 15:03:54 2002
++++ b/fs/exec.c	Fri Oct 11 16:21:02 2002
+@@ -993,6 +993,7 @@ int do_execve(char * filename, char ** a
+ 	int retval;
+ 	int i;
+ 
++	sched_balance_exec();
+ 	file = open_exec(filename);
+ 
+ 	retval = PTR_ERR(file);
 diff -urNp a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Fri Oct 11 19:32:47 2002
-+++ b/include/linux/sched.h	Fri Oct 11 19:43:19 2002
-@@ -30,6 +30,7 @@ extern unsigned long event;
- #include <linux/compiler.h>
- #include <linux/completion.h>
- #include <linux/pid.h>
-+#include <linux/mmzone.h>
- 
- struct exec_domain;
- 
-@@ -302,6 +303,8 @@ struct task_struct {
- 	unsigned long cpus_allowed;
- 	unsigned int time_slice, first_time_slice;
- 	int node;
-+	int node_mem_upd;
-+	int node_mem[NR_NODES];
- 
- 	struct list_head tasks;
- 	struct list_head ptrace_children;
-@@ -466,11 +469,35 @@ extern void sched_balance_exec(void);
- extern void set_task_node(task_t *p, int node);
- # define homenode_inc(rq,node) (rq)->nr_homenode[node]++
- # define homenode_dec(rq,node) (rq)->nr_homenode[node]--
-+extern struct   mm_struct init_mm;
-+
-+static inline void inc_node_mem(int node, int blocks)
-+{
-+	/* ignore kernel threads */
-+	if (current->active_mm != &init_mm) {
-+		current->node_mem[node] += blocks;
-+		if (unlikely(node != current->node))
-+			current->node_mem_upd = 1;
-+	}
-+}
-+
-+static inline void dec_node_mem(int node, int blocks)
-+{
-+	/* ignore kernel threads */
-+	if (current->active_mm != &init_mm) {
-+		current->node_mem[node] -= blocks;
-+		if (node == current->node)
-+			current->node_mem_upd = 1;
-+	}
-+}
-+
- #else
- #define sched_balance_exec() {}
- #define set_task_node(p,n) {}
- # define homenode_inc(rq,node) {}
- # define homenode_dec(rq,node) {}
-+#define inc_node_mem(node,blocks) {}
-+#define dec_node_mem(node,blocks) {}
+--- a/include/linux/sched.h	Thu Oct 10 13:45:18 2002
++++ b/include/linux/sched.h	Fri Oct 11 16:21:02 2002
+@@ -461,6 +461,9 @@ extern void set_cpus_allowed(task_t *p, 
+ extern void build_pools(void);
+ extern void pooldata_lock(void);
+ extern void pooldata_unlock(void);
++extern void sched_balance_exec(void);
++#else
++#define sched_balance_exec() {}
  #endif
  extern void sched_migrate_task(task_t *p, int cpu);
  
 diff -urNp a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Fri Oct 11 19:35:58 2002
-+++ b/kernel/sched.c	Fri Oct 11 19:42:37 2002
-@@ -735,6 +735,31 @@ static inline unsigned int double_lock_b
- 	return nr_running;
+--- a/kernel/sched.c	Fri Oct 11 16:18:58 2002
++++ b/kernel/sched.c	Fri Oct 11 16:21:02 2002
+@@ -2166,6 +2166,78 @@ out:
+ 	preempt_enable();
  }
  
 +#ifdef CONFIG_NUMA
-+/*
-+ * Recalculate the homenode of a task after its node_mem[] array
-+ * has been changed. The runqueue of the task must be locked!
-+ */
-+static void upd_node_mem(task_t *p)
-+{
-+	int homenode, maxblk, n, oldnode;
++/* used as counter for round-robin node-scheduling */
++static atomic_t sched_node=ATOMIC_INIT(0);
 +
-+	p->node_mem_upd = 0;
-+	oldnode = homenode = p->node;
-+	maxblk=p->node_mem[oldnode];
-+	for (n=0; n<numpools; n++) {
-+		if (p->node_mem[n] > maxblk) {
-+			maxblk = p->node_mem[n];
-+			homenode = n;
++/*
++ * Find the least loaded CPU on the current node of the task.
++ */
++static int sched_best_cpu(struct task_struct *p, int node)
++{
++	int n, cpu, load, best_cpu = task_cpu(p);
++	
++	load = 1000000;
++	loop_over_node(n,cpu,node) {
++		if (!(p->cpus_allowed & (1UL << cpu) & cpu_online_map))
++			continue;
++		if (cpu_rq(cpu)->nr_running < load) {
++			best_cpu = cpu;
++			load = cpu_rq(cpu)->nr_running;
 +		}
 +	}
-+	if(oldnode != homenode) {
-+		p->node = homenode;
-+		homenode_dec(task_rq(p), oldnode);
-+		homenode_inc(task_rq(p), homenode);
++	return best_cpu;
++}
++
++/*
++ * Find the node with fewest number of tasks running on it.
++ */
++static int sched_best_node(struct task_struct *p)
++{
++	int i, n, best_node=0, min_load, pool_load, min_pool=numa_node_id();
++	int cpu, pool, load;
++	unsigned long mask = p->cpus_allowed & cpu_online_map;
++
++	do {
++		/* atomic_inc_return is not implemented on all archs [EF] */
++		atomic_inc(&sched_node);
++		best_node = atomic_read(&sched_node) % numpools;
++	} while (!(pool_mask[best_node] & mask));
++
++	min_load = 100000000;
++	for (n = 0; n < numpools; n++) {
++		pool = (best_node + n) % numpools;
++		load = 0;
++		loop_over_node(i, cpu, pool) {
++			if (!cpu_online(cpu)) continue;
++			load += cpu_rq(cpu)->nr_running;
++		}
++		if (pool == numa_node_id()) load--;
++		pool_load = 100*load/pool_nr_cpus[pool];
++		if ((pool_load < min_load) && (pool_mask[pool] & mask)) {
++			min_load = pool_load;
++			min_pool = pool;
++		}
 +	}
++	atomic_set(&sched_node, min_pool);
++	return min_pool;
++}
++
++void sched_balance_exec(void)
++{
++	int new_cpu, new_node=0;
++
++	while (pooldata_is_locked())
++		cpu_relax();
++	if (numpools > 1) {
++		new_node = sched_best_node(current);
++	} 
++	new_cpu = sched_best_cpu(current, new_node);
++	if (new_cpu != smp_processor_id())
++		sched_migrate_task(current, new_cpu);
 +}
 +#endif
- /*
-  * Calculate load of a CPU pool, return it in pool_load, return load
-  * of most loaded CPU in cpu_load.
-@@ -942,6 +967,8 @@ skip_queue:
- 	tmp = list_entry(curr, task_t, run_list);
- 
- 	if (CAN_MIGRATE_TASK(tmp, busiest, this_cpu)) {
-+		if (unlikely(tmp->node_mem_upd))
-+			upd_node_mem(tmp);
- 		weight = (jiffies - tmp->sleep_timestamp)/cache_decay_ticks;
- 		/* limit weight influence of sleep_time and cache coolness */
- 		if (weight >= MAX_CACHE_WEIGHT) weight=MAX_CACHE_WEIGHT-1;
-diff -urNp a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Tue Oct  8 15:03:55 2002
-+++ b/mm/page_alloc.c	Fri Oct 11 19:42:37 2002
-@@ -146,6 +146,7 @@ void __free_pages_ok (struct page *page,
- 	}
- 	list_add(&(base + page_idx)->list, &area->free_list);
- 	spin_unlock_irqrestore(&zone->lock, flags);
-+	dec_node_mem(zone->zone_pgdat->node_id, 1<<order);
- out:
- 	return;
- }
-@@ -222,6 +223,7 @@ static struct page *rmqueue(struct zone 
- 			if (bad_range(zone, page))
- 				BUG();
- 			prep_new_page(page);
-+			inc_node_mem(zone->zone_pgdat->node_id, 1<<order);
- 			return page;	
- 		}
- 		curr_order++;
++
+ void sched_migrate_task(task_t *p, int dest_cpu)
+ {
+ 	unsigned long old_mask;
 
---------------Boundary-00=_LPXYZZW8ZQXUIB05U1RL--
+--------------Boundary-00=_BKXY3312VDCJ0C018BKN--
 

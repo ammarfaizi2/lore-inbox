@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264398AbRFNCA6>; Wed, 13 Jun 2001 22:00:58 -0400
+	id <S264400AbRFNCIj>; Wed, 13 Jun 2001 22:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264400AbRFNCAs>; Wed, 13 Jun 2001 22:00:48 -0400
-Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:65533 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S264398AbRFNCAc>; Wed, 13 Jun 2001 22:00:32 -0400
-Message-Id: <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: "Rainer Mager" <rmager@vgkk.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Download process for a "split kernel" (was: obsolete code must die) 
-In-Reply-To: Message from "Rainer Mager" <rmager@vgkk.com> 
-   of "Thu, 14 Jun 2001 10:45:10 +0900." <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> 
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 14 Jun 2001 12:00:23 +1000
-From: David Luyer <david_luyer@pacific.net.au>
+	id <S264402AbRFNCI3>; Wed, 13 Jun 2001 22:08:29 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:41996 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S264400AbRFNCIU>; Wed, 13 Jun 2001 22:08:20 -0400
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+Message-ID: <992484497.3b281c91ce043@eargle.com>
+Date: Wed, 13 Jun 2001 22:08:17 -0400 (EDT)
+From: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10106140024230.980-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10106140024230.980-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Mark Hahn <hahn@coffee.psychology.mcmaster.ca>:
 
-
-> I agree that removing support for any hardware is a bad idea but I question
-> the idea of putting it all in one monolithic download (tar file). If we're
-> considering the concern for less developed nations with older hardware,
-> imagine how you would like to download the whole kernel with an old 2400 bps
-> modem. Not a fun thought.
+> > 1.  Transfer of the first 100-150MB is very fast (9.8MB/sec via 100Mb
+> Ethernet,
+> > close to wire speed).  At this point Linux has yet to write the first
+> byte to
+> > disk.  OK, this might be an exaggerated, but very little disk activity
+> has
+> > occured on my laptop.
 > 
-> Would it make sense to create some sort of 'make config' script that
-> determines what you want in your kernel and then downloads only those
-> components? After all, with the constant release of new hardware, isn't a
-> 50MB kernel release not too far away? 100MB?
+> right.  it could be that the VM scheduling stuff needs some way to
+> tell
+> whether the IO system is idle.  that is, if there's no contention for 
+> the disk, it might as well be less lazy about writebacks.
 
-This might actually make sense - a kernel composed of multiple versioned
-segments.  A tool which works out dependencies of the options being selected,
-downloads the required parts if the latest versions of those parts are not
-already downloaded, and then builds the kernel (or could even build during
-the download, as soon as the build dependencies for each block of the kernel
-are satisfied, if you want to be fancy...).  
+That's exactly the way it seems.
 
-Or as a simpler design, something like;
+> > 2.  Suddenly it's as if Linux says, "Damn, I've got a lot of data to
+> flush,
+> > maybe I should do that" then the hard drive light comes on solid for
+> several
+> > seconds.  During this time the ftp transfer drops to about 1/5 of the
+> original
+> > speed.
+> 
+> such a dramatic change could be the result of IDE misconfiguration;
+> is it safe to assume you have DMA or UDMA enabled?
 
-  * a copy of the kernel maintained in a CVS tree
-  * kernel download would pull down:
-        * the build script
-        * a file containing the list of filenames depended on by
-          each config option
-  * build script builds the config and then cvs updates the file list
-    and the files for each config option in question to the version as
-    tagged in the build script
+Yes, UDMA/33 is enabled and working on the drive (using hdparm -d 0 makes the
+problem way worse and my drive performs about 1/4 the speed).
 
-Someone could relatively easily maintain this separate to all the kernel 
-developers, and it would mean only ever having to download files you were
-actually using.
+> > This was much less noticeable on a server with a much faster SCSI hard
+> disk
+> > subsystem as it took significantly less time to flush the information
+> to the
+> 
+> is the SCSI disk actually faster (unlikley, for modern disks), or 
+> is the SCSI controller simply busmastering, like DMA/UDMA IDE,
+> but wholly unlike PIO-mode IDE?
 
-David.
--- 
-David Luyer                                        Phone:   +61 3 9674 7525
-Engineering Projects Manager   P A C I F I C       Fax:     +61 3 9699 8693
-Pacific Internet (Australia)  I N T E R N E T      Mobile:  +61 4 1111 2983
-http://www.pacific.net.au/                         NASDAQ:  PCNTF
+First, lets be fair, we're comparing a UDMA/33 IDE drive in a 1 year old laptop
+(IBM Travelstar, if your interested) to a true SCSI Disk Subsystem with
+mirrored/striped Ultra160 SCSI disk connected via 64bit PCI/66Mhz bus, so yes,
+the SCSI subsystem is MUCH faster.  Specific numbers:
 
+Laptop with TravelStar IDE HD Max sustained read: 16.5MB/s
+Server with Ultra160 SCSI disk array Max sustained read: >100MB/s
+
+That's a big difference.  The Travelstar is probably only 5400RPM and is
+optimized for power savings, not speed, the SCSI subsystem has multiple 15000RPM
+in a striped/mirrored configuration for speed.
+
+Later,
+Tom
 

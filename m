@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293720AbSB1UwP>; Thu, 28 Feb 2002 15:52:15 -0500
+	id <S293013AbSB1UOy>; Thu, 28 Feb 2002 15:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293734AbSB1Ust>; Thu, 28 Feb 2002 15:48:49 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:48513 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S293733AbSB1UqP>;
-	Thu, 28 Feb 2002 15:46:15 -0500
-Message-ID: <3C7EA328.1B2E0070@vnet.ibm.com>
-Date: Thu, 28 Feb 2002 15:37:44 -0600
-From: Tom Gall <tom_gall@vnet.ibm.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: POP patches for Teron CX
+	id <S293441AbSB1UNE>; Thu, 28 Feb 2002 15:13:04 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21779 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S293716AbSB1UMx>; Thu, 28 Feb 2002 15:12:53 -0500
+Date: Thu, 28 Feb 2002 21:12:48 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Sync over loop devices takes ages? [2.4.17]
+Message-ID: <20020228201248.GA20466@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020228095955.GH774@elf.ucw.cz> <3C7E716E.9DC59B12@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C7E716E.9DC59B12@zip.com.au>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Hi!
 
-  For those interested in living on the bleeding edge and have the scars
-to show for it I offer the following bit code.
+> > I have a script (attached). At one point it tries to do sync... That
+> > sync take a long time, with disk mostly unused.
+> 
+> When doing (say) ext2-on-loop-on-ext2 you should always ensure
+> that the blocksize for the topmost filesystem is the same as
+> the one underneath.  So probably you wanted `mkfs.ext2 -b 4096'.
+> 
+> If you have a 1k blocksize filesystem loop-mounted on a 4k blocksize
+> filesystem, every write of a 1k block requires a read of the underlying
+> 4k block. Which is excrutiatingly slow.
 
- 
-ftp://ftp.kernel.org/pub/linux/kernel/people/tgall/pop/pop/pop-0.9.1-patch.gz
+Oh, but I *want* to do 1k filesystem test!
 
-  Apply against stock 2.4.18
-  
-  POP as some of you may or may not know is an effort underway by a
-number of parties to produce a low cost PowerPC based motherboard. Since
-a couple of evaluation boards are available and commercial boards are
-just around the corner I thought I'd post this. This code is
-experimental, don't nag me for content, quality, or code format. It's
-meant to work, that's it. Bigger hammer technology at it's best. The
-next patch will contain the proper board detection code.
-
-  A *LARGE* portion of the patch is bringing 2.4.18 sources up to the
-level of the ppc _devel bk tree. Unfortunate but necessary.
-
-  Enjoy,
-
-  Tom
-
+Performance seems okay in 2.4.19-pre?aa?.... And even 2.4.18 is
+slightly faster. [BTW it is fully cached (100MB test on 256MB machine)
+so 4k reads should not be such a big problem.]
+								Pavel
 -- 
-Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
-Peace, Love &                  "Where's the ka-boom? There was
-Linux Technology Center         supposed to be an earth
-http://www.ibm.com/linux/ltc/   shattering ka-boom!"
-(w) tom_gall@vnet.ibm.com       -- Marvin Martian
-(w) 507-253-4558
-(h) tgall@rochcivictheatre.org
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.
+
+

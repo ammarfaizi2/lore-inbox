@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129786AbQLWJPS>; Sat, 23 Dec 2000 04:15:18 -0500
+	id <S129183AbQLWJeA>; Sat, 23 Dec 2000 04:34:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130374AbQLWJPI>; Sat, 23 Dec 2000 04:15:08 -0500
-Received: from [193.77.28.55] ([193.77.28.55]:6404 "EHLO knux.nu")
-	by vger.kernel.org with ESMTP id <S129786AbQLWJOv>;
-	Sat, 23 Dec 2000 04:14:51 -0500
-Date: Sat, 23 Dec 2000 09:48:12 -0300 (GMT+3)
-From: Rok Pergarec <mammbo@knux.nu>
-To: linux-kernel@vger.kernel.org
-Subject: ATI Mach 64 (2.4.0-test12)
-Message-ID: <Pine.LNX.4.20.0012230940310.1633-100000@ns.knux.nu>
+	id <S129257AbQLWJdu>; Sat, 23 Dec 2000 04:33:50 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13067 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129183AbQLWJdh>; Sat, 23 Dec 2000 04:33:37 -0500
+Message-ID: <3A446A49.C1E7AAFB@Hell.WH8.TU-Dresden.De>
+Date: Sat, 23 Dec 2000 10:03:05 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: New discoveries in the EEPro100 init saga
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have problems with the ATI Mach 64 (Rage 2) video card. After a boot, I
-get just a blank screen with a few vertical lines, but the system boots up
-normally beacuse I can reboot the machine anyway. I don't get a sigle
-error in compiling.
+Hi all,
 
-I didn't noticed the 'ATI Mach64 display support' which is in the 2.2*. I
-am booting with bzdisk, if it matters.
+After enabling the option "EEPRO100_PM" and upgrading to test13-pre4
+my problems with the eepro100 driver mysteriously ceased to exist.
+I no longer see any "Card reports no RX buffers" or "Card reports no
+resources" messages.
 
-Thanks for all the help.
+Since I don't think -pre4 changed anything from -pre3 that would
+affect the eepro100 driver, my bet is that enabling the experimental
+power management feature somehow works around the issue.
 
-Regards, Rok Pergarec from Slovenia.
+Can others who've had similar problems check if that works for them
+as well? If it does, it should be somewhat simple to work out what
+the problem actually is, because the PM code is just a couple dozen
+lines.
 
+Merry X-mas!
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

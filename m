@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbTEOWZH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 18:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTEOWZH
+	id S264264AbTEOWg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 18:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTEOWg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 18:25:07 -0400
-Received: from netline-be1.netline.ch ([195.141.226.32]:29957 "EHLO
-	netline-be1.netline.ch") by vger.kernel.org with ESMTP
-	id S264262AbTEOWZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 18:25:06 -0400
-Subject: Re: Improved DRM support for cant_use_aperture platforms
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: davidm@hpl.hp.com
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net, Jeff.Wiedemeier@hp.com
-In-Reply-To: <16067.47444.422275.965510@napali.hpl.hp.com>
-References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
-	 <1052653415.12338.159.camel@thor>
-	 <16062.37308.611438.5934@napali.hpl.hp.com>
-	 <20030511195543.GA15528@suse.de> <1052690133.10752.176.camel@thor>
-	 <16063.60859.712283.537570@napali.hpl.hp.com>
-	 <1052768911.10752.268.camel@thor>
-	 <16064.453.497373.127754@napali.hpl.hp.com>
-	 <1052774487.10750.294.camel@thor>
-	 <16064.5964.342357.501507@napali.hpl.hp.com>
-	 <1052786080.10763.310.camel@thor>
-	 <16064.41491.952068.159814@napali.hpl.hp.com>
-	 <1052921284.18105.168.camel@thor>
-	 <16067.47444.422275.965510@napali.hpl.hp.com>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Debian, XFree86
-Message-Id: <1053038272.1354.56.camel@thor>
+	Thu, 15 May 2003 18:36:26 -0400
+Received: from pc-80-195-159-32-du.blueyonder.co.uk ([80.195.159.32]:6528 "EHLO
+	skymoo.dyndns.org") by vger.kernel.org with ESMTP id S264264AbTEOWgZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 18:36:25 -0400
+Date: Thu, 15 May 2003 23:49:10 +0100
+From: Adam Mercer <r.a.mercer@blueyonder.co.uk>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix vesafb with large memory, this time properly
+Message-ID: <20030515224910.GA8375@skymoo.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
-Date: 16 May 2003 00:37:52 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-15 at 17:59, David Mosberger wrote:
+
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Marcelo
+
+Thanks for apply my previous patch, but Geert Uytterhoeven noticed the
+following problem with it
+
+> video_size must be in bytes, hence it must be
 > 
-> In regards to the Alpha platform: Jeff Wiedemeier was able to get things
-> to work after applying the attached small patch.  He says:
-> 
->   What was happening is that the offset was a system-relative
->   representation of the address and the (agpmem->bound) was
->   bus-relative, so it couldn't find the right agpmem.
-> 
->   This patch makes the offset bus-relative before the scan (and with
->   this patch, DRI/DRM is working on a Marvel...)
-> 
-> If it looks OK to you, can you add it?
+> video_size = screen_info.lfb_width*screen_info.lfb_height*video_bpp/8;
 
-Sure, thanks.
+The attached patch, against 2.4.21-rc2, fixes this
 
-http://www.penguinppc.org/~daenzer/DRI/drm-cant_use_aperture.diff
+Cheers
 
-is more or less what I'd like to commit. Comments appreciated.
+Adam
 
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.4.21-rc2-vesafb.patch"
 
--- 
-Earthling Michel Dänzer   \  Debian (powerpc), XFree86 and DRI developer
-Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
+diff -urN linux-2.4.21-rc2/drivers/video/vesafb.c linux-2.4.21-rc2-patched/drivers/video/vesafb.c
+--- linux-2.4.21-rc2/drivers/video/vesafb.c	2003-05-15 07:42:55.000000000 +0100
++++ linux-2.4.21-rc2-patched/drivers/video/vesafb.c	2003-05-15 07:39:53.000000000 +0100
+@@ -520,7 +520,7 @@
+ 	video_width         = screen_info.lfb_width;
+ 	video_height        = screen_info.lfb_height;
+ 	video_linelength    = screen_info.lfb_linelength;
+-	video_size          = screen_info.lfb_width *	screen_info.lfb_height * video_bpp;
++	video_size          = screen_info.lfb_width *	screen_info.lfb_height * video_bpp / 8;
+ 	video_visual = (video_bpp == 8) ?
+ 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+ 
 
+--PNTmBPCT7hxwcZjr--

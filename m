@@ -1,72 +1,111 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316519AbSFADCB>; Fri, 31 May 2002 23:02:01 -0400
+	id <S316982AbSFAD2g>; Fri, 31 May 2002 23:28:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316982AbSFADCA>; Fri, 31 May 2002 23:02:00 -0400
-Received: from pool-129-44-55-198.ny325.east.verizon.net ([129.44.55.198]:53518
-	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
-	id <S316519AbSFADB7>; Fri, 31 May 2002 23:01:59 -0400
-Date: Fri, 31 May 2002 23:01:53 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Kernel compile quiet mode
-Message-ID: <20020531230153.A12477@arizona.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316983AbSFAD2f>; Fri, 31 May 2002 23:28:35 -0400
+Received: from 66-75-142-198.san.rr.com ([66.75.142.198]:2308 "EHLO
+	mushworld.dnsart.com") by vger.kernel.org with ESMTP
+	id <S316982AbSFAD2e>; Fri, 31 May 2002 23:28:34 -0400
+Date: Fri, 31 May 2002 20:31:05 -0700 (PDT)
+From: <hogger@mushworld.dnsart.com>
+Reply-To: <hogger@mushworld.dnsart.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: bttv recording problems with kernel 2.2.21
+Message-ID: <Pine.LNX.4.33.0205312021180.729-100000@mushworld.dnsart.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 03:22:52PM -0500, Kai Germaschewski wrote:
-[...]
-> >>> It's possible with only small changes to provide a quiet mode now,
-> >>> which would not print the entire command lines but only
-> >>>
-> >>>	  Descending into drivers/isdn/kcapi
-> >>>	  Compiling kcapi.o
-> >>>	  Compiling capiutil.o
-> >>>	  Linking kernelcapi.o
-> >>>	  ...
-> >>>
-> >>> Is that considered useful?
+1. bttv recording problems with kernel 2.2.21
+2. I upgraded my kernel from 2.2.19 to 2.2.21, and I lost the ability to
+record tv from my bt878 card using realproducer 8.5 for linux.  The
+program starts, but does not capture or process any data.  I remember
+having this same problem when I upgraded from 2.2.17 to 2.2.19.  My
+solution in both cases is to copy the bt848.h, bttv.h and bttv.c file from
+my 2.2.17 kernel tree and recompile the kernel with those.  REcording
+works in this case.  There are no console messages, nor are there any
+messages in any of the logs.
+3. BTTV, kernel, video4linux
+4. Linux Version 2.2.21
+5.
+6. Realproducer 8.5, see real.com to download it.
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-Hi Kai,
+7. Linux mushworld 2.2.21 #5 Fri May 31 20:12:23 PDT 2002 i586 unknown
 
-I think it would be useful, but in a slightly different way.  The
-information printed during make can be informative, but too much of the
-output is just redundant.  I'd prefer a change something like the
-following:
+Gnu C                  2.95.2
+Gnu make               3.79.1
+binutils               2.9.5.0.37
+util-linux
+util-linux             Note: /usr/bin/fdformat is obsolete and is no longer available.
+util-linux             Please use /usr/bin/superformat instead (make sure you have the
+util-linux             fdutils package installed first).  Also, there had been some
+util-linux             major changes from version 4.x.  Please refer to the documentation.
+util-linux
+mount                  2.10f
+modutils               2.3.11
+e2fsprogs              1.18
+isdn4k-utils           3.0beta2
+Linux C Library        2.1.3
+ldd: version 1.9.11
+Procps                 2.0.6
+Net-tools              1.54
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         vmnet vmppuser vmmon parport_pc lp parport nls_cp437 vfat fat appletalk mod_quickcam usb-uhci usbcore au8830 sb uart401 sound soundcore
 
---- ../gold-2.5/Rules.make      Fri May 31 22:10:04 2002
-+++ ./Rules.make        Fri May 31 22:56:33 2002
-@@ -399,5 +399,5 @@
- if_changed = $(if $(strip $? \
-                          $(filter-out $($(1)),$(cmd_$(@F)))\
-                          $(filter-out $(cmd_$(@F)),$($(1)))),\
--              @echo '$($(1))' && $($(1)) && echo 'cmd_$@ := $($(1))' > $(@D)/.$(@F).cmd)
-+              @echo '$(subst $(CFLAGS),$$CFLAGS,$(strip $($(1))))' && $($(1)) && echo 'cmd_$@ := $($(1))' > $(@D)/.$(@F).cmd)
- 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 5
+model           : 4
+model name      : Pentium MMX
+stepping        : 3
+cpu MHz         : 232.674
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : yes
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 mmx
+bogomips        : 463.66
 
-which causes output to look like:
+	7.2
 
-gcc $CFLAGS -DKBUILD_BASENAME=raw -c -o raw.o raw.c
-gcc $CFLAGS -DKBUILD_BASENAME=pty -DEXPORT_SYMTAB -c -o pty.o pty.c
-gcc $CFLAGS -DKBUILD_BASENAME=misc -DEXPORT_SYMTAB -c -o misc.o misc.c
-gcc $CFLAGS -DKBUILD_BASENAME=random -DEXPORT_SYMTAB -c -o random.o random.c
-gcc $CFLAGS -DKBUILD_BASENAME=vt -c -o vt.o vt.c
-gcc $CFLAGS -DKBUILD_BASENAME=vc_screen -c -o vc_screen.o vc_screen.c
+7.3
+vmnet                  17376   1
+vmppuser                5508   0 (unused)
+vmmon                  18480   0 (unused)
+parport_pc              7556   1 (autoclean) [vmppuser]
+lp                      5284   0 (autoclean)
+parport                 7696   1 (autoclean) [vmppuser parport_pc lp]
+nls_cp437               3904   2 (autoclean)
+vfat                    9700   1
+fat                    30976   1 [vfat]
+appletalk              18336   0
+mod_quickcam           35884   0 (unused)
+usb-uhci               18752   0 (unused)
+usbcore                51208   1 [mod_quickcam usb-uhci]
+au8830                138008   0
+sb                     34740   0
+uart401                 6352   0 [sb]
+sound                  58284   0 [sb uart401]
+soundcore               2788  10 [au8830 sb sound]
 
-IMO, this has all the advantages of the "quiet" output, but none of the
-information loss.  (The only thing suppressed is CFLAGS which doesn't
-change.)
 
--Kevin
 
--- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------
+Fix.  Copy bttv.h, bttv,c, vt848.h from 2.2.17 tree and replace the
+respective files in the 2.2.21 tree
+
+If you need more info, please contact me.
+
+
+-Greg
+If you'd like to leave a  message, you may do so by hitting the reply
+button after the beep. BEEEEPPPPP!!!!
+

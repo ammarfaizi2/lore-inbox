@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129496AbRB0Cbe>; Mon, 26 Feb 2001 21:31:34 -0500
+	id <S129491AbRB0Cc6>; Mon, 26 Feb 2001 21:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129491AbRB0CbY>; Mon, 26 Feb 2001 21:31:24 -0500
-Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:24559 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129486AbRB0CbN>; Mon, 26 Feb 2001 21:31:13 -0500
-Date: Mon, 26 Feb 2001 21:52:07 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gergely Madarasz <gorgo@itc.hu>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] comx-proto-lapb: update last_rx after netif_rx
-Message-ID: <20010226215206.U8692@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Gergely Madarasz <gorgo@itc.hu>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-X-Url: http://advogato.org/person/acme
+	id <S129501AbRB0Ccp>; Mon, 26 Feb 2001 21:32:45 -0500
+Received: from boreas.isi.edu ([128.9.160.161]:10703 "EHLO boreas.isi.edu")
+	by vger.kernel.org with ESMTP id <S129491AbRB0CcC>;
+	Mon, 26 Feb 2001 21:32:02 -0500
+To: michael@linuxmagic.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE] zerocopy.. While working on ip.h stuff 
+In-Reply-To: Your message of "Mon, 26 Feb 2001 17:53:30 PST."
+             <0102261753300I.02007@mistress> 
+Date: Mon, 26 Feb 2001 18:31:59 -0800
+Message-ID: <18431.983241119@ISI.EDU>
+From: Craig Milo Rogers <rogers@ISI.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> a competing philosophy that said that the IP checksum must be
+>> recomputed incrementally at routers to catch hardware problems in the
+...
+>ah.. we do recalculate IP Checksums now..  when we update any of the 
+>timestamp rr options etc..
 
-	Please consider applying.
+	But, do you do it incrementally? By which I mean: subtract
+(appropriately) the old value of the octet from the existing checksum,
+field in the packet then add (appropriately) the new value of the
+octet to the checksum?  Simply recalculating the IP checksum from
+scratch can generate a "correct" checksum for a packet that was
+damaged*** while waiting around in memory.
 
-- Arnaldo
+	I don't know if people worry about this now, but 20 years ago
+there was a fuss about it.  Further discussion offline, please.
 
---- linux-2.4.2/drivers/net/wan/comx-proto-lapb.c	Sun Nov 12 01:02:39 2000
-+++ linux-2.4.2.acme/drivers/net/wan/comx-proto-lapb.c	Mon Feb 26 23:23:15 2001
-@@ -306,11 +306,12 @@
- 		p = skb_put(skb,1);
- 		*p = 0x01;		// link established
- 		skb->dev = ch->dev;
--		skb->protocol = htons(ETH_P_X25);
-+		skb->protocol = __constant_htons(ETH_P_X25);
- 		skb->mac.raw = skb->data;
- 		skb->pkt_type = PACKET_HOST;
- 
- 		netif_rx(skb);
-+		ch->dev->last_rx = jiffies;
- 	}
- 
- 	for (; comxdir; comxdir = comxdir->next) {
-@@ -345,11 +346,12 @@
- 		p = skb_put(skb,1);
- 		*p = 0x02;		// link disconnected
- 		skb->dev = ch->dev;
--		skb->protocol = htons(ETH_P_X25);
-+		skb->protocol = __constant_htons(ETH_P_X25);
- 		skb->mac.raw = skb->data;
- 		skb->pkt_type = PACKET_HOST;
- 
- 		netif_rx(skb);
-+		ch->dev->last_rx = jiffies;
- 	}
- 
- 	for (; comxdir; comxdir = comxdir->next) {
+					Craig Milo Rogers
+	
+*** Maybe by hardware trouble, or maybe because someone followed a bad
+    pointer and stomped on part of the header.

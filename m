@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbUKOApb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUKOA4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbUKOApb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 19:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbUKOApb
+	id S261389AbUKOA4w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 19:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbUKOA4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 19:45:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261388AbUKOApZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 19:45:25 -0500
-Message-ID: <4197FC19.8070609@pobox.com>
-Date: Sun, 14 Nov 2004 19:45:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] OSS via82cxxx_audio.c: enable procfs code
-References: <20041114022446.GK2249@stusta.de> <1100468548.25615.2.camel@localhost.localdomain> <4197F2D9.8050409@pobox.com> <20041115001203.GX2249@stusta.de>
-In-Reply-To: <20041115001203.GX2249@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Nov 2004 19:56:52 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:38275 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261389AbUKOA4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 19:56:49 -0500
+Date: Mon, 15 Nov 2004 09:58:42 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: Futex queue_me/get_user ordering
+In-reply-to: <20041114092308.GA4389@mail.shareable.org>
+To: Jamie Lokier <jamie@shareable.org>, mingo@elte.hu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, ahu@ds9a.nl
+Message-id: <4197FF42.9070706@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja, en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+References: <20041113164048.2f31a8dd.akpm@osdl.org>
+ <20041114090023.GA478@mail.shareable.org>
+ <20041114010943.3d56985a.akpm@osdl.org>
+ <20041114092308.GA4389@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Nov 14, 2004 at 07:05:45PM -0500, Jeff Garzik wrote:
+Jamie Lokier wrote:
+> Andrew Morton wrote:
 > 
->>Alan Cox wrote:
+>>The patch wasn't supposed to optimise anything.  It fixed a bug which was
+>>causing hangs.  See
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/broken-out/futex_wait-fix.patch
 >>
->>>On Sul, 2004-11-14 at 02:24, Adrian Bunk wrote:
->>>
->>>
->>>>The patch below enables the procfs code in sound/oss/via82cxxx_audio.c 
->>>>if CONFIG_PROC_FS=y.
->>>
->>>
->>>I don't see what needs fixing here. Generally the /proc file shouldnt
->>>exist
->>
->>Existing procfs code in via82cxxx_audio is never enabled, due to removal 
->>of CONFIG_SOUND_VIA82CXXX_PROCFS:
->>
->>#if defined(CONFIG_PROC_FS) && \
->>    defined(CONFIG_SOUND_VIA82CXXX_PROCFS)
->>#define VIA_PROC_FS 1
->>#endif
->>
->>However, I don't mind if someone removes the procfs code completely.
+>>Or are you saying that userspace is buggy??
 > 
 > 
-> How else is this information available?
+> I haven't looked at the NPTL code, but that URL's pseudo-code is buggy.
+> The call to FUTEX_WAKE should be doing wake++ conditionally on the
+> return value, not unconditionally.
+(snip)
+> 
+> So I don't know if NPTL is buggy, but the pseudo-code given in the bug
+> report is (because of unconditional wake++), and so is the failure
+> example (because it doesn't use a mutex).
+> 
+> -- Jamie
 
-lspci.  it's just a verbose dump of PCI config registers.
+from glibc-2.3.3(RHEL4b2):
 
+   31 int
+   32 __pthread_cond_signal (cond)
+   33      pthread_cond_t *cond;
+   34 {
+   35   /* Make sure we are alone.  */
+   36   lll_mutex_lock (cond->__data.__lock);
+   37
+   38   /* Are there any waiters to be woken?  */
+   39   if (cond->__data.__total_seq > cond->__data.__wakeup_seq)
+   40     {
+   41       /* Yes.  Mark one of them as woken.  */
+   42       ++cond->__data.__wakeup_seq;
+   43       ++cond->__data.__futex;
+   44
+   45       /* Wake one.  */
+   46       lll_futex_wake (&cond->__data.__futex, 1);
+   47     }
+   48
+   49   /* We are done.  */
+   50   lll_mutex_unlock (cond->__data.__lock);
+   51
+   52   return 0;
+   53 }
+
+Ingo, is this buggy?
+
+We should start again with a question:
+   Is this a kernel's bug or NPTL's bug?
+
+
+Thanks,
+H.Seto
 

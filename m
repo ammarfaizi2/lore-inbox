@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267072AbTCEXkb>; Wed, 5 Mar 2003 18:40:31 -0500
+	id <S267029AbTCEXvH>; Wed, 5 Mar 2003 18:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTCEXkb>; Wed, 5 Mar 2003 18:40:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25092 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267072AbTCEXka>; Wed, 5 Mar 2003 18:40:30 -0500
-Date: Wed, 5 Mar 2003 23:50:57 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
+	id <S267033AbTCEXvH>; Wed, 5 Mar 2003 18:51:07 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63908
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267029AbTCEXvG>; Wed, 5 Mar 2003 18:51:06 -0500
+Subject: Re: Linux 2.5.64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux vs Windows temperature anomaly
-Message-ID: <20030305235057.M20511@flint.arm.linux.org.uk>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <p05210507ba8c20241329@[10.2.0.101]> <3E66842F.9020000@WirelessNetworksInc.com> <200303061038.44872.kernel@kolivas.org>
+In-Reply-To: <20030305181927.C20788@suse.de>
+References: <Pine.LNX.4.44.0303041944390.3122-100000@home.transmeta.com>
+	 <20030305143608.A24878@infradead.org>  <20030305181927.C20788@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046912796.15950.27.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303061038.44872.kernel@kolivas.org>; from kernel@kolivas.org on Thu, Mar 06, 2003 at 10:38:44AM +1100
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 01:06:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 10:38:44AM +1100, Con Kolivas wrote:
-> On Thu, 6 Mar 2003 10:11 am, Herman Oosthuysen wrote:
-> > Linux is more 'busy' than windoze and I have heard of boxes frying when
-> > running Linux.   The solution is to find a better motherboard
-> > manufacturer...
+On Wed, 2003-03-05 at 17:19, Dave Jones wrote:
+> On Wed, Mar 05, 2003 at 02:36:09PM +0000, Christoph Hellwig wrote:
+>  > >   o [WATCHDOG] Remove old unneeded borken module locking
+>  > 
+>  > You just removed the nowayout functionality..
 > 
-> That doesn't make sense. His post said the temperature was 20 degrees lower 
-> when it failed.
+> Only the bits that did the module locking crap, which
+> is unnecessary afaics.  If you look at the files touched,
+> there's still nowayout used in the other functions.
 
-It makes perfect sense.  Components drawing power produce heat, which
-causes a temperature rise above ambient.  Put simply, if a chip that
-fails at a case temperature of 50C and you have a 10C rise, it'll fail
-at 40C. If you have a 20C rise, it'll fail at 30C.
+You need to lock the module in memory in the nowayout case
+Otherwise the module can be unloaded (which is ok), and then
+reloaded (which is not).
 
-PS, the efficiency of heatsinks is measured in degC/W - how many degrees
-celcius the temperature rises for each watt of power dissipated.  Double
-the dissipated power, double the temperature rise.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+So yes, you broke NOWAYOUT. Its a bit subtle and under
+documented I admit.
 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276755AbRJPV5E>; Tue, 16 Oct 2001 17:57:04 -0400
+	id <S276759AbRJPV7R>; Tue, 16 Oct 2001 17:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276759AbRJPV4z>; Tue, 16 Oct 2001 17:56:55 -0400
-Received: from mail.courier-mta.com ([66.92.103.29]:30595 "EHLO
-	mail.courier-mta.com") by vger.kernel.org with ESMTP
-	id <S276755AbRJPV4l>; Tue, 16 Oct 2001 17:56:41 -0400
-In-Reply-To: <fa.gl1qslv.d68lbj@ifi.uio.no>
-In-Reply-To: <fa.gl1qslv.d68lbj@ifi.uio.no> 
-From: "Sam Varshavchik" <mrsam@courier-mta.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.12?
-Date: Tue, 16 Oct 2001 21:57:12 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.3BCCAD38.00000870@ny.email-scan.com>
+	id <S276763AbRJPV7A>; Tue, 16 Oct 2001 17:59:00 -0400
+Received: from zero.aec.at ([195.3.98.22]:55052 "HELO zero.aec.at")
+	by vger.kernel.org with SMTP id <S276759AbRJPV6i>;
+	Tue, 16 Oct 2001 17:58:38 -0400
+To: oliver.kowalke@t-online.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: close() sends an RST
+In-Reply-To: <1003222233.3bcbf4d957274@webmail.t-online.de>
+From: Andi Kleen <ak@muc.de>
+Date: 16 Oct 2001 23:59:09 +0200
+In-Reply-To: oliver.kowalke@t-online.de's message of "Tue, 16 Oct 2001 10:57:29 +0200 (MEST)"
+Message-ID: <k2r8s3i6vm.fsf@zero.aec.at>
+User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Kirby writes: 
+In article <1003222233.3bcbf4d957274@webmail.t-online.de>,
+oliver.kowalke@t-online.de writes:
+> Hi,
+> I've following programmed: an tcp-server waits on select() for readable 
+> and writeable socket-handles. The client writes something to the server 
+> and reads its response and then calls close() for its connected socket. 
+> On the server site select() returns and indicates the socket as 
+> readable. The function read() returns with error ECONNRESET which 
+> indicates an RST send from the client. Because the client terminated as 
+> excpected (write()->read()->close()) I assume close() has send an RST 
+> instead of an FIN?! Is this correct or what happend? 
 
-> Has anybody else been seeing random lockups with 2.4.12?  We've seen a
-> few servers stop responding and our backup server die nightly with
-> 2.4.12, but 2.4.10pre10 seems to be fine.  I was only at the console once
-> where I could actually see Oopses, but the scrollback overflowed with
-> Oopses so I couldn't find the first one.  Nothing was saved to disk.  The
-> stack trace of the oldest Oops I could find showed a program in
-> sys_rt_sigaction. 
-> 
-> I'll try to track this down a bit more, I'm just wondering if anybody
-> else is having similar problems.
+close will send an RST if there is still unread data on the local side.
+This is to signal the other end that there has been data lost.
+You probably need to fix your server to read all data upto eof.
 
-I've had a similar problem which turned out to be a bug in the SMP ioapic 
-code.  If those boxes of yours are SMP boxes, try booting with noapic. 
+-Andi
 
--- 
-Sam 
-
+p.s.: this is kind of a FAQ; it's probably already documented somewhere.

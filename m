@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUG1Wys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUG1XIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUG1Wys (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUG1WxX
+	id S267364AbUG1XIg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUG1Ww0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:53:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28060 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267205AbUG1Wry (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:47:54 -0400
-Date: Wed, 28 Jul 2004 15:51:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: olh@suse.de, linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
-       tnt@246tNt.com, kumar.gala@freescale.com
-Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14
- check
-Message-Id: <20040728155113.1a63be0c.akpm@osdl.org>
-In-Reply-To: <20040728220733.GA16468@smtp.west.cox.net>
-References: <20040728154630.GN10891@smtp.west.cox.net>
-	<20040728150052.4effe78a.akpm@osdl.org>
-	<20040728220733.GA16468@smtp.west.cox.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 28 Jul 2004 18:52:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60554 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266531AbUG1WoZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:44:25 -0400
+Date: Wed, 28 Jul 2004 23:44:23 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Johannes Stezenbach <js@convergence.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm1
+Message-ID: <20040728224423.GJ12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040728020444.4dca7e23.akpm@osdl.org> <20040728222455.GC5878@convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728222455.GC5878@convergence.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org> wrote:
->
-> I talked with Kumar Gala at OLS, and I believe everyone (ppc) is happy
-> with mpc52xx stuff.  So yes, that can go out.
+On Thu, Jul 29, 2004 at 12:24:55AM +0200, Johannes Stezenbach wrote:
+> Signed-off-by: Johannes Stezenbach <js@convergence.de>
+> 
+> --- linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c.orig	2004-07-29 00:19:50.000000000 +0200
+> +++ linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c	2004-07-29 00:20:05.000000000 +0200
+> @@ -36,7 +36,7 @@ int dvb_usercopy(struct inode *inode, st
+>          /*  Copy arguments into temp kernel buffer  */
+>          switch (_IOC_DIR(cmd)) {
+>          case _IOC_NONE:
+> -                parg = NULL;
+> +                parg = (void *) arg;
 
-OK, well could someone pease send Linus a pull request on that tree?
- 
+Mind explaining why it is the right thing to do?  You are creating a kernel
+pointer out of value passed to you by userland and feed it to a function
+that expects a kernel pointer.  Which is an invitation for trouble - if
+it ends up dereferenced, we are screwed and won't notice that.

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281561AbRKZKp3>; Mon, 26 Nov 2001 05:45:29 -0500
+	id <S281566AbRKZKut>; Mon, 26 Nov 2001 05:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281562AbRKZKpT>; Mon, 26 Nov 2001 05:45:19 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55307 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281561AbRKZKpO>;
-	Mon, 26 Nov 2001 05:45:14 -0500
-Date: Mon, 26 Nov 2001 08:44:43 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Patrick McFarland <unknown@panax.com>
-Cc: "Mohammad A. Haque" <mhaque@haque.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011125203330.P238@localhost>
-Message-ID: <Pine.LNX.4.33L.0111260844220.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281565AbRKZKuj>; Mon, 26 Nov 2001 05:50:39 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11283 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S281564AbRKZKue>; Mon, 26 Nov 2001 05:50:34 -0500
+Date: Mon, 26 Nov 2001 11:50:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Cole <z@amused.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No recording on maestro3 (hp omnibook xe3)
+Message-ID: <20011126115016.F946@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011124003330.A106@elf.ucw.cz> <20011124190412.A14605@wapcaplet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011124190412.A14605@wapcaplet>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Nov 2001, Patrick McFarland wrote:
+Hi!
 
-> No, you are. Sorry to say that but you are. Im probably maybe one of
-> 10 people on this whole planet that would like to see the kernel
-> become more than it is, and would actually help doing it.
+> > When I do cat /dev/dsp, I get no data, and 
+> > 
+> > Nov 24 00:31:55 amd kernel: read: chip lockup? dmasz 65536 fragsz 64 count 0 hwptr 0 swptr 0
+> > Nov 24 00:31:58 amd last message repeated 3 times
+> > 
+> > in the log. Is there way to help me? linux 2.4.14
+> 
+> Well my maestro3 works fine recording; cat /dev/dsp gives lots of rubbish.
+> I have however noticed that on odd occasion it just stops working (no playing
+> or nothing.. totally dead) and a reboot is required to get functionality back. 
+> Anyone had this problem before? 
 
-So tell us, for which task are _you_ volunteering ?
-
-Rik
+Yes, After few tries even recording stopped for me :-(. Reboot and all okay
+								Pavel
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

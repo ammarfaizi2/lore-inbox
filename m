@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318844AbSHREYU>; Sun, 18 Aug 2002 00:24:20 -0400
+	id <S318846AbSHRE0T>; Sun, 18 Aug 2002 00:26:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318845AbSHREYU>; Sun, 18 Aug 2002 00:24:20 -0400
-Received: from waste.org ([209.173.204.2]:61408 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318844AbSHREYT>;
-	Sun, 18 Aug 2002 00:24:19 -0400
-Date: Sat, 17 Aug 2002 23:28:18 -0500
+	id <S318847AbSHRE0T>; Sun, 18 Aug 2002 00:26:19 -0400
+Received: from waste.org ([209.173.204.2]:64992 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318846AbSHRE0S>;
+	Sun, 18 Aug 2002 00:26:18 -0400
+Date: Sat, 17 Aug 2002 23:30:16 -0500
 From: Oliver Xymoron <oxymoron@waste.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020818042818.GG21643@waste.org>
-References: <20020818021522.GA21643@waste.org> <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
+Message-ID: <20020818043016.GH21643@waste.org>
+References: <20020818025913.GF21643@waste.org> <Pine.LNX.4.44.0208172006050.1491-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0208172006050.1491-100000@home.transmeta.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 08:05:55PM -0700, Linus Torvalds wrote:
+On Sat, Aug 17, 2002 at 08:08:36PM -0700, Linus Torvalds wrote:
 > 
 > On Sat, 17 Aug 2002, Oliver Xymoron wrote:
+> > 
+> > Let me clarify that 2-5 orders thing. The kernel trusts about 10 times
+> > as many samples as it should, and overestimates each samples' entropy
+> > by about a factor of 10 (on x86 with TSC) or 1.3 (using 1kHz jiffies).
 > 
-> >  To protect against back to back measurements and userspace
-> >  observation, we insist that at least one context switch has occurred
-> >  since we last sampled before we trust a sample.
-> 
-> This sounds particularly obnoxious, since it is entirely possible to have 
-> an idle machine that is just waiting for more entropy, and this will mean 
-> (for example) that such an idle machine will effectively never get any 
-> more entropy simply because your context switch counting will not work.
+> Lookin gat the code, your _new_ code just throws samples away _entirely_ 
+> just because some random event hasn't happened (the first thing I noticed 
+> was the context switch testing, there may be others there that I just 
+> didn't react to).
 
-My presumption here is that entropy sources such as mouse and keyboard
-will trigger plenty of context switches. I did in fact instrument
-this, and cases where samples were not accounted as entropy were less
-than 1%. But they were still mixed in.
-
-> This is particularly true on things like embedded routers, where the 
-> machine usually doesn't actually _run_ much user-level software, but is 
-> just shuffling packets back and forth. Your logic seems to make it not add 
-> any entropy from those packets, which can be _deadly_ if then the router 
-> is also used for occasionally generating some random numbers for other 
-> things.
-
-This analysis actually all stems from some work I did for an embedded
-(non-Linux) router.
-
-Note that we currently don't use network traffic for entropy except
-for a few MCA cards. 
-
-> Explain to me why I should consider these kinds of draconian measures 
-> acceptable? It seems to be just fascist and outright stupid: avoiding 
-> randomness just because you think you can't prove that it is random is not 
-> very productive.
-
-This approach still mixes in the very same data, regardless of whether
-it decided to trust it or not. So it's not avoiding randomness, it's
-just being picky about accounting it.
+No, it still mixes them in.
  
-Let's be clear what entropy measurement is useful for. In the case
-where your PRNG's initial state is as hard to guess as inverting the
-hash function its using or breaking the cipher you're using it for,
-reseeding with entropy is just icing on the cake. Given that we've got
-up to 4kbits of initial state, a 160-bit+ hashing function, and are
-generally using this with 128-bit keys, or generating 30 odd bits of
-sequence number, it buys us nothing. Where it buys us something is
-generating large public keys.
+> In short, you seem to cut those random events to _zero_. And this happens 
+> under what seems to be perfectly realistic loads. That's not trying to fix 
+> things, that's just breaking them.
+> 
+> > The patches will be a nuisance for anyone who's currently using
+> > /dev/random to generate session keys on busy SSL servers.
+> 
+> No, it appears to be a nuisanse even for people who have real issues, ie 
+> just generating _occasional_ numbers on machines that just don't happen to 
+> run much user space programs.
 
-Now there's currently an orthogonal problem that /dev/urandom can
-deplete /dev/random's entropy pool entirely and things like generating
-sequence numbers get in the way. I intend to fix that separately. 
+Read the code again. Better yet, try it.
 
-> We might as well get rid of /dev/random altogether if it is not useful. 
+23:06ash~$ cat /proc/sys/kernel/random/entropy_avail 
+4096
+23:17ash~$ w
+ 23:17:22 up 11 min,  2 users,  load average: 0.09, 0.06, 0.05
 
-If it's not accounting properly, it's not useful.
+It was probably full in less than 11 minutes.
 
 -- 
  "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUC1UfX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 15:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUC1Uea
+	id S262002AbUC1UjE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 15:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUC1Uis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 15:34:30 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:23729 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S262461AbUC1UdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 15:33:20 -0500
-Date: Sun, 28 Mar 2004 13:33:57 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040328203357.GB6405@bounceswoosh.org>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <20040328044029.GB1984@bounceswoosh.org> <40667734.8090203@yahoo.com.au>
+	Sun, 28 Mar 2004 15:38:48 -0500
+Received: from gprs214-54.eurotel.cz ([160.218.214.54]:56705 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262424AbUC1Ufj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 15:35:39 -0500
+Date: Sun, 28 Mar 2004 22:35:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ivan Godard <igodard@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel support for peer-to-peer protection models...
+Message-ID: <20040328203529.GH406@elf.ucw.cz>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21> <20040328062422.GB307@elf.ucw.cz> <06ea01c4148e$67436c80$fc82c23f@pc21> <20040328185410.GE406@elf.ucw.cz> <07af01c414fe$d6836300$fc82c23f@pc21>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40667734.8090203@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <07af01c414fe$d6836300$fc82c23f@pc21>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 28 at 16:56, Nick Piggin wrote:
->Eric D. Mudama wrote:
->>32-MB requests are the best for raw throughput.
->>
->>~15ms to land at your target location, then pure 50-60MB/sec for the .5
->>seconds it takes to finish the operation. (media limited at that point)
->>
->>Sure, there's more latency, but I guess that is application dependant.
->>
->
->What about a queue depth of 2, and writing that 32MB in 1MB requests?
+Hi!
 
-I'm 99% sure that it'll wind up slower... The concept of "ZLR - zero
-latency read?" where they start reading immediately wherever they
-land, then merge that into the host request later, possibly catching
-the front of the command at the very end can help.  However, if you
-issue those 32 tags immediately, there's the chance that the drive
-won't recognize the pattern as quickly, and wind up doing additional
-seeks, or even worse, additional, unnecessary dwell...  In queueing,
-you could wind up caching data on the back end of 32 host requests
-without the first LBA in cache for any of them, which means you can't
-start those data transfers until you've read a "first LBA", meaning
-you now need to discard something you've intentionally read from the
-media.
+> > > > If most changes are in arch/, it should be acceptable...
+> > >
+> > > I fear that it might be more extensive than that :-)
+> >
+> > Well, make patch and lets see... That means that 2.8 needs to be your
+> > target. If impact outside of arch is not "total rewrite", you might
+> > have a chance. If it is "total rewrite".... well you just need to be
+> > very clever.
+> 
+> How badly would the average driver break if it did not have direct data
+> access to kernal data structures? Calls into the kernel and direct access by
+> the called functions are OK.
 
-The kicker when handling any request larger than the on-disk cache
-size combined with queueing is that you don't know ahead of time if
-you'll be able to satisfy the request by the time you get there.  If
-the drive was already holding megabytes 4-5 in cache, that works
-pretty well as it'll be an instant cache hit, however, if you were
-holding megabytes 4-4.99, there's a chance you will have had to
-discard some of that data to make room for other in-process disk work
-(say you had a buffer almost full of dirty writes and therefore
-insufficient buffer for the entire host request), which means you may
-need to toss megabytes 4.5-4.99 out, in which case you'll need to do
-the disk I/O anyway.  In that case, starting at the beginning of the
-entire region and just tossing from cache as you transfer to the host
-works a lot better.
+Kernel likes to pass it pointers to internal data structures. And
+drivers will walk over pointers in those structures pretty
+often.
 
-On a large sequential access, the odds of a cache hit into that
-sequential area is minimal in practice, so we can actually just churn
-the same small chunk of buffer satisfying the large read, while not
-losing any efficiency due to having 6.5MB of dirty random writes ready
-to go on the back end.
+Actually I'm not so sure. Perhaps for simple drivers something like
+that would be possible..
 
-A 32-MB op by definition cannot be atomic with an 8MB DRAM on the
-drive, so once we give up that idea, we optimize our buffer usage for
-maximum cache efficiency and granularity.  (Basically, if the drive
-reports a hard error writing a 32MB request, you need to assume the
-entire 32MB request needs to be reissued.  You can't assume that just
-because the error was on the last block, that you can "trust" that the
-first LBA of the request actually made it.)
-
---eric
-
-
+								Pavel
 -- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272527AbTHNQIA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 12:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272480AbTHNQGj
+	id S270479AbTHNQTf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 12:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTHNQTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 12:06:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4805 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272468AbTHNQGc (ORCPT
+	Thu, 14 Aug 2003 12:19:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59083 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270479AbTHNQTc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 12:06:32 -0400
-Date: Thu, 14 Aug 2003 09:06:24 -0700 (PDT)
+	Thu, 14 Aug 2003 12:19:32 -0400
+Date: Thu, 14 Aug 2003 09:19:17 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Lincoln Durey <lincoln@emperorlinux.com>
-cc: LKML <linux-kernel@vger.kernel.org>,
-       EmperorLinux Research <research@emperorlinux.com>
-Subject: Re: 2GB laptop has pcmcia_cs looking for _insane_ sockets
-In-Reply-To: <1060875427.15508.2438.camel@tori>
-Message-ID: <Pine.LNX.4.44.0308140901320.8148-100000@home.osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
+In-Reply-To: <20030814130810.A332@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 14 Aug 2003, Lincoln Durey wrote:
+On Thu, 14 Aug 2003, Russell King wrote:
 > 
-> There can't be that many laptops with 2GB RAM, but surely this report
-> indicates an error somewhere in the pcmcia_cs code (it is looking for
-> socket number e9b91000 !!)
+> After reviewing the /proc/kcore and kclist issues, I've decided that I'm
+> no longer prepared to even _think_ about supporting /proc/kcore on ARM -
 
-The socket number is just a random allocation (but useful to keep two 
-different sockets separated - think of it as just a unique ID). That value 
-actually looks reasonable, it's in the kernel virtual address space.
+I suspect we should just remove it altogether.
 
-However, the fact that it doesn't work clearly means that _something_ is 
-wrong, and the memory size part is interesting:
+Does anybody actually _use_ /proc/kcore? It was one of those "cool 
+feature" things, but I certainly haven't ever used it myself except for 
+testing, and it's historically often been broken after various kernel 
+infrastructure updates, and people haven't complained..
 
->			  This bug is a feature of having 2GB ram in
-> the system and has nothing to do with specific PC cards drop back to 1GB
-> and all is well
+Comments?
 
-It's almost certainly the Yenta PCI resource that got allocated in the 
-wrong area, and instead of pointing to PCI memory-mapped space it just 
-points to RAM. 
-
-Can you show the results of "cat /proc/iomem" and "lspci -vvxxx", and also
-try this with a 2.6.0-test3 kernel just to see if the resource handling is
-fixed?
-
-			Linus
+		Linus
 

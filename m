@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVC3W3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVC3Wbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbVC3W3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 17:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVC3W3y
+	id S262465AbVC3Wbo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 17:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVC3Wbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 17:29:54 -0500
-Received: from mail.allresearch.com ([38.144.36.11]:48540 "EHLO
-	allresearch.com") by vger.kernel.org with ESMTP id S262464AbVC3W3u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 17:29:50 -0500
-Message-ID: <424B2859.1070704@allresearch.com>
-Date: Wed, 30 Mar 2005 14:29:45 -0800
-From: Noah Silverman <noah@allresearch.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org
-Subject: Re: Hangcheck problem
-References: <424B0FF7.4090601@allresearch.com> <Pine.LNX.4.62.0503301709530.1159@morpheus>
-In-Reply-To: <Pine.LNX.4.62.0503301709530.1159@morpheus>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 30 Mar 2005 17:31:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59809 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262462AbVC3Wbb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 17:31:31 -0500
+Date: Wed, 30 Mar 2005 14:27:13 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: davidsen@tmr.com, herbert@gondor.apana.org.au, johnpol@2ka.mipt.ru,
+       davidm@snapgear.com, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       akpm@osdl.org, jmorris@redhat.com
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+Message-Id: <20050330142713.05e0796d.pj@engr.sgi.com>
+In-Reply-To: <424B1ED0.3010705@pobox.com>
+References: <4249D06F.30802@tmr.com>
+	<4249D06F.30802@tmr.com>
+	<4249DAD4.9020602@pobox.com>
+	<424B18A1.2060502@tmr.com>
+	<424B1ED0.3010705@pobox.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry
+Jeff wrote:
+> Or all 1's (more likely), or all 0x55's, or...
 
-2.6.7
+Stray thought - to follow up stray thought:
 
+    Hmmm ... run some numbers through a good compression program,
+    and complain if they compress much.
 
-Burton Windle wrote:
-> Kernel version?
-> 
-
-On Wed, 30 Mar 2005, Noah Silverman wrote:
-
-> Hi,
->
-> I'm been experiencing a weird problem....
->
-> I get endlessly repeated hangcheck errors in my syslog with no
-explanation:
->
-> Mar 30 12:41:43 db kernel: Hangcheck: hangcheck value past margin!
->
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267627AbTA3Uxy>; Thu, 30 Jan 2003 15:53:54 -0500
+	id <S267389AbTA3VCz>; Thu, 30 Jan 2003 16:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267628AbTA3Uxy>; Thu, 30 Jan 2003 15:53:54 -0500
-Received: from dc-mx15.cluster0.charter.net ([209.225.8.25]:17104 "EHLO
-	dc-mx15.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S267627AbTA3Uxx>; Thu, 30 Jan 2003 15:53:53 -0500
-Message-ID: <3E399431.2080603@charter.net>
-Date: Thu, 30 Jan 2003 15:08:01 -0600
-From: Howard Shane <ozymandias@charter.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel craps out accessing Sony CDRW with ide-scsi
-References: <Pine.LNX.4.10.10301291155280.28027-100000@master.linux-ide.org> <1043927211.28133.23.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1043927211.28133.23.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267498AbTA3VCz>; Thu, 30 Jan 2003 16:02:55 -0500
+Received: from waste.org ([209.173.204.2]:37868 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267389AbTA3VCy>;
+	Thu, 30 Jan 2003 16:02:54 -0500
+Date: Thu, 30 Jan 2003 15:12:12 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Report write errors to applications
+Message-ID: <20030130211212.GB4357@waste.org>
+References: <20030129060916.GA3186@waste.org> <20030128232929.4f2b69a6.akpm@digeo.com> <20030129162411.GB3186@waste.org> <20030129134205.3e128777.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030129134205.3e128777.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI I am running 2.4.20, and the CDRW in question is the master on the 
-bus it is attached to. I'll be happy to send more logs of the event or 
-any other info you request.  Thanks
+On Wed, Jan 29, 2003 at 01:42:05PM -0800, Andrew Morton wrote:
+> Oliver Xymoron <oxymoron@waste.org> wrote:
+> >
+> > > - fsync_buffers_list() will handle them and will return errors to the fsync()
+> > > caller.  We only need to handle those buffers which were stripped
+> > > asynchronously by VM activity.
+> > 
+> > Are we guaranteed that we'll get a try_to_free_buffers after IO
+> > completion and before sync? I haven't dug through this path much.
+> 
+> Think so.  That's the only place where buffers are detached.  Otherwise,
+> fsync_buffers_list() looks at them all.
 
-Alan Cox wrote:
+The other problem here is that by the time we're in
+try_to_free_buffers we no longer know that we're looking at a harmless
+stale page (readahead?) or a write error, which is why Linus had me
+make the separate end_buffer functions. So I don't think this pans out
+- thoughts?
 
->On Wed, 2003-01-29 at 19:58, Andre Hedrick wrote:
->  
->
->>Search recent history, Sony CDRW's are known problems.
->>    
->>
->
->
->Still shouldnt oops later on when it resets
->
->
->  
->
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280897AbRKGS1M>; Wed, 7 Nov 2001 13:27:12 -0500
+	id <S280904AbRKGS3y>; Wed, 7 Nov 2001 13:29:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280893AbRKGS1D>; Wed, 7 Nov 2001 13:27:03 -0500
-Received: from mail207.mail.bellsouth.net ([205.152.58.147]:41032 "EHLO
-	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280897AbRKGS0t>; Wed, 7 Nov 2001 13:26:49 -0500
-Message-ID: <3BE97CE0.76E531C3@mandrakesoft.com>
-Date: Wed, 07 Nov 2001 13:26:40 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280902AbRKGS3n>; Wed, 7 Nov 2001 13:29:43 -0500
+Received: from web14302.mail.yahoo.com ([216.136.173.78]:48788 "HELO
+	web14302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280900AbRKGS3i>; Wed, 7 Nov 2001 13:29:38 -0500
+Message-ID: <20011107182938.98601.qmail@web14302.mail.yahoo.com>
+Date: Wed, 7 Nov 2001 10:29:38 -0800 (PST)
+From: samson swanson <intellectcrew@yahoo.com>
+Subject: Thinking of 2.2.20
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Paul P Komkoff Jr <i@stingr.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 802.1q-support for 3c59x.c
-In-Reply-To: <20011107165318.A15577@devcon.net> <3BE95B6E.E4EB1B86@mandrakesoft.com> <20011107211552.A1327@stingr.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul P Komkoff Jr wrote:
-> 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: RIPEMD160
-> 
-> Replying to Jeff Garzik:
-> > Have you tested this?  I should think you would need a dev->change_mtu
-> > also.
-> 
-> Jeff - why don't you add tulip mtu patch to the mainstream tulip driver ?
+Hi again,
 
-because noone has submitted a tulip mtu patch to me?
+As you know I am using 2.2.19.  I've recently been
+thinking of going up to 2.2.20. Just wanted to drop a
+question to those that use this kernel.  Have you had
+any problems so far? How is it working out?
+Let me know if you like or dislike, and for what
+reasons.
 
-right now I'm busy fixing bugs.
+thanx all,
+   this is a terrific group.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+| s l a c k w a r e
+ --------- l i n u x
 
+__________________________________________________
+Do You Yahoo!?
+Find a job, post your resume.
+http://careers.yahoo.com

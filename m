@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262519AbTCIOjT>; Sun, 9 Mar 2003 09:39:19 -0500
+	id <S262520AbTCIOku>; Sun, 9 Mar 2003 09:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262520AbTCIOjT>; Sun, 9 Mar 2003 09:39:19 -0500
-Received: from dspnet.fr.eu.org ([62.73.5.179]:51214 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id <S262519AbTCIOjR>;
-	Sun, 9 Mar 2003 09:39:17 -0500
-Date: Sun, 9 Mar 2003 15:49:55 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030309144954.GA66265@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0303090401160.32518-100000@serv> <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+	id <S262521AbTCIOkt>; Sun, 9 Mar 2003 09:40:49 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:11723 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262520AbTCIOkr> convert rfc822-to-8bit; Sun, 9 Mar 2003 09:40:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Kyuma Ohta <whatisthis@jcom.home.ne.jp>, linux-kernel@vger.kernel.org
+Subject: Re: Compilation error 1394 with 2.4.21-pre5
+Date: Sun, 9 Mar 2003 15:51:03 +0100
+User-Agent: KMail/1.4.3
+References: <20030309.233406.112620195.whatisthis@jcom.home.ne.jp>
+In-Reply-To: <20030309.233406.112620195.whatisthis@jcom.home.ne.jp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303091551.03862.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 07:42:24PM -0800, Linus Torvalds wrote:
-> 
-> On Sun, 9 Mar 2003, Roman Zippel wrote:
-> > On Sat, 8 Mar 2003, Zack Brown wrote:
-> > 
-> > >   * Distributed rename handling.
-> > 
-> > This actually a very bk specific problem, because the real problem under 
-> > bk there can be only one src/SCCS/s.foo.c.
-> 
-> I don't think that is the issue.
-> 
-> [ Well, yes, I agree that the SCCS format is bad, but for other reasons ]
+On Sunday 09 March 2003 15:34, Kyuma Ohta wrote:
 
-It is a large part of the issue though.  If you don't have one
-repository file per project file with a name that resembles the
-repository's one you find out that the project file name is somewhat
-unimportant, just yet another of the metadata to track.
+Hi Kuma,
 
+> I built kernel 2.4.21-pre5 for AMD-k7 with gcc-3.2.3.
+> And,modules refered 1394 (raw1394,sbp2,etc...) can't build cause of
+> header(?).
+> Error messages are below :
+> ---- Compilation message ---
+> In file included from raw1394.c:50:
+> raw1394.h:167:field "tq" has imcomplete type
+> raw1394.c: In function `__alloc_pending_rewquest'
+> raw1394.c:110: warning: Implicit decraration function `HPSB_INIT_WORK'
+> raw1394.c:118: confused earlier errors,bailing out
+follow this thread:
 
-> The problem is _distribution_.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104633434012366&w=2
 
-The only problem with distribution is sending as little as possible
-over the network.  All the problems you're talking about exist with a
-single repository as soon as you have decent branches.
-
-
-> In other words, two people rename the same 
-> file. Or two people rename two _different_ files to the same name. Or two 
-> people create two different files with the same name. What happens when 
-> you merge?
-
-A conflict, what else?  The file name is only one of the
-characteristics of a file.  And BTW, the interesting problem which is
-what to do when you find out two different files end up being in fact
-the same one is not covered by bk (or wasn't).
-
-  OG.
+ciao, Marc

@@ -1,167 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262091AbSI3OJa>; Mon, 30 Sep 2002 10:09:30 -0400
+	id <S262070AbSI3N6Z>; Mon, 30 Sep 2002 09:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262092AbSI3OIk>; Mon, 30 Sep 2002 10:08:40 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:51947 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S262091AbSI3NoK> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:10 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.39 s390 (20/26): signal quiesce.
-Date: Mon, 30 Sep 2002 15:02:32 +0200
-X-Mailer: KMail [version 1.4]
+	id <S262120AbSI3N53>; Mon, 30 Sep 2002 09:57:29 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:50388 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262070AbSI3Nxv>; Mon, 30 Sep 2002 09:53:51 -0400
+Message-ID: <3D9858AE.7080606@metaparadigm.com>
+Date: Mon, 30 Sep 2002 21:59:10 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301502.32431.schwidefsky@de.ibm.com>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: v2.6 vs v3.0
+References: <200209290114.15994.jdickens@ameritech.net> <20020929214652.GF12928@merlin.emma.line.org> <3D97F7AE.5070304@metaparadigm.com> <02093008055700.15956@boiler>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add 'signal quiesque' feature to s390 hardware console. A signal quiesce
-is sent from VM or the service element every time the system should shut
-down. We receive the quiesce signal and call ctrl_alt_del(). Finally the
-mainframes have ctrl-alt-del as well :-)
+Hi Kevin,
 
-diff -urN linux-2.5.39/drivers/s390/char/hwc.h linux-2.5.39-s390/drivers/s390/char/hwc.h
---- linux-2.5.39/drivers/s390/char/hwc.h	Fri Sep 27 23:50:21 2002
-+++ linux-2.5.39-s390/drivers/s390/char/hwc.h	Mon Sep 30 13:33:22 2002
-@@ -22,6 +22,7 @@
- #define ET_PMsgCmd		0x09
- #define ET_CntlProgOpCmd	0x20
- #define ET_CntlProgIdent	0x0B
-+#define ET_SigQuiesce	0x1D
- 
- #define ET_OpCmd_Mask	0x80000000
- #define ET_Msg_Mask		0x40000000
-@@ -29,6 +30,7 @@
- #define ET_PMsgCmd_Mask	0x00800000
- #define ET_CtlProgOpCmd_Mask	0x00000001
- #define ET_CtlProgIdent_Mask	0x00200000
-+#define ET_SigQuiesce_Mask	0x00000008
- 
- #define GMF_DOM		0x8000
- #define GMF_SndAlrm	0x4000
-@@ -218,7 +220,8 @@
- 	0x0000,
- 	0x0000,
- 	sizeof (_hwcb_mask_t),
--	ET_OpCmd_Mask | ET_PMsgCmd_Mask | ET_StateChange_Mask,
-+	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
-+	ET_StateChange_Mask | ET_SigQuiesce_Mask,
- 	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
- };
- 
-diff -urN linux-2.5.39/drivers/s390/char/hwc_rw.c linux-2.5.39-s390/drivers/s390/char/hwc_rw.c
---- linux-2.5.39/drivers/s390/char/hwc_rw.c	Mon Sep 30 13:33:09 2002
-+++ linux-2.5.39-s390/drivers/s390/char/hwc_rw.c	Mon Sep 30 13:33:22 2002
-@@ -35,6 +35,8 @@
- #define MIN(a,b) (((a<b) ? a : b))
- #endif
- 
-+extern void ctrl_alt_del (void);
-+
- #define HWC_RW_PRINT_HEADER "hwc low level driver: "
- 
- #define  USE_VM_DETECTION
-@@ -172,6 +174,7 @@
- 	unsigned char read_nonprio:1;
- 	unsigned char read_prio:1;
- 	unsigned char read_statechange:1;
-+	unsigned char sig_quiesce:1;
- 
- 	unsigned char flags;
- 
-@@ -222,6 +225,7 @@
- 	    0,
- 	    0,
- 	    0,
-+	    0,
- 	    NULL,
- 	    NULL
- 
-@@ -1529,6 +1533,19 @@
- 				       HWC_RW_PRINT_HEADER
- 				 "can not read state change notifications\n");
- 
-+	hwc_data.sig_quiesce
-+	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
-+	if (hwc_data.sig_quiesce)
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can receive signal quiesce\n");
-+	else
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can not receive signal quiesce\n");
-+
- 	hwc_data.read_nonprio
- 	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
- 	if (hwc_data.read_nonprio)
-@@ -1609,6 +1626,47 @@
- 	return retval;
- }
- 
-+#ifdef CONFIG_SMP
-+static volatile unsigned long cpu_quiesce_map;
-+
-+static void 
-+do_load_quiesce_psw (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	clear_bit (smp_processor_id (), &cpu_quiesce_map);
-+	if (smp_processor_id () == 0) {
-+
-+		while (cpu_quiesce_map != 0) ;
-+
-+		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+		quiesce_psw.addr = 0xfff;
-+		__load_psw (quiesce_psw);
-+	}
-+	signal_processor (smp_processor_id (), sigp_stop);
-+}
-+
-+static void 
-+do_machine_quiesce (void)
-+{
-+	cpu_quiesce_map = cpu_online_map;
-+	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
-+	do_load_quiesce_psw ();
-+}
-+
-+#else
-+static void 
-+do_machine_quiesce (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+	queisce_psw.addr = 0xfff;
-+	__load_psw (quiesce_psw);
-+}
-+
-+#endif
-+
- static int 
- process_evbufs (void *start, void *end)
- {
-@@ -1644,6 +1702,13 @@
- 			retval += eval_statechangebuf
- 			    ((statechangebuf_t *) evbuf);
- 			break;
-+		case ET_SigQuiesce:
-+
-+			_machine_restart = do_machine_quiesce;
-+			_machine_halt = do_machine_quiesce;
-+			_machine_power_off = do_machine_quiesce;
-+			ctrl_alt_del ();
-+			break;
- 		default:
- 			internal_print (
- 					       DELAYED_WRITE,
+On 09/30/02 21:05, Kevin Corry wrote:
+> EVMS is now up-to-date and running on 2.5.39. You can get the latest kernel 
+> code from CVS (http://sourceforge.net/cvs/?group_id=25076) or Bitkeepr 
+> (http://evms.bkbits.net/). There will be a new, full release (1.2) coming out 
+> this week.
+
+Seems you guys are the furthest ahead for a working logical volume manager
+in 2.5. Does the EVMS team plan to send patches for 2.5 before the freeze?
+
+It would be great to have EVMS in 2.5 (assuming the community approves of
+EVMS going in). Seems to be very non-invasive touching almost no common code.
+
+How far along are you with the clustering support (distributed locking of
+cluster metadata and update notification, etc)? This is what i'm really after.
+
+~mc
 

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262372AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
+	id <S262371AbSJKMZB>; Fri, 11 Oct 2002 08:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262405AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.130]:17345 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S262372AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: usbfs race while mounting/umounting
-From: Wolfram Gloger <wg@malloc.de>
-X-URL: http://www.malloc.de/
-In-Reply-To: <E17zvS7-00041g-00@mrvdomng.kundenserver.de>
-Message-Id: <E17zz00-0001BI-00@mrvdomng.kundenserver.de>
-Date: Fri, 11 Oct 2002 14:34:36 +0200
+	id <S262372AbSJKMZB>; Fri, 11 Oct 2002 08:25:01 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:35760 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262371AbSJKMZA>; Fri, 11 Oct 2002 08:25:00 -0400
+Subject: Re: MTRR and SERVERWORKS
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roger While <RogerWhile@sim-basis.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4.3.2.7.2.20021011115225.00c5f480@192.168.6.2>
+References: <4.3.2.7.2.20021011115225.00c5f480@192.168.6.2>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Oct 2002 13:42:11 +0100
+Message-Id: <1034340131.7042.73.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum made me look more closely and I think the
-usb_bus_list_lock needs to stay, appended is a corrected patch for
-2.4.x.
+On Fri, 2002-10-11 at 10:55, Roger While wrote:
+> Why is MTRR disabled for SERVERWORKS chipset ?
+> It works fine on my Asus CUR-DLS after commenting the code out. (2.4 and 
+> 2.5)
+> Can we at least make it configurable ?
 
-Regards,
-Wolfram.
+It was originally done for the OSB4. The patch is from Dell citing bugs
+that can cause corruption. In the absence of more info I think its
+better to be safe.
 
---- drivers/usb/inode.c.orig	Sat Aug  3 02:39:45 2002
-+++ drivers/usb/inode.c	Fri Oct 11 14:33:34 2002
-@@ -628,6 +628,7 @@
-         s->s_root = d_alloc_root(root_inode);
-         if (!s->s_root)
-                 goto out_no_root;
-+	lock_kernel();
- 	list_add_tail(&s->u.usbdevfs_sb.slist, &superlist);
- 	for (i = 0; i < NRSPECIAL; i++) {
- 		if (!(inode = iget(s, IROOT+1+i)))
-@@ -646,6 +647,7 @@
- 		recurse_new_dev_inode(bus->root_hub, s);
- 	}
- 	up (&usb_bus_list_lock);
-+	unlock_kernel();
-         return s;
- 
-  out_no_root:
+Adding an __setup() function for something like "mtrr_force" sounds a
+good enough idea if you want to submit a patch for it
 

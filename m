@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282481AbRLFScl>; Thu, 6 Dec 2001 13:32:41 -0500
+	id <S282042AbRLFScL>; Thu, 6 Dec 2001 13:32:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282482AbRLFScc>; Thu, 6 Dec 2001 13:32:32 -0500
-Received: from pD9001D7D.dip.t-dialin.net ([217.0.29.125]:24068 "EHLO
-	maxwell.hgf.local") by vger.kernel.org with ESMTP
-	id <S282481AbRLFScQ> convert rfc822-to-8bit; Thu, 6 Dec 2001 13:32:16 -0500
-Date: Thu, 6 Dec 2001 19:30:54 +0100 (CET)
-From: Hans-Georg Fischer <hgf@snafu.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Strange problem with 2.4.x kernel
-In-Reply-To: <20011206190454.B848@cheetah.chello.pl>
-Message-ID: <Pine.LNX.4.10.10112061923350.1568-100000@maxwell.hgf.local>
+	id <S282481AbRLFSby>; Thu, 6 Dec 2001 13:31:54 -0500
+Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:46001 "EHLO
+	alpo.casc.com") by vger.kernel.org with ESMTP id <S282042AbRLFSbp>;
+	Thu, 6 Dec 2001 13:31:45 -0500
+From: John Stoffel <stoffel@casc.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15375.47450.229337.322610@gargle.gargle.HOWL>
+Date: Thu, 6 Dec 2001 13:30:50 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: stoffel@casc.com (John Stoffel), riel@conectiva.com.br (Rik van Riel),
+        landley@trommello.org (Rob Landley), esr@thyrsus.com (Eric S. Raymond),
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu>
+In-Reply-To: <15375.41990.439405.8024@gargle.gargle.HOWL>
+	<E16C2HM-0002JR-00@the-village.bc.nu>
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, [iso-8859-2] Mateusz £oskot wrote:
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> invalid compressed data: CRC-ERROR
+>> So has anyone had time to test the Python version 1.5 based CML2 that
+>> was posted?  Would that make it more acceptable?
 
-Did you compare the size of the downloaded kernels with the originals
-on the ftp-server. Are they identical to the byte? This answers the
-question if your ftp-program really used binary mode.
-I once encountered a ftp-program which pretended using binary mode but
-did not. 
+Alan> For 2.5 its a great leap forward. 
 
---
-Hans-Georg
+That was my thought when I saw the patch to make CML2 work with Python
+1.5 in Kernel 2.5. 
 
-
-
+John

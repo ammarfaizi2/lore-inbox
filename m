@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269756AbRHDBjs>; Fri, 3 Aug 2001 21:39:48 -0400
+	id <S269757AbRHDBkI>; Fri, 3 Aug 2001 21:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269753AbRHDBji>; Fri, 3 Aug 2001 21:39:38 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:44297 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269750AbRHDBj3>; Fri, 3 Aug 2001 21:39:29 -0400
-Message-ID: <3B6B53A9.A9923E21@zip.com.au>
-Date: Fri, 03 Aug 2001 18:45:13 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic 
- change patch)
-In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>, <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>,
-		<3B6B4B21.B68F4F87@zip.com.au> <20010804131904.E18108@weta.f00f.org>
+	id <S269753AbRHDBj6>; Fri, 3 Aug 2001 21:39:58 -0400
+Received: from dnai-216-15-62-124.cust.dnai.com ([216.15.62.124]:56301 "HELO
+	soni.ppetru.net") by vger.kernel.org with SMTP id <S269750AbRHDBjo>;
+	Fri, 3 Aug 2001 21:39:44 -0400
+Date: Fri, 3 Aug 2001 18:38:53 -0700
+To: Dan Kegel <dank@kegel.com>
+Cc: Christopher Smith <x@xman.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Michael Elkins <me@toesinperil.com>, Zach Brown <zab@zabbo.net>
+Subject: Re: sigopen() vs. /dev/sigtimedwait
+Message-ID: <20010803183853.H1080@ppetru.net>
+In-Reply-To: <3B6B50C4.D9FBF398@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3B6B50C4.D9FBF398@kegel.com>
+User-Agent: Mutt/1.3.20i
+From: ppetru@ppetru.net (Petru Paler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Fri, Aug 03, 2001 at 06:32:52PM -0700, Dan Kegel wrote:
+> So I'm proposing the following user story:
 > 
-> On Fri, Aug 03, 2001 at 06:08:49PM -0700, Andrew Morton wrote:
+>   // open a fd linked to signal mysignum
+>   int fd = open("/dev/sigtimedwait", O_RDWR);
+>   int sigs[1]; sigs[0] = mysignum;
+>   write(fd, sigs, sizeof(sigs[0]));
 > 
->     Ow.  You just crippled ext3.
+>   // memory map a result buffer
+>   struct siginfo_t *map = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 > 
-> How so? The Flush all transactions on fsync behaviour that resierfs
-> did/does have at present too?  (There are 'fixes' to reiserfs for
-> this).
+>   for (;;) {
+>       // grab recent siginfo_t's
+>       struct devsiginfo dsi;
+>       dsi.dsi_nsis = 1000;
+>       dsi.dsi_sis = NULL;      // NULL means "use map instead of buffer"
+>       dsi.dsi_timeout = 1;
+>       int nsis = ioctl(fd, DS_SIGTIMEDWAIT, &dvp);   
+> 
+>       // use 'em.  Some might be completion notifications; some might be readiness notifications.
+>       for (i=0; i<nsis; i++)
+>           handle_siginfo(map+i);
+>   }
 
-That, plus the fact that ext3 gets its synchronous-op scalability
-from batching the transactions from multiple threads together.
-The holding of parent->parent->i_sem across synchronous writes could
-defeat that.
+And the advantage of this over /dev/epoll would be that you don't have to
+explicitly add/remove fd's?
 
-ext3 does physical, block-level journalling.  (its journalling layer is
-actually designed to be fs-independent so one could journal other filesystems
-with it).  So there is no tracking between a particular fs event and a
-particular transaction.  A transaction is just a blob of blocks which
-can encompass thousands of fs events.
+I ask because yesterday I used /dev/epoll in a project and it behaves *very*
+well, so I'm wondering what advantages your interface would bring.
 
->     I don't think an ext2 problem (which I don't think is a problem at
->     all) should be "fixed" at the VFS layer when other filesystems are
->     perfectly happy without it, no?
-> 
-> If you want to be sure that when you fsync a file, that, silly bugger
-> rename games further up the path aside, the entire path is also on
-> disk, the VFS is the only place to do it with the current fs API.
-> 
-> really, there is _some_ merit in the argument that
-> 
->         open
->         fsync
->         close
-> <crash>
-> 
-> shouldn't loose the file...
+> Comments?
 
-Agreed - I think it's the expected and sensible behaviour.  But I've seen
-no complaints about it except for use in a few specialised applications.
-Where "a few" == "one", actually.
+How do you handle signal queue overflow? signal-per-fd helps, but you still
+have to have the queue as big as the maximum number of fds is...
 
->     This whole thread, talking about "linux this" and "linux that" is
->     off-base.  It's ext2 we're talking about.  This MTA requirement is
->     a highly unusual and specialised thing - I don't see why the
->     general-purpose ext2 should bear the burden of supporting it when
->     other filesystems such as reiserfs (I think?) and ext3 support it
->     naturally and better than ext2 ever will.
-> 
-> Well, since it will only sync dirty blocks, it will hardly hurt ext2
-> that much at all --- and it will only force the dirty blocks in path
-> components to be written when you fsync the file, thats probably only
-> a single block anyhow.
-
-mmm... Holding i_sem across multiple revs of the disk will hurt.  It
-doesn't *need* to be held while we're waiting on IO, but fixing that
-would be a big change, and there has been little motivation to change
-things because it is for specialised apps.
-
--
+Petru

@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281794AbRLLSwF>; Wed, 12 Dec 2001 13:52:05 -0500
+	id <S281805AbRLLSuP>; Wed, 12 Dec 2001 13:50:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281739AbRLLSvy>; Wed, 12 Dec 2001 13:51:54 -0500
-Received: from dsl-213-023-039-104.arcor-ip.net ([213.23.39.104]:26373 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281794AbRLLSu3>;
-	Wed, 12 Dec 2001 13:50:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: linux-kernel@vger.kernel.org
-Subject: Long time no chat...
-Date: Wed, 12 Dec 2001 19:53:28 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S281794AbRLLSuG>; Wed, 12 Dec 2001 13:50:06 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:6583 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S281762AbRLLStt>;
+	Wed, 12 Dec 2001 13:49:49 -0500
+Date: Wed, 12 Dec 2001 19:49:43 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: FBdev remains in unusable state
+Message-ID: <Pine.GSO.4.30.0112121942460.18842-100000@balu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16EEVa-0000D8-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dana,
 
-It's been a while.  I see you're posting on lkml regularly now, maybe that 
-means your school work isn't so heavy now.
+Hi all,
 
-Are you still interested in signing up for a kernel project?  I've got a good 
-one I think would be perfect for you.
+I am currently using 2.4.17-pre8, and X-4.1.0.
 
-See you,
+My problem is that if I turn on fb (eg pass vga=0x301 parameter), start an
+X session, then switch back to the console using CTRL-ALT-Fx (or
+ctrl-alt-bs :), i get 'out of sync' messages on my monitor. I can switch
+back to the X session properly using ctrl-alt-fx, but i can never get back
+again my console.
 
-Daniel
+The video card is a matrox G450, and I am using the vesa framebuffer.
+(I know there's a seperate mga fb driver, but this should work for this
+combination)
+
+Is this a bug in the kernel fb code, or in X? Are there any workarounds?
+How could I restore textmode?
+
+
+Please help if you can,
+-- 
+Balazs Pozsar
+

@@ -1,119 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVCHTas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVCHT3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVCHTas (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVCHTas
+	id S262099AbVCHT3M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCHTZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:30:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30407 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262083AbVCHT2X (ORCPT
+	Tue, 8 Mar 2005 14:25:27 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:6313 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261424AbVCHTV7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:28:23 -0500
-Message-ID: <422DFC52.D0F12E0B@redhat.com>
-Date: Tue, 08 Mar 2005 14:26:10 -0500
-From: Dave Anderson <anderson@redhat.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.49.4nmi_enterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: vivek goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Query: Kdump: Core Image ELF Format
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-		<422DC166.BFFF3CC0@redhat.com> <m13bv6m2hy.fsf_-_@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 14:21:59 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: suparna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
+	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: multipart/mixed; boundary="=-5v3QEISAr9EgK1gFqDgJ"
+Organization: 
+Message-Id: <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Mar 2005 11:18:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
 
-> Dave Anderson <anderson@redhat.com> writes:
->
-> > vivek goyal wrote:
-> >
-> > > Hi,
-> > >
-> > > Kdump (A kexec based crash dumping mechanism) is going to export the
-> > > kernel core image in ELF format. ELF was chosen as a format, keeping in
-> > > mind that gdb can be used for limited debugging and "Crash" can be used
-> > > for advanced debugging.
-> > >
-> > > Core image ELF headers are prepared before crash and stored at a safe
-> > > place in memory. These headers are retrieved over a kexec boot and final
-> > > elf core image is prepared for analysis.
-> > >
-> > > Given the fact physical memory can be dis-contiguous, One program header
-> > > of type PT_LOAD is created for every contiguous memory chunk present in
-> > > the system. Other information like register states etc. is captured in
-> > > notes section.
-> > >
-> > > Now the issue is, on i386, whether to prepare core headers in ELF32 or
-> > > ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
-> > > don't know about "crash". Can "crash" support ELF64 core image file for
-> > > i386 system?
-> > >
-> >
-> > Not in its current state, but it can certainly be modified to do so.
-> > The embedded gdb module never is even aware of the vmcore file.
-> > (It is essentially executed as "gdb vmlinux").
-> >
-> > And currently crash only expects a single PT_LOAD section, but
-> > that's due for a change.  It's been OK for its current set of supported
-> > processors to use sparse file space for non-existent memory,
-> > but it's kind of a pain with ia64's 256GB holes.
->
-> Weird.  A sparse file.  I can almost see that but that looks like
-> a really bad format to transport from one system to another.
->
+--=-5v3QEISAr9EgK1gFqDgJ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Exactly.  Although the -S tar flag helps, and when uncompressed
-it actually makes a smaller file on the receiving end because of
-"real" zero-filled pages.
 
->
-> > The point is that adapting crash to handle whatever format
-> > you come up with is the easy part of the whole equation.
->
-> Good.  Then the concentration should be a simple well understood
-> format that we don't need to change all of the time.
->
-> > > Given the limitation of analysis tools, if core headers are prepared in
-> > > ELF32 format then how to handle PAE systems?
-> > >
-> >
-> > Are you asking about what would be the p_vaddr values for the higher
-> > memory segments?   FWIW, with the single-PT_LOAD segment currently
-> > supported by crash, there's only one p_vaddr, but in any case, crash doesn't
-> > use it, so PAE is not a problem.
->
-> PAE (physical address extension) are 64bit addresses on a 32bit box.  So
-> vivek real question was where do we put the bytes.
+> Andrew, please don't apply the original patch. We shouldn't even attempt
+> to submit IO beyond the filesize. We should truncate the IO request to
+> filesize. I will send a patch today to fix this.
+> 
 
-> Do I understand it correctly that crash currently just gets raw
-> memory data and the register state from the core file?  Then it
-> figures out the virtual to physical mapping by looking at vmlinux?
->
-> Eric
+Well, spoke too soon. This is an ugly corner case :( But I have
+a ugly hack to fix it :)
 
-Pretty much...
+Let me ask you a basic question: Do we support DIO reads on a file
+which is not blocksize multiple in size ? (say 12K - 10 bytes) ?
 
-The register set is there, but it's been primarily used to figure out
-the panic task from the kernel stack address there, although in later
-dump versions, the NT_TASKSTRUCT notes section gives us the same thing.
-Because of the various dump formats it's supported over time, yes, it
-tries to glean the vast majority of the information it needs by using
-the vmlinux file and raw data, and not rely on stuff in the various
-different header formats.
+What about the ones which are not 4K but 512 byte multiple ? (say 7K) ?
 
-In any case, I totally agree with your aims:
+I need answer to those, to figure out how hard I should try to fix this.
 
-> What I aimed at was a simple picture of memory decorated with the
-> register state.  We should be able to derive everything beyond that.
-> And the fact that it is all in user space should make it straight
-> forward to change if needed.
->
+Anyway, here is ugly version of the patch - which will limit the IO
+size to filesize and uses lower blocksizes to read the file (since
+the filesize is only 3K, it would go down to 512 byte blocksize).
 
-Dave Anderson
+Thanks,
+Badari
 
+--=-5v3QEISAr9EgK1gFqDgJ
+Content-Disposition: attachment; filename=aio-dio-short-read.patch
+Content-Type: text/plain; name=aio-dio-short-read.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- fs/direct-io.c.org	2005-03-08 09:53:31.823761712 -0800
++++ fs/direct-io.c	2005-03-08 12:09:33.280084600 -0800
+@@ -1180,6 +1180,22 @@ __blockdev_direct_IO(int rw, struct kioc
+ 		addr = (unsigned long)iov[seg].iov_base;
+ 		size = iov[seg].iov_len;
+ 		end += size;
++
++		/*
++		 * If we are trying to read beyond end of the file
++		 * truncate the IO request to filesize.
++		 * This is ugly: we change iov_len and nr_segs,
++		 * but need to do this here since we may need to
++		 * bail out if the filesize is not blocksize multiple
++		 * and we may need to do fine-grain blocksizes.
++		 */	
++		if ((rw == READ) && (end > i_size_read(inode))) {
++			iov[seg].iov_len -= (end - i_size_read(inode));
++			size = iov[seg].iov_len;
++			end = i_size_read(inode);
++			nr_segs = seg + 1;	/* Ugly - to break the loop */
++		}
++
+ 		if ((addr & blocksize_mask) || (size & blocksize_mask))  {
+ 			if (bdev)
+ 				 blkbits = bdev_blkbits;
+
+--=-5v3QEISAr9EgK1gFqDgJ--
 

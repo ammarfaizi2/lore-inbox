@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270253AbRHWUE6>; Thu, 23 Aug 2001 16:04:58 -0400
+	id <S270256AbRHWUHS>; Thu, 23 Aug 2001 16:07:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270195AbRHWUEs>; Thu, 23 Aug 2001 16:04:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32507 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S270258AbRHWUEf>; Thu, 23 Aug 2001 16:04:35 -0400
-Message-ID: <3B8561B9.AC440835@mvista.com>
-Date: Thu, 23 Aug 2001 13:04:09 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S270195AbRHWUHI>; Thu, 23 Aug 2001 16:07:08 -0400
+Received: from stat8.steeleye.com ([63.113.59.41]:35845 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S270256AbRHWUGx>; Thu, 23 Aug 2001 16:06:53 -0400
+Message-ID: <3B8561E2.DE166AD8@SteelEye.com>
+Date: Thu, 23 Aug 2001 16:04:50 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Victor Yodaiken <yodaiken@fsmlabs.com>,
-        "christophe =?iso-8859-1?Q?barb=E9?=" <christophe.barbe@lineo.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: How should nano_sleep be fixed (was: ptrace(), fork(), sleep(), 
- exit(), SIGCHLD)
-In-Reply-To: <20010817125727.A16475@hq2> <3B7D76EF.DA34EB23@mvista.com> <20010822194035.K18391@flint.arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: gcc bug causing problem in kernel builds
+In-Reply-To: <E15a0eY-0004U3-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Fri, Aug 17, 2001 at 12:56:31PM -0700, george anzinger wrote:
-> > Uh..?  I though that was what I was allowing.  It seems to me to be a
-> > lot of extra work to put the same code in 15 different archs.
-> > Especially if one does not really know each of them, nor can any one
-> > group (or individual) be expected to be able to test (or even have the
-> > hardware to test) each of them.
-> 
-> Umm, my best advice is to look at sys_fork() and do_fork(), sys_execve()
-> and do_execve().
-> 
-Sorry, but none of those system calls requires the registers which is
-where the problem is.
+Alan Cox wrote:
+ 
+> gcc 2.96-54 had plenty of bugs, 2.96-75+ should be perfectly fine for
+> all uses. 
 
-George
+Uh oh... the gcc 2.96 I'm using is:
+
+# rpm -q gcc
+gcc-2.96-81
+
+> If you have a 2.96 RH problem please report it in Red Hat
+> bugzilla
+
+Will do.
+
+
+Thanks,
+Paul
+
+Paul.Clements@SteelEye.com

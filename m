@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132416AbRDUBcI>; Fri, 20 Apr 2001 21:32:08 -0400
+	id <S132421AbRDUBe6>; Fri, 20 Apr 2001 21:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132421AbRDUBb7>; Fri, 20 Apr 2001 21:31:59 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:44540 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S132416AbRDUBbl>; Fri, 20 Apr 2001 21:31:41 -0400
-Message-ID: <3AE0E1B5.2C8318A7@uow.edu.au>
-Date: Fri, 20 Apr 2001 18:26:13 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac9 i686)
-X-Accept-Language: en
+	id <S132422AbRDUBei>; Fri, 20 Apr 2001 21:34:38 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.121.12]:10453 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S132421AbRDUBeb>; Fri, 20 Apr 2001 21:34:31 -0400
+Message-ID: <0aa401c0ca03$333fdd70$1125a8c0@wednesday>
+From: "J. Dow" <jdow@earthlink.net>
+To: <lee@ricis.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com> <01042101555600.03154@blackbox> <01042020185806.00845@linux>
+Subject: Re: Current status of NTFS support
+Date: Fri, 20 Apr 2001 18:34:24 -0700
 MIME-Version: 1.0
-To: Francois Cami <francois.cami@supelec.fr>
-CC: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 
-In-Reply-To: <NDBBKKONDOBLNCIOPCGHIEHBGDAA.vhou@khmer.cc> <3ADFA34D.80D8BEE9@supelec.fr>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Cami wrote:
-> 
-> Vibol Hou wrote:
-> ...
->
-> > Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
-> 
-> I got that one too, PC is ASUS P2B-DS with two PII-350, 384MB RAM,
-> 3C905B.
+From: "Lee Leahu" <lee@ricis.com>
 
-If you were getting this message occasionally, and if increasing the
-max_interrupt_work module parm makes it stop, and everything
-is always working fine, then it's an OK thing to do.
+> would somebody be kind enough to explain why writing to 
+> the ntfs file system is extremely dangerous,  and what are the
+> developers doing to make writing to ntfs filesystem safe?
 
-Question is: why is it happening?  We're failing to get out
-of the interrupt loop after 32 loops.  Each loop can reap
-up to 16 transmitted packets and 32 received packets.
-That's a lot.
+My understanding of the situation is that writing to an NTFS volume is not
+quite 100% guaranteed to destroy the disk directory structure. MS mutates it
+faster than people can reverse engineer it in a proper "clean" manner. The
+person who had been working the issue had access to MS information in support
+of some other products. MS came down on him about supporting NTFS. So he has
+surrendered such materials as he has rather than continue with the MS product
+support and is concentrating on Linux. But until his NDA runs out he cannot
+work on the NTFS code. Other people have picked up the ball. But as noted
+MS mutates NTFS remarkably rapidly so I'd not look for support for NTFS in
+the near future.
 
-My suspicion is that something else in the system is
-causing the NIC interrupt routine to get held up for long
-periods of time.  It has to be another interrupt.
+I have oversimplified the whole issue for which I hope others forgive me. I
+see no benefit to a rehash of the issue so I am attempting to inject enough
+information that it will be dropped.
 
-All reporters of this problem (ie: both of them) were using
-aic7xx SCSI.  I wonder if that driver can sometimes spend a
-long time in its interrupt routine.  Many times.  Rapidly.
+{^_^}    Joanne Dow, jdow@earthlink.net
 
-Very odd.
-
-Ah.  SMP.  Perhaps the other CPU is generating the transmit
-load, some other interrupt source is slowing down *this*
-CPU.
-
-Could you test something for me?  Try *decreasing* the
-value of max_interrupt_work.  See if that increases
-the frequency of the message.  Then, it if does, try to
-correlate the occurence of the message with some other
-form of system activity (especially disk I/O).
-
-Thanks.
-
-
--

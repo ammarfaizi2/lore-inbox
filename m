@@ -1,107 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281908AbRLOHb7>; Sat, 15 Dec 2001 02:31:59 -0500
+	id <S282042AbRLOHkj>; Sat, 15 Dec 2001 02:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282042AbRLOHbu>; Sat, 15 Dec 2001 02:31:50 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:30566 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S281908AbRLOHbb>; Sat, 15 Dec 2001 02:31:31 -0500
-Date: Sat, 15 Dec 2001 08:30:45 +0100
-From: Christian Ullrich <chris@chrullrich.de>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI errors on SuSE 2.4.10
-Message-ID: <20011215083045.A23746@christian.chrullrich.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S282062AbRLOHkU>; Sat, 15 Dec 2001 02:40:20 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:4109 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S282042AbRLOHkL>; Sat, 15 Dec 2001 02:40:11 -0500
+Date: Sat, 15 Dec 2001 01:40:07 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random "File size limit exceeded" under 2.4
+Message-ID: <20011215014007.B6810@asooo.flowerfire.com>
+In-Reply-To: <1007573331.1809.6.camel@two> <3C0E813D.F5B1F84E@zip.com.au> <9um7bf$lsp$1@ncc1701.cistron.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Current-Uptime: 4 d, 15:57:46 h
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <9um7bf$lsp$1@ncc1701.cistron.net>; from miquels@cistron.nl on Wed, Dec 05, 2001 at 10:33:19PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+FWIW, I've been using this over-engineered, under-tested command line
+utility to run e2fsck on our older distributions:
 
-I'm getting an increasing number of these when accessing my 
-DVD drive (with an ordinary CD-ROM in it). The system freezes for
-about thirty seconds, no mouse motion in X, I can change virtual
-consoles, but not login or start any other processes.
+	http://web.irridia.com/info/linux/unflimit.c
 
-After those thirty seconds, the drive spins up again and all is 
-fine. Here is the dmesg output:
+It works like "nice" or "time", but sets the proper RLIM_INFINITY
+filesize limit for the inheriting subshell.  For example:
 
-scsi0:0:2:0: Attempting to queue an ABORT message
-scsi0: Dumping Card State while idle, at SEQADDR 0x7
-ACCUM = 0x2c, SINDEX = 0xd, DINDEX = 0x8c, ARG_2 = 0x0
-HCNT = 0x0
-SCSISEQ = 0x12, SBLKCTL = 0x2
- DFCNTRL = 0x0, DFSTATUS = 0x29
-LASTPHASE = 0x1, SCSISIGI = 0x0, SXFRCTL0 = 0x80
-SSTAT0 = 0x5, SSTAT1 = 0xa
-STACK == 0x3, 0xec, 0x147, 0x37
-SCB count = 132
-Kernel NEXTQSCB = 105
-Card NEXTQSCB = 105
-QINFIFO entries:
-Waiting Queue entries:
-Disconnected Queue entries:
-QOUTFIFO entries:
-Sequencer Free SCB List: 12 0 11 3 13 4 15 5 10 9 1 6 2 8 7 14
-Pending list: 97
-Kernel Free SCB list: 13 82 32 61 87 10 1 114 71 33 131 41 27 26 3
-125 70 7 94  100 121 127 17 31 103 109 88 58 76 63 8 130 86 6 112
-25 124 77 57 122 69 14 35  116 48 55 99 39 37 111 36 72 101 18 98
-46 74 106 117 65 23 118 102 60 110 19 0  66 40 68 115 90 38 81 62
-24 20 80 104 42 52 119 53 43 9 113 15 78 83 91 73 28  12 93 92 96
-126 56 2 120 49 50 34 30 22 85 11 5 64 45 75 54 108 59 89 47 4 16 
-107 44 21 29 67 123 95 84 51 79 129 128
-Untagged Q(2): 97
-DevQ(0:0:0): 0 waiting
-DevQ(0:2:0): 1 waiting
-DevQ(0:3:0): 0 waiting
-DevQ(0:6:0): 0 waiting
-(scsi0:A:2:0): Queuing a recovery SCB
-scsi0:0:2:0: Device is disconnected, re-queuing SCB
-Recovery code sleeping
-(scsi0:A:2:0): Abort Message Sent
-(scsi0:A:2:0): SCB 97 - Abort Completed.
-Recovery SCB completes
-Recovery code awake
-aic7xxx_abort returns 8194
-(scsi0:A:2:0): Unexpected busfree in Command phase
-SEQADDR == 0x14d
-scsi0:0:2:0: Attempting to queue an ABORT message
-scsi0:0:2:0: Command not found
-aic7xxx_abort returns 8194
-scsi0:0:2:0: Attempting to queue a TARGET RESET message
-scsi0:0:2:0: Command not found
-aic7xxx_dev_reset returns 8194
-Device not ready.  Make sure there is a disc in the drive.
+	unflimit e2fsck /dev/sda3
 
-(the line breaks in the free SCB list are mine)
+The boot-time fscks work fine, but in multiuser I'm extremely lucky to
+get it to work without this.
 
-In syslog, there are more of these. I will supply them on request,
-as the amount is large.
+The kernel patch below would work, I expect, but I think it's not
+necessarily the Right Thing To Do.  If Andrew is right, is anyone
+looking at why block devices (or fsck?) are honoring the filesize limit?
 
-Hardware:
-
-* Adaptec AHA2940UW controlling:
-  - (wide, ID 0) IBM DNES-309170W
-  - (wide, ID 6) IBM DNES-309170W
-  - (narrow, ID 2) Pioneer DVD-305U
-  - (narrow, ID 3) Yamaha CRW4416S
-
-  <6>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.3
-  <4>        <Adaptec 2940 Ultra SCSI adapter>
-  <4>        aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
-
-* AMD Athlon on ASUS A7V133, VIA KT133A chipset:
-
-Software:
-
-* Kernel 2.4.10-4GB, from SuSE 7.3 k_deflt-2.4.10-25.i386.rpm
-
+Thanks,
 -- 
-Christian Ullrich		     Registrierter Linux-User #125183
+Ken.
+brownfld@irridia.com
 
-"Deliver."
+On Wed, Dec 05, 2001 at 10:33:19PM +0000, Miquel van Smoorenburg wrote:
+| In article <3C0E813D.F5B1F84E@zip.com.au>,
+| Andrew Morton  <akpm@zip.com.au> wrote:
+| >Derek Glidden wrote:
+| >> 
+| >> I've been experiencing random and occasional encounters with "File size
+| >> limit exceeded" errors under 2.4 kernels when trying to make
+| >> filesystems.
+| >
+| >I don't know if anyone has come forth to fix this yet.
+| >
+| >Apparently it's something to do with your shell setting
+| >rlimits, and block devices are (bogusly) honouring those
+| >settings.
+| 
+| Perhaps the old app is calling sys_old_getrlimit() from
+| linux/kernel/sys.c. It truncates rlimits to 0x7FFFFFFF
+| if it's bigger than that. 0x7FFFFFFF used to be the old
+| RLIM_INFINITY in 2.2 [actually, ((long)(~0UL>>1))]. In
+| 2.4, RLIM_INFINITY is (~0UL).
+| 
+| So if you call sys_setrlimit() with the old RLIM_INFINITY from 2.2
+| OR with the result from sys_old_getrlimit(), then the new limit
+| will be 0x7FFFFFFF instead of unlimited.
+| 
+| Looks like someone forgot to implement sys_old_setrlimit(),
+| which would have been the right thing to do.
+| 
+| Now all we can do is to hack sys_setrlimit and let it translate
+| 0x7FFFFFFF to RLIM_INFINITY.
+| 
+| The following untested and uncompiled patch might do it, or not...
+| 
+| --- linux-2.4.17-pre2/kernel/sys.c.orig	Tue Sep 18 23:10:43 2001
+| +++ linux-2.4.17-pre2/kernel/sys.c	Wed Dec  5 23:30:50 2001
+| @@ -1120,6 +1120,16 @@
+|  		return -EINVAL;
+|  	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+|  		return -EFAULT;
+| +#if !defined(__ia64__)
+| +	/*
+| +	 * 	In 2.2, RLIMIT_INFINITY was defined as ((long)(~0UL>>1)).
+| +	 * 	Reckognize it and translate it to the new RLIMIT_INFINITY.
+| +	 */
+| +	if ((long)new_rlim.rlim_cur == ((long)(~0UL>>1)))
+| +		new_rlim.rlim_cur = RLIMIT_INFINITY;
+| +	if ((long)new_rlim.rlim_max == ((long)(~0UL>>1)))
+| +		new_rlim.rlim_max = RLIMIT_INFINITY;
+| +#endif
+|  	old_rlim = current->rlim + resource;
+|  	if (((new_rlim.rlim_cur > old_rlim->rlim_max) ||
+|  	     (new_rlim.rlim_max > old_rlim->rlim_max)) &&
+| 
+| Mike.
+| -- 
+| "Only two things are infinite, the universe and human stupidity,
+|  and I'm not sure about the former" -- Albert Einstein.
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

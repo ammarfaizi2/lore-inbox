@@ -1,100 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262590AbSI0SwS>; Fri, 27 Sep 2002 14:52:18 -0400
+	id <S262589AbSI0Szp>; Fri, 27 Sep 2002 14:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262588AbSI0SwS>; Fri, 27 Sep 2002 14:52:18 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:39338 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S262587AbSI0SwP>; Fri, 27 Sep 2002 14:52:15 -0400
-Date: Fri, 27 Sep 2002 12:56:59 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing
- file  transfers
-Message-ID: <2543856224.1033153019@aslan.btc.adaptec.com>
-In-Reply-To: <200209271721.g8RHLTn05231@localhost.localdomain>
-References: <200209271721.g8RHLTn05231@localhost.localdomain>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+	id <S262591AbSI0Szp>; Fri, 27 Sep 2002 14:55:45 -0400
+Received: from sentry.gw.tislabs.com ([192.94.214.100]:47612 "EHLO
+	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
+	id <S262589AbSI0Szl>; Fri, 27 Sep 2002 14:55:41 -0400
+Date: Fri, 27 Sep 2002 15:00:03 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+X-X-Sender: <sds@raven>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <linux-security-module@wirex.com>
+Subject: Re: [RFC] LSM changes for 2.5.38
+In-Reply-To: <20020927175510.B32207@infradead.org>
+Message-ID: <Pine.GSO.4.33.0209271432120.11942-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, lets assume the simplest setup possible: select + tag msg + 10 byte 
-> command + disconnect + reselect + status; that's 17 bytes async.  The
-> maximum  bus speed async narrow is about 4Mb/s, so those 17 bytes take
-> around 4us to  transmit.  On a wide Ultra2 bus, the data rate is about
-> 80Mb/s so it takes  50us to transmit 4k or 800us to transmit 64k.
-> However, the major killer in  this model is going to be disconnection
-> delay at around 200us (dwarfing  arbitration delay, bus settle time etc).
-> For 4k packets you spend about 3  times longer arbitrating for the bus
-> than you do transmitting data.  For 64k  packets it's 25% of your data
-> transmit time in arbitration.  Your theoretical  throughput for 4k
-> packets is thus 20Mb/s.  In my book that's a significant  loss on an
-> 80Mb/s bus.
 
-This only matters if your benchmark is dependent on round-trip latency
-(no read-ahead or write behind and no command overlap) or if you have
-saturated the bus.  None of these are the case with the single drive
-I/O benchmarks that have been talked about in this thread.  I suppose
-I should have been more specific in saying, "the command overhead is
-not a factor in the issues raised by this thread".  Now if you want
-to use command overhead as a reason to use tagged queuing to mitigate
-that overhead, by all means, go right ahead.
+On Fri, 27 Sep 2002, Christoph Hellwig wrote:
 
->> Hooks for sending ordered tags have been in the aic7xxx driver, at
->> least in FreeBSD's version, since '97.  As soon as the Linux cmd
->> blocks have such information it will be trivial to have the aic7xxx
->> driver issue the appropriate tag types.
-> 
-> They already do in 2.5, see scsi_populate_tag_msg() in scsi.h.  This
-> assumes  you're using the generic tag queueing, which the aic7xxx
-> doesn't, but you  could easily key the tag type off REQ_BARRIER.
+> In 2.5 LSM hooks are part of the Linux access checks, and any reason to
+> make your patch less intrusive inb 2.4 doesn't apply anymore.  Having
+> two checks for the same thing is indeed very bad in will cause harm
+> and maintaince burden in the long term.  Don't do it.
 
-Okay.
+So you want to move the 'if (turn_on && !capable(CAP_SYS_RAWIO)) return
+-EPERM;' from the base kernel into the security module's ioperm() hook
+function, in addition to whatever additional logic the module may
+implement?  [Assuming for the moment that we kept the ioperm() hook, even
+though that isn't likely given its current lack of use and
+architecture-specific nature].
 
->> But this misses the point.  Andrew's original speculation was that
->> writes were "passing reads" once the read was submitted to the drive.
-> 
-> The speculation is based on the observation that for transactions
-> consisting  of multiple writes and small reads, the reads take a long
-> time to complete.
+If so, what about the rest of the kernel access checking logic?  Do you
+want all of the permission() logic pushed into the security module's
+inode_permission() hook function?  Do you want the bad_signal() logic
+pushed into the security module's task_kill() hook function?  That kind of
+change was considered and discussed on linux-security-module long ago, but
+it will yield a very invasive patch for very little gain.  It also
+requires cleanly separating all access checking logic from functional
+logic (it is sometimes fairly intertwined) and determining exactly which
+is which (e.g. is enforcing a read-only mount a security behavior or a
+functional behavior?).
 
-I've seen evidence that a series of reads takes a long time to complete,
-but nothing that indicates that every read is starved beyond what you
-would expect to see if a huge number of writes were issued between each
-read.
+> Show me a useful example that needs this argument.
 
-> That translates to starving a read in favour of a
-> bunch of contiguous writes.   I'm sure we've all seen SCSI drives indulge
-> in this type of unfair behaviour  (it does make sense to keep servicing
-> writes if they're direct follow on's  from the previously serviced ones).
+Do you want every process that can use ioperm() to be able to access the
+full range of ports accessible by that call?  If not, then you need
+something finer-grained than CAP_SYS_RAWIO.  But as I said, we don't
+presently use this hook, and it is architecture-dependent.
 
-Actually I haven't.  The closest I can come to this is a single read way
-off on the far side of the disk starved by a continuous stream or reads
-on the other side of the platter.  This behavior was fixed by all major
-drive manufacturers that I know of back in 97 or 98.
+> And WTF is the use a security policy that checks module arguments?  Do
+> you want to disallow options that are quotes from books on the index
+> or not political correct enough for a US state agency?
 
->> I would like to understand the evidence behind that assertion since
->> all drive's I've worked with automatically give a higher priority to
->> read traffic than writes since writes can be buffered but reads
->> cannot.
-> 
-> The evidence is here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103302456113997&w=1
-
-Which unfortunately characterizes only a single symptom without breaking
-it down on a transaction by transaction basis.  We need to understand
-how many writes were queued by the OS to the drive between each read to
-know if the drive is actually allowing writes to pass reads or not.
+The LSM module_initialize hook is called with a pointer to the kernel's
+copy of the relocated module image with the struct module header.  Hence,
+the security module is free to perform whatever validation it wants on
+that image prior to the execution of the init function.  But if the
+criteria is that there must be a specific existing security module that
+uses the hook, then this one will go away too.
 
 --
-Justin
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+

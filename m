@@ -1,86 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbTEXF0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 01:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTEXF0P
+	id S264072AbTEXGMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 02:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264092AbTEXGMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 01:26:15 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:17538 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263579AbTEXF0O
+	Sat, 24 May 2003 02:12:42 -0400
+Received: from smtp.wp.pl ([212.77.101.161]:28973 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id S264072AbTEXGMl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 01:26:14 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 23 May 2003 22:38:44 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Boehm, Hans" <hans_boehm@hp.com>
-cc: "'Arjan van de Ven'" <arjanv@redhat.com>, Hans Boehm <Hans.Boehm@hp.com>,
-       "MOSBERGER, DAVID (HP-PaloAlto,unix3)" <davidm@hpl.hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ia64@linuxia64.org
-Subject: RE: [Linux-ia64] Re: web page on O(1) scheduler
-In-Reply-To: <75A9FEBA25015040A761C1F74975667D01442109@hplex4.hpl.hp.com>
-Message-ID: <Pine.LNX.4.55.0305232225010.3538@bigblue.dev.mcafeelabs.com>
-References: <75A9FEBA25015040A761C1F74975667D01442109@hplex4.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 May 2003 02:12:41 -0400
+Date: Sat, 24 May 2003 08:25:45 +0200
+From: "=?ISO-8859-2?Q?Rafa=B3?= 'rmrmg' Roszak" <rmrmg@wp.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [isdn] avm fritz pci
+Message-Id: <20030524082545.2d1cbdc2.rmrmg@wp.pl>
+In-Reply-To: <20030519134546.4c4395bf.rmrmg@wp.pl>
+References: <20030519134546.4c4395bf.rmrmg@wp.pl>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
+X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-ChangeAV: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 May 2003, Boehm, Hans wrote:
+begin Rafa³ 'rmrmg' Roszak <rmrmg@wp.pl> quote:
 
-> Thanks for the pointer.  In the statically linked case, I get 200/568/345
-> for custom/pthread_mutex/pthread_spin.
->
-> I agree that this is not a fair comparison.  That was my point.  An implementation
-> with custom yield/sleep
-> code can do things that you can't do with blocking pthreads primitives at the
-> same performance.  (Of course pthreads_mutex_lock will win in other cases.)
->
-> Please forget about the abort() in the contention case.  I put that there for
-> brevity since it is not exercised by the test.  The intent was to time the
-> noncontention performance of a custom lock that first spins, then yields,
-> and then sleeps, as was stated in the comment.
->
-> You are forgetting two issues in your analysis of what pthreads is/should be doing
-> relative to the spin-lock-like code:
->
-> 1) The unlock code is different.  If you potentially do a waitforunlocks()
-> in the locking code, you need to at least check whether the corresponding
-> notification is necessary when you unlock().  For NPTL that requires another
-> atomic operation, and hence another dozen to a couple of hundred cycles,
-> depending on the processor.  You need to look at both the lock and unlock
-> code.
+> I have kernel 2.4.21-rc2  (I also tested 2.4.20 2.4.21-pre6, pre7 and
+> rc1) and when I use 2 channels connect, system crash. Hisax modul is
+> loaded with parametrs: 
+> modprobe hisax protocol=2 type=27
+> 
+ 
+I have this problem also in 2.4.21-rc3
+I compilded kernel with MAGIC_SYSRQ but I can't reboot system after
+crash use Alt+PrtScr+[s,u,b] ...
 
-That code was completely independent by what pthread might do. I didn't
-look at the code but I think the new pthread uses futexes for mutexes.
-The code wanted only to show that a mutex lock does more than a spinlock.
-And this "more" is amplified by your tight loop.
-
-
-
-> 2) (I hadn't mentioned this before.) The (standard interpretation of)
-> the memory barrier semantics of the pthreads primitives is too strong.
-> Arguably they need to be full memory barriers in both directions.
-> The pthread_spin_lock code inserts an extra full
-> memory barrier on IA64 as a result, instead of just
-> using the acquire barrier associated with the cmpxchg.acq instruction.
-> (I think the spin unlock code doesn't do this.  One could argue that that's a bug,
-> though I would argue that the bug is really  in the pthreads spec.)
-
-You need a write memory barrier even on the unlock. Consider this :
-
-	spinlock = 1;
-	...
-	protected_resource = NEWVAL;
-	spinlock = 0;
-
-( where spinlock = 0/1 strip down, but do not lose the concept, the lock
-operation ). If a CPU reorder those writes, another CPU might see the lock
-drop before the protected resource assignment. And this is usually bad
-for obvious reasons.
-
-
-
-- Davide
-
+-- 
+registered Linux user 261525 | Wszystko jest trudne przy
+gg 2311504________rmrmg@wp.pl|    odpowiednim stopniu
+RMRMG signature version 0.0.2|        abstrakcji

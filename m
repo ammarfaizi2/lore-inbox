@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130831AbRCPSnj>; Fri, 16 Mar 2001 13:43:39 -0500
+	id <S130940AbRCPStT>; Fri, 16 Mar 2001 13:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130902AbRCPSn3>; Fri, 16 Mar 2001 13:43:29 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:23304
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130831AbRCPSnR>; Fri, 16 Mar 2001 13:43:17 -0500
-Date: Fri, 16 Mar 2001 10:42:26 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: kozkir-8 <kozkir-8@student.luth.se>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Re[2]: VIA686A chipset crash under 2.4.2-ac20
-In-Reply-To: <4219755109.20010316192322@student.luth.se>
-Message-ID: <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org>
+	id <S130941AbRCPStJ>; Fri, 16 Mar 2001 13:49:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:47088 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130940AbRCPStE>;
+	Fri, 16 Mar 2001 13:49:04 -0500
+Date: Fri, 16 Mar 2001 13:48:22 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: David Weinehall <tao@acc.umu.se>
+cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
+        Wayne.Brown@altec.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
+In-Reply-To: <20010316193259.A1962@khan.acc.umu.se>
+Message-ID: <Pine.GSO.4.21.0103161335240.12618-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Okay not to worry, I now have a my hands on a VIA 686B and will look at
-the changes that happened to the VIA686A
 
-Have you run 2.2.18 plus my patches off kernel.org?
+On Fri, 16 Mar 2001, David Weinehall wrote:
 
-On Fri, 16 Mar 2001, kozkir-8 wrote:
+> On Fri, Mar 16, 2001 at 01:07:17PM -0500, Alexander Viro wrote:
+> > 
+> > 
+> > On Fri, 16 Mar 2001, Alexander Viro wrote:
+> >  
+> > [snip]
+> > 
+> > > Sure. With all its holes and illetarate C.
+> > 				    ^
+> > 				    e
+> > Apparently, rule about typos in spelling flame are not
+> > limited to natural languages...
+> 
+> Oh... Was it a typo? I had a good laugh, because I thought it was
+> intended. Especially considering that you left one of the typos
+> (I was always taught that it's spelled illiterate...)
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: MD5
-> 
-> It wouldn't be a problem if after these messages fsck wouldn't have
-> found errors in FS.
-> 
-> 
-> AH> I am so tired of this report, I am about to hide these in a /dev/null
-> AH> It is a nothing message.  And if the via-core is correct it will auto down
-> AH> grade the trnasfer rate and you will not feel any effect.  Only a
-> AH> marginally slow disk service.
-> 
-> 
-> 
-> - --
-> Best regards,
-> Kirill Kozmin
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: 2.6
-> 
-> iQCVAwUAOrJaHj5SQymVx3NvAQE1NQP6A3Pm9X3EPpOERs6xoTnpc0UpBb5F+l01
-> sfzZmqodu4FGvGriFTUAbZNNtrPcE4os9dcnxjHtlfyW4PZ+YyWUjtIekx1ZdbLI
-> I21hwuA2dA+lyLM5jaAS3aC5mPzfauVMRIbozegtPnaQViWUShSM8x1XWHtsQFBy
-> iam5xbL8gXo=
-> =Qxq1
-> -----END PGP SIGNATURE-----
-> 
-> 
+Original - typo, the rest (including "rule...are") - not ;-)
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Seriously, binfmt_misc.c was written in rather, erm, interesting C.
+Read it and you'll see. Just one (but rather impressive) example:
+
+        if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
+
+It was meant to be
+
+        if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
+
+and anyone who can't find the difference really should learn C. And
+that's not the only bogosity of such level. Besides, the thing is
+trivially oopsable - write() to any file in binfmt_misc with buffer
+pointing to unmapped kernel address and you are screwed,
 

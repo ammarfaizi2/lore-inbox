@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288951AbSANTun>; Mon, 14 Jan 2002 14:50:43 -0500
+	id <S288950AbSANTuw>; Mon, 14 Jan 2002 14:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288984AbSANTt3>; Mon, 14 Jan 2002 14:49:29 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:37127 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288951AbSANTsf>;
-	Mon, 14 Jan 2002 14:48:35 -0500
-Date: Mon, 14 Jan 2002 20:48:18 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-Id: <20020114204818.24a253cc.skraw@ithnet.com>
-In-Reply-To: <E16QBLq-0002Mu-00@the-village.bc.nu>
-In-Reply-To: <20020114184334.0a1712d4.skraw@ithnet.com>
-	<E16QBLq-0002Mu-00@the-village.bc.nu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S288955AbSANTus>; Mon, 14 Jan 2002 14:50:48 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:5 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S288950AbSANTtm>;
+	Mon, 14 Jan 2002 14:49:42 -0500
+Message-ID: <3C43357D.40600@namesys.com>
+Date: Mon, 14 Jan 2002 22:46:05 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolabs.com>
+CC: Oleg Drokin <green@namesys.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org, ewald.peiszer@gmx.at,
+        matthias.andree@stud.uni-dortmund.de
+Subject: Re: [reiserfs-list] Boot failure: msdos pushes in front of reiserfs
+In-Reply-To: <20020113223803.GA28085@emma1.emma.line.org> <20020114095013.A4760@namesys.com> <3C42BE0E.2090902@namesys.com> <20020114143650.D828@namesys.com> <20020114104242.M26688@lynx.adilger.int>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002 17:56:54 +0000 (GMT)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Andreas Dilger wrote:
 
-> > Can this be highmem-related?
-> 
-> That would make complete sense if so. The bttv uses vmalloc_32(), as the
-> card has 32bit limits, and I am not running bttv (nor I suspect are most
-> people) with highmem enabled
+>On Jan 14, 2002  14:36 +0300, Oleg Drokin wrote:
+>
+>>On Mon, Jan 14, 2002 at 02:16:30PM +0300, Hans Reiser wrote:
+>>
+>>>So what solution should we use, zeroing or fixing msdos to not try 
+>>>something reiserfs can find, or both or what?
+>>>
+>>We can use both:
+>>     destroy MSDOS superblock (if any) at mkreiserfs (or don't touch 1st
+>>     block of the device if there is no msdos superblock).
+>>     And link reiserfs code into the kernel earlier than msdos code.
+>>
+>
+>Hmm, I could have sworn I submitted patches already which did both of these
+>things.  In general, it is perfectly safe to zero the bootsector of a
+>partition when you mkfs it (mke2fs has been doing this for a long time).
+>If you mkfs your boot partition (and zap the bootblock) you would have to
+>run LILO on it anyways after they install a new kernel, because the
+>location of the kernel would change.
+>
+Can the kernel be in a different partition from the boot partition?  If 
+so, it is not safe, yes?
 
-Ok. I tracked it down. It is definitely VMALLOC-stuff. I increased the
-VMALLOC_RESERVE from 128 to 256 MB and now it _works_. Here is a list of loaded
-modules, maybe one (or several) of those are known to be vmalloc-fans :-)
+>
+>
+>'Re: 2.4.15-pre1: "bogus" message with reiserfs root and other weirdness'
+>dated Nov 21, 2001 for patch to clean up reiserfs boot messages and order.
+>
+>'Re: [reiserfs-list] Re: Basic reiserfs question' dated Sep 7, 2001 for
+>patch which (among other things) zaps non-reiserfs data from the disk
+>when mkreiserfs is run (also referenced in a subsequent posting
+>'Re: [reiserfs-list] mkreiserfs /dev/hdb' dated Oct 1, 2001).
+>
+
+Oleg, please review his patches and integrate them into our release process.
+
+>
+>
+>There was a patch submitted within the past week to clean up the FAT
+>messages when "silent" is passed.  In any case, that is mostly irrelevant
+>if reiserfs is moved up in the probe order.
+>
+>Cheers, Andreas
+>--
+>Andreas Dilger
+>http://sourceforge.net/projects/ext2resize/
+>http://www-mddsp.enel.ucalgary.ca/People/adilger/
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
 
-Module                  Size  Used by
-tuner                   8048   1  (autoclean)
-bttv                   60848   0 
-i2c-algo-bit            7040   1  [bttv]
-i2c-core               12224   0  [tuner bttv i2c-algo-bit]
-videodev                4768   2  [bttv]
-NVdriver              720128  14  (autoclean)
-parport_pc             12432   1  (autoclean)
-lp                      5984   0  (autoclean)
-parport                12736   1  (autoclean) [parport_pc lp]
-nfs                    73024   2  (autoclean)
-lockd                  47056   1  (autoclean) [nfs]
-sunrpc                 62496   1  (autoclean) [nfs lockd]
-ipv6                  158464  -1  (autoclean)
-uhci                   24896   0  (unused)
-usbcore                48640   1  [uhci]
-3c59x                  25312   1  (autoclean)
-emu10k1                58080   0 
-sound                  54064   0  [emu10k1]
-ac97_codec              9504   0  [emu10k1]
-hisax                 168112   4 
-isdn                  115088   6  [hisax]
-slhc                    4304   0  [isdn]
-serial                 44128   0  (autoclean)
-
-
-How can I find out?
-
-Regards,
-Stephan
 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271832AbTGYAG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 20:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271834AbTGYAG6
+	id S271834AbTGYAHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 20:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271835AbTGYAHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 20:06:58 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:17883 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S271832AbTGYAG5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 20:06:57 -0400
-Date: Thu, 24 Jul 2003 17:21:53 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Michael Bernstein <michael@seven-angels.net>
-Cc: Larry McVoy <lm@bitmover.com>, Stephan von Krawczynski <skraw@ithnet.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, diegocg@teleline.es,
-       gmicsko@szintezis.hu, Hurley Nick <hurley@cis.ohio-state.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: SCO offers UnixWare licenses for Linux
-Message-ID: <20030725002153.GC20064@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Michael Bernstein <michael@seven-angels.net>,
-	Larry McVoy <lm@bitmover.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	diegocg@teleline.es, gmicsko@szintezis.hu,
-	Hurley Nick <hurley@cis.ohio-state.edu>,
-	linux-kernel@vger.kernel.org
-References: <20030724234213.GA20064@work.bitmover.com> <92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Thu, 24 Jul 2003 20:07:52 -0400
+Received: from quechua.inka.de ([193.197.184.2]:17861 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S271834AbTGYAHq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 20:07:46 -0400
+From: Bernd Eckenfels <ecki-lkm@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Net device byte statistics
+In-Reply-To: <200307250156.47108.fredrik@dolda2000.cjb.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19fqMF-0007me-00@calista.inka.de>
+Date: Fri, 25 Jul 2003 02:22:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, Michael, I replied privately because the list is sick of this.  How
-about you do the list a favor and keep it private?
+In article <200307250156.47108.fredrik@dolda2000.cjb.net> you wrote:
+> On the other hand, I cannot imagine that noone would have thought of it. What 
+> is the reason for this? Is there another interface that I should use instead 
+> of /proc/net/dev to gather byte statistics for interfaces?
+
+it is for performance reasons. You can
+
+a) collect your numbers more often and asume wrap/reboot  if numbers
+decrease
+b) use iptables counters instead
+
+BTW: it is a very often discussed topic, personally (as net tools
+maintainer) I would love to see 64bit counters here, but this still means
+you have to sample often enough, so you do not lose numbers on crash.
+
+Greetings
+Bernd
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

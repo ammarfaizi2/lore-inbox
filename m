@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269451AbUINPz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269448AbUINP72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269451AbUINPz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUINPyQ
+	id S269448AbUINP72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269457AbUINPx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:54:16 -0400
-Received: from holomorphy.com ([207.189.100.168]:35988 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269455AbUINPvL (ORCPT
+	Tue, 14 Sep 2004 11:53:56 -0400
+Received: from cantor.suse.de ([195.135.220.2]:26761 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269454AbUINPuJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:51:11 -0400
-Date: Tue, 14 Sep 2004 08:51:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ray Bryant <raybry@sgi.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914155103.GR9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com> <20040914113419.GH4180@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914113419.GH4180@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 14 Sep 2004 11:50:09 -0400
+Message-ID: <4147128A.9030706@suse.de>
+Date: Tue, 14 Sep 2004 17:47:22 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
+References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz> <41467216.6070508@drzeus.cx> <20040914150013.GB27621@elf.ucw.cz> <41470B5A.2010005@drzeus.cx> <20040914152406.GA9581@elf.ucw.cz>
+In-Reply-To: <20040914152406.GA9581@elf.ucw.cz>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 09:47:48PM -0700, William Lee Irwin III wrote:
->> timer interrupt, usually at boot. The following patch attempts to 
->> amortize the atomic operations done on the profile buffer to address 
->> this stability concern. This patch has nothing to do with performance;
+Pavel Machek wrote:
+> Hi!
 
-On Tue, Sep 14, 2004 at 01:34:19PM +0200, Andrea Arcangeli wrote:
-> isn't it *much* simpler and much more efficient to just have a per-cpu
-> idle function? I seriously doubt you'll get simultaneous collisions on
-> anything but the 'halt' instruction in the idle function.
+> Stefan, could you take a look? I rm -rf'ed my copy of windows :-(.
 
-Sampling the profile buffer at regular intervals shows far less than
-256 distinct functions hit in 1s intervals even with all cpus busy. As
-for whether that would be sufficient, that will have to be answered by
-those who reported the bug. I suppose to test whether things besides
-idling do cause this problem, one would boot with a restricted
-prof_cpu_mask, load all cpus on the machine, set the prof_cpu_mask to
-unrestricted, and see if it livelocks before the load terminates.
+Me too, but fortunately i exchanged the nx5k with somebody else who 
+hasn't :-)
 
+Texas Instruments PCIxx20 Integrated FlashMedia controller
+Driver: tifm.sys
 
--- wli
+Memory range: 90280000-90280fff
+IRQ: 18
+
+	Stefan

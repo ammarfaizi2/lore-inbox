@@ -1,65 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265109AbTIEXW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 19:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTIEXW5
+	id S265520AbTIEXaa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 19:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265527AbTIEXa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 19:22:57 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:56505 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265109AbTIEXWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 19:22:51 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 6 Sep 2003 01:22:44 +0200 (MEST)
-Message-Id: <UTC200309052322.h85NMi903303.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org, vojtech@suse.cz
-Subject: [PATCH] more keyboard stuff
+	Fri, 5 Sep 2003 19:30:29 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39176
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S265520AbTIEXa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 19:30:27 -0400
+Date: Fri, 5 Sep 2003 16:30:31 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Chad Kitching <CKitching@powerlandcomputers.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Message-ID: <20030905233031.GH19041@matchmail.com>
+Mail-Followup-To: Chad Kitching <CKitching@powerlandcomputers.com>,
+	linux-kernel@vger.kernel.org
+References: <18DFD6B776308241A200853F3F83D50727B4@pl6w2kex.lan.powerlandcomputers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18DFD6B776308241A200853F3F83D50727B4@pl6w2kex.lan.powerlandcomputers.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked a bit more at the keyboard code and find a bug
-and a probable bug.
+On Fri, Sep 05, 2003 at 03:53:27PM -0500, Chad Kitching wrote:
+> 
+> From: Mike Fedyk [mailto:mfedyk@matchmail.com]
+> > Here is one thing we don't have standardized across the entire Linux
+> > distribution landscape.
+> > 
+> > What you need is a project that will take the top 10 
+> > distributions, and do
+> > this however each distribution does their thing:
+> > 
+> >  o identify the current kernel running (you're going to use the kernel
+> >    you're running, right?)
+> 
+> Not to mention on boot-up check to make sure the module still loads 
+> without warnings on the current kernel (or make sure the module exists 
+> in the current /lib/modules directory.
+>    
 
-(i) In case a synaptics touchpad has been detected, the comment
-says "disable AUX". But we do not set the disable bit, but
-instead .and. with the bit - no doubt getting zero.
-This must be a bug.
+Not a problem. and /lib/modules is /lib/modules/`uname -r`
+You have to compile the driver for the new kernel.  see below
 
-(ii) Directly above this is the suspicious comment
-"keyboard translation seems to be always off".
-But every machine comes always up in translated scancode 2.
-Translation is never off. But wait! by mistake the above .and.
-cleared the XLATE bit.
+> >  o download the kernel source for the running kernel
+> 
+> Problem: Most distributors modify their kernel somewhat.  Some enough 
+> to cause binary module incompatibility with the 'stock' kernel.  
+> Matching running kernel and source code kernel would be tricky, to
+> say the least.
+>  
 
-So, I think bug (i) explains mystery (ii).
+That is why it has to be modified to detect and work with the 10 most
+popular distributions.  You work with the distribution kernel...
 
-However, note that this is code reading only.
-I do not have the hardware, so cannot test.
+> >  o install the source in some temporary location
+> 
+> Why not just make the includes directory get installed somewhere.  
+> Somewhere like /lib/modules/`uname -r`/build/includes (especially since
+> make install puts a symlink at /lib/modules/`uname -r`/build anyway)
+> You also need to prep the extracted kernel with the proper .config, etc.
+> which isn't always in the source package from some distributors.
+> 
 
-Andries
+Because that takes up more space, and some people don't like that.  Though
+the distributions could make it an option to do that on install.  It's up to
+the individual distribution though...
 
-[line numbers will be off]
+> >  o compile against the downloaded kernel source
+> > 
+> >  o install the module under /lib/modules
 
+should have been /lib/modules/`uname -r`
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Sat Aug  9 22:16:42 2003
-+++ b/drivers/input/serio/i8042.c	Sat Sep  6 02:05:34 2003
-@@ -618,16 +619,10 @@
- 		(~param >> 4) & 0xf, ~param & 0xf);
+> > 
+> >  o load the module (with the corect optional parameters)
+> 
+> The biggest problem is people not having installed the C compiler, and 
+> related tools.  Or having not installed the kernel headers matching 
+> their version of the kernel.
+> 
+
+ o identify gcc generation (2.95x, 3.0x, 3.1x, etc) to build current kernel
  
- /*
-- * In MUX mode the keyboard translation seems to be always off.
-- */
-- 
--	i8042_direct = 1;
--
--/*
-  * Disable all muxed ports by disabling AUX.
-  */
- 
--	i8042_ctr &= I8042_CTR_AUXDIS;
-+	i8042_ctr |= I8042_CTR_AUXDIS;
- 	i8042_ctr &= ~I8042_CTR_AUXINT;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
+ o install gcc version to match
+
+There are tools already to add patches to kernels in debian (wheather it's a
+debian kernel or not).  We just need to have something the other way around.
+No need to patch the kernel, just compile against it.
+
+I say that it should adapt to the individual distribution because it takes
+so much longer to make a standard, and that can always come later, and the
+project can adjust to the new standard (instead of complaining to each
+distribution whenever they change their kernel packaging technique).

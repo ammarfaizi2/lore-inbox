@@ -1,128 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263922AbRFHH4y>; Fri, 8 Jun 2001 03:56:54 -0400
+	id <S263881AbRFHIDF>; Fri, 8 Jun 2001 04:03:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263917AbRFHH4o>; Fri, 8 Jun 2001 03:56:44 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:12010 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S263881AbRFHH43>; Fri, 8 Jun 2001 03:56:29 -0400
-From: COTTE@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org
-Message-ID: <C1256A65.002B8C90.00@d12mta11.de.ibm.com>
-Date: Fri, 8 Jun 2001 09:52:05 +0200
-Subject: Re: BUG: race-cond with partition-check and ll_rw_blk (all
-	 platforms, 2.4.*!)
+	id <S263917AbRFHICy>; Fri, 8 Jun 2001 04:02:54 -0400
+Received: from leeor.math.technion.ac.il ([132.68.115.2]:42414 "EHLO
+	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
+	id <S263881AbRFHICo>; Fri, 8 Jun 2001 04:02:44 -0400
+Date: Fri, 8 Jun 2001 11:02:37 +0300
+From: "Nadav Har'El" <nyh@math.technion.ac.il>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in nonlocal-bind (transparent proxy)?
+Message-ID: <20010608110237.A1911@leeor.math.technion.ac.il>
+In-Reply-To: <20010607170825.A18760@leeor.math.technion.ac.il> <20010608014443.A28407@saw.sw.com.sg>
 Mime-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=ZYGrWDFKJ2mOD6dvexYrch53W8LFt5HQDflyfxqXUdsgRHsIQayI4SPM"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010608014443.A28407@saw.sw.com.sg>; from saw@saw.sw.com.sg on Fri, Jun 08, 2001 at 01:44:43AM -0400
+Hebrew-Date: 17 Sivan 5761
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=ZYGrWDFKJ2mOD6dvexYrch53W8LFt5HQDflyfxqXUdsgRHsIQayI4SPM
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: quoted-printable
+On Fri, Jun 08, 2001, Andrey Savochkin wrote about "Re: Bug in nonlocal-bind (transparent proxy)?":
+> On Thu, Jun 07, 2001 at 05:08:25PM +0300, Nadav Har'El wrote:
+> Hi,
+> > Bind()ing a non-local address worked fine in the 2.2 line of kernels if a
+> > certain compile-time option was enabled (TRANSPARENT_PROXY, or something
+> > like that). But it no longer seems to be working in the 2.4 kernels (I
+> > tried this on 2.4.2 coming from the Redhat 7.1 distribution).
+> 
+> It's not a bug, it's willful.
 
+I don't understand what is willful: why does the ip_nonlocal_bind sysctl
+exist if it doesn't help? Getting bind() to work (which is what
+ip_nonlocal_bind does) but later not being able to connect() this socket
+isn't very useful...
 
+> To make a custom kernel where you can use non-local addresses more freely,
+> find source address checks in ip_route_output_slow() and get rid of all of
+> them except considering
+> 	MULTICAST(saddr) || BADCLASS(saddr) || ZERONET(saddr) ||
+> 		saddr == htonl(INADDR_BROADCAST)
+> as invalid.
 
+Thanks for the idea - I'll try doing that, and see if it works.
 
-Hi Andries, Hi List!
+Is there any special reason why, instead of that ip_nonlocal_bind that doesn't
+work, we don't have instead a compile-time variable (obviously a run-time
+sysctl or socket-specific option would be even better) which enables both
+ip_nonlocal_bind and the hacks needed to get connect() to work?
 
-Andries, thank you for your quick response,
->Well, among the irrelevant details you left out is the fact that
->it is not
->    blk_size[dev->major] =3D NULL;
->but
->    if(!dev->sizes)
->         blk_size[dev->major] =3D NULL;
-Well, this is absoloutely right, the behaviour to clear blk_size when
-dev->sizes
-is NULL looks sensible to me. But seven lines below it says
--unconditionaly-:
-     blk_size[dev->major] =3D NULL;
-
->So, the idea is that either this major has an array with sizes,
->and then one can find it in blk_size[dev->major], or it hasn't.
->You seem to have a situation where dev->sizes is NULL but
->blk_size[dev->major] is not? What device is this?
-Our dev->sizes holds a pointer which (normally, when grok_partitions is=
-
-not running currently). We are running the dasd-device driver for chann=
-el
-attached disks on mainframe architectures (drivers/s390/block/dasd*).
-
-mit freundlichem Gru=DF / with kind regards
-Carsten Otte
-
-IBM Deutschland Entwicklung GmbH
-Linux for 390/zSeries Development - Device Driver Team
-Phone: +49/07031/16-4076
-IBM internal phone: *120-4076
---
-We are Linux.
-Resistance indicates that you're missing the point!
-
-
-Andries.Brouwer@cwi.nl on 06/07/2001 11:10:52 PM
-
-Please respond to Andries.Brouwer@cwi.nl
-
-To:   Carsten Otte/Germany/IBM@IBMDE, linux-kernel@vger.kernel.org
-cc:
-Subject:  Re: BUG: race-cond with partition-check and ll_rw_blk (all
-      platforms, 2.4.*!)
-
-
-
-=
-
---0__=ZYGrWDFKJ2mOD6dvexYrch53W8LFt5HQDflyfxqXUdsgRHsIQayI4SPM
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-    From: COTTE@de.ibm.com
-
-    We just had a problem when running some formatting-utils on
-    a large amount of disks synchronously: We got a NULL-pointer
-    violation when accessig blk_size[major] for our major number.
-    Further research showed, that grok_partitions was running at
-    that time, which has been called by register_disk, which our
-    device driver issues after a disk has been formatted.
-    Grok_partitions first initializes blk_size[major] with a NULL
-    pointer, detects the partitions and then assigns the original
-    value to blk_size[major] again.
-    Here's the interresting code from these functions, I cut some
-    irrelevant things out:
-    From grok_paritions:
-         blk_size[dev->major] = NULL;
-         check_partition(dev, MKDEV(dev->major, first_minor), 1 +
-first_minor);
-         if (dev->sizes != NULL) {
-              blk_size[dev->major] = dev->sizes;
-         };
-    From generic_make_request:
-         if (blk_size[major]) {
-                   if (blk_size[major][MINOR(bh->b_rdev)]) {
-
-    Can anyone explain to me, why grok_partitions has to clear
-    this pointer?
-
-
-     ...
-     if (dev->sizes)
-          blk_size[dev->major] = dev->sizes;
-
-So, the idea is that either this major has an array with sizes,
-and then one can find it in blk_size[dev->major], or it hasn't.
-You seem to have a situation where dev->sizes is NULL but
-blk_size[dev->major] is not? What device is this?
-
-Andries
-
-
---0__=ZYGrWDFKJ2mOD6dvexYrch53W8LFt5HQDflyfxqXUdsgRHsIQayI4SPM--
-
+-- 
+Nadav Har'El                        |       Friday, Jun  8 2001, 17 Sivan 5761
+nyh@math.technion.ac.il             |-----------------------------------------
+Phone: +972-53-245868, ICQ 13349191 |A conscience does not prevent sin. It
+http://nadav.harel.org.il           |only prevents you from enjoying it.

@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUE3AYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUE3AaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUE3AYM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 20:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUE3AYM
+	id S261396AbUE3AaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 20:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUE3AaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 20:24:12 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:57570 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261389AbUE3AYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 20:24:10 -0400
-Message-ID: <40B91AD6.5070807@kegel.com>
-Date: Sat, 29 May 2004 16:20:54 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Recommended compiler version
-References: <40B8A161.5040306@kegel.com> <40B922D5.5090609@opersys.com>
-In-Reply-To: <40B922D5.5090609@opersys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 29 May 2004 20:30:22 -0400
+Received: from hera.kernel.org ([63.209.29.2]:36225 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261396AbUE3AaT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 20:30:19 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: ftp.kernel.org
+Date: Sun, 30 May 2004 00:29:07 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c9b9sj$ccc$1@terminus.zytor.com>
+References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <20040528150119.GE18449@thunk.org> <20040528163234.GV2603@schnapps.adilger.int> <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1085876947 12685 127.0.0.1 (30 May 2004 00:29:07 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 30 May 2004 00:29:07 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> RANT: It's really about time that someone within the GNU project took it
-> upon herself to actually get the GNU toolchain to build for cross-dev
-> without having to require walking-on-water talents.
+Followup to:  <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
+By author:    Daniel Egger <degger@fhm.edu>
+In newsgroup: linux.dev.kernel
+> 
+> Actually I think this is *the* idea. Why not simply set up a
+> bittorrent tracker and have a distributed kernel.org
+> fileserving system? Instead of having links to http and ftp
+> sites there could be a torrent link as well. Several
+> OpenSource projects started distributing files with BT
+> already and it seems to work like a charm.
+> 
 
-Quite.  I'm heading up to the gcc summit next week to make that point
-(see also http://gcc.gnu.org/ml/gcc/2004-05/msg01417.html,
-which rumors that Paolo Bonzini and Nathanael Nerode are
-working on detangling gcc bootstrap).
+Because doing it with BitTorrent is a nightmare.  I posted a long list
+of the problems with BT for doing this to the BT mailing list and
+pretty much got told that there is no way to do what I'd want to do
+within BT.
 
-And I've been busting my ass for the last year maintaining the 'crosstool'
-script so people without walking-on-water talents can build
-the GNU toolchain for cross-development.  (But before Karim objects
-to the concept of a canned build script, I hasten to add that
-I fully agree with him that the gnu toolchain build process shouldn't
-need such an ugly and fragile wrapper script around it.)
+Some of the people from the BT list have approached me about creating
+a new protocol - working name "Software Distribution Protocol"
+(SDP)... but it's a big job.
 
-> BTW, the 2.6.6 kernel wouldn't build without the following
-> modifications to the main makefile:
-> AS              = $(CROSS_COMPILE)as -maltivec
-> CFLAGS_KERNEL   = -maltivec
-> AFLAGS_KERNEL   = -maltivec
-> For some reason 3.4.0 forgets to tell AS that this CPU may have
-> Altivec instructions -- there are some postings about this if
-> you google around.
-
-I think the issue is that binutils-2.15 started checking its
-input more strictly, in a way that broke several apps.  Binutils
-cvs has the following patch which is said to relex the check:
-http://sources.redhat.com/cgi-bin/cvsweb.cgi/src/opcodes/ppc-opc.c.diff?r1=1.70&r2=1.71&cvsroot=src
-That patch'll be in the next crosstool, of course.
-
-Thanks for posting about your experiences with gcc-3.4.0
-and the link to http://www.ppckernel.org, which I wasn't aware of...
-- Dan
-
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+	-hpa

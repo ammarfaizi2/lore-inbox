@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269340AbRHGOu3>; Tue, 7 Aug 2001 10:50:29 -0400
+	id <S268861AbRHGOta>; Tue, 7 Aug 2001 10:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269322AbRHGOu0>; Tue, 7 Aug 2001 10:50:26 -0400
-Received: from waste.org ([209.173.204.2]:9490 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S270228AbRHGOuF>;
-	Tue, 7 Aug 2001 10:50:05 -0400
-Date: Tue, 7 Aug 2001 09:49:58 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Michael Heinz <mheinz@infiniconsys.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Resources for SCSI, SRP, Infiniband?
-In-Reply-To: <3B6EA6FB.5090505@infiniconsys.com>
-Message-ID: <Pine.LNX.4.30.0108070943550.24455-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270066AbRHGOtT>; Tue, 7 Aug 2001 10:49:19 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:60932 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S268861AbRHGOtH>;
+	Tue, 7 Aug 2001 10:49:07 -0400
+Date: Tue, 7 Aug 2001 17:49:02 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: lk@Aniela.EU.ORG
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the mailing list going out?
+Message-ID: <20010807174902.D11046@mea-ext.zmailer.org>
+In-Reply-To: <20010807154537.A11046@mea-ext.zmailer.org> <Pine.LNX.4.33.0108071738240.601-100000@ns1.Aniela.EU.ORG>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108071738240.601-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Tue, Aug 07, 2001 at 05:39:33PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Michael Heinz wrote:
+On Tue, Aug 07, 2001 at 05:39:33PM +0300, lk@Aniela.EU.ORG wrote:
+> I had no ideea that you had more tham one connection to the internet. I
+> said "him" supposing that, just like me, you have only one ISP. My
+> mistake.
 
-> I'm tasked with developing a new SCSI driver for 2.4; but I'm running
-> into issues that (a) SCSI drivers are different from other Linux device
-> drivers and (b) none of the SCSI driver docs/how-tos seem to have been
-> updated since 2.0.x.
->
-> I'm making progress, but could someone direct me to a list of do's and
-> don't's for SCSI drivers in 2.4?
->
-> Also, anybody else looking at developing IB and or SRP?
+   You are not native english speaker, I think.  (Not that I am either.)
+It is about how to use pronouns "he" vs. "they".   An ISP is not a person,
+thus more appropriate pronoun would be "it", but also "they" applies.
 
-The mention of all of the above together suggests you're working on iSCSI
-or something similar. If so, there are at least three open implementations
-for Linux, from Cisco, Intel, and UNH. Are you looking for Secure Remote
-Password (speced for iSCSI authentication) or Selective Retransmission
-Protocol?
+I prefer using "your ISP" when writing to people notifying them about
+email system glitches for their address, and referring to that elusive
+group of people making mistakes and screwing up that email reception.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> Regards,
+> /me
 
+/Matti Aarnio

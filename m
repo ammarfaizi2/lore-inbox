@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315115AbSEHU0V>; Wed, 8 May 2002 16:26:21 -0400
+	id <S314981AbSEHU2W>; Wed, 8 May 2002 16:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315119AbSEHU0U>; Wed, 8 May 2002 16:26:20 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54034 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315115AbSEHU0U>; Wed, 8 May 2002 16:26:20 -0400
-Subject: Re: [PATCH] IDE 58
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Wed, 8 May 2002 21:44:01 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        dalecki@evision-ventures.com (Martin Dalecki),
-        andre@linux-ide.org (Andre Hedrick),
-        bjorn.wesen@axis.com (Bjorn Wesen), paulus@samba.org (Paul Mackerras),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <20020508194931.25660@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at May 08, 2002 09:49:31 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315119AbSEHU2V>; Wed, 8 May 2002 16:28:21 -0400
+Received: from longsword.omniti.com ([216.0.51.134]:57239 "EHLO
+	longsword.omniti.com") by vger.kernel.org with ESMTP
+	id <S314981AbSEHU2U>; Wed, 8 May 2002 16:28:20 -0400
+Message-ID: <3CD98B36.8060203@omniti.com>
+Date: Wed, 08 May 2002 16:31:50 -0400
+From: Robert Scussel <rscuss@omniti.com>
+Reply-To: rscuss@omniti.com
+Organization: OmniTI, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 3C509C Odd Behavior
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E175YI5-0002LD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I though about that, but what about corner cases where only a single
-> register can be accessed ? (typically alt status). Provide specific
-> routines ? Also, how does the extended addressing works ? by writing
-> several times to the cyl registers ? That would have to be dealt with
-> as well in each host driver then.
+I have read through the list seeing many emails on the 3c59x module, 
+however, what I found for the recent posts was for laptops.
 
-There are lots of cases we don't care about speed - things like setup of
-the controller, changing UDMA mode etc. 
+Here is the situation
 
-> Right. We could go the darwin (apple) way and have taskfile_load/store
-> functions doing the entire registers controlled by a bitmask of which
-> registers has to be touched. it has a cost (testing each bit and
-> conditionally branching, which can suck hard) but probably less than
+    Tyan S2466 motherboard with 3Com (3c509c) onboard nic, Intel 
+eepro100 pci nic.  RedHat 7.2 XFS. When the machine boots, the intel 
+card comes up fine. The 3com card appears to initialize, can be seen 
+from the box itself, however cannot ping out to anything else, and 
+cannot be pinged from anywhere. If I down and up the card twice, it 
+comes up fine with no more worries. No errors are generated.  The same 
+behavior occurs with the default 2.4.9 kernel that comes with 7.2 
+install, and with the 2.4.18 kernel.
 
-Get yourself a conditional move instruction 8)
+Any insights would be most appreciated.
 
-> an indirect function call which isn't predictable.
+Thanks,
+B
+-- 
+Robert Scussel
+1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959
 
-Or you have a small set of such functions for the critical paths - ie doing
-actual block I/O which pass the set of values required to do that operation
-and do the stores. What are the performance critical paths
-
-	Begin a disk write
-	Begin a disk read
-	PIO transfer in
-	PIO transfer out
-	End a disk I/O fastpaths (no error case)
-
-	Maybe ATAPI command writes ?
-
-beyond that I doubt the rest are critical 
-
-Alan

@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbTEESbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTEESbX
+	id S261192AbTEESdD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTEESdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:31:23 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:64417 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP id S261203AbTEESbT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:31:19 -0400
-Message-ID: <3EB6B0DD.2000404@tmsusa.com>
-Date: Mon, 05 May 2003 11:43:41 -0700
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Mon, 5 May 2003 14:33:03 -0400
+Received: from k1.dinoex.de ([80.237.200.94]:42255 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S261192AbTEESc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:32:57 -0400
+To: Michael Buesch <fsdeveloper@yahoo.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.69, TR] compile error
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+References: <87bryh9ue3.fsf@echidna.jochen.org>
+	<200305052033.10592.fsdeveloper@yahoo.de>
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Mon, 05 May 2003 20:44:46 +0200
+In-Reply-To: <200305052033.10592.fsdeveloper@yahoo.de> (Michael Buesch's
+ message of "Mon, 5 May 2003 20:32:55 +0200")
+Message-ID: <87smrtw7vl.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.69-mm1 OOPS: modprobe usbcore
-References: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
+Michael Buesch <fsdeveloper@yahoo.de> writes:
 
->Process modprobe (pid: 62, threadinfo=df9f2000 task=dfdb8e00)
+> On Monday 05 May 2003 19:27, Jochen Hein wrote:
+>> This seems to be a fallout from the irq-type changes:
+>>
+>>   gcc -Wp,-MD,drivers/net/pcmcia/.ibmtr_cs.o.d -D__KERNEL__ -Iinclude
+>>   -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+>>   -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium2
+>>   -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+>>   -DMODULE   -DKBUILD_BASENAME=ibmtr_cs -DKBUILD_MODNAME=ibmtr_cs -c
+>>   -o drivers/net/pcmcia/ibmtr_cs.o drivers/net/pcmcia/ibmtr_cs.c
+>> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
+>> drivers/net/tokenring/ibmtr.c: In function `tok_open':
+>> drivers/net/tokenring/ibmtr.c:903: warning: `MOD_INC_USE_COUNT' is
+>>   deprecated (declared at include/linux/module.h:456)
+>> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
+>> drivers/net/tokenring/ibmtr.c: In function `tok_close':
+>> drivers/net/tokenring/ibmtr.c:1068: warning: `MOD_DEC_USE_COUNT' is
+>>   deprecated (declared at include/linux/module.h:468)
+>> drivers/net/pcmcia/ibmtr_cs.c: At top level:
+>> drivers/net/pcmcia/ibmtr_cs.c:130: conflicting types for
+>>   `tok_interrupt'
+>> drivers/net/tokenring/ibmtr.c:1170: previous declaration of
+>>   `tok_interrupt'
+>> make[3]: *** [drivers/net/pcmcia/ibmtr_cs.o] Fehler 1
+>> make[2]: *** [drivers/net/pcmcia] Fehler 2
+>> make[1]: *** [drivers/net] Fehler 2
+>> make: *** [drivers] Fehler 2
 >
->
->[<c0118ab8>] module_finalize+0x7f/0x8b
->[<c013de18>] load_module+0x61c/0x821
->[<c013e0b1>] sys_init_module+0x94/0x340
->[<c0109e01>] sysenter_past_esp+0x52/0x71
->
->This error is reproducble 100% of the time when trying to boot Red Hat
->Linux 9 with a 2.5.69-mm1 kernel. Config attached.
->
+> Can you please post your .config, as I'm not able to reproduce it.
+> thanks.
 
-Just a me too, I see the same thing in 2.5.69-mm1.
+The following patch fixes it for me, but I think this prototype should
+be removed:
 
-I first saw it in 2.5.68-mm4,  2.5.68-mm3 was fine -
+--- linux-2.5.69/drivers/net/pcmcia/ibmtr_cs.c~	2003-05-05 20:42:19.000000000 +0200
++++ linux-2.5.69/drivers/net/pcmcia/ibmtr_cs.c	2003-05-05 19:26:46.000000000 +0200
+@@ -127,7 +127,7 @@
+ 
+ extern int ibmtr_probe(struct net_device *dev);
+ extern int trdev_init(struct net_device *dev);
+-extern void tok_interrupt (int irq, void *dev_id, struct pt_regs *regs);
++extern irqreturn_t tok_interrupt (int irq, void *dev_id, struct pt_regs *regs);
+ 
+ /*====================================================================*/
+ 
 
-I suspect 2.5.69 vanilla is fine as well, currently
-compiling to verify -
+Relevant part of .config:
 
-Joe
+CONFIG_TR=y
+CONFIG_IBMTR=m
+CONFIG_PCMCIA_IBMTR=m
 
+Jochen
+
+-- 
+#include <~/.signature>: permission denied

@@ -1,52 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSILM6s>; Thu, 12 Sep 2002 08:58:48 -0400
+	id <S315540AbSILNDd>; Thu, 12 Sep 2002 09:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSILM6r>; Thu, 12 Sep 2002 08:58:47 -0400
-Received: from dp.samba.org ([66.70.73.150]:34518 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S315454AbSILM6q>;
-	Thu, 12 Sep 2002 08:58:46 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, Daniel Phillips <phillips@arcor.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Raceless module interface 
-In-reply-to: Your message of "Thu, 12 Sep 2002 13:27:10 +0200."
-             <Pine.LNX.4.44.0209121043160.28515-100000@serv> 
-Date: Thu, 12 Sep 2002 23:03:18 +1000
-Message-Id: <20020912130337.3FFBF2C1CD@lists.samba.org>
+	id <S315690AbSILNDd>; Thu, 12 Sep 2002 09:03:33 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:2056 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S315540AbSILNDb>;
+	Thu, 12 Sep 2002 09:03:31 -0400
+Date: Thu, 12 Sep 2002 22:00:41 +0900 (JST)
+Message-Id: <20020912.220041.82105437.taka@valinux.co.jp>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
+Subject: Re: [patch] readv/writev rework
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3D7EFF0F.89F7D585@digeo.com>
+References: <3D7EFF0F.89F7D585@digeo.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209121043160.28515-100000@serv> you write:
-> Sigh, please let's analyze the complete problem first, before making any
-> more kludges.
-> Every (loaded) module is at least registered with two hooks in the kernel
-> - the module structure and a driver structure (e.g. file_system_type for
-> fs). During unloading we have to remove these hooks safely again.
-> A module basically goes through these stages during its lifetime:
-> 1. module load
-> 2. module init
-> 3. module exit
-> 4. module unload
-> The problem now is stage 3, as it's not allowed to fail. This means before
+Hello,
 
-Nope, that's one of the two problems.  Read my previous post: the
-other is partial initialization.
+Your readv/writev patch interested me and I checked it.
+I found we also have a chance to improve normal writev.
 
-Your patch is two-stage delete, with the additional of a usecount
-function.  So you have to move the usecount from the module to each
-object it registers: great for filesystems, but I don't think it buys
-you anything (since they were easy anyway).
+a_ops->prepare_write() and a_ops->commit_write will have a
+penalty when I/O size isn't PAGE_SIZE.
+With following patch generic_file_write_nolock() will try to
+make each I/O size become PAGE_SIZE.
 
-Moreover, I don't see where your patch prevented someone increasing
-the module count during try_unregister_module(), so that check is
-pointless (do it in userspace unless they specify rmmod -f).
+Could you apply it?
 
-Alexey said we needed two-stage module delete back in 1999, so this is
-not a new idea...
+> This is Janet Morgan's patch which converts the readv/writev code
+> to submit all segments for IO before waiting on them, rather than
+> submitting each segment separately.
+> 
+> This is a critical performance fix for O_DIRECT reads and writes.
+> Prior to this change, O_DIRECT vectored IO was forced to wait for
+> completion against each segment of the iovec rather than submitting all
+> segments and waiting on the lot.  ie: for ten segments, this code will
+> be ten times faster.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Thank you,
+Hirokazu Takahashi.
+
+
+
+--- linux-2.5.34/mm/filemap.c.ORG	Wed Sep 11 19:48:00 2030
++++ linux-2.5.34/mm/filemap.c	Thu Sep 12 21:43:02 2030
+@@ -2109,14 +2109,18 @@ generic_file_write_nolock(struct file *f
+ 		unsigned long index;
+ 		unsigned long offset;
+ 		long page_fault;
++		unsigned rest;
++		unsigned copy;
++		unsigned off;
++		struct iovec	*work_iov;
++		char		*work_buf;
++		unsigned	 work_iov_bytes;
+ 
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+ 		if (bytes > count)
+ 			bytes = count;
+-		if (bytes + written > iov_bytes)
+-			bytes = iov_bytes - written;
+ 
+ 		/*
+ 		 * Bring in the user page that we will copy from _first_.
+@@ -2144,7 +2148,29 @@ generic_file_write_nolock(struct file *f
+ 				vmtruncate(inode, inode->i_size);
+ 			break;
+ 		}
+-		page_fault = filemap_copy_from_user(page, offset, buf, bytes);
++
++		rest = bytes;
++		off = 0;
++		work_iov = cur_iov;
++		work_buf = buf;
++		work_iov_bytes = iov_bytes;
++		while (rest) {
++			copy = rest;
++			if (written + off == work_iov_bytes) {
++				work_iov++;
++				work_iov_bytes += work_iov->iov_len;
++				work_buf = work_iov->iov_base;
++			}
++			if (copy + written + off > work_iov_bytes)
++				copy = work_iov_bytes - written - off;
++
++			page_fault = filemap_copy_from_user(page, offset+off, work_buf, copy);
++			rest -= copy;
++			off += copy;
++			work_buf += copy;
++			if (unlikely(page_fault))
++				break;
++		}
+ 		status = a_ops->commit_write(file, page, offset, offset+bytes);
+ 		if (unlikely(page_fault)) {
+ 			status = -EFAULT;
+@@ -2153,14 +2179,21 @@ generic_file_write_nolock(struct file *f
+ 				status = bytes;
+ 
+ 			if (status >= 0) {
+-				written += status;
+ 				count -= status;
+ 				pos += status;
+-				buf += status;
+-				if (written == iov_bytes && count) {
+-					cur_iov++;
+-					iov_bytes += cur_iov->iov_len;
+-					buf = cur_iov->iov_base;
++				rest = status;
++				while (rest) {
++					copy = rest;
++					if (written == iov_bytes) {
++						cur_iov++;
++						iov_bytes += cur_iov->iov_len;
++						buf = cur_iov->iov_base;
++					}
++					if (copy + written > iov_bytes)
++						copy = iov_bytes - written;
++					rest -= copy;
++					written += copy;
++					buf += copy;
+ 				}
+ 			}
+ 		}

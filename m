@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266037AbRGGFsy>; Sat, 7 Jul 2001 01:48:54 -0400
+	id <S266034AbRGGFpO>; Sat, 7 Jul 2001 01:45:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266035AbRGGFsp>; Sat, 7 Jul 2001 01:48:45 -0400
-Received: from science.horizon.com ([192.35.100.1]:49458 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP
-	id <S266037AbRGGFse>; Sat, 7 Jul 2001 01:48:34 -0400
-Date: 7 Jul 2001 05:48:20 -0000
-Message-ID: <20010707054820.720.qmail@science.horizon.com>
-From: linux@horizon.com
+	id <S266035AbRGGFpE>; Sat, 7 Jul 2001 01:45:04 -0400
+Received: from [203.199.75.248] ([203.199.75.248]:16705 "EHLO indiainfo.com")
+	by vger.kernel.org with ESMTP id <S266034AbRGGFpB>;
+	Sat, 7 Jul 2001 01:45:01 -0400
+From: "gopi krishna" <mgopi@indiainfo.com>
+Subject: device plugging
 To: linux-kernel@vger.kernel.org
-Subject: What's the status of kernel PNP?
-Cc: tom@lpsg.demon.co.uk
+X-Mailer: CommuniGate Pro Web Mailer v.3.4.7
+Date: Sat, 07 Jul 2001 11:10:43 +0530
+Message-ID: <web-26606962@indiainfo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed that 2.4.6-ac1 parport won't compile (well, link) without
-the kernel PnP stuff configured.  So I tried turning it on.
+Why do we need a dummy req for plugging.
+As i understood only thing plugging does is to, on arrival of new req if
+the dev queue is empty, puts a dummy req on the queue, and schedules the
+unplug routine on tq_disk, which on being scheduled calls the strategy
+routine.
+So we can as well put the new req on the queue without dummy req.
 
-It prints a line saying that it found my modem at boot time, but doesn't
-actually configure it, so I have to run isapnp anyway if I want to use it.
+If i'm incorrect please explain what's exact process and the reason
 
-Okay, RTFM time... Documentation/isapnp.txt doesn't say anything about
-boot time (only /proc/isapnp usage after boot and some function call
-interfaces for kernel programming that are hard to follow).
+Please cc the response to mgopi@indiainfo.com as i'm not subscribed.
 
-kernel-parameters.txt gives a hint, although it required reading the
-source code to figure out what to pass as "isapnp=" to turn verbose up.
-
-A lot of google searching comes up with a lot of stale data but the only
-2.4-relevant kernel ISAPNP howto is written in Japanese.  Lots of stuff
-describes it as a feature in the 2.4 kernels, but I can't find anything
-on how to use it.
-
-MAINTAINERS claims that it's maintained, but the web page is down (the
-whole site has moved, and /~pnp doesn't exist on the new site) and the
-only mailing list archives I can find for pnp-devel (at geocrawler)
-doesn't have any updates since the year 2000 - and those are all spam.
-
-I'm a little suspect about that maintained status, although I haven't
-written the maintainer yet.
-
-
-But the upshot of all of this is that I can't figure out WTF to do with
-this "feature", since I haven't noticed it actually doing anything except
-taking up kernel memory.
-
-
-On another machine, with an ISA PCMCIA adapter, which works with isapnp
-and David Hinds' PCMCIA package, but if I try to use the 2.4 cardbus
-code, it fails to probe the PCMCIA adapter, apparently because the PnP
-code again didn't set it up.  (And there's no obvious way to force a
-re-probe after boot unless I build the whole thing as a module.)  Again,
-the PnP code cheerfully points out that the PCMCIA adpater exists, but
-doesn't appear to grasp the concept that I didn't put the adapter into
-the machine because it looks pretty.
-
-
-Can someome point me at TFM or some other source of information?  I'd be
-much obliged.
+thanks
+----------------------------------------
+http://mail.indiainfo.com
+First you had 10MB of free mail space.
+Now you can send mails in your own language !!!

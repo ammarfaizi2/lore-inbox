@@ -1,73 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbTHZEEv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 00:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTHZEEv
+	id S262524AbTHZEJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbTHZEJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 00:04:51 -0400
-Received: from anumail5.anu.edu.au ([150.203.2.45]:49878 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S262574AbTHZEEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 00:04:49 -0400
-Message-ID: <3F4ADC56.9010900@cyberone.com.au>
-Date: Tue, 26 Aug 2003 14:04:38 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
+	Tue, 26 Aug 2003 00:09:40 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:23780 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262524AbTHZEJi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 00:09:38 -0400
+Date: Mon, 25 Aug 2003 21:09:33 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: "Barry K. Nathan" <barryn@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       linux-kernel@vger.kernel.org, lkml@kcore.org
+Subject: Re: Pentium-M?
+In-Reply-To: <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.53.0308252054480.15337@twinlark.arctic.org>
+References: <200308231236.h7NCaMl0018383@harpo.it.uu.se>
+ <Pine.LNX.4.53.0308230901200.15935@montezuma.fsmlabs.com>
+ <20030823180338.GA3562@ip68-4-255-84.oc.oc.cox.net>
+ <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v7
-References: <3F48B12F.4070001@cyberone.com.au> <29760000.1061744102@[10.10.2.4]> <3F497BB6.90100@cyberone.com.au> <3F49E7D1.4000309@cyberone.com.au> <3070000.1061868247@[10.10.2.4]>
-In-Reply-To: <3070000.1061868247@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-3)
-X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
+On Sat, 23 Aug 2003, Zwane Mwaikambo wrote:
 
->>I didn't miss 5 revisions, I'll just stick to using my internal
->>numbering for releases.
->>
->>This one has a few changes. Children now get a priority boost
->>on fork, and parents retain more priority after forking a child,
->>however exiting CPU hogs will now penalise parents a bit.
->>
->>Timeslice scaling was tweaked a bit. Oh and remember raising X's
->>priority should _help_ interactivity with this patch, and IMO is
->>not an unreasonable thing to be doing.
->>
->>Please test. I'm not getting enough feedback!
->>
+> On Sat, 23 Aug 2003, Barry K. Nathan wrote:
 >
->Well, it's actually a bit faster than either mainline or your previous
->rev whilst running SDET:
->
->SDET 128  (see disclaimer)
->                           Throughput    Std. Dev
->              2.6.0-test4       100.0%         0.3%
->         2.6.0-test4-nick       102.9%         0.3%
->       2.6.0-test4-nick7a       105.1%         0.5%
->
->But kernbench is significantly slower. The increase in sys time has 
->dropped from last time, but user time is up.
->
->Kernbench: (make -j vmlinux, maximal tasks)
->                              Elapsed      System        User         CPU
->              2.6.0-test4       45.87      116.92      571.10     1499.00
->         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
->       2.6.0-test4-nick7a       49.48      125.95      617.71     1502.00
->
+> > On Sat, Aug 23, 2003 at 09:03:17AM -0400, Zwane Mwaikambo wrote:
+> > > That's interesting, intel compiler recommends P4 type optimisations,
+> > > also worth noting that the P-M has hardware prefetch.
+> >
+> > I'm pretty sure the "Tualatin" Pentium III's also have hardware prefetch.
+> > So it's not something specific to the P4 or P-M.
 
-Thanks Martin. OK, so the drop in kernbench is quite likely to be what
-I thought - elevated priorities (caused by eg. make waiting for children)
-causing timeslices to shrink. As long as its not a fundamental problem,
-this should be able to be tweaked back.
-
-Yeah, I guess the random kernel and user times are probably due to cache.
+yeah tualatin has hw prefetch.  p-m can handle more streams than tualatin.
 
 
+> Someone else (in concordance with Mikael) also pointed out that the
+> cacheline size is also the same as the PIII and not P4. So it's best
+> going for PIII optimisations. It's best ignoring my previous comment then.
 
+P-M has a 64-byte L1 dcacheline size same as P4 -- p3 has only 32 bytes.
+see <http://sandpile.org/impl/pm.htm> for example.  (it's possible to
+prove it experimentally if you want :)  but i thought kernel cacheline
+size stuff was only important for SMP locking alignments?
+
+there's details regarding the differences between P-M and P4 in the latest
+"P4 optimisation guide", which was document id 24896609 at
+developer.intel.com last time i fetched it, it might have been rev'd since
+then.
+
+basically the main disadvantage to selecting P4 for kernel compiling on a
+centrino is that P-M has the same complex-simple-simple (4-1-1) uop
+decoding machinery as the entire P6 family line... whereas P4's trace
+cache somewhat offsets the P4's decoder's quirks.  so stuff scheduled for
+p4 may not produce the best complex-simple-simple sequence that a p6
+family processor wants to see.  i'm not really sure how well gcc does in
+either case though... (whereas icc does a stellar job.)
+
+i bet intel is saying "optimise for p4" for two reasons:
+
+(a) the reality is way too complex to describe
+(b) p4 is their long-term bet and they'd rather code be targetted to it
+    specifically
+
+however, if/when gcc picks up some of the more wacked p4 optimisations,
+such as turning multiplication by 32 into:
+
+	add eax,eax
+	add eax,eax
+	add eax,eax
+	add eax,eax
+	add eax,eax
+
+then you'll start to see penalties on p6 cores ... the p4 does not like
+shifts or lea.  the above runs in 2.5 cycles on a p4 (double-pumped ALUs)
+whereas a shift or lea would be 4 clocks.
+
+-dean

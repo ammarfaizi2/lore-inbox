@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275231AbTHISuS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 14:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275249AbTHISuS
+	id S275367AbTHISwp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 14:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275370AbTHISwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 14:50:18 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:55310 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S275231AbTHISuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 14:50:16 -0400
-Date: Sat, 9 Aug 2003 19:50:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [RFC][PATCH] Convert do_no_page() to a hook to avoid DFS race
-Message-ID: <20030809195011.A20269@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Paul E. McKenney" <paulmck@us.ibm.com>,
-	Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <20030530164150.A26766@us.ibm.com> <20030530180027.75680efd.akpm@digeo.com> <20030531235123.GC1408@us.ibm.com>
+	Sat, 9 Aug 2003 14:52:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43918 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S275367AbTHISwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 14:52:44 -0400
+Date: Sat, 9 Aug 2003 11:52:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "ismail (cartman) donmez" <kde@myrealbox.com>
+Cc: tmolina@cablespeed.com, linux-kernel@vger.kernel.org,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: Linux 2.6.0-test3: logo patch
+Message-Id: <20030809115245.7ef1ff59.akpm@osdl.org>
+In-Reply-To: <200308091927.04894.kde@myrealbox.com>
+References: <Pine.LNX.4.44.0308091059490.2587-100000@localhost.localdomain>
+	<200308091927.04894.kde@myrealbox.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030531235123.GC1408@us.ibm.com>; from paulmck@us.ibm.com on Sat, May 31, 2003 at 04:51:23PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 04:51:23PM -0700, Paul E. McKenney wrote:
-> > I don't think there's a lot of point in making changes until the code which
-> > requires those changes is accepted into the tree.  Otherwise it may be
-> > pointless churn, and there's nothing in-tree to exercise the new features.
-> 
-> A GPLed use of these DFS features is expected Real Soon Now...
+"ismail (cartman) donmez" <kde@myrealbox.com> wrote:
+>
+> Patch somehow got out of -mm tree too. Andrew can you please apply this  too ?
+> > The following patch has been floating around forever.  Can we get it in
+> > mainstream sometime in the near future?
+> >
+> > --- linux-2.5-tm/drivers/video/cfbimgblt.c.orig	2003-08-08
+> > 17:42:16.000000000 -0500 +++
+> > linux-2.5-tm/drivers/video/cfbimgblt.c	2003-08-08 17:42:30.000000000 -0500
+> > @@ -325,7 +325,7 @@
+> >  		else
+> >  			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
+> >  					start_index, pitch_index);
+> > -	} else if (image->depth == bpp)
+> > +	} else if (image->depth <= bpp)
+> >  		color_imageblit(image, p, dst1, start_index, pitch_index);
+> >  }
+> >
+> >
 
-So we get to see all the kernel C++ code from GPRS? [1] Better not, IBM
-might badly scare customers away if it the same quality as the C glue
-code layer..
+This change was also present in James's fbdev update, so I dropped it.  But
+then James's fbdev update broke so I dropped that too.
 
-[1] http://oss.software.ibm.com/linux/patches/?patch_id=923
+James was going to send me an updated patch.  Hint. :)
+
 

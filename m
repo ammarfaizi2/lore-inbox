@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292259AbSBOXJQ>; Fri, 15 Feb 2002 18:09:16 -0500
+	id <S292258AbSBOXQp>; Fri, 15 Feb 2002 18:16:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292258AbSBOXJG>; Fri, 15 Feb 2002 18:09:06 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:28682 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S292253AbSBOXIu>;
-	Fri, 15 Feb 2002 18:08:50 -0500
-Date: Fri, 15 Feb 2002 15:04:16 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <20020215155143.I14054@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.33L2.0202151501220.11494-100000@dragon.pdx.osdl.net>
+	id <S292260AbSBOXQf>; Fri, 15 Feb 2002 18:16:35 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:57764 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292258AbSBOXQU>; Fri, 15 Feb 2002 18:16:20 -0500
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.15
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF0C618BC7.4B09003D-ON85256B61.007F85A4@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 15 Feb 2002 17:15:23 -0600
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 02/15/2002 06:15:49 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Feb 2002, Andreas Dilger wrote:
+Release 1.0.15 of JFS was made available today.
 
-| On Feb 14, 2002  08:48 -0800, Randy.Dunlap wrote:
-| > gziphdr=`binoffset $1 0x1f 0x8b 0x08 0x0`
-| > # increment by 1 since tail offsets are 1-based, not 0-based
-| > gziphdr=$((gziphdr + 1))
-| >
-| > tail -c +$gziphdr $1 | gunzip > $1.tmp
-| > strings $1.tmp | grep CONFIG_ > $1.old.config
-| > rm $1.tmp
-|
-| How about something like the below (avoids writing a multi-MB temp file):
-|
-| HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
-| dd if=$1 bs=1 skip=$HDR | zcat | strings /dev/stdin | grep CONFIG_
+Drop 53 on February 15, 2002 (jfs-2.4-1.0.14-patch.tar.gz or
+jfs-2.5.4-1.0.15-patch.gz and jfsutils-1.0.15.tar.gz)
+includes fixes to the file system and utilities.
 
-I tried that, but I didn't know about /dev/stdin,
-so I agree with you.
-I had tried 'strings -', but strings didn't like that.  :(
+Utilities changes
 
-| Note also that it is enough to store the config options without the
-| leading CONFIG_ part, and then use 'grep "[A-Z0-9]*=[ym]$"' to get
-| the actual config strings.  You can add a final 'sed "s/^/CONFIG_/"'
-| step to return it to the original format.  So:
-|
-| dd if=$1 bs=1 skip=$HDR | zcat | strings /dev/stdin | grep "[A-Z0-9]=[ym]$" \
-| 	| sed "s/^//CONFIG_"
-| --
+- eliminate invalid fsck.jfs internal error 10
+- update xpeek and fsck.jfs man pages
+- better error message if device to be fsck.jfs'ed is not jfs
+- add support for 4.4 BSD-style getmntinfo (Christoph Hellwig)
+- include sys/types.h for BSD (Hiten Pandya)
+- use defacto standard autoconf macro for large file support
+  (Christoph Hellwig)
+- general jfsutils code cleanup (all)
 
-Yes, I said that I intended to remove the leading "CONFIG_".
-I'll do that soon and package it all up and repost it.
-Oh, and make it a CONFIG option.
+File System changes
 
-Thanks for your help.
+- Fix trap when appending to very large file
+- Moving jfs headers into fs/jfs at Linus' request
+- Move up to linux-2.5.4
+- Fix file size limit on 32-bit (Andi Kleen)
+- make changelog more read-able and include only 1.0.0
+  and above (Christoph Hellwig)
+- Don't allocate metadata pages from high memory. JFS keeps
+  them kmapped too long causing deadlock.
+- Fix xtree corruption when creating file with >= 64 GB of physically
+  contiguous dasd
+- Replace semaphore with struct completion for thread startup/shutdown
+  (Benedikt Spranger)
+- cleanup Tx alloc/free (Christoph Hellwig)
+- Move up to linux-2.5.3
+- thread cleanups (Christoph Hellwig)
+- First step toward making tblocks and tlocks dynamically allocated.
+  Intro tid_t and lid_t to insulate the majority of the code from
+  future changes. Also hide TxBlock and TxLock arrays by using macros
+  to get from tids and lids to real structures.
+- minor list-handling cleanup (Christoph Hellwig)
+- Replace altnext and altprev with struct list_head
 
--- 
-~Randy
+
+For more details about JFS, please see the README or changelog.jfs
+
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
+
 

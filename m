@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUFKCk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUFKCsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbUFKCk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 22:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFKCk6
+	id S263733AbUFKCsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 22:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFKCsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 22:40:58 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:50085 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263741AbUFKCkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 22:40:49 -0400
-Subject: Re: 2.6.7-rc2-mm2
-From: Len Brown <len.brown@intel.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040603152042.GK1946@suse.de>
-References: <20040603015356.709813e9.akpm@osdl.org>
-	 <20040603152042.GK1946@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1086921637.2242.471.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Jun 2004 22:40:37 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 22:48:11 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:55953 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263733AbUFKCsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 22:48:08 -0400
+Message-ID: <40C91DA0.6060705@namesys.com>
+Date: Thu, 10 Jun 2004 19:49:04 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Dave Jones <davej@redhat.com>, Chris Mason <mason@suse.com>,
+       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in reiserfs
+References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com> <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com> <20040610223532.GB3340@wohnheim.fh-wedel.de>
+In-Reply-To: <20040610223532.GB3340@wohnheim.fh-wedel.de>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-03 at 11:20, Jens Axboe wrote:
-> On Thu, Jun 03 2004, Andrew Morton wrote:
-> >  bk-acpi.patch
-> 
-> Doesn't compile if you disable ACPI, since mp_register_gsi is guarded by
-> 
-> #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
-> 
-> but used in arch/i386/kernel/acpi/boot.c if CONFIG_X86_IO_APIC is set
-> alone. I have to disable ACPI on this box still, otherwise it crashes
-> very hard immediately after displaying ACPI banner.
+Jörn Engel wrote:
 
-"Crashes very hard" I would like to know more.
-Does the box have an IOAPIC?
-If no, does it boot with "nolapic"?
-If yes, does this patch help? 
-http://bugme.osdl.org/show_bug.cgi?id=1269
+>
+>
+>It appears to me that most developers agree to the two point above,
+>but you have some problems with them, at least lately.  Am i wrong?
+>
+>Jörn
+>
+>  
+>
+I have a concept of stable version and development version.  V3 is the 
+stable release branch, and should not be disturbed except for bug 
+fixes.  V4 is where all new features go. 
+In not very long, V4 will enter code freeze, and we will open a V5 
+branch where all new features will go.
 
-thanks,
--Len
+Filesystem users want conservative release management.  This is not 
+gimp, this is a filesystem.  It must be a zero defect product or it is 
+useless.
 
+This is all part of what responsible release management is about.   I 
+was the junior whiz kid in professional release management teams before 
+starting Namesys.  I listened to my elders and learned from them.  My 
+standards for professional conduct in this arena are higher than yours 
+as a result of that. 
 
+You are a bunch of young kids who lack professional experience in 
+release management.  That is ok, but don't get aggressive about it.
 
+I have no desire to pay for your mistakes, and as the official 
+maintainer it is my responsibility to ensure that neither I nor the 
+users pay for the mistakes of those who add bugs to stable branches 
+instead of adding them to the development branches where they belong.
+
+Hans

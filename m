@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270988AbTGPRLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270982AbTGPRKf
+	id S271012AbTGPRiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTGPRHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:10:35 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:31634 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270966AbTGPRJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:09:25 -0400
-Date: Wed, 16 Jul 2003 18:23:31 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, vojtech@suse.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716172331.GD21896@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	vojtech@suse.cz,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de>
+	Wed, 16 Jul 2003 13:07:07 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:46213 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S270966AbTGPRGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:06:53 -0400
+Subject: Re: 2.6.0-test1-mm1
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20030715225608.0d3bff77.akpm@osdl.org>
+References: <20030715225608.0d3bff77.akpm@osdl.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1058376099.936.6.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716171607.GM833@suse.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Jul 2003 19:21:40 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 07:16:07PM +0200, Jens Axboe wrote:
+El mi? 16-07-2003 a las 07:56, Andrew Morton escribió:
 
- > > > SG_IO, that way you can use dma (and zero copy) for the rips. That will
- > > > be lots more smooth.
- > > So why isnt this occuring on 2.4 .. thats the important question here is
- > > this a logging thing, a new input layer bug, an ide bug or what ?
- > Dave, have you tried 2.4 newest?
+> . Another interactivity patch from Con.  Feedback is needed on this
+>   please - we cannot make much progress on this fairly subjective work
+>   without lots of people telling us how it is working for them.
 
-I've not booted a 2.4 kernel since 2.4.20..
+Well, my desktop experience with this is good. But the music playing
+problems (aka mp3/ogg playing problems) still there. Its better, and I
+feel the problems are near to be solved, but the player still jumps..
 
- > Some of the newer IDE stuff kept
- > interrupts off for ages, maybe it's on 2.4 also.
-
-I can try sometime if you want to know.. (I've got plenty more
-CDs that need encoding, so I'll have plenty of opportunity to
-see this bug if its there 8-)
-
- > Also Dave, can you try
- > and do a vmstat 1 while ripping and PS2 dropping out?
-
-Ok, I just fired that up in another window.
-When it happens next, I'll mail off a snapshot..
-
-		Dave
+The mouse in 2.6.0-test1 vanilla is smoother than -mm1
+-- 
+/================================================\
+| Ramón Rey Vicente <ramon.rey at hispalinux.es> |
+|                                                |
+| Jabber ID <rreylinux at jabber.org>            |
+|                                                |
+| Public GPG Key http://pgp.escomposlinux.org    |
+|                                                |
+| GLiSa http://glisa.hispalinux.es               |
+\================================================/
 

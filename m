@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264303AbRFYTKH>; Mon, 25 Jun 2001 15:10:07 -0400
+	id <S264256AbRFYTGi>; Mon, 25 Jun 2001 15:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbRFYTJ5>; Mon, 25 Jun 2001 15:09:57 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:46763 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S264303AbRFYTJn>;
-	Mon, 25 Jun 2001 15:09:43 -0400
-Date: Mon, 25 Jun 2001 20:10:19 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: Jeff Dike <jdike@karaya.com>
-cc: Bulent Abali <abali@us.ibm.com>, Linux MM <linux-mm@kvack.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
-In-Reply-To: <200106251705.MAA02325@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.30.0106252003150.25937-100000@cyrix.stev.org>
+	id <S264303AbRFYTG1>; Mon, 25 Jun 2001 15:06:27 -0400
+Received: from 24.157.217.96.on.wave.home.com ([24.157.217.96]:11537 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S264256AbRFYTGM>;
+	Mon, 25 Jun 2001 15:06:12 -0400
+Date: Mon, 25 Jun 2001 09:40:24 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Jeff Mahoney <jeffm@suse.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
+In-Reply-To: <15150.58266.85737.742044@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.30.0106250938540.9975-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
+Not /dev/hda42, thats odd. From 2.4.5 -> 2.4.6 ReiserFS would refuse to
+mount the drive on startup.
 
-i have been looking at it a lot over the past few days i seem to be the
-person who can trigger it easyest.
+I noticed in pre5 there was a reiserfs fix to something but im not sure if
+its related or not.
 
-over the past couple of days i have been running with the
-#define WAITQUEUE_DEBUG 1
-no problems seem to have appeared there though and the bug still triggers.
+My domain is also back so I'm going to resubscribe.
 
-On Mon, 25 Jun 2001, Jeff Dike wrote:
+Shawn.
 
-> abali@us.ibm.com said:
-> > I am running in to a problem, seemingly a deadlock situation, where
-> > almost all the processes end up in the TASK_UNINTERRUPTIBLE state.
-> > All the process eventually stop responding, including login shell, no
-> > screen updates, keyboard etc.  Can ping and sysrq key works.   I
-> > traced the tasks through sysrq-t key.  The processors are in the idle
-> > state.  Tasks all seem to get stuck in the __wait_on_page or
-> > __lock_page.
+On Tue, 19 Jun 2001, Neil Brown wrote:
 
-i also seem to get ut ub __wait_on_buffer and ___wait_on_page
-
-	James
--- 
----------------------------------------------
-Web: http://www.stev.org
-Mobile: +44 07779080838
-E-Mail: mistral@stev.org
-  8:00pm  up 2 days, 12 min,  4 users,  load average: 1.41, 0.38, 0.40
+> On Tuesday June 19, jeffm@suse.com wrote:
+> > On Mon, Jun 18, 2001 at 11:57:16PM -0400, Shawn Starr wrote:
+> > >
+> > > read_super_block: can't find a reiserfs filesystem on dev 03:42
+> > > read_old_super_block: try to find super block in old location
+> > > read_old_super_block: can't find a reiserfs filesystem on dev 03:42
+> > > Kernel Panic: VFS: Unable to mount root fs on 03:42
+> > >
+> > > my super block broke somewhere?
+> >
+> >     Out of curiousity, what device are you trying to boot from? 03:42, at least
+> >     according to linux/Documentation/devices.txt, corresponds to /dev/hda42.
+>
+> or, noting that kdevname used hexadecimal,
+>   /dev/hdb2
+>
+> NeilBrown
+>
+> >
+> >     Is that really the disk you're trying to mount? I'm not familiar with how
+> >     some IDE RAID controllers present disks, but it was the first thing I
+> >     noticed.
+> >
+> >     -Jeff
+> >
+> > --
+> > Jeff Mahoney
+> > jeffm@suse.com
+> > jeffm@csh.rit.edu
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

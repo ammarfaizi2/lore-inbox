@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292503AbSCFU0x>; Wed, 6 Mar 2002 15:26:53 -0500
+	id <S292527AbSCFUax>; Wed, 6 Mar 2002 15:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310141AbSCFU0n>; Wed, 6 Mar 2002 15:26:43 -0500
-Received: from pat.uio.no ([129.240.130.16]:1711 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S292503AbSCFU0d>;
-	Wed, 6 Mar 2002 15:26:33 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Patch to pull NFS server address off root_server_path
-In-Reply-To: <E16iSfH-0007W9-00@wagner.rustcorp.com.au>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 06 Mar 2002 21:26:14 +0100
-In-Reply-To: <E16iSfH-0007W9-00@wagner.rustcorp.com.au>
-Message-ID: <shsk7sp4f4p.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S310162AbSCFUae>; Wed, 6 Mar 2002 15:30:34 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:36534 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S292527AbSCFUaY>;
+	Wed, 6 Mar 2002 15:30:24 -0500
+Subject: Re: [STATUS 2.5]  March 6, 2002
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org, boissiere@attbi.com
+In-Reply-To: <20020306190249.GB342@matchmail.com>
+In-Reply-To: <3C861CE4.6284.237C28E4@localhost> 
+	<20020306190249.GB342@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 06 Mar 2002 15:30:12 -0500
+Message-Id: <1015446625.1482.11.camel@icbm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Rusty Russell <rusty@rustcorp.com.au> writes:
+On Wed, 2002-03-06 at 14:02, Mike Fedyk wrote:
 
-     > This patch was submitted to the trivial patch daemon.  Looks OK
-     > to me, Trond?
+> > o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, 
+> > etc.)
+> 
+> IIRC, LL isn't compatible with preempt, so maybe this item should be removed?
 
-     > --- linux.orig/net/ipv4/ipconfig.c Tue Feb 26 07:14:51 2002
-     > +++ linux/net/ipv4/ipconfig.c Wed Mar 6 14:01:10 2002
-     > @@ -1197,6 +1197,16 @@
-     >  		ic_dev = ic_first_dev->dev;
-     >  	}
- 
-     > +#ifdef CONFIG_ROOT_NFS
-     > + {
-     > + extern void __init root_nfs_parse_addr(char *name, u32
-     >  		*addr);
-     > + u32 addr = INADDR_NONE;
-     > + root_nfs_parse_addr(root_server_path, &addr);
-     > + if (root_server_addr == INADDR_NONE)
-     > + root_server_addr = addr;
-     > + }
-     > +#endif +
+Agreed.  It isn't "incompatible" per se but it is certainly not the
+intention anymore.  With kernel preemption, we plan to cleanly tackle
+the lock hold times.
 
-Erm... Is this __init declaration here correct?
+But maybe that is what the above means ... not "low-latency" per se but
+the general reduction in lock hold times and improvement of algorithms. 
+This is something Andrew, myself, and others are working on.  It is the
+follow up work to preempt-kernel.
 
-Wouldn't it really be better to move root_nfs_parse_addr() into the
-ipconfig code? Since, CONFIG_ROOT_NFS depends on CONFIG_IP_PNP being
-set, you could also get rid of your #ifdef above...
+	Robert Love	
 
-Cheers,
-  Trond

@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTIXSve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 14:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTIXSvd
+	id S261605AbTIXS5X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 14:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTIXS5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 14:51:33 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:42463 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261603AbTIXSva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 14:51:30 -0400
-Subject: [BKPATCH] [BEFS] fix resource leak on register_filesystem failure
-From: Will Dyson <will_dyson@pobox.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1064429488.9009.20.camel@thalience>
+	Wed, 24 Sep 2003 14:57:23 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:25493 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261605AbTIXS5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 14:57:20 -0400
+Date: Wed, 24 Sep 2003 20:56:14 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       andrea@kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030924185614.GA19828@wohnheim.fh-wedel.de>
+References: <20030924031602.GA7887@work.bitmover.com> <Pine.LNX.4.44.0309232327490.15940-100000@chimarrao.boston.redhat.com> <20030924034552.GB7887@work.bitmover.com> <1064408978.13459.34.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 24 Sep 2003 14:51:28 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1064408978.13459.34.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Cova noticed a bug in befs's init code. He said:
+On Wed, 24 September 2003 14:09:38 +0100, Alan Cox wrote:
+> 
+> It isnt just sizes. As the size has risen rapidly the disk data rates
+> have increased pretty well (factor of about 100 over an MFM disk 386)
+> but the seek time has shifted by a factor of 10. This has a huge impact
+> on the whole basic theory of things like paging in applications versus
+> doing a streaming preload of the code/data.
+> 
+> It also has a big impact on how swap is managed - it is pretty much as
+> cheap now to swap out 2Mb as 4K
 
-> It seems there's a (very) rare-case bug in linuxvfs.c:init_befs_fs
-> In the current implementation, if register_filesystem() fails, the
-> memory allocated through befs_init_inodecache() is not deallocated.
+How do you get to 2MB?  My rule of thumb number is still 100kB.
 
-He also provided the trivial patch below (modulo my renaming of the goto
-labels).
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or
-higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1228  -> 1.1230 
-#	  fs/befs/linuxvfs.c	1.8     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/09/22	will@thalience.(none)	1.1229
-# Fix slab memory leak when register_filesystem fails.
-# Caught by Marco Cova
-# --------------------------------------------
-# 03/09/22	will@thalience.(none)	1.1230
-# Fixup for previous cset
-# --------------------------------------------
-#
-diff -Nru a/fs/befs/linuxvfs.c b/fs/befs/linuxvfs.c
---- a/fs/befs/linuxvfs.c	Mon Sep 22 23:11:17 2003
-+++ b/fs/befs/linuxvfs.c	Mon Sep 22 23:11:17 2003
-@@ -939,9 +941,19 @@
- 
- 	err = befs_init_inodecache();
- 	if (err)
--		return err;
-+		goto unaquire_none;
-+
-+	err = register_filesystem(&befs_fs_type);
-+	if (err)
-+		goto unaquire_inodecache;
-+
-+	return 0;
-+
-+unaquire_inodecache:
-+	befs_destroy_inodecache();
- 
--	return register_filesystem(&befs_fs_type);
-+unaquire_none:
-+	return err;
- }
- 
- static void __exit
-
+Jörn
 
 -- 
-Will Dyson
-"Back off man, I'm a scientist!" -Dr. Peter Venkman
-
+Invincibility is in oneself, vulnerability is in the opponent.
+-- Sun Tzu

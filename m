@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267716AbUBTAWR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267637AbUBTAUW
+	id S267746AbUBTA0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267704AbUBTAXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:20:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41953 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267607AbUBTATk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:19:40 -0500
-Date: Thu, 19 Feb 2004 16:24:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Thu, 19 Feb 2004 19:23:50 -0500
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:56252 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S267703AbUBTAVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:21:51 -0500
+Date: Thu, 19 Feb 2004 16:21:41 -0800
+From: Tim Hockin <thockin@sun.com>
 To: Jamie Lokier <jamie@shareable.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Tridge <tridge@samba.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-In-Reply-To: <Pine.LNX.4.58.0402191607490.2244@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402191621250.2244@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
- <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
- <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
- <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
- <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org> <20040219204853.GA4619@mail.shareable.org>
- <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org> <20040220000054.GA5590@mail.shareable.org>
- <Pine.LNX.4.58.0402191607490.2244@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Jeff Sipek <jeffpc@optonline.net>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: sysconf - exposing constants to userspace
+Message-ID: <20040220002140.GG9155@sun.com>
+Reply-To: thockin@sun.com
+References: <20040219204820.GC9155@sun.com> <200402191630.47047.jeffpc@optonline.net> <20040220002034.GC5590@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040220002034.GC5590@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 19 Feb 2004, Linus Torvalds wrote:
+On Fri, Feb 20, 2004 at 12:20:34AM +0000, Jamie Lokier wrote:
+> Jeff Sipek wrote:
+> > I think that making something in /sys would make the most sense,
+> > with one constant per file. We could dump the consts files to for
+> > example /sys/consts, or make a logical directory structure to make
+> > navigation easier.
 > 
-> I agree. It might even be acceptable not as a new flag, but as a 
-> modification to existing behaviour. I can't imagine that a file manager is 
-> all that interested in seeing the changes it itself does be reported back 
-> to it. And I don't really know of any other uses of dnotify.
+> Isn't that very similar to the /proc/sys/kernel we have now?
 
-I take that back. Even a file manager may very well be interested in moves 
-that it does itself - most of them have some soft of multi-window view 
-capability, and if they use dnotify, they might well be using it to keep 
-the different views coherent.
+sysctls are all writable (unless I am missing something).  A lot of these
+things are not really tunables.
 
-So yes, a new flag would likely be required. 
-
-That said, who actually _uses_ dnotify? The only time dnotify seems to 
-come up in discussions is when people complain how badly designed it is, 
-and I don't think I've ever heard anybody say that they use it and 
-that they liked it ;)
-
-		Linus
+-- 
+Tim Hockin
+Sun Microsystems, Linux Software Engineering
+thockin@sun.com
+All opinions are my own, not Sun's

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264033AbUDQTwc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 15:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbUDQTwc
+	id S264031AbUDQUDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 16:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbUDQUDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 15:52:32 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:21262 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S264033AbUDQTwb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 15:52:31 -0400
-Date: Sat, 17 Apr 2004 15:52:30 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Duncan Sands <baldrick@free.fr>
-cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sf.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Frederic Detienne <fd@cisco.com>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs
- only on the disconnected interface
-In-Reply-To: <200404172053.38655.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.44L0.0404171541210.14737-100000@netrider.rowland.org>
+	Sat, 17 Apr 2004 16:03:42 -0400
+Received: from picton.eecg.toronto.edu ([128.100.10.141]:39652 "EHLO
+	picton.eecg.toronto.edu") by vger.kernel.org with ESMTP
+	id S264031AbUDQUDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 16:03:41 -0400
+Message-ID: <40818D9A.9030002@acm.org>
+Date: Sat, 17 Apr 2004 16:03:38 -0400
+From: Ashvin Goel <ashvin@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Question regarding do_tcp_sendpages, tcp_current_mss and eff_sacks
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Apr 2004, Duncan Sands wrote:
+I am trying to use do_tcp_sendpages() to stream some data from within 
+the Linux Redhat kernel 2.4.20 (it is an smp kernel running on a 
+uniprocessor). After a while this function returns an error value of 
+-512. This error value makes no sense to me. A little debugging showed 
+that tcp_current_mss() returns negative values. In particular, for the 
+socket to which do_tcp_sendpages() is sending data, tp->eff_sacks has 
+the value 200. This makes the value returned by tcp_current_mss be -156 
+(1448 - 4 - 200 * 8). Is this value reasonable? I think this value is 
+causing do_tcp_sendpages() to return a large negative value.
 
-> On Saturday 17 April 2004 20:31, Duncan Sands wrote:
-> > Alan, do you have a suggestion for how best to go from
-> > a struct usb_interface to an index?
+Thanks for any help/suggestions. Please CC your post to me personally.
 
-The only way is by searching the interface list.  That was part of the 
-reason I left findintfif() alone rather than replacing it with a call to 
-usb_ifnum_to_if().
-
-> (though probably usbfs shouldn't use indices at all,
-> just interface numbers and struct usb_interface).
-
-It's true that code is generally cleaner using numbers rather than
-indices, and that's how I've been modifying the USB drivers when they need
-it.  In general I would expect an interface number to be not much larger 
-than the index (i.e., normally not many numbers will be skipped), so the 
-bitmask size should be adequate in either case.  We probably don't have to 
-worry about trying to support devices with a single interface numbered 77 
--- but if you wanted to then you'd have to use the index.
-
-Alan Stern
-
+Thanks
+Ashvin Goel

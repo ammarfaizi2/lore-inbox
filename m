@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136486AbREAFd5>; Tue, 1 May 2001 01:33:57 -0400
+	id <S136497AbREAGPW>; Tue, 1 May 2001 02:15:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136493AbREAFdt>; Tue, 1 May 2001 01:33:49 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44302 "EHLO
+	id <S136577AbREAGPM>; Tue, 1 May 2001 02:15:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18447 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136486AbREAFde>; Tue, 1 May 2001 01:33:34 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Question about /proc/kmsg semantics..
-Date: 30 Apr 2001 22:33:09 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9clhql$lep$1@cesium.transmeta.com>
-In-Reply-To: <20010501005237.A2776@sync.nyct.net>
+	id <S136497AbREAGPI>; Tue, 1 May 2001 02:15:08 -0400
+Date: Mon, 30 Apr 2001 23:14:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andries Brouwer <Andries.Brouwer@cwi.nl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: iso9660 endianness cleanup patch
+In-Reply-To: <3AEE4A06.3666F4BE@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104302312430.861-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010501005237.A2776@sync.nyct.net>
-By author:    Michael Bacarella <mbac@nyct.net>
-In newsgroup: linux.dev.kernel
-> 
-> I've seen a couple of patches in the archives to make open()/close()
-> on /proc/kmsg do more than NOP. As of 2.4.4, klogd still needs to
-> run as root since access is checked on read() rather than once at
-> open(). I can't find the rationale as to why they're rejected.
-> 
-> Also, why is reading /proc/kmsg a privileged operation, yet dmesg
-> can happily print out the entire ring via (do_)syslog() ?
-> 
 
-Probably because reading /proc/kmsg may cause syslogd to miss
-messages.
+On Mon, 30 Apr 2001, H. Peter Anvin wrote:
+> 
+> The attached patch fixes both.  It is against 2.4.4, but from the looks
+> of it it should patch against -ac as well.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Btw, please use "static inline" instead of "extern inline", as gcc may
+decide not to inline the latter at all, leading to confusing link-time
+errors. (Gcc may also decide not to inline "static inline", but then gcc
+will output the actual body of the function out-of-line if it gets used,
+so you don't get the link-time failure).
+
+Right now only certain broken versions of gcc will actually show this
+behaviour, I think, but it's at least in theory going to be an issue.
+
+		Linus
+

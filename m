@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbTCVCMJ>; Fri, 21 Mar 2003 21:12:09 -0500
+	id <S262656AbTCVCW6>; Fri, 21 Mar 2003 21:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261438AbTCVCMJ>; Fri, 21 Mar 2003 21:12:09 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:65408 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261403AbTCVCMI>;
-	Fri, 21 Mar 2003 21:12:08 -0500
-Date: Sat, 22 Mar 2003 03:23:04 +0100
+	id <S262670AbTCVCW6>; Fri, 21 Mar 2003 21:22:58 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:1409 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262656AbTCVCW5>;
+	Fri, 21 Mar 2003 21:22:57 -0500
+Date: Sat, 22 Mar 2003 03:33:51 +0100
 From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: vt.c in 2.5.65-ac1
-Message-ID: <20030322022304.GA2050@vana.vc.cvut.cz>
-References: <1010F960E4@vcnet.vc.cvut.cz> <20030322012453.GA1168@yuzuki.cinet.co.jp>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.65
+Message-ID: <20030322023351.GB2050@vana.vc.cvut.cz>
+References: <1048295082521@kroah.com> <1048295084971@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030322012453.GA1168@yuzuki.cinet.co.jp>
+In-Reply-To: <1048295084971@kroah.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 10:24:53AM +0900, Osamu Tomita wrote:
-> On Fri, Mar 21, 2003 at 02:57:51PM +0100, Petr Vandrovec wrote:
-> > On 21 Mar 03 at 10:46, Osamu Tomita wrote:
-> > 
-> > > I have a aquestion about patch in patch-2.5.65-ac1 for vt.c.
-> > > Here is a extracted patch from patch-2.5.65-ac1.
-> > > I think it's no need for 2.5.65.
-> > 
-> > There should be none of these two resize_screen calls. If you'll
-> > resize non-foreground VT, they'll trigger fbcon_resize with 
-> > con != visible_con, resizing your display even if they should not.
-> > 
-> > Only the "if (IS_VISIBLE) err = resize_screen(...);" resize should
-> > be there (AFAIK), if con_resize follows other con_* APIs: call it
-> > only if con is visible, like it is done with putcs and others.
-> > >     old_origin = origin;
-> I understand. But if resize_screen() failed this attempt to kfree
-> before kmalloc. Is there case resize_screen success but kmalloc
-> fail?
-> How about patch bellow.
+On Fri, Mar 21, 2003 at 05:04:00PM -0800, Greg KH wrote:
+> ChangeSet 1.1189, 2003/03/21 12:45:28-08:00, greg@kroah.com
+> 
+> i2c: remove i2c_adapter->name and use dev->name instead.
+> 
+> 
+>  drivers/i2c/busses/i2c-ali15x3.c |    8 ++--
+>  drivers/i2c/busses/i2c-amd756.c  |    6 ++-
+>  drivers/i2c/busses/i2c-amd8111.c |    4 +-
+>  drivers/i2c/busses/i2c-i801.c    |    8 ++--
+>  drivers/i2c/busses/i2c-isa.c     |    4 +-
+>  drivers/i2c/busses/i2c-piix4.c   |    8 ++--
+>  drivers/i2c/i2c-algo-bit.c       |   13 +++---
+>  drivers/i2c/i2c-algo-pcf.c       |   19 ++++------
+>  drivers/i2c/i2c-core.c           |   73 ++++++++++++++++-----------------------
+>  drivers/i2c/i2c-dev.c            |   17 +++------
+>  drivers/i2c/i2c-elektor.c        |   10 +++--
+>  drivers/i2c/i2c-elv.c            |    4 +-
+>  drivers/i2c/i2c-philips-par.c    |    4 +-
+>  drivers/i2c/i2c-velleman.c       |    4 +-
+>  drivers/i2c/scx200_acb.c         |   28 ++++++--------
+>  include/linux/i2c.h              |    1 
+>  16 files changed, 105 insertions(+), 106 deletions(-)
 
-As I said: currently there is one unconditional call to resize_screen
-and one conditional (depending on IS_VISIBLE). Unconditional one
-should not be moved around, but removed completely. Look at
-fbcon_resize (only con_resize user) implementation, it will do
-wrong things if called with non-visible currcons. I believe that
-James has this correct in his latest patches.
+Although you'll not break matroxfb more than it is currently, can you
+also update drivers/video/matrox/{i2c-matroxfb,matroxfb_maven}.* in 
+your updates? Or I'll send you patch after this change hits Linus kernel... 
+
+Only problem is that there are apps which search DDC channel by 
+looking for i2c bus named "DDC:fbX #Y on i2c-matroxfb", and this 
+looks too long for generic driver infrastructure. But "DDC:fbX #Y"
+looks acceptable...
+					Thanks,
 						Petr Vandrovec
 						vandrove@vc.cvut.cz
-
-> 
-> --- linux-2.5.65/drivers/char/vt.c.orig	2003-03-18 06:44:42.000000000 +0900
-> +++ linux-2.5.65/drivers/char/vt.c	2003-03-22 10:06:49.000000000 +0900
-> @@ -736,6 +736,12 @@
->  	if (!newscreen)
->  		return -ENOMEM;
->  
-> +	err = resize_screen(currcons, new_cols, new_rows);
-> +	if (err) {
-> +		kfree(newscreen);
-> +		return err;
-> +	}
-> +
->  	old_rows = video_num_lines;
->  	old_cols = video_num_columns;
->  	old_row_size = video_size_row;
-> @@ -746,12 +752,6 @@
->  	video_size_row = new_row_size;
->  	screenbuf_size = new_screen_size;
->  
-> -	err = resize_screen(currcons, new_cols, new_rows);
-> -	if (err) {
-> -		kfree(newscreen);
-> -		return err;
-> -	}
-> -
->  	rlth = min(old_row_size, new_row_size);
->  	rrem = new_row_size - rlth;
->  	old_origin = origin;
-> Regards,
-> Osamu Tomita
-> 
-> 

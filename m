@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267334AbTBUAp7>; Thu, 20 Feb 2003 19:45:59 -0500
+	id <S267333AbTBUAry>; Thu, 20 Feb 2003 19:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267333AbTBUApj>; Thu, 20 Feb 2003 19:45:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:28364 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267270AbTBUAoD>;
-	Thu, 20 Feb 2003 19:44:03 -0500
-Date: Thu, 20 Feb 2003 16:36:19 -0800 (PST)
-Message-Id: <20030220.163619.133744671.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       ak@suse.de
-Subject: Re: ioctl32 consolidation
+	id <S267362AbTBUArw>; Thu, 20 Feb 2003 19:47:52 -0500
+Received: from rth.ninka.net ([216.101.162.244]:60583 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267333AbTBUAq1>;
+	Thu, 20 Feb 2003 19:46:27 -0500
+Subject: Re: IPsec in 2.5.62 broken?
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
-References: <20030220223119.GA18545@elf.ucw.cz>
-	<5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+To: Ralf Spenneberg <ralf@spenneberg.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045749548.1981.78.camel@kermit.spenneberg.de>
+References: <1045739323.2172.63.camel@kermit.spenneberg.de> 
+	<1045749548.1981.78.camel@kermit.spenneberg.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Feb 2003 17:41:14 -0800
+Message-Id: <1045791674.21545.1.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Max Krasnyansky <maxk@qualcomm.com>
-   Date: Thu, 20 Feb 2003 14:56:22 -0800
-   
-   Eventually we'll be able to kill ugly mess like arch/sparc64/kernel/ioctl32.c.
-   That stuff really belongs to the actual subsystems that implement those ioctls.
+On Thu, 2003-02-20 at 05:59, Ralf Spenneberg wrote:
+> Nevermind, I just figured out that IPv6 is mandatory to compile IPsec in
+> Linux Kernel 2.5.62.
 
-Not really possible with things like SIOCDEVPRIVATE...
-Those need special processing and even that is insufficient.
+Not true, this problem is a bug and has been fixed in the
+current 2.5.x sources.
+

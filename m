@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbSIXXGS>; Tue, 24 Sep 2002 19:06:18 -0400
+	id <S261843AbSIXXOW>; Tue, 24 Sep 2002 19:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbSIXXGS>; Tue, 24 Sep 2002 19:06:18 -0400
-Received: from nameservices.net ([208.234.25.16]:948 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S261836AbSIXXGS>;
-	Tue, 24 Sep 2002 19:06:18 -0400
-Message-ID: <3D90F20E.405769B0@opersys.com>
-Date: Tue, 24 Sep 2002 19:15:26 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Jacob Gorm Hansen <jg@ioi.dk>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Adeos <adeos-main@mail.freesoftware.fsf.org>,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: [Adeos-main] Re: [PATCH] Adeos nanokernel for 2.5.38 1/2: no-arch 
- code
-References: <3D8E8371.D2070D87@opersys.com> <20020922045907.C35@toy.ucw.cz> <3D90D388.746D0C0D@opersys.com> <20020924213356.GA14291@ibook>
+	id <S261844AbSIXXOW>; Tue, 24 Sep 2002 19:14:22 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:37367 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261843AbSIXXOU>; Tue, 24 Sep 2002 19:14:20 -0400
+Date: Tue, 24 Sep 2002 19:19:34 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UP IO-APIC
+Message-ID: <20020924191934.B2453@redhat.com>
+References: <Pine.LNX.4.44.0209240331280.20792-100000@montezuma.mastecende.com> <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net> <amq996$46e$2@ncc1701.cistron.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <amq996$46e$2@ncc1701.cistron.net>; from miquels@cistron.nl on Tue, Sep 24, 2002 at 06:01:10PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Jacob Gorm Hansen wrote:
-> On Tue, Sep 24, 2002 at 05:05:12PM -0400, Karim Yaghmour wrote:
-> >
-> > To be honest, nothing in Adeos is "new". Adeos is implemented on
-> > classic early '90s nanokernel research. I've listed a number of
-> > nanokernel papers in the paper I wrote on Adeos. A complete list
-> > of nanokernel papers would probably have hundreds of entries.
-> > Some of these nanokernels even had OS schedulers (exokernel for
-> > instance). All Adeos implements is a scheme for sharing the
-> > interrupts among the various OSes using an interrupt pipeline.
+On Tue, Sep 24, 2002 at 06:01:10PM +0000, Miquel van Smoorenburg wrote:
+> In article <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net>,
+> Ricky Beam  <jfbeam@bluetronic.net> wrote:
+> >The local
+> >APIC makes perfect sense albeit rare.  Single processor IO APICs are very
+> >rare and are usually MP systems with only one processor.
 > 
-> Hi,
-> 
-> are you planning to add spaces & portals, like in Space or Pebble?
+> I think most AMD Athlon boards have an IO APIC
 
-I'm not sure whether what we plan to offer actually fits Space's definition
-of spaces, but domains already exist and portals should be trivial to
-implement over what we already have. For details on what plan to offer
-in terms of spaces, take a look at the paper I wrote describing how
-to implement Linux SMP clusters:
-http://opersys.com/ftp/pub/Adeos/practical-smp-clusters.ps
-Basically, Adeos would hand over RAM regions according to each OS
-instance's requests. In such a case, each kernel would have its own
-virtual memory and communication would be possible using "bridges",
-shared physical RAM regions. Many OSes can coexist in the same virtual
-address space, but the mechanisms for managing the virtual address
-space are not up to Adeos.
+I'd love to have it enabled in a distro kernel, but as Arjan pointed out, it 
+currently breaks some laptops if enabled.  What we need is someone to weed 
+things out such that io apic setup gets done after command line parsing, but 
+that is a bit tricky...
 
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+		-ben

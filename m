@@ -1,133 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVCCNtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVCCNxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVCCNtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 08:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVCCNtX
+	id S261671AbVCCNxr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 08:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVCCNxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 08:49:23 -0500
-Received: from mail.daysofwonder.com ([213.186.49.53]:62154 "EHLO
-	mail.daysofwonder.com") by vger.kernel.org with ESMTP
-	id S261676AbVCCNof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 08:44:35 -0500
-Subject: 2.6.10-ac10 oops in journal_commit_transaction
-From: Brice Figureau <brice+lklm@daysofwonder.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 14:45:41 +0100
-Message-Id: <1109857541.29075.25.camel@localhost.localdomain>
+	Thu, 3 Mar 2005 08:53:47 -0500
+Received: from td9091b2a.pool.terralink.de ([217.9.27.42]:11770 "EHLO
+	tolot.miese-zwerge.org") by vger.kernel.org with ESMTP
+	id S261671AbVCCNxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 08:53:42 -0500
+Date: Thu, 3 Mar 2005 14:52:15 +0100
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: Massimo Cetra <mcetra@navynet.it>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel release numbering
+Message-ID: <20050303135215.GT11280@tolot.miese-zwerge.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050303010615.3C7F184008@server1.navynet.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="R+Rs1qz93vBJxC1z"
+Content-Disposition: inline
+In-Reply-To: <20050303010615.3C7F184008@server1.navynet.it>
+User-Agent: Mutt/1.4.2.1i
+X-Signature-Color: brightblue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+
+--R+Rs1qz93vBJxC1z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+    Hi,
+
+On 03 Mar 2005, Massimo Cetra wrote:
+> So, why moving from 2.6.14 to 2.6.15 when, in 2/4 weeks, i'll have a more
+> stable 2.6.16 ?=20
+> Will users help testing an odd release to have a good even release ? Or w=
+ill
+> they consider an even release as important as a -RC release ?
+
+ From my experience this won't work (at least it won't work as inten-
+ded). I see a tendency of people going away from Linux-2.6, going back
+to Linux-2.4, or even going to one of the free BSD's. They go away
+because they have the feeling they cannot rely any longer on the stabi-
+lity of the 2.6 kernel branch (there are other issues, but this one is
+common with most people I talked).
+
+What you really need to avoid this (as far as I can see) is a stable
+Kernel branch that does not give you a huge surprise every time you do
+a kernel upgrade. Some mediocre statement like "this one might be quite
+ok" is not enough -- you need to declare that 2.6.EVEN is *stable*, that
+it is ready for production use. When people give it a test, fix the bugs
+they find, and release anew without adding any other "improvements". This
+way the user gets the least surprises when doing the next update -- and
+that is what gets you more users on 2.6: the users will feel they can
+*rely* on the stable releases.
+
+At least that's how it looks here. And yes, I *know* it's harder to do
+development when you're stuck with maintaining a stable branch. It's
+your choice.
 
 
-I'm reporting an oops on a bi-Xeon database server under 2.6.10-ac10
-quite similar to:
-http://marc.theaimsgroup.com/?l=ext3-users&m=110848085314238&w=2
+Greetings,
 
-I also got another server crashing (a mail server this time), but I
-couldn't get the oops/panic.
+Jochen.
+--=20
+I worry about my child and the Internet all the time, even though she's too
+young to have logged on yet.  Here's what I worry about.  I worry that 10 or
+15 years from now, she will come to me and say "Daddy, where were you when
+they took freedom of the press away from the Internet?"     -Mike Godwin
 
-This was after more than two weeks of uptime, I was running 2.6.10-ac1
-before and never got this problem.
+--R+Rs1qz93vBJxC1z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Here are the oops information:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
- printing eip:
-c01a858d
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT SMP 
-Modules linked in: i2c_i801 i2c_core ip_conntrack_ftp ipt_LOG ipt_limit ipt_REJECT ipt_state iptable_filter ip_conntrack ip_tables
-CPU:    2
-EIP:    0060:[journal_commit_transaction+877/5264]    Not tainted VLI
-EFLAGS: 00010286   (2.6.10-ac10) 
-EIP is at journal_commit_transaction+0x36d/0x1490
-eax: db38a56c   ebx: 00000000   ecx: 00000000   edx: f7779480
-esi: f76fa000   edi: db38a56c   ebp: f76fbf60   esp: f76fbdc8
-ds: 007b   es: 007b   ss: 0068
-Process kjournald (pid: 1206, threadinfo=f76fa000 task=f7454020)
-Stack: f191fadc f191fadc 00000008 00000aa2 f76fbe04 f7fea4c0 f7c305b0 00000000 
-       f77794b8 f7fea414 00000000 00000000 00000000 00000000 00000000 db313efc 
-       f7779480 e4079c2c 00000aa2 00000001 f76fbe28 c01239b0 00000001 f76fbea8 
-Call Trace:
- [show_stack+127/160] show_stack+0x7f/0xa0
- [show_registers+351/464] show_registers+0x15f/0x1d0
- [die+256/400] die+0x100/0x190
- [do_page_fault+672/1712] do_page_fault+0x2a0/0x6b0
- [error_code+43/48] error_code+0x2b/0x30
- [kjournald+212/576] kjournald+0xd4/0x240
- [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
-Code: 8b 85 a0 fe ff ff 85 c0 0f 85 4f 0e 00 00 8b 95 a8 fe ff ff 8b 42 18 85 c0 0f 84 85 00 00 00 be 00 e0 ff ff 21 e6 8b 78 20 8b 1f <f0> ff 43 0c 8b 03 a8 04 0f 85 de 0d 00 00 89 5c 24 04 8b 4d 08 
- <6>note: kjournald[1206] exited with preempt_count 1
+iQEVAwUBQicWj6rOdlPj1wR/AQKUdwf/WRzCVWTk5XwLnbrkFPIMghh/MqXwl3Ib
+pkaSZuTUQ93RJ/taFhMJRpA2G2gP/EkY1Y/JFzQQ+Qrhy9CaUmVhGLKHHbX/iwJ8
+lXTshi7FuL7LX166wtIWBDOBmp75+yCBA4OgwAI8Peh+ZmpojeCevevCXMVp4gpi
+whtAuc2CHzpyH+dT4Z/KS0m1o1uYRpb1VTAbxSyDvEnOYmE5gkhvKBkh72HrP2ci
+UaKclF7kIZYSDimETnN4Wgbjf9k2OfBRwiOeDDv2a1zjWHHGbNLrypXzjh48XRVX
+ZydFZNcJdR1ZVtJy5FSSC5on/1F7NPksaHmFDIXPYsBzDg2/APjpqA==
+=rA57
+-----END PGP SIGNATURE-----
 
-The code crashes in fs/jbd/commit.c journal_commit_transaction in this
-particular area at line 314:
-
-...
-/*
- * Wait for all previously submitted IO to complete.
- */
-while (commit_transaction->t_locked_list) {
-	struct buffer_head *bh;
-
-	jh = commit_transaction->t_locked_list->b_tprev;
-	bh = jh2bh(jh);
-	get_bh(bh);                    <--- crash here because bh is NULL
-	if (buffer_locked(bh)) {
-		spin_unlock(&journal->j_list_lock);
-		wait_on_buffer(bh);
-		if (unlikely(!buffer_uptodate(bh)))
-			err = -EIO;
-		spin_lock(&journal->j_list_lock);
-	}
-	if (!inverted_lock(journal, bh)) {
-		put_bh(bh);
-		spin_lock(&journal->j_list_lock);
-		continue;
-	}
-	if (buffer_jbd(bh) && jh->b_jlist == BJ_Locked) {
-		__journal_unfile_buffer(jh);
-		jbd_unlock_bh_state(bh);
-		journal_remove_journal_head(bh);
-		put_bh(bh);
-	} else {
-		jbd_unlock_bh_state(bh);
-	}
-	put_bh(bh);
-	if (need_resched()) {
-		spin_unlock(&journal->j_list_lock);
-		cond_resched();
-		spin_lock(&journal->j_list_lock);
-	}
-}
-...
-
-And more precisely at this stage of the code:
-
-jh = commit_transaction->t_locked_list->b_tprev;
-8b 78 20             	mov    0x20(%eax),%edi
-
-bh = jh2bh(jh);
-8b 1f                	mov    (%edi),%ebx
-
-get_bh(bh);
-f0 ff 43 0c          	lock incl 0xc(%ebx)  <-- crash because ebx is null
-8b 03                	mov    (%ebx),%eax
-
-Unfortunately I don't have the knowledge (and time to aquire it) that
-will help me chase down this bug/problem.
-
-If you need more information (including .config and other) I'll be happy
-to provide it.
-
-Can you CC: me as I'm not subscribed to the list.
-
-Regards,
--- 
-Brice Figureau <brice+lklm@daysofwonder.com>
-
+--R+Rs1qz93vBJxC1z--

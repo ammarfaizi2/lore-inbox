@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267234AbRGPIit>; Mon, 16 Jul 2001 04:38:49 -0400
+	id <S267241AbRGPIto>; Mon, 16 Jul 2001 04:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267239AbRGPIij>; Mon, 16 Jul 2001 04:38:39 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:7341 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S267234AbRGPIiW>; Mon, 16 Jul 2001 04:38:22 -0400
-Date: Mon, 16 Jul 2001 10:37:03 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: jlnance@intrex.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-Message-ID: <20010716103703.E750@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.32.0107091250170.25061-100000@maus.spack.org> <20010709230151.A13704@bessie.localdomain>
+	id <S267242AbRGPItf>; Mon, 16 Jul 2001 04:49:35 -0400
+Received: from weta.f00f.org ([203.167.249.89]:16004 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S267241AbRGPIt1>;
+	Mon, 16 Jul 2001 04:49:27 -0400
+Date: Mon, 16 Jul 2001 20:49:32 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010716204932.E11938@weta.f00f.org>
+In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010709230151.A13704@bessie.localdomain>; from jlnance@intrex.net on Mon, Jul 09, 2001 at 11:01:51PM -0400
+In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09, 2001 at 11:01:51PM -0400, jlnance@intrex.net wrote:
-> stack gets mapped into the top of memory at 0xc0000000 and it grows down
-> tword the program text.  Files or shared libraries are mmaped in starting
-> at 0x40000000 (1G) and each new mmap() occurs at a higher address so that
-> the mapped area grows tword the stack.
-> its something like this:
-> 
->        0x00000000 ---> Unmapped
->        0x08048000 ---> Text/Data
-[1]
->        0x40000000 ---> Shared libs and mmaped
->        0xc0000000 ---> Stack
+On Sun, Jul 15, 2001 at 09:08:41PM -0400, Albert D. Cahalan wrote:
 
-Does anybody know, why we leave that much Room unmapped in [1]?
+    In a tree-structured filesystem, checksums on everything would
+    only cost you space similar to the number of pointers you
+    have. Whenever a non-leaf node points to a child, it can hold a
+    checksum for that child as well.
 
-Having at least one page unmapped is ok to catch programmer
-errors, but the first 132MB seems a little bit too large...
+    This gives a very reliable way to spot filesystem errors,
+    including corrupt data blocks.
 
-I still don't know why an allocator ONLY using mmap() and no
-brk()/sbrk() shouldn't use mmap(getpagesize(),...).
+Actually, this is a really nice concept... have additional checksums
+and such floating about. When filesystems get to several terabytes, it
+would allws background consistency checking (as checking on boot would
+be far to slow).
 
-PS: I used this information already to help someone having these
-   kind of problems. 
-   
+It would also allow the fs layer to fsck the filesystem _as_ data was
+accessed if need be, which would be the case more often.
 
-Thanks & Regards
 
-Ingo Oeser
+
+  --cw
+

@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266019AbUAKXu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 18:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUAKXu3
+	id S266030AbUAKX7l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 18:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbUAKX7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 18:50:29 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:1668 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266019AbUAKXu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 18:50:27 -0500
-Date: Mon, 12 Jan 2004 00:50:25 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Murilo Pontes <murilo_pontes@yahoo.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel 2.6.1
-Message-ID: <20040111235025.GA832@ucw.cz>
-References: <200401111545.59290.murilo_pontes@yahoo.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401111545.59290.murilo_pontes@yahoo.com.br>
-User-Agent: Mutt/1.5.4i
+	Sun, 11 Jan 2004 18:59:41 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:9107 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S266030AbUAKX7i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 18:59:38 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: 2.6.1 and irq balancing
+Date: Sun, 11 Jan 2004 15:59:20 -0800
+Message-ID: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.1 and irq balancing
+Thread-Index: AcPYAvai+KnVx409Q2OiNqoWY2JcDAAmhENQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Ethan Weinstein" <lists@stinkfoot.org>, "Ed Tomlinson" <edt@aei.ca>
+Cc: <linux-kernel@vger.kernel.org>, <piggin@cyberone.com.au>,
+       "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+X-OriginalArrivalTime: 11 Jan 2004 23:59:21.0712 (UTC) FILETIME=[EEAAF700:01C3D89E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 03:45:59PM +0000, Murilo Pontes wrote:
+> Admittedly, the machine's load was not high when I took this sample.
+> However, creating a great deal of load does not change these
+statistics
+> at all.  Being that there are patches available for 2.4.x kernels to
+fix
+> this, I don't think this at all by design, but what do I know? =)
 
-> 15:34:36 [root@murilo:/MRX/drivers]#diff -urN linux-2.6.0/drivers/input/keyboard/atkbd.c linux-2.6.1/drivers/input/keyboard/atkbd.c > test.diff
-> 15:35:12 [root@murilo:/MRX/drivers]#wc -l test.diff
->     387 test.diff
-> -------------> May be wrong?!
+2.6 kernels don't need a patch to it as far as I understand. Are you
+saying that with significant amount of load, you did not see any
+distribution of interrupts? Today's threshold in the kernel is high
+because we found moving around interrupts frequently rather hurt the
+cache and thus lower the performance compared to "do nothing". Can you
+try to create significant load with your network (eth0 and eh1) and see
+what happens? 
 
-Yes, there was a mistake by me in a related patch.
+Jun 
 
-This should fix it.
-
-diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
---- a/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
-+++ b/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
-@@ -941,8 +941,8 @@
- 	 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
- 	 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
- 	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
--	 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
--	284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
-+	 80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-+	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
- 	367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
- 	360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
- 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
-
-> 15:30:13 [root@murilo:/MRX/drivers]#dmesg | grep serio
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
-> ----------> Last two lines, is apper each startx startup!!!!
-
-This is an XFree86 bug.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Ethan Weinstein
+> Sent: Saturday, January 10, 2004 9:19 PM
+> To: Ed Tomlinson
+> Cc: linux-kernel@vger.kernel.org; piggin@cyberone.com.au
+> Subject: Re: 2.6.1 and irq balancing
+> 
+> Ed Tomlinson wrote:
+> > Hi,
+> >
+> > What is the load on the box when this is happening?  If its low
+think
+> > this is optimal (for cache reasons).
+> >
+> 
+> Admittedly, the machine's load was not high when I took this sample.
+> However, creating a great deal of load does not change these
+statistics
+> at all.  Being that there are patches available for 2.4.x kernels to
+fix
+> this, I don't think this at all by design, but what do I know? =)
+> 
+> 2.6.0 running on a non-HT SMP machine I have (old Compaq proliant
+> 2xPentium2) does interrupt on all CPU's with "noirqbalance" bootparam.
+> 
+> Regarding the keyboard, I noticed something interesting
+> 
+> 2.6.1-rc1 shows the i8042 in /proc/interrupts:
+> 
+>    1:       1871          0          0          0    IO-APIC-edge
+i8042
+> 
+> (keyboard still does not work, though..)
+> 
+> 2.6.1 final does not show this at all, and [kseriod] eats a constant
+5%
+>   CPU.  Something's awry =)
+> 
+> 
+> -Ethan
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbTIAR2i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTIAR2i
+	id S263154AbTIAR1L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 13:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTIAR1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:28:38 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:38664 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263070AbTIAR2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:28:32 -0400
-Date: Mon, 1 Sep 2003 18:28:27 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       Larry McVoy <lm@work.bitmover.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Larry McVoy <lm@bitmover.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: bitkeeper comments
-Message-ID: <20030901182827.A26176@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jakob Oestergaard <jakob@unthought.net>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	ak@suse.de
-References: <20030901170218.A24713@infradead.org> <Pine.LNX.4.44.0309010956390.7908-100000@home.osdl.org> <20030901172334.GE14716@unthought.net>
+	Mon, 1 Sep 2003 13:27:11 -0400
+Received: from law11-f92.law11.hotmail.com ([64.4.17.92]:31244 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263154AbTIARZV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 13:25:21 -0400
+X-Originating-IP: [220.224.1.76]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: jmorris@intercode.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Poor IPSec performance with 2.6 kernels
+Date: Mon, 01 Sep 2003 22:55:20 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030901172334.GE14716@unthought.net>; from jakob@unthought.net on Mon, Sep 01, 2003 at 07:23:34PM +0200
+Content-Type: text/plain; format=flowed
+Message-ID: <Law11-F92lj1Jwuo8tn00019510@hotmail.com>
+X-OriginalArrivalTime: 01 Sep 2003 17:25:20.0631 (UTC) FILETIME=[04F54870:01C370AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 07:23:34PM +0200, Jakob Oestergaard wrote:
-> There is an important difference.
-> 
-> If I send you a mail saying "X" and you change it to say "Y" and put "Y"
-> in the source tree, fine.  It was a mail between us, noone except you
-> and me will know.  If I think it's wrong, maybe I can make you submit
-> "X" to the source tree instead, with an explanation.
-> 
-> Everything that was ever publicly visible, stays publicly visible, even
-> with the the revised comments, thanks to the revision history.
-> 
-> But changing the source tree revision history retroactively, that's bad.
-> It defies the purpose of revision control itself.
-> 
-> The source tree is a public record. People will remember "this said 'Y'
-> I'm sure, but now it says 'X', why is that?" - and noone can answer.
-> History forgotten.
 
-Yupp, that's what I meant.  I certainly don't want a thought police
-on my source trees.
+This is taken from FreeS/Wan HOWTO.
+
+"AES is a new US government block cipher standard, designed to replace the 
+obsolete DES. If FreeS/WAN
+using 3DES is not fast enough for your application, the AES patch may help.
+
+To date (March 2002) we have had only one mailing list report of 
+measurements with the patch applied. It
+indicates that, at least for the tested load on that user's network, AES 
+roughly doubles IPsec
+hroughput."
+
+                   -Kartikey Mahendra Bhatt
+
+
+
+>From: James Morris <jmorris@intercode.com.au>
+>To: Tom Sightler <ttsig@tuxyturvy.com>
+>CC: "Adam J. Richter" <adam@yggdrasil.com>,LKML 
+><linux-kernel@vger.kernel.org>
+>Subject: Re: Poor IPSec performance with 2.6 kernels
+>Date: Thu, 28 Aug 2003 23:40:04 +1000 (EST)
+>
+>On 28 Aug 2003, Tom Sightler wrote:
+>
+> > I'm using 3des for the encryption algorithm.
+>
+>What authentication algorithm (if any) ?
+>
+>
+>- James
+>--
+>James Morris
+><jmorris@intercode.com.au>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+_________________________________________________________________
+Need a naukri? Your search ends here. http://www.msn.co.in/naukri/ 50,000 of 
+the best jobs!
 

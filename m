@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSGXJj1>; Wed, 24 Jul 2002 05:39:27 -0400
+	id <S315746AbSGXJiy>; Wed, 24 Jul 2002 05:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSGXJj1>; Wed, 24 Jul 2002 05:39:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41733 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316499AbSGXJj0>; Wed, 24 Jul 2002 05:39:26 -0400
-Date: Wed, 24 Jul 2002 10:42:33 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S316499AbSGXJiy>; Wed, 24 Jul 2002 05:38:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:15371 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315746AbSGXJix>;
+	Wed, 24 Jul 2002 05:38:53 -0400
+Date: Wed, 24 Jul 2002 11:42:04 +0200
+From: Dave Jones <davej@suse.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [STATUS 2.5]  July 24, 2002
-Message-ID: <20020724104233.C25115@flint.arm.linux.org.uk>
-References: <3D3DDB50.22836.49DD0EB@localhost>
+Message-ID: <20020724114204.G16446@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	James Simmons <jsimmons@transvirtual.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D3DDB50.22836.49DD0EB@localhost> <Pine.LNX.4.44.0207232206300.24482-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D3DDB50.22836.49DD0EB@localhost>; from boissiere@adiglobal.com on Tue, Jul 23, 2002 at 10:40:16PM -0400
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0207232206300.24482-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, Jul 23, 2002 at 10:21:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 10:40:16PM -0400, Guillaume Boissiere wrote:
-> o in 2.5.28   Serial driver restructure                       (Russell King)
+On Tue, Jul 23, 2002 at 10:21:08PM -0700, James Simmons wrote:
+ > 
+ > > o in -dj      Rewrite of the console layer                    (James Simmons)
+ > 
+ > It was introduce in 2.5.25.
 
-"Sort of" in (note: I didn't submit this version to Linus!).  Its pending
-Linus pulling updates from me to fix up what's presently there.  If the
-update doesn't go in before 2.5.28, some later kernel will have at least
-600K of uncompressed patch.
+But there are still some sizable chunks of it in my tree pending merge.
+I went through yesterday and threw out a lot of whitespace noise, but
+there are still some 'functional' diffs there that need either pushing
+to Linus, or dropping. From the look of the ones I skimmed, they need
+to go to Linus, but I'll let you decide.
+
+        Dave
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292404AbSBBWFU>; Sat, 2 Feb 2002 17:05:20 -0500
+	id <S292401AbSBBWKM>; Sat, 2 Feb 2002 17:10:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292401AbSBBWFA>; Sat, 2 Feb 2002 17:05:00 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23556 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292404AbSBBWEy>; Sat, 2 Feb 2002 17:04:54 -0500
-Subject: Re: 2.4.17 agpgart process hang on crash
-To: larsch@cs.auc.dk (Lars Christensen)
-Date: Sat, 2 Feb 2002 22:17:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-bugs@nvidia.com
-In-Reply-To: <Pine.GSO.4.33.0202022219340.29744-100000@peta.cs.auc.dk> from "Lars Christensen" at Feb 02, 2002 10:55:05 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292402AbSBBWKA>; Sat, 2 Feb 2002 17:10:00 -0500
+Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:39929
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S292401AbSBBWJ6>; Sat, 2 Feb 2002 17:09:58 -0500
+Date: Sat, 2 Feb 2002 22:09:54 +0000
+From: Mark Zealey <mark@zealos.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Qn: kernel_thread()
+Message-ID: <20020202220954.GB5032@itsolve.co.uk>
+In-Reply-To: <MCOPFDJKMGLLEBAA@mailcity.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16X8Ts-0000gN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <MCOPFDJKMGLLEBAA@mailcity.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi. I have experienced a problem with the combination of kernel-2.4.16,
-> the kernel agpgart module and NVIDIA supplied drivers. I don't know which
-> is the cause of the problem.
+On Sat, Feb 02, 2002 at 10:46:20PM +0530, Alpha Beta wrote:
+
+> In the code of 
+> int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+> in arch/i386/kernel/process.c
 > 
+> as can be seen in the code here, a system call is made by trigerring the 0x80 interrupt.
+> this function kernel_thread() is used to launch the init process during booting by
+> start_kernel()	//in init/main.c
+> But at that time, the process 0 which calls kernel_thread is executing in Kernel mode, so why should some process in kernel mode make a system call??
 
-Please report problem with the nvidia drivers loaded to nvidia. They have
-the kernel source, we do not have their source code. Only they can help
-you. 
+Easy way to get the registers dumped into memory
 
-Alan
+-- 
+
+Mark Zealey
+mark@zealos.org
+mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+
+(www.geekcode.com)

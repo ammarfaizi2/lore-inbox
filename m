@@ -1,149 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270319AbTHLMqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 08:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270283AbTHLMqH
+	id S267517AbTHLNDg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTHLNDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 08:46:07 -0400
-Received: from front1.chartermi.net ([24.213.60.123]:35999 "EHLO
-	front1.chartermi.net") by vger.kernel.org with ESMTP
-	id S270325AbTHLMp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 08:45:58 -0400
-Message-ID: <3F38E183.80108@quark.didntduck.org>
-Date: Tue, 12 Aug 2003 08:45:55 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 12 Aug 2003 09:03:33 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:62701 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S267517AbTHLNDa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:03:30 -0400
+Date: Tue, 12 Aug 2003 16:03:28 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0test3mm1 + gcc 3.2.3 | gcc3.3 compile error (Input/output error)
+Message-ID: <Pine.LNX.4.56.0308121603010.8716@hosting.rdsbv.ro>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] move EISA_bus to eisa-bus.c
-Content-Type: multipart/mixed;
- boundary="------------050702080208080000000707"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050702080208080000000707
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
 
-Move EISA_bus from individual arches to eisa-bus.c.
+I have some problems to compile 2.6.0test3mm1.
 
---
-				Brian Gerst
+I had no problem compiling 2.6.0test1 and test2 and all mm patches.
 
---------------050702080208080000000707
-Content-Type: text/plain;
- name="EISA_bus-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="EISA_bus-1"
+My config:
+Linux Dino 2.6.0-test2-mm4 #1 Mon Aug 4 12:48:32 EEST 2003 i686 unknown
+unknown GNU/Linux
 
-diff -urN linux-2.6.0-test3-bk/arch/i386/kernel/i386_ksyms.c linux/arch/i386/kernel/i386_ksyms.c
---- linux-2.6.0-test3-bk/arch/i386/kernel/i386_ksyms.c	2003-07-27 13:11:42.000000000 -0400
-+++ linux/arch/i386/kernel/i386_ksyms.c	2003-08-12 07:58:01.268653760 -0400
-@@ -62,9 +62,6 @@
- 
- /* platform dependent support */
- EXPORT_SYMBOL(boot_cpu_data);
--#ifdef CONFIG_EISA
--EXPORT_SYMBOL(EISA_bus);
--#endif
- EXPORT_SYMBOL(MCA_bus);
- #ifdef CONFIG_DISCONTIGMEM
- EXPORT_SYMBOL(node_data);
-diff -urN linux-2.6.0-test3-bk/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
---- linux-2.6.0-test3-bk/arch/i386/kernel/traps.c	2003-07-27 12:57:49.000000000 -0400
-+++ linux/arch/i386/kernel/traps.c	2003-08-12 07:58:01.273653000 -0400
-@@ -829,11 +829,6 @@
- 	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
- }
- 
--
--#ifdef CONFIG_EISA
--int EISA_bus;
--#endif
--
- void __init trap_init(void)
- {
- #ifdef CONFIG_EISA
-diff -urN linux-2.6.0-test3-bk/arch/mips/kernel/mips_ksyms.c linux/arch/mips/kernel/mips_ksyms.c
---- linux-2.6.0-test3-bk/arch/mips/kernel/mips_ksyms.c	2003-08-09 02:49:56.000000000 -0400
-+++ linux/arch/mips/kernel/mips_ksyms.c	2003-08-12 07:58:01.285651176 -0400
-@@ -43,10 +43,6 @@
- 
- EXPORT_SYMBOL(mips_machtype);
- 
--#ifdef CONFIG_EISA
--EXPORT_SYMBOL(EISA_bus);
--#endif
--
- /*
-  * String functions
-  */
-diff -urN linux-2.6.0-test3-bk/arch/mips/kernel/setup.c linux/arch/mips/kernel/setup.c
---- linux-2.6.0-test3-bk/arch/mips/kernel/setup.c	2003-08-09 02:49:56.000000000 -0400
-+++ linux/arch/mips/kernel/setup.c	2003-08-12 07:58:01.291650264 -0400
-@@ -44,15 +44,6 @@
- struct screen_info screen_info;
- #endif
- 
--/*
-- * Set if box has EISA slots.
-- */
--#ifdef CONFIG_EISA
--int EISA_bus;
--
--EXPORT_SYMBOL(EISA_bus);
--#endif
--
- #if defined(CONFIG_BLK_DEV_FD) || defined(CONFIG_BLK_DEV_FD_MODULE)
- extern struct fd_ops no_fd_ops;
- struct fd_ops *fd_ops;
-diff -urN linux-2.6.0-test3-bk/arch/parisc/kernel/parisc_ksyms.c linux/arch/parisc/kernel/parisc_ksyms.c
---- linux-2.6.0-test3-bk/arch/parisc/kernel/parisc_ksyms.c	2003-07-27 13:11:56.000000000 -0400
-+++ linux/arch/parisc/kernel/parisc_ksyms.c	2003-08-12 07:58:01.301648744 -0400
-@@ -41,9 +41,6 @@
- #include <asm/processor.h>
- EXPORT_SYMBOL(kernel_thread);
- EXPORT_SYMBOL(boot_cpu_data);
--#ifdef CONFIG_EISA
--EXPORT_SYMBOL(EISA_bus);
--#endif
- 
- #include <linux/pm.h>
- EXPORT_SYMBOL(pm_power_off);
-diff -urN linux-2.6.0-test3-bk/arch/parisc/kernel/setup.c linux/arch/parisc/kernel/setup.c
---- linux-2.6.0-test3-bk/arch/parisc/kernel/setup.c	2003-07-27 13:10:24.000000000 -0400
-+++ linux/arch/parisc/kernel/setup.c	2003-08-12 07:58:01.306647984 -0400
-@@ -52,10 +52,6 @@
- struct proc_dir_entry * proc_runway_root = NULL;
- struct proc_dir_entry * proc_gsc_root = NULL;
- 
--#ifdef CONFIG_EISA
--int EISA_bus;	/* This has to go somewhere in architecture specific code. */
--#endif
--
- void __init setup_cmdline(char **cmdline_p)
- {
- 	extern unsigned int boot_args[];
-diff -urN linux-2.6.0-test3-bk/drivers/eisa/eisa-bus.c linux/drivers/eisa/eisa-bus.c
---- linux-2.6.0-test3-bk/drivers/eisa/eisa-bus.c	2003-07-27 12:59:37.000000000 -0400
-+++ linux/drivers/eisa/eisa-bus.c	2003-08-12 07:58:01.317646312 -0400
-@@ -15,6 +15,12 @@
- #include <linux/slab.h>
- #include <linux/ioport.h>
- #include <asm/io.h>
-+#include <asm/processor.h> /* for EISA_bus define */
-+
-+#ifndef EISA_bus
-+int EISA_bus;
-+EXPORT_SYMBOL(EISA_bus);
-+#endif
- 
- #define SLOT_ADDRESS(r,n) (r->bus_base_addr + (0x1000 * n))
- 
+Gnu C                  3.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.33
+jfsutils               1.1.2
+reiserfsprogs          3.6.8
+xfsprogs               2.3.9
+quota-tools            3.08.
+PPP                    2.4.1
+nfs-utils              1.0.5
+Linux C Library        2.3.1
+Dynamic linker (ldd)   2.3.1
+Linux C++ Library      5.0.4
+Procps                 2.0.13
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               5.0
 
---------------050702080208080000000707--
 
+The error is:
+
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+init/mounts.o init/initramfs.o
+        ld -m elf_i386  -T arch/i386/kernel/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+--start-group  usr/built-in.o  arch/i386/kernel/built-in.o
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
+lib/built-in.o  arch/i386/lib/built-in.o  drivers/built-in.o
+sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o
+.tmp_vmlinux1
+arch/i386/kernel/built-in.o: could not read symbols: Input/output error
+make: *** [.tmp_vmlinux1] Error 1
+
+
+Any hints?
+It may be that I upgrade binutils?
+
+Thank you very much!
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

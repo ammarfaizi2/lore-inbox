@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312587AbSCVAwt>; Thu, 21 Mar 2002 19:52:49 -0500
+	id <S312593AbSCVBF7>; Thu, 21 Mar 2002 20:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312586AbSCVAwi>; Thu, 21 Mar 2002 19:52:38 -0500
-Received: from zarzycki.org ([216.218.222.115]:26524 "EHLO zarzycki.org")
-	by vger.kernel.org with ESMTP id <S312587AbSCVAwV>;
-	Thu, 21 Mar 2002 19:52:21 -0500
-Date: Thu, 21 Mar 2002 16:47:10 -0800 (PST)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: John Langford <jcl@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
-In-Reply-To: <E16oAs1-0006SJ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0203211626410.3631-100000@tidus.zarzycki.org>
+	id <S312594AbSCVBFt>; Thu, 21 Mar 2002 20:05:49 -0500
+Received: from relay.softcomca.com ([168.144.1.68]:32786 "EHLO
+	relay2.softcomca.com") by vger.kernel.org with ESMTP
+	id <S312593AbSCVBFk> convert rfc822-to-8bit; Thu, 21 Mar 2002 20:05:40 -0500
+X-Originating-IP: 4.20.162.6
+X-URL: http://www.mail2web.com/
+Subject: max number of threads on a system
+From: "joeja@mindspring.com" <joeja@mindspring.com>
+Date: Thu, 21 Mar 2002 20:05:39 -0500
+To: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
+Reply-To: joeja@mindspring.com
+X-Priority: 3
+X-MSMail-Priority: Normal
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+X-Mailer: JMail 3.7.0 by Dimac (www.dimac.net)
+Message-ID: <RELAY2HXrsOZoybKw2N00004110@relay2.softcomca.com>
+X-OriginalArrivalTime: 22 Mar 2002 01:05:48.0203 (UTC) FILETIME=[B3C077B0:01C1D13D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002, Alan Cox wrote:
+What limits the number of threads one can have on a Linux system?
 
-> > There seems to be some fundamental incompatibility between the kernel
-> > and the IDE chipset.  On several kernels in the 2.4 series including
-> > 2.4.18, I observe a hang in the bootsequence at:
-> > 
-> > ALI15X3: IDE controller on PCI bus 00 dev 78
-> > PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq.
-> > ALI15X3: chipset revision 195
-> > ALI15X3: not 100% native mode: will probe irqs later
-> > <hang>
-> 
-> And does pci=bios help ?
+I have a simple program that creates an array of threads and it locks up at the creation of somewhere between 250 and 275 threads.
 
-Nope. Neither does pci=biosirq.
+The program just hangs indefinately unless a Control-C is hit.
 
-I'm seeing the same problem on the Sony Vaio PictureBook C1MV/M.
+How can I increase this number or can I?
 
-Disabling the ALI 15X3 driver avoids the problem for me. If I can find 
-some free time, I'm going to start adding printf()s to see where things 
-are hanging...
+Thanks, Joe 
 
-davez
-
--- 
-Dave Zarzycki
-http://zarzycki.org/~dave/
+--------------------------------------------------------------------
+mail2web - Check your email from the web at
+http://mail2web.com/ .
 

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263442AbRFAJy7>; Fri, 1 Jun 2001 05:54:59 -0400
+	id <S263446AbRFAJ5i>; Fri, 1 Jun 2001 05:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263443AbRFAJyt>; Fri, 1 Jun 2001 05:54:49 -0400
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:11860 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S263442AbRFAJyj>; Fri, 1 Jun 2001 05:54:39 -0400
-Message-ID: <3B176653.B4FD0621@stud.uni-saarland.de>
-Date: Fri, 01 Jun 2001 09:54:27 +0000
-From: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>
-Reply-To: manfred@colorfullife.com
-Organization: Studierende Universitaet des Saarlandes
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
-MIME-Version: 1.0
-To: jgarzik@mandrakesoft.com
-CC: linux-kernel@vger.kernel.org, thockin@sun.com
-Subject: Re: [PATCH] sym53c8xx timer and smp fixes
+	id <S263445AbRFAJ52>; Fri, 1 Jun 2001 05:57:28 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:3737 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S263444AbRFAJ5T>; Fri, 1 Jun 2001 05:57:19 -0400
+Date: Fri, 1 Jun 2001 10:57:17 +0100
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <laughing@shared-source.org>
+Subject: USB mouse wheel breakage was Re: Linux 2.4.5-ac5
+Message-ID: <20010601105717.A2468@debian>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <laughing@shared-source.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010530213039.A25251@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.18i
+From: Michael <leahcim@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff wrote:
->
-> so, this driver is mixed spinlocks and save/restore_flags? Any
-> chance this can be converted to all spinlocks? 
->
-It's spinlock for 2.2 and 2.4 kernels, and save_flags for 2.0.
+On Wed, May 30, 2001 at 09:30:39PM +0100, Alan Cox wrote:
+> 2.4.5-ac4
+> o	Update USB hid drivers				(Vojtech Pavlik)
 
-Tim, did you cc Gerard Roudier? He mainains the sym53c8xx driver. All
-mail archives strip the cc list :-(
+I think these changes have broken my USB wheel mouse.
 
---
-	Manfred
+Events seems to be getting lost (/dev/input/mice)
+
+It only scrolls when either the scroll direction has changed or if other
+mouse events occur (e.g. you need to wiggle mouse from side to side to
+scroll down a long page in mozilla)
+
+problems seems to be in drivers/usb/hid-core.c hid_input_field line 772
+
+	for (n = 0; n < count; n++) {
+
+		if (HID_MAIN_ITEM_VARIABLE & field->flags) {
+
+			if ((field->flags & HID_MAIN_ITEM_RELATIVE) && !value[n])
+				continue;
+The next 2 lines are dropping the scroll wheel events (which appear in the
+input code as type:2, code: 8, value -1 or 1 depending on direction)
+
+			if (value[n] == field->value[n])
+				continue;
+			hid_process_event(hid, field, &field->usage[n], value[n]);
+			continue;
+		}
+
+
+Works fine in ac3.
+-- 
+Michael.

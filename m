@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143672AbRAHPTM>; Mon, 8 Jan 2001 10:19:12 -0500
+	id <S143866AbRAHPUC>; Mon, 8 Jan 2001 10:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143866AbRAHPTD>; Mon, 8 Jan 2001 10:19:03 -0500
-Received: from ns.caldera.de ([212.34.180.1]:44552 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S143672AbRAHPSw>;
-	Mon, 8 Jan 2001 10:18:52 -0500
-Date: Mon, 8 Jan 2001 16:18:44 +0100
-Message-Id: <200101081518.QAA01381@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: mlsoft@videotron.ca (Martin Laberge)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 - sndstat not present
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3A59CD57.6FA72934@videotron.ca>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S143970AbRAHPTw>; Mon, 8 Jan 2001 10:19:52 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:20824 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S143866AbRAHPTi>; Mon, 8 Jan 2001 10:19:38 -0500
+Date: Mon, 8 Jan 2001 17:26:42 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Chris Meadors <clubneon@hereintown.net>
+cc: "David S. Miller" <davem@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Delay in authentication.
+In-Reply-To: <Pine.LNX.4.31.0101080918260.17858-100000@rc.priv.hereintown.net>
+Message-ID: <Pine.LNX.4.21.0101081725250.10084-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A59CD57.6FA72934@videotron.ca> you wrote:
-> i installed 2.4.0 last week and all worked well on my amd-K6-350
-> i use a cheap sound card since 2.0.36 and it always worked well too.
-> it work well now in 2.4.0, BUT , /dev/sndstat report me <no such file or
-> directory>
-> and /proc/sound (as noted in documentation) does not exist...
+On Mon, 8 Jan 2001, Chris Meadors wrote:
 
-Please read Documentation/sound/NEWS.
-Where in the documentation is /proc/sound still noted?
+> On Mon, 8 Jan 2001, David S. Miller wrote:
+> 
+> > This definitely seems like the classic "/etc/nsswitch.conf is told to
+> > look for YP servers and you are not using YP", so have a look and fix
+> > nsswitch.conf if this is in fact the problem.
+> 
+> What I have never gotten, is why on my machines (no specific distro, just
+> everything built from source and installed by me) login takes a long time,
+> unless I have portmap running.
+> 
+> My /etc/nsswitch.conf would seem to be right:
+> 
+> What else could effect that?
 
-> the sound work well, but i cant verify the existence of the driver with
-> sndstat anymore
->
-> could someone tell me if i should have done some additionnal
-> configuration to see
-> appear the /proc/sound or to enable /dev/sndstat...
+check /etc/pam.d/login
 
-No - it's simply gone.
+Could be kerberos that is biting you, althrough that doesn't explain the
+portmap story.
 
-> maybe is it another method now in 2.4 to see the sound status...
 
-cat foo.au > /dev/audio
 
-> Best Wishes to all of you for the new year...
+	Igmar
 
-	Christoph
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+	
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

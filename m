@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUBROZz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 09:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbUBROZz
+	id S267425AbUBRO2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUBRO1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 09:25:55 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:18390
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S267423AbUBROZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 09:25:51 -0500
-Message-ID: <40337199.2060609@tmr.com>
-Date: Wed, 18 Feb 2004 09:07:21 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: James Morris <jmorris@redhat.com>
-CC: Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-References: <402F877C.C9B693C1@users.sourceforge.net> <Xine.LNX.4.44.0402151924490.13809-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0402151924490.13809-100000@thoron.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 09:27:35 -0500
+Received: from cable212a115.usuarios.retecal.es ([212.183.212.115]:21377 "EHLO
+	debian") by vger.kernel.org with ESMTP id S267428AbUBRO0j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 09:26:39 -0500
+Subject: Re: 2.6.3-mm1
+From: Ramon Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040217232130.61667965.akpm@osdl.org>
+References: <20040217232130.61667965.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-s8+rW4r9VwlzcTB13Rmj"
+Message-Id: <1077114386.12206.2.camel@debian>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 15:26:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Sun, 15 Feb 2004, Jari Ruusu wrote:
-> 
-> 
->>Jan Rychter wrote:
->>
->>>FWIW, I've just tried loop-AES with 2.4.24, after using cryptoapi for a
->>>number of years. My machine froze dead in the midst of copying 2.8GB of
->>>data onto my file-backed reiserfs encrypted loopback mount.
->>>
->>>Since the system didn't ever freeze on me before and since I've had zero
->>>problems with cryptoapi, I attribute the freeze to loop-AES.
->>>
->>>Yes, I know this isn't a good bugreport...
->>
->>Is there any particular reason why you insist on using file backed loops?
->>
->>File backed loops have hard to fix re-entry problem: GFP_NOFS memory
->>allocations that cause dirty pages to written out to file backed loop, will
->>have to re-enter the file system anyway to complete the write. This causes
->>deadlocks. Same deadlocks are there in mainline loop+cryptoloop combo.
-> 
-> 
-> Given the security issues, and the above problems, we should probably just
-> remove cryptoloop from the kernel and wait for something with a better
-> design.
 
-I hope you're kidding... one of the reasons for going to 2.6 is that you 
-no longer have to patch your kernel to get cryptoloop. That is a real 
-issue in some organizations, which only allow vendor or kernel.org kernels.
+--=-s8+rW4r9VwlzcTB13Rmj
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-If you start dropping features which work for most people but aren't 
-perfect, you will wind up with a microkernel indeed.
+Hi,
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+With ACPI disabled and APM enabled I get this build error.
+
+arch/i386/kernel/built-in.o(.text+0xbf3a): In function `acpi_apic_setup':
+: undefined reference to `smp_found_config'
+arch/i386/kernel/built-in.o(.text+0xbf43): In function `acpi_apic_setup':
+: undefined reference to `clustered_apic_check'
+make: *** [.tmp_vmlinux1] Error 1
+--=20
+Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-s8+rW4r9VwlzcTB13Rmj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAM3YQRGk68b69cdURAn67AJ9kJckq+M9ll5VXE41jWKwT/QhZUwCghICH
+88upRqXY828u/lFgvfyhJZo=
+=BxP5
+-----END PGP SIGNATURE-----
+
+--=-s8+rW4r9VwlzcTB13Rmj--

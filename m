@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUFUWev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUFUWho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266507AbUFUWev (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 18:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266499AbUFUWdu
+	id S266519AbUFUWho (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 18:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUFUWfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 18:33:50 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:14033 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266492AbUFUWbj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 18:31:39 -0400
-Subject: Re: can TSC tick with different speeds on SMP=?koi8-r?Q?=3F?=
-From: john stultz <johnstul@us.ibm.com>
-To: =?koi8-r?Q?=22?=Kirill Korotaev=?koi8-r?Q?=22=20?= <kksx@mail.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
-References: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
-Content-Type: text/plain
-Message-Id: <1087857100.21955.171.camel@cog.beaverton.ibm.com>
+	Mon, 21 Jun 2004 18:35:24 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:27961 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266505AbUFUWes
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 18:34:48 -0400
+Date: Tue, 22 Jun 2004 00:46:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: s0348365@sms.ed.ac.uk, Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+Message-ID: <20040621224631.GE2903@mars.ravnborg.org>
+Mail-Followup-To: Martin Schlemmer <azarah@nosferatu.za.org>,
+	s0348365@sms.ed.ac.uk, Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+References: <20040620211905.GA10189@mars.ravnborg.org> <20040620220319.GA10407@mars.ravnborg.org> <1087769761.14794.69.camel@nosferatu.lan> <200406202326.54354.s0348365@sms.ed.ac.uk> <1087772041.14794.104.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 21 Jun 2004 15:31:40 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087772041.14794.104.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 12:02, =?koi8-r?Q?=22?=Kirill
-Korotaev=?koi8-r?Q?=22=20?= wrote:
-> I've got some stupid question to SMP gurus and would be very thankful
-> for the details. I suddenly faced an SMP system where different P4
-> cpus were installed (with different steppings). This resulted in
-> different CPU clock speeds and different speeds of time stamp counters
-> on these CPUs. I faced the problem during some timings I measured in
-> the kernel.
-> So the question is "is such system compliant with SMP specification?".
+On Mon, Jun 21, 2004 at 12:54:01AM +0200, Martin Schlemmer wrote:
+> > 
+> > #
+> > # where's the kernel source?
+> > #
+> > 
+> > if [ -d /lib/modules/`uname -r`/source ]; then
+> > 	# 2.6.8 and newer
+> > 	KERNDIR="/lib/modules/`uname -r`/source"
+> > else
+> > 	# pre 2.6.8 kernels
+> > 	KERNDIR="/lib/modules/`uname -r`/build"
+> > fi
+> > 
+> > Yeah?
+> 
+> Yes, as said before, I can understand the name change.  The point is
+> more that the 'build' symlink will change in behavior in certain
+> circumstances, and because many projects already support 2.6, and
+> make use of the 'build' symlink, they will break.
 
-Linux doesn't really support this configuration at the moment.
-Historically Intel hasn't supported different stepping cpus in the same
-system, much less different frequency cpus. I know the TSC time source
-code won't handle it properly, and there are other users of rdtsc that
-might cause problems. Other concerns would be users of cpu_khz
-(scheduler?) and cpufreq code. 
+But they were already broken.
+And the patch actually helps here.
 
-I've heard that AMD has introduced this as a possible configuration, and
-Intel may have changed their support story as well, so this may need to
-be addressed. 
+See the following table:
 
-> In old kernels there was a code to syncronize TSCs and to detect if
-> they were screwed up. Current kernels do not have such code. Is it
-> intentional? I suppose there is some code in kernel which won't work
-> find on such systems (real-time threads timing accounting and so on).
 
-The TSC syncing code is still there, but it runs only once at boot. Thus
-it will sync the cpus, but then won't account for the TSC drift between
-them.
 
-The only way to get around this is to use an alternate time source, such
-as the ACPI-PM time source (clock=pmtmr), or even the PIT (clock=pit).
-ACPI-PM still uses the TSC for delay() so it may still have issues, so
-be warned.
+                                          Current kbuild                With patch
+simple module, no grepping
+kernel source + output mixed                  OK                           OK
 
-thanks
--john
+simple module, no grepping
+kernel source separate from output            FAIL *1                      OK
 
+
+module grepping in src
+kernel source + output mixed                  OK                           OK
+
+module grepping in src
+kernel source separate from output            FAIL *2                      FAIL *3
+
+
+
+
+FAIL *1	Module cannot build because it fails to locate the compiled files used for kbuild.
+        Also the kernel configuration is missing.
+
+FAIL *2 Same as FAIL *1. Module cannot build because kbuild compiled files are missing and
+        it cannot access kernel configuration.
+        Also it fails to locate files when grepping.
+
+FAIL *3 Grep will fail because it try to grep in files located under build/
+
+
+
+The above table clearly shows that this patch fix building external modules in the
+case where no grepping were preformed.
+And the error were simplified in the last case.
+So improvements all over.
+
+What one should realise is that the patch makes it less painfull when kernels
+are build using the separate output directory option.
+And when that feature is not used - no change in behaviour occur.
+
+	Sam
+ 

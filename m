@@ -1,110 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261422AbSJMDyL>; Sat, 12 Oct 2002 23:54:11 -0400
+	id <S261423AbSJMEYU>; Sun, 13 Oct 2002 00:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261423AbSJMDyK>; Sat, 12 Oct 2002 23:54:10 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:531 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261422AbSJMDyJ>; Sat, 12 Oct 2002 23:54:09 -0400
-Date: Sat, 12 Oct 2002 23:52:08 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Benchmark results from resp1 trivial response time test
-Message-ID: <Pine.LNX.3.96.1021012234904.30780A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261424AbSJMEYT>; Sun, 13 Oct 2002 00:24:19 -0400
+Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:18670 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S261423AbSJMEYS>; Sun, 13 Oct 2002 00:24:18 -0400
+Date: Sat, 12 Oct 2002 21:30:08 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH/RFC] 2.5.42 partial fix for older pl2303
+Message-ID: <20021013043008.GD10921@ip68-4-86-174.oc.oc.cox.net>
+References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net> <20021009235332.GA19351@kroah.com> <20021011023925.GA9142@ip68-4-86-174.oc.oc.cox.net> <20021011170623.GB4123@kroah.com> <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net> <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net> <20021013004249.GC17162@ip68-4-86-174.oc.oc.cox.net> <20021013011644.GA12720@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021013011644.GA12720@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been using and developing a trivial response benchmark which is
-intended to give a reproducable measure of system response to trivial
-tasks, such as uncovering a window or typing a small command such as
-'ls' requiring modest memory and CPU.
+On Sat, Oct 12, 2002 at 06:16:44PM -0700, Greg KH wrote:
+[snip stuff regarding pl2303 on 2.4.20-pre]
+> Now, would you mind taking a look at 2.5, and fixing this there too? :)
 
-The benchmark runs a noload case, then forks a load process (or
-processes) in the background, pauses long enough to simulate user
-interaction (and get swapped out if the system is memory stressed), then
-reports the time it took to complete, including the ratio of loaded to
-noload time.
+Here's a half-successful attempt. With this patch, the device no longer
+appears twice, and it always works on the first open (at least, so I've
+observed up to this point). The open following a successful open usually
+fails (roughly speaking, it appears to play dead), and the open following
+a failed open usually (always?) succeeds.
 
-I got some results so bad I thought the program was in error, but
-running ls by hand convinced me that the system could easily be orders
-of magnitude slower under some load.
+So, on my PL-2303, it's not perfect but it's certainly livable.
 
-Here are some results, the 2.5.41-mm2v is Con's patch on top of 41-mm2.
-The program and some detailed results from the standard test machine are
-at http://pages.prodigy.net/davidsen/ if anyone cares. 2.5.41-ac2
-crashed every time I tried the benchmark, I'm building the same kernels
-on an SMP machine to get a set of SMP results.
+This patch is based on the one I did for 2.4, and in fact, this code
+functions when it's plugged into 2.4.20-pre10 instead of 2.5.42. In that
+scenario, the opens work 100% of the time.
 
+I'd be interested in suggestions or comments regarding this patch.
+Anyone who has a PL-2303 working under 2.5 might want to try this patch
+just to make sure it doesn't kill their working setup.
 
-2.4.18-5.out
-  Starting 1 CPU run with 92 MB RAM, minimum 5 data points at 20 sec intervals
+-Barry K. Nathan <barryn@pobox.com>
+
+diff -ur linux-2.5.42/drivers/usb/serial/usb-serial.c linux-2.5.42-bkn1/drivers/usb/serial/usb-serial.c
+--- linux-2.5.42/drivers/usb/serial/usb-serial.c	2002-10-12 20:13:30.000000000 -0700
++++ linux-2.5.42-bkn1/drivers/usb/serial/usb-serial.c	2002-10-12 20:22:02.000000000 -0700
+@@ -1237,16 +1237,18 @@
+ 	}
  
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    238.745    247.882    239.419    240.904    0.004    1.000
-     smallwrite    259.114    412.260    345.788    326.670    0.056    1.356
-     largewrite    279.599   2018.226   1155.189   1140.001    0.865    4.732
-        cpuload    238.958    326.137    239.678    257.048    0.039    1.067
-      spawnload    227.693    294.703    229.801    246.484    0.029    1.023
-       8ctx-mem    914.206  26547.601   4402.521   9767.470   10.440   40.545
-       2ctx-mem    296.088   9228.024   3445.643   4133.895    2.892   17.160
-
-2.5.38-mm2-1.out
-  Starting 1 CPU run with 92 MB RAM, minimum 5 data points at 20 sec intervals
- 
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    249.844    251.639    250.326    250.462    0.001    1.000
-     smallwrite  28972.832  89778.196  69264.628  60491.810   24.170  241.521
-     largewrite  31667.273  97387.471  34728.573  47237.857   28.243  188.603
-        cpuload    249.531    674.218    249.920    334.724    0.190    1.336
-      spawnload    225.724    294.523    225.860    239.641    0.031    0.957
-       8ctx-mem   1310.153  16910.239  13054.624  11026.391    6.351   44.024
-       2ctx-mem   3551.369  15704.619   9219.185   9445.208    5.805   37.711
-
-2.5.41-ac1-1.out
-  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
- 
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    244.534    250.900    250.526    249.541    0.002    1.000
-     smallwrite  25594.642 105430.087  64438.179  68740.681   29.479  275.468
-     largewrite  42475.273 128347.772  65505.753  73467.393   32.260  294.410
-        cpuload    249.360   1866.355    249.854    573.019    0.723    2.296
-      spawnload    225.845    296.056    226.379    240.173    0.031    0.962
-       8ctx-mem    287.816  12466.608   7685.832   6212.891    4.021   24.897
-       2ctx-mem   2383.892  18277.275   2979.035   6685.271    6.807   26.790
-
-2.5.41-mm2.out
-  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
- 
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    251.327    252.137    251.860    251.768    0.000    1.000
-     smallwrite    281.416    468.787    336.952    353.652    0.069    1.405
-     largewrite    269.577   2328.442    756.294    937.793    0.748    3.725
-        cpuload    248.970    330.523    249.991    265.903    0.036    1.056
-      spawnload    226.116    306.816    227.464    242.903    0.036    0.965
-       8ctx-mem   4360.954  11087.563   6240.896   6575.003    2.724   26.115
-       2ctx-mem   4716.368   9847.308   7721.747   7642.746    1.639   30.356
-
-2.5.41-mm2v.out
-  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
- 
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    249.779    256.051    249.983    251.590    0.003    1.000
-     smallwrite    288.109    382.038    348.342    338.549    0.039    1.346
-     largewrite    276.960    627.196    421.086    413.242    0.146    1.643
-        cpuload    250.098    329.824    250.630    266.666    0.035    1.060
-      spawnload    227.521    300.357    228.143    242.750    0.032    0.965
-       8ctx-mem   1748.992   7175.653   3942.950   4188.664    2.071   16.649
-       2ctx-mem   2336.009  12493.007   4941.117   6052.204    3.689   24.056
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+ #if defined(CONFIG_USB_SERIAL_PL2303) || defined(CONFIG_USB_SERIAL_PL2303_MODULE)
+-#if 0
++#if 1
+ 	/* BEGIN HORRIBLE HACK FOR PL2303 */ 
+ 	/* this is needed due to the looney way its endpoints are set up */
+-	if (ifnum == 1) {
+-		if (((dev->descriptor.idVendor == PL2303_VENDOR_ID) &&
+-		     (dev->descriptor.idProduct == PL2303_PRODUCT_ID)) ||
+-		    ((dev->descriptor.idVendor == ATEN_VENDOR_ID) &&
+-		     (dev->descriptor.idProduct == ATEN_PRODUCT_ID))) {
++	if (((dev->descriptor.idVendor == PL2303_VENDOR_ID) &&
++	     (dev->descriptor.idProduct == PL2303_PRODUCT_ID)) ||
++	    ((dev->descriptor.idVendor == ATEN_VENDOR_ID) &&
++	     (dev->descriptor.idProduct == ATEN_PRODUCT_ID))) {
++		//if (ifnum == 1) {
++		if (interface != &dev->actconfig->interface[0]) {
+ 			/* check out the endpoints of the other interface*/
+-			interface = &dev->actconfig->interface[ifnum ^ 1];
++			//interface = &dev->actconfig->interface[ifnum ^ 1];
++			interface = &dev->actconfig->interface[0];
+ 			iface_desc = &interface->altsetting[0];
+ 			for (i = 0; i < iface_desc->bNumEndpoints; ++i) {
+ 				endpoint = &iface_desc->endpoint[i];
+@@ -1259,6 +1261,15 @@
+ 				}
+ 			}
+ 		}
++
++		/* Now make sure the PL-2303 is configured correctly.
++		 * If not, give up now and hope this hack will work
++		 * properly during a later invocation of usb_serial_probe
++		 */
++		if (num_bulk_in == 0 || num_bulk_out == 0) {
++			info("PL-2303 hack: descriptors matched but endpoints did not");
++			return NULL;
++		}
+ 	}
+ 	/* END HORRIBLE HACK FOR PL2303 */
+ #endif
+Only in linux-2.5.42-bkn1/drivers/usb/serial: usb-serial.c~

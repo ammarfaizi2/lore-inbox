@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132324AbRDAMSU>; Sun, 1 Apr 2001 08:18:20 -0400
+	id <S132352AbRDAMva>; Sun, 1 Apr 2001 08:51:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132352AbRDAMSL>; Sun, 1 Apr 2001 08:18:11 -0400
-Received: from www.inreko.ee ([195.222.18.2]:32504 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id <S132324AbRDAMR6>;
-	Sun, 1 Apr 2001 08:17:58 -0400
-Date: Sun, 1 Apr 2001 14:31:38 +0200
-From: Marko Kreen <marko@l-t.ee>
-To: Earle Nietzel <nietzel@yahoo.com>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minor 2.4.3 Adaptec Driver Problems
-Message-ID: <20010401143138.A22774@l-t.ee>
-In-Reply-To: <200103312307.f2VN73s55018@aslan.scsiguy.com> <000901c0bae7$ab340a20$1401a8c0@nietzel>
+	id <S132396AbRDAMvV>; Sun, 1 Apr 2001 08:51:21 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:45832 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132352AbRDAMvP>;
+	Sun, 1 Apr 2001 08:51:15 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: chip@valinux.com (Chip Salzenberg)
+cc: hbryan@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt) 
+In-Reply-To: Your message of "Sun, 01 Apr 2001 01:01:59 PST."
+             <E14jdkF-0007Ps-00@tytlal> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000901c0bae7$ab340a20$1401a8c0@nietzel>; from nietzel@yahoo.com on Sun, Apr 01, 2001 at 01:09:30PM -0700
+Date: Sun, 01 Apr 2001 05:50:22 -0700
+Message-ID: <1140.986129422@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 01, 2001 at 01:09:30PM -0700, Earle Nietzel wrote:
-> > Umm.  This isn't an aic7xxx driver problem at all.  The SCSI layer
-> > determines the order of bus attachment *amongst* the various
-> > SCSI HBA (or SCSI HBA like) drivers in the system.  In this case,
-> > it has decided to probe your IDE devices as SCSI devices first.
-> > Why it does this I don't really know (link order perhaps???).  One
-> > way around this would be to put your IDE driver into an initial
-> > ram disk and compile the aic7xxx driver directly into the kernel.
+On Sun, 01 Apr 2001 01:01:59 -0800, 
+chip@valinux.com (Chip Salzenberg) wrote:
+>In article <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain> you write:
+>Why not have a kernel thread and use standard RPC techniques like
+>sockets?  Then you'd not have to invent anything unimportant like
+>Yet Another IPC Technique.
 
-
-> It really wouldn't make a big deal but I consider my cdroms and zip drives
-> to be removable devices and if I ever decided to remove my zip my scsi ids
-> will change. Removing a harddrive is not the same as removing a zip!
-> 
-> Are there other people with the same problem?
-
-Yes, I have ide-scsi compiled in for cd-writer, so 2.4.3 did not
-boot on my machine (that is, could  not mount anything).
-
-Not nice.
-
--- 
-marko
+kerneld (kmod's late unlamented predecessor) used to use Unix sockets
+to communicate from the kernel to the daemon.  It forced everybody to
+link Unix sockets into the kernel but there are some people out there
+who want to use it as a module.  Also the kernel code for communicating
+with kerneld was "unpleasant", see ipc/msg.c in a 2.0 kernel.
 

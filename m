@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267973AbUJHGVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267968AbUJHG2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267973AbUJHGVc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 02:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUJHGVc
+	id S267968AbUJHG2k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 02:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUJHG2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 02:21:32 -0400
-Received: from sicdec1.epfl.ch ([128.178.50.33]:30943 "EHLO sicdec1.epfl.ch")
-	by vger.kernel.org with ESMTP id S267973AbUJHGVa (ORCPT
+	Fri, 8 Oct 2004 02:28:40 -0400
+Received: from [69.25.196.29] ([69.25.196.29]:26780 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S267968AbUJHG2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 02:21:30 -0400
-Message-ID: <1097216489.416631e91faf9@imapwww.epfl.ch>
-X-Imap-User: michel.mengis@epfl.ch
-Date: Fri,  8 Oct 2004 08:21:29 +0200
-From: michel.mengis@epfl.ch
-To: linux <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.6.8 and DELL's DOTHAN Processor B0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 128.178.9.34
+	Fri, 8 Oct 2004 02:28:38 -0400
+Date: Fri, 8 Oct 2004 02:26:50 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Fulghum <paulkf@microgate.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] TTY flip buffer SMP changes
+Message-ID: <20041008062650.GC2745@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Fulghum <paulkf@microgate.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1097179099.1519.17.camel@deimos.microgate.com> <1097177830.31768.129.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097177830.31768.129.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 07, 2004 at 08:37:12PM +0100, Alan Cox wrote:
+> 
+> Now that networking is not a kernel option it seems slightly dumb that
+> the tty layer doesn't just use the sk_buff model (probably not code).
+> kmalloc is very fast and it kills TTY_DONT_FLIP because every buffer is
+> owned by _one_ person at a time. (sk_buff's dont direclty fit too well
+> because we push both error and bits per byte and don't last time I
+> checked support recycling).
 
+Suggestion: use two skbuff's for the data bytes and the error flags,
+and make the error skbufs be optional --- sometimes the line discpline
+won't care about the error bytes at all (example: raw mode).
 
-Hi all,
+Even if kmalloc() isn't as fast using two ring buffers which we flip
+back and forth, CPU's have gotten a lot faster since when I
+implemented the flip buffers some 12 years ago (i.e., 8 Moore law's
+doublings ago).  If you nuke flip buffers, I'm not going to take it
+personally.  :-)
 
-I have a lot of trouble to bring the kernel 2.6.8-1 to detect my dothan
-processor.
-It's a Pentium M Dothan B0 version, 1.7Ghz/600Mhz.
-The BIOS is DELL's D800 Bios version 09.
+> Another nice effect is simplifying the ldisc and driver level locking.
+> Drivers queue buffers, ldiscs eat buffers. If the driver queues a buffer
+> and there is temporarily no ldisc it does not get lost. 
 
-I added 3 patches:
-cpufreq-speedstep-dothan-3.patch :add correct frequency table in speedstep.c
-dothan-speedstep-fix.patch : add correct Level2 cache
-bk-cpufreq.patch : from http://linux-dj.bkbits.net/cpufreq
+Agreed.
 
-I added a lot of output in speedstep-centrino.c, acpi/processor.c to track the
-problem.
-
-I notice that my computer is running always in the lowest speed evenif I'm
-stressing it... All ouputs I added show me that Speedstep isn't the cause,
-neither CPUFreq but while CPUFreq calls all notifiers, acpi/processor.c's
-CPUFREQ_INCOMPATIBLE change the max speed to the lowest evenif during
-cpufreq_acpi_cpu_init the max speed is well detected.
-Seems to be like it's coz at boot time the kernel doesn't detect correctly the
-max speed.
-dmesg shows me that a 600Mhz processor has been detected only and not 1.7Ghz.
-(on my D600 pentium M not dothan, it detects correctly 1.6Ghz)
-
-is there a fix for that ?
-is it a known bug ?
-
-thx for all help I can get,
-
-best regards,
-
-michel.
+						- Ted

@@ -1,68 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287000AbRL1Uga>; Fri, 28 Dec 2001 15:36:30 -0500
+	id <S287012AbRL1Ugk>; Fri, 28 Dec 2001 15:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287017AbRL1UgV>; Fri, 28 Dec 2001 15:36:21 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:8453 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S287012AbRL1UgG>; Fri, 28 Dec 2001 15:36:06 -0500
-Date: Fri, 28 Dec 2001 22:36:04 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: Roy Hills <linux-kernel-l@nta-monitor.com>, linux-kernel@vger.kernel.org
-Subject: Re: zImage not supported for 2.2.20?
-Message-ID: <20011228223604.A370@elektroni.ee.tut.fi>
-Mail-Followup-To: Roy Hills <linux-kernel-l@nta-monitor.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <20011228121228.GA9920@emma1.emma.line.org> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <a0iee9$s90$1@cesium.transmeta.com> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <E16K1bW-0001K0-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16K1bW-0001K0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 28, 2001 at 06:19:38PM +0000
+	id <S287008AbRL1Ugc>; Fri, 28 Dec 2001 15:36:32 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:16359 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S287011AbRL1UgO>;
+	Fri, 28 Dec 2001 15:36:14 -0500
+Date: Fri, 28 Dec 2001 21:36:05 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
+ - update)
+In-Reply-To: <Pine.GSO.4.21.0112051628480.5865-100000@mullein.sonytel.be>
+Message-ID: <Pine.GSO.4.21.0112282115310.277-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 06:19:38PM +0000, Alan Cox wrote:
-> > Does anyone know the status of zImage format in modern kernels?
-> > Is it _supposed_ to be supported under 2.2.recent?  How about 2.4.recent?
+On Wed, 5 Dec 2001, Geert Uytterhoeven wrote:
+> On Fri, 2 Nov 2001, [ISO-8859-1] Gérard Roudier wrote:
+> > On Thu, 1 Nov 2001, Geert Uytterhoeven wrote:
+> > As driver sym-2 is planned to replace sym53c8xx in the future, it would be
+> > interesting to give it a try on your hardware. There are some source
+> > available from ftp.tux.org, but I can provide you with a flat patch
+> > against the stock kernel version you want. You may let me know.
 > 
-> It works for me. It is meant to work
+> I tried sym-2 (2.4.17-pre2) and it didn't show up the problem, which is good!
+> 
+> More news from the old driver:
+> 
+>     1.5c            OK
+>     1.5d            OK
+>     1.5e            page fault in interrupt handler 0xa53c0c68
+>     1.5f            lock up
+>     1.5pre-g1       lock up
+>     1.5pre-g2       lock up
+>     1.5pre-g3       corruption
+>     1.5g            corruption
+> 
+> So it happened somewhere in between 1.5d and 1.5pre-g3. I'll see whether I can
+> get any of the intermediates to run...
 
-On Fri, Dec 28, 2001 at 10:42:17AM -0800, H. Peter Anvin wrote:
-> I don't think there is any reason to believe zImage doesn't work
-> unless bzImage works on your system.
+I made all intermediate versions to work.
 
-Hi, I was one that reported the problem that zImage doesn't work. I don't
-personally care whether it works or not because bzImages are fine for my
-machines. Anyway, 2.2.20pre3 was ok but 2.2.20pre5 was not. I just rechecked
-with 2.2.20 final. I compiled 2.2.20 'make zImage; make bzImage' for one old
-486 and for one pentium. Both print Out of memory and System halted for the
-zImages and work fine with bzImages.
+The problem is introduced in 1.5pre-g2 by the following change:
 
-486:
+diff -urN callisto-1.5g-pre2a/sym53c8xx.c callisto-1.5g-pre2+/sym53c8xx.c
+--- callisto-1.5g-pre2a/sym53c8xx.c	Fri Dec 28 21:12:30 2001
++++ callisto-1.5g-pre2+/sym53c8xx.c	Fri Dec 28 20:11:10 2001
+@@ -11981,7 +11981,7 @@
+ 	**    (latency timer >= burst length + 6, we add 10 to be quite sure)
+ 	*/
+ 
+-	if ((pci_fix_up & 4) && chip->burst_max) {
++	if (chip->burst_max && (latency_timer == 0 || (pci_fix_up & 4))) {
+ 		uchar lt = (1 << chip->burst_max) + 6 + 10;
+ 		if (latency_timer < lt) {
+ 			printk(NAME53C8XX 
 
-Memory: 47176k/49152k available (796k kernel code, 408k reserved, 728k data, 44k init)
-   text    data     bss     dec     hex filename
- 853655   90740  125288 1069683  105273 vmlinux
--rwxr-xr-x    1 kaukasoi users     1111776 Dec 28 21:46 vmlinux
--rw-r--r--    1 kaukasoi users      458880 Dec 28 21:46 bzImage
--rw-r--r--    1 kaukasoi users      458877 Dec 28 21:46 zImage
+This change causes the PCI latency timer to be changed from 0 to 80.
 
-pentium:
+The sym-2 driver has a define for modifying the PCI latency timer
+(SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
 
-Memory: 63516k/65536k available (736k kernel code, 416k reserved, 828k data, 40k init)
-   text    data     bss     dec     hex filename
- 788441   90140  105768  984349   f051d vmlinux
--rwxr-xr-x    1 kaukasoi users     1098107 Dec 28 22:04 vmlinux
--rw-r--r--    1 kaukasoi users      442277 Dec 28 22:04 bzImage
--rw-r--r--    1 kaukasoi users      442277 Dec 28 22:04 zImage
+Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
+bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
+driver (wrong burst_max)?
 
-I compiled them with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2
-release) and binutils 2.11.90.0.19 (tehy are the versions that come with
-Slackware 8.0). The pentium uses LILO version 19 and the 486 uses version
-21.7-5.
+To recapitulate, the bug causes error bursts of (almost always) 32 bytes long.
+The incorrect bytes are always a copy of previous data, at a fixed offset (10
+kiB on my (now dead) DDS-1 tape drive, 32 kiB on my Plexwriter).
 
-If you think those are too large kernels for zImage, e.g. this 2.2.19 works
-ok on the 486:
--rw-r--r--    1 root     root       476269 Aug 11 23:32 zImage
-Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

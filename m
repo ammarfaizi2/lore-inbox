@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265945AbUAEVh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUAEVh4
+	id S265919AbUAEVfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUAEVfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:37:56 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:3968 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265945AbUAEVhw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:37:52 -0500
-Date: Mon, 5 Jan 2004 13:37:37 -0800
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mbligh@aracnet.com
-Subject: Re: [PATCH] Simplify node/zone field in page->flags
-Message-ID: <20040105213736.GA19859@sgi.com>
-Mail-Followup-To: Matthew Dobson <colpatch@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	mbligh@aracnet.com
-References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF9D5B1.3080609@us.ibm.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+	Mon, 5 Jan 2004 16:35:09 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:2750 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265919AbUAEVfC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 16:35:02 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 5 Jan 2004 13:34:39 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: John Gardiner Myers <jgmyers@speakeasy.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch/revised] wake_up_info() ...
+In-Reply-To: <Pine.LNX.4.58.0401051239110.2153@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0401051332060.17134-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
-> Jesse had acked the patch in an earlier itteration.  The only thing 
-> that's changed is some line offsets whilst porting the patch forward.
+On Mon, 5 Jan 2004, Linus Torvalds wrote:
+
 > 
-> Jesse (or anyone else?), any objections to this patch as a superset of 
-> yours?
+> 
+> On Mon, 5 Jan 2004, John Gardiner Myers wrote:
+> >
+> > It would seem better if info were a void *, to permit sending more than 
+> > a single unsigned long.
+> 
+> The argument against that is that since there is basically no 
+> synchronization here, you can't pass a pointer to some random object. So 
+> by default, you should think of the cookie as "pass-by-value", ie not a 
+> pointer. That way there are no liveness issues: there is no issue about 
+> what happens to the data when the recipient is actually scheduled 
+> (possibly _much_ much after the actual wakeup).
 
-No objections here.  Of course, you'll have to rediff against the
-current tree since that stuff has been merged for awhile now.  On a
-somewhat related note, Martin mentioned that he'd like to get rid of
-memblks.  I'm all for that too; they just seem to get in the way.
+An argoument in favour of the "void *" would be that there might be 
+situations were a little structure needs to be passed, that will be copied 
+by the target of the wakeup (callback) in its own data structure. But as 
+you said, we already do "unsigned long" -> "pointer" conversions inside 
+the kernel, so it does not really matter. Let's stick with the unsigned 
+long version then.
 
-Jesse
+
+
+- Davide
+
+

@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSIMDGX>; Thu, 12 Sep 2002 23:06:23 -0400
+	id <S313628AbSIMDJo>; Thu, 12 Sep 2002 23:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318159AbSIMDGX>; Thu, 12 Sep 2002 23:06:23 -0400
-Received: from mta01ps.bigpond.com ([144.135.25.133]:38882 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315923AbSIMDGW>; Thu, 12 Sep 2002 23:06:22 -0400
-Message-ID: <3D815763.45593F2F@bigpond.com>
-Date: Fri, 13 Sep 2002 13:11:31 +1000
-From: Allan Duncan <allan.d@bigpond.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and 
- agpgart
-References: <3D7FF444.87980B8E@bigpond.com.suse.lists.linux.kernel> <p73ptvjpmec.fsf@oldwotan.suse.de> <20020912213201.GA9168@himi.org> <3D811B12.A6615688@bigpond.com>
+	id <S317458AbSIMDJo>; Thu, 12 Sep 2002 23:09:44 -0400
+Received: from dp.samba.org ([66.70.73.150]:7136 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S313628AbSIMDJn>;
+	Thu, 12 Sep 2002 23:09:43 -0400
+Date: Fri, 13 Sep 2002 13:14:29 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, Daniel Phillips <phillips@arcor.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Raceless module interface
+Message-ID: <20020913031429.GQ32156@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	Alexander Viro <viro@math.psu.edu>,
+	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209121520300.28515-100000@serv> <20020913015502.1D43F2C070@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020913015502.1D43F2C070@lists.samba.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allan Duncan wrote:
-> 
-> Simon Fowler wrote:
-> >
-> > On Thu, Sep 12, 2002 at 11:50:19AM +0200, Andi Kleen wrote:
-> > > Allan Duncan <allan.d@bigpond.com> writes:
-> > > >
-> > > > Any suggestions of how to improve the error messages around the failure point
-> > > > are welcome.  Nothing is written into dmesg at the time of failure.
+On Fri, Sep 13, 2002 at 11:30:47AM +1000, Paul 'Rusty' Russell wrote:
+> In message <Pine.LNX.4.44.0209121520300.28515-100000@serv> you write:
+> > Hi,
+> > 
+> > On Thu, 12 Sep 2002, Rusty Russell wrote:
+> > 
+> > > Nope, that's one of the two problems.  Read my previous post: the
+> > > other is partial initialization.
 > > >
-> > > You're booting with mem=nopentium right ? It should go away when you turn
-> > > that off. I'm working on a fix. You can safely turn it off for now, the
-> > > old problems that it worked around are fixed.
-> > >
-> > The problem goes away without mem=nopentium - I've just booted into
-> > 2.4.20-pre5aa2 and fired up X.
+> > > Your patch is two-stage delete, with the additional of a usecount
+> > > function.  So you have to move the usecount from the module to each
+> > > object it registers: great for filesystems, but I don't think it buys
+> > > you anything (since they were easy anyway).
+> > 
+> > I'm aware of the init problem, what I described was the core problem,
+> > which prevents any further cleanup.
 > 
-> Not in my case, at least for 2.4.20-pre4.
+> I don't think of either of them as core, they are two problems.
 
-Errm.  Turns out I ran the same test twice, both with nopentium.
+Actually, with one stage init, module unload is essentially a special
+case of module load failure, consider:
+	module_init()
+	{
+		/* initialize stuff */
+		...
 
-So, in summary, nopentium doesn't break 2.4.20-pre3 and earlier,
-breaks 2.4.20-pre4 and later.
+		wait_event_interruptible(wq, 0 == 1);
 
-Thankyou all.
+		/* clean stuff up */
+		...
+		return -EINTR
+	}
+
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

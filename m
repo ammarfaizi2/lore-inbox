@@ -1,88 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUEKPmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264790AbUEKPn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUEKPmU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUEKPmU
+	id S264790AbUEKPn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUEKPn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:42:20 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:5788 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264791AbUEKPmR (ORCPT
+	Tue, 11 May 2004 11:43:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:943 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264790AbUEKPn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:42:17 -0400
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of
-	cowlinks
-From: Steve French <smfltc@us.ibm.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040511100232.GA31673@wohnheim.fh-wedel.de>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de>
-	 <20040508224835.GE29255@atrey.karlin.mff.cuni.cz>
-	 <20040510155359.GB16182@wohnheim.fh-wedel.de>
-	 <20040510192601.GA11362@delft.aura.cs.cmu.edu>
-	 <20040511100232.GA31673@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: IBM
-Message-Id: <1084290049.5135.11.camel@stevef95.austin.ibm.com>
+	Tue, 11 May 2004 11:43:56 -0400
+Date: Tue, 11 May 2004 08:35:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: rusty@rustcorp.com.au, akpm@osdl.org, ak@muc.de, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k
+Message-Id: <20040511083504.16686244.rddunlap@osdl.org>
+In-Reply-To: <20040511080843.GB8751@colin2.muc.de>
+References: <1084252135.31802.312.camel@bach>
+	<20040511080843.GB8751@colin2.muc.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 May 2004 10:40:49 -0500
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would not be helpful to take a userspace request to perform a file
-(or directory) copy operation and break it into open/sendfile/close by
-passing file handles to the network filesystem and have this work for
-SMB/CIFS - there is no equivalent network protocol operation.  It also
-makes the operation much, much harder to make atomic (since two systems
-are involved) and makes error handling and recovery for network
-filesystems much harder since inconsistent client and server state have
-to be considered if the copy operation is broken into pieces on the
-clien (it is also slower - a single copy operation on the network is the
-absolute optimal case - minimizes the expensive network latency - the
-roundtrip delay - open/sendfile/close sends at a minimum three times as
-many but likely four with an extra lookup or two)
+On 11 May 2004 10:08:43 +0200 Andi Kleen wrote:
 
-Currently copy file (or copy directory for that matter) as both speced
-(and is implemented in various servers) in the SMB/CIFS network
-filesystem protocol takes in effect four parameters (there is no handle
-based file copy):
+| On Tue, May 11, 2004 at 03:08:55PM +1000, Rusty Russell wrote:
+| > Admittedly, anyone who sets CONFIG_KALLSYMS doesn't care about space,
+| > it's a fairly trivial change.
+| 
+| As long as nobody does binary search it's good. Wonder why I did not
+| have this idea already with the original stem compression change ;-)
 
-a source pathname,  and source export (actually SMB tree identifier for
-a share, but in effect the same thing) 
-a target pathname, and target export (actually SMB tree identifier for a
-share, but in effect the same thing) 
-And the shares (exports) referenced have to be on the same server
+My (limited) experience is that things reading /proc/kallsyms want
+to see it in sorted address order, not in sorted name order.
 
-Trying to ignore the 1st file open
-
-On Tue, 2004-05-11 at 05:02, Jörn Engel wrote:
-> On Mon, 10 May 2004 15:26:02 -0400, Jan Harkes wrote:
-> > On Mon, May 10, 2004 at 05:53:59PM +0200, Jörn Engel wrote:
-> > > A real problem is that copyfile() has all errno's from create(),
-> > > sendfile() and unlink() combined, which doesn't make error handling in
-> > > userspace easy.  "It could be this, that or another error" is the kind
-> > > of mess I always hated about Windows, so I should try to do a little
-> > > better.
-> > 
-> > Well, if you leave the create and unlink up to the application and
-> > simply pass open filedescriptors to copyfile... But then it would be
-> > equivalent to your new sendfile.
-> > 
-> > Copyfile can trivially be implemented in libc. I don't see why it would
-> > have to be a system call. If a network filesystem wants to optimize the
-> > file copying it could do this based on the sendfile data. If source and
-> > destination are within the same filesystem and we're copying the whole
-> > file starting at offset 0, send a copyfile RPC.
-> 
-> Can you explain this to Steve?  I'm still quite clueless about network
-> filesystems, but it sounded as if such an optimization was impossible
-> to do in cifs without a combined create/copy/unlink_on_error system
-> call.
-> 
-> If your suggestion works and the network filesystems can be changed to
-> work independently of a struct file*, I agree with you that copyfile()
-> is a stupid idea and should be forgotten.
-> 
-> Jörn
-
+--
+~Randy
+(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature) -- akpm

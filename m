@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270928AbTHFSqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbTHFSqi
+	id S270845AbTHFSjN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 14:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHFSjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:46:38 -0400
-Received: from smtp.terra.es ([213.4.129.129]:65385 "EHLO tsmtp3.ldap.isp")
-	by vger.kernel.org with ESMTP id S270928AbTHFSqh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:46:37 -0400
-Date: Wed, 6 Aug 2003 20:45:14 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-Id: <20030806204514.00c783d8.diegocg@teleline.es>
-In-Reply-To: <20030806180427.GC21290@matchmail.com>
-References: <3F306858.1040202@mrs.umn.edu>
-	<20030805224152.528f2244.akpm@osdl.org>
-	<3F310B6D.6010608@namesys.com>
-	<20030806183410.49edfa89.diegocg@teleline.es>
-	<20030806180427.GC21290@matchmail.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 6 Aug 2003 14:39:13 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:51347 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S270845AbTHFSjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 14:39:08 -0400
+Subject: Processes dying by itself.
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-N+mTKRq9Tx9kUYolDCQP"
+Message-Id: <1060195146.2321.5.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 06 Aug 2003 21:39:06 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 6 Aug 2003 11:04:27 -0700 Mike Fedyk <mfedyk@matchmail.com> escribió:
 
-> 
-> Journaled filesystems have a much smaller chance of having problems after a
-> crash.
+--=-N+mTKRq9Tx9kUYolDCQP
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
+Hello, I was testing 2.6.0-test2 for my server (Pentium Classic 133 MHz,
+32MiB RAM) it seemed to work fine, loads were pretty high (Didn't really
+matter anyway) but when I left some processes on over night (screen,
+irssi, apt-get dist-upgrade) it just killed all of them and killed even
+my ssh connection. Is this a known issue on slow computers? it just
+keeps on killing processes at some after some random idletime, no
+problem with 2.4. I didn't find anything special in logs at that time. I
+hope this could be fixed somehow.
+Sorry for any typos.
 
-I've had (several) filesystem corruption in a desktop system with (several)
-journaled filesystems on several disks. (They seem pretty stable these days,
-though)
+Regards
+--=20
+Markus H=E4stbacka <midian@ihme.org>
 
-However I've not had any fs corrution in ext2; ext2 it's (from my experience)
-rock stable.
+--=-N+mTKRq9Tx9kUYolDCQP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Personally I'd consider twice the really "serious" option for a serious server.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQA/MUtK3+NhIWS1JHARApCnAJ4rY0JsaTsGq3d/yo4hJqC35WDDAACgvbc7
+4mWZn6JvC16MjGxsY0qK30w=
+=YBYp
+-----END PGP SIGNATURE-----
+
+--=-N+mTKRq9Tx9kUYolDCQP--
 

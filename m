@@ -1,107 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137135AbREKNeT>; Fri, 11 May 2001 09:34:19 -0400
+	id <S137134AbREKN17>; Fri, 11 May 2001 09:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137136AbREKNeK>; Fri, 11 May 2001 09:34:10 -0400
-Received: from zmailer.org ([194.252.70.162]:41478 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S137135AbREKNeE>;
-	Fri, 11 May 2001 09:34:04 -0400
-Date: Fri, 11 May 2001 16:33:45 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: ADMIN: Email client feed and care ...
-Message-ID: <20010511163345.H5947@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment
-Content-Transfer-Encoding: 8bit
+	id <S137135AbREKN1u>; Fri, 11 May 2001 09:27:50 -0400
+Received: from oe73.law11.hotmail.com ([64.4.16.208]:19972 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S137134AbREKN1e>;
+	Fri, 11 May 2001 09:27:34 -0400
+X-Originating-IP: [12.19.166.64]
+From: "Dan Mann" <daniel_b_mann@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 3c590 vs. tulip
+Date: Fri, 11 May 2001 09:27:29 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-ID: <OE73aZbF27y4RbrxUrO000014d0@hotmail.com>
+X-OriginalArrivalTime: 11 May 2001 13:27:28.0375 (UTC) FILETIME=[1FCC9870:01C0DA1E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
-
-  I really don't know what I should do when legitimate (but malformed)
-email gets bounced by some systems because their writers consider that
-malformed email is a bad thing, and must not be accepted.
-
-  We see also increasing amount of bounces by systems who think that
-some 10 line linux-kernel text message is spam...
-
-  There are two things:
-      - Senders must REALLY send valid messages
-      - Recipients SHOULD be more lenient on what they accept
-        (And spam-detectors be smarter.  Having URLs mentioned
-         in message text - maybe that was the reason - should
-         not mean it is spam...)
-
-If we ever automate recipient removal (we have means for it, more or
-less), there would be no warning whatsoever when a subscriber gets
-kicked out.
-
-          /Matti Aarnio
-
-FAILED:
-  Original Recipient:
-    rfc822;ml-linux_kernel@ignus.com
-  Control data:
-    smtp ignus.com ml-linux_kernel@ignus.com 99
-  Diagnostic texts:
-...\
-    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=1718
-    ->> 250 Ok.
-    <<- RCPT To:<ml-linux_kernel@ignus.com> NOTIFY=FAILURE ORCPT=rfc822;ml-linux_kernel@ignus.com
-    ->> 250 Ok.
-    <<- DATA
-    ->> 354 Ok.
-    <<- .
-    ->> 550-This message has 8-bit content, but does not have the required MIME
-    ->> 550-headers.  Sorry, this mail server does not accept mail without the
-    ->> 550-required MIME headers.  See <URL:ftp://ftp.isi.edu/in-notes/rfc2045.txt>
-    ->> 550 for more information.
-FAILED:
-  Original Recipient:
-    rfc822;user5@test.wirex.com
-  Control data:
-    smtp test.wirex.com user5@test.wirex.com 99
-  Diagnostic texts:
-...\
-    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=1718
-    ->> 250 Ok.
-    <<- RCPT To:<user5@test.wirex.com> NOTIFY=FAILURE ORCPT=rfc822;user5@test.wirex.com
-    ->> 250 Ok.
-    <<- DATA
-    ->> 354 Ok.
-    <<- .
-    ->> 550-This message has 8-bit contents, but does not have the necessary MIME
-    ->> 550-headers.  Sorry, this mail server does not accept mail without the
-    ->> 550-required MIME headers.  See <URL:ftp://ftp.isi.edu/in-notes/rfc2045.txt>
-    ->> 550 for more information.
+I was just wondering if anybody had an idea which nic card might be a better
+choice for me; I have a pci 3c590 and a pci smc that uses the tulip driver.
+I don't have the card number for the smc with me handy, however I know both
+cards were manufactured in 1995.  Is either card/driver a better choice for
+a mildly used file server (I am running 2.4.4 Linus)?
 
 
-Content-Type: message/rfc822
+Question 2:
 
-Subject: Re: monitor file writes
-From:	Xavier Bestel <xavier.bestel@free.fr>
-To:	Dennis Bjorklund <db@zigo.dhs.org>
-Cc:	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
-In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date:	11 May 2001 13:51:26 +0200
-Message-Id: <989581889.19092.1.camel@nomade>
-Mime-Version: 1.0
-Sender:	linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List:	linux-kernel@vger.kernel.org
+Also, I've got another linux box that is connecting to the server as a
+client.  Machines are using samba to share files.  Both machines are running
+Hybrid Debian 2.2 + unstable, with 2.4.4 Linus kernel. Server is a P75, 32MB
+of ram, 1 8GB ide drive and the above mentioned smc nic with tulip driver.
+Client is PII233, 196MB Ram, 1 6GB ide drive and another of the above
+mentioned nic cards (smc, tulip).
 
-Le 08 May 2001 06:27:52 +0200, Dennis Bjorklund a écrit :
-> Is there a way in linux to montior file writes?
-> 
-> I have something that is writing to the disk every 5:th second (approx.)
+The server has lots (ok, about 20,000 not counting the os itself) of medium
+sized files on it, ranging in size from 60k to 40MB.  When I run gqview
+(image viewing program) on the client and point to a local directory that is
+mapped to the server using samba, the images (over 4000 in one directory)
+are displayed absolutely as fast as I can click my mouse button.  No lag
+time whatsoever.  How can this be so fast?  Even with the images on my local
+faster machine it is much slower.  Images take at least .5 to 1 second to
+load when they are stored locally.  But over the network, with 2.4.4 and
+samba 2.2, It's as if the server "knows" what I'm going to ask for before I
+actually do.  Is this normal?  I honestly don't think it was this fast when
+server was on 2.2 Kernel with samba 2.07.
 
-probably kupdate ... look for noflushd on freshmeat.net and read the
-docs.
+Maybe it is just me, but it seems much faster.
 
-Xav
+Dan
 

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264846AbRGEINF>; Thu, 5 Jul 2001 04:13:05 -0400
+	id <S266660AbRGEIf2>; Thu, 5 Jul 2001 04:35:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264847AbRGEIMp>; Thu, 5 Jul 2001 04:12:45 -0400
-Received: from ns.suse.de ([213.95.15.193]:34822 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S264846AbRGEIMi>;
-	Thu, 5 Jul 2001 04:12:38 -0400
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: N_HCI for S390x missing in 2.4.5
-From: Andreas Jaeger <aj@suse.de>
-Date: Thu, 05 Jul 2001 10:12:36 +0200
-Message-ID: <ho3d8beqvf.fsf@gee.suse.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley)
+	id <S264865AbRGEIfJ>; Thu, 5 Jul 2001 04:35:09 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:50356 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266660AbRGEIe7>;
+	Thu, 5 Jul 2001 04:34:59 -0400
+Message-ID: <3B4426AC.465712DE@mandrakesoft.com>
+Date: Thu, 05 Jul 2001 04:34:52 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Helge Hafting <helgehaf@idb.hist.no>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+In-Reply-To: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com> <3B442354.BCA61010@idb.hist.no>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting wrote:
+> I am fine with "You have to use initrd (or similiar) _if_ you want this
+> feature."
+> But please don't make initrd mandatory for those of us who don't
+> need ACPI, don't need dhcp before mounting disks and so on.
 
-Looking at the patch for 2.4.5, I noticed that all architectures use
-N_HCI - except s390x which has N_BT.
+I've always thought it would be neat to do:
 
-Why is this different?  I propose to use N_HCI everywhere,
+	cat bzImage initrd.tar.gz > vmlinuz
+	rdev --i-have-a-tarball-piggyback vmlinuz
 
-Andreas
+Linking into the image is easy for hackers, but why not make it
+scriptable and super-easy for end users?  x86 already has the rdev
+utility to mark a kernel image as having certain flags.  It could even
+be a command line option, "inittgz" or somesuch, telling us that a
+gzip-format tarball immediately follows the end of our ELF image.
 
-diff -u --recursive --new-file v2.4.5/linux/include/asm-s390/termios.h linux/include/asm-s390/termios.h
---- v2.4.5/linux/include/asm-s390/termios.h     Tue Feb 13 14:13:44 2001
-+++ linux/include/asm-s390/termios.h    Mon Jun 11 19:15:27 2001
-@@ -63,6 +63,7 @@
- #define N_IRDA         11      /* Linux IR - http://irda.sourceforge.net/ */
- #define N_SMSBLOCK     12      /* SMS block mode - for talking to GSM data cards about SMS messages */
- #define N_HDLC         13      /* synchronous HDLC */
-+#define N_HCI          15  /* Bluetooth HCI UART */
-diff -u --recursive --new-file v2.4.5/linux/include/asm-s390x/termios.h linux/include/asm-s390x/termios.h
---- v2.4.5/linux/include/asm-s390x/termios.h    Wed Apr 11 19:02:29 2001
-+++ linux/include/asm-s390x/termios.h   Mon Jun 11 19:15:27 2001
-@@ -63,6 +63,7 @@
- #define N_IRDA         11      /* Linux IR - http://irda.sourceforge.net/ */
- #define N_SMSBLOCK     12      /* SMS block mode - for talking to GSM data cards about SMS messages */
- #define N_HDLC         13      /* synchronous HDLC */
-+#define N_BT           15      /* bluetooth */
- 
+I wonder if any bootloader mods would be needed at all to do this... 
+AFAICS you just need to make sure the kernel doesn't trample the
+piggyback'd data.
 
 -- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Jeff Garzik      | Thalidomide, eh? 
+Building 1024    | So you're saying the eggplant has an accomplice?
+MandrakeSoft     |

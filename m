@@ -1,228 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135801AbRAJPP6>; Wed, 10 Jan 2001 10:15:58 -0500
+	id <S135817AbRAJPP7>; Wed, 10 Jan 2001 10:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135817AbRAJPPu>; Wed, 10 Jan 2001 10:15:50 -0500
-Received: from dnvrdslgw14poolB96.dnvr.uswest.net ([63.228.85.96]:45142 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id <S135312AbRAJPPh>;
-	Wed, 10 Jan 2001 10:15:37 -0500
-Date: Wed, 10 Jan 2001 08:15:26 -0700 (MST)
-From: Benson Chow <blc@q.dyndns.org>
-To: Vojtech Pavlik <vojtech@suse.cz>, <dwmw2@infradead.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
-In-Reply-To: <20010110124911.A2134@suse.cz>
-Message-ID: <Pine.LNX.4.31.0101100742370.23627-100000@q.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S135312AbRAJPPu>; Wed, 10 Jan 2001 10:15:50 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:6916 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
+	id <S135801AbRAJPPh>; Wed, 10 Jan 2001 10:15:37 -0500
+Date: Wed, 10 Jan 2001 17:15:35 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: EXT2-fs error in 2.4.0
+Message-ID: <20010110171535.A206@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I think David (his message is not copied in this response) actually
-has the same problem.
+Got these in 2.4.0. Sorry if it's a known problem: I haven't been following
+the list very closely. This is a 100 MHz pentium and the kernel was compiled
+with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release). After
+booting to 2.2.latest.latest fsck did its fscking without telling anything.
 
-He describes that his typing is poor.  That pretty much summarizes what I
-am seeing on my USB keyboard too - it types poorly.  You need to type
-slowly and firmly to work - key rollover doesn't seem to work properly.
-Also if you hold the key long enough, it will repeat so I get too many
-typing errors.  I tend to hold my keys down too long (so that Linux's
-PS/2 default repeat delay/rate always causes typos - and I rely in the
-n-key rollover els I cannot use the keyboard) but I can usually adjust my
-keyboarding to compensate (just not comfortable for me yet).  However I
-just cannot type in my password without seeing what has been typed.  Too
-many typos!
-
-So, the usb keyboard becomes unuseable for me and I have to hold back to a
-PS/2 which works fine (see the way bottom of my message to see what
-happens if my password was "the quick brown fox...").
-
-This same keyboard works fine on another computer (HP Visualize C3600) - I
-see -none- of the keyboarding problems on that computer (it natively
-supports USB keyboards).  Also after booting Windows 98, and it loads its
-own HID driver, it works fine too - no more keyboarding errors.  Before
-that time, it has the same problem that I see in BIOS keyboard support.
-
-My Via machine just died last night (again... I hate pc-chips...)
-so I no longer have a windows machine to grab info from.  My PIIX3
-motherboard is still working (knock on wood).  The PIIX3 doesn't
-initialize USB properly so I can't use USB keyboards in BIOS nor DOS.
-(This machine also doesn't have any microsoft OS's on it so I can't check
-if the kbd will work in windows.  I suspect it will, after drivers are
-loaded.)
-
-dmesg, /proc/bus/usb/devices, typing sample (without backspace
-corrections which can't be reliably done anyway), and lsmod follows.
-
-Thanks a bunch,
-
--bc
-
-Current lsmod:
-
-blc@q:~$ lsmod
-Module                  Size  Used by
-belkin_sa               5088   0 (unused)
-usbserial              13032   2 [belkin_sa]
-printer                 5108   0
-[ snip... to remove (i think unrelated) lines: nfsd lockd sunrpc eepro100
-sb sb_lib uart401 sound isa-pnp ]
-mousedev                4244   1
-keybdev                 2036   0 (unused)
-hid                    12056   0 (unused)
-input                   3328   0 [mousedev keybdev hid]
-uhci                   19880   0 (unused)
-usbcore                49572   1 [belkin_sa usbserial printer hid uhci]
-
-last lines of dmesg after hotplug:
-
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-hub.c: USB new device connect on bus1/1/4, assigned device number 17
-keybdev.c: Adding keyboard: input1
-input1: USB HID v1.10 Keyboard [NMB NMB USB Keyboard] on usb1:17.0
-
-/proc/bus/usb/devices, which i think also shows my wiring topology:
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-B:  Alloc=222/900 us (25%), #Int=  3, #Iso=  0
-D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB UHCI-alt Root Hub
-S:  SerialNumber=df80
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 11 Spd=12  MxCh= 7
-D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0451 ProdID=1446 Rev= 1.00
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=11 Port=01 Cnt=01 Dev#= 12 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=045e ProdID=0025 Rev= 1.00
-S:  Manufacturer=Microsoft
-S:  Product=Microsoft IntelliMouse ® with IntelliEye
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl= 10ms
-T:  Bus=01 Lev=02 Prnt=11 Port=02 Cnt=02 Dev#= 13 Spd=12  MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=03f0 ProdID=0104 Rev= 1.00
-S:  Manufacturer=Hewlett-Packard
-S:  Product=DeskJet 880C
-S:  SerialNumber=MY91T1623TFA
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=07(print) Sub=01 Prot=01 Driver=usblp
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-I:  If#= 0 Alt= 1 #EPs= 2 Cls=07(print) Sub=01 Prot=02 Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-T:  Bus=01 Lev=02 Prnt=11 Port=03 Cnt=03 Dev#= 17 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0446 ProdID=0261 Rev= 1.00
-S:  Manufacturer=NMB
-S:  Product=NMB USB Keyboard
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 60mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=11 Port=04 Cnt=04 Dev#= 14 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=050d ProdID=0103 Rev= 2.06
-S:  Manufacturer=Belkin Components
-S:  Product=USB-232 Adapter
-S:  SerialNumber=BLA3660
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=serial
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=  1ms
-T:  Bus=01 Lev=02 Prnt=11 Port=05 Cnt=05 Dev#= 15 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=050d ProdID=0103 Rev= 2.06
-S:  Manufacturer=Belkin Components
-S:  Product=USB-232 Adapter
-S:  SerialNumber=BLA3661
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=serial
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=  1ms
-T:  Bus=01 Lev=02 Prnt=11 Port=06 Cnt=06 Dev#= 16 Spd=12  MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=1293 ProdID=0002 Rev= 1.04
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr= 98mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=07(print) Sub=01 Prot=01 Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-I:  If#= 0 Alt= 1 #EPs= 2 Cls=07(print) Sub=01 Prot=02 Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-I:  If#= 0 Alt= 2 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=ff Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
-E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=  1ms
-
-Here's me typing quick brown fox on my usb keyboard (this message was
-composed on my ps/2.  The following is on my usb keyboard.  As you can
-see it still gets a good number of characters through, just it loses
-some 'scancodes' and starts repeating way too fast for me):
-
-[USB] the quick brown fox jumps over thlazy oog.
-[USB] the quick rown foox  umps over thelazy dog
-[USB]
-[USB] the quick brown o jumps over the az dog.
-
-If I hunt and peck and be sure to release my keys before hitting the next:
-[USB] the quicbrown x jumss over h lazzy dg
-
-
-
-On Wed, 10 Jan 2001, Vojtech Pavlik wrote:
-
-> Date: Wed, 10 Jan 2001 12:49:11 +0100
-> From: Vojtech Pavlik <vojtech@suse.cz>
-> To: Benson Chow <blc@q.dyndns.org>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
->
-> On Tue, Jan 09, 2001 at 11:55:14PM -0700, Benson Chow wrote:
-> > Anyone tried using these beasts on a x86?
-> >
-> > Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
-> > it almost seems scancodes get dropped left and right.  Ok, so I don't mind
-> > too much, i'm sure BIOS has a very limited driver.  After booting
-> > Microsoft's offerring, it would work fine after it installs its driver.
-> > I also tried this same keyboard on a HPUX Visualize C3600 workstation and
-> > it also works nicely.
-> >
-> > However linux would never fix  this "scancode drop" syndrome even after
-> > loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
-> > PIIX3 USB motherboard exhibit this usb keyboard strangeness
-> > with the hid or usbkbd driver is installed.  I think the PIIX3
-> > motherboard's bios doesnt handle USB properly so it doesn't even work in
-> > BIOS setup.  Any idea what's going on?  Is there some other driver or
-> > utility I need to install/run to get it working?  Maybe just my bad bios?
-> >
-> > BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
-> >
-> > USB KBD: NMB USB 104-key PC-Style
-> > USB Mouse: Microsoft Intellimouse w/Intellieye 1.0, Logitech Optical Wheel
-> > USB Printer: HP Deskjet 880C
-> > USB Hub: Belkin 4-port
-> > Intel 82437SB(?) PIIX3 and Via 82C686(?) USB controller
-> >
-> > Working: Stock HPUX10.2 HP Visualize C3600 PARISC2 Workstation
-> > Working: Microsoft Windows 98 First Edition on the Via.
->
-> What modules are loaded?
-> What's in /proc/bus/usb/devices?
-> What's in dmesg?
->
-> --
-> Vojtech Pavlik
-> SuSE Labs
->
-
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 779318387, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852403827, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1801678700, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1680017961, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852401253, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735401573, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1818386804, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902437, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600481379, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702521203, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 538976288, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881677856, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1902081127, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1801677173, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953720684, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735405171, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1818386804, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902437, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600481379, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170490483, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1751343459, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1769168741, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 151610746, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952935976, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1769304415, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1768713059, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 779318387, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1751343459, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 2054381413, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1107954217, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1162104917, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1094934342, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881689164, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952408948, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 539765280, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870012460, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170484841, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1229345858, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1146115416, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130317381, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 740958324, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952802592, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1684500575, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935763039, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1981820020, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 694446447, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1179927050, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1347770441, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1598440772, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1280065859, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1768912424, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 538979428, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1919295520, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1885300069, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935631732, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 746024812, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702129696, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 706770015, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1413614121, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1431849286, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1178944592, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1279345503, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870014540, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 539780201, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1713381408, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600480626, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 2003790963, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735401516, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 544497508, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1107962154, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1162104917, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1094934342, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1764248652, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 153908334, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601135648, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1667590243, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735417707, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902452, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 744843363, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953392928, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852383276, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 168438132, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1109403944, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130319957, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170469417, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702131813, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1595960946, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1819175263, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600482921, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1836064863, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 544497508, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952802602, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1684893791, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935763039, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870014580, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170484841, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1913195131, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1920300133, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881677934, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952408685, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 808004128, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 175966779, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1109403944, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130319957, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170469417, count = 1 
+Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

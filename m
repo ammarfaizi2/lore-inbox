@@ -1,92 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129712AbRCPNom>; Fri, 16 Mar 2001 08:44:42 -0500
+	id <S130439AbRCPNwW>; Fri, 16 Mar 2001 08:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129496AbRCPNoc>; Fri, 16 Mar 2001 08:44:32 -0500
-Received: from house.superbock.org ([194.38.148.241]:12302 "HELO
-	faggot.house.superbock.org") by vger.kernel.org with SMTP
-	id <S130216AbRCPNoX>; Fri, 16 Mar 2001 08:44:23 -0500
-Message-ID: <3AB21A81.3080401@bigfoot.com>
-Date: Fri, 16 Mar 2001 13:52:01 +0000
-From: Delfim Machado <bipbip@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010217
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130457AbRCPNwM>; Fri, 16 Mar 2001 08:52:12 -0500
+Received: from mailserver-ng.cs.umbc.edu ([130.85.100.230]:45225 "EHLO
+	mailserver-ng.cs.umbc.edu") by vger.kernel.org with ESMTP
+	id <S130439AbRCPNvw>; Fri, 16 Mar 2001 08:51:52 -0500
 To: linux-kernel@vger.kernel.org
-Subject: smp or die ??!?!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: devfs vs. devpts
+From: Ian Soboroff <ian@cs.umbc.edu>
+Emacs: if SIGINT doesn't work, try a tranquilizer.
+Date: 16 Mar 2001 08:45:35 -0500
+Message-ID: <87vgp9zv28.fsf@danube.cs.umbc.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-i'm trying to compile my single cpu without the smp and it gives me a 
-long compile errors ...
+I'm running 2.4.2ac7, and am having problems with Unix98 ptys.
+Occasionally rxvt and Eterm fail to run because they can't get
+permission to create their entry in /dev/pts.  So i wondered if i have
+a devfs problem, which led me to the following...
 
-with the smp enable, i can compile all the kernel without any problems
+In Documentation/filesystems/devfs/README, it is thus written:
 
-KERNEL : 2.4.2 without any AC patch (hehhe)
-CPU: PIII
+        Disable devpts 
+        I've had a report of devpts mounted on /dev/pts
+        not working correctly. Since devfs will also manage /dev/pts,
+        there is no need to mount devpts as well. You should either
+        edit your /etc/fstab so devpts is not mounted, or disable
+        devfs from your kernel configuration.
 
-<FLOOD>
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
--fomit-frame-pointer -fno-strict-aliasing -pipe 
--mpreferred-stack-boundary=2 -march=i686  -DUTS_MACHINE='"i386"' -c -o 
-init/version.o init/version.c
-make CFLAGS="-D__KERNEL__ -I/usr/src/linux/include -Wall 
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe 
--mpreferred-stack-boundary=2 -march=i686 " -C  kernel
-make[1]: Entering directory `/usr/src/linux/kernel'
-make all_targets
-make[2]: Entering directory `/usr/src/linux/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
--fomit-frame-pointer -fno-strict-aliasing -pipe 
--mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c ksyms.c
-In file included from /usr/src/linux/include/linux/modversions.h:94,
-                from /usr/src/linux/include/linux/module.h:21,
-                from ksyms.c:14:
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:76:25: warning: 
-"cpu_data" redefined
-/usr/src/linux/include/asm/processor.h:78:1: warning: this is the 
-location of the previous definition
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:80:25: warning: 
-"smp_num_cpus" redefined
-/usr/src/linux/include/linux/smp.h:80:1: warning: this is the location 
-of the previous definition
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:82:25: warning: 
-"cpu_online_map" redefined
-/usr/src/linux/include/linux/smp.h:88:1: warning: this is the location 
-of the previous definition
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:96:33: warning: 
-"smp_call_function" redefined
-/usr/src/linux/include/linux/smp.h:87:1: warning: this is the location 
-of the previous definition
-In file included from /usr/src/linux/include/linux/modversions.h:118,
-                from /usr/src/linux/include/linux/module.h:21,
-                from ksyms.c:14:
-/usr/src/linux/include/linux/modules/ksyms.ver:506:25: warning: 
-"del_timer_sync" redefined
-/usr/src/linux/include/linux/timer.h:34:1: warning: this is the location 
-of the previous definition
-In file included from /usr/src/linux/include/linux/interrupt.h:45,
-                from ksyms.c:21:
-/usr/src/linux/include/asm/hardirq.h:37:24: warning: "synchronize_irq" 
-redefined
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:84:1: warning: this 
-is the location of the previous definition
-In file included from ksyms.c:18:
-/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
-/usr/src/linux/include/linux/kernel_stat.h:48: `smp_num_cpus' undeclared 
-(first use in this function)
-/usr/src/linux/include/linux/kernel_stat.h:48: (Each undeclared 
-identifier is reported only once
-/usr/src/linux/include/linux/kernel_stat.h:48: for each function it 
-appears in.)
-make[2]: *** [ksyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/kernel'
-make: *** [_dir_kernel] Error 2
-</FLOOD>
+i don't have devpts mounted under 2.4.2 (debian checks whether you
+have devfs before mounting devpts), so i tried building my kernel with
+Unix 98 pty support but without the devpts filesystem.  i get the
+following error at the very end of 'make bzImage':
 
+drivers/char/char.o: In function `pty_close':
+drivers/char/char.o(.text+0x6646): undefined reference to `devpts_pty_kill'
+make: *** [vmlinux] Error 1
+
+so the devfs documentation is wrong; pty_close depends on
+functionality from devpts.  and secondly, has anyone else had problems
+under 2.4.x creating entries in /dev/pts?
+
+ian
+
+-- 
+----
+Ian Soboroff                                       ian@cs.umbc.edu
+University of MD Baltimore County      http://www.cs.umbc.edu/~ian

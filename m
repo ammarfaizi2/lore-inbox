@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289120AbSBDRaC>; Mon, 4 Feb 2002 12:30:02 -0500
+	id <S289138AbSBDRdn>; Mon, 4 Feb 2002 12:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289124AbSBDR3w>; Mon, 4 Feb 2002 12:29:52 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:47305 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S289120AbSBDR3g>;
-	Mon, 4 Feb 2002 12:29:36 -0500
-Message-ID: <3C5EC4E4.B5A6E84F@gmx.net>
-Date: Mon, 04 Feb 2002 18:29:08 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S289136AbSBDRde>; Mon, 4 Feb 2002 12:33:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53008 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289138AbSBDRdS>; Mon, 4 Feb 2002 12:33:18 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: UNDI/PXE for 2.4.x available?
+Date: 4 Feb 2002 09:32:50 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3mgk2$q61$1@cesium.transmeta.com>
+In-Reply-To: <20020204154633.E2BC267F3@penelope.materna.de> <a3md05$ps3$1@cesium.transmeta.com> <20020204170844.2AB5667F1@penelope.materna.de>
 MIME-Version: 1.0
-CC: Alessandro Suardi <alessandro.suardi@oracle.com>,
-        linux-kernel@vger.kernel.org, jdthood@yahoo.co.uk
-Subject: Re: modular floppy broken in 2.5.3
-In-Reply-To: <E16XU69-0005MJ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
-> > It turns out this is due to the new PnPBIOS kernel config option:
-> >
-> > [asuardi@dolphin asuardi]$ grep PnPBIOS /proc/ioports
-> > 03f0-03f1 : PnPBIOS PNP0c01
-> > 0600-067f : PnPBIOS PNP0c01
-> > 0680-06ff : PnPBIOS PNP0c01
-> >   0800-083f : PnPBIOS PNP0c01
-> >   0840-084f : PnPBIOS PNP0c01
-> > 0880-088f : PnPBIOS PNP0c01
-> > f400-f4fe : PnPBIOS PNP0c01
-> >
-> > But since modular floppy was working before without setting any
-> >  ioport parameter I'm not entirely sure this is a "feature".
+Followup to:  <20020204170844.2AB5667F1@penelope.materna.de>
+By author:    Tobias Wollgam <tobias.wollgam@materna.de>
+In newsgroup: linux.dev.kernel
 >
-> Its a mix of fp and pnpbios things that need untangling. PnPBIOS should
-> register the resource as not in use, floppy should allocate the right
+> We want to install PCs over ethernet with PXE. For the first boot from 
+> net we have nothing than the network, we don't know the hardware, so an 
+> UNDI in the kernel would be perfect. IMHO
+> 
+> > I think you'll have that problem with any UNDI driver; in either case
+> > I suspect that (a) performance will stink no matter what 
+> 
+> That's ok for the things we will do.
+> 
+> > and (b) it won't work properly with SMP unless you apply really
+> > heavy locking.
+> 
+> Does it matter in our case?
+>  
 
-PNPNIOS is right to reserve PNP0C01 as "used". Else there will be hangs
-when drivers poke in io space (e.g. laptops tend to have special
-hardware which doesn't like to be touched).
+Probably not.
 
-PNPBIOS should not reserve 3f0/3f1 as a _workaround_ for this BIOS bug.
+> 
+> > The PXE people at Intel really seems enamored with the idea of using
+> > the UNDI stack all the way into the operating system; 
+> 
+> We need it not to run an operating system, we need it for the 
+> installation of an operating system.
+> 
+> On the other hand, UNDI will deliver a network driver for all PXE-cards 
+> that come up before there is any direct hardware support. (Ok, then b 
+> matters)
+> 
 
-The BIOS probably wants to tell you there is a superio chip at 0x3f0
-(try http://home.t-online.de/home/gunther.mayer/lssuperio-0.63.tar.gz).
+In theory.  In practice, from having dealt with enough PXE stacks, I
+would say that it is more likely you're going to have problems getting
+the UNDI drivers to work in a Linux environment than you will find
+that a fully equipped kernel lacks the drivers you need, especially
+since you can update the kernel on the server as needed.  There has
+been a shakeout in the NIC world, and aren't anywhere near as many in
+use now as there was a few years ago -- and anything before then isn't
+going to have PXE.
 
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

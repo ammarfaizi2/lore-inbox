@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132709AbRAZAwe>; Thu, 25 Jan 2001 19:52:34 -0500
+	id <S129169AbRAZA7Y>; Thu, 25 Jan 2001 19:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129172AbRAZAwZ>; Thu, 25 Jan 2001 19:52:25 -0500
-Received: from gatekeeper.gozer.weebeastie.net ([61.8.7.91]:27652 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S136039AbRAZAwO>; Thu, 25 Jan 2001 19:52:14 -0500
-Date: Fri, 26 Jan 2001 11:50:57 +1100
-From: CaT <cat@zip.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
+	id <S130335AbRAZA7P>; Thu, 25 Jan 2001 19:59:15 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:64265 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S129169AbRAZA7E>; Thu, 25 Jan 2001 19:59:04 -0500
+Date: Fri, 26 Jan 2001 01:59:01 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: hotmail can't deal with ECN
-Message-ID: <20010126115057.A366@zip.com.au>
-In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net> <200101251905.f0PJ5ZG216578@saturn.cs.uml.edu> <14960.31423.938042.486045@pizda.ninka.net> <20010125115214.D9992@draco.foogod.com> <m3itn3i5iu.fsf@austin.jhcloos.com> <14960.50897.494908.316057@pizda.ninka.net>
+Message-ID: <20010126015901.A19138@gondor.com>
+In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net> <200101251905.f0PJ5ZG216578@saturn.cs.uml.edu> <14960.31423.938042.486045@pizda.ninka.net> <20010125115214.D9992@draco.foogod.com> <m3itn3i5iu.fsf@austin.jhcloos.com> <14960.50897.494908.316057@pizda.ninka.net> <20010126115057.A366@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <14960.50897.494908.316057@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 04:37:37PM -0800
-Organisation: Furball Inc.
+In-Reply-To: <20010126115057.A366@zip.com.au>; from cat@zip.com.au on Fri, Jan 26, 2001 at 11:50:57AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 04:37:37PM -0800, David S. Miller wrote:
+On Fri, Jan 26, 2001 at 11:50:57AM +1100, CaT wrote:
+> I'm not sure as to what the problem with hotmail may be. I have ECN
+> turned on:
 > 
-> James H. Cloos Jr. writes:
->  > Are there any well know sites using ECN we can test against?
+> gozer:~# more /proc/sys/net/ipv4/tcp_ecn 
+> 1
 > 
-> Use non-passive FTP to my workstation and just do a directory listing
-> which will make the FTP server create a TCP connection back to your
-> machine for the transfer of the directory listing.
-> 
-> My workstation is pizda.ninka.net, please everyone be nice.
+> and I can contact hotmail just fine. I also can ftp to your site
+> non-passively. where should I go to on hotmail to see it fail?
 
-*screatches head*
+You may be located behind a firewall that zeroes out the ECN bits. This would
+mean that hotmail doesn't get ECN packets and the connection gets established
+just as if you were talking to a plain non-ECN server without a firewall.
 
-I'm not sure as to what the problem with hotmail may be. I have ECN
-turned on:
-
-gozer:~# more /proc/sys/net/ipv4/tcp_ecn 
-1
-
-and I can contact hotmail just fine. I also can ftp to your site
-non-passively. where should I go to on hotmail to see it fail?
-
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
+Jan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

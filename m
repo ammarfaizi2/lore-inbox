@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUGJGqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUGJG7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUGJGqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 02:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUGJGqm
+	id S266173AbUGJG7w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 02:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUGJG7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 02:46:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23224 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266169AbUGJGqj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 02:46:39 -0400
-Date: Fri, 9 Jul 2004 23:45:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: bryce@osdl.org, wli@holomorphy.com, ltp-list@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, testdev@osdl.org, markh@osdl.org
-Subject: Re: [LTP] Re: Recent changes in LTP test results
-Message-Id: <20040709234522.56cdd515.akpm@osdl.org>
-In-Reply-To: <1089416583.2265.47.camel@ibm-c.pdx.osdl.net>
-References: <20040706191009.279aed14.akpm@osdl.org>
-	<Pine.LNX.4.33.0407071334460.22452-100000@osdlab.pdx.osdl.net>
-	<20040707230715.7a25c95c.akpm@osdl.org>
-	<1089416583.2265.47.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 10 Jul 2004 02:59:52 -0400
+Received: from mail-relay-4.tiscali.it ([212.123.84.94]:50642 "EHLO
+	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
+	id S266173AbUGJG7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 02:59:50 -0400
+Date: Sat, 10 Jul 2004 08:58:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+Message-ID: <20040710065847.GE20947@dualathlon.random>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org> <Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> The /proc/pid/maps looked like this:
-> 
->  without nx-update patch:
->  40017000-40018000 ---p 40017000 00:00 0
->  =====
->  with -mm1:
->  40017000-40018000 --xp 40017000 00:00 0
+On Fri, Jul 09, 2004 at 11:23:52PM -0700, Linus Torvalds wrote:
+> I really don't see the point of complaining about the fixes. There's just
+> _no_ way to say that "0" is more readable than "NULL" in any of the cases.  
+> I dare you - show _one_ case where a 0/NULL patch was wrong or even
+> remotely debatable. I dare you.
 
-Here's mine, with current -linus bk:
+I definitely agree.
 
-40000000-40001000 ---p 40000000 00:00 0 
+Several years ago I once wrote a singificant piece of code for a projet
+with #define NULL -1UL, this actually wasn't my choice but a requirement
+of the project (the headers were pre-defined) but it worked perfectly
+since we never did '!ptr' we always did 'ptr == NULL' instead (etc..).
+So at runtime it has never been a problem because we coded with NULL !=
+0 in mind. Of course I known normally NULL is always equal to 0 but I
+didn't realize that defining NULL !=0 wasn't exactly the C language (I
+learnt it later on the hard way in some mailing list, I believe at some
+point I did patches like the one in this thread but claiming it to be a
+bugfix, and not just a cleanup ;).
 
->  So it looks like the page being executable allows read
->  access.
-> 
->  Not sure why you do not see this on your machine.  This
->  fails on my 2-proc xeon box (and all the STP machines).
-> 
-
-
-#include <unistd.h>
-#include <errno.h>
-#include <sys/mman.h>
-
-
-main()
-{
-	char *p0 = 0;
-	char *p1 = (char *)-1;
-	char *p2;
-	int err;
-
-	p2 = mmap(0, 4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
-
-	printf("p2=%p\n", p2);
-	printf("pid=%d\n", getpid());
-
-	getchar();
-
-	errno = 0;
-	err = access(p0, R_OK);
-	printf("access 0 ptr %p return code %d errno %d\n", p0, err, errno);
-	perror("access result:");
-	errno = 0;
-	err = access(p1, R_OK);
-	printf("access 1 ptr %p return code %d errno %d\n", p1, err, errno);
-	perror("access result:");
-	errno = 0;
-	err = access(p2, R_OK);
-	printf("access 2 ptr %p return code %d errno %d\n", p2, err, errno);
-	perror("access result:");
-}
-
-vmm:/home/akpm> ./x
-p2=0x40000000
-pid=2038
-
-access 0 ptr (nil) return code -1 errno 14
-access result:: Bad address
-access 1 ptr 0xffffffff return code -1 errno 14
-access result:: Bad address
-access 2 ptr 0x40000000 return code -1 errno 14
-access result:: Bad address
-
-I get this result on both p4 xeon and p3 xeon.
+IIRC my argument about these patches being bugfixes, was about an
+architecture with a valid page mapped at address 0, that wouldn't
+generate a segfault. This is incidentally why we had to use NULL = -1
+instead of NULL = 0. The answer I got at that time form some C guru is
+that I would need to hack the compiler specifically for such achitecture
+to accomodate for NULL = -1, so that '!ptr' will be the same as 'ptr ==
+-1UL' (for pointers). In practice I think it has been a lot easier for
+us to avoid using '!ptr' than to hack gcc... 

@@ -1,63 +1,97 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317397AbSFHMjM>; Sat, 8 Jun 2002 08:39:12 -0400
+	id <S317404AbSFHNIp>; Sat, 8 Jun 2002 09:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSFHMjL>; Sat, 8 Jun 2002 08:39:11 -0400
-Received: from irc.sh.nu ([216.239.132.110]:13200 "EHLO fungus.sh.nu")
-	by vger.kernel.org with ESMTP id <S317397AbSFHMjL>;
-	Sat, 8 Jun 2002 08:39:11 -0400
-Date: Sat, 8 Jun 2002 05:39:10 -0700
-From: crimsun@fungus.sh.nu
-To: Diego Calleja <diegocg@teleline.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa2
-Message-ID: <20020608053910.B14879@fungus.sh.nu>
-In-Reply-To: <20020607194749.GS1004@dualathlon.random> <20020608143201.1a093479.diegocg@teleline.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317405AbSFHNIo>; Sat, 8 Jun 2002 09:08:44 -0400
+Received: from web20308.mail.yahoo.com ([216.136.226.89]:4361 "HELO
+	web20308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317404AbSFHNIn>; Sat, 8 Jun 2002 09:08:43 -0400
+Message-ID: <20020608130844.55909.qmail@web20308.mail.yahoo.com>
+Date: Sat, 8 Jun 2002 06:08:44 -0700 (PDT)
+From: george adams <george_adams20@yahoo.com>
+Subject: Business Proposal
+To: lk@tantalophile.demon.co.uk
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+GEORGE ADAMS AND CO.
+LEGAL PRACTITIONERS
+LAGOS - NIGERIA
 
---BwCQnh7xodEAoBMC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ATTENTION: PRESIDENT/CEO,
 
-On Sat, Jun 08, 2002 at 02:32:01PM +0200, Diego Calleja wrote:
-> > URL:
-> >=20
-> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2=
-.4.19pre10aa2.gz
-> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2=
-.4.19pre10aa2/
->=20
-> Your mail is 7 Jun, now it's 8 Jun and this URL doesn't works.....it
-> happens always that the us.kernel.org mirror isn't up to date when you
-> send patches. I think It'd be better to set the URL to www.kernel.org,
-> although mirrors are there for something......
+Sir,
 
-The url works fine for several, if not most, of the www.us.kernel.org
-mirrors.
+I am a Solicitor and  Legal Representative  to the
+family of  Late General Sanni  Abacha. I have the
+instructions of Mrs. Maryam Abacha widow  of the late
+General Sanni Abacha to link up a foreign partner for
+a possible business relationship/assistance. 
 
---=20
-Dan Chen                crimsun@fungus.sh.nu
-GPG key:   www.sh.nu/~crimsun/pubkey.gpg.asc
+General Sanni Abacha was the former military head of
+State Nigeria who died  while in office  on Monday 8th
+of June, 1998. Upon the sudden and tragic death of
+this man, the new civilian administration started an
+intensive exercise to freeze all his bank accounts
+both home and abroad as he was confirmed to have
+diverted a certain percentage of oil proceeds
+totalling US$580M (Five Hundred and Eighty Million
+ U. S. Dollars Only) into private bank account
+scattered in several countries of the World. About =N=
+4.5 Billion (Four Billion, Five Hundred Million Naria)
+our local currency was recovered from his official
+residence after  his death.
 
---BwCQnh7xodEAoBMC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+However, the sum of US$38,500.00 (Thirty eight million
+five hundred  United Dollars Only)  belonging to the
+late general and family which was kept  away with  a 
+security company by my client Mrs. Maryam Abacha when
+the present government started seizeing and freezing
+the bank account of my clients late husband.This money
+was arranged and packaged in two trunk boxes and kept
+in the security companys vault. This is known to
+myself and my client only. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+It is therefore on this note that Mrs. Maryam Abacha
+is secretly looking for a trustworthy and
+understanding person who will help to receive,
+accommodate and safeguard this fund to save them the
+calamities of the present clamp down on the Abachas
+family or  loosing the money. The Abachas family due
+to the urgency of this matter are prepared to part
+with 20% of this money to you for your  assistance.
 
-iD8DBQE9AfruDVwZaZHvoWARAlV7AJ90f7v7Yx6BItPvBpXyIjDIPK0JkQCfRmkS
-oiuDiadj6Z/d5RFatjWCahY=
-=HhqM
------END PGP SIGNATURE-----
+This widow is in serious financial distress and this
+is the only hope of the Abachas family as all their
+passports and travel documents have been seized by the
+Government  while the eldest son Mohammed  is in
+detention facing a murder charge. Note that there is
+no risk involved as this is  known only  to you,
+myself and  my client. 
 
---BwCQnh7xodEAoBMC--
+I will sincerely appreciate your response through my
+above  e-mail address. This business is highly 
+confidential and therefore should be treated as such.
+I await a quick response from you. 
+
+Yours faithfully,
+
+GEORGE ADAMS.
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

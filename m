@@ -1,67 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266343AbUAHTy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 14:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUAHTve
+	id S266352AbUAHUI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 15:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266354AbUAHUI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 14:51:34 -0500
-Received: from ns1.s2io.com ([216.209.86.101]:15047 "EHLO ns1.s2io.com")
-	by vger.kernel.org with ESMTP id S266323AbUAHTuR (ORCPT
+	Thu, 8 Jan 2004 15:08:56 -0500
+Received: from devil.servak.biz ([209.124.81.2]:13708 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S266352AbUAHUIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 14:50:17 -0500
-From: "Leonid Grossman" <leonid.grossman@s2io.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Grant Grundler'" <grundler@parisc-linux.org>,
-       "'Jesse Barnes'" <jbarnes@sgi.com>, <linux-kernel@vger.kernel.org>,
-       <jeremy@sgi.com>, "'Matthew Wilcox'" <willy@debian.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, <Jame.Bottomley@steeleye.com>
-Subject: RE: [RFC] Relaxed PIO read vs. DMA write ordering
-Date: Thu, 8 Jan 2004 11:48:38 -0800
-Message-ID: <00a201c3d620$6ede3620$0400a8c0@S2IOtech.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 8 Jan 2004 15:08:44 -0500
+Subject: Re: 2.6.1-rc2-mm1
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <20040107232831.13261f76.akpm@osdl.org>
+References: <20040107232831.13261f76.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1073593346.1618.3.camel@moria.arnor.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 08 Jan 2004 12:22:26 -0800
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20040108175422.A13247@infradead.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Score: -106.2
-X-Spam-Outlook-Score: ()
-X-Spam-Features: BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-01-07 at 23:28, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc2/2.6.1-rc2-mm1/
+...
 
+> - There's a fix for the Radeon framebuffer card here which we're a bit
+>   wobbly about.  if you have such a thing, please send a report.
 
-> -----Original Message-----
-> From: Christoph Hellwig [mailto:hch@infradead.org] 
-> Sent: Thursday, January 08, 2004 9:54 AM
-> To: Leonid Grossman
-> Cc: 'Grant Grundler'; 'Jesse Barnes'; 
-> linux-kernel@vger.kernel.org; jeremy@sgi.com; 'Matthew 
-> Wilcox'; linux-pci@atrey.karlin.mff.cuni.cz; 
-> Jame.Bottomley@steeleye.com
-> Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-> 
-> 
-> On Thu, Jan 08, 2004 at 08:23:49AM -0800, Leonid Grossman wrote:
-> > Yes, this is exactly how (at least our 10GbE) PCI-X ASICs 
-> work. If the 
-> > RO bit is set, the device decides whether the transaction requires 
-> > strong ordering, and sets RO attribute accordingly.
-> 
-> Do you have a pointer to the driver source?  This would 
-> probably make a good reference driver for Jesse's suggestion.
-> 
+Boots and runs ok so far on a Radeon 7500 All-In-Wonder, ABIT Max-3 MB
+with the 875 chipset, P4 800 with HT.  
 
-Right now the code goes to our OEMs and end-user customers along with
-the cards; 
-We are planning to submit the driver to 2.6 kernel in about 
-3 weeks or so. 
-At that point we will also 'unmask' it on s2io ftp site for downloads.
+Ordinary -rc2 also worked, except I got a bunch of garbage on the screen
+when the penguins were displayed.  That's fixed now.  However, I got
+these during boot...  (Ordinary -rc2 didn't have this, IIRC.)
 
-Leonid
+Unable to handle kernel paging request at virtual address 284c2029
+ printing eip:
+c01741b4
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+CPU:    0
+EIP:    0060:[<c01741b4>]    Not tainted VLI
+EFLAGS: 00210202
+EIP is at poll_freewait+0x10/0x43
+eax: 00000000   ebx: e8838008   ecx: 00200202   edx: c039fa90
+esi: e8838008   edi: 284c2025   ebp: ecd17f68   esp: ecd17f5c
+ds: 007b   es: 007b   ss: 0068
+Process mozilla-bin (pid: 1570, threadinfo=ecd16000 task=e8ffd980)
+Stack: 00000000 f13bcd28 f13bcd20 ecd17fbc c0174ea4 ecd17fa0 f13bcd20
+ecd17fa0
+       7fffffff 00000001 ecd16000 41a3d7b8 f13bcd28 00000000 f13bcd20
+00000000
+       00000001 c01741e7 e8838000 00000000 f7557d00 41a3d7b0 00000000
+406f5238
+Call Trace:
+ [<c0174ea4>] sys_poll+0x23e/0x282
+ [<c01741e7>] __pollwait+0x0/0xac
+ [<c0338682>] sysenter_past_esp+0x43/0x65
+ 
+Code: 89 e5 8b 45 08 c7 00 e7 41 17 c0 c7 40 08 00 00 00 00 c7 40 04 00
+00 00 00 5d c3 55 89 e5 57 56 8b 45 08 53 8b 78 04 85 ff 74 2e <8b> 5f
+04 8d 77 08 83 eb 1c 8d 53 04 8b 43 18 e8 fb 04 fb ff 8b
+Badness in unblank_screen at drivers/char/vt.c:2793
+Call Trace:
+ [<c025397a>] unblank_screen+0x127/0x12c
+ [<c011f06c>] bust_spinlocks+0x2c/0x54
+ [<c010d805>] die+0xb1/0x11e
+ [<c011f522>] do_page_fault+0x1f1/0x588
+ [<c012204f>] schedule+0x39d/0x6b2
+ [<c0130348>] schedule_timeout+0xb4/0xb6
+ [<c011f331>] do_page_fault+0x0/0x588
+ [<c0339163>] error_code+0x2f/0x38
+ [<c01741b4>] poll_freewait+0x10/0x43
+ [<c0174ea4>] sys_poll+0x23e/0x282
+ [<c01741e7>] __pollwait+0x0/0xac
+ [<c0338682>] sysenter_past_esp+0x43/0x65
+ 
+ <1>Unable to handle kernel paging request at virtual address 32972029
+ printing eip:
+c01741b4
+*pde = 00000000
+Oops: 0000 [#2]
+PREEMPT SMP
+CPU:    0
+EIP:    0060:[<c01741b4>]    Not tainted VLI
+EFLAGS: 00010202
+EIP is at poll_freewait+0x10/0x43
+eax: 00000000   ebx: e9383008   ecx: 00000202   edx: c039fa90
+esi: e9383008   edi: 32972025   ebp: ecd13f68   esp: ecd13f5c
+ds: 007b   es: 007b   ss: 0068
+Process notification-ar (pid: 1553, threadinfo=ecd12000 task=f260d340)
+Stack: 00000000 f1083c08 f1083c00 ecd13fbc c0174ea4 ecd13fa0 f1083c00
+ecd13fa0
+       7fffffff 00000001 ecd12000 080a72e0 f1083c08 00000000 f1083c00
+00000000
+       00000001 c01741e7 e9383000 00000000 e962fda0 080a7288 40141670
+401a5238
+Call Trace:
+ [<c0174ea4>] sys_poll+0x23e/0x282
+ [<c01741e7>] __pollwait+0x0/0xac
+ [<c0338682>] sysenter_past_esp+0x43/0x65
+ 
+Code: 89 e5 8b 45 08 c7 00 e7 41 17 c0 c7 40 08 00 00 00 00 c7 40 04 00
+00 00 00 5d c3 55 89 e5 57 56 8b 45 08 53 8b 78 04 85 ff 74 2e <8b> 5f
+04 8d 77 08 83 eb 1c 8d 53 04 8b 43 18 e8 fb 04 fb ff 8b
+Badness in unblank_screen at drivers/char/vt.c:2793
+Call Trace:
+ [<c025397a>] unblank_screen+0x127/0x12c
+ [<c011f06c>] bust_spinlocks+0x2c/0x54
+ [<c010d805>] die+0xb1/0x11e
+ [<c011f522>] do_page_fault+0x1f1/0x588
+ [<c012204f>] schedule+0x39d/0x6b2
+ [<c02e21cc>] sock_poll+0x29/0x30
+ [<c011f331>] do_page_fault+0x0/0x588
+ [<c0339163>] error_code+0x2f/0x38
+ [<c01741b4>] poll_freewait+0x10/0x43
+ [<c0174ea4>] sys_poll+0x23e/0x282
+ [<c01741e7>] __pollwait+0x0/0xac
+ [<c0338682>] sysenter_past_esp+0x43/0x65
+ 
+
 

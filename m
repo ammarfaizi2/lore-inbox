@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVC3EVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVC3EcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVC3EVG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 23:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVC3EVG
+	id S261543AbVC3EcN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 23:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVC3EcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 23:21:06 -0500
-Received: from az33egw02.freescale.net ([192.88.158.103]:64143 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S261537AbVC3EU6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 23:20:58 -0500
-In-Reply-To: <84ab51297f043a761321ee6eddc43d4a@embeddededge.com>
-References: <84ab51297f043a761321ee6eddc43d4a@embeddededge.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <1c52c0b6db38845c0bd6636e056d4c64@freescale.com>
-Content-Transfer-Encoding: 8BIT
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "linuxppc-embedded" <linuxppc-embedded@ozlabs.org>, <shall@mvista.com>,
-       "Kumar Gala" <galak@freescale.com>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH] ppc32: CPM2 PIC cleanup irq_to_siubit array
-Date: Tue, 29 Mar 2005 22:20:36 -0600
-To: "Dan Malek" <dan@embeddededge.com>
-X-Mailer: Apple Mail (2.619.2)
+	Tue, 29 Mar 2005 23:32:13 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:57797 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261543AbVC3EcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 23:32:07 -0500
+Message-ID: <424A2BD0.5010609@comcast.net>
+Date: Tue, 29 Mar 2005 23:32:16 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Aligning file system data
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Done, updated patch w/comment sent to Andrew.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-- kumar
+How likely is it that I can actually align stuff to 31.5KiB on the
+physical disk, i.e. have each block be a track?
 
-On Mar 29, 2005, at 7:10 PM, Dan Malek wrote:
+Rather than leveraging the track cache, would it be less expensive for
+me to simply read in blocks totaling about 16 or 32KiB all at once?
 
->
->
-> On Mar 29, 2005, at 5:30 PM, Kumar Gala wrote:
->
-> > Cleaned up irq_to_siubit array so we no longer need to do 1 <<
-> > (31-bit),
->  > just 1 << bit.
->
-> Will you please put a comment in here that indicates this array now
->  has this computation done?  When I wrote it, these bit numbers
->  matched the registers and the documentation, so I didn't take
-> the time to explain. :-)
->
-> Thanks.
->
->
->
->         -- Dan
 
+Let's say I have two situations...
+
+A)
+  My blocks are all 31.5KiB (512 bytes/sector * 63 sectors) and aligned
+to tracks.  The track cache on the disk stores the entire block, so
+repeted reads to the disk are 0mS seek.  I leverage this to read a
+couple sectors at a time and seek as I care within the block while it's
+cached, making several requests to the ATA device.
+
+B)
+  My blocks are all 32KiB and cross track boundaries.  All of them exist
+in part in two separate tracks.  Upon reading a block, I request the
+entire block and work with it in main memory.
+
+Which situation has less overhead?
+
+C)
+  My blocks are all 31.5KiB and perfectly aligned within tracks.  I read
+the entire block as in (B) and work with it in main memory.
+
+How much more latency is involved in (B) than in (C)?  Does crossing a
+track boundary incur anything expensive?
+
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCSivPhDd4aOud5P8RAszeAJ4wPonhpXas8IprMBUq8/NdM57aegCdEBva
+24LXB3O+7GEE0XKxPBFr1L0=
+=iTEm
+-----END PGP SIGNATURE-----

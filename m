@@ -1,56 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUGMWOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266916AbUGMWPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266920AbUGMWOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267082AbUGMWOR
+	id S266916AbUGMWPR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267163AbUGMWPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:14:17 -0400
-Received: from imap.gmx.net ([213.165.64.20]:12739 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266920AbUGMWOQ (ORCPT
+	Tue, 13 Jul 2004 18:15:17 -0400
+Received: from mail.tmr.com ([216.238.38.203]:37644 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S266916AbUGMWO4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:14:16 -0400
-X-Authenticated: #20450766
-Date: Wed, 14 Jul 2004 00:13:10 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [Bug 2905] New: Aironet 340 PCMCIA card not working since 2.6.7
-In-Reply-To: <Pine.LNX.4.60.0406232149230.3950@poirot.grange>
-Message-ID: <Pine.LNX.4.60.0407131218300.1444@poirot.grange>
-References: <200406171753.i5HHrx38015816@fire-2.osdl.org>
- <Pine.LNX.4.60.0406172152310.5847@poirot.grange> <20040623132456.A27549@flint.arm.linux.org.uk>
- <Pine.LNX.4.60.0406232149230.3950@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 13 Jul 2004 18:14:56 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption
+   Patch
+Date: Tue, 13 Jul 2004 18:17:07 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cd1mj9$3ft$1@gatekeeper.tmr.com>
+References: <1089677823.10777.64.camel@mindpipe><1089677823.10777.64.camel@mindpipe> <40F3E31D.9020504@gardena.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1089756585 3581 192.168.12.100 (13 Jul 2004 22:09:45 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+In-Reply-To: <40F3E31D.9020504@gardena.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004, Guennadi Liakhovetski wrote:
+Benno Senoner wrote:
+> Lee Revell wrote:
+> 
+>> On Mon, 2004-07-12 at 19:31, Andrew Morton wrote:
+>>  
+>>
+>>>
+>>> OK, thanks.  The problem areas there are the timer-based route cache
+>>> flushing and reiserfs.
+>>>
+>>> We can probably fix the route caceh thing by rescheduling the timer 
+>>> after
+>>> having handled 1000 routes or whatever, although I do wonder if this 
+>>> is a
+>>> thing we really need to bother about - what else was that machine up to?
+>>>
+>>>   
+>>
+>>
+>> Gnutella client.  Forgot about that.  I agree, it is not reasonable to
+>> expect low latency with this kind of network traffic happening.  I am
+>> impressed it worked as well as it did.
+>>  
+>>
+> 
+> Why not reasonable ? It is very important that networking and HD I/O 
+> both don't interfere with low latency audio.
+> Think about large audio setups where you use PC hardware to act as 
+> dedicated samplers, software synthesizers etc.
+> Such clusters might be diskless and communicate with a GBit ethernet 
+> with a high performance file server and
+> in some cases lots of network I/O might occur during audio playback. So 
+> having latency spikes during network I/O
+> would be a big showstopper for many apps in certain setups.
+> Even ardour if run on a diskless client would need low latency while 
+> doing network I/O because it does lots of disk I/O
+> which on the diskless client translate to lots of network I/O.
+> Typical use could be educational or research institutions where diskless 
+> clients drastically lower the cost of managing large number
+> of boxes and allow sharing of resources. See the LTSP project.
 
-> On Wed, 23 Jun 2004, Russell King wrote:
->
->> On Thu, Jun 17, 2004 at 09:58:32PM +0200, Guennadi Liakhovetski wrote:
->>> Don't think it will help for this specific problem, but this patch fixes
->>> alignment problem (especially seen on ARM, Russell:-)). Sending as a 
->>> text attachment, as my setup is known to mangle tabs...
->>> 
->>> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
->> 
->> Can you forward this to Jeff Garzik please?
->
-> Jeff, please, apply to 2.6. It should also go into 2.4, it is quite trivial 
-> and is actually a bugfix. Don't know if it will aply to 2.4, if not, and if 
-> you prefer me to do it rather than do it yourself, I could rediff it against 
-> 2.4 too.
+Having used "diskless" systems off and on for almost two decades, I 
+highly suggest that you are better off with a disk in the node, and use 
+that for swap and temp. If you place any value on the time of people, 
+this will eliminate a lot of performance (time and bandwidth) issues, 
+and usually save on the cost of managing, since you have nothing to 
+manage on the node and a lot less network traffic to handle.
 
-Jeff
+I've done it with SunOS, Solaris and Linux.
 
-It's not yet in 2.6.7, didn't see it in  2.6.8-rc1 announcement either, 
-didn't check the code though. Have I missed it, or is it still not 
-applied? Are you considering applying it to a later version?
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266841AbTGKVkl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 17:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbTGKVkl
+	id S266788AbTGKVoA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 17:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbTGKVoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 17:40:41 -0400
-Received: from www.13thfloor.AT ([212.16.59.250]:46247 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S266841AbTGKVkk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 17:40:40 -0400
-Date: Fri, 11 Jul 2003 23:55:30 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, xose@wanadoo.es
-Subject: Re: is lvm stuck in 2.4 ?
-Message-ID: <20030711215530.GA26999@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>, xose@wanadoo.es
-References: <3F0F0746.8060403@wanadoo.es> <20030711195737.GC976@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030711195737.GC976@matchmail.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 11 Jul 2003 17:44:00 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25249 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S266788AbTGKVn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 17:43:59 -0400
+Date: Fri, 11 Jul 2003 18:56:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre5
+In-Reply-To: <16143.10146.718830.585351@charged.uio.no>
+Message-ID: <Pine.LNX.4.55L.0307111853540.5883@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
+ <shsu19siyru.fsf@charged.uio.no> <Pine.LNX.4.55L.0307111752060.5537@freak.distro.conectiva>
+ <16143.10146.718830.585351@charged.uio.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 12:57:37PM -0700, Mike Fedyk wrote:
-> On Fri, Jul 11, 2003 at 08:51:50PM +0200, Xose Vazquez Perez wrote:
-> > 
-> > kernel has version 1.0.5+ (22/07/2002), but latest
-> > is 1.0.7(2003/03/03). Is there any problem with 1.0.7 and
-> > 2.4 ?
-> 
-> Most likely not.  It probably hasn't been merged yet.
-> 
-> As well as the vfs patch needed for the journaled filesystems (forgot the
-> name).
-> 
-> Are there any efforts to get this merged?
 
-if it is useful, here is a patch for 1.0.7 for the 2.4 kernel ...
-I just verified, that it applies without any issues on 
-2.4.22-pre5 and it was tested on 2.4.21-pre5, 2.4.21, 
-2.4.22-pre1, and  2.4.22-pre3 ...
 
-http://www.13thfloor.at/VServer/patches-2.4.22-p3c17/07_lvm-1.0.7-2.4.21pre5.patch.bz2
+On Fri, 11 Jul 2003, Trond Myklebust wrote:
 
-best,
-Herbert
+> >>>>> " " == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+>
+>     >> Is there still any chance for the NFS O_DIRECT support to make
+>     >> it?
+>
+>      > I guess the best way of doing so would be adding ->direct_io2
+>      > and KERNEL24_HAS_ODIRECT_2 define.
+>
+> That is what the last patch I sent you does (also sent to l-k). Should
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+No, no need to resend. I have it.
+
+I released -pre5 so quickly because of the IO hang fix, which is pretty
+important. (Christoph: your vmap patch will go on -pre6 too once I read
+it).
+
+Well, Jeff, Christoph, do you have any comments on Trond's new
+O_DIRECT patch?
+
+I haven't looked at it closely, yet.
+
+
+
+

@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbUC2Ilc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 03:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUC2Ilc
+	id S262754AbUC2Iro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUC2Irn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 03:41:32 -0500
-Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:11430 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S262764AbUC2Ila (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 03:41:30 -0500
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: usage of RealTek 8169 crashes my Linux system
-Date: Mon, 29 Mar 2004 09:41:27 +0100
-User-Agent: KMail/1.6.1
-Cc: Jeff Garzik <jgarzik@pobox.com>, silverbanana@gmx.de
-References: <40673495.3050500@gmx.de> <4067378B.7070102@pobox.com>
-In-Reply-To: <4067378B.7070102@pobox.com>
+	Mon, 29 Mar 2004 03:47:43 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44700 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262754AbUC2Irj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 03:47:39 -0500
+To: Daniel Forrest <forrest@lmcg.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
+References: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Mar 2004 01:47:19 -0700
+In-Reply-To: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
+Message-ID: <m1d66wghuw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403290941.27765.ctpm@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Forrest <forrest@lmcg.wisc.edu> writes:
 
-On Sunday 28 March 2004 21:37, Jeff Garzik wrote:
-> Bernd Fuhrmann wrote:
-> >
-> > Any idea how to fix it? Is that driver getting stable in the next months
-> > or are there obstacles that should make me buy a different NIC (like
-> > missing docs for that chipset and stuff like that)?
->
-> Does Andrew Morton's -mm patches fix it for you?
->
-> 	Jeff
+> I've tried Googling for an answer on this, but have come up empty and
+> I think it likely that someone here probably knows the answer...
+> 
+> We are testing and breaking in 6 racks of compute nodes, each rack
+> containing 30 1U boxes, each box containing 2 x 2.8GHz Xeon CPUs.
+> Each rack contains identical hardware (single purchase) with the
+> exception that one rack has double the memory per node.  The 6 racks
+> are located in six different labs across our campus.  It is available
+> to me only as a "black box" queueing system.
 
+Testing and breaking in hardware with only black box remote access
+sounds crippling.  Hopefully you can work with someone to fix problems
+as they occur.
+ 
+> I am running one of our applications that has been compiled using gcc
+> with the -ffast-math option.  I am finding that the identical program
+> using the same input data files is producing different results on
+> different machines.  However, the differences are all less than the
+> precision of a single-precision floating point number.  By this I mean
+> that if the results (which are written to 15 digits of precision) are
+> only compared to 7 digits then the results are the same.  Also, most
+> of the time the 15 digit values are the same.
 
- Hi,
+How errors propagate depend on the specifics of what computation
+you are doing.
+ 
+> My question is this: Why aren't the results always the same?  
 
-  I'm also seeing hard crashes when using the r8169 driver, running a 32-bit 
-2.6.4-rc1 kernel on a AMD64 system with a MSI K8T motherboard (VIA KT800). It 
-has an onboard Realtek 8110S chip.
-  When I stopped using the r8169 module the crashes stopped. Now using a PCI 
-rtl8139 nic temporarily.
+Most likely memory errors.  Do the machines have ECC memory?  Is anything
+reporting the ECC memory errors as the occur?
 
-  Is there any way to apply these newer -netdev patches without resorting to 
--mm tree? This is a production machine, so I'd rather stick to linus' 2.6.x, 
-but if there's no choice I'll try -mm...
+> What is the -ffast-math option doing?  How are the excess bits of precision
+> dealt with during context switches?  Shouldn't the same binary with
+> the same inputs produce the same output on identical hardware?
 
- Thanks in advance for your attention.
+Yes.  Baring I/O related variables.
 
-Claudio
+> I have run the same test with the program compiled without -ffast-math
+> enabled and the results are always identical.
+
+This may simply be a case where you are not hitting the hardware as
+hard.  Or possibly compiler/optimizer bugs.
+
+Or possibly you never ran your job on the faulty hardware?
+
+> Any insight would be appreciated.
+
+I don't have any except that universities are usually cheap and go
+with the lowest bidder on hardware.
+
+In general tracking this kind of problem comes down to applying
+the scientific method.  And carefully looking at and controlling
+the variables until a root cause is found.
+
+Eric
 

@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290977AbSBGAIc>; Wed, 6 Feb 2002 19:08:32 -0500
+	id <S290969AbSBGAGM>; Wed, 6 Feb 2002 19:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290984AbSBGAIX>; Wed, 6 Feb 2002 19:08:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22031 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290977AbSBGAIK>; Wed, 6 Feb 2002 19:08:10 -0500
-Subject: Re: kernel: ldt allocation failed
-To: jakub@redhat.com
-Date: Thu, 7 Feb 2002 00:21:22 +0000 (GMT)
-Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-In-Reply-To: <20020206163118.E21624@devserv.devel.redhat.com> from "Jakub Jelinek" at Feb 06, 2002 04:31:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290966AbSBGAGC>; Wed, 6 Feb 2002 19:06:02 -0500
+Received: from smtpinterno.wanadoo.es ([62.37.236.140]:26798 "EHLO
+	smtp.wanadoo.es") by vger.kernel.org with ESMTP id <S290967AbSBGAFy> convert rfc822-to-8bit;
+	Wed, 6 Feb 2002 19:05:54 -0500
+Date: Thu,  7 Feb 2002 01:06:44 +0100
+Message-Id: <GR4YZ8$IaNaxbYS7pHDy2KXFL5wNL4Sbf6iJS4Wb@wanadoo.es>
+Subject: Kernel hotplug
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YcJW-0006vG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 1 (Highest)
+Content-Type: text/plain
+Content-Transfer-Encoding: 8BIT
+From: "mumismo" <mumismo@wanadoo.es>
+To: linux-kernel@vger.kernel.org
+X-XaM3-API-Version: 1.1.11.1.6
+X-SenderIP: 62.83.13.194
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is not possible, since then %gs:0 (which is TLS base) cannot be read.
-> We would have to change the TLS ABI (thus become incompatible e.g. with Sun)
+FWD:
+Hi
+I just want to ask if someone is working or has worked in changing a kernel 
+for another one without the need of rebooting the machine
+I think it has a couple of practical purporses:
+- Letting add new features as new drivers for hotplug devices , you can argue 
+that compilation of modules are enough but think in big kernel number changes 
+when you can't use that drivers so you have to reboot to install a new usb 
+HW. Pretty windows-like...
+- Letting change kernel for instance 2.4.0 --> 2.4.17, maybe you have a 
+machine working fine but with some problems sometimes with memory and you 
+have realized that the 2.4.17 mm works much finer. It's logical be able to 
+change it without rebooting (maybe you are in a 24x7 enviroment or you want 
+to beat some uptime record)
 
-Sun who have canned their x86 product it seems. I don't feel "the standard
-requires we suck" is an appropriate justification for anything. If there 
-is not a sane way to follow the standard - break it. If there is a sane way
-then all fair and good, find it and use it
+I think Solaris has this feature, i think Linux can have it too.
+If someone have some technical guidance about this issue, have working in it, etc. Please tell me.
+
+--
+Jordi
+_____________________________________________________________________
+!REGALO GRATIS sólo por participar¡ Gana un premio seguro y exóticos 
+viajes participando en el Rallye Wanadoo en http://www.wanadoo.es/animacion/rallye
 
 
-Alan

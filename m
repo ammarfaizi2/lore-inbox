@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314529AbSHXPyw>; Sat, 24 Aug 2002 11:54:52 -0400
+	id <S316519AbSHXQNI>; Sat, 24 Aug 2002 12:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSHXPyw>; Sat, 24 Aug 2002 11:54:52 -0400
-Received: from velli.mail.jippii.net ([195.197.172.114]:23495 "HELO
-	velli.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S314529AbSHXPyv>; Sat, 24 Aug 2002 11:54:51 -0400
-Date: Sat, 24 Aug 2002 19:03:06 +0300
-From: Anssi Saari <as@sci.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4-ac1
-Message-ID: <20020824160306.GA6827@sci.fi>
-Mail-Followup-To: Anssi Saari <as@sci.fi>,
-	linux-kernel@vger.kernel.org
-References: <200208231046.g7NAk2914276@devserv.devel.redhat.com> <20020823163056.GA7426@sci.fi> <8765y1a50b.fsf@plailis.homelinux.net>
+	id <S316535AbSHXQNI>; Sat, 24 Aug 2002 12:13:08 -0400
+Received: from bitmover.com ([192.132.92.2]:3076 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S316519AbSHXQNH>;
+	Sat, 24 Aug 2002 12:13:07 -0400
+Date: Sat, 24 Aug 2002 08:11:41 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org, bitkeeper-announce@bitmover.com
+Subject: Re: BKWeb Feature request [Was: BK license change]
+Message-ID: <20020824081141.D17092@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
+References: <200208240039.g7O0dZf12300@work.bitmover.com> <20020824171245.C1889@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8765y1a50b.fsf@plailis.homelinux.net>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020824171245.C1889@mars.ravnborg.org>; from sam@ravnborg.org on Sat, Aug 24, 2002 at 05:12:45PM +0200
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 06:56:04PM +0200, Markus Plail wrote:
-> * Anssi Saari writes:
- 
-> If you burn data in DAO mode you will have the same behaviour.
+> Is it possible somehow to sort the cset(s) according to the time they were
+> applied to the local tree, and not when they were originally committed?
 
-No I don't. I saw the discussion about that recently, but I don't have
-that problem.
+If this is a correct statement of what you want, we're building it:
 
-> Have you
-> tried to toggle CONFIG_IDEPCI_SHARE_IRQ? It helped me a lot. Also I
-> have to disable umaskirq, otherwise I have the same problems.
+    Instead of seeing events in time order of creation, you want to
+    see the events in order of arrival in a particular repository.
 
-I'll have to see if that helps, thanks for the tip.
+I agree that the current view is useless when what you want to know is
+when did this change finally make it into the tree?
 
-> One thing I still do not understand is:
-> IS DMA (theoretically) possible for stuff like c2scans, DAO writing,
-> audio grabbing? 
+We're working on a "stack" of incoming events.  BK/Web will use this to
+give you the display you want and bk undo will be able to use this to
+roll your repository backwards by "popping" the stack.  You could do
 
-I don't know of the other stuff, but since there's a patch for Linux
-which does audio grabbing with DMA, I'd assume it's possible.
+	while true
+	do	bk undo -sf
+	done
 
-Then again, is DMA that important for these fairly slow devices? PDC20265
-and CMD649 don't seem to support DMA with ATAPI devices (in Linux
-at least), but I have none of these performance problems with those
-contollers, only the VIA 686b.
+and when it gets done, you'll have no repository, it will have popped it
+away.  bk unpull will just be come a special case of popping the stack.
+
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268463AbUJJUIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUJJUYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268463AbUJJUIV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 16:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUJJUIU
+	id S268465AbUJJUYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 16:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJJUYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 16:08:20 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:23743 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268463AbUJJUIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 16:08:18 -0400
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland Dreier <roland@topspin.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       openib-general@openib.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <52k6tzlhqt.fsf@topspin.com>
-References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>
-	 <41673772.9010402@pobox.com> <52zn2wlh8h.fsf@topspin.com>
-	 <416767BA.1020204@pobox.com>  <52k6tzlhqt.fsf@topspin.com>
-Content-Type: text/plain
+	Sun, 10 Oct 2004 16:24:24 -0400
+Received: from mail.gmx.net ([213.165.64.20]:22461 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268465AbUJJUYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 16:24:22 -0400
+X-Authenticated: #13243522
+Message-ID: <41699A76.55A8EBE1@gmx.de>
+Date: Sun, 10 Oct 2004 22:24:22 +0200
+From: Michael Schierl <schierlm@gmx.de>
+X-Mailer: Mozilla 4.75 [de]C-CCK-MCD QXW0324v  (Win95; U)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PANIC] Kernel panic after rmmod softdog (2.6.8.1)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097435131.29422.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 10 Oct 2004 20:05:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-10-09 at 22:11, Roland Dreier wrote:
-> I guess my point was not that the bluetooth stack is somehow
-> questionable, but rather that the IP policies of a standards bodies
-> are really not a good reason to keep code out of the kernel.  If
-> someone can name one patent that the IB driver stack looks like it
-> might possibly run into, then we would have to take that very
-> seriously.  However, no one has done this here -- all we have is FUD
-> or guilt by association or whatever you want to call it.
+Hi,
 
-Its called "caution". It's why nobody does innovation in the USA any
-more, its too dangerous to innovate. Far better to make it available as
-before with a blue led and a beeper.
+today, when testing the software watchdog, I accidentally removed the 
+software watchdog kernel module and got a kernel panic.
 
-> The mere fact that the IBTA bylaws only require members license their
-> patents under RAND terms shouldn't be an issue.  If nothing else, the
-> fact that there are hugely more non-IBTA member companies than member
-> companies who might have patents makes the IBTA bylaws almost a moot
-> point.
+to reproduce:
 
-The big question seems to be about the standard itself. Are the items at
-issue hardware or software ? We already deal with a lot of devices that
-have hardware related patent pools and those by themselves don't seem to
-cause problems.
+- build a kernel (2.6.8.1) with softdog built as module
+  (and without the NOWAYOUT option)
+- load the softdog module
+- write something (not ending with a "V") to /dev/watchdog, e. g.
+  echo x >/dev/watchdog
+- A message will appear that device was closed, but the watchdog is 
+  still active (if you wait a minute now, your box will reboot...)
+- remove the softdog module
+- wait a minute. you will see a kernel panic.
 
-In the mean time I guess the guys down in Bristol[1] will be feeling
-happier and happier at the Infiniband self destruct sequence.
+If there is a need for the actual panic message, I'll take a piece of 
+paper and transcribe it (no serial console here...), but i doubt it,
+since 
+it is quite easy to reproduce...
 
-Alan
-[1] Quadrics
+when you disable the watchdog by
+  echo "V" >/dev/watchdog
+before removing the module, it will not panic.
 
+Hmm, another thing: according to the documentation in watchdog.txt,
+softdog does not honor the special "V" for closing the watchdog,
+but actually it does.
 
+Please CC me since I am not on the list,
+
+Michael

@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUGHOEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbUGHOOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUGHOEj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 10:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGHOEj
+	id S262873AbUGHOOs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 10:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUGHOOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 10:04:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20133 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262873AbUGHOED (ORCPT
+	Thu, 8 Jul 2004 10:14:47 -0400
+Received: from cantor.suse.de ([195.135.220.2]:34468 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262873AbUGHOOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 10:04:03 -0400
-Date: Thu, 8 Jul 2004 10:03:06 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: tom st denis <tomstdenis@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Prohibited attachment type (was 0xdeadbeef)
-Message-ID: <20040708140305.GT21264@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.53.0407070715380.17430@chaos> <20040707114836.29295.qmail@web41103.mail.yahoo.com> <20040707122916.GH21264@devserv.devel.redhat.com> <20040708055204.GF5054@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708055204.GF5054@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Thu, 8 Jul 2004 10:14:46 -0400
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <20040707122525.X1924@build.pdx.osdl.net>
+	<E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<20040707202746.1da0568b.davem@redhat.com>
+	<buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	<Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
+	<20040708111829.GA3449@gondor.apana.org.au>
+	<jebriqtzkc.fsf@sykes.suse.de>
+	<20040708135611.GA4526@gondor.apana.org.au>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: It's 74 degrees, 12 minutes NORTH, and 41 degrees, 3 minutes EAST!!
+ Soon, it will be TUESDAY!!
+Date: Thu, 08 Jul 2004 16:13:06 +0200
+In-Reply-To: <20040708135611.GA4526@gondor.apana.org.au> (Herbert Xu's
+ message of "Thu, 8 Jul 2004 23:56:11 +1000")
+Message-ID: <je7jtetwnh.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 07:52:04AM +0200, Pavel Machek wrote:
-> > For Decimal Constant and no suffix, the table lists only:
-> > int
-> > long int
-> > long long int
-> > and thus assuming 32-bit int and 64-bit long, 3735928559 has long int type,
-> > assuming 32-bit int, 32-bit long and 64-bit long long, 3735928559 has long
-> > int type.
-> 
-> Did you mean "long long int" at the end of last sentence?
+Herbert Xu <herbert@gondor.apana.org.au> writes:
 
-Obviously, that was a pasto.
+> On Thu, Jul 08, 2004 at 03:10:11PM +0200, Andreas Schwab wrote:
+>> 
+>> There is one place where even prototypes won't help, which is varargs
+>> functions like execl.  But I don't think the kernel uses functions with
+>> execl-like argument lists.
+>
+> Actually printk is variadic.
 
-	Jakub
+There are quite a few other varargs functions in the kernel, but I was
+specifically thinking of the use of a null pointer for terminating the
+argument list like execl does.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUKRN11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbUKRN3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbUKRN11 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 08:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUKRN1N
+	id S262777AbUKRN3c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 08:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbUKRN05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 08:27:13 -0500
-Received: from imag.imag.fr ([129.88.30.1]:65014 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S262772AbUKRNYm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 08:24:42 -0500
-Date: Thu, 18 Nov 2004 14:24:34 +0100 (CET)
-From: Catalin Drula <Catalin.Drula@imag.fr>
-To: Alex Riesen <raa.lkml@gmail.com>
-cc: Catalin Drula <catalin.drula@imag.fr>, <linux-kernel@vger.kernel.org>
-Subject: Re: AF_UNIX sockets: strange behaviour
-In-Reply-To: <81b0412b04111714426d82cab2@mail.gmail.com>
-Message-ID: <Pine.GSO.4.33.0411181411080.10966-100000@horus.imag.fr>
+	Thu, 18 Nov 2004 08:26:57 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:46509 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S262774AbUKRNZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 08:25:39 -0500
+Message-ID: <419CA2DA.5070207@mega.ist.utl.pt>
+Date: Thu, 18 Nov 2004 13:25:46 +0000
+From: Pedro Venda <pjlv@mega.ist.utl.pt>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041006)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Thu, 18 Nov 2004 14:24:35 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Pedro Venda <pjlv@mega.ist.utl.pt>,
+       davej@codemonkey.org.uk
+Subject: Re: [PATCH] Trivial update: option for default ondemand cpufreq governor
+References: <419BF015.3050900@mega.ist.utl.pt> <200411172132.39274.dtor_core@ameritech.net>
+In-Reply-To: <200411172132.39274.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+| See here:
+|
+| 	http://www.ussg.iu.edu/hypermail/linux/kernel/0408.3/0953.html
+|
+| "... If transition_latency is high, the ondemand governor initialization
+| will fail (User level governor is suggested in this case). Hence it cannot
+| be used as a default governor."
 
-On Wed, 17 Nov 2004, Alex Riesen wrote:
+ok, thanks. shame on me.
 
-> On Wed, 17 Nov 2004 16:29:14 +0100 (CET), Catalin Drula
-> <catalin.drula@imag.fr> wrote:
-> > I have a small application that communicates over Bluetooth. I use
-> > connection-oriented UNIX domain sockets (AF_UNIX, SOCK_STREAM) to
-> > communicate between the applications's threads. When reading from
-> > one of these sockets, I get a strange behaviour: if I read all the
-> > bytes that are available (13, in this case) all at once, it's fine;
-> > however, if I try to read in two smaller batches (say, first time
-> > 6, and second time 7), the first read returns (with the 6 bytes), but
-> > the second read never returns.
->
-> 2.6.9, works. Could you post your code?
+- --
 
-Nevermind. It was actually a bug in my code. I apologize for wasting
-your time.
+Pedro João Lopes Venda
+email: pjlv@mega.ist.utl.pt
+http://arrakis.dhis.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Catalin
-
+iD8DBQFBnKLZeRy7HWZxjWERAotoAJ90fyXTU8zXtqaDIiG2wc5srgjrHQCfaRs8
+d1XatsYQUrSvxFe/fuzKk6g=
+=Wuxa
+-----END PGP SIGNATURE-----

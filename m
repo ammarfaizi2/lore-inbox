@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbTDXJWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbTDXJWh
+	id S262513AbTDXJX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTDXJX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:22:37 -0400
-Received: from codepoet.org ([166.70.99.138]:5269 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S262426AbTDXJWg (ORCPT
+	Thu, 24 Apr 2003 05:23:58 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:54975 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S262513AbTDXJX4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:22:36 -0400
-Date: Thu, 24 Apr 2003 03:34:43 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
-Message-ID: <20030424093443.GA7180@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Thu, 24 Apr 2003 05:23:56 -0400
+Date: Thu, 24 Apr 2003 11:34:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andrew Morton <akpm@digeo.com>, mbligh@aracnet.com,
+       ncunningham@clear.net.nz, gigerstyle@gmx.ch, geert@linux-m68k.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-ID: <20030424093427.GA3084@elf.ucw.cz>
+References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com> <20030424002544.GC2925@elf.ucw.cz> <20030424090519.GI28253@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+In-Reply-To: <20030424090519.GI28253@mail.jlokier.co.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ide driver does not list whether drives support things like
-write cache, SMART, SECURITY ERASE UNIT.  But for some silly
-reason it tells us at boot whether each drive is capable of
-supporting the Host Protected Area feature set.  If people want
-to know the capabilites of their drive, they can run 'hdparm' 
-and find out.
+Hi!
 
-This patch removes this pointless noise.  Please apply,
+> > Swapfile does not work, because even readonly mount wants to replay
+> > logs, and that'd be disk corruption.
+> 
+> I don't understand.  During suspend, you just need a list of blocks to
+> write to from the swapfile.  You can get that list before starting the
+> actual suspend, so that writing doesn't imply any filesystem activity.
+> 
+> When you're resuming, you just need a list of which disk blocks to
+> resume from.  Can't that list be stored in a few blocks of the
+> swapfile itself, with the only critical parameter being the first
+> block number to resume from?
 
+And how do you pass that first number? Please user could you write
+this down to paper and enter it on commandline during suspend?
 
---- linux/drivers/ide/ide-disk.c.orig	2003-04-24 03:23:53.000000000 -0600
-+++ linux/drivers/ide/ide-disk.c	2003-04-24 03:24:54.000000000 -0600
-@@ -1133,10 +1133,7 @@
-  */
- static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
- {
--	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
--	if (flag)
--		printk("%s: host protected area => %d\n", drive->name, flag);
--	return flag;
-+	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
- }
- 
- /*
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Okay, okay, this could be made to work. You could store pointer in
+swapspace or in reserved block somewhere...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbQKIBqN>; Wed, 8 Nov 2000 20:46:13 -0500
+	id <S129033AbQKICQj>; Wed, 8 Nov 2000 21:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129956AbQKIBqD>; Wed, 8 Nov 2000 20:46:03 -0500
-Received: from mail01.onetelnet.fr ([213.78.0.138]:54565 "EHLO
-	mail01.onetelnet.fr") by vger.kernel.org with ESMTP
-	id <S129044AbQKIBpy>; Wed, 8 Nov 2000 20:45:54 -0500
-Message-ID: <3A0A0F76.BEAC838C@onetelnet.fr>
-Date: Thu, 09 Nov 2000 03:44:06 +0100
-From: FORT David <epopo@onetelnet.fr>
-Organization: Derriere les rochers Networks
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: David Ford <david@linux.com>, bpemberton@dingoblue.net.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: pcmcia
-In-Reply-To: <Pine.LNX.4.21.0011091131240.9217-100000@tae-bo.generica.dyndns.org> <3A09FACF.9334A299@linux.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S129044AbQKICQT>; Wed, 8 Nov 2000 21:16:19 -0500
+Received: from smtp08.phx.gblx.net ([206.165.6.138]:33507 "EHLO
+	smtp08.phx.gblx.net") by vger.kernel.org with ESMTP
+	id <S129033AbQKICQI>; Wed, 8 Nov 2000 21:16:08 -0500
+Date: Wed, 8 Nov 2000 21:15:38 -0500
+From: Scott McDermott <vaxerdec@frontiernet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Stange NFS messages - 2.2.18pre19
+Message-ID: <20001108211538.C14262@vaxerdec>
+Mail-Followup-To: Scott McDermott <vaxerdec>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10011072326340.21756-100000@iq.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10011072326340.21756-100000@iq.rulez.org>; from sape@iq.rulez.org on Tue, Nov 07, 2000 at 11:28:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
+Sasi Peter on Tue  7/11 23:28 +0100:
+> I'm getting this under moderate NFS load:
+> Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
+> Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> 
+> What do these means? Is this a kernel bug?
 
-> You may be in the same boat I'm in then.  i82365 is what I used and it worked.
-> yenta doesn't.  Right now I'm stuck with using my USB nic because neither the
-> kernel's pcmcia or dh pcmcia work for me.
->
-> -d
->
-> Brett wrote:
->
-> > Hey,
->
-
-[....]
-
->
-> > > "The difference between 'involvement' and 'commitment' is like an
-> > > eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-> > > 'committed'."
-> > >
-> > >
-> > >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
->
-> --
-> "The difference between 'involvement' and 'commitment' is like an
-> eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-> 'committed'."
-
-I got the same problem for an old 486 with no PCI, as yenta_socket doesn't work, i
-have to add CONFIG_I82365
-in order to have things work. 'till this is set and recompiled, everything works
-perfectly. The controller is a
-VLSI 82C146.
-I'm problably missing something, but these's two things i don't understand:
--why PCMCIA depends on PCI at compilation time
--why yenta is activated for i82365, as it doesn't do the job i82365 did.
-
-
---
-%-------------------------------------------------------------------------%
-% FORT David,                                                             %
-% 7 avenue de la morvandière                                   0240726275 %
-% 44470 Thouare, France                                epopo@onetelnet.fr %
-% ICU:78064991   AIM: enlighted popo             fort@irin.univ-nantes.fr %
-%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
-%  -datamining <-/                        |   .~.                         %
-%  -networking/flashed PHP3 coming soon   |   /V\        L  I  N  U  X    %
-%  -opensource                            |  // \\     >Fear the Penguin< %
-%  -GNOME/enlightenment/GIMP              | /(   )\                       %
-%           feel enlighted....            |  ^^-^^                        %
-%                           http://ibonneace.dnsalias.org/ when connected %
-%-------------------------------------------------------------------------%
-
-
-
+Your Suns are using TCP mounts, this got introduced into 2.2.18
+somewhere and is a bit broken, do a patch -R with
+ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif and
+these go away.  Suns try TCP mounts first.  Be careful to unmount them
+first or they will hang waiting for the TCP server to come back up.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

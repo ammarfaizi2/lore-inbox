@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTCJWYA>; Mon, 10 Mar 2003 17:24:00 -0500
+	id <S261487AbTCJWUQ>; Mon, 10 Mar 2003 17:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbTCJWYA>; Mon, 10 Mar 2003 17:24:00 -0500
-Received: from packet.digeo.com ([12.110.80.53]:19176 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261874AbTCJWX6>;
-	Mon, 10 Mar 2003 17:23:58 -0500
-Date: Mon, 10 Mar 2003 14:29:44 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: george anzinger <george@mvista.com>
-Cc: torvalds@transmeta.com, cobra@compuserve.com, linux-kernel@vger.kernel.org
-Subject: Re: Runaway cron task on 2.5.63/4 bk?
-Message-Id: <20030310142944.2dff3422.akpm@digeo.com>
-In-Reply-To: <3E6D0FD5.2090707@mvista.com>
-References: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
-	<3E6D0FD5.2090707@mvista.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261503AbTCJWUQ>; Mon, 10 Mar 2003 17:20:16 -0500
+Received: from ns.splentec.com ([209.47.35.194]:7432 "EHLO pepsi.splentec.com")
+	by vger.kernel.org with ESMTP id <S261487AbTCJWUP>;
+	Mon, 10 Mar 2003 17:20:15 -0500
+Message-ID: <3E6D120A.6040207@splentec.com>
+Date: Mon, 10 Mar 2003 17:30:34 -0500
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tommy Reynolds <reynolds@redhat.com>
+CC: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] coding style addendum
+References: <Pine.LNX.3.95.1030310162308.14367A-100000@chaos>	<3E6D096A.1080006@splentec.com> <20030310160743.76ed3d67.reynolds@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Mar 2003 22:34:29.0793 (UTC) FILETIME=[36D48910:01C2E755]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger <george@mvista.com> wrote:
->
-> Linus Torvalds wrote:
-> > On Mon, 10 Mar 2003, george anzinger wrote:
-> > 
-> >>Lets consider this one on its own merits.  What SHOULD sleep do when 
-> >>asked to sleep for MAX_INT number of jiffies or more, i.e. when 
-> >>jiffies overflows?  My notion, above, it that it is clearly an error. 
-> > 
-> > 
-> > My suggestion (in order of preference):
-> >  - sleep the max amount, and then restart as if a signal had happened
+Tommy Reynolds wrote:
+>> References:
+>> [1] ``The Elements of Programming Style'' by Kernighan
+>> and Plauger, 2nd ed, 1988, McGraw-Hill.
 > 
-> I think this will require a 64-bit expire in the timer_struct 
-> (actually it would not be treated as such, but the struct would still 
-> need the added bits).  Is this ok?
 > 
-> I will look at the problem in detail and see if there might be another 
-> way without the need of the added bits.
+> Keep in  mind the date here.   Prior to this time,  subroutines were the
 
-Is it not possible to just sit in a loop, sleeping for 0x7fffffff jiffies
-on each iteration?  (Until the final partial bit of course)
+Yes, I'm aware of the date.  AFAIR, 1 ed. is circa 1974, so in 14 years
+I'd say the principles were still effective.
 
-> Hm...  I changed it to what it is to make it easier to track down 
-> problems in the test code... and this was user code.  My thinking was 
-> that such large values are clear errors, and having the code "hang" in 
-> the sleep just hides the problem.  But then, I NEVER make a system 
-> call without checking for errors....  And, I was making a LOT of sleep 
-> calls and wanted to know which one(s) were wrong.
+``Prior to this time'' you probably meant prior to 1974.
 
-If an app wants to sleep forever, calling
+[cut]
+> functional  abstractions.  Using  your  argument that  the example  code
+> hides an "implementation", it's difficult  to conceive of a code example
+> that hids neither its data nor its implementation.
 
-	while (1)
-		sleep(MAX_INT);
+So why should you change a definition to allow for a specific case?
+Isn't a function de facto an implementation detail and thus encapsulating
+the actual implementation (i.e. it's workings).
+Anyway this is not important and is just formalisms.
 
-seems like a reasonable approach.  I'd expect quite a lot of applications
-would be doing that.
+My whole point was to put down in text file, the already practiced rule
+of thinking out data representations, since this has direct effect on
+the complexity of the code (i.e. the choice of data represenation).
+
+I'm sure you know which example I'm thinking of.
+
+-- 
+Luben
+
 

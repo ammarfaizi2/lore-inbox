@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281266AbRKPKGy>; Fri, 16 Nov 2001 05:06:54 -0500
+	id <S281270AbRKPKSz>; Fri, 16 Nov 2001 05:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281265AbRKPKGp>; Fri, 16 Nov 2001 05:06:45 -0500
-Received: from pop.gmx.net ([213.165.64.20]:7675 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S281266AbRKPKGi>;
-	Fri, 16 Nov 2001 05:06:38 -0500
-Message-ID: <3BF4E528.491CC24A@gmx.at>
-Date: Fri, 16 Nov 2001 11:06:32 +0100
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
+	id <S281271AbRKPKSp>; Fri, 16 Nov 2001 05:18:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9221 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281270AbRKPKSc>; Fri, 16 Nov 2001 05:18:32 -0500
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+To: neilb@cse.unsw.edu.au (Neil Brown)
+Date: Fri, 16 Nov 2001 10:26:17 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au> from "Neil Brown" at Nov 16, 2001 09:08:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hardware raid (adaptec 1200A)?
-In-Reply-To: <x88g07fn63s.fsf@adglinux1.hns.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Message-Id: <E164gCQ-0003YZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nbecker@fred.net wrote:
+>    A device special file is a gateway between a user (admin)
+>    controlled name space (the filesystem) and a kernel imposed name
+>    space (major/minor numbers) that recognises and imposes access
+>    control (owner/group/permissions).
 > 
-> I'm setting up a new machine with a pair of IDE drives connected to
-> adaptec 1200A controller.  I defined a RAID-0 array using the adaptec
-> bios, but linux doesn't see it as a single drive.  It just sees two
-> drive, hde and hdg (each at their physical sizes).  Any hints?
+> The (a) problem with this is that major/minor numbers are too limited,
 
-I think the adaptec 1200A is just another low-cost
-not-quite-hardware-raid controller. As far as I have heared it is based
-on Highpoint-Tech's HPT370. There is raid-0 support implemented in the
-kernel.
+Textual names have unsolved problems too
+	1.	Who administers the namespace
+	2.	When trademarks get entangled whats the disputes procedure
 
-be sure to enable CONFIG_BLK_DEV_ATARAID_HPT=y
+Do you want to create a situation where a future kernel is likely to be
+forced to change a device naming because an "official" vendor driver appears
+too and they demand the namespace and wave trademarks around ?
 
-The volumes should show up as /dev/ataraid/d[0-9]p[0-9] (major
-blockdevice number 114).
+> A Devlink looks like a symlink with the "sticky" (S_ISVTX) bit set.
+> Indeed, that is how it is stored on a filesystem.
 
-bye,
-Wilfried
+That seems basically sound. I'm not sure about the devfs part but that
+is a seperate matter. 
 
+Alan
 
--- 
-Terorists crashed an airplane into the server room, have to remove
-/bin/laden. (rm -rf /bin/laden)

@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVCNQid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVCNQmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVCNQid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCNQid
+	id S261581AbVCNQmL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVCNQmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:38:33 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:46687 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261577AbVCNQiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:38:23 -0500
-Message-ID: <4235BDFD.1070505@tls.msk.ru>
-Date: Mon, 14 Mar 2005 19:38:21 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mouse&keyboard with 2.6.10+
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru> <20050314162537.GA2716@ucw.cz>
-In-Reply-To: <20050314162537.GA2716@ucw.cz>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 11:42:10 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:48598 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S261583AbVCNQlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 11:41:40 -0500
+Date: Mon, 14 Mar 2005 11:41:37 -0500
+From: Andreas Dilger <adilger@shaw.ca>
+To: Dan Stromberg <strombrg@dcs.nac.uci.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: huge filesystems
+Message-ID: <20050314164137.GC1451@schnapps.adilger.int>
+Mail-Followup-To: Dan Stromberg <strombrg@dcs.nac.uci.edu>,
+	linux-kernel@vger.kernel.org
+References: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Mon, Mar 14, 2005 at 06:53:11PM +0300, Michael Tokarev wrote:
+On Mar 09, 2005  10:53 -0800, Dan Stromberg wrote:
+> The group I work in has been experimenting with GFS and Lustre, and I did
+> some NBD/ENBD experimentation on my own, described at
+> http://dcs.nac.uci.edu/~strombrg/nbd.html
 > 
->>Vojtech Pavlik wrote:
->>
->>>On Mon, Mar 14, 2005 at 02:52:00PM +0300, Michael Tokarev wrote:
->>>
->>>
->>>
->>>>After plugging in USB keyboard and loading uhci-hcd and
->>>>usbhid, the keyboard un-freeze, but mouse still didn't
->>>>work.  So I tried re-loading psmouse module, and
->>>>surprizingly, mouse started working again, but now dmesg
->>>>says:
->>>>
->>>>input: PS2++ Logitech Wheel Mouse on isa0060/serio1
->>>>
->>>>(normally it's
->>>>input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
->>>>)
->>>>
->>>>and the mouse is moving very fast now.  Previously
->>>>I either didn't able to make it work at all after such
->>>>freeze, or it worked automatically after loading usbhid.
->>>>
->>>>BTW, it's 2.6.10, I can't made it work with 2.6.11 at all.
->>>
->>>
->>>Can you try 'usb-handoff' on the kernel command line?
->>
->>The problem has nothing to do with USB per se, as far as
->>I can see.  PS2 keyboard and mouse does not work when
->>the USB subsystem (incl. usbcore) is not loaded.  And the
->>problem is with PS2 keyboard/mouse, not with USB one which
->>works just fine.
->  
-> Of course. Nevertheless 'usb-handoff' tells the BIOS not to meddle with
-> the PS/2 interfaces, too. 
+> My question is, what is the current status of huge filesystems - IE,
+> filesystems that exceed 2 terabytes, and hopefully also exceeding 16
+> terabytes?
 
-Oh me bad, I should listen to whatever is being said, instead
-of doing my stupid guesses...  Just rebooted into 2.6.11.3
-with usb-handoff and both the keyboard and mouse are Just Works,
-and psmouse driver loads almost immediately too.
+Lustre has run with filesystems up to 400TB (where it hits a Lustre limit
+that should be removed shortly for a 900TB filesystem being deployed).
+The caveat is that Lustre is made up of individual block devices and
+filesystems of only 2TB or less in size.
 
-Also, it works just fine after turning off USB Keyboard and
-Mouse support in BIOS and without usb-handoff kernel parameter.
+> Am I correct in assuming that the usual linux buffer cache only goes to 16
+> terabytes?
 
-In 2.6.9 (it works just fine too, problem happens with 2.6.10
-and up only), there's no such parameter in drivers/pci/quirks.c.
-Hmm.
+That is the block device limit, and also the file limit for 32-bit systems,
+imposed by the size of a single VM mapping 2^32 * PAGE_SIZE.
 
-So is this a bios/mobo problem, or can it be solved in kernel
-somehow?
+> Does the FUSE API (or similar) happen to allow surpassing either the 2T or
+> 16T limits?
 
-Thanks very much for your attention.
+Some 32-bit systems (PPC?) may allow larger PAGE_SIZE and will have a
+larger limit for a single VM mapping.  For 64-bit platforms there is no 
+2^32 limit for page->index and this also removes the 16TB limit.
 
-/mjt
+> What about the "LBD" patches - what limits are involved there, and have
+> they been rolled into a Linus kernel, or one or more vendor kernels?
+
+These are part of stock 2.6 kernels.  The caveat here is that there have
+been some problems reported (with ext3 at least) for filesystems > 2TB
+so I don't think it has really been tested very much.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+

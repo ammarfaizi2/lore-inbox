@@ -1,95 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUB0WjO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbUB0WjO
+	id S263172AbUB0Wjk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbUB0Wjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:39:14 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:45762 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S263172AbUB0WjC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:39:02 -0500
-Date: Fri, 27 Feb 2004 15:39:01 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, amit@av.mvista.com,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
-Message-ID: <20040227223901.GK1052@smtp.west.cox.net>
-References: <20040227212301.GC1052@smtp.west.cox.net> <403FC521.7040508@mvista.com>
+	Fri, 27 Feb 2004 17:39:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15339 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263172AbUB0WjX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 17:39:23 -0500
+Date: Fri, 27 Feb 2004 14:34:45 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: olof@austin.ibm.com, davidm@napali.hpl.hp.com, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com,
+       anton@samba.org, milliner@us.ibm.com
+Subject: Re: [PATCH] NULL pointer deref in tcp_do_twkill_work()
+Message-Id: <20040227143445.27dd03bf.davem@redhat.com>
+In-Reply-To: <Pine.A41.4.44.0402271256450.50098-200000@forte.austin.ibm.com>
+References: <Pine.A41.4.44.0402271256450.50098-200000@forte.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403FC521.7040508@mvista.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 02:30:57PM -0800, George Anzinger wrote:
+On Fri, 27 Feb 2004 16:09:21 -0600 (CST)
+olof@austin.ibm.com wrote:
 
-> Comments below...
+> This bug has been encountered before (ref http://bugme.osdl.org/show_bug.cgi?id=1627),
+> but that time it went away by itself. We're now seeing it again with
+> another heavy network load on 2.6.3.
 
-I'm going to set aside some of the comments, simply because I'm not
-going to change behavior / content right now, we can do that afterwards.
+Olaf, you are a life saver.
 
-[snip]
-> >+choice
-> >+	depends on KGDB_8250 || PPC_SIMPLE_SERIAL
-> >+    	prompt "Debug serial port BAUD"
-> >+	default KGDB_115200BAUD
-> >+	help
-> >+	  Gdb and the kernel stub need to agree on the baud rate to be
-> >+	  used.  Some systems (x86 family at this writing) allow this to
-> >+	  be configured.
-> 
-> Should this depend on the archs that can use it?
+David Mosberger just recently told me that ia64 is hitting this  problem
+again too and I believe your analysis is perfect.
 
-The help is wrong, that's all, it's not arch-dependant, it's driver
-dependant.
+Yes, we cannot cache the 'safe' pointer in tcp_do_twkill_work() while the lock
+is not held, and YES another cpu can kill off the bucket that 'safe' points to.
 
-> >+config KGDB_IRQ
-> >+	int "IRQ of the debug serial port"
-> >+	depends on !KGDB_SIMPLE_SERIAL && (KGDB_8250 || PPC_SIMPLE_SERIAL)
-> >+	default 4
-> >+	help
-> >+	  This is the irq for the debug port.  If everything is working
-> >+	  correctly and the kernel has interrupts on a control C to the
-> >+	  port should cause a break into the kernel debug stub.
->
-> I think setserial will also spit this out.
+This patch should fix everything up.  Let me know how it goes.
 
-And of course, ^C isn't needed now too.
-
-> >+config KGDB_THREAD
-> >+	bool "KGDB: Thread analysis"
-> >+	depends on KGDB
-> >+	help
-> >+	  With thread analysis enabled, gdb can talk to kgdb stub to list
-> >+	  threads and to get stack trace for a thread. This option also 
-> >enables
-> >+	  some code which helps gdb get exact status of thread. Thread 
-> >analysis
-> >+	  adds some overhead to schedule and down functions. You can disable
-> >+	  this option if you do not want to compromise on speed.
-> 
-> Lets remove the overhead and eliminate the need for this option in favor of 
-> always having threads.  Works in the mm kgdb...
-
-Once it's clean, perhaps.
-
-> >+config KGDB_CONSOLE
-> >+	bool "KGDB: Console messages through gdb"
-> >+	depends on KGDB
-> >+	help
-> >+	  If you say Y here, console messages will appear through gdb.
-> >+	  Other consoles such as tty or ttyS will continue to work as usual.
->
-> Might want to warn them of the need to connect prior to the first message 
-> from the kernel....
-
-There is no such need.
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+===== include/net/tcp.h 1.56 vs edited =====
+--- 1.56/include/net/tcp.h	Sun Feb  1 11:17:41 2004
++++ edited/include/net/tcp.h	Fri Feb 27 14:31:03 2004
+@@ -263,7 +263,10 @@
+ #define tw_for_each(tw, node, head) \
+ 	hlist_for_each_entry(tw, node, head, tw_node)
+ 
+-#define tw_for_each_inmate(tw, node, safe, jail) \
++#define tw_for_each_inmate(tw, node, jail) \
++	hlist_for_each_entry(tw, node, jail, tw_death_node)
++
++#define tw_for_each_inmate_safe(tw, node, safe, jail) \
+ 	hlist_for_each_entry_safe(tw, node, safe, jail, tw_death_node)
+ 
+ #define tcptw_sk(__sk)	((struct tcp_tw_bucket *)(__sk))
+===== net/ipv4/tcp_minisocks.c 1.43 vs edited =====
+--- 1.43/net/ipv4/tcp_minisocks.c	Tue Oct 28 03:10:47 2003
++++ edited/net/ipv4/tcp_minisocks.c	Fri Feb 27 14:30:01 2004
+@@ -427,7 +427,7 @@
+ static int tcp_do_twkill_work(int slot, unsigned int quota)
+ {
+ 	struct tcp_tw_bucket *tw;
+-	struct hlist_node *node, *safe;
++	struct hlist_node *node;
+ 	unsigned int killed;
+ 	int ret;
+ 
+@@ -439,8 +439,8 @@
+ 	 */
+ 	killed = 0;
+ 	ret = 0;
+-	tw_for_each_inmate(tw, node, safe,
+-			   &tcp_tw_death_row[slot]) {
++rescan:
++	tw_for_each_inmate(tw, node, &tcp_tw_death_row[slot]) {
+ 		__tw_del_dead_node(tw);
+ 		spin_unlock(&tw_death_lock);
+ 		tcp_timewait_kill(tw);
+@@ -451,6 +451,14 @@
+ 			ret = 1;
+ 			break;
+ 		}
++
++		/* While we dropped tw_death_lock, another cpu may have
++		 * killed off the next TW bucket in the list, therefore
++		 * do a fresh re-read of the hlist head node with the
++		 * lock reacquired.  We still use the hlist traversal
++		 * macro in order to get the prefetches.
++		 */
++		goto rescan;
+ 	}
+ 
+ 	tcp_tw_count -= killed;
+@@ -637,7 +645,7 @@
+ 			struct hlist_node *node, *safe;
+ 			struct tcp_tw_bucket *tw;
+ 
+-			tw_for_each_inmate(tw, node, safe,
++			tw_for_each_inmate_safe(tw, node, safe,
+ 					   &tcp_twcal_row[slot]) {
+ 				__tw_del_dead_node(tw);
+ 				tcp_timewait_kill(tw);

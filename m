@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLODbh>; Thu, 14 Dec 2000 22:31:37 -0500
+	id <S129314AbQLODv0>; Thu, 14 Dec 2000 22:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQLODb1>; Thu, 14 Dec 2000 22:31:27 -0500
-Received: from www.wen-online.de ([212.223.88.39]:49682 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129257AbQLODbV>;
-	Thu, 14 Dec 2000 22:31:21 -0500
-Date: Fri, 15 Dec 2000 04:00:47 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Joseph Cheek <joseph@cheek.com>
-cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: test12 + initrd = swapper at 99.8% CPU timer
-In-Reply-To: <3A391E9F.CAF42006@cheek.com>
-Message-ID: <Pine.Linu.4.10.10012150341210.1165-100000@mikeg.weiden.de>
+	id <S129345AbQLODvQ>; Thu, 14 Dec 2000 22:51:16 -0500
+Received: from riker.dsl.inconnect.com ([209.140.76.229]:34368 "EHLO
+	ns1.rikers.org") by vger.kernel.org with ESMTP id <S129314AbQLODvE>;
+	Thu, 14 Dec 2000 22:51:04 -0500
+Message-ID: <3A398E0A.A12F973E@Rikers.org>
+Date: Thu, 14 Dec 2000 20:20:42 -0700
+From: Tim Riker <Tim@Rikers.org>
+Organization: Riker Family (http://rikers.org/)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18pre21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: loop device length
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000, Joseph Cheek wrote:
+losetup allows for setting a starting offset within a file for the loop
+block device. There however is no length parameter to permit setting the
+length. Adding a length parameter would allow for multiple fs images in
+a single file (or device) and would correctly handle programs like
+resize2fs.
 
-> hi,
-> 
-> ps axufw shows it as pid 1.
+What do you think? We could add a lo_length to struct loop_device and
+return that if it was non-zero and less than the physical length
+calculated normally by figure_loop_size().
 
-Interesting.. init running out of control.  I've seen that, and it
-was init taking endless page faults.
-
-I wager (one virtual brew) that you'll see an endless stream of output
-if you apply this.
-
---- kernel/signal.c.org	Fri Dec 15 03:36:59 2000
-+++ kernel/signal.c	Fri Dec 15 03:39:36 2000
-@@ -564,6 +564,9 @@
- {
- 	unsigned long int flags;
- 
-+	if (sig == SIGSEGV)
-+		printk(KERN_ERR "SIGSEGV pid %d\n", t->pid);
-+
- 	spin_lock_irqsave(&t->sigmask_lock, flags);
- 	if (t->sig == NULL) {
- 		spin_unlock_irqrestore(&t->sigmask_lock, flags);
-
+While I'm at it why are loop_sizes[] and loop_blksizes[] not part of
+struct loop_device now?
+-- 
+Tim Riker - http://rikers.org/ - short SIGs! <g>
+All I need to know I could have learned in Kindergarten
+... if I'd just been paying attention.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,93 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVASHZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVASH0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVASHZt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVASHZs
+	id S261610AbVASH0L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVASH0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:25:48 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:38788 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S261612AbVASHZi convert rfc822-to-8bit (ORCPT
+	Wed, 19 Jan 2005 02:26:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:38035 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261610AbVASH0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:25:38 -0500
-X-OB-Received: from unknown (205.158.62.133)
-  by wfilter.us4.outblaze.com; 19 Jan 2005 07:25:36 -0000
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 19 Jan 2005 02:26:03 -0500
+Date: Wed, 19 Jan 2005 08:25:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: Peter Osterlund <petero2@telia.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix verify_command to allow burning more than 1 DVD
+Message-ID: <20050119072555.GQ6909@suse.de>
+References: <41EC214D.6060607@stud.feec.vutbr.cz> <m3k6qafjea.fsf@telia.com> <41EDAD71.80203@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-From: "prashanth M D" <prashanthmd@indiainfo.com>
-To: plars@linuxtestproject.org
-Date: Wed, 19 Jan 2005 12:55:36 +0530
-Subject: Help needed: GCOV - not getting HOW TO!!!
-X-Originating-Ip: 61.11.66.87
-X-Originating-Server: ws5-3.us4.outblaze.com
-Message-Id: <20050119072536.AE66F23CF7@ws5-3.us4.outblaze.com>
+In-Reply-To: <41EDAD71.80203@stud.feec.vutbr.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 19 2005, Michal Schmidt wrote:
+> Peter Osterlund wrote:
+> >Michal Schmidt <xschmi00@stud.feec.vutbr.cz> writes:
+> >>--- linux-2.6.11-mm1/drivers/block/scsi_ioctl.c.orig	2005-01-17 
+> >>20:42:40.000000000 +0100
+> >>+++ linux-2.6.11-mm1/drivers/block/scsi_ioctl.c	2005-01-17 
+> >>20:43:14.000000000 +0100
+> >>@@ -197,9 +197,7 @@ static int verify_command(struct file *f
+> >>	if (type & CMD_WRITE_SAFE) {
+> >>		if (file->f_mode & FMODE_WRITE)
+> >>			return 0;
+> >>-	}
+> >>-
+> >>-	if (!(type & CMD_WARNED)) {
+> >>+	} else if (!(type & CMD_WARNED)) {
+> >>		cmd_type[cmd[0]] = CMD_WARNED;
+> >>		printk(KERN_WARNING "scsi: unknown opcode 0x%02x\n", cmd[0]);
+> >>	}
+> >
+> >
+> >That patch will not write the warning message in some cases. 
+> 
+> Yes. In cases when the device is opened for reading and the command is 
+> known as safe_for_write.
+> Do we really want to print this warning in that case?
 
-
-Hello,
-
-I got your id from google..
-I have just started working on kernel code coverage project...
-
-I have patched my kernel and i have configured the gcov kernel module support.
-I compilied my module and i run insmod and i got my module executed.
-But i am not getting the .da file in /proc/gcov/kernel for my module...
-my sample module looks somthing like this,
-
-#include<linux/module.h>
-#include<linux/kernel.h>
-#include<linux/config.h>
-
-MODULE_LICENSE("GPL");
-
-int init_module (void){
-
-
-         printk("HELLO WORLD");
-         return 0;
-}
-
-void cleanup_module (void){
-
-         printk ("In cleanup module NTPL \n");
-
-}
-
-the commands are as follows...
-
-1.  gcc  -D__KERNEL__ -DMODULE -DLINUX -O2 -Wall -Wstrict-prototypes 
--fno-strict-aliasing -fno-strict-aliasing
-     -c -o test.o -fprofile-arcs -ftest-coverage  test.c
-
-2.  insmod gcov-proc.o
-
-3.  insmod test.o
-
-         This must generate a test.da file in /proc/gcov/kernel/  
-according to a manual i have but i am not
-         getting this file generated...
-
-I am using :
-               kernel version linux-2.4.18
-               gcc compiler version 3.0.4
-
-
-Please tell me where i am going wrong.
-
-Please help me out...
-
-Thanking you,
-
-Prashanth M D
-Phone : 9886340890
+No, the command should only be dumped if it is unknown and denied.
 
 -- 
-______________________________________________
-IndiaInfo Mail - the free e-mail service with a difference! www.indiainfo.com 
-Check out our value-added Premium features, such as an extra 20MB for mail storage, POP3, e-mail forwarding, and ads-free mailboxes!
+Jens Axboe
 
-Powered by Outblaze

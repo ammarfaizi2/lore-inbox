@@ -1,82 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbUCZRob (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 12:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUCZRob
+	id S264091AbUCZRq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 12:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUCZRq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 12:44:31 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:49675 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S264088AbUCZRoR
+	Fri, 26 Mar 2004 12:46:57 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:51145 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264091AbUCZRqF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 12:44:17 -0500
-Date: Fri, 26 Mar 2004 10:43:09 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <1564440000.1080322989@aslan.btc.adaptec.com>
-In-Reply-To: <406375B0.5040406@pobox.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <1030470000.1080257746@aslan.btc.adaptec.com> <406375B0.5040406@pobox.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
+	Fri, 26 Mar 2004 12:46:05 -0500
+Message-ID: <40646C2B.6020306@pacbell.net>
+Date: Fri, 26 Mar 2004 09:45:15 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Robert Schwebel <robert@schwebel.de>
+CC: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
+References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl> <20040326121928.GC16461@pengutronix.de> <4064530C.5030308@pacbell.net> <20040326163543.GD16461@pengutronix.de>
+In-Reply-To: <20040326163543.GD16461@pengutronix.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> I respectfully disagree with the EMD folks that a userland approach is
->>> impossible, given all the failure scenarios.
->> 
->> 
->> I've never said that it was impossible, just unwise.  I believe
->> that a userland approach offers no benefit over allowing the kernel
->> to perform all meta-data operations.  The end result of such an
->> approach (given feature and robustness parity with the EMD solution)
->> is a larger resident side, code duplication, and more complicated
->> configuration/management interfaces.
+Robert Schwebel wrote:
+> On Fri, Mar 26, 2004 at 07:58:04AM -0800, David Brownell wrote:
 > 
-> There is some code duplication, yes.  But the right userspace solution
-> does not have a larger RSS, and has _less_ complicated management
-> interfaces.
->
-> A key benefit of "do it in userland" is a clear gain in flexibility,
-> simplicity, and debuggability (if that's a word).
+>>>>>-	.bDeviceClass =		DEV_CONFIG_CLASS,
+>>>>>+	.bDeviceClass =		0x02,
+>>>>
+>>>>Is this wise?
+>>>
+>>>
+>>>Until now DEV_CONFIG_CLASS was 0xFF, which results in Windows getting
+>>>hickup. If you directly set this to 0x02 (Network Device) Win is happy.
+>>
+>>Actually I suspect setting it to USB_CLASS_COMM would be preferred, in
+>>RNDIS-specific config descriptors....
 
-This is just as much hand waving as, 'All that just screams "do it in
-userland".' <sigh>
+(since:  #define USB_CLASS_COMM                  2)
 
-I posted a rather detailed, technical, analysis of what I believe would
-be required to make this work correctly using a userland approach.  The
-only response I've received is from Neil Brown.  Please, point out, in
-a technical fashion, how you would address the feature set being proposed:
 
- o Rebuilds
- o Auto-array enumeration
- o Meta-data updates for topology changes (failed members, spare activation)
- o Meta-data updates for "safe mode"
- o Array creation/deletion
- o "Hot member addition"
+> We have tried that, Windows does not like it. The only constellation
+> where it worked was setting the device descriptor's bConfigClass=0x02. 
 
-Only then can a true comparative analysis of which solution is "less
-complex", "more maintainable", and "smaller" be performed.
+Sorry, I meant "device" descriptors.  Yes, I noticed their "spec"
+had strange things to say.  Is there some reason you're not including
+the CDC header and union descriptors?  That spec does talk about those,
+and the erratum I found also talks about better CDC ACM conformance.
 
-> But it's hard.  It requires some deep thinking.  It's a whole lot easier
-> to do everything in the kernel -- but that doesn't offer you the
-> protections of userland, particularly separate address spaces from the
-> kernel, and having to try harder to crash the kernel.  :)
 
-A crash in any component of a RAID solution that prevents automatic
-failover and rebuilds without customer intervention is unacceptable.
-Whether it crashes your kernel or not is really not that important other
-than the customer will probably notice that their data is no longer
-protected *sooner* if the system crashes.  In other-words, the solution
-must be *correct* regardless of where it resides.  Saying that doing
-a portion of it in userland allows it to safely be buggier seems a very
-strange argument.
+> RNDIS is a sensitive beast. Do one bit different results in that uggly
+> "Error 10" message on the Windows side. We saw it when we started with
+> the driver, we saw it when the driver was half way finished and we will
+> see it again if somebody tweaks the driver without exactly knowing what
+> the guys at Microsoft smoked when they designed that protocol :-) 
 
---
-Justin
+I thought it was "just say no to vendor-neutral protocols" crack ...
+although that close to BC they would have much better options! ;)
+
+The purist in me is annoyed that rather than just defining a purely
+vendor-specific protocol, they re-used bits and pieces of the USB-IF
+CDC-ACM spec.  It's not like they needed _any_ of it.  (Unless maybe
+subtle sabotoge of CDC was a goal?)
+
+
+
+Different topic:  I noticed that on PXA you were using "ep5-int".
+That's documented as always using DATA0 -- data toggle not working.
+Was that making any trouble for you?  I've never actually tried
+using those endpoints, because of that functional limitation.
+
+Also it looks like you've only tested this on PXA hardware.
+Most of the patch is the (R)NDIS support code, which is easy
+to merge, but the "g_ether" updates will take longer.
+
+- Dave
+
+
+
+> Robert
+
 

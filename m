@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265083AbTIDPZG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265085AbTIDPZG
+	id S265091AbTIDP0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 11:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIDP0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:25:06 -0400
-Received: from pat.uio.no ([129.240.130.16]:2991 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265083AbTIDPZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:25:00 -0400
-MIME-Version: 1.0
+	Thu, 4 Sep 2003 11:26:18 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:39839 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S265091AbTIDP0H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 11:26:07 -0400
+Date: Thu, 4 Sep 2003 08:26:05 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ppc ioremap prototype
+Message-ID: <20030904082605.C22822@home.com>
+References: <20030903203231.GA8772@lst.de> <16214.34933.827653.37614@nanango.paulus.ozlabs.org> <20030904071334.GA14426@lst.de> <20030904083007.B2473@flint.arm.linux.org.uk> <16215.1054.262782.866063@nanango.paulus.ozlabs.org> <20030904023624.592f1601.davem@redhat.com> <20030904073650.B22822@home.com> <20030904073009.6684112e.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16215.22857.654633.466244@charged.uio.no>
-Date: Thu, 4 Sep 2003 11:24:57 -0400
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [NFS] attempt to use V1 mount protocol on V3 server
-In-Reply-To: <Pine.LNX.4.44.0309041621180.989-100000@neptune.local>
-References: <16214.49538.216630.336724@charged.uio.no>
-	<Pine.LNX.4.44.0309041621180.989-100000@neptune.local>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030904073009.6684112e.davem@redhat.com>; from davem@redhat.com on Thu, Sep 04, 2003 at 07:30:09AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Pascal Schmidt <der.eremit@email.de> writes:
+On Thu, Sep 04, 2003 at 07:30:09AM -0700, David S. Miller wrote:
+> On Thu, 4 Sep 2003 07:36:50 -0700
+> Matt Porter <mporter@kernel.crashing.org> wrote:
+> 
+> > Ok, now the other part of making PCI devices work is to support
+> > mmap.
+> 
+> You get the pci device in the arch PCI mmap() routines, what
+> more do you need?  Grep for HAVE_PCI_MMAP in the source tree
+> and how sparc64 implements that.
 
-     > Fine with me if a buggy server results in a failure to
-     > mount. However, I was seeing crashes.
+That will work for the PCI case.  It does force us to maintain a
+remap_page_range64() in arch/ppc, duplicating code, and creating a
+maintainer headache.  I don't think we can hack set_pte() (so as
+to call the standard remap_page_range()) to trap and add the upper
+bits because there is not enough context to make the right decision.
+We've got to have the remap_page_range64() for PPC4xx-specific OCP
+drivers too.
 
-I assume that your server's RPC engine replying with a PROG_MISMATCH
-the way it should when it cannot support NFSv2?
+A remap_page_range() that even took a paddr_t would be helpful if
+not some resource based remapper.
 
-Hmm.. Looking at the code, we appear not to be handling that case very
-well in the RPC client. PROG_UNAVAIL, PROG_MISMATCH, and PROC_UNAVAIL
-are all handled incorrectly as if the replies were garbage...
+I suppose we could even use the HAVE_PCI_MMAP approach to make
+mem.c usable with a PPC44x specific hack.  Of course, a
+remap_page_range() with a paddr_t arg would also help here. 
 
-Althought this is harmless, we should really be returning an EIO
-immediately, and report the error in the syslog...
-
-Does the following patch (against 2.4.22) help?
-
-Cheers,
-  Trond
-
---- linux-2.4.22-up/net/sunrpc/clnt.c.orig	2003-08-23 14:11:09.000000000 -0400
-+++ linux-2.4.22-up/net/sunrpc/clnt.c	2003-09-04 11:21:28.000000000 -0400
-@@ -932,6 +932,24 @@
- 	switch ((n = ntohl(*p++))) {
- 	case RPC_SUCCESS:
- 		return p;
-+	case RPC_PROG_UNAVAIL:
-+		printk(KERN_WARNING "RPC: %4d call_verify: program %u is unsupported by server %s\n",
-+				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
-+				task->tk_client->cl_server);
-+		goto out_eio;
-+	case RPC_PROG_MISMATCH:
-+		printk(KERN_WARNING "RPC: %4d call_verify: program %u, version %u unsupported by server %s\n",
-+				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
-+				(unsigned int)task->tk_client->cl_vers,
-+				task->tk_client->cl_server);
-+		goto out_eio;
-+	case RPC_PROC_UNAVAIL:
-+		printk(KERN_WARNING "RPC: %4d call_verify: proc %u unsupported by program %u, version %u on server %s\n",
-+				task->tk_pid, (unsigned int)task->tk_msg.rpc_proc,
-+				(unsigned int)task->tk_client->cl_prog,
-+				(unsigned int)task->tk_client->cl_vers,
-+				task->tk_client->cl_server);
-+		goto out_eio;
- 	case RPC_GARBAGE_ARGS:
- 		break;			/* retry */
- 	default:
-@@ -949,6 +967,7 @@
- 		return NULL;
- 	}
- 	printk(KERN_WARNING "RPC: garbage, exit EIO\n");
-+out_eio:
- 	rpc_exit(task, -EIO);
- 	return NULL;
- }
+-Matt

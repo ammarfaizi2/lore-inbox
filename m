@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262925AbTCKNek>; Tue, 11 Mar 2003 08:34:40 -0500
+	id <S262923AbTCKNnR>; Tue, 11 Mar 2003 08:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262923AbTCKNef>; Tue, 11 Mar 2003 08:34:35 -0500
-Received: from [212.253.173.227] ([212.253.173.227]:38739 "HELO ommo.net")
-	by vger.kernel.org with SMTP id <S262921AbTCKNea> convert rfc822-to-8bit;
-	Tue, 11 Mar 2003 08:34:30 -0500
-From: "MARAMARA Erotik Market" <aysen@yahoo.com>
-Reply-To: aysen@yahoo.com
-To: linux-fsdevel@vger.kernel.org
-Date: Tue, 11 Mar 2003 15:46:00 +0200
-Subject: BU FIRSATTAN RARARLANIN.
-X-Mailer: Microsoft Outlook Express 5.00.2919.7000
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20030311133431Z262921-25575+28770@vger.kernel.org>
+	id <S262926AbTCKNnR>; Tue, 11 Mar 2003 08:43:17 -0500
+Received: from pcp749571pcs.manass01.va.comcast.net ([68.49.125.82]:37013 "EHLO
+	pcp749571pcs.manass01.va.comcast.net") by vger.kernel.org with ESMTP
+	id <S262923AbTCKNnQ>; Tue, 11 Mar 2003 08:43:16 -0500
+Date: Tue, 11 Mar 2003 08:53:50 -0500
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.64 boot problems
+Message-ID: <20030311135350.GA5410@bittwiddlers.com>
+References: <20030310184052.GA1623@bittwiddlers.com>
+	<00c001c2e79a$5567c8c0$3f00a8c0@witbe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00c001c2e79a$5567c8c0$3f00a8c0@witbe>
+User-Agent: Mutt/1.5.3i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.68 (Shut Out)
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1047822834.58010f@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DIKKAT
 
-VIDEO CD :
-Iddia ediyoruz.. Hic bir yerden temin edemeyeceginiz ses ve göruntu kalitesi ile 
-yuzlerce porno video CD. arSivimiz yenilenmistir. istemis oldugunuz video CD.ler 
-bire bir yollanir kesinlikle isteginiz harici alakasiz baSka video CD.ler yollanmaz.
+I tried that with 2.5.64-bk5 and it didn't help.  Still hung at the same 
+place.  This was with CONFIG_X86_UP_APIC unset which got rid of the following
 
-Anal. Oral. Vajinal. Grup. Zenci. FethiS. Ayak fethiS. Gay. Zenci gay. Trans. Transexual.
-Lezbiyen ve daha bircok ceSit ....  <http://www.erotik.sites.cc/>
-
-ZENGIN URUN CESITLERIMIZ :
-
-Sisme Bebekler ..... (Erkek & Bayan) Kesinlikle size hayir demeyecek.
-Vibratörler ........ Istediginiz boy ve ebatlarda (Vajinal/Anal/catal.Pilli.Motorlu.TitreSimli)
-Suni Vajinalar ..... Asla gerceginden ayirt edemeyeceksiniz (Gercek ten hassasiyetinde)
-Reailistik Penisler. Gercek ten hassasiyetinde ve dokusunda (Vantuzlu/Deri kemer kilotlu)
-Vakum Pompalari .... Ereksiyonu kolaylastirici ve duzenli kullanimlarda peniste irilesme saglar.
-Geciktiriciler ..... Erken boSalmayi dert etmeyin (Sprey ceSitleri/Kremler)
-Kremler ............ Anal ve Vajinal iliSkilerde kullanabileceginiz kayganlaStirici krem ceSitleri
-Uyandiricilar ...... Cinsel istek uyandirici haplar ve damlalar.
-
-Yapmaniz gereken tek Sey <http://www.erotik.sites.cc/>   TIKLAMAK ..
+  CONFIG_X86_UP_APIC
+  CONFIG_X86_UP_IOAPIC
+  CONFIG_X86_LOCAL_APIC
+  CONFIG_X86_IO_APIC
 
 
+: Could you try the same config without APIC and IO APIC for Uniprocessor
+: ?
+: I've a problem that is directly related to 2.5.64 and these features...
+: 
+: Without them, 2.5.64 just boots fine...
 
-NOT : BU MAIL REKLAM AMAcLI OLUP HIcBIR SEKILDE TARAFIMIZDA KAYDINIZ BULUNMAMAKTADIR.
-      ILGI ALANINIZIN DISINDA ISE EGER LUTFEN DIKKATE ALMAYINIZ TESEKKURLER.. 
-
-
-
-
-
-
-
+-- 
+  Matthew Harrell                          Every morning is the dawn of a
+  Bit Twiddlers, Inc.                       new error.
+  mharrell@bittwiddlers.com     

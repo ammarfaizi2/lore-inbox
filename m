@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCAOdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVCAOd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVCAOdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 09:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVCAOdf
+	id S261922AbVCAOd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 09:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVCAOdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 09:33:35 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:37391 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261925AbVCAOdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 09:33:16 -0500
-Message-ID: <42247DD6.1060906@aitel.hist.no>
-Date: Tue, 01 Mar 2005 15:36:06 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mws <mws@twisted-brains.org>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc5
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <200502251430.16860.mws@twisted-brains.org> <1109379043.14993.93.camel@gaston> <200503011236.58222.mws@twisted-brains.org>
-In-Reply-To: <200503011236.58222.mws@twisted-brains.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 1 Mar 2005 09:33:25 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:38852 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261922AbVCAOdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 09:33:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CHlBrg5PviIExFkIUHJVE2oB5TpUafAcMYkJt8zUQPSkVnmzTRDxdBOqxAeDjjRI68SD4EumT7ZTCpndJQ0o2IDlA3QAoWMF7ZLeD+DHVTxW3Pbie+He0yjAO54yTFtdbBQDLH1a2zwPJXOuOI1YrC3hb8TTQ2LVDCdg0G+a3t0=
+Message-ID: <3f250c71050301063228f3507e@mail.gmail.com>
+Date: Tue, 1 Mar 2005 10:32:45 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Albert Cahalan <albert@users.sf.net>
+Subject: Re: [PATCH] A new entry for /proc
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>
+In-Reply-To: <1109271379.5125.180.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1109271379.5125.180.camel@cube>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mws wrote:
+Hi,
+ 
+> The most important thing about a /proc file format is that it has
+> a documented means of being extended in the future. Without such
+> documentation, it is impossible to write a reliable parser.
+> 
+> The "Name: value" stuff is rather slow. Right now procps (ps, top, etc.)
+> is using a perfect hash function to parse the /proc/*/status files.
+> ("man gperf") This is just plain gross, but needed for decent performance.
 
->hi benjamin
->
->now i had some spare time to do some investigation
->
->booting the 2.6.11-rc5 with radeonfb.default_dynclk=0 or with -1
->brings up a framebuffer console. everything is fine.
->starting xorg-x11 with Ati binary only drivers just brings up a black screen
->without a mouse cursor and freezes the hole machine. even network ect. 
->is no more reachable from outside the machine. worst thing out of that
->a tail on the log files (on another machine) does immediately stop - also no 
->output is written to syslog :/
->
->next scenario - test 2.6.11-rc5 with radeonfb.default_dynclock=0 and -1
->starting xorg-x11 with Xorg Radeon driver. 
->a grey screen comes up - mouse cursor is visible and also able to move for
->5 - 8 seconds after screen display - then freezes the whole machine again.
->  
->
-Did you try without dri? (Comment out dri in the X config file)
-I use a radeon 7000 VE at work, where X will hang after a few
-seconds if dri is enabled in X.  Disable dri, and it is
-rock solid. xfree or x.org makes no difference here.
+So, change the output format is important, right?
+ 
+> Extending the /proc/*/maps file might be possible. It is commonly used
+> by debuggers I think, so you'd better at least verify that gdb is OK.
+> The procps "pmap" tool uses it too. To satisfy the procps parser:
+> 
+> a. no more than 31 flags
+> b. no '/' prior to the filename
+> c. nothing after the filename
+> d. no new fields inserted prior to the inode number
+> 
 
-Helge Hafting
+Yes, probably smaps is more feasible for tracking environment. Do you
+know any public kernel (I mean kernel version for tracking and
+debugging)  where can I post the smaps PATCH in order to be included?
 
+BR,
+
+Mauricio Lin.

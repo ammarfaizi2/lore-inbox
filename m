@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVAMRS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVAMRS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVAMRS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVAMRSj
+	id S261284AbVAMRS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:18:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVAMROu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:18:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41700 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261256AbVAMRRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:17:51 -0500
-Subject: Re: thoughts on kernel security issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112205350.GM24518@redhat.com>
-	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-	 <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>
-	 <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-	 <20050113082320.GB18685@infradead.org>
-	 <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105632757.4624.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 16:12:37 +0000
+	Thu, 13 Jan 2005 12:14:50 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:50861 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261256AbVAMRMA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:12:00 -0500
+Date: Thu, 13 Jan 2005 09:11:29 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <20050113031807.GA97340@muc.de>
+Message-ID: <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+References: <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org>
+ <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
+ <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au>
+ <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
+ <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 16:38, Linus Torvalds wrote:
-> It wouldn't be a global flag. It's a per-process flag. For example, many 
-> people _do_ need to execute binaries in their home directory. I do it all 
-> the time. I know what a compiler is.
+On Wed, 13 Jan 2005, Andi Kleen wrote:
 
-noexec has never been worth anything because of scripts. Kernel won't
-load that binary, I can write a script to do it.
+> Alternatively you can use a lazy load, checking for changes.
+> (untested)
+>
+> pte_t read_pte(volatile pte_t *pte)
+> {
+> 	pte_t n;
+> 	do {
+> 		n.pte_low = pte->pte_low;
+> 		rmb();
+> 		n.pte_high = pte->pte_high;
+> 		rmb();
+> 	} while (n.pte_low != pte->pte_low);
+> 	return pte;
+> }
+>
+> No atomic operations, I bet it's actually faster than the cmpxchg8.
+> There is a small risk for livelock, but not much worse than with an
+> ordinary spinlock.
 
+Hmm.... This may replace the get of a 64 bit value. But here could still
+be another process that is setting the pte in a non-atomic way.
+
+> Not that I get it what you want it for exactly - the content
+> of the pte could change any time when you don't hold page_table_lock, right?
+
+The content of the pte can change anytime the page_table_lock is held and
+it may change from cleared to a value through a cmpxchg while the lock is
+not held.

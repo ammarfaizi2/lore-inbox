@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270263AbRHMPxI>; Mon, 13 Aug 2001 11:53:08 -0400
+	id <S270266AbRHMPy6>; Mon, 13 Aug 2001 11:54:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270264AbRHMPw7>; Mon, 13 Aug 2001 11:52:59 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59655 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S270263AbRHMPws>;
-	Mon, 13 Aug 2001 11:52:48 -0400
-Date: Mon, 13 Aug 2001 12:52:45 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
+	id <S270264AbRHMPys>; Mon, 13 Aug 2001 11:54:48 -0400
+Received: from [65.100.125.89] ([65.100.125.89]:54515 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S270266AbRHMPyg>;
+	Mon, 13 Aug 2001 11:54:36 -0400
+Date: Mon, 13 Aug 2001 11:52:14 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM working much better in 2.4.8 than before
-In-Reply-To: <E15WH1s-0007Jw-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0108131245200.6118-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
+Message-ID: <20010813115214.A23591@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010813111850.D21008@thyrsus.com> <E15WJv2-0007eS-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15WJv2-0007eS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 13, 2001 at 04:46:20PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Alan Cox wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> You need to look at the lspci hex data. There's an errata document for the
+> MP chipset on www.amd.com if you realyl want to scare yourself 8)
 
-> > Yes, those would be the expected effects of use-once, in fact it was
-> > "morning after updatedb" question that got me started on it.
->
-> updatedb is also absolutely fine if you just work with the existing VM
-> and up the inode pressure a little. I'm still very unconvinced by
-> use-once.
+Is there a more formal name for the chipset than just "760"?
+ 
+>   "Have you noticed the way people's intelligence capabilities decline
+>    sharply the minute they start waving guns around?"
+>  		-- Dr. Who
 
-Use-once has a number of theoretical disadvantages too:
+People who wave guns around to coerce others don't think they *have* to
+be intelligent, so they stop thinking.  Unfortunately, they're right in the
+short term often enough to make it almost useless that they're always wrong
+in the long term.  Sigh...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-1) newly read in pages are evicted earlier, this means
-   readahead pages will either evict each other or the
-   amount of readahead done might need to be shrunk
-   -- the current readahead code is not prepared for this,
-      use-once could lead to more disk seeks being done
-
-2) since we add new pages to the inactive list, VM
-   balancing is faced with a really strange situation ;)
-
-Yes, these things are solvable, but not without redesigning
-major parts of the VM balancing to do things which have never
-been done before. I'm not sure 2.4 is the time to do that.
-
-regards,
-
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Everything you know is wrong.  But some of it is a useful first approximation.

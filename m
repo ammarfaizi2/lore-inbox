@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275302AbTHIRz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 13:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275297AbTHIRz4
+	id S272820AbTHISFK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 14:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHISFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 13:55:56 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:29647 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S275302AbTHIRzv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 13:55:51 -0400
-Date: Sat, 9 Aug 2003 13:55:50 -0400
-From: Yaroslav Halchenko <yoh@onerussian.com>
-To: linux-kernel@vger.kernel.org
-Subject: bogomips calibration failed
-Message-ID: <20030809175550.GA31836@washoe.rutgers.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sat, 9 Aug 2003 14:05:10 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:58003 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S272820AbTHISFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 14:05:07 -0400
+Subject: Re: time for some drivers to be removed?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: spse@secret.org.uk, "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030727153118.GP22218@fs.tum.de>
+References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>
+	 <20030727153118.GP22218@fs.tum.de>
+Content-Type: text/plain
+Message-Id: <1060452295.29776.1.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
+Date: Sat, 09 Aug 2003 19:04:55 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Rcpt-To: bunk@fs.tum.de, spse@secret.org.uk, rpjday@mindspring.com, linux-kernel@vger.kernel.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+On Sun, 2003-07-27 at 16:31, Adrian Bunk wrote:
 
-I came up with a new problem on my new P IV box running 2.6-test3 now
-(problem existed before also on test2 kernels)
+> A first patch is at
+>   http://www.ussg.iu.edu/hypermail/linux/kernel/0306.2/0770.html
+> 
+> I'll send an updated patch against -test2 or -test3.
 
-First I had problem with APIC but it seems it is (I hope) resolved now
-though it might be not true cause when I run bogomips after machine is
-already up but not loaded with any task it fails to calibrate to compute
-bogomips. If I load machine with lets say kernel compilation or
-distributed-net then it says some bogomips - around 1600 when on boot
-for each "logical" processor it states around 4719.
+Please don't make blkmtd depend on CONFIG_BROKEN. Its maintainer sent a
+patch to Linus recently -- further resends seem to be required.
 
-configuration and some dumps are available from
-http://www.onerussian.com/bogo/
-
-dmesg seems to don't state any failed boot of the driver.
-
-Thank you in advance for giving me a hint where to look.
+-- 
+dwmw2
 
 
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]

@@ -1,50 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTI1Bwe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 21:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbTI1Bwd
+	id S262314AbTI1CBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 22:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTI1CBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 21:52:33 -0400
-Received: from hibernia.jakma.org ([213.79.33.168]:27034 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262291AbTI1Bwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 21:52:32 -0400
-Date: Sun, 28 Sep 2003 02:51:53 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Larry McVoy <lm@bitmover.com>
-cc: Timothy Miller <miller@techsource.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-In-Reply-To: <20030910151238.GC32321@work.bitmover.com>
-Message-ID: <Pine.LNX.4.56.0309280249030.19081@fogarty.jakma.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
- <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay>
- <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]>
- <20030904023446.GG5227@work.bitmover.com> <9110000.1062643682@[10.10.2.4]>
- <20030904030227.GJ5227@work.bitmover.com> <3F5F3D0A.8000700@techsource.com>
- <20030910151238.GC32321@work.bitmover.com>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+	Sat, 27 Sep 2003 22:01:09 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:19084
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262314AbTI1CBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 22:01:00 -0400
+Message-ID: <3F7640C6.9080203@redhat.com>
+Date: Sat, 27 Sep 2003 19:00:38 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20030924 Thunderbird/0.4a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: virtualize access to uid, euid, ...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, Larry McVoy wrote:
+It has been discussed here before, that the user and group IDs as well
+as the auxiliary groups are a process property in POSIX and therefore a
+process group property in Linux.  There has been some disagreement on
+how to implement this.  As a first step I therefore created a patch
+which virtualizes access to the IDs and group informatin in the task
+struct.  Andrew described the function names and from then on everything
+was straight forward.  The changes are numerous (98k patch) and all over
+the place.  But I think I caught most of the changes.  Failures to do
+this will show up right away since the task structure element has been
+renamed.
 
-> Dave and friends can protest as much as they want that the kernel works
-> and it scales (it does work, it doesn't scale by comparison to something
-> like IRIX) 
+The patch is at
 
-Aside: Might want to tell SGI as their new ccNUMA Altrix line (Origin
-3k with Itanic instead of MIPS i think) run Linux!
+  http://people.redhat.com/drepper/d-task-xid
 
-regards,
+since it's too large to post.  This is the list of modified files:
+
+ drivers/block/loop.c          |    4 -
+ drivers/char/agp/frontend.c   |    2
+ drivers/net/tun.c             |    2
+ drivers/usb/core/inode.c      |    4 -
+ fs/affs/inode.c               |    4 -
+ fs/affs/super.c               |    4 -
+ fs/attr.c                     |    7 +
+ fs/autofs/inode.c             |    4 -
+ fs/autofs4/inode.c            |    4 -
+ fs/bfs/dir.c                  |    4 -
+ fs/binfmt_elf.c               |   12 +--
+ fs/cifs/cifsproto.h           |    2
+ fs/cifs/connect.c             |    4 -
+ fs/cifs/dir.c                 |    2
+ fs/cifs/misc.c                |    4 -
+ fs/coda/cache.c               |    6 -
+ fs/coda/upcall.c              |    2
+ fs/devpts/inode.c             |    4 -
+ fs/dquot.c                    |    2
+ fs/eventpoll.c                |    4 -
+ fs/exec.c                     |   29 ++++---
+ fs/ext2/acl.c                 |    4 -
+ fs/ext2/balloc.c              |    2
+ fs/ext2/ialloc.c              |    4 -
+ fs/ext2/ioctl.c               |    4 -
+ fs/ext3/acl.c                 |    4 -
+ fs/ext3/balloc.c              |    2
+ fs/ext3/ialloc.c              |    4 -
+ fs/ext3/ioctl.c               |    4 -
+ fs/fat/inode.c                |    4 -
+ fs/fcntl.c                    |    6 -
+ fs/file_table.c               |    8 +-
+ fs/hfs/super.c                |    4 -
+ fs/hpfs/namei.c               |   24 +++---
+ fs/hpfs/super.c               |    4 -
+ fs/hugetlbfs/inode.c          |   18 ++--
+ fs/intermezzo/dir.c           |    6 -
+ fs/intermezzo/file.c          |   10 +-
+ fs/intermezzo/intermezzo_fs.h |   26 +++---
+ fs/intermezzo/journal.c       |   48 ++++++------
+ fs/intermezzo/upcall.c        |    2
+ fs/intermezzo/vfs.c           |    4 -
+ fs/jfs/acl.c                  |    2
+ fs/jfs/jfs_inode.c            |    4 -
+ fs/jfs/xattr.c                |    2
+ fs/locks.c                    |    2
+ fs/minix/bitmap.c             |    4 -
+ fs/namei.c                    |    8 +-
+ fs/ncpfs/ioctl.c              |   30 +++----
+ fs/nfsd/auth.c                |   12 +--
+ fs/nfsd/vfs.c                 |    2
+ fs/open.c                     |   19 ++--
+ fs/pipe.c                     |    4 -
+ fs/posix_acl.c                |    4 -
+ fs/proc/array.c               |    8 +-
+ fs/proc/base.c                |   16 ++--
+ fs/proc/inode.c               |    4 -
+ fs/quota.c                    |    2
+ fs/ramfs/inode.c              |    4 -
+ fs/reiserfs/ioctl.c           |    4 -
+ fs/reiserfs/namei.c           |    4 -
+ fs/smbfs/dir.c                |    4 -
+ fs/smbfs/inode.c              |    2
+ fs/smbfs/proc.c               |    2
+ fs/sysfs/inode.c              |    4 -
+ fs/sysv/ialloc.c              |    4 -
+ fs/udf/ialloc.c               |    4 -
+ fs/udf/namei.c                |    2
+ fs/ufs/ialloc.c               |    4 -
+ fs/xfs/linux/xfs_iops.c       |    2
+ fs/xfs/xfs_acl.c              |    6 -
+ fs/xfs/xfs_dfrag.c            |    4 -
+ fs/xfs/xfs_inode.c            |    6 -
+ fs/xfs/xfs_vnodeops.c         |   11 +-
+ include/linux/sched.h         |  103 ++++++++++++++++++++++++-
+ include/net/scm.h             |    4 -
+ ipc/msg.c                     |    4 -
+ ipc/sem.c                     |    4 -
+ ipc/shm.c                     |    8 +-
+ ipc/util.c                    |    6 -
+ kernel/ptrace.c               |   12 +--
+ kernel/sched.c                |    8 +-
+ kernel/signal.c               |   20 ++---
+ kernel/sys.c                  |  168 ++++++++++++++++++----------------
+ kernel/sysctl.c               |    2
+ kernel/timer.c                |    8 +-
+ kernel/uid16.c                |   28 +++----
+ mm/oom_kill.c                 |    2
+ mm/shmem.c                    |    8 +-
+ net/core/scm.c                |   10 +-
+ net/ipv6/ip6_flowlabel.c      |    2
+ net/socket.c                  |    4 -
+ net/sunrpc/auth.c             |   16 ++--
+ net/sunrpc/auth_unix.c        |    8 +-
+ net/sunrpc/sched.c            |    3
+ net/unix/af_unix.c            |   12 +--
+ security/commoncap.c          |   17 ++--
+ security/dummy.c              |   19 ++--
+ 98 files changed, 547 insertions(+), 421 deletions(-)
+
+
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-If your hands are clean and your cause is just and your demands are
-reasonable, at least it's a start.
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+

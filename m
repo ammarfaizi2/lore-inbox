@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbTCKBCK>; Mon, 10 Mar 2003 20:02:10 -0500
+	id <S262769AbTCKBQP>; Mon, 10 Mar 2003 20:16:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262769AbTCKBCJ>; Mon, 10 Mar 2003 20:02:09 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:22981 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262611AbTCKBCI>;
-	Mon, 10 Mar 2003 20:02:08 -0500
-Subject: Re: OLS2003 Performance BOF Proposals
-From: Craig Thomas <craiger@osdl.org>
-To: Ruth Forester <rsf@flying-dove.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E981156C-5196-11D7-B7DA-000A95685D4E@flying-dove.com>
-References: <E981156C-5196-11D7-B7DA-000A95685D4E@flying-dove.com>
-Content-Type: text/plain
-Organization: OSDL
-Message-Id: <1047345168.25830.29.camel@bullpen.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 10 Mar 2003 17:12:48 -0800
-Content-Transfer-Encoding: 7bit
+	id <S262773AbTCKBQO>; Mon, 10 Mar 2003 20:16:14 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:40652 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S262769AbTCKBQL> convert rfc822-to-8bit;
+	Mon, 10 Mar 2003 20:16:11 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780AFB088B@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] "HT scheduler", sched-2.5.63-B3
+Date: Mon, 10 Mar 2003 11:53:29 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think both can be combined into one.  The first seems to outline
-the way to run a benchmark (multiple runs, std dev, variance, etc)
-and a list of micro benchmarks.  The second seems to handle the larger
-performance tests such as large database loads, very long running tests,
-etc.
+> On Fri, 7 Mar 2003, Perez-Gonzalez, Inaky wrote:
+> 
+> > Question: does this apply also to tasks that are current on another CPU
+> > other than the local?
+> >
+> > Or, can I change the prio of a task that is current on another CPU
+> > directly and then set_tsk_need_resched()? Or I also have to unqueue it
+> > first?
+> 
+> any task must be unqueued before changing its priority - the runqueues are
+> indexed by the priority field. The special case in wakeup is that 'p' is
+> not on any runqueues (hence the wakeup ...), so we have a cheap
+> opportunity there to fix up priority. But it's not a problem for an
+> already running process either - it needs to be requeued.
 
-I wonder if you can include a discussion of monitoring tools for
-performance data collection as part of the first BOF?  We have found
-that for 2.5 the packages report different numbers when
-comparing between sysstat, vmstat, ziostat, and iostat.
+Thanks, I was suspecting that [when something makes full sense, it is
+easy to suspect it :)].
 
+How friendly would you be to a hook into setscheduler()? I have this 
+same problem with real-time futexes, specially wrt to effective priority 
+in priority-inheritance & prio-protection. Basically, I need to know 
+right away when a waiting tasks' priority has been changed so I can
+properly reposition it into the waiting list.
 
-On Sat, 2003-03-08 at 10:51, Ruth Forester wrote:
-> Everyone,
-> 
-> 
-> I would very much appreciate comments (even one-liners) on any
-> community interest in these two OLS Performance BoF sessions.  I
-> believe the topics are dissimilar and relevant enough to justify both:  
-> 
-> ----------------------------------------------------------------------
-> 
-> This BOF will include a discussion on Linux benchmark automation. We
-> will discuss the features needed to provide an effective benchmark
-> automation process for Linux. This will include, defining the
-> configuration, input files, benchmark execution, output files, etc. 
-> We will also discuss the types of benchmarks that are tailored for
-> rapid execution and results analysis, for maximum development impact.
-> 
-> 
-> PROPOSAL FOR LINUX PERFORMANCE
-> 
-> Linux changes occur very quickly in the open source community. There
-> is a strong need to quickly collect and share performance data and
-> analysis. However, there may be some instances where good, quality
-> performance data collection and analysis take longer than the short
-> turnaround required for maximum impact regarding newly released
-> patches. We plan to discuss the most effective methodology for
-> impacting Linux performance in a rapidly changing Linux open source
-> community environment.
-> 
-> --------------------------------------------------------
-> 
-> Please reply immediately so we can quickly submit them to OLS? 
-> 
-> Thanks for your (speedy) replies! 
-> 
-> 
-> ruth
-> 
-> Ruth Forester, Linux Performance LTC
-> 
-> <smaller>rsf@flying-dove.com
-> 
-> notes: rsf@us.ibm.com
-> 
-> IBM Linux Technology Center
-> 
-> Beaverton, Oregon</smaller>
--- 
-Craig Thomas <craiger@osdl.org>
-OSDL
+As well, whenever I change the priority of an active/running task, it needs
+to activate the hooks (for my proof-of-concept I did that manually; however,
+it is limited and non-extensible), and I am looking into unfolding
+setscheduler() into setscheduler() and do_setscheduler(), the later taking
+the task struct, policy and priority to set, so that it can be called
+from inside the kernel. setscheduler() would only do the user-space 
+stuff handling.
+
+Would that be ok with you?
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)
+
 

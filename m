@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131933AbQKRXq3>; Sat, 18 Nov 2000 18:46:29 -0500
+	id <S131994AbQKSASp>; Sat, 18 Nov 2000 19:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132012AbQKRXqT>; Sat, 18 Nov 2000 18:46:19 -0500
-Received: from 3dyn88.com21.casema.net ([212.64.94.88]:40976 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S131933AbQKRXqF>;
-	Sat, 18 Nov 2000 18:46:05 -0500
-Date: Sat, 18 Nov 2000 23:53:52 +0100
-From: Jasper Spaans <spaans@delft.corps.nl>
+	id <S131996AbQKSASg>; Sat, 18 Nov 2000 19:18:36 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47121 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131994AbQKSAS3>; Sat, 18 Nov 2000 19:18:29 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] raid5 link error? (was [PATCH] raid5 fix after xor.c cleanup)
-Message-ID: <20001118235352.D2226@spaans.ds9a.nl>
-In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl> <20001118123536.A5674@spaans.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001118123536.A5674@spaans.ds9a.nl>; from jasper@spaans.ds9a.nl on Sat, Nov 18, 2000 at 12:35:36PM +0100
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2000 C. Jasper Spaans - All Rights Reserved
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: rdtsc to mili secs?
+Date: 18 Nov 2000 15:48:06 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v74fm$2d7$1@cesium.transmeta.com>
+In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001116115730.A665@suse.cz> <8v1pfj$p5e$1@cesium.transmeta.com> <20001118211349.B382@bug.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 12:35:36PM +0100, Jasper Spaans wrote:
+Followup to:  <20001118211349.B382@bug.ucw.cz>
+By author:    Pavel Machek <pavel@suse.cz>
+In newsgroup: linux.dev.kernel
 
-> Hmm, next time I'll need to eat my own dogfood -- this patch doesn't work,
-> it only compiles. Don't use it.
+> > Actually, on machines where RDTSC works correctly, you'd like to use
+> > that to detect a lost timer interrupt.
+> > 
+> > It's tough, it really is :(
+> 
+> Well, my patch did not do that but you probably want lost timer
+> interrupt detection so that you avoid false alarms.
+> 
+> But that means you can no longer detect speed change after 10msec:
+> 
+> going from 150MHz to 300MHz is very similar to one lost timer
+> interrupt.
+> 
 
-It seems to me the original code was correct, but the linking isn't in the
-right order and the initcalls are in the wrong order (ie,
-raid5.c::raid5_init() is being called before xor.c::calibrate_xor_block() --
-any linking gurus out there who can help me out on this one?
+That's the point.
 
-Feeling a bit of a schizo, but getting used to my brown paper bag,
-
-Regards
+	-hpa
 -- 
-  Q_.        Jasper Spaans  <mailto:jspaans@mediakabel.nl>        -o)
- `~\         Conditional Access/DVB-C/OpenTV/Unix-adviseur        /\\
-Mr /\                                                            _\_v
-Zap     Een ongezellig dure consultant nodig? Mail sales@insultant.nl
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

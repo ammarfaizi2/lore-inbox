@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbTAMBQr>; Sun, 12 Jan 2003 20:16:47 -0500
+	id <S267724AbTAMBRQ>; Sun, 12 Jan 2003 20:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267724AbTAMBQr>; Sun, 12 Jan 2003 20:16:47 -0500
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:21432 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267716AbTAMBQq>; Sun, 12 Jan 2003 20:16:46 -0500
-Date: Sun, 12 Jan 2003 20:21:50 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <1850.4.64.197.173.1042420003.squirrel@www.osdl.org>
-To: Randy Dunlap <rddunlap@osdl.org>
-Cc: akropel1@rochester.rr.com, matti.aarnio@zmailer.org,
-       linux-kernel@vger.kernel.org
-Reply-to: robw@optonline.net
-Message-id: <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
- <20030112211530.GP27709@mea-ext.zmailer.org>
- <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
- <20030112215949.GA2392@www.kroptech.com>
- <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
- <1850.4.64.197.173.1042420003.squirrel@www.osdl.org>
+	id <S267737AbTAMBRQ>; Sun, 12 Jan 2003 20:17:16 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:38917 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S267724AbTAMBRO>; Sun, 12 Jan 2003 20:17:14 -0500
+Message-ID: <3E220DC2.3030507@snapgear.com>
+Date: Mon, 13 Jan 2003 10:52:18 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] remove kernel 2.0 code from mcfserial.h
+References: <20030112084947.GQ21826@fs.tum.de>
+In-Reply-To: <20030112084947.GQ21826@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 20:06, Randy Dunlap wrote:
-> So you choose to agree with your lessons that goto is bad, but
-> ignore the other lesson that functions shouldn't have multiple
-> return paths?  Or didn't have that lesson?
-> ~Randy
+Hi Adrian,
 
-I didn't have a lesson about multiple return paths.. I actually before
-posting checked out the coding style document..
+Adrian Bunk wrote:
+> The patch below removes some #if'd code for kernel 2.0 from 
+> drivers/serial/mcfserial.h.
 
-:/usr/src/linux-2.5.56/Documentation# grep -i return CodingStyle
+Applied. Thanks.
 
-Returned nothing..  There was no mention of using return in the middle
-or end of a function in the coding style document, though perhaps there
-should be.
+Regards
+Greg
 
--Rob
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

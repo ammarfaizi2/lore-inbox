@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129659AbQKRPD0>; Sat, 18 Nov 2000 10:03:26 -0500
+	id <S129152AbQKRQEi>; Sat, 18 Nov 2000 11:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131239AbQKRPDP>; Sat, 18 Nov 2000 10:03:15 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:64936 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129659AbQKRPDJ>; Sat, 18 Nov 2000 10:03:09 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tigran Aivazian <tigran@veritas.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error in x86 CPU capabilities starting with test5/6
-In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com>
-	<20001117161833.A27098@athlon.random> <qwwaeaytwfa.fsf@sap.com>
-	<20001117192834.A30047@athlon.random>
-From: Christoph Rohland <cr@sap.com>
-Date: 18 Nov 2000 10:57:58 +0100
-In-Reply-To: Andrea Arcangeli's message of "Fri, 17 Nov 2000 19:28:34 +0100"
-Message-ID: <m33dgpd2l5.fsf@linux.local>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S129170AbQKRQET>; Sat, 18 Nov 2000 11:04:19 -0500
+Received: from [212.172.23.17] ([212.172.23.17]:3588 "EHLO mail.plan9.de")
+	by vger.kernel.org with ESMTP id <S129152AbQKRQEI>;
+	Sat, 18 Nov 2000 11:04:08 -0500
+Date: Sat, 18 Nov 2000 16:32:58 +0100
+From: Marc Lehmann <pcg@goof.com>
+To: linux-kernel@vger.kernel.org
+Subject: reordering pci interrupts?
+Message-ID: <20001118163258.A1643@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux version 2.2.17 (root@cerebro) (gcc version pgcc-2.95.2 19991024 (release)) 
+X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
+I have a motherboard with a broken bios that is unable to set interrupts
+correctly, i.e. it initializes the devices corerctly but swaps the
+interrupts for slot1/slot3 and slot2/slot4.
 
-> On Fri, Nov 17, 2000 at 05:06:49PM +0100, Christoph Rohland wrote:
-> > Could I get this for i686? :-)
-> 
-> If we break binary compatibility yes. 
+Now, is there a way to forcefully re-order the pci-interrupts? I do not
+have an io-apic (thus no pirq=xxx), and I tried to poke the interrupt
+values directly into /proc/bus/pic/*/*, but the kernel has it's own idea.
 
-OK, I'll stick to rdtsc on ix86
+Thanks a lot for any info (I guess I'll just patch the kernel).
 
-        Christoph
-
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

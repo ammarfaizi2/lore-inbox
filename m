@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVATUXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVATUYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVATUXu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 15:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVATUXu
+	id S261586AbVATUYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 15:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVATUYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 15:23:50 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:61313 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261503AbVATUXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 15:23:48 -0500
-Subject: Re: IEEE-1394 and disks
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1106250812.3413.10.camel@localhost.localdomain>
-References: <1106250812.3413.10.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 20 Jan 2005 13:23:47 -0700
-Message-Id: <1106252627.3413.12.camel@localhost.localdomain>
+	Thu, 20 Jan 2005 15:24:41 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:50700 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261586AbVATUYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 15:24:33 -0500
+Date: Thu, 20 Jan 2005 15:22:59 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: tv@lio96.de, herbert@gondor.apana.org.au, jgarzik@pobox.com,
+       marcelo.tosatti@cyclades.com
+Subject: [patch 2.4.29] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050120202258.GA7687@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, tv@lio96.de,
+	herbert@gondor.apana.org.au, jgarzik@pobox.com,
+	marcelo.tosatti@cyclades.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By bridge chips I mean IEEE-1394 to IDE. Also, is it possible to set
-spin down time for these IDE disks through 1394? i.e. if they are
-inactive for 1 hour, I would like them to spin down. Is this possible?
+Offset LVI past CIV when starting DAC/ADC in order to prevent
+stalled start.
 
-Trever
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Thomas Voegtle <tv@lio96.de>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+This fixes a "no sound" problem with Wolfenstein Enemy Territory and
+(apparently) other games using the Quake3 engine.  It probably affects
+some other OSS applications as well.
 
-On Thu, 2005-01-20 at 12:53 -0700, Trever L. Adams wrote:
-> I have a few questions: How stable is firewire (running at 800Mbps or
-> faster, if any is available yet)? How stable is the Linux subsystem,
-> especially for firewire disks? Is there any particularly 800Mbps bridge
-> chips that should be avoided or used?
-> 
-> How stable is the subsystem when the chain is nearly full (62 devices is
-> full right?)
-> 
-> How many controllers may be in the system before the Firewire subsystem
-> gets confused?
-> 
-> Trever Adams
-> --
-> "There are two ways to live your life. One is as though nothing is a
-> miracle. The other is as though everything is a miracle." -- Albert
-> Einstein
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
---
-"If there was strife and contention in the home, very little else in
-life could compensate for it." -- Lawana Blackwell, The Courtship of the
-Vicar's Daughter, 1998
+This recreates some code that had been removed from the i810_audio
+driver around 5/2004.
 
+ drivers/sound/i810_audio.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
+
+--- i810_audio-2.4/drivers/sound/i810_audio.c.orig	2005-01-20 14:41:43.914734688 -0500
++++ i810_audio-2.4/drivers/sound/i810_audio.c	2005-01-20 14:41:43.916734414 -0500
+@@ -1062,10 +1062,20 @@
+ 	if (count < fragsize)
+ 		return;
+ 
++	/* if we are currently stopped, then our CIV is actually set to our
++	 * *last* sg segment and we are ready to wrap to the next.  However,
++	 * if we set our LVI to the last sg segment, then it won't wrap to
++	 * the next sg segment, it won't even get a start.  So, instead, when
++	 * we are stopped, we set both the LVI value and also we increment
++	 * the CIV value to the next sg segment to be played so that when
++	 * we call start, things will operate properly
++	 */
+ 	if (!dmabuf->enable && dmabuf->ready) {
+ 		if (!(dmabuf->trigger & trigger))
+ 			return;
+ 
++		CIV_TO_LVI(state->card, port, 1);
++
+ 		start(state);
+ 		while (!(inb(port + OFF_CR) & ((1<<4) | (1<<2))))
+ 			;
+-- 
+John W. Linville
+linville@tuxdriver.com

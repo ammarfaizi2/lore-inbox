@@ -1,94 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263449AbTDXC3E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 22:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTDXC3E
+	id S263525AbTDXCeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 22:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTDXCeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 22:29:04 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:10937 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263449AbTDXC3C
+	Wed, 23 Apr 2003 22:34:00 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:35530 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263525AbTDXCd7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 22:29:02 -0400
-Date: Wed, 23 Apr 2003 19:40:54 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Werner Almesberger <wa@almesberger.net>,
-       Jamie Lokier <jamie@shareable.org>
-cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <25450000.1051152052@[10.10.2.4]>
-In-Reply-To: <20030423231149.I3557@almesberger.net>
-References: <21660000.1051114998@[10.10.2.4]>
- <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay>
- <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay>
- <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay>
- <20030424001134.GD26806@mail.jlokier.co.uk>
- <20030423214332.H3557@almesberger.net>
- <20030424011137.GA27195@mail.jlokier.co.uk>
- <20030423231149.I3557@almesberger.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 23 Apr 2003 22:33:59 -0400
+Date: Wed, 23 Apr 2003 19:45:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: BK->CVS, kernel.bkbits.net
+Message-ID: <20030424024549.GA10840@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+	Neil Brown <neilb@cse.unsw.edu.au>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com> <20030420003021.GA10547@work.bitmover.com> <16035.30645.648954.185797@notabene.cse.unsw.edu.au> <3EA6B61B.7030303@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3EA6B61B.7030303@gmx.net>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In fact, forget about "volume".  Just have a "silent" parameter that
->> defaults to 0,
+On Wed, Apr 23, 2003 at 05:49:47PM +0200, Carl-Daniel Hailfinger wrote:
+> > % time bk pull
+> > ....
+> > 444.95user 42.29system 49:09.46elapsed 16%CPU (0avgtext+0avgdata 0maxresident)k
+> > 0inputs+0outputs (326737major+196385minor)pagefaults 0swaps
+> > 
+> > 
+> > % time cvs update
+> > .....
+> > 2.78user 1.94system 4:12.36elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
+> > 0inputs+0outputs (333major+7240minor)pagefaults 0swaps
+
+Fast or safe, pick one.  CVS has no integrity check and you will never know
+if you have bad data or not.  And the BK checks find el cheapo memory dimms
+and all sorts of other problems all the time.  It even found a cache aliasing
+bug in SPARC/Linux...
+
+The BK integrity check will tell you right away if any of your data is bad.
+*Everyone* hates the check until it saves their butt and then they decide
+it's not such a bad idea.  It's a lot like a seatbelt - you don't like it
+until something goes wrong.
+
+BK != CVS.  You want fast and loose, by all means, use CVS, that's not our
+intended market and we don't care about fast where fast means bad data.
+
+> > That is an order of magnitude difference in wall-clock time!  This is
+> > on my humble notebook with "only" 128Meg of RAM.  The delay is mostly 
+> > in the consistency checking.  Sure there is a way to turn that off.
 > 
-> Default to make useless or disturbing noise ...
-
-You turn it off once, and your distro keeps it that way. Doesn't seem
-that onerous to me. 
-
-The key difference is that that poor user who's setting the thing up 
-for the first time has more of a clue what's going on. Making Linux
-less hostile to new users is a Good Thing (tm).
-
-> So these defaults would be hard-coded values that take into account,
-> among other factors:
+> Just add this line to your /etc/BitKeeper/etc/config:
+> []partial_check:yes!
 > 
->  - the actual audio hardware (e.g. variations in the analog part)
->  - possibly the position of a "volume" knob somewhere
->  - the environment of the machine (ambient noise, acceptable
->    volume level)
+> and you should notice a big speedup.
 > 
-> And all that for what ? 
+> P.S. If anyone knows other speedup tricks for a kernel tree in bk,
+> please tell me.
 
-And all for the fact that when the user sets up the system, it just
-works. With sensible defaults. Instead of being an elitist piece of
-crap that only l33t g33ks can use.
+Mount the file system with noatime.
 
-Even for people that are capable of debugging it, it's just not a
-productive use of time. I have better things to do with my life that debug
-non-inuitive user interfaces, thanks.
-
-> If you want to turn up the volume after
-> booting, all you need is one whole line in your rc scripts. So
-> far I haven't seen a single argument as to why this wouldn't be
-> sufficient.
-
-It's about making it easy to use. The expert users can configure the
-damned thing any way they please anyway. For novices, it should do
-something intuitive out of the box. The same principle should apply
-to reams of crappy software out there right now.
-
---On Wednesday, April 23, 2003 22:29:05 -0400 Pat Suwalski
-<pat@suwalski.net> wrote:
-
-> I believe he is saying that ever since 1984 and the Mac Plus, it has been
-> expected that sound works right away without adding any lines anywhere.
-> 
-> I have not seen a computer in the last year and a half that has not had
-> either onboard sound or a card. It is very standard hardware these days.
-> Therefore, your soundcard should work just like your keyboard does. You
-> do not have to add any lines to any rc script to get the keyboard
-> working, do you? Sound should not have to be any different, in an ideal
-> world.
-
-Indeed. Initial impression of people upgrading a kernel from 2.4 to 2.5/6
-is that "sound doesn't work in 2.5/6". Not good.
-
-M.
-
+Buy enough memory to fit the kernel in memory and on a 1Ghz processor that
+pull will take about 20 seconds.  Even laptop memory is pretty cheap these
+days.  Pricewatch says $80 for .5GB for laptops, that's cheap.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

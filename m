@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265645AbUAGVl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUAGVl4
+	id S265646AbUAGV4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUAGV4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:41:56 -0500
-Received: from dh197.citi.umich.edu ([141.211.133.197]:57477 "EHLO
-	nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S265645AbUAGVlz convert rfc822-to-8bit (ORCPT
+	Wed, 7 Jan 2004 16:56:25 -0500
+Received: from mail.kroah.org ([65.200.24.183]:29879 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265646AbUAGV4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:41:55 -0500
-Subject: Re: 2.6.1-rc1-tiny2
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040107201056.GE18208@waste.org>
-References: <20040106054859.GA18208@waste.org>
-	 <20040107140640.GC16720@suse.de> <20040107185039.GC18208@waste.org>
-	 <20040107192732.GA13240@gaz.sfgoth.com>  <20040107201056.GE18208@waste.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1073511697.1242.105.camel@nidelv.trondhjem.org>
+	Wed, 7 Jan 2004 16:56:24 -0500
+Date: Wed, 7 Jan 2004 13:56:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: Inconsistency in sysfs behavior?
+Message-ID: <20040107215624.GC1083@kroah.com>
+References: <20040107172750.GC31177@kroah.com> <Pine.LNX.4.44L0.0401071644220.1589-100000@ida.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 07 Jan 2004 16:41:38 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0401071644220.1589-100000@ida.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På on , 07/01/2004 klokka 15:10, skreiv Matt Mackall:
-> NFS is a good example of why the guarantees of mempool are being
-> overstated - it still needs to allocate SKBs to make progress and
-> preallocating a pool for other data structures can make that fail
-> where it otherwise might not. The pool size for NFS (32) is also
-> completely arbitrary as far as I can tell.
+On Wed, Jan 07, 2004 at 04:50:24PM -0500, Alan Stern wrote:
+> On Wed, 7 Jan 2004, Greg KH wrote:
+> 
+> > Because it is very difficult to determine when a user goes into a
+> > directory because we are using the ramfs/libfs code.  It also does not
+> > cause any errors if the kobject is removed, as the vfs cleans up
+> > properly.
+> > 
+> > Only when a file is opened does a kobject need to be pinned, due to
+> > possible errors that could happen.
+> 
+> I had in mind approaching this the opposite way.  Instead of trying to 
+> make open directories also pin a kobject, why not make open attribute 
+> files not pin them?
+> 
+> It shouldn't be hard to avoid any errors; in fact I had a patch from some
+> time ago that would do the trick (although in a hacked-up kind of way).  
+> The main idea is to return -ENXIO instead of calling the show()/store()
+> routines once the attribute has been removed.
 
-If you are in a hardware situation where you actually care about the
-permanent size of that mempool, then you're barking up entirely the
-wrong tree: there is a hell of a lot more memory to reclaim from not
-having to build up all those nfs_page lists in the first place.
+And you can do this without adding another lock, race free?
 
-i.e. Rip out the entire asynchronous NFS read/write support, not just
-the mempools.
-
-As for the usefulness of the mempools in the situation where you have
-asynchronous I/O: I agree that the socket layer screws any chance of a
-guarantee. So does the server if it goes down, the network itself can
-screw you,.... All in all, it is surprising how few guarantees NFS
-offers you.
-I therefore see the mempools as more of an optimization that mainly
-avoid sleeping under a certain limited set of "reasonable"
-circumstances.
-
-Cheers,
-  Trond
+greg k-h

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131899AbREEL1l>; Sat, 5 May 2001 07:27:41 -0400
+	id <S132359AbREELdV>; Sat, 5 May 2001 07:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132359AbREEL1b>; Sat, 5 May 2001 07:27:31 -0400
-Received: from ns.cfrcta.ro ([212.93.137.147]:6928 "HELO mail.cfrcta.ro")
-	by vger.kernel.org with SMTP id <S131899AbREEL1X>;
-	Sat, 5 May 2001 07:27:23 -0400
-Message-ID: <3AF3E4D3.4C827608@cfrcta.ro>
-Date: Sat, 05 May 2001 14:32:35 +0300
-From: Adrian Turcu <adi@cfrcta.ro>
-Organization: Romanian Railway Company
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-adi244-02 i686)
-X-Accept-Language: en
+	id <S132372AbREELdL>; Sat, 5 May 2001 07:33:11 -0400
+Received: from fepF.post.tele.dk ([195.41.46.135]:43907 "EHLO
+	fepF.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S132359AbREELcy>; Sat, 5 May 2001 07:32:54 -0400
+From: "Svenning Soerensen" <svenning@post5.tele.dk>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-ipsec@freeswan.org>
+Subject: Problem with PMTU discovery on ICMP packets
+Date: Sat, 5 May 2001 13:36:32 +0200
+Message-ID: <015201c0d557$a1e69c50$1400a8c0@sss.intermate.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Need help for console on serial port
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi there,
 
-Some times ago I configured several Linux boxes to accept console on serial.
-Nothing new, but could some one help me with pin assignments for 
-a serial cable DB9-female to DB9-female. I've lost this file
-and I need help to connect to one of this box.
+I think there is a bug in the 2.4 icmp code regarding PMTU discovery.
+It seems to be inconsistent between reboots: at one boot echo replies always
+have the DF bit set, while after another boot they don't, indicating that
+this is caused by an uninitialized parameter.
+Even 'echo 1 > /proc/sys/net/ipv4/ip_no_pmtu_disc' doesn't change this
+behaviour.
 
-I didn't remember even if is a simple null modem cable.
+I can't think of any legitimate reasons for doing PMTU discovery on ICMP
+packets, and since it actually in some situations breaks ping in combination
+with FreeS/WAN (I can elaborate, if anyone is interested), I would suggest
+to turn it off in a consistent manner.
+The patch below (against 2.4.4) should accomplish this.
 
-Thank you in advance,
+Svenning
 
--- 
-Adrian Turcu
-System Administrator
+--- linux/net/ipv4/icmp.c	2001/04/28 12:30:34	1.1.1.2
++++ linux/net/ipv4/icmp.c	2001/05/05 11:06:41
+@@ -1006,6 +1006,7 @@
+ 	icmp_socket->sk->allocation=GFP_ATOMIC;
+ 	icmp_socket->sk->sndbuf = SK_WMEM_MAX*2;
+ 	icmp_socket->sk->protinfo.af_inet.ttl = MAXTTL;
++	icmp_socket->sk->protinfo.af_inet.pmtudisc = IP_PMTUDISC_DONT;
+ 
+ 	/* Unhash it so that IP input processing does not even
+ 	 * see it, we do not wish this socket to see incoming

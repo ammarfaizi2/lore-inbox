@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272598AbRHaEVy>; Fri, 31 Aug 2001 00:21:54 -0400
+	id <S272602AbRHaEXp>; Fri, 31 Aug 2001 00:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272601AbRHaEVn>; Fri, 31 Aug 2001 00:21:43 -0400
-Received: from [209.218.224.101] ([209.218.224.101]:9857 "EHLO
+	id <S272603AbRHaEXe>; Fri, 31 Aug 2001 00:23:34 -0400
+Received: from [209.218.224.101] ([209.218.224.101]:10881 "EHLO
 	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S272600AbRHaEVg>; Fri, 31 Aug 2001 00:21:36 -0400
-Message-ID: <000d01c131d4$a8449820$6caaa8c0@kevin>
+	id <S272602AbRHaEXT>; Fri, 31 Aug 2001 00:23:19 -0400
+Message-ID: <001301c131d4$de9180f0$6caaa8c0@kevin>
 From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Doug Ledford" <dledford@redhat.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <05c501c13178$43e19ba0$6caaa8c0@kevin> <3B8E7F0D.3000503@redhat.com>
-Subject: Re: 2.4.9-ac1 RAID-5 resync causes PPP connection to be unusable
-Date: Thu, 30 Aug 2001 21:23:16 -0700
+In-Reply-To: <000901c13179$be7b9ae0$6caaa8c0@kevin> <shsd75d2whg.fsf@charged.uio.no>
+Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same mountpoint
+Date: Thu, 30 Aug 2001 21:24:47 -0700
 Organization: LSG, Inc.
 MIME-Version: 1.0
 Content-Type: text/plain;
@@ -25,63 +25,39 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I see that now... and it looks like the risks associated with setting
-the unmaskirq flags on my drives (none of the four drives have it set now)
-are too great to be worth playing with it. I'll just not use my PPP
-connection during these particularly heavy disk activity moments. Thanks for
-the quick response.
+I was expecting it to be an error, but I'm not upset that it's not. Just
+kind of weird to see five mounts with the exact same information in
+/etc/mtab.
+
+I can see why it would be useful to have multiple things mounted on the same
+mountpoint, but is there any reason to allow the _same_ filesystem to be
+mounted multiple times at the same mountpoint?
 
 ----- Original Message -----
-From: "Doug Ledford" <dledford@redhat.com>
+From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
 To: "Kevin P. Fleming" <kevin@labsysgrp.com>
 Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 30, 2001 10:59 AM
-Subject: Re: 2.4.9-ac1 RAID-5 resync causes PPP connection to be unusable
+Sent: Thursday, August 30, 2001 12:12 PM
+Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same
+mountpoint
 
 
-> Kevin P. Fleming wrote:
+> >>>>> " " == Kevin P Fleming <kevin@labsysgrp.com> writes:
 >
-> > I ran into a very strange problem yesterday... my server here, which is
-a
-> > 700 MHz Celeron, 256MiB RAM, four ~40G disks has two RAID-5 arrays
-(using
-> > the standard kernel MD driver) configured across those four drives. For
-some
-> > reason definitely related to operator error, the machine crashed and
-needed
-> > to resync the arrays after being rebooted.
-> >
-> > Eveything was working fine, interactive response was just fine even
-though
-> > the drives were just cranking away doing their resync. I then brought up
-my
-> > PPP Internet connection, which came up just fine. However, I was _not_
-able
-> > to actually communicate with any 'Net hosts.
+>      > Accidentally <G> I mounted a filesystem from my server onto my
+>      > workstation twice. Mount gave me no error....
 >
+> That's right. The 2.4 VFS removed the global restriction on the number
+> of mounts on a single mountpoint. So?
 >
-> [ snip ]
+> If people expect this to be an error, then the correct thing is for
+> the VFS restriction to be reinstated. I see no reason why it should be
+> the responsibility of the filesystem to check for this sort of
+> thing. A mountpoint is after all the one place where the VFS is
+> actually *designed* to override the filesystem.
 >
->
-> > I can probably reproduce this pretty easily, if anyone is interested and
-can
-> > give me some idea where to look for the cause...
->
->
-> Don't bother.  The problem is that your disks are IDE disks and you
-> don't have IRQ unmasking enabled on some/all of them.  As long as that's
-> the case, heavy disk activity (whether it's a RAID5 resync or a bonnie
-> run or untar'ing a kernel archive) will always cause your PPP connection
-> to quit working due to dropped serial data and therefore corrupted PPP
-> packets.
->
->
-> --
->
->   Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
->        Please check my web site for aic7xxx updates/answers before
->                        e-mailing me about problems
->
+> Cheers,
+>   Trond
 >
 >
 >

@@ -1,116 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbSKJBZi>; Sat, 9 Nov 2002 20:25:38 -0500
+	id <S262881AbSKJB0w>; Sat, 9 Nov 2002 20:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262876AbSKJBZi>; Sat, 9 Nov 2002 20:25:38 -0500
-Received: from almesberger.net ([63.105.73.239]:21771 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262875AbSKJBZh>; Sat, 9 Nov 2002 20:25:37 -0500
-Date: Sat, 9 Nov 2002 22:31:42 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021109223142.A31205@almesberger.net>
-References: <Pine.LNX.4.44.0211070731200.5567-100000@home.transmeta.com> <m1u1iqcpjg.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1u1iqcpjg.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Nov 09, 2002 at 04:05:23PM -0700
+	id <S262882AbSKJB0w>; Sat, 9 Nov 2002 20:26:52 -0500
+Received: from lsanca2-ar27-4-3-067-005.lsanca2.dsl-verizon.net ([4.3.67.5]:32901
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S262881AbSKJB0u>; Sat, 9 Nov 2002 20:26:50 -0500
+Date: Sat, 9 Nov 2002 17:33:26 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.46: access permission filesystem
+In-Reply-To: <87adko581z.fsf@goat.bogus.local>
+Message-ID: <Pine.LNX.4.44.0211091728140.3608-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
->    - Extra care must be taken so what broke the first kernel does
->      not break this one, and so that the shards of the old kernel
->      do not break it.
+On Tue, 5 Nov 2002, Olaf Dietsche wrote:
 
-For this, you should checksum the data that you've pre-loaded, and
-verify it before rebooting. If the pre-loaded kernel has been hit,
-you just do a normal reboot. (In the case if a bzImage, you'd
-probably fail uncompression anyway.)
+> This *untested* patch adds a new permission managing file system.
+> Furthermore, it adds two modules, which make use of this file system.
 
-Alternatively, you could also wire this into the uncompression
-functions (i.e. reboot if bzImage or initrd don't uncompress
-cleanly), but this would be more intrusive.
+Hi.
 
->    - Care must be taken so that loading the second kernel does not
->      erase valuable data that is desirable to place in a crash dump.
+I've just applied this to 2.5.46, and I'm building accessfs as modules.
 
-Or copy all "interesting" memory to a safe place before the kexec.
-I don't quite like the idea of building a kernel that "knows" which
-addresses it isn't supposed to touch, and I think being able to use
-the same kernel binary for regular and panic use would be a
-desirable feature.
+During boot (my scripts do a probe for the accessfs modules), I get:
 
-Also, firmware may not give you the choice of preserving all memory,
-so you need that "copy memory to a safe place" functionality anyway.
-Furthermore, you most likely want to checksum that memory, too.
+====
 
-But ... I think you're designing too far ahead. The "load kernel on
-panic" part isn't trivial, and I think it would be better to tackle
-this in a second phase. For now, having a reasonably generic kexec
-mechanism would be all that's needed in term of building blocks.
+Debug: sleeping function called from illegal context at mm/slab.c:1304
+Call Trace:
+ [<c0115fa6>] __might_sleep+0x56/0x60
+ [<c0130da1>] kmem_flagcheck+0x21/0x50
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<c013169b>] kmalloc+0x4b/0x130
+ [<d096331c>] .rodata.str1.1+0xcc/0xd8 [userports]
+ [<c0130da1>] kmem_flagcheck+0x21/0x50
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0960409>] accessfs_node_init+0x29/0xc0 [accessfs]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d096331c>] .rodata.str1.1+0xcc/0xd8 [userports]
+ [<d0960554>] accessfs_mkdir+0x44/0x80 [accessfs]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0960611>] accessfs_make_dirpath_Rf12799b4+0x81/0xd0 [accessfs]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<d096331c>] .rodata.str1.1+0xcc/0xd8 [userports]
+ [<d0961320>] accessfs_rootdir+0x0/0x34 [accessfs]
+ [<d0963111>] init_module+0x11/0xe0 [userports]
+ [<d0963319>] .rodata.str1.1+0xc9/0xd8 [userports]
+ [<d0963060>] accessfs_ip_prot_sock+0x0/0x50 [userports]
+ [<c01195b5>] sys_init_module+0x535/0x620
+ [<d0963404>] .kmodtab+0x0/0xc [userports]
+ [<d0963060>] accessfs_ip_prot_sock+0x0/0x50 [userports]
+ [<c0108bbf>] syscall_call+0x7/0xb
 
-> Method 2 (For people with read only roots):
-> - /sbin/delayed_kexec /path/to/new/kernel 
-> - Read in the /path/to/new/kernel into anonymous pages
+There is already a security framework initialized, register_security 
+failed.
 
-There's no delayed_kexec in kexec-tools 1.4, so let me gues how
-this would work: as far as I know, there's no way for regular
-user space to create a persistent unreferenced memory object, so
-you'd probably load the data, perhaps mlock the pages, and then
-fork a process that keeps the data in memory. Then, this process
-would probably call sys_kexec upon reception of a signal, or
-such.
+====
 
-Unfortunately, init assumes that it can SIGKILL all non-init
-processes (that is, all processes with PID != 1). Worse yet, this
-assumption makes sense, because walking the process list and
-killing each of them individually would be racy.
+The proc/access/net/ip/bind ports appear ok and I can change permissions 
+on them. (although I haven't tested to see if their permissions actually 
+have effect).
 
-So you'd either have to add this race condition to init, add some
-magic to make this type of killing atomic, teach the kernel that
-your kexec memory keeper process is somehow magic too, or merge
-kexec into init. Not nice.
+I also get
 
-> I then use the following algorithm to sort the potential mess out
-> before I jump to the new code.
+Debug: sleeping function called from illegal context at mm/slab.c:1304
+Call Trace:
+ [<c0115fa6>] __might_sleep+0x56/0x60
+ [<c0130da1>] kmem_flagcheck+0x21/0x50
+ [<c0131585>] kmem_cache_alloc+0x15/0xe0
+ [<c028fca0>] ip_local_deliver_finish+0x0/0x150
+ [<c02a925f>] tcp_v4_checksum_init+0x7f/0x110
+ [<c0131b10>] kfree+0x1d0/0x220
+ [<c0155050>] alloc_inode+0x30/0x170
+ [<c0155a75>] get_new_inode_fast+0x15/0xd0
+ [<c012c6e6>] file_read_actor+0x86/0x100
+ [<c0155e92>] iget_locked+0xa2/0xb0
+ [<c01315d9>] kmem_cache_alloc+0x69/0xe0
+ [<d0961340>] accessfs_rootdir+0x20/0x34 [accessfs]
+ [<d09602a2>] accessfs_lookup+0x42/0xa0 [accessfs]
+ [<c0154349>] d_alloc+0x19/0x180
+ [<c014ab9a>] real_lookup+0x5a/0xe0
+ [<c014ae50>] do_lookup+0xb0/0x200
+ [<c012cde5>] filemap_nopage+0x115/0x270
+ [<c0109526>] apic_timer_interrupt+0x1a/0x20
+ [<c014b54b>] link_path_walk+0x5ab/0x8f0
+ [<c014a8ae>] getname+0x5e/0xa0
+ [<c014bc84>] __user_walk+0x24/0x40
+ [<c0147964>] vfs_lstat+0x14/0x50
+ [<c0147e91>] sys_lstat64+0x11/0x30
+ [<c0113560>] do_page_fault+0x0/0x465
+ [<c01095a1>] error_code+0x2d/0x38
+ [<c0108bbf>] syscall_call+0x7/0xb
 
-I like this approach. It gives you complete freedom of where to
-load data. This also makes it future-proof. But I don't see the
-reason why you couldn't do the same thing with vmalloc. Using
-vmalloc may actually simplify your code a little.
+followed by:
 
-> Having had time to digest the idea of starting a new kernel on panic
-> I can now make some observations and what I believe it would take to
-> make it as robust as possible.
+Debug: sleeping function called from illegal context at mm/slab.c:1304
+Call Trace:
+ [<c0115fa6>] __might_sleep+0x56/0x60
+ [<c0130da1>] kmem_flagcheck+0x21/0x50
+ [<d09a63f5>] .rodata.str1.1+0x1e5/0x1f8 [usercaps]
+ [<c013169b>] kmalloc+0x4b/0x130
+ [<c0129d79>] do_no_page+0x39/0x2b0
+ [<d09a69c0>] caps+0x0/0x160 [usercaps]
+ [<c0130da1>] kmem_flagcheck+0x21/0x50
+ [<d09a63f5>] .rodata.str1.1+0x1e5/0x1f8 [usercaps]
+ [<d09a63fb>] .rodata.str1.1+0x1eb/0x1f8 [usercaps]
+ [<d0960409>] accessfs_node_init+0x29/0xc0 [accessfs]
+ [<d09a63f5>] .rodata.str1.1+0x1e5/0x1f8 [usercaps]
+ [<d09a63fb>] .rodata.str1.1+0x1eb/0x1f8 [usercaps]
+ [<d09a69c0>] caps+0x0/0x160 [usercaps]
+ [<d09604f7>] accessfs_mknod+0x57/0x70 [accessfs]
+ [<d09a63f5>] .rodata.str1.1+0x1e5/0x1f8 [usercaps]
+ [<d09a69c0>] caps+0x0/0x160 [usercaps]
+ [<d09a6190>] init_module+0x70/0xc0 [usercaps]
+ [<d09a63f5>] .rodata.str1.1+0x1e5/0x1f8 [usercaps]
+ [<d09a69c0>] caps+0x0/0x160 [usercaps]
+ [<c01195b5>] sys_init_module+0x535/0x620
+ [<d09a64e4>] .kmodtab+0x0/0xc [usercaps]
+ [<d09a6060>] accessfs_capable+0x0/0x40 [usercaps]
+ [<c0108bbf>] syscall_call+0x7/0xb
 
-That pretty much sums it up, yes. But as I've said, this isn't
-really something that needs to be implemented at the same time
-as the basic kexec functionality. A two-phase kexec with
-unrestricted copying capabilities should be a good enough
-building block that only minor changes, if any, would be needed
-when adding kexec-on-panic.
+There is already a security framework initialized, register_security 
+failed.
 
-> And now I go back to the silly exercise of factoring my code so the
-> new kernel can be kept in locked kernel memory, instead of in a file
-> while the shutdown scripts are run.
+The directory /proc/access/capabilities appears, but it has no contents.
 
-Not silly :-)
-
-- Werner
+Ben
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+http://www.hawaga.org.uk/ben/
+

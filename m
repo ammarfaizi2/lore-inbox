@@ -1,87 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTGBQnX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 12:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTGBQnX
+	id S264097AbTGBQny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 12:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTGBQnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 12:43:23 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:31251 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S264094AbTGBQnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 12:43:21 -0400
-Date: Thu, 3 Jul 2003 02:57:30 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Thomas Spatzier <TSPAT@de.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: crypto API and IBM z990 hardware support
-In-Reply-To: <OF014BDDD3.522D4623-ONC1256D57.003FFD79-C1256D57.0044F37D@de.ibm.com>
-Message-ID: <Mutt.LNX.4.44.0307030234400.1298-100000@excalibur.intercode.com.au>
+	Wed, 2 Jul 2003 12:43:53 -0400
+Received: from indyio.rz.uni-saarland.de ([134.96.7.3]:58687 "EHLO
+	indyio.rz.uni-saarland.de") by vger.kernel.org with ESMTP
+	id S264097AbTGBQnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 12:43:50 -0400
+Message-ID: <3F030EFC.7090809@hipac.org>
+Date: Wed, 02 Jul 2003 18:57:32 +0200
+From: Michael Bellion and Thomas Heinz <nf@hipac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: P@draigbrady.com
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
+References: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi> <200307021426.56138.nf@hipac.org> <3F02D964.7050301@draigBrady.com> <200307021548.19989.nf@hipac.org> <3F02EAE2.8050609@draigBrady.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jul 2003, Thomas Spatzier wrote:
+Hi Pádraig
 
-> I agree on having arch-specific implementations in crypto/arch directories.
-> However, I've got some problems with having this kind of 'static' aliasing
-> in modules.conf. In my case I do not know beforehand, whether a specific
-> crypto instruction is enabled. I query some processor status flags during
-> runime. If the check fails, I'd like to switch back to the original
-> software implementation.
+You wrote:
+> I was testing with 64 byte packets (so around 190Kpps). e100 cards at 
+> least have a handy mode for continually sending a packet as fast as 
+> possible. Also you can use more than one interface.
 
-I did say it was the simple solution :-)
+Yes, that's true. When we did the performance tests we had in mind to
+compare the worst case behaviour of nf-hipac and iptables.
+Therefore we designed a ruleset which models the worst case for both
+iptables and nf-hipac. Of course, the test environment could have been
+tuned a lot more, e.g. udp instead of tcp, FORWARD chain instead of
+INPUT, tuned network parameters, more interfaces etc.
 
-> I read in your autoconf.c file that a more sophisticated version of
-> crypto_alg_autoload is planned. I would suggest first trying to load the
-> arch-specific aes_z990.ko in crypto_alg_autoload. In my init_module
-> function i could query the processor. If init_module for my implementation
-> fails -> request_module fails -> load the standard module aes.ko.
-> Something similar to this:
+Anyway, we prefer independent, more sophisticated performance tests.
+
+>>> # ./readprofile -m /boot/System.map | sort -nr | head -30
+>>>   6779 total                                      0.0047
+>>>   4441 default_idle                              69.3906
+>>>    787 handle_IRQ_event                           7.0268
+>>>    589 ip_packet_match                            1.6733
+>>>    433 ipt_do_table                               0.6294
+>>>    106 eth_type_trans                             0.5521
+>>>    [...]
 > 
-> #ifndef CRYPTO_ARCH      //defined in arch makefile as "_z990"
-> #define CRYPTO_ARCH ""
-> #endif
-> 
-> void crypto_alg_autoload(const char *name)
-> {
->       if (request_module("%s%s", name, CRYPTO_ARCH) != 0){
->             request_module("%s", name);
->       }
-> }
+> Confused me too. The system would lock up and start dropping
+> packets after 125 rules. I.E. it would linearly degrade
+> as more rules were added. I'm guessing there is a fixed
+> interrupt overhead that is accounted for
+> by default_idle?
+
+Hm, but once the system starts to drop packets ip_packet_match and
+ipt_do_table start to dominate the profile, don't they?
 
 
-I'd like to avoid these kind of macros, and make it a general case 
-solution (e.g. which can be used for various hardware implementations).
+Regards,
 
-One possibility would be to allow registration with an alias list in
-crypto API with attributes indicating whether the module is hardware,
-arch-specific etc.
-
-So, during init, the s390 arch could register an alias like:
-
-  name .= "aes_z990"
-  algorithm .= "aes"
-  attributes .= CRYPTO_ATTR_ARCH|CRYPTO_ATTR_HW
-
-Then, when a caller specifies "aes", crypto_alg_autoload() would first
-check the alias list, giving preference to CRYPTO_ALG_ARCH by default.  
-In this case, it would find aes_z990 and try and load it.  If this fails,
-it continues along the alias list then ultimately falls back to the
-current behavior.
-
-This would allow subsystems and hardware drivers to dynamically provide 
-information to the API.  Callers of crypto_alloc_tfm() could then pass 
-flags specifying preferences for algorithm implementations e.g. generic 
-sw, arch sw, arch hw, misc hw.
-
-This would also need to take into account modprobe.conf configuration and 
-compiled in modules.
-
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
++-----------------------+----------------------+
+|   Michael Bellion     |     Thomas Heinz     |
+| <mbellion@hipac.org>  |  <creatix@hipac.org> |
++-----------------------+----------------------+
 

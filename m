@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbQKUANR>; Mon, 20 Nov 2000 19:13:17 -0500
+	id <S129740AbQKUAfK>; Mon, 20 Nov 2000 19:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQKUANH>; Mon, 20 Nov 2000 19:13:07 -0500
-Received: from mail01.onetelnet.fr ([213.78.0.138]:21608 "EHLO
-	mail01.onetelnet.fr") by vger.kernel.org with ESMTP
-	id <S129309AbQKUAM7>; Mon, 20 Nov 2000 19:12:59 -0500
-Message-ID: <3A19C4C1.A721355@onetelnet.fr>
-Date: Tue, 21 Nov 2000 01:41:38 +0100
-From: Fort David <epopo@onetelnet.fr>
-Reply-To: epopo@onetelnet.fr
-Organization: DLR network
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129255AbQKUAfA>; Mon, 20 Nov 2000 19:35:00 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:5386 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129097AbQKUAeo>;
+	Mon, 20 Nov 2000 19:34:44 -0500
+Date: Tue, 21 Nov 2000 01:02:43 +0100 (CET)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: USB: Wacom Graphire mouse wheel does not work anymore
+To: karl.gustav@gmx.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <30913.974749254@www23.gmx.net>
 MIME-Version: 1.0
-To: Ben Ford <ben@kalifornia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <Pine.SGI.4.21L.01.0011201318480.2040834-100000@irix2.gl.umbc.edu> <3A199496.2AA8CAFE@kalifornia.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20001121021309.F1F145962@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Ford wrote:
+On 20 Nov, karl.gustav@gmx.net wrote:
 
-> Ya, I also had a system that ran many OS's great, including Linux, Win98,
-> Win2k, etc.  However when I went to install NT on it, the CPU overheated
-> every time.  Ya, I know, doesn't make sense, but that's how it was.
->
-> -b
->
->
+> I used the IMPS/2 compatible mouse emulation of the wacom driver
+> (/dev/input/mice).
 
-It makes sense for me as win2000 is always 5°c hotter than linux, and on
+ Don't do that. It's evil. Use the xinput driver instead.
+ 
+> PS: Is there an OHCI compliant PCI USB controller card available? I'm
+>     using an UHCI type with a VIA chip.
 
-both CPU.....
+ Yes, Belkin makes one. Originally it was designed for a Mac but it
+ should work under linux i386, too. The name seems to be "2 Port USB
+ PCI-Card"
 
---
-%-------------------------------------------------------------------------%
-% FORT David,                                                             %
-% 7 avenue de la morvandière                                   0240726275 %
-% 44470 Thouare, France                                epopo@onetelnet.fr %
-% ICU:78064991   AIM: enlighted popo             fort@irin.univ-nantes.fr %
-%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
-%  -datamining <-/                        |   .~.                         %
-%  -networking/flashed PHP3 coming soon   |   /V\        L  I  N  U  X    %
-%  -opensource                            |  // \\     >Fear the Penguin< %
-%  -GNOME/enlightenment/GIMP              | /(   )\                       %
-%           feel enlighted....            |  ^^-^^                        %
-%                           http://ibonneace.dnsalias.org/ when connected %
-%-------------------------------------------------------------------------%
+-- 
 
-
+Servus,
+       Daniel
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

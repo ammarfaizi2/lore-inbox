@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130186AbRCBAgH>; Thu, 1 Mar 2001 19:36:07 -0500
+	id <S130191AbRCBAlh>; Thu, 1 Mar 2001 19:41:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbRCBAf6>; Thu, 1 Mar 2001 19:35:58 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:55563 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S130183AbRCBAfo>;
-	Thu, 1 Mar 2001 19:35:44 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200103020035.f220Z1M336921@saturn.cs.uml.edu>
-Subject: Re: [PATCH] reiserfs patch for linux-2.4.2
-To: hch@ns.caldera.de (Christoph Hellwig)
-Date: Thu, 1 Mar 2001 19:35:01 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        hch@ns.caldera.de (Christoph Hellwig),
-        zam@namesys.com (Alexander Zarochentcev), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, reiser@namesys.com (Hans Reiser),
-        reiserfs-dev@namesys.com
-In-Reply-To: <20010301091803.A31546@caldera.de> from "Christoph Hellwig" at Mar 01, 2001 09:18:03 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130198AbRCBAl2>; Thu, 1 Mar 2001 19:41:28 -0500
+Received: from laird.ocp.internap.com ([64.94.114.35]:5962 "EHLO
+	laird.ocp.internap.com") by vger.kernel.org with ESMTP
+	id <S130191AbRCBAlN>; Thu, 1 Mar 2001 19:41:13 -0500
+Date: Thu, 1 Mar 2001 16:41:01 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+X-X-Sender: <laird@laird.ocp.internap.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Another rsync over ssh hang (repeatable, with 2.4.1 on both ends)
+Message-ID: <Pine.LNX.4.33.0103011607540.17365-100000@laird.ocp.internap.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
-> On Wed, Feb 28, 2001 at 10:16:02PM -0500, Albert D. Cahalan wrote:
->> Christoph Hellwig writes:
->>
->>> Urgg. limits.h is a userlevel header...
->>>
->>> The attached patch will make similar atempts fail (but not this one as
->>> there is also a limits.h in gcc's include dir).
->>
->> There are very few files needed from gcc's include dir. Linux ought to
->> be able to survive without them. Linux is already gcc-specific anyway.
->
-> I think we want stdarg.h from gcc...
 
-Yes, just as apps want <linux/*.h> files.
+I have a fairly repeatable rsync over ssh stall that I'm seeing between
+two Linux boxes, both running identical 2.4.1 kernels.  The stall is
+fairly easy to repeat in our environment -- it can happen up to several
+times per minute, and usually happens at least once per minute.  It
+doesn't really seem to be data-sensitive.  The stall will last until the
+session times out *unless* I take one of two steps to "unstall" it.  The
+easiest way to do this is to run 'strace -p $PID' against the sending ssh
+process.  As soon as the strace is started, rsync starts working again,
+but will stall again (even with strace still running) after a short period
+of time.
 
-The kernel can have a copy. If the stack frame layout changes enough
-to cause trouble with stdarg.h, then most likely there will be huge
-trouble in 42 other places.
+We've seen this bug (or a *very* similar one) with 2.2.16 and 2.4.[01].  I
+haven't tried a newer 2.2.x or 2.4.2 or -acX.
 
-If you insist on using whatever random stdarg.h might be on the
-system, then just copy it into the build area. The compile might
-even run a bit faster without the extra directory to search.
+
+One system is a P2/400, the other is a P3/800.  The two boxes are
+communicating over a mostly idle Ethernet, through 3 switches.  One end is
+a EEPro 100, the other end is an Acenic, although that shouldn't matter.
+
+During a stall, the sending end shows a lot of data stuck in the Recv-Q:
+
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp    72848      0 ref.lab.ocp.interna:840 ref-0.sys.pnap.net:ssh  ESTABLISHED
+
+The receiving end shows a similar problem, but on the sending queue:
+
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0  28960 ref-0.sys.pnap.net:ssh  ref.lab.ocp.interna:840 ESTABLISHED
+
+Like I said, I don't believe that this is a network issue, because I can
+un-stall the rsync by either stracing the *sending* ssh process, or by
+putting the sending rsync into the background with ^Z and then popping it
+back into the foreground.  I have tcpdumps that I can send, but they look
+pretty straightforward to me -- the window fills, so data stops flowing.
+
+Strace doesn't seem to be particularly informative:
+
+<blocked, strace starts>
+select(4, [0], [1], NULL, NULL) = 1 (out [1])
+write(1, "xxxxxxxxxxxxx"..., 66156) = 66156
+...
+select(4, [0], [1 3], NULL, NULL)       = 2 (out [1 3])
+write(1, "\0\0\0\0\274\2\0\0\0\0\0\0\271\30\0\0\0\0\0\0\274\2\0\0"..., 69526
+<blocked again>
+
+Strace on the receiving end shows the obvious -- it's sitting in select
+waiting for data to arrive.
+
+According to 'ps l', the ssh process is waiting in 'sock_wait_for_wmem'.
+
+We've tried changing versions of rsync and ssh without any success.  FWIW,
+this kernel was compiled with GCC 2.95.2, from Debian potato.
+
+
+Scott
+

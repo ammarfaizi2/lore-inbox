@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265164AbSJaD02>; Wed, 30 Oct 2002 22:26:28 -0500
+	id <S265162AbSJaD02>; Wed, 30 Oct 2002 22:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265162AbSJaD0Q>; Wed, 30 Oct 2002 22:26:16 -0500
-Received: from nameservices.net ([208.234.25.16]:6833 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265164AbSJaDUk>;
-	Wed, 30 Oct 2002 22:20:40 -0500
-Message-ID: <3DC0A409.B0B92A20@opersys.com>
-Date: Wed, 30 Oct 2002 22:31:21 -0500
+	id <S265161AbSJaDZk>; Wed, 30 Oct 2002 22:25:40 -0500
+Received: from nameservices.net ([208.234.25.16]:5297 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S265162AbSJaDUf>;
+	Wed, 30 Oct 2002 22:20:35 -0500
+Message-ID: <3DC0A401.8D8A0E11@opersys.com>
+Date: Wed, 30 Oct 2002 22:31:13 -0500
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -16,270 +16,245 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] LTT for 2.5.45 7/10: S/390 trace support
+Subject: [PATCH] LTT for 2.5.45 6/10: PPC trace support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-D: This patch adds the bare-minimum S/390-specific low-level trace
+D: This patch adds the bare-minimum PPC-specific low-level trace
 D: statements.
 
-diffstat:
- arch/s390/kernel/entry.S    |   18 ++++++
- arch/s390/kernel/process.c  |    5 +
- arch/s390/kernel/sys_s390.c |    3 +
- arch/s390/kernel/traps.c    |  117 ++++++++++++++++++++++++++++++++++++++++++++
- arch/s390/mm/fault.c        |   12 ++++
- drivers/s390/cio/cio.c      |    4 +
- drivers/s390/s390mach.c     |   12 ++++
- include/asm-s390/trace.h    |   16 ++++++
- 8 files changed, 187 insertions(+)
+As with all the other non-i386 patches, these modifications will have
+to be pushed through the arch maintainers once the core trace
+functionality is in. Hence, I am posting them here for reference and
+will resend them to the arch maintainers once the core is in.
 
-diff -urpN linux-2.5.45/arch/s390/kernel/entry.S linux-2.5.45-ltt/arch/s390/kernel/entry.S
---- linux-2.5.45/arch/s390/kernel/entry.S	Wed Oct 30 19:42:16 2002
-+++ linux-2.5.45-ltt/arch/s390/kernel/entry.S	Wed Oct 30 20:51:10 2002
-@@ -7,6 +7,7 @@
-  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-  *               Hartmut Penner (hp@de.ibm.com),
-  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
-+ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
-  */
+diffstat:
+ arch/ppc/kernel/entry.S    |   33 ++++++++++++++++++
+ arch/ppc/kernel/irq.c      |    6 +++
+ arch/ppc/kernel/misc.S     |    4 ++
+ arch/ppc/kernel/process.c  |   15 ++++++++
+ arch/ppc/kernel/syscalls.c |    4 ++
+ arch/ppc/kernel/time.c     |    6 +++
+ arch/ppc/kernel/traps.c    |   82 +++++++++++++++++++++++++++++++++++++++++++++
+ arch/ppc/mm/fault.c        |   17 ++++++++-
+ include/asm-ppc/trace.h    |   31 +++++++++++++++++
+ 9 files changed, 197 insertions(+), 1 deletion(-)
+
+diff -urpN linux-2.5.45/arch/ppc/kernel/entry.S linux-2.5.45-ltt/arch/ppc/kernel/entry.S
+--- linux-2.5.45/arch/ppc/kernel/entry.S	Wed Oct 30 19:43:39 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/entry.S	Wed Oct 30 20:51:10 2002
+@@ -103,6 +103,32 @@ stack_ovf:
+ 	RFI
+ #endif /* CONFIG_PPC_ISERIES */
  
- #include <linux/sys.h>
-@@ -181,6 +182,14 @@ system_call:
-         GET_THREAD_INFO           # load pointer to task_struct to R9
- 	sll	%r7,2
-         stosm   24(%r15),0x03     # reenable interrupts
-+/* call to ltt trace done here.  R8 has the syscall (svc) number to trace */
-+#if (CONFIG_TRACE) /* tjh - ltt port */
-+        /* add call to trace_real_syscall_entry */                          
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter     
-+        l       %r1,BASED(.Ltracesysent)                                    
-+        basr    %r14,%r1                                                    
-+        lm      %r0,%r6,SP_R0(%r15) /* restore call clobbered regs tjh */   
-+#endif
-         l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
- 	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
-         bo      BASED(sysc_tracesys)
-@@ -189,6 +198,13 @@ system_call:
-                                   # ATTENTION: check sys_execve_glue before
-                                   # changing anything here !!
- 
-+#if (CONFIG_TRACE) /* tjh - ltt port */
-+        /* add call to trace_real_syscall_exit */ 
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter  
-+        l       %r1,BASED(.Ltracesysext)                                 
-+        basr    %r14,%r1                                                 
-+        lm      %r0,%r6,SP_R0(%r15) /* restore call clobbered regs */
-+#endif                                                                   
- sysc_return:
- 	stnsm   24(%r15),0xfc     # disable I/O and ext. interrupts
- 	tm	__TI_flags+3(%r9),_TIF_WORK_MASK
-@@ -928,6 +944,8 @@ restart_go:
- .Lsigaltstack: .long  sys_sigaltstack
- .Ltrace:       .long  syscall_trace
- .Lvfork:       .long  sys_vfork
-+.Ltracesysent: .long  trace_real_syscall_entry
-+.Ltracesysext: .long  trace_real_syscall_exit 
- #if CONFIG_SMP || CONFIG_PREEMPT
- .Lschedtail:   .long  schedule_tail
- #endif
-diff -urpN linux-2.5.45/arch/s390/kernel/process.c linux-2.5.45-ltt/arch/s390/kernel/process.c
---- linux-2.5.45/arch/s390/kernel/process.c	Wed Oct 30 19:43:36 2002
-+++ linux-2.5.45-ltt/arch/s390/kernel/process.c	Wed Oct 30 20:51:10 2002
-@@ -33,6 +33,7 @@
- #include <linux/delay.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
-+#include <linux/trace.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -147,6 +148,10 @@ int kernel_thread(int (*fn)(void *), voi
- 
- 	/* Ok, create the new process.. */
- 	p = do_fork(flags | CLONE_VM, 0, &regs, 0, NULL);
++/* LTT stuff */
 +#if (CONFIG_TRACE)
-+	if(!IS_ERR(p))
-+		TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, p->pid, (int) fn);
++#define TRACE_REAL_ASM_SYSCALL_ENTRY	\
++	addi	r3,r1,STACK_FRAME_OVERHEAD;  	/* Put pointer to registers into r3 */	\
++	mflr	r29;				/* Save LR */ \
++	bl	trace_real_syscall_entry;	/* Call real trace function */ \
++	mtlr	r29;				/* Restore LR */ \
++	lwz	r0,GPR0(r1);			/* Restore original registers */ \
++	lwz	r3,GPR3(r1);	\
++	lwz	r4,GPR4(r1);	\
++	lwz	r5,GPR5(r1);	\
++	lwz	r6,GPR6(r1);	\
++	lwz	r7,GPR7(r1);	\
++	lwz	r8,GPR8(r1);
++#define TRACE_REAL_ASM_SYSCALL_EXIT \
++	bl	trace_real_syscall_exit;	/* Call real trace function */ \
++	lwz	r0,GPR0(r1);			/* Restore original registers */ \
++	lwz	r3,RESULT(r1); \
++	lwz	r4,GPR4(r1); \
++	lwz	r5,GPR5(r1); \
++	lwz	r6,GPR6(r1); \
++	lwz	r7,GPR7(r1); \
++	lwz	r8,GPR8(r1); \
++	addi	r9,r1,STACK_FRAME_OVERHEAD;
 +#endif
- 	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++
+ /*
+  * Handle a system call.
+  */
+@@ -133,6 +159,9 @@ syscall_dotrace_cont:
+ 	slwi	r0,r0,2
+ 	lwzx	r10,r10,r0	/* Fetch system call handler [ptr] */
+ 	mtlr	r10
++#if (CONFIG_TRACE)
++ 	TRACE_REAL_ASM_SYSCALL_ENTRY ;
++#endif
+ 	addi	r9,r1,STACK_FRAME_OVERHEAD
+ 	blrl			/* Call handler */
+ 	.globl	ret_from_syscall
+@@ -140,6 +169,10 @@ ret_from_syscall:
+ #ifdef SHOW_SYSCALLS
+ 	bl	do_show_syscall_exit
+ #endif
++#if (CONFIG_TRACE)
++	stw	r3,RESULT(r1)	/* Save result */
++ 	TRACE_REAL_ASM_SYSCALL_EXIT ; 
++#endif
+ 	mr	r6,r3
+ 	li	r11,-_LAST_ERRNO
+ 	cmpl	0,r3,r11
+diff -urpN linux-2.5.45/arch/ppc/kernel/irq.c linux-2.5.45-ltt/arch/ppc/kernel/irq.c
+--- linux-2.5.45/arch/ppc/kernel/irq.c	Wed Oct 30 19:43:38 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/irq.c	Wed Oct 30 20:51:10 2002
+@@ -45,6 +45,8 @@
+ #include <linux/random.h>
+ #include <linux/seq_file.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/bitops.h>
+ #include <asm/system.h>
+@@ -423,6 +425,8 @@ void ppc_irq_dispatch_handler(struct pt_
+ 	int cpu = smp_processor_id();
+ 	irq_desc_t *desc = irq_desc + irq;
+ 
++	TRACE_IRQ_ENTRY(irq, !(user_mode(regs)));
++
+ 	kstat.irqs[cpu][irq]++;
+ 	spin_lock(&desc->lock);
+ 	ack_irq(irq);	
+@@ -500,6 +504,8 @@ out:
+ 			irq_desc[irq].handler->enable(irq);
+ 	}
+ 	spin_unlock(&desc->lock);
++
++	TRACE_IRQ_EXIT();
  }
  
-diff -urpN linux-2.5.45/arch/s390/kernel/sys_s390.c linux-2.5.45-ltt/arch/s390/kernel/sys_s390.c
---- linux-2.5.45/arch/s390/kernel/sys_s390.c	Wed Oct 30 19:42:27 2002
-+++ linux-2.5.45-ltt/arch/s390/kernel/sys_s390.c	Wed Oct 30 20:51:10 2002
-@@ -24,6 +24,7 @@
- #include <linux/mman.h>
- #include <linux/file.h>
- #include <linux/utsname.h>
-+#include <linux/trace.h>
- 
- #include <asm/uaccess.h>
- #include <asm/ipc.h>
-@@ -145,6 +146,8 @@ asmlinkage int sys_ipc (uint call, int f
-         struct ipc_kludge tmp;
- 	int ret;
- 
-+        TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
-+
-         switch (call) {
-         case SEMOP:
-                 return sys_semop (first, (struct sembuf *)ptr, second);
-diff -urpN linux-2.5.45/arch/s390/kernel/traps.c linux-2.5.45-ltt/arch/s390/kernel/traps.c
---- linux-2.5.45/arch/s390/kernel/traps.c	Wed Oct 30 19:42:26 2002
-+++ linux-2.5.45-ltt/arch/s390/kernel/traps.c	Wed Oct 30 20:51:10 2002
-@@ -5,6 +5,7 @@
-  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-  *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
-+ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
-  *
-  *  Derived from "arch/i386/kernel/traps.c"
-  *    Copyright (C) 1991, 1992 Linus Torvalds
-@@ -28,6 +29,8 @@
- #include <linux/delay.h>
+ #ifndef CONFIG_PPC_ISERIES	/* iSeries version is in iSeries_pic.c */
+diff -urpN linux-2.5.45/arch/ppc/kernel/misc.S linux-2.5.45-ltt/arch/ppc/kernel/misc.S
+--- linux-2.5.45/arch/ppc/kernel/misc.S	Wed Oct 30 19:43:41 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/misc.S	Wed Oct 30 20:51:10 2002
+@@ -998,7 +998,11 @@ _GLOBAL(cvt_df)
+  * Create a kernel thread
+  *   kernel_thread(fn, arg, flags)
+  */
++#if (CONFIG_TRACE)
++_GLOBAL(original_kernel_thread)
++#else
+ _GLOBAL(kernel_thread)
++#endif /* (CONFIG_TRACE) */
+ 	stwu	r1,-16(r1)
+ 	stw	r30,8(r1)
+ 	stw	r31,12(r1)
+diff -urpN linux-2.5.45/arch/ppc/kernel/process.c linux-2.5.45-ltt/arch/ppc/kernel/process.c
+--- linux-2.5.45/arch/ppc/kernel/process.c	Wed Oct 30 19:42:55 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/process.c	Wed Oct 30 20:51:10 2002
+@@ -35,6 +35,8 @@
+ #include <linux/init_task.h>
  #include <linux/module.h>
  
 +#include <linux/trace.h>
 +
- #include <asm/system.h>
+ #include <asm/pgtable.h>
  #include <asm/uaccess.h>
- #include <asm/io.h>
-@@ -283,6 +286,9 @@ void die(const char * str, struct pt_reg
- static void inline do_trap(long interruption_code, int signr, char *str,
-                            struct pt_regs *regs, siginfo_t *info)
- {
-+         trapid_t ltt_interruption_code; 
-+         char * ic_ptr = (char *) &ltt_interruption_code;
-+ 
- 	/*
- 	 * We got all needed information from the lowcore and can
- 	 * now safely switch on interrupts.
-@@ -290,6 +296,10 @@ static void inline do_trap(long interrup
-         if (regs->psw.mask & PSW_MASK_PSTATE)
- 		local_irq_enable();
+ #include <asm/system.h>
+@@ -297,6 +299,19 @@ void show_regs(struct pt_regs * regs)
+ 	show_tsk_stack(current, regs->gpr[1]);
+ }
  
-+	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+	memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
-+	TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
++#if (CONFIG_TRACE)
++long original_kernel_thread(int (*fn) (void *), void* arg, unsigned long flags);
++long kernel_thread(int (*fn) (void *), void* arg, unsigned long flags)
++{
++        long   retval;
 +
-         if (regs->psw.mask & PSW_MASK_PSTATE) {
-                 struct task_struct *tsk = current;
++	retval = original_kernel_thread(fn, arg, flags);
++	if (retval > 0)
++		TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, retval, (int) fn);
++	return retval;
++}
++#endif /* (CONFIG_TRACE) */
++
+ void exit_thread(void)
+ {
+ 	if (last_task_used_math == current)
+diff -urpN linux-2.5.45/arch/ppc/kernel/syscalls.c linux-2.5.45-ltt/arch/ppc/kernel/syscalls.c
+--- linux-2.5.45/arch/ppc/kernel/syscalls.c	Wed Oct 30 19:43:43 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/syscalls.c	Wed Oct 30 20:51:10 2002
+@@ -36,6 +36,8 @@
+ #include <linux/utsname.h>
+ #include <linux/file.h>
  
-@@ -318,6 +328,7 @@ static void inline do_trap(long interrup
-                 else
-                         die(str, regs, interruption_code);
-         }
++#include <linux/trace.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
+ #include <asm/semaphore.h>
+@@ -82,6 +84,8 @@ sys_ipc (uint call, int first, int secon
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
++	TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
++
+ 	ret = -EINVAL;
+ 	switch (call) {
+ 	case SEMOP:
+diff -urpN linux-2.5.45/arch/ppc/kernel/time.c linux-2.5.45-ltt/arch/ppc/kernel/time.c
+--- linux-2.5.45/arch/ppc/kernel/time.c	Wed Oct 30 19:43:34 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/time.c	Wed Oct 30 20:51:10 2002
+@@ -57,6 +57,8 @@
+ #include <linux/time.h>
+ #include <linux/init.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/segment.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
+@@ -158,6 +160,8 @@ void timer_interrupt(struct pt_regs * re
+ 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
+ 		do_IRQ(regs);
+ 
++ 	TRACE_TRAP_ENTRY(regs->trap, instruction_pointer(regs));
++
+ 	irq_enter();
+ 	
+ 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) < 0) {
+@@ -212,6 +216,8 @@ void timer_interrupt(struct pt_regs * re
+ 		ppc_md.heartbeat();
+ 
+ 	irq_exit();
++
++ 	TRACE_TRAP_EXIT();
+ }
+ #endif /* CONFIG_PPC_ISERIES */
+ 
+diff -urpN linux-2.5.45/arch/ppc/kernel/traps.c linux-2.5.45-ltt/arch/ppc/kernel/traps.c
+--- linux-2.5.45/arch/ppc/kernel/traps.c	Wed Oct 30 19:42:19 2002
++++ linux-2.5.45-ltt/arch/ppc/kernel/traps.c	Wed Oct 30 20:51:10 2002
+@@ -30,6 +30,8 @@
+ #include <linux/config.h>
+ #include <linux/init.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+@@ -108,7 +110,9 @@ _exception(int signr, struct pt_regs *re
+ 		debugger(regs);
+ 		die("Exception in kernel mode", regs, signr);
+ 	}
++	TRACE_TRAP_ENTRY(regs->trap, instruction_pointer(regs));
+ 	force_sig(signr, current);
 +	TRACE_TRAP_EXIT();
  }
  
- static inline void *get_check_address(struct pt_regs *regs)
-@@ -415,6 +426,8 @@ asmlinkage void illegal_op(struct pt_reg
- {
-         __u8 opcode[6];
- 	__u16 *location;
-+        trapid_t ltt_interruption_code;
-+        char * ic_ptr = (char *) &ltt_interruption_code;
- 	int signal = 0;
- 
- 	location = (__u16 *)(regs->psw.addr-S390_lowcore.pgm_ilc);
-@@ -426,6 +439,10 @@ asmlinkage void illegal_op(struct pt_reg
- 	if (regs->psw.mask & PSW_MASK_PSTATE)
- 		local_irq_enable();
- 
-+	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+	memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
-+	TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
-+
- 	if (regs->psw.mask & PSW_MASK_PSTATE)
- 		get_user(*((__u16 *) opcode), location);
- 	else
-@@ -466,6 +483,7 @@ asmlinkage void illegal_op(struct pt_reg
-         else if (signal)
- 		do_trap(interruption_code, signal,
- 			"illegal operation", regs, NULL);
-+        TRACE_TRAP_EXIT();
+ void
+@@ -367,6 +371,84 @@ StackOverflow(struct pt_regs *regs)
+ 	panic("kernel stack overflow");
  }
  
- 
-@@ -476,6 +494,8 @@ specification_exception(struct pt_regs *
- {
-         __u8 opcode[6];
- 	__u16 *location = NULL;
-+        trapid_t ltt_interruption_code;
-+        char * ic_ptr = (char *) &ltt_interruption_code;
- 	int signal = 0;
- 
- 	location = (__u16 *) get_check_address(regs);
-@@ -486,6 +506,10 @@ specification_exception(struct pt_regs *
- 	 */
- 	if (regs->psw.mask & PSW_MASK_PSTATE)
- 		local_irq_enable();
-+
-+        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+        memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
-+        TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
- 		
-         if (regs->psw.mask & PSW_MASK_PSTATE) {
- 		get_user(*((__u16 *) opcode), location);
-@@ -530,6 +554,7 @@ specification_exception(struct pt_regs *
- 		do_trap(interruption_code, signal, 
- 			"specification exception", regs, &info);
- 	}
-+        TRACE_TRAP_EXIT();
- }
- #else
- DO_ERROR_INFO(SIGILL, "specification exception", specification_exception,
-@@ -539,6 +564,8 @@ DO_ERROR_INFO(SIGILL, "specification exc
- asmlinkage void data_exception(struct pt_regs * regs, long interruption_code)
- {
- 	__u16 *location;
-+        trapid_t ltt_interruption_code;
-+        char * ic_ptr = (char *) &ltt_interruption_code;
- 	int signal = 0;
- 
- 	location = (__u16 *) get_check_address(regs);
-@@ -550,6 +577,10 @@ asmlinkage void data_exception(struct pt
- 	if (regs->psw.mask & PSW_MASK_PSTATE)
- 		local_irq_enable();
- 
-+	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+	memcpy(ic_ptr+4,&interruption_code,sizeof(interruption_code));
-+	TRACE_TRAP_ENTRY(ltt_interruption_code, (regs->psw.addr & PSW_ADDR_MASK));
-+
- 	if (MACHINE_HAS_IEEE)
- 		__asm__ volatile ("stfpc %0\n\t" 
- 				  : "=m" (current->thread.fp_regs.fpc));
-@@ -625,6 +656,7 @@ asmlinkage void data_exception(struct pt
- 		do_trap(interruption_code, signal, 
- 			"data exception", regs, &info);
- 	}
-+        TRACE_TRAP_EXIT();
- }
- 
- 
-@@ -679,6 +711,11 @@ void __init trap_init(void)
- 
- void handle_per_exception(struct pt_regs *regs)
- {
-+	trapid_t ltt_interruption_code;
-+	char * ic_ptr = (char *) &ltt_interruption_code;
-+	memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+	memcpy(ic_ptr+6,&S390_lowcore.pgm_code,2); /* copy the interrupt code */
-+	TRACE_TRAP_ENTRY(ltt_interruption_code,(regs->psw.addr & PSW_ADDR_MASK));
- 	if (regs->psw.mask & PSW_MASK_PSTATE) {
- 		per_struct *per_info=&current->thread.per_info;
- 		per_info->lowcore.words.perc_atmid=S390_lowcore.per_perc_atmid;
-@@ -693,5 +730,85 @@ void handle_per_exception(struct pt_regs
- 		/* Hopefully switching off per tracing will help us survive */
- 		regs->psw.mask &= ~PSW_MASK_PER;
- 	}
-+        TRACE_TRAP_EXIT();
-+}
-+
++/* Trace related code */
 +#if (CONFIG_TRACE)
 +asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
 +{
@@ -291,47 +266,48 @@ diff -urpN linux-2.5.45/arch/s390/kernel/traps.c linux-2.5.45-ltt/arch/s390/kern
 +	unsigned long upper_bound;
 +	unsigned long addr;
 +	unsigned long *stack;
-+	unsigned long temp_stack;
 +	trace_syscall_entry trace_syscall_event;
-+	/* Set the syscall ID                               */
-+	/* Register 8 is setup just prior to the call       */
-+	/* This instruction is just following linkage       */
-+	/* so it's ok.  If moved and chance of R8 being     */
-+	/* clobbered, would need to dig it out of the stack */
-+	__asm__ volatile ("  stc  8,%0\n\t"
-+			  :"=m" (trace_syscall_event.syscall_id));
-+	/* get the psw address */
-+	trace_syscall_event.address = regs->psw.addr;
-+	/* and off the hi-order bit */
-+	trace_syscall_event.address &= PSW_ADDR_MASK;
-+	if (!(user_mode(regs)))	/* if kernel mode, return */
++
++	/* Set the syscall ID */
++	trace_syscall_event.syscall_id = (uint8_t) regs->gpr[0];
++
++	/* Set the address in any case */
++	trace_syscall_event.address = instruction_pointer(regs);
++
++	/* Are we in the kernel (This is a kernel thread)? */
++	if (!user_mode(regs))
++		/* Don't go digining anywhere */
 +		goto trace_syscall_end;
-+	/* Get the trace configuration - if none, return */
++
++	/* Get the trace configuration */
 +	if (trace_get_config(&use_depth,
 +			     &use_bounds,
 +			     &seek_depth,
 +			     (void *) &lower_bound,
 +			     (void *) &upper_bound) < 0)
 +		goto trace_syscall_end;
-+	/* Do we have to search for an instruction pointer address range */
++
++	/* Do we have to search for an eip address range */
 +	if ((use_depth == 1) || (use_bounds == 1)) {
-+		/* Start at the top of the stack */
-+		/* stack pointer is register 15 */
-+		stack = (unsigned long *) regs->gprs[15];	/* stack pointer */
-+		/* Keep on going until we reach the end of the process' stack limit */
-+		do {
-+			get_user(addr, stack + 14);	/* get the program address +0x38 */
-+			/* and off the hi-order bit */
-+			addr &= PSW_ADDR_MASK;
++		/* Start at the top of the stack (bottom address since stacks grow downward) */
++		stack = (unsigned long *) regs->gpr[1];
++
++		/* Skip over first stack frame as the return address isn't valid */
++		if (get_user(addr, stack))
++			goto trace_syscall_end;
++		stack = (unsigned long *) addr;
++
++		/* Keep on going until we reach the end of the process' stack limit (wherever it may be) */
++		while (!get_user(addr, stack + 1)) {	/* "stack + 1", since this is where the IP is */
 +			/* Does this LOOK LIKE an address in the program */
 +			if ((addr > current->mm->start_code)
 +			    && (addr < current->mm->end_code)) {
 +				/* Does this address fit the description */
 +				if (((use_depth == 1) && (depth == seek_depth))
-+				    || ((use_bounds == 1) && (addr > lower_bound)
-+					&& (addr < upper_bound))) {
++				    || ((use_bounds == 1) && (addr > lower_bound) && (addr < upper_bound))) {
 +					/* Set the address */
 +					trace_syscall_event.address = addr;
++
 +					/* We're done */
 +					goto trace_syscall_end;
 +				} else
@@ -339,178 +315,146 @@ diff -urpN linux-2.5.45/arch/s390/kernel/traps.c linux-2.5.45-ltt/arch/s390/kern
 +					depth++;
 +			}
 +			/* Go on to the next address */
-+			get_user(temp_stack, stack);	/* get contents of stack */
-+			temp_stack &= PSW_ADDR_MASK;	/* and off hi order bit */
-+			stack = (unsigned long *) temp_stack;	/* move into stack */
-+			/* stack may or may not go to zero when end hit               */
-+			/* using 0x7fffffff-_STK_LIM to validate that the address is  */
-+			/* within the range of a valid stack address                  */
-+			/* If outside that range, exit the loop, stack end must have  */
-+			/* been hit.                                                  */
-+		} while (stack >= (unsigned long *) (0x7fffffff - _STK_LIM));
++			if (get_user(addr, stack))
++				goto trace_syscall_end;
++			stack = (unsigned long *) addr;
++		}
 +	}
 +trace_syscall_end:
 +	/* Trace the event */
 +	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
 +}
++
 +asmlinkage void trace_real_syscall_exit(void)
 +{
 +	trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
- }
- 
++}
++
 +#endif				/* (CONFIG_TRACE) */
-diff -urpN linux-2.5.45/arch/s390/mm/fault.c linux-2.5.45-ltt/arch/s390/mm/fault.c
---- linux-2.5.45/arch/s390/mm/fault.c	Wed Oct 30 19:43:37 2002
-+++ linux-2.5.45-ltt/arch/s390/mm/fault.c	Wed Oct 30 20:51:10 2002
-@@ -5,6 +5,7 @@
-  *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
-  *    Author(s): Hartmut Penner (hp@de.ibm.com)
-  *               Ulrich Weigand (uweigand@de.ibm.com)
-+ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
-  *
-  *  Derived from "arch/i386/mm/fault.c"
-  *    Copyright (C) 1995  Linus Torvalds
-@@ -25,6 +26,7 @@
- #include <linux/compatmac.h>
- #include <linux/init.h>
- #include <linux/console.h>
++
+ void nonrecoverable_exception(struct pt_regs *regs)
+ {
+ 	printk(KERN_ERR "Non-recoverable exception at PC=%lx MSR=%lx\n",
+diff -urpN linux-2.5.45/arch/ppc/mm/fault.c linux-2.5.45-ltt/arch/ppc/mm/fault.c
+--- linux-2.5.45/arch/ppc/mm/fault.c	Wed Oct 30 19:42:22 2002
++++ linux-2.5.45-ltt/arch/ppc/mm/fault.c	Wed Oct 30 20:51:10 2002
+@@ -28,6 +28,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/highmem.h>
+ 
 +#include <linux/trace.h>
++
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/mmu.h>
+@@ -85,22 +87,29 @@ void do_page_fault(struct pt_regs *regs,
+ 		is_write = error_code & 0x02000000;
+ #endif /* CONFIG_4xx */
  
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -153,6 +155,8 @@ extern inline void do_exception(struct p
- 	int user_address;
-         unsigned long fixup;
- 	int si_code = SEGV_MAPERR;
-+        trapid_t ltt_interruption_code;                 
-+        char * ic_ptr = (char *) &ltt_interruption_code; 
++	TRACE_TRAP_ENTRY(regs->trap, instruction_pointer(regs));
++
++
+ #if defined(CONFIG_XMON) || defined(CONFIG_KGDB)
+ 	if (debugger_fault_handler && TRAP(regs) == 0x300) {
+ 		debugger_fault_handler(regs);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ #if !defined(CONFIG_4xx)
+ 	if (error_code & 0x00400000) {
+ 		/* DABR match */
+-		if (debugger_dabr_match(regs))
++		if (debugger_dabr_match(regs)){
++			TRACE_TRAP_EXIT();
+ 			return;
++		}
+ 	}
+ #endif /* !CONFIG_4xx */
+ #endif /* CONFIG_XMON || CONFIG_KGDB */
  
-         tsk = current;
-         mm = tsk->mm;
-@@ -200,6 +204,9 @@ extern inline void do_exception(struct p
+ 	if (in_atomic() || mm == NULL) {
+ 		bad_page_fault(regs, address, SIGSEGV);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 	down_read(&mm->mmap_sem);
+@@ -165,6 +174,7 @@ good_area:
+ 			_tlbie(address);
+ 			pte_unmap(ptep);
+ 			up_read(&mm->mmap_sem);
++			TRACE_TRAP_EXIT();
+ 			return;
+ 		}
+ 		if (ptep != NULL)
+@@ -207,6 +217,7 @@ good_area:
+ 	 * -- Cort
  	 */
- 	local_irq_enable();
+ 	pte_misses++;
++	TRACE_TRAP_EXIT();
+ 	return;
  
-+        memset(&ltt_interruption_code,0,sizeof(ltt_interruption_code));
-+        memcpy(ic_ptr+4,&error_code,sizeof(error_code));
-+        TRACE_TRAP_ENTRY(ltt_interruption_code,(regs->psw.addr & PSW_ADDR_MASK));
-         down_read(&mm->mmap_sem);
- 
-         vma = find_vma(mm, address);
-@@ -248,6 +255,7 @@ survive:
+ bad_area:
+@@ -220,10 +231,12 @@ bad_area:
+ 		info.si_code = code;
+ 		info.si_addr = (void *) address;
+ 		force_sig_info(SIGSEGV, &info, current);
++		TRACE_TRAP_EXIT();
+ 		return;
  	}
  
-         up_read(&mm->mmap_sem);
-+        TRACE_TRAP_EXIT();
-         return;
+ 	bad_page_fault(regs, address, SIGSEGV);
++	TRACE_TRAP_EXIT();
+ 	return;
  
  /*
-@@ -262,6 +270,7 @@ bad_area:
-                 tsk->thread.prot_addr = address;
-                 tsk->thread.trap_no = error_code;
- 		force_sigsegv(regs, error_code, si_code, address);
-+                TRACE_TRAP_EXIT();
-                 return;
- 	}
+@@ -241,6 +254,7 @@ out_of_memory:
+ 	if (user_mode(regs))
+ 		do_exit(SIGKILL);
+ 	bad_page_fault(regs, address, SIGKILL);
++	TRACE_TRAP_EXIT();
+ 	return;
  
-@@ -269,6 +278,7 @@ no_context:
-         /* Are we prepared to handle this kernel fault?  */
-         if ((fixup = search_exception_table(regs->psw.addr)) != 0) {
-                 regs->psw.addr = fixup;
-+                TRACE_TRAP_EXIT();
-                 return;
-         }
- 
-@@ -316,6 +326,8 @@ do_sigbus:
- 	/* Kernel mode? Handle exceptions or die */
- 	if (!(regs->psw.mask & PSW_MASK_PSTATE))
- 		goto no_context;
-+
+ do_sigbus:
+@@ -252,6 +266,7 @@ do_sigbus:
+ 	force_sig_info (SIGBUS, &info, current);
+ 	if (!user_mode(regs))
+ 		bad_page_fault(regs, address, SIGBUS);
 +	TRACE_TRAP_EXIT();
  }
  
- void do_protection_exception(struct pt_regs *regs, unsigned long error_code)
-diff -urpN linux-2.5.45/drivers/s390/cio/cio.c linux-2.5.45-ltt/drivers/s390/cio/cio.c
---- linux-2.5.45/drivers/s390/cio/cio.c	Wed Oct 30 19:43:44 2002
-+++ linux-2.5.45-ltt/drivers/s390/cio/cio.c	Wed Oct 30 20:51:12 2002
-@@ -18,6 +18,8 @@
- #include <linux/config.h>
- #include <linux/slab.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/delay.h>
-@@ -945,9 +947,11 @@ do_IRQ (struct pt_regs regs)
- 			}
- 
- 			irq_enter ();
-+			TRACE_IRQ_ENTRY(irq, !(((regs).psw.mask&PSW_PROBLEM_STATE) != 0));
- 			s390irq_spin_lock (irq);
- 			s390_process_IRQ (irq);
- 			s390irq_spin_unlock (irq);
-+			TRACE_IRQ_EXIT();
- 			irq_exit ();
- 		}
- 
-diff -urpN linux-2.5.45/drivers/s390/s390mach.c linux-2.5.45-ltt/drivers/s390/s390mach.c
---- linux-2.5.45/drivers/s390/s390mach.c	Wed Oct 30 19:43:44 2002
-+++ linux-2.5.45-ltt/drivers/s390/s390mach.c	Wed Oct 30 20:51:13 2002
-@@ -5,6 +5,7 @@
-  *  S390 version
-  *    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-  *    Author(s): Ingo Adlung (adlung@de.ibm.com)
-+ *  Portions added by T. Halloran: (C) Copyright 2002 IBM Poughkeepsie, IBM Corporation
-  */
- 
- #include <linux/config.h>
-@@ -12,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/completion.h>
-+#include <linux/trace.h>
- #ifdef CONFIG_SMP
- #include <linux/smp.h>
- #endif
-@@ -179,10 +181,20 @@ s390_do_machine_check(void)
- {
- 	int crw_count;
- 	mcic_t mcic;
-+        trapid_t ltt_interruption_code;
-+        uint32_t ltt_old_psw;
- 
- 	DBG(KERN_INFO "s390_do_machine_check : starting ...\n");
- 
- 	memcpy(&mcic, &S390_lowcore.mcck_interruption_code, sizeof (__u64));
-+	memcpy( &ltt_interruption_code,
-+	        &S390_lowcore.mcck_interruption_code,
-+	        sizeof(__u64));
-+	memcpy( &ltt_old_psw,
-+	        &S390_lowcore.mcck_old_psw,
-+	        sizeof(uint32_t));
-+        ltt_old_psw &=  PSW_ADDR_MASK;
-+        TRACE_TRAP_ENTRY(ltt_interruption_code,ltt_old_psw);
- 
- 	if (mcic.mcc.mcd.sd)	/* system damage */
- 		s390_handle_damage("received system damage machine check\n");
-diff -urpN linux-2.5.45/include/asm-s390/trace.h linux-2.5.45-ltt/include/asm-s390/trace.h
---- linux-2.5.45/include/asm-s390/trace.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5.45-ltt/include/asm-s390/trace.h	Wed Oct 30 20:51:14 2002
-@@ -0,0 +1,16 @@
+ /*
+diff -urpN linux-2.5.45/include/asm-ppc/trace.h linux-2.5.45-ltt/include/asm-ppc/trace.h
+--- linux-2.5.45/include/asm-ppc/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.45-ltt/include/asm-ppc/trace.h	Wed Oct 30 20:51:14 2002
+@@ -0,0 +1,31 @@
 +/*
-+ * linux/include/asm-s390/trace.h
++ * linux/include/asm-ppc/trace.h
 + *
 + * Copyright (C) 2002, Karim Yaghmour
 + *
-+ * S/390 definitions for tracing system
++ * PowerPC definitions for tracing system
 + */
 +
++#include <linux/config.h>
 +#include <linux/trace.h>
 +#include <asm-generic/trace.h>
 +
 +/* Current arch type */
-+#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_S390
++#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_PPC
++
++/* PowerPC variants */
++#define TRACE_ARCH_VARIANT_PPC_4xx          1   /* 4xx systems (IBM embedded series) */
++#define TRACE_ARCH_VARIANT_PPC_6xx          2   /* 6xx/7xx/74xx/8260/POWER3 systems (desktop flavor) */
++#define TRACE_ARCH_VARIANT_PPC_8xx          3   /* 8xx system (Motoral embedded series) */
++#define TRACE_ARCH_VARIANT_PPC_ISERIES      4   /* 8xx system (iSeries) */
 +
 +/* Current variant type */
-+#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE
++#if defined(CONFIG_4xx)
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_PPC_4xx
++#elif defined(CONFIG_6xx)
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_PPC_6xx
++#elif defined(CONFIG_8xx)
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_PPC_8xx
++#elif defined(CONFIG_PPC_ISERIES)
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_PPC_ISERIES
++#endif

@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310691AbSBRO5T>; Mon, 18 Feb 2002 09:57:19 -0500
+	id <S291204AbSBQWhF>; Sun, 17 Feb 2002 17:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310694AbSBRO5K>; Mon, 18 Feb 2002 09:57:10 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:22800 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S310691AbSBRO45>; Mon, 18 Feb 2002 09:56:57 -0500
-To: Jos Hulzink <josh@stack.nl>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.5-pre1: mounting NTFS partitions -t VFAT
-In-Reply-To: <20020218134640.Y24227-100000@toad.stack.nl>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 18 Feb 2002 23:56:35 +0900
-In-Reply-To: <20020218134640.Y24227-100000@toad.stack.nl>
-Message-ID: <874rken8ik.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291214AbSBQWgz>; Sun, 17 Feb 2002 17:36:55 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:11982 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S291204AbSBQWgm>;
+	Sun, 17 Feb 2002 17:36:42 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: My HDLC patch and the recent discussion...
+In-Reply-To: <m36655m4up.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 17 Feb 2002 23:29:10 +0100
+In-Reply-To: <m36655m4up.fsf@defiant.pm.waw.pl>
+Message-ID: <m3u1sf68uh.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jos Hulzink <josh@stack.nl> writes:
+Krzysztof Halasa <khc@pm.waw.pl> writes (10 Feb):
 
-> Hi Ogawa,
-> 
-> Your patch seems to fix it more or less, not the way it should be
-> fixed, imho.  Partitions other than FAT return bogus information, but
-> bogus is not always zero. Fortunately enough, one of those new if
-> statements returns an error, but this is a "works for me"
-> solution, not a decent one.
+> Does anybody have additional comments on the HDLC (SIOCDEVICE etc)?
 
-No, that patch are validity check for FAT, not for you.
+[there was none]
 
-> What lacks is a fingerprint detector, and iirc -long time ago- FAT has a
-> very easy to detect fingerprint.
-> 
-> I'll dig into FAT documentation tonight.
-
-I read the document repeatedly and did much tests. If you read the
-document, you may use BS_OEMName or BS_FilSysType, however, these
-don't have a meaning.
+Fine then. I'm going out to mountains Friday, for a month, and will have
+no phone/net access there. Hope something will clear out in the meantime,
+or the HDLC thing would stay out of the official kernel if that's what
+developers want.
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Krzysztof Halasa
+Network Administrator

@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267225AbUBSMW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 07:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267221AbUBSMW0
+	id S267233AbUBSMcm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 07:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267231AbUBSMcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 07:22:26 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:10643 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S267225AbUBSMWY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 07:22:24 -0500
-Date: Thu, 19 Feb 2004 10:14:33 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Silla Rizzoli <silla@netvalley.it>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Hinds <dahinds@users.sourceforge.net>
-Subject: Re: 2.4.25 yenta problem and small fix/workaround
-In-Reply-To: <200402191222.45709.silla@netvalley.it>
-Message-ID: <Pine.LNX.4.58L.0402191011470.29796@logos.cnet>
-References: <200402191222.45709.silla@netvalley.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Thu, 19 Feb 2004 07:32:42 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:30483 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267229AbUBSMck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 07:32:40 -0500
+Date: Thu, 19 Feb 2004 12:32:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, paulmck@us.ibm.com,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       torvalds@osdl.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219123237.B22406@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com,
+	arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	torvalds@osdl.org
+References: <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218153234.3956af3a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040218153234.3956af3a.akpm@osdl.org>; from akpm@osdl.org on Wed, Feb 18, 2004 at 03:32:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 18, 2004 at 03:32:34PM -0800, Andrew Morton wrote:
+> > Yes.  We've traditionally not exported symbols unless we had an intree user,
+> > and especially not if it's for a module that's not GPL licensed.
+> 
+> That's certainly a good rule of thumb and we (and I) have used it before.
+> 
+> What is the reasoning behind it?
 
+The reason is that someone who wants to distribute a binary only module
+has to show it's module is not a derived work, and someone who needs new
+core in the kernel and new exports pretty much shows his work is deeply
+integrated with the kernel.
 
-On Thu, 19 Feb 2004, Silla Rizzoli wrote:
-
-> Hello!
-> Inserting a PC Card in my laptop (IMB R40 2681) with kernel 2.4.25 results in
-> the following message:
->
-> Feb 19 11:10:16 [kernel] cs: socket d603e000 voltage interrogation timed out
->
-> This sometimes happens with 2.6.x too, but issuing cardctl insert 0 usually
-> solves the problem, however in this case it didn't. I tried to modify all the
-> pcmcia_core module parameters but to no avail, the socket remained dead.
->
-> Examining the sources I noticed that 2.4.25 introduced this three line check;
-> I suppose that the socket state read returns a valid state and
-> cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST) is not executed.
-> Removing the check and executing the last line regardless fixes the problem.
-> I am probably experiencing a hardware bug limited to my laptop, but I'm
-> posting this small patch here just in case someone has the same problem.
->
-> Regards,
-> Silla Rizzoli
->
->
->
-> --- ./drivers/pcmcia/yenta.c.orig       2004-02-19 11:44:29.000000000 +0100
-> +++ ./drivers/pcmcia/yenta.c    2004-02-19 11:43:45.000000000 +0100
-> @@ -676,9 +676,6 @@
->         exca_writeb(socket, I365_GENCTL, 0x00);
->
->         /* Redo card voltage interrogation */
-> -       state = cb_readl(socket, CB_SOCKET_STATE);
-> -       if (!(state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD |
-> -                       CB_3VCARD | CB_XVCARD | CB_YVCARD)))
->
->         cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
->  }
-
-Hi Silla,
-
-Unfortunately this change fixes other problems (in Acer TravelMate laptops
-for one I know, maybe others).
-
-Someone needs to figure out a way for detection to work properly on both
-setups.

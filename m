@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288958AbSA2NKM>; Tue, 29 Jan 2002 08:10:12 -0500
+	id <S289226AbSA2NOC>; Tue, 29 Jan 2002 08:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288810AbSA2NKC>; Tue, 29 Jan 2002 08:10:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62994 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288958AbSA2NJw>; Tue, 29 Jan 2002 08:09:52 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-To: mingo@elte.hu
-Date: Tue, 29 Jan 2002 13:22:05 +0000 (GMT)
-Cc: landley@trommello.org (Rob Landley),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain> from "Ingo Molnar" at Jan 29, 2002 02:54:27 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288845AbSA2NNx>; Tue, 29 Jan 2002 08:13:53 -0500
+Received: from newton.math.uni-mannheim.de ([134.155.89.79]:39385 "EHLO
+	newton.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S288810AbSA2NNj>; Tue, 29 Jan 2002 08:13:39 -0500
+Message-Id: <7624197.q1iQU4070A@newssend.sf-tec.de>
+From: Rolf Eike Beer <eike@euklid.math.uni-mannheim.de>
+Subject: [2.5.3-pre5] BUG on boot
+To: linux-kernel@vger.kernel.org
+Date: Tue, 29 Jan 2002 14:14:19 +0100
+User-Agent: KNode/0.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16VYD8-0003ta-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If a patch gets ignored 33 times in a row then perhaps the person doing
-> the patch should first think really hard about the following 4 issues:
+Yesterday I tried to boot 2.5.3-pre5 on my Compaq ProSignia 
+(486DX2-66,36MB RAM, SCSI-only).
 
-Lots of the stuff getting missed is tiny little fixes, obvious 3 or 4 liners.
-The big stuff is not the problem most times. That stuff does get ripped to
-shreds and picked over as is needed. (Except device drivers, Linus alas has
-absolutely no taste in device drivers 8))
+Output written down from screen, so maybe threre is a typo. If someone 
+needs .config or something more just ask.
 
-People collecting up patches _does_ help big time for all the small fixes.
-Especially ones disciplined enough to keep the originals they applied so
-they can feed stuff on with that tag. If I sent Linus on a patch that said
-"You've missed this fix by Andrew Morton" then Linus knew it was probably
-right for example.
+devfs: V1.10 ( 20020120) ...
+devfs: boot_options: 0x1
+Kernel BUG ar slab.c: 641
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c0125398>] Not tainted
+EFLAGS: 00010286
+eax: 0000001a ebx: c023d030 ecx: c0221280 edx: 00000866
+esi: 00000184 edi: c01fea28 ebp: 00000000 esp: c10a5f84
+ds: 0018 es: 0018 ss: 0018
+Process swapper (pid 1: stackpage= c10a5000)
+stack: c01ef750 00000281 c023d030 c0231fd4 00000000 0008e000
+       c0224aa0 00000000 c0132338 c0224aa0 c023d02c c0231fd4
+       c017133d c01fea13 00000184 00000000 00002000 c01712f0
+       00000000 c0239326 c023d030 c02326ba 00010f00 c02326f5
+Call trace c0132338 c017133d c01712f0 c0105027 c0107078
+Code 0f 0b 83 c4 08 8d 76 00 f7 44 24 38 ff 0f ff ff 74 16 68 a0
+<0>Kernel panic: attempt to kill init!
 
-> it. Start small, because for small patches people will have the few
-
-Start small and your obvious one line diff, or 3 line typo fix will be
-ignored for a decade. There were critical fixes that Linus dropped
-repeatedly between 2.4.2 and 2.4.16 or so which ended up being holes in every
-non-ac based distro.
-
-Alan
-
-
+Eike
+-- 
+Es wäre schon wünschenswert, wenn die DAUs das Stück toten Baum, was
+mit der Suse mitkommt, nutzen würden. Entweder zum Lesen, oder um sich
+damit so lange auf den Schädel zu hauen, bis die Kollegen vom RD
+anrücken müssen.        Hauke Heidtmann in feuerwehrmann.talk

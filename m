@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbSJNG6g>; Mon, 14 Oct 2002 02:58:36 -0400
+	id <S261847AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261849AbSJNG6g>; Mon, 14 Oct 2002 02:58:36 -0400
-Received: from smtp01.iprimus.net.au ([210.50.30.70]:39689 "EHLO
-	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
-	id <S261844AbSJNG6f>; Mon, 14 Oct 2002 02:58:35 -0400
-Message-ID: <3DAA6CA2.8090008@users.sourceforge.net>
-Date: Mon, 14 Oct 2002 17:05:06 +1000
-From: James Courtier-Dutton <jcdutton@users.sourceforge.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
+	id <S261849AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:60686 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S261847AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add support for Pentax Still Camera to linux kernel.
-Content-Type: multipart/mixed;
- boundary="------------080709080607010108080800"
-X-OriginalArrivalTime: 14 Oct 2002 07:04:25.0324 (UTC) FILETIME=[EE0D12C0:01C2734F]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15786.28159.854350.479513@laputa.namesys.com>
+Date: Mon, 14 Oct 2002 11:10:55 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Rob Landley <landley@trommello.org>
+Cc: Hans Reiser <reiser@namesys.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
+In-Reply-To: <200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
+	<20021012012807.1BB5B635@merlin.webofficenow.com>
+	<3DA7F385.3040409@namesys.com>
+	<200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Drdoom-Fodder: CERT satan root crash passwd drdoom
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080709080607010108080800
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Rob Landley writes:
+ > On Saturday 12 October 2002 06:03 am, Hans Reiser wrote:
+ > > Rob Landley wrote:
+ > > >I'm also looking for an "unmount --force" option that works on something
+ > > >other than NFS.  Close all active filehandles (the programs using it can
+ > > > just deal with EBADF or whatever), flush the buffers to disk, and
+ > > > unmount.  None of this "oh I can't do that, you have a zombie process
+ > > > with an open file...", I want  "guillotine this filesystem pronto,
+ > > > capice?" behavior.
+ > >
+ > > This sounds useful.  It would be nice if umount prompted you rather than
+ > > refusing.
+ > 
+ > The problem here is that umount(2) doesn't take a flag.  I'd be happy to have 
+ > it fail unless called with the WITH_EXTREME_PREJUDICE flag or some such, but 
+ > that's an API change.
+ > 
+ > Of course I haven't gotten that far yet, but eventually this will have to be 
+ > dealt with...
 
-This is a very low risk patch.
-Attached patch to "/usr/src/linux/drivers/usb/storage/unusual_devs.h" to 
-enable the "PENTAX OPTIO 430" USB Still Camera to appear as a SCSI 
-/dev/sd* storage device.
-This patch works for my kernel version 2.4.18, but should work just as 
-well unchanged for 2.4.19.
-Patching to 2.5.x has not been tested.
+There were several patches to do this. If I remember correctly Tigran
+Aivazian wrote one, for example.
 
-Please include this patch with all future kernels.
+ > 
+ > Rob
 
-Cheers
-James Courtier-Dutton
-
-
---------------080709080607010108080800
-Content-Type: text/plain;
- name="unusual_devs.h.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="unusual_devs.h.diff"
-
---- unusual_devs.h.org	Mon Oct 14 16:55:30 2002
-+++ unusual_devs.h	Mon Oct 14 16:55:17 2002
-@@ -451,6 +451,19 @@
-  		US_SC_SCSI, US_PR_CB, NULL,
- 		US_FL_MODE_XLATE ),
- 
-+/* This Pentax still camera is not conformant
-+ * to the USB storage specification: -
-+ * - It does not like the INQUIRY command. So we must handle this command
-+ *   of the SCSI layer ourselves.
-+ * Tested on Rev. 10.00 (0x1000)
-+ * Submitted by James Courtier-Dutton <James@superbug.demon.co.uk>
-+ */
-+UNUSUAL_DEV( 0x0a17, 0x0004, 0x1000, 0x1000,
-+                "ASAHI PENTAX",
-+                "PENTAX OPTIO 430",
-+                US_SC_8070, US_PR_CBI, NULL,
-+                US_FL_FIX_INQUIRY ),
-+
- #ifdef CONFIG_USB_STORAGE_ISD200
- UNUSUAL_DEV(  0x0bf6, 0xa001, 0x0100, 0x0110,
-                 "ATI",
-
---------------080709080607010108080800--
+Nikita.
 

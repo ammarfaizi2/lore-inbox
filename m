@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbUASXYv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 18:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUASXYv
+	id S263793AbUASXU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 18:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUASXU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 18:24:51 -0500
-Received: from netfinity2.mailbox.hu ([195.70.35.152]:46505 "HELO
-	web1.mailbox.hu") by vger.kernel.org with SMTP id S264428AbUASXYo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 18:24:44 -0500
-Message-ID: <20040119232440.15676.qmail@web2.mailbox.hu>
-From: "Perverz Tata" <perverztata@mailbox.hu>
-Date: Tue, 20 Jan 2004 00:24:40 +0100
-To: linux-kernel@vger.kernel.org
-X-Mailer: Mailbox Webmail
+	Mon, 19 Jan 2004 18:20:58 -0500
+Received: from smtp0.libero.it ([193.70.192.33]:54009 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S263793AbUASXUd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 18:20:33 -0500
+Message-ID: <400C650C.1070303@gentoo.org>
+Date: Tue, 20 Jan 2004 00:15:24 +0100
+From: Luca Barbato <lu_zero@gentoo.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.6) Gecko/20040118
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: kg7-RAID: DMA timeout error
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: cryptoapi-devel@kerneli.org, linux-kernel@vger.kernel.org
+Subject: Re: gcloop: compressed loopback support for 2.6
+References: <3F5F4F96.4050000@gentoo.org> <400C05E1.70005@gentoo.org> <20040119164139.GR1748@srv-lnx2600.matchmail.com>
+In-Reply-To: <20040119164139.GR1748@srv-lnx2600.matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have attached a new hdd to my integrated raid controller, but i have
-the following message from the kernel:
-HPT370A: IDE controller at PCI slot 0000:00:13.0
-HPT370A: chipset revision 4
-HPT37X: using 33MHz PCI clock
-HPT370A: 100% native mode on irq 11
-    ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:DMA
-    ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
-hdf: Maxtor 6Y080P0, ATA DISK drive
-...
+Mike Fedyk wrote:
+> On Mon, Jan 19, 2004 at 05:29:21PM +0100, Luca Barbato wrote:
+> 
+> 
+> 
+> Is/will knoppix be using this this as well or is this a fork?
+> 
+This started as fork from the cloop-0.6x.
+Now the file format is almost the same, but the code is quite different: 
+the only thing that remains is the the basic logic and the block unpacker.
+The current code is currently under testing for gentoo livecd and other 
+projects that use the same tecnology, at least that I'm aware.
+If Klaus thinks that gcloop is good enough for his knoppix I'd be glad.
 
-hdf: max request size: 128KiB
-hdf: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63,
-UDMA(100)
- hdf:<4>hdf: dma_timer_expiry: dma status == 0x41
-hdf: DMA timeout error
-hdf: 0 bytes in FIFO
-hdf: timeout waiting for DMA
-hdf: dma timeout error: status=0x58 { DriveReady SeekComplete
-DataRequest }
-                                                                        
-       
- hdf1
+Currently gcloop-0.99 uses 32bit indexes since my target are livecd, for 
+livedvd would be better use the newer cloop-2.0/1.0 file format with 
+64bit indexes.
 
-The hdd is unusable slow under linux, but it works fine with win2000. I
-googled for a solution a lot, but i found nothing.
+gcloop isn't file format compatible with the old cloop-0.68 fileformat 
+since I had to use in a different way the index and I prefer ucl instead 
+of zlib.
 
-I use 2.6.1 kernel and Debian unstable.
-Here is some important part of my kernel's conf:
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
+lu
 
-PerverzTata
+-- 
+Luca Barbato
+Developer
+Gentoo Linux				http://www.gentoo.org/~lu_zero
 
-_____________________________________________________________________
-Most megnyerheted a Palm Zire 71 kéziszámítógépet, ami digitáli
-s
-fényképezõ és MP3 lejátszó is egyben. Kattints ide:
-http://www.edmax.hu/kerdoiv_2003.php
 

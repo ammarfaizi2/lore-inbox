@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSGHTxL>; Mon, 8 Jul 2002 15:53:11 -0400
+	id <S315783AbSGHUQS>; Mon, 8 Jul 2002 16:16:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSGHTxL>; Mon, 8 Jul 2002 15:53:11 -0400
-Received: from r-fi057-2b122.tin.it ([62.211.53.122]:28802 "EHLO
-	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
-	id <S315536AbSGHTxK>; Mon, 8 Jul 2002 15:53:10 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Warning: /proc/ksyms not normal
-Reply-To: Pierfrancesco Caci <p.caci@tin.it>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: 08 Jul 2002 21:55:46 +0200
-Message-ID: <87d6tyuh8d.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316500AbSGHUQR>; Mon, 8 Jul 2002 16:16:17 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:43193 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315783AbSGHUQR>;
+	Mon, 8 Jul 2002 16:16:17 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 8 Jul 2002 22:18:57 +0200 (MEST)
+Message-Id: <UTC200207082018.g68KIva04631.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
+Subject: Re: IDE, util-linux
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well the point is that the 2.5.25 is well behind whats going on.
 
-Hello,
-since a couple of days I'm getting this strange message:
+Yes. Maybe I must be patient.
 
-root@penny:~ # ps
-Warning: /proc/ksyms not normal               <-------- this one !
-  PID TTY      STAT   TIME COMMAND
- 6354 vc/2     S      0:00 /sbin/getty 38400 vc/2
-...
+But there has not been a 2.5 kernel the past two months
+that worked for me, that booted, stayed up for 24 hours
+and did not corrupt filesystems.
 
+> Please hunt for IDE 94 + 95 + 96
 
-kernel is 2.4.19-pre8, and apart from a couple of "apt-get dselect-upgrade" 
-2 days ago and today, I've not changed anything else. Oh, I'm tracking
-debian unstable, if that may mean something.
+I am not interested in going out and searching for patches,
+unless you specifically come and say: "I fixed HPT366 access -
+both PIO and DMA - the driver again does precisely what 2.4 did -
+please try".
 
-I wish I could know where this message is coming from....
+Hope to try some other vanilla kernel later.
 
+Andries
 
-Thanks
-
-
-Pf
-
-
--- 
-
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.19-pre8 #1 Sat May 11 10:04:21 CEST 2002 i686 unknown
 

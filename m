@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbTCHQCj>; Sat, 8 Mar 2003 11:02:39 -0500
+	id <S262065AbTCHQLb>; Sat, 8 Mar 2003 11:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262064AbTCHQCj>; Sat, 8 Mar 2003 11:02:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12049 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262062AbTCHQCg>; Sat, 8 Mar 2003 11:02:36 -0500
-Date: Sat, 8 Mar 2003 16:13:09 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+	id <S262067AbTCHQLb>; Sat, 8 Mar 2003 11:11:31 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:15313 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262065AbTCHQLa>;
+	Sat, 8 Mar 2003 11:11:30 -0500
+Date: Sat, 08 Mar 2003 08:03:17 -0800 (PST)
+Message-Id: <20030308.080317.27972826.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: zippel@linux-m68k.org, david.lang@digitalinsight.com, hpa@zytor.com,
+       rmk@arm.linux.org.uk, greg@kroah.com, linux-kernel@vger.kernel.org
 Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-Message-ID: <20030308161309.B1896@flint.arm.linux.org.uk>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0303072121180.5042-100000@serv> <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com> <20030307233916.Q17492@flint.arm.linux.org.uk> <m1d6l2lih9.fsf@frodo.biederman.org> <20030308100359.A27153@flint.arm.linux.org.uk> <m18yvpluw7.fsf@frodo.biederman.org>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0303080749320.2954-100000@home.transmeta.com>
+References: <1047106664.22024.0.camel@rth.ninka.net>
+	<Pine.LNX.4.44.0303080749320.2954-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m18yvpluw7.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Mar 08, 2003 at 08:50:48AM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 08:50:48AM -0700, Eric W. Biederman wrote:
-> Exactly.  And you build it for the specific purpose of just
-> configuring the system.  And by not handling the general case you
-> should be able to get another significant size reduction.
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sat, 8 Mar 2003 07:54:02 -0800 (PST)
+   
+   On 7 Mar 2003, David S. Miller wrote:
+   > I agree with Roman, I see no reason why the libgcc
+   > license could not be used.
+...
+   If you do the 
+   work, you get to impact the license. If you don't, you had better SHUT THE 
+   F*CK UP!
 
-You do not want to be too specific though - a kernel with features
-X, Y, and Z in the current setup can boot using any of those features
-by just supplying the appropriate command line.
+Note how I used the word "could" not "should" or "must".
 
-The reason HPA wanted to go down the userspace route, btw, was to
-support additional add-ons for bringing other stuff up - remember this
-is part of the initramfs spec that was reviewed by this list many
-months ago?  Or has that now gone completely out of the window?
+Should I really SHUT THE F*CK UP as you suggest?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+I totally agree with your position about who gets to decide
+the license.  I thought the issue was one of usability, not personal
+choice.

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264508AbTLQShv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 13:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTLQShv
+	id S264504AbTLQSyT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 13:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTLQSyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 13:37:51 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:15536 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264508AbTLQShu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 13:37:50 -0500
-Date: Wed, 17 Dec 2003 10:37:39 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Zaitsev <peter@mysql.com>, Helge Hafting <helgehaf@aitel.hist.no>,
-       jw schultz <jw@pegasys.ws>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: raid0 slower than devices it is assembled of?
-Message-ID: <20031217183739.GG1402@matchmail.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Peter Zaitsev <peter@mysql.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>, jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200312151434.54886.adasi@kernel.pl> <20031216040156.GJ12726@pegasys.ws> <3FDF1C03.2020509@aitel.hist.no> <Pine.LNX.4.58.0312160825570.1599@home.osdl.org> <20031216205853.GC1402@matchmail.com> <Pine.LNX.4.58.0312161304390.1599@home.osdl.org> <1071657159.2155.76.camel@abyss.local> <Pine.LNX.4.58.0312170758220.8541@home.osdl.org>
+	Wed, 17 Dec 2003 13:54:18 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:38626 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264504AbTLQSyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 13:54:15 -0500
+Date: Wed, 17 Dec 2003 18:46:54 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Will L G <diskman@kc.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pam_debug.o: gp-relative relocation against dynamic symbol _pam_token_returns
+Message-ID: <20031217184654.A4279@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Will L G <diskman@kc.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <001e01c3c459$49a66180$6401a8c0@zephyr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312170758220.8541@home.osdl.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <001e01c3c459$49a66180$6401a8c0@zephyr>; from diskman@kc.rr.com on Tue, Dec 16, 2003 at 10:50:13PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 17, 2003 at 08:01:13AM -0800, Linus Torvalds wrote:
-> However, since seeking will be limited by the checksum drive anyway (for 
-> writing), the advantages of large stripes in trying to keep the disks 
-> independent aren't as one-sided. 
+On Tue, Dec 16, 2003 at 10:50:13PM -0600, Will L G wrote:
+> When ever I attempt to compile Linux-Pam, I receive the following error
+> immediately after running 'make':
+> 
+> /usr/bin/ld: dynamic/pam_debug.o: gp-relative relocation against dynamic
+> symbol _pam_token_returns
 
-It seems to me that you are referring to a single pairity drive in the
-array.  That is raid4, where only one drive handles the pairity data for the
-entire array regardless of array size.
 
-Raid5 staggers the pairidy data (md has four different staggering layouts)
-so that the data, and pairity are on two different drives, and that varies
-based on stripe and layout.
+Always use '-fpic' in CFLAGS when compiling for shared objects (.so)
+Otherwise (as in your case) the compiler is allowed to emit machine code
+that may not work in shared objects.
+When I was hit by this error, the offending library was istself linked to 
+another, static library. This isn't allowed either. IIRC my fix was compiling
+that .a library with -fpic :)
+
+
+Thorsten
+
+
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

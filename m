@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130427AbQLRWbi>; Mon, 18 Dec 2000 17:31:38 -0500
+	id <S130231AbQLRWcS>; Mon, 18 Dec 2000 17:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130584AbQLRWb2>; Mon, 18 Dec 2000 17:31:28 -0500
-Received: from 4dyn46.com21.casema.net ([212.64.95.46]:21777 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130427AbQLRWbT>;
-	Mon, 18 Dec 2000 17:31:19 -0500
-Date: Mon, 18 Dec 2000 23:00:24 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: usb broken in 2.4.0 test 12 versus 2.2.18
-Message-ID: <20001218230024.A20322@home.ds9a.nl>
-Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>
-Mime-Version: 1.0
+	id <S130111AbQLRWcI>; Mon, 18 Dec 2000 17:32:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12295 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130584AbQLRWcD>; Mon, 18 Dec 2000 17:32:03 -0500
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+To: mikulas@artax.karlin.mff.cuni.cz
+Date: Mon, 18 Dec 2000 22:02:41 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        pavel@suse.cz (Pavel Machek), sabre@nondot.org (Chris Lattner),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <Pine.LNX.3.96.1001218215008.1190A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Dec 18, 2000 10:46:17 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Mon, Dec 18, 2000 at 04:33:26PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1488Mm-0006Hl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 04:33:26PM -0500, Heitzso wrote:
-> I have a Canon usb camera that I access via a
-> recent copy of the s10sh program (with -u option).
-> 
-> Getting to the camera via s10sh -u worked through 
-> large sections of 2.4.0 test X but broke recently.  
-> I cannot say for certain which test/patch the 
-> break occurred in.
+> Imagine that kpiod is slow. try_to_swap_out returns 1 and pretends it
+> freed something but it didn't. It just passed request to kpiod. There are
+> no pages to be freed by shrink_mmap. do_try_to_swap_out calls swap_out
+> several times, then returns. And this repeats again and again.
 
-It works for me (s100), at least on my laptop. I do note that it gives
-timeouts if the computer is busy otherwise.
-
-gphoto2 isn't able to retrieve images using recent 2.4.0testX kernels, I
-haven't tried earlier kernels yet. It is able to list filenames though.
-
-Regards,
-
-bert hubert
-
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+kpiod ceased to exist as of 2.2.19pre2
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

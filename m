@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287145AbSA3AUX>; Tue, 29 Jan 2002 19:20:23 -0500
+	id <S287109AbSA3AVn>; Tue, 29 Jan 2002 19:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287115AbSA3AUJ>; Tue, 29 Jan 2002 19:20:09 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64522 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287478AbSA3AST>; Tue, 29 Jan 2002 19:18:19 -0500
-Subject: Re: Linux 2.5.2-dj7
-To: jsimmons@transvirtual.com (James Simmons)
-Date: Wed, 30 Jan 2002 00:30:36 +0000 (GMT)
-Cc: pozsy@sch.bme.hu (Pozsar Balazs), davej@suse.de (Dave Jones),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.10.10201291602510.29648-100000@www.transvirtual.com> from "James Simmons" at Jan 29, 2002 04:05:21 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287115AbSA3AVb>; Tue, 29 Jan 2002 19:21:31 -0500
+Received: from waste.org ([209.173.204.2]:2277 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S287401AbSA3AUz>;
+	Tue, 29 Jan 2002 19:20:55 -0500
+Date: Tue, 29 Jan 2002 18:20:44 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+In-Reply-To: <Pine.LNX.4.33.0201291535120.1747-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0201291813110.25443-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Vie4-0005gE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    In dmi_scan.c this is a hook to deal with the PS/2 mouse on Dell
-> Latitude C600. Can someone with this machine test the new input drivers on
-> it. I like to see if we need some kind of fix for this device.
+On Tue, 29 Jan 2002, Linus Torvalds wrote:
 
-You I suspect will. When the machine resumes it likes to re-enable the mouse
-pad irrespective of whether it is being used - so you get an IRQ12. Even
-more fun if you ignore that IRQ you dont get keyboard events because the
-microcontroller (or SMM code impersonating it - who knows these days) is
-waiting for the ps/2 event to be handled first.
+> On Tue, 29 Jan 2002, Oliver Xymoron wrote:
+> >
+> > Seems like we could do slightly better to have these local areas mapped to
+> > the same virtual address on each processor, which does away with the need
+> > for an entire level of indirection.
+>
+> No no no.
+>
+> The reason it is a stupid idea is that if you do it, you can no longer
+> share page tables between CPU's (unless all CPU's you support have TLB
+> fill in software).
 
-The alternative (possibly cleaner) fix on those machines would be to turn
-the PS/2 port on always and process/discard output if its not wanted by
-the user
+Yes, obviously.
+
+Nearly as good would be replacing the current logic for figuring out the
+current processor id through current with logic to access the per-cpu
+data. The primary use of that id is indexing that data anyway.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

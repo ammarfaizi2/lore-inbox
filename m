@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264498AbUDZMNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264505AbUDZMNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbUDZMNL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 08:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUDZMNL
+	id S264505AbUDZMNp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUDZMNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 08:13:11 -0400
-Received: from reverendtimms.isu.mmu.ac.uk ([149.170.192.65]:28859 "EHLO
-	reverendtimms.isu.mmu.ac.uk") by vger.kernel.org with ESMTP
-	id S264498AbUDZMNI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 08:13:08 -0400
-From: David Johnson <dj@david-web.co.uk>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: 8139too not working in 2.6
-Date: Mon, 26 Apr 2004 13:13:37 +0100
-User-Agent: KMail/1.6
-References: <opr62ahdvlpsnffn@mail.mcaserta.com> <200404261405.20078.koke_lkml@amedias.org>
-In-Reply-To: <200404261405.20078.koke_lkml@amedias.org>
-MIME-Version: 1.0
+	Mon, 26 Apr 2004 08:13:45 -0400
+Received: from [203.14.152.115] ([203.14.152.115]:48138 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264505AbUDZMNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 08:13:43 -0400
+Date: Mon, 26 Apr 2004 22:11:45 +1000
+To: ncunningham@linuxmail.com, 234976@bugs.debian.org
+Cc: Roland Stigge <stigge@antcom.de>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040426121145.GA7610@gondor.apana.org.au>
+References: <1080310299.2108.10.camel@atari.stigge.org> <20040326142617.GA291@elf.ucw.cz> <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404261313.37870.dj@david-web.co.uk>
+In-Reply-To: <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 Apr 2004 13:05, Jorge Bernal (Koke) wrote:
->
-> I have tried with 2.6.5 and now with 2.6.6-rc2-mm1 and works perfectly.
-> This message is going through that card ;)
+On Mon, Apr 26, 2004 at 09:27:13PM +1000, Nigel Cunningham wrote:
+> 
+> There used to be such a check. Centrinos, however, if I recall correctly,  
+> don't have PSE but can suspend with our current method. Perhaps we can  
 
-Do you mean that both 2.6.5 and 2.6.6-rc2-mm1 worked or that only 
-2.6.6-rc2-mm1 worked and 2.6.5 didn't?
+Then it's just pure luck.  Whenever you have a page whose page table
+lies in a page beyond that page itself the non-PSE case will fail.
 
->
-> Mine is:
-> 00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-> RTL-8139/8139C/8139C+ (rev 10)
->
+> come up with a more nuanced test? Better still, though, we should just get  
+> proper AGP support for suspending and resuming in.
 
-I should have said what my card is shouldn't I...
-
->From dmesg:
-eth0: RealTek RTL8139 at 0xe0914000, 00:90:f5:25:91:22, IRQ 11
-eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
-
->From lspci:
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-
-
+It's got nothing to do with AGP.  This is a flaw in the swsusp code.
+It can be triggered by anything that plays with page attributes.
 -- 
-David Johnson
-http://www.david-web.co.uk/
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

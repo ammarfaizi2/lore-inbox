@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSCCOEF>; Sun, 3 Mar 2002 09:04:05 -0500
+	id <S286161AbSCCOIZ>; Sun, 3 Mar 2002 09:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSCCOD4>; Sun, 3 Mar 2002 09:03:56 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:53696 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S285850AbSCCODh>;
-	Sun, 3 Mar 2002 09:03:37 -0500
-Date: Sun, 3 Mar 2002 15:03:24 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Deadlock on insmod yenta_socket
-Message-ID: <Pine.GSO.4.30.0203031453050.25123-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286263AbSCCOIP>; Sun, 3 Mar 2002 09:08:15 -0500
+Received: from ppp-213-1.28-151.libero.it ([151.28.1.213]:5124 "HELO
+	gateway.milesteg.arr") by vger.kernel.org with SMTP
+	id <S286161AbSCCOIH>; Sun, 3 Mar 2002 09:08:07 -0500
+Date: Sun, 3 Mar 2002 15:07:58 +0100
+From: Daniele Venzano <webvenza@libero.it>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Small fix for AGP Config.in
+Message-ID: <20020303140758.GA1930@renditai.milesteg.arr>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Today I encountered a deadlock problem. I have an ASUS L8400 notebook, and
-if I try to load the yenta_socket module, the machine immediately
-deadlocks (sysrq doesn't work, no ping replies).
+Support for agp in chipsets i820 and i830mp was added to 2.4.18, but
+drivers/char/Config.in was not updated. This patch fixes that. It was
+made against 2.4.18.
 
-I also tried the yenta-hack patch (which i found on andrew morton's page,
-though it seems to have disappeared), but no luck.
+This patch is also available from:
+http://digilander.iol.it/webvenza/kernel_patches.html
 
-Kernel is 2.4.18-ac2, but 2.4.18-preX (I don't remember exactly) was the
-same. I never tried it before.
+There is no maintainer for AGP in MAINTAINERS file, so I send it directly to
+you, Marcelo.
 
-lspci -n output:
-00:00.0 Class 0600: 8086:7190 (rev 03)
-00:01.0 Class 0604: 8086:7191 (rev 03)
-00:06.0 Class 0401: 125d:1988 (rev 12)
-00:06.1 Class 0780: 125d:1989 (rev 12)
-00:07.0 Class 0601: 8086:7110 (rev 02)
-00:07.1 Class 0101: 8086:7111 (rev 01)
-00:07.2 Class 0c03: 8086:7112 (rev 01)
-00:07.3 Class 0680: 8086:7113 (rev 03)
-00:08.0 Class 0200: 10ec:8139 (rev 10)
-00:0a.0 Class 0607: 1180:0476 (rev 80)
-00:0a.1 Class 0607: 1180:0476 (rev 80)
-01:00.0 Class 0300: 5333:8c10 (rev 11)
-
-lspci says:
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:06.0 Multimedia audio controller: ESS Technology ES1988 Allegro-1 (rev 12)
-00:06.1 Communication controller: ESS Technology ESS Modem (rev 12)
-00:07.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 03)
-00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-01:00.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/MX-MV (rev 11)
-
-
-Could anyone please help?
-
-
-Thanks,
+Bye.
 -- 
-Balazs Pozsar
+-----------------------------------------------------
+Daniele Venzano
+Senior member of the Linux User Group Genova (LUGGe)
+E-Mail: venza@iol.it
+Web: http://digilander.iol.it/webvenza/
+LUGGe: http://lugge.ziobudda.net
 
+
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_fix_agp_config_in
+
+diff -urN -X /home/venza/kernel/dontdiff linux-2.4.18-gat/drivers/char/Config.in linux-2.4.18/drivers/char/Config.in
+--- linux-2.4.18-gat/drivers/char/Config.in	Sat Mar  2 19:52:50 2002
++++ linux-2.4.18/drivers/char/Config.in	Sat Mar  2 20:08:25 2002
+@@ -210,7 +210,7 @@
+ 
+ dep_tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
+ if [ "$CONFIG_AGP" != "n" ]; then
+-   bool '  Intel 440LX/BX/GX and I815/I830M/I840/I850 support' CONFIG_AGP_INTEL
++   bool '  Intel 440LX/BX/GX and I815/I820/I830M/I830MP/I840/I845/I850/I860 support' CONFIG_AGP_INTEL
+    bool '  Intel I810/I815/I830M (on-board) support' CONFIG_AGP_I810
+    bool '  VIA chipset support' CONFIG_AGP_VIA
+    bool '  AMD Irongate, 761, and 762 support' CONFIG_AGP_AMD
+
+--bp/iNruPH9dso1Pn--

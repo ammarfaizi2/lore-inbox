@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVBTUNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVBTUNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVBTUNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 15:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVBTUNQ
+	id S261836AbVBTUNu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 15:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVBTUNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 15:13:16 -0500
-Received: from chello212017098056.surfer.at ([212.17.98.56]:13574 "EHLO
-	hofr.at") by vger.kernel.org with ESMTP id S261832AbVBTUNK (ORCPT
+	Sun, 20 Feb 2005 15:13:50 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:40667 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261836AbVBTUNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 15:13:10 -0500
-From: Der Herr Hofrat <der.herr@hofr.at>
-Message-Id: <200502202009.j1KK9um25139@hofr.at>
-Subject: proc path_walk glitch ?
-To: linux-kernel@vger.kernel.org
-Date: Sun, 20 Feb 2005 21:09:56 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	Sun, 20 Feb 2005 15:13:46 -0500
+Message-ID: <4218EF74.7070405@candelatech.com>
+Date: Sun, 20 Feb 2005 12:13:40 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Ben Greear <greearb@candelatech.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Panic in 2.6.11-rc4
+References: <4218E251.1010000@candelatech.com>
+In-Reply-To: <4218E251.1010000@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Greear wrote:
+> I see this panic when booting 2.6.11-rc4 (plus some of my own 
+> patches...but my modules
+> have not loaded at the point of the crash).
 
-HI !
+Same things happens with a kernel built w/out any of my patches, by the way...
 
- I noticed a slight proc filesystem strangness in the 2.4.2X and 2.6.X 
- (atleast up to 2.6.8).  Assuming that process 8655 exists and is running 
- long enough (ls -lR / or so)
+Ben
 
-cd /proc/8655
-kill -9 8655
-ls
-/usr/bin/ls: .: Stale NFS file handle
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ESTALE (Stale NFS file handle)  from  fs/namei.c -> link_path_walk :
-
-int fastcall link_path_walk(const char * name, struct nameidata *nd)
-{
-	struct dentry *dentry;
-	struct inode *inode;
-	int err;
-	unsigned int lookup_flags = nd->flags;
-
-	while (*name=='/')
-		name++;
-	if (!*name)
-		goto return_reval;
-	...
-
-return_reval:
-		/*
-		 * We bypassed the ordinary revalidation routines.
-		 * Check the cached dentry for staleness.
-		 */
-		dentry = nd->dentry;
-		if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-			err = -ESTALE;
-			if (!dentry->d_op->d_revalidate(dentry, 0)) {
-				d_invalidate(dentry);
-				break;
-			}
-		}
-
-
- Why does return_reval return -ESTALE instead of -ENOENT here - might need an
-extra check on what filesystem this is working on ?
-
-/usr/bin/ls: .: no such file or directory
-
- would seem more meaningfull to me when I find it in a logfile.
-
-thx !
-hofrat

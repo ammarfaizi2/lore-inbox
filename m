@@ -1,36 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132726AbRDNCak>; Fri, 13 Apr 2001 22:30:40 -0400
+	id <S132710AbRDNCqL>; Fri, 13 Apr 2001 22:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132717AbRDNCab>; Fri, 13 Apr 2001 22:30:31 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:9405 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S132722AbRDNCaU>;
-	Fri, 13 Apr 2001 22:30:20 -0400
-Message-ID: <3AD7B619.D1A812CC@mandrakesoft.com>
-Date: Fri, 13 Apr 2001 22:29:45 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-17mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.0.0 doesn't remember configuration changes
-In-Reply-To: <20010411191940.A9081@thyrsus.com> <E14nU6n-0007po-00@the-village.bc.nu> <20010411204523.C9081@thyrsus.com> <002701c0c2f1$fc672960$0201a8c0@home> <20010411225055.A11009@thyrsus.com> <003c01c0c312$73713300$0201a8c0@home> <20010411220646.A12550@thyrsus.com> <20010412232021.A682@nightmaster.csn.tu-chemnitz.de> <20010413221102.C4651@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132724AbRDNCpv>; Fri, 13 Apr 2001 22:45:51 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:59535 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S132710AbRDNCpq>; Fri, 13 Apr 2001 22:45:46 -0400
+Date: Fri, 13 Apr 2001 19:45:28 -0700
+From: "Adam J. Richter" <adam@freya.yggdrasil.com>
+Message-Id: <200104140245.TAA05482@freya.yggdrasil.com>
+To: chief@bandits.org
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> OK, 1.1.0 will do these things.  I'm still not certain I have `make
-> oldconfig' right, but I trust someone will club me gently over the
-> head if it's still not up to spec.
+"John Fremlin" <chief@bandits.org> writes:
+>"Adam J. Richter" <adam@yggdrasil.com> writes:
+>> "John Fremlin" <chief@bandits.org> writes:
+>> > "Adam J. Richter" <adam@yggdrasil.com> writes:
 
-Yep :)   'vi .config' + 'make oldconfig' is the most efficient way to
-update your kernel config, if you really know what you are doing.
+>The parent is not allowed to run until the child execs, if I
+>understand correctly. Read up on CLONE_VFORK.
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+	I thought that I had checked this a few months ago and
+discovered that Linux let the vfork parent run, but I wrote a
+test program just now, and you're apparently right about that,
+at least with respect to 2.4.3, although that's all the more
+reason to give the short term CPU priority to the process that
+can use it (the child), thereby slightly increasing the average
+runtime available in a timeslice, which in term slightly decreases
+the percentage of time spent in context switch overhead.  This will
+usually be a really tiny amount, but my point is that since there
+is probably a tiny advantage to giving the remaining time slices
+to the child even here, there is no need to complicate my patch.
+
+>> Of course, in the vfork case, this change is probably only a very
+>> small win.  The real advantage is with regular fork() followed by an
+>> exec, which happens quite a lot.  For example, I do not see vfork
+>> anywhere in the bash sources.
+
+>If it is a real advantage you can get a bigger advantage by changing
+>the app to use vfork, i.e. you can solve the problem (if it exists)
+>better without hacking the kernel.
+
+	It is impractical to change every application, including
+ones that you don't have access to, and many of them have reaons for
+using fork instead of vfork, and you don't even have access to them.
+For example, the setup that the child does between the fork and the
+exec is complex enough so that it might mess up the parent's memory or,
+more commonly, its error handling code for exec failure is.
+
+	Even if you could show that vfork was the right choice in all
+cases (and it isn't), that would still be no reason for making do_fork
+unnecessary slow and complex.  My change simplifies do_fork(), makes
+it runs a few cycles faster, and, I believe, makes it behave like more
+fork on most other systems.  If you want to argue against this change,
+please justify the real benefits of the performance cost, the
+complexity and nonstandard behavior you are advocating.  (Admittedly
+the last two are really small, but I believe they are positive).
+
+	Note that I've dropped Linus's email address for this thread,
+as it does not appear to be arguing a real technical advantage to the
+old do_fork() behavior.  So, while it may be interesting and informative
+and on topic for lkml, it is not seem to be an argument to Linus that
+he should reject or modify my patch.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,103 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285255AbRLMXY3>; Thu, 13 Dec 2001 18:24:29 -0500
+	id <S285254AbRLMXZ7>; Thu, 13 Dec 2001 18:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285257AbRLMXYU>; Thu, 13 Dec 2001 18:24:20 -0500
-Received: from colorfullife.com ([216.156.138.34]:32521 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S285255AbRLMXYC>;
-	Thu, 13 Dec 2001 18:24:02 -0500
-Message-ID: <3C193897.893088D9@colorfullife.com>
-Date: Fri, 14 Dec 2001 00:24:07 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: optimize DNAME_INLINE_LEN
-In-Reply-To: <3C192A37.4547D2A7@colorfullife.com> <20011213160706.E940@lynx.no>
-Content-Type: multipart/mixed;
- boundary="------------7D1CDA7038AA77A7C6AD60BE"
+	id <S285258AbRLMXZl>; Thu, 13 Dec 2001 18:25:41 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.247.199]:64527 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S285256AbRLMXZV>;
+	Thu, 13 Dec 2001 18:25:21 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: User-manageable sub-ids proposals
+Date: 13 Dec 2001 23:24:01 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9vbdah$59k$1@abraham.cs.berkeley.edu>
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011212204333.A4017@pimlott.ne.mediaone.net> <3C1873A2.1060702@namesys.com> <20011213113616.B6547@pern.dea.icai.upco.es>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1008285841 5428 128.32.45.153 (13 Dec 2001 23:24:01 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 13 Dec 2001 23:24:01 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------7D1CDA7038AA77A7C6AD60BE
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Romano Giannetti  wrote:
+>I was thinking about the idea of sub-ids to enable users to run "untrusted"
+>binary or "dangerous" one without risk for their files/privacy. 
 
-Andreas Dilger wrote:
-> 
-> You can also do preprocessor macro tricks to get something like an unnamed
-> union in a struct, but it is also a bit ugly.
->
-I'd prefer that (patch attached, tested with egcs-1.1.2)
+Can I point you to some work I've done on this topic?
+We built a tool called Janus (alas, it required kernel patches).
+http://www.cs.berkeley.edu/~daw/janus/
 
-Unless I receive complaints, I'll send it to Linus tomorrow, and then
-backport to 2.4 after Linus merged it.
+Your basic goal seems like a good one: it'd be really nice if you could
+run untrusted code in a sandbox that nothing can escape.  Based on
+our experience, though, I've come to believe you probably want a more
+sophisticated solution than the one you outlined.
 
---
-	Manfred
---------------7D1CDA7038AA77A7C6AD60BE
-Content-Type: text/plain; charset=us-ascii;
- name="patch-dcache"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-dcache"
+First, the 'nobody' userid (and equivalents) leave a lot to be desired.
+A troubling number of system resources can be accessed by 'nobody': there
+are usually an enormous quantity of world-readable files; more troubling,
+there are tons of world-executable setuid programs, and it's hard with a
+purely userid-based mechanism to be sure that they won't provide an escape
+hatch; not to mention other resources, such as interprocess communication,
+network sockets, and so on.
 
---- 2.5/include/linux/dcache.h	Thu Oct 11 15:20:18 2001
-+++ build-2.5/include/linux/dcache.h	Thu Dec 13 23:39:32 2001
-@@ -61,25 +61,33 @@
- 	return end_name_hash(hash);
- }
- 
--#define DNAME_INLINE_LEN 16
-+#define DENTRY_MEMBERS \
-+	atomic_t d_count; \
-+	unsigned int d_flags; \
-+	struct inode  * d_inode;	/* Where the name belongs to - NULL is negative */ \
-+	struct dentry * d_parent;	/* parent directory */ \
-+	struct list_head d_hash;	/* lookup hash list */ \
-+	struct list_head d_lru;		/* d_count = 0 LRU list */ \
-+	struct list_head d_child;	/* child of parent list */ \
-+	struct list_head d_subdirs;	/* our children */ \
-+	struct list_head d_alias;	/* inode alias list */ \
-+	int d_mounted; \
-+	struct qstr d_name; \
-+	unsigned long d_time;		/* used by d_revalidate */ \
-+	struct dentry_operations  *d_op; \
-+	struct super_block * d_sb;	/* The root of the dentry tree */ \
-+	unsigned long d_vfs_flags; \
-+	void * d_fsdata;		/* fs-specific data */
-+
-+struct dentry_nameless {
-+	DENTRY_MEMBERS
-+};
-+/* +15 to guarantee a minimal inline len of 16 bytes */
-+#define DNAME_INLINE_LEN \
-+	(15 + L1_CACHE_BYTES - (15+sizeof(struct dentry_nameless))%L1_CACHE_BYTES)
- 
- struct dentry {
--	atomic_t d_count;
--	unsigned int d_flags;
--	struct inode  * d_inode;	/* Where the name belongs to - NULL is negative */
--	struct dentry * d_parent;	/* parent directory */
--	struct list_head d_hash;	/* lookup hash list */
--	struct list_head d_lru;		/* d_count = 0 LRU list */
--	struct list_head d_child;	/* child of parent list */
--	struct list_head d_subdirs;	/* our children */
--	struct list_head d_alias;	/* inode alias list */
--	int d_mounted;
--	struct qstr d_name;
--	unsigned long d_time;		/* used by d_revalidate */
--	struct dentry_operations  *d_op;
--	struct super_block * d_sb;	/* The root of the dentry tree */
--	unsigned long d_vfs_flags;
--	void * d_fsdata;		/* fs-specific data */
-+	DENTRY_MEMBERS
- 	unsigned char d_iname[DNAME_INLINE_LEN]; /* small names */
- };
- 
+The conclusion we came to is that you really need something more powerful
+than the existing access control measures.  Unix systems are really not
+very good at preventing attacks by local users.
 
---------------7D1CDA7038AA77A7C6AD60BE--
+A second claim is that you really want to start from the Principle
+of Least Privilege: give the untrusted process the absolute minimum
+privilege necessary for it to accomplish its task, and nothing more.
+Userid-based mechanisms do a lousy job at achieving this.
 
+This, by the way, is analogous to the "default deny" policy that you may
+be familiar with from the firewalls world: if you start by giving the
+untrusted process zero privileges and then explicitly declare only the
+ones you want allowed, you greatly reduce the risk that the untrusted
+process can escape and cause harm in some way you didn't expect.
+
+A third observation is that you need to control access to a lot more
+than just the filesystem.  You want to control the network (prevent the
+spread of viruses; and if anyone uses IP-based authentication, or if
+your machine is inside a firewall, prevent the untrusted process from
+abusing the good name of the local host).  You want to control resources
+like IPC, signals, resource usage, and so on.  And I claim you want more
+fine-grained control than POSIX capabilities provide.
+
+A fourth observation is that in practice it's useful to provide more
+than just isolation: you often also want to allow some limited degree
+of sharing between trusted and untrusted processes.  chroot() is not
+so good in this respect, even apart from the fact that it protects only
+the filesystem and not any of the other resources on the system.
+
+The Janus approach is to interpose on system calls to impose a more
+restrictive security policy.  We use ptrace() and the like to do this
+from userspace.  It's a little clunky, especially since support for
+process tracing on Linux has shortcomings, but it works.  We've run
+a web browser, a web server, etc., inside the restricted environment
+Janus provides.  Janus is just one approach, of course, and there are
+a number of other projects that have followed related directions (DTE,
+consh, mapbox, SubDomain, SELinux, etc.).
+
+Looking to the future, may I direct your attention to the Linux Security
+Module project?  They're doing some great work that I think will lay
+a fantastic foundation for trying out many different approaches to
+this problem.

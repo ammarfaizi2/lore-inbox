@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314092AbSDQOa4>; Wed, 17 Apr 2002 10:30:56 -0400
+	id <S314093AbSDQOlP>; Wed, 17 Apr 2002 10:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314093AbSDQOaz>; Wed, 17 Apr 2002 10:30:55 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:32519 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314092AbSDQOay>; Wed, 17 Apr 2002 10:30:54 -0400
-Message-ID: <3CBD7889.6060707@evision-ventures.com>
-Date: Wed, 17 Apr 2002 15:28:41 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.8 IDE oops (TCQ breakage?)
-In-Reply-To: <200204161749.TAA16333@harpo.it.uu.se> <3CBD45BD.4040209@evision-ventures.com> <20020417120817.GA800@suse.de> <20020417122502.GB800@suse.de> <3CBD5D93.30501@evision-ventures.com> <20020417141653.GA13627@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314094AbSDQOlO>; Wed, 17 Apr 2002 10:41:14 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:54599 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S314093AbSDQOlO>; Wed, 17 Apr 2002 10:41:14 -0400
+Date: Wed, 17 Apr 2002 09:40:48 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200204171440.JAA76065@tomcat.admin.navo.hpc.mil>
+To: Nikita@Namesys.COM, Andrey Ulanov <drey@rt.mipt.ru>
+Subject: Re: FPU, i386
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
-> On Wed Apr 17, 2002 at 01:33:39PM +0200, Martin Dalecki wrote:
-> 
->>Yes I see. However for now I will just concentrate on ide-cd.c and
->>await you to merge up with IDE 37 OK? (It should be easy this time :-).
-> 
-> 
-> While working on ide-cd, I think the bad sector handling needs
-> serious attention...  For example, I have a CD-ROM (a toddler
-> game for windoz) that my 2 year old son scratched into
-> non-functional oblivion.  I attempted to extract the contents in
-> the hope of burning it to a new CD.  Using dd conv=noerror, it
-> began ripping the content just fine -- till it hit the bad spot.
-> Then it took like 12 hours to progress by an additional 10 MB...
-> 
-> Looking at the ide-cd code (since I used to maintain it years
-> ago) it seems that on a bad sector, ide-cd retries ERROR_MAX (8)
-> times.  But the low level ide driver is _also_ doing ERROR_MAX
-> retries for each of those 8 retries from ide-cd....   Do we
-> really need to retry 64 times when the drive told us clearly the
-> _first_ time that it is an uncorrectable medium error?  
-> 
-> Perhaps something like this patch would make more sense?  With
-> this patch is place, error handling is still awful, but at least
-> a dd was able to make a bit of progress....  
+---------  Received message begins Here  ---------
 
-Yeep you are entierly right. I will include your patch directly.
+> 
+> Andrey Ulanov writes:
+>  > Look at this:
+>  > 
+>  > $ cat test.c
+>  > #include <stdio.h>
+>  > 
+>  > main()
+>  > {
+>  > 	double h = 0.2;
+>  > 	
+>  > 	if(1/h == 5.0)
+>  > 	    printf("1/h == 5.0\n");
+>  > 
+>  > 	if(1/h < 5.0)
+>  > 	    printf("1/h < 5.0\n");
+>  > 	return 0;
+>  > }
+>  > $ gcc test.c
+> 
+> $ gcc -O test.c
+> $ ./a.out
+> 1/h == 5.0
+> 
+> without -O, gcc initializes h to 0.2000000000000000111
+> 
+>  > $ ./a.out
+>  > 1/h < 5.0
+>  > $ 
+>  > 
+>  > I also ran same a.out under FreeBSD. It says "1/h == 5.0".
+>  > It seems there is difference somewhere in FPU 
+>  > initialization code. And I think it should be fixed.
 
+Nope. -O2 implies constant folding, and h is a constant. What you are
+compairing is runtime vs compile time values. 5.0 is compile time.
+1/h where h is a constant is compile time (O2) and that would
+come out at 5.0 also
 
+Been there done that... My solution (based on the problem I was working
+in) was to multiply both sides by the 10^<number of siginificant digits
+of the problem set>. Taking the simplistic approach:
+
+if (int(1/h * 100) == int(5.0 * 100))
+
+will give a "proper" result within two decimal places. This is still
+limited since there are irrational numbers within that range that COULD
+still come out with a wrong answer, but is much less likely to occur.
+
+Exact match of floating point is not possible - 1/h is eleveated to a float.
+
+If your 1/h was actually num/h, and num computed by summing .01 100 times
+I suspect the result would also be "wrong".
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

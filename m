@@ -1,195 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263037AbVCQLcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263077AbVCQLg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbVCQLcT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 06:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbVCQLbZ
+	id S263077AbVCQLg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 06:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbVCQLfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 06:31:25 -0500
-Received: from smtp15.wxs.nl ([195.121.6.54]:42721 "EHLO smtp15.wxs.nl")
-	by vger.kernel.org with ESMTP id S263044AbVCQK2I (ORCPT
+	Thu, 17 Mar 2005 06:35:40 -0500
+Received: from ozlabs.org ([203.10.76.45]:23445 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263048AbVCQKky (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 05:28:08 -0500
-Date: Thu, 17 Mar 2005 11:26:33 +0100
-From: Iwan Sanders <iwan.sanders@tuxproject.info>
-Subject: Unable to mount a cifs/smb networkfilesystem
-X-Originating-IP: 212.26.213.3
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: iwan.sanders@maastro.nl
-Message-id: <1111055193.42395b59485ab@www.proserv.ath.cx>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_nHhV84DgR0K1IzpQUrP1wA)"
-User-Agent: Internet Messaging Program (IMP) 3.2.5
+	Thu, 17 Mar 2005 05:40:54 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16953.24301.839167.512527@cargo.ozlabs.ibm.com>
+Date: Thu, 17 Mar 2005 21:41:49 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: Nathan Lynch <ntl@pobox.com>, anton@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2/8] PPC64 make OF node fixup code usable at runtime
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.
+At boot we recurse through the device tree "fixing up" various fields
+and properties in the device nodes.  Long ago, to support DLPAR and
+hotplug, we largely duplicated some of this fixup code, the main
+difference being that the new code used kmalloc for allocating various
+data structures which are attached to the new device nodes.
 
---Boundary_(ID_nHhV84DgR0K1IzpQUrP1wA)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+This patch introduces a helper function (prom_alloc) for handling
+allocations at both boot and runtime, kills most of the duplicated
+code, and makes finish_node, finish_node_interrupts, and
+interpret_pci_props suitable for use at runtime by converting them to
+use prom_alloc.
 
-LS,
+Signed-off-by: Nathan Lynch <ntl@pobox.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-I tried to mount a windows network filesystem and got the following error
-message:
+ arch/ppc64/kernel/prom.c |  177 +++++++++------------------
+ 1 files changed, 62 insertions(+), 115 deletions(-)
 
-mount -t cifs -o username=hyperion,workgroup=maastro //file1/Docweb$ /mnt/data/
-mount: wrong fs type, bad option, bad superblock on //file1/Docweb$,
-       or too many mounted file systems
-
-I installed the following kernel
-
-Linux hyperion 2.6.11.2-maastro-hyperion-v2 #2 SMP Tue Mar 15 16:51:03 CET 2005
-i686 GNU/Linux
-
-I first used a 2.6.8 kernel and that worked fine!? Anyone got a sugestion?
-
-I've included the kernel .config file..
-
-Cheers,
-
-Iwan Sanders
-
-
-
--------------------------------------------------------------
-This message was sent though the www.proserv.ath.cx mailgate!
-ProServ - WebHosting for peanuts!
-
---Boundary_(ID_nHhV84DgR0K1IzpQUrP1wA)
-Content-type: application/x-gzip; name=config.gz
-Content-transfer-encoding: base64
-Content-disposition: attachment; filename=config.gz
-
-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
-
---Boundary_(ID_nHhV84DgR0K1IzpQUrP1wA)--
+Index: linux-2.6.11-bk10/arch/ppc64/kernel/prom.c
+===================================================================
+--- linux-2.6.11-bk10.orig/arch/ppc64/kernel/prom.c	2005-03-14 21:49:46.000000000 +0000
++++ linux-2.6.11-bk10/arch/ppc64/kernel/prom.c	2005-03-14 21:54:08.000000000 +0000
+@@ -103,6 +103,25 @@ static DEFINE_RWLOCK(devtree_lock);
+ struct device_node *of_chosen;
+ 
+ /*
++ * Wrapper for allocating memory for various data that needs to be
++ * attached to device nodes as they are processed at boot or when
++ * added to the device tree later (e.g. DLPAR).  At boot there is
++ * already a region reserved so we just increment *mem_start by size;
++ * otherwise we call kmalloc.
++ */
++static void * prom_alloc(unsigned long size, unsigned long *mem_start)
++{
++	unsigned long tmp;
++
++	if (!mem_start)
++		return kmalloc(size, GFP_KERNEL);
++
++	tmp = *mem_start;
++	*mem_start += size;
++	return (void *)tmp;
++}
++
++/*
+  * Find the device_node with a given phandle.
+  */
+ static struct device_node * find_phandle(phandle ph)
+@@ -255,9 +274,9 @@ static int __devinit map_interrupt(unsig
+ 	return nintrc;
+ }
+ 
+-static int __init finish_node_interrupts(struct device_node *np,
+-					 unsigned long *mem_start,
+-					 int measure_only)
++static int __devinit finish_node_interrupts(struct device_node *np,
++					    unsigned long *mem_start,
++					    int measure_only)
+ {
+ 	unsigned int *ints;
+ 	int intlen, intrcells, intrcount;
+@@ -270,8 +289,10 @@ static int __init finish_node_interrupts
+ 		return 0;
+ 	intrcells = prom_n_intr_cells(np);
+ 	intlen /= intrcells * sizeof(unsigned int);
+-	np->intrs = (struct interrupt_info *) (*mem_start);
+-	(*mem_start) += intlen * sizeof(struct interrupt_info);
++
++	np->intrs = prom_alloc(intlen * sizeof(*(np->intrs)), mem_start);
++	if (!np->intrs)
++		return -ENOMEM;
+ 
+ 	if (measure_only)
+ 		return 0;
+@@ -318,33 +339,39 @@ static int __init finish_node_interrupts
+ 	return 0;
+ }
+ 
+-static int __init interpret_pci_props(struct device_node *np,
+-				      unsigned long *mem_start,
+-				      int naddrc, int nsizec,
+-				      int measure_only)
++static int __devinit interpret_pci_props(struct device_node *np,
++					 unsigned long *mem_start,
++					 int naddrc, int nsizec,
++					 int measure_only)
+ {
+ 	struct address_range *adr;
+ 	struct pci_reg_property *pci_addrs;
+-	int i, l;
++	int i, l, n_addrs;
+ 
+ 	pci_addrs = (struct pci_reg_property *)
+ 		get_property(np, "assigned-addresses", &l);
+-	if (pci_addrs != 0 && l >= sizeof(struct pci_reg_property)) {
+-		i = 0;
+-		adr = (struct address_range *) (*mem_start);
+-		while ((l -= sizeof(struct pci_reg_property)) >= 0) {
+-			if (!measure_only) {
+-				adr[i].space = pci_addrs[i].addr.a_hi;
+-				adr[i].address = pci_addrs[i].addr.a_lo |
+-					((u64)pci_addrs[i].addr.a_mid << 32);
+-				adr[i].size = pci_addrs[i].size_lo;
+-			}
+-			++i;
+-		}
+-		np->addrs = adr;
+-		np->n_addrs = i;
+-		(*mem_start) += i * sizeof(struct address_range);
++	if (!pci_addrs)
++		return 0;
++
++	n_addrs = l / sizeof(*pci_addrs);
++
++	adr = prom_alloc(n_addrs * sizeof(*adr), mem_start);
++	if (!adr)
++		return -ENOMEM;
++ 
++ 	if (measure_only)
++ 		return 0;
++ 
++ 	np->addrs = adr;
++ 	np->n_addrs = n_addrs;
++ 
++ 	for (i = 0; i < n_addrs; i++) {
++ 		adr[i].space = pci_addrs[i].addr.a_hi;
++ 		adr[i].address = pci_addrs[i].addr.a_lo |
++			((u64)pci_addrs[i].addr.a_mid << 32);
++ 		adr[i].size = pci_addrs[i].size_lo;
+ 	}
++
+ 	return 0;
+ }
+ 
+@@ -490,11 +517,11 @@ static int __init interpret_root_props(s
+ 	return 0;
+ }
+ 
+-static int __init finish_node(struct device_node *np,
+-			      unsigned long *mem_start,
+-			      interpret_func *ifunc,
+-			      int naddrc, int nsizec,
+-			      int measure_only)
++static int __devinit finish_node(struct device_node *np,
++				 unsigned long *mem_start,
++				 interpret_func *ifunc,
++				 int naddrc, int nsizec,
++				 int measure_only)
+ {
+ 	struct device_node *child;
+ 	int *ip, rc = 0;
+@@ -1627,54 +1654,6 @@ static void remove_node_proc_entries(str
+ #endif /* CONFIG_PROC_DEVICETREE */
+ 
+ /*
+- * Fix up n_intrs and intrs fields in a new device node
+- *
+- */
+-static int of_finish_dynamic_node_interrupts(struct device_node *node)
+-{
+-	int intrcells, intlen, i;
+-	unsigned *irq, *ints, virq;
+-	struct device_node *ic;
+-
+-	ints = (unsigned int *)get_property(node, "interrupts", &intlen);
+-	intrcells = prom_n_intr_cells(node);
+-	intlen /= intrcells * sizeof(unsigned int);
+-	node->n_intrs = intlen;
+-	node->intrs = kmalloc(sizeof(struct interrupt_info) * intlen,
+-			      GFP_KERNEL);
+-	if (!node->intrs)
+-		return -ENOMEM;
+-
+-	for (i = 0; i < intlen; ++i) {
+-		int n, j;
+-		node->intrs[i].line = 0;
+-		node->intrs[i].sense = 1;
+-		n = map_interrupt(&irq, &ic, node, ints, intrcells);
+-		if (n <= 0)
+-			continue;
+-		virq = virt_irq_create_mapping(irq[0]);
+-		if (virq == NO_IRQ) {
+-			printk(KERN_CRIT "Could not allocate interrupt "
+-			       "number for %s\n", node->full_name);
+-			return -ENOMEM;
+-		}
+-		node->intrs[i].line = irq_offset_up(virq);
+-		if (n > 1)
+-			node->intrs[i].sense = irq[1];
+-		if (n > 2) {
+-			printk(KERN_DEBUG "hmmm, got %d intr cells for %s:", n,
+-			       node->full_name);
+-			for (j = 0; j < n; ++j)
+-				printk(" %d", irq[j]);
+-			printk("\n");
+-		}
+-		ints += intrcells;
+-	}
+-	return 0;
+-}
+-
+-
+-/*
+  * Fix up the uninitialized fields in a new device node:
+  * name, type, n_addrs, addrs, n_intrs, intrs, and pci-specific fields
+  *
+@@ -1685,7 +1664,9 @@ static int of_finish_dynamic_node_interr
+  * This should probably be split up into smaller chunks.
+  */
+ 
+-static int of_finish_dynamic_node(struct device_node *node)
++static int of_finish_dynamic_node(struct device_node *node,
++				  unsigned long *unused1, int unused2,
++				  int unused3, int unused4)
+ {
+ 	struct device_node *parent = of_get_parent(node);
+ 	u32 *regs;
+@@ -1710,41 +1691,6 @@ static int of_finish_dynamic_node(struct
+ 	if ((ibm_phandle = (unsigned int *)get_property(node, "ibm,phandle", NULL)))
+ 		node->linux_phandle = *ibm_phandle;
+ 
+-	/* do the work of interpret_pci_props */
+-	if (parent->type && !strcmp(parent->type, "pci")) {
+-		struct address_range *adr;
+-		struct pci_reg_property *pci_addrs;
+-		int i, l;
+-
+-		pci_addrs = (struct pci_reg_property *)
+-			get_property(node, "assigned-addresses", &l);
+-		if (pci_addrs != 0 && l >= sizeof(struct pci_reg_property)) {
+-			i = 0;
+-			adr = kmalloc(sizeof(struct address_range) * 
+-				      (l / sizeof(struct pci_reg_property)),
+-				      GFP_KERNEL);
+-			if (!adr) {
+-				err = -ENOMEM;
+-				goto out;
+-			}
+-			while ((l -= sizeof(struct pci_reg_property)) >= 0) {
+-				adr[i].space = pci_addrs[i].addr.a_hi;
+-				adr[i].address = pci_addrs[i].addr.a_lo |
+-					((u64)pci_addrs[i].addr.a_mid << 32);
+-				adr[i].size = pci_addrs[i].size_lo;
+-				++i;
+-			}
+-			node->addrs = adr;
+-			node->n_addrs = i;
+-		}
+-	}
+-
+-	/* now do the work of finish_node_interrupts */
+-	if (get_property(node, "interrupts", NULL)) {
+-		err = of_finish_dynamic_node_interrupts(node);
+-		if (err) goto out;
+-	}
+-
+ 	/* now do the rough equivalent of update_dn_pci_info, this
+ 	 * probably is not correct for phb's, but should work for
+ 	 * IOAs and slots.
+@@ -1796,7 +1742,8 @@ int of_add_node(const char *path, struct
+ 		return -EINVAL; /* could also be ENOMEM, though */
+ 	}
+ 
+-	if (0 != (err = of_finish_dynamic_node(np))) {
++	err = finish_node(np, NULL, of_finish_dynamic_node, 0, 0, 0);
++	if (err < 0) {
+ 		kfree(np);
+ 		return err;
+ 	}

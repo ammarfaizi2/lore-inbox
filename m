@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313453AbSDPBhg>; Mon, 15 Apr 2002 21:37:36 -0400
+	id <S313455AbSDPBlX>; Mon, 15 Apr 2002 21:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313455AbSDPBhf>; Mon, 15 Apr 2002 21:37:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46085 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313453AbSDPBhf>; Mon, 15 Apr 2002 21:37:35 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: link() security
-Date: 15 Apr 2002 18:37:19 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9fv8f$l3t$1@cesium.transmeta.com>
-In-Reply-To: <20020415143641.A46232@hiwaay.net> <a9fb6v$d2f$1@cesium.transmeta.com> <s5g3cxwk8bv.fsf@egghead.curl.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S313457AbSDPBlW>; Mon, 15 Apr 2002 21:41:22 -0400
+Received: from unthought.net ([212.97.129.24]:39335 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S313455AbSDPBlV>;
+	Mon, 15 Apr 2002 21:41:21 -0400
+Date: Tue, 16 Apr 2002 03:41:20 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: davem@redhat.com, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+Message-ID: <20020416034120.R18116@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Hirokazu Takahashi <taka@valinux.co.jp>, davem@redhat.com,
+	ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20020412.143934.33012005.davem@redhat.com> <20020415.103013.62679757.taka@valinux.co.jp> <20020414.212308.33849971.davem@redhat.com> <20020416.100302.129343787.taka@valinux.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <s5g3cxwk8bv.fsf@egghead.curl.com>
-By author:    "Patrick J. LoPresti" <patl@curl.com>
-In newsgroup: linux.dev.kernel
-> > 
-> > It depends on your access patterns.  Newer news server use what I
-> > would classify as custom filesystems (which is what binary databases
-> > are, by and large) rather than "single files."
+On Tue, Apr 16, 2002 at 10:03:02AM +0900, Hirokazu Takahashi wrote:
+> Hi, David
 > 
-> Exactly.  Although I would go farther.
+...
 > 
-> I would not be at all surprised if a traditional news spool worked
-> just fine on a "real" high-performance file system; i.e., one whose
-> lookup/creat/unlink was not linear in the number of directory entries.
-> I wonder how well an old-fashioned news spool would perform on XFS,
-> for instance.
+> Yes, it seems to be the most general way.
+> OK, I'll do this way first of all.
 > 
-> "One file per message" has many advantages, both for news and for
-> mail.  The biggest advantage is conceptual simplicity.  It is really
-> nice when you can use traditional Unix tools (like grep, mv, rm) to
-> fix things when they break.  Because they always break, sooner or
-> later.
+> In the kernel, probaboly I'd impelement as following:
 > 
-> Sure, you may wind up with 50,000 files in one directory.  But I would
-> rather rely on the filesystem wizards to deal with that than switch to
-> some obscure custom database format.  Maybe that's just me...
+> 	put a RPC header and a NFS header on "bufferA";
+> 	down(semaphore);
+> 	sendmsg(bufferA, MSG_MORE);
+> 	for (eache pages of fileC)
+> 		sock->opt->sendpage(page, islastpage ? 0 : MSG_MORE)
+> 	up(semaphore);
 > 
+> the semaphore is required to serialize sending data as many knfsd kthreads
+> use the same socket.
 
-I think the biggest problem with the one-file-per-message format is
-that you still want to maintain some kind of metadata (.overview
-files.)  This is cached information, but still needs to be maintained,
-so you don't end up opening up every file to get the overview data.
-With a application-specific store, you can make that more explicit.
+Won't this serialize too much ?  I mean, consider the situation where we
+have file-A and file-B completely in cache, while file-C needs to be
+read from the physical disk.
 
-	-hpa
+Three different clients (A, B and C) request file-A, file-B and file-C
+respectively. The send of file-C is started first, and the sends of files
+A and B (which could commence immediately and complete at near wire-speed)
+will now have to wait (leaving the NIC idle) until file-C is read from
+the disks.
+
+Even if it's not the entire file but only a single NFS request (probably 8kB),
+one disk seek (7ms) is still around 85 kB, or 10 8kB NFS requests (at 100Mbit).
+
+Or am I misunderstanding ?   Will your UDP sendpage() queue the requests ?
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

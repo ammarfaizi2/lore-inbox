@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbTJAGgK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 02:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTJAGgK
+	id S262018AbTJAGwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 02:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbTJAGwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 02:36:10 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:38278 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261996AbTJAGgH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 02:36:07 -0400
-Date: Wed, 1 Oct 2003 07:35:45 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Klaus Dittrich <kladit@t-online.de>,
-       linux mailing-list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, "Hu, Boris" <boris.hu@intel.com>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: 2.6.0-test6 oops futex"
-Message-ID: <20031001063545.GG1131@mail.shareable.org>
-References: <Pine.LNX.4.44.0309302141220.4388-100000@localhost.localdomain> <20031001054619.976472C105@lists.samba.org>
+	Wed, 1 Oct 2003 02:52:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26264 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262018AbTJAGwS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 02:52:18 -0400
+Date: Tue, 30 Sep 2003 23:53:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Murray J. Root" <murrayr@brain.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6 scheduling(?) oddness
+Message-Id: <20030930235317.1d293a71.akpm@osdl.org>
+In-Reply-To: <20031001051827.GE1416@Master>
+References: <20031001032238.GB1416@Master>
+	<20030930215512.1df59be3.akpm@osdl.org>
+	<3F7A604F.1060905@cyberone.com.au>
+	<20031001051827.GE1416@Master>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031001054619.976472C105@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> +again:
-> +	key = q->key;
-> +	bh = hash_futex(&key);
->  	spin_lock(&bh->lock);
-> +	if (unlikely(!match_futex(&key, q->key)) {
-> +		/* Race against futex_requeue */
-> +		spin_unlock(&bh_lock);
-> +		goto again;
-> +	}
+"Murray J. Root" <murrayr@brain.org> wrote:
+>
 
-Bug:
+ (the linux-kernel email convention is "reply to all", btw)
+ 
+>  test6 goes from 30 mins to 24 mins - still worse than test5 by a lot.
 
-	1. key = q->key copies bad key, while it is being changed.
-
-	2. That makes the spin_lock() irrelevant.
-
-	3. match_futex() compares word by word against another bad
-	   key, while it is being changed again (by a second futex_requeue).
-
-	4. It can match even though the key is wrong.
-
-For example, say the first requeue changes q->key from (1,2) to (3,4).
-key = q->key could read (1,4).
-
-Say the second requeue changes q->key from (3,4) to (1,5).
-match_futex() could read (1,4) and pass the test, even though (1,4)
-is never a valid key.
-
--- Jamie
+What sort of context switch rate are you seeing during this run?  Running
+`vmstat 1' will tell.

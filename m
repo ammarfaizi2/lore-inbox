@@ -1,100 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317437AbSF2Anf>; Fri, 28 Jun 2002 20:43:35 -0400
+	id <S317488AbSF2AvC>; Fri, 28 Jun 2002 20:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317485AbSF2Ane>; Fri, 28 Jun 2002 20:43:34 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([67.38.100.19]:14313 "EHLO
-	mpdr0.chicago.il.ameritech.net") by vger.kernel.org with ESMTP
-	id <S317437AbSF2And>; Fri, 28 Jun 2002 20:43:33 -0400
-Date: Fri, 28 Jun 2002 19:46:39 -0500
-From: Mark J Roberts <mjr@znex.org>
-To: linux-kernel@vger.kernel.org
-Subject: list.h merge sort implementation.
-Message-ID: <20020629004639.GA2311@znex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Key: 0x025D0C28
+	id <S317489AbSF2AvB>; Fri, 28 Jun 2002 20:51:01 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:45067 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S317488AbSF2AvA>;
+	Fri, 28 Jun 2002 20:51:00 -0400
+Message-Id: <200206290040.g5T0dhWX002388@sleipnir.valparaiso.cl>
+To: lgarfiel@students.depaul.edu
+cc: linux-kernel@vger.kernel.org, zaurus-general@lists.sourceforge.net
+Subject: Re: [Zaurus-general] Re: New Zaurus Wishlist - removable media handling 
+In-reply-to: Your message of "Wed, 26 Jun 2002 21:38:41 CDT."
+             <3D1A7AB1.D4955601@students.depaul.edu> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Fri, 28 Jun 2002 20:39:42 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few months ago I adapted a merge sort implementation from
-http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-to work with Linux's list.h. I figure I should get it into the
-archives just in case anyone might want such a thing. So here it is.
+Larry Garfield <lgarfiel@students.depaul.edu> said:
 
-void list_sort(struct list_head *head, int (*cmp)(struct list_head *a, struct list_head *b))
-{
-	struct list_head *p, *q, *e, *list, *tail, *oldhead;
-	int insize, nmerges, psize, qsize, i;
+[...]
 
-	list = head->next;
-	list_del(head);
-	insize = 1;
-	for (;;) {
-		p = oldhead = list;
-		list = tail = NULL;
-		nmerges = 0;
+> Well, I am neither a former Amiga user nor a kernel developer (but
+> GNU/Linux user), so I understood MOST of what you two said. ;-)  Coming
+> from a user-angle, though, the main problem with the Linux file system
+> "style", for lack of a better word, is the unified file tree.
 
-		while (p) {
-			nmerges++;
-			q = p;
-			psize = 0;
-			for (i = 0; i < insize; i++) {
-				psize++;
-				q = q->next == oldhead ? NULL : q->next;
-				if (!q)
-					break;
-			}
-
-			qsize = insize;
-			while (psize > 0 || (qsize > 0 && q)) {
-				if (!psize) {
-					e = q;
-					q = q->next;
-					qsize--;
-					if (q == oldhead)
-						q = NULL;
-				} else if (!qsize || !q) {
-					e = p;
-					p = p->next;
-					psize--;
-					if (p == oldhead)
-						p = NULL;
-				} else if (cmp(p, q) <= 0) {
-					e = p;
-					p = p->next;
-					psize--;
-					if (p == oldhead)
-						p = NULL;
-				} else {
-					e = q;
-					q = q->next;
-					qsize--;
-					if (q == oldhead)
-						q = NULL;
-				}
-				if (tail)
-					tail->next = e;
-				else
-					list = e;
-				e->prev = tail;
-				tail = e;
-			}
-			p = q;
-		}
-
-		tail->next = list;
-		list->prev = tail;
-
-		if (nmerges <= 1)
-			break;
-
-		insize *= 2;
-	}
-
-	head->next = list;
-	head->prev = list->prev;
-	list->prev->next = head;
-	list->prev = head;
-}
+Right. Something like mtools(1) for isofs would be nice...
+--
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

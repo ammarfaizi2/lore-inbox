@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278525AbRJVLRs>; Mon, 22 Oct 2001 07:17:48 -0400
+	id <S278522AbRJVLQ2>; Mon, 22 Oct 2001 07:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278563AbRJVLRk>; Mon, 22 Oct 2001 07:17:40 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:16 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278525AbRJVLR2>;
-	Mon, 22 Oct 2001 07:17:28 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 05:34:43 -0400."
-             <Pine.GSO.4.21.0110220526480.2294-100000@weyl.math.psu.edu> 
+	id <S278525AbRJVLQS>; Mon, 22 Oct 2001 07:16:18 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:63151 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S278522AbRJVLQH>; Mon, 22 Oct 2001 07:16:07 -0400
+Date: Mon, 22 Oct 2001 13:45:58 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: "peter k." <spam-goes-to-dev-null@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [solved] iptables v1.2.3: can't initialize iptables table `filter': Module is wrong version
+Message-ID: <20011022134558.A746@naboo.gnumonks.org>
+In-Reply-To: <004801c153d6$ffc398c0$0100005a@host1> <20011013135507.B9856@vitelus.com> <00ea01c15430$345a96c0$303fe33e@host1> <20011013155259.F9856@vitelus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 21:17:48 +1000
-Message-ID: <25634.1003749468@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20011013155259.F9856@vitelus.com>; from aaronl@vitelus.com on Sat, Oct 13, 2001 at 03:52:59PM -0700
+X-Operating-System: Linux naboo.gnumonks.org 2.4.9
+X-Date: Today is Setting Orange, the 3rd day of The Aftermath in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 05:34:43 -0400 (EDT), 
-Alexander Viro <viro@math.psu.edu> wrote:
->On Mon, 22 Oct 2001, Keith Owens wrote:
->> In modutils 2.5 I will get rid of all the hard coded entries in
->> util/alias.h.  Instead each module will define what it supports,
->> including any special commands to be run when the module is loaded or
->> unloaded.  Much easier for everyone and far more flexible.
->
->Heh.  OK, so you've stopped me in the middle of writing RFC that proposes
->addition of
->MODULE_CONF(string)
+On Sat, Oct 13, 2001 at 03:52:59PM -0700, Aaron Lehmann wrote:
+> On Sat, Oct 13, 2001 at 11:44:14PM +0200, peter k. wrote:
+> > did that, now it works! :)
+> > seems like it doesnt work if i use the iptables from the mandrake rpm
+> 
+> I'm somewhat upset about this. Rusty, what's up? I have to recompile
+> the deb against my kernel configuration for it to not myseriously
+> complain.
 
-Strange, that was exactly what I was planning for 2.5 :).
+I'm not absolutely sure about the exact cause of the problem.
 
->that would put that string into separate section and making modules_install
+It should never break (or have broken) against stock kernels.  The problem
+is known in the following scenario:
 
-<pedantic>
-depmod, not modules_install, depmod is run at other times.
-</pedantic>
+a) distributor adds dropped-table (from netfilter patch-o-matic) to kernel
+b) distributor builds iptables against this patched kernel
+c) distributor ships this iptables
+d) user installs new, plain kernel
+e) iptables no longer working because it was built against a patched kernel
+f) user has to recompile iptables.
 
->dump these sections, feed them through s/_NAME_/`basename $module`/ and
-
-kbuild 2.5 does -DKBUILD_OBJECT=module_name for all objects linked into
-a module.  KBUILD_OBJECT defines the overall module, not the individual
-files that make up the module.  We have the technology!
-
->cat them into defaults file that would go into $INSTALL_MOD_PATH.
-
-Just another modules.* file, probably modules.dynamic.conf.
-
-BTW, INSTALL_MOD_PATH is dead in kbuild 2.5, it is a configuration
-option and is held in .config.
-
->MODULES_BLKDEV(), MODULE_LDISC(), etc. would be trivial wrappers around that.
-
-Everything is a device and can be handled by the hotplug project.  It
-is really a cunning plan by David Brownell and Greg Kroah-Hartman to
-own the entire device subsystem ;).
-
->Looks like the thing you mentioned would make quite a few people happy.
->Might be worth doing in 2.4...
-
-Please, no more 2.4 changes.  Let Linus get 2.4 stable, fork 2.5 so we
-can break it on a daily basis then backport to 2.4 when it works.
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbTIKBmY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 21:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbTIKBmY
+	id S265774AbTIKBhL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 21:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265845AbTIKBhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 21:42:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31360 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265944AbTIKBmV (ORCPT
+	Wed, 10 Sep 2003 21:37:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1003 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265774AbTIKBhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 21:42:21 -0400
-Date: Wed, 10 Sep 2003 18:44:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-Id: <20030910184414.7850be57.akpm@osdl.org>
-In-Reply-To: <20030911012708.GD3134@wotan.suse.de>
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
-	<20030911012708.GD3134@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 10 Sep 2003 21:37:06 -0400
+Date: Wed, 10 Sep 2003 18:36:55 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH] Next round of ACPI IRQ fixes (VIA ACPI fixed)
+Message-ID: <20030910183655.H9800@osdlab.pdx.osdl.net>
+References: <200309051958.02818.adq_dvb@lidskialf.net> <3F592AA7.7020700@pobox.com> <20030905190338.W16228@osdlab.pdx.osdl.net> <200309061332.39489.adq_dvb@lidskialf.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200309061332.39489.adq_dvb@lidskialf.net>; from adq_dvb@lidskialf.net on Sat, Sep 06, 2003 at 01:32:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
->  +static int is_prefetch(struct pt_regs *regs, unsigned long addr)
+* Andrew de Quincey (adq_dvb@lidskialf.net) wrote:
+> On Saturday 06 September 2003 03:03, Chris Wright wrote:
+> > You'll find dmesg and interrupts from pci=noacpi, acpi=off, disassembled
+> > dsdt and dmidecode.  Don't have the failed boot dmesg yet.  I ported
+> > netconsole to my eth driver, but it's not yet working.
+> 
+> Cool, ta.. I'll have a look, but I'll probably need the failed dmesg to make 
+> any real progress.
 
-Can we make this code go away if the configured CPU is, say, Intel?
-(I couldn't find a sane CONFIG_ setting to use for this).
+Sorry, for the delay.  I captured console output from failed (normal
+acpi) boot.  I also re-ran on 2.6.0-test5 and captured those outputs.
+The test3-bk3 is actually test3-bk2+acpi_>15_irq.patch which is the
+patch that began the breakage for me.
 
-It might be vaguely interesting to add a user-visible counter for this
-event? If someone somehow comes up with an application which hits the fault
-frequently they will take a big performance hit.
+http://developer.osdl.org/chrisw/acpi/2.6.0-test3-bk3/
+http://developer.osdl.org/chrisw/acpi/2.6.0-test5/
 
+Each have dmesg and interrupts from pci=noacpi and acpi=off, dmesg with
+acpi enabled, disassembled dsdt, and dmidecode.
+
+Let me know if you need any more info.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

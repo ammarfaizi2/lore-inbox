@@ -1,106 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTKESTy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTKESTy
+	id S263102AbTKESjd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKESjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:19:54 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:172 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S263053AbTKESTv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:19:51 -0500
-Date: Wed, 5 Nov 2003 12:19:11 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com, jbarnes@sgi.com
-Subject: [PATCH] - Allow architectures to increase size of MAX_NR_MEMBLKS
-Message-ID: <20031105181911.GA22082@sgi.com>
+	Wed, 5 Nov 2003 13:39:32 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:56247 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263102AbTKESjY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:39:24 -0500
+Date: Wed, 5 Nov 2003 19:34:00 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: "Alexandra N. Kossovsky" <sasha@oktet.ru>
+Cc: linux-kernel@vger.kernel.org, ShuChen <shuchen@realtek.com.tw>,
+       netdev@oss.sgi.com
+Subject: Re: r8169 with big-endian (patch)
+Message-ID: <20031105193400.A12375@electric-eye.fr.zoreil.com>
+References: <20031105104625.D26209@oktet.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031105104625.D26209@oktet.ru>; from sasha@oktet.ru on Wed, Nov 05, 2003 at 10:46:26AM +0300
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a problem that occurs on system with >64 nodes. 
+Greetings,
 
-Previously, MAX_NR_MEMBLKS was defined as BITS_PER_LONG. This
-patch allows an architecture to override this definition by
-defining a value in the arch-specific asm-xxx/mmzone.h file.
+Alexandra N. Kossovsky <sasha@oktet.ru> :
+[...]
+> Here is the patch to make RTL-8169 PCI Gbit ethernet card to work with
+> big-endian host. The patch is against 2.4.22 kernel.
 
+Please Cc: such patches to netdev@oss.sgi.com as well as jgarzik@pobox.com.
 
+[...]
+> @@ -664,19 +675,21 @@
+>  	}
+>  
+>  	tp->TxDescArrays =
+> -	    kmalloc(NUM_TX_DESC * sizeof (struct TxDesc) + 256, GFP_KERNEL);
+> +	    pci_alloc_consistent(tp->pci_dev,
+> +				 NUM_TX_DESC * sizeof (struct TxDesc) + 256, 
+> +				 &tp->TxDescDmaAddrs);
+> -	TxPhyAddr = virt_to_bus(tp->TxDescArrays);
+> -	diff = 256 - (TxPhyAddr - ((TxPhyAddr >> 8) << 8));
+> -	TxPhyAddr += diff;
+> +	diff = 256 - (tp->TxDescDmaAddrs - ((tp->TxDescDmaAddrs >> 8) << 8));
+> +	tp->TxDescDmaAddr = tp->TxDescDmaAddrs + diff;
+>  	tp->TxDescArray = (struct TxDesc *) (tp->TxDescArrays + diff);
 
-
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1401  -> 1.1402 
-#	include/linux/mmzone.h	1.45    -> 1.46   
-#	include/asm-ia64/mmzone.h	1.6     -> 1.7    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/11/05	steiner@attica.americas.sgi.com	1.1402
-# Allow architectures to supply their own value for MAX_NR_MEMBLKS.
-# The previous value (64) is not large enough for some systems.
-# --------------------------------------------
-#
-
-
-
-diff -Nru a/include/asm-ia64/mmzone.h b/include/asm-ia64/mmzone.h
---- a/include/asm-ia64/mmzone.h	Wed Nov  5 12:07:34 2003
-+++ b/include/asm-ia64/mmzone.h	Wed Nov  5 12:07:34 2003
-@@ -27,6 +27,8 @@
- # define NR_MEMBLKS		(NR_NODES)
- #endif
- 
-+#define MAX_NR_MEMBLKS		NR_MEMBLKS
-+
- extern unsigned long max_low_pfn;
- 
- #define pfn_valid(pfn)		(((pfn) < max_low_pfn) && ia64_pfn_valid(pfn))
-diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
---- a/include/linux/mmzone.h	Wed Nov  5 12:07:34 2003
-+++ b/include/linux/mmzone.h	Wed Nov  5 12:07:34 2003
-@@ -287,12 +287,6 @@
- extern void setup_per_zone_pages_min(void);
- 
- 
--#ifdef CONFIG_NUMA
--#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
--#else /* !CONFIG_NUMA */
--#define MAX_NR_MEMBLKS	1
--#endif /* CONFIG_NUMA */
--
- #include <linux/topology.h>
- /* Returns the number of the current Node. */
- #define numa_node_id()		(cpu_to_node(smp_processor_id()))
-@@ -322,6 +316,14 @@
- #endif
- 
- #endif /* !CONFIG_DISCONTIGMEM */
-+
-+#ifdef CONFIG_NUMA
-+#ifndef MAX_NR_MEMBLKS
-+#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
-+#endif
-+#else /* !CONFIG_NUMA */
-+#define MAX_NR_MEMBLKS	1
-+#endif /* CONFIG_NUMA */
- 
- #if NODES_SHIFT > MAX_NODES_SHIFT
- #error NODES_SHIFT > MAX_NODES_SHIFT
+Remove the alignment stuff. pci_alloc_consistent() does it for you,
+see Documentation/DMA-mapping.txt:
+[...]
+The cpu return address and the DMA bus master address are both
+guaranteed to be aligned to the smallest PAGE_SIZE order which
+is greater than or equal to the requested size.  This invariant
 
 
+@@ -684,12 +697,18 @@
+[...]
+-       tp->RxBufferRings = kmalloc(RX_BUF_SIZE * NUM_RX_DESC, GFP_KERNEL);
++       tp->RxBufferRings = pci_alloc_consistent(tp->pci_dev,
++                                                RX_BUF_SIZE * NUM_RX_DESC,
++                                                &tp->RxBufferDmas);
 
+You don't want consistent mapping for the data buffer.
+Either you pci_map_single() the whole kmalloced() area and you sync it
+when needed or you turn this code into usual, per skb, pci_map_single()
+calls and you remove the big Rx data buffer.
 
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
-
+--
+Ueimor

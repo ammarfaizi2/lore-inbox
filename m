@@ -1,56 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRC3BAI>; Thu, 29 Mar 2001 20:00:08 -0500
+	id <S129669AbRC3A4s>; Thu, 29 Mar 2001 19:56:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129712AbRC3A76>; Thu, 29 Mar 2001 19:59:58 -0500
-Received: from web5204.mail.yahoo.com ([216.115.106.85]:44043 "HELO
-	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129679AbRC3A7o>; Thu, 29 Mar 2001 19:59:44 -0500
-Message-ID: <20010330005903.2800.qmail@web5204.mail.yahoo.com>
-Date: Thu, 29 Mar 2001 16:59:03 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Original destination of transparent proxied connections?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129712AbRC3A4i>; Thu, 29 Mar 2001 19:56:38 -0500
+Received: from bt-215-206.bta.net.cn ([202.106.215.206]:5892 "EHLO happy")
+	by vger.kernel.org with ESMTP id <S129669AbRC3A4Z>;
+	Thu, 29 Mar 2001 19:56:25 -0500
+Date: Thu, 29 Mar 2001 23:10:14 -0800
+From: hugang <linuxhappy@etang.com>
+To: <Cedric.Lienart@prov-liege.be>, <linux-kernel@vger.kernel.org>
+Subject: Re: how can I send a signal like kill
+Message-Id: <20010329231014.7dbbc673.linuxhappy@etang.com>
+In-Reply-To: <3AC30482.8BBF8539@prov-liege.be>
+In-Reply-To: <3AC30482.8BBF8539@prov-liege.be>
+X-Mailer: Sylpheed version 0.4.62 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Organization: soul
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Help.
+On Thu, 29 Mar 2001 11:46:42 +0200
+Cedric Lienart <Cedric.Lienart@prov-liege.be> wrote:
 
-I thought transparent proxying would allow some means
-for the recipient of the proxied connections to find
-out what their original destination port and socket
-address were.  This does not seem to be the case.  The
-socket structure only has one address and one socket,
-and those have the source address, not the destination
-address.
+> how can I send a signal like 'kill (pid_t pid, int sig);' from a driver
+> module to a user program. When I include signal.h in my module I have
 
-How do forward connections to a given address range to
-a user space program that then has the opportunity to
-bidirectionally munge the data in them and forward
-them on?  Transparent proxying works just fine
-assuming I only ever want to forward a single port to
-just one other machine...
-
-IPCHAINS isn't up to it.  Before I go and upgrade to
-the 2.4 kernel on production systems that ship Real
-Soon Now, could somebody give me at least an opinion
-on whether or not iptables and the 2.4 nat stuff can
-do this kind of thing without me having to modify the
-kernel to fill out a larger socket-oid structure?  (Is
-2.4 iptables documented anywhere yet?)
-
-I've got everything else.  If I could just get a
-destination address and port out of transparently
-proxied connections I'd be home free.  I'm amazed this
-data isn't there already, I must have missed something
-stupid.  How do sockets bound to multiple interfaces
-figure out which interface the connection came from?
-
-Rob
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/?.refer=text
+	Try use force_sig(int sig, struct task_struct *p), Can read mm/oom_kill.c .

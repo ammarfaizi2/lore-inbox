@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTIBSI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbTIBSGl
+	id S261162AbTIBLDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 07:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbTIBLDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:06:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9371 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263947AbTIBSAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 14:00:32 -0400
-Date: Tue, 2 Sep 2003 10:43:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: andrew@lunn.ch, linux-kernel@vger.kernel.org, andrew.lunn@ascom.ch
-Subject: Re: 2.6-test4 Traditional pty and devfs
-Message-Id: <20030902104340.1e360f1b.akpm@osdl.org>
-In-Reply-To: <20030902184236.A14715@infradead.org>
-References: <20030902104212.GA23978@londo.lunn.ch>
-	<20030902150808.A7388@infradead.org>
-	<20030902102141.44dc7297.akpm@osdl.org>
-	<20030902184236.A14715@infradead.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 2 Sep 2003 07:03:39 -0400
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:7153 "EHLO
+	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S261162AbTIBLDi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 07:03:38 -0400
+Date: Tue, 2 Sep 2003 13:03:35 +0200
+From: Damian Kolkowski <deimos@deimos.one.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] - 2.{4,6}.{22,0-test4} - CONFIG_X86_UP_APIC lack routing on eth
+Message-ID: <20030902110335.GA540@deimos.one.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.4.1i
+X-Age: 23 (1980.09.27 - libra)
+X-Girl: one will be enough!
+X-IM: JID:deimos@jid.deimos.one.pl ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.6.0-test4, up 0 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> > IOW: we broke it.  Have you any theory as to which change caused this?
-> 
-> That's the magic use uid/gid of the process calling devfs_Register flag
-> I killed.  With a big HEADSUP and explanation on lkml..
+Hi,
 
-So what is the impact here?  That libc5 will break if the user is using
-devfs and old-style pty's?
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> > IOW: we broke it.  Have you any theory as to which change caused this?
-> 
-> That's the magic use uid/gid of the process calling devfs_Register flag
-> I killed.  With a big HEADSUP and explanation on lkml..
+Kernels like 2.4.22 and 2.6.0-test4 (cset-455) with compiled in
+CONFIG_X86_UP_APIC lacks the ehternet routing.
 
-So what is the impact here?  That libc5 will break if the user is using
-devfs and old-style pty's?
+Take care.
+
+P.S. It's on 2.4.22-ac1 and 2.4.22-ck1 too! But 2.4.22-rc2 has better APIC, so
+good idea is to use it with -ac3 on that kernel.
+
+PP.S. There is also radeonfb bug settings fonts and loadkeys only on
+/dev/tty1.
+
+-- 
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

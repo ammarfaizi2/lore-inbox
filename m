@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUIQPed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268877AbUIQPec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268734AbUIQPed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 11:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUIQPdu
+	id S268877AbUIQPec (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 11:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIQPeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:33:50 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:43176 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S268734AbUIQPP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 11:15:28 -0400
-Date: Fri, 17 Sep 2004 17:14:11 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Stelian Pop <stelian@popies.net>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040917151411.GY15426@dualathlon.random>
-References: <20040917102413.GA3089@crusoe.alcove-fr> <Pine.LNX.4.44.0409171228240.4678-100000@localhost.localdomain> <20040917122400.GD3089@crusoe.alcove-fr> <20040917131523.GQ15426@dualathlon.random> <20040917133656.GF3089@crusoe.alcove-fr> <20040917134145.GT15426@dualathlon.random> <20040917140021.GG3089@crusoe.alcove-fr>
+	Fri, 17 Sep 2004 11:34:06 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:20938 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268877AbUIQPSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 11:18:30 -0400
+Subject: Re: The ultimate TOE design
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eric Mudama <edmudama@gmail.com>
+Cc: David Stevens <dlstevens@us.ibm.com>, Netdev <netdev@oss.sgi.com>,
+       leonid.grossman@s2io.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <311601c90409162346184649eb@mail.gmail.com>
+References: <4148991B.9050200@pobox.com>
+	 <OF8783A4F6.D566336C-ON88256F10.006E51CE-88256F10.006EDA93@us.ibm.com>
+	 <311601c90409162346184649eb@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095430526.26088.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040917140021.GG3089@crusoe.alcove-fr>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 17 Sep 2004 15:15:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 04:00:21PM +0200, Stelian Pop wrote:
-> We could do that by having a 'spinlock_t internal_lock' and a 
-> 'spinlock_t * lock' fields, in struct kfifo: we always use 'lock' and
-> we initialize lock to either &internal_lock or to the user lock.
+On Gwe, 2004-09-17 at 07:46, Eric Mudama wrote:
+> On Wed, 15 Sep 2004 14:11:04 -0600, David Stevens <dlstevens@us.ibm.com> wrote:
+> > Why don't we off-load filesystems to disks instead?
+> 
+> Disks have had file systems on them since close to the beginning...
 
-the whole point was to save memory, this will actually waste another 4/8
-(32bit/64bit) bytes...
+This is essentially the path Lustre is taking. Although it seems you
+don't want to have a "full" file system on the disk since you lose to
+much flexibility, instead you want the ability to allocate by handle
+giving hints about locality and use.
 
-note that you would still do the locking in your highlevel inlines, it's
-just that the caller will have the responsability of allocating a lock.
+People have also tried full file system offload - intel for example
+prototyped an I2O file system class, and adaptec clearly were trying
+this out on aacraid development from looking at the public headers.
+
+Alan
+

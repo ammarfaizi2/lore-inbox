@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265409AbTLSAJF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 19:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265411AbTLSAJF
+	id S265398AbTLSADF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 19:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbTLSADF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 19:09:05 -0500
-Received: from opersys.com ([64.40.108.71]:61454 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S265409AbTLSAJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 19:09:02 -0500
-Message-ID: <3FE2424B.70901@opersys.com>
-Date: Thu, 18 Dec 2003 19:11:55 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Updating real-time and nanokernel maintainers
-References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com> <3FE23CD1.4080802@opersys.com> <3FE23E3F.2000801@cyberone.com.au>
-In-Reply-To: <3FE23E3F.2000801@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 19:03:05 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11226
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265398AbTLSADD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 19:03:03 -0500
+Date: Fri, 19 Dec 2003 01:03:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Theurer <habanero@us.ibm.com>
+Cc: Joe Pranevich <jpranevich@kniggit.net>, linux-kernel@vger.kernel.org
+Subject: Re: Wonderful World of Linux 2.6 - Final
+Message-ID: <20031219000307.GE10250@dualathlon.random>
+References: <1071724386.2820.12.camel@localhost.localdomain> <200312180929.46723.habanero@us.ibm.com> <20031218235211.GD10250@dualathlon.random> <200312181758.55059.habanero@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312181758.55059.habanero@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 18, 2003 at 05:58:55PM -0600, Andrew Theurer wrote:
+> On Thursday 18 December 2003 17:52, Andrea Arcangeli wrote:
+> > On Thu, Dec 18, 2003 at 09:29:46AM -0600, Andrew Theurer wrote:
+> > > be scheduled optimally, for example, a kernel compile with -j4 on a 4-way
+> > > P4, with and without HT:
+> > >
+> > > average of 10 kernel compiles with -j4 on 2.6.0-test9:
+> > >
+> > > HT disabled: Elapsed: 145.086s User: 513.808s System: 44.724s CPU: 384.5%
+> > > HT enabled: Elapsed: 172.463s User: 633.856s System: 48.003s CPU: 394.8%
+> >
+> > is that 4-way a 4-logical-way or 4-physical-way? If it's a 4-logical
+> > way, this workload is much closer to the best case than the worst case.
+> > I'm guessing a simple -j2 or -j3 should do much worse than that.
+> 
+> This is 4-way physical/4-way logical (no HT) vs 4-way physical/8-way logical 
+> (with HT)
 
-Nick Piggin wrote:
-> I agree with Zwane. People have enough trouble using MAINTAINERS
-> as it is. Using it to pat each others backs makes it less useful.
-
-I understand what you mean.
-
-> As Zwane said, neither have code in the kernel, so I don't see how
-> you think it is justified...?
-
-It is justified in the same way that the RTLinux entry was justified
-for those many years. But the bottom line is as I said it before,
-I personally have no take in this, and I certainly don't want to
-start a debate on the use of the MAINTAINERS file, others are much
-more apt than myself to make the proper judgement call on the proper
-use of that file.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 514-812-4145
-
+ok then it was closer to the worst case ;)

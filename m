@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316712AbSFJHFw>; Mon, 10 Jun 2002 03:05:52 -0400
+	id <S314634AbSFJHI5>; Mon, 10 Jun 2002 03:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSFJHFv>; Mon, 10 Jun 2002 03:05:51 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:37780 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S316712AbSFJHFu>;
-	Mon, 10 Jun 2002 03:05:50 -0400
+	id <S316397AbSFJHI4>; Mon, 10 Jun 2002 03:08:56 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:39572 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S314634AbSFJHIz>;
+	Mon, 10 Jun 2002 03:08:55 -0400
 From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200206100705.AAA19208@csl.Stanford.EDU>
+Message-Id: <200206100708.AAA19223@csl.Stanford.EDU>
 Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
-To: adilger@clusterfs.com (Andreas Dilger)
-Date: Mon, 10 Jun 2002 00:05:48 -0700 (PDT)
+To: bhards@bigpond.net.au (Brad Hards)
+Date: Mon, 10 Jun 2002 00:08:46 -0700 (PDT)
 Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <20020610063510.GG20388@turbolinux.com> from "Andreas Dilger" at Jun 10, 2002 12:35:10 AM
+In-Reply-To: <200206101703.13780.bhards@bigpond.net.au> from "Brad Hards" at Jun 10, 2002 05:03:13 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,52 +20,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ah, but the checker is still (subtly) wrong in this case.  The difference
-> is that "jbd_kmalloc()" (a macro calling __jbd_kmalloc in the 5 functions
-> which check the return code) depends on the "journal_oom_retry" variable
-> to determine whether or not it is "allowed" to return NULL.  In contrast,
-> the one call to "jbd_rep_kmalloc()" flagged above is a macro which
-> calls __jbd_kmalloc() with "retry = 1" so it is never allowed to fail
-> and return NULL.
+> Thanks for these. Patch for 2.4.19-pre10 to fix catc and se401 bugs currently 
+> compile testing :)
 
-Ah.  Got it.  Yeah, we're not doing much inter-procedural false path
-pruning.  Hopefully within a month or so --- Andy Chou and Yichen Xie
-are building an analysis pass that uses a SAT solver to suppress such
-things.  It discovers some pretty crazy relationships and is actually
-pretty fast.
+Good deal!  Thanks for letting us know.
 
-> in most cases the checker is correct.  
+> > 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
+> > 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
+> > 	for (i=0; i<se401->sizes; i++) {
+> > 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
+> > 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
+> > 	}
+> > 	sprintf (temp, "%s Sizes:", temp);
+> > 	for (i=0; i<se401->sizes; i++) {
+> > Error --->
+> > 		sprintf(temp, "%s %dx%d", temp, se401->width[i], se401->height[i]);
+> > 	}
+> > 	info("%s", temp);
+> > 	se401->maxframesize=se401->width[se401->sizes-1]*se401->height[se401->size
+> >s-1]*3; ---------------------------------------------------------
+> bradh: this one is wrong. If it didn't oops on the previous one, it won't oops 
+> here :)
 
-To be fair, it's the checker + our inspection that is mostly correct
-;-) Though the uninspected false pos rate is pretty low.
-
-> Have you thought about supporting
-> "checker meta comments" (like lint did) to allow one to flag a piece of
-> code as being "correct" for a certain check so that it doesn't always
-> show up on your test runs?
-
-I wasn't that optimistic that people would be willing to annotate their
-code.  It is pretty easy to add such annotations with distinguished
-function calls.  E.g.,
-	/* shut up checker null pointer warnings */
-	mc_no_null_bug(p);
-where p is a pointer var --- it can be #define'd to nothing when the
-checker isn't being used.  Also, the checker can turn the annot into
-a sort of checkable comment by warning when the annotation is not
-needed.
-
-Instead we use a history-based approach: both false positives and bugs
-are stuffed into a file which subsequent runs use to relabel messages
-as old false positives or unfixed bugs.  The messages are canonicalized
-so that most source edits don't make them invalid.  E.g., we keep file,
-function, variable names and such but strip line numbers and other
-things.  The advantage is that you don't have to modify your source for
-checkers to go over it.  Which is good, given the current patch
-process.
-
-If you're interested, there are a bunch of papers on this and other things
-at
-	www.stanford.edu/~engler
-
-Thanks for your feedback!
-Dawson
+Yeah, indeed.  The current rewrite doesn't (yet) have false path suppression
+back in and I'm getting too old to be reliable.  Thanks for pointing it
+out.  

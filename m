@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVCSUvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVCSVBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVCSUvX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 15:51:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVCSUvX
+	id S261779AbVCSVBW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 16:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCSVBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 15:51:23 -0500
-Received: from opersys.com ([64.40.108.71]:13580 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261775AbVCSUvU (ORCPT
+	Sat, 19 Mar 2005 16:01:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:28073 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261779AbVCSVBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 15:51:20 -0500
-Message-ID: <423C9361.4050308@opersys.com>
-Date: Sat, 19 Mar 2005 16:02:25 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, Baruch Even <baruch@ev-en.org>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: Relayfs question
-References: <Pine.LNX.4.61.0503191852520.21324@yvahk01.tjqt.qr> <423C78E8.3040200@ev-en.org> <Pine.LNX.4.61.0503192014520.14144@yvahk01.tjqt.qr> <423C913B.6000307@opersys.com>
-In-Reply-To: <423C913B.6000307@opersys.com>
+	Sat, 19 Mar 2005 16:01:21 -0500
+Date: Sat, 19 Mar 2005 13:00:56 -0800
+From: Greg KH <gregkh@suse.de>
+To: Norbert Preining <preining@logic.at>
+Cc: Andrew Morton <akpm@osdl.org>, Luc Saillard <luc@saillard.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: pwc driver in -mm kernels
+Message-ID: <20050319210056.GA9171@kroah.com>
+References: <20050319130424.GB3316@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050319130424.GB3316@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 19, 2005 at 02:04:24PM +0100, Norbert Preining wrote:
+> Hi Andrew, hi Luc!
+> 
+> I just realized that there is now the pwc driver back in -mm kernels,
+> but interestingly not the one from Luc, or at least not the last
+> published one (10.0.6). and wanted to ask if there is a specific reason
+> for this?
 
-Karim Yaghmour wrote:
-> What relayfs does, and does very well, is move very large amounts of
-> data out of the kernel and make them available to user-space with very
-> little overhead. In the actual case of your tty logger, I've browsed
-> through the code briefly, and I think that with relayfs you should be
-> able to:
+Because that is the version that was submitted for inclusion.  Patches
+are gladly accepted to bring the driver up to date.
 
-Just to avoid any confusion, note that I'm referring mainly to rpldev.c,
-which is the kernel-side driver for the logger, I haven't looked at any
-of the user tools.
+thanks,
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+greg k-h

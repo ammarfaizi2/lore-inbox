@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUG2Jtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267432AbUG2J4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267427AbUG2Jtm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 05:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbUG2Jtl
+	id S267432AbUG2J4x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 05:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUG2J4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 05:49:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53417 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267427AbUG2Jtk (ORCPT
+	Thu, 29 Jul 2004 05:56:53 -0400
+Received: from [217.67.22.1] ([217.67.22.1]:51686 "EHLO mail.6com.net")
+	by vger.kernel.org with ESMTP id S267425AbUG2J4t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 05:49:40 -0400
-Date: Thu, 29 Jul 2004 02:49:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: aebr@win.tue.nl, vojtech@suse.cz, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-Message-Id: <20040729024931.4b4e78e6.pj@sgi.com>
-In-Reply-To: <87oelzjhcx.fsf@ibmpc.myhome.or.jp>
-References: <87llhjlxjk.fsf@devron.myhome.or.jp>
-	<20040716164435.GA8078@ucw.cz>
-	<20040716201523.GC5518@pclin040.win.tue.nl>
-	<871xjbkv8g.fsf@devron.myhome.or.jp>
-	<20040728115130.GA4008@pclin040.win.tue.nl>
-	<87fz7c9j0y.fsf@devron.myhome.or.jp>
-	<20040728134202.5938b275.pj@sgi.com>
-	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
-	<20040728231548.4edebd5b.pj@sgi.com>
-	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 29 Jul 2004 05:56:49 -0400
+Date: Thu, 29 Jul 2004 11:56:48 +0200
+From: Jan Oravec <jan.oravec@6com.sk>
+To: linux-kernel@vger.kernel.org
+Subject: LSI 53c1030 (Fusion MPT) performance with O_SYNC
+Message-ID: <20040729095648.GA27925@omega.6com.net>
+Reply-To: Jan Oravec <jan.oravec@6com.sk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: UNIX
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I didn't see any big cleanup in your patch.
+Hi,
 
-That could well be <grin>.  Beauty is in the eye of the beholder.
 
-I figured that replacing the #define's with local variables
-was worth a couple of style points, and that explicitly
-checking that the user provided values were within limits,
-all the time, no ifdefs, was more straight forward.
+I have got a new dual-Opteron server based on Tyan S2880 motherboard with
+LSI53C1030 U320 controller onboard - there are 15kRPM Fujitsu disks.
 
-But it is difficult to establish such preferences with certainty.
+I've noticed poor performance with MySQL/InnoDB when compared to another
+S2880-based box with IDE disks.
 
-Again, thanks for considering my reply.
+I've tracked it to this:
 
-Do as you think best.  I am afraid I have no more wisdom (if
-ever I had any ...).
+Let's have this code (notice the O_SYNC) and enough large test file.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main(int argc, void **argv)
+{
+  char buffer[64];
+  int fd, i;
+
+  fd=open(argv[1], O_WRONLY|O_SYNC);
+  
+  lseek(fd, 0, SEEK_SET);
+  for(i=0; i<10000; i++)
+    write(fd, buffer, 64);
+  
+  return 0;
+}
+
+
+The results are:
+
+LSI53C1030:
+$ time ./a.out testfile 
+
+real    0m4.218s
+user    0m0.002s
+sys     0m0.219s
+
+
+IDE:
+$ time ./a.out testfile 
+
+real    0m1.767s
+user    0m0.002s
+sys     0m0.356s
+
+
+Changing size of written amount of data to 4096 the time ratio between
+LSI53C1030 and IDE is around 1:1.
+
+
+Both boxes are running vanilla 2.6.7 kernel.
+
+
+Any help appreciated,
+
+
+Jan
+
+
+PS: please CC, I am not on the list.

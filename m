@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUJRRCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUJRRIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUJRRCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 13:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266901AbUJRRCe
+	id S266914AbUJRRIN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUJRRIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 13:02:34 -0400
-Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:55966 "EHLO
-	graphe.net") by vger.kernel.org with ESMTP id S266892AbUJRRCc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 13:02:32 -0400
-Date: Mon, 18 Oct 2004 10:02:20 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Andrea Arcangeli <andrea@novell.com>
-cc: Andi Kleen <ak@suse.de>, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 4level page tables for Linux
-In-Reply-To: <20041013200414.GP17849@dualathlon.random>
-Message-ID: <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
-References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost>
- <20041013184153.GO17849@dualathlon.random> <20041013213558.43b3236c.ak@suse.de>
- <20041013200414.GP17849@dualathlon.random>
+	Mon, 18 Oct 2004 13:08:12 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:40068 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S266914AbUJRRIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 13:08:11 -0400
+Date: Mon, 18 Oct 2004 12:08:09 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+In-Reply-To: <20041018145008.GA25707@elte.hu>
+Message-ID: <Pine.LNX.4.58.0410181207000.1223@gradall.private.brainfood.com>
+References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+ <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+ <20041018145008.GA25707@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -4.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004, Andrea Arcangeli wrote:
+On Mon, 18 Oct 2004, Ingo Molnar wrote:
 
-> On Wed, Oct 13, 2004 at 09:35:58PM +0200, Andi Kleen wrote:
-> > page mapping level 4 (?) just guessing here.
 >
-> make sense.
+> i have released the -U5 Real-Time Preemption patch:
 >
-> > PML4 is the name AMD and Intel use in their documentation. I don't see
-> > a particular reason to be different from them.
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
 >
-> just because we never say 'page mapping level 4', we think 'page table
-> level 4' or 'page directory level 4'.
+> this is a release intended to increase stability, but since it also
+> includes new debug features and related cleanups it might introduce new
+> regressions. Be careful.
+>
+> [snip]
+>
+>  - debug feature: implemented /proc/sys/kernel/trace_verbose runtime
+>    flag (default:0), which enables a much more verbose printout in
+>    /proc/latency_trace.  This trace format can be useful in e.g.
+>    debugging timestamp weirdnesses.
+>
 
-Would it not be best to give up hardcoding these page mapping levels into
-the kernel? Linux should support N levels. pml4,pgd,pmd,pte needs to
-disappear and be replaced by
-
-pte_path[N]
-
-We are duplicating code for pgd, pmd, pte and now pml again and again. The
-code could be much simpler if this would be generalized. Various
-architectures would support different levels without some strange
-feature like f.e. pmd's being "optimized away".
-
-Certainly the way that pml4 is proposed to be done is less invasive but we
-are creating something more and more difficult to maintain.
+With all these proc values, what do you recommend they should be set to?

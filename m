@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289694AbSAWFh3>; Wed, 23 Jan 2002 00:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289697AbSAWFhU>; Wed, 23 Jan 2002 00:37:20 -0500
-Received: from nlakdiva.slt.lk ([203.115.0.1]:60156 "EHLO lakdiva.slt.lk")
-	by vger.kernel.org with ESMTP id <S289694AbSAWFhO>;
-	Wed, 23 Jan 2002 00:37:14 -0500
-Message-ID: <3C77C5C5.45359449@sltnet.lk>
-Date: Sat, 23 Feb 2002 11:39:33 -0500
-From: "Ishan O. Jayawardena" <ioshadi@sltnet.lk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-19 i686)
-X-Accept-Language: en
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S288255AbSAMWu7>; Sun, 13 Jan 2002 17:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S288256AbSAMWut>; Sun, 13 Jan 2002 17:50:49 -0500
+Received: from ti200710a082-0716.bb.online.no ([148.122.10.204]:6404 "EHLO empire.e") by vger.kernel.org with ESMTP id <S288255AbSAMWuf>; Sun, 13 Jan 2002 17:50:35 -0500
+Message-ID: <3C420F33.20506@freenix.no>
+Date: Sun, 13 Jan 2002 23:50:27 +0100
+From: frode <frode@freenix.no>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020111
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kdb on virtual console
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.17 Ooops!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CC' TO : ioshadi@sltnet.lk (I'm on the list, my ISP's having some
-trouble at 
-present.)
+I noticed someone having 2.4.17 oops in 
+<http://www.uwsg.iu.edu/hypermail/linux/kernel/0201.1/0809.html>,
+in process 'kswapd'.
 
-Greetings,
+I get similar oopses as well on a k7 750mhz with 384mb ram.
+The process 'kswapd' was listed as defunct, but the system seemed to 
+work - at least well enough for me to do a clean 'shutdown -r now'...
 
-        I've seen threads discussing this here in the past, but nothing
-seems
-to have come out of it. So here goes...
+---- 8< ----
+Jan 12 16:45:28 kingdom kernel: Unable to handle kernel paging request 
+at virtual address 16a1842f
+Jan 12 16:45:28 kingdom kernel: c01447e8
+Jan 12 16:45:28 kingdom kernel: *pde = 00000000
+Jan 12 16:45:28 kingdom kernel: Oops: 0000
+Jan 12 16:45:28 kingdom kernel: CPU:    0
+Jan 12 16:45:28 kingdom kernel: EIP:    0010:[iput+56/512]    Tainted: P
+Jan 12 16:45:28 kingdom kernel: EFLAGS: 00010206
+Jan 12 16:45:28 kingdom kernel: eax: 00000000   ebx: cd4ff700   ecx: 
+cdcff710   edx: cdcff710
+Jan 12 16:45:28 kingdom kernel: esi: 16a1840f   edi: 00000000   ebp: 
+000000d1   esp: c1635f4c
+Jan 12 16:45:28 kingdom kernel: ds: 0018   es: 0018   ss: 0018
+Jan 12 16:45:28 kingdom kernel: Process kswapd (pid: 5, stackpage=c1635000)
+Jan 12 16:45:28 kingdom kernel: Stack: cdd01458 cdd01440 cd4ff700 
+c0142746 cd4ff700 00000013 000001d0 00000020
+Jan 12 16:45:28 kingdom kernel:        00000006 c0142a1b 0000015c 
+c012bfa6 00000006 000001d0 00000006 000001d0
+Jan 12 16:45:28 kingdom kernel:        c02fa048 00000000 c02fa048 
+c012c00c 00000020 c02fa048 00000001 c1634000
+Jan 12 16:45:28 kingdom kernel: Call Trace: [prune_dcache+214/336] 
+[shrink_dcache_memory+27/64] [shrink_caches+102/144] [try_to_free_p
+ages+60/96] [kswapd_balance_pgdat+67/144]
+Jan 12 16:45:28 kingdom kernel: Code: 8b 7e 20 85 ff 74 0d 8b 47 10 85 
+c0 74 06 53 ff d0 83 c4 04
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-The problem: On exit from a kdb session in linux (with the "go"
-command), the 
-kernel is resumed (acpid works - i.e. the power button is the only
-interface 
-left!), but the console seems to be locked in some way. _Sometimes_,
-hitting 
-the enter key brigs up the shell prompt, but most of the time, nothing.
-I don't
-have another machine to use kdb on a serial console. Just tried kdb 2.1
-with 
-linux 2.4.17: still hangs. I've heard that stopping and starting gpm in
-the 
-background is a workaround, but obviously, it doesn't fix anything.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+    0:   8b 7e 20                  mov    0x20(%esi),%edi
+Code;  00000002 Before first symbol
+    3:   85 ff                     test   %edi,%edi
+Code;  00000004 Before first symbol
+    5:   74 0d                     je     14 <_EIP+0x14> 00000014 Before 
+first symbol
+Code;  00000006 Before first symbol
+    7:   8b 47 10                  mov    0x10(%edi),%eax
+Code;  0000000a Before first symbol
+    a:   85 c0                     test   %eax,%eax
+Code;  0000000c Before first symbol
+    c:   74 06                     je     14 <_EIP+0x14> 00000014 Before 
+first symbol
+Code;  0000000e Before first symbol
+    e:   53                        push   %ebx
+Code;  0000000e Before first symbol
+    f:   ff d0                     call   *%eax
+Code;  00000010 Before first symbol
+   11:   83 c4 04                  add    $0x4,%esp
 
-        I'd be grateful if anyone could provide a real fix or tell me
-how I 
-should go about the kernel's tty code to find the root of this problem.
+---- 8< ----
 
 
-        Thanks in advance.
-
-Ishan Oshadi Jayawardena
-
-
-CC' TO : ioshadi@sltnet.lk
-----
-        "Premature anger is the sign of an immature mind."
-                                        - Destro "G. I. Joe"
-        /* Yes, I still watch cartoons. So sue me :) */

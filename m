@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286338AbRLJSK2>; Mon, 10 Dec 2001 13:10:28 -0500
+	id <S286339AbRLJSRT>; Mon, 10 Dec 2001 13:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbRLJSKS>; Mon, 10 Dec 2001 13:10:18 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:20914 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S286338AbRLJSKK>; Mon, 10 Dec 2001 13:10:10 -0500
-Date: Mon, 10 Dec 2001 13:08:17 -0500 (EST)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: mm question
-In-Reply-To: <Pine.LNX.4.33L.0112101557520.4755-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.20.0112101307360.18115-100000@node2.localnet.net>
+	id <S286340AbRLJSRJ>; Mon, 10 Dec 2001 13:17:09 -0500
+Received: from cs182024.pp.htv.fi ([213.243.182.24]:6272 "EHLO
+	cs182024.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S286339AbRLJSQx>; Mon, 10 Dec 2001 13:16:53 -0500
+Message-ID: <3C14FBE7.E3A5F745@welho.com>
+Date: Mon, 10 Dec 2001 20:16:07 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kuznet@ms2.inr.ac.ru, davem@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: TCP LAST-ACK state broken in 2.4.17-pre2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I came across the following behavior (sorry, no tcpdump but this should
+be easy to reproduce with the right tools):
 
-On Mon, 10 Dec 2001, Rik van Riel wrote:
+hostA                 hostB
+  --------FIN----------->
+  <-----data+FIN---------
+  --------ACK-------X       (packet lost)
+  <-----data+FIN---------   (retransmit)
+  <-----data+FIN---------   (retransmit)
+  <-----data+FIN---------   (retransmit)
+          ....
+  <-----data+FIN---------   (retransmit)
+  --------RST----------->
 
-> On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
-> > On Mon, 10 Dec 2001, Alan Cox wrote:
-> >
-> > > > I don't want to move them - I just want to collect all that are free and
-> > > > then try to free some more.
-> > >
-> > > How will you free them, you don't know who owns them.
-> >
-> > I think you misunderstood me - this allocation happens in response to
-> > the system call _not_ in an interrupt handler. So it is ok to wait -
-> > as long as needed. I was thinking of calling page swapper or something
-> > and perhaps going after I/O buffers first.
-> 
-> Even if you have a handle on a physical page, you don't know
-> what processes are using the page, nor if there are additional
-> users besides the processes.
-> 
-> This makes it rather hard to go around trying to free pages
-> within a certain physical range.
+HostA is running Linux 2.4.17-pre2. HostB is running Symbian OS. All the
+sequence numbers pan out.
 
-Well, what does kernel do when it runs out of memory ? For example when I
-mmap a large file and start reading it back and force ?
+Either LAST-ACK is completely broken or Linux just cannot handle a
+FIN-ACK that is piggybacked on a data segment, when received in LAST-ACK
+state. It should be acked as an out-of-window segment, as usual.
+Finally, the LAST-ACK state times out and Linux responds to the FIN
+segment with an RST.
 
-                                   Vladimir Dergachev
+Cheers,
 
-> 
-> cheers,
-> 
-> Rik
-> -- 
-> DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-
+	MikaL

@@ -1,218 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUF1UUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUF1UWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265175AbUF1UUx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 16:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUF1UUx
+	id S265195AbUF1UWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 16:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUF1UWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 16:20:53 -0400
-Received: from fw-us-hou19.bmc.com ([198.207.223.240]:1476 "EHLO
-	mangrove.bmc.com") by vger.kernel.org with ESMTP id S265170AbUF1UUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 16:20:00 -0400
-Message-ID: <F12B6443B4A38748AFA644D1F8EF3532147335@bos-ex-01.adprod.bmc.com>
-From: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Andries Brouwer'" <aebr@win.tue.nl>
-Subject: [PATCH] [RFC] Expose {shm,sem,msg}info in /proc/sysvipc
-Date: Mon, 28 Jun 2004 15:19:27 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 28 Jun 2004 16:22:42 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:10441 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S265198AbUF1UVm (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 16:21:42 -0400
+Message-Id: <200406282021.i5SKLfZV017422@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH} 2.6.7 - Add new sysctl handler
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-2071372823P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Jun 2004 16:21:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch exposes global IPC variables in /proc/sysvipc/{shm,sem,msg}info,
-alongside the entry listings in /proc/sysvipc{shm,sem,msg}.
+--==_Exmh_-2071372823P
+Content-Type: text/plain; charset=us-ascii
 
-For example:
+This patch adds a 'proc_dointvec_gated' sysctl handler.  Basic use:
 
-# cat /proc/sysvipc/shminfo
-shmmax 33554432
-shmmin 1
-shmmni 4096
-shmseg 4096
-shmall 2097152
-used_ids 2
-shm_tot 2
-shm_rss 0
-shm_swp 0
+1) Create 2 sysctls:
 
+int foo = 1;
+int foo_lock = 1;
 
-Some of them (e.g., shmmax) are sysctl parameters, and so are already
-available in /proc/sys/kernel, but others (e.g., shm_rss) can only be
-retrieved via undocumented {IPC,SHM,SEM,MSG}_INFO {shm,sem,msg}ctl calls.
+sysctl_1 = {... , .proc_handler = &proc_dointvec_gated, .extra1 = &foo_lock };
+sysctl_2 = { ..., .proc_handler = &proc_dointvec_gated, .extra1 = &foo_lock };
 
-sys_shmctl() has long had a comment about a /proc interface, but until now,
-it has only been done for per-entry values.
+Now 'foo' can be manipulated as much as you want, but when foo_lock is set
+to 0, you can't change either anymore.
 
-One advantage of this interface is that it allows a 32-bit application
-to read the correct values from a 64-bit kernel without recompiling.
+Also useful for a 'BSD Securelevels'-style scheme, or even for a "sysctl can't
+be changed right now because the referenced device/subsystem/whatever is currently
+in an inconsistent state" (just specify a suitable lock variable for .extra1).
 
+Patch originally made against 2.6.7-rc1-mm1, but applies to 2.6.7-mm2 as welll.
 
-# Signed-off-by: Lev Makhlis <mlev@despammed.com>
-#
-diff -ruN linux-2.6.7-orig/ipc/msg.c linux-2.6.7/ipc/msg.c
---- linux-2.6.7-orig/ipc/msg.c	2004-06-16 01:18:38.000000000 -0400
-+++ linux-2.6.7/ipc/msg.c	2004-06-28 15:16:27.816863592 -0400
-@@ -73,6 +73,7 @@
- static int newque (key_t key, int msgflg);
- #ifdef CONFIG_PROC_FS
- static int sysvipc_msg_read_proc(char *buffer, char **start, off_t offset,
-int length, int *eof, void *data);
-+static int sysvipc_msginfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data);
- #endif
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+
+--- linux-2.6.7-rc3-mm1/include/linux/sysctl.h.vt	2004-06-10 00:36:13.000000000 -0400
++++ linux-2.6.7-rc3-mm1/include/linux/sysctl.h	2004-06-14 09:37:18.415128731 -0400
+@@ -769,6 +769,8 @@ extern int proc_dointvec(ctl_table *, in
+ 			 void __user *, size_t *);
+ extern int proc_dointvec_bset(ctl_table *, int, struct file *,
+ 			      void __user *, size_t *);
++extern int proc_dointvec_gated(ctl_table *, int, struct file *,
++			void __user *, size_t *);
+ extern int proc_dointvec_minmax(ctl_table *, int, struct file *,
+ 				void __user *, size_t *);
+ extern int proc_dointvec_jiffies(ctl_table *, int, struct file *,
+--- linux-2.6.7-rc3-mm1/kernel/sysctl.c.vt	2004-06-10 00:44:40.000000000 -0400
++++ linux-2.6.7-rc3-mm1/kernel/sysctl.c	2004-06-14 11:15:18.244304729 -0400
+@@ -16,6 +16,7 @@
+  *  Wendling.
+  * The list_for_each() macro wasn't appropriate for the sysctl loop.
+  *  Removed it and replaced it with older style, 03/23/00, Bill Wendling
++ * Added proc_dointvec_gated, 06/14/04, Valdis Kletnieks
+  */
  
- void __init msg_init (void)
-@@ -81,6 +82,7 @@
- 
- #ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sysvipc/msg", 0, 0, sysvipc_msg_read_proc,
-NULL);
-+	create_proc_read_entry("sysvipc/msginfo", 0, 0,
-sysvipc_msginfo_read_proc, NULL);
- #endif
+ #include <linux/config.h>
+@@ -1689,6 +1690,37 @@ static int do_proc_dointvec_minmax_conv(
  }
  
-@@ -827,4 +829,28 @@
- 		len = 0;
- 	return len;
- }
-+static int sysvipc_msginfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data)
+ /**
++ * proc_dointvec_gated - read a vector of integers only if a specified flag
++ *		word is non-zero
++ * @table: the sysctl table
++ * @write: %TRUE if this is a write to the sysctl file
++ * @filp: the file structure
++ * @buffer: the user buffer
++ * @lenp: the size of the user buffer
++ *
++ * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
++ * values from/to the user buffer, treated as an ASCII string.
++ *
++ * This is identical to proc_dointvec, except that we additionally
++ * check that the location pointed to by table->extra1 is non-zero
++ * (useful for creating a 'lockdown' sysctl that allows setting of
++ * the variable only until some specified condition is fulfilled).
++ *
++ * Returns 0 on success.
++ */
++int proc_dointvec_gated(ctl_table *table, int write, struct file *filp,
++		  void __user *buffer, size_t *lenp)
 +{
-+	int len = 0;
-+	int ids, hdrs, bytes;
-+
-+	len += sprintf(buffer + len, "msgpool %d\n", MSGPOOL);
-+	len += sprintf(buffer + len, "msgmap %d\n", MSGMAP);
-+	len += sprintf(buffer + len, "msgmax %d\n", msg_ctlmax);
-+	len += sprintf(buffer + len, "msgmnb %d\n", msg_ctlmnb);
-+	len += sprintf(buffer + len, "msgmni %d\n", msg_ctlmni);
-+	len += sprintf(buffer + len, "msgssz %d\n", MSGSSZ);
-+	len += sprintf(buffer + len, "msgtql %d\n", MSGTQL);
-+	len += sprintf(buffer + len, "msgseg %d\n", MSGSEG);
-+	down(&msg_ids.sem);
-+	ids = msg_ids.in_use;
-+	hdrs = atomic_read(&msg_hdrs);
-+	bytes = atomic_read(&msg_bytes);
-+	up(&msg_ids.sem);
-+	len += sprintf(buffer + len, "used_ids %d\n", ids);
-+	len += sprintf(buffer + len, "msg_hdrs %d\n", hdrs);
-+	len += sprintf(buffer + len, "msg_bytes %d\n", bytes);
-+
-+	return len;
++	int *flag = (int *) (table->extra1);
++	if (write && flag && !(*flag)) {
++		return -EPERM;
++	}
++	return do_proc_dointvec(table, write, filp, buffer, lenp,
++				do_proc_dointvec_conv, NULL);
 +}
- #endif
-diff -ruN linux-2.6.7-orig/ipc/sem.c linux-2.6.7/ipc/sem.c
---- linux-2.6.7-orig/ipc/sem.c	2004-06-16 01:19:13.000000000 -0400
-+++ linux-2.6.7/ipc/sem.c	2004-06-28 15:16:27.812864200 -0400
-@@ -88,6 +88,7 @@
- static void freeary (struct sem_array *sma, int id);
- #ifdef CONFIG_PROC_FS
- static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset,
-int length, int *eof, void *data);
-+static int sysvipc_seminfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data);
- #endif
- 
- #define SEMMSL_FAST	256 /* 512 bytes on stack */
-@@ -117,6 +118,7 @@
- 
- #ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sysvipc/sem", 0, 0, sysvipc_sem_read_proc,
-NULL);
-+	create_proc_read_entry("sysvipc/seminfo", 0, 0,
-sysvipc_seminfo_read_proc, NULL);
- #endif
- }
- 
-@@ -1330,4 +1332,29 @@
- 		len = 0;
- 	return len;
- }
 +
-+static int sysvipc_seminfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data)
-+{
-+	int len = 0;
-+	int ids, sems;
 +
-+	len += sprintf(buffer + len, "semmap %d\n", SEMMAP);
-+	len += sprintf(buffer + len, "semmni %d\n", sc_semmni);
-+	len += sprintf(buffer + len, "semmns %d\n", sc_semmns);
-+	len += sprintf(buffer + len, "semmnu %d\n", SEMMNU);
-+	len += sprintf(buffer + len, "semmsl %d\n", sc_semmsl);
-+	len += sprintf(buffer + len, "semopm %d\n", sc_semopm);
-+	len += sprintf(buffer + len, "semume %d\n", SEMUME);
-+	len += sprintf(buffer + len, "semusz %d\n", SEMUSZ);
-+	len += sprintf(buffer + len, "semvmx %d\n", SEMVMX);
-+	len += sprintf(buffer + len, "semaem %d\n", SEMAEM);
-+	down(&sem_ids.sem);
-+	ids = sem_ids.in_use;
-+	sems = used_sems;
-+	up(&sem_ids.sem);
-+	len += sprintf(buffer + len, "used_ids %d\n", ids);
-+	len += sprintf(buffer + len, "used_sems %d\n", sems);
-+
-+	return len;
-+}
- #endif
-diff -ruN linux-2.6.7-orig/ipc/shm.c linux-2.6.7/ipc/shm.c
---- linux-2.6.7-orig/ipc/shm.c	2004-06-16 01:19:23.000000000 -0400
-+++ linux-2.6.7/ipc/shm.c	2004-06-28 15:21:32.768503896 -0400
-@@ -48,6 +48,7 @@
- static void shm_close (struct vm_area_struct *shmd);
- #ifdef CONFIG_PROC_FS
- static int sysvipc_shm_read_proc(char *buffer, char **start, off_t offset,
-int length, int *eof, void *data);
-+static int sysvipc_shminfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data);
- #endif
- 
- size_t	shm_ctlmax = SHMMAX;
-@@ -61,6 +62,7 @@
- 	ipc_init_ids(&shm_ids, 1);
- #ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sysvipc/shm", 0, 0, sysvipc_shm_read_proc,
-NULL);
-+	create_proc_read_entry("sysvipc/shminfo", 0, 0,
-sysvipc_shminfo_read_proc, NULL);
- #endif
- }
- 
-@@ -893,4 +895,28 @@
- 		len = 0;
- 	return len;
- }
-+
-+static int sysvipc_shminfo_read_proc(char *buffer, char **start, off_t
-offset, int length, int *eof, void *data)
-+{
-+	int len = 0;
-+	int ids;
-+	unsigned long tot, rss, swp;
-+
-+	len += sprintf(buffer + len, "shmmax %lu\n", (unsigned
-long)shm_ctlmax);
-+	len += sprintf(buffer + len, "shmmin %lu\n", (unsigned long)SHMMIN);
-+	len += sprintf(buffer + len, "shmmni %lu\n", (unsigned
-long)shm_ctlmni);
-+	len += sprintf(buffer + len, "shmseg %lu\n", (unsigned
-long)shm_ctlmni);
-+	len += sprintf(buffer + len, "shmall %lu\n", (unsigned
-long)shm_ctlall);
-+	down(&shm_ids.sem);
-+	ids = shm_ids.in_use;
-+	tot = shm_tot;
-+	shm_get_stat(&rss, &swp);
-+	up(&shm_ids.sem);
-+	len += sprintf(buffer + len, "used_ids %d\n", ids);
-+	len += sprintf(buffer + len, "shm_tot %lu\n", tot);
-+	len += sprintf(buffer + len, "shm_rss %lu\n", rss);
-+	len += sprintf(buffer + len, "shm_swp %lu\n", swp);
-+
-+	return len;
-+}
- #endif
++/**
+  * proc_dointvec_minmax - read a vector of integers with min/max values
+  * @table: the sysctl table
+  * @write: %TRUE if this is a write to the sysctl file
+
+
+
+--==_Exmh_-2071372823P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFA4H3VcC3lWbTT17ARAtAHAKC0vdr+VPJNepf2zqdCz3AxBPPldQCgviot
+nFqvqieQpcnmctU91BOfAfQ=
+=Ac3T
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2071372823P--

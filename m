@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVCRWEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVCRWDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVCRWEX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 17:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVCRWEW
+	id S262080AbVCRWDp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 17:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVCRWDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 17:04:22 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:34771 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261470AbVCRWCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 17:02:15 -0500
-Subject: Re: Suspend-to-disk woes
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Erik =?ISO-8859-1?Q?Andr=E9n?= <erik.andren@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <423B01A3.8090501@gmail.com>
-References: <423B01A3.8090501@gmail.com>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1111183452.3074.3.camel@desktop.cunningham.myip.net.au>
+	Fri, 18 Mar 2005 17:03:44 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:7831 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261911AbVCRWCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 17:02:46 -0500
+Date: Fri, 18 Mar 2005 14:02:27 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: gregkh@suse.de, tony.luck@intel.com, len.brown@intel.com
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: [patch 03/12] Make pcibios_fixup_bus() hot-plug safe
+Message-ID: <20050318140227.C1145@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20050318133856.A878@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 19 Mar 2005 09:04:12 +1100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050318133856.A878@unix-os.sc.intel.com>; from rajesh.shah@intel.com on Fri, Mar 18, 2005 at 01:38:57PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+PCI scan code calls the arch specific pcibios_fixup_bus() each
+time it scans a new bridge. For root bridge hot-plug, the bridge
+and it's attached devices may not have been configured properly
+yet, so it's not safe to claim those resources at this time.
 
-The simplest solution is to mkswap your swap partitions during boot.
+This code goes away when we clean up the way pci resources are
+claimed (in pci_enable_device()), so this is only a stopgap fix.
 
-Nigel
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
+---
 
-On Sat, 2005-03-19 at 03:28, Erik Andrén wrote:
-> Hello, I experienced a pretty nasty problem a couple of days back:
-> 
-> I ran 2.6.11-ck1 and built 2.6.11-ck2. The last thing I did before 
-> booting the new kernel was to suspend-to-disk the old kernel (something 
-> I usually do as I'm working on this laptop).
-> I ran the new kernel a couple of days and decided to boot the old kernel 
-> to do some performance tests. Imagine my dread as the old kernel instead 
-> of detecting that the system has booted another kernel just reloads the 
-> old suspend-to-disk image. The result is that after succesfully 
-> resuming, my harddrive goes bonkers and starts to work. After a couple 
-> of minutes the whole kernel hangs. I reboot and try to boot the -ck2 
-> kernel again only to find that the system complains as it finds missing 
-> nodes. The reisertools try to rebuild the system unsucessully. The 
-> --rebuild-tree parameter worked but a lot of files were still missing. 
-> In the end I had to reinstall the whole system as it went so unstable.
-> 
-> My question is: Why isn't there a check before resuming a 
-> suspend-to-disk image if the system has booted another kernel since the 
-> suspend to prevent this kind of hassle?
-> //Regards Erik Andrén
-> 
-> Please cc me as I'm not on the lkml list yadda yadda
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+ linux-2.6.11-mm4-iohp-rshah1/arch/ia64/pci/pci.c |   22 +++++++++++++++++++++-
+ 1 files changed, 21 insertions(+), 1 deletion(-)
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+diff -puN arch/ia64/pci/pci.c~ia64-pcibios_fixup_bus-hotplug-safe arch/ia64/pci/pci.c
+--- linux-2.6.11-mm4-iohp/arch/ia64/pci/pci.c~ia64-pcibios_fixup_bus-hotplug-safe	2005-03-16 13:07:06.343101214 -0800
++++ linux-2.6.11-mm4-iohp-rshah1/arch/ia64/pci/pci.c	2005-03-16 13:07:06.450523088 -0800
+@@ -391,6 +391,25 @@ void pcibios_bus_to_resource(struct pci_
+ 	res->end = region->end + offset;
+ }
+ 
++static int __devinit is_valid_resource(struct pci_dev *dev, int idx)
++{
++	unsigned int i, type_mask = IORESOURCE_IO | IORESOURCE_MEM;
++	struct resource *devr = &dev->resource[idx];
++
++	if (!dev->bus)
++		return 0;
++	for (i=0; i<PCI_BUS_NUM_RESOURCES; i++) {
++		struct resource *busr = dev->bus->resource[i];
++
++		if (!busr || ((busr->flags ^ devr->flags) & type_mask))
++			continue;
++		if ((devr->start) && (devr->start >= busr->start) &&
++				(devr->end <= busr->end))
++			return 1;
++	}
++	return 0;
++}
++
+ static void __devinit pcibios_fixup_device_resources(struct pci_dev *dev)
+ {
+ 	struct pci_bus_region region;
+@@ -404,7 +423,8 @@ static void __devinit pcibios_fixup_devi
+ 		region.start = dev->resource[i].start;
+ 		region.end = dev->resource[i].end;
+ 		pcibios_bus_to_resource(dev, &dev->resource[i], &region);
+-		pci_claim_resource(dev, i);
++		if ((is_valid_resource(dev, i)))
++			pci_claim_resource(dev, i);
+ 	}
+ }
+ 
+_

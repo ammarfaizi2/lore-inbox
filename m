@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267987AbUJDLEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268005AbUJDLZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267987AbUJDLEm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 07:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268001AbUJDLEl
+	id S268005AbUJDLZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 07:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUJDLZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 07:04:41 -0400
-Received: from [66.9.113.254] ([66.9.113.254]:13575 "HELO tabu.uni-bonn.de")
-	by vger.kernel.org with SMTP id S267987AbUJDLEk (ORCPT
+	Mon, 4 Oct 2004 07:25:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:31874 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268005AbUJDLZ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 07:04:40 -0400
-Message-ID: <5a6201c4aa01$ea803925$f22d8000@tabu.uni-bonn.de>
-From: "Ivy Sellers" <ivy.sellersgx@t-link.de>
-To: linux-kernel@vger.kernel.org
-Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
-Date: Mon, 04 Oct 2004 17:58:48 +0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 4 Oct 2004 07:25:26 -0400
+Subject: Re: [PATCH] -mm swsusp: copy_page is harmfull
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041004093330.GA7614@elf.ucw.cz>
+References: <200409292014.i8TKEhov023334@hera.kernel.org>
+	 <1096847414.23142.42.camel@gaston>  <20041004093330.GA7614@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1096888829.9539.75.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 04 Oct 2004 21:20:29 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 2004-10-04 at 19:33, Pavel Machek wrote:
 
-We would like to offer V_I_A_G_R_A soft tabs,
+> Hmm but does it matter? Is that operation really that slow on ppc?
+> This whole copy takes maybe second on x86, other operations are way
+> slower...
 
-These pills are just like regular Vìagra but they are specially formulated 
-to be soft and dissolvable under the tongue. The pill is absorbed at the 
-mouth and enters the bloodstream directly instead of going through the stomach. 
-This results in a faster more powerful effect which lasts as long as the normal.
+No, you are right, it probably doesn't matter.
 
-Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks with them).
+Ben.
 
-You can get it at: http://888-luvu.com/st/?coupon
-
-No thanks: http://888-luvu.com/rm.html
 

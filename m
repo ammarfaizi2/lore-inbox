@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAJF3y>; Wed, 10 Jan 2001 00:29:54 -0500
+	id <S131888AbRAJFru>; Wed, 10 Jan 2001 00:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbRAJF3f>; Wed, 10 Jan 2001 00:29:35 -0500
-Received: from [202.169.133.50] ([202.169.133.50]:63990 "EHLO
-	mjollnir.rocklines.oyeindia.com") by vger.kernel.org with ESMTP
-	id <S129431AbRAJF3c>; Wed, 10 Jan 2001 00:29:32 -0500
-Date: Wed, 10 Jan 2001 10:53:52 +0530
-From: Suresh Ramasubramanian <mallet@efn.org>
-To: linux-india-help@lists.linux-india.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [LIH] Re: PROBLEMS: computer crash due to overfilling ramfs; iso9660 CD not read correctly
-Message-ID: <20010110105352.A24711@oyeindia.com>
-Mail-Followup-To: linux-india-help@lists.linux-india.org,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200101100501.VAA23068@pl1.hushmail.com> <3A5BF073.2F075978@psynet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5BF073.2F075978@psynet.net>; from devrootp@psynet.net on Wed, Jan 10, 2001 at 10:47:39AM +0530
-Organization: Hopelessly Disorganized
-X-Operating-System: Linux mjollnir.rocklines.oyeindia.com 2.2.18 i686
+	id <S132585AbRAJFrl>; Wed, 10 Jan 2001 00:47:41 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:46260 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131888AbRAJFr3>;
+	Wed, 10 Jan 2001 00:47:29 -0500
+Date: Wed, 10 Jan 2001 00:47:17 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Mason <mason@suse.com>
+cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org, vs@namesys.botik.ru
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
+ Linux)
+In-Reply-To: <75150000.979093424@tiny>
+Message-ID: <Pine.GSO.4.21.0101092129380.11512-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Archan Paul rearranged electrons thusly:
 
-> I faced the same problem when I patched 2.4.0test7 with reiserFS
-> support. On my further correspondence with Alan Cox, he wrote that he is
-> unwilling to listen about any "bug report for 2.4kernel", arising after
-> patching kernel with some foreign code...
-> Any comments? 
+
+On Tue, 9 Jan 2001, Chris Mason wrote:
+
+> 
+> 
+> On Wednesday, January 10, 2001 02:32:09 AM +0100 Marc Lehmann <pcg@goof.com> wrote:
+> 
+> >>> EIP; c013f911 <filldir+20b/221>   <=====
+> > Trace; c013f706 <filldir+0/221>
+> > Trace; c0136e01 <reiserfs_getblk+2a/16d>
+> 
+> The buffer reiserfs is sending to filldir is big enough for
+> the huge file name, so I think the real fix should be done in VFSland.
  
-Simple comment: you misplaced the "quotes".  If you use third party patches
-(and reiserfs, though fairly mainstream, _is_ a third party patch), you have to
-ask the patch maintainer.  ReiserFS is not (as far as I know) part of the linux
-kernel yet.
+> But, in the interest of providing a quick, obviously correct fix, this
 
-	--suresh
+ITYM "band-aid"
 
--- 
-Suresh Ramasubramanian  <-->  mallet <at> efn <dot> org
-EMail Sturmbannfuhrer, Lower Middle Class Unix Sysadmin
+> reiserfs only patch will refuse to create file names larger 
+> than 255 chars, and skip over any directory entries larger than 
+> 255 chars.
+
+Chris, I seriously suspect that it's not that simple (read: trace is a
+BS). 0x20b is just too large for filldir().
+
+However, actual code really looks like the end of filldir(). If that's the
+case we are deep in it - argument of filldir() gets screwed. buf, that is.
+Since it happens after we've already done dereferencing of buf in filldir()
+and we don't trigger them... Fsck knows. copy_to_user() and put_user() should
+not be able to screw the kernel stack.
+
+Marc, could you please get larger area before the point of oops + your
+fs/readdir.c and send them to me? As much as I hate disassembling, it's
+better than guessing the version of compiler you've used and flags you've
+built with.
+
+Another useful thing would be printk() of buf prior and post calls of
+copy_to_user() and put_user() + value of &dirent before these calls.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

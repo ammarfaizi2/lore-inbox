@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314395AbSEFMU3>; Mon, 6 May 2002 08:20:29 -0400
+	id <S314403AbSEFMfp>; Mon, 6 May 2002 08:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314398AbSEFMU2>; Mon, 6 May 2002 08:20:28 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:17602 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S314395AbSEFMU2>; Mon, 6 May 2002 08:20:28 -0400
-Date: Mon, 6 May 2002 04:20:05 -0400
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler gives big boost to tbench 192
-Message-ID: <20020506042005.A18792@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S314404AbSEFMfo>; Mon, 6 May 2002 08:35:44 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:49550 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314403AbSEFMfn>; Mon, 6 May 2002 08:35:43 -0400
+Date: Mon, 6 May 2002 14:14:25 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add NetMos 9835 to parport_serial
+In-Reply-To: <20020506095735.Y27042@redhat.com>
+Message-ID: <Pine.LNX.4.44.0205061359570.12156-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, Randy, I seen my tree runs slower with tiobench, that's probably
-> because I made the elevator anti-starvation logic more aggressive than
-> mainline and the other kernel trees (to help interactive usage), could
-> you try to run tiobench on -aa after elvtune -r 8192 -w 16384
-> /dev/hd[abcd] to verify? Thanks for the great benchmarking effort.
+On Mon, 6 May 2002, Tim Waugh wrote:
 
-I will have results on the big machine in a couple days.  On the 
-small machine, elvtune increases tiobench sequential reads by
-30-50%, and lowers worst case latency a little.
+> On Mon, May 06, 2002 at 08:17:52AM +0200, Zwane Mwaikambo wrote:
+> 
+> > +	/* netmos_9835 */		{ 1, { { 2, 3}, } },
+> 
+> Are you sure these values are correct?  They are different to the ones
+> in ftp://people.redhat.com/twaugh/patches/linux25/linux-netmos.patch.
+> 
+> That patch seems to work for some people but not for others, and I
+> have no idea why; until that's sorted out I'm quite reluctant to
+> submit any NetMos support to the mainstream kernel.  The failure mode
+> is a complete lock-up. :-(
 
-More -aa at:
-http://home.earthlink.net/~rwhron/kernel/aa.html
+All the patches i've seen thus far were for some other chip (forgot the 
+ID), but for that 9835 i needed it desperately so i tested it quite a lot. 
 
-> And for the reason fork is faster in -aa that's partly thanks to the
-> reschedule-child-first logic, that can be easily merged in mainline,
-> it's just in 2.5.
++	/* netmos_9835 (not tested) */	{ 1, { { 2, -1 }, } },
 
-Is that part of parent_timeslice patch?  parent_timeslice helped 
-fork a little when I tried to isolating patches to find what
-makes fork faster in -aa.  It is more than one patch as far as 
-I can tell.
+I'm not sure about the others, but i doubt that one would work. Where 
+there conflicting success/failure reports for the same devices?
 
-On uniprocessor the unixbench execl test, all -aa kernel's going back 
-at least to 2.4.15aa1 are about 20% faster than other trees, even those 
-like jam and akpm's splitted vm.  Fork in -aa for more "real world" 
-test (autoconf build) is about 8-10% over other kernel trees.
+> Perhaps you could chase the oddity you found and see if you can figure
+> out what's going on?
 
-On quad Xeon, with bigger L2 cache, autoconf (fork test) the difference
-between mainline and -aa is smaller.  The -aa based VMs in aa, jam, and
-mainline have about 15% edge over rmap VM in ac and rmap.  jam has a
-slight advantage for autoconf build, possibly because of O(1) effect
-which is more likely to show up since more processes execute
-on the 4 way box.
+I'll definately do that this evening.
 
-More quad Xeon at:
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+Regards,
+	Zwane
 
 -- 
-Randy Hron
+http://function.linuxpower.ca
+		
 

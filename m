@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132433AbRDAMwl>; Sun, 1 Apr 2001 08:52:41 -0400
+	id <S132324AbRDAMSU>; Sun, 1 Apr 2001 08:18:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132462AbRDAMwc>; Sun, 1 Apr 2001 08:52:32 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:48136 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132409AbRDAMwV>;
-	Sun, 1 Apr 2001 08:52:21 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: David Weinehall <tao@acc.umu.se>
-cc: Simon Garner <sgarner@expio.co.nz>, linux-kernel@vger.kernel.org,
-   linux-smp@vger.kernel.org
-Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot 
-In-Reply-To: Your message of "Sun, 01 Apr 2001 12:09:18 +0200."
-             <20010401120918.B23618@khan.acc.umu.se> 
+	id <S132352AbRDAMSL>; Sun, 1 Apr 2001 08:18:11 -0400
+Received: from www.inreko.ee ([195.222.18.2]:32504 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S132324AbRDAMR6>;
+	Sun, 1 Apr 2001 08:17:58 -0400
+Date: Sun, 1 Apr 2001 14:31:38 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: Earle Nietzel <nietzel@yahoo.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minor 2.4.3 Adaptec Driver Problems
+Message-ID: <20010401143138.A22774@l-t.ee>
+In-Reply-To: <200103312307.f2VN73s55018@aslan.scsiguy.com> <000901c0bae7$ab340a20$1401a8c0@nietzel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 Apr 2001 05:51:30 -0700
-Message-ID: <1168.986129490@ocs3.ocs-net>
+Content-Disposition: inline
+In-Reply-To: <000901c0bae7$ab340a20$1401a8c0@nietzel>; from nietzel@yahoo.com on Sun, Apr 01, 2001 at 01:09:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001 12:09:18 +0200, 
-David Weinehall <tao@acc.umu.se> wrote:
->On Sun, Apr 01, 2001 at 10:04:17PM +1200, Simon Garner wrote:
->> Thanks, but I do not have watchdog support compiled into the kernel.
->
->Doesn't matter. The NMI-watchdog tries to detect SMP-lockups, and is
->always present. Unless you specifically disable it on boot.
+On Sun, Apr 01, 2001 at 01:09:30PM -0700, Earle Nietzel wrote:
+> > Umm.  This isn't an aic7xxx driver problem at all.  The SCSI layer
+> > determines the order of bus attachment *amongst* the various
+> > SCSI HBA (or SCSI HBA like) drivers in the system.  In this case,
+> > it has decided to probe your IDE devices as SCSI devices first.
+> > Why it does this I don't really know (link order perhaps???).  One
+> > way around this would be to put your IDE driver into an initial
+> > ram disk and compile the aic7xxx driver directly into the kernel.
 
-Not any more.  In 2.4.3-ac* the default is no watchdog and it must be
-specifically enabled at boot.
+
+> It really wouldn't make a big deal but I consider my cdroms and zip drives
+> to be removable devices and if I ever decided to remove my zip my scsi ids
+> will change. Removing a harddrive is not the same as removing a zip!
+> 
+> Are there other people with the same problem?
+
+Yes, I have ide-scsi compiled in for cd-writer, so 2.4.3 did not
+boot on my machine (that is, could  not mount anything).
+
+Not nice.
+
+-- 
+marko
 

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133120AbRDWOOu>; Mon, 23 Apr 2001 10:14:50 -0400
+	id <S135220AbRDWOQa>; Mon, 23 Apr 2001 10:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135220AbRDWOOk>; Mon, 23 Apr 2001 10:14:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12703 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S133120AbRDWOOX>;
-	Mon, 23 Apr 2001 10:14:23 -0400
-Date: Mon, 23 Apr 2001 10:14:19 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David L. Parsley" <parsley@linuxjedi.org>
-cc: Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org,
-        ingo.oeser@informatik.tu-chemnitz.de
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <3AE4374D.F3A60F95@linuxjedi.org>
-Message-ID: <Pine.GSO.4.21.0104231010320.3617-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135223AbRDWOQU>; Mon, 23 Apr 2001 10:16:20 -0400
+Received: from ev6.be.wanadoo.com ([195.74.212.41]:49938 "EHLO
+	ev6.be.wanadoo.com") by vger.kernel.org with ESMTP
+	id <S135220AbRDWOQI>; Mon, 23 Apr 2001 10:16:08 -0400
+Message-Id: <200104231415.f3NEFo917210@ev6.be.wanadoo.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+From: "Bram Smout" <bram@ba.be>
+To: linux-kernel@vger.kernel.org
+Subject: SGI Visual Workstation Support
+Date: 23 Apr 2001 22:12:14 CEST
+Reply-To: "Bram Smout" <bram@ba.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+If I try to compile a 2.4.x (0-3) kernel for my SGI 540 Workstation and I
+enable SGI Virtual Workstation support (under general setup) the compilation
+stops with the error "kernel.o: In function 'enable_irq' etc...".
 
-On Mon, 23 Apr 2001, David L. Parsley wrote:
+Previous kernels, such as 2.2.19 compile without any problem (same options).
+Anyone a idea of what's wrong ?
+-- 
+Greetings,
+Bram
 
-> What I'm not sure of is which solution is actually 'better' - I'm
-> guessing that performance-wise, neither will make a noticable
-> difference, so I guess memory usage would be the deciding factor.  If I
-
-Bindings are faster on lookup. For obvious reasons - in case of symlinks
-you do name resolution every time you traverse the link; in case of
-bindings it is done when you create them.
 

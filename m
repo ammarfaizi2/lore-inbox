@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261678AbSJ2L3b>; Tue, 29 Oct 2002 06:29:31 -0500
+	id <S261829AbSJ2L4S>; Tue, 29 Oct 2002 06:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSJ2L3b>; Tue, 29 Oct 2002 06:29:31 -0500
-Received: from ns.suse.de ([213.95.15.193]:40452 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261678AbSJ2L3a> convert rfc822-to-8bit;
-	Tue, 29 Oct 2002 06:29:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
-Date: Tue, 29 Oct 2002 12:35:51 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Chris Evans <chris@scary.beasts.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com> <200210290323.09565.agruen@suse.de> <87n0oxmrhn.fsf@goat.bogus.local>
-In-Reply-To: <87n0oxmrhn.fsf@goat.bogus.local>
+	id <S261836AbSJ2L4S>; Tue, 29 Oct 2002 06:56:18 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24333 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261829AbSJ2L4R>; Tue, 29 Oct 2002 06:56:17 -0500
+Date: Tue, 29 Oct 2002 07:02:03 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.5.44-mm6
+In-Reply-To: <3DBD7176.BAC2BCD3@digeo.com>
+Message-ID: <Pine.LNX.3.96.1021029065944.6113B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210291235.51299.agruen@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 October 2002 12:09, Olaf Dietsche wrote:
-> Andreas Gruenbacher <agruen@suse.de> writes:
-> > A perhaps unrelated note: We once had Pavel Machek's elfcap
-> > implementation, in which capabilities were stored in ELF. This was a bad
-> > idea because being able to create executables does not imply the user is
-> > capable of CAP_SETFCAP, and users shouldn't be able to freely choose
-> > their capabilities :-] We still want
->
-> I remember this hack and since I hear this claim every now and then, I
-> downloaded his patch and verified with the source. Pavel's capability
-> patch was about _restricting_ not granting capabilities, so it's more
-> like an inheritable, rather than a permitted, set.
->
-> At least that was his intention. I didn't verify this with the
-> appropriate kernel sources from 1999.
+On Mon, 28 Oct 2002, Andrew Morton wrote:
 
-I forgot to CC Pavel the last time. Elfcap probably truly was restrictive 
-only. This is comparable to dropping capabilities very early in the suid root 
-binaries themselves, and thus not a significant improvement.
+> Rik van Riel wrote:
 
-We want to be able to also grant capabilities (not only restrict them), so we 
-may have fewer suid root binaries.
+> > 1) 2.4 does have the failure modes you talk about ;)
+> 
+> Shock :)  How does one trigger them?
+> 
+> 
+> > 2) I have most of an explicit load control algorithm ready,
+> >    against an early 2.4 kernel, but porting it should be very
+> >    little work
+> > 
+> > Just let me know if you're interested in my load control mechanism
+> > and I'll send it to you.
+> 
+> It would be interesting if you could send out what you have.
+> 
+> It would also be interesting to know if we really care?  The
+> machine is already running 10x slower than it would be if it
+> had enough memory; perhaps it is just not a region of operation
+> for which we're interested in optimising.  (Just being argumentitive
+> here ;))
 
---Andreas.
+I think there is a need for keeping an overloaded machine in some way
+usable, not because anyone is really running it that way, but because the
+sysadmin needs a way to determine why a correctly sized machine is
+suddenly seeing a high load.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

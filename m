@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265452AbUAHQ0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 11:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUAHQZs
+	id S265389AbUAHQUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 11:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265481AbUAHQUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 11:25:48 -0500
-Received: from dsl017-022-215.chi1.dsl.speakeasy.net ([69.17.22.215]:46862
-	"EHLO gateway.two14.net") by vger.kernel.org with ESMTP
-	id S265528AbUAHQZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 11:25:23 -0500
-Date: Thu, 8 Jan 2004 10:25:08 -0600
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: maney@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.4.22-rc2 ext2 filesystem corruption
-Message-ID: <20040108162508.GA4017@furrr.two14.net>
-Reply-To: maney@pobox.com
-References: <200310311941.31930.bzolnier@elka.pw.edu.pl> <20040104011222.GA1433@furrr.two14.net> <200401040307.48530.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Jan 2004 11:20:21 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:27551 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S265389AbUAHQUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 11:20:16 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] RFC: ACPI table overflow handling
+Date: Thu, 8 Jan 2004 09:20:04 -0700
+User-Agent: KMail/1.5.4
+Cc: acpi-devel@lists.sourceforge.net, jbarnes@sgi.com, steiner@sgi.com
+References: <16381.27904.580087.442358@gargle.gargle.HOWL>
+In-Reply-To: <16381.27904.580087.442358@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200401040307.48530.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
-From: maney@two14.net (Martin Maney)
+Message-Id: <200401080920.04906.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 03:07:48AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> I see nothing in 2.4.23 which can explain this.
-> Probably if you boot from Promise you will see corruption again.
+On Thursday 08 January 2004 7:45 am, Jes Sorensen wrote:
+> I could just hack the NUMA srat_num_cpus handling code to have a limit
+> as IMHO it is a lot cleaner to improve the acpi_table_parse_madt() API
+> by adding a max_entries argument and then have acpi_table_parse_madt
+> spit out a warning if it found too many entries.
 
-If tin's flags are correct I forgot to reply to this after testing
-that.  In fact I did *not* observe the corruption when I booted from
-the Promise, but I didn't have the same file (an XFree86 source
-archive) that I was using previously.  I think I know which version it
-was, and I'll see about retesting with that.  If that works I'll try to
-recreate a kernel of the version I originally encountered this with and
-try that.  Probably won't have time until the weekend, what with the
-twins' birthday party this evening.
-
--- 
-The trouble with customizing your environment is that it just doesn't
-propagate, so it's not even worth the trouble.  -- Joel Spolsky
-
-I keep my life in a CVS repository. -- Joey Hess
+I really like this idea.  I notice you didn't take the opportunity to
+remove the ad hoc checking in ia64 acpi_parse_lsapic; probably that's
+the next step.  Also, did you consider using max_entries==0 to signify
+"unlimited"?  Zero seems like an otherwise useless value for max_entries
+and would avoid having to choose an arbitrary limit.
 

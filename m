@@ -1,81 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132577AbREBKyx>; Wed, 2 May 2001 06:54:53 -0400
+	id <S132682AbREBKzn>; Wed, 2 May 2001 06:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132606AbREBKyh>; Wed, 2 May 2001 06:54:37 -0400
-Received: from 13dyn198.delft.casema.net ([212.64.76.198]:55053 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132577AbREBKyY>; Wed, 2 May 2001 06:54:24 -0400
-Message-Id: <200105021054.MAA07283@cave.bitwizard.nl>
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <20010501173558.U26638@redhat.com> from "Stephen C. Tweedie" at
- "May 1, 2001 05:35:58 pm"
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Date: Wed, 2 May 2001 12:54:15 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        Wakko Warner <wakko@animx.eu.org>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132614AbREBKze>; Wed, 2 May 2001 06:55:34 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:62473 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132606AbREBKzZ>;
+	Wed, 2 May 2001 06:55:25 -0400
+Date: Wed, 2 May 2001 12:53:50 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Ville Herva <vherva@mail.niksula.cs.hut.fi>,
+        Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <20010502125243.A518@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.33.0105021252440.5505-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Tue, May 01, 2001 at 06:14:54PM +0200, Rogier Wolff wrote:
-> 
-> > Shouldn't the algorithm be: 
-> > 
-> > - If (current_access == write )
-> > 	free (swap_page);
-> >   else
-> >  	map (page, READONLY)
-> > 
-> > and 
-> >   when a write access happens, we fault again, and map free the 
-> >   swap-page as it is now dirty anyway. 
-> 
-> That's what 2.2 did.  2.4 doesn't have to. 
-> 
-> The trouble is, you really want contiguous virtual memory to remain
-> contiguous on swap.  Freeing individual pages like this on fault can
-> cause a great deal of fragmentation in swap.  We'd far rather keep the
-> swap page reserved for future use by the same page so that the VM
-> region remains contiguous on disk.
-> 
-> That's fine as far as it goes, but the problem happens if you _never_
-> free up such pages.  We should reap the unused swap page if we run out
-> of swap.  We don't, and _that_ is the problem --- not the fact that
-> the page is left allocated in the first place, but the fact that we
-> don't do anything about it once we are short on disk.
 
-first: Thanks for clearing this up for me. 
+On Wed, 2 May 2001, Andi Kleen wrote:
 
-So, there are in fact some more "states" a swap-page can be in:
+> > Whatever happened to that hack that was discussed a year or two ago?
+> > The one where (also on IA32) a magic page was set up by the kernel
+> > containing code for fast system calls, and the kernel would write
+> > calibation information to that magic page. The code written there
+> > would use the TSC in conjunction with that calibration data.
+> >
+> > There was much discussion about this idea, even Linus was keen on
+> > it. But IIRC, nothing ever happened.
+>
+> It's already implemented in the x86-64 port, thanks to Andrea
+> Arcangelli.
 
-	-(0) free
-	-(1) allocated, not in mem. 
-	-(2) on swap, valid copy of memory. 
-	-(3) on swap: invalid copy, allocated for fragmentation, can 
-		be freed on demand if we are close to running out of swap.
+well, it was first prototyped in the vsyscall patches :-)
 
-If we running low on (0) swap-pages we can first start to reap the (3)
-pages, and if that runs out, we can start reaping the (2)
-pages. Right?
+	Ingo
 
-
-		Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

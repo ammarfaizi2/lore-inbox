@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUIDV6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUIDWDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUIDV6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 17:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUIDV6f
+	id S263100AbUIDWDy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 18:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUIDWDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 17:58:35 -0400
-Received: from gsstark.mtl.istop.com ([66.11.160.162]:18060 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S263024AbUIDV6b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 17:58:31 -0400
+	Sat, 4 Sep 2004 18:03:54 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:6101 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263100AbUIDWDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 18:03:53 -0400
+Subject: Re: [RFC/patch] macro_removal_agp_mtrr.diff
+From: Lee Revell <rlrevell@joe-job.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Brad Campbell <brad@wasp.net.au>, Greg Stark <gsstark@mit.edu>,
+Cc: gene.heskett@verizon.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Crashed Drive, libata wedges when trying to recover data
-References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
-	<87u0ugt0ml.fsf@stark.xeocode.com> <413868CE.7070303@wasp.net.au>
-	<1094220595.7923.14.camel@localhost.localdomain>
-In-Reply-To: <1094220595.7923.14.camel@localhost.localdomain>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 04 Sep 2004 17:58:23 -0400
-Message-ID: <87y8jppugw.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+       Dave Airlie <airlied@linux.ie>, Arjan van de Ven <arjanv@redhat.com>,
+       webmaster@x.org
+In-Reply-To: <1094315580.10555.23.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0409041053450.25475@skynet>
+	 <20040904103711.GD5313@devserv.devel.redhat.com>
+	 <Pine.LNX.4.58.0409041418450.25475@skynet>
+	 <200409041147.35522.gene.heskett@verizon.net>
+	 <1094315580.10555.23.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1094335441.6575.429.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 04 Sep 2004 18:04:01 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> > Jeff, do we really have to wait 30 seconds for a timeout? If the drive hits an unreadble spot I 
-> > would have thought it would come back to us with a read error rather than timing out the command.
+On Sat, 2004-09-04 at 12:33, Alan Cox wrote:
+> On Sad, 2004-09-04 at 16:47, Gene Heskett wrote:
+> > Unforch, it appears not to be available as a tarball, or group of 
+> > tarballs stuffed in a "grab all these" directory.  While I probably
 > 
-> The drive will retry for a few seconds then fail. The failure now
-> generates a SCSI medium error to the core scsi layer and it does like to
-> issue a few retries. The default retry count for scsi is probably too
-> high for SATA given the drive retries.
+> Look harder. Its a single tarball.
+> 
 
-Certainly over an hour seems a little excessive:
+Gene has a point, the x.org page is pretty bad.  The download link is
+buried, you have to scroll past the organizational stuff to even see it,
+which makes the user think they missed it because they (correctly)
+expected it to be at the top.
 
-$ time dd bs=512 count=1  if=/dev/sda4 of=/dev/null
-dd: reading `/dev/sda4': Input/output error
-0+0 records in
-0+0 records out
-
-real    67m59.382s
-user    0m0.001s
-sys     0m0.002s
-
-bash-2.05b# time mount /dev/sda4 /u4
-/dev/sda4: Input/output error
-mount: you must specify the filesystem type
-
-real    71m59.322s
-user    0m0.000s
-sys     0m0.004s
-bash-2.05b# 
-
--- 
-greg
+Lee
 

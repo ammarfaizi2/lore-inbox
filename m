@@ -1,173 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264645AbUEEM4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264659AbUEENAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264645AbUEEM4m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 08:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbUEEM4M
+	id S264659AbUEENAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 09:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbUEEM7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 08:56:12 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:12332 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S264639AbUEEMwa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 08:52:30 -0400
-Date: Tue, 4 May 2004 13:55:16 +0100
-From: backblue <backblue@netcabo.pt>
-To: Lucas Nussbaum <lucas@lucas-nussbaum.net>, linux-kernel@vger.kernel.org
-Subject: Re: ne2k-pci uncorrectly detecting collisions ?
-Message-Id: <20040504135516.78f87d0d@fork.ketic.com>
-In-Reply-To: <20040505123532.GA3011@blop.info>
-References: <20040505123532.GA3011@blop.info>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 5 May 2004 08:59:36 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:61865 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264647AbUEEM4r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 08:56:47 -0400
+Date: Wed, 5 May 2004 18:29:49 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>
+Subject: [RFC 6/6] sysfs backing store ver 0.5
+Message-ID: <20040505125949.GG1244@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040505125702.GA1244@in.ibm.com> <20040505125755.GB1244@in.ibm.com> <20040505125815.GC1244@in.ibm.com> <20040505125833.GD1244@in.ibm.com> <20040505125902.GE1244@in.ibm.com> <20040505125925.GF1244@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 May 2004 12:52:28.0067 (UTC) FILETIME=[D22E8730:01C4329F]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040505125925.GF1244@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that problem, it's because hardware, ne2k-pci NIC's and all realtek stuff, are chip NIC's that it's not suposed to use in that way, i have many problems like that, with realtek NIC's, but when i used real NIC's like 3com, you dont have any problems at all!
-The realtek's NIC's starts complaining because another ones, they dont live well together! :)
-Buy 3com nic's. :)
 
-good luck
 
-On Wed, 5 May 2004 14:35:32 +0200
-Lucas Nussbaum <lucas@lucas-nussbaum.net> wrote:
+=> changes in version 0.5
+  o New additions like struct sysfs_symlink. and changes to
+    sysfs_get_kobject()
 
-> Hello,
-> 
-> I have experienced problem with the ne2k-pci driver. The symptoms were
-> extremly poor performance with TCP. After some investigations, I believe
-> it might be caused by problems with detecting collisions.
-> 
-> I tested with 3 cards :
-> - eth1 : RTL8029 - not working properly
->   the chip says RTL8029, but lspci says RTL8029(AS)
-> - eth2 : RTL8029AS - working.
-> - eth3 : RTL8029AS - not working properly
-> lspci for all three cards :
-> 00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.  RTL-8029(AS)
-> 
-> The same problem was experienced on FreeBSD, but it hurts a lot to say
-> that there wasn't any problem when I tested under Windows - so it's
-> probably not a broken card problem.
-> 
-> All 3 NICs were in the same box, using the same ne2k-pci driver compiled
-> as a module (kernel version is 2.4.24). They used the same 10/100 Hub to
-> talk to the same NIC on the other end. Traffic on the network during the
-> test was quite low but not nonexistent.
-> 
-> As you can see :
-> - throughput for eth1 and eth3 with TCP is extremly low.
-> - throughput with UDP is normal.
-> - eth1 and eth3 saw no collisions, but eth2 saw a lot.
-> - eth1 and eth3 saw lots of frame errors, but eth2 saw much less.
->  
-> Here are the detailed test results. I can provide more results if needed.
-> + ifconfig eth1 down
-> + ifconfig eth2 down
-> + ifconfig eth3 down
-> + rmmod ne2k-pci
-> + modprobe ne2k-pci
-> + ifconfig eth1 172.36.1.2
-> + ifconfig eth2 172.37.1.2
-> + ifconfig eth3 172.38.1.2
-> + netperf -H 172.36.1.1 -l 20
-> TCP STREAM TEST to 172.36.1.1
-> Recv   Send    Send                          
-> Socket Socket  Message  Elapsed              
-> Size   Size    Size     Time     Throughput  
-> bytes  bytes   bytes    secs.    10^6bits/sec  
-> 
->  87380  16384  16384    20.18       0.59   
-> + netperf -H 172.37.1.1 -l 20
-> TCP STREAM TEST to 172.37.1.1
-> Recv   Send    Send                          
-> Socket Socket  Message  Elapsed              
-> Size   Size    Size     Time     Throughput  
-> bytes  bytes   bytes    secs.    10^6bits/sec  
-> 
->  87380  16384  16384    20.04       8.54   
-> + netperf -H 172.38.1.1 -l 20
-> TCP STREAM TEST to 172.38.1.1
-> Recv   Send    Send                          
-> Socket Socket  Message  Elapsed              
-> Size   Size    Size     Time     Throughput  
-> bytes  bytes   bytes    secs.    10^6bits/sec  
-> 
->  87380  16384  16384    20.05       0.56   
-> + netperf -t UDP_STREAM -H 172.36.1.1 -l 20 -- -m 1472
-> UDP UNIDIRECTIONAL SEND TEST to 172.36.1.1
-> Socket  Message  Elapsed      Messages                
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
->  65535    1472   20.00       16027      0       9.44
->  65535           20.00       15216              8.96
-> 
-> + netperf -t UDP_STREAM -H 172.37.1.1 -l 20 -- -m 1472
-> UDP UNIDIRECTIONAL SEND TEST to 172.37.1.1
-> Socket  Message  Elapsed      Messages                
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
->  65535    1472   19.99       15326      0       9.03
->  65535           19.99       15326              9.03
-> 
-> + netperf -t UDP_STREAM -H 172.38.1.1 -l 20 -- -m 1472
-> UDP UNIDIRECTIONAL SEND TEST to 172.38.1.1
-> Socket  Message  Elapsed      Messages                
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
->  65535    1472   20.00       16008      0       9.43
->  65535           20.00       15593              9.18
-> 
-> + netstat -i
-> Table d'interfaces noyau
-> Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
-> eth0   1500 0    140926      0      0      0  232637      0      0      0 BMRU
-> eth1   1500 0      1049      0      0      0   17292      0      0      0 BMRU
-> eth2   1500 0      7421      0      0      0   30134      0      0      0 BMRU
-> eth3   1500 0       982      0      0      0   17201      0      0      0 BMRU
-> lo    16436 0     22831      0      0      0   22831      0      0      0 LRU
-> + ifconfig eth1
-> eth1      Lien encap:Ethernet  HWaddr 00:00:E8:D7:E9:46  
->           inet adr:172.36.1.2  Bcast:172.36.255.255  Masque:255.255.0.0
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:1049 errors:0 dropped:0 overruns:0 frame:165
->           TX packets:17292 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 lg file transmission:1000 
->           RX bytes:75796 (74.0 KiB)  TX bytes:26148738 (24.9 MiB)
->           Interruption:5 Adresse de base:0xd800 
-> 
-> + ifconfig eth2
-> eth2      Lien encap:Ethernet  HWaddr 00:E0:7D:75:C2:D7  
->           inet adr:172.37.1.2  Bcast:172.37.255.255  Masque:255.255.0.0
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:7421 errors:0 dropped:0 overruns:0 frame:27
->           TX packets:30134 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:225 lg file transmission:1000 
->           RX bytes:491544 (480.0 KiB)  TX bytes:45590838 (43.4 MiB)
->           Interruption:9 Adresse de base:0xdc00 
-> 
-> + ifconfig eth3
-> eth3      Lien encap:Ethernet  HWaddr 00:00:E8:74:0E:1A  
->           inet adr:172.38.1.2  Bcast:172.38.255.255  Masque:255.255.0.0
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:982 errors:0 dropped:0 overruns:0 frame:147
->           TX packets:17201 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 lg file transmission:1000 
->           RX bytes:71062 (69.3 KiB)  TX bytes:26010052 (24.8 MiB)
->           Interruption:11 Adresse de base:0xe000 
-> 
-> Thank you,
-> -- 
-> | Lucas Nussbaum
-> | lucas@lucas-nussbaum.net    lnu@gnu.org    GPG: 1024D/023B3F4F |
-> | jabber: lucas@linux.ensimag.fr   http://www.lucas-nussbaum.net |
-> | fingerprint: 075D 010B 80C3 AC68 BD4F B328 DA19 6237 023B 3F4F |
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+=> changes in version 0.4
+ o Nil, just re-diffed
+
+=> changes in version 0.3
+ o Corrected dentry ref counting for sysfs_create_group() and
+   sysfs_remove_group().
+
+=> changes in Version 0.2
+  o  Provided error checking after sysfs_get_dentry() call in 
+     sysfs_remove_group().
+  o  kfree the symlink name while freeing the corresponding sysfs_dirent in
+     sysfs_put().
+
+================
+o This patch has the changes required for attribute groups and misc. routines.
+
+
+ fs/sysfs/group.c |   18 ++++++----
+ fs/sysfs/sysfs.h |   93 +++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 101 insertions(+), 10 deletions(-)
+
+diff -puN fs/sysfs/group.c~sysfs-leaves-misc fs/sysfs/group.c
+--- linux-2.6.6-rc3-mm1/fs/sysfs/group.c~sysfs-leaves-misc	2004-05-05 10:55:17.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/fs/sysfs/group.c	2004-05-05 10:55:17.000000000 +0530
+@@ -10,7 +10,7 @@
+ 
+ #include <linux/kobject.h>
+ #include <linux/module.h>
+-#include <linux/dcache.h>
++#include <linux/fs.h>
+ #include <linux/err.h>
+ #include "sysfs.h"
+ 
+@@ -31,7 +31,7 @@ static int create_files(struct dentry * 
+ 	int error = 0;
+ 
+ 	for (attr = grp->attrs; *attr && !error; attr++) {
+-		error = sysfs_add_file(dir,*attr);
++		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+ 	}
+ 	if (error)
+ 		remove_files(dir,grp);
+@@ -70,11 +70,15 @@ void sysfs_remove_group(struct kobject *
+ 	else
+ 		dir = dget(kobj->dentry);
+ 
+-	remove_files(dir,grp);
+-	if (grp->name)
+-		sysfs_remove_subdir(dir);
+-	/* release the ref. taken in this routine */
+-	dput(dir);
++	if (!IS_ERR(dir)) {
++		if (dir && dir->d_inode) {
++			remove_files(dir,grp);
++			if (grp->name)
++				sysfs_remove_subdir(dir);
++			/* release the ref. taken in this routine */
++			dput(dir);
++		}
++	}
+ }
+ 
+ 
+diff -puN fs/sysfs/sysfs.h~sysfs-leaves-misc fs/sysfs/sysfs.h
+--- linux-2.6.6-rc3-mm1/fs/sysfs/sysfs.h~sysfs-leaves-misc	2004-05-05 10:55:17.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/fs/sysfs/sysfs.h	2004-05-05 10:58:00.000000000 +0530
+@@ -1,28 +1,115 @@
+ 
++#include <linux/fs.h>
+ extern struct vfsmount * sysfs_mount;
++extern struct super_block * sysfs_sb;
+ 
+ extern struct inode * sysfs_new_inode(mode_t mode);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
+ 
+ extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
++extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+ 
+-extern int sysfs_add_file(struct dentry * dir, const struct attribute * attr);
+ extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
+ 
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
++extern int sysfs_dir_open(struct inode *inode, struct file *file);
++extern int sysfs_dir_close(struct inode *inode, struct file *file);
++extern loff_t sysfs_dir_lseek(struct file *, loff_t, int);
++extern int sysfs_readdir(struct file *, void *, filldir_t);
++extern void sysfs_umount_begin(struct super_block *);
++extern const unsigned char * sysfs_get_name(struct sysfs_dirent *);
++extern struct dentry * sysfs_lookup(struct inode *, struct dentry *, struct nameidata *);
++extern int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname);
++extern int init_symlink(struct inode * inode);
+ 
+ extern int sysfs_readlink(struct dentry *, char __user *, int );
+ extern int sysfs_follow_link(struct dentry *, struct nameidata *);
+ extern struct rw_semaphore sysfs_rename_sem;
++extern struct file_operations sysfs_file_operations;
++extern struct file_operations bin_fops;
++extern struct inode_operations sysfs_dir_inode_operations;
++extern struct file_operations sysfs_dir_operations;
++
++struct sysfs_symlink {
++	char * link_name;
++	struct kobject * target_kobj;
++};
++
++static inline 
++struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * p, void * e, int t)
++{
++	struct sysfs_dirent * sd;
++
++	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd)
++		return NULL;
++	memset(sd, 0, sizeof(*sd));
++	atomic_set(&sd->s_count, 1);
++	sd->s_element = e;
++	sd->s_type = t;
++	sd->s_dentry = NULL;
++	INIT_LIST_HEAD(&sd->s_children);
++	list_add(&sd->s_sibling, &p->s_children);
++
++	return sd;
++}
++
++static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
++{
++	if (sd) {
++		WARN_ON(!atomic_read(&sd->s_count)); 
++		atomic_inc(&sd->s_count);
++	}
++	return sd;
++}
++
++static inline void sysfs_put(struct sysfs_dirent * sd)
++{
++	if (atomic_dec_and_test(&sd->s_count)) {
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			struct sysfs_symlink * sl = sd->s_element;
++			kfree(sl->link_name);
++			kobject_put(sl->target_kobj);
++			kfree(sl);
++		}
++		kfree(sd);
++	}
++}
++
++static inline 
++void sysfs_remove_dirent(struct sysfs_dirent * parent_sd, const char * name)
++{
++	struct list_head * tmp;
++
++	tmp = parent_sd->s_children.next;
++	while (tmp != & parent_sd->s_children) {
++		struct sysfs_dirent * sd;
++		sd = list_entry(tmp, struct sysfs_dirent, s_sibling);
++		tmp = tmp->next;
++		if (sd->s_type & SYSFS_NOT_PINNED) {
++			if (!strcmp(sysfs_get_name(sd), name)) {
++				list_del_init(&sd->s_sibling);
++				sysfs_put(sd);
++			}
++		}
++	}
++}
++
+ 
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+ {
+ 	struct kobject * kobj = NULL;
+ 
+ 	spin_lock(&dcache_lock);
+-	if (!d_unhashed(dentry))
+-		kobj = kobject_get(dentry->d_fsdata);
++	if (!d_unhashed(dentry)) {
++		struct sysfs_dirent * sd = dentry->d_fsdata;
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			struct sysfs_symlink * sl = sd->s_element;
++			kobj = kobject_get(sl->target_kobj);
++		} else
++			kobj = kobject_get(sd->s_element);
++	}
+ 	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
+
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

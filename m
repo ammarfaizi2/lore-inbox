@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316753AbSE3QmY>; Thu, 30 May 2002 12:42:24 -0400
+	id <S316756AbSE3QqJ>; Thu, 30 May 2002 12:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316756AbSE3QmX>; Thu, 30 May 2002 12:42:23 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:62983 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S316753AbSE3QmX>; Thu, 30 May 2002 12:42:23 -0400
-Message-Id: <200205301639.g4UGdS916620@aslan.scsiguy.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic-6.2.8 with U160 drives 
-In-Reply-To: Your message of "Thu, 30 May 2002 15:25:01 +0200."
-             <20020530132501.GA18235@werewolf.able.es> 
-Date: Thu, 30 May 2002 10:39:28 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S316757AbSE3QqI>; Thu, 30 May 2002 12:46:08 -0400
+Received: from c16443.eburwd3.vic.optusnet.com.au ([210.49.192.62]:45553 "EHLO
+	kira.glasswings.com.au") by vger.kernel.org with ESMTP
+	id <S316756AbSE3QqI>; Thu, 30 May 2002 12:46:08 -0400
+Date: Fri, 31 May 2002 02:50:31 +1000
+From: Andrew Pam <xanni@glasswings.com.au>
+To: Hannu Mallat <hmallat@cc.hut.fi>, James Simmons <jsimmons@linux-fbdev.org>,
+        James Simmons <jsimmons@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: 3dfx framebuffer driver borked in 2.5.19 kernel
+Message-ID: <20020530165031.GA18544@kira.glasswings.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I have noticed a problem with the recent update in 2.4.19-pre9.
->I have an Adaptec 29160 card, and a couple scsi4 Fujitsu drives,
->that with previous -pre version worked at 160, AFAIR.
->With the recent update, they slow down to 40Mb/s. I will recheck
->bios settings, but...
+The tdfxfb.c framebuffer driver works perfectly for me (apart from the
+known problem with the wrong palette for the boot penguin in 16/32bps
+colour depth since around kernel 2.4.6) in every kernel version up to and
+including 2.5.18.  With the port to the new fbdev interface in kernel
+2.5.19 the system now only displays a few unchanging coloured pixels
+on the first line of the screen.  The rest of the screen remains black
+until X11 starts.  I am using append="video=tdfx:1024x768" in LILO.
 
-Are you sure you don't have a single ended device on the same
-bus segment as the fujitsu drives?  It looks like the driver is
-running the bus in SE mode.
-
---
-Justin
+Regards,
+	Andrew Pam
+-- 
+mailto:xanni@xanadu.net                         Andrew Pam
+http://www.xanadu.com.au/                       Chief Scientist, Xanadu
+http://www.glasswings.com.au/                   Technology Manager, Glass Wings
+http://www.sericyb.com.au/                      Manager, Serious Cybernetics
+http://two-cents-worth.com/?105347&EG		Donate two cents to our work!
+P.O. Box 477, Blackburn VIC 3130 Australia	Phone +61 401 258 915

@@ -1,117 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbUERUog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263564AbUERUxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbUERUog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 16:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUERUog
+	id S263564AbUERUxi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 16:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUERUxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 16:44:36 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42118 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263578AbUERUoc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 16:44:32 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Mark Gross <mgross@linux.jf.intel.com>
-Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
-Date: Tue, 18 May 2004 22:45:23 +0200
-User-Agent: KMail/1.5.3
-Cc: Christoph Hellwig <hch@infradead.org>, Tim Bird <tim.bird@am.sony.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-References: <40A90D00.7000005@am.sony.com> <200405181232.48226.mgross@linux.intel.com> <20040518205608.D30520@flint.arm.linux.org.uk>
-In-Reply-To: <20040518205608.D30520@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 May 2004 16:53:38 -0400
+Received: from waste.org ([209.173.204.2]:33970 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263564AbUERUxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 16:53:35 -0400
+Date: Tue, 18 May 2004 15:53:27 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [patch] kill off PC9800
+Message-ID: <20040518205326.GG28735@waste.org>
+References: <1084729840.10938.13.camel@mulgrave> <20040516142123.2fd8611b.akpm@osdl.org> <20040518201416.GT5414@waste.org> <40AA70B6.1050405@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405182245.23274.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <40AA70B6.1050405@didntduck.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 of May 2004 21:56, Russell King wrote:
-> On Tue, May 18, 2004 at 12:32:48PM -0700, Mark Gross wrote:
-> > > --- linux-2.4.20.orig/drivers/ide/ide.c	Thu Nov 28 23:53:13 2002
-> > > +++ celinux-040213/drivers/ide/ide.c	Thu Feb 12 10:25:12 2004
-> > > @@ -2739,12 +2776,17 @@
-> > >   */
-> > >  void ide_delay_50ms (void)
-> > >  {
-> > > +#ifdef CONFIG_IDE_PREEMPT
-> > > +	__set_current_state(TASK_UNINTERRUPTIBLE);
-> > > +	schedule_timeout(1+HZ/20); /* from 2.5 */
-> > > +#else /* CONFIG_IDE_PREEMPT */
-> > >  #ifndef CONFIG_BLK_DEV_IDECS
-> > >  	mdelay(50);
-> > >  #else
-> > >  	__set_current_state(TASK_UNINTERRUPTIBLE);
-> > >  	schedule_timeout(HZ/20);
-> > >  #endif /* CONFIG_BLK_DEV_IDECS */
-> > > +#endif /* CONFIG_IDE_PREEMPT */
-> > >  }
-> > >
-> > > This great piece 'called IDE-preempt' to be buzzword-compliant is (and
-> > > that's noticeable just from looking at the diff!) so braindead that
-> > > it's not explainable by incompetence alone.  You'd get your same result
-> > > by just _disabling_ CONFIG_BLK_DEV_IDECS instead of adding another
-> > > broken config option (modulo 2.6 adjustments to the sleep time).
-> > >
-> > > Every engineer with the slightest clue would first disable that option,
-> > > or if ide-cs support is actually needed think _why_ it's different
-> > > instead of just adding a config option to disable it.  Either it's safe
-> > > to always use the sleeping variant in which case the original ifdef
-> > > should go away, or it's not in which case your patch is completely
-> > > broken.
+On Tue, May 18, 2004 at 04:23:18PM -0400, Brian Gerst wrote:
+> Matt Mackall wrote:
+> 
+> >On Sun, May 16, 2004 at 02:21:23PM -0700, Andrew Morton wrote:
 > >
-> > OK I'll bite, but just because in your blind hostility and haste you've
-> > made a mistake ;)
->
-> Christoph is actually making a valid point here and I suspect is trying
-> to point out the lack of thought put into this change.  The things that
-> _should_ have been considered before making the change are:
->
-> 1. Why do we use mdelay() here if CONFIG_BLK_DEV_IDECS is defined?
+> >>James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> >>
+> >>>   Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> >>>   >
+> >>>   >  PC9800 sub-arch is incomplete, hackish (at least in IDE), 
+> >>>   maintainers
+> >>>   >  don't reply to emails and haven't touched it in awhile.
+> >>>   
+> >>>   And the hardware is obsolete, isn't it?  Does anyone know when they 
+> >>>   were
+> >>>   last manufactured, and how popular they are?
+> >>>   
+> >>>Hey, just being obsolete is no grounds for eliminating a
+> >>>subarchitecture...
+> >>
+> >>Well it's a question of whether we're likely to see increasing demand for
+> >>it in the future.  If so then it would be prudent to put some effort into
+> >>fixing it up rather than removing it.
+> >>
+> >>Seems that's not the case.  I don't see a huge rush on this but if after
+> >>this discussion nobody steps up to take care of the code over the next few
+> >>weeks, it's best to remove it.
+> >
+> >
+> >Perhaps a nicer way to do this is to add a compile warning or error:
+> >
+> >#warning "arch/i386/mach-pc9800 unmaintained since xx/xx/xx, nominated
+> >for removal xx/xx/xx if unclaimed"
+> >
+> >..where the second date is, say, 3+ months after the warning goes in.
+> >Then people can nominate stuff for removal with one liners and users
+> >will get ample opportunity to complain.
+> >
+> 
+> You're missing the point that this code doesn't compile *at all*. 
+> Nobody would ever see the warning.
 
-why we don't, it is ifndef not ifdef
+Actually it's a matter of fail to attempt to compile, which is
+different than fail to compile. The principle is the same - stick
+advance notice in a highly visible place where users are likely to see
+it. That place is _not_ this mailing list.
 
-> 2. Is the reason for this still valid?
->
-> 3. If it is safe to sleep here even if CONFIG_CLK_DEV_IDECS is set,
->    why bother with mdelay() in the first place?
+We've had the code for years, and it would be nice to delete it if
+it's truly dead. But it seems silly to wake up one morning and say "no
+one's touched it for a year" and post a patch to delete it that same
+day. If it wasn't urgent yesterday, then why is it urgent today?
 
-even ifndef
-
-> The _correct_ patch is actually:
->
->  void ide_delay_50ms (void)
->  {
-> -#ifndef CONFIG_BLK_DEV_IDECS
-> -	mdelay(50);
-> -#else
->  	__set_current_state(TASK_UNINTERRUPTIBLE);
->  	schedule_timeout(HZ/20);
-> -#endif /* CONFIG_BLK_DEV_IDECS */
->  }
->
-> since PCMCIA always calls drivers from process context now.
-
-Probably somebody got the logic wrong while adding this ifndef.
-
-I've checked (quickly) all users of ide_delay_50ms() + their callers
-and it seems that this change is safe.
-
-Cheers.
-
->
-> (Unfortunately I can't write upside down, but I'll give the answers to
-> those three items above.  Look away now if you don't want to read the
-> answers! 8) )
->
->
-> 1. PCMCIA used to call drivers in IRQ context, which made it impossible
->    to sleep.
->
-> 2. No, because PCMCIA always calls drivers in process context now, so
->    sleeping is possible.
->
-> 3. Left as an exercise to the reader. 8)
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

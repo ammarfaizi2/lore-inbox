@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266267AbUBLE1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 23:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266268AbUBLE1X
+	id S266268AbUBLEmn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 23:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266276AbUBLEmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 23:27:23 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:27058 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S266267AbUBLE1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 23:27:22 -0500
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: Mark de Vries <m.devries@nl.tiscali.com>, linux-kernel@vger.kernel.org
-Subject: Re: About highmem in 2.6
-References: <1o6EZ-2zO-27@gated-at.bofh.it> <1o7AZ-3PD-9@gated-at.bofh.it>
-	<402A7EC6.7010003@nl.tiscali.com>
-	<20040211212858.2ce1a17d.bonganilinux@mweb.co.za>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 12 Feb 2004 05:02:53 +0100
-In-Reply-To: <20040211212858.2ce1a17d.bonganilinux@mweb.co.za> (Bongani
- Hlope's message of "Wed, 11 Feb 2004 21:28:58 +0200")
-Message-ID: <m3isidkkr6.fsf@defiant.pm.waw.pl>
+	Wed, 11 Feb 2004 23:42:42 -0500
+Received: from dictum-ext.geekmail.cc ([204.239.179.245]:47042 "EHLO
+	mailer01.geekmail.cc") by vger.kernel.org with ESMTP
+	id S266268AbUBLEml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 23:42:41 -0500
+Message-ID: <402B0430.10200@swapped.cc>
+Date: Wed, 11 Feb 2004 20:42:24 -0800
+From: Alex Pankratov <ap@swapped.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] [2/2] hlist: remove IFs from hlist functions
+References: <4029CB7E.4030003@swapped.cc.suse.lists.linux.kernel>	<4029CF24.1070307@osdl.org.suse.lists.linux.kernel>	<4029D2D5.7070504@swapped.cc.suse.lists.linux.kernel>	<p73y8ra5721.fsf@nielsen.suse.de>	<402A5CEC.2030603@swapped.cc> <20040214195949.2ad9aa4f.ak@suse.de>
+In-Reply-To: <20040214195949.2ad9aa4f.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani Hlope <bonganilinux@mweb.co.za> writes:
 
-> There is nothing wrong with that patch, the problem with Highmem support
-> on x86 is that is uses an Intel hack to address the full 1Gb of memory,
-> which make memory access a bit slower. The question is, does the 128Mb
-> additional memory worth that penalty?
 
-2GB/2GB split doesn't use any Intel hack nor highmem. In fact for
-1 GB of RAM I use a little different split which covers the whole RAM
-and gives more virtual RAM, something like 1.2/2.8 GB.
--- 
-Krzysztof Halasa, B*FH
+Andi Kleen wrote:
+> On Wed, 11 Feb 2004 08:48:44 -0800
+> Alex Pankratov <ap@swapped.cc> wrote:
+> 
+> 
+>>Andi Kleen wrote:
+> 
+> A full cache miss is extremly costly on a modern Gigahertz+ CPU because
+> memory and busses are far slower than the CPU core...
+[snip]
+
+Thanks for the summary, I did some background reading, you're 100%
+right of course. Ignore the patch. Thanks again.
+
+Alex

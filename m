@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVCBIQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVCBITG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVCBIQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 03:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVCBIQ7
+	id S262219AbVCBITG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 03:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVCBITG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 03:16:59 -0500
-Received: from dns1.expertron.co.za ([196.25.64.193]:61922 "EHLO
-	mail.expertron.co.za") by vger.kernel.org with ESMTP
-	id S262217AbVCBIQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 03:16:58 -0500
-Message-ID: <4225768B.3010005@expertron.co.za>
-Date: Wed, 02 Mar 2005 10:17:15 +0200
-From: Justin Schoeman <justin@expertron.co.za>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Tracing memory leaks (slabs) in 2.6.9+ kernels?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 03:19:06 -0500
+Received: from colin2.muc.de ([193.149.48.15]:31500 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262219AbVCBIS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 03:18:59 -0500
+Date: 2 Mar 2005 09:18:58 +0100
+Date: Wed, 2 Mar 2005 09:18:58 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Bernd Schubert <bernd-schubert@web.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trond.myklebust@fys.uio.no
+Subject: Re: x86_64: 32bit emulation problems
+Message-ID: <20050302081858.GA7672@muc.de>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <200503012207.02915.bernd-schubert@web.de> <jewtsruie9.fsf@sykes.suse.de> <200503020019.20256.bernd-schubert@web.de> <jebra3udyo.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jebra3udyo.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 02, 2005 at 12:46:23AM +0100, Andreas Schwab wrote:
+> Bernd Schubert <bernd-schubert@web.de> writes:
+> 
+> > Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
+> > it work without this option on a 32bit kernel, but not on a 64bit kernel?
+> 
+> See nfs_fileid_to_ino_t for why the inode number is different between
+> 32bit and 64bit kernels.
 
-I am having a problem with memory leaking on a patched kernel.  In order 
-to pinpoint the leak, I would like to try to trace the allocation points 
-for the memory.
+Ok that explains it. Thanks.
 
-I have found some vague references to patches that allow the user to 
-dump the caller address for slab allocations, but I cannot find the 
-patch itself.
+Best would be probably to just do the shift unconditionally on 64bit kernels
+too.
 
-Can anybody please point me in the right direction - either for that 
-patch, or any other way to track down leaking slabs?
+Trond, what do you think?
 
-Thank you,
-Justin Schoeman
+-Andi

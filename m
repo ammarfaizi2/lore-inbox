@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288889AbSAIGXa>; Wed, 9 Jan 2002 01:23:30 -0500
+	id <S288159AbSAIG2k>; Wed, 9 Jan 2002 01:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288876AbSAIGXV>; Wed, 9 Jan 2002 01:23:21 -0500
-Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:4108 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288889AbSAIGXG>;
-	Wed, 9 Jan 2002 01:23:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Wed, 9 Jan 2002 07:26:46 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, Anton Blanchard <anton@samba.org>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
-In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it>
+	id <S288876AbSAIG2a>; Wed, 9 Jan 2002 01:28:30 -0500
+Received: from pool-141-154-202-101.bos.east.verizon.net ([141.154.202.101]:48646
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S288159AbSAIG2V>; Wed, 9 Jan 2002 01:28:21 -0500
+To: Doug Ledford <dledford@redhat.com>
+Cc: willy tarreau <wtarreau@yahoo.fr>, Mario Mikocevic <mozgy@hinet.hr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+In-Reply-To: <20020108163141.57751.qmail@web20507.mail.yahoo.com>
+	<3C3B4F7F.8010901@redhat.com>
+From: Nick Papadonis <nick@coelacanth.com>
+Organization: None
+X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
+ <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
+ !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
+Date: 09 Jan 2002 01:28:15 -0500
+In-Reply-To: <3C3B4F7F.8010901@redhat.com> (Doug Ledford's message of "Tue, 08 Jan 2002 14:58:55 -0500")
+Message-ID: <m3sn9g2g3k.fsf@localhost.localdomain>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16OCCE-0000CJ-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 9, 2002 12:02 am, Luigi Genoni wrote:
-> On Tue, 8 Jan 2002, Daniel Phillips wrote:
-> > On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
-> > > but I just wanted to make clear that the
-> > > idea that is floating around that preemptive kernel is all goodness is
-> > > very far from reality, you get very low mean latency but at a price.
-> >
-> > A price lots of people are willing to pay
->
-> Probably sometimes they are not making a good business.
+Doug Ledford <dledford@redhat.com> writes:
+> Someone posted one of the DMA Overrun on write error messages to me,
+> and that allowed me to see that on the SiS hardware we are getting
+> garbage in the upper 3 bits of the LVI register (presumably because we
+> read garbage from the upper 3 bits of the CIV register).  So, I've put
+> a 0.15 version of my driver on my site that now bounds our LVI and CIV
+> reads so that we mask out any possible garbage.  And, since writing
+> garbage to LVI could keep the hardware going in loops forever and
+> other sorts of bad things, it might solve your problem.  Please give
+> it a try and let me know how it works.
+> 
 
-Perhaps.  But they are happy customers and their music sounds better.
-
-Note: the dominating cost of -preempt is not Robert's patch, but the fact 
-that you need to have CONFIG_SMP enabled, even for uniprocessor, turning all 
-those stub macros into real spinlocks.  For a dual processor you have to have 
-this anyway and it just isn't an issue.
-
-Personally, I don't intend to ever get another single-processor machine, 
-except maybe a laptop, and that's only if Transmeta doesn't come up with a 
-dual-processor laptop configuration.
-
-> > By the way, have you measured the cost of -preempt in practice?
->
-> Yes, I did a lot of tests, and with current preempt patch definitelly
-> I was seeing a too big performance loss.
-
-Was this on uniprocessor machines, or your dual Athlons?  How did you measure 
-the performance?
-
---
-Daniel
+0.15 works better then 0.13 for me.  I haven't had any problems yet.

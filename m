@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266718AbUAWXEf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 18:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266719AbUAWXEf
+	id S266739AbUAWXNy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 18:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266743AbUAWXNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 18:04:35 -0500
-Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:20432 "EHLO
-	mail.home") by vger.kernel.org with ESMTP id S266718AbUAWXEb (ORCPT
+	Fri, 23 Jan 2004 18:13:54 -0500
+Received: from linuxfools.org ([216.107.2.99]:30903 "EHLO loki.linuxfools.net")
+	by vger.kernel.org with ESMTP id S266739AbUAWXNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 18:04:31 -0500
-From: Eric <eric@cisu.net>
-To: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: Correct CPUs printout on boot.
-Date: Fri, 23 Jan 2004 17:03:54 -0600
-User-Agent: KMail/1.5.94
-References: <E1Ajuub-0000y1-00@hardwired>
-In-Reply-To: <E1Ajuub-0000y1-00@hardwired>
+	Fri, 23 Jan 2004 18:13:52 -0500
+Date: Fri, 23 Jan 2004 18:29:46 -0500 (EST)
+From: Jonathan Higdon <jhigdon@linuxfools.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC]   "smack the penguin" 
+In-Reply-To: <401177DB.8010901@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.58.0401231825260.14937@loki.linuxfools.org>
+References: <401177DB.8010901@nortelnetworks.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401231703.54127.eric@cisu.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 January 2004 12:35 am, davej@redhat.com wrote:
-> This currently prints out the maximum number of CPUs the
-> kernel is configured to support, instead of the actual
-> number that the kernel brought up. Which results in odd
-> displays that look like you have more CPUs than you do.
 
-Why do you have to declare a new variable? Can't you just do this? i is 
-already counting how many cpu's we've brought up and its of the same type j.
+588 here, but the guy next to me at work got 593
 
--	printk("CPUS done %u\n", max_cpus);
-+	printk("CPUS done %u\n", i);
+what a great diversion, almost everyone was playing.
+having about 4 or 5 of the penguins yelling at the same time
+is pretty funny when the boss walks in :) Seems the popups can only get
+you in the 400's and a line drive with some sliding action is how to get
+the really high scores.
 
 
->     Dave
+On Fri, 23 Jan 2004, Chris Friesen wrote:
+
+> Diversion for friday afternoon...how far can you get?
 >
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/init/main.c
-> linux-2.5/init/main.c --- linux-2.5/init/main.c~	Fri Jan 23 06:24:12 2004
-> +++ linux-2.5/init/main.c	Fri Jan 23 06:24:44 2004
-> @@ -339,7 +339,7 @@
->  /* Called by boot processor to activate the rest. */
->  static void __init smp_init(void)
->  {
-> -	unsigned int i;
-> +	unsigned int i, j=0;
+> Personal best is 586
 >
->  	/* FIXME: This should be done in userspace --RR */
->  	for (i = 0; i < NR_CPUS; i++) {
-> @@ -348,11 +348,12 @@
->  		if (cpu_possible(i) && !cpu_online(i)) {
->  			printk("Bringing up %i\n", i);
->  			cpu_up(i);
-> +			j++;
->  		}
->  	}
+> http://www.meph.eu.org/
 >
->  	/* Any cleanup work */
-> -	printk("CPUS done %u\n", max_cpus);
-> +	printk("CPUS done %u\n", j);
->  	smp_cpus_done(max_cpus);
->  #if 0
->  	/* Get other processors into their bootup holding patterns. */
-
- 
--------------------------
-Eric Bambach
-Eric at cisu dot net
--------------------------
+> --
+> Chris Friesen                    | MailStop: 043/33/F10
+> Nortel Networks                  | work: (613) 765-0557
+> 3500 Carling Avenue              | fax:  (613) 765-2986
+> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

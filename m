@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313599AbSDJTYX>; Wed, 10 Apr 2002 15:24:23 -0400
+	id <S313606AbSDJTZT>; Wed, 10 Apr 2002 15:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313606AbSDJTYW>; Wed, 10 Apr 2002 15:24:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:2574 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313599AbSDJTYV>;
-	Wed, 10 Apr 2002 15:24:21 -0400
-To: Dominik Kubla <kubla@sciobyte.de>
+	id <S313622AbSDJTZT>; Wed, 10 Apr 2002 15:25:19 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57218 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313606AbSDJTZR>; Wed, 10 Apr 2002 15:25:17 -0400
+Date: Wed, 10 Apr 2002 13:24:51 -0600
+Message-Id: <200204101924.g3AJOp113305@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andreas Dilger <adilger@clusterfs.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-In-Reply-To: <20020409184605.A13621@cecm.usp.br.suse.lists.linux.kernel> <200204100041.g3A0fSj00928@saturn.cs.uml.edu.suse.lists.linux.kernel> <20020410092807.GA4015@duron.intern.kubla.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Apr 2002 21:24:20 +0200
-Message-ID: <p73adsbpdaz.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Subject: Re: RAID superblock confusion
+In-Reply-To: <20020410184010.GC3509@turbolinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Kubla <kubla@sciobyte.de> writes:
+Andreas Dilger writes:
+> On Apr 10, 2002  09:33 -0600, Richard Gooch wrote:
+> > Even though I'm using persistent superblockss, which is supposed to
+> > allow one to move devices from one controller to another, I can't
+> > use my RAID) set in this configuration. Looks like a bug.
+> > 
+> > md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable, removing from array!
+> > md: md0, array needs 6 disks, has 5, aborting.
+> 
+> Note that this appears to be your real problem.
 
-> The background  fsck capability, just  like journalling or  logging, are
-> typically only in needed in 24/7 systems (sure, they are nice to have in
-> your home  system, but do  you _REALLY_ need  them? i don't!)  and those
-> system  typically are  run on  proven  hardware which  is operated  well
-> within the specs. So please don't construct these kinds of arguments.
+No. I tested all 6 partitions used in the RAID set. They are all
+available.
 
-You can already do background fsck on a linux system today. Just do it on
-a LVM/EVMS snapshot.
+> > Note the following line from the kernel logs above:
+> > md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
+> > 
+> > Well, that's no surprise, as this partition has /usr! And this
+> > partition isn't even mentioned in the /etc/raidtab file. But I note
+> > that it has the same device number in this (the broken) configuration
+> > as /dev/sd/c0b0t1u0p2 has in the working configuration.
+> 
+> That is a red herring, I think.
 
+Then what *is* the problem?
 
--Andi
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

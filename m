@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267214AbUGNLvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267219AbUGNMNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267214AbUGNLvS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 07:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267219AbUGNLvS
+	id S267219AbUGNMNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 08:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267269AbUGNMNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 07:51:18 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:51211 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S267214AbUGNLvR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 07:51:17 -0400
-Date: Wed, 14 Jul 2004 19:48:43 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-In-Reply-To: <20040714114135.GA25175@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com>
-References: <20040714114135.GA25175@elf.ucw.cz>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 07/14/2004
- 07:51:10 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 07/14/2004
- 07:51:15 PM,
-	Serialize complete at 07/14/2004 07:51:15 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 14 Jul 2004 08:13:09 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38351 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267219AbUGNMNG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 08:13:06 -0400
+X-Authenticated: #4399952
+Date: Wed, 14 Jul 2004 14:20:52 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: alsa-devel <alsa-devel@lists.sourceforge.net>, paul@linuxaudiosystems.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-devel] Bizarre audio behavior
+Message-Id: <20040714142052.4b421488@mango.fruits.de>
+In-Reply-To: <1089773762.2729.24.camel@mindpipe>
+References: <1089773762.2729.24.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Jul 2004 22:56:03 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-On Wed, 14 Jul 2004, Pavel Machek wrote:
+> Ok, this is absolutely bizarre.  If I run JACK from a GNOME terminal,
+> even with a large period size, all I get are these error messages:
+> If I run if from an xterm or a text console, it works perfectly, even 
+> with a really small buffer:
+> 
+> 
+> I have no idea where this bug could be, it seems like it would have to be 
+> display-related.
+> 
+> Lee 
+> 
 
-> Hi!
->
-> What is the status of ipw2100? Is there chance that it would be pushed
-> into mainline?
->
-> I have few problems with that:
->
-> * it will not compile with gcc-2.95. Attached patch fixes one problem
-> but more remain.
 
-I've given up hope on that. Don't think it'll ever compile on 2.95. I'm 
-using ndiswrapper and it works nicely.
+Hmm, maybe in one case LD_ASSUME_KERNEL is set?
 
-Jeff.
+flo
+
+
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/wiki
+

@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277950AbRJIUOc>; Tue, 9 Oct 2001 16:14:32 -0400
+	id <S277954AbRJIUTd>; Tue, 9 Oct 2001 16:19:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277951AbRJIUON>; Tue, 9 Oct 2001 16:14:13 -0400
-Received: from CM-46-145.chello.cl ([24.152.46.145]:25226 "EHLO
-	ronto.dewback.cl") by vger.kernel.org with ESMTP id <S277949AbRJIUOC>;
-	Tue, 9 Oct 2001 16:14:02 -0400
-Date: Tue, 9 Oct 2001 16:13:47 -0400 (CLT)
-From: Fabian Arias <dewback@vtr.net>
-X-X-Sender: dewback@ronto.dewback.cl
-To: seth goldberg <seth.goldberg@Sun.COM>
-cc: linux-kernel@vger.kernel.org, <davem@redhat.com>
-Subject: Re: sis900 does not work in 2.4.10
-In-Reply-To: <3BC3569C.AF959299@Sun.COM>
-Message-ID: <Pine.LNX.4.40.0110091609570.9480-100000@ronto.dewback.cl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277953AbRJIUTY>; Tue, 9 Oct 2001 16:19:24 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51964 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S277952AbRJIUTS>; Tue, 9 Oct 2001 16:19:18 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 9 Oct 2001 14:19:30 -0600
+To: "White, Charles" <Charles.White@COMPAQ.com>
+Cc: "Alan Cox (E-mail)" <alan@redhat.com>, linux-kernel@vger.kernel.org,
+        Jens Axboe <axboe@suse.de>,
+        "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+Subject: Re: [PATCH] Update to the Compaq cpqarray driver...
+Message-ID: <20011009141930.C6348@turbolinux.com>
+Mail-Followup-To: "White, Charles" <Charles.White@COMPAQ.com>,
+	"Alan Cox (E-mail)" <alan@redhat.com>, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@suse.de>,
+	"Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB0EA3FF@cceexc18.americas.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB0EA3FF@cceexc18.americas.cpqcorp.net>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, seth goldberg wrote:
+On Oct 09, 2001  11:17 -0500, White, Charles wrote:
+> This patch is for 2.4.10-ac8.
+> 
+> This changes the driver to use the new 2.4 kernel PCI APIs. This changes
+> how all our cards are detected. 
+> This adds some new IOCTLs for adding/deleting volumes while the driver
+> is online. 
+> It have added code to request/release the io-region used by our cards.
 
-> Hi,
->
->   I just upgraded to the ECS K7S5A Athlon M/B (SiS-735 based) and was
-> trying to get the onboard SiS900 ethernet adapter working.  It works
-> fine on 2.4.5, but when I try to get it going under 2.4.10, the only
->
->   Does anyone have any suggestions?
+Minor note - static global variables are already zero initialized, so no
+need for the following bit of the patch (which is also bad if MAX_CTLR
+is not 8):
 
-In my case, SiS630E based, also SiS900 eth :
+-static ctlr_info_t *hba[MAX_CTLR];
++static ctlr_info_t *hba[MAX_CTLR] =
++       { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
-ronto:~# lspci
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
-d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-10/100 Ethernet (rev 83)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-10)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS630
-GUI Accelerator+3D (rev 21)
+For future reference, you'd want something like "hda[MAX_CTRL] = { NULL, };"
+(assuming you are initializing a local array) which should do the right thing
+(it initializes the rest of the array as zero).
 
-ronto:~# uname -a
-Linux ronto 2.4.10-ac9 #1 Mon Oct 8 14:06:53 CLT 2001 i686 unknown
-
-100% Working.
-
-
->
->  Thanks,
->   Seth
->
-
- ---
- pub  1024D/0DD0F1CA 2001-09-19 Fabian A. Arias M. (dewback) <dewback@vtr.net>
-     Key fingerprint = B478 850E 6C8A C388 2B65  68E5 9604 A4FC 0DD0 F1CA
-              Debian GNU/Linux Sid - Kernel 2.4.10-ac9 - ReiserFS
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

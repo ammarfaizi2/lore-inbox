@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTEUTNV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTEUTNV
+	id S262228AbTEUTcB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 15:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTEUTcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:13:21 -0400
-Received: from quechua.inka.de ([193.197.184.2]:40129 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262259AbTEUTNU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:13:20 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+	Wed, 21 May 2003 15:32:01 -0400
+Received: from mstr195175-15286.dial-in.ttnet.net.tr ([195.175.139.183]:1540
+	"EHLO alatau.radix50.net") by vger.kernel.org with ESMTP
+	id S262228AbTEUTcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 15:32:00 -0400
+Date: Wed, 21 May 2003 22:43:29 +0300
+From: Baurjan Ismagulov <ibr@ata.cs.hun.edu.tr>
 To: linux-kernel@vger.kernel.org
-Subject: Re: SNARE and C2 auditing under 2.5.x
-In-Reply-To: <200305210642_MC3-1-39D2-5928@compuserve.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <E19IZE7-0007pz-00@calista.inka.de>
-Date: Wed, 21 May 2003 21:26:15 +0200
+Subject: reducing ATA retry count
+Message-ID: <20030521194329.GA734@alatau>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200305210642_MC3-1-39D2-5928@compuserve.com> you wrote:
->  Nah, auditing isn't needed to run a secure system.  ;)
+Hello,
 
-Besides C2 is totally anachronistical, anyway.
+I've got an ATA hard disk with bad sectors. I want to read the good
+sectors quickly, replacing the others with zeroes. However, when I'm
+trying to read it sector by sector, reading each bad sector takes 20-150
+s. Before diving into the code, I'd like to ask whether there is an
+interface (like ioctl or /proc) to disable bus resets and re-reading
+attempts if the first read operation fails.
 
-Even Windows 2000 now offers some Protection Profiles from the Common
-Criteria EAL4+FLR für ControledAccessProtectionProfile(CAPP).
+Please cc to me, I'm not subscribed.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Thanks in advance,
+Baurjan.

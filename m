@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUEXMYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUEXM2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264269AbUEXMYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 08:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUEXMYf
+	id S264270AbUEXM2W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 08:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUEXM2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 08:24:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15236 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264269AbUEXMYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 08:24:32 -0400
-Date: Mon, 24 May 2004 08:24:31 -0400
-From: Aldy Hernandez <aldyh@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: partial oops on 2.6.6-bk9 (netconsole + tulip dmfe ethernet)
-Message-ID: <20040524122431.GA3732@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 24 May 2004 08:28:21 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:57481 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264270AbUEXM2U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 08:28:20 -0400
+Date: Mon, 24 May 2004 14:28:19 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, willy@w.ods.org, linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+In-Reply-To: <20040522234059.GA3735@infradead.org>
+Message-ID: <Pine.LNX.4.55.0405241419540.4876@jurand.ds.pg.gda.pl>
+References: <20040522234059.GA3735@infradead.org>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks.
+On Sun, 23 May 2004, Christoph Hellwig wrote:
 
-I'm trying to track down a kernel lockup on my box.  What looked like
-a FC2 issue, seems like an actual kernel problem.  My box is dying
-after 2 days of uptime.
+> +			/* we'll verify if this is a BSWAP opcode, main source of SIGILL on 386's */
+> +			if ((*eip & 0xF8) == 0xC8) {  /* BSWAP */
+> +				u8 reg;
+> +
+> +				reg = *eip++ & 0x07;
+> +				src = reg_address(regs, 1, reg);
+> +				
+> +				__asm__ __volatile__ (
+> +						      "xchgb %%al, %%ah\n\t"
+> +						      "roll $16, %%eax\n\t"
+> +						      "xchgb %%al, %%ah\n\t"
+> +						      : "=a" (*(u32*)src)
+> +						      : "a" (*(u32*)src));
+> +				regs->eip = (u32)eip;
+> +				goto out;
+> +			}
 
-I've enabled nmi_watchdog and netconsole to track the problem.  What I
-get looks like a partial Oops, or something quite unusable:
+ You've forgotten about the 16-bit variant here -- the emulation is wrong 
+with PREFIX_D32.  This may not matter much in practice, though.
 
-    Unable to handle kernel paging request at virtual address 8cffffe8
-     printing eip:
-    c017bff0
-    *pde = 00000000
-    Oops: 0000 [#1]
-    SMP 
-
-No stack trace.  No register dump.  Nothing.
-
-I have compiled the kernel with debugging, and the offended code is
-here:
-
-(gdb) l *0xc017bff0
-0xc017bff0 is in sys_poll (fs/select.c:517).
-512             err = -EFAULT;
-513             while(walk != NULL) {
-514                     struct pollfd *fds = walk->entries;
-515                     int j;
-516
-517                     for (j=0; j < walk->len; j++, ufds++) {
-518                             if(__put_user(fds[j].revents, &ufds->revents))
-519                                     goto out_fds;
-520                     }
-521                     walk = walk->next;
-
-My box is a P4 with a Tulip/Davicom (dmfe.o) network card.  I have
-noticed that the CONFIG_NET_POLL_CONTROLLER code was recently added to
-the dmfe.c driver, so I'm wondering if this particular Oops is due to
-the driver, and not the actual problem I'm chasing down.
-
-My kernel parameters are:
-
-        kernel /bzImage ro root=LABEL=/ rhgb quiet vdso=0 netconsole=6665@172.31.1.50/eth0,6666@172.31.1.137/00:30:65:02:c4:c3 nmi_watchdog=1
-
-I'm not very kernel savvy, so any pointers would be greatly
-appreciated.  Perhaps I should try configuring a serial console?
-
-How can I be of use in helping to track down this problem?  BTW, 2.4.x
-worked fine with my box.
-
-Cheers.
-Aldy
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

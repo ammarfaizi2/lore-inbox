@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292459AbSBPFgn>; Sat, 16 Feb 2002 00:36:43 -0500
+	id <S292465AbSBPGCO>; Sat, 16 Feb 2002 01:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292460AbSBPFge>; Sat, 16 Feb 2002 00:36:34 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:51946 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S292459AbSBPFgY>; Sat, 16 Feb 2002 00:36:24 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Date: Sat, 16 Feb 2002 16:39:32 +1100 (EST)
+	id <S292453AbSBPGCD>; Sat, 16 Feb 2002 01:02:03 -0500
+Received: from 75-223.davnet.com.hk ([202.69.75.223]:55706 "EHLO
+	nicksbox.tyict.vtc.edu.hk") by vger.kernel.org with ESMTP
+	id <S292437AbSBPGB6>; Sat, 16 Feb 2002 01:01:58 -0500
+Message-ID: <3C6DF5D2.30C8D682@vtc.edu.hk>
+Date: Sat, 16 Feb 2002 14:01:54 +0800
+From: Nick Urbanik <nicku@vtc.edu.hk>
+Organization: Institute of Vocational Education (Tsing Yi)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-pre7-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: cmd649 not working with 2 CPU box; what IDE card should I use?
+In-Reply-To: <Pine.LNX.4.10.10202151709100.10501-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15469.61588.692971.442274@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to avoid stale NFS filehandles?
-In-Reply-To: message from Matt Bernstein on Friday February 15
-In-Reply-To: <15467.2034.663448.825288@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.44.0202151141510.1457-100000@nick.dcs.qmul.ac.uk>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday February 15, matt@theBachChoir.org.uk wrote:
-> Hi,
-> 
-> I'm wondering what encoding is used for NFSv{2,3} file handles under
-> knfsd. In particular, can I upgrade kernel from 2.4.x to 2.4.y without
-> my clients accumulating stale filehandles?
+Andre Hedrick wrote:
 
-In general, you should be able to upgrade a minor version (e.g. 2.2 to
-2.4) and up or down grade a patch leverl (e.g. 2.4.2 to 2.4.10 and
-back to 2.4.2) without and filehandle compatability problems.
-This only applies from 2.2.16 or there abouts.  Before that it was a
-bit of a mess.
+> On Fri, 15 Feb 2002, Nick Urbanik wrote:
+>
+> > Dear folks,
+> >
+> > I have tried cmd649 ATA pci cards; they work great with single CPU
+> > kernels, not at all with SMP kernels.  The SMP kernel just does not make
+> > an entry in /proc/ide.  Some details are in my post on 13 Feb, with
+> > subject: cmd649 ok 1 cpu, 2 cpus, not working.  I would appreciate any
+> > pointers that may lead to getting them working.
+> >
+> > So if this is not a common problem, does _anyone_ use ATA cards with SMP
+> > boxes?  If so, which ones work?  HPT?
+>
+> LOL, I had the same question asked to me by CMD and probed to them it
+> works.  Obviously you have not configured something correct :-/
 
-In particular, 2.4 introduced a new file handle format, but still
-recognises the old file handle format.  Further, in response to a
-request that contains an old style file handle, it generates an old
-style file handle so that the client can compare filehandles and so
-that thos filehandles can still be used in the server is down graded.
+Thanks for your reply, Andre.
 
-Some time in 2.4 I will probably introduce a new export option
-(fs=nnnn) which will cause the filehandles to look slightly different
-(i.e. not have any device numbers in them).  This will be optional
-(options are like that...) but even if you do change a filesystem to
-be exported with the new option, clients that currently have it
-mounted will still work without getting stale file handles.
+Okay, this has happened repeatably on two Acer Altos boxes.  Sorry to be so
+silly, but I can't think what else I can configure.
 
-So, you should be safe (but if something does go wrong, let me know
-... there could always be a bug in there somewhere).
+The jumper on the disk is set to master, it is plugged into the primary using
+an ATA100 cable, the power is on :-)
 
-NeilBrown
+On the other dual CPU box (using older kernels), I could boot into a single
+CPU kernel on the machine, and the disks would work.  Boot into a SMP kernel,
+no recognition of the bus in /proc/ide, and fdisk reports the other disks,
+but not those plugged into the cmd card.  The cmd64x driver is compiled
+directly into the kernel, not loaded as a module.
+
+Any other suggestions?  Where can I find more evidence?  Willing to try
+anything!
+
+--
+Nick Urbanik   RHCE                                  nicku@vtc.edu.hk
+Dept. of Information & Communications Technology
+Hong Kong Institute of Vocational Education (Tsing Yi)
+Tel:   (852) 2436 8576, (852) 2436 8579          Fax: (852) 2436 8526
+PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
+GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
+
+
+

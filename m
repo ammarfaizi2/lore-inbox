@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRIZTuC>; Wed, 26 Sep 2001 15:50:02 -0400
+	id <S275558AbRIZTzM>; Wed, 26 Sep 2001 15:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275531AbRIZTtw>; Wed, 26 Sep 2001 15:49:52 -0400
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:20112 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S275552AbRIZTtk>; Wed, 26 Sep 2001 15:49:40 -0400
-Message-ID: <3BB23168.FA0256CD@bigfoot.com>
-Date: Wed, 26 Sep 2001 12:50:00 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jlmales@softhome.net
-CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.2.20-pre10 Initial Impressions
-In-Reply-To: <3BB116BF.19313.7E42D8@localhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275557AbRIZTzD>; Wed, 26 Sep 2001 15:55:03 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:47621 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S275554AbRIZTys>; Wed, 26 Sep 2001 15:54:48 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: newsgroup of all mailing lists ?
+Date: Wed, 26 Sep 2001 19:55:14 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9otbr2$avh$2@ncc1701.cistron.net>
+In-Reply-To: <B7D7DFB1.8013%little.jones.family@ntlworld.com> <Pine.LNX.4.33.0109261149130.24652-100000@twin.uoregon.edu> <200109261935.f8QJZIk01204@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+X-Trace: ncc1701.cistron.net 1001534114 11249 195.64.65.67 (26 Sep 2001 19:55:14 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John L. Males" wrote:
-> ...
-> Ok, you make a good point in your suggestion re:
-> 
-> You will probably see dns requests going out. You should check to
-> make sure that you are not blocking incomming udp ports (1024-5000
-> for bind, not sure about resolver...) as that would lengthen the
-> response time considerably if only a few are open, and completely
-> stop you if all are blocked.
-> ...
+In article <200109261935.f8QJZIk01204@adsl-209-76-109-63.dsl.snfc21.pacbell.net>,
+Wayne Whitney  <whitney@math.berkeley.edu> wrote:
+>In mailing-lists.linux-kernel, Joel Jaeggli wrote:
+>
+>> the group linux.kernel which is a unidirectional mail-news gateway
+>> (as it should be) from anti-phl.bofh.it appears to be working
+>> currently...  
+>>
+>> also fa.linux.kernel appears to be working as well gatewayed by
+>> ifi.uio.no
+>
+>Anyone know a gateway based in the US?
 
-strace will instantly validate or eliminate DNS lookup delays as an
-issue wo having to sort through tcpdump output.  In my case nscd was a
-lifesaver and saved me from running local bind server.
+Just build your own. Install INN and some mail2news package,
+for example the one from ftp://ftp.cistron.nl/pub/people/miquels/software/
+cistron-m2n-1.38.tar.gz
 
-rgds,
-tim.
---
+Mike.
+-- 
+"I think...I think it's in my basement. Let me go upstairs and check."
+	-- M.C. Escher (1898-1972)
+

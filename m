@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317018AbSFKPPS>; Tue, 11 Jun 2002 11:15:18 -0400
+	id <S317066AbSFKPQ1>; Tue, 11 Jun 2002 11:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSFKPPR>; Tue, 11 Jun 2002 11:15:17 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:40458 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S317018AbSFKPPR>; Tue, 11 Jun 2002 11:15:17 -0400
-Message-ID: <3D061484.3030903@loewe-komp.de>
-Date: Tue, 11 Jun 2002 17:17:24 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
+	id <S317121AbSFKPQ1>; Tue, 11 Jun 2002 11:16:27 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43102 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S317066AbSFKPQZ>; Tue, 11 Jun 2002 11:16:25 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <Pine.LNX.4.44.0206100810380.30336-100000@home.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Jun 2002 09:06:40 -0600
+Message-ID: <m1r8jdvoqn.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Cengiz Akinli <cengiz@drtalus.aoe.vt.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x kernels hang before uncompressing
-In-Reply-To: <200206111436.g5BEa4Z17577@drtalus.aoe.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cengiz Akinli wrote:
-> Hello all,
-> 
->    We have a Tri-M PC-104 system with a Cyrix ZF486 processor that (in
-> addition to being painfully slow building kernels) refuses to boot any
-> 2.4.x kernels.  It has a M-Systems Disk-On-Chip 2000 (which ironically,
-> I got to work just fine with the 2.2.x kernel that I had to patch, but
-> NOT with the 2.4 kernel that comes with a driver), but I don't think that's
-> the problem, because the 2.4.x kernel is not even uncompressing, to say
-> nothing of booting and trying to mount the root fs.
-> 
->   It DOES appear to finish loading, because it outputs a linefeed after
-> the line of dots in 'Loading linux....'
-> 
-[..]
->   The lilo used to install the boot sector on this Disk On Chip is
-> a custom-patched one provided by the vendor.  It works fine on 2.2.x
-> kernels.  Should I suspect it?
-> 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-Perhaps the patched lilo can't cope with bzImage - only zImage?
-only a cheap guess
+> On Mon, 10 Jun 2002, Helge Hafting wrote:
+> >
+> > Not much, but
+> > ls /dev/net
+> > eth0 eth1 eth2 ippp0
+> > would be a convenient way to see what net devices exists.
+> > This already works for other devices, when using devfs.
+> 
+> You might as well do
+> 
+> 	cat /proc/net/dev
+> 
+> instead.
+> 
+> Which works with existing kernels, going back to whatever..
 
-Did you try to compile the kernel as i386?
+Gap, puke.  
 
+Sorry I have built kernels where space was tight and I only built in
+/proc so I could read /proc/net/dev.  And since with /proc everything
+is all in one basket it is very hard to turn off unneeded features.
+
+/proc might be nice to user space but as it is implemented it is
+nasty to work with.
+
+So a netdevfs or some solution that factors better would really
+be nice.
+
+Eric

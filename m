@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUF2TDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265922AbUF2TID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265957AbUF2TDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 15:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUF2TDw
+	id S265922AbUF2TID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 15:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUF2TID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 15:03:52 -0400
-Received: from winds.org ([68.75.195.9]:44436 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id S265956AbUF2TDe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 15:03:34 -0400
-Date: Tue, 29 Jun 2004 15:03:29 -0400 (EDT)
-From: Byron Stanoszek <gandalf@winds.org>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-cc: Mark Haverkamp <markh@osdl.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: RE: PATCH: Further aacraid work
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6BA@otce2k03.adaptec.com>
-Message-ID: <Pine.LNX.4.60.0406291454370.26639@winds.org>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6BA@otce2k03.adaptec.com>
+	Tue, 29 Jun 2004 15:08:03 -0400
+Received: from fmx4.freemail.hu ([195.228.242.224]:25367 "HELO
+	fmx4.freemail.hu") by vger.kernel.org with SMTP id S265922AbUF2THz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 15:07:55 -0400
+Date: Tue, 29 Jun 2004 21:07:42 +0200 (CEST)
+From: Debi Janos <debi.janos@freemail.hu>
+Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040629115033.46383033.davem@redhat.com>
+Message-ID: <freemail.20040529210742.77560@fm2.freemail.hu>
+X-Originating-IP: [81.182.194.181]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jun 2004, Salyzyn, Mark wrote:
+David S. Miller <davem@redhat.com> írta:
 
-> I believe this nails the problem too.
->
-> However, there is a corner case condition lurking on this (See my
-> currently unanswered email "error recovery and command completion" on
-> linux-scsi) where I try to deal with completing a command while error
-> recovery is triggered. Scsi_done will return doing *nothing* effectively
-> loosing the command completion.
->
-> MarkH, I had talked to you about he addition of the scsi_add_timer
-> before calling scsi_done to address this condition. I do not believe
-> this to be the (Reliable and/or performance oriented) solution.
->
-> Sincerely -- Mark Salyzyn
+> On Tue, 29 Jun 2004 11:22:56 -0700
+> Stephen Hemminger <shemminger@osdl.org> wrote:
+> 
+> > To turn of receive buffer auto-tuning:
+> > 	sysctl -w net.ipv4.tcp_moderate_rcvbuf=0
+> > 	sysctl -w net.ipv4.tcp_default_win_scale=0
+> 
+> It may be just the window scaling that's causing the grief
+> so people can try just setting tcp_default_win_scale to zero
+> and leaving tcp_moderate_rcvbuf enabled.
+> 
+> That would be an important data-point.
 
-I've tested out both patches sent to me.
+Yes. 
 
-Test 1: aacraid-1.1.5-2245.tgz
+sysctl -w net.ipv4.tcp_default_win_scale=0
 
-Works flawlessly and speedily! The rsync completes, and doing a sync() (as
-called during a normal lilo update) takes roughly 1 second as opposed to 20
-with the original aacraid patch from Alan Cox. Also, no SCSI hang message ever
-appears.
+is enough. 
 
-Test 2: Mark Haverkamp's linit.c patch
+(1.2GHz 55C) root@alderaan:/home/trey $ sysctl
+net.ipv4.tcp_moderate_rcvbuf
+net.ipv4.tcp_moderate_rcvbuf = 1
+(1.2GHz 55C) root@alderaan:/home/trey $ sysctl
+net.ipv4.tcp_default_win_scale
+net.ipv4.tcp_default_win_scale = 0
+(1.2GHz 54C) root@alderaan:/home/trey $
 
-The "SCSI hang" console message appears just as before during the 'rsync',
-however (unlike before) the device is still usable for roughly 30 seconds after
-the problem. During these 30 seconds, the 'rsync' process is hung, but I can
-still do a 'df', 'ls', and so on. After 30 seconds, the entire /dev/sda locks
-up and I have no choice but to reboot the system.
-
-  -Byron
+With this setting i have not problem, working everything is
+fine.
 

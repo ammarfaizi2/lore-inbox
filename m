@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbUKVQgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbUKVQmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbUKVQgB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbUKVQeE
+	id S262173AbUKVQmY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbUKVQl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:34:04 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:28549 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262162AbUKVQC7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:02:59 -0500
-Date: Mon, 22 Nov 2004 08:02:46 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with linux-2.6 BK repository on BKbkits?
-Message-ID: <20041122160246.GA3683@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>, Larry McVoy <lm@bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1101122708.18623.16.camel@imp.csi.cam.ac.uk>
+	Mon, 22 Nov 2004 11:41:58 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:16443 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262175AbUKVQSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:18:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=R35Zd5kUH/4QdyYLKWjp2EMf4QEoJ+VQKCqXpFHtvVtKrn1Fqd7ZYrwmDPO2a1bJhbviqOKb5Zi640nss6k5lRgJCGeYAcDv6yYn/PLFYpqeQerGDlmTH0KcpLAZ4GoGEDXs56ZqZJhnQ9XFjIMfbjZ2iAHE1LXVPa9fh3SOufA=
+Message-ID: <876ef97a04112208184bbc1385@mail.gmail.com>
+Date: Mon, 22 Nov 2004 11:18:48 -0500
+From: Tobias DiPasquale <codeslinger@gmail.com>
+Reply-To: Tobias DiPasquale <codeslinger@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] add list_del_head function
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+In-Reply-To: <20041122092059.GA16487@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101122708.18623.16.camel@imp.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <876ef97a04112007562d6797e@mail.gmail.com>
+	 <20041122092059.GA16487@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 11:25:08AM +0000, Anton Altaparmakov wrote:
-> [snip]
-> Applying   1 revisions to net/ipv4/netfilter/ipt_CLUSTERIP.c
-> fk cache: insert error for johnrose@austin.ibm.com[greg]|
-> drivers/pci/hotplug/rpaphp_pci.c|20210428163018
-> insert: File exists
-> Applying   1 revisions to drivers/pci/hotplug/rpaphp_pci.c
-> [snip]
+On Mon, 22 Nov 2004 10:20:59 +0100, Jens Axboe <axboe@suse.de> wrote: 
+> Generally patches like this have little merrit unless accompanied by
+> another patch converting several obvious pieces of kernel code to use
+> it.
+> 
+> Also I find the interface awkward and different from the other list
+> functions.
+> 
+>         entry = list_del_head(list);
+> 
+> would have been much nicer.
 
-It's pretty harmless and will be fixed in 3.2.4 (due out pretty soon).
+Ok I'll do both things and resubmit. Thanks for getting back to me :)
 
-It's a legacy thing from the very early days of BK and the only BK tree
-which makes use of it is the BK source tree itself so we dropped it.
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+[ Tobias DiPasquale ]
+0x636f6465736c696e67657240676d61696c2e636f6d

@@ -1,175 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGRPfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUGRPwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUGRPfn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 11:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUGRPfn
+	id S264265AbUGRPwa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 11:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUGRPwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 11:35:43 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:33723 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264261AbUGRPfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 11:35:37 -0400
-Date: Sun, 18 Jul 2004 11:35:35 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pmac_zilog: serial minors taken failure path fix (resend/combined)
-Message-ID: <20040718153535.GA5169@havoc.gtf.org>
-References: <Pine.LNX.4.58.0407172237370.12598@ppc970.osdl.org>
+	Sun, 18 Jul 2004 11:52:30 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:62083 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S264265AbUGRPw2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 11:52:28 -0400
+Date: Sun, 18 Jul 2004 17:51:40 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Oops with 2.6.7
+Message-ID: <20040718155140.GA16760@thundrix.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407172237370.12598@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linus,
 
-It turns out that the pmac_zilog fix just patched over the symptom of
-a bad failure path.  Please apply this to properly fix the problem.
-There are three patches (and a more lengthy explanation) of this over
-in the pmac_zilog thread:
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-+ one to fix the dev major/minor is taken failure path
-+ one to patch the patch (stupid mistake), and
-+ one to restore the default ppc config to what it had been 
-  (apologies to Hollis and trini) 
+Salut,
 
-Here are all three combined for your convenience.
+Jul 18 19:49:02 jules kernel: Unable to handle kernel paging request at virtual address d2389f28
+Jul 18 19:49:02 jules kernel:  printing eip:
+Jul 18 19:49:02 jules kernel: c030cdc0
+Jul 18 19:49:02 jules kernel: *pde = 00047067
+Jul 18 19:49:02 jules kernel: *pte = 12389000
+Jul 18 19:49:02 jules kernel: Oops: 0000 [#1]
+Jul 18 19:49:02 jules kernel: PREEMPT DEBUG_PAGEALLOC
+Jul 18 19:49:02 jules kernel: Modules linked in:
+Jul 18 19:49:02 jules kernel: CPU:    0
+Jul 18 19:49:02 jules kernel: EIP:    0060:[pagebuf_daemon+384/736]    Not tainted
+Jul 18 19:49:02 jules kernel: EFLAGS: 00010282   (2.6.7)
+Jul 18 19:49:02 jules kernel: EIP is at pagebuf_daemon+0x180/0x2e0
+Jul 18 19:49:02 jules kernel: eax: d2389ec4   ebx: d2389ec4   ecx: d2389ec4   edx: d75ddf78
+Jul 18 19:49:02 jules kernel: esi: d3beeec4   edi: d7598000   ebp: d7599fd4   esp: d7599fd0
+Jul 18 19:49:02 jules kernel: ds: 007b   es: 007b   ss: 0068
+Jul 18 19:49:02 jules kernel: Process xfsbufd (pid: 14, threadinfo=d7598000 task=d75d6a10)
+Jul 18 19:49:02 jules kernel: Stack: 00003a98 d236cf14 d2374f14 00000000 c030cc40 00000000 00000000 00000000
+Jul 18 19:49:02 jules kernel:        c0103ccd 00000000 00000000 00000000
+Jul 18 19:49:02 jules kernel: Call Trace:
+Jul 18 19:49:02 jules kernel:  [pagebuf_daemon+0/736] pagebuf_daemon+0x0/0x2e0
+Jul 18 19:49:02 jules kernel:  [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18
+Jul 18 19:49:02 jules kernel:
+Jul 18 19:49:02 jules kernel: Code: 8b 43 64 8b 40 08 85 c0 74 0e 8b 40 68 85 c0 74 07 8b 50 14
 
--dte
+I just booted the PC,  emacsed my /etc/X11/xorg.conf, and saw that one
+when I was just idling around thinking what to type.
 
-I've tracked down the core issue giving me the oops wrt pmac_zilog.
+			    Tonnerre
 
-When you have two serial drivers, (e.g. 8250 and PMAC_ZILOG) they both say
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-"I want to reserve X ports starting with major TTY_MAJOR and minor 64".
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
 
-By the time pmac_zilog gets there, the ports it requests are already
-reserved.  Unfortunately, init_pmz() doesn't check for pmz_register()
-failure, and so it merrily goes on to register the half-initialized
-pmac_zilog driver with the power management subsystem.
- 
-This path provides a proper failure path.
+iD4DBQFA+pyL/4bL7ovhw40RAvgEAKCRkPCPTsmqCrLKG8zERU0+SFVqAACXbmDm
+qg8q65BJQmbJUDVwuHNf3Q==
+=UP9g
+-----END PGP SIGNATURE-----
 
-Also: 
-
-Restore ppc configs now that I know people use AT Keyboards on CHRP and PReP
-machines, and the zilog driver is no longer Oops'ing.
-
-Signed-off-by: David Eger <eger@havoc.gtf.org>
-
-diff -Nru a/arch/ppc/defconfig b/arch/ppc/defconfig
---- a/arch/ppc/defconfig	2004-07-18 11:29:40 -04:00
-+++ b/arch/ppc/defconfig	2004-07-18 11:29:41 -04:00
-@@ -689,7 +689,7 @@
- # Input Device Drivers
- #
- CONFIG_INPUT_KEYBOARD=y
--# CONFIG_KEYBOARD_ATKBD is not set
-+CONFIG_KEYBOARD_ATKBD=y
- # CONFIG_KEYBOARD_SUNKBD is not set
- # CONFIG_KEYBOARD_LKKBD is not set
- # CONFIG_KEYBOARD_XTKBD is not set
-@@ -724,8 +724,8 @@
- #
- # Non-8250 serial port support
- #
--# CONFIG_SERIAL_CORE is not set
--# CONFIG_SERIAL_PMACZILOG is not set
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_PMACZILOG=y
- # CONFIG_SERIAL_PMACZILOG_CONSOLE is not set
- CONFIG_UNIX98_PTYS=y
- CONFIG_LEGACY_PTYS=y
-diff -Nru a/drivers/serial/pmac_zilog.c b/drivers/serial/pmac_zilog.c
---- a/drivers/serial/pmac_zilog.c	2004-07-18 11:29:40 -04:00
-+++ b/drivers/serial/pmac_zilog.c	2004-07-18 11:29:40 -04:00
-@@ -1433,6 +1433,7 @@
- 			ioremap(np->addrs[np->n_addrs - 1].address, 0x1000);
- 		if (uap->rx_dma_regs == NULL) {	
- 			iounmap((void *)uap->tx_dma_regs);
-+			uap->tx_dma_regs = NULL;
- 			uap->flags &= ~PMACZILOG_FLAG_HAS_DMA;
- 			goto no_dma;
- 		}
-@@ -1490,7 +1491,6 @@
- 	uap->port.ops = &pmz_pops;
- 	uap->port.type = PORT_PMAC_ZILOG;
- 	uap->port.flags = 0;
--	spin_lock_init(&uap->port.lock);
- 
- 	/* Setup some valid baud rate information in the register
- 	 * shadows so we don't write crap there before baud rate is
-@@ -1508,10 +1508,13 @@
- {
- 	struct device_node *np;
- 
--	iounmap((void *)uap->control_reg);
- 	np = uap->node;
-+	iounmap((void *)uap->rx_dma_regs);
-+	iounmap((void *)uap->tx_dma_regs);
-+	iounmap((void *)uap->control_reg);
- 	uap->node = NULL;
- 	of_node_put(np);
-+	memset(uap, 0, sizeof(struct uart_pmac_port));
- }
- 
- /*
-@@ -1798,7 +1801,7 @@
- 	 * Register this driver with the serial core
- 	 */
- 	rc = uart_register_driver(&pmz_uart_reg);
--	if (rc != 0)
-+	if (rc)
- 		return rc;
- 
- 	/*
-@@ -1808,10 +1811,19 @@
- 		struct uart_pmac_port *uport = &pmz_ports[i];
- 		/* NULL node may happen on wallstreet */
- 		if (uport->node != NULL)
--			uart_add_one_port(&pmz_uart_reg, &uport->port);
-+			rc = uart_add_one_port(&pmz_uart_reg, &uport->port);
-+		if (rc)
-+			goto err_out;
- 	}
- 
- 	return 0;
-+err_out:
-+	while (i-- > 0) {
-+		struct uart_pmac_port *uport = &pmz_ports[i];
-+		uart_remove_one_port(&pmz_uart_reg, &uport->port);
-+	}
-+	uart_unregister_driver(&pmz_uart_reg);
-+	return rc;
- }
- 
- static struct of_match pmz_match[] = 
-@@ -1841,6 +1853,7 @@
- 
- static int __init init_pmz(void)
- {
-+	int rc, i;
- 	printk(KERN_INFO "%s\n", version);
- 
- 	/* 
-@@ -1862,7 +1875,16 @@
- 	/*
- 	 * Now we register with the serial layer
- 	 */
--	pmz_register();
-+	rc = pmz_register();
-+	if (rc) {
-+		printk(KERN_ERR 
-+			"pmac_zilog: Error registering serial device, disabling pmac_zilog.\n"
-+		 	"pmac_zilog: Did another serial driver already claim the minors?\n"); 
-+		/* effectively "pmz_unprobe()" */
-+		for (i=0; i < pmz_ports_count; i++)
-+			pmz_dispose_port(&pmz_ports[i]);
-+		return rc;
-+	}
- 	
- 	/*
- 	 * Then we register the macio driver itself
+--vtzGhvizbBRQ85DL--

@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbULUQ2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbULUQdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbULUQ2B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 11:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbULUQ1l
+	id S261785AbULUQdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 11:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbULUQdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 11:27:41 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:37601 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261787AbULUQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 11:24:32 -0500
-Date: Tue, 21 Dec 2004 10:23:59 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-cc: "Jose R. Santos" <jrsantos@austin.ibm.com>, Andi Kleen <ak@suse.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-In-Reply-To: <20041221114605.GB21710@krispykreme.ozlabs.ibm.com>
-Message-ID: <Pine.SGI.4.61.0412211019150.48124@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
- <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de>
- <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de>
- <20041216051323.GI24000@krispykreme.ozlabs.ibm.com> <20041216141814.GA10292@rx8.austin.ibm.com>
- <20041220165629.GA21231@rx8.austin.ibm.com> <20041221114605.GB21710@krispykreme.ozlabs.ibm.com>
-Organization: "Silicon Graphics, Inc."
+	Tue, 21 Dec 2004 11:33:12 -0500
+Received: from fsmlabs.com ([168.103.115.128]:42164 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261785AbULUQdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 11:33:11 -0500
+Date: Tue, 21 Dec 2004 09:33:10 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Rudolf Usselmann <rudi@asics.ws>
+cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel (64bit) 4GB memory support
+In-Reply-To: <1103646195.3652.196.camel@cpu0>
+Message-ID: <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0> 
+ <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0> 
+ <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com> 
+ <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+  <1102842902.10322.200.camel@cpu0>  <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+  <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org> 
+ <1103213359.31392.71.camel@cpu0>  <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+ <1103646195.3652.196.camel@cpu0>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Dec 2004, Anton Blanchard wrote:
+On Tue, 21 Dec 2004, Rudolf Usselmann wrote:
 
-> > The difference between the two runs was with in noise of the benchmark on
-> > my small setup.  I wont be able to get a larger NUMA system until next year,
-> > so I'll retest when that happens.  In the mean time, I don't see a reason
-> > either to stall this patch, but that may change on I get numbers on a
-> > larger system.
-> 
-> Thanks Jose!
-> 
-> Brent, looks like we are happy on the ppc64 front.
+> I mean you guys must have a pretty good idea what is going wrong.
+> Is it possible to add some debugging information ? The latest
+> mm4-jeda kernel seems to be able to "recover" from panics/crashes.
+> It doesn't "die" it just kills the offending app (at least thats
+> my limited understanding).
 
-I didn't realize this was ppc64 testing.  What was the exact setup
-for the testing?  The patch as posted (and I hope clearly explained)
-only turns on the behavior by default when both CONFIG_NUMA and
-CONFIG_IA64 were active.  It could be activated on non-IA64 by setting
-hashdist=1 on the boot line, or by modifying the patch.
-
-I would hate to find out that the testing didn't actually enable the
-new behavior.
+Ok don't worry about trying to isolate it, there should be a fix for it by 
+2.6.10.
 
 Thanks,
-Brent
+	Zwane
 
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUKHTPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbUKHTUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUKHTPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 14:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUKHTOb
+	id S261199AbUKHTUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 14:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbUKHTTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 14:14:31 -0500
-Received: from alog0232.analogic.com ([208.224.220.247]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261197AbUKHTMn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 14:12:43 -0500
-Date: Mon, 8 Nov 2004 14:10:12 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Arun Srinivas <getarunsri@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with printk--  somebody please help
-In-Reply-To: <BAY10-F469WbbjykeNX00014ef5@hotmail.com>
-Message-ID: <Pine.LNX.4.61.0411081358510.6407@chaos.analogic.com>
-References: <BAY10-F469WbbjykeNX00014ef5@hotmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Nov 2004 14:19:39 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:63118 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261204AbUKHTSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 14:18:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HPV6/KuiJN889B0ErDC4EsgyUy6N68Qmad7z/a2/yY1tw2G4sZbjJXph+iePC4179L6jUwcdPfXBED6nz3ib/WKZ4485fldGrsaoQs9N8oz3nz8vyLm4vSeWTvU94RhWUJhnQmpWWALdQQL2Gkvf8thmBgBdwGrtQGXWQp3oEIM=
+Message-ID: <84144f02041108111816dc0b3a@mail.gmail.com>
+Date: Mon, 8 Nov 2004 21:18:09 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Oops in 2.6.10-rc1
+Cc: Christian Kujau <evil@g-house.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, alsa-devel@lists.sourceforge.net,
+       linux-sound@vger.kernel.org, penberg@cs.helsinki.fi
+In-Reply-To: <20041108190040.GC27386@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <418D7959.4020206@g-house.de> <20041107130553.M49691@g-house.de>
+	 <418E4705.5020001@g-house.de>
+	 <Pine.LNX.4.58.0411070831200.2223@ppc970.osdl.org>
+	 <20041107182155.M43317@g-house.de> <418EB3AA.8050203@g-house.de>
+	 <Pine.LNX.4.58.0411071653480.24286@ppc970.osdl.org>
+	 <418F6E33.8080808@g-house.de>
+	 <84144f0204110810444400761f@mail.gmail.com>
+	 <20041108190040.GC27386@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Nov 2004, Arun Srinivas wrote:
+Hi,
 
-> hi
->
-> I am new to the kernel world and would be very glad if somebody could
-> help me with this problem.
->
-> I am unable to do printk or even a macro call like rdtsc()...(for
-> reading the time stamp counter) from within the "activate_task"
-> function on a kernel with smp support.But these work under the main
-> schedule() function.
->
-> I was able to do all these i.e., inside "activate_task" on a kernel
-> without smp support.Can anybody suggest a solution as to what could be
-> the problem??
->
-> somebody please help.
->
-> Thanks
-> Arun
+On Mon, 8 Nov 2004 11:00:40 -0800, Greg KH <greg@kroah.com> wrote:
+> But 2.6.10-rc1-bk15 does have the problem?
+> 
+> Trying to figure out where the issue is...
 
-Maybe it's not called. The task may get put into the run-queue
-using resched_task() and __activate_task() as well.
+No, -bk14 is just the kernel I am running right now (I haven't tried
+-bk15) and I haven't had the problem. I cannot reproduce the oops _at
+all_ which is why I suspect it's his hardware. I included my lspci and
+dmesg output because we have similar (but not exactly the same)
+setups.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+FWIW, I've asked Christian for an obdump of the kernel to see if I can
+track down where it oopses at because I cannot find anything in the
+code. I suspected pcibios_enable_irq  (which is a function pointer)
+might be wrong but looking at his logs, I don't think we get that far.
+
+                          Pekka

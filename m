@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269984AbUJHOMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269966AbUJHOOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269984AbUJHOMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbUJHOMQ
+	id S269966AbUJHOOA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbUJHOOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:12:16 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:1942 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269984AbUJHOML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:12:11 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Default cache_hot_time value back to 10ms
-Date: Fri, 8 Oct 2004 09:11:41 -0500
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, kernel@kolivas.org, pwil3058@bigpond.net,
-       mingo@elte.hu, kenneth.w.chen@intel.com, akpm@osdl.org
-References: <200410071028.01931.habanero@us.ibm.com> <200410071058.53618.habanero@us.ibm.com> <41666244.9010601@yahoo.com.au>
-In-Reply-To: <41666244.9010601@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410080911.41016.habanero@us.ibm.com>
+	Fri, 8 Oct 2004 10:14:00 -0400
+Received: from ex-nihilo-llc.com ([206.114.147.90]:35337 "EHLO
+	ex-nihilo-llc.com") by vger.kernel.org with ESMTP id S269966AbUJHONy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 10:13:54 -0400
+Subject: Re: Maximum block dev size / filesystem size
+From: Aaron Peterson <aaron@alpete.com>
+Reply-To: aaron@alpete.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097177960.31547.132.camel@localhost.localdomain>
+References: <1097180361.491.25.camel@main>
+	 <1097177960.31547.132.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NRBJLMw8Vk/UxQGgKxLl"
+Message-Id: <1097244833.491.31.camel@main>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 10:13:53 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 October 2004 04:47, Nick Piggin wrote:
-> Andrew Theurer wrote:
-> > I'd like to add some comments as well:
->
-> OK, thanks Andrew. Can I ask that we revisit these after 2.6.9 comes
-> out? I don't think the situation should be worse than 2.6.8, and
-> basically 2.6.9 is in bugfix only mode at this point, so I doubt we
-> could get anything more in even if we wanted to.
->
-> Please be sure to bring this up again after 2.6.9. Thanks.
 
-No problem.  I was thinking this would be post 2.6.9 or somewhere in -mm.
+--=-NRBJLMw8Vk/UxQGgKxLl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Andrew Theurer
+On Thu, 2004-10-07 at 15:39, Alan Cox wrote:
+> On Iau, 2004-10-07 at 21:19, Aaron Peterson wrote:
+> > I work for a company with a 15 TB SAN.  All opinions about the
+> > disadvantages of creating really large filesystems aside, I'm trying to
+> > find out what is the maximum filesystem size we can allocate on our SAN
+> > that a linux box (x86) can really use.
+>=20
+> For 2.4.x 1Tb (2Tb works for some devices but its a bit variable)
+>=20
+> > What I can't seem to find anywhere is whether the 2 TB block device
+> > limit has improved/grown with 2.6 kernels (on x86 hardware).  Perhaps
+> > I've looked in the wrong places, but I haven't found anything.
+>=20
+> 2.6 fixed this problem although it appears not for some specialist
+> cases. Last time I checked LVM logical volumes over 2Tb were reported
+> problematic.
+
+I've read that the other main difficulty besides block device size
+limits is problems with the ext2 management tools themselves.  So, how
+would you rate my chances of using a 2.6 kernel with XFS (and xfs
+management tools of course) with a 5 TB filesystem?  Probably not a well
+tested scenerio to say the least...
+
+Aaron
+
+--=-NRBJLMw8Vk/UxQGgKxLl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (FreeBSD)
+
+iD8DBQBBZqCgeJcyAiXpNL8RAny5AJ972ej3GzHQhbxlbrcda8Ps0HybdwCdEqBN
+foeCyR6m0GlrcAsQQynSoy8=
+=32Rd
+-----END PGP SIGNATURE-----
+
+--=-NRBJLMw8Vk/UxQGgKxLl--
+

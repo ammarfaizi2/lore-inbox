@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263569AbSJGWaT>; Mon, 7 Oct 2002 18:30:19 -0400
+	id <S263650AbSJGWeK>; Mon, 7 Oct 2002 18:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263570AbSJGWaT>; Mon, 7 Oct 2002 18:30:19 -0400
-Received: from tomts15-srv.bellnexxia.net ([209.226.175.3]:60088 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S263569AbSJGWaS>; Mon, 7 Oct 2002 18:30:18 -0400
-Subject: [BENCHMARK] 2.5.40-mm2 contest with 1/2 disk(s), swap and noswap
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S263652AbSJGWeK>; Mon, 7 Oct 2002 18:34:10 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:51604 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id <S263650AbSJGWeE>; Mon, 7 Oct 2002 18:34:04 -0400
+Subject: Re: [PATCH] Make it possible to compile in the Bluetooth subsystem
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Maksim Krasnyanskiy <maxk@qualcomm.com>
+In-Reply-To: <Pine.LNX.4.33.0210071426480.1402-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.33.0210071426480.1402-100000@penguin.transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 07 Oct 2002 18:35:55 -0400
-Message-Id: <1034030156.7265.45.camel@mars.goatskin.org>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Oct 2002 00:38:44 +0200
+Message-Id: <1034030338.10265.4.camel@pegasus>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2002-10-07 at 23:28, Linus Torvalds wrote:
+> 
+> On 7 Oct 2002, Marcel Holtmann wrote:
+> > 
+> > but when I try to compile in the Bluetooth subsystem I got the following
+> > error:
+> > 
+> > net/built-in.o: In function `sock_init':
+> > net/built-in.o(.text.init+0x5b): undefined reference to `bluez_init'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> This is a separate error, apparently because net/socket.c calls 
+> "blues_init()" if bluetooth is configured in.
+> 
+> That shouldn't be needed at all, since the "init_module()" thing should 
+> take care of it. Please try just removing the bluez_init references from 
+> net/socket.c - that should fix the compile, and if all the ordering issues 
+> are ok, it should also work afterwards..
 
-Since there is no LVM in 2.5 yet I built another 2.5 testing box and ran
-contest v0.42 on it. I changed a few things in contest so it would
-finish in my lifetime ( make -j 1 for kernel builds and only half the
-size of memory for io_load).
+I started a clean build kernel without this code and it works. Thanks
+for the info and a new patch follows.
 
-This was on a 2 disk scsi(2940UW) K6, 48MB system with no ide. The OS,
-swap and kernel build was on the slower scsi disk, and a fresh ext3 on
-the faster scsi disk.
+Regards
 
-The runs that have '2d' in the label were done with the io_load on the
-faster disk while the kernel compile was done on the slower disk, with
-OS and swap.
+Marcel
 
-The '1d' runs were with everything on the OS disk.
-The 's' indicates that 128MB swap partition was used on that run,
-otherwise the swap device wasn't used.
-
-Preempt was not used in the making of these benchmarks. These are the
-averages of 3 runs.
-
-noload:
-Kernel                  Time            CPU%            Ratio
-2.5.40-mm2-1d_500.1     394.1           96              1.00
-2.5.40-mm2-1d_500.1s    393.1           96              1.00
-2.5.40-mm2-2d_500.1     394.4           96              1.00
-io_load:
-Kernel                  Time            CPU%            Ratio
-2.5.40-mm2-1d_500.1     1556.9          25              3.95
-2.5.40-mm2-1d_500.1s    1536.1          26              3.90
-2.5.40-mm2-2d_500.1     880.4           47              2.23
-2.5.40-mm2-2d_500.1s    873.9           48              2.22
-
-mem_load:
-Kernel                  Time            CPU%            Ratio
-2.5.40-mm2-1d_500.1s    3801.3          11              9.65
-2.5.40-mm2-2d_500.1s    3639.7          11              9.24
-
-I would have expected using swap to have a bigger impact.
-
-Hope these are of value.
-
-Shane
 

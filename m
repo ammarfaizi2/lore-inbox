@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317865AbSGaVEQ>; Wed, 31 Jul 2002 17:04:16 -0400
+	id <S317845AbSGaVEQ>; Wed, 31 Jul 2002 17:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
 	id <S318503AbSGaVEQ>; Wed, 31 Jul 2002 17:04:16 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:13505 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S317865AbSGaVEP>; Wed, 31 Jul 2002 17:04:15 -0400
-Date: Wed, 31 Jul 2002 17:07:40 -0400
-To: "Peter J. Braam" <braam@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIG files & file systems
-Message-ID: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: "Peter J. Braam" <braam@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-References: <20020731131620.M15238@lustre.cfs>
-Mime-Version: 1.0
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317845AbSGaVEP>;
+	Wed, 31 Jul 2002 17:04:15 -0400
+Message-ID: <3D48511A.C31443A3@zip.com.au>
+Date: Wed, 31 Jul 2002 14:05:30 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI CD-R lags system to hell burning in DAO mode; but not in TAO
+References: <20020731203008.GA27702@vitelus.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020731131620.M15238@lustre.cfs>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 31, 2002 at 01:16:20PM -0600, Peter J. Braam wrote:
-> Hi, 
+Aaron Lehmann wrote:
 > 
-> I've just been told that some "limitations" of the following kind will
-> remain:
->   page index = unsigned long
->   ino_t      = unsigned long
+> I've got a Teac CD-W524E 24x CD-R writer, and ever since I got it
+> several months ago I have had the somewhat annoying issue that burning
+> a cd Disc-At-Once makes the system unusable during the burn. The X
+> cursor jerks, repaints take forever, etc. This problem doesn't occur
+> when burning Track-At-Once - I'm unable to notice any significant
+> increase in system latency when using that mode.
+> 
 
-The number of files is not limited by ino_t, just look at the
-iget5_locked operation in fs/inode.c. It is possible to have your own
-n-bit file identifier, and simply provide your own comparison function.
-The ino_t then becomes the 'hash-bucket' in which the actual inode is
-looked up.
+This is presumably because the machine is full of memory which
+is dirty against a slooow device.
 
-For the page_index, maybe at some point someone manages to cleanly mix
-large pages (2MB?) with the current 4KB pages. Very large files could
-then use the page_index as an index into these large pages which should
-allow for 9PB files (or something close to that).
+You can work around this by reducing the dirty memory thresholds:
 
-Jan
+akpm-1:/home/akpm> cat /proc/sys/vm/bdflush
+30      64      64      256     30000   3000    60      0       0
+
+Make the "30" and "60" smaller.  10 and 20 perhaps.
+
+Better: change the application to fsync() the data every few
+megabytes, or open O_SYNC.
+
+-

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313403AbSDLG0w>; Fri, 12 Apr 2002 02:26:52 -0400
+	id <S313407AbSDLGqg>; Fri, 12 Apr 2002 02:46:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313407AbSDLG0v>; Fri, 12 Apr 2002 02:26:51 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:12785 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S313403AbSDLG0u>; Fri, 12 Apr 2002 02:26:50 -0400
-Date: Thu, 11 Apr 2002 23:26:47 -0700
-From: Chris Wright <chris@wirex.com>
-To: Timur Tabi <timur-linux@tabi.org>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I want to help with 2.5
-Message-ID: <20020411232647.A4281@figure1.int.wirex.com>
-Mail-Followup-To: Timur Tabi <timur-linux@tabi.org>,
-	Linux Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CB599A2.3010908@tabi.org>
+	id <S313412AbSDLGqf>; Fri, 12 Apr 2002 02:46:35 -0400
+Received: from f19.pav0.hotmail.com ([64.4.32.203]:59652 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S313407AbSDLGqf>;
+	Fri, 12 Apr 2002 02:46:35 -0400
+X-Originating-IP: [202.88.225.32]
+From: "blesson paul" <blessonpaul@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: /dev/zero
+Date: Fri, 12 Apr 2002 12:16:29 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; format=flowed
+Message-ID: <F19vSvGLmUwJ21DnxDD00014fbb@hotmail.com>
+X-OriginalArrivalTime: 12 Apr 2002 06:46:29.0537 (UTC) FILETIME=[C6694110:01C1E1ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Timur Tabi (timur-linux@tabi.org) wrote:
-> Hi,
-> 
-> I would like to make a meaningful contribution to the 2.5 kernel, so I'm 
-> wondering if anyone out there would like my help.  I would prefer to 
-> work on a component where I could do the majority of the work, rather 
-> than just help out with something massive.  Is there a particular piece 
-> of hardware that needs a device driver that no one is working on?  Is 
-> there some kernel enhancement that no one has gotten around too but 
-> would be a good addition?  Please post or email your suggestion!  Thanks!
+Hi all
+               I am newbie to linux kernel. What is the use of /dev/zero. 
+Why it is created and how to use it
+regards
+Blesson Paul
 
-Have you looked at the kernel janitor project?  I know there are still
-drivers that need to be moved away from virt_to_bus, for example.
 
-http://kerneljanitor.org/
 
-cheers,
--chris
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
+

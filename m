@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311917AbSDNJuC>; Sun, 14 Apr 2002 05:50:02 -0400
+	id <S311919AbSDNJxu>; Sun, 14 Apr 2002 05:53:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311919AbSDNJuB>; Sun, 14 Apr 2002 05:50:01 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:15108 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311917AbSDNJuB>;
-	Sun, 14 Apr 2002 05:50:01 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: spyro@armlinux.org, linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci *BUG* 
-In-Reply-To: Your message of "Sun, 14 Apr 2002 10:26:32 +0100."
-             <20020414102632.A30379@flint.arm.linux.org.uk> 
+	id <S311936AbSDNJxu>; Sun, 14 Apr 2002 05:53:50 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:45581 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S311919AbSDNJxt>; Sun, 14 Apr 2002 05:53:49 -0400
+Date: Sun, 14 Apr 2002 10:53:43 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8-pre3 full compile - errors
+Message-ID: <20020414105343.A30748@flint.arm.linux.org.uk>
+In-Reply-To: <1842.1018777178@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 14 Apr 2002 19:49:44 +1000
-Message-ID: <1959.1018777784@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Apr 2002 10:26:32 +0100, 
-Russell King <rmk@arm.linux.org.uk> wrote:
->On Sun, Apr 14, 2002 at 10:11:48AM +1000, Keith Owens wrote:
->> Any particular reason for not using ksymoops?  If it does not work on
->> arm, I can get rid of all the arm code ;).
->
->It does work on ARM.  I use it, and we've had a few posts using it.
->However, since it took several _months_ for the ksymoops version with
->the fixed regexps for ARM to come out, I don't really think you're
->justified in the above comments.
+On Sun, Apr 14, 2002 at 07:39:38PM +1000, Keith Owens wrote:
+> FB_CYBER2000
 
-You missed the smiley.
+As far as I'm aware, it builds.  It certainly builds on ARM.  What were
+the errors (you didn't list them.)
 
-I must admit that ksymoops tends to be the poor relation, it is my
-lowest priority out of ia64, kdb, kbuild, modutils and ksymoops.  Now
-if I could just get kbuild 2.5 and kdb into the kernel, I would have
-more time for the other projects :-)>
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261396AbSJHWGP>; Tue, 8 Oct 2002 18:06:15 -0400
+	id <S263140AbSJHVzL>; Tue, 8 Oct 2002 17:55:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbSJHWGP>; Tue, 8 Oct 2002 18:06:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8872 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261396AbSJHWGN>;
-	Tue, 8 Oct 2002 18:06:13 -0400
-Date: Tue, 08 Oct 2002 15:04:44 -0700 (PDT)
-Message-Id: <20021008.150444.118305428.davem@redhat.com>
-To: dwmw2@infradead.org
-Cc: skip.ford@verizon.net, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem? 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <8973.1034111628@passion.cambridge.redhat.com>
-References: <200210060846.g968klWf000632@pool-141-150-241-241.delv.east.verizon.net>
-	<3D9FFD21.8040404@pobox.com>
-	<8973.1034111628@passion.cambridge.redhat.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263153AbSJHVzL>; Tue, 8 Oct 2002 17:55:11 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:62345 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S263140AbSJHVyM>; Tue, 8 Oct 2002 17:54:12 -0400
+Date: Tue, 08 Oct 2002 16:59:38 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.41] New version of shared page tables
+Message-ID: <223810000.1034114378@baldur.austin.ibm.com>
+In-Reply-To: <181170000.1034109448@baldur.austin.ibm.com>
+References: <181170000.1034109448@baldur.austin.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========1070740887=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Woodhouse <dwmw2@infradead.org>
-   Date: Tue, 08 Oct 2002 22:13:48 +0100
-   
-   skip.ford@verizon.net said:
-   >  I sort of had vger in mind, but I could set up a crude read-only list
-   > of some sort if need be on my dynamic IP line.
-   
-   If a list is set up on vger I'll feed the patches to it.
-   
-Should we have two lists, one for 2.4 and one for 2.5?
+--==========1070740887==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'll set it up once decided.
+
+Ok, Bill Irwin found another bug.  Here's the 2 lines of change.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+
+--==========1070740887==========
+Content-Type: text/plain; charset=us-ascii; name="shpte-tweak.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="shpte-tweak.diff"; size=541
+
+--- a/fs/exec.c	8 Oct 2002 17:32:52 -0000	1.2
++++ b/fs/exec.c	8 Oct 2002 21:46:04 -0000
+@@ -46,6 +46,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+ #include <asm/mmu_context.h>
++#include <asm/rmap.h>
+ 
+ #ifdef CONFIG_KMOD
+ #include <linux/kmod.h>
+@@ -308,7 +309,7 @@
+ 	flush_page_to_ram(page);
+ 	set_pte(pte, pte_mkdirty(pte_mkwrite(mk_pte(page, PAGE_COPY))));
+ 	page_add_rmap(page, pte);
+-	increment_rss(virt_to_page(pte));
++	increment_rss(kmap_atomic_to_page(pte));
+ 	pte_unmap(pte);
+ 	spin_unlock(&tsk->mm->page_table_lock);
+ 
+
+--==========1070740887==========--
+

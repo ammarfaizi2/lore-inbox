@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131589AbRCOUo0>; Thu, 15 Mar 2001 15:44:26 -0500
+	id <S131649AbRCOUtQ>; Thu, 15 Mar 2001 15:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131682AbRCOUoH>; Thu, 15 Mar 2001 15:44:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39174 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131649AbRCOUoC>; Thu, 15 Mar 2001 15:44:02 -0500
-Date: Fri, 16 Mar 2001 00:56:21 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: LA Walsh <law@sgi.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Is swap == 2 * RAM a permanent thing?
-In-Reply-To: <3AB12209.5C2BD495@sgi.com>
-Message-ID: <Pine.LNX.4.33.0103160055540.1320-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131682AbRCOUtG>; Thu, 15 Mar 2001 15:49:06 -0500
+Received: from t2.redhat.com ([199.183.24.243]:61173 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S131649AbRCOUtB>; Thu, 15 Mar 2001 15:49:01 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@redhat.com>
+X-Accept-Language: en_GB
+To: linux-kernel@vger.kernel.org, mtd@infradead.org
+Reply-To: dwmw2@infradead.org
+Subject: ANNOUNCE: Journalling Flash File System, v2. 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 15 Mar 2001 18:03:24 +0000
+Message-ID: <21916.984679404@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Mar 2001, LA Walsh wrote:
+Well, it's been almost a week since the latest stupid bug was found in the 
+JFFS2 code, so I suppose it's time to admit to the world that it exists.
 
-> The not reclaiming swap space is flawed in more than once
-> instance.
+JFFS2, developed by Red Hat, is a complete reimplementation of a 
+journalling filesystem for FLASH devices, based on the original JFFS 
+from Axis Communications AB. 
 
-I want it fixed, but don't have much time for it now.
+Improvements of JFFS2 over the original JFFS include:
 
-Patches are welcome, though.
+	- Improved wear levelling and garbage collection performance.
+	- Compression
+	- Improved RAM footprint and response to system memory pressure.
+	- Improved concurrency and support for suspending flash erases
+	- Support for hard links.
+	
 
-regards,
+You can get it from anonymous CVS:
 
-Rik
+cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs login (password: anoncvs)
+cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co mtd
+    
+The only platform currently supported is Linux 2.4. A port to eCos is 
+likely to happen quite soon.
+
+JFFS2 filesystem images of the current 'Familiar' distribution for the
+Compaq iPAQ, along with appropriate kernels, are available at 
+ftp://ftp.uk.linux.org/pub/people/dwmw2/familiar-0.3/
+
 --
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+dwmw2
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266164AbUAVAjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 19:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUAVAjI
+	id S264271AbUAVBEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 20:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUAVBEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 19:39:08 -0500
-Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:53700 "EHLO
-	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S266164AbUAVAjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 19:39:06 -0500
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia drivers and 2.6.x kernel
-Date: Wed, 21 Jan 2004 19:38:58 -0500
-User-Agent: KMail/1.5.4
-References: <200401221012.17121.chakkerz@optusnet.com.au> <200401221105.12148.chakkerz@optusnet.com.au> <200401211824.10470.paul@misner.org>
-In-Reply-To: <200401211824.10470.paul@misner.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jan 2004 20:04:50 -0500
+Received: from gprs148-45.eurotel.cz ([160.218.148.45]:33152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264271AbUAVBEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 20:04:48 -0500
+Date: Thu, 22 Jan 2004 02:04:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rik van Riel <riel@redhat.com>
+Cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sched-idle and disk-priorities for 2.6.X
+Message-ID: <20040122010438.GD223@elf.ucw.cz>
+References: <20040118195825.GA27658@elf.ucw.cz> <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401211938.58112.rpc@cafe4111.org>
+In-Reply-To: <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 January 2004 19:24, Paul Misner wrote:
-> On Wednesday 21 January 2004 06:05 pm, Christian Unger wrote:
-> > About module-init-tools ... dunno ... never heard of it, I'm on Slackware
-> > 9.1 so ... dunno ... Not sure. But like you say, if i could not initalize
-> > modules the nvidia module should be the least of my worries, plus
-> > everything loads in 2.4.22
+Hi!
 
-Slackware 9.1 comes with module-init-tools in anticipation of 2.6. did you run 
-a full install or select by hand?
+> > > > Is there effective way to limit RSS?
+> > > 
+> > > Want me to port the RSS stuff from 2.4-rmap to 2.6 ?
+> > 
+> > Well, if it allows me to limit memory for one task so that it does not
+> > make system unusable... yes, that would be great.
+> 
+> Here it is.  Untested, except for whether it compiles cleanly ;)
+> 
+> Let me know how it works, if the enforcement is aggressive
+> enough or not, whether I need to tweak things etc...
+
+It boots, and seems to have no ill effects. I've yet to see some good
+effects, too...
+
+doing 
+
+ulimit -m 1
+<some task>
+
+should make that task run with extremely low priority, right?
+
+								Pavel
 
 -- 
-Rob Couto
-rpc@cafe4111.org
-Rules for computing success:
-1) Attitude is no substitute for competence.
-2) Ease of use is no substitute for power.
-3) Safety matters; use a static-free hammer.
---
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

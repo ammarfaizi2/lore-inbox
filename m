@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTKENiR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 08:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTKENiR
+	id S262898AbTKENkF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 08:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbTKENkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 08:38:17 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:8927 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262884AbTKENiQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 08:38:16 -0500
-Date: Wed, 5 Nov 2003 11:35:24 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: john stultz <johnstul@us.ibm.com>, Joel Becker <Joel.Becker@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: get_cycles() on i386
-In-Reply-To: <Pine.LNX.4.44.0311041545030.20373-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311051134490.13581-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 5 Nov 2003 08:40:05 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:30606 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262898AbTKENkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 08:40:02 -0500
+Subject: Re: [RFC] KBUILD 2.5 issues/regressions
+From: David Woodhouse <dwmw2@infradead.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       "\"Alistair J Strachan\"" <alistair@devzero.co.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20031105102339.D29912@devserv.devel.redhat.com>
+References: <E1AHHny-000CwE-00.arvidjaar-mail-ru@f10.mail.ru>
+	 <20031105102339.D29912@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1068039598.6065.78.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-3.dwmw2.1) 
+Date: Wed, 05 Nov 2003 13:39:59 +0000
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-11-05 at 10:23 +0100, Arjan van de Ven wrote:
+> On Wed, Nov 05, 2003 at 10:10:14AM +0300, "Andrey Borzenkov"  wrote:
+> 
+> > Mandrake and AFAIK RedHat ship single 2.4 kernel source that allos building
+> 
+> the 2.6 rpms I'm working on don't do this anymore. What Dave Jones will do
+> in his RPMs I don't know.
 
+Hopefully the out-of-source-tree build will allow this to be a lot nicer
+than it was in 2.4. 
 
-On Tue, 4 Nov 2003, Linus Torvalds wrote:
-
-> 
-> On 4 Nov 2003, john stultz wrote:
-> > 
-> > CONFIG_X86_TSC be the devil. Personally, I'd much prefer dropping the
-> > compile time option and using dynamic detection. Something like (not
-> > recently tested and i believe against 2.5.something, but you get the
-> > idea):
-> 
-> Some of the users are really timing-critical (eg scheduler).
-> 
-> How about just using the "alternative()" infrastructure that we already 
-> have in 2.6.x for this? See <asm-i386/system.h> for details.
-> 
-> We don't have an "alternative_output()" available yet, but using that it
-> would look something like:
-> 
-> 	static inline unsigned long long get_cycle(void)
-> 	{
-> 		unsigned long long tsc;
-> 
-> 		alternative_output(
-> 			"xorl %%eax,%%eax ; xorl %%edx,%%edx",
-> 			"rdtsc",
-> 			X86_FEATURE_TSC,
-> 			"=A" (tsc));
-> 		return tsc;
-> 	 }
-> 
-> which should allow for "perfect" code (well, gcc tends to mess up 64-bit 
-> stuff, but you get the idea).
-> 
-> We use the "alternative_input()" thing for prefetch() handling (see 
-> <asm-i386/processor.h>).
-
-I'm not confident this is something for 2.4.
-
-The "if (cpu_has_tsc)" fix from John sounds fine. 
+-- 
+dwmw2
 

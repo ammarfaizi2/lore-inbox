@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVBLPLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVBLPVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVBLPLz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 10:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVBLPLz
+	id S261160AbVBLPVP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 10:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVBLPVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 10:11:55 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:58047 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261413AbVBLPLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 10:11:53 -0500
-Subject: Re: [PATCH] kmalloc() bug in pci-dma.c
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050211172439.A21261@unix-os.sc.intel.com>
-References: <20050211172439.A21261@unix-os.sc.intel.com>
-Content-Type: text/plain
-Date: Sat, 12 Feb 2005 10:11:43 -0500
-Message-Id: <1108221103.5736.9.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Feb 2005 10:21:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31134 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261160AbVBLPVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 10:21:09 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Andi Kleen <ak@suse.de>,
+       "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>,
+       Adrian Bunk <bunk@stusta.de>,
+       Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
+       linux-kernel@vger.kernel.org, Chris Bruner <cryst@golden.net>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: COMMAND_LINE_SIZE increasing in 2.6.11-rc1-bk6
+References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
+	<20050120162807.GA3174@stusta.de> <20050120164829.GG450@wotan.suse.de>
+	<Pine.LNX.4.61.0501210857170.17260@webhosting.rdsbv.ro>
+	<20050121071144.GB657@wotan.suse.de>
+	<20050207035707.C25338@almesberger.net>
+	<m1hdkhzxxj.fsf@ebiederm.dsl.xmission.com>
+	<20050212115106.A1257@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 Feb 2005 08:17:51 -0700
+In-Reply-To: <20050212115106.A1257@almesberger.net>
+Message-ID: <m1brapzu1s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 17:24 -0800, Venkatesh Pallipadi wrote:
-> After burning my fingers with a similar mistake in one of the patches 
-> that I am working on, I did a quick grep to find out all faulty kmalloc() 
-> calls and found this.
+Werner Almesberger <wa@almesberger.net> writes:
+
+> Eric W. Biederman wrote:
+> > Actually this is trivial to do by using a file in initramfs.
+> > If we need something in a well defined format anyway.
 > 
-> dma_declare_coherent_memory() is calling kmalloc with wrong arguments. 
-> Attached patch fixes this.
+> Yes, constructing an additional initramfs, or modifying an existing
+> one to hold such data is certainly a possibility.
+> 
+> I think there are mainly three choices:
+>  1) the command line
+>  2) an initramfs
+>  3) some other, yet to be defined data structure
+> 
+> 1) is relatively easy to do, but leads to more little parsers and
+> doesn't scale too well. 2) scales well but has a relatively high
+> overhead (constructing/scanning a cpio archive, etc., particularly
+> for items needed early in the boot process), and does not work too
+> well for discontiguous data structures. 
 
-Oh Wow, did I really do that ... brown paper bag time for me, I suppose.
+There is certainly an issue with reading it early.  But constructing
+an additional cpio and sticking it into the initrd block is fairly
+simple.  For detecting devices especially in the case that takes
+a while that isn't something we need to do early
+in the boot process.
 
-> Please apply.
+> 3) is of course what we should try to avoid :-)
 
-Andrew, please put it in.
+Well the data structure is still yet to be defined.  The
+question you raised is how to pass it.
+ 
+> So far, I also think that using an initramfs, or at least
+> something that looks like one, even if not normally used as such,
+> is the thing to try first.
 
-James
+Something like that.    I have yet to see a even a proof of concept
+of the idea of passing device information, to clean up probes.
+Nor am I quite certain if it is really useful.  But when it
+happens I am sure we can cope.
 
-
+Eric

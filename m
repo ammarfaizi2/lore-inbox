@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbULIROh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbULIROF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbULIROh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 12:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULIROg
+	id S261580AbULIROF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 12:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULIROD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 12:14:36 -0500
-Received: from nefty.hu ([195.70.37.175]:10194 "EHLO nefty.hu")
-	by vger.kernel.org with ESMTP id S261570AbULIROE (ORCPT
+	Thu, 9 Dec 2004 12:14:03 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:6095 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261322AbULIRNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 12:14:04 -0500
-Message-ID: <41B887D4.8040609@nefty.hu>
-Date: Thu, 09 Dec 2004 18:13:56 +0100
-From: Zoltan NAGY <nagyz@nefty.hu>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3-bk4 does not compile
-References: <41B87A67.30803@nefty.hu> <41B877E6.1050007@osdl.org>
-In-Reply-To: <41B877E6.1050007@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Dec 2004 12:13:34 -0500
+Date: Thu, 9 Dec 2004 18:13:03 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041209171303.GA7975@elte.hu>
+References: <OF7A3735CE.0606A36B-ON86256F65.00512706@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF7A3735CE.0606A36B-ON86256F65.00512706@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
 
-> Zoltan NAGY wrote:
->
->> It fails with the following error messages:
->>
->>  CC      drivers/block/rd.o
->> drivers/block/rd.c:67: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
->> here (not in a function)
->> drivers/block/rd.c:68: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
->> here (not in a function)
->> drivers/block/rd.c:69: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
->> here (not in a function)
->> drivers/block/rd.c: In function `rd_cleanup':
->> drivers/block/rd.c:403: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
->> (first use in this function)
->> drivers/block/rd.c:403: error: (Each undeclared identifier is 
->> reported only once
->> drivers/block/rd.c:403: error: for each function it appears in.)
->> drivers/block/rd.c: In function `rd_init':
->> drivers/block/rd.c:433: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
->> (first use in this function)
->> drivers/block/rd.c: At top level:
->> drivers/block/rd.c:67: error: storage size of `rd_disks' isn't known
->> drivers/block/rd.c:68: error: storage size of `rd_bdev' isn't known
->> drivers/block/rd.c:69: error: storage size of `rd_queue' isn't known
->> drivers/block/rd.c:67: warning: `rd_disks' defined but not used
->> drivers/block/rd.c:68: warning: `rd_bdev' defined but not used
->> drivers/block/rd.c:69: warning: `rd_queue' defined but not used
->> make[2]: *** [drivers/block/rd.o] Error 1
->> make[1]: *** [drivers/block] Error 2
->> make: *** [drivers] Error 2
->
->
-> That's weird.  rd.c #includes <config.h>, so CONFIG_BLK_DEV_RAM_COUNT
-> should be there.  and it builds OK for me, as module or in-kernel.
->
-> Please check that you have rc3-bk4 applied (patched) correctly
-> and then send your .config file.
->
-Ok, found it. I've tried to build that kernel for UML, and UML's 
-defconfig does not contain CONFIG_BLK_DEV_RAM_COUNT...
-Gerd Knorr posted a patch[1], and it should really go into 2.6.10, or 
-UML wont build.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-[1]: http://www.uwsg.iu.edu/hypermail/linux/kernel/0412.0/1429.html
+> Comparison of .32-5RT and .32-5PK results
+> RT has PREEMPT_RT,
+> PK has PREEMPT_DESKTOP and no threaded IRQ's.
+> 2.4 has lowlat + preempt patches applied
+> 
+>       within 100 usec
+>        CPU loop (%)   Elapsed Time (sec)    2.4
+> Test   RT     PK        RT      PK   |   CPU  Elapsed
+> X     90.46  99.88      67 *    63+  |  97.20   70
+> top   83.03  99.87      35 *    33+  |  97.48   29
+> neto  91.69  97.57     360 *   320+* |  96.23   36
+> neti  88.37  97.79     360 *   300+* |  95.86   41
+> diskw 87.73  67.41     360 *    57+* |  77.64   29
+> diskc 86.35  99.39     360 *   320+* |  84.12   77
+> diskr 81.57  99.89     360 *   320+* |  90.66   86
+> total                 1902    1413   |         368
+>  [higher is better]  [lower is better]
+> * wide variation in audio duration
+> + long stretch of audio duration "too fast"
 
-Regards,
+i think this could be the effect of the "CPU loop" being at a lower
+priority (prio 30?) than all of the IRQ threads. The SMP scheduler is
+now better at distributing high-prio RT tasks i.e. of IRQ threads, all
+of which are higher prio than the CPU loop.
 
-Zoltan NAGY,
-Software Engineer
+could you do one run with the CPU loop being prio 90, soundcard IRQ
+being prio 91 and timer IRQ being prio 92 - so that we can see what the
+RT kernel could be capable of, if the IRQ threads didnt interfere?
 
+also, i'd like to take a look at latency traces, if you have them for
+this run.
 
+	Ingo

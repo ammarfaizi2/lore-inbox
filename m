@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264665AbSLLOK4>; Thu, 12 Dec 2002 09:10:56 -0500
+	id <S264822AbSLLOIN>; Thu, 12 Dec 2002 09:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbSLLOK4>; Thu, 12 Dec 2002 09:10:56 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:35500 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S264665AbSLLOKz>; Thu, 12 Dec 2002 09:10:55 -0500
-Date: Thu, 12 Dec 2002 09:18:43 -0500
-To: "Garst R. Reese" <reese@isn.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: romfs
-Message-ID: <20021212141843.GB19641@gnu.org>
-References: <3DF7CC90.99585A8C@isn.net> <buo4r9k7zz3.fsf@mcspd15.ucom.lsi.nec.co.jp> <3DF8929F.437F6858@isn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DF8929F.437F6858@isn.net>
-User-Agent: Mutt/1.3.28i
-Blat: Foop
-From: Miles Bader <miles@gnu.org>
+	id <S264839AbSLLOIN>; Thu, 12 Dec 2002 09:08:13 -0500
+Received: from 208-41-36-214.client.dsl.net ([208.41.36.214]:8084 "HELO
+	gandalf.fmonkey.net") by vger.kernel.org with SMTP
+	id <S264822AbSLLOIL> convert rfc822-to-8bit; Thu, 12 Dec 2002 09:08:11 -0500
+From: "Adam H. Pendleton" <fmonkey@fmonkey.net>
+To: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: Is this going to be true ?
+Date: Thu, 12 Dec 2002 09:15:10 -0500
+Message-ID: <003201c2a1e8$fb445800$0a0aa8c0@ph3pc>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <at8jcm$n8u$1@forge.intermeta.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 09:43:59AM -0400, Garst R. Reese wrote:
-> >    http://romfs.sourceforge.net
-> > 
-> Thanks Miles,
-> I tried that.
+ 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmmm, you might try asking the debian genromfs maintainer; I seem to recall
-him being in contact with the author before:
+> There are no similar applications like the Exchange Server or the
+> BizTalk server for Linux. I'd see them port all of the server portions
+> of these applications to an *ix platform (be it MacOS X, *BSD or
+> Linux) in quite short time. The management GUIs and application
+> development tools will stay on Windows, however.
+Not quite true.  Check out CommuniGate Pro from http://www.stalker.com.  When used with the MAPI connector, it looks and acts almost exactly like Exchange.
 
-   Juan Cespedes <cespedes@debian.org>
+ahp
 
--Miles
--- 
-[|nurgle|]  ddt- demonic? so quake will have an evil kinda setting? one that 
-            will  make every christian in the world foamm at the mouth? 
-[iddt]      nurg, that's the goal 
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 8.0
+
+iQA/AwUBPfiZ7d0rskLi2W+SEQKKWACfYNxrbnRL1+lOHahUhBbhvJwSMXYAn2q0
+FyUuyS2y89kI3P3oL0VUFwT+
+=N/uK
+-----END PGP SIGNATURE-----
+
+

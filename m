@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbULOU7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbULOVD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbULOU7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 15:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbULOU7X
+	id S262492AbULOVD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 16:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbULOVDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 15:59:23 -0500
-Received: from gw.goop.org ([64.81.55.164]:48282 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S262489AbULOU6G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 15:58:06 -0500
-Subject: Re: 32-bit syscalls from 64-bit process on x86-64?
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041215105510.GF27225@wotan.suse.de>
-References: <380350F3EC1@vcnet.vc.cvut.cz>
-	 <20041215042704.GE27225@wotan.suse.de>
-	 <1103107807.24540.23.camel@localhost>
-	 <20041215105510.GF27225@wotan.suse.de>
-Content-Type: text/plain
-Date: Wed, 15 Dec 2004 12:58:05 -0800
-Message-Id: <1103144285.13338.30.camel@minilith.goop.org>
+	Wed, 15 Dec 2004 16:03:55 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:4590 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262492AbULOVDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 16:03:49 -0500
+Date: Wed, 15 Dec 2004 14:03:46 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cu, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       bjorn.helgaas@hp.com
+Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
+Message-ID: <20041215210346.GK9923@schnapps.adilger.int>
+Mail-Followup-To: Jesse Barnes <jbarnes@engr.sgi.com>,
+	linux-pci@atrey.karlin.mff.cu, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+	bjorn.helgaas@hp.com
+References: <200412140941.56116.jbarnes@engr.sgi.com> <200412150927.51733.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x1F0m3RQhDZyj8sd"
+Content-Disposition: inline
+In-Reply-To: <200412150927.51733.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-15 at 11:55 +0100, Andi Kleen wrote:
-> Hmm, in theory you could handle a 64bit signal frame from 32bit code
-> (just may need an assembly stub if you want the arguments). But it 
-> would be quite ugly agreed.
 
-Yes.  I've tried this out, and it works OK, but it isn't pleasing.  One
-of the main problems is that the stack is likely to be above 4G, so %esp
-has no useful value, and when you switch to 64-bit mode, the top 32-bits
-of %rsp become undefined.
+--x1F0m3RQhDZyj8sd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Perhaps it should force __USER_CS yes in this case, agreed.
-> 
-> There is a small risk of breaking someone, but it's very small.
+On Dec 15, 2004  09:27 -0800, Jesse Barnes wrote:
+> +write
+> +  Legacy I/O port space reads and writes must also be to a file
+> +  position >64k--the kernel will route them to the target device.
 
-Well, if they've got code which is already switching between 32 and 64
-bit segments, then they need to cope with either cs being current at
-delivery time.
+Shouldn't that be < 64k based on the description of lseek?
 
-> I can do that change if you want.
-> 
-> BTW the long term plan is to get rid of the special cases to make
-> it easierto use the 32bit kernel ABI from a 64bit program.
-> This means signal handling will likely just check the code segment
-> at some  point to decide if it should set up 32bit or 64bit frames
-> and we'll probably do similar things with the other cases 
-> (except exec which needs to stay this way) 
+> +lseek
+> +  Can be used to set the current file position.  Note that the file
+> +  size is limited to 64k as that's how big legacy I/O space is.
 
-At syscall time, rather than delivery time, I assume.  Hm, I'd prefer it
-if it didn't look at the current segment, but at the syscall path.  Ie,
-installing a handler with __NR_rt_sigaction via int 0x80 (or 32-bit
-syscall/sysenter) should set up a 32-bit frame on delivery, but if the
-handler was installed with the 64-bit syscall, it should be called with
-a 64-bit frame.
+> +ioctl
+> +  Note that not all architectures support the *_MMAP_* or *_RW_* ioctl
+> +  commands.  If they're not supported, ioctl will return -EINVAL.
 
-> If you're interested in this I guess that could be done sooner
-> with some patch submissions (hint hint ;)
+Shouldn't they return -ENOTTY?  That indicates to the caller that the
+ioctl isn't handled, vs -EINVAL which indicates bad value being passed
+(e.g. bad write size).
 
-I'll take a look.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
-	J
 
+--x1F0m3RQhDZyj8sd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFBwKaypIg59Q01vtYRAoh8AKDmi9a8/dvTmXLivSzSXUPFDWZrHwCeOmpR
+dnDEkYV/qdZa16A2p71gpqs=
+=y7d8
+-----END PGP SIGNATURE-----
+
+--x1F0m3RQhDZyj8sd--

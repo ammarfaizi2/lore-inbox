@@ -1,85 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVAJOwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVAJOxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVAJOwp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 09:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVAJOwp
+	id S262282AbVAJOxL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 09:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVAJOxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 09:52:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23219 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262280AbVAJOwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 09:52:36 -0500
-Date: Mon, 10 Jan 2005 09:56:07 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: James Nelson <james4765@cwazy.co.uk>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, paulus@samba.org,
-       Dan Malek <dan@embeddededge.com>, Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [RESEND] [PATCH 3/7] ppc: remove cli()/sti() in arch/ppc/8xx_io/fec.c
-Message-ID: <20050110115607.GG14098@logos.cnet>
-References: <20050108170406.32690.36989.11853@localhost.localdomain> <20050108170433.32690.82747.72350@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050108170433.32690.82747.72350@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 10 Jan 2005 09:53:11 -0500
+Received: from mail108.messagelabs.com ([216.82.255.115]:47058 "HELO
+	mail108.messagelabs.com") by vger.kernel.org with SMTP
+	id S262282AbVAJOxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 09:53:06 -0500
+X-VirusChecked: Checked
+X-Env-Sender: AAnthony@sbs.com
+X-Msg-Ref: server-15.tower-108.messagelabs.com!1105368783!6809937!1
+X-StarScan-Version: 5.4.5; banners=sbs.com,-,-
+X-Originating-IP: [204.255.71.6]
+Message-ID: <4F23E557A0317D45864097982DE907941A32B1@pilotmail.sbscorp.sbs.com>
+From: Adam Anthony <AAnthony@sbs.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Cc: Adam Anthony <AAnthony@sbs.com>
+Subject: [PATCH] /driver/net/wan/sbs520
+Date: Mon, 10 Jan 2005 07:46:52 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SGI and Kernel Maintainers,
+	With the permission of my employer, SBS Technologies, Inc., I have
+released a patch for 2.4 kernels that supports the 520 Series of WAN
+adapters.  (A similar patch for 2.6 kernels will soon follow)  The driver
+itself has been tested by many customers, but as of this morning, the patch
+has only been tested by me.
+       I have created a Source Forge project for the patch/GPL driver, which
+can be viewed at the following location:
+"https://sourceforge.net/projects/sbs520lnxdrv/".  The patch can be
+downloaded directly from the following link:
+"http://prdownloads.sourceforge.net/sbs520lnxdrv/sbs520patch.bz2?download"
+       It would be great to receive some feedback on our work, and we hope
+that this driver will eventually be added to the kernel.
+Best regards,
+Adam
 
-Looks OK to me.
+Signed-off-by: Adam T. Anthony <aanthony@sbs.com>
 
- Dan, Tom, this should be applied to the linuxppc-2.5 IMO.
 
-On Sat, Jan 08, 2005 at 11:04:15AM -0600, James Nelson wrote:
-> Replace save_flags()/resore_flags() with spin_lock_irqsave()/spin_unlock_irqrestore()
-> and document reasons for locking.
-> 
-> Signed-off-by: James Nelson <james4765@gmail.com>
-> 
-> diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/ppc/8xx_io/fec.c linux-2.6.10-mm1/arch/ppc/8xx_io/fec.c
-> --- linux-2.6.10-mm1-original/arch/ppc/8xx_io/fec.c	2004-12-24 16:35:28.000000000 -0500
-> +++ linux-2.6.10-mm1/arch/ppc/8xx_io/fec.c	2005-01-07 19:58:55.806516338 -0500
-> @@ -389,6 +389,7 @@
->  	flush_dcache_range((unsigned long)skb->data,
->  			   (unsigned long)skb->data + skb->len);
->  
-> +	/* disable interrupts while triggering transmit */
->  	spin_lock_irq(&fep->lock);
->  
->  	/* Send it on its way.  Tell FEC its ready, interrupt when done,
-> @@ -539,6 +540,7 @@
->  	struct	sk_buff	*skb;
->  
->  	fep = dev->priv;
-> +	/* lock while transmitting */
->  	spin_lock(&fep->lock);
->  	bdp = fep->dirty_tx;
->  
-> @@ -799,6 +801,7 @@
->  
->  	if ((mip = mii_head) != NULL) {
->  		ep->fec_mii_data = mip->mii_regval;
-> +
->  	}
->  }
->  
-> @@ -817,8 +820,8 @@
->  
->  	retval = 0;
->  
-> -	save_flags(flags);
-> -	cli();
-> +	/* lock while modifying mii_list */
-> +	spin_lock_irqsave(&fep->lock, flags);
->  
->  	if ((mip = mii_free) != NULL) {
->  		mii_free = mip->mii_next;
-> @@ -836,7 +839,7 @@
->  		retval = 1;
->  	}
->  
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(&fep->lock, flags);
->  
->  	return(retval);
->  }
+
+For limitations on the use and distribution of this message, please visit www.sbs.com/emaildisclaimer.

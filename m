@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281779AbRLOCb7>; Fri, 14 Dec 2001 21:31:59 -0500
+	id <S281890AbRLOCy0>; Fri, 14 Dec 2001 21:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281823AbRLOCbu>; Fri, 14 Dec 2001 21:31:50 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:32624 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S281779AbRLOCbn>; Fri, 14 Dec 2001 21:31:43 -0500
-Date: Fri, 14 Dec 2001 21:31:42 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Sottek, Matthew J" <matthew.j.sottek@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: zap_page_range in a module
-Message-ID: <20011214213142.A28867@redhat.com>
-In-Reply-To: <C8C7DD4157F2D411AC7000A0C96B1522016C37D8@fmsmsx58.fm.intel.com>
-Mime-Version: 1.0
+	id <S281836AbRLOCyH>; Fri, 14 Dec 2001 21:54:07 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14610
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S281893AbRLOCxx>; Fri, 14 Dec 2001 21:53:53 -0500
+Date: Fri, 14 Dec 2001 16:06:16 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Carl Ritson <critson@perlfu.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS: 2.5.1-pre8 - cdrecord + ide_scsi
+In-Reply-To: <20011209153820.GE28729@suse.de>
+Message-ID: <Pine.LNX.4.10.10112141604430.10899-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <C8C7DD4157F2D411AC7000A0C96B1522016C37D8@fmsmsx58.fm.intel.com>; from matthew.j.sottek@intel.com on Fri, Dec 14, 2001 at 06:10:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14, 2001 at 06:10:52PM -0800, Sottek, Matthew J wrote:
-> >The vm does zap_page_range for you if you're implementing an
-> >mmap operation, 
+
+Sorry Jens, you are mis-informed.
+SCSI is only the packbuilder, but it is excuted by the ATA PacketCommand.
+
+Regards,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+
+On Sun, 9 Dec 2001, Jens Axboe wrote:
+
+> On Sun, Dec 09 2001, Carl Ritson wrote:
+> > On Sun, 9 Dec 2001, Jens Axboe wrote:
+> > > > > > Agrh, because of a bug in ide-scsi conversion this (other) bug went
+> > > > > > unnoticed for a while. Basically we cannot look up the request queue
+> > > > > > reliably from a request, since it may not have originated from the block
+> > > > > > layer. ide-scsi builds it's own, for example. For those, we don't want
+> > > > > > to trust the sg count either.
+> > > > > >
+> > > > > > Does attached patch work?
+> > > > >
+> > > > > Irk, there's a ide-scsi bug in there too. In
+> > > > > drivers/scsi/ide-scsi.c:idescsi_free_bio() change the kfree(bhp) to
+> > > > > bio_put(bhp)
+> > > > >
+> > > >
+> > > > With both these fixes applied cdrecord hangs for 30 seconds, then spits
+> > > > out "cdrecord: No such device or address. Cannot send SCSI cmd via ioctl",
+> > > > a couple of hundred times.
+> > > >
+> > > > In the from dmesg from the same time I get.
+> > > > ------
+> > > > hdc: timeout waiting for DMA
+> > > > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> > > > hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> > > > hdc: drive not ready for command
+> > > > scsi: device set offline - command error recover failed: host 0 channel 0
+> > > > id 0 lun 0
+> > > > ------
+> > >
+> > > Please try a run with DMA disabled.
+> > >
+> > 
+> > Ok works with DMA off, so I expect that this new error is due to my resent
+> > memory upgrade (36 Hours ago) and the switch to using HIGHMEM(4GB)..
+> > So am I to believe that DMA is a problem with HIGHMEM(4GB) enabled ?
 > 
-> It only does zap_page_range() when the memory map is being
-> removed right?
+> No it's probably still an ide-scsi bug, I'm not suspecting your
+> hardware. The reason I ask is because until -pre8 (since bio merge in
+> -pre2), ide-scsi never used DMA even though it was set for the drive.
+> 
+> -- 
+> Jens Axboe
 
-Right.
-
-> I have a 64k sliding "window" into a 1MB region. You can only access
-> 64k at a time then you have to switch the "bank" to access the next
-> 64k. Address 0xa0000-0xaffff is the 64k window. The actual 1MB of
-> memory is above the top of memory and not directly addressable by the
-> CPU, you have to go through the banks.
-
-Stop right there.  You can't do that.  The code will deadlock on page 
-faults for certain usage patterns.  It's slow, inefficient and a waste 
-of effort.
-
-		-ben
--- 
-Fish.

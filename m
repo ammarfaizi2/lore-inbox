@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269798AbUJWC2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269744AbUJWAcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269798AbUJWC2B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 22:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269681AbUJWC1u
+	id S269744AbUJWAcs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269318AbUJWAKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 22:27:50 -0400
-Received: from users.ccur.com ([208.248.32.211]:50123 "EHLO mig.iccur.com")
-	by vger.kernel.org with ESMTP id S269798AbUJWC1Y (ORCPT
+	Fri, 22 Oct 2004 20:10:44 -0400
+Received: from holomorphy.com ([207.189.100.168]:35783 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269297AbUJWAKI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 22:27:24 -0400
-Date: Fri, 22 Oct 2004 22:27:19 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Roland McGrath <roland@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] posix timers using == instead of & for bitmask tests
-Message-ID: <20041023022719.GA26057@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20041022143953.GA17881@tsunami.ccur.com> <200410222203.i9MM3KJG005761@magilla.sf.frob.com>
+	Fri, 22 Oct 2004 20:10:08 -0400
+Date: Fri, 22 Oct 2004 17:09:56 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: espenfjo@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041023000956.GI17038@holomorphy.com>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022225703.GJ19761@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410222203.i9MM3KJG005761@magilla.sf.frob.com>
-User-Agent: Mutt/1.4.1i
-X-OriginalArrivalTime: 23 Oct 2004 02:27:18.0916 (UTC) FILETIME=[D19F8C40:01C4B8A7]
+In-Reply-To: <20041022225703.GJ19761@alpha.home.local>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:03:20PM -0700, Roland McGrath wrote:
-> > Make posix-timers do a get_task_struct / put_task_struct if either
-> > SIGEV_SIGNAL or SIGEV_THREAD_ID is set.  Currently the get/put is done
-> > only if both are set.
-> 
-> What is the purpose of this change?  The `good_sigevent' check ensures that
-> if SIGEV_THREAD_ID is set, then the value is exactly
-> SIGEV_SIGNAL|SIGEV_THREAD_ID.  In fact, this change has no effect at all
-> because SIGEV_SIGNAL is zero.  If it weren't, it would have an undesireable
-> effect of doing the task_struct refcounting all the time instead of only
-> for SIGEV_THREAD_ID.  That refcounting is never required in the plain
-> SIGEV_SIGNAL case, because the task_struct pointer stored in the
-> group_leader, and that is never freed before all the posix-timers data
-> structures get cleared out anyway (exit_itimers).  It's only required for
-> SIGEV_THREAD_ID, where the target thread might have died before the timer
-> was next examined.
+On Fri, Oct 22, 2004 at 11:52:50PM +0200, Espen Fjellv?r Olsen wrote:
+>> I think that 2.6 should be frozen from now on, just security related
+>> stuff should be merged.
+>> This would strengthen Linux's reputation as a stable and secure
+>> system, not a unstable and a system just used for fun.
 
-Hi Roland,
- Thanks for answering my mistaken impressions.  I saw after I wrote that
-SIGEV_SIGNAL == 0 which makes everything work.  And I was laboring under
-the misconception that SIGEV_SIGNAL and SIGEV_THREAD were mutually exclusive
-which isn't true, one always has SIGEV_SIGNAL if SIGEV_THREAD is set.
+On Sat, Oct 23, 2004 at 12:57:03AM +0200, Willy Tarreau wrote:
+> Linux already got its reputation of a stable system from its production
+> kernels, 2.0, 2.2 and 2.4 which are largely used in sensible environments.
+> 2.6 is stable enough for most desktop usage and for end-users distros to
+> ship it by default. This will encourage many more people to test it, send
+> reports back and finally stabilize it so that one day it can finally be
+> used in production environments. At first I was a bit angry that it had
+> been declared "stable" a bit too early, but now, judging by the amount of
+> people who use it only because their distros ship with it, I realise that
+> indeed, it should have been declared "stable" earlier so that all the bug
+> fixes you see now would be fixed by now.
 
-Regards,
-Joe
+The freezes from kernels past led to gross redundancy. Distros all
+froze at different points in time with numerous patches atop the
+then-mainline release. The mainline freeze was meaningless because
+the distros were all completely divorced from it, resulting in numerous
+simultaneously frozen trees with no outlet for forward progress.
+
+
+On Fri, Oct 22, 2004 at 11:52:50PM +0200, Espen Fjellv?r Olsen wrote:
+>> A 2.7 should be created where all new experimental stuff is merged
+>> into it, and where people could begin to think new again.
+
+On Sat, Oct 23, 2004 at 12:57:03AM +0200, Willy Tarreau wrote:
+> This could be true if the release cycle was shorter. But once 2.7 comes
+> out, many developpers will only focus on their development and not on
+> stabilizing 2.6 as much as today.
+
+We aren't just stabilizing 2.6. We're moving it forward. Part of moving
+forward is preventing backportmania depravity. Backporting is the root
+of all evil.
+
+
+-- wli

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314019AbSDKKmW>; Thu, 11 Apr 2002 06:42:22 -0400
+	id <S314023AbSDKLDp>; Thu, 11 Apr 2002 07:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314020AbSDKKmV>; Thu, 11 Apr 2002 06:42:21 -0400
-Received: from sebula.traumatized.org ([193.121.72.130]:28549 "EHLO
-	sparkie.is.traumatized.org") by vger.kernel.org with ESMTP
-	id <S314019AbSDKKmV>; Thu, 11 Apr 2002 06:42:21 -0400
-Date: Thu, 11 Apr 2002 12:34:44 +0200
-From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: arch/sparc64/kernel/traps.c
-Message-ID: <20020411103444.GA7280@sparkie.is.traumatized.org>
-In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <20020409.155757.34666328.davem@redhat.com> <20020410133908.GJ11858@sparkie.is.traumatized.org> <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i (Linux 2.4.19-pre5 sparc64)
-X-Files: the truth is out there
+	id <S314025AbSDKLDo>; Thu, 11 Apr 2002 07:03:44 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:11694 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S314023AbSDKLDn>; Thu, 11 Apr 2002 07:03:43 -0400
+Message-ID: <3CB56D05.6040702@didntduck.org>
+Date: Thu, 11 Apr 2002 07:01:25 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: blesson paul <blessonpaul@msn.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: put_user_byte()
+In-Reply-To: <F38uSbh29cM3oryKFRJ00031d09@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 08:00:08AM +0200, Denis Vlasenko wrote:
+blesson paul wrote:
+> Hi all
+>                I need to copy some data from kernel memory space to user 
+> memory space. When I investigated, the command for that purpose is 
+> put_user_byte(). But in kernel2.4, I can't find the implementation of 
+> this command. I want to know the command which replaced put_user_byte() 
+> in 2.4 kernel. Also I want to know whether there is any synonyms for 
+> verify_area() in kernel 2.4
+> regards
+> Blesson Paul
 
-> > > ksymoops should be already installed on your system
-> > > at /usr/bin/ksymoops, if it isn't find the package
-> > > to install or complain to your distribution maintainer :-)
-> > >
-> > > If you still want to compile ksymoops from source you need to update
-> > > and install a new binutils to get the latest BFD library.
-> >
-> > allright, ksymoops doesn't come with my distribution (Splack)
-> > so i got the source, and went from there.
-> >
-> > now it compiled nicely.
-> >
-> > here's the output that i get (i'm not quite sure what to expect, so i
-> > hope this is what you need:)
-> 
-> [snip]
-> 
-> > Error (Oops_bfd_perror): set_section_contents Bad value
-> 
-> [snip]
-> 
-> I've seen the same when ksymoops was linked against old libbfd.
-> It builds without errors but could not disassemble oopsed code.
-> Check for old libbfd lying around.
+Use put_user(val, uaddr).  val must be of type unsigned char (or casted 
+to it).  It will return 0 on success or -EFAULT on fault.  verify_area() 
+is normally not needed in 2.4, unless you are copying many values to 
+user space and only want to do the priviledge check once on the whole range.
 
-sorry for the long lines, but it would't be very readable otherwise
-:)
+-- 
 
-$ locate libbfd | xargs ls -ld
--rwxr-xr-x    1 root     root       632951 Apr 10 15:18 /usr/lib/libbfd-2.12.so
--rw-r--r--    1 root     root       737648 Apr 10 15:18 /usr/lib/libbfd.a
--rwxr-xr-x    1 root     root          771 Apr 10 15:18 /usr/lib/libbfd.la
-lrwxrwxrwx    1 root     root           14 Apr 10 15:24 /usr/lib/libbfd.so -> libbfd-2.12.so
+						Brian Gerst
 
-$ locate bfd.h | xargs ls -ld
--rw-r--r--    1 root     root       134077 Apr 10 15:18 /usr/include/bfd.h
-
-it all looks like the new version to me
-
-
-ps: it's the first time i actually use ksymoops, so excuse my
-newbie-like behaviour :)
-
-Jurgen.

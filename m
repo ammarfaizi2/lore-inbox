@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312134AbSCQWnh>; Sun, 17 Mar 2002 17:43:37 -0500
+	id <S312128AbSCQW5b>; Sun, 17 Mar 2002 17:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312130AbSCQWn1>; Sun, 17 Mar 2002 17:43:27 -0500
-Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:12819
-	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
-	id <S312128AbSCQWnN>; Sun, 17 Mar 2002 17:43:13 -0500
-Date: Sun, 17 Mar 2002 14:45:32 -0800
-From: Neil Schemenauer <nas@python.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ANN: capwrap - grant capabilities to executables
-Message-ID: <20020317144532.A18963@glacier.arctrix.com>
-In-Reply-To: <20020317121118.A18548@glacier.arctrix.com> <a73548$4t3$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a73548$4t3$1@cesium.transmeta.com>; from hpa@zytor.com on Sun, Mar 17, 2002 at 02:25:12PM -0800
+	id <S312130AbSCQW5V>; Sun, 17 Mar 2002 17:57:21 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:65167 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S312128AbSCQW5J>; Sun, 17 Mar 2002 17:57:09 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 17 Mar 2002 15:01:38 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <a72mif$941$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0203171453050.7378-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Why not just do this with a small program if you're doing setuid
-> anyway?
+On Sun, 17 Mar 2002, Linus Torvalds wrote:
 
-Nothing is running with root privileges (unless root is executing it).
-The SUID bit on the wrapper is just a marker and does not change the
-effective uid of the process.  Also, AFAIK, you can't pass capabilities
-from one program to another using exec().   I don't completely
-understand this stuff yet but fs/exec.c has these lines in the
-prepare_binprm() function:
+> In article <Pine.LNX.4.44L.0203171021090.2181-100000@imladris.surriel.com>,
+> Rik van Riel  <riel@conectiva.com.br> wrote:
+> >
+> >In other words, large pages should be a "special hack" for
+> >special applications, like Oracle and maybe some scientific
+> >calculations ?
+>
+> Yes, I think so.
+>
+> That said, a 64kB page would be useful for generic use.
+>
+> >Grabbing some bitflags in generic datastructures shouldn't
+> >be an issue since free bits are available.
+>
+> I had large-page-support working in the VM a long time ago, back when I
+> did the original VM portability rewrite.  I actually exposed the kernel
+> large pages to the VM, and it worked fine - I didn't even need a new
+> bit, since the code just used the "large page" bit in the page table
+> directly.
+>
+> But it wasn't ever exposed to user space, and in the end I just made the
+> kenel mapping just not visible to the VM and simplified the x86
+> pmd_xxx() macros.  The approach definitely worked, though.
 
-        cap_clear(bprm->cap_inheritable);
-        cap_clear(bprm->cap_permitted);
-        cap_clear(bprm->cap_effective);
+Couldn't we choose the page size depending on the map size ?
+If we start mixing page sizes, what about kernel code that assumes PAGE_SIZE ?
 
-Capabilities are only raised if bprm->e_uid == 0.  So, unless I'm
-misunderstand the code, you can't do the same thing with a SUID wrapper.
 
-Thanks for you're comments.
 
-  Neil
+- Davide
+
+

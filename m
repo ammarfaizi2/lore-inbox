@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVAJWSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVAJWWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbVAJWSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 17:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbVAJWRs
+	id S262749AbVAJWWe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 17:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVAJWWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 17:17:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53778 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262589AbVAJWRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 17:17:04 -0500
-Date: Mon, 10 Jan 2005 23:16:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Mon, 10 Jan 2005 17:22:13 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:42666 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262588AbVAJWTt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 17:19:49 -0500
+Subject: Re: [patch] remove bouncing email address of Olaf Kirch
+From: Robert Love <rml@novell.com>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>, netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH] remove unused variables in net/sunrpc/auth.c
-Message-ID: <20050110221651.GA29578@stusta.de>
-References: <Pine.LNX.4.61.0501102239000.2987@dragon.hygekrogen.localhost>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0501102259090.2987@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0501102259090.2987@dragon.hygekrogen.localhost>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 17:15:20 -0500
+Message-Id: <1105395320.25591.60.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501102239000.2987@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 10:50:34PM +0100, Jesper Juhl wrote:
-> 
-> We have a few unused variables in net/sunrpc/auth.c:320:
-> 
-> net/sunrpc/auth.c:320: warning: unused variable `auth'
-> net/sunrpc/auth.c:333: warning: unused variable `auth'
-> net/sunrpc/auth.c:345: warning: unused variable `auth'
-> net/sunrpc/auth.c:385: warning: unused variable `auth'
-> 
-> As far as I can see, the patch that caused them to become unused is this 
-> one (which btw is ~36 months old) :
-> http://linux.bkbits.net:8080/linux-2.6/diffs/net/sunrpc/auth.c@1.4?nav=index.html|src/|src/net|src/net/sunrpc|hist/net/sunrpc/auth.c
-> 
-> Here is a patch to get rid of them (compile tested only).
->...
+On Mon, 2005-01-10 at 23:05 +0100, Jesper Juhl wrote:
+> The email address for Olaf Kirch listed in net/sunrpc/auth.c bounces, so 
+> remove it and leave just the name. He's listed with the same email in 
+> CREDITS, should the address stay or would a patch to remove it there as 
+> well be appreciated?  I've been unable to find a working address for him 
+> (if someone knows of one, then changing the address would probably be 
+> better), and it doesn't seem logical to keep bouncing addresses around.  
+> What's the general opinion on this?
 
-Doesn't this break with CONFIG_SYSCTL=y?
+okir at suse.de
 
-cu
-Adrian
+	Robert Love
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

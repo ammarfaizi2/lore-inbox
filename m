@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUCMHru (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 02:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCMHru
+	id S262420AbUCMIPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 03:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbUCMIPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 02:47:50 -0500
-Received: from [64.62.253.241] ([64.62.253.241]:64785 "EHLO staidm.org")
-	by vger.kernel.org with ESMTP id S262329AbUCMHrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 02:47:49 -0500
-Date: Fri, 12 Mar 2004 23:49:35 -0800
-From: Bryan Rittmeyer <bryan@staidm.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] ppc32 copy_to_user dcbt fixup
-Message-ID: <20040313074934.GA15019@staidm.org>
-References: <20040313041547.GB11512@staidm.org> <1079153403.2348.82.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079153403.2348.82.camel@gaston>
-User-Agent: Mutt/1.3.28i
+	Sat, 13 Mar 2004 03:15:21 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:25099 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id S262420AbUCMIPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 03:15:19 -0500
+Date: Sat, 13 Mar 2004 09:14:49 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.local
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Adam Sampson <azz@us-lot.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: smbfs Oops with Linux 2.6.3
+In-Reply-To: <Pine.LNX.4.58.0403111928250.29087@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44.0403130902160.32093-100000@cola.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 03:50:03PM +1100, Benjamin Herrenschmidt wrote:
-> It would be wise to make the dcbz as long as possible in "advance"
-> before the actual write to the cache line.
+On Fri, 12 Mar 2004, Zwane Mwaikambo wrote:
 
-I guess we could try "pre-dcbz" ala the dcbt prefetch code.
-Even dcbz right before stw is probably cheaper than RAM
-loading data that will be totally overwritten. It's hard to
-lose eliminating bus I/O (especially reads).
+> > The difference must be that in a the inode data for the root inode is not
+> > considered current when the second ls runs, but I don't understand why the
+> > readdir is printed before the getattr.
+> 
+> I don't understand why to expect the getattr before the readdir, perhaps
+> you can elaborate for me?
 
-Any comments on the dcbt prefetch patch?
+smb_readdir
+  smb_revalidate_inode
+    smb_refresh_inode
+      smb_proc_getattr
+        server->ops->getattr
+  server->ops->readdir
 
--Bryan
+
+The first ls should find the inode out-of-date (smb_readdir probably isn't 
+the first call, but that doesn't matter) because it is the first user.
+The second ls is run shortly after and should find the inode to be 
+up-to-date.
+
+I'm not sure it is important at all, it just wasn't what I expected.
+
+/Urban
 

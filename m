@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUHCIJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUHCIMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUHCIJN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 04:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUHCIJN
+	id S265230AbUHCIMp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 04:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHCIMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 04:09:13 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:62925
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S265139AbUHCIJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 04:09:02 -0400
-Message-ID: <410F481C.9090408@bio.ifi.lmu.de>
-Date: Tue, 03 Aug 2004 10:09:00 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NFS-mounted, read-only /dev unusable in 2.6 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 04:12:45 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:18670 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S265230AbUHCIMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 04:12:34 -0400
+Date: Tue, 3 Aug 2004 10:11:34 +0200
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
+Message-ID: <20040803081134.GA13745@gamma.logic.tuwien.ac.at>
+References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at> <200408021003.42090.david-b@pacbell.net> <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi David, hi lists!
 
-we boot diskless clients using nfsroot. The server exports
-its own / with "ro,no_root_squash" and the clients mount it via
-the nfsroot parameter. Then I run my own init script to mount
-client specific /dev, /var, /etc all rw.
+(Taking Andrew and Dmitry off private email, this concerns only usb I
+guess)
 
-In this scenario, the 2.6.7 kernel fails to open an initial
-console, since /dev is ro.
+On Mon, 02 Aug 2004, preining wrote:
+> > > - USB deadlocking
+> > >   USB is still deadlocky, quite often process hang in D+ state.
+> > 
+> > So what does alt-sysrq-t show you about those processes?
 
-The 2.4 kernel was able to open an initial console, and
-I could also echo sth. explicitely to /dev/console, even
-when it was still the ro-mounted fs from the server.
+Ok, I turned off hotplug, started it by hand and found what is making
+the troubles:
 
-With the 2.6.7 kernel, this will fail with "permission denied",
-and that's why the kernel cannot open an initial console.
-It will go on silently until I mount the client-specific
-/dev in my init script and redirect all output.
+First, it is cups, when trying the backend usb/canon/epson accessing the
+usb subsystem. So I turned this of.
 
-Similar, using /dev/ram0 for creating an initial ramdisk
-will fail when / is mounted ro from the server, and server
-and client use both kernel 2.6.7. If the client runs
-2.4, it is possible...
+Then I tried lsusb, which hang, here is what sysrq-t says:
+lsusb         D C0158CDC     0  3942   3849                     (NOTLB)
+d648cef4 00200086 c1621800 c0158cdc 00000000 08088000 d39ce300 00000001 
+       6e50f578 00000028 d427a7f4 df4cf824 00200296 d648c000 d427a650 c02d3f5f 
+       df4cf82c 00000001 d427a650 c0118cf9 df4cf82c df4cf82c d687fd40 e08e0798 
+Call Trace:
+ [<c0158cdc>] link_path_walk+0xa1f/0xd4e
+ [<c02d3f5f>] __down+0x8b/0x116
+ [<c0118cf9>] default_wake_function+0x0/0xc
+ [<e08e0798>] usbdev_open+0x54/0xfa [usbcore]
+ [<c02d4144>] __down_failed+0x8/0xc
+ [<e08e26ba>] .text.lock.devio+0x5/0xff [usbcore]
+ [<c014ba8b>] filp_open+0x4c/0x4e
+ [<c014c62d>] vfs_read+0xa9/0xf5
+ [<c014c846>] sys_read+0x38/0x59
+ [<c0105e4f>] syscall_call+0x7/0xb
 
-Is that change between 2.4 and 2.6 desired or a bug? It sounds
-correct that one cannot use a node "/dev/console" for writing
-if it is mounted read-only from a NFS server, but it was very
-useful in 2.4.
+Does this help you. lsusb is in D+ state.
 
-Or is there any other way to get an initial console or
-output any messages from an init script if one boots via nfsroot
-and  / (and thus, /dev) is only exported read-only from the
-server?
+SOmething similar happened when I tried to remove usbhid, or anything
+else related to usb.
 
-I need that to get possible error messages from my own init
-script to see what fails before I mount the client /dev.
+Best wishes
 
-cu,
-Frank
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+Norbert
 
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+HOGGESTON (n.)
+The action of overshaking a pair of dice in a cup in the mistaken
+belief that this will affect the eventual outcome in your favour and
+not irritate everyone else.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRIQRPG>; Mon, 17 Sep 2001 13:15:06 -0400
+	id <S271910AbRIQRT0>; Mon, 17 Sep 2001 13:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271918AbRIQRO4>; Mon, 17 Sep 2001 13:14:56 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:47623 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S271906AbRIQROt>; Mon, 17 Sep 2001 13:14:49 -0400
-Message-ID: <3BA62FA0.F9700EFE@zip.com.au>
-Date: Mon, 17 Sep 2001 10:15:12 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
-X-Accept-Language: en
+	id <S271921AbRIQRTR>; Mon, 17 Sep 2001 13:19:17 -0400
+Received: from mailhost.opengroup.fr ([62.160.165.1]:20874 "EHLO
+	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
+	id <S271911AbRIQRTL>; Mon, 17 Sep 2001 13:19:11 -0400
+Date: Mon, 17 Sep 2001 19:19:31 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+To: Dave Jones <davej@suse.de>
+cc: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
+Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
+In-Reply-To: <Pine.LNX.4.30.0109171821340.27689-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.31.0109171912000.26090-100000@sisley.ri.silicomp.fr>
 MIME-Version: 1.0
-To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-CC: Juan <piernas@ditec.um.es>, linux-kernel@vger.kernel.org
-Subject: Re: Ext3 journal on its own device?
-In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es> <E15j19N-0006Gh-00@mrvdom03.schlund.de> <3BA62575.E14C5808@ditec.um.es>,
-		<3BA62575.E14C5808@ditec.um.es> <E15j1RG-00082a-00@mrvdom03.schlund.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger wrote:
-> 
-> > But the problem is that I need to use Linux 2.2.19, and the latest Ext3
-> > version for that kernel is 0.0.7a, isn't it?.
-> 
-> good point. I am not sure if ext3 is still maintained for linux 2.2, but I
-> doubt it. Andrew or Stephen should be able to answer this question.
+On Mon, 17 Sep 2001, Dave Jones wrote:
 
-Stephen is actively maintaining ext3 for the 2.2 kernels, but
-it is definitely in "maintenance mode".
+> On Mon, 17 Sep 2001, Jean-Marc Saffroy wrote:
+>
+> > What is the intent behind this "rep;nop" ? Does it really rely on an
+> > undocumented behaviour ?
+>
+> Its used to stop Pentium 4's from cooking themselves.
+> See the P4 manuals for more info.
 
-> But with 0.0.7a it is not possible to have an external journal.
-> 
+Ok, I found it: actually it is the PAUSE opcode in the P4 instruction set,
+and the doc for PAUSE mentions that it is equivalent to a NOP on older
+IA-32 processors.
 
-That's true.
+So no black magic here, except that "rep;nop" is a bit misleading, since
+the Intel docs for REP and NOP do not mention PAUSE...
 
--
+Thanks all for you help.
+
+
+Regards,
+
+-- 
+Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
+mailto:saffroy@ri.silicomp.fr
+

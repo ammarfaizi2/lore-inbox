@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUGKVwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUGKWIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUGKVwE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 17:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGKVwE
+	id S266613AbUGKWIL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 18:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUGKWIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 17:52:04 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:53774 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S266590AbUGKVwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 17:52:01 -0400
-Date: Sun, 11 Jul 2004 23:54:46 +0200
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS: how to NOT null files on fsck?
-Message-ID: <20040711215446.GA21443@hh.idb.hist.no>
-References: <20040710184357.GA5014@taniwha.stupidest.org> <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net>
-User-Agent: Mutt/1.5.6+20040523i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sun, 11 Jul 2004 18:08:11 -0400
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:47439 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S266613AbUGKWIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 18:08:09 -0400
+Message-ID: <40F1BA46.9000207@blueyonder.co.uk>
+Date: Sun, 11 Jul 2004 23:08:06 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.x Scheduler, preemption and responsiveness - puzzlement 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Jul 2004 22:08:25.0545 (UTC) FILETIME=[9676FB90:01C46793]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 11:24:53PM +0200, Bernd Eckenfels wrote:
-> In article <20040710184357.GA5014@taniwha.stupidest.org> you wrote:
-> > No, that's not the case.  Normally when files are written the data
-> > isn't not flushed immediately, it sits in memory (the page-cache) for
-> > some (usually) small amount of time.
-> 
-> Does that mean, that closing a tempfile and then renaming  the file is not 
-> a reliable way to tell, that the data  is persited? I usually use a atomic
-> rename to have a point from which on I can tell if the data is complete
-> and persisted.
-> 
-> I thought close() has  fsync() semantics?
-> 
-No, it doesn't.
+With the 2.6 kernel I expected that my boxes would be responsive under 
+heavy loads such as exacted by updatedb. What I'm finding is that when 
+updatedb and other heavy hitters are running, I'm often unable to switch 
+desktops or start other tasks. I'm currently using 2.6.7-mm1, but this 
+has been true for all 2.6 kernels. I have CONFIG_PREEMPT=y, 
+/proc/sys/kernel/kernel_preemption doesn't exist.
+SuSE 9.1, Athlon XP2800+, 512M.
+Regards
+Sid.
 
-close() will flush the C library buffer.  That means the data
-moves from theose buffers to the pagacache. The program crashing
-after that will have no effect on the file.  It can still
-be lost if the _kernel_ crashes though.
-If you want the pagecache flushed to disk, use fsync (or sync)
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+===== LINUX ONLY USED HERE =====
 
-Helge Hafting

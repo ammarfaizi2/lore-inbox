@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276477AbRKAALy>; Wed, 31 Oct 2001 19:11:54 -0500
+	id <S276424AbRKAALy>; Wed, 31 Oct 2001 19:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276429AbRKAALf>; Wed, 31 Oct 2001 19:11:35 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:10760 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S276424AbRKAALY>; Wed, 31 Oct 2001 19:11:24 -0500
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: Ville Herva <vherva@niksula.hut.fi>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Need blocking /dev/null
-In-Reply-To: <Pine.LNX.4.21.0110312256030.28028-100000@Consulate.UFP.CX>
-From: Doug McNaught <doug@wireboard.com>
-Date: 31 Oct 2001 19:11:47 -0500
-In-Reply-To: Riley Williams's message of "Wed, 31 Oct 2001 23:13:22 +0000 (GMT)"
-Message-ID: <m31yjjz6ws.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+	id <S276477AbRKAALf>; Wed, 31 Oct 2001 19:11:35 -0500
+Received: from pc-62-31-92-167-az.blueyonder.co.uk ([62.31.92.167]:58863 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S276429AbRKAALZ>; Wed, 31 Oct 2001 19:11:25 -0500
+Date: Thu, 1 Nov 2001 00:10:54 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Cort Dougan <cort@fsmlabs.com>, Craig Milo Rogers <rogers@ISI.EDU>,
+        Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        Timur Tabi <ttabi@interactivesi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Module Licensing?
+Message-ID: <20011101001054.B9542@kushida.jlokier.co.uk>
+In-Reply-To: <20011031092228.J1506@work.bitmover.com> <4986.1004558101@ISI.EDU> <20011031144244.R607@ftsoj.fsmlabs.com> <20011031234707.A9542@kushida.jlokier.co.uk> <20011031155447.R1506@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011031155447.R1506@work.bitmover.com>; from lm@bitmover.com on Wed, Oct 31, 2001 at 03:54:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams <rhw@MemAlpha.cx> writes:
-
-> Are you sure?
+Larry McVoy wrote:
+> On Wed, Oct 31, 2001 at 11:47:07PM +0000, Jamie Lokier wrote:
+> > But if you take that strict interpretation, you have _no_ right to copy
+> > or distribute the object module anyway, except as granted by the license
+> > on the accompanying source code.
 > 
-> > find / -name "wanted-but-lost-download" | eat
-> 
-> Doesn't work - you're piping the stdin there, not stderr as per my
-> example above. AFAIK, there's no way to pipe stderr without also piping
-> stdout, hence this sort of solution just doesn't work.
+> Right you are, but this is trivial to circumvent if you are trying to ship
+> a binary driver.  The binary doesn't have GPLed code, you are shipping two
+> things which are not combined when they were shipped, the end user combines
+> them when running them.
 
-The Bourne shell is more perverse than you realize:
+Indeed, the very old, never resolved, "user does the link" argument again.
 
-$ exec 3>&1; find / -name "wanted-but-lost-download" 2>&1 1>&3 3>&- | eat
+I honestly don't know what a court of law would decide on that.  It may
+well be different in different jurisdictions.
 
-[stolen from "Csh Programming Considered Harmful" by Tom Christiansen]
-
-Horrible, but does work.  ;) 
-
-> > zerofill | head -c 1440k > /tmp/floppy.img
-> 
-> How does zerofill know when to stop writing zeros out?
-
-Easy, it gets EPIPE on the write (or gets killed by SIGPIPE if it's
-stupid). 
-
-> > ssh foo@bar | block
-> 
-> Which of my examples is this an equivalent to? I don't recognise it.
-
-None; he's referring to the /dev/block example that started the
-thread.
-
-I'm still happy to keep /dev/null and /dev/zero.  ;)
-
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+-- Jamie

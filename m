@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287376AbSALTku>; Sat, 12 Jan 2002 14:40:50 -0500
+	id <S287381AbSALT7d>; Sat, 12 Jan 2002 14:59:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287342AbSALTkk>; Sat, 12 Jan 2002 14:40:40 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:45830 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S285166AbSALTkc>;
-	Sat, 12 Jan 2002 14:40:32 -0500
-Date: Sat, 12 Jan 2002 12:36:04 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020112123604.C6034@hq.fsmlabs.com>
-In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu> <1010863588.2007.34.camel@phantasy>
+	id <S287386AbSALT7X>; Sat, 12 Jan 2002 14:59:23 -0500
+Received: from zero.tech9.net ([209.61.188.187]:44048 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287381AbSALT7Q>;
+	Sat, 12 Jan 2002 14:59:16 -0500
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+From: Robert Love <rml@tech9.net>
+To: timothy.covell@ashavan.org
+Cc: =?ISO-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>, mingo@elte.hu,
+        Mike Kravetz <kravetz@us.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <200201121630.g0CGU5Sr006966@svr3.applink.net>
+In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
+	<200201112150.g0BLoESr004177@svr3.applink.net>
+	<1010814327.2018.5.camel@phantasy> 
+	<200201121630.g0CGU5Sr006966@svr3.applink.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 12 Jan 2002 15:00:44 -0500
+Message-Id: <1010865650.2152.38.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1010863588.2007.34.camel@phantasy>; from rml@tech9.net on Sat, Jan 12, 2002 at 02:26:27PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 02:26:27PM -0500, Robert Love wrote:
-> On Sat, 2002-01-12 at 13:54, Alan Cox wrote:
-> > Another example is in the network drivers. The 8390 core for one example
-> > carefully disables an IRQ on the card so that it can avoid spinlocking on 
-> > uniprocessor boxes.
-> > 
-> > So with pre-empt this happens
-> > 
-> > 	driver magic
-> > 	disable_irq(dev->irq)
-> > PRE-EMPT:
-> > 	[large periods of time running other code]
-> > PRE-EMPT:
-> > 	We get back and we've missed 300 packets, the serial port sharing
-> > 	the IRQ has dropped our internet connection completely.
-> 
-> We don't preempt while IRQ are disabled.
+On Sat, 2002-01-12 at 11:26, Timothy Covell wrote:
 
-You read the mask map? and somehow figure out which masked irqs correspond to 
-active devices?
+> That's the million dollar question.   I was just concerned that if that
+> were to be implemented in a production kernel, then lots of admins
+> would be confused.
 
-> 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It is in 2.5.  Let's agree if it is or is not a problem, and then find a
+solution.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+	Robert Love
 

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267318AbSLRSzb>; Wed, 18 Dec 2002 13:55:31 -0500
+	id <S267336AbSLRTAQ>; Wed, 18 Dec 2002 14:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbSLRSza>; Wed, 18 Dec 2002 13:55:30 -0500
-Received: from auto-matic.ca ([216.209.85.42]:29200 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267318AbSLRSz3>;
-	Wed, 18 Dec 2002 13:55:29 -0500
-Date: Wed, 18 Dec 2002 14:12:07 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S267334AbSLRTAQ>; Wed, 18 Dec 2002 14:00:16 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:35325 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S267344AbSLRS7o>; Wed, 18 Dec 2002 13:59:44 -0500
+Message-Id: <200212181907.gBIJ7XP12936@unix-os.sc.intel.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: mgross <mgross@unix-os.sc.intel.com>
+Reply-To: mgross@unix-os.sc.intel.com
+Organization: SSG Intel
+To: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Multithreaded coredump patch where?
+Date: Wed, 18 Dec 2002 08:13:25 -0800
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021218191207.GA21147@mark.mielke.cc>
-References: <sneakums@zork.net> <6u4r9bsakz.fsf@zork.zork.net> <200212181410.gBIEAod6027746@pincoya.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212181410.gBIEAod6027746@pincoya.inf.utfsm.cl>
-User-Agent: Mutt/1.4i
+References: <5.2.0.9.0.20021216182325.042a2b60@mail.isolaweb.it> <5.2.0.9.0.20021217105617.00aa31e0@mail.isolaweb.it>
+In-Reply-To: <5.2.0.9.0.20021217105617.00aa31e0@mail.isolaweb.it>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 11:10:50AM -0300, Horst von Brand wrote:
-> Sean Neakums <sneakums@zork.net> said:
-> > How are system calls a new feature?  Or is optimizing an existing
-> > feature not allowed by your definition of "feature freeze"?
-> This "optimizing" is very much userspace-visible, and a radical change in
-> an interface this fundamental counts as a new feature in my book.
+On Tuesday 17 December 2002 03:05 am, Roberto Fichera wrote:
+> >I haven't rebased the patches I posted back in June for a while now.
+> >
+> >Attached is the patch I posted for the 2.4.18 vanilla kernel.  Its a bit
+> >controversial, but it seems to work for a number of folks.  Let me know if
+> >you have any troubles re-basing it.
+>
+> Only one hunk failed on include/asm-ia64/elf.h but fixed by hand.
+> Why do you say a bit controversial ? One difference that I have
+> notice is in coredump size after your patch. However seem to be
+> working well for now. I'll try later on a SMP machine.
 
-Since operating systems like WIN32 are at least published to take
-advantage of SYSENTER, it may not be in Linux's interest to
-purposefully use a slower interface until 2.8 (how long will that be
-until people can use?). The last thing I want to read about in a
-technical journal is how WIN32 has lower system call overhead than
-Linux on IA-32 architectures. That might just be selfish of me for
-the Linux community... :-)
+There are 2 issues with this implementation that will likely not effect you.
 
-mark
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+First, when dumping core of MT applications with LOTS of threads the pthread 
+library signals all the threads in the  application to exit.  Sometimes 
+the process that is dumping core fails to suspend other threads in the 
+application before some exit.  The result of this is that for such 
+applications you will not see them in the core file.  
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+You have to work at it to see this failure.  The way I reproduce this is to 
+run a test application with about 555 pthread threads in it and send it a 
+sig_quit.  When I look at the core file wont have all 555 threads.  SMP makes 
+this effect a bit more noticeable.
 
-                           http://mark.mielke.cc/
+Ingo's design to fix this change the exit path for thread to wait for the 
+core file to get dumped before finishing the process clean up.  I like this 
+approach, I just wish I thought of it ;)
+
+Second, the controversial issue is in the way my design pauses the other 
+threads in the MT application.  Its not semaphore lock safe.  Although no 
+instance of the following failure has been seen, it is possible with new 
+kernel code.
+
+If one of the processes in the MT application is currently holding semaphore 
+lock when the dumping process pauses it, AND the dumping process does any 
+blocking operation that could attempt to grab this same semaphore, THEN the 
+core dump will deadlock.  Boom.
+
+My patch is good for developers, pending the back port of Ingo's version.
+
+Do let me know how it works out for you.
+
+--mgross
 

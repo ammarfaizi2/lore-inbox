@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUIBRv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268222AbUIBRz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268179AbUIBRv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 13:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268169AbUIBRuy
+	id S268222AbUIBRz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 13:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUIBRvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 13:50:54 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:64994 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268065AbUIBRuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 13:50:07 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Ingo Molnar <mingo@elte.hu>, Takashi Iwai <tiwai@suse.de>,
-       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>
-In-Reply-To: <Pine.LNX.4.58.0409021859070.2498@d74.suse.de>
-References: <OF923A124A.1D8E364E-ON86256F01.0053F7B2-86256F01.0053F7D7@raytheon.com>
-	 <1093972819.5403.8.camel@krustophenia.net>
-	 <1093975773.5403.21.camel@krustophenia.net> <s5hk6vfywab.wl@alsa2.suse.de>
-	 <20040831185656.GA27854@elte.hu>
-	 <Pine.LNX.4.58.0409021859070.2498@d74.suse.de>
-Content-Type: text/plain
-Message-Id: <1094147410.11364.51.camel@krustophenia.net>
+	Thu, 2 Sep 2004 13:51:54 -0400
+Received: from verein.lst.de ([213.95.11.210]:6567 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268030AbUIBRu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 13:50:58 -0400
+Date: Thu, 2 Sep 2004 19:50:34 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902175034.GA18861@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jamie Lokier <jamie@shareable.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Adrian Bunk <bunk@fs.tum.de>, Hans Reiser <reiser@namesys.com>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 13:50:11 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 12:59, Jaroslav Kysela wrote:
-> On Tue, 31 Aug 2004, Ingo Molnar wrote:
-> 
-> > > > Ugh.  Please remove alsa-devel from any followups, as they seem to have
-> > > > inadvertently enabled moderation.
-> > > 
-> > > IIRC, recently the moderation was disabled, so this should be no
-> > > longer problem.
+On Thu, Sep 02, 2004 at 10:46:32AM -0700, Linus Torvalds wrote:
+> > On Mer, 2004-09-01 at 21:50, Linus Torvalds wrote:
+> > > and quite frankly, I think you can do the above pretty much totally in
+> > > user space with a small library and a daemon (in fact, ignoring security
+> > > issues you probably don't even need the daemon). And if you can prototype
+> > > it like that, and people actually find it useful, I suspect kernel support
+> > > for better performance might be possible.
 > > 
-> > FYI, i still got 'your mail awaits moderation' messages just 2 minutes
-> > ago.
+> > Gnome already supports this in the gnome-vfs2 layer. "MC" has supported
+> > it since the late 1990's.
 > 
-> Sorry, still one button was checked wrongly. Now it's definitely 
-> corrected.
+> And nobody has asked for kernel support that I know of.
 > 
+> So either "it just works" in user space, or people haven't figured out the 
+> kernel could help them. Or decided it's not worth it, exactly because 
+> they'd still have to support systems/filesystems that can't be converted.
 
-Can you please approve all the messages that are awaiting moderator
-approval now?  I have not received a message from alsa-devel since
-Tuesday afternoon.
-
-Lee
-
+http://oss.oracle.com/projects/userfs/ has code that clues gnomevfs onto
+a kernel filesystem.  The code is horrible, but it shows that it can
+be done.

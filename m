@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264060AbTE3XkI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 19:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264068AbTE3XkI
+	id S264075AbTEaACa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 20:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTEaACa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 19:40:08 -0400
-Received: from dp.samba.org ([66.70.73.150]:15778 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264060AbTE3XkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 19:40:05 -0400
-Date: Sat, 31 May 2003 09:52:34 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Vasquez <praka@san.rr.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b3).
-Message-ID: <20030530235234.GA31401@krispykreme>
-References: <20030530160040.GA11238@praka.local.home>
+	Fri, 30 May 2003 20:02:30 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19379 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264075AbTEaAC3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 20:02:29 -0400
+Date: Fri, 30 May 2003 17:14:10 -0700 (PDT)
+Message-Id: <20030530.171410.104043496.davem@redhat.com>
+To: joern@wohnheim.fh-wedel.de
+Cc: jmorris@intercode.com.au, dwmw2@infradead.org,
+       matsunaga_kazuhisa@yahoo.co.jp, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030530174319.GA16687@wohnheim.fh-wedel.de>
+References: <20030530144959.GA4736@wohnheim.fh-wedel.de>
+	<Mutt.LNX.4.44.0305310101550.30969-100000@excalibur.intercode.com.au>
+	<20030530174319.GA16687@wohnheim.fh-wedel.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030530160040.GA11238@praka.local.home>
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+   From: Jörn Engel <joern@wohnheim.fh-wedel.de>
+   Date: Fri, 30 May 2003 19:43:19 +0200
+   
+   What contention were you talking about? :)
 
-> A new version of the 8.x series driver for Linux 2.5.x kernels has
-> been uploaded to SourceForge:
-> 
-> 	http://sourceforge.net/projects/linux-qla2xxx/
+Actually, your idea is interesting.  Are you going to use
+per-cpu workspaces?
 
-A few suggestions:
+I think the best scheme is 2 per-cpu workspaces, one for
+normal and one for softirq context.
 
-- Use pci_set_mwi since it will set the cacheline size if necessary.
-- Dont set/clear IO/MEMORY/MASTER, it should be handled in
-  pci_enable_device/pci_set_master.
-
-Anton
-
---- qla_init.c~	2003-05-31 09:18:31.000000000 +1000
-+++ qla_init.c	2003-05-31 09:21:16.000000000 +1000
-@@ -521,6 +521,7 @@
- 	 * default.
- 	 */
- 	pci_set_master(ha->pdev);
-+	pci_set_mwi(ha->pdev);
- 	pci_read_config_word(ha->pdev, PCI_REVISION_ID, &ha->revision);
- 
- 	if (!ha->iobase)
-@@ -532,18 +533,7 @@
- 	 * interest to us are properly set in command register.
- 	 */
- 	pci_read_config_word(ha->pdev, PCI_COMMAND, &w);
--	w |= (PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER | 
--	    PCI_COMMAND_INVALIDATE | PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
--
--#if MEMORY_MAPPED_IO
--	DEBUG(printk("scsi(%ld): I/O SPACE and MEMORY MAPPED I/O enabled.\n",
--	    ha->host_no));
--#else
--	DEBUG(printk("scsi(%ld): I/O SPACE enabled and MEMORY MAPPED I/O "
--	    "disabled.\n", ha->host_no));
--
--	w &= ~PCI_COMMAND_MEMORY;
--#endif
-+	w |= (PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
- 
- #if defined(ISP2300)
- 	/* PCI Specification Revision 2.3 changes */
+No locking needed whatsoever.  I hope it can work :-)

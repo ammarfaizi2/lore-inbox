@@ -1,69 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264830AbSJVTza>; Tue, 22 Oct 2002 15:55:30 -0400
+	id <S261766AbSJVUGt>; Tue, 22 Oct 2002 16:06:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264833AbSJVTza>; Tue, 22 Oct 2002 15:55:30 -0400
-Received: from pacman.mweb.co.za ([196.2.45.77]:25287 "EHLO pacman.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S264830AbSJVTz0>;
-	Tue, 22 Oct 2002 15:55:26 -0400
-From: Bongani <bhlope@mweb.co.za>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [Patch] 2.5.44 Stop bttv_driver.c from flooding /var/log/messages
-Date: Tue, 22 Oct 2002 22:02:22 +0200
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_O7at9uFUAOZsNAx"
-Message-Id: <200210222202.22801.bhlope@mweb.co.za>
+	id <S264813AbSJVUGt>; Tue, 22 Oct 2002 16:06:49 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63674 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261766AbSJVUGr>; Tue, 22 Oct 2002 16:06:47 -0400
+Subject: Re: I386 cli
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Grothe <dave@gcom.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20021022145759.02861ec8@localhost>
+References: <5.1.0.14.2.20021022145759.02861ec8@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 21:29:11 +0100
+Message-Id: <1035318551.31873.143.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-10-22 at 21:01, David Grothe wrote:
+> In 2.5.41every architecture except Intel 386 has a "#define cli 
+> <something>" in its asm-arch/system.h file.  Is there supposed to be such a 
+> define in asm-i386/system.h?  If not, where does the "official" definition 
+> of cli() live for Intel?  Or what is the include file that one needs to 
+> pick it up?  I can't find it.
 
---Boundary-00=_O7at9uFUAOZsNAx
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-
-Hi Alan
-
-I have sent this patch to Gerd and I did not get any reply from him, so...
-The bttv drivers are/were filling up my /var/log/messages file with the
-following output
-
-Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
-mux=1/1 irq=yes
-Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
-mux=4/1 irq=yes
-
-(Which seems to repeat three times a second for three seconds and waits 7 
-second before printing the message again)
-
-The following patch quites them down.
-
-Thanx
-
---Boundary-00=_O7at9uFUAOZsNAx
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="bttv.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="bttv.patch"
-
---- linux-2.5/drivers/media/video/bttv-driver.c.old	2002-10-21 00:08:50.000000000 +0200
-+++ linux-2.5/drivers/media/video/bttv-driver.c	2002-10-21 00:09:17.000000000 +0200
-@@ -813,7 +813,7 @@
- 	i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
- 	if (btv->opt_automute && !signal && !btv->radio_user)
- 		mux = AUDIO_OFF;
--	printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
-+	dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
- 	       btv->nr, mode, btv->audio, signal ? "yes" : "no",
- 	       mux, i2c_mux, in_interrupt() ? "yes" : "no");
- 
-
---Boundary-00=_O7at9uFUAOZsNAx--
+The old style cli/global irq lock stuff has been exterminated. There is
+no direct equivalent any more. 
 

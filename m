@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265012AbTAJOWy>; Fri, 10 Jan 2003 09:22:54 -0500
+	id <S265177AbTAJOZw>; Fri, 10 Jan 2003 09:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTAJOWy>; Fri, 10 Jan 2003 09:22:54 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26002
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265012AbTAJOWx>; Fri, 10 Jan 2003 09:22:53 -0500
-Subject: Re: Linux 2.4.21pre3-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030110141729.GA31123@charite.de>
-References: <200301090139.h091d9G26412@devserv.devel.redhat.com>
-	 <20030110094504.GM25979@charite.de>
-	 <1042200029.28469.55.camel@irongate.swansea.linux.org.uk>
-	 <20030110111547.GB18007@charite.de> <20030110133028.GB12071@charite.de>
-	 <20030110141729.GA31123@charite.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042211870.31612.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 15:17:51 +0000
+	id <S265190AbTAJOZw>; Fri, 10 Jan 2003 09:25:52 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:18522 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S265177AbTAJOZu>; Fri, 10 Jan 2003 09:25:50 -0500
+Date: Fri, 10 Jan 2003 15:34:29 +0100 (CET)
+From: Rui Sousa <rui.sousa@laposte.net>
+X-X-Sender: rsousa@sophia-sousar2.nice.mindspeed.com
+To: Joshua Stewart <joshua.stewart@comcast.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux network development <netdev@oss.sgi.com>
+Subject: Re: Pushing a stray sk_buff to the NIC
+In-Reply-To: <1042161058.6107.18.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301101512140.2312-100000@sophia-sousar2.nice.mindspeed.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 14:17, Ralf Hildebrandt wrote:
-> * Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+On Thu, 9 Jan 2003, Joshua Stewart wrote:
+
+Hi,
+
+> I'm trying to take "hand-built" sk_buffs with little more than some data
+> and a dev member and push them to the NIC for transmission.  I would
+> like to simply give them to dev_queue_xmit.  Does anybody know what
+> state I should have them in before handing them to dev_queue_xmit? 
+
+In a driver I wrote I setup (for a newly allocated skb and a 2.4 kernel):
+
+	some_header = (struct some_header *) skb_push(skb, sizeof(struct some_header));
+
+	skb->nh.raw = (unsigned char *) some_header;
+
+	this_eth_hdr = (struct ethhdr *) skb_push(skb, ETH_HLEN);
+
+	this_eth_hdr->h_proto = __constant_htons(ETH_P_SOME_HEADER);
+	memcpy(this_eth_hdr->h_source, dev->dev_addr, ETH_ALEN);
+
+	skb->dev = dev;
+        skb->protocol = __constant_htons(ETH_P_CSM_ENCAPS);
+
+	dev_queue_xmit(skb);
+
+where some_header for you is probably an IP header and dev is the "struct 
+net_device" of the device you are using to send the packet out on the 
+wire.
+
+> Should skb->data point to the start of a MAC header or an IP header?
+
+MAC
+ 
+> Also, given an IP address in skb->nh.iph->daddr, what's the easiest way
+> to get the appropriate MAC address?
+
+First you need to get the device, then the MAC address is easy. This 
+should be what normal IP routing code does...
+
+> J
 > 
-> > Backing out of mm/shmem.c makess thee bug disappear.
 > 
-> Not really. I rebooted and then the ac2 crashed DURING a fsck that was
-> caused by reaching the maximum mount count.
-> I'm outta here and back to 2.4.21pre3 :)
 
-Curious indeed. I guess we'll find the problem when I submit the
-troublesome change to Marcelo 8). I'll look at that keyboard
-fix, that seems a fairly sane workaround. Next stop is zapping
-the other bits of journal related stuff and checking network
-card fixup corner cases - what ethernet do you have btw ?
+Rui
 
-
-Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

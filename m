@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268514AbUHLLfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268516AbUHLLrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268514AbUHLLfV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 07:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268513AbUHLLfV
+	id S268516AbUHLLrr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 07:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268517AbUHLLrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 07:35:21 -0400
-Received: from gprs214-235.eurotel.cz ([160.218.214.235]:8837 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268514AbUHLLfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 07:35:12 -0400
-Date: Thu, 12 Aug 2004 13:34:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, davej@redhat.com
-Subject: Typo fixes for cpufreq
-Message-ID: <20040812113455.GA20373@elf.ucw.cz>
+	Thu, 12 Aug 2004 07:47:47 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:2824 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S268515AbUHLLrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 07:47:45 -0400
+Date: Thu, 12 Aug 2004 13:34:13 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Linux SATA RAID FAQ
+Message-ID: <20040812113413.GA19252@alpha.home.local>
+References: <411B0F45.8070500@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <411B0F45.8070500@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Jeff,
 
-Small typo fixes, please apply
-									Pavel
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/faq-sata-raid.html
 
---- tmp/linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-06-22 12:35:47.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2004-06-22 14:56:22.000000000 +0200
-@@ -184,7 +184,7 @@
- 		       "The speedstep_centrino module offers voltage scaling"
- 		       " in addition of frequency scaling. You should use "
- 		       "that instead of p4-clockmod, if possible.\n");
--		/* on P-4s, the TSC runs with constant frequency independent wether
-+		/* on P-4s, the TSC runs with constant frequency independent whether
- 		 * throttling is active or not. */
- 		p4clockmod_driver.flags |= CPUFREQ_CONST_LOOPS;
- 		return speedstep_get_processor_frequency(SPEEDSTEP_PROCESSOR_PM);
-@@ -195,7 +195,7 @@
- 		return 0;
- 	}
- 
--	/* on P-4s, the TSC runs with constant frequency independent wether
-+	/* on P-4s, the TSC runs with constant frequency independent whether
- 	 * throttling is active or not. */
- 	p4clockmod_driver.flags |= CPUFREQ_CONST_LOOPS;
- 
+I like it. It's fairly simple. I'm always amazed how many people do really
+believe that these cards provide hardware RAID !!! The problem is when you
+ask a reseller to add a real hardware RAID card in a system you purchase
+and you end up with a cheap silicon image... It happened to us once and it's
+not funny at all.
 
+Cheers,
+Willy
 
---- tmp/linux/arch/i386/kernel/smpboot.c	2004-06-22 12:35:47.000000000 +0200
-+++ linux/arch/i386/kernel/smpboot.c	2004-07-06 13:10:21.000000000 +0200
-@@ -17,7 +17,7 @@
-  *	Fixes
-  *		Felix Koop	:	NR_CPUS used properly
-  *		Jose Renau	:	Handle single CPU case.
-- *		Alan Cox	:	By repeated request 8) - Total BogoMIP report.
-+ *		Alan Cox	:	By repeated request 8) - Total BogoMIPS report.
-  *		Greg Wright	:	Fix for kernel stacks panic.
-  *		Erich Boleyn	:	MP v1.4 and additional changes.
-  *	Matthias Sattler	:	Changes for 2.1 kernel map.
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

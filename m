@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310488AbSCCAe2>; Sat, 2 Mar 2002 19:34:28 -0500
+	id <S310489AbSCCAjj>; Sat, 2 Mar 2002 19:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310489AbSCCAeS>; Sat, 2 Mar 2002 19:34:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16397 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S310488AbSCCAeH>; Sat, 2 Mar 2002 19:34:07 -0500
-Date: Sun, 3 Mar 2002 00:33:51 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: erich@uruk.org
-Cc: Julian Anastasov <ja@ssi.bg>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Szekeres Bela <szekeres@lhsystems.hu>,
+	id <S310490AbSCCAj2>; Sat, 2 Mar 2002 19:39:28 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:9738 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S310489AbSCCAjO>;
+	Sat, 2 Mar 2002 19:39:14 -0500
+Date: Sun, 3 Mar 2002 02:38:36 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: erich@uruk.org, Szekeres Bela <szekeres@lhsystems.hu>,
         Daniel Gryniewicz <dang@fprintf.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Network Security hole (was -> Re: arp bug )
-Message-ID: <20020303003351.B6120@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0203030035030.9147-100000@u.domain.uli> <E16hJki-0000rY-00@trillium-hollow.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16hJki-0000rY-00@trillium-hollow.org>; from erich@uruk.org on Sat, Mar 02, 2002 at 04:21:24PM -0800
+In-Reply-To: <E16hIuK-0000Mv-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0203030222540.16710-100000@u.domain.uli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 02, 2002 at 04:21:24PM -0800, erich@uruk.org wrote:
-> The fact that the routing layer and application layers of Linux's
-> TCP/IP stack are one and the same is a difficulty here which the
-> IP firewalling code in Linux does not fix.  I.e. if I wanted to
-> have routing as well, but not accept any packets internally *not*
-> destined for my interface, I'm not sure how to specify it without
-> something like TCP wrappers, as sleazy as they can be, and they
-> don't offer this kind of capability in general as is.
 
-Linux 2.4 netfilter:
+	Hello,
 
-Incoming                                                 Outgoing
-interface                                                interface
-  ----+------------------- FORWARD -----------------+------->
-      |                                             ^
-      v                                             |
-    INPUT -------------> Application -----------> OUTPUT
+On Sat, 2 Mar 2002, Alan Cox wrote:
 
-The names in capitals are the names of the tables.  You can control
-packets that the local machine sees completely independently of what
-gets routed through the machine with a kernel supporting iptables
-by adding the appropriate rules to the input and forward tables.
+> Language confusion - "if you want to make the case" = "if you want to argue
+> that a value of rp_filter = 2 should in future (after you implement it) mean
+> apply a both way rule - then I agree)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	Yes, the arp_prefsrc feature can depend on rp_filter||arp_filter
+but I prefer to keep it independent. And there is an agreement on netdev
+that all ARP filtering issues (including the problem with shared IPs
+in clusters) should be fixed by maintaining ARP hooks for universal
+filtering. Then even the arp_prefsrc feature can be implemented with
+proper rules. TODO. Until then, this is a temp solution.
+
+> Alan
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 

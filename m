@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVAOFOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAOFOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVAOFOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVAOFOS
+	id S262200AbVAOFOm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 00:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAOFOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:14:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3857 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262198AbVAOFOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:14:12 -0500
-Date: Sat, 15 Jan 2005 06:14:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Steffen Moser <lists@steffen-moser.de>, linux-kernel@vger.kernel.org,
-       David Dyck <david.dyck@fluke.com>
-Subject: Re: Linux 2.4.29-rc2
-Message-ID: <20050115051410.GD4274@stusta.de>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de> <20050114231712.GH3336@logos.cnet>
+	Sat, 15 Jan 2005 00:14:42 -0500
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:38083 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S262200AbVAOFOk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 00:14:40 -0500
+Date: Sat, 15 Jan 2005 07:14:38 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: usb key oddities with 2.6.10-ac9
+Message-ID: <20050115051438.GC8456@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050115031532.DAA6F1DC100@bromo.msbb.uc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050114231712.GH3336@logos.cnet>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050115031532.DAA6F1DC100@bromo.msbb.uc.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 09:17:12PM -0200, Marcelo Tosatti wrote:
->...
-> On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
->...
-> > [1.] One line summary of the problem: 
-> > 
-> > Kernel module "serial.o" cannot be loaded
-> > 
-> > 
-> > [2.] Full description of the problem/report:
-> > 
-> > I cannot load the module "serial.o" anymore, so I won't have serial 
-> > port support (which is needed to have the machine communicating with
-> > the UPS):
-> > 
-> >  | fsa01:~ # modprobe serial
-> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_ldisc_flush
-> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_wakeup
-> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o failed
-> >  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod serial failed
-> 
-> Steffen, 
-> 
-> Please try this:
->...
-> -EXPORT_SYMBOL_GPL(tty_wakeup);
-> +EXPORT_SYMBOL(tty_wakeup);
->...
-> -EXPORT_SYMBOL_GPL(tty_ldisc_flush);
-> +EXPORT_SYMBOL(tty_ldisc_flush);
->...
+On Fri, Jan 14, 2005 at 10:15:32PM -0500, Jack Howarth wrote:
+> Alan,
+>     I don't see any changes in how Fedora's 2.6.10 kernels are built 
+> that should effect USB hotplugging. The previous kernel I was using
+> shows...
+...
+> ps Fedora did switch with 2.6.10 from using usbdevfs to using usbfs
+> but they modified their initscripts package to handle that change.
 
-This shouldn't make any difference unless 2.4.29-rc2 contains non-GPL 
-code.
+what about this initscripts change 8.01 --> 8.03?
 
-cu
-Adrian
+-       sysctl -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
++       sysctl -w kernel.hotplug="/sbin/udevsend" >/dev/null 2>&1
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264924AbUFVXk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265095AbUFVXou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264924AbUFVXk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 19:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUFVXk6
+	id S265095AbUFVXou (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 19:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUFVXou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 19:40:58 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:33011 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S264924AbUFVXkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 19:40:49 -0400
-Message-ID: <40D8C378.5030202@ThinRope.net>
-Date: Wed, 23 Jun 2004 08:40:40 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
+	Tue, 22 Jun 2004 19:44:50 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:12935 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265095AbUFVXos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 19:44:48 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Driver Core patches for 2.6.7
+Date: Tue, 22 Jun 2004 18:44:38 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <1087926108744@kroah.com> <200406221821.02128.dtor_core@ameritech.net> <20040622233139.GF13197@kroah.com>
+In-Reply-To: <20040622233139.GF13197@kroah.com>
 MIME-Version: 1.0
-To: "H. J. Lu" <hjl@lucon.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Does parallel make work for modules?
-References: <20040622220813.GA306@lucon.org>
-In-Reply-To: <20040622220813.GA306@lucon.org>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406221844.38299.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. J. Lu wrote:
-> When building 2.6.7 on a 4way Linux/ia64, "make -j4 modules" doesn't
-> spawn 4 jobs. I got
+On Tuesday 22 June 2004 06:31 pm, Greg KH wrote:
+> On Tue, Jun 22, 2004 at 06:21:01PM -0500, Dmitry Torokhov wrote:
+> > On Tuesday 22 June 2004 12:41 pm, Greg KH wrote:
+> > 
+> > >  
+> > >  void class_unregister(struct class * cls)
+> > >  {
+> > >  	pr_debug("device class '%s': unregistering\n",cls->name);
+> > > +	remove_class_attrs(cls);
+> > >  	subsystem_unregister(&cls->subsys);
+> > >  }
+> > >  
+> > 
+> > Question: is it necessary to call remove_class_attrs? I thought that sysfs
+> > automatically destroys all children when parent is destroyed? Am I imagining
+> > things?
 > 
->  5756 pts/0    S      0:00 make -s -j4 modules
->  5868 pts/0    S      0:00 make -f scripts/Makefile.build obj=fs
->  7240 pts/0    S      0:00 make -f scripts/Makefile.build obj=fs/nfs
->  7269 pts/0    S      0:00 /bin/sh -c set -e; ?   gcc -Wp,-MD,fs/nfs/.pagelist.o. 
->  7270 pts/0    S      0:00 gcc -Wp,-MD,fs/nfs/.pagelist.o.d -nostdinc -iwithprefi
->  7271 pts/0    S      0:00 /usr/gcc-3.4/libexec/gcc/ia64-unknown-linux-gnu/3.4.1/
->  7272 pts/0    R      0:00 as -x -o fs/nfs/pagelist.o -
+> No, you aren't imagining things.  But it's considered "good form" to
+> remove them if you can, as this will probably change in 2.7, and it will
+> make my life easier trying to audit the whole tree at that time...
 > 
-> 2.4 kernel module build work fine. Any ideas?
 
--j8 (and distcc) WFM since 2.6.0 without problems. All CPUs (4+) are at almost 100% during the build.
+Is there any specific reason for such a change? I kinda like the idea of
+registering attributes and then having driver code do the bean counting
+for me.
 
-Kalin.
+Btw, is there a chance for platform_device_register_simple that I sent to
+you earlier be included?
 
 -- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
+Dmitry

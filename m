@@ -1,47 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTEQKEA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 06:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTEQKEA
+	id S261392AbTEQKR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 06:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTEQKR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 06:04:00 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40975 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261365AbTEQKD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 06:03:59 -0400
-Date: Sat, 17 May 2003 03:18:40 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: c-d.hailfinger.kernel.2003@gmx.net, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: 2.5.69-mm6: pccard oops while booting: round 2
-Message-Id: <20030517031840.486683fc.akpm@digeo.com>
-In-Reply-To: <1053166275.586.9.camel@teapot.felipe-alfaro.com>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	<20030514191735.6fe0998c.akpm@digeo.com>
-	<1052998601.726.1.camel@teapot.felipe-alfaro.com>
-	<20030515130019.B30619@flint.arm.linux.org.uk>
-	<1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	<20030515144439.A31491@flint.arm.linux.org.uk>
-	<1053037915.569.2.camel@teapot.felipe-alfaro.com>
-	<20030515160015.5dfea63f.akpm@digeo.com>
-	<1053090184.653.0.camel@teapot.felipe-alfaro.com>
-	<1053110098.648.1.camel@teapot.felipe-alfaro.com>
-	<20030516132908.62e54266.akpm@digeo.com>
-	<1053121346.569.1.camel@teapot.felipe-alfaro.com>
-	<3EC56173.1000306@gmx.net>
-	<1053166275.586.9.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 17 May 2003 06:17:56 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:59285 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S261392AbTEQKRy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 06:17:54 -0400
+Date: Sat, 17 May 2003 12:30:37 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: David Gibson <david@gibson.dropbear.id.au>, Greg KH <greg@kroah.com>,
+       Oliver Neukum <oliver@neukum.org>, LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030517103037.GA17576@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <200305170155.15295.oliver@neukum.org> <20030517000338.GA17466@kroah.com> <20030517044459.GB13827@zax> <20030517084612.GC3808@ranty.ddts.net> <20030517090705.GA16092@zax>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 May 2003 10:16:48.0369 (UTC) FILETIME=[6D0E3610:01C31C5D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030517090705.GA16092@zax>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
->
-> "oops" contains the kernel oops when booting 2.5.69-mm6 + ymfpci2.patch
->  using the above config file.
+On Sat, May 17, 2003 at 07:07:05PM +1000, David Gibson wrote:
+> On Sat, May 17, 2003 at 10:46:12AM +0200, Manuel Estrada Sainz wrote:
+> > On Sat, May 17, 2003 at 02:44:59PM +1000, David Gibson wrote:
+> > > On Fri, May 16, 2003 at 05:03:38PM -0700, Greg Kroah-Hartman wrote:
+> > > > On Sat, May 17, 2003 at 01:55:15AM +0200, Oliver Neukum wrote:
+> > > > > 
+[snip]
+> >  But in case you are doing things by hand, how about:
+> >  
+> > 	$ echo cancel > .../loading
+> > 
+> > 	or if you want to keep the content numeric:
+> > 
+> > 	$ echo -1 > .../loading
+> > 
+> >  This will also allow the regular script to just cancel the load in case
+> >  of error, like if the firmware image is not available or a read error
+> >  happened while reading it.
+> > 
+> >  I'll implement that and the other stuff that came out of Oliver's
+> >  comments later today and post the new code.
+> >  
+> > > Better to catch the close, check the length, then return the firmware
+> > > or throw the junk image away as appropriate.
+> > 
+> >  If 'loading' stays the above should fix your timeout issue, and if it
+> >  goes, yes, that is probably the way to go.
+> 
+> How about combining these two ideas: instead of "loading" and "data"
+> we have "size" and "data".  First you write the size, then the data -
+> the driver accepts it once it gets the expected number of bytes.
+> Writing a new size throws away any partial image that's there, and
+> restarts the upload.  Writing 0 cancels the upload entirely, and the
+> driver will presumably fail to initialize (or maybe use a default
+> image if it has one).
 
-Bummer.  Vital info is chopped off the top of the oops output.
+ I just thought this over. This makes more requirements for the userspace
+ scripts, they will need some way to get the size of the image: stat, or
+ ls and some crude regex.
+
+ And we can have the same effect with loading/data:
+
+ echo 1 > .../loading:
+ 	Will start a load, discarding any previous partial load.
+ echo 0 > .../loading:
+ 	Will conclude the load and handle the data to the driver code.
+ echo -1 > .../loading:
+	Will conclude the load with an error and the driver won't get
+	any firmware, failing or using firmware in some flash if
+	available.
+
+ This way, the script also won't have to check the value of 'loading'.
+
+ How does that sound?
+
+ Thanks
+
+ 	Manuel
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

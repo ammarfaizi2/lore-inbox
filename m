@@ -1,44 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270962AbUJVJaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270954AbUJVJ0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270962AbUJVJaR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270915AbUJVJ0c
+	id S270954AbUJVJ0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270877AbUJVJT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:26:32 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:60946 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S270918AbUJVJYb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:24:31 -0400
-Date: Fri, 22 Oct 2004 02:24:04 -0700
-To: Jens Axboe <axboe@suse.de>
-Cc: Bill Huey <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041022092404.GA24605@nietzsche.lynx.com>
-References: <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <20041022061901.GM32465@suse.de> <20041022085007.GA24444@nietzsche.lynx.com> <20041022085928.GK1820@suse.de> <20041022090637.GA24523@nietzsche.lynx.com> <20041022090938.GB24523@nietzsche.lynx.com> <20041022092058.GO1820@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Oct 2004 05:19:27 -0400
+Received: from smtp2.BelWue.de ([129.143.2.15]:2496 "EHLO smtp2.BelWue.DE")
+	by vger.kernel.org with ESMTP id S270913AbUJVJRt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 05:17:49 -0400
+From: Oliver Tennert <tennert@science-computing.de>
+Subject: libata and software RAID
+Date: Fri, 22 Oct 2004 11:17:44 +0200
+User-Agent: KMail/1.7
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041022092058.GO1820@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Message-Id: <200410221117.44536.tennert@science-computing.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 11:20:59AM +0200, Jens Axboe wrote:
-> I've been as clear as I know how on the matter of semaphore use in
-> Linux. I've made no comments at all on improving your deadlock
-> detection scheme.
 
-True, but "...deadlock detection breaks" is a negative comment about
-the deadlock detector without a positive suggestion to change it, is
-it not ? if so, then suggest a change to be made and it'll get
-implementated somehow.
+Hello Jeff (and others),
 
-bill
+I am currently running a 2.6.9 kernel on my system, and everything's fine,
+ but for a little issue:
+
+I have an ASUS A7N8X Deluxe board with on-board nforce2-chipset and a SiS
+S-ATA controller.
+
+Previously, my two S-ATA drives had been driven by the IDE driver, and were
+assembled to a  RAID-1 MD device (via software RAID) on them.
+
+Now, with 2.6.9, the libata driver takes over, and my md device seems no
+longer present (booting to an older 2.6.5 kernel, however, makes them visible
+again). The IDE driver seems not to probe for the S-ATA drives in the first
+hand:
+
+<dmesg>
+NFORCE2: IDE controller at PCI slot 0000:00:09.0
+NFORCE2: chipset revision 162
+NFORCE2: not 100% native mode: will probe irqs later
+NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+Probing IDE interface ide1...
+...
+...
+libata version 1.02 loaded.
+sata_sil version 0.54
+ACPI: PCI interrupt 0000:01:0b.0[A] -> GSI 18 (level, high) -> IRQ 209
+ata1: SATA max UDMA/100 cmd 0xF909A080 ctl 0xF909A08A bmdma 0xF909A000 irq
+ 209 ata2: SATA max UDMA/100 cmd 0xF909A0C0 ctl 0xF909A0CA bmdma 0xF909A008
+ irq 209 usb 1-2: new low speed USB device using address 3
+ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003
+88:207f
+ata1: dev 0 ATA, max UDMA/133, 398297088 sectors: lba48
+ata1: dev 0 configured for UDMA/100
+scsi1 : sata_sil
+ata2: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003
+88:207f
+ata2: dev 0 ATA, max UDMA/133, 490234752 sectors: lba48
+ata2: dev 0 configured for UDMA/100
+scsi2 : sata_sil
+  Vendor: ATA       Model: Maxtor 6Y200M0    Rev: YAR5
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sdc: 398297088 512-byte hdwr sectors (203928 MB)
+</dmesg>
+
+Can you tell me how I either
+a) am able to "import" the RAID-1 md device, the meta-information of which is
+now located on SCSI drives, or
+b) tell the IDE driver to probe the S-ATA bus and tell the libata driver to
+NOT drive my S-ATA drives?
+
+The other question is: libata seems to activate UDMA/100 for my S-ATA drives,
+although they are able to run with UDMA/133. "hdparm" does not work with SCSI
+drives, in this case. Can I tell libata to activate UDMA/133?
+
+Many thanks for your help and best regards
+
+Oliver Tennert
+
+__
+________________________________________creating IT solutions
+
+Dr. Oliver Tennert   science + computing ag
+phone   +49(0)7071 9457-598  Hagellocher Weg 71-75
+fax     +49(0)7071 9457-411  D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de  www.science-computing.de
+
+-------------------------------------------------------
+
+-- 
+__
+________________________________________creating IT solutions
+
+Dr. Oliver Tennert			science + computing ag
+phone   +49(0)7071 9457-598		Hagellocher Weg 71-75	
+fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de		www.science-computing.de
+
 

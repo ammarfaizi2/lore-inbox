@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286411AbSA1Kyo>; Mon, 28 Jan 2002 05:54:44 -0500
+	id <S286687AbSA1LEo>; Mon, 28 Jan 2002 06:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286687AbSA1KyZ>; Mon, 28 Jan 2002 05:54:25 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:7172 "EHLO
-	inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S286411AbSA1KyQ>; Mon, 28 Jan 2002 05:54:16 -0500
-Date: Mon, 28 Jan 2002 11:54:08 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Martin Garton <martin@wrasse.demon.co.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: sis.patch.20020123_1
-Message-ID: <20020128115408.A21844@bouton.inet6-interne.fr>
-Mail-Followup-To: Daniela Engert <dani@ngrt.de>,
-	Martin Garton <martin@wrasse.demon.co.uk>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201271412110.32403-100000@wrasse.demon.co.uk> <200201271559.QAA28129@myway.myway.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201271559.QAA28129@myway.myway.de>; from dani@ngrt.de on Sun, Jan 27, 2002 at 04:59:43PM +0100
+	id <S286723AbSA1LEf>; Mon, 28 Jan 2002 06:04:35 -0500
+Received: from dsl-213-023-043-003.arcor-ip.net ([213.23.43.3]:59008 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286687AbSA1LEa>;
+	Mon, 28 Jan 2002 06:04:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: root@chaos.analogic.com, <simon@baydel.com>
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+Date: Mon, 28 Jan 2002 12:08:49 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16V9eb-00009M-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27, 2002 at 04:59:43PM +0100, Daniela Engert wrote:
-> Your chipset cannot be detected by the surrent SiS IDE patch because it
-> takes a list based approach to find supported chips and their
-> capabilities rather than a more intelligent detection scheme (I've sent
-> Lionel code which shows how to do that).
-
-I didn't even know about SiS737 before! I guess I won't rely on SiSHostChipInfo in
-v0.14.
-I'll check your code next week (skying starting tomorrow).
-
-> >I did a nasty hack to get the device recognised as SiS735, and all is 
-> >fine. I haven't posted my patch for this since I don't know the Right fix.
+On January 25, 2002 05:56 pm, Richard B. Johnson wrote:
+> On Fri, 25 Jan 2002,  wrote:
 > 
-> You just thave to add it to the device list. There are other chips
-> missing as well.
+> > I am writing a module and would like to perform arithmetic on long 
+> > long variables. When I try to do this the module does not load due
+> > to the unresolved symbols __udivdi3 and __umoddi3. I notice these
+> > are normally defined in libc. Is there any way I can do this in a 
+> > kernel module.
+> > 
+> > Many Thanks
+> > 
+> > Simon.
 > 
-> > 		case ATA_66: p += sprintf(p, active_time[(reg01 & 0x07) >> 4]); break;
-> >-		case ATA_100: p += sprintf(p, active_time[(reg00 & 0x70)]); break;
-> >+		case ATA_100: p += sprintf(p, active_time[(reg00 & 0x07)]); break;
-> 
-> The problem is that the calculation of the index into the active time
-> table is incorrect in *all* three lines above! In the ATA66 case the
-> shift is wrong and causes an zero value regardless of the register
-> setting. In the "old" ATA100 case the index is calculated from the
-> correct bits but is missing the shift by four from the line above;
-> because of the too large index you see the OOPS. The "new" ATA100 case
-> is wrong because it takes the wrong bits into calculation.
+> Normally, in modules, the granularity is such that divisions can
+> be made by powers-of-two. In a 32-bit world, the modulus that you
+> obtain with umoddi3 (the remainder from a long-long, division) should
+> normally fit within a 32-bit variable. If you insist upon doing 64-bit
+> math in a 32-bit world, then you can either make your own procedures
+> and link them, of you can "appropriate" them from the 'C' runtime
+> library code, include them with your source, assemble, and link them
+> in.
 
-Ooops. Corrected in the last patch.
+Let's be clear on one thing.  There is nothing unnatural about
+32bits * 32bits = 64bits or 64bits / 32bits = 32bits in a 32 bit world.
+In fact, it is a rare architecture that does not support this directly
+in hardware.  It may be awkward to express it in C, but since when has
+that ever stopped us from using the best machine instructions for the
+job?
 
-http://inet6.dyn.dhs.org/sponsoring/sis5513/sis.patch.20020128_1
+Personally, I find the omission of these mixed size muldiv operations
+from the kernel a great inconvenience.  Think 'multiply by a ratio'.
+Yes, I know that by various posturings you can force most problems
+that would be most naturally be expressed this way into some other
+form, but several things suffer:
 
-LB.
+  - Readability
+  - Efficiency
+  - Code complexity
+  - Code size
+
+I think the argument I've seen most often presented against mixed
+size muldiv operations goes something like 'I've never used them, so
+why would anybody need them?'.  This just means that somebody hasn't
+written very many kinds of programs, particularly the kind of code
+we need to write if we are ever going to get the VM and IO
+balancing code working properly.
+
+-- 
+Daniel

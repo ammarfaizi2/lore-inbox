@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289928AbSAQQgm>; Thu, 17 Jan 2002 11:36:42 -0500
+	id <S289817AbSAQQjM>; Thu, 17 Jan 2002 11:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289817AbSAQQgc>; Thu, 17 Jan 2002 11:36:32 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:31795 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289867AbSAQQgV>; Thu, 17 Jan 2002 11:36:21 -0500
-Date: Thu, 17 Jan 2002 17:37:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: pte-highmem-5
-Message-ID: <20020117173701.R4847@athlon.random>
-In-Reply-To: <20020116185814.I22791@athlon.random> <m3u1tll6pb.fsf@linux.local> <20020117163021.L4847@athlon.random> <m3bsft7ygd.fsf@linux.local>
-Mime-Version: 1.0
+	id <S289867AbSAQQjC>; Thu, 17 Jan 2002 11:39:02 -0500
+Received: from trained-monkey.org ([209.217.122.11]:32525 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S289817AbSAQQiu>; Thu, 17 Jan 2002 11:38:50 -0500
+From: Jes Sorensen <jes@wildopensource.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <m3bsft7ygd.fsf@linux.local>; from cr@sap.com on Thu, Jan 17, 2002 at 05:11:48PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15430.65012.734810.776663@trained-monkey.org>
+Date: Thu, 17 Jan 2002 11:38:12 -0500
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] VAIO irq assignment fix
+In-Reply-To: <Pine.LNX.4.33.0201171620510.19753-100000@chaos.tp1.ruhr-uni-bochum.de>
+In-Reply-To: <15430.60214.968250.153045@trained-monkey.org>
+	<Pine.LNX.4.33.0201171620510.19753-100000@chaos.tp1.ruhr-uni-bochum.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 17, 2002 at 05:11:48PM +0100, Christoph Rohland wrote:
-> Hi Andrea,
-> 
-> On Thu, 17 Jan 2002, Andrea Arcangeli wrote:
-> > (btw, I suspect allocating one page at offset 4G in every shmfs file
-> > could make the overhead per page of shm to increase)
-> 
-> Nearly: A sparse file with the only page at 4G is the worst case: You
-> need three extra pages to hold the swap entry. The ratio goes fown as
-> soon as you add more pages somewhere.
+>>>>> "Kai" == Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
 
-Agreed.
+Kai> On Thu, 17 Jan 2002, Jes Sorensen wrote:
+>> I think it's in the ACPI table since a certain M$ OS finds the
+>> interrupt source. As I mentioned to Alan, I tried the latest ACPI
+>> patch but as you say, nothing is done with the information. I haven't
+>> tried enabling ACPI_DEBUG but that sounds to be a next step.
 
-> 
-> > But in real life I really don't expect problems here, one left page
-> > of the vector holds 1024 swap entries, so the overhead is of the
-> > order of 1/1000. On the top of my head (without any precise
-> > calculation) 64G of shm would generate stuff of the order of some
-> > houndred mbytes of ram 
-> 
-> Ok, 64GB shm allocate roughly 64MB swap entries, so this case should
-> not bother too much. I was still at the 390x case where we have 512
-> entries per page. But they do not need highmem.
+Kai> ACPI_DEBUG should print the table at least :)
 
-agreed.
+Kai> My patch is appended, it applies on top of 2.4.17+acpi-20011218
 
-> Another case are smaller machines with big tmpfs instances: They get
-> killed by the swap entries. But you cannot hinder that without
-> swapping the swap entries themselves.
+Tried it and I can report your patch works as well. I guess I'll need to
+modify my patch to not mangle things if your patch is installed, or at
+least we should keep my patch in place until the latest ACPI gets
+integrated.
 
-yes, same can happen with pagetables, if you've an huge amount of swap
-and only a few mbytes of ram, that's another kind of problem that we
-always ignored so far (mostly because it is possible to solve it very
-efficiently by throwing money into some more ram :).
-
-Andrea
+Cheers,
+Jes

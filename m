@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131480AbREHOAV>; Tue, 8 May 2001 10:00:21 -0400
+	id <S132553AbREHOBW>; Tue, 8 May 2001 10:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132553AbREHOAO>; Tue, 8 May 2001 10:00:14 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:13985 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id <S131480AbREHN77>;
-	Tue, 8 May 2001 09:59:59 -0400
-Date: Tue, 8 May 2001 06:59:54 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Dennis Bjorklund <db@zigo.dhs.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: monitor file writes
-In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
-Message-ID: <Pine.LNX.4.33.0105080659010.30175-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132557AbREHOBC>; Tue, 8 May 2001 10:01:02 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:45578 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132553AbREHOA6>; Tue, 8 May 2001 10:00:58 -0400
+Date: Tue, 8 May 2001 16:00:50 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: nfs MAP_SHARED corruption fix
+Message-ID: <20010508160050.F543@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lsof will tell you what files are open and what applications are using
-them.
+This fixes corruption with MAP_SHARED on top of nfs filesystem in 2.4:
 
-joelja
+--- 2.4.5pre1aa2/fs/nfs/write.c.~1~	Tue May  1 19:35:29 2001
++++ 2.4.5pre1aa2/fs/nfs/write.c	Tue May  8 02:04:15 2001
+@@ -1533,6 +1533,7 @@
+ 	if (!inode && file)
+ 		inode = file->f_dentry->d_inode;
+ 
++	filemap_fdatasync(inode->i_mapping);
+ 	do {
+ 		error = 0;
+ 		if (wait)
 
-On Tue, 8 May 2001, Dennis Bjorklund wrote:
-
-> Is there a way in linux to montior file writes?
->
-> I have something that is writing to the disk every 5:th second (approx.)
-> And I don't know what it is.. In windows I had a small program called
-> FileMonitor that where quite good in this situation.
->
-> Is there such a program i linux? If not, is it because the kernel does not
-> provide this information. Maybe there is needed some new hooks to make it
-> possible?
->
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
+Andrea

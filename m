@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265792AbTFVTcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTFVTcg
+	id S264904AbTFVTdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTFVTdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:32:36 -0400
-Received: from mx.laposte.net ([213.30.181.11]:26559 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S265792AbTFVTce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:32:34 -0400
-Subject: Re: linux-2.4.21 released
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZdVjSe5RMWFtELa96mkZ"
-Organization: Adresse personnelle
-Message-Id: <1056311197.3679.13.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 22 Jun 2003 21:46:37 +0200
+	Sun, 22 Jun 2003 15:33:39 -0400
+Received: from windsormachine.com ([206.48.122.28]:1551 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S264904AbTFVTdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 15:33:36 -0400
+Date: Sun, 22 Jun 2003 15:47:40 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: xircom card bus with 2.4.20 link trouble
+In-Reply-To: <1056195410.25975.1.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0306221545350.6572-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 21 Jun 2003, Alan Cox wrote:
 
---=-ZdVjSe5RMWFtELa96mkZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Gwe, 2003-06-20 at 16:49, Mike Dresser wrote:
+> > Now if only DMA mode would work on the Opti 621 chipset inside this
+> > Omnibook 5500/5700 hybrid laptop :)  Then it wouldn't take 38 minutes to
+> > compile.
+>
+> It should do - drivers/ide/pci/opti621.c
 
-***
+Indeed, I have it compiled in even.
 
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D105572386027023&w=3D2
+Let me see if hte laptop is turned on currently.
 
-Nobody replied but let me do my last report.
+Unfortunately, no.  But anyways, it does the classic error of {your drive}
+{shouldn't do this}
 
-> I just tested with 2.4.21. With IO-APIC everything worked
-> except the ethernet.
+and then disables DMA mode, and goes back to working.
 
-My ECS K7VTA3 5.0C is useless with Linux since I can't get
-ethernet to work with IO-APIC, and without it modprobe usb-uhci
-just freezes everything. It may be a broken motherboard. I
-can't believe all 5.0 have so many problems, but...
+It's an HP Omnibook 5700, and it's a Toshiba 1.3 gig drive in there.  I
+don't remember if my Omnibook 5500 did it, and it's a pain to take the
+donor screen back off the 5700 and putting it on the 5500 to try.
 
-...I wonder what's so different in Windows XP. As I reported
-ethernet and USB work together there.
+I had to disable "automatically enable DMA" for the laptop not to jam up
+for a minute while it figures out the DMA mode isn't going to work.
 
-***
+It doesn't work in windows either for that matter, if I remember right the
+option is completely greyed out.  Blacklist on windows?
 
-Just take a look at:
+I will check the exact lspci and hdparm -i when I get to the office
+tomorrow.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=3D10
-and the children bug
-http://bugzilla.kernel.org/show_bug.cgi?id=3D71
-
-VIA IOAPIC/ACPI brokeness (wrt USB/ethernet) has been known and reported
-for a long time (8 months at least since the initial bug reports predate
-kernel bugzilla). Unfortunately that didn't stop the 2.5 changes to be
-backported to 2.4, and people hit it every other week now.
-
-(and I fear it was even removed from the 2.6 must-fix list after
-figuring in a few of its versions)
-
-Both 2.4 & 2.5 are totally broken with VIA, while 2.4-ac used to work
-fine last year.
-
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-ZdVjSe5RMWFtELa96mkZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+9gecI2bVKDsp8g0RAkK9AJ96G4vkiVhh4I5bPPZ6lhdmZZG3OACg3ehd
-OCw5UH45UbKinWunp4b9TFU=
-=J/4c
------END PGP SIGNATURE-----
-
---=-ZdVjSe5RMWFtELa96mkZ--
+Mike
 

@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268524AbUJPFh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUJPFsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268524AbUJPFh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 01:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUJPFh2
+	id S268520AbUJPFsv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 01:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUJPFsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 01:37:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25800 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268524AbUJPFhZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 01:37:25 -0400
-Date: Sat, 16 Oct 2004 06:37:21 +0100
-From: Joel Becker <jlbec@evilplan.org>
-To: Avi Kivity <avi@exanet.com>
-Cc: Yasushi Saito <ysaito@hpl.hp.com>, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-       Janet Morgan <janetmor@us.ibm.com>
-Subject: Re: [PATCH 1/2]  aio: add vectored I/O support
-Message-ID: <20041016053721.GD17142@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Avi Kivity <avi@exanet.com>, Yasushi Saito <ysaito@hpl.hp.com>,
-	linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-	suparna@in.ibm.com, Janet Morgan <janetmor@us.ibm.com>
-References: <416EDD19.3010200@hpl.hp.com> <20041016031301.GC17142@parcelfarce.linux.theplanet.co.uk> <4170AF35.7030806@exanet.com>
+	Sat, 16 Oct 2004 01:48:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26064 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268520AbUJPFss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 01:48:48 -0400
+Date: Fri, 15 Oct 2004 22:48:22 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: schwidefsky@de.ibm.com
+Cc: viro@parcelfarce.linux.theplanet.co.uk, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Patch to add RAID autostart to IBM partitions
+Message-ID: <20041015224822.7d980a9e@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs119.1 (GTK+ 2.4.7; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4170AF35.7030806@exanet.com>
-User-Agent: Mutt/1.4.1i
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 07:18:45AM +0200, Avi Kivity wrote:
-> It is a huge performance win, at least on the 2.4-based RHEL kernel. 
-> Large reads (~256K) using 4K iocbs are very slow on a large RAID, while 
-> after I coded a similar patch I got a substantial speedup.
+Hi, guys:
 
-	I'd think we should fix the submission path instead.  Why create
-iovs _and_ iocbs when we only need to create one?  And even if we
-decided aio_readv() was still nice to keep, we'd want to fix this
-inefficiency in io_submit().
+This is an implementation of essentially the same mechanism which exists
+in msdos.c and sun.c. It is needed when initrd tries to mount a root
+on a RAID. One might ask, why the heck initrd cannot do it without a
+kernel help. The answer is in the contrived API of the MD driver: there
+is no way to ask "assemble md0"; applications must list components.
+Anyway, if msdos.c does it, surely ibm.c ought to do it as well.
 
-Joel
+Please apply.
 
--- 
+-- Pete
 
-"Nothing is wrong with California that a rise in the ocean level
- wouldn't cure."
-        - Ross MacDonald
+P.S. Martin: this is for bug LTC10616.
 
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+diff -urp -X dontdiff linux-2.6.9-rc4-mm1/fs/partitions/ibm.c linux-2.6.9-rc4-mm1-autoraid/fs/partitions/ibm.c
+--- linux-2.6.9-rc4-mm1/fs/partitions/ibm.c	2003-10-01 15:18:05.000000000 -0700
++++ linux-2.6.9-rc4-mm1-autoraid/fs/partitions/ibm.c	2004-10-15 22:38:12.712453680 -0700
+@@ -129,6 +129,7 @@ ibm_partition(struct parsed_partitions *
+ 		while ((data = read_dev_sector(bdev, blk*(blocksize/512),
+ 					       &sect)) != NULL) {
+ 			format1_label_t f1;
++			char *ch;
+ 
+ 			memcpy(&f1, data, sizeof(format1_label_t));
+ 			put_dev_sector(sect);
+@@ -154,6 +155,14 @@ ibm_partition(struct parsed_partitions *
+ 			put_partition(state, counter + 1, 
+ 					 offset * (blocksize >> 9),
+ 					 size * (blocksize >> 9));
++
++			/* Corrupting the label buffer now to save the stack. */
++			EBCASC(f1.DS1DSNAM, 44);
++			f1.DS1DSNAM[44] = 0;
++			ch = strstr(f1.DS1DSNAM, "PART");
++			if (ch != NULL && strncmp(ch + 9, "RAID  ", 6) == 0)
++				state->parts[counter + 1].flags = 1;
++
+ 			counter++;
+ 			blk++;
+ 		}

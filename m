@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132770AbRDNHKN>; Sat, 14 Apr 2001 03:10:13 -0400
+	id <S132775AbRDNHaR>; Sat, 14 Apr 2001 03:30:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132774AbRDNHKD>; Sat, 14 Apr 2001 03:10:03 -0400
-Received: from cogent.ecohler.net ([216.135.202.106]:65218 "EHLO
-	cogent.ecohler.net") by vger.kernel.org with ESMTP
-	id <S132770AbRDNHJ7>; Sat, 14 Apr 2001 03:09:59 -0400
-Date: Sat, 14 Apr 2001 03:09:44 -0400
-From: lists@sapience.com
-To: linux-kernel@vger.kernel.org
-Cc: gibbs@scsiguy.com
-Subject: aicxxx and ac6 - works
-Message-ID: <20010414030943.A20549@sapience.com>
-Mime-Version: 1.0
+	id <S132776AbRDNHaI>; Sat, 14 Apr 2001 03:30:08 -0400
+Received: from relay03.valueweb.net ([216.219.253.237]:2316 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S132775AbRDNH3v>; Sat, 14 Apr 2001 03:29:51 -0400
+Message-ID: <3AD7FDE4.3F7D17A7@opersys.com>
+Date: Sat, 14 Apr 2001 03:36:04 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Crispin Cowan <crispin@wirex.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux Security Module Interface
+In-Reply-To: <3AD3A86A.6ACD8B05@wirex.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Crispin Cowan wrote:
+> 
+> Modules that can be loaded, or not, are the obvious solution, but the
+> current LKM does not export sufficient hooks to support many security
+> mechanisms.
 
-  After all the earlier difficulties booting off scsi disk I am delighted to report
-  that it worked with ac6. 
+Have you taken a look at the hooks provided with the patch provided with
+the Linux Trace Toolkit (http://www.opersys.com/LTT).
 
-  I must confess I did change one thing and that was to turn off SMP and turn on 
-  IO-APIC for UP. I dont know if this is related or not as I have not tried 
-  going back the other way.  The box in question is a single CPU machine (dell xps-t).  
+Cheers,
 
-  I also note that this version includes 6.1.11 of the aicxxx driver. 
+Karim
 
-  Thanks!
-
-
-  regards,
-
-
- 
-  gene/
-  
-
-  
-  
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

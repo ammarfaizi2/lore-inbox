@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130635AbQLQMfx>; Sun, 17 Dec 2000 07:35:53 -0500
+	id <S129799AbQLQMvT>; Sun, 17 Dec 2000 07:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131234AbQLQMfo>; Sun, 17 Dec 2000 07:35:44 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:26628 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130635AbQLQMfd>; Sun, 17 Dec 2000 07:35:33 -0500
-Date: Sun, 17 Dec 2000 12:04:53 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rasmus Andersen <rasmus@jaquet.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
-In-Reply-To: <2750.977054079@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0012171158140.14423-100000@imladris.demon.co.uk>
+	id <S130017AbQLQMvK>; Sun, 17 Dec 2000 07:51:10 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:37135 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129799AbQLQMu4>;
+	Sun, 17 Dec 2000 07:50:56 -0500
+Date: Sun, 17 Dec 2000 04:20:18 -0800 (PST)
+From: Chris Mason <mason@suse.com>
+To: Russell Cattelan <cattelan@thebarn.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <3A3C0EB2.6F8FD302@thebarn.com>
+Message-ID: <Pine.LNX.4.10.10012170414020.30931-100000@home.suse.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000, Keith Owens wrote:
 
-> Your choice.  Just bear in mind that if CONFIG_MODULES=y but mtd
-> objects are built into the kernel then mtd _must_ have a correct link
-> order.  Consider a config with CONFIG_MODULES=y but every mtd option is
-> set to 'y', link order is critical.
 
-Yep, I'd just noticed that one. The patch was actually put in by someone
-to fix 2.0 compilation - and I noticed that it made the link order
-problem go away for certain configs.
+On Sat, 16 Dec 2000, Russell Cattelan wrote:
+> >
+> I'm curious about this.
+> Does the mean reiserFS is doing all of it's own buffer management?
+> 
+> This would seem a little redundant with what is already in the kernel?
+> 
+For metadata only reiserfs does its own write management.  The buffers
+come from getblk. We just don't mark the buffers dirty for flushing by
+flush_dirty_buffers()
 
-> Of course you could invent and maintain your own unique method for
-> controlling mtd initialisation order ...
+This has the advantage of avoiding races against bdflush and friends, and
+makes it easier to keep track of which buffers have actually made their
+way to disk.  It has all of the obvious disadvantages with respect to
+memory pressure.
 
-I'll try to find a clean way to make the MTD code work in all
-configurations without having to do that. If it really comes to doing the
-above, I'll probably just give up and let it stay 'broken' (IMO) along
-with the rest of the kernel code which as you say already has link order
-dependencies.
-
--- 
-dwmw2
-
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262181AbSJQUjw>; Thu, 17 Oct 2002 16:39:52 -0400
+	id <S262201AbSJQUo1>; Thu, 17 Oct 2002 16:44:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262182AbSJQUjv>; Thu, 17 Oct 2002 16:39:51 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43198 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262181AbSJQUjt>;
-	Thu, 17 Oct 2002 16:39:49 -0400
-Date: Thu, 17 Oct 2002 13:38:16 -0700 (PDT)
-Message-Id: <20021017.133816.82029797.davem@redhat.com>
-To: greg@kroah.com
-Cc: hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017203652.GB592@kroah.com>
-References: <20021017185352.GA32537@kroah.com>
-	<20021017.131830.27803403.davem@redhat.com>
-	<20021017203652.GB592@kroah.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262202AbSJQUo1>; Thu, 17 Oct 2002 16:44:27 -0400
+Received: from [203.199.93.15] ([203.199.93.15]:26643 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S262201AbSJQUo0>; Thu, 17 Oct 2002 16:44:26 -0400
+From: "arun4linux" <arun4linux@indiatimes.com>
+Message-Id: <200210172025.BAA30795@WS0005.indiatimes.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "arun4linux" <arun4linux@indiatimes.com>
+Subject: event semaphore mechanism in Linux
+Date: Fri, 18 Oct 2002 01:49:40 +0530
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Greg KH <greg@kroah.com>
-   Date: Thu, 17 Oct 2002 13:36:52 -0700
+Hi All,
 
-   > Are the LSM modules that exist now using portable types in the objects
-   > passed into sys_security?  Note that pointers and things like "long"
-   > are not allowed as types, for example, those would need to be translated.
-   
-   Yes, you are correct, they better be implemented properly, or they will
-   not work.
-   
-How am I supposed to know what the things are being passed in
-via these opaque "unsigned long" parameters?
+  I'm involved in migrating an OS/2 system to Linux, which involves applications as well as drivers.
 
-Could they be pointers?  If so, game over already, and this needs
-to be fixed NOW.
+  I have some doubts/questions on implementing asynchronous,
+repeated-interval timer mechanism with semaphore support.
+	I meant porting Event Semaphores available in OS/2 to Linux.
+(DosCreateEventSem,DosWaitEventSem,DosResetEventSem,DosPostEventSem)
 
-   And (ignoring the network hooks) there is not a measurable overhead for
-   these hooks.  We have documented this many times (OLS paper, USENIX
-   paper, etc.)  With the patch I'm about to submit, disabling the option
-   makes them go away entirely.
-   
-Look at the code that gets output, look at the 32K of kernel image
-I get even though I have no intention of _ever_ loading a security
-module.
+  My need is to have semaphores which will be signalled (posted)
+repeated-interval timer mechanis asynchronously.
+  In other words,
+                I need to implement asynchronous, repeated-interval
+timer mechanism with semaphore support.
 
-So if distribution makers enable CONFIG_SECURITY, EVERY USER eats
-this 32K.  That _SUCKS_.
+  We thought of using condition variable (pthread_cond_init, etc..)
+and mutex combination to achieve this.
 
-And I severely contest your overhead argument, look at the assembler
-code being output, the kernel parts where the hooks are placed are
-different.  Lots of places that used to be leaf functions are no
-longer leaf functions due to the security_ops invocation being there
-now.  Register allocation is also going to be quite different
-different.
+  But it seems pthread's mutex and condition variable synchronization
+calls are off limits.  pthread mutex-locking routines are not
+asynchronous signal safe.
 
-In short, it's bloat, and if you refuse to realize that perhaps kernel
-development is not your true calling in life :-)
+	It would be helpful, if I could get to know on how to achieve this
+event semaphore mechanism in Linux.
+
+	Have a nice time.
+  
+Warm Regards
+Arun
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+
+Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
+

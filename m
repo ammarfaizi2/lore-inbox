@@ -1,114 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRCXJdk>; Sat, 24 Mar 2001 04:33:40 -0500
+	id <S131513AbRCXJc7>; Sat, 24 Mar 2001 04:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131614AbRCXJdb>; Sat, 24 Mar 2001 04:33:31 -0500
-Received: from gold.MUSKOKA.COM ([199.212.175.5]:22545 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S131562AbRCXJdP>;
-	Sat, 24 Mar 2001 04:33:15 -0500
-Message-ID: <3ABC6781.6FFEF3FA@yahoo.com>
-Date: Sat, 24 Mar 2001 04:23:13 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.3-pre6 i486)
-MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mdacon needs to use __setup()
+	id <S131562AbRCXJcj>; Sat, 24 Mar 2001 04:32:39 -0500
+Received: from unthought.net ([212.97.129.24]:35459 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S131513AbRCXJch>;
+	Sat, 24 Mar 2001 04:32:37 -0500
+Date: Sat, 24 Mar 2001 10:31:55 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+Message-ID: <20010324103155.A9686@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com> <vbaelvp3bos.fsf@mozart.stat.wisc.edu> <20010322193549.D6690@unthought.net> <vbawv9hyuj0.fsf@mozart.stat.wisc.edu> <99h9p6$2j9$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <99h9p6$2j9$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 23, 2001 at 09:02:30PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel command line setup function for MDA console support is
-currently dangling in outer space and not called (and hence non
-functional).  There was also a warning about a non used function
-whose callers were half  /* */ 'ed out so I cleaned that up as well.
+On Fri, Mar 23, 2001 at 09:02:30PM -0800, Linus Torvalds wrote:
+> In article <vbawv9hyuj0.fsf@mozart.stat.wisc.edu>,
+> Kevin Buhr <buhr@stat.wisc.edu> wrote:
+> >
+> >The results speak for themselves:
+> >
+> >    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
+> >                      
+> >    real    16m8.423s     real    8m2.417s     real    12m24.939s
+> >    user    15m23.710s    user    7m22.200s    user    10m14.420s
+> >    sys     0m48.730s     sys     0m41.040s    sys     2m13.910s 
+> >maps:    <250 lines           <250 lines          >3000 lines
+> >
+> >Obviously, the *real* problem is RedHat GCC 2.96.  If Linus bothers to
+> >write this patch (he probably already has),
+> 
+> Check out 2.4.3-pre7, I'd be interested to hear what the system time is
+> for that one.
 
-Patch should apply to any recent 2.4.x kernel.
+I was unable to compile gcc-3.0 from CVS this morning - so no tests there
+for now...
 
-Paul.
+First the "small" test case:
+-----------------------------
+2.4.2:
+  gcc-2.96:  -O6 -felide-constructors -fPIC
+  real    7m31.748s
+  user    3m52.340s
+  sys     3m38.180s
+  Memory consumption:  ~200MB
 
---- drivers/video/mdacon.c~	Wed Feb 14 02:41:44 2001
-+++ drivers/video/mdacon.c	Mon Mar 12 19:37:21 2001
-@@ -21,6 +21,9 @@
-  *  This file is subject to the terms and conditions of the GNU General Public
-  *  License.  See the file COPYING in the main directory of this archive for
-  *  more details.
-+ *
-+ *  Changelog:
-+ *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
-  */
- 
- #include <linux/types.h>
-@@ -129,6 +132,7 @@
- 	spin_unlock_irqrestore(&mda_lock, flags);
- }
- 
-+#ifdef TEST_MDA_B
- static int test_mda_b(unsigned char val, unsigned char reg)
- {
- 	unsigned long flags;
-@@ -143,6 +147,7 @@
- 	spin_unlock_irqrestore(&mda_lock, flags);
- 	return val;
- }
-+#endif
- 
- static inline void mda_set_origin(unsigned int location)
- {
-@@ -182,20 +187,27 @@
- 
- 
- #ifndef MODULE
--void __init mdacon_setup(char *str, int *ints)
-+static int __init mdacon_setup(char *str)
- {
- 	/* command line format: mdacon=<first>,<last> */
- 
-+	int ints[3];
-+
-+	str = get_options(str, ARRAY_SIZE(ints), ints);
-+
- 	if (ints[0] < 2)
--		return;
-+		return 0;
- 
- 	if (ints[1] < 1 || ints[1] > MAX_NR_CONSOLES || 
- 	    ints[2] < 1 || ints[2] > MAX_NR_CONSOLES)
--		return;
-+		return 0;
- 
--	mda_first_vc = ints[1]-1;
--	mda_last_vc  = ints[2]-1;
-+	mda_first_vc = ints[1];
-+	mda_last_vc  = ints[2];
-+	return 1;
- }
-+
-+__setup("mdacon=", mdacon_setup);
- #endif
- 
- static int __init mda_detect(void)
-@@ -237,17 +249,19 @@
- 	 * memory location, so now we do an I/O port test.
- 	 */
- 
-+#ifdef TEST_MDA_B
- 	/* Edward: These two mess `tests' mess up my cursor on bootup */
- 
- 	/* cursor low register */
--	/* if (! test_mda_b(0x66, 0x0f)) {
-+	if (! test_mda_b(0x66, 0x0f)) {
- 		return 0;
--	} */
-+	}
- 
- 	/* cursor low register */
--	/* if (! test_mda_b(0x99, 0x0f)) {
-+	if (! test_mda_b(0x99, 0x0f)) {
- 		return 0;
--	} */
-+	}
-+#endif
- 
- 	/* See if the card is a Hercules, by checking whether the vsync
- 	 * bit of the status register is changing.  This test lasts for
+2.4.3-pre7:
+  gcc-2.96:  -O6 -felide-constructors -fPIC
+  real    3m52.347s
+  user    3m46.120s
+  sys     0m3.370s
+
+That's pretty darn impressive Linus !  3m38 -> 3sec !  Now if the GCC people
+could only repeat that trick   ;)
 
 
+Then the bigger one:
+-----------------------------
+2.4.2:
+  gcc-2.96:  -O6 -felide-constructors -fPIC
+  Fails compilation with "Virtual memory exhausted!" after
+  real    37m28.305s
+  user    23m39.930s
+  sys     13m44.900s
+  Memory consumption:  ~300MB before failure
+
+Note - there are no ulimits set, and the machine has more than enough memory
+
+2.4.3-pre7:
+  gcc-2.96:  -O6 -felide-constructors -fPIC
+  real    31m48.898s
+  user    31m21.460s
+  sys     0m26.980s
+  Memory consumption:  ~400MB - successful completion
+
+Cool !  I can work again   ;)
+ 
+> 
+> It does seem like gcc-2.96 is kind of special, but considering how easy
+> it is to merge anonymous memory (most of the changes were cosmetic ones
+> to get nice ordering to make the merge trivial without having to
+> allocate a vma that never gets used etc), it's certainly worth doing.
+
+Beautiful !
+
+Also, the speedup gained here is ~70 times, which may be more than the changed
+allocation in gcc-3 will buy us (was that 32 times?).  And,  after all,  there
+_has_ to be some other case out there which is not as easily fixed as the GCC
+one.
+
+> 		Linus
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

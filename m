@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRKTSV5>; Tue, 20 Nov 2001 13:21:57 -0500
+	id <S280712AbRKTSeE>; Tue, 20 Nov 2001 13:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281201AbRKTSVr>; Tue, 20 Nov 2001 13:21:47 -0500
-Received: from mailb.telia.com ([194.22.194.6]:28690 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S281214AbRKTSVg>;
-	Tue, 20 Nov 2001 13:21:36 -0500
-Message-ID: <3BFA9F2D.98FB7F72@student.uu.se>
-Date: Tue, 20 Nov 2001 19:21:33 +0100
-From: Erik Jansson <erja9907@student.uu.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compile problem in vmalloc.h
+	id <S280967AbRKTSdx>; Tue, 20 Nov 2001 13:33:53 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:18169 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280712AbRKTSdk>;
+	Tue, 20 Nov 2001 13:33:40 -0500
+Date: Tue, 20 Nov 2001 11:33:17 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Jason Tackaberry <tack@auc.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File size limit exceeded with mkfs
+Message-ID: <20011120113316.R1308@lynx.no>
+Mail-Followup-To: Jason Tackaberry <tack@auc.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca>; from tack@auc.ca on Tue, Nov 20, 2001 at 11:02:18AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On Nov 20, 2001  11:02 -0500, Jason Tackaberry wrote:
+> I just installed a shiny new 80GB disk as primary slave and decided to
+> upgrade to 2.4.14+ext3 patch.  It appears that with this kernel, and
+> also with 2.4.15-pre7, when trying to mkfs partitions greater than 2GB,
+> I get "file size limit exceeded" and mkfs aborts.  I can successfully
+> mkfs partitions <= 2GB.
+> 
+> I do not have this problem with 2.4.7; all works well.  Wondering if the
+> difference was ext3, I tried compiling 2.4.15-pre7 without ext3 support
+> and the same problem occured.
 
-I've looked and asked around for a while about this, but I can't seem to
-find the answer. Maybe you know what's up.
+Several people have reported problems like this also.  What happens is
+that if you are logged on as a user, then su to root, it will fail.  If
+you log in directly as root, it will work.
 
-I'm compiling a driver that's not part of the kernel tree (but it's GPL
-anyway). It compiles nicely against the 2.4.8 kernel tree, but fails
-with both 2.4.10 and 2.4.14. Those are the only ones that I've tried
-though.
+I have looked through the 2.4.14 patch several times, but could not
+find anything that might have caused this (I don't have any problems
+with 2.4.13, but it may also have to do with my shell, glibc, or
+whatever).
 
-I'm using clean sources (nothing patched, make mrproper; make clean;
-make config; make bzImage etc).
+Can you please try some intermediate kernels (2.4.10 would be a good
+start, because it had some major changes in this area, and then go
+forward and back depending whether it works or not).
 
-I'm using gcc version 2.95.4 20010902 (Debian prerelease).
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-The error I get looks like this:
-
-gcc -c -o ./src/proc.o ./src/proc.c -D__KERNEL__ -DMODULE -O2 -Wall
--Wstrict-pro
-totypes -Wpointer-arith -I /usr/src/linux/include  -DCAN_DEBUG
-In file included from /usr/src/linux/include/asm/io.h:46,
-                 from src/../include/main.h:11,
-                 from ./src/proc.c:25:
-/usr/src/linux/include/linux/vmalloc.h: In function `vmalloc':
-/usr/src/linux/include/linux/vmalloc.h:35: `boot_cpu_data_Rsmp_0657d037'
-undecla
-red (first use in this function)
-/usr/src/linux/include/linux/vmalloc.h:35: (Each undeclared identifier
-is report
-ed only once
-/usr/src/linux/include/linux/vmalloc.h:35: for each function it appears
-in.)
-/usr/src/linux/include/linux/vmalloc.h: In function `vmalloc_dma':
-/usr/src/linux/include/linux/vmalloc.h:44: `boot_cpu_data_Rsmp_0657d037'
-undecla
-red (first use in this function)
-/usr/src/linux/include/linux/vmalloc.h: In function `vmalloc_32':
-/usr/src/linux/include/linux/vmalloc.h:53: `boot_cpu_data_Rsmp_0657d037'
-undecla
-red (first use in this function)
-make: *** [proc.o] Error 1
-
-/Erik

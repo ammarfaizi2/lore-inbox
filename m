@@ -1,61 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267415AbUBSXH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 18:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267414AbUBSXH6
+	id S267414AbUBSXWA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 18:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUBSXWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 18:07:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:40936 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267415AbUBSXH4 (ORCPT
+	Thu, 19 Feb 2004 18:22:00 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:24072 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S267414AbUBSXVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 18:07:56 -0500
-Date: Thu, 19 Feb 2004 15:07:49 -0800
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: HOWTO use udev to manage /dev
-Message-ID: <20040219230749.GA15848@kroah.com>
-References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com> <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org>
+	Thu, 19 Feb 2004 18:21:55 -0500
+Date: Thu, 19 Feb 2004 08:15:56 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osd.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219161556.GA2472@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218162858.2a230401.akpm@osdl.org> <20040219123110.A22406@infradead.org> <20040219091129.GD1269@us.ibm.com> <20040219183210.GX14000@marowsky-bree.de> <20040219191633.GD31035@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org>
+In-Reply-To: <20040219191633.GD31035@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 07:22:30PM -0300, Frédéric L. W. Meunier wrote:
-> On Thu, 19 Feb 2004, Greg KH wrote:
+On Thu, Feb 19, 2004 at 07:16:33PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Feb 19, 2004 at 07:32:10PM +0100, Lars Marowsky-Bree wrote:
+> > Only if we can settle this, we can answer this export question. If we
+> > want to allow them, the export is a perfectly reasonable thing to ask
+> > for. If not, we probably need to add a few more _GPL barriers.
+> > 
+> > A rule of thumb might be whether any code in the tree uses a given
+> > export, and if not, prune it. Anything which even we don't use or export
+> > across the user-land boundary certainly qualifies as a kernel interna.
+> > 
+> > Currently, no kernel module seems to use this export. So I'd think such
+> > a point could certainly be made.
+
+Good questions, see below for my nominations for the answers.
+
+> I'm not sure.  I'm all for trimming the export list, but the real questions
+> are
+> 	* does that export make sense?
+
+		Yes, invalidate_mmap_range() permits a distributed
+		filesystem to shoot down mmap()s of a to-be-modified file
+		so that all nodes see a consistent view of that file's
+		data.  Having an export means that this functionality
+		need not be reproduced in each and every DFS, reducing
+		DFS intrusiveness.
+
+		Of course, the issue pointed out by Daniel does need
+		to be addressed.  More on that shortly.
+
+> 	* does it impose extra restrictions on what we can do with core
+> code? (without breaking it, that is)
+
+		The invalidate_mmap_range() API is pretty generic.
+		It takes an address_space structure, an offset, and a
+		length.  The caller can treat the address_space structure
+		pointer as a cookie, so the only sorts of changes that
+		could break this API would be ones that entirely did away
+		with the concept of an address space.  Or that introduced
+		the concept of a file with non-integer offsets, in which
+		case invalidate_mmap_range() is the least of our worries.
+
+		Either case could happen, I suppose, but both seem a
+		bit unlikely.
+
+> 	* is it needed in the first place?  If it's redundant - to hell it
+> goes.
+
+		Yes, to prevent DFSes from having to reach so far
+		into the guts of the Linux VM system.
+
+							Thanx, Paul
+
+> Note that majority of the exported symbols fail at least one of the above
+> and _that_ is why they should be killed.  Whether their users are GPL or
+> not doesn't matter - if they don't make sense, they must die, no matter
+> what b0rken code might be using them.
 > 
-> >  - modify the rc.sysinit script to call the start_udev script as one of
-> >    the first things that it does, but after /proc and /sys are mounted.
-> >    I did this with the latest Fedora startup scripts with the patch at
-> >    the end of this file.
-> >
-> >  - make sure the /etc/udev/udev.conf file lists the udev_root as /dev.
-> >    It should contain the following line in order to work properly.
-> > 	udev_root="/dev/"
-> >
-> >  - reboot into a 2.6 kernel and watch udev create all of the initial
-> >    device nodes in /dev
-> >
-> >
-> > If anyone has any problems with this, please let me, and the
-> > linux-hotplug-devel@lists.sourceforge.net mailing list know.
+> IMNSHO the questions above should be answered first and AFAICS they hadn't
+> been even discussed in that case.
 > 
-> Unless I'm missing something, it doesn't seem to work if you
-> don't have /dev/null before it gets mounted.
-
-Did you build udev using glibc or klibc?  I used klibc and it worked
-just fine, as udev and udevd does not need /dev/null to work, unlike
-programs built against glibc.
-
-As for needing the fb nodes, you should probably just add them to the
-start_udev script in the section that we add the other needed symlinks
-to /dev until the kernel starts exporting those sysfs entries (hopefully
-any day now...)
-
-thanks,
-
-greg k-h

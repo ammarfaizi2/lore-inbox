@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbTHTNXY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 09:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbTHTNXY
+	id S261957AbTHTNbc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 09:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbTHTNbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 09:23:24 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:26598 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261946AbTHTNXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 09:23:23 -0400
-Message-ID: <3F437646.4050107@gamic.com>
-Date: Wed, 20 Aug 2003 15:23:18 +0200
-From: Sergey Spiridonov <spiridonov@gamic.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: linux-kernel@vger.kernel.org
+	Wed, 20 Aug 2003 09:31:32 -0400
+Received: from main.gmane.org ([80.91.224.249]:34268 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261957AbTHTNbb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 09:31:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
 Subject: Re: how to turn off, or to clear read cache?
-References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Aug 2003 15:31:32 +0200
+Message-ID: <yw1x8ypocv63.fsf@users.sourceforge.net>
+References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:pJ/ogtCcwn+3CnBe/zymhTQeXFE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
->>I need to make some performance tests. I need to switch off or to clear 
->>read cache, so that consequent reading of the same file will take the 
->>same amount of time.
->>
->>Is there an easy way to do it, without rebuilding the kernel?
-> 
-> 
-> Unmount and remount the filesystem.
+Sergey Spiridonov <spiridonov@gamic.com> writes:
 
+>>> I need to make some performance tests. I need to switch off or to
+>>> clear read cache, so that consequent reading of the same file will
+>>> take the same amount of time.
+>>>
+>>>Is there an easy way to do it, without rebuilding the kernel?
+>> Unmount and remount the filesystem.
+>
+>
+> Would
+>
+> # mount -o remount
+>
+> do the job?
 
-Would
-
-# mount -o remount
-
-do the job?
-
-I'm not able to unmount and remount.
+no
 
 -- 
-Best regards, Sergey Spiridonov
+Måns Rullgård
+mru@users.sf.net
 

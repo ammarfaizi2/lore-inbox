@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263278AbSJCMd7>; Thu, 3 Oct 2002 08:33:59 -0400
+	id <S263308AbSJCMpP>; Thu, 3 Oct 2002 08:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbSJCMd7>; Thu, 3 Oct 2002 08:33:59 -0400
-Received: from [195.84.97.50] ([195.84.97.50]:36616 "HELO mail.upcore.net")
-	by vger.kernel.org with SMTP id <S263278AbSJCMd6>;
-	Thu, 3 Oct 2002 08:33:58 -0400
-Date: Thu, 3 Oct 2002 14:33:34 +0200 (CEST)
-From: bobo <bobo@upcore.net>
-To: linux-kernel@vger.kernel.org
-Subject: Menuconfig not working - Configuring Alsa
-Message-ID: <Pine.LNX.4.21.0210031430240.3619-100000@paddy.genvalla.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263309AbSJCMpP>; Thu, 3 Oct 2002 08:45:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51153 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263308AbSJCMpO>;
+	Thu, 3 Oct 2002 08:45:14 -0400
+Date: Thu, 03 Oct 2002 05:43:32 -0700 (PDT)
+Message-Id: <20021003.054332.22032944.davem@redhat.com>
+To: linux_4ever@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.40 - remove IPV6_ADDRFORM
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021003124509.83822.qmail@web9608.mail.yahoo.com>
+References: <20021003124509.83822.qmail@web9608.mail.yahoo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to configure Alsa from within menuconfig enviroment.
-I get this message:
+   From: Steve G <linux_4ever@yahoo.com>
+   Date: Thu, 3 Oct 2002 05:45:09 -0700 (PDT)
 
-Q> ./scripts/Menuconfig: MCmenu74: command not found
+   The following patch removes the deprecated
+   IPV6_ADDRFORM socket option from 2.5.40. I checked
+   OpenBSD & FreeBSD and both do not support this option,
+   so I think its safe to remove.
 
+Are we absolutely sure no applications use this?
 
-The kernel i am using is version 2.5.40, and the menu is as soon as i
-choos SOUND -> Advanced sound architecture!
-
-It probably is the fact that i havnt updated Alsa yet, but i have no idea
-why i Menuconfig just dumps back to the shell in that case!!
-
-/regards 
-Bobo
-
-
+Also, if you are going to fix the indentation in the header
+file, please do so in a seperate patch.  Thanks.

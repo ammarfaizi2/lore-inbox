@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261688AbREOXLJ>; Tue, 15 May 2001 19:11:09 -0400
+	id <S261695AbREOXTD>; Tue, 15 May 2001 19:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbREOXK7>; Tue, 15 May 2001 19:10:59 -0400
-Received: from mail.sai.co.za ([196.33.40.8]:24584 "EHLO mail.sai.co.za")
-	by vger.kernel.org with ESMTP id <S261688AbREOXKm>;
-	Tue, 15 May 2001 19:10:42 -0400
-From: "David Wilson" <davew@sai.co.za>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: FW: I think I've found a serious bug in AMD Athlon page_alloc.c routines, where do I mail the developer(s) ?
-Date: Wed, 16 May 2001 01:12:15 +0200
-Message-ID: <NEBBJFIIGKGLPEBIJACLAEHEDMAA.davew@sai.co.za>
+	id <S261694AbREOXSw>; Tue, 15 May 2001 19:18:52 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:10749 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261693AbREOXSp>; Tue, 15 May 2001 19:18:45 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105152317.f4FNHsY3022099@webber.adilger.int>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <045a01c0dd8d$6377d9a0$6800000a@brownell.org> "from David Brownell
+ at May 15, 2001 03:21:28 pm"
+To: David Brownell <david-b@pacbell.net>
+Date: Tue, 15 May 2001 17:17:53 -0600 (MDT)
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <E14znhi-0003HR-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+David Bronwell writes:
+> Linus writes:
+> > Now, if we just fundamentally try to think about any device as being 
+> > hot-pluggable, you realize that things like "which PCI slot is this device 
+> > in" are completely _worthless_ as device identification, because they 
+> > fundamentally take the wrong approach, and they don't fit the generic 
+> > approach at all. 
+> 
+> The reason is that such "physical" identifiers (or "device topology" IDs)
+> may be all that's available to distinguish some devices.  For example,
+> network adapters (no major/minor numbers :) and parallel/printer/serial
+> ports may have no better "stable" (over reboots) identifier available.
 
-Thanks for getting back to me.
-I wonder if DFI has a bios or chipset patch available and whether that would
-help ?
-Maybe disabling the VIA chipset support in the kernel and running generic
-drivers would help ?
-Thanks.
-Keep up the good work anyways !
+I would have to agree that "stable" is critical to not driving people
+crazy.  In the case of AIX, once a device is enumerated, it will retain
+the same name across reboots.  Enough information is kept about each
+device to determine if it has already been enumerated (i.e. same I/O
+port address for serial devices, MAC address for ethernet cards, etc),
+or if it is a new device and should get a new name.
 
-Regards
-David Wilson
-Technical Support Centre
-The S.A Internet
-0860 100 869
-http://www.sai.co.za
+> Without "stable" names, it's too easy to have bad things happen, like
+> your "confidential materials" printer output get redirected into the
+> lobby printer, or trust your network DMZ as if it were the internal
+> network.
 
+Without stable names it is basically impossible to make any sort of
+reasonable configuration decision, unless the configuration can be
+stored on the device itself.  That works for disks, and not much else.
 
+> Given hotplugging, I think the best solution to such issues
+> does involve exposing topological IDs such as PCI slot names.
+> (What IDs the different applications use is a different issue.)
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: 16 May 2001 12:54
-To: David Wilson
-Subject: Re: FW: I think I've found a serious bug in AMD Athlon
-page_alloc.c routines, where do I mail the developer(s) ?
+I disagree here.  In many cases you only have a very limited number of
+devices of each type (or only 1), so you don't want to be bogged down
+with physical device naming.  If you have lots of a given type of device
+(e.g. disks), you _also_ don't want to be bogged down with physical
+device naming, because it will NOT be consistent across different physical
+access methods.  In both cases, you want a generic name PLUS a way to
+find out the physical characteristics (attributes) of the device to do
+INITIAL configuration.  If the device keeps a constant name across
+reboots, you don't care how it is accessed after the first configuration.
 
-
-Known funny. Only shows up on via chipset boards. Right now we think but
-have
-not proven its a hardware flaw somwhere
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130234AbRAKMeM>; Thu, 11 Jan 2001 07:34:12 -0500
+	id <S129842AbRAKMhm>; Thu, 11 Jan 2001 07:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130208AbRAKMdx>; Thu, 11 Jan 2001 07:33:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6528 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130234AbRAKMdm>;
-	Thu, 11 Jan 2001 07:33:42 -0500
-Date: Wed, 10 Jan 2001 20:33:16 -0800
-Message-Id: <200101110433.UAA02297@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: mingo@elte.hu
-CC: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.30.0101111138540.981-100000@e2> (message from Ingo
-	Molnar on Thu, 11 Jan 2001 11:41:30 +0100 (CET))
-Subject: Re: Updated zerocopy patch up on kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101111138540.981-100000@e2>
+	id <S129846AbRAKMhc>; Thu, 11 Jan 2001 07:37:32 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28169 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129842AbRAKMh0>; Thu, 11 Jan 2001 07:37:26 -0500
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+To: cort@fsmlabs.com (Cort Dougan)
+Date: Thu, 11 Jan 2001 12:38:21 +0000 (GMT)
+Cc: jayts@bigfoot.com, andrewm@uow.edu.au (Andrew Morton),
+        linux-kernel@vger.kernel.org (lkml),
+        linux-audio-dev@ginette.musique.umontreal.ca (lad)
+In-Reply-To: <20010110202224.C4624@hq.fsmlabs.com> from "Cort Dougan" at Jan 10, 2001 08:22:24 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Ggzn-00028W-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 11 Jan 2001 11:41:30 +0100 (CET)
-   From: Ingo Molnar <mingo@elte.hu>
+> The darn thing disables intrs on its own for quite some time with some of
+> the more aggressive drivers.  We saw our 20us latencies under RTLinux go up
+> a lot with some of those drivers.
 
-   On Tue, 9 Jan 2001, David S. Miller wrote:
+It isnt disabling interrupts. Its stalling the PCI bus. Its nasty tricks by
+card vendors apparently to get good benchmark numbers.
 
-   > I'm actually considering making the SG w/o hwcsum situation illegal.
-
-   i believe it might still make some limited sense for normal sendmsg()
-   and higher MTUs (or 8k NFS) - we could copy & checksum stuff into the
-   ->tcp_page if SG is possible and thus the SG capability improves the VM.
-   (because we can allocate at PAGE_SIZE granularity.)
-
-Basically what your advocating for is to take advantage of SG-only
-devices when we have full control of the page contents.
-
-Sure this would work.
-
-But honestly the real gain from SG-only devices would be (as you know)
-the memory usage savings when sending a single static file object to
-several thousand clients.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbSL3WF0>; Mon, 30 Dec 2002 17:05:26 -0500
+	id <S266968AbSL3WIq>; Mon, 30 Dec 2002 17:08:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbSL3WF0>; Mon, 30 Dec 2002 17:05:26 -0500
-Received: from holomorphy.com ([66.224.33.161]:47081 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265857AbSL3WFZ>;
-	Mon, 30 Dec 2002 17:05:25 -0500
-Date: Mon, 30 Dec 2002 14:12:24 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,RFC] fix o(1) handling of threads
-Message-ID: <20021230221224.GP29422@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-References: <200212301645.50278.tomlins@cam.org>
+	id <S267035AbSL3WIq>; Mon, 30 Dec 2002 17:08:46 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:49167 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266968AbSL3WIp>;
+	Mon, 30 Dec 2002 17:08:45 -0500
+Date: Mon, 30 Dec 2002 14:12:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pnp & pci structure cleanups
+Message-ID: <20021230221212.GE32324@kroah.com>
+References: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212301645.50278.tomlins@cam.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 04:45:50PM -0500, Ed Tomlinson wrote:
-> The o(1) scheduler is an interesting beast.  It handles most workloads
+On Sun, Dec 29, 2002 at 12:33:03PM +0100, Jaroslav Kysela wrote:
+> Hi,
+> 
+> 	this is my second pnp cleanup. It removes ISA PnP variables from 
+> PCI structures, cleans isapnp.h header file and adds the compatibility 
+> routines. Also, i82365 pcmcia driver is updated to latest PnP API 
+> (in compatibility mode). This patch will cause that all unconverted 
+> ISA PnP code will fail to compile, but it's better than silent failure 
+> (like the current kernel tree does).
 
-O(1) is very, very different from o(1). Don't skip that shift key!
+Yeah!  Thanks for taking these fields out of pci.h, I really appreciate
+it.  I'll send this on to Linus in a bit.
 
-Also see:
+thanks,
 
-	http://mathworld.wolfram.com/AsymptoticNotation.html
-
-
-Bill
+greg k-h

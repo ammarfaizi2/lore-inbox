@@ -1,118 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288116AbSA0Qb5>; Sun, 27 Jan 2002 11:31:57 -0500
+	id <S288124AbSA0QvV>; Sun, 27 Jan 2002 11:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288124AbSA0Qbq>; Sun, 27 Jan 2002 11:31:46 -0500
-Received: from mail.gmx.net ([213.165.64.20]:50093 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S288116AbSA0Qbn>;
-	Sun, 27 Jan 2002 11:31:43 -0500
-Date: Sun, 27 Jan 2002 18:33:17 +0100
-From: Fabian Svara <svara@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Oops while running XFree, 2.4.17-rc2
-Message-Id: <20020127183317.3dfc1f8e.svara@gmx.net>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sun__27_Jan_2002_18:33:17_+0100_081d3e70"
+	id <S288248AbSA0QvM>; Sun, 27 Jan 2002 11:51:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21253 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288153AbSA0Qu7>;
+	Sun, 27 Jan 2002 11:50:59 -0500
+Message-ID: <3C542FE6.7C56D6BD@mandrakesoft.com>
+Date: Sun, 27 Jan 2002 11:50:46 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CRAP in 2.4.18-pre7
+In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com> <3C540A90.5020904@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Martin Dalecki wrote:
+> I would like to notice that the changes in 2.4.18-pre7 to the
+> tulip eth driver are apparently causing absymal performance drops
+> on my version of this card. Apparently the performance is dropping
+> from the expected 10MB/s to about 10kB/s. The only special
+> thing about the configuration in question is the fact that it's
+> a direct connection between two hosts. Well, more precisely it's
+> a cross-over link between my notebook and desktop.
 
---Multipart_Sun__27_Jan_2002_18:33:17_+0100_081d3e70
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Are you seeing collisions?
+What is the other side configured as?
+What type of cabling?
 
-I have encountered an oops while running Xfree 4.1.0 and doing everyday work (debugging a program with ddd). It resulted in a complete lockup (as it was X), but I could still login via ssh.
 
-I do not know if the attached ksymoops output is of much help to you, I see that it references often to NVDriver, so maybe it is an nvidia problem, but as I am not sure I'm posting it here anyway.
+> Here is an excerpt from the lspci command:
+> 
+> 00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
 
-Kernel: 2.4.17
-Distro: Debian Sid
-Gcc: 2.95.4
-modutils: 2.4.12
+This is interesting considering that for most people, 21041 did not work
+at all until 2.4.18-preXX tulip patches.
 
---Multipart_Sun__27_Jan_2002_18:33:17_+0100_081d3e70
-Content-Type: application/octet-stream;
- name="ksym.out"
-Content-Disposition: attachment;
- filename="ksym.out"
-Content-Transfer-Encoding: base64
+	Jeff
 
-a3N5bW9vcHMgMi40LjMgb24gaTY4NiAyLjQuMTctcmMyLiAgT3B0aW9ucyB1c2VkCiAgICAgLVYg
-KGRlZmF1bHQpCiAgICAgLWsgL3Byb2Mva3N5bXMgKGRlZmF1bHQpCiAgICAgLWwgL3Byb2MvbW9k
-dWxlcyAoZGVmYXVsdCkKICAgICAtbyAvbGliL21vZHVsZXMvMi40LjE3LXJjMi8gKGRlZmF1bHQp
-CiAgICAgLW0gL2Jvb3QvU3lzdGVtLm1hcC0yLjQuMTctcmMyIChkZWZhdWx0KQoKV2FybmluZzog
-WW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkg
-d2lsbAphc3N1bWUgdGhhdCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0
-aGF0IGFyZSBydW5uaW5nCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9u
-cyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQv
-b3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0
-ZSBvdXRwdXQgYnkgdGVsbGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZp
-bmQKbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0
-aW9ucy4KCkVycm9yIChyZWd1bGFyX2ZpbGUpOiByZWFkX3N5c3RlbV9tYXAgc3RhdCAvYm9vdC9T
-eXN0ZW0ubWFwLTIuNC4xNy1yYzIgZmFpbGVkCk9vcHM6IDAwMDAKQ1BVOiAgICAwCjAwMTA6Wzxk
-NDg4Mjk3YT5dICAgIFRhaW50ZWQ6IFAKRUZMQUdTOiAwMDAxMzA0NgplYXg6IDAwMDAwMDAwICAg
-ZWJ4OiAwMDAwMDAwMCAgIGVjeDogMDAwMDAwMDAgICBlZHg6IGNhMGI5MzQ0CmVzaTogZDk5NDYw
-MDQgICBlZGk6IDAwMDAwMDAwICAgZWJwOiBkMThkYmIxOCAgIGVzcDogZDE4ZGJiMDQKZHM6IDAw
-MTggICBlczogMDAxOCAgIHNzOiAwMDE4ClByb2Nlc3MgWEZyZWU4NiAocGlkOiAyNjI3Mywgc3Rh
-Y2twYWdlPWQxOGRiMDAwKQpTdGFjazogMDAwMDAwMDAgZDk5NDYwMDQgMDAwMDAwMTAgMDAwMDQw
-MDAgMDAwMDAwMDAgZDE4ZGJiNDAgZDQ4ODJlMmQgZDk5NDYwMDQKICAgICAgIDAwMDAwMDEwIGQx
-OGRiYjM4IGMxNTJkYzYwIGQxOGRiYzZjIGQ0OTI0NWEwIGMxNTJkYzYwIGNhMGI5MzQ0IGQxOGRi
-YjgwCiAgICAgICBkNDg3NzQ3ZiBkOTk0NjAwNCBkMThkYmM1NCAwMDAwMDAxMCAwMDAwMDA0MSBk
-MThkYmMwNCAwMDAwMDAwMCAwMDAwMDAyOApDYWxsIFRyYWNlOiBbPGQ0ODgyZTJkPl0gWzxkNDky
-NDVhMD5dIFs8ZDQ4Nzc0N2Y+XSBbPGQ0ODc5MjZkPl0gWzxkNDkyNDVhMD5dCiAgIFs8ZDQ4N2Uw
-NGI+XSBbPGQ0ODdkZTY5Pl0gWzxkNDg3YWFlYz5dIFs8ZDQ4YThjODM+XSBbPGQ0OGQwN2FjPl0g
-WzxkNDhhOGU3MT5dCiAgIFs8ZDQ4YTkxOTA+XSBbPGQ0OGE5ZTcyPl0gWzxkNDhhYTQzOD5dIFs8
-ZDQ4NzdkMzQ+XSBbPGQ0OGI5MDkxPl0gWzxkNDhlNzIxZD5dCiAgIFs8ZDQ4ZWIwNzY+XSBbPGMw
-MTUzNjliPl0gWzxjMDE1M2MzYz5dIFs8YzAxNTNjM2M+XSBbPGMwMTRkZTBmPl0gWzxjMDE0ZGU3
-Nj5dCiAgIFs8YzAxNGUxNmQ+XSBbPGMwMTUzZjg1Pl0gWzxjMDE0Yzc3ZT5dIFs8ZDQ4NzY2ODk+
-XSBbPGQ0OTI0NWEwPl0gWzxjMDEyMTkxOD5dCiAgIFs8YzAxNGEyOGE+XSBbPGMwMTM1Nzg3Pl0g
-WzxjMDEwNmIwYj5dCkNvZGU6IDgwIDNjIDM4IDAwIDc1IDA4IDgzIGMzIDA3IGU5IDg4IDAwIDAw
-IDAwIDg5IGQ4IGMxIGU4IDAzIDhiClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQgZWxm
-MzItaTM4NiAtYSBpMzg2CgpUcmFjZTsgZDQ4ODJlMmMgPFtOVmRyaXZlcl1OdkFsbG9jQUdQUGFn
-ZXMrODAvZTA+ClRyYWNlOyBkNDkyNDVhMCA8W05WZHJpdmVyXW52X2xpbnV4X2RldmljZXMrMC8x
-YzA+ClRyYWNlOyBkNDg3NzQ3ZSA8W05WZHJpdmVyXW52X2FsbG9jX3BhZ2VzKzIzNi8zMjA+ClRy
-YWNlOyBkNDg3OTI2YyA8W05WZHJpdmVyXV9udl9ybXN5bV8wMTM4MiszMC8zND4KVHJhY2U7IGQ0
-OTI0NWEwIDxbTlZkcml2ZXJdbnZfbGludXhfZGV2aWNlcyswLzFjMD4KVHJhY2U7IGQ0ODdlMDRh
-IDxbTlZkcml2ZXJdX252X3Jtc3ltXzAwNTE0K2ZlLzExND4KVHJhY2U7IGQ0ODdkZTY4IDxbTlZk
-cml2ZXJdX252X3Jtc3ltXzAwNTEyKzdjLzE2MD4KVHJhY2U7IGQ0ODdhYWVjIDxbTlZkcml2ZXJd
-bnZFeHRFc2NhcGUrNDEwL2VmND4KVHJhY2U7IGQ0OGE4YzgyIDxbTlZkcml2ZXJdX252X3Jtc3lt
-XzAwNDk3KzE2LzIwPgpUcmFjZTsgZDQ4ZDA3YWMgPFtOVmRyaXZlcl1fbnZfcm1zeW1fMDE0NjEr
-MjE4LzI0Yz4KVHJhY2U7IGQ0OGE4ZTcwIDxbTlZkcml2ZXJdX252X3Jtc3ltXzAxMTQ4KzY4Lzc0
-PgpUcmFjZTsgZDQ4YTkxOTAgPFtOVmRyaXZlcl1fbnZfcm1zeW1fMDExNDkrNjAvZDg+ClRyYWNl
-OyBkNDhhOWU3MiA8W05WZHJpdmVyXV9udl9ybXN5bV8wMDE5NStlMi9mND4KVHJhY2U7IGQ0OGFh
-NDM4IDxbTlZkcml2ZXJdX252X3Jtc3ltXzAwMTc1KzMwYy8zMTg+ClRyYWNlOyBkNDg3N2QzNCA8
-W05WZHJpdmVyXW9zQWxsb2NNZW0rMTI4LzE1Yz4KVHJhY2U7IGQ0OGI5MDkwIDxbTlZkcml2ZXJd
-X252X3Jtc3ltXzAxMTIxKzZlMC82ZWM+ClRyYWNlOyBkNDhlNzIxYyA8W05WZHJpdmVyXV9udl9y
-bXN5bV8wMTI3MCs0MC83NTg+ClRyYWNlOyBkNDhlYjA3NiA8W05WZHJpdmVyXV9udl9ybXN5bV8w
-MTI4MSsyNDYvN2U4PgpUcmFjZTsgYzAxNTM2OWEgPGpvdXJuYWxfdW5sb2NrX3VwZGF0ZXMrNGY2
-LzUxYz4KVHJhY2U7IGMwMTUzYzNjIDxqb3VybmFsX2RpcnR5X21ldGFkYXRhKzEzNC8xNTQ+ClRy
-YWNlOyBjMDE1M2MzYyA8am91cm5hbF9kaXJ0eV9tZXRhZGF0YSsxMzQvMTU0PgpUcmFjZTsgYzAx
-NGRlMGUgPGdyb2tfcGFydGl0aW9ucys1YjAyL2FhMTg+ClRyYWNlOyBjMDE0ZGU3NiA8Z3Jva19w
-YXJ0aXRpb25zKzViNmEvYWExOD4KVHJhY2U7IGMwMTRlMTZjIDxncm9rX3BhcnRpdGlvbnMrNWU2
-MC9hYTE4PgpUcmFjZTsgYzAxNTNmODQgPGpvdXJuYWxfc3RvcCsxOTgvMWE4PgpUcmFjZTsgYzAx
-NGM3N2UgPGdyb2tfcGFydGl0aW9ucys0NDcyL2FhMTg+ClRyYWNlOyBkNDg3NjY4OCA8W05WZHJp
-dmVyXW52X2tlcm5faW9jdGwrMjhjLzJhYz4KVHJhY2U7IGQ0OTI0NWEwIDxbTlZkcml2ZXJdbnZf
-bGludXhfZGV2aWNlcyswLzFjMD4KVHJhY2U7IGMwMTIxOTE4IDxnZW5lcmljX2ZpbGVfd3JpdGUr
-NGZjLzFkOWM+ClRyYWNlOyBjMDE0YTI4YSA8Z3Jva19wYXJ0aXRpb25zKzFmN2UvYWExOD4KVHJh
-Y2U7IGMwMTM1Nzg2IDxraWxsX2Zhc3luYysyZWUvMzA4PgpUcmFjZTsgYzAxMDZiMGEgPF9fdXBf
-d2FrZXVwKzEwNDYvMjI2ND4KQ29kZTsgIDAwMDAwMDAwIEJlZm9yZSBmaXJzdCBzeW1ib2wKMDAw
-MDAwMDAgPF9FSVA+OgpDb2RlOyAgMDAwMDAwMDAgQmVmb3JlIGZpcnN0IHN5bWJvbAogICAwOiAg
-IDgwIDNjIDM4IDAwICAgICAgICAgICAgICAgY21wYiAgICQweDAsKCVlYXgsJWVkaSwxKQpDb2Rl
-OyAgMDAwMDAwMDQgQmVmb3JlIGZpcnN0IHN5bWJvbAogICA0OiAgIDc1IDA4ICAgICAgICAgICAg
-ICAgICAgICAgam5lICAgIGUgPF9FSVArMHhlPiAwMDAwMDAwZSBCZWZvcmUgZmlyc3Qgc3ltYm9s
-CkNvZGU7ICAwMDAwMDAwNiBCZWZvcmUgZmlyc3Qgc3ltYm9sCiAgIDY6ICAgODMgYzMgMDcgICAg
-ICAgICAgICAgICAgICBhZGQgICAgJDB4NywlZWJ4CkNvZGU7ICAwMDAwMDAwOCBCZWZvcmUgZmly
-c3Qgc3ltYm9sCiAgIDk6ICAgZTkgODggMDAgMDAgMDAgICAgICAgICAgICBqbXAgICAgOTYgPF9F
-SVArMHg5Nj4gMDAwMDAwOTYgQmVmb3JlIGZpcnN0IHN5bWJvbApDb2RlOyAgMDAwMDAwMGUgQmVm
-b3JlIGZpcnN0IHN5bWJvbAogICBlOiAgIDg5IGQ4ICAgICAgICAgICAgICAgICAgICAgbW92ICAg
-ICVlYngsJWVheApDb2RlOyAgMDAwMDAwMTAgQmVmb3JlIGZpcnN0IHN5bWJvbAogIDEwOiAgIGMx
-IGU4IDAzICAgICAgICAgICAgICAgICAgc2hyICAgICQweDMsJWVheApDb2RlOyAgMDAwMDAwMTIg
-QmVmb3JlIGZpcnN0IHN5bWJvbAogIDEzOiAgIDhiIDAwICAgICAgICAgICAgICAgICAgICAgbW92
-ICAgICglZWF4KSwlZWF4CgogPDE+VW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2ludGVy
-IGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMDAwMApkNDg4Mjk3YQoKMSB3YXJu
-aW5nIGFuZCAxIGVycm9yIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4K
 
---Multipart_Sun__27_Jan_2002_18:33:17_+0100_081d3e70--
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

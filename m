@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263196AbREWSLY>; Wed, 23 May 2001 14:11:24 -0400
+	id <S263195AbREWSMo>; Wed, 23 May 2001 14:12:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263195AbREWSLP>; Wed, 23 May 2001 14:11:15 -0400
-Received: from ns2.radioschefer.ch ([62.2.224.35]:63247 "EHLO
-	ns2.radioschefer.ch") by vger.kernel.org with ESMTP
-	id <S263194AbREWSLE>; Wed, 23 May 2001 14:11:04 -0400
-Message-ID: <3B0BFD7F.B32695C8@bluewin.ch>
-Date: Wed, 23 May 2001 20:12:15 +0200
-From: Stephan Brauss <sbrauss@bluewin.ch>
-X-Mailer: Mozilla 4.75 [de]C-CCK-MCD DT  (Win95; U)
-X-Accept-Language: de
+	id <S263198AbREWSMe>; Wed, 23 May 2001 14:12:34 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44040 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263195AbREWSMT>; Wed, 23 May 2001 14:12:19 -0400
+Date: Wed, 23 May 2001 11:12:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+In-Reply-To: <20010523183419.I27177@redhat.com>
+Message-ID: <Pine.LNX.4.21.0105231104200.6320-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 kernel freeze
-In-Reply-To: <Pine.LNX.4.10.10105231215280.11617-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> what do you mean by freeze?  in theory, the fact that the irq
-I cannot ping the machine anymore, no Ooops, no kernel messages, the
-attached screen is freezed (which implies that no more interrupts
-are handled, right?)
+On Wed, 23 May 2001, Stephen C. Tweedie wrote:
+> 
+> Right.  I'd like to see buffered IO able to work well --- apart from
+> the VM issues, it's the easiest way to allow the application to take
+> advantage of readahead.  However, there's one sticking point we
+> encountered, which is applications which write to block devices in
+> units smaller than a page.  Small block writes get magically
+> transformed into read/modify/write cycles if you shift the block
+> devices into the page cache.
 
-> for those slots is shared with arbitrary onboard peripherals
-> shouldn't matter, since PCI devices can all share irq's.
-Yes... And it is not the problem, as I make use of interrupt 
-sharing on the first three slots.
+No, you can actually do all the "prepare_write()"/"commit_write()" stuff
+that the filesystems already do. And you can do it a lot _better_ than the
+current buffer-cache-based approach. Done right, you can actually do all
+IO in page-sized chunks, BUT fall down on sector-sized things for the
+cases where you want to. 
 
-> I guess it would be valuable to compare the boot messages
->From 2.2.19 and 2.4.4?
+This is exactly the same issue that filesystems had with writers of less
+than a page - and the page cache interfaces allow for byte-granular writes
+(as actually shown by things like NFS, which do exactly that. For a block
+device, the granularity obviously tends to be at least 512 bytes).
 
-> under these conditions, since a real freeze implies that the 
-> kernel is adjusting irq routing incorrectly...
-Yes, one could think. But I checked that interrupt handling basically
-works for slots 4+5 with "cat /proc/interrupts". As soon as
-I start a larger ftp data transfer over an ethernet adapter in
-one of these slots the problem occurs.
+> Of course, we could just say "then don't do that" and be done with it
+> --- after all, we already have this behaviour when writing to regular
+> files.
+
+No, we really don't. When you write an aligned 1kB block to a 1kB ext2
+filesystem, it will _not_ do a page-sized read-modify-write. It will just
+create the proper 1kB buffers, and mark one of the dirty.
+
+Now, admittedly it is _easier_ to just always consider things 4kB in
+size. And faster too, for the common cases. So it might not be worth it to
+do the extra work unless somebody can show a good reason for it.
+
+		Linus
+

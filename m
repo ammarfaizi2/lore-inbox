@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269341AbTCDJKU>; Tue, 4 Mar 2003 04:10:20 -0500
+	id <S269344AbTCDJiV>; Tue, 4 Mar 2003 04:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269342AbTCDJKU>; Tue, 4 Mar 2003 04:10:20 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:21476 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S269341AbTCDJKU>; Tue, 4 Mar 2003 04:10:20 -0500
-Date: Tue, 4 Mar 2003 10:20:31 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Vlad Harchev <hvv@hippo.ru>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and cryptofs on raid1 - what will be cached and how many times
-Message-ID: <20030304092031.GB6583@wohnheim.fh-wedel.de>
-References: <20030302105634.GA4258@h> <20030303093832.GA4601@h> <15971.52790.676134.722437@notabene.cse.unsw.edu.au> <20030304093020.GA4024@h>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	id <S269345AbTCDJiV>; Tue, 4 Mar 2003 04:38:21 -0500
+Received: from denise.shiny.it ([194.20.232.1]:61377 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S269344AbTCDJiU>;
+	Tue, 4 Mar 2003 04:38:20 -0500
+Message-ID: <XFMail.20030304104847.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030304093020.GA4024@h>
-User-Agent: Mutt/1.3.28i
+MIME-Version: 1.0
+In-Reply-To: <200303041636.00745.kernel@kolivas.org>
+Date: Tue, 04 Mar 2003 10:48:47 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
+Cc: Con Kolivas <kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 March 2003 13:30:20 +0400, Vlad Harchev wrote:
-> 
->  Sorry for confusion - I meant loopback-based crypto filesystem - e.g. loop-aes
-> based (loop-aes.sourceforge.net) or CryptoAPI-based (www.kerneli.org) - both
-> are loopback-based filesystem (one has to call losetup(8) to point out chipher,
-> a password..)
 
-Loopback with encryption is not the same as a crypto filesystem.
-Loopback encryption works transparently with any (non-)crypto fs.
 
-A potential attacker can use this to look for the ext2 superblock,
-which gives him the same data both encrypted an unencrypted. A real
-cryptofs would go through great pains to take such advantages away.
+> Try an -mm 
+> kernel with the scheduler tunables patch and try playing with the max
+> timeslice. Most have found that <=25 will usually stop these skips. The
+> default max timeslice of 300ms is just too long for the desktop and
+> interactivity estimator.
 
-Jörn
+IMHO 300ms is way too much. Timeslice should be in the 10-50ms range
+to get good interactive performance. Why is it so long ?
 
--- 
-Invincibility is in oneself, vulnerability is in the opponent.
--- Sun Tzu
+Bye.
+

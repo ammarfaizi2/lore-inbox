@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315925AbSIIBDR>; Sun, 8 Sep 2002 21:03:17 -0400
+	id <S315458AbSIIBMq>; Sun, 8 Sep 2002 21:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSIIBDR>; Sun, 8 Sep 2002 21:03:17 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:30701 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315925AbSIIBDR> convert rfc822-to-8bit;
-	Sun, 8 Sep 2002 21:03:17 -0400
-From: Daniel Mehrmann <daniel.mehrmann@gmx.de>
-Organization: private
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4/2.5] Athlon CFLAGS
-Date: Mon, 9 Sep 2002 03:07:55 +0200
-User-Agent: KMail/1.4.6
-References: <200209082128.11316.daniel.mehrmann@gmx.de> <200209090213.10063.daniel.mehrmann@gmx.de> <20020909004644.GA21949@debian>
-In-Reply-To: <20020909004644.GA21949@debian>
+	id <S315942AbSIIBMq>; Sun, 8 Sep 2002 21:12:46 -0400
+Received: from ausadmmsps305.aus.amer.dell.com ([143.166.224.100]:24840 "HELO
+	AUSADMMSPS305.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S315458AbSIIBMp>; Sun, 8 Sep 2002 21:12:45 -0400
+X-Server-Uuid: bc938b4d-8e35-4c08-ac42-ea3e606f44ee
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CC75@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: mochel@osdl.org, greg@kroah.com
+cc: phillips@arcor.de, linux-kernel@vger.kernel.org
+Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Date: Sun, 8 Sep 2002 20:17:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200209090307.55043.daniel.mehrmann@gmx.de>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 1165292E1697910-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 September 2002 02:46, Stephane Wirtel wrote:
-> in your patch, you don't check the gcc version.
-> if i run with a gcc-2.95.3, you will be a compile error
-[...]
-No, that`s not correct. gcc-2.95.3 support the i686 flag. I made tests
-in the Makefile to check the compiler. If you`re using 2.95x we make fallback
-to i686.
+> > So in this example, we are exporting a number of boot devices as the
+> > bios told us, so apply the rule stated above, and determine 
+> > if it should go into /proc or not[1].
+> 
+> This is interesting, and I look forward to delving into the 
+> code. ACPI is  doing something very similar. One thing I
+> would like to do is create a 'platform' or 'firmware'
+> top-level directory in driverfs in which all the 
+> various firmware drivers can display the data they ascertain from the 
+> firmware. Stay tuned..
 
-chears,
-Daniel
+Likewise, on IA-64, /proc/efi/ has EFI stuff (really only vars/ right now,
+direct access to NVRAM variables), which coincidentally, I wrote, which
+would benefit from a top-level 'platform' or 'firmware' directory and
+migration to driverfs.  Code is in arch/ia64/kernel/efivars.c.  Once I nail
+down the EDD code, moving efivars.c to driverfs shouldn't be hard.
+
+> Two examples are attached:
+
+Thanks, that helps a lot.  I need to still find how to walk the list of
+existing devices and gather info, for purposes of making symlinks, but I see
+the existing devices that do that to use as examples.
+
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 
 

@@ -1,227 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269750AbTGaVOo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269964AbTGaVOo
+	id S269688AbTGaVW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTGaVW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:14:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14992 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269750AbTGaVOi (ORCPT
+	Thu, 31 Jul 2003 17:22:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:31705 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S269688AbTGaVW1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:14:38 -0400
-Date: Thu, 31 Jul 2003 14:14:24 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: Charles Lepple <clepple@ghz.cc>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reorganize USB submenu's
-Message-Id: <20030731141424.599d0169.shemminger@osdl.org>
-In-Reply-To: <20030731201659.GA4385@kroah.com>
-References: <20030731101144.32a3f0d7.shemminger@osdl.org>
-	<23979.216.12.38.216.1059672599.squirrel@www.ghz.cc>
-	<20030731125032.785ffba1.shemminger@osdl.org>
-	<20030731201659.GA4385@kroah.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Thu, 31 Jul 2003 17:22:27 -0400
+Date: Thu, 31 Jul 2003 14:23:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: pid_max ?
+Message-ID: <20030731212342.GE15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
+	"Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+References: <D9B4591FDBACD411B01E00508BB33C1B01BF8C95@mesadm.epl.prov-liege.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01BF8C95@mesadm.epl.prov-liege.be>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003 13:16:59 -0700
-Greg KH <greg@kroah.com> wrote:
+On Wed, Jul 30, 2003 at 09:53:12AM +0200, Frederick, Fabian wrote:
+> 	I was looking at pid.c file and can't understand pid_max usage.
+> It's defined as integer (signed) =PID_MAX_DEFAULT (which is 0x8000 (on old
+> arch, integer max positive value isn't 32767 ? so 0x8000 -> -32768).
+> 	In alloc_pidmap, 'if (pid>=pid_max)' should be in that case always
+> true so pid=RESERVED_PIDS which is 300 (?).Why not use pid>PID_MAX_DEFAULT
+> there and forget the pid_max definition ? and why do we have that '300'
+> value ?
 
-> then the option should not show up, as it becomes a module paramater
+It's to avoid trying to allocate from the range of pid's typically used
+by kernel threads and system daemons after bootup. There are no hard
+dependencies on it, it's merely "traditional pidspace layout".
 
-How is this (3rd try)...
 
-diff -urN -X dontdiff linux-2.5/drivers/usb/gadget/Kconfig usb/drivers/usb/gadget/Kconfig
---- linux-2.5/drivers/usb/gadget/Kconfig	2003-06-05 10:04:40.000000000 -0700
-+++ usb/drivers/usb/gadget/Kconfig	2003-07-31 12:45:04.000000000 -0700
-@@ -35,9 +35,6 @@
- #
- # USB Peripheral Controller Support
- #
--choice
--	prompt "USB Peripheral Controller Support"
--	depends on USB_GADGET
- 
- config USB_NET2280
- 	tristate "NetChip 2280 USB Peripheral Controller"
-@@ -54,21 +51,23 @@
- 	   dynamically linked module called "net2280" and force all
- 	   gadget drivers to also be dynamically linked.
- 
--endchoice
- 
- #
- # USB Gadget Drivers
- #
--choice
--	prompt "USB Gadget Drivers"
-+menu "USB Gadget Drivers"
- 	depends on USB_GADGET
--	default USB_ETH
- 
--# FIXME want a cleaner dependency/config approach for drivers.
-+config USB_GADGET_CONTROL
-+	bool
-+	default y if USB_GADGET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA250 || USB_SA1100)
-+
-+comment "USB Gadgets need peripheral controller"
-+	depends on !USB_GADGET_CONTROL
- 
- config USB_ZERO
- 	tristate "Gadget Zero (DEVELOPMENT)"
--	depends on USB_GADGET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA250 || USB_SA1100)
-+	depends on USB_GADGET_CONTROL
- 	help
- 	  Gadget Zero is a two-configuration device.  It either sinks and
- 	  sources bulk data; or it loops back a configurable number of
-@@ -110,7 +109,7 @@
- 
- config USB_ETH
- 	tristate "Ethernet Gadget"
--	depends on USB_GADGET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA250 || USB_SA1100)
-+	depends on USB_GADGET_CONTROL
- 	help
- 	  This driver implements the "Communication Device Class" (CDC)
- 	  Ethernet Control Model.  That protocol is often avoided with pure
-@@ -147,6 +146,6 @@
- 	depends on USB_ETH && USB_SA1100
- 	default y
- 
--endchoice
-+endmenu
- 
- # endmenuconfig
-diff -urN -X dontdiff linux-2.5/drivers/usb/image/Kconfig usb/drivers/usb/image/Kconfig
---- linux-2.5/drivers/usb/image/Kconfig	2003-06-05 10:04:40.000000000 -0700
-+++ usb/drivers/usb/image/Kconfig	2003-07-31 12:10:51.000000000 -0700
-@@ -1,7 +1,7 @@
- #
- # USB Imageing devices configuration
- #
--comment "USB Imaging devices"
-+menu "USB Imaging devices"
- 	depends on USB
- 
- config USB_MDC800
-@@ -53,3 +53,4 @@
- 	  The scanner will be accessible as a SCSI device.
- 	  This can be compiled as a module, called hpusbscsi.
- 
-+endmenu
-diff -urN -X dontdiff linux-2.5/drivers/usb/input/Kconfig usb/drivers/usb/input/Kconfig
---- linux-2.5/drivers/usb/input/Kconfig	2003-06-05 10:04:40.000000000 -0700
-+++ usb/drivers/usb/input/Kconfig	2003-07-31 14:12:24.000000000 -0700
-@@ -1,7 +1,7 @@
- #
- # USB Input driver configuration
- #
--comment "USB Human Interface Devices (HID)"
-+menu "USB Input devices"
- 	depends on USB
- 
- config USB_HID
-@@ -205,3 +205,4 @@
- 	  The module will be called xpad.  If you want to compile it as a
- 	  module, say M here and read <file:Documentation/modules.txt>.
- 
-+endmenu
-diff -urN -X dontdiff linux-2.5/drivers/usb/media/Kconfig usb/drivers/usb/media/Kconfig
---- linux-2.5/drivers/usb/media/Kconfig	2003-06-05 10:04:40.000000000 -0700
-+++ usb/drivers/usb/media/Kconfig	2003-07-31 11:48:11.000000000 -0700
-@@ -1,7 +1,7 @@
- #
- # USB Multimedia device configuration
- #
--comment "USB Multimedia devices"
-+menu "USB Multimedia devices"
- 	depends on USB
- 
- config USB_DABUSB
-@@ -194,3 +194,4 @@
- 	  The module will be called stv680. If you want to compile it as a
- 	  module, say M here and read <file:Documentation/modules.txt>.
- 
-+endmenu
-diff -urN -X dontdiff linux-2.5/drivers/usb/misc/Kconfig usb/drivers/usb/misc/Kconfig
---- linux-2.5/drivers/usb/misc/Kconfig	2003-06-05 10:04:41.000000000 -0700
-+++ usb/drivers/usb/misc/Kconfig	2003-07-31 11:48:39.000000000 -0700
-@@ -1,7 +1,7 @@
- #
- # USB Miscellaneous driver configuration
- #
--comment "USB Miscellaneous drivers"
-+menu "USB Miscellaneous drivers"
- 	depends on USB
- 
- config USB_EMI26
-@@ -117,4 +117,4 @@
- 
- 	  See <http://www.linux-usb.org/usbtest> for more information,
- 	  including sample test device firmware and "how to use it".
--
-+endmenu
-diff -urN -X dontdiff linux-2.5/drivers/usb/net/Kconfig usb/drivers/usb/net/Kconfig
---- linux-2.5/drivers/usb/net/Kconfig	2003-06-20 09:49:37.000000000 -0700
-+++ usb/drivers/usb/net/Kconfig	2003-07-31 12:45:59.000000000 -0700
-@@ -1,7 +1,7 @@
- #
- # USB Network devices configuration
- #
--comment "USB Network adaptors"
-+menu "USB Network adaptors"
- 	depends on USB
- 
- comment "Networking support is needed for USB Networking device support"
-@@ -266,3 +266,4 @@
- 	  IEEE 802 "local assignment" bit is set in the address, a "usbX"
- 	  name is used instead.
- 
-+endmenu
-diff -urN -X dontdiff linux-2.5/drivers/usb/serial/Kconfig usb/drivers/usb/serial/Kconfig
---- linux-2.5/drivers/usb/serial/Kconfig	2003-06-05 10:04:41.000000000 -0700
-+++ usb/drivers/usb/serial/Kconfig	2003-07-31 14:05:26.000000000 -0700
-@@ -2,10 +2,7 @@
- # USB Serial device configuration
- #
- 
--menu "USB Serial Converter support"
--	depends on USB!=n
--
--config USB_SERIAL
-+menuconfig  USB_SERIAL
- 	tristate "USB Serial Converter support"
- 	depends on USB
- 	---help---
-@@ -438,8 +435,5 @@
- 
- config USB_EZUSB
- 	bool
--	depends on USB_SERIAL_KEYSPAN_PDA || USB_SERIAL_XIRCOM || USB_SERIAL_KEYSPAN || USB_SERIAL_WHITEHEAT
-+	depends on USB_SERIAL && (USB_SERIAL_KEYSPAN_PDA || USB_SERIAL_XIRCOM || USB_SERIAL_KEYSPAN || USB_SERIAL_WHITEHEAT)
- 	default y
--
--endmenu
--
-diff -urN -X dontdiff linux-2.5/drivers/usb/storage/Kconfig usb/drivers/usb/storage/Kconfig
---- linux-2.5/drivers/usb/storage/Kconfig	2003-06-05 10:04:41.000000000 -0700
-+++ usb/drivers/usb/storage/Kconfig	2003-07-31 14:05:18.000000000 -0700
-@@ -1,10 +1,11 @@
- #
- # USB Storage driver configuration
- #
-+
- comment "SCSI support is needed for USB Storage"
- 	depends on USB && SCSI=n
- 
--config USB_STORAGE
-+menuconfig USB_STORAGE
- 	tristate "USB Mass Storage support"
- 	depends on USB && SCSI
- 	---help---
+-- wli

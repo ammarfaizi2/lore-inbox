@@ -1,97 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312987AbSC0KFh>; Wed, 27 Mar 2002 05:05:37 -0500
+	id <S312988AbSC0KGh>; Wed, 27 Mar 2002 05:06:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312988AbSC0KFS>; Wed, 27 Mar 2002 05:05:18 -0500
-Received: from www.wen-online.de ([212.223.88.39]:22291 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S312987AbSC0KFO>;
-	Wed, 27 Mar 2002 05:05:14 -0500
-Date: Wed, 27 Mar 2002 11:24:46 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Alexander Viro <viro@math.psu.edu>
-Subject: [patch] Re: 2.5.7 rm -r in tmpfs problem
-In-Reply-To: <Pine.LNX.4.10.10203261736010.440-100000@mikeg.wen-online.de>
-Message-ID: <Pine.LNX.4.10.10203271112410.639-100000@mikeg.wen-online.de>
+	id <S312989AbSC0KG1>; Wed, 27 Mar 2002 05:06:27 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:11999 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S312988AbSC0KGM>;
+	Wed, 27 Mar 2002 05:06:12 -0500
+Message-ID: <3CA197B9.2070502@yahoo.com>
+Date: Wed, 27 Mar 2002 12:58:17 +0300
+From: Stas Sergeev <stssppnn@yahoo.com>
+Reply-To: stas.orel@mailcity.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: a.d.opmeer@student.utwente.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Anyone else seen VM related oops on 2.4.18?
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Mar 2002, Mike Galbraith wrote:
+Hello.
 
-> On Sat, 23 Mar 2002, Alexander Viro wrote:
-> 
-> > There are known problems with rm(1) on ramfs/tmpfs/etc. - the thing assumes
-> > that offsets in directory remain stable after unlink(2), but locking changes
-> > didn't affect.
-> 
-> Ok, I finally found a wee bit of clue.  I understand the assumption,
-> and in virgin 2.5.4, that assumption is enforced... somefsckingwhere ;-)
+Arjan Opmeer wrote:
+> Are there other people that are suffering from a VM related oops on kernel 
+> 2.4.18?
+Yes:(
+I've seen that oops 24/7 after installing a
+new video card Radeon 7500 AGP.
+Before I had PCI video card.
+When DRI is enabled, the whole box hangs after
+~10 minutes of using OpenGL, and if DRI disabled
+and radeon.o is unloaded, I have a vm-related Oopses.
+Exactly the same: invalid operand in __free_pages_ok().
+I still have a lot of them in my system log, but I am
+afraid I don't have the relevant System.map for
+ksymoops'ing them.
+I tried to switch to -ac tree and what I get is just
+about the same Oops:
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0203.3/0308.html
 
-I suppose that doesn't matter much though, since the assumption working
-still doesn't make it right. (mentioned it because I can't figure out
-why the behavior changed despite MUCH reading.. seemed odd/reportable)
+BUT: Andrea vm patches seems to cure that!
+I am only two days with them, so everything is
+still possible, but before it used to Oops just
+about every half an hour.
+So thousands of thanks goes to Andrea:)
 
-Anyway, the hack below seems to work fine.  Is there a better way?
+Btw, I've seen exactly the same reports in DRI
+mailing lists and they were reported with different video 
+cards, but the similar thing was that all the reporters
+has an AMD 751 Irongate as host bridge.
+I also have it.
+What is your north bridge?
+This really seems strange for me that video card
+or the host bridge causes vm to oops, but who knows...
+Anyway, it is definitely not a nvidia drivers related:(
 
-	-Mike
-
-
---- fs/libfs.c.org	Sun Mar 24 13:20:39 2002
-+++ fs/libfs.c	Wed Mar 27 10:46:13 2002
-@@ -29,6 +29,21 @@
- 	return 0;
- }
- 
-+static int seek_ok(struct dentry *dir, int offset)
-+{
-+	struct list_head *list;
-+	int count = 2;
-+
-+	list = dir->d_subdirs.next;
-+
-+	while(list != &dir->d_subdirs) {
-+		list = list->next;
-+		count++;
-+	}
-+	
-+	return offset > count;
-+}
-+
- /*
-  * Directory is locked and all positive dentries in it are safe, since
-  * for ramfs-type trees they can't go away without unlink() or rmdir(),
-@@ -37,10 +52,9 @@
- 
- int dcache_readdir(struct file * filp, void * dirent, filldir_t filldir)
- {
--	int i;
-+	int i = filp->f_pos;
- 	struct dentry *dentry = filp->f_dentry;
- 
--	i = filp->f_pos;
- 	switch (i) {
- 		case 0:
- 			if (filldir(dirent, ".", 1, i, dentry->d_inode->i_ino, DT_DIR) < 0)
-@@ -57,11 +71,17 @@
- 		default: {
- 			struct list_head *list;
- 			int j = i-2;
-+			int abort;
- 
- 			spin_lock(&dcache_lock);
- 			list = dentry->d_subdirs.next;
-+			/*
-+			 * HACK: if we're attempting to seek _past_ the last
-+			 * entry, the directory is being modified. Abort seek.
-+			 */
-+			abort = seek_ok(dentry, i);
- 
--			for (;;) {
-+			for (;!abort;) {
- 				if (list == &dentry->d_subdirs) {
- 					spin_unlock(&dcache_lock);
- 					return 0;
-
-
+If anyone wants me to reproduce and ksymoops this
+Oops, feel free to ask. I am ready to do just
+about everything to get this problem fixed, else
+I just can't use my new cool Radeon...

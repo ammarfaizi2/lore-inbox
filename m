@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270496AbUJUG0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270351AbUJUGtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270496AbUJUG0V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270421AbUJTT2s
+	id S270351AbUJUGtW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbUJUG0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:28:48 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:24255 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S270278AbUJTTUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:20:55 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Bogus MCE upon resumption of system?
-Date: Wed, 20 Oct 2004 15:20:46 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200410101932.12431.shawn.starr@rogers.com> <200410200454.16439.shawn.starr@rogers.com> <20041020154854.GF26439@elf.ucw.cz>
-In-Reply-To: <20041020154854.GF26439@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 02:26:36 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:7180 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S270395AbUJTT0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:26:19 -0400
+Date: Wed, 20 Oct 2004 14:21:32 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       akpm@osdl.org
+Subject: [patch 2.6.9 6/11] 3c59x: Add MODULE_VERSION
+Message-ID: <20041020142132.I8775@tuxdriver.com>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, akpm@osdl.org
+References: <20041020141146.C8775@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410201520.46957.shawn.starr@rogers.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suspend to RAM,  haven't gotten around to rebuilding kernel with USB not 
-compiled in.
+Add MODULE_VERSION to 3c59x driver.
 
-Can anyone verify this is a bogus MCE? it occurs only after resuming from 
-suspend from RAM.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-Shawn.
+ drivers/net/3c59x.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-On October 20, 2004 11:48, Pavel Machek wrote:
-> Ahoj!
->
-> > MCE: The hardware reports a non fatal, correctable incident occurred on
-> > CPU 0. Bank 1: f200000000000105
-> >
-> > Of note, when resume I see this MCE, though i suspect it is bogus upon
-> > resume.
->
-> You did not tell me if it was suspend-to-disk or -to-RAM. Also you'd
-> better mail lkml... I know a little about MCEs.
->
->         Pavel
+--- linux-2.6.9/drivers/net/3c59x.c.orig
++++ linux-2.6.9/drivers/net/3c59x.c
+@@ -277,6 +277,7 @@ MODULE_AUTHOR("Donald Becker <becker@scy
+ MODULE_DESCRIPTION("3Com 3c59x/3c9xx ethernet driver "
+ 					DRV_VERSION " " DRV_RELDATE);
+ MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
+ 
+ MODULE_PARM(debug, "i");
+ MODULE_PARM(global_options, "i");

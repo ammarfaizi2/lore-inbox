@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263562AbTIHUWA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTIHUWA
+	id S263667AbTIHUMz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTIHUMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:22:00 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:40632 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S263562AbTIHUV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:21:58 -0400
-Message-ID: <3F5CE3E6.8070201@upb.de>
-Date: Mon, 08 Sep 2003 22:17:42 +0200
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Paul Clements <Paul.Clements@SteelEye.com>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [NBD] patch and documentation
-References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com>
-In-Reply-To: <3F5CE0E5.A5A08A91@SteelEye.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please see http://imap.upb.de for details
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-25.4, required 4,
-	IN_REP_TO -3.30, QUOTED_EMAIL_TEXT -3.20, REFERENCES -6.60,
-	REPLY_WITH_QUOTES -6.50, USER_AGENT_MOZILLA_UA -5.80)
+	Mon, 8 Sep 2003 16:12:55 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:11772 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S263667AbTIHUMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:12:51 -0400
+Date: Mon, 8 Sep 2003 14:11:34 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: First impressions of reiserfs4
+Message-ID: <20030908141133.M18482@schatzie.adilger.int>
+Mail-Followup-To: Oleg Drokin <green@namesys.com>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+	Nikita Danilov <god@namesys.com>
+References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030908081206.GA17718@namesys.com>; from green@namesys.com on Mon, Sep 08, 2003 at 12:12:06PM +0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>The patch also looks harmless enough for applying ;-).
+On Sep 08, 2003  12:12 +0400, Oleg Drokin wrote:
+> Hello!
+> On Sun, Aug 31, 2003 at 07:14:19PM +0200, Rogier Wolff wrote:
 > 
-> Harmless enough, although I'm not sure it really makes that much
-> difference. The max_sectors being set to 255 doesn't, by itself, explain
-> the back and forth 127k, 1k request thing. Typically what you'll see is
-> 127k, 127k, 127k, etc. and then some odd sized request at the end. Or
-> the device gets unplugged anyway at some point and there are odd sized
-> requests scattered throughout...that's especially going to be true if
-> the reads or writes are from an actual disk, rather than /dev/null. I
-> may be just coincidence that setting max_sectors to 256 actually helps.
-> Also, are we sure that all those requests you're seeing are of the same
-> type (all reads, all writes)?
+> > Would it be possible to do something like: "pretend that there
+> > are always 100 million inodes free", and then report sensible
+> > numbers to "df -i"? 
+> 
+> This won't work. No sensible numbers would be there.
+> 
+> > There  is no installation program that will fail with: "Sorry, 
+> > you only have 100 million inodes free, this program will need
+> > 132 million after installation", and it allows me a quick way 
+> > of counting the number of actual files on the disk.... 
+> 
+> You cannot. statfs(2) only exports "Total number of inodes on disk" and
+> "number of free inodes on disk" values for fs. df substracts one from
+> another one to get "number of inodes in use".
+> Actually we export necessary numbers through sysfs for now. And we have
+> patch in our tree that just sets statfs(2) inode stuff to zero. You should
+> see it after next snapshot is released.
 
-Well, i guess the cache uses a value of 256 sectors to do read-ahead and 
-such. I used dd if=/dev/nbd/0 of=/dev/null bs=X with both X=1 and X=1M.
-Both with the same result. That the 1byte requests join together to 
-bigger ones can only be explained with read-aheads strategies.
-Anyway, the result is always the same:
+In a way, it would have been nice if "sys_statfs64()" had implemented the
+values as "files in use" and "files total" instead of the older (and less
+useful "files free").
 
-without patch: 127KB, 1KB, 127KB, 1KB
-with path: 128KB, 128KB, 128KB
+However, that doesn't mean you can't return something useful to statfs().
+Since the linux VFS limits us to 2^32 - 1 inodes for now, you could still
+return 2^32 - 1 - num_in_use for "f_ffree" and 2^32 -1 for f_files, so that
+"df -i" shows a useful number for IUsed.
 
-As long as dd doesn't write i'm sure that i didn't see any write 
-requests. In addition it is a very regular pattern.
-If it is really the case that the cache reads 256 sectors and the 
-default limit is 255, than this would also happen for all other 
-block-devices. In addition it would be a good thing to look up if the 
-cache takes the max_sectors stuff into accout while determining the 
-amout of sectors it reads ahead.
 
+Sadly, the sys_statfs64() API is broken such that the filesystem can't make
+a distinction between being called from sys_statfs64() and sys_statfs(),
+so you have to assume the 32-bit limits even for the 64-bit API.  We should
+really have a new FS method which is "statfs64()" that is optionally called
+from sys_statfs64() so the FS has a chance to return something different for
+64-bit callers.
+
+For Lustre, we can't be guaranteed to fit into the 32-bit f_blocks counts
+with 100TB filesystems, so we scale the f_bsize until the f_blocks fits into
+32 bits.  However, we would like to be able to return the correct values to
+sys_statfs64() if possible.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

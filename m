@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVDDXE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVDDXLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbVDDXE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDDXDF
+	id S261486AbVDDXLr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVDDXLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:03:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:39403 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261478AbVDDXBk (ORCPT
+	Mon, 4 Apr 2005 19:11:13 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:951 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S261486AbVDDXGr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:01:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andres Salomon <dilinger@debian.org>
-Subject: Re: Linux 2.6.12-rc2
-Date: Mon, 04 Apr 2005 18:58:37 -0400
-Message-ID: <pan.2005.04.04.22.58.36.941161@debian.org>
-References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org> <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
+	Mon, 4 Apr 2005 19:06:47 -0400
+Date: Tue, 5 Apr 2005 01:06:06 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Gene Heskett <gene.heskett@verizon.net>,
+       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+In-Reply-To: <1112649296.5147.21.camel@localhost.localdomain>
+Message-Id: <Pine.OSF.4.05.10504050009080.8387-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Apr 2005 14:32:52 -0700, Linus Torvalds wrote:
+On Mon, 4 Apr 2005, Steven Rostedt wrote:
 
-[...]
+> On Mon, 2005-04-04 at 22:47 +0200, Ingo Molnar wrote:
 > 
-> ----
-> Summary of changes from v2.6.12-rc1 to v2.6.12-rc2
-> ==================================================
+> > > Currently my fix is in yield to lower the priority of the task calling 
+> > > yield and raise it after the schedule.  This is NOT a proper fix. It's 
+> > > just a hack so I can get by it and test other parts.
+> > 
+> > yeah, yield() is a quite RT-incompatible concept, which could livelock 
+> > an upstream kernel just as much - if the task in question is SCHED_FIFO.  
+> > Almost all yield() uses should be eliminated from the upstream kernel, 
+> > step by step.
 > 
-[...]
+> Now the question is, who will fix it? Preferably the maintainers, but I
+> don't know how much of a priority this is to them. I don't have the time
+> now to look at this and understand enough about the code to be able to
+> make a proper fix, and I'm sure you have other things to do too.
+
+How about adding a
+ if(rt_task(current)) {
+        WARN_ON(1);
+        mutex_setprio(current, MAX_PRIO-1)
+ }
+?
+
+to find all calls to yields from rt-tasks. That will force the user (aka
+the real-time developer) to either stop calling the subsystems still using
+yield from his RT-tasks, or fix those subsystems.
+
+Esben
+
 > 
-> Andres Salomon:
->   o Possible AMD8111e free irq issue
->   o Possible VIA-Rhine free irq issue
-
-Those two were from Panagiotis Issaris <takis@lumumba.luc.ac.be>; I just
-forwarded them on.
-
-
->   o fix pci_disable_device in 8139too
+> -- Steve
+> 
 
 

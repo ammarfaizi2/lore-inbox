@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132456AbRCZQPD>; Mon, 26 Mar 2001 11:15:03 -0500
+	id <S132459AbRCZQMD>; Mon, 26 Mar 2001 11:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132464AbRCZQOy>; Mon, 26 Mar 2001 11:14:54 -0500
-Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:60120 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132456AbRCZQOf>; Mon, 26 Mar 2001 11:14:35 -0500
-Date: Mon, 26 Mar 2001 08:14:03 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: Paul Mackerras <paulus@samba.org>
-cc: <cort@fsmlabs.com>, <benh@kernel.crashing.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] [RESEND] update chipsfb driver
-Message-ID: <Pine.LNX.4.31.0103260812340.867-100000@linux.local>
+	id <S132462AbRCZQLx>; Mon, 26 Mar 2001 11:11:53 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:58896 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S132459AbRCZQLt>;
+	Mon, 26 Mar 2001 11:11:49 -0500
+Date: Mon, 26 Mar 2001 18:12:11 +0200 (CEST)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Theodoor Scholte <tscholte@wanadoo.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling problem kernel 2.4.2
+In-Reply-To: <5.0.2.1.2.20010326175151.01eef100@pop.wanadoo.nl>
+Message-ID: <Pine.LNX.4.30.0103261809390.30156-100000@svea.tellus>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 26 Mar 2001, Theodoor Scholte wrote:
 
-I have seen a more complete driver but I haven't tested it since I don't
-have this video card. It is at http://www.visuelle-maschinen.de/ctfb/
+> Hello,
+>
+> I have a problem with compiling kernel-2.4.2. When I want to make a bzImage
+> on a RedHat Linux 5.2 box,
+> then I get this error-message:
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+> [...]
 
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+> cpp: /usr/src/linux/include/linux/compile.h: Input/output error
+
+Disk full?  Bad disk?
+
+/Tobias
 

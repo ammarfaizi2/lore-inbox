@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbTHVQ4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTHVQz7
+	id S263934AbTHVQ42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTHVQ42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:55:59 -0400
-Received: from rth.ninka.net ([216.101.162.244]:25217 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263962AbTHVQy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:54:59 -0400
-Date: Fri, 22 Aug 2003 09:54:42 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Marcus Sundberg <marcus@ingate.com>
-Cc: marcelo@conectiva.com.br, gzp@papp.hu, mostrows@speakeasy.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: PPPoE Oops with 2.4.22-rc
-Message-Id: <20030822095442.5da08e24.davem@redhat.com>
-In-Reply-To: <vezni16c62.fsf_-_@inigo.ingate.se>
-References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
-	<Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
-	<39a.3f392c6f.86e8b@gzp1.gzp.hu>
-	<vezni16c62.fsf_-_@inigo.ingate.se>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Aug 2003 12:56:28 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11713 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263934AbTHVQyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:54:47 -0400
+Message-ID: <3F464A3E.2050203@nortelnetworks.com>
+Date: Fri, 22 Aug 2003 12:52:14 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: help???  trying to trace code path of outgoing udp packet
+References: <3F46356A.804@nortelnetworks.com> <3F46386A.4080009@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Aug 2003 15:43:01 +0200
-Marcus Sundberg <marcus@ingate.com> wrote:
+Nivedita Singhvi wrote:
+> Chris Friesen wrote:
+> 
+>> ip_finish_output     ip_output.c
+>> ip_finish_output2    ip_output.c   dst->neighbour->output
+> 
+> 
+> |
+> V
+> dev_queue_xmit()
+> qdisc_run()
+> qdisc_restart()
+> dev->hard_start_xmit() [driver xmit routine]
+> 
+> this is for the default queuing discipline.
 
-> this patch fixes one crash in pppoe_connect():
+Thanks.  That should give me enough to track down what I'm looking for.
 
-It's already in Marcelo's tree.
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131673AbRAJQJv>; Wed, 10 Jan 2001 11:09:51 -0500
+	id <S130645AbRAJQQm>; Wed, 10 Jan 2001 11:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131686AbRAJQJl>; Wed, 10 Jan 2001 11:09:41 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:61196 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S131673AbRAJQJf>; Wed, 10 Jan 2001 11:09:35 -0500
-Date: Wed, 10 Jan 2001 11:09:10 -0500
-From: Chris Mason <mason@suse.com>
-To: "Vladimir V. Saveliev" <vs@namesys.botik.ru>
-cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
-  Linux)
-Message-ID: <205320000.979142950@tiny>
-In-Reply-To: <3A5C8780.5B02EC8A@namesys.botik.ru>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
-MIME-Version: 1.0
+	id <S131096AbRAJQQc>; Wed, 10 Jan 2001 11:16:32 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:13767 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S130645AbRAJQQO>; Wed, 10 Jan 2001 11:16:14 -0500
+Date: Wed, 10 Jan 2001 18:15:16 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Message-ID: <20010110181516.X10035@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3A5C6417.6670FCB7@Hell.WH8.TU-Dresden.De>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A5C6417.6670FCB7@Hell.WH8.TU-Dresden.De>; from sorisor@Hell.WH8.TU-Dresden.De on Wed, Jan 10, 2001 at 02:31:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wednesday, January 10, 2001 07:02:08 PM +0300 "Vladimir V. Saveliev"
-<vs@namesys.botik.ru> wrote:
-
-> Hi
+On Wed, Jan 10, 2001 at 02:31:03PM +0100, Udo A. Steinberg wrote:
+> As I just found out, Linux 2.4.1-pre1 breaks several things on
+> my system that worked perfectly in 2.4.0-final and the entire
+> 2.4.0-ac tree.
 > 
-> Chris Mason wrote:
+> XFree 4.2.0 now fails to detect monitor timings and therefore
+> removes all modelines and bails out. The relevant diff of the
+> X logfile follows. Note the "nan" bits.
 > 
->> On Wednesday, January 10, 2001 02:32:09 AM +0100 Marc Lehmann
->> <pcg@goof.com> wrote:
->> 
->> >>> EIP; c013f911 <filldir+20b/221>   <=====
->> > Trace; c013f706 <filldir+0/221>
->> > Trace; c0136e01 <reiserfs_getblk+2a/16d>
->> 
->> The buffer reiserfs is sending to filldir is big enough for
->> the huge file name, so I think the real fix should be done in VFSland.
->> 
->> But, in the interest of providing a quick, obviously correct fix, this
->> reiserfs only patch will refuse to create file names larger
->> than 255 chars, and skip over any directory entries larger than
->> 255 chars.
->> 
-> 
-> Hmm, wouldn't it make existing long named files unreachable?
-> 
+[logs]
+> Since the 2.4.1-pre1 patch is rather small, it shouldn't be too hard
+> to hunt down the part that causes these oddities.
 
-Yes, that was intentional.  We can make a different version of the patch
-that changes reiserfs_find_entry to allow opening the large filenames for
-delete and such.  But, as a quick fix, I wanted to close all possible paths
-to the long names.
+The only thing that looks responsible for this is the FXSR stuff,
+that changed.
 
--chris
- 
+Like to try again backing this out?
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

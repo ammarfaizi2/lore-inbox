@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265641AbUBPQAD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 11:00:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUBPQAD
+	id S265768AbUBPQO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 11:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUBPQO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 11:00:03 -0500
-Received: from h80ad2711.async.vt.edu ([128.173.39.17]:15221 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265641AbUBPQAA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 11:00:00 -0500
-Message-Id: <200402161559.i1GFxjWr025166@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.) 
-In-Reply-To: Your message of "Mon, 16 Feb 2004 16:44:48 +0100."
-             <E1AskvQ-0000P0-1m@localhost> 
-From: Valdis.Kletnieks@vt.edu
-References: <1nioI-5Re-1@gated-at.bofh.it> <1orqh-6gs-47@gated-at.bofh.it> <1ozGR-60N-1@gated-at.bofh.it> <1oAa3-6pR-37@gated-at.bofh.it> <1oBpi-7pO-1@gated-at.bofh.it> <1oCbM-8oW-9@gated-at.bofh.it> <1p9Kl-7BV-1@gated-at.bofh.it> <1piXj-1d3-3@gated-at.bofh.it> <1pRLy-21o-31@gated-at.bofh.it> <1pSRf-31Z-5@gated-at.bofh.it>
-            <E1AskvQ-0000P0-1m@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2100473912P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 16 Feb 2004 11:14:26 -0500
+Received: from moutng.kundenserver.de ([212.227.126.189]:59867 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265768AbUBPQOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 11:14:22 -0500
+Message-ID: <4030EC43.90605@paceblade.com>
+Date: Mon, 16 Feb 2004 17:13:55 +0100
+From: Robert Woerle <robert@paceblade.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
+X-Accept-Language: de, en, de-at, en-us
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: serial.c - start looking from 0x220 iomem_base  ??
+References: <402CE89F.9060404@paceblade.com> <Pine.LNX.4.53.0402131025120.4338@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402131025120.4338@chaos>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Feb 2004 10:59:45 -0500
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:b4ac6117e991eeeca15f2be66d9fb0df
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2100473912P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 16 Feb 2004 16:44:48 +0100, Pascal Schmidt said:
-
-> file and created another with the same name between you calling creat()
-> and doing the readdir(). What would be the use of this, anyway?
-
-How does the shell do 'echo foo*'?
 
 
+Richard B. Johnson schrieb:
 
+>On Fri, 13 Feb 2004, Robert Woerle wrote:
+>
+>  
+>
+>>Hi
+>>
+>>I am having here a device  (Tablet PC ) sample with a serial resistive
+>>touchscreen  .
+>>Under Windows it comes up as COM1 at IO-Base 0x220 -0x227 IRQ 4 .
+>>Now it seems that in linux the serial driver doesnt look for so "low"
+>>I/O-Base `s .
+>>
+>>By hacking around by hardcoding the 0x220 somehwere in serial.c i get it
+>>to detect a standard 16550 , but
+>>unfortunately it then assumes that all ttySX have this base .
+>>This is because of my hardcoded hack and the driver not looking for all
+>>the rest mem bases.
+>>
+>>So the quesion is :
+>>Where do i tell serial.o  to start lower ( at 0x220 ) to look for
+>>controllers .. .??
+>>
+>>
+>>
+>>Pls also CC me directly since i am only monitoring this list .
+>>    
+>>
+>
+>There are 4 de facto standard serial ports:
+>
+>COM1	0x3F8	IRQ4
+>COM2	0x2F8	IRQ3
+>COM3	0x3E8	IRQ4
+>COM4	0x2E8	IRQ3
+>
+>If you have a port at 0x220, it is above the game-port area,
+>but not where the kernel should "look for" serial devices.
+>Therefore, you don't tell the kernel to, as you state, start
+>lower. Instead, you tell the kernel where they are by putting
+>them in the pnp_devices[] table.
+>
+>
+>  
+>
+I tryed that now and added a device  like
+ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_DEVICE(0x0220),
 
+but nothing happens ... it leaves the function saying
+<7>"Leaving  probe_serial_pci() (probe finished)
 
-
---==_Exmh_2100473912P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAMOjxcC3lWbTT17ARAjznAJ9OJODFYWqF7qmISKNTad0HDwsMAACg+f9Y
-QLhqg7VnQsFlBXgr/G6b0Oo=
-=zlfB
------END PGP SIGNATURE-----
-
---==_Exmh_2100473912P--
+What can i do ?

@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261385AbSIZPYs>; Thu, 26 Sep 2002 11:24:48 -0400
+	id <S261391AbSIZPeY>; Thu, 26 Sep 2002 11:34:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261386AbSIZPYs>; Thu, 26 Sep 2002 11:24:48 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:18442 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S261385AbSIZPYr>;
-	Thu, 26 Sep 2002 11:24:47 -0400
-Subject: Re: Mouse/Keyboard problems with 2.5.38
-From: Stian Jordet <liste@jordet.nu>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020926133725.A8851@ucw.cz>
-References: <1032996672.11642.6.camel@chevrolet>
-	<20020926105853.A168142@ucw.cz> <1033039991.708.6.camel@chevrolet> 
-	<20020926133725.A8851@ucw.cz>
+	id <S261400AbSIZPeY>; Thu, 26 Sep 2002 11:34:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:39673
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261391AbSIZPeX>; Thu, 26 Sep 2002 11:34:23 -0400
+Subject: RE: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Randal, Phil" <prandal@herefordshire.gov.uk>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <0EBC45FCABFC95428EBFC3A51B368C9501AF48@jessica.herefordshire.gov.uk>
+References: <0EBC45FCABFC95428EBFC3A51B368C9501AF48@jessica.herefordshire.gov.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Sep 2002 17:30:09 +0200
-Message-Id: <1033054211.587.6.camel@chevrolet>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 16:43:20 +0100
+Message-Id: <1033055000.11848.43.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 2002-09-26 kl. 13:37 skrev Vojtech Pavlik:
-> Hmm, have you looked into 'dmesg'? It prints the information with
-> KERN_DEBUG priority, which often won't make it on the screen or into the
-> logs ...
+On Tue, 2002-09-24 at 15:04, Randal, Phil wrote:
+> That's a moot point.
 > 
-> > I did, however, find out that if I press SHIFT+what
-> > ever of the buttons arrows, insert, home, page up/down, delete and end,
-> > I get just the same behaviour. It does not happen with CTRL or ALT.
-> 
-> Can you try passing 'i8042_direct' on the kernel command line to see if
-> it cures the problem? It looks like your keyboard is doing some very
-> strange 84-key-at-emulation, stranger than others do ...
-> 
-You had, ofcourse right, it was in my syslog. But the keystroke that
-make my computer freeze isn't there. This is the last line:
+> You'll have to ask RedHat et al why they persist in backporting
+> security patches to "old" releases of Apache (etc) instead of
+> releasing the new versions.  The effect is the same, with
 
-kernel: atkbd.c: Received 1d flags 00
-
-But I find this line several places, so it's obviously not the one
-causing the crash. Altough, when passing i8042_direct to the kernel,
-everything works just as expected. My keyboard is a Logitech Cordless
-Desktop. The keyboard and mouse shares the same receiver, which both is
-connected via ps/2. 
-
-Best regards,
-Stian Jordet
+Simple enough answer. Because thats what our customers want generally.
+They want fixes, they do not want updates that may break things in new
+ways or require they change third party modules
 

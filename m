@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTLHTyW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTLHTyV
+	id S261936AbTLHTwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTLHTwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:54:21 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:65236 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261965AbTLHTyG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:54:06 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Mon, 8 Dec 2003 20:53:25 +0100
-User-Agent: KMail/1.5.4
-Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
-       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312081328270.1043-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312081328270.1043-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 14:52:19 -0500
+Received: from iucha.net ([209.98.146.184]:64881 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S261936AbTLHTwE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:52:04 -0500
+Date: Mon, 8 Dec 2003 13:52:03 -0600
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Of Mice and Linux
+Message-ID: <20031208195203.GB28031@iucha.net>
+Mail-Followup-To: Scott Robert Ladd <coyote@coyotegulch.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3FD4BD1B.1060708@coyotegulch.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
 Content-Disposition: inline
-Message-Id: <200312082053.25541.baldrick@free.fr>
+In-Reply-To: <3FD4BD1B.1060708@coyotegulch.com>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.4i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
-> But usbfs may suffer from complications as a result of its unorthodox
-> approach to device ownership.
+--hQiwHBbRI9kgIhsi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, you have put your finger on it.
+On Mon, Dec 08, 2003 at 01:04:11PM -0500, Scott Robert Ladd wrote:
+> Please indulge a minor story in regard to testing beta kernels.
+>=20
+> Last Friday, I made a minor change to my Linux .config and rebuilt=20
+> 2.6.0-test11. Soon thereafter, my mouse began getting "stuck", sometimes=
+=20
+> for several seconds, refusing to move no matter how vigorously I wiggled=
+=20
+> my wrist.
+>=20
+> I rebuilt the kernel a couple of times, turning on and off various=20
+> options; I plugged and unplugged devices from the USB ports; a=20
+> considerable amount of cursing ensued. The problem was erratic -- and=20
+> frustrating, because I hadn't had much trouble with 2.6 (which I've been=
+=20
+> using since the 2.6.4x days).
+>=20
+> Then I borrowed a mouse from another machine, plugged it in -- and the=20
+> replacement rodent worked flawlessly. It seems that my mouse broke just=
+=20
+> about the same time as I installed test11. Being a software guy, I=20
+> should have blamed the hardware first...
+>=20
+> ...especially since the truth was right in front of me, emblazoned=20
+> boldly across the mouse: the word "Microsoft".
+>=20
+> I think the replacement will be from Logitech.
 
-> >  Currently ps->dev is set to NULL in
-> > the devio.c usbfs disconnect method (if some interface is claimed) or in
-> > inode.c on device disconnect, making it hard to lock with
-> > ps->dev->serialize :) Thus disconnect should no longer be signalled by
-> > setting ps->dev to NULL.
->
-> If you would keep the ps->devsem lock, would there be any problem in
-> setting ps->dev to NULL to indicate disconnection?
+Hrm... you might be onto something here. My Microsoft mouse gave up
+around test-10 or so. Then the USB ports started acting funny on my
+SIS 745 motherboard...
 
-You can't keep the ps->devsem lock and use ps->dev->serialize, because it
-leads to deadlock.  Actually, simply replacing ps->devsem with ps->dev->serialize
-cannot lead to any new deadlocks, it makes deadlocks that could occasionally
-happen always happen (such deadlocks exist right now in usbfs).  Some of the
-current deadlocks can be eliminated without giving up ps->devsem, but not all.
-So the question is: must ps->dev->serialize be used?
+florin
 
-> Are they any reasons for not keeping ps->devsem?  Since usbfs generally
-> acts as a driver and drivers generally don't have to concern themselves
-> with usbdev->serialize (the core handles it for them), shouldn't usbfs
-> also be able to ignore ps->dev->serialize?
+--=20
 
-No, because it needs to do operations on interfaces it hasn't claimed (such
-as looking them up and claiming them).  This is why it needs to protect
-itself, at least momentarily, against configurations shifting under it.  This
-can be done by using the BKL more.  However it can be done more simply
-using ps->dev->serialize (in fact it is simpler than what is there now).
+Don't question authority: they don't know either!
 
-By the way, if it is somehow fatal to do usb_put_dev after disconnect,
-what is the point of referencing counting at all?  You might as well
-free up the usb_device structure immediately after disconnect, since
-there is sure to be a reference before disconnect, and (apparently)
-there had better not be a reference after disconnect...
+--hQiwHBbRI9kgIhsi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-All the best,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Duncan.
+iD8DBQE/1NZjNLPgdTuQ3+QRAk+XAJ4lk8Z2aG6asRN+UoXUYF95CqXETwCeKPc/
+4QAa8Zu978nfDyJAls144rw=
+=zpSZ
+-----END PGP SIGNATURE-----
+
+--hQiwHBbRI9kgIhsi--

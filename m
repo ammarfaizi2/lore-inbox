@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbSLSSoH>; Thu, 19 Dec 2002 13:44:07 -0500
+	id <S266010AbSLSSnq>; Thu, 19 Dec 2002 13:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbSLSSoH>; Thu, 19 Dec 2002 13:44:07 -0500
-Received: from diamond.madduck.net ([66.92.234.132]:40196 "EHLO
-	diamond.madduck.net") by vger.kernel.org with ESMTP
-	id <S266020AbSLSSoE>; Thu, 19 Dec 2002 13:44:04 -0500
-Date: Thu, 19 Dec 2002 19:51:53 +0100
-From: martin f krafft <madduck@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 'D' processes on a healthy system?
-Message-ID: <20021219185152.GA4712@fishbowl.madduck.net>
-References: <20021219124043.GA28617@fishbowl.madduck.net> <1040319832.28973.4.camel@irongate.swansea.linux.org.uk> <20021219182359.GA29366@fishbowl.madduck.net> <1040326031.28973.23.camel@irongate.swansea.linux.org.uk>
+	id <S266020AbSLSSnq>; Thu, 19 Dec 2002 13:43:46 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:60319 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266010AbSLSSno>;
+	Thu, 19 Dec 2002 13:43:44 -0500
+Date: Thu, 19 Dec 2002 18:49:58 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Eli Carter <eli.carter@inet.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, lm@bitmover.com, lm@work.bitmover.com,
+       torvalds@transmeta.com, vonbrand@inf.utfsm.cl, akpm@digeo.com
+Subject: Re: Dedicated kernel bug database
+Message-ID: <20021219184958.GA6837@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Eli Carter <eli.carter@inet.com>, John Bradford <john@grabjohn.com>,
+	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+	lm@bitmover.com, lm@work.bitmover.com, torvalds@transmeta.com,
+	vonbrand@inf.utfsm.cl, akpm@digeo.com
+References: <200212191335.gBJDZRDL000704@darkstar.example.net> <3E020660.9020507@inet.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1040326031.28973.23.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <3E020660.9020507@inet.com>
 User-Agent: Mutt/1.4i
-Organization: Debian GNU/Linux
-X-OS: Debian GNU/Linux testing/unstable kernel 2.4.19-grsec+freeswan-fishbowl i686
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 19, 2002 at 11:48:16AM -0600, Eli Carter wrote:
+ > >Also, we could have a non-web interface, (telnet or gopher to the bug
+ > >DB, or control it by E-Mail).
+ > Can you interface with bugzilla's database backend maybe?  It seems like 
+ > refactoring bugzilla might be better?
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's an annoyance to me that the current bugzilla we use can only
+do 1 way email. Ie, I receive email when things change, but I can't
+reply to that mail and have my comments auto-added.
+Other bugzillas can do this, so I think either some switch needs
+to be enabled, or theres some extension not present.
+(I'm a complete bugzilla weenie, and no nothing about how its set up).
 
-also sprach Alan Cox <alan@lxorguk.ukuu.org.uk> [2002.12.19.2027 +0100]:
-> Its more to do with the controller and configuration. Eg if your disk
-> isnt in DMA mode it'll certainly show up
+ > >It could warn the user if they attach an un-decoded oops that their
+ > >bug report isn't as useful as it could be, and if they mention a
+ > >distribution kernel version, that it's not a tree that the developers
+ > >will necessarily be familiar with
+ > Perhaps a more generalized hook into bugzilla for 'validating' a bug 
+ > report, then code specific validators for kernel work?
 
-Interesting. The 500 MHz system wasn't in DMA mode (and I though I had
-it there). I'll continue monitoring it now that I turned it on.
+Its a nice idea, but I think it's a lot of effort to get it right,
+when a human can look at the dump, realise its not decoded, and
+send a request back in hardly any time at all.
+I also don't trust things like this where if something goes wrong,
+we could lose the bug report. People are also more likely to ping-pong
+,argue or "how do I..." with a human than they are with an automated robot.
 
-Thank you for your help so far, Alan!
 
---=20
- .''`.     martin f. krafft <madduck@debian.org>
-: :'  :    proud Debian developer, admin, and user
-`. `'`
-  `-  Debian - when you have better things to do than fixing a system
-=20
-NOTE: The pgp.net keyservers and their mirrors are broken!
-Get my key here: http://people.debian.org/~madduck/gpg/330c4a75.asc
+		Dave
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+AhVIIgvIgzMMSnURAmibAJ9rgBPeHSBNVKJs7mSyn7f6tjouVQCeNXz1
-sYbk/MU7cZRFno6mezAoKv4=
-=vYKP
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

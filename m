@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUD3WXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUD3WbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUD3WXv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUD3WXv
+	id S261610AbUD3WbO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUD3WbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:23:51 -0400
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:33758 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S261654AbUD3WXr
+	Fri, 30 Apr 2004 18:31:14 -0400
+Received: from florence.buici.com ([206.124.142.26]:58254 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S261610AbUD3WbN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:23:47 -0400
-Date: Fri, 30 Apr 2004 15:23:00 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       <mc@cs.Stanford.EDU>, Madanlal S Musuvathi <madan@stanford.edu>,
-       "David L. Dill" <dill@cs.Stanford.EDU>
-Subject: [CHECKER] Return Error code gets treated as dir_table index, resulting
- losses of other dir entries (JFS2.4, kernel 2.4.19)
-In-Reply-To: <1083353278.14140.52.camel@shaggy.austin.ibm.com>
-Message-ID: <Pine.GSO.4.44.0404301521130.14155-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Apr 2004 18:31:13 -0400
+Date: Fri, 30 Apr 2004 15:31:12 -0700
+From: Marc Singer <elf@buici.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040430223112.GA29325@buici.com>
+References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com> <409083E9.2080405@yahoo.com.au> <20040429144941.GC708@buici.com> <4091D123.9070606@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4091D123.9070606@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 30, 2004 at 02:08:03PM +1000, Nick Piggin wrote:
+> You would probably be better off trying a simpler change
+> first actually:
+> 
+> in mm/vmscan.c, shrink_list(), change:
+> 
+> if (res == WRITEPAGE_ACTIVATE) {
+> 	ClearPageReclaim(page);
+> 	goto activate_locked;
+> }
+> 
+> to
+> 
+> if (res == WRITEPAGE_ACTIVATE) {
+> 	ClearPageReclaim(page);
+> 	goto keep_locked;
+> }
+> 
+> I think it is not the correct solution, but should narrow
+> down your problem. Let us know how it goes.
 
-static function add_index can fail by return -EPERM (and it is declared to
-return a unsigned 4-byte integer).  This error gets ignored by the caller,
-dtInsertEntry, which will treat the returned error code (u32)(-EPERM) as
-an index to dir_table.  This causes losses of directory entries in the
-same parent directory.
-
-static u32 add_index(tid_t tid, struct inode *ip, s64 bn, int slot)
-{
-...
-		if ((mp = get_index_page(ip, 0)) == 0) {
-			jfs_err("add_index: get_metapage failed!");
-			xtTruncate(tid, ip, 0, COMMIT_PWMAP);
-Return -->		return -EPERM;
-...
-}
-
-
-static void dtInsertEntry(dtpage_t * p, int index, struct component_name * key,
-			  ddata_t * data, struct dt_lock ** dtlock)
-{
-...
-Error -->		  lh->index = cpu_to_le32(add_index(data->leaf.tid,
-							  data->leaf.ip,
-							  bn, index));
-...
-}
-
-
-Here is a trace:
-
-============ Filesystem Image Before System Call ===================
-4 files, 1 dirs, 6 nodes
-[0:D]
-  [1:F:1073741824]
-  [2:F:0]
-  [3:F:0]
-  [4:D]
-
-create file 5 succeeded.
-can't get dir entry Input/output error
-ERROR: Filesystem images differ
-
-============= Filesystem Image After System Call ===================
-3 files, 0 dirs, 4 nodes
-[0:D]
-  [1:F:1073741824]
-  [2:F:0]
-  [3:F:0]
-
+OK, thanks.  It might be a few days before I can get to this.

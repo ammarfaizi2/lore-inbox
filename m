@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbTCJRhP>; Mon, 10 Mar 2003 12:37:15 -0500
+	id <S261380AbTCJRlx>; Mon, 10 Mar 2003 12:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbTCJRhP>; Mon, 10 Mar 2003 12:37:15 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:43167 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S261381AbTCJRhN>; Mon, 10 Mar 2003 12:37:13 -0500
-Date: Mon, 10 Mar 2003 09:47:47 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I for 2.5.64-mm2
-Message-ID: <20030310174746.GO2835@ca-server1.us.oracle.com>
+	id <S261387AbTCJRlx>; Mon, 10 Mar 2003 12:41:53 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:19347 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261380AbTCJRlw>; Mon, 10 Mar 2003 12:41:52 -0500
+Date: Mon, 10 Mar 2003 18:52:21 +0100
+From: Andi Kleen <ak@muc.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
+Subject: Re: Dcache hash distrubition patches
+Message-ID: <20030310175221.GA20060@averell>
+References: <10280000.1047318333@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <10280000.1047318333@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-WimMark I report for 2.5.64-mm2 
+> Conclusion: the hash distribution (for this simple test) looks fine
+> to me.
 
-Runs with deadline scheduler:  1580.10 1537.95
-Runs with anticipatory scheduler:  632.87 597.33 555.19
+Yes, because of the overkill size of the hash table. With a 100K + entry
+table you can make near every hash function look good ;)
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
+Try to reduce it to a smaller number of buckets and see what happens.
 
--- 
+-Andi
 
-"There are some experiences in life which should not be demanded
- twice from any man, and one of them is listening to the Brahms Requiem."
-        - George Bernard Shaw
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbUKTAVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbUKTA1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263026AbUKTAVn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 19:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbUKTARa
+	id S262811AbUKTA1E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 19:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbUKTAZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 19:17:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42896 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261793AbUKTANM (ORCPT
+	Fri, 19 Nov 2004 19:25:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26540 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262502AbUKTAWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 19:13:12 -0500
-Date: Sat, 20 Nov 2004 00:12:59 GMT
-Message-Id: <200411200012.iAK0CxLw006618@sisko.sctweedie.blueyonder.co.uk>
-From: Stephen Tweedie <sct@redhat.com>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 0/3]: ext3: Cleanup error handling in current 2.6 bk.
+	Fri, 19 Nov 2004 19:22:40 -0500
+Date: Fri, 19 Nov 2004 16:26:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: tridge@samba.org
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: performance of filesystem xattrs with Samba4
+Message-Id: <20041119162651.2d62a6a8.akpm@osdl.org>
+In-Reply-To: <16798.31565.306237.930372@samba.org>
+References: <16797.41728.984065.479474@samba.org>
+	<419E1297.4080400@namesys.com>
+	<16798.31565.306237.930372@samba.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Reposting, I managed to trigger a script with a truly ancient lkml address
-first time around!]
+tridge@samba.org wrote:
+>
+> Would anyone care to hazard a guess as to what aspect of -mm2 is
+> gaining us 10% in overall Samba4 performance?
 
-The patches to follow clean up a few aspects of ext3's error handling
-when it encounters corrupt data on disk.
+Is it reproducible with your tricked-up dbench?
 
-ext3 contains a fair amount of internal debugging and assert-checking,
-but a general rule is that it should never BUG() when it encounters
-on-disk corruption: a BUG() is legal only when it recognises that its
-own internal memory state has been compromised.  For on-disk
-corruption, we use ext3_error() instead (and the user *can* request
-panic-on-error when that occurs, but the default is a graceful
-shutdown of that filesystem, turning it readonly.)
+If so, please send me a machine description and the relevant command line
+and I'll do a bsearch.
 
-The patches fix two possible routes where bad data on disk could lead
-to a BUG(), and cleanup the error reporting when the fs is taken
-offline.

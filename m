@@ -1,342 +1,328 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262990AbUDUXUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUDUX2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262990AbUDUXUF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 19:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUDUXUE
+	id S263019AbUDUX2V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 19:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDUX2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 19:20:04 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:27151 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S262990AbUDUXTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 19:19:51 -0400
-Date: Wed, 21 Apr 2004 18:19:42 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org,
-       eich@suse.de
-Subject: Re: PAT support
-Message-ID: <20040421231942.GC18735@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20040420185112.GB76023@colin2.muc.de>
+	Wed, 21 Apr 2004 19:28:21 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:20639 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263019AbUDUX2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 19:28:00 -0400
+Subject: [PATCH] Lazy discard ext3 reservation window patch
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20040414160714.30e34753.akpm@osdl.org>
+References: <200403190846.56955.pbadari@us.ibm.com>
+	<20040321015746.14b3c0dc.akpm@osdl.org>
+	<1080636930.3548.4549.camel@localhost.localdomain>
+	<20040330014523.6a368a69.akpm@osdl.org>
+	<1080956712.15980.6505.camel@localhost.localdomain>
+	<20040402175049.20b10864.akpm@osdl.org>
+	<1080959870.3548.6555.camel@localhost.localdomain>
+	<20040402185007.7d41e1a2.akpm@osdl.org>
+	<1081903949.3548.6837.camel@localhost.localdomain>
+	<20040413194734.3a08c80f.akpm@osdl.org>
+	<1081963850.4714.6888.camel@localhost.localdomain> 
+	<20040414160714.30e34753.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-NyvryUOx1UD8zlXFst6L"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Apr 2004 16:34:09 -0700
+Message-Id: <1082590452.3548.9855.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-In-Reply-To: <20040420185112.GB76023@colin2.muc.de>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.4
-X-OriginalArrivalTime: 21 Apr 2004 23:19:44.0201 (UTC) FILETIME=[21485390:01C427F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-NyvryUOx1UD8zlXFst6L
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+Andrew,
 
-ok, got this finished up. modified change_page_attr to take a kernel virtual address instead of a page struct. also introduced restore_page_attr, which releases the cmap_range and assumed a pgprot of type PAGE_KERNEL. tweaked the change_page_attr a little to allow virtual addresses, convert from virtual to physical. if you'd prefer any style changes to what I made, feel free to flame me.
+This patch contains several changes against the ext3 reservation code in
+265-mm6 tree:
 
-I also merged the ioremap functions into a single function (which really just means moving change_page_attr into __ioremap) and made ioremap, ioremap_nocache, and ioremap_wrcomb as inline routines that send the appropriate flags into __ioremap.
+Lazy Discard Reservation Window:
+  This patch is trying to do lazy discard: keep the old reservation 
+window temporally until we find the new reservation window, only do
+remove/add if the new reservation window locate different than the old
+one. (The reservation code in mm6 tree will discard the old one first,
+then search the new one). Two reasons:
+  - If the ext3_find_goal() does a good job, the reservation windows on
+the list should not very close to each other.  So a inode's new
+reservation window is likely located just next to it's old one, it's
+position in the whole list is unchanged, no need to do remove and then
+add the new one to the list in the same location. Just update the start
+block and end block.
+  - If we failed to find a new reservation in the goal group and move on
+the search to the next group, having the old reservation around
+temporally could allow us to search the list directly after the old
+window.  Otherwise we lost where we were and has to start from the
+beginning of the list. Eventually the old window will be discard when we
+found a new one.
 
-fixed an oversight in cmap_convert_flags.
+Other changes:
+ - Add check to force maximum when dynamically increase window size.
+ - ext3_discard_reservation() should not be called on every iput(). Now
+it is moved to ext3_delete_inode(), so it is only called on the last
+iput() if i_nlink is 0
+ - remove #ifdef EXT3_RESERVATION since we made reservation an mount
+option
+ - Only allow application to modify the file's reservation window size
+when fs is mounted with reservation and the operation is performed on
+regular files.
 
-updated all references to change_page_attr to use the correct arguments, but still need to finish the core function changes for x86_64.
+This patch should apply to 2.6.5-mm6. Have tested it through many dd
+test, untar test,dbench and tiobench.
 
+Thanks!
 
-between finishing this up and making a first pass at the /proc/bus/pci/* changes, I made some "doh!" realizations:
+Mingming
 
-change_page_attr takes a kernel virtual address currently. this doesn't work well for mmap situations, which have a user virtual address. lookup_address could theoretically be changed to handle this (by switching between kernel & user pgd), but this wouldn't work for 4G/4G kernels.
+--=-NyvryUOx1UD8zlXFst6L
+Content-Disposition: attachment; filename=ext3_reservation_lazydiscard.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=ext3_reservation_lazydiscard.patch; charset=UTF-8
 
-change_page_attr can't take a physical address, since then it couldn't change_page_attr (change the page table attributes).
+diff -urNP -X dontdiff 265-mm6-regression-fix/fs/ext3/balloc.c 265-mm6-fix2=
+/fs/ext3/balloc.c
+--- 265-mm6-regression-fix/fs/ext3/balloc.c	2004-04-21 18:35:21.916666616 -=
+0700
++++ 265-mm6-fix2/fs/ext3/balloc.c	2004-04-21 18:28:47.621608576 -0700
+@@ -723,7 +723,7 @@
+ 		start_block =3D goal + group_first_block;
+=20
+ 	size =3D atomic_read(&my_rsv->rsv_goal_size);
+-	/* if we have a old reservation, discard it first */
++	/* if we have a old reservation, start the search from the old rsv */
+ 	if (!rsv_is_empty(my_rsv)) {
+ 		/*
+ 		 * if the old reservation is cross group boundary
+@@ -745,8 +745,7 @@
+ 		/* remember where we are before we discard the old one */
+ 		if (my_rsv->rsv_end + 1 > start_block)
+ 			start_block =3D my_rsv->rsv_end + 1;
+-		search_head =3D list_entry(my_rsv->rsv_list.prev,
+-				struct reserve_window, rsv_list);
++		search_head =3D my_rsv;
+ 		if ((my_rsv->rsv_alloc_hit > (my_rsv->rsv_end - my_rsv->rsv_start + 1) /=
+ 2)) {
+ 			/*
+ 			 * if we previously allocation hit ration is greater than half
+@@ -754,9 +753,10 @@
+ 			 * otherwise keep the same
+ 			 */
+ 			size =3D size * 2;
++			if (size > EXT3_MAX_RESERVE_BLOCKS)
++				size =3D EXT3_MAX_RESERVE_BLOCKS;
+ 			atomic_set(&my_rsv->rsv_goal_size, size);
+ 		}
+-		rsv_window_remove(my_rsv);
+ 	}
+ 	else {
+ 		/*
+@@ -823,9 +823,17 @@
+ found_rsv_window:
+ 	/*
+ 	 * great! the reservable space contains some free blocks.
+-	 * Insert it to the list.
+-	 */
+-	rsv_window_add(my_rsv, prev_rsv);
++	 *
++	 * if the search returns that we should add the new
++	 * window just next to where the old window, we don't
++	 * need to remove the old window first then add it to the
++	 * same place, just update the new start and new end.
++	 */
++	if (my_rsv !=3D prev_rsv)  {
++		if (!rsv_is_empty(my_rsv))
++			rsv_window_remove(my_rsv);
++		rsv_window_add(my_rsv, prev_rsv);
++	}
+ 	my_rsv->rsv_start =3D reservable_space_start;
+ 	my_rsv->rsv_end =3D my_rsv->rsv_start + size - 1;
+ 	return 0;		/* succeed */
+@@ -927,6 +935,10 @@
+ 			if (!goal_in_my_reservation(my_rsv, goal, group, sb))
+ 				goal =3D -1;
+ 		}
++		if ((my_rsv->rsv_start >=3D group_first_block + EXT3_BLOCKS_PER_GROUP(sb=
+))
++			|| (my_rsv->rsv_end < group_first_block))
++			BUG();
++
+ 		ret =3D ext3_try_to_allocate(sb, handle, group, bitmap_bh, goal,
+ 					my_rsv);
+ 		if (ret >=3D 0)
+@@ -996,10 +1008,10 @@
+ 	sbi =3D EXT3_SB(sb);
+ 	es =3D EXT3_SB(sb)->s_es;
+ 	ext3_debug("goal=3D%lu.\n", goal);
+-#ifdef EXT3_RESERVATION
++
+ 	if (test_opt(sb, RESERVATION) && S_ISREG(inode->i_mode))
+ 		my_rsv =3D &EXT3_I(inode)->i_rsv_window;
+-#endif
++
+ 	free_blocks =3D percpu_counter_read_positive(&sbi->s_freeblocks_counter);
+ 	root_blocks =3D le32_to_cpu(es->s_r_blocks_count);
+ 	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
+@@ -1066,7 +1078,6 @@
+ 		if (ret_block >=3D 0)=20
+ 			goto allocated;
+ 	}
+-#ifdef EXT3_RESERVATION
+ 	/*
+ 	 * We may end up a bogus ealier ENOSPC error due to
+ 	 * filesystem is "full" of reservations, but
+@@ -1075,17 +1086,11 @@
+ 	 * just do block allocation as without reservations.
+ 	 */
+ 	if (my_rsv) {
+-#ifdef EXT3_RESERVATION_DEBUG
+-		printk("filesystem is fully reserved. Actual free blocks: %d. "
+-			"Try to do allocation without reservation, goal_group "
+-			"is %d\n",
+-			free_blocks, goal_group);
+-#endif
+ 		my_rsv =3D NULL;
+ 		group_no =3D goal_group;
+ 		goto retry;
+ 	}
+-#endif
++
+ 	/* No space left on the device */
+ 	*errp =3D -ENOSPC;
+ 	goto out;
+diff -urNP -X dontdiff 265-mm6-regression-fix/fs/ext3/inode.c 265-mm6-fix2/=
+fs/ext3/inode.c
+--- 265-mm6-regression-fix/fs/ext3/inode.c	2004-04-21 18:34:45.393219024 -0=
+700
++++ 265-mm6-fix2/fs/ext3/inode.c	2004-04-21 18:21:35.747263456 -0700
+@@ -177,19 +177,6 @@
+ }
+=20
+ /*
+- * Called at each iput()
+- *
+- * The inode may be "bad" if ext3_read_inode() saw an error from
+- * ext3_get_inode(), so we need to check that to avoid freeing random disk
+- * blocks.
+- */
+-void ext3_put_inode(struct inode *inode)
+-{
+-	if (!is_bad_inode(inode))
+-		ext3_discard_reservation(inode);
+-}
+-
+-/*
+  * Called at the last iput() if i_nlink is zero.
+  */
+ void ext3_delete_inode (struct inode * inode)
+@@ -199,6 +186,9 @@
+ 	if (is_bad_inode(inode))
+ 		goto no_delete;
+=20
++	/* discard the block reservation */
++	ext3_discard_reservation(inode);
++
+ 	handle =3D start_transaction(inode);
+ 	if (IS_ERR(handle)) {
+ 		/* If we're going to skip the normal cleanup, we still
+diff -urNP -X dontdiff 265-mm6-regression-fix/fs/ext3/ioctl.c 265-mm6-fix2/=
+fs/ext3/ioctl.c
+--- 265-mm6-regression-fix/fs/ext3/ioctl.c	2004-04-21 18:34:45.389219632 -0=
+700
++++ 265-mm6-fix2/fs/ext3/ioctl.c	2004-04-21 18:22:28.196289992 -0700
+@@ -152,11 +152,16 @@
+ 			return ret;
+ 		}
+ #endif
+-#ifdef EXT3_RESERVATION
+ 	case EXT3_IOC_GETRSVSZ:
+-		rsv_window_size =3D atomic_read(&ei->i_rsv_window.rsv_goal_size);
+-		return put_user(rsv_window_size, (int *)arg);
++		if (test_opt(inode->i_sb, RESERVATION) && S_ISREG(inode->i_mode)) {
++			rsv_window_size =3D atomic_read(&ei->i_rsv_window.rsv_goal_size);
++			return put_user(rsv_window_size, (int *)arg);
++		}
++		return -ENOTTY;
+ 	case EXT3_IOC_SETRSVSZ:
++		if (!test_opt(inode->i_sb, RESERVATION) ||!S_ISREG(inode->i_mode))
++			return -ENOTTY;
++
+ 		if (IS_RDONLY(inode))
+ 			return -EROFS;
+=20
+@@ -170,7 +175,6 @@
+ 			rsv_window_size =3D EXT3_MAX_RESERVE_BLOCKS;
+ 		atomic_set(&ei->i_rsv_window.rsv_goal_size, rsv_window_size);
+ 		return 0;
+-#endif
+ 	default:
+ 		return -ENOTTY;
+ 	}
+diff -urNP -X dontdiff 265-mm6-regression-fix/fs/ext3/super.c 265-mm6-fix2/=
+fs/ext3/super.c
+--- 265-mm6-regression-fix/fs/ext3/super.c	2004-04-21 18:34:45.394218872 -0=
+700
++++ 265-mm6-fix2/fs/ext3/super.c	2004-04-21 18:21:35.755262240 -0700
+@@ -551,7 +551,6 @@
+ 	.read_inode	=3D ext3_read_inode,
+ 	.write_inode	=3D ext3_write_inode,
+ 	.dirty_inode	=3D ext3_dirty_inode,
+-	.put_inode	=3D ext3_put_inode,
+ 	.delete_inode	=3D ext3_delete_inode,
+ 	.put_super	=3D ext3_put_super,
+ 	.write_super	=3D ext3_write_super,
+@@ -760,19 +759,12 @@
+ 			printk("EXT3 (no)acl options not supported\n");
+ 			break;
+ #endif
+-#ifdef EXT3_RESERVATION
+ 		case Opt_reservation:
+ 			set_opt(sbi->s_mount_opt, RESERVATION);
+ 			break;
+ 		case Opt_noreservation:
+ 			clear_opt(sbi->s_mount_opt, RESERVATION);
+ 			break;
+-#else
+-		case Opt_reservation:
+-		case Opt_noreservation:
+-			printk("EXT3 block reservation options not supported\n");
+-			break;
+-#endif
+ 		case Opt_journal_update:
+ 			/* @@@ FIXME */
+ 			/* Eventually we will want to be able to create
+diff -urNP -X dontdiff 265-mm6-regression-fix/include/linux/ext3_fs.h 265-m=
+m6-fix2/include/linux/ext3_fs.h
+--- 265-mm6-regression-fix/include/linux/ext3_fs.h	2004-04-21 18:34:43.5464=
+99768 -0700
++++ 265-mm6-fix2/include/linux/ext3_fs.h	2004-04-21 18:21:35.769260112 -070=
+0
+@@ -35,7 +35,6 @@
+ /*
+  * Define EXT3_RESERVATION to reserve data blocks for expanding files
+  */
+-#define EXT3_RESERVATION
+ #define EXT3_DEFAULT_RESERVE_BLOCKS     8
+ #define EXT3_MAX_RESERVE_BLOCKS         1024
+ /*
+@@ -208,10 +207,8 @@
+ #ifdef CONFIG_JBD_DEBUG
+ #define EXT3_IOC_WAIT_FOR_READONLY	_IOR('f', 99, long)
+ #endif
+-#ifdef EXT3_RESERVATION
+ #define EXT3_IOC_GETRSVSZ		_IOR('r', 1, long)
+ #define EXT3_IOC_SETRSVSZ		_IOW('r', 2, long)
+-#endif
+=20
+ /*
+  * Structure of an inode on the disk
 
-a side effect of having cmap_request_range being part of change_page_attr is that the caller must first setup the page tables for the virtual mapping, then check if the caching is ok. it would seem preferrable to use cmap_request_range to check if the caching is ok, setup the page tables, then modify the page tables via change_page_attr (for kernel pages). 
+--=-NyvryUOx1UD8zlXFst6L--
 
-I haven't looked too closely yet, but it would seem like all of this could be encapsulated in remap_page_range and ioremap (ie, driver writers would never call cmap_ routines directly). I'll spend a day or two looking into how well this works.
-
-
-Thanks,
-Terence
-
-On Tue, Apr 20, 2004 at 11:51:12AM -0700, ak@muc.de wrote:
-> On Mon, Apr 19, 2004 at 05:54:57PM -0500, Terence Ripperda wrote:
-> > > I think I prefer the do/undo model instead of push/pop.
-> > > That can work with cmaps too. PAGE_KERNEL means no cmap,
-> > > PAGE_KERNEL_WC and PAGE_KERNEL_NOCACHE get a cmap.
-> > 
-> > but then what is the point of cmap? I would expect a mix of WC and UC
-> mappings to be much less dangerous than a mix of WC/UC and WB. perhaps
-> my mindset is wrong, but it seems allowing ioremap to request a cached
-> mapping is important, and that if that mapping was followed by
-> ioremap_nocached or ioremap_wrcomb, that these subsequent calls should
-> fail.
-> 
-> Hmm, you're right. push/pop is probably better for io-mappings,
-> otherwise
-> we cannot catch existing mappings.  This will be needed for user mmap
-> too.
-> 
-> Ignore my previous suggestion on that then please. Sorry for the noise.
-> 
-> 
-> -Andi
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="cachemap-1.10-2.6.4.patch.bz2"
-Content-Transfer-Encoding: base64
-
-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
-RiEcCH8hdyRThQkEqRM9UA==
-
---1yeeQ81UyVL57Vl7--

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293393AbSCFJMO>; Wed, 6 Mar 2002 04:12:14 -0500
+	id <S293381AbSCFJMO>; Wed, 6 Mar 2002 04:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293379AbSCFJMF>; Wed, 6 Mar 2002 04:12:05 -0500
-Received: from bart.one-2-one.net ([217.115.142.76]:1030 "EHLO
-	bart.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S293381AbSCFJLt>; Wed, 6 Mar 2002 04:11:49 -0500
-Date: Wed, 6 Mar 2002 10:14:20 +0100 (CET)
-From: Martin Diehl <lists@mdiehl.de>
-To: James Curbo <jcurbo@acm.org>
-cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: a couple of USB related Oopses
-In-Reply-To: <20020306050349.GA1152@carthage>
-Message-ID: <Pine.LNX.4.21.0203061007220.31619-100000@notebook.diehl.home>
+	id <S293393AbSCFJME>; Wed, 6 Mar 2002 04:12:04 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:9385 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S293379AbSCFJLw>; Wed, 6 Mar 2002 04:11:52 -0500
+Date: Wed, 6 Mar 2002 10:56:56 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <E16iQPg-00058v-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0203061055070.2839-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, James Curbo wrote:
+Here is that reference, chances are there are more non vocal people using 
+the interface than what you read on LKML.
 
-> Ah, I tried it with 2.5.6-pre2 and usb-uhci.. still got a panic, when I
-> tried to print to the printer (which is what I was doing before too) 
-> Also, got these in my kernel log...
-> 
-> usb-uhci.c: ENXIO 80000200, flags 0, urb c1523ac0, burb c1523a40
+---------- Forwarded message ----------
+Date: 21 Jan 2002 17:46:13 -0500
+From: John Zedlewski <zedlwski@Princeton.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: IDE patch + Taskfile
 
-Apparently there were several reports of such ENXIO errors recently
-triggered by a spinlock issue in hid-core.c - IIRC you have an usb-mouse
-connected and input loaded as well. If so, this might solve it:
+Like everybody else, I wanted to chime in about my happiness with the
+IDE patch (I'm using it via the 2.4.18-pre3-mjc patch collection). Works
+beautifully on my laptop with an IBM Travelstar (DJSA-220) and an
+IDE-interface IBM microdrive (via a compactflash adapter).
 
-<http://marc.theaimsgroup.com/?l=linux-usb-devel&amp;m=101523276704203&amp;w=2>
+But I also wanted to REALLY thank Andre and friends for the new TASKFILE
+ioctl. I'm doing a lot of low-level performance testing on the
+Microdrive and the old ioctl interface was completely inadequate. For
+instance, several of the CFA_* IDE commands were unusable from userspace
+before taskfile came along and now they're a snap... 
 
-Martin
+Thanks again!
+--JRZ
+
 

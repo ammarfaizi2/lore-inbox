@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131908AbRBFABl>; Mon, 5 Feb 2001 19:01:41 -0500
+	id <S132060AbRBFAGN>; Mon, 5 Feb 2001 19:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136046AbRBFABa>; Mon, 5 Feb 2001 19:01:30 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:530 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S131908AbRBFABP>;
-	Mon, 5 Feb 2001 19:01:15 -0500
-Date: Mon, 5 Feb 2001 22:01:09 -0200
-From: Rogerio Brito <rbrito@iname.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
-Message-ID: <20010205220109.A9945@iname.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010205020952.B1276@suse.de> <20010205013424.A15384@iname.com> <20010205144803.B5285@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010205144803.B5285@suse.de>
+	id <S136065AbRBFAGC>; Mon, 5 Feb 2001 19:06:02 -0500
+Received: from beaker.bluetopia.net ([63.219.235.110]:34640 "EHLO
+	beaker.bluetopia.net") by vger.kernel.org with ESMTP
+	id <S136046AbRBFAFx>; Mon, 5 Feb 2001 19:05:53 -0500
+Date: Mon, 5 Feb 2001 19:05:36 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetopia.net>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFC7@orsmsx31.jf.intel.com>
+Message-ID: <Pine.LNX.4.04.10102051856530.2712-100000@beaker.bluetopia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 05 2001, Jens Axboe wrote:
-> 	ioctl(cd_fd, CDROM_SELECT_SPEED, speed);
+On Wed, 31 Jan 2001, Dunlap, Randy wrote:
+...
 
-	I'd like to thank everybody that replied either on the list
-	and privately. I didn't know that I could just use the /proc
-	entries to change the IDE driver speed with a simple:
+Interesting...  I just checked my machine (2.4.1-SMP) to see it only saw
+64MB when it has 256MB.
 
-	echo current_speed:4 > /proc/ide/hdc/settings
+>From 2.4.0-test5:
+Linux version 2.4.0-test5-SMP (root@chickenboo) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #12 SMP Thu Aug 10 12:56:38 EDT 2000
+BIOS-provided physical RAM map: 
+ e820: 000000000009fc00 @ 0000000000000000 (usable) 
+ e820: 0000000000000400 @ 000000000009fc00 (reserved)
+ e820: 0000000000020000 @ 00000000000e0000 (reserved)
+ e820: 000000000fee0000 @ 0000000000100000 (usable) 
+ e820: 0000000000018000 @ 000000000ffe0000 (ACPI data)
+ e820: 0000000000008000 @ 000000000fff8000 (ACPI NVS)
+ e820: 0000000000001000 @ 00000000fec00000 (reserved)
+ e820: 0000000000001000 @ 00000000fee00000 (reserved)
+ e820: 0000000000040000 @ 00000000fffc0000 (reserved)
+Scan SMP from c0000000 for 1024 bytes.
+Scan SMP from c009fc00 for 1024 bytes. 
+Scan SMP from c00f0000 for 65536 bytes.
+found SMP MP-table at 000fb560 
+hm, page 000fb000 reserved twice.
+hm, page 000fc000 reserved twice.
+hm, page 000f6000 reserved twice.
+hm, page 000f7000 reserved twice.
+On node 0 totalpages: 65504
+zone(0): 4096 pages.
+zone(1): 61408 pages.
+zone(2): 0 pages.
 
-	(Thanks Mark for this).
+>From 2.4.1:
+Linux version 2.4.1-SMP (root@chickenboo) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 SMP Tue Jan 30 17:13:07 EST 2001
+BIOS-provided physical RAM map: 
+ BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable) 
+ BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+ BIOS-e820: 0000000000020000 @ 00000000000e0000 (reserved)
+ BIOS-e820: 0000000003f00000 @ 0000000000100000 (usable) 
+ BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
+ BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
+ BIOS-e820: 0000000000040000 @ 00000000fffc0000 (reserved)
+Scan SMP from c0000000 for 1024 bytes.
+Scan SMP from c009fc00 for 1024 bytes. 
+Scan SMP from c00f0000 for 65536 bytes.
+found SMP MP-table at 000fb560 
+hm, page 000fb000 reserved twice.
+hm, page 000fc000 reserved twice.
+hm, page 000f6000 reserved twice.
+hm, page 000f7000 reserved twice.
+On node 0 totalpages: 16384
+zone(0): 4096 pages.
+zone(1): 12288 pages.
+zone(2): 0 pages.
 
-	I'd also like to thank Andries about the tip on the mount
-	option. I didn't find anything in the util-linux (mount)
-	manpage before I asked (I'm using Debian potato's util-linux
-	2.10q-1).
+Nothing at all has changed in either the BIOS setup, compiler, etc.  All I
+did was reboot (and not pay it any attention.)  The configuration was the
+same (make oldconfig.)
 
-	The option that I chose was to cook a little proggie to call
-	the ioctl to set the speed. This is the most flexible solution
-	(as it doesn't involve messing with fstab or being root to
-	pass the mount option to mount). Thanks, Jens!
-
-	Thank you all very, very much for the amazing (and fast) help!
+--Ricky
 
 
-	[]s, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

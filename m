@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTLEGfB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 01:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTLEGfB
+	id S263880AbTLEGlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 01:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTLEGlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 01:35:01 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:52382 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263823AbTLEGe5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 01:34:57 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <Valdis.Kletnieks@vt.edu>, "Peter Chubb" <peter@chubb.wattle.id.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause? 
-Date: Thu, 4 Dec 2003 22:34:37 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
+	Fri, 5 Dec 2003 01:41:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39326 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263880AbTLEGlH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 01:41:07 -0500
+Date: Thu, 4 Dec 2003 22:40:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nathan Scott <nathans@sgi.com>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, pinotj@club-internet.fr,
+       manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+In-Reply-To: <20031205030018.GA1693@frodo>
+Message-ID: <Pine.LNX.4.58.0312042232310.9125@home.osdl.org>
+References: <mnet1.1070562461.26292.pinotj@club-internet.fr>
+ <Pine.LNX.4.58.0312041035530.6638@home.osdl.org> <Pine.LNX.4.58.0312041050050.6638@home.osdl.org>
+ <20031205030018.GA1693@frodo>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200312050513.hB55D1ps030713@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Fri, 05 Dec 2003 15:23:10 +1100, Peter Chubb said:
+
+On Fri, 5 Dec 2003, Nathan Scott wrote:
 >
-> > As far as I know, interfacing to a published API doesn't infringe
-> > copyright.
->
-> Well, if the only thing in the .h files was #defines and
-> structure definitions,
-> it would probably be a slam dunk to decide that, yes.
->
-> Here's the part where people's eyes glaze over:
->
-> % cd /usr/src/linux-2.6.0-test10-mm1
-> % find include -name '*.h' | xargs egrep 'static.*inline' | wc -l
->    6288
->
-> That's 6,288 chances for you to #include GPL code and end up
-> with executable derived from it in *your* .o file, not the kernel's.
+> This patch removes that code, fixes a small memory leak that was
+> lurking in there too, and adds the missing-bio_put-on-error case
+> that Neil found in pagebuf.
 
-	I'm sorry, but that just doesn't matter. The GPL gives you the unrestricted
-right to *use* the original work. This implicitly includes the right to
-peform any step necessary to use the work. (This is why you can 'make a
-copy' of a book on your retina if you have the right to read it.) Please
-tell me how you use a kernel header file, other than by including it in a
-code file, compiling that code file, and executing the result.
+Ok, so we've got the RAID5 issue explained, does anybody have any idea
+about what's wrong with the non-RAID5 cases? We've got at least one report
+of page corruption on RAID0, and one on a plain disk. Both of which looked
+XFS-related - or at least shared that in their configs.
 
-> More to the point, look at include/linux/rwsem.h, and ask yourself
-> how to call down_read(), down_write(), up_read(), and up_write()
-> without getting little snippets of GPL all over your .o.
+Jerome - can you test Nathan's patch together with my "avoid the
+complicated slab logic"? The slab avoidance thing got ext3 stable for you,
+now with Nathan's patch hopefully XFS will be stable too.
 
-	Exactly, it's impossible. So doing so is a necessary step to using the
-header file.
+Which still doesn't _explain_ anything, but it would be interesting to see
+if that removes your problems. It would definitely point to a slab issue,
+but the big question is why it's not more common if so. Compiler bug?
+Other strange trigger?
 
-> And even if your module doesn't get screwed by that, there's a
-> few other equally dangerous inlines waiting to bite you on the posterior.
-
-	No problem. If you can't avoid them, then you're allowed to do them.
-
-> I seem to recall one of the little buggers was particularly
-> nasty, because it
-> simply Would Not Work if not inlined, so compiling with
-> -fno-inline wasn't an
-> option.  Unfortunately, I can't remember which it was - it was
-> mentioned on
-> here a while ago when somebody's kernel failed to boot because a
-> gcc 3.mumble
-> had broken inlining.....
-
-	So you're argument is that it's impossible to use the header file without
-creating a derived work, hence permission to use the header file is
-permission to create the derived work. This supports my argument that you
-can create a derived work without agreeing to the GPL. Thanks.
-
-	DS
-
-
+			Linus

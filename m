@@ -1,78 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUHGXPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUHGXQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264585AbUHGXPd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUHGXPd
+	id S264609AbUHGXQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUHGXQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:15:33 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:41184 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S264585AbUHGXPX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:15:23 -0400
-Message-ID: <411562FD.5040500@blue-labs.org>
-Date: Sat, 07 Aug 2004 19:17:17 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: warning: comparison is always false due to limited range of data
- type
-Content-Type: multipart/mixed;
- boundary="------------010203020804090401060907"
+	Sat, 7 Aug 2004 19:16:38 -0400
+Received: from main.gmane.org ([80.91.224.249]:3290 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264609AbUHGXQe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:16:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Sun, 08 Aug 2004 01:16:31 +0200
+Message-ID: <yw1xy8kq1quo.fsf@kth.se>
+References: <1091908405.5759.49.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:zEEnrZGV5lZ6m1VuSc84N/9Rpr0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010203020804090401060907
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Albert Cahalan <albert@users.sf.net> writes:
 
-2.6.8-rc3
+> Go ahead and drop support for old Linux kernels.
+> Users with old kernels can use the old cdrecord.
+> Handling Linux 2.6.x well means using /dev names.
 
-  CC      fs/smbfs/inode.o
-fs/smbfs/inode.c: In function `smb_fill_super':
-fs/smbfs/inode.c:563: warning: comparison is always false due to limited 
-range of data type
-fs/smbfs/inode.c:564: warning: comparison is always false due to limited 
-range of data type
+And the funniest thing is all that's needed is to remove the silly
+warning printed by cdrecord.
 
-    559         mnt->ttl = SMB_TTL_DEFAULT;
-    560         if (ver == SMB_MOUNT_OLDVERSION) {
-    561                 mnt->version = oldmnt->version;
-    562
-    563                 SET_UID(mnt->uid, oldmnt->uid);
-    564                 SET_GID(mnt->gid, oldmnt->gid);
-    565
-    566                 mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) 
-| S_IFREG;
-    567                 mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | 
-S_IFDIR;
-    568
-    569                 mnt->flags = (oldmnt->file_mode >> 9);
-    570         } else {
-    571                 if (parse_options(mnt, raw_data))
-    572                         goto out_bad_option;
-    573         }
+-- 
+Måns Rullgård
+mru@kth.se
 
-
---------------010203020804090401060907
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------010203020804090401060907--

@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267361AbUBROIh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 09:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUBROIh
+	id S264372AbUBROM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUBROM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 09:08:37 -0500
-Received: from sea2-dav57.sea2.hotmail.com ([207.68.164.192]:31754 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S267361AbUBROIe convert rfc822-to-8bit
+	Wed, 18 Feb 2004 09:12:29 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:30630 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S264372AbUBROM2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 09:08:34 -0500
-X-Originating-IP: [80.204.235.254]
-X-Originating-Email: [pupilla@hotmail.com]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: "Nikita Danilov" <Nikita@Namesys.COM>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Reiserfs mail-list" <Reiserfs-List@Namesys.COM>
-References: <Sea2-DAV22IBirXXeQM0000aeb5@hotmail.com> <16435.27477.679757.404161@laputa.namesys.com>
-Subject: Re: ReiserFS corruption with samba 3.0.2a
-Date: Wed, 18 Feb 2004 15:08:19 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
-Message-ID: <Sea2-DAV57V87PdIv650000b53f@hotmail.com>
-X-OriginalArrivalTime: 18 Feb 2004 14:08:22.0984 (UTC) FILETIME=[AB50F480:01C3F628]
+	Wed, 18 Feb 2004 09:12:28 -0500
+Date: Wed, 18 Feb 2004 15:12:27 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Steve Bromwich <kernel@fop.ns.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+Message-ID: <20040218141227.GA25184@schottelius.org>
+References: <20040213075403.GC1881@schottelius.org> <20040213081104.GD1881@schottelius.org> <20040213095223.GE1881@schottelius.org> <200402131717.34917.bzolnier@elka.pw.edu.pl> <20040215233441.GJ1881@schottelius.org> <Pine.LNX.4.58.0402180921120.7046@brain.fop.ns.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402180921120.7046@brain.fop.ns.ca>
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.1
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+I didn't really see situation when the drive went from very cold
+to room temperature, although you are right, smart says so.
 
-> Marco Berizzi writes:
->  > Hello.
->  > 
->  > I'm experimenting this problem with samba 3.0.2a and linux 2.4.24
->  > with ReiserFS. When I copy (put) a large file (5GB) from a Windows NT
->  > terminal server edition sp6a machine to the samba-linux box I get this
->  > error:
->  > 
->  > Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4999052)[dev:blocknr]: bit already cleared
->  > Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4997935)[dev:blocknr]: bit already cleared
->  > Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902445)[dev:blocknr]: bit already cleared
->  > Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902286)[dev:blocknr]: bit already cleared
->  > 
-> 
-> Are there any other error messages before these?
+Thank you for the tips. I talked to my vendor I he'll replace the disc, 
+as it is just some months old.
 
-No, no errors before these.
+Nico
 
->  > Samba 2.2.8a doesn't show this behaviour.
->  > 
->  > The linux box is Slackware 9.1 (gcc 3.2.3 linux 2.4.24 glibc 2.3.2).
->  > It's easy for me to reproduce the problem.
->  > 
->  > Hints?
-> 
-> Did target file exist before copy?
-
-No. The directory was clean.

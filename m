@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTJPM0t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 08:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTJPM0t
+	id S262884AbTJPMxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 08:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTJPMxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 08:26:49 -0400
-Received: from bimba.bezeqint.net ([192.115.106.39]:61365 "EHLO
-	bimba.bezeqint.net") by vger.kernel.org with ESMTP id S262878AbTJPM0s
+	Thu, 16 Oct 2003 08:53:54 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:16845 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262884AbTJPMxw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 08:26:48 -0400
-Message-ID: <3F8E8EA8.8030707@users.sf.net>
-Date: Thu, 16 Oct 2003 14:27:20 +0200
-From: Eli Billauer <eli_billauer@users.sf.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en, he
+	Thu, 16 Oct 2003 08:53:52 -0400
+Date: Thu, 16 Oct 2003 09:52:30 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: andrea@suse.de, <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.23-pre VM regression?
+Message-ID: <Pine.LNX.4.44.0310160949230.2388-100000@logos.cnet>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC] frandom - fast random generator module
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com>
-In-Reply-To: <3F8E8101.70009@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
 
->> Besides, it's quite easy to do something wrong with random numbers. 
->> By having a good source of random data, I suppose we can spare a lot 
->> of people the headache of getting their own user-space application 
->> right for the one-off thing they want to do.
+Andrea, 
+
+Martin first reported problems with "gzip -dc file | less" (280MB file).
+less was getting killed. He had no swap... I asked him to add some swap
+and it works now. Fine. 
+
+The thing is that with 2.4.22 less was being killed, but with 2.4.23-pre
+he gets:
+
+>> And yes, the app was killed:
+> >
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process named
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process gpm
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process sendmail
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process less
+
+So a lot of processes which should not get killed are dying. This is
+really bad. I was afraid it could happen and it did.
+
+What now? Resurrect OOM-killer? 
+
+> > Hi,
+> >   it's a long time I haven't seen sthis messages, but it just happened that
+> > I did on my laptop ASUS L3880C(1GB RAM). The message show on
+> > 2.4.23-pre5+acpi20030918 and 2.4.23-pre7. The application get's killed on
+> > 2.4.22-acpi20030918 too, just without the "0-order allocation" message.
+> > I enabled in kernel the VM allocation debug option when configuring, but
+> > apparently I have to turn it on also somewhere else. *Documentation* is
+> > missing: 1) the help in "make config/menuconfig" etc. doesn't say anything,
+> > the Documentation subdirectory doesn't say anything except "debug" as
+> > kernel boot option on command-line(I did that too, but no change) and also
+> > linux kernel-FAQ doesn't say either. :(
+> >
+> > How I tested?
+> > `gzip -dc file | less' and pressed `G' to jump to the very end of the file.
+> > The filesize is 280MB only. In a while, the mouse stopps moving for a
+> > while, than the system gets sometimes unloaded, fan is raises it's RPM's up
+> > and down town to time, and mouse cursor eventually does a move and then
+> > less command gets killed. In dmesg I found:
+> >
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > VM: killing process less
+
+With 2.4.22:
+
+> 2.4.22-acpi-20030918 with HIGHMEM gives only in dmesg:
 >
->
-> This is completely bogus logic.  I can use this (incorrect) argument 
-> to similar push for applications doing bsearch(3) or qsort(3) via a 
-> system call.
->
-My argument, possibly better formulated, asks the following questions:
+> Out of Memory: Killed process 1904 (less).
 
-(1) How much good will the existence of an standard /dev/frandom device 
-do? Is it going to be used?
-(2) How much space will it take up in the kernel tarball?
-(3) How much disk space will it take after compilation?
-(4) How much compilation time will it take up?
-(5) How much effort is it going to be to maintain it?
 
-(If we use it as a kernel module, we don't even have to consider the 
-little kernel memory it takes up)
-
-If I've missed some other pragmatic consideration, by all means tell me.
-
-Now, I think that (1) wins (2)-(5). I can comment on maintaining the 
-module after making it compatible with 2.2 and 2.6: It's a simple 
-character device, with the most basic adaptions to it.
-
-I actually agree that the kernel isn't "the right place" for a random 
-generator. I simply think that having it there is useful, with a very 
-low cost.
-
-   Eli
 
 

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUGJNyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266246AbUGJNuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266248AbUGJNyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 09:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUGJNyx
+	id S266246AbUGJNuU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 09:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266248AbUGJNuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 09:54:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:60905 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266248AbUGJNyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 09:54:51 -0400
-Date: Sat, 10 Jul 2004 15:55:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: ismail =?iso-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
-Cc: Redeeman <lkml@metanurb.dk>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710135555.GA31068@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu> <20040710085044.GA14262@elte.hu> <2a4f155d040710035512f21d34@mail.gmail.com> <20040710123520.GA27278@elte.hu> <2a4f155d04071005585b5d8999@mail.gmail.com>
+	Sat, 10 Jul 2004 09:50:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8925 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266246AbUGJNuQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 09:50:16 -0400
+Date: Sat, 10 Jul 2004 14:50:15 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Massimo Cetra <mcetra@navynet.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mount -o bind strange behaviour
+Message-ID: <20040710135015.GR12308@parcelfarce.linux.theplanet.co.uk>
+References: <002401c46682$7c355c70$e60a0a0a@guendalin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2a4f155d04071005585b5d8999@mail.gmail.com>
+In-Reply-To: <002401c46682$7c355c70$e60a0a0a@guendalin>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=0, required 5.9,
-	autolearn=not spam
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* ismail dönmez <ismail.donmez@gmail.com> wrote:
-
-> > what filesystem are you using?
-> > 
+On Sat, Jul 10, 2004 at 03:33:28PM +0200, Massimo Cetra wrote:
+> I have mounted several directories with option -o bind in order to have
+> some files avalaible in a chroot.
 > 
-> XFS
+> Mount -o bind /dir1 /dir2
+> 
+> Yesterday I noticed that modifying some files in /dir1 didn't cause the
+> corresponding files in /dir2 to be modified.
+> It happened only for one mountpoint, not for the otner similar
+> mountpoints.
+> Umount && mount solved the problem.
+> 
+> The only strange thing is that some hours before i noticed this
+> behaviour, machine load reached 150 (apache was overloaded)
+> 
+> Is it a bug somewhere in the kernel ?
 
-i've fixed latencies in ext3, i'm not sure how bad XFS is. But 2-3
-seconds delay is almost impossible to be a true scheduling latency -
-it's probably IO latency impacting your audio application. (it could
-also be normal preemption latency, if those tasks are not running as
-SCHED_FIFO - but 2-3 seconds preemption latency should not be caused by
-a simple cp -a. This leaves IO latency.).
-
-	Ingo
+No way to tell without at least the contents of your /proc/mounts before and
+after...

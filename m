@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290619AbSBFPch>; Wed, 6 Feb 2002 10:32:37 -0500
+	id <S290630AbSBFPc5>; Wed, 6 Feb 2002 10:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290620AbSBFPc1>; Wed, 6 Feb 2002 10:32:27 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2832 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290619AbSBFPcQ>;
-	Wed, 6 Feb 2002 10:32:16 -0500
-Date: Wed, 6 Feb 2002 13:32:00 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <87g04eljw6.fsf@CERT.Uni-Stuttgart.DE>
-Message-ID: <Pine.LNX.4.33L.0202061331210.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290627AbSBFPcs>; Wed, 6 Feb 2002 10:32:48 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:32486 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S290624AbSBFPcj>; Wed, 6 Feb 2002 10:32:39 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andries.Brouwer@cwi.nl, hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16YSs7-0005GY-00@the-village.bc.nu>
+Organisation: SAP LinuxLab
+Date: Wed, 06 Feb 2002 16:31:41 +0100
+In-Reply-To: <E16YSs7-0005GY-00@the-village.bc.nu> (Alan Cox's message of
+ "Wed, 6 Feb 2002 14:16:27 +0000 (GMT)")
+Message-ID: <m3zo2meiea.fsf@linux.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002, Florian Weimer wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
->
-> > The long-range plan, and the real payoff, comes if main developers start
-> > using bk too, which should make syncing a lot easier. That will take some
-> > time, I suspect.
->
-> Do you think that at some point, using BitKeeper will become mandatory
-> for subsystem maintainers?  ("mandatory" in the sense that
-> non-BitKeeper input is dealt with in a less timely fashion, for
-> example.)
+Hi Alan,
 
-They're pretty much equally easy to deal with, except that the
-bitkeeper patches will always apply and will get better changelog
-entries ;)
+On Wed, 6 Feb 2002, Alan Cox wrote:
+> That is indeed an extremely cunning plan. Paticularly as
+> /proc/config can be a symlink to it
 
-regards,
+Not a symlink, but the implementation. We could make a generic
+interface something like proc_make_info_file(name, buffer, length).
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Greetings
+		Christoph
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288996AbSBIXzp>; Sat, 9 Feb 2002 18:55:45 -0500
+	id <S289014AbSBIX5F>; Sat, 9 Feb 2002 18:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289014AbSBIXzf>; Sat, 9 Feb 2002 18:55:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50180 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288996AbSBIXzZ>;
-	Sat, 9 Feb 2002 18:55:25 -0500
-Message-ID: <3C65B6EA.E2C1D123@mandrakesoft.com>
-Date: Sat, 09 Feb 2002 18:55:22 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread abstraction, take two
-In-Reply-To: <20020209180305.A11717@caldera.de>
+	id <S289017AbSBIX44>; Sat, 9 Feb 2002 18:56:56 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:59324 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S289014AbSBIX4j>; Sat, 9 Feb 2002 18:56:39 -0500
+Date: Sun, 10 Feb 2002 00:56:36 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ingress policing still not working in 2.4?
+Message-ID: <20020210005636.A21350@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020209114529.GA6753@links2linux.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020209114529.GA6753@links2linux.de>; from marc.schiffbauer@links2linux.de on Sat, Feb 09, 2002 at 11:48:50AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Sat, Feb 09, 2002 at 11:48:50AM +0000, Marc Schiffbauer wrote:
+> Hi all,
 > 
-> This is a new version of the ktread abstraction which incorporates
-> suggestions by Andi Kleen, Jeff Garzik and Andrew Morton.
+> Is ingress policing not working in the current Kernel?
 > 
-> The changes are:
+> I'm using the Script from the Advanced Routing HOWTO
+> (Thanks for that BTW!)
 > 
->   - kthread_start now takes a void * for the user-data, so it doesn't
->     have to be part of struct kthread.
->   - the main method of struct kthread now returns an integers, if it
->     is negative, the thread will be stopped.
->   - kthread_main no more does the scheduling, it has to be done by
->     the mainloop now.
+> While trying to do a
+> 
+> # tc qdisc add dev ppp0 handle ffff: ingress
+> 
+> I get this:
+> RTNETLINK answers: No such file or directory
 
-Nice.  I like it.
+Get a newer tc, it appears to fix this problem.
 
-Would you consider converting a few places in the kernel to use kthread,
-just as an example to show people what a sample implementation would
-look like?
+> Before that I successfully did this:
+> # install root CBQ
+> DEV=ppp0
+> UPLINK=100
+> DOWNLINK=750
+> tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 100mbit
 
-	Jeff
+The WonderShaper! 
 
+Regards,
 
+bert
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

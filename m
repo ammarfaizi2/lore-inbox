@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVAFRzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVAFRzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVAFRzB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVAFRvo
+	id S262946AbVAFRzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVAFRzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:51:44 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27352 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262954AbVAFRrV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:47:21 -0500
-Date: Thu, 6 Jan 2005 09:47:08 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V3 [2/4]: Extension of clear_page to take an order
- parameter
-In-Reply-To: <m1652awtp7.fsf@muc.de>
-Message-ID: <Pine.LNX.4.58.0501060943002.16240@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
- <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com>
- <Pine.GSO.4.61.0501011123550.27452@waterleaf.sonytel.be>
- <Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041513330.1536@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501051524020.9911@schroedinger.engr.sgi.com> <m1652awtp7.fsf@muc.de>
+	Thu, 6 Jan 2005 12:55:20 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:53123 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262948AbVAFRya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:54:30 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-mm2: swsusp regression
+Date: Thu, 6 Jan 2005 18:48:11 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org>
+In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501061848.11719.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jan 2005, Andi Kleen wrote:
+On Thursday, 6 of January 2005 09:22, Andrew Morton wrote:
+> 
+> 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm2/
+> 
+> - Various minorish updates and fixes
 
-> Christoph Lameter <clameter@sgi.com> writes:
->
-> > Here is an updated version that is independent of the first patch and
-> > contains all the necessary modifications to make clear_page take a second
-> > parameter.
->
-> I still think the clear_page order addition is completely pointless,
-> because for > order 0 you probably want a cache bypassing store
-> in a separate function.
+There's an swsusp regression on my box (AMD64) wrt -mm1.  Namely, 2.6.10-mm2 
+does not suspend, but hangs solid right after the critical section, 100% of 
+the time.
 
-I would think that having clear_page avoid loading cache
-lines from memory should be general improvement.
+Greets,
+RJW
 
-Bypassing the cache may be beneficial for clear_page in general but I
-would like to test that first.
-
-If this is not a win then it may be better to implement the bypassing the
-cache through a zero driver.
-
-> Removing it would also make the patch much less intrusive.
-
-Right. I also thought about that. I will likely offer the clear_page patch
-as an optional component in V4. Being able to specify an order with
-clear_page also helps in other situations like clearing huge pages.
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

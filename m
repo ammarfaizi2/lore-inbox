@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277339AbRJEOFR>; Fri, 5 Oct 2001 10:05:17 -0400
+	id <S277364AbRJEOHr>; Fri, 5 Oct 2001 10:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277364AbRJEOFI>; Fri, 5 Oct 2001 10:05:08 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:9900 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S277339AbRJEOFB>;
-	Fri, 5 Oct 2001 10:05:01 -0400
-To: Linux Bigot <linuxopinion@yahoo.com>
-Cc: Kurt Ferreira <kferreir@esscom.com>, linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-In-Reply-To: <20011003214858.97073.qmail@web14807.mail.yahoo.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 05 Oct 2001 16:04:04 +0200
-In-Reply-To: Linux Bigot's message of "Wed, 3 Oct 2001 14:48:58 -0700 (PDT)"
-Message-ID: <d3r8sitc8b.fsf@lxplus014.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S277388AbRJEOHi>; Fri, 5 Oct 2001 10:07:38 -0400
+Received: from mail.mediaways.net ([193.189.224.113]:52695 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S277386AbRJEOHZ>; Fri, 5 Oct 2001 10:07:25 -0400
+Message-ID: <9D7599308169D311BF3B0004AC4C105D01E2E0F4@hamsrvmsx01.pdv-online.de>
+From: OHenning@pdv-Online.de
+To: linux-kernel@vger.kernel.org
+Subject: [Info] Delta Debugging
+Date: Fri, 5 Oct 2001 16:07:45 +0200 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linux" == Linux Bigot <linuxopinion@yahoo.com> writes:
+Attached is a link to information I found about Delta Debugging:
 
-Linux> oops! I am sorry. I did not meant "pci_unmap_single"
-Linux> pci_unmap_single.
+"The Delta Debugging project at Software Engineering Chair, Saarland
+University investigates a new automated debugging approach based on
+systematic testing. With Delta Debugging, we can find failure-inducing
+circumstances automatically - circumstances such as the program input,
+changes to the program code, executed statements, or thread schedules." 
 
-Linux> I meant to get a routine which does exactly opposite of what
-Linux> pci_map_single does, i.e., give me a virtual address for a dma
-Linux> address.
+URL: http://www.infosun.fmi.uni-passau.de/st/papers/computer2000/
 
-Because it is cheaper for you to keep both addresses in the driver
-than it is to implement a database to keep track of it for you.
+Oliver Henning
 
-Jes
+"Man hat nie Zeit es richtig zu machen, aber man hat immer Zeit es nochmal
+zu machen."

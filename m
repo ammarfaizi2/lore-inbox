@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265992AbUA1SEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 13:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUA1SEz
+	id S266134AbUA1ScH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 13:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUA1ScH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 13:04:55 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12080 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S265992AbUA1SEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 13:04:51 -0500
-Date: Wed, 28 Jan 2004 18:04:21 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Tim Hockin <thockin@hockin.org>
-cc: Andrew Morton <akpm@osdl.org>, <thockin@sun.com>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>
-Subject: Re: NGROUPS 2.6.2rc2
-In-Reply-To: <Pine.LNX.4.44.0401281706040.6069-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0401281757190.6213-100000@localhost.localdomain>
+	Wed, 28 Jan 2004 13:32:07 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:39071 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S266128AbUA1ScD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 13:32:03 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16408.30.896895.980121@napali.hpl.hp.com>
+Date: Wed, 28 Jan 2004 10:31:58 -0800
+To: Andi Kleen <ak@suse.de>
+Cc: Grant Grundler <iod00d@hp.com>, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+In-Reply-To: <20040128184137.616b6425.ak@suse.de>
+References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
+	<20040128172004.GB5494@cup.hp.com>
+	<20040128184137.616b6425.ak@suse.de>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, Hugh Dickins wrote:
-> On Tue, 27 Jan 2004, Tim Hockin wrote:
-> > On Tue, Jan 27, 2004 at 04:46:15PM -0800, Andrew Morton wrote:
-> > > +
-> > > +	if (info->ngroups > TASK_SIZE/sizeof(group))
-> > > +		return -EFAULT;
-> > > +	if (!access_ok(VERIFY_WRITE, grouplist, info->ngroups * sizeof(group)))
-> > > +		return -EFAULT;
-> > > 
-> > > Why are many functions playing with TASK_SIZE?
-> > 
-> > Not sure - I thought it was maybe a paranoid check, Rusty included it in his
-> > version of a similar patch a while ago.
-> 
-> Yes, a necessary paranoid check: without it, info->ngroups * sizeof(group)
-> can easily wrap to something small, and access_ok pass when it should fail.
+>>>>> On Wed, 28 Jan 2004 18:41:37 +0100, Andi Kleen <ak@suse.de> said:
 
-Sorry, I should have looked further.  info->ngroups is an "int", so
-if this check is needed, a check for negativity (or unsigned cast)
-would also be needed.  But it shouldn't be needed in the copy to user
-cases, and in the copy from user cases gidsetsize should be checked
-much earlier, in or before groups_alloc.
+  Andi> Also in my experience from AMD64 which originally was a bit
+  Andi> aggressive on enabling MCEs: enabling MCEs increases your
+  Andi> kernel support load a lot.
 
-Hugh
+  Andi> Many people have slightly buggy systems which still happen to
+  Andi> work mostly.  If you report every problem you as kernel
+  Andi> maintainer will be flooded with reports about things you can
+  Andi> nothing to do about.
 
+I find this comment interesting.  Can you elaborate what you mean by
+"slightly buggy systems"?
+
+	--david

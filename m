@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVCaCMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCaCQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbVCaCMX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 21:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVCaCMX
+	id S262482AbVCaCQj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 21:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCaCQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 21:12:23 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:51916 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262479AbVCaCME
+	Wed, 30 Mar 2005 21:16:39 -0500
+Received: from digitalimplant.org ([64.62.235.95]:39843 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S262482AbVCaCQ0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 21:12:04 -0500
-Message-ID: <424B5CFE.6010907@didntduck.org>
-Date: Wed, 30 Mar 2005 21:14:22 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1 (X11/20050323)
-X-Accept-Language: en-us, en
+	Wed, 30 Mar 2005 21:16:26 -0500
+Date: Wed, 30 Mar 2005 18:16:19 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: klists and struct device semaphores
+In-Reply-To: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.50.0503301814090.20992-100000@monsoon.he.net>
+References: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: Terence Ripperda <tripperda@nvidia.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: question about do_IRQ + 4k stacks
-References: <20050330221042.GZ2104@hygelac>
-In-Reply-To: <20050330221042.GZ2104@hygelac>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda wrote:
-> I'm investigating some 4k stack issues with our driver, and I noticed
-> this ordering in do_IRQ:
-> 
-> asmlinkage unsigned int do_IRQ(struct pt_regs regs)
-> {
-> 	...
-> 
-> #ifdef CONFIG_DEBUG_STACKOVERFLOW
->         /* Debugging check for stack overflow: is there less than 1KB free? */
->         {
-> 	...
->         }
-> #endif
-> 
-> 	...
-> 
-> #ifdef CONFIG_4KSTACKS
-> 
->         for (;;) {
-> 	... switch to interrupt stack
->         }
-> #endif
-> 
-> 
-> Is the intention of this stack overflow check to catch a currently
-> running kernel thread that's getting low on stack space, or is the
-> intent to make sure there's enough stack space to handle the incoming
-> interrupt? if the later, wouldn't you want to potentially switch to
-> your interrupt stack to be more accurate? (I recognize that often you
-> will have switched to an empty stack, unless you have nested
-> interrupts)
-> 
 
-It checks for both process context (system call or kernel thread) or 
-interrupt context (nested irqs) stack overflows.
+On Tue, 29 Mar 2005, Alan Stern wrote:
 
---
-				Brian Gerst
+> On Mon, 28 Mar 2005, Patrick Mochel wrote:
+>
+> > How is this related to (8) above? Do you need some sort of protected,
+> > short path through the core to add the device, but not bind it or add it
+> > to the PM core?
+>
+> Having thought it through, I believe all we need for USB support is this:
+>
+> 	Whenever usb_register() in the USB core calls driver_register()
+> 	and the call filters down to driver_attach(), that routine
+> 	should lock dev->parent->sem before calling driver_probe_device()
+> 	(and unlock it afterward, of course).
+>
+> 	(For the corresponding remove pathway, where usb_deregister()
+> 	calls driver_unregister(), it would be nice if __remove_driver()
+> 	locked dev->parent->sem before calling device_release_driver().
+> 	This is not really needed, however, since USB drivers aren't
+> 	supposed to touch the device in their disconnect() method.)
+
+
+Why can't you just lock it in ->probe() and ->remove() yourself?
+
+
+	Pat
+

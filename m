@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293458AbSDTTVy>; Sat, 20 Apr 2002 15:21:54 -0400
+	id <S289484AbSDTT2t>; Sat, 20 Apr 2002 15:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311739AbSDTTVx>; Sat, 20 Apr 2002 15:21:53 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:31627 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S293458AbSDTTVw>;
-	Sat, 20 Apr 2002 15:21:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Fri, 19 Apr 2002 21:22:27 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16ya3u-0000RG-00@starship> <E16ycuh-0000Wg-00@starship> <m1662m43da.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ydxl-0000a0-00@starship>
+	id <S311739AbSDTT2s>; Sat, 20 Apr 2002 15:28:48 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:37129 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289484AbSDTT2s>;
+	Sat, 20 Apr 2002 15:28:48 -0400
+Date: Sat, 20 Apr 2002 11:27:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Thomas Hood <jdthood@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre7-ac1 breaks my USB mouse
+Message-ID: <20020420182719.GA18580@kroah.com>
+In-Reply-To: <1019328673.873.5.camel@thanatos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 23 Mar 2002 16:20:35 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 20:44, Eric W. Biederman wrote:
-> Linus working more efficiently so he can accept more patches is
-> obviously more fun :)
+On Sat, Apr 20, 2002 at 03:10:00PM -0400, Thomas Hood wrote:
+> (Repeat, with additional information)
+> 
+> I just upgraded from 2.4.19-pre5 to 2.4.19-pre7-ac1 and now my
+> Logitech TrackMan Marble Wheel USB pointing device no longer 
+> works.  This despite the fact that the syslog looks OK (see below).
+> 
+> The problem also afflicts 2.4.19-pre7-ac2.
+> 
+> I didn't have this problem with 2.4.19-pre5 or 2.4.19-pre2-ac4.
 
-Yup.
+How about 2.4.19-pre7?  Does it work there?
 
--- 
-Daniel
+thanks,
+
+greg k-h

@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbQKHLYM>; Wed, 8 Nov 2000 06:24:12 -0500
+	id <S129348AbQKHL0b>; Wed, 8 Nov 2000 06:26:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbQKHLXw>; Wed, 8 Nov 2000 06:23:52 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:48135 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S129423AbQKHLXl>; Wed, 8 Nov 2000 06:23:41 -0500
-Date: Wed, 8 Nov 2000 12:34:02 +0100 (MET)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Looking for better VM
-In-Reply-To: <Pine.LNX.4.05.10011061954520.26327-100000@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.21.0011081052010.1242-100000@fs129-190.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129975AbQKHL0V>; Wed, 8 Nov 2000 06:26:21 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:51206 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129348AbQKHL0E>; Wed, 8 Nov 2000 06:26:04 -0500
+Date: Wed, 8 Nov 2000 14:25:13 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Richard Henderson <rth@twiddle.net>
+Cc: axp-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+Message-ID: <20001108142513.A5244@jurassic.park.msu.ru>
+In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001108013931.A26972@twiddle.net>; from rth@twiddle.net on Wed, Nov 08, 2000 at 01:39:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 08, 2000 at 01:39:31AM -0800, Richard Henderson wrote:
+>   * Replace cropped found_vga detection code.
 
-On Mon, 6 Nov 2000, Rik van Riel wrote:
-> On Mon, 6 Nov 2000, Szabolcs Szakacsits wrote:
-> > On Wed, 1 Nov 2000, Rik van Riel wrote:
-> > > but simply because 
-> > > it appears there has been amazingly little research on this 
-> > > subject and it's completely unknown which approach will work 
-> > There has been lot of research, this is the reason most Unices support
-> > both non-overcommit and overcommit memory handling default to
-> > non-overcommit [think of reliability and high availability].
-> It's a shame you didn't take the trouble to actually
-> go out and see that non-overcommit doesn't solve the
-> "out of memory" deadlock problem.
+I wonder where could I lose this, it was in place initially :-)
 
-Read my *entire* email again and please try to understand. No deadlock
-at all since kernel *falls back* to process killing if memory reserved
-for *root* is also out.
+> +	/* ??? How to turn off a bus from responding to, say, I/O at
+> +	   all if there are no I/O ports behind the bus?  Turning off
+> +	   PCI_COMMAND_IO doesn't seem to do the job.  So we must
+> +	   allow for at least one unit.  */
 
-You could ask, so what's the point for non-overcommit if we use
-process killing in the end? And the answer, in *practise* this almost
-never happens, root can always clean up and no processes are lost
-[just as when disk is "full" except the reserved area for root]. See?
-Human get a chance against hard-wired AI.
+I relied on DEC^WIntel 21153 datasheet which says that to turn off
+io/mem window this bridge must be programmed with base > limit
+values (and the code actually did that).
+But this could be wrong for other bridges.
+OTOH, we turn off prefetchable memory range this way in 2.2, and
+it works...
 
-I also didn't say non-overcommit should be used as default and a
-patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
-developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
-ignored completely, implemented it this way. 
+Thanks for the patch,
 
-And with a runtime tunable OOM killer, Linux really would beat the
-competitors [where it is quite behind at present] in this area. See?
-Human get a chance against hard-wired AI again.
-
-Believe me, there are people [don't read only kernel lists] who wants
-a reliable and controllable system and where the kernel doesn't play
-Russan rulet.
-
-[who missed my first email: forget about mem quotas and the the
-non-scalable "add GB's of swap" in this discussion].
-
-> [if you want an explanation, look in the archives,
-> we've explained this a dozen times now]
- 
-I've been reading the list much longer than you and really pissed of
-that after so many years of discussions, this problem and user
-requirements^Wwishes are still not understood. You think black and
-white but the world is colorful.
-
-	Szaka
-
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

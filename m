@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271022AbTGQHLs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 03:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271026AbTGQHLs
+	id S271026AbTGQHbG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 03:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271035AbTGQHbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 03:11:48 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:10750 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S271022AbTGQHLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 03:11:47 -0400
-Subject: Re: 2.6 sound drivers?
-From: Martin Schlemmer <azarah@gentoo.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030716233045.GR2412@rdlg.net>
-References: <20030716225826.GP2412@rdlg.net>
-	 <20030716231029.GG1821@matchmail.com>  <20030716233045.GR2412@rdlg.net>
+	Thu, 17 Jul 2003 03:31:06 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52997 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S271026AbTGQHbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 03:31:05 -0400
+Subject: Re: [PATCH] O6.1int
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Wade <neroz@ii.net>,
+       Eugene Teo <eugene.teo@eugeneteo.net>, Wiktor Wodecki <wodecki@gmx.de>
+In-Reply-To: <200307171213.02643.kernel@kolivas.org>
+References: <200307171213.02643.kernel@kolivas.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1058426808.1164.1518.camel@workshop.saharacpt.lan>
+Message-Id: <1058427955.754.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 17 Jul 2003 09:26:49 +0200
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 17 Jul 2003 09:45:56 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-17 at 01:30, Robert L. Harris wrote:
-> I do but the problem is I don't have a /dev/dsp, /dev/sound/dsp or
-> anything else to point mpg123 at.
-> 
+On Thu, 2003-07-17 at 04:13, Con Kolivas wrote:
+> The bug in the O6int patch probably wasn't responsible for WIktor's problem 
+> actually. It shouldn't manifest for a very long time. Anyway here is the fix 
+> and a couple of minor cleanups.
 
-On Thu, 2003-07-17 at 03:42, James H. Cloos Jr. wrote: 
-> >>>>> "Robert" == Robert L Harris <Robert.L.Harris@rdlg.net> writes:
-> 
-> Robert> No go, it looks like it's playing but nothing to the speakers.
-> 
-> Alsa boots up muted.  Use alsamixer(1) (it is a curses app) to set
-> your prefered volumes.  Then as root run 'alsactl store' to store
-> said volumes.  Each boot running 'alsactl restore' will reset them.
+This is even better than plain O6-int. Everything is nearly perfect. 
+One thing I dislike a bit is that on my slow PIII 700Mhz, moving a
+medium-sized window over Evolution 1.4.3 main window (displaying my
+INBOX full of messages) makes the window movement a little jumpy
+(Evolution 1.4.3 is well-known to be a serious CPU hogger when
+repainting windows).
 
-Right.
-
-Also, if you want /dev/sound/* you need to compile the OSS stuff
-for ALSA ... 
-
-  # modprobe snd-mixer-oss
-  # modprobe snd-*-oss ....
-
-
--- 
-Martin Schlemmer
-
+Renicing X to -20 helps a little with the jumpiness.
+Nice work, indeed!
 

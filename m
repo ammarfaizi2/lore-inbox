@@ -1,274 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUH2QXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUH2Qdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUH2QXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUH2QXW
+	id S268080AbUH2Qdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUH2Qdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:23:22 -0400
-Received: from holomorphy.com ([207.189.100.168]:18350 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268066AbUH2QW6 (ORCPT
+	Sun, 29 Aug 2004 12:33:44 -0400
+Received: from smcc.demon.nl ([212.238.157.128]:17939 "HELO smcc.demon.nl")
+	by vger.kernel.org with SMTP id S268080AbUH2Qdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:22:58 -0400
-Date: Sun, 29 Aug 2004 09:22:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: mita akinobu <amgta@yacht.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040829162252.GG5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	Andries Brouwer <aeb@cwi.nl>,
-	Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1LKvkjL3sHcu1TtY"
+	Sun, 29 Aug 2004 12:33:39 -0400
+From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+Organization: I'm not organized
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: pwc+pwcx is not illegal
+Date: Sun, 29 Aug 2004 18:33:37 +0200
+User-Agent: KMail/1.6.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pmarques@grupopie.com, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+References: <1093634283.431.6370.camel@cube> <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org> <1093788018.27901.35.camel@localhost.localdomain>
+In-Reply-To: <1093788018.27901.35.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408250022.09878.amgta@yacht.ocn.ne.jp>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408291833.37808@smcc.demon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---1LKvkjL3sHcu1TtY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sunday 29 August 2004 16:00, Alan Cox wrote:
+> On Gwe, 2004-08-27 at 20:29, Linus Torvalds wrote:
+> > So stop whining about it. The driver got removed because the author
+> > asked for it.
+>
+> Please put it back, minus the hooks so the rest of the world can use it.
 
-On Wed, Aug 25, 2004 at 12:22:09AM +0900, mita akinobu wrote:
-> The readprofile command does not print the number of clock ticks about
-> the last element in profiling buffer.
-> Since the number of clock ticks which occur on the module functions is
-> as same as the value of the last element of prof_buffer[]. when many
-> ticks occur on there, some users who browsing the output of readprofile
-> may overlook the fact that the bottle-neck may exist in the modules.
-> I create the patch which enable to print clock ticks of the last
-> element as "*unknown*".
+No, don't! There is one very practial reason for that: the utter confusion 
+it will cause when suddenly PWCX cannot be loaded anymore, because users 
+will assume that since PWC is in the kernel, PWCX will work too. I really 
+would not like to be at the receiving end of the support mailbox when 2.6.9 
+comes out with such a crippled version of PWC.
 
-Well, since I couldn't stop vomiting for hours after I looked at the
-code for readprofile(1), here's a reimplementation, with various
-misfeatures removed, included as a MIME attachment.
+That's one of the reasons I requested PWC to be removed. For me, it's also a 
+matter of quality: what good is a half-baked driver in the kernel when you 
+need to patch it first to get it working fully again? I don't want my name 
+attached to that.
+
+> If not please remove every line of code I've even written because I
+> don't like the new attitude .. so ner..
+>
+> Point made ? We can't go around throwing out drivers because the author
+> had a tantrum. 
+
+I'm not having a tantrum. If it is, it has been one in the making for 3 
+years.
+
+> Its also trivial to move the decompressor to user space 
+> where it should be anyway. 
+
+*sigh* As I have been saying a 100 times before, it is illogical, cumbersome 
+for both users and developers, and will probably take a very long time to 
+adopt (notwithstanding V4L2 [*]). 
+
+I mean, I still remember when the YUV->RGB conversion code was snipped from 
+PWC when I supplied it for inclusing in the kernel, back in 2001. It took a 
+long, long time for webcam tools to adjust their code to check for the YUV 
+palette and do the conversion themselves, and _to_this_very_day_ I'm 
+getting mails about programs who still don't get it right.
+
+*IF* there was a commonly accepted video "middle-layer", this would not pose 
+much of a problem. But there is no such thing yet.
+
+(maybe that's something for a 2.7 kernel...)
+
+> Similarly the driver is useful without the binary stuff.
+
+True. But judging from the mails I have received the last couple of days,
+people don't really care about the binary stuff, as long as it works. They 
+want to use the cam to its full potential, so PWCX is more or less a 
+necessity. However, there's has now been added an extra hurdle in getting 
+it work, for reasons I find questionable, and really, 3 years too late.
+
+Seriously, this probably would not have happened if, back in 2001, the 
+driver was rejected on the basis of this hook (you were there, Alan...) I 
+never made a secret of it, it has been in the driver from day 1 and its 
+purpose was clearly spelled out. If it had been rejected, I would probably 
+have just switched to '3rd party module' mode and maintained it outside the 
+kernel indefinetely. I would not have liked it, but it would have been 
+acceptable.
+
+Another acceptable solution would have been, if after the 'discovery' of the 
+hook, Greg or anybody else had said: "Look, we really don't want this kind 
+of thing in the kernel. However, since we're a bit late to react, we'll 
+leave it in the 2.4 and 2.6 series, but versions beyond that (2.7-devel, 
+etc) will not have PWC included in this form. In the mean time, we're 
+asking you to think of a solution". Chances are the situation would have 
+been fully resolved before that (and I mean fully *hint*).
+
+> Or do we need a -ac tree again where this time -ac is "added camera" ;)
+
+*lol* The code is still floating around on the Net, so nobody's stopping 
+you... 
+
+ - Nemosoft
 
 
--- wli
+[*] Some advice: if you really want to speed up V4L2 adoption by video 
+tools, start disabling V4L1 in the kernel... 
 
---1LKvkjL3sHcu1TtY
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Description: readprofile.c
-Content-Disposition: attachment; filename="readprofile.c"
-
-/*
- * readprofile(1) implementation.
- * (C) 2004 William Irwin, Oracle
- * Licensed under GPL, or any DFSG-free license of the user's choice.
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <strings.h>
-#include <unistd.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/utsname.h>
-
-struct sym {
-	unsigned long long vaddr;
-	char name[64];
-	unsigned long hits;
-};
-
-struct profile_state {
-	int fd, shift;
-	uint32_t *buf;
-	size_t bufsz;
-	struct sym syms[2], *last, *this;
-	unsigned long long stext, vaddr;
-	unsigned long total;
-	char type, sym[64];
-};
-
-static int digits(void)
-{
-	static int ret = 0;
-	unsigned long n = ULONG_MAX;
-
-	if (ret)
-		return ret;
-	for (n = ULONG_MAX; n >= 10; n /= 10)
-		++ret;
-	ret += !!n;
-	return ret;
-}
-
-static void shift_syms(struct sym *syms, struct sym **last, struct sym **this)
-{
-	*last = *this;
-	*this = &syms[!(*this - syms)];
-}
-
-static int is_text(char c)
-{
-	return c == 'T' || c == 't' || c == 'W' || c == 'w';
-}
-
-static long profile_off(unsigned long long vaddr, struct profile_state *state)
-{
-	return (((vaddr - state->stext) >> state->shift) + 1)*sizeof(uint32_t);
-}
-
-static int state_transition(struct profile_state *state)
-{
-	int ret = 0;
-	long page_mask, start, end;
-	unsigned off;
-
-	if (!state->stext) {
-		if (!strcmp(state->sym, "_stext"))
-			state->stext = state->vaddr;
-		goto out;
-	} else if ((!state->last || !state->this) && !is_text(state->type)) {
-		ret = 1;
-		goto out;
-	}
-	shift_syms(state->syms, &state->last, &state->this);
-	state->this->vaddr = state->vaddr;
-	state->this->hits = 0;
-	if (is_text(state->type)) {
-		strcpy(state->this->name, state->sym);
-		if (!state->last)
-			goto out;
-	} else {
-		strcpy(state->this->name, "*unknown*");
-		ret = 1;
-	}
-	start = profile_off(state->last->vaddr, state);
-	end = profile_off(state->this->vaddr, state)
-					+ !!state->shift*sizeof(uint32_t);
-	if (lseek(state->fd, start, SEEK_SET) != start) {
-		fprintf(stderr, "fseek() failed\n");
-		exit(EXIT_FAILURE);
-	}
-	if (state->bufsz < (size_t)(end - start)) {
-		page_mask = getpagesize() - 1;
-		state->bufsz = (end - start + page_mask) & ~page_mask;
-		free(state->buf);
-		if (!(state->buf = malloc(state->bufsz))) {
-			fprintf(stderr, "out of memory\n");
-			exit(EXIT_FAILURE);
-		}
-	}
-	if (read(state->fd, state->buf, end - start) == end - start) {
-		for (off = 0; off < (end - start)/sizeof(uint32_t); ++off)
-			state->last->hits += state->buf[off];
-	} else {
-		ret = 1;
-		strcpy(state->last->name, "*unknown*");
-	}
-	if (state->last->hits)
-		printf("%*lu %s\n", digits(), state->last->hits,
-							state->last->name);
-	state->total += state->last->hits;
-out:
-	return ret;
-}
-
-static int readprofile(FILE *system_map, int profile_buffer)
-{
-	char *buf = NULL;
-	ssize_t nchar, bufsz;
-	uint32_t step;
-	struct profile_state state = {
-		.fd	= profile_buffer,
-		.last	= NULL,
-		.this	= NULL,
-		.total	= 0,
-		.stext	= 0,
-	};
-
-	if (read(profile_buffer, &step, sizeof(uint32_t)) != sizeof(uint32_t)) {
-		fprintf(stderr, "read() failed\n");
-		return EXIT_FAILURE;
-	}
-	state.shift = ffs(step) - 1;
-	if (!(state.buf = malloc(getpagesize()))) {
-		fprintf(stderr, "out of memory\n");
-		return EXIT_FAILURE;
-	}
-	state.bufsz = getpagesize();
-	while ((nchar = getline(&buf, &bufsz, system_map)) > 0) {
-		if (sscanf(buf, "%Lx %c %63s", &state.vaddr, &state.type,
-							state.sym) != 3)
-			continue;
-		if (state_transition(&state))
-			break;
-	}
-	printf("%*lu total\n", digits(), state.total);
-	if (state.buf)
-		free(state.buf);
-	return 0;
-}
-
-static FILE *open_system_map(void)
-{
-	struct utsname buf;
-	char s[256];
-
-	if (!access("/boot/System.map", R_OK))
-		return fopen("/boot/System.map", "r");
-	if (uname(&buf))
-		return NULL;
-	snprintf(s, sizeof(s), "/boot/System.map-%s", buf.release);
-	return fopen(s, "r");
-}
-
-int main(int argc, char * const argv[])
-{
-	FILE *system_map = NULL;
-	int c, ret, profile_buffer = -1;
-	static const char optstr[] = "m:p:";
-
-	while ((c = getopt(argc, argv, optstr)) != EOF) {
-		switch (c) {
-			case 'm':
-				if (!strcmp(optarg, "-"))
-					system_map = fdopen(STDIN_FILENO, "r");
-				else if (!access(optarg, R_OK))
-					system_map = fopen(optarg, "r");
-				else {
-					fprintf(stderr, "mapfile %s is "
-						"inaccessible\n", optarg);
-					exit(EXIT_FAILURE);
-				}
-				break;
-			case 'p':
-				if (!strcmp(optarg, "-"))
-					profile_buffer = STDIN_FILENO;
-				else if (!access(optarg, R_OK))
-					profile_buffer = open(optarg, O_RDONLY);
-				else {
-					fprintf(stderr, "profile %s is "
-						"inaccessible\n", optarg);
-					exit(EXIT_FAILURE);
-				}
-				break;
-			case '?':
-			default:
-				fprintf(stderr, "usage: %s [ -m mapfile ] "
-					"[ -p profile ]\n", argv[0]);
-				exit(EXIT_FAILURE);
-		}
-	}
-	if (!system_map)
-		system_map = open_system_map();
-	if (profile_buffer < 0)
-		profile_buffer = open("/proc/profile", O_RDONLY);
-	ret = readprofile(system_map, profile_buffer);
-	fclose(system_map);
-	close(profile_buffer);
-	return ret;
-}
-
---1LKvkjL3sHcu1TtY--

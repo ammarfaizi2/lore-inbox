@@ -1,28 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267660AbRGRTUP>; Wed, 18 Jul 2001 15:20:15 -0400
+	id <S267528AbRGRTTo>; Wed, 18 Jul 2001 15:19:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267833AbRGRTUE>; Wed, 18 Jul 2001 15:20:04 -0400
-Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:42511 "EHLO
-	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S267660AbRGRTTp>; Wed, 18 Jul 2001 15:19:45 -0400
-Date: Wed, 18 Jul 2001 21:19:44 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: menuconfig cannot change numbers in 2.4.6
-Message-ID: <Pine.LNX.4.31.0107182110590.24235-100000@pc40.e18.physik.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267914AbRGRTTY>; Wed, 18 Jul 2001 15:19:24 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56401 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267833AbRGRTTS>; Wed, 18 Jul 2001 15:19:18 -0400
+Date: Wed, 18 Jul 2001 15:19:20 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200107181919.f6IJJKK05088@devserv.devel.redhat.com>
+To: frey@scs.ch
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Right Semantics for ioremap, remap_page_range
+In-Reply-To: <mailman.995466971.12450.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.995466971.12450.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks!
+> There is an io_remap_page_range, which does a
+> remap_page_range(virt_to_phys(ioremap(pci_resource_start()))) on
+> Alpha, but this does not work either.
 
-By make menuconfig I am unable to change e.g.
-CONFIG_AIC7XXX_RESET_DELAY_MS in a sane way: I can only add characters to
-the string. Was there a change or am I doing something wrong? There are no
-errors before...
+Kick the Alpha maintainer.
 
-Ciao,
-					Roland
-
+-- Pete

@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273589AbRIUQJy>; Fri, 21 Sep 2001 12:09:54 -0400
+	id <S273615AbRIUQdL>; Fri, 21 Sep 2001 12:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273601AbRIUQJo>; Fri, 21 Sep 2001 12:09:44 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:41446 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S273589AbRIUQJ2> convert rfc822-to-8bit; Fri, 21 Sep 2001 12:09:28 -0400
-Message-Id: <200109211609.SAA08383@post.webmailer.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Norbert Sendetzky <norbert@linuxnetworks.de>
-Organization: Linuxnetworks
-To: <linux-kernel@vger.kernel.org>
-Subject: Implementing a new network based file system
-Date: Fri, 21 Sep 2001 18:07:05 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S273617AbRIUQdB>; Fri, 21 Sep 2001 12:33:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25605 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273615AbRIUQcv>; Fri, 21 Sep 2001 12:32:51 -0400
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+To: jussi.laako@kolumbus.fi (Jussi Laako)
+Date: Fri, 21 Sep 2001 17:36:17 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        roger.larsson@norran.net (Roger Larsson),
+        oxymoron@waste.org (Oliver Xymoron),
+        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?Q?N=FCtzel?=),
+        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
+        andrea@suse.de (Andrea Arcangeli),
+        linux-kernel@vger.kernel.org (linux-kernel),
+        reiserfs-list@namesys.com (ReiserFS List)
+In-Reply-To: <3BAB69CF.A3F9D217@kolumbus.fi> from "Jussi Laako" at Sep 21, 2001 07:24:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kTHl-0000Pp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+> Only "soundcards", that cheap crap like SoundBlaster. Professional
+> lowlatency soundcards usually have something like 128-512 samples per
+> channel for 24-bit (32-bit data) 96 kHz 8 channels...
 
-I'm currently doing some research on implementiation of a new file 
-system for my diplomathesis. It's about designing and implementing a 
-network file system with security in mind. For those interested, 
-there is a short introduction about why and how on my website (look 
-at the Secure Internet File System section):
-
-http://www.linuxnetworks.de/security/index.html
-
-I have already studied ramfs sources for the basics and the sources 
-of coda, nfs and smbfs to find out, what I have to do. Also I read 
-all documentation I found about the VFS. But there are a few 
-questions, where I couldn't find an answer:
-
-
-My first question is related to the superblock:
-There are six functions about inode handling. Each of the above 
-network file systems (coda, nfs, smbfs) implements different 
-functions:
-
-coda: read_inode and clear_inode
-nfs: read_inode, put_inode and delete_inode
-smbfs: put_inode and delete_inode
-
-When do I need which function? Why are they necessary at all when 
-implementing a network file system? Can anyone explain the bigger 
-scheme behind this to me?
-
-
-My second question is around inode_operations:
-Why does none of the network file systems implement the readlink, 
-follow_link, truncate and getattr funtions? Does the server follow 
-the symlink automatically if it is written to the storage medium and 
-show only the resulting file?
-
-
-I have even more questions, but I will do some more research and 
-maybe I will find the answer by myself before I get kicked off this 
-list because of submitting too much obvious questions... (at least 
-obvious to you) ;-)
-
-Thanks in advance
-
-
-Norbert
+Then the problem space isnt interesting. Many graphics cards will hog the
+PCI bus for longer than that

@@ -1,29 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276670AbRKDAKn>; Sat, 3 Nov 2001 19:10:43 -0500
+	id <S276709AbRKDAQd>; Sat, 3 Nov 2001 19:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276709AbRKDAKd>; Sat, 3 Nov 2001 19:10:33 -0500
-Received: from mail.uhg.net ([208.128.168.19]:37126 "EHLO
-	UHGEXCHANGE00.uhg.net") by vger.kernel.org with ESMTP
-	id <S276670AbRKDAKS>; Sat, 3 Nov 2001 19:10:18 -0500
-Date: Sat, 3 Nov 2001 18:08:15 -0600
-From: "Roach, Mark R." <mrroach@uhg.net>
+	id <S276751AbRKDAQX>; Sat, 3 Nov 2001 19:16:23 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:36510 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S276709AbRKDAQR>; Sat, 3 Nov 2001 19:16:17 -0500
+Message-Id: <200111040016.fA40GER4010596@lester.arraycomm.com>
+X-Mailer: exmh version 2.4 05/15/2001 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org
-Subject: asus P5A-B psaux problem
-Message-ID: <20011103180815.C27210@tncorpmrr001.uhg>
+Subject: Re: 3ware 3dmd & 2.4.12-ac: Error: No Controllers Found
+Cc: demarest@arraycomm.com
+Reply-To: Timothy Demarest <demarest@arraycomm.com>
+Organization: ArrayComm, Inc.
+X-url: http://www.arraycomm.com
+X-Face: )?{NA%l9H>K'M[ioZ<Y9]0Ks$1-r[owPRVTxa_wn[itp+Y,BRG_sKiNI3sX,]*\yJNN]#_&
+ frV+6Nv~Q3(j:3n.8a#6?k)hU5j,Z*>s@Nd%.($`3'%ppn*~@nI[Zr~9ec8-i8@@U/lVB>\[J9ESNh
+ a52]aP'[4Qw6*)yBu[V8-C#V%>oY^#o]H@Jn:3"0I2OQiDmeh/Xk1b311'wd`+9rJ=XMaruKy`UT
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Date: Sat, 03 Nov 2001 16:16:14 -0800
+From: Timothy Demarest <demarest@arraycomm.com>
+X-Filter-Version: 1.7 (lester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had no luck with ps/2 mouse on an Asus P5A-B mobo with newer
-kernel versions, I have tried 2.4.12 and 2.4.13 with no luck. It works
-fine with 2.2.19, though.
 
-With 2.4.12 & 13 I get "Detected PS/2 Mouse Port." in dmesg only when
-the mouse is not plugged in. Plug it in, no message of ps/2.
+  Jason> I just checked and found I'm having the same problem.  I'm at
+  Jason> 2.4.12-ac5 plus LVM 1.0.1_rc4.  I have no idea what could be going
+  Jason> on; I've been lost a couple of times in the 3ware driver without
+  Jason> understanding much of what's going on in there.
 
-If anyone has any suggestions I would love to be able to use 2.4 kernel,
-hopefully it is something stupid I have missed.
+The problem is still there in 2.4.13-ac5 and 2.4.13-ac7, with the same
+symptom:
+
+Nov  3 15:46:27 bertha 3dmd: ioctl(4) failed: No such device or address
+Nov  3 15:46:27 bertha 3dm: 3dmd startup succeeded 
+
+Although the web interface to 3dmd doesn't appear to find the controller,
+everything else appears to work just fine.
+
+Plain 2.4.13 (and earlier, at least 2.4.10 and 2.4.12) appear to be OK.
+
+I'm running the 7.3.2 release of the firmware (7.3.2 FE7X 1.03.09.027) and
+3dmd (1.10.00.020), and using the driver included with the kernel
+releases. Interesting features: Escalade 7810 with 8 drives, dual processor
+Athlon MP on a Tyan Tiger mb, Netgear GA620.
+
+--
+Timothy Demarest                      ArrayComm, Inc.  
+demarest@arraycomm.com                2480 North 1st Street, Suite 200
+http://www.arraycomm.com              San Jose, CA 95131
+
+

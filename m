@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUAGNtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 08:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUAGNtJ
+	id S265530AbUAGNhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 08:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUAGNhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 08:49:09 -0500
-Received: from [66.98.192.92] ([66.98.192.92]:33689 "EHLO svr44.ehostpros.com")
-	by vger.kernel.org with ESMTP id S266213AbUAGNtF (ORCPT
+	Wed, 7 Jan 2004 08:37:34 -0500
+Received: from mail.gmx.net ([213.165.64.20]:31147 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265530AbUAGNhb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 08:49:05 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       "x86_64 discussions" <discuss@x86-64.org>
-Subject: kgdb 2.0 for kernel 2.6.0
-Date: Wed, 7 Jan 2004 19:18:43 +0530
-User-Agent: KMail/1.5
+	Wed, 7 Jan 2004 08:37:31 -0500
+X-Authenticated: #20450766
+Date: Wed, 7 Jan 2004 14:36:34 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+In-Reply-To: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
+Message-ID: <Pine.LNX.4.44.0401071431520.479-100000@poirot.grange>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401071918.43654.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 6 Jan 2004, Guennadi Liakhovetski wrote:
 
-I have released kgdb 2.0 for kernel 2.6.0 for i386 and x86_64 architectures at 
-http://kgdb.sourceforge.net.
+> server with 2.6.0 kernel:
+>
+> fast:2.6.0-test11	2m21s (*)
+> fast:2.4.20		16.5s
+> SA1100:2.4		never finishes (*)
+> PXA:2.4.21-rmk1-pxa1	as above
+> PXA:2.6.0-rmk1-pxa	as above
+>
+> server: 2.4.21
+>
+> fast:2.6.0-test11	6s
+> fast:2.4.20		5s
+> SA1100:2.4.19-rmk7	3.22s
+> PXA:2.4.21-rmk1-pxa1	7s
+> PXA:2.6.0-rmk2-pxa	1) 50s (**)
+> (***)			2) 27s (**)
 
-This version of kgdb has been supported by TimeSys Corporation and Storad Inc. 
-It contains code from kgdb patches maintained by Andrew Morton (George 
-Anzinger), Andi Kleen and Jim Housten.
+s/fast/PC2/
 
-Significant changes since previous version:
-1. This version contains three patches: architecture specific patches for i386 
-and x86_64 and a common patch.
-2. Automatic loading of modules in gdb is available on x86_64 platform now. 
-Debugging of modules, including those in initrd, should be trivial with this 
-feature.
-3. Hasslefree detach and reconnect from gdb possible on x86_64 platform also.
-4. New format of kgdb kernel command line options: kgdbwait, kgdb8250.
-5. Shadow thread to get backtraces lost when gdb can't go beyond do_IRQ.
-6. Uses new thread list packet qf instead of qL. This fixes the thread 
-information loss previous versions of kgdb had.
+Further, I tried the old 3c59x card - same problems persist. Also tried
+PC2 as the server - same. nfs-utils version 1.0.6 (Debian Sarge). I sent a
+copy of the yesterday's email + new details to nfs@lists.sourceforge.net,
+netdev@oss.sgi.com, linux-net@vger.kernel.org.
 
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+Strange, that nobody is seeing this problem, but it looks pretty bad here.
+Unless I missed some necessary update somewhere? The only one that seemed
+relevant - nfs-utils on the server(s) from Documentation/Changes I
+checked.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+
 

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUDSRFc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 13:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDSRFc
+	id S261551AbUDSRFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 13:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDSRFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 13:05:32 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:21009 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261576AbUDSRF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 13:05:26 -0400
-Date: Mon, 19 Apr 2004 18:05:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-Subject: Re: [PATCH] floppy98.c: use kernel min/max
-Message-ID: <20040419180522.A14468@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-References: <20040418194357.4cd02a06.rddunlap@osdl.org> <200404191414.15702.bzolnier@elka.pw.edu.pl> <20040419085116.1d8576a6.rddunlap@osdl.org> <200404191859.29846.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200404191859.29846.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Mon, Apr 19, 2004 at 06:59:29PM +0200
+	Mon, 19 Apr 2004 13:05:15 -0400
+Received: from mail.cs.tu-berlin.de ([130.149.17.13]:17352 "EHLO
+	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S261551AbUDSRFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 13:05:02 -0400
+Message-Id: <200404191659.i3JGxv03006802@phobos.cs.tu-berlin.de>
+To: linux-kernel@vger.kernel.org
+From: Peter Daum <gator@cs.tu-berlin.de>
+Subject: Re: Total freeze switching X->fb (matrox)
+Date: Mon, 19 Apr 2004 15:57:06 +0200
+References: <1JtQg-3hH-7@gated-at.bofh.it> <1JtQj-3hH-19@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii;
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <1JtQj-3hH-19@gated-at.bofh.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 06:59:29PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> BTW at least PC9800 IDE support needs reworking - it is one BIG hack
+Tomasz Torcz wrote:
 
-Please just kill it then.  PC9800 wasn't completly merged ever and there
-haven't been atempts for ages.  No need to stall development because of it.
+> On Sat, Apr 10, 2004 at 06:37:58PM +0200, legion wrote:
+>
+>> The problem is: framebuffer (matroxfb) works fine, X (xfree 4.3 or Xorg
+>> 6.7) works fine, but sometimes when i hit "ctrl alt F1" for switching
+>> on the console, the system freeze.
+>
+>
+>
+>> video card: Matrox G400 DH on nvidia nforce2 motherboard
+>> kernel: vanilla 2.6.3+ (nforce2 agp/matrox drm/matroxfb support)
+>> X server: Xfree 4.3.0 or Xorg r6.7 using "mga" driver
+>
+>
+>
+>  It also happens with Matrox G550 on VIA board.
+> All 2.6.x kernels. XFree86 4.3 and 4.4.
+
+
+Same thing here with Asus P4-PE board.
+No matroxfb here, so this doesn't seem to be the problem.
+I guess it's more an issue with agpart/drm.
 

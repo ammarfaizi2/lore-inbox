@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSCMQin>; Wed, 13 Mar 2002 11:38:43 -0500
+	id <S310783AbSCMQkd>; Wed, 13 Mar 2002 11:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310787AbSCMQie>; Wed, 13 Mar 2002 11:38:34 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:5380 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310783AbSCMQiU>;
-	Wed, 13 Mar 2002 11:38:20 -0500
-Date: Wed, 13 Mar 2002 08:38:28 -0800
-From: Greg KH <greg@kroah.com>
-To: David Chow <davidchow@shaolinmicro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB-to-serial 2303
-Message-ID: <20020313163828.GA1951@kroah.com>
-In-Reply-To: <1016020663.31918.10.camel@star8.planet.rcn.com.hk>
-Mime-Version: 1.0
+	id <S310790AbSCMQkY>; Wed, 13 Mar 2002 11:40:24 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:47262 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S310783AbSCMQkL>; Wed, 13 Mar 2002 11:40:11 -0500
+Date: Wed, 13 Mar 2002 08:40:26 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>,
+        "S. Chandra Sekharan" <sekharan@us.ibm.com>
+Subject: Re: [PATCH] Support for assymmetric SMP
+Message-ID: <467625960.1016008825@[10.10.2.3]>
+In-Reply-To: <E16lBRo-0006jU-00@the-village.bc.nu>
+In-Reply-To: <E16lBRo-0006jU-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1016020663.31918.10.camel@star8.planet.rcn.com.hk>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 13 Feb 2002 14:33:24 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 07:57:42PM +0800, David Chow wrote:
-> Hi, I've got a pl2303 adapter running 2.4.17 . I cannot write any
-> commands to my modem but I still read "RING" with some corrupted output
-> from my /dev/ttyUSB0 port. Is this driver still in beta or not working?
-> I would like to get some hints thanks.
+>> Actually I know of at least one dual P4 Xeon board where I 
+>> haven't seen anything except IPI go to the second cpu.
+> 
+> Expect that to occur. The random distribution stuff doesn't seem to be a
+> feature of all pentium IV systems. Ie this bug does want fixing
 
-I do not know of any outstanding problems with this driver, no.
-Can you load it with "debug=1" on the modprobe line and see if there is
-any odd messages in the kernel debug log?
+Dave Olien published a patch which will make this issue much
+better for P4 - setting the TPR so we route interrupts according 
+to how important the processors current work is. Should alleviate
+the "dump everything on one CPU" P4ness.
 
-thanks,
+Would still be nice to fix this though.
 
-greg k-h
+M.
+

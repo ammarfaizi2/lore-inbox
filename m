@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135700AbREBRvH>; Wed, 2 May 2001 13:51:07 -0400
+	id <S135704AbREBRxv>; Wed, 2 May 2001 13:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135686AbREBRvA>; Wed, 2 May 2001 13:51:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19985 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135701AbREBRup>; Wed, 2 May 2001 13:50:45 -0400
-Subject: Re: Problems even with 512 block size MOs
-To: bon@elektron.ikp.physik.tu-darmstadt.de (Uwe Bonnes)
-Date: Wed, 2 May 2001 18:53:37 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <15088.18199.487902.514295@hertz.ikp.physik.tu-darmstadt.de> from "Uwe Bonnes" at May 02, 2001 07:42:47 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135696AbREBRxi>; Wed, 2 May 2001 13:53:38 -0400
+Received: from mnh-1-08.mv.com ([207.22.10.40]:12040 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S135704AbREBRxX>;
+	Wed, 2 May 2001 13:53:23 -0400
+Message-Id: <200105021906.OAA03542@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: ingo.oeser@informatik.tu-chemnitz.de
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux Kernel Debuggers, KDB or KGDB? 
+In-Reply-To: Your message of "Wed, 02 May 2001 17:55:16 +0100."
+             <E14uzuI-0003wC-00@the-village.bc.nu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14v0om-00042i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 02 May 2001 14:06:31 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Copying a 6.5 MByte file with cp returns nearly immediately on the
-> commandline, but umount nearly takes forever. Maximum rate detected by
-> xosview during umount was about 30 kByte.
-> 
-> I have similar behaviour on another machine and with different disk. However
-> I don't get any "dmesg" output despite the "CONFIG_SCSI_LOGGING=y" option on
-> both machines.
+alan@lxorguk.ukuu.org.uk said:
+> > Is this sufficient to do driver development?  TUN/TAP doesn't let me
+> > write 
+> > ethernet drivers inside UML.
+> For ISDN not really. For SCSI yes - scsi generic would let you write a
+> virtual scsi adapter 'owning' some physical devices 
 
-That sounds like it isnt queueing multiple commands at a time. M/O has
-an erase/write sequence so you want to queue large blocks otherwise its two
-rotations per I/O
+Fine, so go ahead and write a UML SCSI adapter...  
 
-> Are all my MO disks rotten? Are the MO drives broken? Are my SCSI adapters
-> broken? Or is there a bug in the SCSI layer?
+I would love to see this happen.  If you need UML help that's not on the site, 
+let me know, and I'll be happy to do what I can.
 
-SCSI layer or scsi driver I suspect.
+				Jeff
+
 

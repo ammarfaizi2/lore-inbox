@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbUCBNAT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 08:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUCBNAT
+	id S261635AbUCBNCb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 08:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUCBNCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 08:00:19 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:65501 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261633AbUCBNAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 08:00:10 -0500
-Message-ID: <404484F2.5020706@grupopie.com>
-Date: Tue, 02 Mar 2004 12:58:26 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: johnny zhao <filamoon2@hotmail.com>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: udp packet loss even with large socket buffer
-References: <BAY14-F15j87cUL2cZ00000613e@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Mar 2004 08:02:30 -0500
+Received: from styx.suse.cz ([82.208.2.94]:49024 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261635AbUCBNCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 08:02:11 -0500
+Date: Tue, 2 Mar 2004 14:02:12 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] New set of input patches
+Message-ID: <20040302130212.GA1963@ucw.cz>
+References: <200402290153.08798.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402290153.08798.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-johnny zhao wrote:
+On Sun, Feb 29, 2004 at 01:53:58AM -0500, Dmitry Torokhov wrote:
 
-> hi,
+> Here is the new set of input patches that I have. You have seen some of
+> them, buit this time they are rediffed against 2.6.4-rc1 and in nice order.
+
+I like them very much. Do you have a bitkeeper tree anywhere where I
+could pull from, so that I don't have to apply these by hand?
+
+> 01-atkbd-whitespace-fixes.patch
+> 	simple whitespace fixes
 > 
-> Since my program is coping with MSN, it's not easy to post a small 
-> example. But I will try :)
+> 02-atkbd-bad-merge.patch
+> 	clean up bad merge in atkbd module (get rid of MODULE_PARMs,
+>         atkbd_softrepeat was declared twice)
 > 
-> I use the following code to initialize the socket:
+> 03-synaptics-relaxed-proto.patch
+> 	some hardware (PowerBook) require relaxed Synaptics protocol checks,
+>         but relaxed checks hurt hardware implementing proper protocol when
+>         device looses sync. With the patch synaptics driver analyzes first
+>         full data packet and either staus in relaxed mode or switches into
+>         strict mode.
 > 
-> *****************************
->     session->rtp.loc_addr.sin_family = AF_INET;
->     session->rtp.loc_addr.sin_addr.s_addr = INADDR_ANY;
->     session->rtp.loc_addr.sin_port = htons (port);
->     session->rtp.socket = socket (PF_INET, SOCK_DGRAM, 0);
-
-                                                         ^^^
-This should really be IPPROTO_UDP as defined in <netinet/in.h>
-
-
->     g_return_val_if_fail (session->rtp.socket > 0, -1);
->     err = bind (session->rtp.socket,
->             (struct sockaddr *) &session->rtp.loc_addr,
->             sizeof (struct sockaddr_in));
->     /* set the address reusable */
->     err = setsockopt (session->rtp.socket, SOL_SOCKET, SO_REUSEADDR,
->               (void*)&optval, sizeof (optval));
+> 04-psmouse-whitespace-fixes.patch
+> 	simple whitespace fixes
 > 
->     optval = 8388608;
-
-
-You are right, this is really a huuuuuge buffer. If you are getting a 1.5kb 
-packet every 80 ms on average, this is about 20kb/second. Even a 64kb buffer 
-should be much more than enough.
-
-My advice is just request a 64kb buffer, and stop messing with the rmem_default 
-and rmem_max parameters.
-
+> 05-psmouse-workaround-noack.patch
+> 	some mice do not ACK "disable streaming mode" command causing psmouse
+>         driver abort initialization without any indication to the user. This
+>         is a regression compared to 2.4. Have kernel complain but continue
+>         with prbing hardware (after all we got valid responce from GET ID
+> 	command).
+> 
+> 06-module-param-array-named.patch
+> 	introduce module_param_array_named() modeled after module_param_named
+> 	that allows mapping array module option to
+> 
+> 07-joystick-module-param.patch
+> 	complete moving input drivers to the new way of handling module
+> 	parameters using module_param()
+> 
+> 08-obsolete-setup.patch
+> 	introduce __obsolete_setup(). This is a drop-in replacement for
+>         __setup() for truly obsolete options. Kernel will complain when sees
+>         such an option.
+> 
+> 09-input-obsolete-setup.patch
+> 	document removed or renamed options in input drivers using
+> 	__obsolete_setup() so users will have some clue why old options
+>         stopped having any effect.
 
 -- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

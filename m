@@ -1,25 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129156AbQJEFJL>; Thu, 5 Oct 2000 01:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129113AbQJEFJB>; Thu, 5 Oct 2000 01:09:01 -0400
-Received: from hermes.mixx.net ([212.84.196.2]:45324 "HELO hermes.mixx.net") by vger.kernel.org with SMTP id <S129111AbQJEFIo>; Thu, 5 Oct 2000 01:08:44 -0400
-From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
-Reply-To: Daniel Phillips <phillips@innominate.de>
-X-Newsgroups: innominate.list.linux.kernel
-Subject: Phase tree algorithm defined
-Date: Thu, 05 Oct 2000 06:53:30 +0200
-Organization: innominate
-Distribution: local
-Message-ID: <news2mail-39DC094A.4C002239@innominate.de>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129463AbQJEMxB>; Thu, 5 Oct 2000 08:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129149AbQJEMws>; Thu, 5 Oct 2000 08:52:48 -0400
+Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:30125 "EHLO d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP id <S129114AbQJEMwl>; Thu, 5 Oct 2000 08:52:41 -0400
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Daniel Phillips <phillips@innominate.de>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8025696F.003E1C8B.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Thu, 5 Oct 2000 12:18:36 +0100
+Subject: Re: Phase tree algorithm defined
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Trace: mate.bln.innominate.de 970721610 24575 10.0.0.90 (5 Oct 2000 04:53:30 GMT)
-X-Complaints-To: news@innominate.de
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-To: linux-kernel@vger.kernel.org
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+
+Daniel,
+
+This is very valuable - thanks for makeing the effort.
+
+You could enhance you document greatly if you provided a few diagrams to
+illustrate the structure, especially  the example file system.  I'd suggest
+converting the document to  HTML or XML.
+
+Also, I'd like to understand how the Phase Tree differs from other tree
+schemes used by files systems, for example the Modified Patricia Tree used
+by HPFS and NTFS. It wasn't quite clear to me how the advantages of
+consistency are obtained, but diagrams might help.
+
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
+Daniel Phillips <news-innominate.list.linux.kernel@innominate.de> on
+05/10/2000 05:53:30
+
+Please respond to Daniel Phillips <phillips@innominate.de>
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Richard J Moore/UK/IBM)
+Subject:  Phase tree algorithm defined
+
+
+
 
 I have finally produced something resembling a formal definition of the
 phase tree algorithm.  As you will see, this algorithm is somewhat
@@ -41,6 +70,13 @@ Enjoy.
 
 --
 Daniel
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

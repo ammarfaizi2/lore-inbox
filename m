@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266720AbUAOII3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 03:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266723AbUAOII3
+	id S266651AbUAOIhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 03:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266653AbUAOIhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 03:08:29 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:65189 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S266720AbUAOII1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 03:08:27 -0500
-Date: Thu, 15 Jan 2004 09:08:15 +0100
-From: martin f krafft <madduck@madduck.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe failed: digest_null
-Message-ID: <20040115080815.GA2806@piper.madduck.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <20040113215355.GA3882@piper.madduck.net> <20040115102231.37a84ed0.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-In-Reply-To: <20040115102231.37a84ed0.rusty@rustcorp.com.au>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 03:37:08 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20983 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266651AbUAOIhF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 03:37:05 -0500
+Message-ID: <4006512A.7080002@mvista.com>
+Date: Thu, 15 Jan 2004 00:36:58 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+References: <1cd9t-4Su-65@gated-at.bofh.it> <1coR2-42n-19@gated-at.bofh.it>	<1d3r0-1tw-3@gated-at.bofh.it> <1dbI9-89t-7@gated-at.bofh.it>	<1dEqx-F0-1@gated-at.bofh.it> <1dMRc-6DQ-3@gated-at.bofh.it>	<1e2Mk-6YA-17@gated-at.bofh.it> <1e2Mo-6YA-31@gated-at.bofh.it>	<1e3fi-4nG-5@gated-at.bofh.it> <m3ptdlwsf5.fsf@averell.firstfloor.org>
+In-Reply-To: <m3ptdlwsf5.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> George Anzinger <george@mvista.com> writes:
+> 
+> 
+>>>Raw USB?  Or some kind of USB to serial device?
+>>>Remember, USB needs interrupts to work, see the kdb patches for the
+>>>mess
+>>>that people have tried to go through to send usb data without interrupts
+>>>(doesn't really work...)
+>>
+>>I gave up on USB when I asked the following questions:
+> 
+> 
+> There is a special "USB debugport" specification available that allows
+> to drive USB very simply using PIO without too much set up. It should
+> be implemented in most chipsets by now because that other operating
+> system is using it.
+> 
+> See e.g. http://www.usb.org/developers/presentations/pres0602/john_keys.pdf
+> 
+> It works with a simple "debug dongle", that is identical to the 
+> USB networking cables that are often sold cheaply.
+> 
+> If you want to port kgdb to use USB I would use that. USB console
+> would also be very useful for debugging laptops and some systems
+> with no USB.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now that is interesting.  As I read it, the debug port is programed the same way 
+in all the USB chips (given it exists at all).  AND it is much easier to use. 
+Anyone care to put together a polling driver that makes it look like RS232 on 
+the host end given that we use a controller to controller cable?
 
-also sprach Rusty Russell <rusty@rustcorp.com.au> [2004.01.15.0022 +0100]:
-> Upgrade module-init-tools to 0.9.14 or one of the 3.0 -pres.
 
-diamond:~# modprobe -V
-module-init-tools version 3.0-pre5
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-i've not lost my mind. it's backed up on tape somewhere.
-
---sm4nu43k4a2Rpi4c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFABkpvIgvIgzMMSnURAlKkAJ9c6V5CH+OJ2DCzSfS1+UFRok8rWQCgzDWW
-ds4ZdfeMXQ57To0k6XplG8A=
-=++1Q
------END PGP SIGNATURE-----
-
---sm4nu43k4a2Rpi4c--

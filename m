@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVAUIlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVAUIoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbVAUIlS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVAUIlS
+	id S262320AbVAUIoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVAUIoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:41:18 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15207
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262318AbVAUIlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:41:11 -0500
-Date: Fri, 21 Jan 2005 09:41:11 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: oom killer gone nuts
-Message-ID: <20050121084111.GB7703@dualathlon.random>
-References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl> <20050120171544.GN12647@dualathlon.random> <20050121074203.GH2755@suse.de> <20050121080520.GA7703@dualathlon.random> <20050121080940.GA2763@suse.de>
+	Fri, 21 Jan 2005 03:44:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6542 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262321AbVAUIoc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 03:44:32 -0500
+Date: Fri, 21 Jan 2005 00:42:04 -0800
+From: Greg KH <greg@kroah.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: John Mock <kd6pag@qsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1 vs. PowerMac 8500/G3 (and VAIO laptop) [usb-storage oops]
+Message-ID: <20050121084204.GA20397@kroah.com>
+References: <E1CrPQ4-0000pW-00@penngrove.fdns.net> <1106210408.6932.27.camel@localhost.localdomain> <20050121000822.GA14580@kroah.com> <1106293748.783.31.camel@baythorne.infradead.org> <20050121075833.GA19995@kroah.com> <1106295136.783.47.camel@baythorne.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050121080940.GA2763@suse.de>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+In-Reply-To: <1106295136.783.47.camel@baythorne.infradead.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 09:09:41AM +0100, Jens Axboe wrote:
-> Jan 20 13:22:15 wiggum kernel: oom-killer: gfp_mask=0xd1
+On Fri, Jan 21, 2005 at 08:12:16AM +0000, David Woodhouse wrote:
+> On Thu, 2005-01-20 at 23:58 -0800, Greg KH wrote:
+> > Well, we should be byteswapping all of the fields that need to be
+> > swapped, right?  I'm guessing that userspace is expecting the fields
+> > to be in cpu endian, correct?
+> 
+> Userspace varies in that. Nobody expects _all_ the fields to be swapped;
+> the kernel only ever swapped those four. And in fact lsusb from the
+> stock usbutils expects it to be consistently little-endian. John's
+> version seems to be hacked to expect just those four fields to be host-
+> endian, while the rest remains little-endian.
+> 
+> We have a choice here -- we can preserve the ABI by continuing to be
+> stupidly inconsistent about endianness, or you can revert my patch and
+> stock usbutils can be correct.
 
-This was a GFP_KERNEL|GFP_DMA allocation triggering this. However it
-didn't look so much out of DMA zone, there's 4M of ram free. Could be
-the ram was relased by another CPU in the meantime if this was SMP (or
-even by an interrupt in UP too).
+Let's preserve the ABI, that's the safest thing to do.
 
-Could very well be you'll get things fixed by the lowmem_reserve patch,
-that will reserve part of the dma zone, so with it you're sure it
-couldn't have gone below 4M due slab allocs like skb.
+> > But if you want, I'll gladly revert your patch, as I don't have a ppc
+> > box to test this out on.
+> 
+> I'd revert it.
 
-I recommend trying again with the patches applied, the oom stuff is so
-buggy right now that it's better you apply the fixes and try again, and
-if it still happens we know it's a regression.
+Done.
 
-Thanks!
+thanks,
+
+greg k-h

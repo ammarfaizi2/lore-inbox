@@ -1,88 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUIXBL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUIXBRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUIXBL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUIXBIV
+	id S267660AbUIXBRK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267679AbUIXBRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:08:21 -0400
-Received: from citi.umich.edu ([141.211.133.111]:49189 "EHLO citi.umich.edu")
-	by vger.kernel.org with ESMTP id S267730AbUIXBDh (ORCPT
+	Thu, 23 Sep 2004 21:17:08 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15814 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267660AbUIXBOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 21:03:37 -0400
-Date: Thu, 23 Sep 2004 21:03:36 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: hit BUG_ON in dev_queue_xmit
-Message-ID: <Pine.BSO.4.58.0409232020270.28375@citi.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Sep 2004 21:14:46 -0400
+Date: Thu, 23 Sep 2004 18:13:08 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: simon.derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [rfc][patch] 1/2 Additional cpuset features
+Message-Id: <20040923181308.1e96ddff.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0409231651550.17168@server.home>
+References: <Pine.LNX.4.58.0409101036090.2891@daphne.frec.bull.fr>
+	<20040911010808.2b283c9a.pj@sgi.com>
+	<Pine.LNX.4.58.0409231238350.11694@server.home>
+	<20040923164139.506d65d3.pj@sgi.com>
+	<Pine.LNX.4.58.0409231651550.17168@server.home>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i enabled page alloc debugging in 2.6.9-rc2.... and hit this BUG.  i was
-running fsx-odirect, but the callback here shows we are in the normal NFS
-cached async write path.  a second panic shows we hit this in the NFS
-readdir path too, so i suspect this is independent of the NFS client.
+Christoph wrote:
+> How do you do this translation? Search through /dev/cpusets?
 
-dual CPU 1.26GHz P-III system with 1GB RAM.
+Map from pid to cpuset to cpus.  No searching.
 
+The file /proc/<pid>/cpuset names the cpuset to which that pid is
+attached.  Presuming the cpuset file system is mounted at /dev/cpuset,
+then the file /dev/cpuset/xxx/cpus lists the cpus in the cpuset named
+'xxx'.
 
-kernel BUG at include/asm/spinlock.h:90!
-invalid operand: 0000 [#1]
-SMP DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    1
-EIP:    0060:[<c0396f06>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.9-rc2)
-EIP is at _spin_unlock+0x16/0x30
-eax: 00000001   ebx: 00000000   ecx: 00000002   edx: f7eb693c
-esi: f7eb6800   edi: f7eb693c   ebp: d89d1060   esp: f70a7bb4
-ds: 007b   es: 007b   ss: 0068
-Process fsx-odirect (pid: 924, threadinfo=f70a7000 task=f75cf6d0)
-Stack: c03305bb f7eb6800 c1adfc80 c1aa0174 c1aa018c f7f2b210 c034478d
-d89d1060
-       f70a7d10 00000090 c1aa0160 f70a7c1c f6baf040 d89d1060 f6baf1bc
-c0346922
-       d89d1060 f70a7d10 f6aeaac4 c037fe1e f6aeabb8 00000000 40000206
-00000040
-Call Trace:
- [<c03305bb>] dev_queue_xmit+0x1db/0x280
- [<c034478d>] ip_finish_output+0xbd/0x1c0
- [<c0346922>] ip_push_pending_frames+0x2e2/0x430
- [<c037fe1e>] rpc_sleep_on+0x3e/0x60
- [<c036512e>] udp_push_pending_frames+0x14e/0x280
- [<c0365b0e>] udp_sendpage+0xde/0x150
- [<c01264e5>] update_process_times+0x45/0x60
- [<c011ad50>] autoremove_wake_function+0x0/0x60
- [<c036d7f7>] inet_sendpage+0x67/0xd0
- [<c036d790>] inet_sendpage+0x0/0xd0
- [<c03941f9>] xprt_sock_udp_send_request+0x2b9/0x360
- [<c01d0300>] nfs3_xdr_writeargs+0x120/0x130
- [<c01d01e0>] nfs3_xdr_writeargs+0x0/0x130
- [<c037ebdf>] xprt_transmit+0x4f/0x200
- [<c037d4d2>] call_transmit+0x52/0xc0
- [<c03803f1>] __rpc_execute+0x101/0x4c0
- [<c037ce12>] rpc_call_setup+0x52/0x80
- [<c037cb91>] rpc_clnt_sigmask+0x91/0xb0
- [<c01cc418>] nfs_execute_write+0x58/0xa0
- [<c01cc60c>] nfs_flush_multi+0x1ac/0x270
- [<c01cb250>] nfs_writepage+0x0/0x240
- [<c01cc95b>] nfs_flush_list+0x6b/0xf0
- [<c01cd5ae>] nfs_flush_inode+0x9e/0xb0
- [<c01cb52d>] nfs_writepages+0x9d/0x150
- [<c013f205>] do_writepages+0x25/0x50
- [<c0138930>] __filemap_fdatawrite_range+0xc0/0xd0
- [<c0138977>] filemap_fdatawrite+0x37/0x40
- [<c014d9f5>] msync_interval+0xb5/0x110
- [<c014db98>] sys_msync+0x148/0x152
- [<c01044af>] syscall_call+0x7/0xb
-Code: 28 01 79 05 e8 98 ef ff ff c3 0f 0b c7 00 4e bb 3a c0 eb ea 90 81 78
-04 ad 4e ad de 89 c2 75 15 0f b6 02 84 c0 7f 04 c6 02 01 c3 <0f> 0b 5a 00
-4e bb 3a c0 eb f2 0f 0b 59 00 4e bb 3a c0 eb e1 8d
- <0>Kernel panic - not syncing: Fatal exception in interrupt
+> pfmon, sched_setaffinity, dplace. 
 
+To the best of my current understanding, the only reason perfmon
+wants relative numbering is because that's what dplace wants.
 
-	- Chuck Lever
---
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
+Sched_setaffinity uses system-wide numbering, no?
+
+> That leads to lots of complicated scripts doing logical -> physical
+> translation with the danger of access or attempting accesses to not
+> allowed CPUs.
+
+No -- it leads to more user level libraries and tools, encapsulating
+the complexity, layering the abstractions.
+
+And "danger" ... what's dangerous?  An application in a cpuset won't
+be able to use (if that's what you meant by 'access') CPUs outside
+its cpuset.  Nothing dangerous there that I see.
+
+> The view from inside a cpuset could simply be of a system with N cpus
+> (0..N-1) with N memory areas (0..N-1). No access to outside cpus or memory
+> us allowed. Kernel checks for valid cpu and memory area by simply checking
+> against an upper boundary on both and then maps these numbers dynamically
+> according to the CPU set.
+> 
+> Thats what Simon's patch allows.
+
+Regardless, that's the eventual view seen by some apps from inside the
+cpuset.  We're just discussing where the translation code goes.  I see
+nothing that requires kernel priviledge or synchronization here.
+
+> Its going to be a nightmare to develop scripts that partition off a 512
+> cpu cluster appropriately and that track the physical cpu numbers
+> instead of the cpu number within the cpuset.
+
+No need for any nightmares.
+
+Just because the meaning of CPU numbers at the kernel-user boundary is
+system-wide doesn't mean that this view has to be imposed on all above.
+We should write the higher level stuff as if the kernel could do what
+you want with relative numbering, then arrange the tools and libraries
+to convert.
+
+Just because something is essential doesn't mean the kernel needs to do
+it.  And just because I oppose putting something in the kernel doesn't
+mean I oppose doing it.  Indeed, I'm doing quite a bit of work in this
+very direction ... outside the kernel.
+
+We have more reasons than just this issue of numbering to require a
+robust set of user level libraries and tools.  Pretty much everyone
+working in this area seems to agree that a decent library layer is
+needed on top of the raw kernel API's, which are difficult to code to
+directly, and vary in "interesting" ways between the affinity, the numa
+and the cpuset interfaces (e.g. three different forms for passing
+bitmaps).
+
+This is perhaps the biggest difference between what SGI does on Irix,
+and what is happening in Linux 2.6.  Quite a bit is moved outside the
+kernel.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288452AbSA3E0k>; Tue, 29 Jan 2002 23:26:40 -0500
+	id <S288473AbSA3EfZ>; Tue, 29 Jan 2002 23:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288460AbSA3E0a>; Tue, 29 Jan 2002 23:26:30 -0500
-Received: from msp-26-179-145.mn.rr.com ([24.26.179.145]:35726 "HELO
-	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
-	id <S288452AbSA3E0W>; Tue, 29 Jan 2002 23:26:22 -0500
-Date: Tue, 29 Jan 2002 22:26:20 -0600
-From: Shawn <core@enodev.com>
-To: Craig Christophel <merlin@transgeek.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130042620.GA28479@local.enodev.com>
-In-Reply-To: <Pine.LNX.3.96.1020129173907.31511C-100000@gatekeeper.tmr.com> <20020130041456.B4F20B581@smtp.transgeek.com>
+	id <S288477AbSA3EfE>; Tue, 29 Jan 2002 23:35:04 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:45958 "EHLO
+	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
+	id <S288473AbSA3Ee4>; Tue, 29 Jan 2002 23:34:56 -0500
+Date: Wed, 30 Jan 2002 07:34:06 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jarno Paananen <jpaana@s2.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to avoid zombie kernel threads?
+Message-Id: <20020130073406.20838f36.johnpol@2ka.mipt.ru>
+In-Reply-To: <m3hep4qy79.fsf@kalahari.s2.org>
+In-Reply-To: <m3hep4qy79.fsf@kalahari.s2.org>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020130041456.B4F20B581@smtp.transgeek.com>
-User-Agent: Mutt/1.3.26i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/29, Craig Christophel said something like:
-> > Linus, I think I hear people you said you trust telling you this... take
-> > the little bits out of band and TRUST people to give you patches which go
-> > in 2.5.x now, not when or if you get to it. Having you approve trivial
-> > stuff is a waste of what you do best, and I think all the versions show
-> > you're not even being effective at that. Don't you HATE looking at
-> > spelling errors, off-by-one logic, corner cases, and stuff like that? Farm
-> > it out and let other people do it, and work on the fun stuff.
-> 
-> 	aasn, (as a side note)  It's really hard to allow people to just change the 
-> little peices.  The little peices soon become larger and more complex.  This 
+On 30 Jan 2002 06:06:50 +0200
+Jarno Paananen <jpaana@s2.org> wrote:
 
-I believe he was talking about some of the example one-liners cited
-earlier. Not a significant chance of those getting "more complex" such
-that they become cumbersome...
+> Hi,
 
-> is a really difficult transition in moving from (my personal perspective) an 
-> exciting young code base to a maturing and well functioning/planned setup.  
-> The only thing I have to say is that Linus had better pick his talent and 
-> friends well, because even if the codebase does not split today, what is to 
-> keep it from doing so in the future when even more complexities arise.  
+Good time of day.
 
-The codebase has been, is now, and forever will be split, due to
-differing goals, and the fact that one size does not fit all... Not to
-mention personal taste. The splits will only be as large a practicality
-allows, given the number of trees trying to sync from, or with -linus.
-The -ac tree got pretty splorked off for a while, though.
+> that uses a kernel thread to do the actual work asynchronously from
+> rest of the world. The thread is created when opening a character
+> device and exits when the device is closed.
 
-By the way, Linus, Alan, Al Viro, Marcello, Ingo, Stephen, Rik, Dave,
-Dave, any other Daves, Geert, Jens, Andre, Richard, hpa, Hans, and
-everyone I can't think of, THANKS for making my machine run fast, die
-hard, and just for putting out better code than a huge corporation can!
+Maybe you should use do_exit() at the end or complete_and_exit()?
 
---
-Shawn Leas
-core@enodev.com
+> [daemonize() etc.]
+...
+      do_exit(0); // At least usb hub do it in such manner.
+>     return 0;
 
-For my birthday I got a humidifier and a de-humidifier... I put them
-in the same room and let them fight it out...
-						-- Stephen Wright
+
+> Thanks,
+
+I hope this will help you.
+
+> // Jarno
+> -
+
+	Evgeniy Polyakov ( s0mbre ).

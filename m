@@ -1,86 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbTLKRqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 12:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265182AbTLKRqe
+	id S265204AbTLKRxC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 12:53:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265208AbTLKRxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 12:46:34 -0500
-Received: from root.org ([67.118.192.226]:45067 "HELO rootlabs.com")
-	by vger.kernel.org with SMTP id S265176AbTLKRqb (ORCPT
+	Thu, 11 Dec 2003 12:53:02 -0500
+Received: from mail.eskimo.com ([204.122.16.4]:31762 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id S265204AbTLKRw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 12:46:31 -0500
-Date: Thu, 11 Dec 2003 09:46:30 -0800 (PST)
-From: Nate Lawson <nate@root.org>
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: Paul Menage <menage@google.com>, agrover@groveronline.com,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: RE: [ACPI] ACPI global lock macros
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720C22@PDSMSX403.ccr.corp.intel.com>
-Message-ID: <20031211094510.J50052@root.org>
-References: <3ACA40606221794F80A5670F0AF15F8401720C22@PDSMSX403.ccr.corp.intel.com>
+	Thu, 11 Dec 2003 12:52:56 -0500
+Date: Thu, 11 Dec 2003 09:52:53 -0800 (PST)
+From: Nanook <nanook@eskimo.com>
+To: linux-kernel@vger.kernel.org
+Subject: UltraSparc st driver question
+Message-ID: <Pine.GSU.4.44.0312110941500.6413-100000@invisible.eskimo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003, Yu, Luming wrote:
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Yu, Luming
-> Sent: 2003?12?11? 15:06
-> To: Paul Menage; agrover@groveronline.com
-> Cc: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
-> Subject: RE: [ACPI] ACPI global lock macros
->
->
-> >>#define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
-> >>     do { \
-> >>        asm volatile("1:movl   (%1),%%eax;" \
-> >>             "movl   %%eax,%%edx;" \
-> >>             "andl   %2,%%edx;" \
-> >>             "btsl   $0x1,%%edx;" \
-> >>             "adcl   $0x0,%%edx;" \
-> >>             "lock;  cmpxchgl %%edx,(%1);" \
-> >>             "jnz    1b;" \
-> >>             "cmpb   $0x3,%%dl;" \
-> >>             "sbbl   %0,%0" \
-> >>             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx", "ax"); \
-> >>     } while(0)
->
-> Above code have a bug! Considering below code:
->
-> u8	acquired = FALSE;
->
-> ACPI_ACQUIRE_GLOBAL_LOC(acpi_gbl_common_fACS.global_lock, acquired);
-> if(acquired) {
-> ....
-> }
->
-> Gcc will complain " ERROR: '%cl' not allowed with sbbl ". And I think any other compiler will
-> complain that  too !
->
-> How about  below changes to your proposal code.
->
-> <             "sbbl   %0,%0" \
-> <             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx","ax"); \
-> ---
-> >             "sbbl   %%eax,%%eax" \
-> >             :"=a"(Acq):"r"(GLptr),"i"(~1L):"dx"); \
 
-FYI, that's what we do in FreeBSD also.  The only difference after your
-patch is that we use +m for GLptr.
+     I'd appreciate a CC to nanook@eskimo.com with any reply.  I subscribed
+to the list but so far haven't received the confirmation after auth'ing.
 
-#define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
-    do { \
-        asm("1:     movl %1,%%eax;" \
-            "movl   %%eax,%%edx;" \
-            "andl   %2,%%edx;" \
-            "btsl   $0x1,%%edx;" \
-            "adcl   $0x0,%%edx;" \
-            "lock;  cmpxchgl %%edx,%1;" \
-            "jnz    1b;" \
-            "cmpb   $0x3,%%dl;" \
-            "sbbl   %%eax,%%eax" \
-            : "=a" (Acq), "+m" (GLptr) : "i" (~1L) : "edx"); \
-    } while(0)
+     I'm running Linux 2.2.25 on an Ultra-2 with dual 400mhz CPU's.  I've got
+one of the old combo 10-base-T/narrow SCSI cards in it that I use to connect an
+Exabyte DN-8500C tape drive.
 
--Nate
+     Yes, I know the drive is antique and I know the kernel is old, long story
+regarding why I haven't migrated to 2.4.x yet having to do with the fact
+that I applied the RAID super block patches way back when and then the
+implimentation in 2.4 ended up being incompatible...
+
+     Anyway, with the 32k buffer as defined by default in:
+
+	/usr/src/linux/drivers/scsi/st_options.h
+
+     The machine will not stream the drive during backups and I get relatively
+poor compression effeciency (around 20%).
+
+     If I increase this buffer size to 256k by changing the define:
+
+	#define ST_BUFFER_BLOCKS 32
+
+     to:
+
+	#define ST_BUFFER_BLOCKS 256
+
+     And compile a new kernel, the write performance then approximately
+doubles, the driver streams, the compression actually exceeds 2:1, life is
+good EXCEPT...
+
+     With the buffer set to 256 1k blocks, an attempt to read the tape results
+in kernel panics, and they seem more or less random.  Something about
+local_irq_count comes up frequently but I see all sorts of different ones.
+
+     Anything larger than 64 1k blocks seems to cause this.  With 64k it
+doesn't panic the kernel, but it also gives tape read errors and doesn't work.
+
+     Looking at the code for st.c and esp.c, it appears to block/deblock so I
+don't understand why a larger buffer would break the ability to read a tape,
+especially when it seems to write fine.
+
+     Is there a secret to making this buffer large enough for effecient
+streaming operation without breaking the driver?
+
+     Also, another thing I've run into, the documentation for the Exabyte drive
+says it can do physical records up to 240k, but if I set the record size larger
+than 64k I get weird errors relating to esp1 and it malfunctions.
+
+     I've been thinking about either going to DLT or a Mamoth2, but if I can't
+get the driver to feed the drive fast enough to stream, then a faster drive is
+moot.
+
+     I've done google searches and searches of the list archive and not seeing
+anything about these problems.  I've seen messages from other people who say
+they've jacked up the buffer with no problems but not running UltraSparc
+hardware.  Is there something broken in the esp driver that doesn't like the
+larger buffer?
+
+
+

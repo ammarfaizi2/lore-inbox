@@ -1,73 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132898AbRECQRe>; Thu, 3 May 2001 12:17:34 -0400
+	id <S132922AbRECQSY>; Thu, 3 May 2001 12:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132922AbRECQRY>; Thu, 3 May 2001 12:17:24 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:51464 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132898AbRECQRE>;
-	Thu, 3 May 2001 12:17:04 -0400
-Date: Thu, 3 May 2001 12:16:57 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Juan Quintela <quintela@mandrakesoft.com>
-Cc: Urban Widmark <urban@teststation.com>, John Stoffel <stoffel@casc.com>,
-        cate@dplanet.ch, Peter Samuelson <peter@cadcamlab.org>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Hierarchy doesn't solve the problem
-Message-ID: <20010503121657.K31960@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Juan Quintela <quintela@mandrakesoft.com>,
-	Urban Widmark <urban@teststation.com>,
-	John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
-	Peter Samuelson <peter@cadcamlab.org>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010503030431.A25141@thyrsus.com> <Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com> <20010503034620.A27880@thyrsus.com> <m2bspa7b9e.fsf@trasno.mitica>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m2bspa7b9e.fsf@trasno.mitica>; from quintela@mandrakesoft.com on Thu, May 03, 2001 at 04:33:33PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132958AbRECQSO>; Thu, 3 May 2001 12:18:14 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:26384 "HELO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S132922AbRECQSH>; Thu, 3 May 2001 12:18:07 -0400
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDD1@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "'Andrew Morton'" <andrewm@uow.edu.au>,
+        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'davem@redhat.com'" <davem@redhat.com>
+Cc: "'kuznet@ms2.inr.ac.ru'" <kuznet@ms2.inr.ac.ru>,
+        "'andrea@suse.de'" <andrea@suse.de>
+Subject: [BUG] freeze Alpha ES40 SMP 2.4.4.ac3, another TCP/IP Problem ? (
+	was 2.4.4 kernel crash , possibly tcp related )
+Date: Thu, 3 May 2001 18:16:02 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juan Quintela <quintela@mandrakesoft.com>:
-> linux 2.4.(x+1) has more drivers/options/whatever that linux-2.4.x.  I
-> want to be prompted only for the new drivers/options/whatever it
-> chooses the old ones from the .config file.  Note that my old .config
-> file is not a valid configuration because it misses symbols (or I am
-> wrong and this is a valid configuration ?).
+Hello, 
 
-Yes, you're wrong.  This is a valid configuration.  If any of the
-missing values have to be non-N, CML2 will deduce this and tell 
-you what it's changing them to and why.
+I have a bug on an Alpha ES40 SMP 2.4.4.ac3 modified (TCP Bug from lkml)
 
-In CML2's world "symbol not set" is different from "symbol set to n".
-When a symbol is not set, the deducer can force it to value that 
-satisfies constraints.
+Platform:
 
-Your second scenario is addressed by the samne correction.
+Linux Version:
+-----------------------
 
->                                Otherwise I will be happy if
-> you provide me something like:
-> 
->     make "CONFIG_SCSI=n" oldconfig
-> 
-> or similar, i.e. _I_ know what I want to change, and I want to change
-> only that.  Notice that I want also be able to do the other way
-> around:
-> 
->     make "CONFIG_SCSI=m" oldconfig
-> 
-> and then be prompted for all the SCSI drivers (because they was not in
-> the .config before).
+My kernel is 2.4.4-ac3 with the tcp.c file modified as suggested by the
+following patch.
 
-There is such an option.  It's -d, which sets a symbol from the
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Love your country, but never trust its government.
-	-- Robert A. Heinlein.
+>I see! Dave, please, take the second Andrea's patch (appended).
+>It is really the cleanest one.
+
+>Alexey
+
+
+>--- 2.4.4aa3/net/ipv4/tcp.c.~1~	Tue May  1 10:44:57 2001
+>+++ 2.4.4aa3/net/ipv4/tcp.c	Tue May  1 12:00:25 2001
+>@@ -1183,11 +1183,8 @@
+ 
+> do_fault:
+> 	if (skb->len==0) {
+>-		if (tp->send_head == skb) {
+>-			tp->send_head = skb->next;
+>-			if (tp->send_head == (struct
+sk_buff*)&sk->write_queue)
+>-				tp->send_head = NULL;
+>-		}
+>+		if (tp->send_head == skb)
+>+			tp->send_head = NULL;
+> 		__skb_unlink(skb, skb->list);
+> 		tcp_free_skb(sk, skb);
+> 	}
+>
+>-
+
+This time, to show that it has nothing to do with the ftp server I used a
+simple
+rcp:
+
+Experiment 1:
+----------------------
+
+ ES40-06					ES40-05
+
+ rcp es40-05:/mnt/big/mid /tmp/toto		Machine fine
+
+ with a mid file not too big (1.4Megabytes) everything is fine
+ 
+
+Experiment 2:
+----------------------
+
+ ES40-06					ES40-05
+
+ rcp es40-05:/mnt/big/1Giga /tmp/toto		Machine frozen
+
+ the ES40-06 managed to retrieve only 11 Mbytes so I guess I can start again
+with a 12 Megabytes file, It should trigger the bug.
+
+Here is the log of the machine who crashed:
+-----------------------------------------------------------------------
+
+May  3 17:27:57 es40-05 PAM_unix[651]: (system-auth) session opened for user
+root by (uid=0)
+May  3 17:27:57 es40-05 in.rshd[651]: root@es40-06.idris.domain as root:
+cmd='rcp -f /mnt/big/mid'
+May  3 17:29:36 es40-05 PAM_unix[662]: (system-auth) session opened for user
+root by (uid=0)
+May  3 17:29:36 es40-05 in.rshd[662]: root@es40-06.idris.domain as root:
+cmd='rcp -f /mnt/big/1Giga'
+May  3 17:29:36 es40-05 kernel: <oomerang_rx(): status e001
+May  3 17:29:36 es40-05 kernel: <<7>eth0: interrupt, status e401, latency 4
+ticks.
+May  3 17:29:36 es40-05 kernel: .
+May  3 17:29:36 es40-05 kernel: <th0: interrupt, status e401, latency 3
+ticks.
+May  3 17:29:36 es40-05 kernel: <7
+May  3 17:29:36 es40-05 kernel: <7t()
+May  3 17:29:37 es40-05 kernel: <01, latency 4 ticks.
+May  3 17:29:37 es40-05 kernel: <7
+May  3 17:29:37 es40-05 kernel: <7
+May  3 17:29:37 es40-05 kernel: th0: interrupt, status e401, latency 4
+ticks.
+May  3 17:29:37 es40-05 kernel: <7o send a packet, Tx index 5905.
+May  3 17:29:37 es40-05 kernel: <7<7>eth0: exiting interrupt, status e000.
+May  3 17:29:37 es40-05 kernel:  e201.
+May  3 17:29:37 es40-05 kernel: <7<7>eth0: In interrupt loop, status e401.
+May  3 17:29:37 es40-05 kernel: <7omerang_start_xmit()
+May  3 17:29:37 es40-05 kernel: <7omerang_start_xmit()
+
+The next line is:
+--------------------------
+May  3 17:36:17 es40-05 syslogd 1.3-3: restart.
+
+
+
+What could I do to be sure where the problem is ?
+
+I tested the machine under high cpu load, memory, swap, combination of the
+three.
+The only thing that does not work under load is the network.... TCP/IP ?
+
+Andrew Morton is pretty sure this has nothing to do with his driver...
+
+Any ideas of how I could find where the problem is ?
+
+Thx for any help.

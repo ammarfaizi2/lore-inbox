@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbTHYQzW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 12:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTHYQzW
+	id S262010AbTHYQtw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 12:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTHYQtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 12:55:22 -0400
-Received: from imap.gmx.net ([213.165.64.20]:16008 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261830AbTHYQzP (ORCPT
+	Mon, 25 Aug 2003 12:49:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34028 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262010AbTHYQtv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 12:55:15 -0400
-Date: Mon, 25 Aug 2003 19:55:12 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] One strdup() to rule them all
-Message-ID: <20030825165512.GA9782@callisto.yi.org>
-References: <20030825161435.GB8961@callisto.yi.org> <20030825163745.GA17608@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030825163745.GA17608@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.4i
+	Mon, 25 Aug 2003 12:49:51 -0400
+Date: Mon, 25 Aug 2003 13:45:25 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: =?ISO-8859-1?Q?Herbert_P=F6tzl?= <herbert@13thfloor.at>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+Message-ID: <Pine.LNX.4.55L.0308251222500.12395@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 06:37:45PM +0200, J?rn Engel wrote:
-> > +/**
-> > + * strdup - Allocate a copy of a string.
-> > + * @s: The string to copy. Must not be NULL.
-> > + *
-> > + * returns the address of the allocation, or NULL on
-> > + * error. 
-> > + */
-> > +char *strdup(const char *s)
-> > +{
-> > +	char *rv = kmalloc(strlen(s)+1, GFP_KERNEL);
-> > +	if (rv)
-> > +		strcpy(rv, s);
-> > +	return rv;
-> > +}
-> 
-> My gut feeling is always afraid when something "must not be NULL",
-> someone will ignore this and Bad Things (tm) happen.  Is strdup ever
-> used such performance critical code that the extra check would hurt?
+On Mon, 25 Aug 2003, Herbert Pötzl wrote:
 
-There are two reasons while it shouldn't have a NULL check. One,
-persistency: the other str*() functions don't do this sort of check.
-Two, for general uses like that:
+> On Mon, Aug 25, 2003 at 10:53:21AM -0300, Marcelo Tosatti wrote:
+> >
+> > >
+> > >
+> > > Matthias Andree wrote:
+> > >
+> > > >On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
+> > > >
+> > > >
+> > > >>- 2.4.22-rc4 was released as 2.4.22 with no changes.
+> > > >>
+> > > >
+> > > >What are the plans for 2.4.23? XFS merge perhaps <hint>?
+> > > >
+> > >
+> > > Maybe some of Andrea's VM stuff?
+> >
+> > Definately. Thats the first thing I'm going to do after looking
+through
+> > "2.4.23-pre-patches" folder.
+>
+> any chance for the Bind Mount Extensions? 8-)
 
-     new_name = strdup(name);
-     if (!new_name)
-         goto allocation_failed;
-	 
-With this check, NULL would be returning from strdup() either because 
-name == NULL or when the allocation fails. You cannot simply pass that 
-information through its return value and the caller would need to 
-check whether name == NULL by itself which should have been done anyway.
-
-Passing NULL to strdup() is a bug, which would have NOT show as an
-Oops if you add this check, and that is bad. Maybe it would be worth 
-to add a BUG_ON(s == NULL) instead, and perhaps also add this to the 
-other str*() functions, but that is a different patch.
-
--- 
-Dan Aloni
-da-x@gmx.net
+I haven't found time to at the patch yet but will do so soon.

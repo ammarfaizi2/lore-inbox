@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVANTjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVANTlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVANTjF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 14:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVANTjF
+	id S261575AbVANTlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 14:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVANTlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 14:39:05 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:19610 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262047AbVANTiz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 14:38:55 -0500
-Date: Fri, 14 Jan 2005 11:29:00 -0800
-From: Greg KH <greg@kroah.com>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: lkml Development <linux-kernel@vger.kernel.org>
-Subject: Re: unregisters a device that doesnt exist
-Message-ID: <20050114192900.GA8374@kroah.com>
-References: <804898BA-6660-11D9-A893-000393DBC2E8@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <804898BA-6660-11D9-A893-000393DBC2E8@freescale.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 14 Jan 2005 14:41:22 -0500
+Received: from 64-60-250-34.cust.telepacific.net ([64.60.250.34]:62153 "EHLO
+	panta-1.pantasys.com") by vger.kernel.org with ESMTP
+	id S261575AbVANTlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 14:41:11 -0500
+Message-ID: <41E82056.8020609@pantasys.com>
+Date: Fri, 14 Jan 2005 11:41:10 -0800
+From: Peter Buckingham <peter@pantasys.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org>	<1105707861.6471.1.camel@localhost> <20050114103534.4f4a24be.akpm@osdl.org>
+In-Reply-To: <20050114103534.4f4a24be.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jan 2005 19:36:00.0656 (UTC) FILETIME=[46EEE900:01C4FA70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 01:14:23PM -0600, Kumar Gala wrote:
-> Is it possible to unregister a device (more specifically a 
-> platform_device) if its hasnt already be registered?
+Andrew Morton wrote:
+> Kasper Sandberg <lkml@metanurb.dk> wrote:
+> 
+>>i really believe fuse is a good thing to have merged, i use it, and it
+>> works really really good.
+> 
+> 
+> What filesystem(s) do you use, and why?
 
-I think it will fail in wonderful and mysterious ways, have you tried
-it?
+we're currently prototyping a lightweight network filesystem proxy using 
+fuse.
 
-> If not, is there a way to determine if the device has been registered.
-
-Hm, you were the one that registered it, can't you remember if you did
-it or not?  :)
-
-thanks,
-
-greg k-h
+peter

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUHJOQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUHJN3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265099AbUHJOQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 10:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUHJOQz
+	id S265214AbUHJN3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHJN2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 10:16:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46806 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265305AbUHJOQq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 10:16:46 -0400
-Date: Tue, 10 Aug 2004 10:16:29 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Kurt Garloff <garloff@suse.de>
-cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-In-Reply-To: <20040810085746.GB12445@tpkurt.garloff.de>
-Message-ID: <Xine.LNX.4.44.0408101006580.7711-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 09:28:54 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:52117 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265139AbUHJN1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:27:09 -0400
+Date: Tue, 10 Aug 2004 15:27:09 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040810132709.GB31836@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org
+References: <200408101241.i7ACf5WC013958@burner.fokus.fraunhofer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408101241.i7ACf5WC013958@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004, Kurt Garloff wrote:
+Joerg Schilling schrieb am 2004-08-10:
 
-> * Even with selinux=0 and capability loaded, the kernel takes a 
->   few percents in networking benchmarks (measured by HP on ia64); 
->   this is caused by the slowliness of indirect jumps on ia64.
+> So you really like to recommend everyone to cross the street while the 
+> traffic light shows red just because you did not yet get any harm from doing 
+> so? 
 
-Is this just an ia64 issue?  If so, then perhaps we should look at only
-penalising ia64?  Otherwise, loading an LSM module is going to cause
-expensive false unlikely() on _every_ LSM hook.
+Of course not, but you cannot claim I've been harmed crossing the street
+when the lights were red when I haven't.
 
+There are dangers when mlockall() or similar and RT scheduling don't
+succeed, but that doesn't mean something MUST happen. The warning IMO is
+right but let's just ditch this part of the discussion.  cdrecord user
+interface discussion is off-topic here.
 
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
+Matthias Andree
 
-
-
-
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

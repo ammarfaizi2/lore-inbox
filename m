@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271223AbTHRFgj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 01:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271230AbTHRFgj
+	id S271225AbTHRFuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 01:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271239AbTHRFuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 01:36:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43753 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271223AbTHRFgh (ORCPT
+	Mon, 18 Aug 2003 01:50:08 -0400
+Received: from mail.cid.net ([193.41.144.34]:39112 "EHLO mail.cid.net")
+	by vger.kernel.org with ESMTP id S271225AbTHRFuG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 01:36:37 -0400
-Date: Sun, 17 Aug 2003 22:29:43 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Carlos Velasco" <carlosev@newipnet.com>
-Cc: alan@lxorguk.ukuu.org.uk, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030817222943.2fdf9765.davem@redhat.com>
-In-Reply-To: <200308171555280781.0067FB36@192.168.128.16>
-References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com>
-	<20030728213933.F81299@coredump.scriptkiddie.org>
-	<200308171509570955.003E4FEC@192.168.128.16>
-	<200308171516090038.0043F977@192.168.128.16>
-	<1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	<200308171555280781.0067FB36@192.168.128.16>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 18 Aug 2003 01:50:06 -0400
+Date: Mon, 18 Aug 2003 07:48:51 +0200
+From: Stefan Foerster <stefan@stefan-foerster.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very bad interactivity with 2.6.0 and SCSI disks (aic7xxx)
+Message-ID: <20030818054851.GA5252@in-ws-001.cid-net.de>
+References: <20030818013243.GB21665@in-ws-001.cid-net.de> <20030817192103.798994d8.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030817192103.798994d8.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003 15:55:28 +0200
-"Carlos Velasco" <carlosev@newipnet.com> wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
+> Stefan Foerster <stefan@stefan-foerster.de> wrote:
+> A kernel profile would be needed to diagnose this.  You could use
+> readprofile, but as it may be an interrupt problem, the NMI-based oprofile
+> output would be better.
 
-> And you can just use other OS and solve the problem
+Is this procedure documented anywhere?
 
-Nobody hacking on Linux feels threatened by this.
 
-And if anything, it's the last thing that would make us change Linux
-to behave one way or another.  That would be a stupid reason to make a
-change to the kernel, just because someone is shitting their pants on
-some mailing list endlessly about it.
+Ciao,
+Stefan
+-- 
+Stefan Förster                                  Public Key: 0xBBE2A9E9
+FdI #276: SMP - Fehlfunktion bei mehr als einer CPU. (nach Holger Veit)
 
-So please, go ahead, go use another OS if that suits your needs
-better, it certainly has no bearing on how we'll make Linux's ARP
-behave.
-
-But the one thing you can't do is accuse us of not providing the
-facility you need.  Your only valid complaint is that the facility
-doesn't get configured in the way that you would like it to, and
-frankly my answer to that is "tough".

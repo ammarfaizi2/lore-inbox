@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTKNUXb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTKNUXb
+	id S264288AbTKNUXu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:23:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTKNUXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:23:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33154 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263923AbTKNUXa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:23:30 -0500
-Date: Fri, 14 Nov 2003 20:23:27 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Harald Welte <laforge@netfilter.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: seq_file API strangeness
-Message-ID: <20031114202327.GK24159@parcelfarce.linux.theplanet.co.uk>
-References: <20031114200642.GG6937@obroa-skai.de.gnumonks.org>
+	Fri, 14 Nov 2003 15:23:50 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:63748 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264288AbTKNUXr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 15:23:47 -0500
+Date: Fri, 14 Nov 2003 21:23:39 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: "Patrick Beard" <patrick@scotcomms.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9 VFAT problem
+Message-ID: <20031114202339.GB18107@win.tue.nl>
+References: <20031114113224.GR21265@home.bofhlet.net> <bp2mab$sts$1@sea.gmane.org> <200311140945.36537.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031114200642.GG6937@obroa-skai.de.gnumonks.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200311140945.36537.gene.heskett@verizon.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 09:06:43PM +0100, Harald Welte wrote:
-> Hi!
+On Fri, Nov 14, 2003 at 09:45:36AM -0500, Gene Heskett wrote:
+
+> Nov 14 09:19:51 coyote kernel: hub 3-2:1.0: new USB device on port 3, assigned address 9
+> Nov 14 09:19:51 coyote kernel: scsi4 : SCSI emulation for USB Mass Storage devices
+> Nov 14 09:19:52 coyote kernel:   Vendor: OLYMPUS   Model: C-3020ZOOM(U)     Rev: 1.00
+> Nov 14 09:19:52 coyote kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+> Nov 14 09:19:52 coyote kernel: SCSI device sda: 128000 512-byte hdwr sectors (66 MB)
+> Nov 14 09:19:52 coyote kernel: sda: assuming drive cache: write through
+> Nov 14 09:19:52 coyote kernel:  sda: sda1
+> Nov 14 09:20:34 coyote kernel: FAT: Filesystem panic (dev sda1)
+> Nov 14 09:20:34 coyote kernel:     fat_free: deleting beyond EOF (i_pos 0)
+> Nov 14 09:20:34 coyote kernel:     File system has been set read-only
 > 
-> While porting /proc/net/ip_conntrack over to seq_file, I stumbled across
-> the following problem:
+> Comments?  Screwed up kernel .config? Is mount "-t vfat" the 
+> correct filesystem?
 
-> Now let's say I'm allocating some chunk of memory in ->start(), and
-> later on an error occurs.  Now I return ERR_PTR(something).  Later on, 
-> ->stop() is called with that ERR_PTR(something) as parameter, and I try
-> to kfree() the chunk of memory that was allocated.  boom.  It's neither
-> NULL nor a valid pointer.
-> 
-> Also, I am wondering why the ->stop() function is called at all, when
-> ->start() fails.  Initially, I was grabbing a lock, but only at the end
-> of ->start(), after all potential errors would already result in
-> returning ERR_PTR(something).  ->stop() however is then called
-> unconditionally, resulting in an unconditional unlock of my lock. boom.
-> 
-> Was this by intention?  I think it is unusual to call a  stop() function
-> even if start() didn't succeed.
+It would have been interesting to see the filesystem after this error message.
+Can you reproduce the error?
 
-It is intentional.  In 99% of cases it ends up with cleaner methods and
-in the rest you can trivially check the ->stop() argument.
+(vfat? I don't know - most cameras just use msdos, but vfat doesnt harm,
+I suppose)
 
-Note that you *can* have failing ->next() do cleanup if you want to do
-so.  In other words, instances that want such behaviour can get it easily.
-And in common case you don't have to bother at all.
+The error message means that the fatfs followed a chain of clusters in order
+to delete them all and found a free cluster before finding an end-of-file mark.
 
-With "we call ->stop() only if..." you would still have to do the same amount
-of work for hard cases *AND* get extra PITA for normal ones.  IOW, clear loss.

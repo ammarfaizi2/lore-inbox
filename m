@@ -1,80 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293108AbSBWHZM>; Sat, 23 Feb 2002 02:25:12 -0500
+	id <S293109AbSBWHaC>; Sat, 23 Feb 2002 02:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293109AbSBWHZD>; Sat, 23 Feb 2002 02:25:03 -0500
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:19205 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S293108AbSBWHYs>; Sat, 23 Feb 2002 02:24:48 -0500
-Message-ID: <20020223072447.48778.qmail@web12308.mail.yahoo.com>
-Date: Fri, 22 Feb 2002 23:24:47 -0800 (PST)
-From: Raghu Angadi <raghuangadi@yahoo.com>
-Subject: Re: memory corruption in tcp bind hash buckets on SMP? 
-To: "David S. Miller" <davem@redhat.com>
+	id <S293110AbSBWH3x>; Sat, 23 Feb 2002 02:29:53 -0500
+Received: from zero.tech9.net ([209.61.188.187]:18441 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293109AbSBWH3l>;
+	Sat, 23 Feb 2002 02:29:41 -0500
+Subject: Re: [PATCH] only irq-safe atomic ops
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020213.190743.66058963.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>
+In-Reply-To: <1014444810.1003.53.camel@phantasy> 
+	<3C773C02.93C7753E@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 02:29:48 -0500
+Message-Id: <1014449389.1003.149.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-02-23 at 01:51, Andrew Morton wrote:
 
-There is a scenario that leaves a tw in bind hash list even after it gets
-deallocated: (seems like easy to fix):
+> Thanks, Robert.
 
-There is a fix that went into between 2.4.16 & 17 (this fix made into into
-both RH 2.4.9-etc.. _and_ 2.4.7-10). Fix is to do atomic_set(tw->refcnt, 1)
- instead of 0 and do tcp_tw_put(tw) after tcp_tw_schedule() in
-tcp_time_wait(). It looks like this may not be complete fix for tw's 
-refcnting issues.
+You are welcome.
 
-Here is how it happens: reference code 2.4.9-21 (applies to 2.4.17 as well):
+> Some background here - for the delayed allocation code which I'm
+> cooking up I need to globally count the number of dirty pages in the
+> machine.  Currently that's done with atomic_inc(&nr_dirty_pages)
+> in SetPageDirty().
+> 
+> But this counter (which is used for when-to-start-writeback decisions)
+> is unavoidably approximate.   It would be nice to make it a per-CPU
+> array.  So on the rare occasions when the dirty-page count is needed,
+> I can just whizz across the per-cpu counters adding them all up.
 
-    Proc 0                                  Proc 1
---------------------------      |  ------------------------
+Question: if (from below) you are going to use atomic operations, why
+make it per-CPU at all?  Just have one counter and atomic_inc and
+atomic_read it.  You won't need a spin lock.
 
-gets ACK for an sk and sk       |  The remote side sent RST immediately
-goes into FIN_WAIT2 state.      |  after ACK for our FIN (abortive
-So we are in __tcp_hashdance(). |  close). RST was processed on proc 1.
-We just did                     |  since this is an RST, we go to
-write_unlock(ehead->lock);      |  tcp_timewait_state_process()
-                                |  and kill: label in there 
-                                | 
-                                |  which
-                                |  calls tcp_timewait_kill().
-                                |  Here, we delete tw from ehash list.
-                                |  but "if ((tb = tw->tb) != NULL)" fails
-                                |  'cause this has not been inserted 
-                                |   on proc 0 yet.
-                                |  Now we go ahead and do tcp_tw_put().
-                                
-So now we schedule_tw() on proc 0 and when the timeout fires, we call
-tcp_timewait_kill() again. But now tw->pprev is NULL (because it was deleted
-from established hash above by proc 1). So we just return with out deleting
-it from the bind hash list!!. A simple fix is to increment refcnt once for
-each list addition and decrement it once for each list deletion or decremnt
-only only when it is delete from bind hash. of course 'return if tw->pprev ==
-NULL' should also be removed. 
+> But how to increment or decrement a per-cpu counter?  The options
+> are:
+> 
+> - per_cpu_integer++;
+> 
+>   This is *probably* OK on all architectures.  But there are no
+>   guarantees that the compiler won't play games, and that this
+>   operation is preempt-safe.
 
-we have seen this happening (eg, tw->tb is non null just before kfree(tw)).
+This would be atomic and thus preempt-safe on any sane arch I know, as
+long as we are dealing with a normal type int.  Admittedly, however, we
+can't be sure what the compiler would do.
 
-Raghu.
+Thinking about it, you are probably going to be doing this:
 
---- "David S. Miller" <davem@redhat.com> wrote:
->    From: Raghu Angadi <raghuangadi@yahoo.com>
->    Date: Wed, 13 Feb 2002 16:51:52 -0800 (PST)
->    
->    --- "David S. Miller" <davem@redhat.com> wrote:
->    > 
->    > This bug is fixed in the 2.4.9 Red Hat 7.2 errata kernels.
->    
->    Thanks, Is the following diff the only culprit/fix?
->    
-> There are others, seatch for more instances of tcp_tw_get()
-> and tcp_tw_put() and things like atomic_set(tw->count, 1);
+	++counter[smp_processor_id()];
 
+and that is not preempt-safe since the whole operation certainly is not
+atomic.  The current CPU could change between calculating it and
+referencing the array.  But, that wouldn't matter as long as you only
+cared about the sum of the counters.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com
+> - preempt_disable(); per_cpu_counter++; preempt_enable();
+> 
+>   A bit heavyweight for add-one-to-i.
+
+Agreed, although I bet its not noticeable.
+
+> - atomic_inc
+> 
+>   A buslocked operation where it is not needed - we only need
+>   a preempt-locked operation here.  But it's per-cpu data, and
+>   the buslocked rmw won't be too costly.
+> 
+> I can't believe how piddling this issue is :)
+> 
+> But if there's a general need for such a micro-optimisation
+> then we need to:
+> 
+> 1: Create <linux/atomic.h> (for heavens sake!)
+> 
+> 2: In <linux/atomic.h>,
+> 
+>    #ifndef ARCH_HAS_ATOMIC_INQ_THINGIES
+>    #define atomic_inc_irq atomic_inc
+>    ...
+>    #endif
+
+I can think up a few more uses of the irq/memory-safe atomic ops, so I
+bet this isn't that bad of an idea.  But no point doing it without a
+corresponding use.
+
+> But for now, I suggest we not bother.  I'll just use atomic_inc().
+
+	Robert Love
+

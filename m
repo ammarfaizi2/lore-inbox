@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUEaLoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264215AbUEaLuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbUEaLoA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 07:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbUEaLoA
+	id S264215AbUEaLuv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 07:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUEaLuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 07:44:00 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59525
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263786AbUEaLn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 07:43:59 -0400
-From: Rob Landley <rob@landley.net>
-To: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>
-Subject: Re: swappiness=0 makes software suspend fail.
-Date: Mon, 31 May 2004 06:38:20 -0500
-User-Agent: KMail/1.5.4
+	Mon, 31 May 2004 07:50:51 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28086 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264215AbUEaLut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 07:50:49 -0400
+Date: Mon, 31 May 2004 13:50:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
 Cc: ncunningham@linuxmail.org, cef-lkml@optusnet.com.au,
-       linux-kernel@vger.kernel.org, seife@suse.de
-References: <200405280000.56742.rob@landley.net> <20040529222308.GA1535@elf.ucw.cz> <20040531031743.0d7566e3.akpm@osdl.org>
-In-Reply-To: <20040531031743.0d7566e3.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+       linux-kernel@vger.kernel.org, rob@landley.net, seife@suse.de
+Subject: Re: swappiness=0 makes software suspend fail.
+Message-ID: <20040531115049.GB28188@atrey.karlin.mff.cuni.cz>
+References: <200405280000.56742.rob@landley.net> <20040528215642.GA927@elf.ucw.cz> <200405291905.20925.cef-lkml@optusnet.com.au> <40B85024.2040505@linuxmail.org> <20040529222308.GA1535@elf.ucw.cz> <20040531031743.0d7566e3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405310638.21015.rob@landley.net>
+In-Reply-To: <20040531031743.0d7566e3.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 May 2004 05:17, Andrew Morton wrote:
+Hi!
+
 > btw, software suspend wrecks your swap partition if you suspend to swap but
 > do not resume from swap - you need to run mkswap again.  Seems odd.
 
-I think it's intentional, so that if you you boot to a different kernel swapon 
--a won't automount the swap partition and hork your saved image.
+Its half-intentional. We need to change signature to something else so
+that kernel knows "this is suspend partition", and I never got around
+to fixing it back on unsuccessfull suspend.
 
-Of course, mounting/fscking any of the filesystems in question would kinda 
-screw that up too, and if the swap partition's is in the other kernel's fstab 
-then presumably overlapping filesystems probably are too.  (Intentional isn't 
-necessarily the same thing as right... :)
-
-Rob
+I believe stefan has some script that fixes swap signature using dd if
+it detects suspend signature...
+								Pavel
 
 -- 
-www.linucon.org: Linux Expo and Science Fiction Convention
-October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

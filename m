@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262576AbSJQXLj>; Thu, 17 Oct 2002 19:11:39 -0400
+	id <S262326AbSJQXRf>; Thu, 17 Oct 2002 19:17:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbSJQXLi>; Thu, 17 Oct 2002 19:11:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22208 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262576AbSJQXK1>;
-	Thu, 17 Oct 2002 19:10:27 -0400
-Date: Thu, 17 Oct 2002 16:08:55 -0700 (PDT)
-Message-Id: <20021017.160855.85416723.davem@redhat.com>
-To: chris@wirex.com
-Cc: daw@mozart.cs.berkeley.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017160436.D26442@figure1.int.wirex.com>
-References: <aonbj9$pun$1@abraham.cs.berkeley.edu>
-	<20021017.153627.132905359.davem@redhat.com>
-	<20021017160436.D26442@figure1.int.wirex.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262346AbSJQXRf>; Thu, 17 Oct 2002 19:17:35 -0400
+Received: from code.and.org ([63.113.167.33]:47314 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S262326AbSJQXRe>;
+	Thu, 17 Oct 2002 19:17:34 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: matti.aarnio@zmailer.org, zilvinas@gemtek.lt, linux-kernel@vger.kernel.org
+Subject: Re: sendfile(2) behaviour has changed ?
+References: <20021016091046.GD9644@mea-ext.zmailer.org>
+	<20021016.025935.132073102.davem@redhat.com>
+	<m3it00zt4d.fsf@code.and.org>
+	<20021017.154138.130141726.davem@redhat.com>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 17 Oct 2002 19:23:10 -0400
+In-Reply-To: <20021017.154138.130141726.davem@redhat.com>
+Message-ID: <m3r8eoy7j5.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Wright <chris@wirex.com>
-   Date: Thu, 17 Oct 2002 16:04:36 -0700
-   
-   the photographer would like it if the mp3 player can't remove files
-   in ~/photos/ when it plays a malicious .mp3 file.
-   
-LSM doesn't provide anything in this area which can't be done
-today.  You can protect that directory from malicious programs
-today with file/dir protections and running programs with a different
-capability set or even with a different euid/egid for file accesses.
+"David S. Miller" <davem@redhat.com> writes:
+
+>    From: James Antill <james@and.org>
+>    Date: 17 Oct 2002 16:51:30 -0400
+> 
+>     It really needs a new interface for recvfile/copyfile/whatever
+>    anyway, as you can only specify an off_t for the from fd at present.
+>    
+> Ummm, you can use lseek() on the 'to' fd perhaps?
+
+ On the client side it's pretty useful to be able to write into the
+same file from the network from multiple connections.
+
+ You could say that you are much more likely to have multiple
+connections reading from one file than have them writing to the
+same file on the server, but then there the errno problem is much more
+obvious.
+
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

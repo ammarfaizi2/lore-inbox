@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280960AbRKYSQx>; Sun, 25 Nov 2001 13:16:53 -0500
+	id <S280967AbRKYSWX>; Sun, 25 Nov 2001 13:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280966AbRKYSQn>; Sun, 25 Nov 2001 13:16:43 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:44038 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S280960AbRKYSQ2>; Sun, 25 Nov 2001 13:16:28 -0500
-Message-Id: <4.3.2.7.2.20011125131414.00b172d0@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sun, 25 Nov 2001 13:16:21 -0500
+	id <S280970AbRKYSWP>; Sun, 25 Nov 2001 13:22:15 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:44738 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S280967AbRKYSWB>;
+	Sun, 25 Nov 2001 13:22:01 -0500
+Date: Sun, 25 Nov 2001 19:21:56 +0100
+From: Francois Romieu <romieu@cogenit.fr>
 To: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
-From: David Relson <relson@osagesoftware.com>
-Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
+Message-ID: <20011125192156.A7274@se1.cogenit.fr>
 In-Reply-To: <3C013407.7C639D34@jep.dhis.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C013407.7C639D34@jep.dhis.org>; from jep@jep.net.dhis.org on Sun, Nov 25, 2001 at 07:10:15PM +0100
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josep,
+Josep Lladonosa i Capell <jep@jep.net.dhis.org> :
+[...]
+> just the subject :-)
 
-My experience is different ...
+Compiled fine here. Check your tree/config and provide more info (.config,
+compiler, message) if the problem persists. The file REPORTING-BUGS gives
+some hints.
 
-I have a UP PentiumIII-500 machine on which I have built 2.4.16-pre1 using 
-a custom .config without SMP.  The kernel built fine and is running fine.
-
-David
-
-At 01:10 PM 11/25/01, Josep Lladonosa i Capell wrote:
->Hello,
->
->just the subject :-)
->
->--
->Salutacions...Josep
->http://www.geocities.com/SiliconValley/Horizon/1065/
->--
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Ueimor

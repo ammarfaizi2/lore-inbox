@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315799AbSEEA4x>; Sat, 4 May 2002 20:56:53 -0400
+	id <S315798AbSEEA4s>; Sat, 4 May 2002 20:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315800AbSEEA4w>; Sat, 4 May 2002 20:56:52 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:45502 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315799AbSEEA4w>;
-	Sat, 4 May 2002 20:56:52 -0400
-Date: Sun, 5 May 2002 10:54:39 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: khttpd newbie problem
-Message-ID: <20020505005439.GA12430@krispykreme>
-In-Reply-To: <3CD402D2.E3A94CA2@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315799AbSEEA4r>; Sat, 4 May 2002 20:56:47 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:29450 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315798AbSEEA4r>; Sat, 4 May 2002 20:56:47 -0400
+Message-ID: <3CD4748D.30301@evision-ventures.com>
+Date: Sun, 05 May 2002 01:53:49 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: Andreas Dilger <adilger@turbolabs.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.13 IDE 50
+In-Reply-To: <Pine.LNX.4.33.0205031949010.5617-100000@gans.physik3.uni-rostock.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Uz.ytkownik Tim Schmielau napisa?:
+>>- Fix wrong usage of time_after in ide.c. This should cure the drive 
+>>seek
+>>   timeout problems some people where expierencing. This was clarified 
+>>to me by
+>>   Bartek, who apparently checked whatever the actual code is consistent 
+>>with the comments in front of it. Thank you Bartlomiej Zolnierkiewicz.
+>>
+>>   I think now that we should have time_past(xxx) in <linux/timer.h>.
+> 
+> 
+> What would you suppose time_past(xxx) to do?
 
-Hi Dan,
 
-> I'm having an oops with khttpd on an embedded 2.4.17 ppc405
-> system, so I thought I'd try it out on my pc.  But I can't
-> get khttpd to serve any requests.
+Taking only a single parameter and telling whatever jiffies is bigger
+then it. Just that. Becouse if you grep for time_after or time_before
+you would realize immediately that nearly all of them take
+the variable jiffies as parameter.
 
-Any reason for not using tux? Its been tested heavily on ppc64,
-the same patches should work on ppc32.
 
-Anton

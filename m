@@ -1,102 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265992AbUBQEXP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 23:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUBQEXO
+	id S265980AbUBQElc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 23:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUBQEl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 23:23:14 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:47277 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265992AbUBQEXC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 23:23:02 -0500
-Message-ID: <40319720.3090709@cyberone.com.au>
-Date: Tue, 17 Feb 2004 15:22:56 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Mon, 16 Feb 2004 23:41:29 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:13952 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S265980AbUBQElV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 23:41:21 -0500
+Date: Mon, 16 Feb 2004 23:41:17 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@blue.engin.umich.edu
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, <Linux-MM@kvack.org>
+Subject: [PATCH] mremap NULL pointer dereference fix
+Message-ID: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
 MIME-Version: 1.0
-To: bill davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [BENCHMARK] 2.6.3-rc2 v 2.6.3-rc3-mm1 kernbench
-References: <200402170000.00524.kernel@kolivas.org> <4030C38A.4050909@cyberone.com.au> <200402170130.24070.kernel@kolivas.org> <c0ro1h$48t$1@gatekeeper.tmr.com>
-In-Reply-To: <c0ro1h$48t$1@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+This path fixes a NULL pointer dereference bug in mremap. In
+move_one_page we need to re-check the src because an allocation
+for the dst page table can drop page_table_lock, and somebody
+else can invalidate the src.
 
-bill davidsen wrote:
+In my old Quad Pentium II 200MHz 256MB, with 2.6.3-rc3-mm1-preempt,
+I could hit the NULL pointer dereference bug with the program in the
+following URL:
 
->In article <200402170130.24070.kernel@kolivas.org>,
->Con Kolivas  <kernel@kolivas.org> wrote:
->| On Tue, 17 Feb 2004 00:20, Nick Piggin wrote:
->
->| >
->| > Thanks Con,
->| > Results look pretty good. The half-load context switches are
->| > increased - that is probably a result of active balancing.
->| > And speaking of active balancing, it is not yet working across
->| > nodes with the configuration you're on.
->| >
->| > To get some idea of our worst case SMT performance (-j8), would
->| > it be possible to do -j8 and -j64 runs with HT turned off?
->| 
->| sure.
->
->Now, I have a problem with the numbers here, either I don't understand
->them (likely) or I don't believe them (also possible).
->| 
->| results.2.6.3-rc3-mm1 + SMT:
->| Average Half Load Run:
->| Elapsed Time 113.008
->| User Time 742.786
->| System Time 90.65
->| Percent CPU 738
->| Context Switches 28062.6
->| Sleeps 24571.8
->
->
->| 2.6.3-rc3-mm1 no SMT:
->| Average Half Load Run:
->| Elapsed Time 133.51
->| User Time 799.268
->| System Time 92.784
->| Percent CPU 669
->| Context Switches 19340.8
->| Sleeps 24427.4
->
->As I look at these numbers, I see that with SMT the real time is lower,
->the system time is higher, and the system time is higher. All what I
->would expect since effectively the system has twice as many CPUs.
->
->But the user time, there I have a problem understanding. User time is
->time in the user program, and I would expect user time to go up, since
->resource contention inside a CPU is likely to mean less work being done
->per unit of time, and therefore if you measure CPU time from the outside
->you need more of it to get the job done.
->
->And what do you get running on one non-SMT CPU for the same mix? When I
->run stuff I usually see the user CPU go up a tad and the e.t. go down a
->little (SMT) or quite a bit (SMP).
->
->I have faith in the reporting of the numbers, but I wonder about the way
->the data were measured. Hopefully someone can clarify, because it looks
->a little like what you would see if you counted "one" for one tick worth
->of user mode time in the CPU, regardless of whether one or two threads
->were executing.
->
+  http://www-personal.engin.umich.edu/~vrajesh/linux/mremap-nullptr/
 
-Bill, I have CC'ed your message without modification because Con is
-not subscribed to the list. Even for people who are subscribed, the
-convention on lkml is to reply to all.
+Full trace of the bug can be found at the above URL. A partial call
+trace is below.
 
-Anyway, the "no SMT" run is with CONFIG_SCHED_SMT turned off, P4 HT
-is still on. This was my fault because I didn't specify clearly that
-I wanted to see a run with hardware HT turned off, although these
-numbers are still interesting.
+kernel: PREEMPT SMP
 
-Con hasn't tried HT off AFAIK because we couldn't work out how to
-turn it off at boot time! :(
+kernel: EIP is at copy_one_pte+0x12/0xa0
+
+kernel:  [<c01558a3>] move_one_page+0xa3/0x110
+kernel:  [<c0155947>] move_page_tables+0x37/0x80
+kernel:  [<c0155a1a>] move_vma+0x8a/0x5e0
+kernel:  [<c015620c>] do_mremap+0x29c/0x3d0
+kernel:  [<c015638d>] sys_mremap+0x4d/0x6d
+kernel:  [<c03d5ee7>] syscall_call+0x7/0xb
+
+Please apply.
+
+
+ mm/mremap.c |   26 ++++++++++++++++++++------
+ 1 files changed, 20 insertions(+), 6 deletions(-)
+
+diff -puN mm/mremap.c~nullptr mm/mremap.c
+--- mmlinux-2.6/mm/mremap.c~nullptr	2004-02-16 17:24:00.000000000 -0500
++++ mmlinux-2.6-jaya/mm/mremap.c	2004-02-16 17:24:00.000000000 -0500
+@@ -135,17 +135,31 @@ move_one_page(struct vm_area_struct *vma
+ 		dst = alloc_one_pte_map(mm, new_addr);
+ 		if (src == NULL)
+ 			src = get_one_pte_map_nested(mm, old_addr);
++		/*
++		 * Since alloc_one_pte_map can drop and re-acquire
++		 * page_table_lock, we should re-check the src entry...
++		 */
++		if (src == NULL) {
++			pte_unmap(dst);
++			goto flush_out;
++		}
+ 		error = copy_one_pte(vma, old_addr, src, dst, &pte_chain);
+ 		pte_unmap_nested(src);
+ 		pte_unmap(dst);
+-	} else
+-		/*
+-		 * Why do we need this flush ? If there is no pte for
+-		 * old_addr, then there must not be a pte for it as well.
+-		 */
+-		flush_tlb_page(vma, old_addr);
++		goto unlock_out;
++	}
++
++flush_out:
++	/*
++	 * Why do we need this flush ? If there is no pte for
++	 * old_addr, then there must not be a pte for it as well.
++	 */
++	flush_tlb_page(vma, old_addr);
++
++unlock_out:
+ 	spin_unlock(&mm->page_table_lock);
+ 	pte_chain_free(pte_chain);
++
+ out:
+ 	return error;
+ }
+
+_
 

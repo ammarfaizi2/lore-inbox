@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265663AbUE0Xeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUE1AWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265663AbUE0Xeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 19:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265679AbUE0Xeh
+	id S265033AbUE1AWY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 20:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265202AbUE1AWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 19:34:37 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46074 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265663AbUE0Xee
+	Thu, 27 May 2004 20:22:24 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1786 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265033AbUE1AWW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 19:34:34 -0400
-Date: Thu, 27 May 2004 16:34:32 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-rc1-mm1: revert leave-runtime-suspended-devices-off-at-system-resume.patch
-Message-ID: <20040527233432.GE7176@slurryseal.ddns.mvista.com>
-References: <1085658551.1998.7.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 May 2004 20:22:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
+Date: Thu, 27 May 2004 19:40:49 +0200
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040527194920.A1709@jurassic.park.msu.ru> <200405271854.21499.bzolnier@elka.pw.edu.pl> <20040527210821.A2004@jurassic.park.msu.ru>
+In-Reply-To: <20040527210821.A2004@jurassic.park.msu.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1085658551.1998.7.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405271940.49386.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 01:49:12PM +0200, Felipe Alfaro Solana wrote:
-> 
-> 2.6.7-rc-mm1 includes
-> "leave-runtime-suspended-devices-off-at-system-resume" which causes
-> mayor problems when used on my ACPI laptop. After resuming from S3
-> (STR), both the CardBus and UHCI-HCD bridges won't come up from
-> suspension, rendering them completely unusable: neither my CardBus NIC,
-> nor my USB mouse are recognized or functional.
+On Thursday 27 of May 2004 19:08, Ivan Kokshaysky wrote:
+> On Thu, May 27, 2004 at 06:54:21PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > >>> boot -file new_kernel_image.gz
+> >
+> > How is it different from reboot?
+>
+> In this scenario it's not different, except you boot
+> to another kernel.
 
-Aargh, USB drivers appear to be the only drivers to modify that field, I
-didn't catch that, sorry.  The following patch against 2.6.6 adds a new
-field for "previous state", so that drivers that modify their own
-dev->power.power_state during the suspend callback will be resumed.  Can
-send a patch to fix 2.6.7-rc1-mm1 if desired.
+Eh.
 
---- linux-2.6.6-orig/drivers/base/power/suspend.c	2004-05-10 11:22:58.000000000 -0700
-+++ linux-2.6.6-prevstate/drivers/base/power/suspend.c	2004-05-27 13:58:01.931014888 -0700
-@@ -39,7 +39,9 @@
- {
- 	int error = 0;
- 
--	if (dev->bus && dev->bus->suspend)
-+	dev->power.prev_state = dev->power.power_state;
-+
-+	if (dev->bus && dev->bus->suspend && ! dev->power.power_state)
- 		error = dev->bus->suspend(dev,state);
- 
- 	if (!error) {
---- linux-2.6.6-orig/drivers/base/power/resume.c	2004-05-10 11:22:58.000000000 -0700
-+++ linux-2.6.6-prevstate/drivers/base/power/resume.c	2004-05-27 14:35:03.373304328 -0700
-@@ -35,7 +35,10 @@
- 		struct list_head * entry = dpm_off.next;
- 		struct device * dev = to_device(entry);
- 		list_del_init(entry);
--		resume_device(dev);
-+
-+		if (! dev->power.prev_state)
-+			resume_device(dev);
-+
- 		list_add_tail(entry,&dpm_active);
- 	}
- }
---- linux-2.6.6-orig/include/linux/pm.h	2004-05-10 11:23:56.000000000 -0700
-+++ linux-2.6.6-prevstate/include/linux/pm.h	2004-05-27 14:35:37.143170528 -0700
-@@ -231,6 +231,7 @@
- struct dev_pm_info {
- #ifdef	CONFIG_PM
- 	u32			power_state;
-+	u32			prev_state;
- 	u8			* saved_state;
- 	atomic_t		pm_users;
- 	struct device		* pm_parent;
+> > So how does it work in 2.4?
+>
+> 2.4 needs similar fix.
+>
+> > No more <asm/ide.h> crap, please.
+>
+> Would #ifdef __alpha__ be better?
 
+actually CONFIG_ALPHA + comment why it is needed
 
--- 
-Todd
+Thanks,
+Bartlomiej
+

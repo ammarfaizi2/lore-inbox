@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266466AbUALVfd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUALVfd
+	id S266237AbUALV2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 16:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266451AbUALV2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:35:33 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:46585 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266466AbUALVf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:35:28 -0500
-Message-ID: <4003131E.1090408@comcast.net>
-Date: Mon, 12 Jan 2004 15:35:26 -0600
-From: Ian Pilcher <i.pilcher@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: initialize data not at file scope - WTF?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 16:28:33 -0500
+Received: from AGrenoble-101-1-2-140.w193-253.abo.wanadoo.fr ([193.253.227.140]:61363
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S266237AbUALV2T convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 16:28:19 -0500
+Subject: Re: Laptops & CPU frequency
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Robert Love <rml@ximian.com>, jlnance@unity.ncsu.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1073937159.28098.46.camel@cog.beaverton.ibm.com>
+References: <20040111025623.GA19890@ncsu.edu>
+	 <1073791061.1663.77.camel@localhost>  <1073816858.6189.186.camel@nomade>
+	 <1073817226.6189.189.camel@nomade>
+	 <1073937159.28098.46.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1073942913.724.10.camel@nomade>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 12 Jan 2004 22:28:34 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In include/linux/init.h, it says:
+Le lun 12/01/2004 à 20:52, john stultz a écrit :
 
-   For initialized data:
-   You should insert __initdata between the variable name and equal
-   sign followed by value, e.g.:
+> More info please. What type of hardware is this?  Could you send me your
+> dmesg for booting both with and without AC power? 
 
-   static int init_variable __initdata = 0;
-   static char linux_logo[] __initdata = { 0x32, 0x36, ... };
+It's an Armada 1700, with a pII 300MHz (150MHz on battery). It doesn't
+support cpufreq (I tried modprobing all drivers, none work), I must boot
+with acpi=off if I want suspend-to-ram and suspend-to-disk to work (apm
+works great on this machine). As said elsewhere in this thread, booting
+with clock=pit solves my problem.
+Yet I can investigate for you (send dmesg, test things) if you're still
+interested.
 
-   Don't forget to initialize data not at file scope, i.e. within a
-   function, as gcc otherwise puts the data into the bss section and not
-   into the init section.
+Thanks,
 
-Does this mean that __initdata can't be used for file scope variables,
-that it can only be used for file scope variables, or something else?
-
-Thanks!
-
--- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
+	Xav
 

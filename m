@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315455AbSGAIBp>; Mon, 1 Jul 2002 04:01:45 -0400
+	id <S315457AbSGAIKl>; Mon, 1 Jul 2002 04:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315456AbSGAIBo>; Mon, 1 Jul 2002 04:01:44 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57246 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S315455AbSGAIBn>;
-	Mon, 1 Jul 2002 04:01:43 -0400
-Date: Mon, 1 Jul 2002 10:00:28 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andreas Jaeger <aj@suse.de>
-Cc: Nicholas Miell <nmiell@attbi.com>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [announce] [patch] batch/idle priority scheduling, SCHED_BATCH
-In-Reply-To: <ho1yaodju4.fsf@gee.suse.de>
-Message-ID: <Pine.LNX.4.44.0207010954420.2321-100000@e2>
+	id <S315468AbSGAIKk>; Mon, 1 Jul 2002 04:10:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22533 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315457AbSGAIKk>;
+	Mon, 1 Jul 2002 04:10:40 -0400
+Message-ID: <3D20104C.BF156E78@zip.com.au>
+Date: Mon, 01 Jul 2002 01:18:20 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au, davej@suse.de
+Subject: Re: 2.5.24-dj1,smp,ext2,raid0: I got random zero blocks in my files.
+References: <3D200BF6.3A6D9B59@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 1 Jul 2002, Andreas Jaeger wrote:
-
-> >> -#define SCHED_OTHER		0
-> >> +#define SCHED_NORMAL		0
-> >
-> >>From IEEE 1003.1-2001 / Open Group Base Spec. Issue 6:
-> > "Conforming implementations shall include one scheduling policy
-> > identified as SCHED_OTHER (which may execute identically with either the
-> > FIFO or round robin scheduling policy)."
-> >
-> > So, you probably want to add a "#define SCHED_OTHER SCHED_NORMAL" here
-> > in order to prevent future confusion, especially because the user-space
-> > headers have SCHED_OTHER, but no SCHED_NORMAL.
+Helge Hafting wrote:
 > 
-> This can be done in glibc.  linux/sched.h should not be used by
-> userspace applications, glibc has the define in <bits/sched.h> which is
-> included from <sched.h> - and <sched.h> is the file defined by Posix.
+> 2.5.24-dj1 gave me files with zeroed blocks inside.
+> What I did:  I untarred the source for lyx 1.2.0
+> and tried to compile it, several times.
+> 
+> gcc and make choked on occational blocks of zeroes
+> inside files, different places each time.
+> Going back to 2.5.18 fixed it.
+> 
+> This isn't all that surprising considering that
+> the raid driver logs complaints about requests
+> bigger than 32k, which is the stripe size.
+> I believed this worked by retrying with much smaller
+> requests, perhaps I am wrong?
+> 
+> The filesystems use 4k blocks.
+> I haven't seen any trouble on non-raid or raid-1
+> partitions.
 
-yes, this was my thinking too.
+Yes, the large BIO stuff went into 2.5.19.  RAID0 doesn't
+like those big BIOs.  Jens is cooking up a fix for that.
 
-the reason for the change: with the introduction of SCHED_BATCH the
-regular scheduling policy cannot really be called 'other' anymore, from
-the point of scheduler internals - it's in the middle of all scheduler
-policies, its only speciality is that it's the default one.
+Just to confirm that this is the problem, could you please
+set MPAGE_BIO_MAX_SIZE in 32768 in fs/mpage.c and see if the
+failure goes away?
 
-(obviously for the user interface it has to be defined.)
-
-	Ingo
-
+-

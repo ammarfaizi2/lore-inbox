@@ -1,234 +1,270 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293279AbSB1KlV>; Thu, 28 Feb 2002 05:41:21 -0500
+	id <S293161AbSB1K31>; Thu, 28 Feb 2002 05:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293256AbSB1KjC>; Thu, 28 Feb 2002 05:39:02 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:36328 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S293085AbSB1Kgj>;
-	Thu, 28 Feb 2002 05:36:39 -0500
-Date: Thu, 28 Feb 2002 12:38:13 +0200 (EET)
-From: Teodor Iacob <theo@astral.kappa.ro>
-X-X-Sender: <theo@linux.kappa.ro>
-Reply-To: <Teodor.Iacob@astral.kappa.ro>
-To: Chris Rankin <cj.rankin@ntlworld.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.18 : lots of "state D" processes
-In-Reply-To: <200202272307.g1RN7jsg000527@twopit.underworld>
-Message-ID: <Pine.LNX.4.31.0202281236420.8068-100000@linux.kappa.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+	id <S293253AbSB1K1M>; Thu, 28 Feb 2002 05:27:12 -0500
+Received: from noose.gt.owl.de ([62.52.19.4]:51212 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S293252AbSB1KZa>;
+	Thu, 28 Feb 2002 05:25:30 -0500
+Date: Thu, 28 Feb 2002 11:25:16 +0100
+From: Florian Lohoff <flo@rfc822.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] sys_newlstat / free_block / NMI WATCHDOG LOCKUP 
+Message-ID: <20020228102515.GA18057@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I got a few stats "D" process also with 2.4.19-pre1-rmap12g, the processes
-were using my usb printer, which actually I never got it to work anyway
-because this was the first kernel to try to make it work, and ofc I
-couldn't kill the processes, but the reboot went cleanly.
-Teo
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 27 Feb 2002, Chris Rankin wrote:
 
-> Hi,
->
-> I am running a freshly minted Linux-2.4.18 (SMP, devfs, >1GB memory)
-> kernel + the linux-2.4.18-rc2-gregkh-1.patch.gz patch. (I do not,
-> however, currently have any USB devices installed.) Anyway, my process
-> table has just filled up with lots of "uninterruptibly sleeping"
-> processes. I managed to do a "SysRq-T", "SysRQ-S" and so have
-> generated a trace for you nice people.
->
-> Something tells me that 2.4.18 isn't going to be a "keeper".
->
-> Cheers,
-> Chris
->
-> Feb 27 22:49:33 twopit kernel: SysRq : Show State
-> Feb 27 22:49:33 twopit kernel:
-> Feb 27 22:49:33 twopit kernel:                          free                        sibling
-> Feb 27 22:49:33 twopit kernel:   task             PC    stack   pid father child younger older
-> Feb 27 22:49:33 twopit kernel: init          S C2411F2C  3888     1      0 15595       3       (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: keventd       R 00000001  5720     2      1             8       (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [flush_to_ldisc+155/284] [__run_task_queue+96/108] [context_thread+311/464] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: ksoftirqd_CPU S C242E000  6148     3      0             4     1 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [do_softirq+111/204] [ksoftirqd+144/196] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: ksoftirqd_CPU S C242C000  6148     4      0             5     3 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [do_softirq+111/204] [ksoftirqd+144/196] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: kswapd        S F7BFE000  6356     5      0             6     4 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [exit_mm+14/124] [kswapd+130/180] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: bdflush       S 00000286  5952     6      0             7     5 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [interruptible_sleep_on+74/108] [bdflush+207/212] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: kupdated      S F7BD9FC8  5588     7      0                   6 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [kupdate+163/288] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: kjournald     S 00000286  5360     8      1            14     2 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [interruptible_sleep_on+74/108] [kjournald+345/460] [commit_timeout+0/12] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: devfsd        S F77CA000  5712    14      1            39     8 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [devfsd_read+254/956] [dput+25/340] [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: khubd         S 00000286     0    39      1           323    14 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-256344/96] [interruptible_sleep_on+74/108] [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-265049/96] [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-256340/96] [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-256340/96]
-> Feb 27 22:49:33 twopit kernel:    [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-297114/96] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: syslogd       S 7FFFFFFF  5276   322      1           329   327 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: klogd         R F75A4000  4848   323      1           325    39 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [do_syslog+196/932] [kmsg_read+17/24] [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: rpc.portmap   S 7FFFFFFF     0   325      1           327   323 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sock_poll+35/40] [schedule_timeout+23/156] [do_poll+134/220] [do_poll+187/220] [sys_poll+477/740]
-> Feb 27 22:49:33 twopit kernel:    [sys_socketcall+484/512] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: inetd         S 7FFFFFFF  2400   327      1           322   325 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [__pollwait+136/144] [tcp_poll+46/344] [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: lpd           S 7FFFFFFF     0   329      1           332   322 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: rpc.mountd    S 7FFFFFFF  6096   332      1           337   329 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sock_poll+35/40] [schedule_timeout+23/156] [do_poll+134/220] [do_poll+187/220] [sys_poll+477/740]
-> Feb 27 22:49:33 twopit kernel:    [filp_close+170/180] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: nfsd          S 7FFFFFFF  5136   337      1           338   332 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule+1206/1408] [schedule_timeout+23/156] [<f8907da4>] [<f88f36de>] [<f890a294>]
-> Feb 27 22:49:33 twopit kernel:    [<f8919b20>] [<f8919b20>] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: lockd         S 7FFFFFFF  4804   338      1   339     341   337 (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [reschedule+5/12] [<f88f36de>] [<f88fed09>] [kernel_thread+40/56]
-> Feb 27 22:49:33 twopit kernel: rpciod        S 00000001  6324   339    338                     (L-TLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [<f88f7412>] [<f88f02b4>] [<f88f9d1c>] [<f88f9d1c>] [<f88f9d14>]
-> Feb 27 22:49:33 twopit kernel:    [<f88f9d14>] [kernel_thread+40/56] [<f88f9d1c>] [<f88f9d28>]
-> Feb 27 22:49:33 twopit kernel: rpc.statd     S 7FFFFFFF  2404   341      1           343   338 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [__pollwait+136/144] [tcp_poll+46/344] [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: rpc.rquotad   S 7FFFFFFF     0   343      1           349   341 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sock_poll+35/40] [schedule_timeout+23/156] [do_poll+134/220] [do_poll+187/220] [sys_poll+477/740]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: cron          S F743BF88  5736   349      1           355   343 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [sys_nanosleep+272/469] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: sendmail      S F7173F2C     0   355      1           370   349 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: acpid         S 7FFFFFFF  2384   370      1   371     436   355 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: acpid         S F70EA000  6036   371    370                     (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [dentry_open+225/396] [<f8937bc8>] [<f8939c78>] [<f8939c78>] [sys_read+143/272]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: ntpd          S 7FFFFFFF     0   436      1           437   370 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: bash          S 00000000  1376   437      1 15590     438   436 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xdm           S F6DA9FB0     0   438      1   442     480   437 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sys_rt_sigaction+159/324] [sys_rt_sigsuspend+251/280] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: X             S F6C5FF2C     0   441    438           442       (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [__pollwait+136/144] [schedule_timeout+122/156] [process_timeout+0/96] [do_select+458/516] [sys_select+832/1148]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xdm           S 00000000     0   442    438   483           441 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xconsole      S 7FFFFFFF     0   480      1           491   438 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xsm           S 7FFFFFFF     0   483    442                     (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: twm           S 7FFFFFFF  2400   491      1           493   480 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: smproxy       S 7FFFFFFF  2400   493      1           503   491 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xclock        S F5E7FF2C     0   501      1           595   587 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [__pollwait+136/144] [schedule_timeout+122/156] [<fb38fe08>] [process_timeout+0/96] [do_select+458/516]
-> Feb 27 22:49:33 twopit kernel:    [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: fetchmail     S F5E6DF2C     0   503      1           510   493 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: ymessenger    S 00000000  4696   510      1 10216     587   503 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xbiff         S F5BD5F2C     0   587      1           501   510 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [__pollwait+136/144] [schedule_timeout+122/156] [process_timeout+0/96] [do_select+458/516] [sys_select+832/1148]
-> Feb 27 22:49:33 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xterm         S 7FFFFFFF  2400   595      1   600     603   501 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: bash          S 00000000  1376   600    595 15585               (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:33 twopit kernel: xterm         S 7FFFFFFF     0   603      1   608     623   595 (NOTLB)
-> Feb 27 22:49:33 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: bash          S 00000000  1376   608    603   643               (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: setiwatcher   S F5B61FB0  4696   623      1   625     627   603 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sys_rt_sigsuspend+251/280] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: setiathome    R F5B7E000     0   624    623           625       (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [do_IRQ+219/236] [reschedule+5/12]
-> Feb 27 22:49:34 twopit kernel: setiathome    R current   4696   625    623                 624 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [do_IRQ+166/236]
-> Feb 27 22:49:34 twopit kernel: xterm         S 7FFFFFFF  2400   627      1   632     635   623 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: bash          S 00000000  5244   632    627 15581               (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xterm         S 7FFFFFFF     0   635      1   636     638   627 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: telnet        S 7FFFFFFF     0   636    635                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xterm         S 7FFFFFFF  2400   638      1   639     641   635 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: telnet        S 7FFFFFFF     0   639    638                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xterm         S 7FFFFFFF  5244   641      1   642    3578   638 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: telnet        S 7FFFFFFF  2404   642    641                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: bash          S 00000000     0   643    608 15587               (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: wine          R F465FC58     0  3578      1          5243   641 (L-TLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+122/156] [process_timeout+0/96] [<f898b303>] [<f898ccad>] [piix_dmaproc+35/44]
-> Feb 27 22:49:34 twopit kernel:    [do_rw_disk+388/808] [__delay+19/40] [__const_udelay+41/52] [eepro100:__insmod_eepro100_S.text_L12032+5758/12096] [do_get_write_access+1526/1564] [__journal_file_buffer+229/540]
-> Feb 27 22:49:34 twopit kernel:    [journal_dirty_metadata+420/460] [ext3_do_update_inode+763/920] [ext3_do_update_inode+866/920] [ext3_mark_iloc_dirty+34/72] [ext3_mark_iloc_dirty+51/72] [ext3_mark_inode_dirty+41/52]
-> Feb 27 22:49:34 twopit kernel:    [ext3_dirty_inode+175/280] [__mark_inode_dirty+46/152] [ext3_free_blocks+1441/1452] [send_signal+44/256] [deliver_signal+29/128] [update_process_times+32/148]
-> Feb 27 22:49:34 twopit kernel:    [reschedule_idle+607/616] [<f898d2d5>] [sock_def_wakeup+51/64] [<fb3aa4a6>] [<fb3ab648>] [fput+77/232]
-> Feb 27 22:49:34 twopit kernel:    [filp_close+170/180] [put_files_struct+88/192] [do_exit+305/636] [sys_exit+14/16] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: wineserver    S 7FFFFFFF  2400  5243      1          5244  3578 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sock_poll+35/40] [schedule_timeout+23/156] [do_poll+134/220] [do_poll+187/220] [sys_poll+477/740]
-> Feb 27 22:49:34 twopit kernel:    [filp_close+170/180] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: wine          D F7487580  2400  5244      1          5247  5243 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [__down+108/200] [__down_failed+8/12] [<f898dc44>] [<f898cc5d>] [do_page_fault+380/1197]
-> Feb 27 22:49:34 twopit kernel:    [do_page_fault+0/1197] [ext3_get_block_handle+189/680] [ext3_get_block_handle+189/680] [__alloc_pages+51/356] [<f898f605>] [<f898c128>]
-> Feb 27 22:49:34 twopit kernel:    [<fb3ab2a0>] [<fb3ab51e>] [<fb3ab541>] [link_path_walk+1664/2128] [vfs_permission+116/240] [devfs_open+184/360]
-> Feb 27 22:49:34 twopit kernel:    [<f898d2d5>] [<fb3aa389>] [sys_ioctl+443/520] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: wine          D F7487580  5244  5247      1          5252  5244 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [__down+108/200] [__down_failed+8/12] [<f898dc44>] [<f898cc5d>] [do_page_fault+380/1197]
-> Feb 27 22:49:34 twopit kernel:    [do_page_fault+0/1197] [ext3_get_block_handle+189/680] [ext3_get_block_handle+189/680] [__alloc_pages+51/356] [<f898f605>] [<f898c128>]
-> Feb 27 22:49:34 twopit kernel:    [<fb3ab2a0>] [<fb3ab51e>] [<fb3ab541>] [link_path_walk+1664/2128] [vfs_permission+116/240] [devfs_open+184/360]
-> Feb 27 22:49:34 twopit kernel:    [<f898d2d5>] [<fb3aa389>] [sys_ioctl+443/520] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: wine          D F7487580     0  5252      1         15595  5247 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [__down+108/200] [__down_failed+8/12] [<f898dc44>] [<f898cc5d>] [do_page_fault+380/1197]
-> Feb 27 22:49:34 twopit kernel:    [do_page_fault+0/1197] [ext3_get_block_handle+189/680] [ext3_get_block_handle+189/680] [__alloc_pages+51/356] [<f898f605>] [<f898c128>]
-> Feb 27 22:49:34 twopit kernel:    [<fb3ab2a0>] [<fb3ab51e>] [<fb3ab541>] [link_path_walk+1664/2128] [vfs_permission+116/240] [devfs_open+184/360]
-> Feb 27 22:49:34 twopit kernel:    [<f898d2d5>] [<fb3aa389>] [sys_ioctl+443/520] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: aplay         D F7487580  2400 10216    510                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [__down+108/200] [__down_failed+8/12] [<f898db9c>] [<f898ca5c>] [<f898cc42>]
-> Feb 27 22:49:34 twopit kernel:    [__alloc_pages+51/356] [_alloc_pages+22/24] [do_anonymous_page+349/384] [do_no_page+54/780] [ide_set_handler+98/116] [ide_dmaproc+317/528]
-> Feb 27 22:49:34 twopit kernel:    [ide_dma_intr+0/168] [dma_timer_expiry+0/96] [__alloc_pages+51/356] [filemap_nopage+188/504] [filemap_nopage+233/504] [do_no_page+98/780]
-> Feb 27 22:49:34 twopit kernel:    [eepro100:__insmod_eepro100_O/lib/modules/2.4.18/kernel/drivers/net/e+-277245/96] [handle_mm_fault+92/188] [do_page_fault+380/1197] [do_page_fault+0/1197] [do_IRQ+219/236] [sys_ioctl+443/520]
-> Feb 27 22:49:34 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xine          D F7487580     0 15581    632 15582               (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [__down+108/200] [__down_failed+8/12] [<f898dbf0>] [<f898c50b>] [fput+77/232]
-> Feb 27 22:49:34 twopit kernel:    [unmap_fixup+86/344] [do_munmap+487/592] [sys_munmap+54/84] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xine          D F1CB3F6C    96 15582  15581                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [rwsem_down_write_failed+264/304] [_text_lock_ldt+6/34] [sys_modify_ldt+89/94] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: ps            D F1D79F14  2400 15584    600         15585       (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [rwsem_down_read_failed+268/308] [_text_lock_array+99/273] [_alloc_pages+22/24] [proc_info_read+83/276] [sys_read+143/272]
-> Feb 27 22:49:34 twopit kernel:    [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: grep          S F117E000     0 15585    600               15584 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [pipe_wait+125/164] [pipe_read+176/504] [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: ps            D F1BB9F14     0 15586    643         15587       (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [rwsem_down_read_failed+268/308] [vfs_permission+116/240] [_text_lock_array+99/273] [_alloc_pages+22/24] [proc_info_read+83/276]
-> Feb 27 22:49:34 twopit kernel:    [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: grep          S F24DE000     0 15587    643               15586 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [pipe_wait+125/164] [pipe_read+176/504] [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: ps            D F1201F14     0 15590    437                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [rwsem_down_read_failed+268/308] [vfs_permission+116/240] [_text_lock_array+99/273] [_alloc_pages+22/24] [proc_info_read+83/276]
-> Feb 27 22:49:34 twopit kernel:    [sys_read+143/272] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: xterm         S 7FFFFFFF     0 15595      1 15600          5252 (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [schedule_timeout+23/156] [do_select+458/516] [sys_select+832/1148] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: bash          S 00000000  4696 15600  15595 15602               (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [sys_wait4+921/976] [system_call+51/56]
-> Feb 27 22:49:34 twopit kernel: killall       D F496BF14  2400 15602  15600                     (NOTLB)
-> Feb 27 22:49:34 twopit kernel: Call Trace: [rwsem_down_read_failed+268/308] [_text_lock_array+99/273] [_alloc_pages+22/24] [proc_info_read+83/276] [sys_mmap2+101/148]
-> Feb 27 22:49:34 twopit kernel:    [sys_read+143/272] [system_call+51/56]
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Hi,
+in the row of more luck capturing deadlocks on a bunch of SMP machines
+this morning one of them died. Dual PIII, Serverworks chipset, ICP
+Vortex GDT6523RS, 1GB Ram (No Highmem)
 
+The deadlocks happen on these machines for 2.2 and 2.4 and come
+occasionally on all machine having a bit more i/o load.
+
+The machine had moderate load - The last "vmstat 5" lines were (Captured
+on serial console)
+
+ 2  1  0  13068   4544  67988 537060  15   0  2534   102 1887  9126  64 28 =
+  8
+ 4  0  1  13068   4380  68024 536576   0   0  2612   102 1905  9542  67 24 =
+  9
+ 1  0  1  13068   5356  68068 536312   0   0  2522    48 1930  8742  61 30 =
+  9
+ 5  0  0  13068   4568  68096 536804   0   0  2713    46 1981  8726  63 29 =
+  7
+ 5  0  0  13068   4404  68156 536784   0   0  2565    26 1925  9388  66 26 =
+  8
+
+
+Kernel 2.4.16 - No patches. Three oopses in a row - The last is a
+NMI Watchdog detectet LOCKUP.
+
+
+ksymoops 2.3.4 on i686 2.4.16.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16/ (default)
+     -m /boot/System.map-2.4.16 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Unable to handle kernel paging request at virtual address 32fb3814
+c0138924
+*pde =3D 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0138924>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 32fb37e0   ebx: 00000000   ecx: c3ae1000   edx: d9d3c560
+esi: c990dfa4   edi: 080737f9   ebp: bfffb920   esp: c990df9c
+ds: 0018   es: 0018   ss: 0018
+Process rsync (pid: 16004, stackpage=3Dc990d000)
+Stack: c990c000 bfffd998 d9d3c560 c1e0e320 00002000 c990c000 c990c000 00000=
+008=20
+       00000001 c0106d63 080737f9 bfffb8e0 080737f9 bfffd998 080737f9 bfffb=
+920=20
+       0000006b c010002b 0000002b 0000006b 400a540d 00000023 00000202 bfffb=
+8c4=20
+Call Trace: [<c0106d63>]=20
+Code: 8b 40 34 85 c0 74 0a 52 ff d0 89 c3 83 c4 04 eb 02 31 db 85=20
+
+>>EIP; c0138924 <sys_newlstat+30/70>   <=3D=3D=3D=3D=3D
+Trace; c0106d63 <system_call+2f/34>
+Code;  c0138924 <sys_newlstat+30/70>
+00000000 <_EIP>:
+Code;  c0138924 <sys_newlstat+30/70>   <=3D=3D=3D=3D=3D
+   0:   8b 40 34                  mov    0x34(%eax),%eax   <=3D=3D=3D=3D=3D
+Code;  c0138927 <sys_newlstat+33/70>
+   3:   85 c0                     test   %eax,%eax
+Code;  c0138929 <sys_newlstat+35/70>
+   5:   74 0a                     je     11 <_EIP+0x11> c0138935 <sys_newls=
+tat+41/70>
+Code;  c013892b <sys_newlstat+37/70>
+   7:   52                        push   %edx
+Code;  c013892c <sys_newlstat+38/70>
+   8:   ff d0                     call   *%eax
+Code;  c013892e <sys_newlstat+3a/70>
+   a:   89 c3                     mov    %eax,%ebx
+Code;  c0138930 <sys_newlstat+3c/70>
+   c:   83 c4 04                  add    $0x4,%esp
+Code;  c0138933 <sys_newlstat+3f/70>
+   f:   eb 02                     jmp    13 <_EIP+0x13> c0138937 <sys_newls=
+tat+43/70>
+Code;  c0138935 <sys_newlstat+41/70>
+  11:   31 db                     xor    %ebx,%ebx
+Code;  c0138937 <sys_newlstat+43/70>
+  13:   85 00                     test   %eax,(%eax)
+
+
+1 warning issued.  Results may not be reliable.
+
+
+
+ksymoops 2.3.4 on i686 2.4.16.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16/ (default)
+     -m /boot/System.map-2.4.16 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+<1>Unable to handle kernel paging request at virtual address 14b29e1c
+c012aa7e
+*pde =3D 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012aa7e>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 07aca781   ebx: ed99297c   ecx: f6000000   edx: 00000019
+esi: c1e0b060   edi: 0000004e   ebp: f7ee7ec0   esp: f7ee5f10
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=3Df7ee5000)
+Stack: f7ee7c00 f6000620 00000282 00008507 00000286 f594f039 c1e0b068 c1e0b=
+070=20
+       c1000000 ffffff14 c012ae30 c1e0b060 f7ee7e00 0000007e d18b07a0 c8b25=
+140=20
+       e72bb620 f6000620 c014335e f6000620 0000001a 000001d0 00000020 00000=
+006=20
+Call Trace: [<c012ae30>] [<c014335e>] [<c0143663>] 2  0  1  13196   4660  6=
+8212 536876   0   0  2106    72 1588  8257  59  27  15
+ [<c012c1b2>] [<c012c1ec>]=20
+   [<c012c283>] [<c012c2de>] [<c012c3ed>] [<c0105594>]=20
+Code: 89 5c 81 18 89 41 14 8b 41 10 8d 50 ff 89 51 10 83 f8 01 75=20
+
+>>EIP; c012aa7e <free_block+6e/dc>   <=3D=3D=3D=3D=3D
+Trace; c012ae30 <kfree+68/90>
+Trace; c014335e <prune_dcache+10a/160>
+Trace; c0143663 <shrink_dcache_memory+1b/30>
+Trace; c012c1b2 <shrink_caches+66/7c>
+Trace; c012c1ec <try_to_free_pages+24/44>
+Trace; c012c283 <kswapd_balance_pgdat+43/8c>
+Trace; c012c2de <kswapd_balance+12/28>
+Trace; c012c3ed <kswapd+99/bc>
+Trace; c0105594 <kernel_thread+28/38>
+Code;  c012aa7e <free_block+6e/dc>
+00000000 <_EIP>:
+Code;  c012aa7e <free_block+6e/dc>   <=3D=3D=3D=3D=3D
+   0:   89 5c 81 18               mov    %ebx,0x18(%ecx,%eax,4)   <=3D=3D=
+=3D=3D=3D
+Code;  c012aa82 <free_block+72/dc>
+   4:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  c012aa85 <free_block+75/dc>
+   7:   8b 41 10                  mov    0x10(%ecx),%eax
+Code;  c012aa88 <free_block+78/dc>
+   a:   8d 50 ff                  lea    0xffffffff(%eax),%edx
+Code;  c012aa8b <free_block+7b/dc>
+   d:   89 51 10                  mov    %edx,0x10(%ecx)
+Code;  c012aa8e <free_block+7e/dc>
+  10:   83 f8 01                  cmp    $0x1,%eax
+Code;  c012aa91 <free_block+81/dc>
+  13:   75 00                     jne    15 <_EIP+0x15> c012aa93 <free_bloc=
+k+83/dc>
+
+
+1 warning issued.  Results may not be reliable.
+
+
+
+
+ksymoops 2.3.4 on i686 2.4.16.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16/ (default)
+     -m /boot/System.map-2.4.16 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+ NMI Watchdog detected LOCKUP on CPU1, registers:
+CPU:    1
+EIP:    0010:[<c01f186c>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00000086
+eax: c1e0b164   ebx: c1e0b060   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: 00000000   esp: c0363e04
+ds: 0018   es: 0018   ss: 0018
+Process change_connid_2 (pid: 23608, stackpage=3Dc0363000)
+Stack: 00000020 000001d2 00000020 00000006 c023a120 f7e5d600 f7ee8000 c1e0b=
+164=20
+       c02b49a8 00000000 c0363e30 c0363e30 c0362000 00000000 00000009 00000=
+000=20
+       00000000 00000000 c012c168 00000006 000001d2 c0238408 c0238408 c0238=
+408=20
+Call Trace: [<c012c168>] [<c012c1ec>] [<c012ca3c>] [<c012cc5c>] [<c012c9e2>=
+]=20
+   [<c01231dd>] [<c0123883>] [<c0112643>] [<c01124c8>] [<c0131e27>] [<c0131=
+e8f>]=20
+   [<c0106e4c>]=20
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+>>EIP; c01f186c <stext_lock+180c/71b9>   <=3D=3D=3D=3D=3D
+Trace; c012c168 <shrink_caches+1c/7c>
+Trace; c012c1ec <try_to_free_pages+24/44>
+Trace; c012ca3c <balance_classzone+58/170>
+Trace; c012cc5c <__alloc_pages+108/168>
+Trace; c012c9e2 <_alloc_pages+16/18>
+Trace; c01231dd <do_wp_page+91/188>
+Trace; c0123883 <handle_mm_fault+8b/bc>
+Trace; c0112643 <do_page_fault+17b/4b8>
+Trace; c01124c8 <do_page_fault+0/4b8>
+Trace; c0131e27 <filp_close+9b/a4>
+Trace; c0131e8f <sys_close+5f/74>
+Trace; c0106e4c <error_code+34/3c>
+
+
+2 warnings issued.  Results may not be reliable.
+
+
+
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+Nine nineth on september the 9th              Welcome to the new billenium
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8fgWLUaz2rXW+gJcRAg7vAJ9R9rcJblwKjN0vhNtwUCNaH4QLFQCgunrg
+vI9f0OzMlIGikpjiDaZJMWM=
+=+bTw
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--

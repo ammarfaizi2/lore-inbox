@@ -1,40 +1,172 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262333AbTCYMsD>; Tue, 25 Mar 2003 07:48:03 -0500
+	id <S262633AbTCYN0G>; Tue, 25 Mar 2003 08:26:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262586AbTCYMsD>; Tue, 25 Mar 2003 07:48:03 -0500
-Received: from mail.set-software.de ([193.218.212.121]:1684 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP
-	id <S262333AbTCYMsD> convert rfc822-to-8bit; Tue, 25 Mar 2003 07:48:03 -0500
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Tue, 25 Mar 2003 12:58:04 GMT
-Message-ID: <20030325.12580471@knigge.local.net>
-Subject: Intel Gigabit - confused!?!
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
+	id <S262635AbTCYN0G>; Tue, 25 Mar 2003 08:26:06 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:49406 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262633AbTCYN0C>;
+	Tue, 25 Mar 2003 08:26:02 -0500
+Date: Wed, 26 Mar 2003 00:36:49 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: [PATCH][COMPAT] more compat types
+Message-Id: <20030326003649.331cb880.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi Linus,
 
-currently I ask myself what is the difference between the "Intel 
-PRO/1000 MT Desktop Adapter" and the "Intel PRO/1000 T Desktop 
-Adapter". The first (MT) is built with a 82540OEM Chip and the second 
-(T) with a 82544GC Chip.
+Is creating new types like this sensible?  Basically this patch
+creates compat_{int,uint,long,ulong}_t for use in generic
+declarations of structures and generic compatibility code.
 
-Is there something "very special" with the chips? Is one of both 
-better (faster and/or more stable and/or less CPU-eating) than the 
-other? I plan to use Linux 2.4.18 (if no other chance a newer one) 
-with these NIC's....
+Is this going further than you wanted?  Or am I heading in
+the direction?  I think this is where DaveM wants to go.
 
+socklen_t comes from the user mode definition of the msghdr
+strucure.
 
-Thank you in advance,
-  Michael
+Yes, Dave, I put this through the corss compiler :-)
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-
-
-
+diff -ruN 2.5.66-032517-32bit.1/include/asm-parisc/compat.h 2.5.66-032517-32bit.2/include/asm-parisc/compat.h
+--- 2.5.66-032517-32bit.1/include/asm-parisc/compat.h	2003-03-25 12:08:24.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/asm-parisc/compat.h	2003-03-25 16:10:11.000000000 +1100
+@@ -23,6 +23,12 @@
+ typedef u16	compat_ipc_pid_t;
+ typedef s32	compat_daddr_t;
+ typedef u32	compat_caddr_t;
++typedef s32		compat_socklen_t;
++
++typedef s32		compat_int_t;
++typedef s32		compat_long_t;
++typedef u32		compat_uint_t;
++typedef u32		compat_ulong_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t		tv_sec;
+diff -ruN 2.5.66-032517-32bit.1/include/asm-ppc64/compat.h 2.5.66-032517-32bit.2/include/asm-ppc64/compat.h
+--- 2.5.66-032517-32bit.1/include/asm-ppc64/compat.h	2003-03-25 12:08:24.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/asm-ppc64/compat.h	2003-03-25 16:10:16.000000000 +1100
+@@ -24,6 +24,12 @@
+ typedef s32		compat_daddr_t;
+ typedef u32		compat_caddr_t;
+ typedef __kernel_fsid_t	compat_fsid_t;
++typedef s32		compat_socklen_t;
++
++typedef s32		compat_int_t;
++typedef s32		compat_long_t;
++typedef u32		compat_uint_t;
++typedef u32		compat_ulong_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.66-032517-32bit.1/include/asm-s390x/compat.h 2.5.66-032517-32bit.2/include/asm-s390x/compat.h
+--- 2.5.66-032517-32bit.1/include/asm-s390x/compat.h	2003-03-25 12:08:24.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/asm-s390x/compat.h	2003-03-25 16:10:20.000000000 +1100
+@@ -24,6 +24,12 @@
+ typedef s32		compat_daddr_t;
+ typedef u32		compat_caddr_t;
+ typedef __kernel_fsid_t	compat_fsid_t;
++typedef s32		compat_socklen_t;
++
++typedef s32		compat_int_t;
++typedef s32		compat_long_t;
++typedef u32		compat_uint_t;
++typedef u32		compat_ulong_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.66-032517-32bit.1/include/asm-sparc64/compat.h 2.5.66-032517-32bit.2/include/asm-sparc64/compat.h
+--- 2.5.66-032517-32bit.1/include/asm-sparc64/compat.h	2003-03-25 12:08:24.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/asm-sparc64/compat.h	2003-03-25 16:10:24.000000000 +1100
+@@ -24,6 +24,12 @@
+ typedef s32		compat_daddr_t;
+ typedef u32		compat_caddr_t;
+ typedef __kernel_fsid_t	compat_fsid_t;
++typedef s32		compat_socklen_t;
++
++typedef s32		compat_int_t;
++typedef s32		compat_long_t;
++typedef u32		compat_uint_t;
++typedef u32		compat_ulong_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.66-032517-32bit.1/include/asm-x86_64/compat.h 2.5.66-032517-32bit.2/include/asm-x86_64/compat.h
+--- 2.5.66-032517-32bit.1/include/asm-x86_64/compat.h	2003-03-25 12:08:25.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/asm-x86_64/compat.h	2003-03-25 16:10:31.000000000 +1100
+@@ -26,6 +26,12 @@
+ typedef s32		compat_daddr_t;
+ typedef u32		compat_caddr_t;
+ typedef __kernel_fsid_t	compat_fsid_t;
++typedef s32		compat_socklen_t;
++
++typedef s32		compat_int_t;
++typedef s32		compat_long_t;
++typedef u32		compat_uint_t;
++typedef u32		compat_ulong_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.66-032517-32bit.1/include/linux/compat.h 2.5.66-032517-32bit.2/include/linux/compat.h
+--- 2.5.66-032517-32bit.1/include/linux/compat.h	2003-03-25 12:08:25.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/linux/compat.h	2003-03-25 15:59:01.000000000 +1100
+@@ -43,7 +43,7 @@
+ extern int put_compat_timespec(struct timespec *, struct compat_timespec *);
+ 
+ struct compat_iovec {
+-	compat_uptr_t	iov_base;
++	compat_uptr_t	iov_base;	/* void * */
+ 	compat_size_t	iov_len;
+ };
+ 
+diff -ruN 2.5.66-032517-32bit.1/include/net/compat.h 2.5.66-032517-32bit.2/include/net/compat.h
+--- 2.5.66-032517-32bit.1/include/net/compat.h	2003-03-25 12:08:26.000000000 +1100
++++ 2.5.66-032517-32bit.2/include/net/compat.h	2003-03-25 16:11:22.000000000 +1100
+@@ -8,19 +8,19 @@
+ #include <linux/compat.h>
+ 
+ struct compat_msghdr {
+-	compat_uptr_t	msg_name;
+-	s32		msg_namelen;
+-	compat_uptr_t	msg_iov;
++	compat_uptr_t	msg_name;	/* void * */
++	compat_socklen_t	msg_namelen;
++	compat_uptr_t	msg_iov;	/* struct compat_iovec * */
+ 	compat_size_t	msg_iovlen;
+-	compat_uptr_t	msg_control;
++	compat_uptr_t	msg_control;	/* void * */
+ 	compat_size_t	msg_controllen;
+-	u32		msg_flags;
++	compat_uint_t	msg_flags;
+ };
+ 
+ struct compat_cmsghdr {
+ 	compat_size_t	cmsg_len;
+-	s32		cmsg_level;
+-	s32		cmsg_type;
++	compat_int_t	cmsg_level;
++	compat_int_t	cmsg_type;
+ };
+ 
+ #else /* defined(CONFIG_COMPAT) */
+@@ -29,8 +29,8 @@
+ 
+ extern int get_compat_msghdr(struct msghdr *, struct compat_msghdr *);
+ extern int verify_compat_iovec(struct msghdr *, struct iovec *, char *, int);
+-extern asmlinkage long compat_sys_sendmsg(int,struct compat_msghdr *,unsigned);
+-extern asmlinkage long compat_sys_recvmsg(int,struct compat_msghdr *,unsigned);
++extern asmlinkage long compat_sys_sendmsg(int, struct compat_msghdr *, unsigned);
++extern asmlinkage long compat_sys_recvmsg(int, struct compat_msghdr *, unsigned);
+ extern asmlinkage long compat_sys_getsockopt(int, int, int, char *, int *);
+ extern int put_cmsg_compat(struct msghdr*, int, int, int, void *);
+ extern int put_compat_msg_controllen(struct msghdr *, struct compat_msghdr *,

@@ -1,62 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVCRQ0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVCRQ3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVCRQ0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 11:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCRQ0Q
+	id S261865AbVCRQ3b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 11:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVCRQ3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 11:26:16 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:28354 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261677AbVCRQY3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 11:24:29 -0500
-Message-ID: <423B00B4.3080703@austin.ibm.com>
-Date: Fri, 18 Mar 2005 10:24:20 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Fri, 18 Mar 2005 11:29:30 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:43155 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S261676AbVCRQ1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 11:27:07 -0500
+Date: Fri, 18 Mar 2005 17:22:13 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [BK PATCHES] ide-2.6 update
+Message-ID: <Pine.GSO.4.62.0503181703510.24383@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
-References: <445800000.1111127533@[10.10.2.4]>	<20050317224409.41f0f5c5.akpm@osdl.org> <16954.40800.839009.64848@alkaid.it.uu.se>
-In-Reply-To: <16954.40800.839009.64848@alkaid.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> Andrew Morton writes:
->  > "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->  > >
->  > > drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
->  > > : undefined reference to `.mac_vmode_to_var'
->  > > make: *** [.tmp_vmlinux1] Error 1
->  > > 
->  > > Anyone know what that is?
->  > > 
->  > 
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
->  > 
->  > should fix it.
-> 
-> It seems the culprit is "matroxfb-compile-error.patch" which unconditionally adds
-> macmodes.o to the Makefile line for CONFIG_FB_MATROX. This obviously breaks on !ppc.
-> The patch Andrew mentions above converts the Kconfig entry for FB_MATROX to do a
-> "select FB_MACMODES if PPC_PMAC", so dropping matroxfb-compile-error.patch should suffice.
-> 
-> 
 
-matroxfb-compile-error.patch was a valid fix for a compile problem. It 
-was against 2.6.11-bk10, therefore wasn't in the 2.6.11-bk6 or 2.6.11bk7 
-you had problems with and didn't cause this mess to begin with.
+Hi Linus,
 
-It appears the problem was more systemic than what I saw during my 
-compile, thus the fbdev-kconfig-fix-for-macmodes-and-ppc.patch probably 
-fixes the problem I fixed and a host of others.  Of course it conflicts 
-with my patch.
+Please do a
 
-Please drop the matroxfb-compile-error.patch and if the problem isn't 
-truly fixed by fbdev-kconfig-fix-for-macmodes-and-ppc.patch I will 
-resend it.
+ 	bk pull bk://bart.bkbits.net/ide-2.6
+
+This will update the following files:
+
+  Documentation/ioctl/hdio.txt |  179 ++++++++++++++++++++++++++++++++++---------
+  drivers/ide/ide-cd.c         |   99 +++++++++++++++++++----
+  drivers/ide/ide-cd.h         |    2
+  drivers/ide/ide-disk.c       |   96 +++++++++++++++++++++--
+  drivers/ide/ide-floppy.c     |  117 +++++++++++++++++++++-------
+  drivers/ide/ide-tape.c       |  175 +++++++++++++++++++++++++++++++-----------
+  drivers/ide/ide.c            |    3
+  drivers/ide/pci/cs5520.c     |    3
+  drivers/scsi/ide-scsi.c      |   66 +++++++++++++--
+  include/linux/ide.h          |    2
+  include/linux/pci_ids.h      |    1
+  11 files changed, 594 insertions(+), 149 deletions(-)
+
+through these ChangeSets:
+
+<bzolnier@trik.(none)> (05/03/18 1.2239)
+    [ide] ide-tape: fix character device ->open() vs ->cleanup() race
+
+    Similar to the same race but for the block device.
+
+    * store pointer to struct ide_tape_obj in idetape_chrdevs[]
+    * rename idetape_chrdevs[] to idetape_devs[] and kill idetape_chrdev_t
+    * add ide_tape_chrdev_get() for getting reference to the tape
+    * store tape pointer in file->private_data and fix all users of it
+    * fix idetape_chrdev_{open,release}() to get/put reference to the tape
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2238)
+    [ide] ide-scsi: add basic refcounting
+
+    * pointers to a SCSI host and a drive are added to idescsi_scsi_t
+    * pointer to the SCSI host is stored in disk->private_data
+    * ide_scsi_{get,put}() is used to {get,put} reference to the SCSI host
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2237)
+    [ide] ide-tape: add basic refcounting
+
+    Similar changes as for ide-cd.c.
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2236)
+    [ide] ide-floppy: add basic refcounting
+
+    Similar changes as for ide-cd.c.
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2235)
+    [ide] ide-disk: add basic refcounting
+
+    Similar changes as for ide-cd.c (except that struct ide_disk_obj is added).
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2234)
+    [ide] ide-cd: add basic refcounting
+
+    * based on reference counting in drivers/scsi/{sd,sr}.c
+    * fixes race between ->open() and ->cleanup() (ide_unregister_subdriver()
+      tests for drive->usage != 0 but there is no protection against new users)
+    * struct kref and pointer to a drive are added to struct ide_cdrom_info
+    * pointer to drive's struct ide_cdrom_info is stored in disk->private_data
+    * ide_cd_{get,put}() is used to {get,put} reference to struct ide_cdrom_info
+    * ide_cd_release() is a release method for struct ide_cdrom_info
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<bzolnier@trik.(none)> (05/03/18 1.2233)
+    [ide] make ide_generic_ioctl() take ide_drive_t * as an argument
+
+    As a result disk->private_data can be used by device drivers now.
+
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<htejun@gmail.com> (05/03/18 1.2232)
+    [ide] hdio.txt update
+
+    This patch updates Documentation/ioctl/hdio.txt to include more
+    detailed descriptions about HDIO_DRIVE_{CMD|TASK|TASKFILE} ioctls.
+
+    Signed-off-by: Tejun Heo <htejun@gmail.com>
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<tklauser@nuerscht.ch> (05/03/18 1.2231)
+    [ide] drivers/ide/cs5520.c: use the DMA_{64,32}BIT_MASK constants
+
+    Description: Use the DMA_{64,32}BIT_MASK constants from dma-mapping.h
+    when calling pci_set_dma_mask() or pci_set_consistent_dma_mask()
+    See http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for details
+
+    Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+
+<Jason.d.gaston@intel.com> (05/03/18 1.2230)
+    [ide] pci_ids.h correction for Intel ICH7R
+
+    This patch removes an incorrect ICH7R DID in pci_ids.h.
+
+    Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
+    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+

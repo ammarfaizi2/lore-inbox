@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbULIK6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbULIK7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbULIK6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 05:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbULIK6O
+	id S261504AbULIK7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 05:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbULIK7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 05:58:14 -0500
-Received: from gprs215-175.eurotel.cz ([160.218.215.175]:63616 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261502AbULIK6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 05:58:07 -0500
-Date: Thu, 9 Dec 2004 11:57:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: nickpiggin@yahoo.com.au, Jeff Garzik <jgarzik@pobox.com>,
-       torvalds@osdl.org, hugh@veritas.com, benh@kernel.crashing.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-Message-ID: <20041209105753.GB1131@elf.ucw.cz>
-References: <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org> <41AEB44D.2040805@pobox.com> <20041201223441.3820fbc0.akpm@osdl.org> <41AEBAB9.3050705@pobox.com> <20041201230217.1d2071a8.akpm@osdl.org> <179540000.1101972418@[10.10.2.4]> <41AEC4D7.4060507@pobox.com> <20041202101029.7fe8b303.cliffw@osdl.org> <Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
+	Thu, 9 Dec 2004 05:59:41 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:55734 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261504AbULIK7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 05:59:22 -0500
+Date: Thu, 9 Dec 2004 11:59:14 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Hsu I-Chieh <ejhsu@msn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't call function provided by kernel
+Message-ID: <20041209105914.GJ15433@admingilde.org>
+Mail-Followup-To: Hsu I-Chieh <ejhsu@msn.com>, linux-kernel@vger.kernel.org
+References: <BAY5-F186433AE314D0B1687EDC0A4B70@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mXDO3udm/xYWQeMQ"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <BAY5-F186433AE314D0B1687EDC0A4B70@phx.gbl>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Standard Kernel on a 512 Cpu machine allocating 32GB with an increasing
-> number of threads (and thus increasing parallellism of page faults):
-> 
->  Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
->  32   3    1    1.416s    138.165s 139.050s 45073.831  45097.498
-...
-> Patched kernel:
-> 
-> Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
->  32   3    1    1.098s    138.544s 139.063s 45053.657  45057.920
-...
-> These number are roughly equal to what can be accomplished with the
-> page fault scalability patches.
-> 
-> Kernel patches with both the page fault scalability patches and
-> prefaulting:
-> 
->  Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
->  32  10    1    4.103s    456.384s 460.046s 45541.992  45544.369
-...
-> 
-> The fault rate doubles when both patches are applied.
-...
-> We are getting into an almost linear scalability in the high end with
-> both patches and end up with a fault rate > 3 mio faults per second.
+--mXDO3udm/xYWQeMQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, with both patches you also slow single-threaded case more than
-twice. What are the effects of this patch on UP system?
-								Pavel
+hoi :)
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+On Thu, Dec 09, 2004 at 08:09:08AM +0000, Hsu I-Chieh wrote:
+>    local_flush_tlb_all();
+
+perhaps you mean __flush_tlb_all() ?
+
+--=20
+Martin Waitz
+
+--mXDO3udm/xYWQeMQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBuDACj/Eaxd/oD7IRAmThAJ4pX9ep7WCU1AFjOoSGbclyIDbX7QCfa12+
+lbdZk/4ysbNHqn+w7A5yHN4=
+=di9e
+-----END PGP SIGNATURE-----
+
+--mXDO3udm/xYWQeMQ--

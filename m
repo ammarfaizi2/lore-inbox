@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317852AbSGVVtO>; Mon, 22 Jul 2002 17:49:14 -0400
+	id <S317812AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317853AbSGVVtN>; Mon, 22 Jul 2002 17:49:13 -0400
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:2037 "HELO
-	dardhal.mired.net") by vger.kernel.org with SMTP id <S317852AbSGVVtN>;
-	Mon, 22 Jul 2002 17:49:13 -0400
-Date: Mon, 22 Jul 2002 23:52:16 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
-To: linux-kernel@vger.kernel.org
+	id <S317830AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
+Received: from pop.adiglobal.com ([66.207.47.93]:35847 "EHLO
+	mail.adiglobal.com") by vger.kernel.org with ESMTP
+	id <S317812AbSGVV7m>; Mon, 22 Jul 2002 17:59:42 -0400
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: Rik van Riel <riel@conectiva.com.br>, Adrian Bunk <bunk@fs.tum.de>
+Date: Mon, 22 Jul 2002 18:02:27 -0400
+MIME-Version: 1.0
 Subject: Re: bug database/webpage
-Message-ID: <20020722215216.GA12029@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>
-User-Agent: Mutt/1.3.28i
+CC: Thomas Molina <tmolina@cox.net>, <linux-kernel@vger.kernel.org>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       Dave Jones <davej@suse.de>
+Message-ID: <3D3C48B3.28286.71E531C@localhost>
+References: <Pine.LNX.4.44L.0207221820210.3086-100000@imladris.surriel.com>
+In-reply-to: <Pine.NEB.4.44.0207222337060.10993-100000@mimas.fachschaften.tu-muenchen.de>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 22 July 2002, at 15:59:01 -0500,
-Thomas Molina wrote:
+The discussion actually started because Dave said he did not have much time 
+these days to maintain the page and Thomas offered to help.
 
-> Would something like this be sufficient, or would a full-fledged server be 
-> required?  Feedback/comments are welcome
+For the time being, continuing to maintain Dave's page may be the best 
+solution, I don't know.  People should tell Thomas what they think would 
+be the best use of his time *now* to help the community.
+
+Personally, I think there is a huge value in setting up a bug database, but
+only after the feature freeze.  This way, all the developers can go to one 
+place with all the problems listed and focus on fixing bugs for a while.
+Once the 2.6 release appears, the bug database can be discontinued if 
+there is no longer much interest.
+As Rik pointed out, the key thing here is _maintained_ and the only time 
+where we can be certain a bug database is going to be well maintained is 
+between feature freeze and release, because that's when everyone will be 
+working on fixing as many bugs as possible to make a rock solid release.
+
+Cheers,
+
+-- Guillaume
+
+
+
+On 22 Jul 2002 at 23:39, Adrian Bunk wrote:
+
+> On Mon, 22 Jul 2002, Rik van Riel wrote:
 > 
-Don't know, but in the process of compiling a 2.5.27 kernel with ALL
-options enabled I have found not less than 60 compilation bugs. Expect
-run-time problems to be much more than compile-time problems. Moreover,
-problems can happen on several kernel versions (untill they are solved),
-so the page can quickly get out of control.
+> > On Mon, 22 Jul 2002, Thomas Molina wrote:
+> >
+> > > http://members.cox.net/tmolina
+> > >
+> > > Would something like this be sufficient, or would a full-fledged server
+> > > be required?  Feedback/comments are welcome
+> >
+> > A simple page _that is being maintained_ is much better than a
+> > database which accumulates hundreds of stale entries over time ;)
+> 
+> davej runs such a simple page since several months at
+>   http://www.codemonkey.org.uk/Linux-2.5.html
+> 
+> > Rik
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+> You only think this is a free country. Like the US the UK spends a lot of
+> time explaining its a free country because its a police state.
+> 								Alan Cox
+> 
+> 
 
-I would suggest categorizing reported bugs to get a smaller front-page,
-maybe with a back-end database to store and keep track of bugs.
 
-Just an opinion :)
-
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)

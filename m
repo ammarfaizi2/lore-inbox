@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUJ1Xwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbUJ1Xtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUJ1Xwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUJ1Xt4
+	id S263157AbUJ1Xtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbUJ1XrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:49:56 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63375
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S263155AbUJ1Xss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:48:48 -0400
-Date: Thu, 28 Oct 2004 16:27:37 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: dagb@cs.uit.no, jt@hpl.hp.com, irda-users@lists.sourceforge.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] irda/qos.c: remove an unused function
-Message-Id: <20041028162737.3d2debdf.davem@davemloft.net>
-In-Reply-To: <20041028222238.GP3207@stusta.de>
-References: <20041028222238.GP3207@stusta.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 28 Oct 2004 19:47:19 -0400
+Received: from colin2.muc.de ([193.149.48.15]:45579 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263092AbUJ1XqF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:46:05 -0400
+Date: 29 Oct 2004 01:46:02 +0200
+Date: Fri, 29 Oct 2004 01:46:02 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: [PATCH] x86_64: Fix safe_smp_processor_id after genapic
+Message-ID: <20041028234602.GA94390@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ok, it looks like this whole enormous set of diffs are corrupted.
-They all are "patches of a patch" which won't apply correctly.
+genapic broke early safe_smp_processor_id(), especially when you
+got a WARN_ON or oops early it would loops forever in show_trace.
+The reason was that the x86_cpu_to_apicid array wasn't correctly
+initialized.
 
-If you're going to send such a huge set of diffs out, please test
-them our and make sure they do apply properly before mailing
-them out.
+This patch fixes this by just testing for this case.
 
-Thanks.
+
+Orginally from James Cleverdon
+Acked-by: Andi Kleen <ak@muc.de> 
+
+Please apply ASAP
+
+Index: linux/include/asm-x86_64/smp.h
+===================================================================
+--- linux.orig/include/asm-x86_64/smp.h	2004-10-28 11:32:15.%N +0200
++++ linux/include/asm-x86_64/smp.h	2004-10-29 01:30:29.%N +0200
+@@ -104,6 +104,11 @@
+ 		if (x86_cpu_to_apicid[i] == apicid)
+ 			return i;
+ 
++	/* No entries in x86_cpu_to_apicid?  Either no MPS|ACPI,
++	 * or called too early.  Either way, we must be CPU 0. */
++      	if (x86_cpu_to_apicid[0] == BAD_APICID)
++		return 0;
++
+ 	return -1;
+ }
+ 

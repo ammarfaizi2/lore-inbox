@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUCOWuN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:50:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbUCOWrm
+	id S262758AbUCOWuq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbUCOWu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:47:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35502 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262839AbUCOWpJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 17:45:09 -0500
-Message-ID: <405631DF.1040904@pobox.com>
-Date: Mon, 15 Mar 2004 17:44:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jouni Malinen <jkmaline@cc.hut.fi>,
-       James Ketrenos <jketreno@linux.co.intel.com>, jt@hpl.hp.com,
-       Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
-References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com> <404FA6AC.7040009@linux.co.intel.com> <20040311023141.GB3738@jm.kir.nu> <404FD23C.4020205@pobox.com> <20040315221826.GA305@elf.ucw.cz>
-In-Reply-To: <20040315221826.GA305@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 17:50:28 -0500
+Received: from law9-f89.law9.hotmail.com ([64.4.9.89]:50191 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S262758AbUCOWtw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 17:49:52 -0500
+X-Originating-IP: [67.172.165.225]
+X-Originating-Email: [sac98993@hotmail.com]
+From: "Kevin Leung" <sac98993@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 15 Mar 2004 14:49:51 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law9-F89Xsn2Yf0scL90004e4c8@hotmail.com>
+X-OriginalArrivalTime: 15 Mar 2004 22:49:51.0845 (UTC) FILETIME=[D3ABC150:01C40ADF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Can we have net/wifi? 802_11 looks ugly. 802.11 would be better, but
-> wifi seems best.
+Hello All,
 
-That's fine, I'm not picky about it...
+I am very new to Linux and am working on a project. The nature of the 
+project is to essentially record all process/thread scheduling activity for 
+use in a later application. I wanted to know if any experts out there knew 
+of any libraries that could essentially "monitor" or "listen" for any 
+scheduling changes made. For instance if the kernel decides to set process A 
+from "sleeping" to "running" and process B from "running" to "sleeping", I 
+wanted to know if there was a function that could generate an immediate 
+notification of this event. Priority change information is also desireable. 
+The more aspects which trigger notificaiton, the better. As a first attempt, 
+I tried understanding the source code of the system monitor application. I 
+gained some insight, but still have questions. Mainly questions pertaining 
+to how the system monitor application receives the most "up-to-the-minute" 
+information on what process are running, what processes are sleeping etc. I 
+got stuck in the code and decided to explore another means.  Any advice or 
+insight into the matter would be greatly appreciated. If a library isn't 
+available, does anyone know the difficulty involved if I tried to modify the 
+kernel to provide this information?
 
-	Jeff
+Please CC me the comments and responses posted to the list in response to my 
+posting
 
+Thank You in advance
 
+_________________________________________________________________
+Frustrated with dial-up? Lightning-fast Internet access for as low as 
+$29.95/month. http://click.atdmt.com/AVE/go/onm00200360ave/direct/01/
 

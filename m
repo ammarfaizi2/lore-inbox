@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVBHHzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVBHIL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVBHHzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 02:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVBHHzg
+	id S261478AbVBHIL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 03:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVBHIL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 02:55:36 -0500
-Received: from h80ad25a2.async.vt.edu ([128.173.37.162]:50949 "EHLO
-	h80ad25a2.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261476AbVBHHz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 02:55:29 -0500
-Message-Id: <200502080755.j187tFI8003915@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01 
-In-Reply-To: Your message of "Fri, 04 Feb 2005 11:03:47 +0100."
-             <20050204100347.GA13186@elte.hu> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050204100347.GA13186@elte.hu>
+	Tue, 8 Feb 2005 03:11:57 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:39878 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S261478AbVBHILy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 03:11:54 -0500
+Date: Tue, 8 Feb 2005 09:10:57 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <greg@kroah.com>
+Subject: [PATCH] compile error: 2.6.10 / megaraid_mbox
+Message-ID: <20050208081057.GC21154@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1107849315_3540P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Feb 2005 02:55:15 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1107849315_3540P
-Content-Type: text/plain; charset=us-ascii
+Good morning!
 
-On Fri, 04 Feb 2005 11:03:47 +0100, Ingo Molnar said:
-> 
-> i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
+I was trying to compile Megaraid on 2.6.10 and
+noticed that pci_dma_sync_single and pci_dma_sync_sg
+are deprecated. Greg seems to tried to patch it in 2.6.9
+(http://lkml.org/lkml/2004/10/19/425), but it seems he didn't catch it
+all.
 
-Hey Ingo.. Sorry to keep breaking stuff on you, but.. ;)
+A patch against vanialla 2.6.10 is attached.
 
-Summary: Looks like CONFIG_NET_PKTGEN=y gives -V0.7.38-03 indigestion.
 
-I retrofitted 0.7.38-03 onto -rc3-mm1, and at boot it wedged up hard scrolling
-an error message.  Looked like a 'scheduling while atomic' error coming from
-net/pktgen.o.   Sorry for the incomplete traceback, but it locked before
-userspace came up, and I don't have hardware handy for a serial console..
+Greetings,
 
-I found a CONFIG_NET_PKTGEN=Y in the config, rebuilt with =n, and the resulting
-kernel boots fine (am using it as I type). Vanilla -rc3-mm1 also boots fine
-with the PTKGEN=y setting (as did 2.6.10-mm1-V0.7.34-01, the last -mm I built
-with a -RT patch).  I haven't tried a vanilla -rc3-V0.7.38-03, but I don't see
-anyplace -mm1 hits pktgen.c
+Nico
 
-If the above isn't enough to track down the issue, feel free to let me know
-what you'd like me to try next.
+--- megaraid_mbox.c.orig	2005-02-07 14:57:16.000000000 +0100
++++ megaraid_mbox.c	2005-02-07 15:03:00.000000000 +0100
+@@ -1554,12 +1554,12 @@
+ 
+ 	if (scb->dma_direction == PCI_DMA_TODEVICE) {
+ 		if (!scb->scp->use_sg) {	// sg list not used
+-			pci_dma_sync_single(adapter->pdev, ccb->buf_dma_h,
++			pci_dma_sync_single_for_cpu(adapter->pdev, ccb->buf_dma_h,
+ 					scb->scp->request_bufflen,
+ 					PCI_DMA_TODEVICE);
+ 		}
+ 		else {
+-			pci_dma_sync_sg(adapter->pdev, scb->scp->request_buffer,
++			pci_dma_sync_sg_for_cpu(adapter->pdev, scb->scp->request_buffer,
+ 				scb->scp->use_sg, PCI_DMA_TODEVICE);
+ 		}
+ 	}
+@@ -2332,7 +2332,7 @@
+ 
+ 	case MRAID_DMA_WBUF:
+ 		if (scb->dma_direction == PCI_DMA_FROMDEVICE) {
+-			pci_dma_sync_single(adapter->pdev,
++			pci_dma_sync_single_for_cpu(adapter->pdev,
+ 					ccb->buf_dma_h,
+ 					scb->scp->request_bufflen,
+ 					PCI_DMA_FROMDEVICE);
+@@ -2345,7 +2345,7 @@
+ 
+ 	case MRAID_DMA_WSG:
+ 		if (scb->dma_direction == PCI_DMA_FROMDEVICE) {
+-			pci_dma_sync_sg(adapter->pdev,
++			pci_dma_sync_sg_for_cpu(adapter->pdev,
+ 					scb->scp->request_buffer,
+ 					scb->scp->use_sg, PCI_DMA_FROMDEVICE);
+ 		}
 
---==_Exmh_1107849315_3540P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCCHBjcC3lWbTT17ARAvI6AJ4t0F+qARL13HeyOkB8hyzKfL2CRgCg5kXh
-U7kq2rM5m0JM0BjHgMQ/ji4=
-=hJfy
------END PGP SIGNATURE-----
-
---==_Exmh_1107849315_3540P--

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbTAXR7r>; Fri, 24 Jan 2003 12:59:47 -0500
+	id <S261615AbTAXR6Z>; Fri, 24 Jan 2003 12:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbTAXR7q>; Fri, 24 Jan 2003 12:59:46 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:17643 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261872AbTAXR7p>;
-	Fri, 24 Jan 2003 12:59:45 -0500
-Date: Fri, 24 Jan 2003 09:57:16 -0800 (PST)
-Message-Id: <20030124.095716.24124108.davem@redhat.com>
-To: john@grabjohn.com
-Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
-Subject: Re: Server down?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200301241042.h0OAgwlm000380@darkstar.example.net>
-References: <1043380941.16486.10.camel@rth.ninka.net>
-	<200301241042.h0OAgwlm000380@darkstar.example.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261872AbTAXR6Z>; Fri, 24 Jan 2003 12:58:25 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:47345 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S261615AbTAXR6Y>; Fri, 24 Jan 2003 12:58:24 -0500
+Date: Fri, 24 Jan 2003 11:07:27 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Roman Dementiev <dementiev@mpi-sb.mpg.de>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: buffer leakage in kernel?
+Message-ID: <20030124110727.N12662@schatzie.adilger.int>
+Mail-Followup-To: Roman Dementiev <dementiev@mpi-sb.mpg.de>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>; from dementiev@mpi-sb.mpg.de on Fri, Jan 24, 2003 at 01:49:18PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Bradford <john@grabjohn.com>
-   Date: Fri, 24 Jan 2003 10:42:58 +0000 (GMT)
+On Jan 24, 2003  13:49 +0100, Roman Dementiev wrote:
+> I've met with following problem (kernel 2.4.20-pre4 ):
+> I write and read sequentially from/to 8 files each of 64 Gbytes (not a
+> mistake, 64 Gbyte),
+> each on different disk. The files are opened with flag O_DIRECT. I have
+> 1 Gbyte RAM, no swap.
+> While this scanning is running, number of "buffers" reported by ''free"
+> and in /proc/meminfo
+> is continuously increasing up to ~ 500 MB !! When the program exits
+> normally or I break it, number
+> of "buffers" does not decrease and even increases if I do operations on
+> other files.
+> 
+> This is not nice at all when I have another applications running
+> with memory consumption > 500 MB: when my "scanner" approaches 50G
+> border on each disk, I've got numerous  "Out of memory" murders :(.
+> Even 'ssh' to this machine is killed :(
 
-   > This is absolutely NOT WHAT YOU SHOULD DO.
-   
-   No, infact what you are suggesting is absolutely not what you should
-   do - the postmasters are already overworked, and don't need to be
-   troubled as a first resort.
-   
-   Please, read the FAQ.  If you wish to embarrase yourself on this
-   mailing list, that is up to you, but please do not make me look
-   stupid, AND THERE IS NO NEED TO SHOUT YOUR INCORRECT ADVICE.
+There was a bug in vanilla 2.4.18 related to O_DIRECT that is fixed in the
+RH kernel, but I don't know when/if it was merged into the main kernel.
+As always, testing with the most recent kernel (2.4.21-pre3 currently)
+will tell you whether that bug has been fixed already or not.
 
-I am one of the postmasters at vger.  Maybe you don't realize
-that.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

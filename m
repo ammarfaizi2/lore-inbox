@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbUKEOWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUKEOWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbUKEOWT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbUKEOWT
+	id S261634AbUKEOWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbUKEOWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:22:19 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:21421 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262702AbUKEOSi convert rfc822-to-8bit (ORCPT
+	Fri, 5 Nov 2004 09:22:10 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:50392 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261634AbUKEORo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:18:38 -0500
-X-OB-Received: from unknown (205.158.62.37)
-  by wfilter.us4.outblaze.com; 5 Nov 2004 14:18:35 -0000
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Vladimir Chernyshov" <greengrass@writeme.com>
+	Fri, 5 Nov 2004 09:17:44 -0500
 To: linux-kernel@vger.kernel.org
-Cc: greengrass@writeme.com
-Date: Fri, 05 Nov 2004 16:18:35 +0200
-Subject: [2.6.8 bugreport] using mmap with via82cxxx_audio causes GPF
-X-Originating-Ip: 213.243.169.151
-X-Originating-Server: ws1-2a.us4.outblaze.com
-Message-Id: <20041105141835.538B91C6103@ws1-2a.us4.outblaze.com>
+cc: Ian.Pratt@cl.cam.ac.uk
+Subject: Xen 2.0 Officially Released!
+Date: Fri, 05 Nov 2004 14:17:43 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CQ4uN-0004PN-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Setting up mmap before setting up speed/format/channels causes shortly afterwards a general protection fault in via82cxxx_audio:
+The Xen team are pleased to announce the release of Xen 2.0, the
+open-source Virtual Machine Monitor.  Xen enables you to run
+multiple operating systems images concurrently on the same
+hardware, securely partitioning the resources of the machine
+between them. Xen uses a technique called 'para-virtualization'
+to achieve very low performance overhead -- typically just a few
+percent relative to native.  This new release provides kernel
+support for Linux 2.4.27/2.6.9 and NetBSD, with FreeBSD and Plan9
+to follow in the next few weeks.
 
-===========================================================================
-CPU 0
-Modules linked in: snd_via82xx snd_ac97_codec snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd ehci_hcd uhci_hcd eth1394 via82cxxx_audio uart401 sound soundcore ac97_codec via82cxxx ide_core r8169 crc32 ohci1394 nls_iso8859_1 nls_cp437 capability commoncap sr_mod cdrom sbp2 ieee1394 rtc vfat fat ext2 ext3 jbd mbcache sd_mod sata_via libata scsi_mod unix font vesafb cfbcopyarea cfbimgblt cfbfill
-rect
-Pid: 2023, comm: quake-x11 Not tainted 2.6.8-9-amd64-k8
-RIP: 0010:[<ffffffffa019666e>] <ffffffffa019666e>{:via82cxxx_audio:via_mm_nopage+350}
-RSP: 0000:000001001e987d78  EFLAGS: 00010206
-RAX: 038000fc81000000 RBX: 000001001e873858 RCX: 0000000000000020
-RDX: 006fffff90000000 RSI: 0000000055fbd000 RDI: 000001001e72a290
-RBP: 000001001e873800 R08: 000001001f528de8 R09: 000001001e98f578
-R10: 0000000000000000 R11: 0000000000000000 R12: 000001001e873858
-R13: 0000000000000000 R14: 000001001e987dcc R15: 000001001e4fb480
-FS:  0000000000000000(0000) GS:ffffffff80387980(005b) knlGS:00000000557aa080
-CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
-CR2: 0000000055fbd000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process quake-x11 (pid: 2023, threadinfo 000001001e986000, task 000001001ec1d350)
-Stack: 0000000000000000 0000000000000001 0000010012e41240 000001001e72a290
-       0000000055fbd000 ffffffff80159508 0000000000000246 ffffffff80158eb9
-       0000000000000000 000001001e98f578
-Call Trace:<ffffffff80159508>{-2146069240} <ffffffff80158eb9>{-2146070855}
-       <ffffffff801598e0>{-2146068256} <ffffffff8011f79a>{-2146306150}
-       <ffffffffa0198004>{:via82cxxx_audio:via_dsp_ioctl+2340}
-       <ffffffff80166dad>{-2146013779} <ffffffff80110a61>{-2146366879}
+Xen 2.0 runs on almost the entire set of modern x86 hardware
+supported by Linux, and is easy to 'drop-in' to an existing Linux
+installation.  The new release has a lot more flexibility in how
+guest OS virtual I/O devices are configured. For example, you can
+configure arbitrary firewalling, bridging and routing of guest
+virtual network interfaces, and use copy-on-write LVM volumes or
+loopback files for storing guest OS disk images.  Another new
+feature is 'live migration', which allows running OS images to be
+moved between nodes in a cluster without having to stop
+them. Visit the Xen homepage for downloads and documentation.
+
+http://xen.sf.net
 
 
-Code: ff 40 04 4d 85 f6 74 07 41 c7 06 01 00 00 00 48 8b 1c 24 48
-============================================================================
-
-Changing the order of setup to opposite fixes the problem.
-
-Tested with 2.6.7 (compiled for K7) and 2.6.8 (compiled for AMD-64). Testing tool - QuakeForge.
-
-regards,
-Vladimir
 

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293337AbSEXVAK>; Fri, 24 May 2002 17:00:10 -0400
+	id <S310190AbSEXVH1>; Fri, 24 May 2002 17:07:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSEXVAJ>; Fri, 24 May 2002 17:00:09 -0400
-Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:28552 "EHLO 
-	ayrnetworks.com") by vger.kernel.org with ESMTP id <S293337AbSEXVAJ>;
-	Fri, 24 May 2002 17:00:09 -0400
-Date: Fri, 24 May 2002 13:58:42 -0700
-From: William Jhun <wjhun@ayrnetworks.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible discrepancy regarding streaming DMA mappings in DMA-mapping.txt?
-Message-ID: <20020524135842.L7205@ayrnetworks.com>
-In-Reply-To: <20020524104345.J7205@ayrnetworks.com> <20020524.104209.31440798.davem@redhat.com> <20020524133711.K7205@ayrnetworks.com> <20020524.132641.104219414.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310206AbSEXVH0>; Fri, 24 May 2002 17:07:26 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:13582 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S310190AbSEXVH0>; Fri, 24 May 2002 17:07:26 -0400
+Date: Fri, 24 May 2002 23:07:25 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc,patch] breaking up sched.h
+In-Reply-To: <20020524215249.C11638@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0205242301450.31145-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 01:26:41PM -0700, David S. Miller wrote:
+[lkml: sorry for double posting by mistake]
+
+On Fri, 24 May 2002, Russell King wrote:
+
+> The problem with linux/irq.h is that it makes many assumptions about the
+> per-architecture irq code.  If anyone needs to include it (in its current
+> form), then they're accessing architecture private data that may or may
+> not be present.
 > 
-> I know what you're trying to do, but I'm going to tell you upfront
-> that this will make the existing case much more inefficient than
-> it needs to be.
+> Maybe the correct thing would be to move linux/irq.h to linux/hw_irq.h
+> (so it matches asm/hw_irq.h) and move request_irq() and friends into a
+> new linux/irq.h
 
-Sorry, I'm not clear on this one. I was first proposing (for the short
-term, at least) to not change anything at all: all the existing
-implementations of pci_dma_sync_*(..., PCIDMA_TO_DEVICE) already do what
-is required: prepare the buffer to be DMAed from by the controller. Most
-drivers won't have to deal with this; most network drivers, for example,
-do a pci_map_*() on an skb passed down from the stack and subsequently
-pci_unmap_*() those buffers once transmitted, thus having no need for
-pci_dma_sync_*()... So I don't see how this makes anything else less
-efficient...
+Thank you.
+I will do so in the sched.h cleanup patches that my heavy 
+grepping will result in (I hope).
 
-> 
-> Please, add a new call to handle your case.  Thanks.
+Tim
 
-Such a call would do what pci_dma_sync_*(..., PCIDMA_TO_DEVICE) already
-does (unless that is what you want - to have a new call just for the
-sake of clarity...).
-
-Thanks,
-William

@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbRGCQh5>; Tue, 3 Jul 2001 12:37:57 -0400
+	id <S264843AbRGCQlr>; Tue, 3 Jul 2001 12:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264843AbRGCQhr>; Tue, 3 Jul 2001 12:37:47 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:11282 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S264841AbRGCQhh>;
-	Tue, 3 Jul 2001 12:37:37 -0400
-Date: Tue, 3 Jul 2001 12:42:14 -0400
-Message-Id: <200107031642.f63GgEG25604@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Cross-reference analysis reveals problems in 2.4.6pre9
+	id <S264848AbRGCQlh>; Tue, 3 Jul 2001 12:41:37 -0400
+Received: from father.pmc-sierra.bc.ca ([216.241.224.13]:17055 "HELO
+	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
+	id <S264843AbRGCQlX>; Tue, 3 Jul 2001 12:41:23 -0400
+Message-ID: <9DC5E2ABE65BD54CA9088DA3194461D60486C625@BBY1EXM01>
+From: PMC-Sierra Apps Support <Apps@pmc-sierra.com>
+To: "'Green'" <greeen@iii.org.tw>,
+        LinuxEmbeddedMailList <linux-embedded@waste.org>,
+        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
+        MipsMailList <linux-mips@fnet.fr>
+Subject: RE: RF driver!!
+Date: Tue, 3 Jul 2001 09:45:44 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to my cross-reference generator, the following symbols have
-missing help in 2.4.6-pre9:
+Green,
+Thank you for your request for support on PMC-Sierra products. In order to serve you better, we require some additional contact information. This information will be used to direct your request to the appropriate factory or field applications engineer, and to help us track your support incident.
 
-CONFIG_AU1000_UART
-CONFIG_BLUEZ_L2CAP
-CONFIG_DDB5477
-CONFIG_EVB_PCI1
-CONFIG_FORWARD_KEYBOARD
-CONFIG_GDB_CONSOLE
-CONFIG_HD64465_IOBASE
-CONFIG_IT8172_REVC
-CONFIG_IT8172_SCR0
-CONFIG_IT8172_SCR1
-CONFIG_LL_DEBUG
-CONFIG_MAPLE
-CONFIG_MAPLE_KEYBOARD
-CONFIG_MAPLE_MOUSE
-CONFIG_MIDI_VIA82CXXX
-CONFIG_MIPS_EV64120
-CONFIG_MIPS_EV96100
-CONFIG_MIPS_ITE8172
-CONFIG_MIPS_IVR
-CONFIG_MIPS_PB1000
-CONFIG_MIPS_UNCACHED
-CONFIG_MTD_OCELOT
-CONFIG_NINO
-CONFIG_NINO_16MB
-CONFIG_NINO_4MB
-CONFIG_NINO_8MB
-CONFIG_ORION
-CONFIG_SH_7751_SOLUTION_ENGINE
-CONFIG_ST40_LMI_MEMORY
-CONFIG_SYSCLK_100
-CONFIG_SYSCLK_75
-CONFIG_SYSCLK_83
-CONFIG_TULIP_MMIO
+Could you please reply to me with the following information:
 
-This list exposes a couple of problems:
+*	Full Name
+*	Company Name
+*	Company Location (city)
+*	Mailing Address (optional)
+*	Phone Number (optional)
+*	Fax Number (optional)
 
-1. CONFIG_ORION has been removed from the main MIPS config.in but is
-   still referenced in drivers/net/config.in.
+Thanks, 
 
-2. The MIPS config.in sets CONFIG_AU1000 but does not reference it,
-   then references CONFIG_AU1000_UART without ever setting it.  This
-   probably indicates that one of these is a mistake.
+Applications Assistant 
+PMC-Sierra, Inc. 
+Ph: (604) 415-4533 
+Fax: (604) 415-6206 
+apps@pmc-sierra.com 
+http://www.pmc-sierra.com/ <http://www.pmc-sierra.com/>  
 
-I have already written help entries for three other symbols CONFIG_DDB5477,
-CONFIG_QTRONIX_KEYBOARD, and CONFIG_AGP_SWORKS.  Would responsible
-maintainers please supply help entries for the above?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+-----Original Message-----
+From: Green [mailto:greeen@iii.org.tw]
+Sent: Monday, July 02, 2001 11:56 PM
+To: LinuxEmbeddedMailList; LinuxKernelMailList; MipsMailList
+Subject: RF driver!!
 
-"Boys who own legal firearms have much lower rates of delinquency and
-drug use and are even slightly less delinquent than nonowners of guns."
-	-- U.S. Department of Justice, National Institute of
-	   Justice, Office of Juvenile Justice and Delinquency Prevention,
-	   NCJ-143454, "Urban Delinquency and Substance Abuse," August 1995.
+
+Hi all,
+ 
+I am porting a pcmcia rf driver (which worked on kernel 2.2.12)
+to kernel 2.4.0 on my MIPS machine.
+ 
+1. I found there are some diffenence in netdevice.h.
+    The structure device changed to net_device.
+ 
+2. And the tbusy, start, interrupt were gone with 
+    the use of the netif_start_queue, netif_stop_queue,
+    netif_wake_queue and related functions.
+ 
+How do I use these functions to modify the 2.2.12 rf driver to 2.4.0 ??
+ 
+Thanks,
+ 
+Green
+
+

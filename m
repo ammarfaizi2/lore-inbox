@@ -1,94 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUD1Pok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUD1PsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbUD1Pok (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 11:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbUD1Pok
+	id S264839AbUD1PsD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 11:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264847AbUD1PsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 11:44:40 -0400
-Received: from omr-m12.mx.aol.com ([64.12.136.10]:49394 "EHLO
-	omr-m12.mx.aol.com") by vger.kernel.org with ESMTP id S264835AbUD1Pog
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 11:44:36 -0400
-Date: Wed, 28 Apr 2004 11:44:13 -0400 (EDT)
-From: Mail Delivery Subsystem <MAILER-DAEMON@aol.com>
-Message-Id: <200404281544.LAL01350@rly-yi02.mx.aol.com>
-To: <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/report; report-type=delivery-status;
-	boundary="LAL01350.1083167053/rly-yi02.mx.aol.com"
-Subject: Returned mail: User unknown
-Auto-Submitted: auto-generated (failure)
-X-AOL-IP: 172.18.180.130
+	Wed, 28 Apr 2004 11:48:03 -0400
+Received: from mail.kroah.org ([65.200.24.183]:58018 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264839AbUD1PsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 11:48:01 -0400
+Date: Wed, 28 Apr 2004 08:38:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Marco Cavallini <linux@koansoftware.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with CONFIG_USB_SL811HS
+Message-ID: <20040428153807.GA31183@kroah.com>
+References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org> <000701c42c7e$20214810$0200a8c0@arrakis> <20040427175754.GA2968@mars.ravnborg.org> <000e01c42cea$5ea02720$0200a8c0@arrakis>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000e01c42cea$5ea02720$0200a8c0@arrakis>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-encapsulated message
+On Wed, Apr 28, 2004 at 08:30:40AM +0200, Marco Cavallini wrote:
+> Could some linux-usb mantainer tell me if should be a good idea to update
+> these bringing sources from 2.4.26 and porting them to 2.6.6-rc2 ?
 
---LAL01350.1083167053/rly-yi02.mx.aol.com
+Yes it is a good idea, I'd gladly take such a patch.
 
-The original message was received at Wed, 28 Apr 2004 11:43:53 -0400 (EDT)
-from  [200.21.67.66]
+thanks,
 
-
-*** ATTENTION ***
-
-Your e-mail is being returned to you because there was a problem with its
-delivery.  The address which was undeliverable is listed in the section
-labeled: "----- The following addresses had permanent fatal errors -----".
-
-The reason your mail is being returned to you is listed in the section
-labeled: "----- Transcript of Session Follows -----".
-
-The line beginning with "<<<" describes the specific reason your e-mail could
-not be delivered.  The next line contains a second error message which is a
-general translation for other e-mail servers.
-
-Please direct further questions regarding this message to your e-mail
-administrator.
-
---AOL Postmaster
-
-
-
-   ----- The following addresses had permanent fatal errors -----
-<vjorsin@aol.com>
-
-   ----- Transcript of session follows -----
-... while talking to air-yi01.mail.aol.com.:
->>> RCPT To:<vjorsin@aol.com>
-<<< 550 MAILBOX NOT FOUND
-550 <vjorsin@aol.com>... User unknown
-
---LAL01350.1083167053/rly-yi02.mx.aol.com
-Content-Type: message/delivery-status
-
-Reporting-MTA: dns; rly-yi02.mx.aol.com
-Arrival-Date: Wed, 28 Apr 2004 11:43:53 -0400 (EDT)
-
-Final-Recipient: RFC822; vjorsin@aol.com
-Action: failed
-Status: 5.1.1
-Remote-MTA: DNS; air-yi01.mail.aol.com
-Diagnostic-Code: SMTP; 550 MAILBOX NOT FOUND
-Last-Attempt-Date: Wed, 28 Apr 2004 11:44:13 -0400 (EDT)
-
---LAL01350.1083167053/rly-yi02.mx.aol.com
-Content-Type: text/rfc822-headers
-
-Received: from  aol.com ([200.21.67.66]) by rly-yi02.mx.aol.com (v98.5) with ESMTP id MAILRELAYINYI210-7b8408fd134a5; Wed, 28 Apr 2004 11:43:49 -0500
-From: linux-kernel@vger.kernel.org
-To: vjorsin@aol.com
-Subject: Important
-Date: Wed, 28 Apr 2004 10:43:39 -0500
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0008_000072DF.00006D32"
-X-Priority: 1
-X-MSMail-Priority: High
-X-AOL-IP: 200.21.67.66
-X-AOL-SCOLL-SCORE: 0:XXX:XX
-X-AOL-SCOLL-URL_COUNT: 0
-Message-ID: <200404281143.7b8408fd134a5@rly-yi02.mx.aol.com>
-
---LAL01350.1083167053/rly-yi02.mx.aol.com--
-
+greg k-h

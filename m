@@ -1,50 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262281AbSIZKnK>; Thu, 26 Sep 2002 06:43:10 -0400
+	id <S262257AbSIZLJc>; Thu, 26 Sep 2002 07:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262283AbSIZKnK>; Thu, 26 Sep 2002 06:43:10 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:36317 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S262281AbSIZKnK>; Thu, 26 Sep 2002 06:43:10 -0400
-Message-ID: <3D92E636.1010404@drugphish.ch>
-Date: Thu, 26 Sep 2002 12:49:26 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <3D92CCC5.5000206@drugphish.ch>	<20020926.020602.75761707.davem@redhat.com>	<3D92E090.4030504@drugphish.ch> <20020926.032031.76775895.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262303AbSIZLJc>; Thu, 26 Sep 2002 07:09:32 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:51946
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S262257AbSIZLJa>; Thu, 26 Sep 2002 07:09:30 -0400
+Date: Thu, 26 Sep 2002 07:18:47 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Marco Schwarz <marco.schwarz@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serious Problems with diskless clients
+Message-ID: <20020926071847.A12878@animx.eu.org>
+References: <20020926095957.GC42048@niksula.cs.hut.fi> <3489.1033036000@www51.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <3489.1033036000@www51.gmx.net>; from Marco Schwarz on Thu, Sep 26, 2002 at 12:26:40PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What if the netconsole packets cause events to be logged?
+> my diskless clients have some severe problems on one of my servers.
+> Sometimes (right now most of the time) everything just hangs at the same place when
+> starting up the kernel. Here are the last messages I get (right before this
+> IP-Config is running and looks OK):
+> 
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
+> ds: no socket drivers loaded !
+> Looking up port of RPC 100003/2 on 192.168.0.235
+> portmap: server 192.168.0.235 mot responding, timed out !
+> Root-NFS: Unable to get nfsd port number from server, using default
+> Looking up port of RPC 100005/1 on 192.168.0.235
+> portmap: server 192.168.0.235 mot responding, timed out !
+> Root-NFS: Unable to get mountd port number from server, using default
+> mount: server 192.168.0.235 not responding, timed out
+> Root-NFS: Server returned error -5 while mounting /netclients/192.168.0.87
+> VFS: Unable to mount root fs via NFS, trying floppy
+> VFS: Insert root floppy and press ENTER
+> 
+> I am thinking right now that we have some problems with network hardware,
+> but maybe its a Software problem. Could someone tell me what the 'Looking up
+> port of RPC 100003/2 on 192.168.0.235' in kernel startup is doing an why it
+> could fail ?
+> 
+> We have Kernel 2.4.10 on both server and clients (I also tried 2.4.19, but
+> it changed nothing).
 
-Oups! Well, you could send them via printk to the internal printk buffer 
-which then gets fetched by the local syslog and then you can decide what 
-to do since those messages should never fill up the buffer as quickly as 
-syslog will be able to get them. Actually then you should rate limit the 
-printk messages and probably also increase the buffer size.
+I have 2 diskless machines both tftping the kernel from the network and they
+work just fine.  Both are using kernel 2.4.19 vanalla with a small patch to
+force ip=auto if nfs=/dev/nfs
 
-But to be honest, those are not the usual messages that fill up the 
-buffer so fast that syslog is not able to read the message before the 
-buffer gets overwritten again. Of course you will then have a logfile 
-inconsistency and this could be accounted just as well as a loss of trace.
+[wakko@gohan:/] uname -a
+Linux gohan 2.4.19 #1 SMP Tue Sep 3 13:02:36 EDT 2002 i686 unknown
+[wakko@gohan:/] mount
+rod:/tftpboot/gohan on / type nfs
+(rw,intr,hard,rsize=8192,wsize=8192,intr,hard,rsize=8192,wsize=8192)
+/proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+[wakko@gohan:/] 
 
-But generally I agree that you're standing there pants down. For example 
-if you have a filter rule in the routing or whereever code that doesn't 
-permit the packets to leave the machine and thus to be dropped. Ah well 
-... it was worth a try.
+It's a very small patch to make that work w/o saying ip=auto on the command
+line (I did this originally because I used a kernel disk w/o a boot loader
+on some boxes at work)
 
-[Hmpf, my collegue is just testing this right now but I think I can then 
-tell him to stop this because you're always biting your own tail with 
-this approach, one way or another].
+--- net/ipv4/ipconfig-orig.c	2001-11-19 20:48:35.000000000 -0500
++++ net/ipv4/ipconfig.c	2001-11-19 20:56:21.000000000 -0500
+@@ -1105,7 +1105,11 @@
+        proc_net_create("pnp", 0, pnp_get_info);
+ #endif /* CONFIG_PROC_FS */
+ 
+-	if (!ic_enable)
++	if (!ic_enable
++#if defined(IPCONFIG_DYNAMIC) && defined(CONFIG_ROOT_NFS)
++	    && ROOT_DEV != MKDEV(UNNAMED_MAJOR, 255)
++#endif
++	   )
+		return 0;
 
-Thanks for the valuable input and best regards,
-Roberto Nibali, ratz
+I did a cut'n'paste so I don't know if it will apply correctly but you get
+the idea.
+
+One thing I had problems with was using USB to mount the rootfs (usb hdd
+actually) and I suspect the same with a USB nic (loading the kernel from
+floppy).
+
 -- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+ Lab tests show that use of micro$oft causes cancer in lab animals

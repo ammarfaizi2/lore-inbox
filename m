@@ -1,52 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbSLBBe3>; Sun, 1 Dec 2002 20:34:29 -0500
+	id <S263276AbSLBBuY>; Sun, 1 Dec 2002 20:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSLBBe3>; Sun, 1 Dec 2002 20:34:29 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:42639 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S263143AbSLBBe2>;
-	Sun, 1 Dec 2002 20:34:28 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] generic HDLC update for 2.4.21-pre
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 02 Dec 2002 02:41:27 +0100
-Message-ID: <m3el91jiyg.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263321AbSLBBuX>; Sun, 1 Dec 2002 20:50:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:404 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263276AbSLBBuW>;
+	Sun, 1 Dec 2002 20:50:22 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG][2.5.50] kallsyms dies badly with module 
+In-reply-to: Your message of "Fri, 29 Nov 2002 11:17:24 CDT."
+             <Pine.LNX.4.50.0211291105440.14410-100000@montezuma.mastecende.com> 
+Date: Mon, 02 Dec 2002 12:49:35 +1100
+Message-Id: <20021202015750.C49922C0B2@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <Pine.LNX.4.50.0211291105440.14410-100000@montezuma.mastecende.com> 
+you write:
+> Hi Rusty,
+> 	If kallsyms_lookup tries to get a symbol from tiglusb.c loaded as
+> a module it oopses.
 
-Alan, Marcelo:
+Yes, see kallsyms fix patch (attached for your convenience).  I was
+keeping the wrong module section 8(
 
-I've uploaded the HDLC update discussed here to:
-ftp://hq.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.20.patch.gz
+Hope this helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-This patch is essentially a downport from current 2.5 kernel line, which
-means quite a big rewrite and a binary incompatibility of userspace
-utility "sethdlc".
+Name: Kallsyms inside module fix
+Author: Rusty Russell
+Status: Tested on 2.5.50
 
-There seem to be an agreement that this patch should be applied to 2.4,
-despite the compatibility problem. Most users are already using the
-updated version anyway (my own hw drivers only support 2 older ISA cards,
-while manufacturers of newer cards have drivers working only with
-the newer code).
+D: Two fixes.  Firstly, set ALLOC on the right section so we actually
+D: keep the symbol names and don't deref a freed section, and secondly
+D: get the symbol size (more) correct.
 
-The new code isn't really that new, it has been in use for over a year.
-
-This patch doesn't change anything outside "generic HDLC" area
-(except that it adds a new SIOCWANDEV net device ioctl, which is used
-instead of various SIOCDEVPRIVATEs, but it's a trivial change).
-
-Please apply to 2.4. Thanks.
-
-
-Francois: I hope the dscc4 driver from 2.5 is ok. It compiles cleanly
-(not counting the __setup warning if built as a module), but I have no hw
-to test it. I'd be glad if you check it's working correctly. Thanks.
--- 
-Krzysztof Halasa
-Network Administrator
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.50/kernel/module.c working-2.5.50-ksymoops/kernel/module.c
+--- linux-2.5.50/kernel/module.c	Mon Nov 25 08:44:19 2002
++++ working-2.5.50-ksymoops/kernel/module.c	Thu Nov 28 16:22:56 2002
+@@ -892,7 +892,7 @@ static struct module *load_module(void *
+ 		}
+ #ifdef CONFIG_KALLSYMS
+ 		/* symbol and string tables for decoding later. */
+-		if (sechdrs[i].sh_type == SHT_SYMTAB || i == hdr->e_shstrndx)
++		if (sechdrs[i].sh_type == SHT_SYMTAB || i == strindex)
+ 			sechdrs[i].sh_flags |= SHF_ALLOC;
+ #endif
+ #ifndef CONFIG_MODULE_UNLOAD
+@@ -1165,7 +1165,14 @@ static const char *get_ksymbol(struct mo
+ 			       unsigned long *size,
+ 			       unsigned long *offset)
+ {
+-	unsigned int i, next = 0, best = 0;
++	unsigned int i, best = 0;
++	unsigned long nextval;
++
++	/* At worse, next value is at end of module */
++	if (inside_core(mod, addr))
++		nextval = (unsigned long)mod->module_core+mod->core_size;
++	else 
++		nextval = (unsigned long)mod->module_init+mod->init_size;
+ 
+ 	/* Scan for closest preceeding symbol, and next symbol. (ELF
+            starts real symbols at 1). */
+@@ -1177,22 +1186,14 @@ static const char *get_ksymbol(struct mo
+ 		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
+ 			best = i;
+ 		if (mod->symtab[i].st_value > addr
+-		    && mod->symtab[i].st_value < mod->symtab[next].st_value)
+-			next = i;
++		    && mod->symtab[i].st_value < nextval)
++			nextval = mod->symtab[i].st_value;
+ 	}
+ 
+ 	if (!best)
+ 		return NULL;
+ 
+-	if (!next) {
+-		/* Last symbol?  It ends at the end of the module then. */
+-		if (inside_core(mod, addr))
+-			*size = mod->module_core+mod->core_size - (void*)addr;
+-		else
+-			*size = mod->module_init+mod->init_size - (void*)addr;
+-	} else
+-		*size = mod->symtab[next].st_value - addr;
+-
++	*size = nextval - mod->symtab[best].st_value;
+ 	*offset = addr - mod->symtab[best].st_value;
+ 	return mod->strtab + mod->symtab[best].st_name;
+ }

@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265184AbUEYWQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUEYWQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265184AbUEYWQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265157AbUEYWOK
+	id S265144AbUEYWQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEYWN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:14:10 -0400
-Received: from gprs214-160.eurotel.cz ([160.218.214.160]:4224 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265164AbUEYWID (ORCPT
+	Tue, 25 May 2004 18:13:59 -0400
+Received: from gate.crashing.org ([63.228.1.57]:55941 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265131AbUEYWJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:08:03 -0400
-Date: Wed, 26 May 2004 00:08:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rob Landley <rob@landley.net>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040525220826.GC1609@elf.ucw.cz>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405121139.58742.rob@landley.net> <20040520134955.GA5215@openzaurus.ucw.cz> <200405251655.43185.rob@landley.net>
+	Tue, 25 May 2004 18:09:15 -0400
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
+       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
+       bcrl@kvack.org, linux-mm@kvack.org,
+       Linux Arch list <linux-arch@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston>
+	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	 <1085371988.15281.38.camel@gaston>
+	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	 <1085373839.14969.42.camel@gaston>
+	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	 <20040525034326.GT29378@dualathlon.random>
+	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
+	 <20040525153501.GA19465@foobazco.org>
+	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+	 <20040525102547.35207879.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
+	 <20040525105442.2ebdc355.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+	 <1085521251.24948.127.camel@gaston>
+	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1085522735.14969.130.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405251655.43185.rob@landley.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 May 2004 08:05:36 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > For years now I've wanted to use a sendfile variant to tell the system to
-> > > connect two filehandles from userspace.  Not just web servers want to
-> > > marshall data from one filehandle into another, things like netcat want
-> > > to do it between a pipe and a network connection, and I've wrote a couple
-> > > of data dispatcher daemons that wanted to do it between two network
-> > > connections.
-> > >
-> > > Unfortunately, sendfile didn't work generically when I tried it (back
-> > > under 2.4).  Would this infrastructure be a step in the right direction
-> > > to eliminate gratuitous poll loops (where nobody but me EVER seems to get
-> > > the "shutdown just one half of the connection" thing right.  My netcat
-> > > can handle "echo 'GET /' | netcat www.slashdot.org 80".  The standard
-> > > netcat can't. Yes, I plan to fix the one in busybox eventually...)
-> >
-> > Ugh. Yes, some syscalls like that were proposed... but to
-> > make programming easier, you'd need asynchronous
-> > sendfile to help you with programming, right?
+On Wed, 2004-05-26 at 07:54, Linus Torvalds wrote:
+> On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > Well, just setting one of those 2 bits doesn't require a hash table
+> > invalidate as long as nothing else changes.
 > 
-> Doesn't asynchronous sendfile has the little problem your process can exit 
-> before the sendfile is complete?
+> Ok. And nothing ever writes to the SW page tables outside the page table 
+> lock, right? So on ppc64, we could just do
+> 
+> 	#define ptep_update_dirty_accessed(ptep, entry, dirty) \
+> 		*(ptep) = (entry)
+> 
+> and be done with it. No?
+> 
+> I'm not going to do it without a big ack from you.
 
-Hmm, it has...
+No. The hash fault path will update the PTE dirty/accessed on a hash miss
+exception without holding the page table lock (acts a bit like a HW TLB
+as far as linux is concerned). That's why it needs to be atomic.
 
-> I'm not sure how much of a help it really is, since fork() isn't brain surgery 
-> if you want it to be asynchronous, and the lifetime rules are really explicit 
-> then.  (With a ps that does thread grouping, this isn't too bad from a 
-> clutter standpoint, even.  And you automatically get a SIGCHLD when the 
-> sendfile is complete, too...)
+Ben.
 
-Right.
 
-> Of course if the syscall can make the sendfile outlive the process that fired 
-> it off, then by all means it sounds good.  I dunno how much extra work that 
-> is for the kernel, though.
-
-Well, it would be "interesting" to stop that sendfile then. You could
-not kill it etc.
-
-I guess async sendfile is bad idea after all.
-								Pavel
--- 
-When do you have heart between your knees?

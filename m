@@ -1,247 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270244AbUJTBzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270366AbUJTCJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270244AbUJTBzz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUJTAvT
+	id S270366AbUJTCJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 22:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUJTCF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:51:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4276 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266891AbUJTAT3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:29 -0400
-Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <10982315033266@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:24 -0700
-Message-Id: <10982315043782@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 19 Oct 2004 22:05:59 -0400
+Received: from pxy6allmi.all.mi.charter.com ([24.247.15.57]:53671 "EHLO
+	proxy6-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
+	id S270288AbUJTCBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 22:01:36 -0400
+Message-ID: <4175C6E2.1080201@quark.didntduck.org>
+Date: Tue, 19 Oct 2004 22:01:06 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Remove last reference to LDFLAGS_BLOB
+Content-Type: multipart/mixed;
+ boundary="------------080005050008020202060506"
+X-Charter-Information: 
+X-Charter-Scan: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1832.73.5, 2004/09/08 12:35:33-07:00, khali@linux-fr.org
+This is a multi-part message in MIME format.
+--------------080005050008020202060506
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-[PATCH] I2C: Do not init global variables to 0
+Nothing uses LDFLAGS_BLOB anymore, now that the arm binutils are fixed.
 
-This trivial patch enforces the rule that global variables should not be
-explicitely initialized to 0 for all i2c chip drivers.
+--
+				Brian Gerst
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+--------------080005050008020202060506
+Content-Type: text/plain;
+ name="ldflags_blob"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ldflags_blob"
 
-
- drivers/i2c/chips/adm1021.c |    2 +-
- drivers/i2c/chips/adm1025.c |    2 +-
- drivers/i2c/chips/ds1621.c  |    2 +-
- drivers/i2c/chips/eeprom.c  |    2 +-
- drivers/i2c/chips/fscher.c  |    2 +-
- drivers/i2c/chips/gl518sm.c |    2 +-
- drivers/i2c/chips/it87.c    |    2 +-
- drivers/i2c/chips/lm75.c    |    2 +-
- drivers/i2c/chips/lm77.c    |    2 +-
- drivers/i2c/chips/lm80.c    |    2 +-
- drivers/i2c/chips/lm83.c    |    2 +-
- drivers/i2c/chips/lm85.c    |    2 +-
- drivers/i2c/chips/lm90.c    |    2 +-
- drivers/i2c/chips/max1619.c |    2 +-
- drivers/i2c/chips/pcf8574.c |    2 +-
- drivers/i2c/chips/pcf8591.c |    2 +-
- 16 files changed, 16 insertions(+), 16 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
---- a/drivers/i2c/chips/adm1021.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/adm1021.c	2004-10-19 16:55:42 -07:00
-@@ -148,7 +148,7 @@
- 	.detach_client	= adm1021_detach_client,
- };
+diff -urN linux-2.6.9-bk/arch/m32r/Makefile linux/arch/m32r/Makefile
+--- linux-2.6.9-bk/arch/m32r/Makefile	2004-10-18 20:34:14.000000000 -0400
++++ linux/arch/m32r/Makefile	2004-10-19 17:40:55.614157644 -0400
+@@ -5,7 +5,6 @@
+ LDFLAGS		:=
+ OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
+ LDFLAGS_vmlinux	:= -e startup_32
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-m32r
  
--static int adm1021_id = 0;
-+static int adm1021_id;
- 
- #define show(value)	\
- static ssize_t show_##value(struct device *dev, char *buf)		\
-diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
---- a/drivers/i2c/chips/adm1025.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/adm1025.c	2004-10-19 16:55:42 -07:00
-@@ -153,7 +153,7 @@
-  * Internal variables
-  */
- 
--static int adm1025_id = 0;
-+static int adm1025_id;
- 
+ CFLAGS += -pipe -fno-schedule-insns
+ CFLAGS_KERNEL += -mmodel=medium
+diff -urN linux-2.6.9-bk/usr/initramfs_data.S linux/usr/initramfs_data.S
+--- linux-2.6.9-bk/usr/initramfs_data.S	2003-12-17 21:59:42.000000000 -0500
++++ linux/usr/initramfs_data.S	2004-10-19 17:41:16.191659582 -0400
+@@ -1,28 +1,6 @@
  /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
---- a/drivers/i2c/chips/ds1621.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/ds1621.c	2004-10-19 16:55:42 -07:00
-@@ -96,7 +96,7 @@
- 	.detach_client	= ds1621_detach_client,
- };
+   initramfs_data includes the compressed binary that is the
+   filesystem used for early user space.
+-  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
+-  released on 2001-07-14) dit not support .incbin.
+-  If you are forced to use older binutils than that then the
+-  following trick can be applied to create the resulting binary:
+-
+-
+-  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
+-  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
+-   ld -m elf_i386  -r -o built-in.o initramfs_data.o
+-
+-  initramfs_data.scr looks like this:
+-SECTIONS
+-{
+-       .init.ramfs : { *(.data) }
+-}
+-
+-  The above example is for i386 - the parameters vary from architectures.
+-  Eventually look up LDFLAGS_BLOB in an older version of the
+-  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
+-
+-  Using .incbin has the advantage over ld that the correct flags are set
+-  in the ELF header, as required by certain architectures.
+ */
  
--static int ds1621_id = 0;
-+static int ds1621_id;
- 
- /* All registers are word-sized, except for the configuration register.
-    DS1621 uses a high-byte first convention, which is exactly opposite to
-diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
---- a/drivers/i2c/chips/eeprom.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/eeprom.c	2004-10-19 16:55:42 -07:00
-@@ -86,7 +86,7 @@
- 	.detach_client	= eeprom_detach_client,
- };
- 
--static int eeprom_id = 0;
-+static int eeprom_id;
- 
- static void eeprom_update_client(struct i2c_client *client, u8 slice)
- {
-diff -Nru a/drivers/i2c/chips/fscher.c b/drivers/i2c/chips/fscher.c
---- a/drivers/i2c/chips/fscher.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/fscher.c	2004-10-19 16:55:42 -07:00
-@@ -156,7 +156,7 @@
-  * Internal variables
-  */
- 
--static int fscher_id = 0;
-+static int fscher_id;
- 
- /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
---- a/drivers/i2c/chips/gl518sm.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/gl518sm.c	2004-10-19 16:55:42 -07:00
-@@ -164,7 +164,7 @@
-  * Internal variables
-  */
- 
--static int gl518_id = 0;
-+static int gl518_id;
- 
- /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/it87.c	2004-10-19 16:55:42 -07:00
-@@ -226,7 +226,7 @@
- 	.detach_client	= it87_detach_client,
- };
- 
--static int it87_id = 0;
-+static int it87_id;
- 
- static ssize_t show_in(struct device *dev, char *buf, int nr)
- {
-diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
---- a/drivers/i2c/chips/lm75.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm75.c	2004-10-19 16:55:42 -07:00
-@@ -74,7 +74,7 @@
- 	.detach_client	= lm75_detach_client,
- };
- 
--static int lm75_id = 0;
-+static int lm75_id;
- 
- #define show(value)	\
- static ssize_t show_##value(struct device *dev, char *buf)		\
-diff -Nru a/drivers/i2c/chips/lm77.c b/drivers/i2c/chips/lm77.c
---- a/drivers/i2c/chips/lm77.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm77.c	2004-10-19 16:55:42 -07:00
-@@ -83,7 +83,7 @@
- 	.detach_client	= lm77_detach_client,
- };
- 
--static int lm77_id = 0;
-+static int lm77_id;
- 
- /* straight from the datasheet */
- #define LM77_TEMP_MIN (-55000)
-diff -Nru a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
---- a/drivers/i2c/chips/lm80.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm80.c	2004-10-19 16:55:42 -07:00
-@@ -145,7 +145,7 @@
-  * Internal variables
-  */
- 
--static int lm80_id = 0;
-+static int lm80_id;
- 
- /*
-  * Driver data (common to all clients)
-diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
---- a/drivers/i2c/chips/lm83.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm83.c	2004-10-19 16:55:42 -07:00
-@@ -152,7 +152,7 @@
-  * Internal variables
-  */
- 
--static int lm83_id = 0;
-+static int lm83_id;
- 
- /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
---- a/drivers/i2c/chips/lm85.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm85.c	2004-10-19 16:55:42 -07:00
-@@ -405,7 +405,7 @@
- };
- 
- /* Unique ID assigned to each LM85 detected */
--static int lm85_id = 0;
-+static int lm85_id;
- 
- 
- /* 4 Fans */
-diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
---- a/drivers/i2c/chips/lm90.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/lm90.c	2004-10-19 16:55:42 -07:00
-@@ -187,7 +187,7 @@
-  * Internal variables
-  */
- 
--static int lm90_id = 0;
-+static int lm90_id;
- 
- /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/max1619.c b/drivers/i2c/chips/max1619.c
---- a/drivers/i2c/chips/max1619.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/max1619.c	2004-10-19 16:55:42 -07:00
-@@ -120,7 +120,7 @@
-  * Internal variables
-  */
- 
--static int max1619_id = 0;
-+static int max1619_id;
- 
- /*
-  * Sysfs stuff
-diff -Nru a/drivers/i2c/chips/pcf8574.c b/drivers/i2c/chips/pcf8574.c
---- a/drivers/i2c/chips/pcf8574.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/pcf8574.c	2004-10-19 16:55:42 -07:00
-@@ -77,7 +77,7 @@
- 	.detach_client	= pcf8574_detach_client,
- };
- 
--static int pcf8574_id = 0;
-+static int pcf8574_id;
- 
- /* following are the sysfs callback functions */
- static ssize_t show_read(struct device *dev, char *buf)
-diff -Nru a/drivers/i2c/chips/pcf8591.c b/drivers/i2c/chips/pcf8591.c
---- a/drivers/i2c/chips/pcf8591.c	2004-10-19 16:55:42 -07:00
-+++ b/drivers/i2c/chips/pcf8591.c	2004-10-19 16:55:42 -07:00
-@@ -99,7 +99,7 @@
- 	.detach_client	= pcf8591_detach_client,
- };
- 
--static int pcf8591_id = 0;
-+static int pcf8591_id;
- 
- /* following are the sysfs callback functions */
- #define show_in_channel(channel)					\
+ .section .init.ramfs,"a"
 
+--------------080005050008020202060506--

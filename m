@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbUCOJVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 04:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbUCOJVe
+	id S262283AbUCOJ0G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 04:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUCOJ0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 04:21:34 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:45742 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262462AbUCOJUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 04:20:05 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 15 Mar 2004 10:16:25 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: tun/tap device + sysfs ...
-Message-ID: <20040315091625.GB2084@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	Mon, 15 Mar 2004 04:26:06 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:38641 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262283AbUCOJ0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 04:26:04 -0500
+Date: Mon, 15 Mar 2004 10:26:00 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kai Germaschewski <kai@germaschewski.name>,
+       Sam Ravnborg <sam@ravnborg.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] out-of-tree builds
+In-Reply-To: <Pine.GSO.4.58.0403141353470.1231@waterleaf.sonytel.be>
+Message-ID: <Pine.GSO.4.58.0403151025380.14245@waterleaf.sonytel.be>
+References: <Pine.GSO.4.58.0403141353470.1231@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Sun, 14 Mar 2004, Geert Uytterhoeven wrote:
+> The configure script contains a simple protection for when run in the source
+> directory, but this may be approved (I'm not a configure script guru).
 
-eskarina kraxel ~# ls /sys/class/misc 
-agpgart/  device-mapper/  hw_random/  mcelog/  net/tun/  nvram/  psaux/  rtc/
-                                               ^^^^^^^
-That looks very wrong ...
+s/approved/improved/
 
-  Gerd
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

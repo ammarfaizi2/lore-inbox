@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265652AbUBCBEc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 20:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUBCBCg
+	id S265127AbUBCAzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 19:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbUBCAzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 20:02:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:45222 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265647AbUBCBCK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 20:02:10 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Greg KH <greg@kroah.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: module-init-tools/udev and module auto-loading 
-In-reply-to: Your message of "Mon, 02 Feb 2004 21:02:30 +0200."
-             <1075748550.6931.10.camel@nosferatu.lan> 
-Date: Tue, 03 Feb 2004 11:55:33 +1100
-Message-Id: <20040203010224.4CF742C261@lists.samba.org>
+	Mon, 2 Feb 2004 19:55:18 -0500
+Received: from mail1.speakeasy.net ([216.254.0.201]:49599 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S265127AbUBCAzP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 19:55:15 -0500
+Date: Mon, 2 Feb 2004 16:55:11 -0800
+Message-Id: <200402030055.i130tBT3018213@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
+In-Reply-To: Linus Torvalds's message of  Monday, 2 February 2004 16:30:18 -0800 <Pine.LNX.4.58.0402021616340.9720@home.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1075748550.6931.10.camel@nosferatu.lan> you write:
-> > This does not cover the class of things which are entirely created by
-> > the driver (eg. dummy devices, socket families), so cannot be
-> > "detected".  Many of these (eg. socket families) can be handled by
-> > explicit request_module() in the core and MODULE_ALIAS in the driver.
-> > Some of them cannot at the moment: the first the kernel knows of them
-> > is an attempt to open the device.  Some variant of devfs would solve
-> > this.
-> > 
-> 
-> I guess there will be cries of murder if 'somebody' suggested that if
-> a node in /dev is opened, but not there, the kernel can call
-> 'modprobe -q /dev/foo' to load whatever alias there might have been?
+> The follow_page issue should be fixable by just marking the _page_ dirty 
+> inside the ptrace routines. I think we do that anyway (or we'd already be 
+> buggy wrt perfectly normal writes).
 
-I think it's an excellent idea, although ideally we would have this
-mechanism in userspace as much as possible.  Anything from some
-special hack to block -ENOENT on directory lookups and notify an fd,
-to some exotic overlay filesystem.
+access_process_vm already calls set_page_dirty_locked, in fact.
+So things are relatively simple.
 
-I'm sure Al Viro has an opinion on this...
+I suggested using pte_modify(pte, vma->vm_page_prot).  That is not the
+right thing to do, in fact.  For private mappings, the vm_page_prot value
+is always unwritable (PAGE_COPY).  So getting the right bits is tiny bit
+hairier.  Either it can do:
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	if (vma->vm_flags & VM_WRITE)
+		entry = pte_mkwrite(entry);
+
+or it can do something branchless like:
+
+	entry = pte_modify(entry, protection_map[vma->vm_flags & 0x7]);
+
+Or maybe there is a more optimal formulation I haven't thought of.
+
+
+Thanks,
+Roland

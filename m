@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbTIKVvV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 17:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbTIKVvU
+	id S261579AbTIKWCG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 18:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbTIKWCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 17:51:20 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:53494 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261564AbTIKVvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 17:51:16 -0400
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Date: Thu, 11 Sep 2003 17:51:14 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test[45]: enable swsusp?
-Message-ID: <20030911215113.GB28883@butterfly.hjsoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+	Thu, 11 Sep 2003 18:02:06 -0400
+Received: from lidskialf.net ([62.3.233.115]:38887 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261579AbTIKWCD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 18:02:03 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: jbarnes@sgi.com (Jesse Barnes)
+Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
+Date: Thu, 11 Sep 2003 23:00:30 +0100
+User-Agent: KMail/1.5.3
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
+References: <20030909201310.GB6949@sgi.com> <200309112213.13263.adq_dvb@lidskialf.net> <20030911212059.GA27063@sgi.com>
+In-Reply-To: <20030911212059.GA27063@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309112300.30882.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 11 Sep 2003 10:20 pm, Jesse Barnes wrote:
+> On Thu, Sep 11, 2003 at 10:13:13PM +0100, Andrew de Quincey wrote:
+> > > That might work, though I'll be using the ACPI namespace to drive PCI
+> > > discovery soon (hacking the PROM now).  Maybe I should add some MADT
+> > > and _PRT entries while I'm at it?  The problem is that we don't support
+> > > IOAPIC or IOSAPIC interrupt models/hw registers.
+> >
+> > Which base architecture do you use? x86 and x86_64 ACPI now both support
+> > PIC based interrupt models.. as thats the only other option AFAIK (It
+> > tries IOAPIC first, then if that fails, it drops back to trying PIC
+> > mode).
+>
+> None of the above.  We have our own NUMAlink based interrupt protocol
+> model.
 
---i9LlY+UWpKt15+FH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oooer! Hmm, the existing code would probably NOT like having _PRT entries for 
+a model it doesn't know about.... you could add support for it fairly easily 
+though I suppose...
 
-what needs to be configured to get the /proc/power/state file i've
-seen mentioned around here?  i'd like to try swsusp again.  the swsusp
-docs seem a bit dated.
-
-thanks.
-
-CONFIG_PM=3Dy
-CONFIG_SOFTWARE_SUSPEND=3Dy
-
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
-
---i9LlY+UWpKt15+FH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/YO5RCGPRljI8080RAtsMAJ9TwMlUrVPeJBjgSj/Y8J1JgRzzGwCdG5Au
-hKqpszxJ7e3ww+kGXYIEiFs=
-=3uoU
------END PGP SIGNATURE-----
-
---i9LlY+UWpKt15+FH--

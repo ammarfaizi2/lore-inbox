@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbSKBSQ7>; Sat, 2 Nov 2002 13:16:59 -0500
+	id <S261366AbSKBRzc>; Sat, 2 Nov 2002 12:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261360AbSKBSQ7>; Sat, 2 Nov 2002 13:16:59 -0500
-Received: from [212.45.9.156] ([212.45.9.156]:44673 "EHLO null.ru")
-	by vger.kernel.org with ESMTP id <S261354AbSKBSQW>;
-	Sat, 2 Nov 2002 13:16:22 -0500
-Message-ID: <3DC417A4.2000903@yahoo.com>
-Date: Sat, 02 Nov 2002 21:21:24 +0300
-From: Stas Sergeev <stssppnn@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
-X-Accept-Language: ru, en
+	id <S261365AbSKBRyN>; Sat, 2 Nov 2002 12:54:13 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:27011 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261361AbSKBRxu>; Sat, 2 Nov 2002 12:53:50 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 2 Nov 2002 10:05:08 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: bert hubert <ahu@ds9a.nl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] total-epoll ( aka full epoll support for poll() enabled
+ devices ) ...
+In-Reply-To: <20021102140653.GA3528@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44.0211021002530.1609-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Larger IO bitmap?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sat, 2 Nov 2002, bert hubert wrote:
 
-I was trying to add some VESA support to
-dosemu and found that on my Radeon7500
-card it requires an access to the ports
-from range 0x9800-0x98ff. As ioperm()
-doesn't allow to open such a ports, I've
-got a very slow graphics.
-What happens is this:
-IO attempt->GPF->return_to_dosemu->
-decode insn->change uid->change IOPL->
-do IO->change IOPL->change uid->
-back_to_DOS_execution.
-You may guess how slow it is, but if I
-say that it is as slow as the simple
-screen redraw takes up to a minute, that
-may still be a surprise:)
+> On Fri, Nov 01, 2002 at 09:13:13PM -0800, Davide Libenzi wrote:
+>
+> > *) Multi-thread support. The wait interface is changed to :
+> >
+> > 	int epoll_wait(int epfd, struct pollfd *events, int maxevents,
+> >                        int timeout);
+>
+> This means that userspace has to allocate I understand?
 
-My question is: why do we still have a
-128-bit IO bitmap? Is it possible to have
-the full 8K IO bitmap per process under
-Linux? And if yes, then why not yet?
-(Note: I am using the latest 2.4 kernels
-and I don't know if there is something
-changed in 2.5 about that problem. If
-something is changed, then sorry for wasting
-your time).
+Yes, you have to allocate it in userspace.
 
-I think that could be an advantage also for
-X. I think currently X works around the
-problem by keeping IOPL==3 all the run,
-but that can't work for dosemu.
 
-I've found several discussions on that
-topic, but they all ended unconclusively
-(too difficult, too expensive, useless etc).
-But as the last discussion I've found was
-dated 1998, I think it is time to reiterate:)
 
-Can anyone please suggest what must be done
-in order to enlarge the thing? The obvious
-way of increasing IO_BITMAP_SIZE constant
-doesn't do the trick.
+> > *) Yes, ... it drops an event @ EP_CTL_ADD :)
+>
+> Thank you :-)
+
+You're welcome, it came for free :)
+
+
+
+> > The patch is working fine on my machine but it's very new code.
+> > Comments and test reports will be very welcome ...
+>
+> I'll test. Do you want me to update the manpages to reflect the changes
+> above?
+
+Yes, I kind-of-updated the man pages ... but IMO 1) I need more test on it
+2) there're still a few things open about the interface to be decided ...
+
+
+
+- Davide
+
 

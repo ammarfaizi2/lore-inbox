@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314496AbSEUNCX>; Tue, 21 May 2002 09:02:23 -0400
+	id <S314502AbSEUNLB>; Tue, 21 May 2002 09:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314499AbSEUNCW>; Tue, 21 May 2002 09:02:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29458 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314496AbSEUNCV>; Tue, 21 May 2002 09:02:21 -0400
-Subject: Re: cardbus/pcmcia/pci bridge problems?
-To: pbd@op.net (Paul Davis)
-Date: Tue, 21 May 2002 14:22:31 +0100 (BST)
+	id <S314500AbSEUNK7>; Tue, 21 May 2002 09:10:59 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:24589 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S314502AbSEUNKG>; Tue, 21 May 2002 09:10:06 -0400
+Date: Tue, 21 May 2002 14:10:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205210353.g4L3rpk24320@op.net> from "Paul Davis" at May 20, 2002 11:53:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: [PATCH] buffermem_pages removal (3/5)
+Message-ID: <20020521141003.C15796@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17A9ax-0007o9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >May 16 15:15:32 badass-bukvic kernel: PCI: Found IRQ 5 for device
-> >02:03.0
-> >May 16 15:15:33 badass-bukvic kernel: Hammerfall memory allocator:
-> >buffers allocated for 1 cards
-> >May 16 15:15:33 badass-bukvic kernel: PCI: No IRQ known for interrupt
-> >pin A of device . Please try using pci=biosirq.
+This one is a bit more controveral as it may break stupid userlevel
+programs:  remove the 'Buffers' field from /proc/meminfo and make
+the Cached field show the full pagecache size instead of subtracting
+the block-device backed pages.
 
-The $PIR table in the BIOS provided no useful information on what IRQ
-to use, or we didn't know the IRQ router concerned to set it up.
+All /proc/meminfo-using programs I have (free, top) still work fine.
 
-Alan
+
+--- 1.24/fs/proc/proc_misc.c	Fri May  3 07:01:31 2002
++++ edited/fs/proc/proc_misc.c	Tue May 21 14:28:39 2002
+@@ -130,7 +130,6 @@
+ {
+ 	struct sysinfo i;
+ 	int len;
+-	int pg_size ;
+ 	struct page_state ps;
+ 
+ 	get_page_state(&ps);
+@@ -140,7 +139,6 @@
+ #define K(x) ((x) << (PAGE_SHIFT - 10))
+ 	si_meminfo(&i);
+ 	si_swapinfo(&i);
+-	pg_size = get_page_cache_size() - i.bufferram ;
+ 
+ 	/*
+ 	 * Tagged format, for easy grepping and expansion.
+@@ -149,7 +147,6 @@
+ 		"MemTotal:     %8lu kB\n"
+ 		"MemFree:      %8lu kB\n"
+ 		"MemShared:    %8lu kB\n"
+-		"Buffers:      %8lu kB\n"
+ 		"Cached:       %8lu kB\n"
+ 		"SwapCached:   %8lu kB\n"
+ 		"Active:       %8u kB\n"
+@@ -165,8 +162,7 @@
+ 		K(i.totalram),
+ 		K(i.freeram),
+ 		K(i.sharedram),
+-		K(i.bufferram),
+-		K(pg_size - swapper_space.nrpages),
++		K(ps.nr_pagecache-swapper_space.nrpages),
+ 		K(swapper_space.nrpages),
+ 		K(nr_active_pages),
+ 		K(nr_inactive_pages),

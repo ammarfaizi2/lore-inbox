@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271971AbRH2Nzq>; Wed, 29 Aug 2001 09:55:46 -0400
+	id <S271970AbRH2ODq>; Wed, 29 Aug 2001 10:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271974AbRH2Nzg>; Wed, 29 Aug 2001 09:55:36 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:23045 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S271971AbRH2Nz1>; Wed, 29 Aug 2001 09:55:27 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200108291355.PAA04915@green.mif.pg.gda.pl>
-Subject: Re: linux 2.4.9 make menuconfig bug
-To: david.balazic@uni-mb.si (David Balazic)
-Date: Wed, 29 Aug 2001 15:55:45 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3B8CE6C8.ED4F163B@uni-mb.si> from "David Balazic" at Aug 29, 2001 02:57:44 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S271972AbRH2ODg>; Wed, 29 Aug 2001 10:03:36 -0400
+Received: from zeke.inet.com ([199.171.211.198]:22436 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S271970AbRH2ODW>;
+	Wed, 29 Aug 2001 10:03:22 -0400
+Message-ID: <3B8CF62F.69DA74C2@inet.com>
+Date: Wed, 29 Aug 2001 09:03:27 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Bruno Boettcher <bboett@erm1.u-strasbg.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [AMD] 79c970 ethernet card problems.....
+In-Reply-To: <20010829152925.H1357@erm1.u-strasbg.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > make menuconfig
-> > > on menu point "Fusion MPT device support" "Select" does nothing !
-> > > it should go into a submenu
-> > 
-> > Normal behaviour for empty menu.
-> > 
-> > All "fusion" options depend on CONFIG_SCSI and CONFIG_BLK_DEV_SD.
+Bruno Boettcher wrote:
 > 
-> But if empty then it should no be listed at all, no ?
-> That would make more sense IMHO.
+> hello!
+> my motherboard assigns it IRQ without any distinction, i have several
+> cards on the same interrupt, e.g. the 2 ethernet cards are on irq 10 at
+> the moment .... so maybe this is the real problem ... anyways i have:
+> lspci:
+> 00:0c.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet
+> LANCE] (rev 02)
+>   Flags: stepping, medium devsel, IRQ 10
+>   I/O ports at e000 [size=32]
+> 
+> /etc/modutils/network:
+> options lance io=0xe000 irq=10
+> alias eth1 lance  irq=10
 
-Probably this need fixing in config files.
+You might try the pcnet32 module instead of the lance module.
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+HTH,
+
+Eli
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVCBGee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVCBGmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVCBGee (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 01:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVCBGec
+	id S262200AbVCBGmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 01:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVCBGmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 01:34:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52421 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262190AbVCBGe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 01:34:26 -0500
-Message-ID: <42255E5D.1030908@pobox.com>
-Date: Wed, 02 Mar 2005 01:34:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
-CC: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       vojtech@suse.cz, giovanni@sudfr.com, andre@linux-ide.org,
-       dake@staszic.waw.pl
-Subject: Re: via 6420 pata/sata controller
-References: <42213771.5060809@seznam.cz>
-In-Reply-To: <42213771.5060809@seznam.cz>
-Content-Type: multipart/mixed;
- boundary="------------020308060205040301050601"
+	Wed, 2 Mar 2005 01:42:21 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:7041 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262200AbVCBGmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 01:42:17 -0500
+Date: Tue, 1 Mar 2005 23:42:12 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT on 2.4 ext3
+Message-ID: <20050302064212.GP27352@schnapps.adilger.int>
+Mail-Followup-To: Junfeng Yang <yjf@stanford.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.44.0503012129410.2361-100000@elaine24.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="64zwfBjuwM6ycdfi"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0503012129410.2361-100000@elaine24.Stanford.EDU>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020308060205040301050601
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-If I had to guess, I would try the attached patch.  The via82cxxx.c 
-driver is a bit annoying in that, here we do not talk to the ISA bridge 
-but to the PCI device 0x4149 itself.
+--64zwfBjuwM6ycdfi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If this doesn't work, I could probably whip together a quick PATA driver 
-for libata that works on this hardware.
+On Mar 01, 2005  21:34 -0800, Junfeng Yang wrote:
+> I tried to read from a regular ext3 file opened as O_DIRECT, but got the
+> "Invalid argument" error.  Running the same test program on a block device
+> succeeded.
 
-	Jeff
+ext3 doesn't support the direct_IO method in 2.4 kernels, though there
+was a patch at one time.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
 
+--64zwfBjuwM6ycdfi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---------------020308060205040301050601
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-===== drivers/ide/pci/via82cxxx.c 1.27 vs edited =====
---- 1.27/drivers/ide/pci/via82cxxx.c	2005-02-03 02:24:29 -05:00
-+++ edited/drivers/ide/pci/via82cxxx.c	2005-03-02 01:28:26 -05:00
-@@ -79,6 +79,7 @@
- 	u8 rev_max;
- 	u16 flags;
- } via_isa_bridges[] = {
-+	{ "vt6420",	0x4149,			    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
- 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
-@@ -635,9 +636,10 @@
- }
- 
- static struct pci_device_id via_pci_tbl[] = {
--	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C576_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
--	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
--	{ 0, },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C576_1) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, 0x4149) },
-+	{ },	/* terminate list */
- };
- MODULE_DEVICE_TABLE(pci, via_pci_tbl);
- 
+iD8DBQFCJWBEpIg59Q01vtYRAosuAJ4t/M4r6ZxL2hXT94hmamDKP5As1ACcDu2y
+2flRsg+0KPSGY2jbf6b42qE=
+=0Gpr
+-----END PGP SIGNATURE-----
 
---------------020308060205040301050601--
+--64zwfBjuwM6ycdfi--

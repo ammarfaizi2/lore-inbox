@@ -1,248 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbUBUKpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 05:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUBUKpF
+	id S261544AbUBUKsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 05:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUBUKsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 05:45:05 -0500
-Received: from pileup.ihatent.com ([217.13.24.22]:3505 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S261542AbUBUKos
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 05:44:48 -0500
-To: linux-kernel@vger.kernel.org
-Subject: SUB memeory stick and kobject oops
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 21 Feb 2004 11:44:09 +0100
-Message-ID: <87n07cbtl2.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 21 Feb 2004 05:48:43 -0500
+Received: from [62.38.226.226] ([62.38.226.226]:51840 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S261544AbUBUKsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 05:48:38 -0500
+From: "P. Christeas" <p_christ@hol.gr>
+To: Fabio Coatti <cova@ferrara.linux.it>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-mm1 and aic7xxx
+Date: Sat, 21 Feb 2004 12:47:02 +0200
+User-Agent: KMail/1.6
+Cc: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402211247.02085.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Just noted some nasty behavior at 2.6.3 ( not -mm1) wrt. aic7xxx.
 
-Caught this one in my log when inserting my shiny new 512Mb Verbatim
-USB memory stick:
+With 2.6.2 I hadn't noticed any trouble (for the last 6 days I've been running 
+it). Now, the box hung twice, while trying to use the scsi cd-recorder (HP 
+m820e) I have. The machine is 'blind' (i.e. no console) so I couldn't get any 
+trace/logs..
+First time was while starting 'cdrecord-2.0'. Just when trying to query the 
+device. At the same time the scsi bus was accessing an iomega zip100 drive, 
+reading data.
+Second time must have been the device scanning done by k3b (I believe it uses 
+the same scsi libs as cdrecord). Note also that I have an atapi (not 
+ide-scsi) recorder, which had been fixating the disk it had written when the 
+box hung.
 
-usb 3-1: new high speed USB device using address 2
-SCSI subsystem initialized
-Initializing USB Mass Storage driver...
-scsi0 : SCSI emulation for USB Mass Storage devices
-  Vendor: Verbatim  Model:  USB Drive        Rev: 2.00
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-drivers/usb/core/usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-sda: Unit Not Ready, sense:
-Current : sense key Unit Attention
-Additional sense: Not ready to ready change, medium may have changed
-sda : READ CAPACITY failed.
-sda : status=1, message=00, host=0, driver=08
-Current sd: sense key Unit Attention
-Additional sense: Not ready to ready change, medium may have changed
-sda: assuming Write Enabled
-sda: assuming drive cache: write through
-SCSI device sda: 1024000 512-byte hdwr sectors (524 MB)
-sda: assuming Write Enabled
-sda: assuming drive cache: write through
-SCSI device sda: 1024000 512-byte hdwr sectors (524 MB)
-sda: assuming Write Enabled
-sda: assuming drive cache: write through
- sda: sda1
- sda: sda1
-kobject_register failed for sda1 (-17)
-Call Trace:
- [<c01b5e83>] kobject_register+0x50/0x52
- [<c01840f0>] add_partition+0xb4/0xde
- [<c018426a>] register_disk+0xf8/0x103
- [<c0202351>] add_disk+0x3b/0x48
- [<c02022f4>] exact_match+0x0/0xb
- [<c02022ff>] exact_lock+0x0/0x17
- [<f09b5730>] sd_probe+0x1ff/0x36a [sd_mod]
- [<c01853ab>] create_dir+0xa4/0xa6
- [<c01fb493>] bus_match+0x35/0x5e
- [<c01fb5a0>] driver_attach+0x55/0x7f
- [<c01b5e56>] kobject_register+0x23/0x52
- [<c01fb81a>] bus_add_driver+0x8d/0x9f
- [<c01fbba0>] driver_register+0x2b/0x2f
- [<f096c02d>] init_sd+0x2d/0x6b [sd_mod]
- [<c0136fc3>] sys_init_module+0x107/0x23d
- [<c027b736>] sysenter_past_esp+0x43/0x65
- 
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+Does this relate to the problem you mention ? 
 
-Gentoo 1.4 (unstable), kernel 2.6.3-mm2 and config is here:
+ I could only recover the following log: (0 4 0 is the scsi M820e recorder)
 
---=-=-=
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename=config.gz
-Content-Transfer-Encoding: base64
+SCSI error : <0 0 4 0> return code = 0x70002
+Feb 21 12:07:19 pfn1 last message repeated 6 times
+scsi0:0:4:0: Attempting to queue an ABORT message
+CDB: 0x46 0x0 0x0 0x0 0x24 0x0 0x0 0x0 0x8 0x0
+scsi0: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi0: Dumping Card State in Command phase, at SEQADDR 0x166
+Card was paused
+ACCUM = 0x80, SINDEX = 0xac, DINDEX = 0xc0, ARG_2 = 0x0
+HCNT = 0x0 SCBPTR = 0x0
+SCSISIGI[0x84]:(BSYI|CDI) ERROR[0x0] SCSIBUSL[0x8] 
+LASTPHASE[0x80]:(CDI) SCSISEQ[0x12]:(ENAUTOATNP|ENRSELI) 
+SBLKCTL[0x0] SCSIRATE[0x28] SEQCTL[0x10]:(FASTMODE) 
+SEQ_FLAGS[0x0] SSTAT0[0x7]:(DMADONE|SPIORDY|SDONE) 
+SSTAT1[0x2]:(PHASECHG) SSTAT2[0x0] SSTAT3[0x0] SIMODE0[0x0] 
+SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|ENSCSIRST|ENSELTIMO) 
+SXFRCTL0[0x88]:(SPIOEN|DFON) DFCNTRL[0x4]:(DIRECTION) 
+DFSTATUS[0x6d]:(FIFOEMP|DFTHRESH|HDONE|FIFOQWDEMP|DFCACHETH) 
+STACK: 0x35 0xd3 0x160 0x1a1
+SCB count = 4
+Kernel NEXTQSCB = 2
+Card NEXTQSCB = 2
+QINFIFO entries: 
+Waiting Queue entries: 
+Disconnected Queue entries: 
+QOUTFIFO entries: 
+Sequencer Free SCB List: 1 2 
+Sequencer SCB Info: 
+  0 SCB_CONTROL[0x0] SCB_SCSIID[0x47] SCB_LUN[0x0] SCB_TAG[0x3] 
+  1 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+  2 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID) 
+SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff] 
+Pending list: 
+  3 SCB_CONTROL[0x0] SCB_SCSIID[0x47] SCB_LUN[0x0] 
+Kernel Free SCB list: 1 0 
+Untagged Q(4): 3 
+DevQ(0:4:0): 0 waiting
+DevQ(0:6:0): 0 waiting
 
-H4sIAH0xN0ACA4xcS3PbuLLez69g1SxuUpVMrIcV+1TNAgJBERFBwgSox2xYiswkupElHz1m4n9/
-GqQeAAlQs4hj9tdsAI1Gd6MB+vfffvfQ8bB9WRxWy8V6/eZ9LzbFbnEonr2Xxc/CW24331bf/+M9
-bzf/d/CK59Xht99/w0kc0FE+exj8+XZ+YCy7PmTU72jYiMQkpTinAuU+QwCAkN89vH0uoJXDcbc6
-vHnr4u9i7W1fD6vtZn9thMw4vMtILFF0lYgjguIcJ4zTiAAZhFWAkCj2UZTExFvtvc324O2Lw/mt
-YZqMSZwncS4YP/diVA54rfiOr9d2xRTxa3tiLiaU4ythKPycpwkmQuQIY2mwYql1NUqAOwtyEdJA
-/tnpn+lhInmUja6MdFz90qSULemjJGxIfJ/4ljGOURSJORNXKUEmyez6SHgSad2jicAh8fM4SXiT
-ikST5hPkRzQmTQQHT3ovMc4TLimjf5E8SNJcwC96j0v1R9vF8+LrGgxh+3yE//bH19ftTrMylvhZ
-RLR+VIQ8i6ME+Xp7JwCawmfYoqBkKJKISKLYOUqZIXhCUkGTWGttDNSzqfDddlns99udd3h7LbzF
-5tn7Vij7LfbGqsi5MVuKQiIU650xwEkyRyOSOvE4Y+jJiYqMMSqd8JCOwNrdbVMxFU70tHJRikMn
-DxGf7+7urDDrPQzsQN8F3LcAUmAnxtjMjg1cAjn4FJoxSm/A7TizmNgZ6xvWOXb0Y/zZQX+w052m
-xHCaiYTYsSmNcQgubNAKd1vRnu9od57SmVNRE4pwL+/esjGLHhWKGZ/hUHOKijhDvm9Sok6OETih
-k5v9fMbSqSAsVxLglRxFoySlMmTmy1OeT5N0LPJkbAI0nkS81vbQjAzlck848hsvj5IEWuQU12VK
-EuWZIClO+NzEgJpzcPY5jASPYWHX3Uh/5HYDUypxmHPwJBINwWM6OfujfMLyCM2TzO02MohqKrjR
-2KcpwW7GkI7CHOw9nVtmMORE5hACSKqPpKQSlkUI3HAq7Yu65rQukZAQxmVNbdyiZyDSpEmOEowi
-27QkFiI4HJPAMGkQIHTGATLSkzPC+zIkKSuhy8BkAjY6RNZB04exzZ9QDAlA4pM/X4wWRGoSMIfE
-60oi+iKJEzVRjBgmdSI5rOqEDhwwQzI8zSKETFu3ZWpMOwmozUTQhEBOgdXMaCsoJaNTdK5C7/af
-YgfJ4mbxvXgpNodzoui9Q5jTDx7i7P01BnNjlCIJ5BSl4BsyAZ7Z7sQ4y30qxo38RImHRp7/XmyW
-kBTjMh8+QoYMrZcZQNUzujkUu2+LZfHeE/UMRom4Dkw95cMkkTWS8gspmLcs14qOiIgQbqOVeWEe
-iBqGcL01JEHqvE7NpEziGjFAdcopy03qvbJYdtU6aNmq4eqtFuMvGXwyzEYWMzl1uT5WUh8rT6YN
-BXJc1z8k6ZKwGjGFyDpTSS+L6n4XrKP0Yk3z4EyzjsoW2MVK33tDyI01i7iOlbOGLFi+XrAr/nss
-Nss3bw/7sdXm+9WMAM6DlJgp9olWWQKYUGBR3YXJJwHKIgmRaZLDrgoSZYZiTKwCdV4VrARHmLQJ
-bwq1cqjpEbDkHfilKWunun3lpNt6UYa+ywaTZ0qf3uslb3/erf4udrVsvZx8xVtTbh2zK9m0EzW8
-OJnmjmTP5Pn8L3ge3HnTrHRosD9x5wScEB8snedYRWgaJ44s68pIcVjXwRUUjDoE8D7sycGBV7sl
-68sRHdYlwz59lGbujZHCQzDDxlIZHvfXCADL+4PHMcMUffAIFfCTYfgBv+kxoXQCV3+PKRhcuTyt
-4aCEGaseW1ia2ZEBo1hzu4qkWjQplQSTdm7YpKr0cAK8ui9W9IiMEJ6fqwQaECOm75xBIUY8hmdH
-Qm+nC/yra+70qthcqv4TXuye1bw0dvAVfs1L5qqYc32E3aVfOXYtDerePXYdGVK3N7i3QhJbdxFV
-80o7w4tnAOV44fbwuj5+t3nnU21G6bAxWvKrWB4PZcni20r92O5eFgfNpQxpHDDIb6NAKxdVNAQZ
-93XgJyKjkGW+VML94u/VsvD8i5u6lqhWyxPZS+o1smCaq2IHSc9iWPGy3b15slj+2GzX2+9vJ8Gw
-WJj0tUUBT/DOdeKl7wzACoOMTFJZFkhedDr8ipE0aSnxVZZTvlNnZ2UB6QKVfc72KnSWRaC9hyCx
-krvFZr+uEq1o8Wa47VJKiFJT7rBMIZukPE2u1EBG14e48QQ7Rm3BnPCygylin9KEfQrWi/0Pb/lj
-9doMJ2W/Amr24QuB9LYyP4MOG9/8TDamACTkyJ+U1TPQtWMyFFe5mSSzmurL9xl4Xb9JFxKh2kQh
-ViMkNQIaCliy9V5eCmmqNCAa64QtXl8hfznrSK2TSmmLpQrG+nKrTIhxGAnsKjin8cjulUsbDOcC
-mFwWGmNwUXdm/wW+795hn5vUmMgSqPMqH5f7CQ4iJMKaIpj/eTBr6EfgYTe3sEMLh2LdWGA0AoBj
-xwiifv9uNDsbnSjW3z4ut5vDYrWBBBMYvOfKR1xtz1QPw/f3HYdsEVWTbbwB/4Dq1PcwGqtW69Pr
-r/Y/Pyabj1hNacNtmQNOyjlxtlDhnVs4eOSmlcUI9nPVimx0Qp8JYKvNDVAgmKY0mOfTlEotIb3A
-1L94J77YLdbrYu2pUGEJcSjlSaotwxNBVYItNPCAUacJQO5LUWR9IaBBosX2KyAydT5ix+qB9wwl
-au/WfKPTfehfAqSKjOX2dr14s4w35kYyFfNm3DiXzA/b5XatzQdkHdXr15drSVFF0Ha3Vc633i5/
-nqxfD7fRGNqe5IERyc7UmWO3j1Lq2yul6k3MYQOEWmFMhWjjUY37CD8O7lpZMkZsFeQzHKlTmZc6
-FadzLhM7Fg/9JtFw8RqxPJL5s3/3OKiDNKYyNU5XomHTCSCJPsE/Tj+xAIJjFDUtBdSspUFn6f41
-E1sXi30BImHlbpdHtWsuQ/6n1XPxx+HXoYwbP4r166fV5tvWg1xATVzp/AxHcxYdqmVLWlQKqCr0
-aEG+IuQMtrtUHQKRJiakOjq0DgSLpmoV2WqOAIC6SKtJAE8QJZzPb3EJLGzbMUBgGwydpolxEHmm
-BzQieekxSv0pbam4DBLOs/fp6/H7t9UvU8HqdUupvtExSO4G/btbfYc13j5HRs2mes5FqKp4NDV2
-6ed3kiAYJrCVaG353wxAZV2DbqeVJ/2rU4toFitjqL7prKHlSaVvn8LT2znKZGJsjSooiaN5vV5Z
-awRVR+2NxhHBg+5s1jo+FNHO/azXzgPJUP+GnNIY2lkkhGBI/NrFzB+6ePDY3h8s7iGbu8nSa2cJ
-uezd6LFiGQxaWQTudFvtg1M6s01OLB4+9zv3rcK5D/kQzGCeRP6/Y4zJtL27k+lYtHNQytCI3OAB
-9XbaJ0lE+PGO3NCeTFn3sX2aJhSBScwc5qd8VbkrgRT/5iK1rC46GbpXZX1FKlqcxLVagSUwNcJn
-6cBP6XwjcCpQDyHq+ZwS2SWdRFSXE949Q4L+wTssXosPHvY/wqblfTNpEnpWjGbwXJ6CiD8ftOpr
-mFa89jPAM5wIB8OlrdRWuD0LH112PNuXQtfM3ntX/PH9DxiD9//Hn8XX7a/3l5G+HNeH1eu68KIs
-NoJVqawqoEeZ7WyqZEhJmfcCh5Z9lgj8rm4SyTo9SkYj2J2eY2fZzfX2n4/V5SXLluw8+N40B2Od
-QdJFfUdtDcSrixQBcimyZEHYFeMqOESd++7sBkO/28KAcHsnEcWfXQtPZ3C6pwvTY6sUf4JiMRdu
-Dho7t5XV/JMRah+KgOTVjQ4zAfPtyBYqM+FPAZYtXfTZrNd57LR0wZe4131oGQVp7aNCIZgkbo4g
-kxlkTX7CEI3dbCNfhi3o6QZfjNP7Xltva4w5Y219q9WN6tNLUadtfjlvUQxlzA2WvcP9u0GLADFn
-wPMAdtyyWDgSnUELLGi3f0fdDE+lgeWw5m/yUMFvy8E3WTo1YzNZEGQLs0bUUfRO21pVDN1bDL22
-uSwZut1WhkGvc4uhTUI1of22+fJx7/H+Vzt+1+KcJWjXjWadft7rBy0MkUyRkEnaYrmC91rG6CjC
-lHWgKlotnhevh2Kn5RvagVZ5UNIWQk4sQYs3ObHENP6C8voWtc711HCwZYeS9fMpZ7mUj98pBiXu
-Q8kKudh7ve9Y3WC1bYqrWrTKEz6amZb3rowNqsYVTZghjDVTteC4V+cQjMtmwnZ5L8hE7SZMtcMm
-hHid3mPfexesdsUU/l1TmHf6BWejF+q18q2GvG7S0gmFNmvxy9XmsN3/aBaPqypqcfhnu/upyvWN
-PDQm8pzuaGyNe9oc4TExCqDqGfy/flkOZEU0LjOiK2cW05l2BgMvjcn8SqBVB85PvErrMKwTI3Hn
-VcIA++k8TTLpuE0LbPbKg2qWcsp131fRRilxiWJlS/a7LCm3buyVTIJj/bq4useejKlxUKvYUGgq
-ISeC1yiUq2OTc+ZM+X+8yWp3OC7Wnih26qjQuK6kFeV4PhH6UEuC8+ivQiUa5kMKKXGne25vIryD
-OqUrLfn1VOqFhHjx7H1drBebpdWiKnGwlZFJLjE3JvcCZL4DUFqwAii8lLRUx/bLH4U6TNzVG061
-U8OKMm2SItxgapKioZ3WkOaHdYpoUohfJ8VP16mFES1eX9erZXUgqiqizaEFUrcQPhmYT6AoOkF4
-bhraoGFpg6apDa62pguUWRyTSLckH6ybSOvHF9QfEWOhBzSS5s3QC9Fpi5UY4+2L8YN/+rZaH1rt
-Pg7U5i6GQKsfFVdATX2KRFNcJ0kLG2Lqs5M69SkjGWlI5NX13DqdIXV9N6KMytrKvICUpygeEfsK
-vXAxhO2y+VjKOSd2kKF07ECUvzVPt3RYJo6hpARXp8YWTLlAK+ALzO0ICmtWqWuNxCMZOvqnn/Ab
-AOZMOPoekoiT1I4JiaRDiU7LquBkGruEqlNtIyqeLLKy8boFonQE3j8lX9TFoRoYIxsJFgzxiW94
-zqskhgTYaop84mzqdEupYZknBliPtUN5O59AzG2/qp/l/ex6NxUgYsbzIRIU24ZnWaeKbFmqiiwd
-dPsyBuIocmnGYv4nxGLjJ8Rm5JeZKJehXXk4QkLQYO5U4IkPkmqH+MwN2ZcD5DF2dwWA3TgBuGqs
-Ng4VQVCZtoSwfRAt5nLhDKbIb16Vpfzvwb/y9wOrHx64HPGg6YltWM3FakjqeiXh0tVSkKKRAwoj
-Vw9sTnnQ4moGblc/0CPMZBCS01UyGwMKa0540OaFNZBkdNBvYE0TGrjteGBfjIPm8qnuC+xWz9+L
-f2El55QiyMmwbhInDAD19WimO34Nko2BGGDlkq814Sv2cNfNHQcmVybEkrglFSpZUm5t29zQaEBp
-3e0yTTPRgEYeoWFC2jsyiVDs6ApSXz3waN7eG9+Ia7Vu5nZIi1qWnroEGlY3C/QvRNVTeUX9cliB
-Ja99E9LY0Ov5suLPc8NlKpJZcQMWfzjKmRg5Cj0nhmT4BcfSzROCm1InU8Ra7zsziBB1jK9lLgjz
-7eeQSNqurKgZVvbcedJHE0XYcY+XzxzCUWQ71Z51769qixAf1nfqPp2Q1K4NAv8TOzSFTrfUC5Tg
-AKnbH66NvuIIp3kQJVOgAGPzsvrTVqgy06ftzvu2WO28/x6LY2F82qGElJ9QG6USRcrx8Mksjihi
-KIcWYiBwk4rFX00iVzfGGtRU34GeiSKwtC/JU2ShDoMmcWSV6gvTu5zpNAZ+PQtRwJN+OawqhEgK
-UUW/Bh+X6ZFoENSl8NgntQKTAsop7TvoTTnBtMma9bqW98WE26mDJpknEcWkVl/zDsX+0LAP8Loj
-EhsiYMMAb18uyKEUb4qDdkNOq0Y5NuV+xphWaxsmsa+ON6+fED5lKKJ/6ZENtvwarm4SStQom4lh
-/X5MdXf+8KPYqT6+69x5sByAiX1dHd6bIy2FGlU/Ro2j8BBxPmcERXbfl8EemTkX64TEfpLmPcgw
-rTyRKiLeelswfIsFtoGo6Qvkcb16BTfwslq/eZvTfLuLuUqezCLKHb6y89lxqKIuTNkPt0LuOlQr
-K4rmJyG6/dW/nwGi4ygCMf+h0+moibTjPuKSYLWTTgPqqK8i3Os6OorAf+HEcdug37fSq7tWrh5h
-8fD4y6HJUWq7Q0IIT5NOedP8GmdONOeBLHGpPgBjju0BEdIUQRh1zFh3nLsunjx0eo+YOyGZOA5m
-qXh09JJwip0nshnsnF0rR7r+ZMGEojwNaexecDxR5witngR6dPYimvWQ2HFy70fdsXN2HCtDPPQe
-HHfLQgS5UmifgjmJIC8IHCdl6UNn8Oiag47jApQYPz5EDoGSjpK4d0NXFmXR2WhoN0vfp45Pwzl3
-HOzVnNWZzLWgCA/VBlYdBmn3voF8KepqNCTmMTbfVpQcdiEmVV2cNWpzijgUvlm4BmJi1CZErcul
-atQp3brY7z1luu82283HH4uX3eJ5ta1FqxT518u0ydf9dl0ciuvry8XueX897XvdFR8hSf6j0zFm
-ADJMl49PXWtniib1PwViHq6eGPShng9niVSge9BVF7WvkcNt9TWPMRzL4XGK5ljckvtVfZr5Sfkt
-pzhEU9u3quqbc2KcXPFodqLalwTz22B1w7YFhp0OiW6Phi9flqtF+QHk1+O+MShTQ80hqLHmWLSd
-k0+j3v1dxxGZpxBCI5U1n4xQbn8WGy8tP75q5oKyZadjd5gproWYs9FCHqZnhiBC3ZtLyvJMpanF
-xlud/zKC0Yspil3XFJxZkZGMlF+2vDUU1cP3D49tmgSGz/3Wuw1s8qXz0Hr9gWPXdvK8vhh2rdoT
-BySQjx3s+Mb1xDOjKe7yVrtAs9gSHNHL4lAcd16q3JVtdUHMKt1Ws66685H3brX5tlvsiuf31vsF
-qfnVy+nbnGNx2G4PP2xvDO26Go/8YULsNn36G2W6dSpSns5cxlvCMkWuw/0SP+3QI+3YUPgx9Pnr
-/m1/KF6McSqkkb7Dwn/9sd282b4a5mGt1lK1sHk9HpzGTGOeXe5XqE9g1+pCirFmdM6cJdn/GruS
-3sZ1JPxXgndvtCVv8qEPlETZbGuLKHnpi+CXeBJj0nHgOMD0v58itZiUWHJfDLi+4qoiWSSripyK
-i6I/ZnqZclLsUJR7GaVxufthTUajYZ79D2s07fD8TPbVJdWtlyQ9F3dXRnMHgdJNVeFOIrox2SpV
-3cW+JyZr2iWJpMmuaTJKQAFtGRT7Ct07Tv4tmTOa2F0i/NZJb8uyBLzcsb25hehjkiUl2dr1hxg8
-lnIbaS3muVj105rupWOLEpOupsD6BKWqFW4RUMexCrU8u/wuS0y3uTG2jyIzagA9GcCK23pUPkGs
-XBvNLp6SATJMkOO7ikFYirnRAEPqWdYoJeYWtfLLc+atB1jypPBW1RDAm83UuFAVLfV4ulZvMiS1
-qMZ3vRx6r4fL4UncRPS8GDeKyG7ysllHW9pqq9A02SKhOOOt4l5mBh+D4+V0eOt7qtdJHXuqbWEV
-ckclMTDogY1UJM7KQjr3T0wo3eU0rm6jjQVHJN6XQhzuVcDoEKYywIafeuJ2+BEdm22hzY3aXc6M
-9xfAGDYIAgSK7G+zm3Cdi5dkVLd/Wzhlmu+V48smpAdChCyKOP9hT2e3wGgygJR29p42MmNWIdLO
-pK3sI2E+MyKPzBvZZdeFsb6SjZi2fsJ/UDRiPzSETdoerk+vz+eXB6EzK1K5FXeFfqLEPWkoIORb
-GbGuWSzbLLDZU4T9umWo6tveYwEqc7n1c+R4akOgL70VzhGyyJqOp4MMsGJYOEPkz3e7EhRm5P5m
-ao/QxLTIksH6MXc+wpNvSUCzLtqGV6lqpd9ICWc2NLs6YgIGz0aQIwZ6aYF34tYZz+z5KhhicOZz
-HBcHM7+6aK32kW//Hj6Pz31JVFTsRnjMmbOdl0Rb83JjKhNUgL8ok90pFnLGDvxgjchgvCWm27l4
-o/mAZ7lyoCLikJgIpeah6Oehed3MxovZBDmnTUOGnbPzJN6nfVPtoPJYu74eH/7zdv74+CNd2HS7
-Zc3mujsZNWUvtUsJ+CsGpbmaAssHsMgfwvTGK5gMztKtRLxhPiNofpxxHJNBSlF4M5AtDQLmUaMm
-52dasET4W+Z+YN5nCRBU7IigaNbxgFAh4kMNNFtRoDIHUawrcIyD0RKvRqcb1eOFJ4MSdhPKfexJ
-C3XkOCbqHps1Y4BsoVxxA637U0o63XB1pYY1cSnju9aBURsTX9szm/N7ZneG38fn08HUBhAwmpSd
-tb2O2fJyuoJysjk9H88P7uV8eH46yKvGJj6Umo+vO8FWkaguh4/X05PxyC5wkSN+UR1Ow06YtDoE
-/Ls4MH14Pn1+iEAj1fjuK06bJTHpv5FPTCqOermpJKvdS7/en1UloZCRYapzkyaOY3h6//pfxfpA
-Lk+vp+vxSYT5VtKp8WTgDzTwsaCxpwpATe5esgpywrmInKooz0CEFQXW5US9/hZkkNs+sS1OQlo2
-MHM3gnWT6yrYjZuIfZLQFM1TuWAzuxA1Ich6GxeZpN/ADcsimOh0YpSnZNNth9SIC2s2nY463Gkx
-GVnt8ACl2zRggZH4lmNhrnw1PnFQ2OMTe2wNw/YwPENhyhczZwC1Zs4g7GBedeKwo+CVRag3xAKb
-rYxGdIgFZioUlruK7qxn5ih57qJcIqrGwt7d+xgN252PItnGeK256wxg1mwAJFu8qaKVQZZgRldC
-1kKO3pAK+FcOwoTjXgRL3hjH/XxkLXYD3RKOOcGFlS9JSHZ7HOeeaWsnFE5s7IVsOplaQw0ej238
-Y7i5M98NDa7ZbhC2HbxsmGGt0RrH10m2tGwL7644gmUbRbOIDswLgC5mw+gUT73yMW9fAHMRu2pA
-BvdRgG0RahGdjEaDMjiUnMbcGs9Hd3BraFJbjAfnvKEZMyJUWOONUYYgckZ44aAEW/OBLy5x26TQ
-NzNd6OxG3ZUVtjLM2zAXuUWs1kPi2AOivNnZdv94GD4VeSi4i40+gEpSmC5yamUXSbfZ9c0qugyT
-Sd9+K/k4vtdqEe9dmFQn8Kkwfe0lFG3oKXVAVHtSNMasfESnz6fj29vh/Xj++pR59dxPq8TCHE4N
-hy6oLmyJt8zPVzrZ38ckYh4oXXGStVenIu/V+fMqFNPr5fz2Bspo72BJJKcrcXPsKUqgoCY3qtas
-oqYb+6U+v/LeDp+f/XPa9hN383TDguZJkgsPJ5PttODRVTCZlRfphNu5oUIUPuhkSbtF1uT+VzJz
-kZwExL3LF2SUYocEKh/jPmYQphULon+XaZU6kNfxLh/3/Wy0+Cu26fQu288iSvkqyY1isPr6fXi/
-vSNwi9i7YmrEXpHfinXkDgjNRWJroANTYaD/T5mvPUvF5BmiypWvsoLnEeHCA1MF6kKqe7xblZn/
-4J6hIU2UR7P4rt1Odatro45wEZbmdI324ZYMychaOG6gqIymHhHEgltw7Dr3Rm0T2e/DC2JIIVvi
-e86ATMqHO4ZatUrh1xiyQBQ+vM+XsxhxBWM3sdzgT6pdbGN6JHiOx2fY3YqIisbslSm6rUNjkyzj
-Rpy7n9Yj6rmh/BKgP6tOQLL/6VK8CqETszx0LHXPJydK7sa0vS9rZuNv1/O3alYWYbd7nUBie27j
-H8Gl4RoxmBOwiFiDhRkSONTHGhljpsimhfZ4ZLXWBDB6395OL+KBktvU/vl9eXh+OV77Fc+ikMXF
-Di2bpqBa2A6yRRQcv0iRFXjlPd+T1tRG8Wo+LalCgnQXnZ3jWPOdOt6lHBmu5asvxzsfoU1WX0HC
-kgoJr6bjHTlJdoLf3mhNUCH15EdB73zfmmu7guluRUl+j9FnSxFly6MhRW8DFXYagXTfYwpyn5Wc
-JYgQ1VwbJl5ZMXUAS8ljbzGuoexuDf3l37Wk5iuRo3CFdU33PCVxmSIBcPusd9lCfr/UxGWh8E+6
-xxh5eVl0Dm36XHLojpFu5SSg94rx9i7NfhJvfY9RGHINKTgVVxLFzGTNJadqTQNGhiCN2MzG55KI
-2TMUzdkyREFS0IxvCRLOTU7mLJkOrIMhXSa5WITxSToLN8sBPPT8gdxxLKfc3KPVlGwy45KLAoHB
-0E8YiAcfKlMx7YnS3BZxqn93COWO5Lliy9yQ04SzHUwxYR/i1Csylu81ZKw98VQTDJmP8czH5sx/
-6tZD8BeNuwHpI1c+saemyCgD6QUsMK9BP3vQLTu1prdXX/C8YKcG/AiYJRFW1GOR5Jqp6KN4dWNj
-sqatEMWpS6atoijf7tOKPMHKqrBJJQ2VUMkwVt/9jS+lpyc8MOcvZrORJj8/k5Cp7k+/gEkVgeq/
-lqTwA6VQP+HfA5J/j3NzoYEIjaA+ysEhhUbZdFnivCnxZnUpSPheUMLZtn808Xn8ej7Lx1N6Fes9
-aCYJa2kwo76wG2jPxcC2BPsgAKU5N4yXG9AfFnmU6gWsCpgNQheRvRqVTy8a7wajWxB7fSLX+0Ax
-QMFHAQlwbIVDLh3AcIgODW2szwWiT4gNpZKWH6MeXb7PoL74JTvNfJ84MEWsUhx7jHcTHBUPPGNY
-0UumeWvKRYF3JTnuDFDxfzNW/ErF/4n+v/JWV81VgeprefjdTPxuLr4eU0u8f6NkIf9qSehOKH1q
-VXkRZ+q7FdX/cqneQQIBxo2glevMVVyzeeRq7Rb/45A378kpo7gGMhrBFvnHP6fP8zfHmS6+WdN/
-2ujArDPjeCn2kbzEJ/iYMX7A9HC5nqTPfv7nQ99Wtg8dtVHlTC+qyFmzZW29eA9XUM8ewsP7y9fh
-5dh/DxJarXxTpW9EH3S7QODi6U8xuZST8VxP2SJzHJlPEcRRd98dxEYRPDesBs4MLWdmoQhag9kY
-RSYogtZ6NkORBYIsxliaBdqjizHWnsUEK8eZd9oDy74Qj9JBElg2Wj5AljkzhGybyWMzGano1Eye
-mclzM3mB1BupioXUxepUZp0wp8wMtEKnFXngtK8AXc6wZOtBDW9zRpYEwqOxf3+xFu6Xbw+vh6f/
-am79cjWEHXImYujdJmSShfvaSkPVVwQvB210nWxA5Q6Tra4CtTBsYLBI/TVXiJyVVjBLNszoYhER
-EUAYVkrd3rrONGWxWFwGMhaCSEJgMq/AIgPME7iuWRwkRh1PrUD7XK7maGTagoCOQWEXUt1/aI9W
-Bkzc6kXSflp7hVE+u5zClM9vBkXHp6/L6fqnfyfVVywbinTATLK1AfFISlwQo1wLCNrCWVI9Tags
-sA3EqTxMNCSqEfnqMNSdRAM8oBfTMEkHOKKw1Wa9y5+P6/mlMgrrd0D1TpHy0qv8L4PL9IhxESqH
-fzUx8icG2rRHq2PY9Ij2dGbinVp2j+yrUZ9qmiudt9VQnTUAH89IFy5EWszDmk4MmYsItlMjdWao
-XMexuakH5e1heXj693K4/Hm4nL+up/ej9hk8dfX5FTJXDCU9R0ntlSMfvBdvcWVUf7I6FV/w/302
-en0+hgAA
---=-=-=
+<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+scsi0:0:4:0: Device is active, asserting ATN
+Recovery code sleeping
+Recovery code awake
+Timer Expired
+aic7xxx_abort returns 0x2003
+scsi0:0:4:0: Attempting to queue a TARGET RESET message
+CDB: 0x46 0x0 0x0 0x0 0x24 0x0 0x0 0x0 0x8 0x0
+aic7xxx_dev_reset returns 0x2003
+Recovery SCB completes
+... hang, I press the win98 key .. 
+Feb 21 12:09:54 pfn1 syslogd 1.4.1: restart.
 
-
-Device seems to work after this though, it can be mounted as
-/dev/sda1.
-
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
-
---=-=-=--

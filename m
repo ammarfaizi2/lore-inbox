@@ -1,86 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265767AbSKFV5P>; Wed, 6 Nov 2002 16:57:15 -0500
+	id <S266161AbSKFWKA>; Wed, 6 Nov 2002 17:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265765AbSKFV5P>; Wed, 6 Nov 2002 16:57:15 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:29181 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S265767AbSKFV5L>;
-	Wed, 6 Nov 2002 16:57:11 -0500
-Date: Wed, 6 Nov 2002 23:03:47 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: mec@shout.net, zippel@linux-m68k.org, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
-Message-ID: <20021106220347.GE5219@pasky.ji.cz>
-Mail-Followup-To: mec@shout.net, zippel@linux-m68k.org,
-	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20021106185230.GD5219@pasky.ji.cz> <20021106212952.GB1035@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106212952.GB1035@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S266162AbSKFWKA>; Wed, 6 Nov 2002 17:10:00 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:9124 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S266161AbSKFWJ6>; Wed, 6 Nov 2002 17:09:58 -0500
+From: jordan.breeding@attbi.com
+To: Cliff White <cliffw@osdl.org>
+Cc: Yury Umanets <umka@namesys.com>, Cliff White <cliffw@osdl.org>,
+       reiserfs-dev@namesys.com, Linux-Kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: [reiserfs-dev] build failure: reiser4progs-0.1.0 
+Date: Wed, 06 Nov 2002 22:15:42 +0000
+X-Mailer: AT&T Message Center Version 1 (Aug 12 2002)
+Message-Id: <20021106221551.BZKL13074.rwcrmhc51.attbi.com@rwcrwbc55>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Nov 06, 2002 at 10:29:52PM CET, I got a letter,
-where Sam Ravnborg <sam@ravnborg.org> told me, that...
-> On Wed, Nov 06, 2002 at 07:52:30PM +0100, Petr Baudis wrote:
-> >   Hello,
-> > 
-> >   this patch (against 2.5.46) introduces two special variables which make it
-> > actually possible to have .so as the only product of build in some directory
-> > and to link something against .so being built in another directory. The
-> > variable host-cshlib-extra makes it possible to explicitly mention shared
-> > objects to be built and the variable $(<foo>-linkobjs) allows user to specify
-> > additional objects to link <foo> against, while not creating any dependencies
-> > of <foo> on the objects.
-> > 
-> >   The changes are minimal while dramatically extending possibilities for
-> > messing with the shared objects and they should have no unwanted side-effects,
-> > and it appears to actually work for me. Please apply.
+Try the following:
+
+do a search for -lreadline in ./configure, add -lncurses 
+to any line in ./configure which is a) setting an 
+environment variable and b) does not yet contain -
+lncurses but _does_ contain -lreadline
+
+then do ./configure --enable-Werror=no; make
+
+works for me
+
+Jordan
+> ./configure --without-readline --enable-Weror=no 
+> builds successfully
+> ----------------------------
+> ./configure --without-readline
+> -------------------------------
+> 0.lo -MD -MP -MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
+> cc1: warnings being treated as errors
+> alloc40.c: In function `callback_fetch_bitmap':
+> alloc40.c:50: warning: signed and unsigned type in conditional expression
+> alloc40.c: In function `callback_flush_bitmap':
+> alloc40.c:209: warning: signed and unsigned type in conditional expression
+> alloc40.c: In function `callback_check_bitmap':
+> alloc40.c:376: warning: signed and unsigned type in conditional expression
+> make[3]: *** [alloc40.lo] Error 1
+> make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
+> oc40'
+> make[2]: *** [all-recursive] Error 1
+> make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
+> make: *** [all] Error 2
+> ---------------------------------
+> ./configure  --enable-Werror=no
+> ------------------------------------
+> st -f mkfs.c || echo './'`mkfs.c
+> /bin/sh ../../libtool --mode=link gcc  -g -O2 -D_REENTRANT 
+> -D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -DPLUGIN_DIR=\"/usr/local/lib/re
+> iser4\"   -o mkfs.reiser4  mkfs.o ../../libreiser4/libreiser4.la 
+> ../../progs/libmisc/libmisc.la -lreadline  -luuid
+> mkdir .libs
+> gcc -g -O2 -D_REENTRANT -D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused 
+> -DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -o .libs/mkfs.reiser4 mkfs.o  
+> ../../libreiser4/.libs/libreiser4.so ../../progs/libmisc/.libs/libmisc.al 
+> /root/cgl/kern/reiser/reiser4progs-0.1.0/libaal/.libs/libaal.so -lreadline 
+> -luuid -Wl,--rpath -Wl,/usr/local/lib
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `tgetnum'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `tgoto'/usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadlin
+> e.so: undefined reference to `tgetflag'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `BC'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `tputs'/usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadlin
+> e.so: undefined reference to `PC'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `tgetent'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `UP'
+> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
+> reference to `tgetstr'
+> collect2: ld returned 1 exit status
+> make[3]: *** [mkfs.reiser4] Error 1
+> make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/progs/mkfs
+> '
+> make[2]: *** [all-recursive] Error 1
+> make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/progs'
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
+> make: *** [all] Error 2
+> ----------------------------------------
 > 
-> There is only one user of shared libaries today, thats Kconfig.
-> And Kconfig is the only user of C++ as well.
-> 
-> There is quite a lot of added complexity in Makefile.lib + Makefile.build
-> only to support this. Being the one that introduced it, I would like to
-> see it go away again.
-> Rationale behind this is that the current added complexity has an penalty
-> when compiling a kernel, and I would like to move the complexity to
-> the only user.
-> 
-> Care to try that approach?
-
-Can't say anything about the C++ stuff, but the second user of shared libraries
-is going to be lxdialog - hopefully this evening already, in my patches (it
-already works, I'm only cleaning out few details now; lxdialog + mconf is also
-user of both these extensions).
-
-I don't think the complexity increase is so dramatical - theoretically, it
-almost shouldn't affect the normal build, except one scan for .so extensions,
-right? Maybe we could do with some less generic way here, like specifying .so
-dependencies in a special variable? On the other side, moving .so processing to
-the user entirely would already mean some amount of duplication now (given that
-my lxdialog + mconf patch will be accepted ;-).
-
-I personally think that the -linkobjs variable adds practically zero overhead,
-while having potential to be generically useful in other places than lxdialog.
-About host-cshlib-extra, if we aren't going to entirely remove .so processing,
-I believe that it should go in as well, since eventual move of .so processing
-to separate set of rules will probably mostly affect one step higher level of
-rules / variables than this, and this variable is going to be useful in the
-both cases.
-
-Kind regards,
-
--- 
- 
-				Petr "Pasky" Baudis
-.
-This host is a black hole at HTTP wavelengths. GETs go in, and nothing
-comes out, not even Hawking radiation.
-                -- Graaagh the Mighty on rec.games.roguelike.angband
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317169AbSG1ToR>; Sun, 28 Jul 2002 15:44:17 -0400
+	id <S317181AbSG1TtO>; Sun, 28 Jul 2002 15:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317176AbSG1ToR>; Sun, 28 Jul 2002 15:44:17 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16216 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S317169AbSG1ToP>; Sun, 28 Jul 2002 15:44:15 -0400
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: torvalds@transmeta.com (Linus Torvalds),
-       linux-kernel@vger.kernel.org (Linux Kernel)
-Subject: Re: [BK PATCH 2.5] fs/binfmt_aout.c: Use PAGE_ALIGN_LL() on 64-bit values
-References: <E17YRsD-0006Hw-00@storm.christs.cam.ac.uk>
-	<E17YRsD-0006Hw-00@storm.christs.cam.ac.uk>
-	<5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Jul 2002 13:35:28 -0600
-In-Reply-To: <5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>
-Message-ID: <m1n0sbhchr.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S317189AbSG1TtO>; Sun, 28 Jul 2002 15:49:14 -0400
+Received: from cicero0.cybercity.dk ([212.242.40.52]:49925 "EHLO
+	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
+	id <S317181AbSG1TtJ>; Sun, 28 Jul 2002 15:49:09 -0400
+Date: Sun, 28 Jul 2002 21:00:38 +0200
+From: Daniel Mose <imcol@unicyclist.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to start on new db-based FS?
+Message-ID: <20020728210038.A3864@unicyclist.com>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020726160742.GA951@ksu.edu> <20020726190520.GA3192@localhost> <3D41ADD3.9010509@namesys.com> <20020727220826.A31431@unicyclist.com> <3D434CD3.7010807@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3D434CD3.7010807@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cantab.net> writes:
+Hans Reiser wrote:
+> Daniel Mose wrote:
+> >I'm doing a scan on the web for disk storage layout documentation on
+> >different file systems. I have I think, downloaded just about all 
+> >there is to download on www.namesys.com, but I fail to find anything
+> >that does describe the reiserfs storage layout in any detail.
+> >Is there such documentation available? 
 
-> At 18:59 28/07/02, Eric W. Biederman wrote:
-> >Anton Altaparmakov <aia21@cantab.net> writes:
-> > > Following from previous patch which introduced PAGE_ALIGN_LL, this
-> > > one fixes a bug in fs/binfmt_aout.c which was using PAGE_ALIGN
-> > > on 64-bit values... It now uses PAGE_ALIGN_LL.
-> > >
-> > > Patch together with the other two patches available from:
-> > >
-> > >       bk pull http://linux-ntfs.bkbits.net/linux-2.5-pm
+I do believe that I've been somewhat unclear. What I would hope 
+to find is :
+Documentation of On-disk Per-partition storage layout 
+of file lookup and maintainance structures for reiserfs. 
+
+> >I would be very happy for directions to it in this case.
 > >
-> >Huh?
-> >
-> >All virtual addresses on 32bit platforms are 32bit, as are all lengths
-> >of address space.
-> 
-> I thought (intel) CPUs did 48-bit addressing? How do we support 32GiB of RAM?
-> With pure 32-bit addressing it would be limited to 4GiB only... No? (Of course I
-> 
-> am probably confusing varius types of addresses...)
+> >Reason? I want to know if the root file system that I my self is 
+                                 ^^^^^^^^^^^^^^^^
+Correction, Should be: File system for root mountable partitions. 
 
-Hammers and Alphas have 48bit virtual and 40bit physical, in the
-current implementations.  The most common 48bit address though is that
-ide recently moved from 28bit sector addresses to 48bit sector addresses.
- 
-> >Unless you are running a 32bit kernel with a 64bit user space,
-> >which is simply crazy, unless you are stuck doing it that way.
+> >about to develop perhaps is already implemented to some extent in
+> >any existing root FS:s ? 
+                ^^^^^^^^^ 
+same correction here.
 > 
-> The code is still broken. The values ARE 64-bit (check the struct definitions if
-> you don't believe me). 
+> What is a root filesystem? (I am accustomed to the term as describing 
+> what the OS uses for storing the semantic layer's root directory).
 
-I just did.  The values are per arch, but at least for X86 the values are
-unsigned int.  Which is 32bits..
+I do not have a CS - convention, or Unix background, so I am a bit
+unfamiliar with terms like "semantic layer's root directory" 
+I am a "learn by doing" type of guy, and up to now it has worked out
+ok.
 
-Eric
+There seems to be a lot of discrepancies when it comes to 
+defining what a "file system" really is. I often find that the 
+term is used with widely different meanings, depending on who 
+you are actually talking to, and also in what context it is used.  
+
+I believe that the developers at www.oss.sgi, as well as the JFS 
+developers hosted at IBM, use the term: "root file system" to make 
+clear that 
+
+A.	It is a Unix type of file system, that can be used as "/"
+	at boot, i e a system "magically" mountable root partition.
+	
+B.	The file system occupies a Local mountable disk partition, 
+	and is acessible via the  Unix mount command.
+
+C.	The file system is used for file access, and maintainance of 
+	On-disk	file-lookup hierarchies, such as one or more 
+	Superblocks, File allocation scheemes ( f ex allocation group 
+	descriptors,block and inode bitmap tables, as well as inodes )
+	and Directory files ( ext2fs or FFS )
+
+I hope that this makes a bit more sense to you.
+Thank you for taking time with me, all the same
+
+I'm happy for any further direction.
+
+kind regards 
+Daniel Mose

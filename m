@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbTIKOgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTIKOfA
+	id S261245AbTIKO30 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbTIKO3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:35:00 -0400
-Received: from dyn-ctb-203-221-74-143.webone.com.au ([203.221.74.143]:38663
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261306AbTIKOev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:34:51 -0400
-Message-ID: <3F608807.9090705@cyberone.com.au>
-Date: Fri, 12 Sep 2003 00:34:47 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Nick's scheduler policy v15
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Sep 2003 10:29:25 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:64158 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261245AbTIKO3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:29:21 -0400
+Date: Thu, 11 Sep 2003 15:28:09 +0100
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030911142809.GB20434@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+	richard.brunner@amd.com, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <Pine.LNX.4.44.0309110650390.28410-100000@home.osdl.org> <1063289641.2967.3.camel@dhcp23.swansea.linux.org.uk> <20030911162421.419f4432.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911162421.419f4432.ak@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-http://www.kerneltrap.org/~npiggin/v15/
+On Thu, Sep 11, 2003 at 04:24:21PM +0200, Andi Kleen wrote:
+ > I considered that when writing the patch, but: is_prefetch is a single byte 
+ > memory access for something already in cache. Checking for an Athlon
+ > CPU needs two memory accesses in boot_cpu_data at least (checking vendor
+ > and model) 
 
-This was going to get high res timers, but instead fixed a bug that might
-be causing a few people oopses. Also very small interactivity tweaks.
+You only need to check it once when the path is first taken, and then
+set a variable that makes you exit as soon as you enter it again.
 
-I'm starting to work on SMP and NUMA ideas now, so if any interactivity
-things are bothering you, please tell me soon. I should be getting access
-to a 32-way NUMA soon, so I'm sort of holding off chaning too much until
-then.
+		Dave
 
-Enjoy.
-
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

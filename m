@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130653AbQLMKWr>; Wed, 13 Dec 2000 05:22:47 -0500
+	id <S129415AbQLMLHo>; Wed, 13 Dec 2000 06:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130879AbQLMKWh>; Wed, 13 Dec 2000 05:22:37 -0500
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:65290 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S130653AbQLMKWX> convert rfc822-to-8bit; Wed, 13 Dec 2000 05:22:23 -0500
-Date: Wed, 13 Dec 2000 10:51:53 +0100
-From: Martin Macok <martin.macok@underground.cz>
+	id <S129421AbQLMLHY>; Wed, 13 Dec 2000 06:07:24 -0500
+Received: from david.siemens.de ([192.35.17.14]:34242 "EHLO david.siemens.de")
+	by vger.kernel.org with ESMTP id <S129415AbQLMLHP>;
+	Wed, 13 Dec 2000 06:07:15 -0500
+X-Envelope-Sender-Is: tjeerd.mulder@fujitsu-siemens.com (at relayer david.siemens.de)
+Message-ID: <3A3750C3.973CF9FD@fujitsu-siemens.com>
+Date: Wed, 13 Dec 2000 11:34:43 +0100
+From: Tjeerd Mulder <tjeerd.mulder@fujitsu-siemens.com>
+X-Mailer: Mozilla 4.05 [de] (Win95; I)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test12 randomly hangs up
-Message-ID: <20001213105153.A6624@sarah.kolej.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
-X-Echelon: GRU NSA GCHQ KGB CIA nuclear conspiration war weapon spy agent
+Subject: Re: National Semiconductor DP83815 ethernet driver?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-after 1-3 hours with -test12 system hangs up with
- - no response from mouse
- - no response from keyboard (no sysrq, only sysrq+'b' works ...)
- - no response from network (ICMP, TCP)
- - nothing on console, nothing in logs (ie. nothing interesting or relevant
-   to crash).
+Please, don't even consider using the NSC dp83815 driver.
 
-System was not under load (1 user, X, no swapping ...)
+I too received this NSC (TeamF1) driver, hacked on it, fed the modifications
+to NSC and this TeamF1.
+Some time October I received the latest and greatest version from NSC
+and found no trace of my changes, but some "Shaun Savage" hacked on it
+and ported the buggy 2.2 version to 2.4. 
 
-( -test11 was up for 3 weeks with no problems and so do 2.2.17 ... )
+He found the tbusy flag gone so implemented this:
 
-slightly modified Red Hat 7.0:
+if (chip_out_of_descriptors) {
+	drop_packet();
+	stats->tx_dropped++;
+}
 
-Linux sarah.xxxxxxxxxxxxxxxxx 2.4.0-test11 #4 Sat Dec 9 14:24:20 CET
-2000 i586 unknown
-Kernel modules         2.3.21
-Gnu C                  2.96
-Gnu Make               3.79.1
-Binutils               2.10.0.18
-Linux C Library        > libc.2.2
-Dynamic linker         ldd (GNU libc) 2.2
-Procps                 2.0.7
-Mount                  2.10m
-Net-tools              1.56
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         nls_iso8859-2 nls_cp852 vfat mad16 ad1848 sb_lib
-                        uart401
+netif_stop_queue(), what's that ???
 
+I must admit that I did not look any further at this driver ...
 
-DMESG:   http://kocour.ms.mff.cuni.cz/~macok/kernel/dmesg
-(Abit PX5, P166 (ovrclckd to 166), 128MB RAM, 2x IDE HDD, 3com509b ISA, Opti931)
-
-.config: http://kocour.ms.mff.cuni.cz/~macok/kernel/.config
-(with IPv6 + tunneling, iptables (ipv4/ipv6), no devfsd).
-
-Have a nice day
-
-P.S. I'm not subscribed, please Cc: me eventually ...
-
--- 
-   Martin Maèok
-  underground.cz
-    openbsd.cz
+Please try the driver in 2.4.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

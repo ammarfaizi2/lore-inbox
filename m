@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263058AbTCSPEL>; Wed, 19 Mar 2003 10:04:11 -0500
+	id <S263049AbTCSPDf>; Wed, 19 Mar 2003 10:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263059AbTCSPEK>; Wed, 19 Mar 2003 10:04:10 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:53491 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S263058AbTCSPEJ>;
-	Wed, 19 Mar 2003 10:04:09 -0500
-Date: Wed, 19 Mar 2003 16:15:03 +0100 (MET)
-From: micklweiss@gmx.net
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: Linux on 16-bit systems
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0014467546@gmx.net
-X-Authenticated-IP: [172.129.153.126]
-Message-ID: <27515.1048086903@www36.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	id <S263050AbTCSPDf>; Wed, 19 Mar 2003 10:03:35 -0500
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:34980 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id <S263049AbTCSPDe>; Wed, 19 Mar 2003 10:03:34 -0500
+Message-Id: <200303191513.h2JFDjGi022118@locutus.cmf.nrl.navy.mil>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] first pass at fixing atm spinlock 
+In-reply-to: Your message of "Wed, 19 Mar 2003 02:57:34 PST."
+             <20030319025734.C35024@sfgoth.com> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Wed, 19 Mar 2003 10:13:45 -0500
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes you are all correct, uclinux doesn't cost $200
+In message <20030319025734.C35024@sfgoth.com>,Mitchell Blank Jr writes:
+>> i dont know.  i believe all of the adapters do a synchronous close.
+>I'm really not sure it's that safe.  At the very least the drivers all
+>need to make sure that their ->close() excludes their interrupt/bh work
 
-I mixed it up with the cost of an SDK for embedded systems. *oops*
+i suppose i could be he-centric.  when the rx and tx close complete you
+know you wont be getting anymore traffic in the queues regarding that
+vpi/vcc.  i suppose other cards might now have this feature.  some 
+drivers just keep a pointer to vcc in a table.  so it they dont use
+atm_vcc_lookup() each time they need a receieve then i guess the vcc's
+will need some sort of ref counting.  i am generally against this 
+scheme, but it could be made to work.
 
-thanks to all who helped me out. It means a lot. :o)
+>Great - now we just have to do the same thing for vcc's :-)
 
-And Alan, hopefully you will come down to Florida again. I missed it when
-you went to the Orlando Linux User Group a few weeks ago. 
-
-Regards, 
-
-- Mick
-
-(o> Web developer / designer
-( )     UNIX Systems Admin
----   ~ www.mickweiss.com ~
-
-/* Ignore the footer hereafter */
-
-
- 
-
--- 
-+++ GMX - Mail, Messaging & more  http://www.gmx.net +++
-Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
-
+actually i think the vcc related code is 'broken'.  since the vcc is
+really attached to a struct sock, the vcc code should be more sock-centric.
+sock provides ref counting, locks, linking, hash support.  at the time
+the atm code was initially written, struct sock might not have been
+generic enough.

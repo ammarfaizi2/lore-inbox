@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268795AbTBZQVX>; Wed, 26 Feb 2003 11:21:23 -0500
+	id <S268801AbTBZQVg>; Wed, 26 Feb 2003 11:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268799AbTBZQVX>; Wed, 26 Feb 2003 11:21:23 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48874 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S268795AbTBZQVW>;
-	Wed, 26 Feb 2003 11:21:22 -0500
-Message-Id: <200302261631.h1QGVTBt004582@eeyore.valparaiso.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call 
-In-Reply-To: Your message of "Wed, 26 Feb 2003 03:35:33 +0300."
-             <3E5C0BD5.2010808@namesys.com> 
-Date: Wed, 26 Feb 2003 17:31:29 +0100
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S268802AbTBZQVg>; Wed, 26 Feb 2003 11:21:36 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:52423 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S268801AbTBZQVf>; Wed, 26 Feb 2003 11:21:35 -0500
+Date: Wed, 26 Feb 2003 16:31:54 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Enabling L2 cache for overdrive CPUs.
+Message-ID: <20030226163154.GB15163@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mikael Pettersson <mikpe@user.it.uu.se>,
+	linux-kernel@vger.kernel.org
+References: <200302261349.h1QDn0Bh002816@deviant.impure.org.uk> <15964.52883.370949.237446@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15964.52883.370949.237446@gargle.gargle.HOWL>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Massive cutdown on Cc:]
-Hans Reiser <reiser@namesys.com>
+On Wed, Feb 26, 2003 at 03:26:27PM +0100, Mikael Pettersson wrote:
 
-[...]
+ > Ugh. Is this for the PII overdrive for PPro socket or what?
 
-> In 15-30 years, AIs will be a big market, a huge one.  Of course, people 
-> said that 30 years ago and it seemed reasonable then....
+Celerons iirc. I got a mail from someone annoyed at the
+binary only module that powerleap gave him to do this.
+I just disassembled it and turned it back to C.
 
-It won't. Because AI is handwaving patch over hack with the odd kludge for
-lack of a decent, structured solution. If the problem is important, some
-solution is found eventually, and the area doesn't qualify anymore ;-)
+ > Seems awfully dangerous to have a __setup() clobber MSRs without
+ > checking the cpuid first. 
+ > Shouldn't this be in the CPU detection/quirks code instead?
+ > It already contains stuff similar to this.
 
-Happened to "automatic programming", to get a program written from a
-high-level specification was an AI problem, until compiler technology was
-born and matured. To be able to manage a computer system required a human,
-until modern OSes. Today you have machines reading handwriting (sort of) as
-part of PDAs, there is even some limited voice input available. Automatic
-recognition of failed parts from video cameras is routine, work is
-progressing on face recognition. It just isn't called AI anymore.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+That is another option that could be done, yes..
+
+        Dave
+

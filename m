@@ -1,114 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269878AbTGLHwf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 03:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269973AbTGLHwf
+	id S269973AbTGLIJA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 04:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269982AbTGLIJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 03:52:35 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:37579 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269878AbTGLHwc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 03:52:32 -0400
-Message-ID: <32820.4.4.25.4.1057997224.squirrel@www.osdl.org>
-Date: Sat, 12 Jul 2003 01:07:04 -0700 (PDT)
-Subject: 2.5.75-kj1
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-Cc: <kernel-janitor-discuss@lists.sourceforge.net>
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 12 Jul 2003 04:09:00 -0400
+Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.181.13]:640 "EHLO
+	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
+	id S269973AbTGLII6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 04:08:58 -0400
+Date: Sat, 12 Jul 2003 04:14:04 -0400
+From: timothy parkinson <t@timothyparkinson.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: netgear f312 (natsemi) under 2.5.75
+Message-ID: <20030712081404.GA3126@timothyparkinson.com>
+References: <20030712072744.GA225@timothyparkinson.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <20030712072744.GA225@timothyparkinson.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-patch is at:
-http://developer.osdl.org/rddunlap/kj-patches/2.5.75/patch-2.5.75-kj1.bz2
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-changes since patch-2.5.74-kj1:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drop/	typo-usb-serial-kconfig.patch
-	Francois Romieu <romieu@fr.zoreil.com>
-	incorrect
 
-add/	teleph_ixj3.patch: audit+cleanup+cod. style
-	Daniele Bellucci <bellucda@tiscali.it>
+apologies for replying to myself...
 
-add/	Netwinder wdt977 msic_register audit
-	Daniele Bellucci <bellucda@tiscali.it>
+the solution to this problem (for me) was to boot the kernel with "noapic" =
+on
+the command line.  (note to self, always pay attention to email from dave
+jones :-)
 
-add/	media/video/pms.c copy_from_user audit
-	Daniele Bellucci <bellucda@tiscali.it>
+if anyone could point me to more info on this bug i'd be appreciative (an
+lkml thread that i missed the first time around maybe?)  thanks anyway!
 
-add/	net/irda/vlsi_ir.c copy_from_user audit
-	Daniele Bellucci <bellucda@tiscali.it> and
-	Mathew Wilcox <willy@debian.org>
+-timothy
 
-add/	audit copy_to_user in net/wireless/ray_cs.c
-	Daniele Bellucci <bellucda@tiscali.it>
 
-add/	Audit copy_to_user/put_user in fs/umsdos/ioctl.c
-	Daniele Bellucci <bellucda@tiscali.it>
-
-add/	Audit + cleanup in drivers/sbus/char/envctrl.c
-	Daniele Bellucci <bellucda@tiscali.it>
-
-add/	Audit copy_from_user in drivers/ieee1394/amdtp.c
-	Daniele Bellucci <bellucda@tiscali.it>
-
-add/	Audit copy_from_user in drivers/parisc/led.c
-	Daniele Bellucci <bellucda@tiscali.it>
-
-add/	audit copy_from_user and fixed memory leak in drivers/net/comx-hw-comx.c
-	Daniele Bellucci <bellucda@tiscali.it>
-add/	printk KERN_* constants in Documentation/
-	"Warren A. Layton" <zeevon@debian.org>
-
-add/	KERN_* constants in all printk calls in arch/m68knommu:
-	"Warren A. Layton" <zeevon@debian.org>
-
-changes since patch-2.5.73-kj1:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drop/	unused_var_drivers_serial_8250_cs.patch
-	Daniele Bellucci <bellucda@tiscali.it>
-	already in 2.5.75
-
-add/	unchkd_return_copy_from_user_net_core_pktgen.c
-	Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-
-add/	pci_name_diff.txt
-	"Warren A. Layton" <zeevon@debian.org>
-
-add/	uninit_static_misc.patch
-	uninit_static_sound.patch
-	uninit_static_fs.patch
-	uninit_static_net.patch
-	Leann Ogasawara
-
-changes since patch-2.5.70-bk13-kj:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-drop/	je_cpqarray_fix_stack_usage.patch
-	Jorn Engel and Randy Dunlap
-	merged by akpm on 2003-06-10 (in 2.5.71)
-
-keep/	je_wanrouter_fix_stack_usage.patch
-	Jorn Engel and Randy Dunlap
-
-add/	unchecked_copytouser.patch
-	in fs/proc_misc.c: Daniele Belluci
-
-add/	busmouse_retcode_memleak.patch
-	Flavio B. Leitner
-
-###
-
-Still more in the queue.
-
-~Randy
+On Sat, Jul 12, 2003 at 03:27:44AM -0400, timothy parkinson wrote:
+>=20
+> hi,
+>=20
+> thought i'd give 2.5.75 a try today, and the only thing that i couldn't g=
+et
+> to work is my network card:
+>=20
+> 00:08.0 Ethernet controller: National Semiconductor Corporation DP83815
+> (MacPhyter) Ethernet Controller
+>         Subsystem: Netgear: Unknown device f312
+>=20
+> i'm working on a reasonably close to default slackware 9.0 box, with a wo=
+rking
+> 2.4.21 kernel of my own build.
+>=20
+> i started out by installing module-init-tools-0.9.12, and then built 2.5.=
+75.
+> the module (natsemi.o) seems to load just fine with no complaints.  dhcpcd
+> runs, the lights flash on my cable modem, things appear to be working just
+> the same as 2.4.21, however dhcpcd just exits silently without bringing up
+> eth0.
+>=20
+> i've tried building the driver into the kernel instead, recompiling dhcpc=
+d,
+> resetting the cable modem - it works under 2.4.21 just fine, the only
+> variable is the kernel.  i'm completely at a loss here.
+>=20
+> anyone else seeing this problem?  any ideas?  if there's any other debugg=
+ing
+> information i can provide, just ask...  much thanks in advance!
+>=20
+> -timothy
+>=20
 
 
 
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/D8NMx+251UAEnQkRAnSiAKChA7Xrbak+1KLH6Rz5PBvMw8DKhQCeNA0v
+SxsvyK2hKqpqyorCqmdcfIQ=
+=WQpp
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

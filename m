@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTDICI1 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 22:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDICI1 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 22:08:27 -0400
-Received: from pcp749571pcs.manass01.va.comcast.net ([68.49.125.82]:48256 "EHLO
-	charon.int.bittwiddlers.com") by vger.kernel.org with ESMTP
-	id S261808AbTDICI0 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 22:08:26 -0400
-Date: Tue, 8 Apr 2003 22:19:50 -0400
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: handle_scancode in 2.5.32+
-Message-ID: <20030409021944.GA1464@bittwiddlers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/0.68 (Shut Out)
-X-Primary-Address: mharrell@bittwiddlers.com
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1050286790.515c12@bittwiddlers.com>
+	id S261387AbTDICUw (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 22:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDICUw (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 22:20:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3759 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261387AbTDICUv (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 22:20:51 -0400
+Message-ID: <3E938630.7070001@pobox.com>
+Date: Tue, 08 Apr 2003 22:32:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: SET_MODULE_OWNER?
+References: <20030409015058.9EF0D2C08F@lists.samba.org>
+In-Reply-To: <20030409015058.9EF0D2C08F@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> In message <3E925292.8060104@pobox.com> you write:
+> 
+>>You may take a look at "kcompat" for further examples. 
+>>http://sf.net/projects/gkernel/   I provide an example of how to get a 
+>>net driver from 2.4 running under 2.2, such that the 2.4 driver 
+>>-appears- to be completely free of compatibility glue.
+> 
+> 
+> Interesting.  How is this related to the older linux/compatmac.h?
 
-I'm working to fix a couple of external modules so they will work with later
-2.5 kernels.  I've gotten the whole module building structure down fine but
-I can't seem to find any examples or documentation on a possible replacement
-for handle_scancode symbol that's accessible for a module.  Any help or 
-recommendations?
 
--- 
-  Matthew Harrell                          If at first you don't succeed,
-  Bit Twiddlers, Inc.                       try management.
-  mharrell@bittwiddlers.com     
+It's not related at all to compatmac.h, though there are no doubt 
+duplicate definitions in there.  This is mainly my own code, plus 
+tytso's (serial.c), plus Donald Becker's.
+
+
+> Have you thought of actually integrating a 2.4<->2.6 version once
+> 2.6.0 is out?
+
+Oh, I would love to have such items in there...   I take patches, and no 
+need to wait for 2.6 either :)
+
+	Jeff
+
+
+

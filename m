@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288714AbSADSb4>; Fri, 4 Jan 2002 13:31:56 -0500
+	id <S288717AbSADSfg>; Fri, 4 Jan 2002 13:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288719AbSADSbj>; Fri, 4 Jan 2002 13:31:39 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30423 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S288716AbSADSbZ>; Fri, 4 Jan 2002 13:31:25 -0500
-Date: Fri, 4 Jan 2002 11:31:10 -0700
-Message-Id: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S288716AbSADSf0>; Fri, 4 Jan 2002 13:35:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12548 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288721AbSADSfL>;
+	Fri, 4 Jan 2002 13:35:11 -0500
+Message-ID: <3C35F5DA.61A57A3E@mandrakesoft.com>
+Date: Fri, 04 Jan 2002 13:35:06 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
         Linux-Kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
-In-Reply-To: <3C35F290.140BB2C7@mandrakesoft.com>
 In-Reply-To: <Pine.LNX.4.33.0201041916490.20620-100000@Appserv.suse.de>
-	<3C35F290.140BB2C7@mandrakesoft.com>
+		<3C35F290.140BB2C7@mandrakesoft.com> <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Dave Jones wrote:
-> > 
-> > On Fri, 4 Jan 2002, Jeff Garzik wrote:
-> > 
-> > > > #ifndef __KERNEL__
-> > > > #error This file should not be included by userspace.
-> > > > #endif
-> > > I thought about it, but then the tree would be littered with that all
-> > > over the place.  Programmers are smart enough to figure this out (I hope
-> > > :))
-> > 
-> > I doubt you'd need it in that many places. A few well chosen ones should
-> > probably suffice.
-> 
-> oh, if Linus would apply it, I would love to see the above code in
-> asm/types.h or linux/kernel.h or similarly popular headers.
-> 
-> But...   my patch is merely a small step, a "nudge" as I mentioned.  I
-> don't want to annhilate the glibc developers with a sudden task, just a
-> nudge :)
+Richard Gooch wrote:
+> Please test this change on a libc5 system before unleashing a
+> potential horror. All the world *is not* glibc!
 
-Please test this change on a libc5 system before unleashing a
-potential horror. All the world *is not* glibc!
+(1) This is a devel series, the time for such changes, and (2) and it's
+easy enough for libc5 systems to include their own sanitized copy of
+kernel headers just like MDK, RHAT, and others are doing now for glibc.
 
-				Regards,
+	Jeff
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

@@ -1,102 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281009AbRLQQO7>; Mon, 17 Dec 2001 11:14:59 -0500
+	id <S281160AbRLQQLT>; Mon, 17 Dec 2001 11:11:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281005AbRLQQOu>; Mon, 17 Dec 2001 11:14:50 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:5822 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S281129AbRLQQOb>; Mon, 17 Dec 2001 11:14:31 -0500
-Message-ID: <3C1E19E7.88C62DAC@redhat.com>
-Date: Mon, 17 Dec 2001 11:14:31 -0500
-From: Bob Matthews <bmatthews@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Cerberus testing of 2.4.17-rc1
-In-Reply-To: <3C1A6E09.497899C7@redhat.com>
+	id <S281129AbRLQQLJ>; Mon, 17 Dec 2001 11:11:09 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:17200 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281077AbRLQQK5>; Mon, 17 Dec 2001 11:10:57 -0500
+Date: Mon, 17 Dec 2001 17:10:18 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Benjamin LaHaise <bcrl@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mempool design
+Message-ID: <20011217171018.D2431@athlon.random>
+In-Reply-To: <20011215134711.A30548@redhat.com> <Pine.LNX.4.33.0112152235340.26748-100000@localhost.localdomain> <20011217160426.U2431@athlon.random> <20011217083802.A25219@hq2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011217083802.A25219@hq2>; from yodaiken@fsmlabs.com on Mon, Dec 17, 2001 at 08:38:02AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Matthews wrote:
- 
-> Hardware:  8 x PIII, 16G RAM, 20G Swap, 2 x Sym53c899.
-> Kernel: 2.4.17-rc1, configured with SMP, HIGHMEM=64G, plus necessary
-> drivers.
+On Mon, Dec 17, 2001 at 08:38:02AM -0700, Victor Yodaiken wrote:
+> On Mon, Dec 17, 2001 at 04:04:26PM +0100, Andrea Arcangeli wrote:
+> > If somebody wants such 1% of ram back he can buy another dimm of ram and
+> > plug it into his hardware. I mean such 1% of ram lost is something that
+> > can be solved by throwing a few euros into the hardware (and people buys
+> > gigabyte boxes anyways so they don't need all of the 100% of ram), the
+> > other complexy cannot be solved with a few euros, that can only be
+> > solved with lots braincycles and it would be a maintainance work as
+> > well. Abstraction and layering definitely helps cutting down the
+> > complexity of the code.
 > 
-> After 10-30 minutes of testing (it's different each time) the machine
-> starts to slow down.  Eventually, the machine appears to stall
-> completely.  The timer for the test harness continues to tick, and I can
-> change virtual consoles, so the machine is not completely hung.  When
-> the machine gets into this state, the test suite stops making progress.
-> Also, input typed to the virtual consoles is not echoed.
-> 
-> <SysRq><P> <T> and <M> print only the column headings, but not any data,
-> so that is as complete a bug report as I can give you at this time.
+> I agree with all your arguments up to here. But being able to run Linux
+> in 4Meg or even 8M is important to a very large class of applications. 
+> Even if you are concerned mostly about bigger systems, making sure NT
+> remains at a serious disadvantage in the embedded boxes is key because
+> MS will certainly hope to use control of SOHO routers, set-top boxes
+> etc to set "standards" that will improve their competitivity in desktop
+> and beyond. It would be a delicious irony if MS were able to re-use
+> against Linux the "first control low end" strategy that allowed them 
+> vaporize the old line UNIXes, but irony is not as satisfying as winning.
 
-The machine never made any more observable progress, and eventually
-oopsed after approx. 48 hours.
+I may been misleading mentionin a 1%, the 1% doesn't mean a 1% of ram is
+wasted (otherwise adding a new dimm couldn't solve it because you would
+waste even more ram :). As Ingo also mentioned, it's a fixed amount of
+ram that is wasted in the mempool.
 
-invalid operand: 0000
-CPU:    5
-EIP:    0010:[<c012c082>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: c6000000   ecx: c600001c   edx: d35e3bdc
-esi: d35e3bdc   edi: 00000013   ebp: 00000002   esp: f6bf9d80
-ds: 0018   es: 0018   ss: 0018
-Process memtst (pid: 854, stackpage=f6bf9000)
-Stack: 00000020 000001d2 00000006 00000020 c012c124 0000002c c02f9bd0
-00000006 
-       000001d2 c02f9bd0 00000000 c012c18c 00000020 f6bf8000 000001d2
-c02f9bd0 
-       c012ca3e 00000000 00000000 c02f9ca8 0000021f 00000000 00000010
-c012ccab 
-Call Trace: [<c012c124>] [<c012c18c>] [<c012ca3e>] [<c012ccab>]
-[<c012d2d4>] 
-   [<c012272b>] [<c0122776>] [<c0122ce4>] [<c0110237>] [<c010b55a>]
-[<c01125aa>] 
-   [<c019e1dc>] [<c0118f0d>] [<c011bf36>] [<c011c186>] [<c0113559>]
-[<c01123f0>] 
-   [<c010700c>] 
-Code: 0f 0b 8d b6 00 00 00 00 8d bf 00 00 00 00 8b 43 18 a9 80 00 
+For very low end machines you can simply define a very small mempool, it
+will potentially reduce scalability during heavy I/O with mem shortage
+but it will waste very very little ram (potentially in the simpler case
+you only need 1 entry in the pool to guarantee deadlock avoidance).  And
+there's nearly nothing to worry about, we always had those mempools
+since 2.0 at least, look at buffer.c and search for the async argument
+to the functions allocating the bhs. Now with the bio we have more
+mempools because lots of people still uses the bh, so in the short term
+(before 2.6) we can waste some more byte, but once the bh and
+ll_rw_block will be dead most of the bio overhead will go away and we'll
+only hold the advantages of doing I/O in more than one page with a
+single metadata entity (2.6). The other obvious advantage of the mempool
+code is that we share it across all the mempool users, so we'll save
+some byte of icache too by avoiding code duplication compared to 2.4 too :).
 
->>EIP; c012c082 <refill_inactive+a2/100>   <=====
-Trace; c012c124 <shrink_caches+44/80>
-Trace; c012c18c <try_to_free_pages+2c/50>
-Trace; c012ca3e <balance_classzone+5e/1b0>
-Trace; c012ccab <__alloc_pages+11b/180>
-Trace; c012d2d4 <read_swap_cache_async+64/a0>
-Trace; c012272b <swapin_readahead+3b/50>
-Trace; c0122776 <do_swap_page+36/180>
-Trace; c0122ce4 <handle_mm_fault+a4/120>
-Trace; c0110237 <smp_call_function_interrupt+27/40>
-Trace; c010b55a <call_call_function_interrupt+5/b>
-Trace; c01125aa <do_page_fault+1ba/580>
-Trace; c019e1dc <batch_entropy_process+ac/b0>
-Trace; c0118f0d <__run_task_queue+5d/70>
-Trace; c011bf36 <update_wall_time+16/50>
-Trace; c011c186 <timer_bh+36/2b0>
-Trace; c0113559 <schedule+459/510>
-Trace; c01123f0 <do_page_fault+0/580>
-Trace; c010700c <error_code+34/3c>
-Code;  c012c082 <refill_inactive+a2/100>
-00000000 <_EIP>:
-Code;  c012c082 <refill_inactive+a2/100>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012c084 <refill_inactive+a4/100>
-   2:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
-Code;  c012c08a <refill_inactive+aa/100>
-   8:   8d bf 00 00 00 00         lea    0x0(%edi),%edi
-Code;  c012c090 <refill_inactive+b0/100>
-   e:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  c012c093 <refill_inactive+b3/100>
-  11:   a9 80 00 00 00            test   $0x80,%eax
+Infact the solution 2) cannot solve your 4M/8M boot problem either,
+since such memory would need to be resrved anyways, and it could act
+only as clean filesystem cache. So in short the only difference between 1) and
+2) would be a little more of fs cache in solution 2) but with an huge
+implementation complexity and local_save_irq all over the place in the
+VM so with lower performance. It wouldn't make a difference in
+functionality (boot or not boot, this is the real problem you worry
+about :).
 
-
--- 
-Bob Matthews
-Red Hat, Inc.
+Andrea

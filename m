@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTK0Xbo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 18:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTK0Xbo
+	id S261681AbTK0Xee (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 18:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTK0Xee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 18:31:44 -0500
-Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:50865
-	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S261670AbTK0Xbn
+	Thu, 27 Nov 2003 18:34:34 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:59791 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261681AbTK0Xed
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 18:31:43 -0500
-Date: Thu, 27 Nov 2003 15:33:58 -0800
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: APM Suspend Problem
-Message-ID: <20031127233357.GA12525@nasledov.com>
-References: <20031127062057.GA31974@nasledov.com> <1069921674.6691.202.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Nov 2003 18:34:33 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Vladimir Lazarenko <vlad@lazarenko.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9/10 speedtouch glitch
+Date: Fri, 28 Nov 2003 00:01:30 +0100
+User-Agent: KMail/1.5.4
+References: <200311272023.56413.vlad@lazarenko.net> <200311272143.05662.baldrick@free.fr> <200311272339.26205.vlad@lazarenko.net>
+In-Reply-To: <200311272339.26205.vlad@lazarenko.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1069921674.6691.202.camel@gaston>
-User-Agent: Mutt/1.5.4i
-From: Misha Nasledov <misha@nasledov.com>
+Message-Id: <200311280001.30220.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I figured as much, but my laptop still fails to suspend as it did in -test2
-and the 2.4 kernel series.
+On Thursday 27 November 2003 23:39, Vladimir Lazarenko wrote:
+> On Thursday 27 November 2003 21:43, Duncan Sands wrote:
+> > > Dunno if this has been mentioned already, but I have an interesting
+> > > glitch with speedtouch DSL modem. When i compile the driver as module,
+> > > it says registered driver speedtouch, but can not access the device.
+> > >
+> > > However, when i compile the driver in, everything works smoothly and
+> > > nicely. If you need some more testing/information do not hesitate to
+> > > contact me.
+> >
+> > Try the latest hotplug scripts.
+>
+> Using Debian/sid with latest available usbmgr.
+> Tho the module itself loads successfully, just that modem_run isn't able to
+> see the device, I think at that point hotplug has to complete already?
 
-On Fri, Nov 28, 2003 at 09:58:21AM +1100, Benjamin Herrenschmidt wrote:
-> > hdc: start_power_step(step: 0)
-> > hdc: completing PM request, suspend
-> > hda: start_power_step(step: 0)
-> > hda: start_power_step(step: 1)
-> > hda: complete_power_step(step: 1, stat: 50, err: 0)
-> > hda: completing PM request, suspend
-> > hda: Wakeup request inited, waiting for !BSY...
-> > hda: start_power_step(step: 1000)
-> > blk: queue c138fa00, I/O limit 4095Mb (mask 0xffffffff)
-> > hda: completing PM request, resume
-> > hdc: Wakeup request inited, waiting for !BSY...
-> > hdc: start_power_step(step: 1000)
-> > hdc: completing PM request, resume
-> 
-> Those messages are harmless, they just show normal operations
-> of the IDE suspend code. I beleive it's probably time to disable
-> the debug code in there ;)
+What error message do you get exactly?  When running what command?
 
--- 
-Misha Nasledov
-misha@nasledov.com
-http://nasledov.com/misha/
+Thanks,
+
+Duncan.

@@ -1,79 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSKCSX6>; Sun, 3 Nov 2002 13:23:58 -0500
+	id <S262295AbSKCSaT>; Sun, 3 Nov 2002 13:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262312AbSKCSX6>; Sun, 3 Nov 2002 13:23:58 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2052 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262303AbSKCSX5>;
-	Sun, 3 Nov 2002 13:23:57 -0500
-Date: Sun, 3 Nov 2002 08:40:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Naohiko Shimizu <nshimizu@keyaki.cc.u-tokai.ac.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,RFC] Transparent SuperPage Support for 2.5.44
-Message-ID: <20021103074002.GA4189@zaurus>
-References: <20021028105849.424265cb.nshimizu@keyaki.cc.u-tokai.ac.jp>
+	id <S262302AbSKCSaS>; Sun, 3 Nov 2002 13:30:18 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:11013 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262295AbSKCSaS>;
+	Sun, 3 Nov 2002 13:30:18 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp3 
+In-reply-to: Your message of "Sun, 03 Nov 2002 18:36:02 BST."
+             <200211020255.05597.m.c.p@wolk-project.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021028105849.424265cb.nshimizu@keyaki.cc.u-tokai.ac.jp>
-User-Agent: Mutt/1.3.27i
+Date: Mon, 04 Nov 2002 05:36:38 +1100
+Message-ID: <24861.1036348598@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 3 Nov 2002 18:36:02 +0100, 
+Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
+>point me to/send me the fixes/patches you want to see in here please!
+>here we go, -mcp3 for 2.5.45 vanilla.
+> -  KDB 2.3 (no 2.5.45 version available)
 
-> This is a transparent superpage support patch for 2.5.44.
-> Big difference between this patch and 2.4.19 patch is
-> eliminating of automatic dynamic downgrade for superpages.
-> Instead, I place pagesize adjust routine where required.
-> I hope this change minimize the overhead for conventional
-> programs which does not use superpages.
-> 
-> Linux SuperPage patch is transparent for user applications.
-> It will automatically allocate appropriate size of superpages
-> if possible.
-> It does not allocate real strage unless the application
-> really access that area. And it does not allocate memory
-> larger than the application requests.
-> 
-> This patch includes i386, alpha, sparc64 ports.
-> But I could not compile for alpha even with plain 2.5.44, and
-> I don't have sparc64 to test, then only i386 was tested now.
+-rw-r--r--    1 kaos     kaos        73713 Nov  2 04:34 kdb-v2.4-2.5.45-common-1.bz2
+-rw-r--r--    1 kaos     kaos        67799 Nov  2 04:34 kdb-v2.4-2.5.45-i386-1.bz2
 
-How do you swap these 4mb beasts?
-And you need 4mb, physically continuous
-area for this to work, right? How do you
-get that?
-			PavelEnd_of_mail_magic_4294
-# New mail (delim 4464)
-/usr/sbin/sendmail -oem -oi -N failure,delay -R full -- linux@linux.cz << End_of_mail_magic_4464
-Date: Sun, 3 Nov 2002 09:53:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux@linux.cz
-Subject: Re: Komprimovany filesystem ?
-Message-ID: <20021103085349.GB4189@zaurus>
-References: <slrnar9h47.59n.tripie@tripie.tripie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnar9h47.59n.tripie@tripie.tripie>
-User-Agent: Mutt/1.3.27i
-
-
-> Snazim se najit nejaky realtime komprimovany filesystem pro Linux
-> s podporou cteni i zapisu. Mam na mysli neco podobneho, jako byl
-> kdysi Stacker nebo Doublespace pod DOS. Nenasel jsem bohuzel
-> zadny, ktery by byl v soucasne dobe udrzovany a pouzitelny pod
-> jadrem 2.4. Nejvice nadejnym se mi jevi projekt e2compr, bohuzel
-> vsak existuje pouze verze pro jadra 2.2.
-
-e2compr pro 2.4 existuje....
-
-> Jeste lepsim resenim nez specialni komprimovany filesystem by
-> byla komprimovana loop device, podobne reseni jake je pouzito u
-> projektu LoopAES.
-
-To nejde protoze komprese meni velikost
-dat....
- 			PavelEnd_of_mail_magic_4464

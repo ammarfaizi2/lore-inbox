@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266360AbUFZTFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUFZTNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266360AbUFZTFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 15:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbUFZTFP
+	id S266386AbUFZTNX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 15:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266387AbUFZTNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 15:05:15 -0400
-Received: from mxsf24.cluster1.charter.net ([209.225.28.224]:26373 "EHLO
-	mxsf24.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S266360AbUFZTFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 15:05:08 -0400
-Message-ID: <40DDC641.1070403@hbahr.org>
-Date: Sat, 26 Jun 2004 13:53:53 -0500
-From: hab <hab@hbahr.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Sata-Sil bk6-bk8 hangs Maxtor with S-P bridge
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Jun 2004 15:13:23 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:59522 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266386AbUFZTNU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 15:13:20 -0400
+Date: Sat, 26 Jun 2004 21:13:20 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix the cpumask rewrite
+Message-ID: <20040626191320.GA3850@ucw.cz>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <1088268405.1942.25.camel@mulgrave> <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org> <1088270298.1942.40.camel@mulgrave> <Pine.LNX.4.58.0406261044580.16079@ppc970.osdl.org> <20040626182820.GA3723@ucw.cz> <Pine.LNX.4.58.0406261140360.16079@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406261140360.16079@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With Bk6 and beyond I recieve a
-command 0x25 Timeout Stat 0x50 host-stat 0x4  and then a hang in init.
-I can cntl alt del to reboot.
-This is with a Maxtor 6y160po  YAR4,  I also have a Maxtor 6y250P0
+On Sat, Jun 26, 2004 at 11:54:24AM -0700, Linus Torvalds wrote:
 
-Earlier in the boot sequence I recieve a screaming interupt message and
-interupt turned off message for the interupt used by the controller.
+> On Sat, 26 Jun 2004, Vojtech Pavlik wrote:
+> > 
+> > At least input pretty much relies on the fact that bitops don't need
+> > locking and act as memory barriers.
+> 
+> Well, plain test_bit() has always been more relaxed than the others, and
+> has never implied a memory barrier. Only the "test_and_set/clear()" things
+> imply memory barriers.
 
-These work for 2.6.7 and 2.6.7 bk5.
-It works for the ide implementation with the thousands of
+Ouch. I'll have to revisit some code then.
 
-sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
+> What we _could_ do (without changing any existing rules) is to add a
+> "__test_bit()" that is the relaxed version that doesn't do any of the
+> volatile etc. That would match the "__"  versions of the other bit
+> operations.
+> 
+> Then people who know that they use the bits without any volatility issues 
+> can use that one, and let the compiler optimize more. 
+> 
+> Hmm?
+ 
+That makes a lot of sense to me, as we already have the __ variants for
+most of the other bitops already.
 
-messages.
-
-thanks  Hubert
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbTJTBfn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 21:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbTJTBfm
+	id S262373AbTJTBaT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 21:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTJTBaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 21:35:42 -0400
-Received: from dyn-ctb-210-9-246-209.webone.com.au ([210.9.246.209]:11781 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262375AbTJTBfl
+	Sun, 19 Oct 2003 21:30:19 -0400
+Received: from 87.Red-81-38-202.pooles.rima-tde.net ([81.38.202.87]:20778 "EHLO
+	falafell.ghetto") by vger.kernel.org with ESMTP id S262373AbTJTBaQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 21:35:41 -0400
-Message-ID: <3F933BE7.5080700@cyberone.com.au>
-Date: Mon, 20 Oct 2003 11:35:35 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rwhron@earthlink.net
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [BENCHMARK] I/O regression after 2.6.0-test5
-References: <20031020003745.GA2794@rushmore>
-In-Reply-To: <20031020003745.GA2794@rushmore>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Oct 2003 21:30:16 -0400
+Date: Mon, 20 Oct 2003 03:29:14 +0200
+From: Pedro Larroy <piotr@member.fsf.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] D-states in test8
+Message-ID: <20031020012914.GA1315@81.38.200.176>
+Reply-To: piotr@member.fsf.org
+References: <20031019205630.GA1153@81.38.200.176> <20031019160127.191a189a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031019160127.191a189a.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 19, 2003 at 04:01:27PM -0700, Andrew Morton wrote:
+> Pedro Larroy <piotr@member.fsf.org> wrote:
+> >
+> > Process just started to get into D state, all subsequent ps got into D.
+> >  The first that got into D state was mplayer.
+> 
+> This might help.
+> 
+> --- 25/sound/core/pcm_native.c~pcm_native-deadlock-fix	2003-10-19 15:58:31.000000000 -0700
 
 
-rwhron@earthlink.net wrote:
-
->There was about a 50% regression in jobs/minute in AIM7
->database workload on quad P3 Xeon.  The CPU time has not
->gone up, so the extra run time is coming from something
->else.  (I/O or I/O scheduler?)
->
->tiobench sequential reads has a significant regression too.
->
->Regression appears unrelated to filesystem type.
->
->dbench was not affected.
->
->The AIM7 was run on ext2.
->
-
-Yeah I'd say its all due to the IO scheduler. There is a problem
-I'm thinking about how to fix - its the likely cause of this too.
+Thanks. Also thanks to wli for the insight.
 
 
+Regards
+
+-- 
+  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+
+Software patents are a threat to innovation in Europe please check: 
+	http://www.eurolinux.org/     

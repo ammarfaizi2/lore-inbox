@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271606AbTG2MHB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271686AbTG2MHB
+	id S271687AbTG2MHc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271688AbTG2MHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:07:01 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:60399 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271606AbTG2MG4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:06:56 -0400
-Subject: Re: 2.6-test2: gcc-3.3.1 warning.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Kurt Wall <kwall@kurtwerks.com>,
-       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030729102007.GC1286@louise.pinerecords.com>
-References: <1059396053.442.2.camel@lorien>
-	 <20030728225017.GJ32673@louise.pinerecords.com>
-	 <20030729002221.GD263@kurtwerks.com>
-	 <20030729045512.GM32673@louise.pinerecords.com>
-	 <20030729092857.GA28348@werewolf.able.es>
-	 <20030729093521.GA1286@louise.pinerecords.com>
-	 <20030729094820.GC28348@werewolf.able.es>
-	 <20030729095858.GB1286@louise.pinerecords.com>
-	 <20030729101126.GC29124@werewolf.able.es>
-	 <20030729102007.GC1286@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059479661.3118.5.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jul 2003 12:57:52 +0100
+	Tue, 29 Jul 2003 08:07:32 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:41123 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S271687AbTG2MHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:07:25 -0400
+To: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
+Subject: Re: Problems related to DMA or DDR memory on Intel 845 chipset?
+References: <PMEMILJKPKGMMELCJCIGCEIOCDAA.kfrazier@mdc-dayton.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 29 Jul 2003 01:14:04 +0200
+In-Reply-To: <PMEMILJKPKGMMELCJCIGCEIOCDAA.kfrazier@mdc-dayton.com>
+Message-ID: <m3u1962qir.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-29 at 11:20, Tomas Szepe wrote:
-> > What is the difference between backporting a patch from 3.3.1-pre to 3.3,
-> > and using 3.3.1-pre directly ? Ah, that you get less bug corrected.
-> 
-> Large.  3.3 is a development series.  It DOES introduce new stuff.
-> 
-> In production environments you definitely want to stick with 3.2.3
-> or (better yet) 2.95.3.
+"Kathy Frazier" <kfrazier@mdc-dayton.com> writes:
 
-3.2 is probably the best, but lots of people are using gcc 3.3 to build
-kernels and so far all the things we've hit have been the stricter
-parser throwing up on technically invalid C in the kernel source/
+> Sorry for the confusion!  My driver sets up our device for a DMA (address
+> and length) and then gives the command
+> for the DMA to start.  Once the device has completed the transfer, it
+> asserts its interrupt, the driver clears it and proceeds to set up the next
+> data transfer.  It runs for awhile, but then eventually hangs (I don't get
+> interrupts and neither does anything else - keyboard, ethernet, etc).  I
+> simply added debug to do_IRQ in the kernel to track the desired IRQ.  I also
+> added a routine to read the 8259 Interrupt Controller Registers when
+> requested.  Then I had a user app and driver which simply called this new
+> new routine in the kernel to return the status of the 8259 and the debug
+> counters I added to do_IRQ.  Once the system failed, this debug information
+> showed that not only was Linux NOT receiving the interrupt, but neither was
+> the 8259.  When I changed my driver to poll the device for DMA completion
+> instead of rely on an interrupt, it still locked up.
 
+I understand this is your device doing DMA (= access) - i.e. your
+PCI card is transfering to/from system RAM? This has nothing to do with
+any UDMA and it works with any Linux kernel and system hardware which
+support PCI.
+
+Are you using some standard PCI bridge by chance? Are you sure it isn't
+a hardware (design or manufacturing) problem with the device (bridge)?
+How do you check interrupt request state?
+-- 
+Krzysztof Halasa
+Network Administrator

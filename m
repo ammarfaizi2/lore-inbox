@@ -1,66 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261314AbREOThp>; Tue, 15 May 2001 15:37:45 -0400
+	id <S261306AbREOTjF>; Tue, 15 May 2001 15:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbREOThf>; Tue, 15 May 2001 15:37:35 -0400
-Received: from geos.coastside.net ([207.213.212.4]:8872 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S261314AbREOThZ>; Tue, 15 May 2001 15:37:25 -0400
-Mime-Version: 1.0
-Message-Id: <p05100316b7272cdfd50c@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
-Date: Tue, 15 May 2001 12:36:32 -0700
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Cc: James Simmons <jsimmons@transvirtual.com>,
+	id <S261316AbREOTiz>; Tue, 15 May 2001 15:38:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:3846 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261306AbREOTif>; Tue, 15 May 2001 15:38:35 -0400
+Message-ID: <3B018587.ACE8BC12@transmeta.com>
+Date: Tue, 15 May 2001 12:37:43 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E14zb68-0002Fq-00@the-village.bc.nu>
+		<Pine.LNX.4.21.0105150803230.1802-100000@penguin.transmeta.com>
+		<20010515200202.A754@nightmaster.csn.tu-chemnitz.de> <200105151931.f4FJVL830847@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:15 AM -0700 2001-05-15, Linus Torvalds wrote:
->The part I absolutely detest is when the information becomes more than
->just "information", and is used to enforce a world-view. Anybody who uses
->physical location for naming devices (ie you have to know where the hell
->the thing is in order to look it up), is so far out to lunch that it's not
->even funny. And the sad fact is that this is pretty much how ALL unixes
->have historically done things ("Oh, you want to see the disk? Sure. It's
->on scsi bus 1, channel 2, ID 3, lun 0, so you just open /dev/s1c3l0 and
->you're done! Easy as pie!").
->
->Keep it informational. And NEVER EVER make it part of the design.
+Richard Gooch wrote:
+> 
+> Ingo Oeser writes:
+> > On Tue, May 15, 2001 at 08:10:29AM -0700, Linus Torvalds wrote:
+> > > and I don't see why we couldn't expose the "driver
+> > > name" for any file descriptor.
+> >
+> > Because we dont like to replace:
+> >
+> >    if (st.device == MAJOR_1)
+> >       bla
+> >    else if ...
+> >
+> > with
+> >
+> >    if (!strcmp(st.device,"driver_1") )
+> >       bla
+> >    else if ...
+> >
+> > ?
+> >
+> > There is no win doing it this way, because every time we add a
+> > new driver that fits or change the name of one, we need add
+> > support for it.
+> 
+> Now look at how we can already do these things with devfs. Let's say
+> I've opened /dev/cdroms/cdrom0 and it's sitting on fd=3.
+> % ls -lF /proc/self/fd/3
+> lrwx------   1 root     root           64 May 15 13:24 /proc/self/fd/3 -> /dev/ide/host0/bus0/target1/lun0/cd
+> 
+> So, in my application I do:
+>         len = readlink ("/proc/self/3", buffer, buflen);
+>         if (strcmp (buffer + len - 2, "cd") != 0) {
+>                 fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+>                 exit (1);
+>         }
+>         if (strncmp (buffer, "/dev/ide", 8) == 0) do_ide (fd);
+>         else if (strncmp (buffer, "/dev/scsi", 9) == 0) do_scsi (fd);
+>         else do_generic (fd);
+> 
+> That's a lot cleaner than relying on magic numbers, IMNSHO.
+> 
 
-What about:
+You know, Richard, this was an example on what *NOT* to do!
 
-1 (network domain). I have two network interfaces that I connect to 
-two different network segments, eth0 & eth1; they're ifconfig'd to 
-the appropriate IP and MAC addresses. I really do need to know 
-physically which (physical) hole to plug my eth0 cable into. 
-(Extension: same situation, but it's a firewall and I've got 12 ports 
-to connect.) (Extension #2: if I add a NIC to the system and reboot, 
-I'd really prefer that the NICs already in use didn't get renumbered.)
+	-hpa
 
-2 (disk domain). I have multiple spindles on multiple SCSI adapters. 
-I want to allocate them to more than one RAID0/1/5 set, with the 
-usual considerations of putting mirrors on different adapters, 
-spreading my RAID5 drives optimally, ditto stripes. I need (eg) SCSI 
-paths to config all this, and I further need real physical locations 
-to identify failed drives that need to be hot-replaced. The mirror 
-members will move around as drives are replaced and hot spares come 
-into play.
-
-Seems like more that merely informational.
-
-(A side observation: PCI or SCSI bus/device/lun/etc paths are not 
-physical locations; you also need external hardware-specific 
-knowledge to be able to talk about real physical locations in a way 
-that does the system operator any good.)
 -- 
-/Jonathan Lundell.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

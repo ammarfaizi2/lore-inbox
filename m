@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbUJYEwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUJYE5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbUJYEwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 00:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUJYEwJ
+	id S261371AbUJYE5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 00:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUJYE5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 00:52:09 -0400
-Received: from HELIOUS.MIT.EDU ([18.238.1.151]:24711 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261376AbUJYEvv (ORCPT
+	Mon, 25 Oct 2004 00:57:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:22916 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261371AbUJYE5b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 00:51:51 -0400
-Date: Mon, 25 Oct 2004 00:53:16 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Fixes for 2.6.10-rc1
-Message-ID: <20041025045316.GF3989@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20041025045108.GD3989@neo.rr.com> <20041025045221.GE3989@neo.rr.com>
+	Mon, 25 Oct 2004 00:57:31 -0400
+Subject: Re: [RFC/PATCH] Per-device parameter support (11/16)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Tejun Heo <tj@home-tj.org>
+Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041023043040.GL3456@home-tj.org>
+References: <20041023043040.GL3456@home-tj.org>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 14:57:29 +1000
+Message-Id: <1098680249.8098.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025045221.GE3989@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#   2004/10/24 23:42:57-04:00 ambx1@neo.rr.com
-#   [PNPBIOS] acpi compile fix
-#   
-#   Allow PNPBIOS to compile if ACPI support is not enabled.
-#   
-#   Signed-off-by: Adam Belay <ambx1@neo.rr.com>
+On Sat, 2004-10-23 at 13:30 +0900, Tejun Heo wrote:
+>  dp_11_module_param_arr.diff
+> 
+>  This is the 11st patch of 16 patches for devparam.
+> 
+>  The unsigned int * @nump of module_param_array is changed back to
+> unsigned int @num, and new sets of macros named module_param_arr*()
+> are added.  These new macros don't take the num argument.  This change
+> is made for two reasons
+> 
+>  1. To be consistent with devparam macros.  In devparam, we'll be
+>     using field name of struct elements, so we won't be able to use
+>     pointer argument.
+>  2. It's more consistent with other moduleparam macros.
+> 
+>  This patch only modifies moduleparam.h and doesn't modify the users
+> of the modified macros.  The next patch takes care of that.  This and
+> the next patch (dp_12_module_param_arr_apply.diff) are optional.
 
-diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
---- a/drivers/pnp/pnpbios/core.c	2004-10-25 00:08:09 -04:00
-+++ b/drivers/pnp/pnpbios/core.c	2004-10-25 00:08:09 -04:00
-@@ -538,11 +538,13 @@
- 		return -ENODEV;
- 	}
- 
-+#ifdef CONFIG_ACPI
- 	if (!acpi_disabled) {
- 		pnpbios_disabled = 1;
- 		printk(KERN_INFO "PnPBIOS: Disabled by ACPI\n");
- 		return -ENODEV;
- 	}
-+#endif /* CONFIG_ACPI */
- 
- 	/* scan the system for pnpbios support */
- 	if (!pnpbios_probe_system())
+It's finely balanced, but the module_param macro only skips the "&"
+because it turns it into a name.  module_param_named() should probably
+be changed to take a ptr too.  But you'll get a warning if you use the
+interface wrong, so it's not a huge issue.
+
+The balance is tipped here I think because the massive number of
+functions we're starting to sprout into.
+
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

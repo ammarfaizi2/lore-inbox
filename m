@@ -1,112 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVBWUT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVBWUWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVBWUT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVBWUT6
+	id S261568AbVBWUWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVBWUWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:19:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58774 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261558AbVBWUTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:19:22 -0500
-Date: Wed, 23 Feb 2005 12:19:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Always send siginfo for synchronous signals
-Message-ID: <20050223201903.GF21662@shell0.pdx.osdl.net>
-References: <421C25BE.1090700@goop.org>
+	Wed, 23 Feb 2005 15:22:02 -0500
+Received: from hyperion.affordablehost.com ([12.164.25.86]:28067 "EHLO
+	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
+	id S261558AbVBWUU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 15:20:27 -0500
+Subject: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
+From: Alan Kilian <kilian@bobodyne.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 14:24:33 -0600
+Message-Id: <1109190273.9116.307.camel@desk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421C25BE.1090700@goop.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - bobodyne.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Valgrind is critically dependent on getting siginfo with its synchronous
-> (caused by an instruction fault) signals; if it gets, say, a SIGSEGV
-> which doesn't have siginfo, it must terminate ASAP because it really
-> can't make any more progress without knowing what caused the SIGSEGV.
-> 
-> The trouble is that if some other completely unrelated program the user
-> is running at the time builds up a large queue of pending signals for
-> some reason (as KDE seems to on SuSE 9.2), it will cause Valgrind to
-> fail for that user, apparently inexplicably.
 
-It's not quite inexplicable.  It means that task has hit its limit for
-pending signals ;-)  But I agree, this should be fixed.  I think I had
-tested this with broken test cases, thanks for catching.
 
-> --- local-2.6.orig/kernel/signal.c	2005-02-22 20:35:30.000000000 -0800
-> +++ local-2.6/kernel/signal.c	2005-02-22 20:43:16.000000000 -0800
-> @@ -136,6 +136,10 @@ static kmem_cache_t *sigqueue_cachep;
->  #define SIG_KERNEL_IGNORE_MASK (\
->          M(SIGCONT)   |  M(SIGCHLD)   |  M(SIGWINCH)  |  M(SIGURG)    )
->  
-> +#define SIG_KERNEL_SYNC_MASK (\
-> +	M(SIGSEGV)   |  M(SIGBUS)    | M(SIGILL)     |  M(SIGFPE)    | \
-> +	M(SIGTRAP) )
-> +
->  #define sig_kernel_only(sig) \
->  		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_ONLY_MASK))
->  #define sig_kernel_coredump(sig) \
-> @@ -144,6 +148,8 @@ static kmem_cache_t *sigqueue_cachep;
->  		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_IGNORE_MASK))
->  #define sig_kernel_stop(sig) \
->  		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_STOP_MASK))
-> +#define sig_kernel_sync(sig) \
-> +		(((sig) < SIGRTMIN)  && T(sig, SIG_KERNEL_SYNC_MASK))
->  
->  #define sig_user_defined(t, signr) \
->  	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
-> @@ -260,11 +266,12 @@ next_signal(struct sigpending *pending, 
->  	return sig;
->  }
->  
-> -static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
-> +static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags, int always)
+    Folks,
 
-maybe force_info instead of always?
+	This group was instrumental in helping me get my first-ever
+	linux/PCI-bus device driver working last year, and I'm back for
+	some more help if you are willing.
 
->  {
->  	struct sigqueue *q = NULL;
->  
-> -	if (atomic_read(&t->user->sigpending) <
-> +	if (always || 
-> +	    atomic_read(&t->user->sigpending) <
->  			t->signal->rlim[RLIMIT_SIGPENDING].rlim_cur)
->  		q = kmem_cache_alloc(sigqueue_cachep, flags);
->  	if (q) {
-> @@ -777,6 +784,7 @@ static int send_signal(int sig, struct s
->  {
->  	struct sigqueue * q = NULL;
->  	int ret = 0;
-> +	int always;
+	I have a PCI card that generates an interrupt when it completes
+	a DMA transfer to the PCs RAM.
 
-Could we call it force_info?
+	This works just fine on a Dell 4400 running 2.6.10-1.766_FC3
 
->  	/*
->  	 * fast-pathed signals for kernel-internal things like SIGSTOP
-> @@ -785,6 +793,13 @@ static int send_signal(int sig, struct s
->  	if ((unsigned long)info == 2)
->  		goto out_set;
->  
-> +	/* Always attempt to send siginfo with an unblocked
-> +	   fault-generated signal. */
-> +	always = sig_kernel_sync(sig) &&
-> +		!sigismember(&t->blocked, sig) &&
+	When I try to run the driver on a Dell 2300 FC2/2.6.5-1.358smp
+	or a Sun W2100Z running FC2/2.6.10-1.14_FC2smp I can see the
+	DMA-done bit set in the device, but my interrupt service routine
+	never gets called.
 
-Aren't these already unblocked?
+	On the Sun, I booted with "noapic" option, and it booted OK,
+	but then when my device generated an interrupt, there was a
+	kernel message about Disabling IRQ #5 and the system was hung
+	solidly.
 
-> +		(unsigned long)info > 2 &&
-> +		info->si_code > SI_USER;
+	I think this has something to do with the different interrupt
+	hardware on the more advanced servers compared to my desktop
+	Dell 4400, and I somehow need to "enable" the IOAPIC system
+	so that my interrupt gets through to my service routine, but I
+	don't know how.
 
-In what case is != SI_KERNEL OK?
+	I tried grepping through the kernel/drivers source, and I didn't
+	find anything that jumped out at me.
 
-thanks,
--chris
+	The Rubini drivers book didn't help in this area either, 
+	although it's a wonderful book in other areas.
+
+	I can post source somewhere if it will help.
+
+	I can also post the essential bits from /var/log/messages about
+	all the incredibly complicated IOAPIC configuration stuff.
+
+	Thank you for your past help, and thank you in advance for any
+	tips you can provide.
+
+				-Alan
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+- Alan Kilian <kilian(at)bobodyne.com>
+
+

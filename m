@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268762AbUIQNpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268765AbUIQNrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268762AbUIQNpY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 09:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268756AbUIQNpY
+	id S268765AbUIQNrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 09:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268764AbUIQNrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 09:45:24 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:22290 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S268760AbUIQNoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 09:44:30 -0400
-Message-ID: <414AEB5E.30803@hist.no>
-Date: Fri, 17 Sep 2004 15:49:18 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 17 Sep 2004 09:47:55 -0400
+Received: from holomorphy.com ([207.189.100.168]:29100 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268757AbUIQNrs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 09:47:48 -0400
+Date: Fri, 17 Sep 2004 06:47:37 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrea Arcangeli <andrea@novell.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, an.li.wang@intel.com
-Subject: Re: truncate shows non zero data beyond the end of the inode with
- MAP_SHARED
-References: <20040915122920.GA4454@dualathlon.random> <20040915210106.GX9106@holomorphy.com> <20040915145524.079a8694.akpm@osdl.org> <20040915220016.GC9106@holomorphy.com> <20040915220819.GF15426@dualathlon.random> <4149539D.9070001@hist.no> <20040916142638.GW15426@dualathlon.random>
-In-Reply-To: <20040916142638.GW15426@dualathlon.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040917134737.GS9106@holomorphy.com>
+References: <20040915151815.GA30138@elte.hu> <20040917103945.GA19861@elte.hu> <20040917132641.GR15426@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040917132641.GR15426@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Fri, Sep 17, 2004 at 12:39:45PM +0200, Ingo Molnar wrote:
+>> task not migrating to another CPU within the BLK critical section?
 
->On Thu, Sep 16, 2004 at 10:49:33AM +0200, Helge Hafting wrote:
->  
->
->>Could this "garbage" possibly be confidential data?
->>    
->>
->
->I don't buy much in this theory.
->
->  
->
->>I.e. one user repeatedly makes and mmaps a 1-byte file,
->>extends it to 4k, and looks at the 4095 bytes of "garbage".
->>Maybe he finds some "interesting stuff" when someone else's
->>confidential file just got dropped from pagecache
->>so he could mmap this 1-byte file?
->>    
->>
->
->the old data got flushed below the i_size anyways, it sounds very
->strange that confidential data is present only over the i_size and not
->below the i_size, and if this guy has confidential data below the i_size
->then it'd better memset the whole page. And in theory nobody should touch
->the data over the i_size even if mmap allows to map it.
->  
->
-I am not talking about someone  accidentally stumbling onto
-something.  I was worried about someone deliberately
-trying to exploit this - such people look at data above i_size
-_because they can_, hoping to find something interesting there.
-Something they cannot get at normally.
+On Fri, Sep 17, 2004 at 03:26:41PM +0200, Andrea Arcangeli wrote:
+> I very much doubt, I'd expect this to work, but it really should be a
+> config option if you don't open 2.7. This is the kind of thing that
+> cannot happen in a 2.6.* release without a config option to leave off in
+> production IMHO since it can have implications well outside the mainline
+> kernel (every driver outside the kernel would be affected too).
 
-I am assuming that the "garbage" between i_size and the
-page boundary is stuff left over from whatever that
-memory page was used for earlier?  If so, it could be
-4095 bytes out of the 4096 that was used to cache some
-other file earlier.  Possibly someone else's confidential file. 
-Or a piece of some network package that was processed a while ago.
-
-Helge Hafting
+IMHO this would be more likely to fix bugs than introduce them so long
+as the BKL is acquired before spinlocks in all instances. There are
+many instances where scheduling under the BKL is inadvertent and thus
+racy, but very few (if any) where the BKL is an inner lock or a holder
+of the BKL yields so something that will wake it can acquire the BKL.
 
 
+-- wli

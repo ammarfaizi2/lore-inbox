@@ -1,37 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129569AbRCEQyX>; Mon, 5 Mar 2001 11:54:23 -0500
+	id <S129638AbRCERMe>; Mon, 5 Mar 2001 12:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129458AbRCEQyE>; Mon, 5 Mar 2001 11:54:04 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:52619 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129449AbRCEQx4>;
-	Mon, 5 Mar 2001 11:53:56 -0500
-Date: Mon, 5 Mar 2001 17:53:48 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103051653.RAA72776.aeb@vlet.cwi.nl>
-To: cr@sap.com, matti.aarnio@zmailer.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Cc: linux-kernel@vger.kernel.org
+	id <S129772AbRCERMY>; Mon, 5 Mar 2001 12:12:24 -0500
+Received: from ns.suse.de ([213.95.15.193]:27911 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129638AbRCERMN>;
+	Mon, 5 Mar 2001 12:12:13 -0500
+To: Paul Flinders <P.Flinders@ftel.co.uk>
+Cc: Jeff Mcadams <jeffm@iglou.com>, Rik van Riel <riel@conectiva.com.br>,
+        John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <20010305095512.A30787@tux.gsfc.nasa.gov>
+	<Pine.LNX.4.21.0103051224450.5591-100000@imladris.rielhome.conectiva>
+	<20010305105943.A25964@iglou.com> <3AA3BC4E.FA794103@ftel.co.uk>
+X-Yow: Were these parsnips CORRECTLY MARINATED in TACO SAUCE?
+From: Andreas Schwab <schwab@suse.de>
+Date: 05 Mar 2001 18:12:05 +0100
+In-Reply-To: <3AA3BC4E.FA794103@ftel.co.uk>
+Message-ID: <jeae70m97e.fsf@hawking.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.99
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> For 2.5 we could perhaps think about a new swapfile layout
+Paul Flinders <P.Flinders@ftel.co.uk> writes:
 
-> The format seems to be just fine.
+|> Jeff Mcadams wrote:
+|> 
+|> > Also sprach Rik van Riel
+|> > >On Mon, 5 Mar 2001, John Kodis wrote:
+|> > >> On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
+|> > >> > Somebody must have missed the boat entirely. Unix does not, never
+|> > >> > has, and never will end a text line with '\r'.
+|> >
+|> > >> Unix does not, never has, and never will end a text line with ' ' (a
+|> > >> space character) or with \t (a tab character).  Yet if I begin a
+|> > >> shell script with '#!/bin/sh ' or '#!/bin/sh\t', the training white
+|> > >> space is striped and /bin/sh gets exec'd.  Since \r has no special
+|> > >> significance to Unix, I'd expect it to be treated the same as any
+|> > >> other whitespace character -- it should be striped, and /bin/sh
+|> > >> should get exec'd.
+|> >
+|> > >Makes sense, IMHO...
+|> >
+|> > That only makes sense if:
+|> > #!/bin/shasdf\n
+|> > would also exec /bin/sh.
+|> 
+|> POSIX disagrees with you (accd to the manual page)
+|> 
+|> $ man isspace
 
-No, the present definition is terrible.
+This has no significance here.  The right thing to look at is $IFS, which
+does not contain \r by default.  The shell only splits words by "IFS
+whitespace", and the kernel should be consistent with it:
 
-Read the mkswap source. A forest of #ifdefs,
-and still sometimes user assistance is required
-because mkswap cannot always figure out what the "pagesize" is.
+$ echo -e 'ls foo\r' | sh
+ls: foo: No such file or directory
 
-There are two main problems:
-(i) "new" swap is hardly larger than "old" swap
-(ii) the unit in which new swap is measured is a mystery
+Andreas.
 
-So, the next swap space has (i) a signature "SWAPSPACE3",
-(ii) (not strictly necessary) a size given as a 64-bit number in bytes.
-Moreover, the swapon call must not refuse swapspaces
-that are larger than the kernel can handle.
-
-Andries
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

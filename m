@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282147AbRLDGRS>; Tue, 4 Dec 2001 01:17:18 -0500
+	id <S282183AbRLDGUi>; Tue, 4 Dec 2001 01:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282165AbRLDGRI>; Tue, 4 Dec 2001 01:17:08 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:26023 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S282147AbRLDGQ6>; Tue, 4 Dec 2001 01:16:58 -0500
-Date: Tue, 4 Dec 2001 01:16:55 -0500 (EST)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: safemode <safemode@speakeasy.net>
-cc: real <haxmail@subdimension.com>, linux-kernel@vger.kernel.org
-Subject: Re: Compilation error with Kernels 2.4.16 && 2.5.X
-In-Reply-To: <1007442642.5959.1.camel@psuedomode>
-Message-ID: <Pine.A41.4.21L1.0112040113310.59820-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282203AbRLDGU2>; Tue, 4 Dec 2001 01:20:28 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:7176 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S282183AbRLDGUR>; Tue, 4 Dec 2001 01:20:17 -0500
+Date: Tue, 4 Dec 2001 00:19:57 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: MIDN Sean Jones <m053546@usna.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible bugs
+Message-ID: <20011204001957.A31869@asooo.flowerfire.com>
+In-Reply-To: <1007332194.11790.0.camel@Eagle.usna.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <1007332194.11790.0.camel@Eagle.usna.edu>; from m053546@usna.edu on Sun, Dec 02, 2001 at 05:29:52PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upon further investigation this is related to the specific version of
-binutils used in linking the kernel after compilation. Please see
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=122179&repeatmerged=yes
-for more details. Additionally, not all kernel .configs will trigger
-it. The USB segment is definitely in a common point, though. 2.2 kernels
-don't seem to exhibit it; but any 2.4 with certain .configs will.
+There was a patch sent a month or so ago that removed disable_ida_dma.
+I usually apply cleanups like this, but it's a toss-up whether it's
+worth it.  Maybe these functions should be removed from 2.5 until
+someone complains.
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+-- 
+Ken.
+brownfld@irridia.com
 
-On 4 Dec 2001, safemode wrote:
-
-> On Mon, 2001-12-03 at 09:54, real wrote:
-> > drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols 
-> > in discarded section .text.exit'
-> > drivers/net/net.o(.data+0xbb4): undefined reference to `local symbols in 
-> > discarded section .text.exit'
-> > drivers/sound/sounddrivers.o(.data+0xb4): undefined reference to `local 
-> > symbols in discarded section .text.exit'
-> > drivers/usb/usbdrv.o(.data+0x234): undefined reference to `local symbols 
-> > in discarded section .text.exit'
-> > make: *** [vmlinux] Error 1
-> 
-> Same here.  How many other people are finding this to be a problem?   
-> same problem with 2.4.17-pre2  
-
+On Sun, Dec 02, 2001 at 05:29:52PM -0500, MIDN Sean Jones wrote:
+| I was looking for code to cleanup and found these warnings:
+| 
+| (from 2.4.17-pre2)
+| 
+| dmi_scan.c:195: warning: `disable_ide_dma' defined but not used
+| agpgart_be.c:524: warning: `agp_generic_create_gatt_table' defined but
+| not used
+| agpgart_be.c:652: warning: `agp_generic_free_gatt_table' defined but not
+| used
+| agpgart_be.c:700: warning: `agp_generic_insert_memory' defined but not
+| used
+| agpgart_be.c:758: warning: `agp_generic_remove_memory' defined but not
+| used
+| parport_pc.c:1784: warning: `parport_ECP_supported' defined but not used
+| 
+| Are these functions supposed to be there or are they leftovers from
+| previous modifications.
+| 
+| Thanks,
+| 
+| Sean Jones
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,72 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbVCaA6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVCaBJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbVCaA6f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 19:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVCaA6f
+	id S262569AbVCaBJu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 20:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVCaBJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 19:58:35 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:52690 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262677AbVCaA6X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 19:58:23 -0500
-In-Reply-To: <20050330233825.GS17420@devserv.devel.redhat.com>
-References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost> <d2er4p$qp$1@sea.gmane.org> <424AFA98.9080402@grupopie.com> <aae129062f1e3992c8ec025d5f239be9@mac.com> <20050330233825.GS17420@devserv.devel.redhat.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <e8fc51864bab0a24b04af9867d748f5f@mac.com>
+	Wed, 30 Mar 2005 20:09:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38872 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262569AbVCaBJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 20:09:45 -0500
+Message-ID: <424B4DCB.2040805@pobox.com>
+Date: Wed, 30 Mar 2005 20:09:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dbrownell@users.sourceforge.net, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] USB: usbnet uses netif_msg_*() ethtool filtering
+References: <200503302319.j2UNJEBP019719@hera.kernel.org> <424B44C3.4040804@pobox.com> <200503301650.17486.david-b@pacbell.net>
+In-Reply-To: <200503301650.17486.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Paulo Marques <pmarques@grupopie.com>, akpm@osdl.org,
-       Shankar Unni <shankarunni@netscape.net>, linux-kernel@vger.kernel.org,
-       bunk@stusta.de, khali@linux-fr.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Not a GCC bug (was Re: Big GCC bug!!! [Was: Re: Do not misuse Coverity please])
-Date: Wed, 30 Mar 2005 19:58:01 -0500
-To: Jakub Jelinek <jakub@redhat.com>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 30, 2005, at 18:38, Jakub Jelinek wrote:
-> This testcase violates ISO C99 6.3.2.3:
-> If a null pointer constant is converted to a pointer type, the 
-> resulting
-> pointer, called a null pointer, is guaranteed to compare unequal to a
-> pointer to any object or function.
+David Brownell wrote:
+> On Wednesday 30 March 2005 4:30 pm, Jeff Garzik wrote:
+> 
+>>Linux Kernel Mailing List wrote:
+>>
+>>>ChangeSet 1.2181.4.72, 2005/03/24 15:31:29-08:00, david-b@pacbell.net
+>>>
+>>>	[PATCH] USB: usbnet uses netif_msg_*() ethtool filtering
+>>>	
+>>>	This converts most of the usbnet code to actually use the ethtool
+>>>	message flags.  The ASIX code is left untouched, since there are
+>>>	a bunch of patches pending there ... that's where the remaining
+>>>	handful of "sparse -Wbitwise" warnings come from.
+>>>	
+>>>	Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+>>>	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+>>
+>>It would be nice if people at least CC'd me on net driver patches.
+> 
+> 
+> Sorry.  When drivers fit multiple classifications (e.g. USB _and_ NET,
+> or USB _and_ PCI _and_ PM, etc) it's unfortunately routine that not all
+> interested parties see them until something hits LKML.  Even when the
+> changes have significant cross-subsystem impact (these don't).
 
-Except that the result of dereferencing a null pointer is implementation
-defined according to the C99 standard.  My implementation allows me to 
-mmap
-stuff at NULL, and therefore its compiler should be able to handle that
-case.  I would have no problem with either the standard or 
-implementation
-if it either properly handled the case or didn't allow it in the first
-place.
+I don't care who merges the patches -- presumably the current system 
+works just fine -- but netdev@oss.sgi.com and I should be reviewing the 
+patches.
 
-On another note, I've discovered the flag 
-"-fno-delete-null-pointer-checks",
-which should probably be included in the kernel makefiles to disable 
-that
-optimization for the kernel.  (Ok, yes, I apologize, this isn't really 
-a GCC
-bug, the behavior is documented, although it can be quite confusing.  I
-suspect it may bite some platform-specific code someday.  It also 
-muddies
-the waters somewhat with respect to the original note (and the effects 
-on
-the generated code):
 
-> int x = my_struct->the_x;
-> if (!my_struct) return;
+>>netfi_msg_ifdown() is only for __interface__ up/down events; as such, 
+>>there should be only one message of this type in dev->open(), and one 
+>>message of this type in dev->stop().
+> 
+> 
+> I was going by the only writeup I've ever seen, which doesn't mention
+> such a rule at all.  The messages you highlighted are compatible with
+> these rules:  the interface is actually going down at that point.
+> 
+>   http://www.tux.org/hypermail/linux-vortex/2001-Nov/0021.html
+> 
+> If there are other rules, they belong in Documentation/netif-msg.txt
+> don't they?  That way folk won't be forced to guess.  Or risk
+> accidentally following the "wrong" set of rules...
 
-Cheers,
-Kyle Moffett
+I don't see from the code that the struct net_device interface is going 
+down (via dev->stop) at that point.  Am I mistaken?
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Moreover, if you look at any other user of netif_msg_if{up,down}, you 
+will see that it does not produce multiple lines of status register 
+information opaque to anyone but the programmer.  Its not a debugging 
+message, but something a user should feel comfortable enabling (if not 
+enabled by default).
+
+
+>>>@@ -3044,7 +3047,7 @@
+>>> 
+>>> 	memset(urb->transfer_buffer, 0, urb->transfer_buffer_length);
+>>> 	status = usb_submit_urb (urb, GFP_ATOMIC);
+>>>-	if (status != 0)
+>>>+	if (status != 0 && netif_msg_timer (dev))
+>>> 		deverr(dev, "intr resubmit --> %d", status);
+>>> }
+>>> 
+>>
+>>this looks more like a debugging message?
+> 
+> 
+> It's an error of the "what do I do now??" variety, triggered by
+> what's effectively a timer callback.  USB interrupt transfers
+> are polled by the host controller according to a schedule that's
+> maintained by the HCD.
+
+The above example seems more like netif_msg_tx_err() or even just KERN_ERR ?
+
+	Jeff
 
 

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131271AbRCHEhr>; Wed, 7 Mar 2001 23:37:47 -0500
+	id <S131266AbRCHEZq>; Wed, 7 Mar 2001 23:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131270AbRCHEh2>; Wed, 7 Mar 2001 23:37:28 -0500
-Received: from d147.as5200.mesatop.com ([208.164.122.147]:50056 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131267AbRCHEhS>; Wed, 7 Mar 2001 23:37:18 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Wed, 7 Mar 2001 21:40:26 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: dahinds@users.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] remove CONFIG_PCMCIA_SERIAL_CB from Configure.help
+	id <S131267AbRCHEZg>; Wed, 7 Mar 2001 23:25:36 -0500
+Received: from munk.apl.washington.edu ([128.95.96.184]:37904 "EHLO
+	munk.apl.washington.edu") by vger.kernel.org with ESMTP
+	id <S131266AbRCHEZ2>; Wed, 7 Mar 2001 23:25:28 -0500
+Date: Wed, 7 Mar 2001 20:21:06 -0800 (PST)
+From: Brian Dushaw <dushaw@munk.apl.washington.edu>
+To: <linux-kernel@vger.kernel.org>
+cc: Brian Dushaw <dushaw@munk.apl.washington.edu>
+Subject: Linux kernel - and regular sync'ing?
+Message-ID: <Pine.LNX.4.30.0103071959050.17257-100000@munk.apl.washington.edu>
 MIME-Version: 1.0
-Message-Id: <01030721402601.02555@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears that use of CONFIG_PCMCIA_SERIAL_CB was removed in
-2.4.2-ac12.  The two files affected were Config.in  and the Makefile 
-in drivers/char/pcmcia.  
+Hey There Kernel-people!
+   I have a disk accessing question you may be able to help me with,
+if I may be so bold....
+   I have a notebook computer, and in the interests of saving power
+I am trying to get its disk to go into suspend mode (hdparm -S 6 /dev/hda,
+say...)  However, something seems to be continuously accessing the disk
+at irregular intervals of 10-30 seconds, most likely calls to sync, so
+that the disk never gets to sleep for long.  I've followed advice in the
+various HOWTO's, e.g. modifying the line "ud::once:/sbin/update" in
+/etc/inittab to only sync once an hour, to no avail.  Watching "top", it
+sure looks as if various kernel-based daemons are responsible...nothing
+else is running!
+   Can you offer me any advice?  Any tweeks I can make to tell the system
+that sync'ing only once every 5 minutes is o.k.?
+   I have the 2.4.2 kernel (older kernels behaved the same way) and
+the RedHat 6.2 distribution.
 
-If in fact this option is now history, the reference in Configure.help should also 
-be history.  I noticed this when the number of Configure.help "orphans" increased
-from 40 to 41 recently.
+Thx!
+B.D.
 
-Here is the patch to do this, against 2.4.2-ac14.
+-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Steven
+Brian Dushaw
+Applied Physics Laboratory
+University of Washington
+1013 N.E. 40th Street
+Seattle, WA  98105-6698
+(206) 685-4198   (206) 543-1300
+(206) 543-6785 (fax)
+dushaw@apl.washington.edu
 
---- linux/Documentation/Configure.help.orig     Wed Mar  7 21:13:56 2001
-+++ linux/Documentation/Configure.help  Wed Mar  7 21:14:52 2001
-@@ -2464,20 +2464,6 @@
-   a module, say M here and read Documentation/modules.txt. If unsure,
-   say N.
- 
--CardBus serial device support
--CONFIG_PCMCIA_SERIAL_CB
--  Say Y here to enable support for CardBus serial devices, including
--  serial port cards, modems, and the modem functions of multi-function
--  ethernet/modem devices. (CardBus cards are the newer and better 
--  version of PCMCIA- or PC-cards: credit card size devices often 
--  used with laptops.)
--
--  This driver is also available as a module ( = code which can be
--  inserted in and removed from the running kernel whenever you want).
--  The module will be called serial_cb.o. If you want to compile it as
--  a module, say M here and read Documentation/modules.txt. If unsure,
--  say N.
--
- /dev/agpgart (AGP Support) (EXPERIMENTAL)
- CONFIG_AGP
-   AGP (Accelerated Graphics Port) is a bus system mainly used to
+Web Page:  http://staff.washington.edu/dushaw/index.html
+

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbVAFTn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVAFTnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbVAFTn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVAFTjO
+	id S261166AbVAFTnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbVAFTjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:39:14 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:32426 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261166AbVAFTfz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:35:55 -0500
-Date: Thu, 6 Jan 2005 20:35:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Rik van Riel <riel@redhat.com>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050106193510.GL3096@stusta.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com> <20050103153438.GF2980@stusta.de> <1104767943.4192.17.camel@laptopd505.fenrus.org> <20050104174712.GI3097@stusta.de> <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 6 Jan 2005 14:39:43 -0500
+Received: from alpha.total-knowledge.com ([209.157.135.102]:31436 "EHLO
+	alpha.total-knowledge.com") by vger.kernel.org with ESMTP
+	id S261165AbVAFTgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:36:02 -0500
+Message-ID: <41DD9313.4030105@total-knowledge.com>
+Date: Thu, 06 Jan 2005 11:35:47 -0800
+From: "Ilya A. Volynets-Evenbakh" <ilya@total-knowledge.com>
+Organization: Total Knowledge
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, Ladislav Michl <ladis@linux-mips.org>,
+       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com,
+       linux-mips@linux-mips.org
+Subject: Re: [2.6 patch] 2.6.10-mm2: let I2C_ALGO_SGI depend on MIPS
+References: <20050106002240.00ac4611.akpm@osdl.org> <20050106181519.GG3096@stusta.de> <20050106192701.GA13955@linux-mips.org>
+In-Reply-To: <20050106192701.GA13955@linux-mips.org>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 12:18:26PM -0800, David Lang wrote:
+Ralf Baechle wrote:
 
-> Sorry, I've been useing kernel.org kernels since the 2.0 days and even 
-> within a stable series I always do a full set of tests before upgrading. 
-> every single stable series has had 'paper bag' releases, and every single 
-> one has had fixes to drivers that have ended up breaking those drivers.
-> 
-> the only way to know if a new kernel will work on your hardware is to try 
-> it. It doesn't matter if the upgrade is from 2.4.24 to 2.4.25 or 2.6.9 to 
-> 2.6.10 or even 2.4.24 to 2.6.10
-> 
-> anyone who assumes that just becouse the kernel is in the stable series 
-> they can blindly upgrade their production systems is just dreaming.
+>On Thu, Jan 06, 2005 at 07:15:20PM +0100, Adrian Bunk wrote:
+>
+>  
+>
+>>There's no reason for offering a MIPS-only driver on other architectures 
+>>(even though it does compile).
+>>
+>>Even better dependencies on specific MIPS variables might be possible 
+>>that obsolete this patch, but this patch fixes at least the !MIPS case.
+>>    
+>>
+>
+>Please make that depend on SGI_IP22 || SGI_IP32 instead; the only machines
+>actually using it.
+>
+>Ladis, is VisWS using this algo also?
+>  
+>
+Since MACE is common part, it most likely does.
 
-I was not thinking about a "blindly upgrade".
-
-But the question is if you compile and test a kernel, is it every 
-unlikely or relatively common to observe new problems?
-
-> David Lang
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>  Ralf
+>
+>  
+>
 

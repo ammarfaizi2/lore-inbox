@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUKBMrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbUKBMss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUKBMrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 07:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUKBMrN
+	id S261511AbUKBMss (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 07:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKBMsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 07:47:13 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:18336 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261638AbUKBMp7 (ORCPT
+	Tue, 2 Nov 2004 07:48:22 -0500
+Received: from imag.imag.fr ([129.88.30.1]:42925 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261588AbUKBMr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 07:45:59 -0500
-Date: Tue, 2 Nov 2004 13:46:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] remove interactive credit
-Message-ID: <20041102124648.GF15290@elte.hu>
-References: <418707CD.1080903@kolivas.org> <20041102123746.GB15290@elte.hu> <41878057.9000302@kolivas.org>
+	Tue, 2 Nov 2004 07:47:59 -0500
+Date: Tue, 2 Nov 2004 13:47:48 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working
+Message-ID: <20041102124747.GA21851@linux.ensimag.fr>
+Reply-To: 1099377976.13831.195.camel@d845pe
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41878057.9000302@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040722i
+From: Matthieu Castet <mat@ensilinx1.imag.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Tue, 02 Nov 2004 13:47:51 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Con Kolivas <kernel@kolivas.org> wrote:
-
-> >>remove interactive credit
-> >
-> >we could try this in -mm, but it obviously needs alot of testing first. 
-> >Do you have any particular workload in mind where the fairness win due
-> >to this revert would/should be significant?
+> > I tried that, but w/o bk-acpi.patch, the kernel won't compile, sorry.
+> > I don't have the skills to work around that. I've attached the error
+> > message from "make bzImage".
 > 
-> Since I created this variable in the first place I can say with quite
-> some certainty that the size of the advantage is miniscule. Whereas
-> clearly the design introduces special case mistreatment of only one
-> type of task. It's an addition to the interactivity code I've often
-> looked at and regretted doing.
+> 
+> With the unmodified -mm2 tree, please build with CONFIG_PNPACPI=n
+> and give that a go.
+> 
+Yes the 8042 acpi driver need to be converted to a pnp driver.
 
-yeah, i know, it was the only piece of code from your earlier -Oint
-scheduler-fixup series i almost didnt ack. But now it's in and testing
-needs to cross at least one stable kernel boundary before it can be
-taken out again. (unless a patch is an obvious or important fix.)
+Same apply for the floppy driver and other acpi driver that use standard
+pnp devices.
 
-	Ingo
+For the hpet driver I don't know if we should convert it or add it to
+the blacklist
+
+> thanks,
+> -Len
+> 
+
+Matthieu

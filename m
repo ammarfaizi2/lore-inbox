@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTGKPt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTGKPt2
+	id S263187AbTGKPtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGKPtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:49:28 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:57353 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S263542AbTGKPtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:49:19 -0400
-Date: Fri, 11 Jul 2003 09:03:55 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030711090355.C27491@one-eyed-alien.net>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de>
+	Fri, 11 Jul 2003 11:49:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:19080 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263187AbTGKPtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:49:05 -0400
+Date: Sat, 12 Jul 2003 02:02:14 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm3
+Message-ID: <20030711160214.GH7348@krispykreme>
+References: <20030708223548.791247f5.akpm@osdl.org> <200307101821.h6AIL87u013299@turing-police.cc.vt.edu> <20030711082532.GA432@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030711140219.GB16433@suse.de>; from davej@codemonkey.org.uk on Fri, Jul 11, 2003 at 03:02:19PM +0100
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+In-Reply-To: <20030711082532.GA432@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---XMCwj5IQnwKtuyBG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The v1 ioctl interface passes the dev in as a __kernel_dev_t, so
+> unfortunately if you change the size of __kernel_dev_t you will have
+> to rebuild the tools.
+> 
+> The v4 ioctl interface just uses a __u64 which I hope will be future
+> proof.
 
-On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
-> USB:
-> ~~~~
-> - Very little user visible changes, the only noticable 'major' change
->   is that there is now only one UHCI driver. As noted elsewhere, usbdevfs=
-=20
->   got renamed to usbfs.
+This was the only thing that made the 32bit ioctls different to the 64bit 
+ones on ppc64, so changing it to __u64 is a good thing.
 
-We may want to mention here that usb-storage has changed behavior.  A
-device which is disconnected and then re-connected is not re-associated
-with the old /dev/ node.  Also some performance enhancements.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-I see you've been reading alt.sex.chubby.sheep voraciously.
-					-- Tanya
-User Friendly, 11/24/97
-
---XMCwj5IQnwKtuyBG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/Dt/rIjReC7bSPZARAs9eAJ9xA3vGZBiYqIEa9tqioOK1ykBZugCcDR17
-u4eIs6cmZcHmTzcmp+RtsqA=
-=1VwI
------END PGP SIGNATURE-----
-
---XMCwj5IQnwKtuyBG--
+Anton

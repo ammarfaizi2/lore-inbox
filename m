@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131795AbQLZSEp>; Tue, 26 Dec 2000 13:04:45 -0500
+	id <S129780AbQLZSpU>; Tue, 26 Dec 2000 13:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131952AbQLZSEf>; Tue, 26 Dec 2000 13:04:35 -0500
-Received: from [192.122.208.4] ([192.122.208.4]:62221 "HELO
-	merlot.oragroup.com") by vger.kernel.org with SMTP
-	id <S131950AbQLZSEW>; Tue, 26 Dec 2000 13:04:22 -0500
-Date: Tue, 26 Dec 2000 07:24:39 -0500 (EST)
-From: <indyj@oragroup.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test12: PCMCIA IRQ assignments?
-Message-ID: <Pine.LNX.4.21.0012260719440.29885-100000@merlot.oragroup.com>
+	id <S129803AbQLZSpJ>; Tue, 26 Dec 2000 13:45:09 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12306 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129780AbQLZSo6>; Tue, 26 Dec 2000 13:44:58 -0500
+Date: Tue, 26 Dec 2000 10:14:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tim Wright <timw@splhi.com>, Kai Henningsen <kaih@khms.westfalen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: About Celeron processor memory barrier problem
+In-Reply-To: <E14Ag3l-0000MY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10012261012330.8122-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
 
-I have a Sager NP9820 laptop with an ALI chipset and a TI PCI1251BGFN
-PCMCIA chipset.  For some reason, when I use the yenta module under 2.4.0,
-it gets an incorrect IRQ assignment.  It uses IRQ11, which is also used by
-my ATI Rage Pro card... therefore, when you install this module, the
-machine locks up.
+On Mon, 25 Dec 2000, Alan Cox wrote:
 
-If I use the pcmcia card services under 2.2.16, then the PCMCIA bridge
-gets a correct assignment of IRQ 10.  I've poked around a bit and haven't
-found a way to force the 2.4.0 module to use a specific IRQ... is there a
-way to do this without hardcoding it?
+> > One thing we _could_ potentially do is to simplify the CPU selection a
+> > bit, and make it a two-stage process. Basically have a
+> > 
+> > 	bool "Optimize for current CPU" CONFIG_CPU_CURRENT
+> > 
+> > which most people who just want to get the best kernel would use. Less
+> > confusion that way.
+> 
+> If we do that I'd rather see a make autoconfig that does the lot from
+> proc/pci etc 8)
 
-Otherwise, this is an ideal laptop to run Linux.
+Good point. No point in adding a new config option, we should just have a
+new configurator instead. Of course, it can't handle many of the
+questions, so it would still have to fall back on asking.
 
-Thanks,
---J
+That _would_ be a nice addition eventually. It's a bigger project than the
+one I envisioned, though.
 
-
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

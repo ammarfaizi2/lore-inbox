@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbRF1Xen>; Thu, 28 Jun 2001 19:34:43 -0400
+	id <S265097AbRF1XmE>; Thu, 28 Jun 2001 19:42:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbRF1Xed>; Thu, 28 Jun 2001 19:34:33 -0400
-Received: from spiral.extreme.ro ([212.93.159.205]:640 "HELO spiral.extreme.ro")
-	by vger.kernel.org with SMTP id <S265051AbRF1XeV> convert rfc822-to-8bit;
-	Thu, 28 Jun 2001 19:34:21 -0400
-Date: Fri, 29 Jun 2001 02:36:04 +0300 (EEST)
-From: Dan Podeanu <pdan@spiral.extreme.ro>
-To: f5ibh <f5ibh@db0bm.ampr.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5-ac20, make menuconfig problem
-In-Reply-To: <200106282022.WAA10248@db0bm.ampr.org>
-Message-ID: <Pine.LNX.4.33L2.0106290235440.23538-100000@spiral.extreme.ro>
+	id <S265244AbRF1Xly>; Thu, 28 Jun 2001 19:41:54 -0400
+Received: from four.malevolentminds.com ([216.177.76.238]:46345 "EHLO
+	four.malevolentminds.com") by vger.kernel.org with ESMTP
+	id <S265097AbRF1Xll>; Thu, 28 Jun 2001 19:41:41 -0400
+Date: Thu, 28 Jun 2001 16:41:34 -0700 (PDT)
+From: Khyron <khyron@khyron.com>
+X-X-Sender: <khyron@four.malevolentminds.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: _syscall4, wake_up_interruptible(), and PID table questions
+Message-ID: <Pine.BSF.4.33.0106281440390.39434-100000@four.malevolentminds.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, f5ibh wrote:
+Alright, since my last e-mail generated no interest, I thought
+I'd refine my queries:
 
-> make[4]: Entre dans le répertoire
-> `/usr/src/kernel-sources-2.4.5-ac20/drivers/pnp'
-> gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.4.5-ac20/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
-> -DEXPORT_SYMTAB -c pnp_bios.c
-> pnp_bios.c:252: warning: static declaration for `pnp_bios_dock_station_info'
-> follows non-static
-> pnp_bios.c:432: warning: no semicolon at end of struct or union
+1. wake_up_interruptible()
 
-gcc -v?
+I am reading
+http://www.citi.umich.edu/projects/linux-scalability/reports/accept.html
+and the my question is what solution to the "thundering herd" problem
+was eventually chosen and is implemented in the 2.4.x kernels? Where
+can I find more specific information on this implementation? Source
+code references are welcome.
+
+2. _syscall4
+
+After reading http://www.kegel.com/c10k.html, I have to wonder
+how exactly sendfile() was implemented in the 2.4.x kernels?
+Where in the source can I find information? Is there any published
+documentation on this subject as well?
+
+3. PID table resizing
+
+I understand that it is possible to resize the PID table in the
+2.4.x kernels? Is this true or misinformation? If true, what do
+I need to do? Is this a source edit, a compile-time configuration
+option or a runtime option? If a source edit, which file(s)?
+
+Thanks in advance!
+
+////////////////////////////////////////////////////////////////////
+Khyron					    mailto:khyron@khyron.com
+Key fingerprint = 53BB 08CA 6A4B 8AF8 DF9B  7E71 2D20 AD30 6684 E82D
+			"Drama free in 2001!"
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
 
 

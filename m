@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270991AbTGVSdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270992AbTGVSdl
+	id S270987AbTGVSjn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270988AbTGVSjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:33:41 -0400
-Received: from web41906.mail.yahoo.com ([66.218.93.157]:60597 "HELO
-	web41906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270991AbTGVSdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:33:38 -0400
-Message-ID: <20030722184842.76569.qmail@web41906.mail.yahoo.com>
-Date: Tue, 22 Jul 2003 11:48:42 -0700 (PDT)
-From: Xiaoji Liu <xiaoji14@yahoo.com>
-Subject: 2.6.0-test1: kernel image compile ok, but modules compile failed
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 22 Jul 2003 14:39:43 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:34979
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270987AbTGVSjl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:39:41 -0400
+Date: Tue, 22 Jul 2003 14:54:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Erik Andersen <andersen@codepoet.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+Message-ID: <20030722185443.GB6004@gtf.org>
+References: <20030722184532.GA2321@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722184532.GA2321@codepoet.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jul 22, 2003 at 12:45:33PM -0600, Erik Andersen wrote:
+> Some folk I've done some consulting work for bought a zillion
+> Promise SATA cards.  They were able to convince Promise to
+> release their SATA driver, which was formerly available only as 
+> a binary only kernel module, under the terms of the GPL.
 
-when i compile kernel 2.6.0-test1
-It gave 'parse error' message when compiling file
-drivers/mtd/devices/blkmtd.c
-(around line 700)
+That's definitely nice of the vendor.
 
-I opened the source file and saw this:
+FWIW it does not include any RAID format support.
 
-static int blkmtd_write(struct mtd_info *mtd, loff_t
-to, size_t len,
-size_t *retlen, const u_char *buf)
-{
-mtd_raw_dev_data_t *rawdevice = mtd->priv;
-int err = 0;
-int offset;
-int pagenr;
-size_t len1 = 0, len2 = 0, len3 = 0;
-struct page **pages;
-int pagecnt = 0;
-char b[BDEVNAME_SIZE];
-21 e3
-*retlen = 0;
-DEBUG(2, "blkmtd: write: dev = `%s' to = %ld len = %d
-buf = %p\n",
-bdevname(rawdevice->binding, b), (long int)to, len,
-buf);
+> cards.  As a temporary download location, the GPL'd driver can be
+> obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
 
-/* handle readonly and out of range numbers */
+Bart, Alan, and I have been looking at this.  It uses the ancient CAM
+model, that we don't really want to merge directly in the kernel.  It's
+very close to the libata model, from the user perspective, so life is 
+good.
 
-Notice there is a line : 21 e3
-
-please give some suggestion
-THX
+	Jeff
 
 
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo.
-http://search.yahoo.com

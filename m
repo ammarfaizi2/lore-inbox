@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271719AbRIJVEY>; Mon, 10 Sep 2001 17:04:24 -0400
+	id <S271687AbRIJVLe>; Mon, 10 Sep 2001 17:11:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271718AbRIJVEO>; Mon, 10 Sep 2001 17:04:14 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:11494 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S271687AbRIJVEE>;
-	Mon, 10 Sep 2001 17:04:04 -0400
-Date: Mon, 10 Sep 2001 22:34:57 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
-Message-ID: <20010910223457.A690@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0109101216030.14338-100000@frank.gwc.org.uk> <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca> <20010910093326.A30659@ferret.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.12i
-In-Reply-To: <20010910093326.A30659@ferret.dyndns.org>; from idalton@ferret.dyndns.org on Mon, Sep 10, 2001 at 09:33:26AM -0700
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+	id <S271718AbRIJVLY>; Mon, 10 Sep 2001 17:11:24 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:2821 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271687AbRIJVLP>; Mon, 10 Sep 2001 17:11:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: linux-2.4.10-pre5
+Date: Mon, 10 Sep 2001 23:18:44 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010910211135Z16537-26183+875@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 10, 2001 at 09:33:26AM -0700, idalton@ferret.dyndns.org wrote:
-> Noflushd can be useful in this case, though it needs a patch to
-> include/linux/kernel_stat.h in order to work with more than one
-> IDE disk. More information is at <http://noflushd.sourceforge.net>
+On September 10, 2001 01:24 am, Linus Torvalds wrote:
+> On Sun, 9 Sep 2001, Daniel Phillips wrote:
+> >						  A spin-off benefit
+> > is, the same mechanism could be used to implement a physical readahead
+> > cache which can do things that logical readahead can't.
+> 
+> Considering that 99.9% of all disks do this on a lower hardware layer
+> anyway, I very much doubt it has any good properties to make software more
+> complex by having that kind of readahead in sw.
 
-Tweaking kernel_stat.h is no longer necessary if you're running recent ac.
-Alan merged a patch that exposes significantly more devices to /proc/stat.
-I haven't checked if it went into the 2.4.10 pres as well. Unfortunately, the
-patch also slightly changed the meaning of some of the entries so you'll
-need grab current noflushd-CVS to make it work on the second ide channel.
-Still, you might prefer that to patching the kernel. :)
+Here's some anectdotal evidence to the contrary.
 
-Regards,
+This machine requires about 1.5 seconds to diff two kernel trees if both 
+trees are in cache.  If neither tree is in cache it takes 90 seconds.  It's a 
+total of about 300M of source - reading that into memory should take about 10 
+seconds at 30M/sec, taking one pass across the disk and assuming no extensive 
+fragmentation.
 
-Daniel.
+We lost 78.5 seconds somewhere.  From the sound of the disk drives, I'd say 
+we lost it to seeking, which physical readahead with a large cache would be 
+able to largely eliminate in this case.
 
--- 
-	GNU/Linux Audio Mechanics - http://www.glame.de
-	      Cutting Edge Office - http://www.c10a02.de
-	      GPG Key ID 89BF7E2B - http://www.keyserver.net
+--
+Daniel

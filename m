@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268593AbUHLPv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268596AbUHLPxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268593AbUHLPv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 11:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268595AbUHLPv2
+	id S268596AbUHLPxA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 11:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268597AbUHLPxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 11:51:28 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:13034 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S268593AbUHLPvG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 11:51:06 -0400
-Subject: [PATCH] Remove whitespace from ALI15x3 IDE driver name
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <1092336877.7433.1.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 12 Aug 2004 11:53:00 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24999 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268596AbUHLPwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 11:52:53 -0400
+Message-ID: <411B91B9.6020200@suse.de>
+Date: Thu, 12 Aug 2004 17:50:17 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Thomas Renninger <trenn@suse.de>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: Allow userspace do something special on overtemp
+References: <20040811085326.GA11765@elf.ucw.cz>	<1092323945.5028.177.camel@dhcppc4> <20040812081634.532e3fc7.rddunlap@osdl.org>
+In-Reply-To: <20040812081634.532e3fc7.rddunlap@osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 18:54:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes whitespace from ALI15x3 IDE driver name that appears in the
-sysfs directory. It is against 2.6.7.
+Randy.Dunlap wrote:
+> On 12 Aug 2004 11:19:05 -0400 Len Brown wrote:
+> 
+> | Simpler to delete the usermode call and rely on the (flexible)
+> | acpid event, yes?
+> | 
+> |  thermal.c |   29 +----------------------------
+> |  1 files changed, 1 insertion(+), 28 deletions(-)
+> 
+> a.  Yes, it should be more flexible than just 'overtemp'.
+> 
+> b.  For userspace, there are:
+> 
+> acpid -  http://sourceforge.net/projects/acpid/
+> 
+> acpi tools, like ospmd (by Andy Grover) - in CVS at
+>   http://sourceforge.net/projects/acpi/
+> 
+> What others are there?
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+powersaved - http://forge.novell.com/modules/xfmod/project/?powersave
+handles APM, ACPI and cpufreq
+-- 
+seife
 
- alim15x3.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.7-pe/drivers/ide/pci/alim15x3.c
-===================================================================
---- linux-2.6.7-pe.orig/drivers/ide/pci/alim15x3.c	2004-08-05 17:28:15.000000000 +0000
-+++ linux-2.6.7-pe/drivers/ide/pci/alim15x3.c	2004-08-12 16:45:22.774205576 +0000
-@@ -893,7 +893,7 @@
- MODULE_DEVICE_TABLE(pci, alim15x3_pci_tbl);
- 
- static struct pci_driver driver = {
--	.name		= "ALI15x3 IDE",
-+	.name		= "ALI15x3_IDE",
- 	.id_table	= alim15x3_pci_tbl,
- 	.probe		= alim15x3_init_one,
- };
-
-
+"Any ideas, John?"
+"Well, surrounding thems out."

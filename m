@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264467AbTDXVxV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTDXVxV
+	id S264450AbTDXVvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTDXVvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:53:21 -0400
-Received: from zeke.inet.com ([199.171.211.198]:65228 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S264467AbTDXVxU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:53:20 -0400
-Message-ID: <3EA85FA2.6060500@inet.com>
-Date: Thu, 24 Apr 2003 17:05:22 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	Thu, 24 Apr 2003 17:51:07 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:19337 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264450AbTDXVvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:51:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: gettimeofday running backwards on 2.4.20
+Date: Fri, 25 Apr 2003 00:04:33 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Trammell Hudson <hudson@osresearch.net>, linux-kernel@vger.kernel.org
+References: <20030422232316.GF20108@osbox.osresearch.net> <20030424193410.C52BF12F067@mx12.arcor-online.net> <20030424214100.GL30082@mail.jlokier.co.uk>
+In-Reply-To: <20030424214100.GL30082@mail.jlokier.co.uk>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] patch splitting util(s)?
-References: <3E9B2C38.4020405@inet.com> <20030414215128.GA24096@suse.de> <mailman.1050360781.7083.linux-kernel2news@redhat.com> <200304150047.h3F0lXc22483@devserv.devel.redhat.com> <20030415131043.1cdcbe44.rddunlap@osdl.org> <20030424164503.A995@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030424220313.C279C12C4AD@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
->>Date: Tue, 15 Apr 2003 13:10:43 -0700
->>From: "Randy.Dunlap" <rddunlap@osdl.org>
-> 
-> 
->>| > I'm aware of patchutils.  (Check the 0.2.22 Changelog ;) )  However, 
->>| > splitdiff doesn't do what I'm after, from my initial look.  Though now 
->>| > that I think about it, it suggests an alternative solution.  A 
->>| > 'shatterdiff' that created one diff file per hunk in a patch would give 
->>| > me basically what I want.
->>| 
->>| I moaned at Tim until he caved in and added an '-s' option
->>| couple of weeks ago. It should be in a fresh rawhide srpm.
->>| 
->>| Mind, you can do what you want even now, with -n (for line numbers)
->>| and a little bit of sh or perl, but all concievable solutions
->>| require several passes over the diff, which gets tiresome
->>| if you diff 2.4.9 (RH 7.2) and 2.4.18 (RH 8.0). The -s option
->>| does it in one pass.
->>
->>so when does this change show up at http://cyberelk.net/tim/patchutils/ ?
-> 
-> 
-> Tim pointed out that the option is -a, not -s. It should be
-> present in 0.2.22.
+On Thu 24 Apr 03 23:41, Jamie Lokier wrote:
+> Daniel Phillips wrote:
+> > Applications like games (but not only games) can get pretty messed up by
+> > a timeofday that jumps backwards every couple of seconds.
+>
+> It's a foolish game that doesn't implement your monotonicity algorithm
+> itself...
 
-Almost.  That does a per-file split, not a per-hunk split.  And per-hunk 
-I have found makes splitting patches into their logical components 
-_much_ easier.
+Maybe so, but on the other hand, game authors could, with some justification, 
+accuse kernel developers of being the foolish ones.
 
-Thanks for the clarification though!
+There is already code in there that is supposed to fix up the timer: it 
+doesn't work very well.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+I wonder if SUS or whatnot has anything to say about gettimeofday being 
+monotonic, so long as the user does not change the time.
 
+Regards,
+
+Daniel

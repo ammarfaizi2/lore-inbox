@@ -1,106 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbSACQ37>; Thu, 3 Jan 2002 11:29:59 -0500
+	id <S287404AbSACQbj>; Thu, 3 Jan 2002 11:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSACQ3u>; Thu, 3 Jan 2002 11:29:50 -0500
-Received: from intra.cyclades.com ([209.81.55.6]:12306 "HELO
-	intra.cyclades.com") by vger.kernel.org with SMTP
-	id <S287386AbSACQ3b>; Thu, 3 Jan 2002 11:29:31 -0500
-Message-ID: <3C3487B3.38AACAF6@cyclades.com>
-Date: Thu, 03 Jan 2002 08:32:51 -0800
-From: Ivan Passos <ivan@cyclades.com>
-Organization: Cyclades Corporation
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,pdf
+	id <S287401AbSACQba>; Thu, 3 Jan 2002 11:31:30 -0500
+Received: from dsl-213-023-043-254.arcor-ip.net ([213.23.43.254]:2318 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287388AbSACQbM>;
+	Thu, 3 Jan 2002 11:31:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Ion Badulescu <ion@cs.columbia.edu>
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Date: Thu, 3 Jan 2002 17:34:27 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com>
+In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-In-Reply-To: <3C33BCF3.20BE9E92@cyclades.com> <3C33E0D3.B6E932D6@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16MAp4-00018b-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 3, 2002 05:05 pm, Ion Badulescu wrote:
+> Daniel Phillips wrote:
+> 
+> > +static struct file_system_type ext2_fs = {
+> > +       owner:          THIS_MODULE,
+> > +       fs_flags:       FS_REQUIRES_DEV,
+> > +       name:           "ext2",
+> > +       read_super:     ext2_read_super,
+> > +       super_size:     sizeof(struct ext2_sb_info),
+> > +       inode_size:     sizeof(struct ext2_inode_info)
+> > +};
+> 
+> While we're at it, can we extend this model to also include details about 
+> the other filesystem data structures with (potential) private info, i.e.
+> struct dentry and struct file? ext2 might not use them, but other 
+> filesystems certainly do.
 
-Andrew Morton wrote:
-> 
-> > By looking at tty_io.c:_tty_make_name(), it seems that the TTY
-> > subsystem in the Linux 2.4.x kernel series expects driver.name to be
-> > in the form "ttyX%d", even if you're not using devfs. I say that
-> > because as of now the definition in serial.c for this variable is:
-> >
-> > #if defined(CONFIG_DEVFS_FS)
-> >         serial_driver.name = "tts/%d";
-> > #else
-> >         serial_driver.name = "ttyS";
-> > #endif
-> >
-> > , when it seems it should be:
-> >
-> > #if defined(CONFIG_DEVFS_FS)
-> >         serial_driver.name = "tts/%d";
-> > #else
-> >         serial_driver.name = "ttyS%d";
-> > #endif
-> 
-> I don't think so.  Some quick grepping indicates that _all_
-> tty drivers currently use the "ttyS" equivalent if !CONFIG_DEVFS.
-> 
-> Instead, it appears that someone broke tty_name().  Here's the
-> 2.2 kernel's version:
-> 
-> char *tty_name(struct tty_struct *tty, char *buf)
-> {
->         if (tty)
->                 sprintf(buf, "%s%d", tty->driver.name, TTY_NUMBER(tty));
->         else
->                 strcpy(buf, "NULL tty");
->         return buf;
-> }
-> 
-> And that's much more sensible.  The tty has a name associated with
-> what it is (eg "ttyS") - correlates with major number, probably.
-> And it has an instance number.
-> 
-> Which is cleaner, IMO, than embedding printf control strings
-> in the driver name.
-> 
-> --- linux-2.4.18-pre1/drivers/char/tty_io.c     Wed Dec 26 11:47:40 2001
-> +++ linux-akpm/drivers/char/tty_io.c    Wed Jan  2 20:39:53 2002
-> @@ -194,7 +194,7 @@ _tty_make_name(struct tty_struct *tty, c
->         if (!tty) /* Hmm.  NULL pointer.  That's fun. */
->                 strcpy(buf, "NULL tty");
->         else
-> -               sprintf(buf, name,
-> +               sprintf(buf, "%s%d", name,
->                         idx + tty->driver.name_base);
-> 
->         return buf;
-> 
-> Does this look (and work) OK to you?
+Hi,
 
-No, because with this implementation you'll break the devfs printk.
+Could you be more specific about what you mean, please?
 
-We have two options, I guess:
+> > -static inline struct inode * new_inode(struct super_block *sb)
+> > +static inline struct inode *new_inode (struct super_block *sb)
+> 
+> Minor issue of coding style. I'd steer away from such gratuitious changes, 
+> especially since they divert from the commonly accepted practice of having 
+> no spaces between the name of the function and its arguments.
 
-1) Change the drivers to have "ttx/%d" (devfs) and "ttyX%d" 
-   (non-devfs), and leave _tty_make_name() untouched (my original 
-   suggestion).
+That's good advice and I'm likely to adhere to it - if you can show that 
+having no spaces between the name of the function and its arguments really is 
+the accepted practice.  I've seen both styles on my various travels though 
+the kernel, and I prefer the one with the space.  Much as I prefer to put 
+spaces around '+' (but not around '.', go figure).
 
-2) Change the drivers to have "ttx/" (devfs) and "ttyX" (non-devfs) 
-   and change _tty_make_name() as suggested above by Andrew. I don't 
-   know how this would affect devfs though ...
+In general, I allow myself the indulgence of cleaning up the odd line here 
+and there to be more pleasing to my eyes, so long as it's in the vicinity of 
+a substantive change and doesn't introduce a new patch hunk.  You could think 
+of it as a perk that takes some of the sting out of doing the grunt work.
 
-I really don't care which solution is used (although I do prefer 
-option 2, if possible), but I'm sure that it can't stay as it is 
-now, because right now it's broken.
-
-So ... Which one is more appropriate?? Any other suggestions??
-
-Later,
--- 
-Ivan Passos							 -o)
-Integration Manager, Cyclades	- http://www.cyclades.com	 /\\
-Project Leader, NetLinOS	- http://www.netlinos.org	_\_V
---------------------------------------------------------------------
+--
+Daniel

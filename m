@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266088AbRGGLMN>; Sat, 7 Jul 2001 07:12:13 -0400
+	id <S266094AbRGGL16>; Sat, 7 Jul 2001 07:27:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbRGGLMD>; Sat, 7 Jul 2001 07:12:03 -0400
-Received: from logger.gamma.ru ([194.186.254.23]:49673 "EHLO logger.gamma.ru")
-	by vger.kernel.org with ESMTP id <S266088AbRGGLL4>;
-	Sat, 7 Jul 2001 07:11:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: pccross!not-for-mail
-From: crosser@average.org (Eugene Crosser)
-Newsgroups: linux.kernel
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Date: 7 Jul 2001 14:32:42 +0400
-Organization: Average
-Message-ID: <9i6oga$jk1$1@pccross.average.org>
-In-Reply-To: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-X-Newsreader: knews 0.9.8
-X-Comment-To: Linus Torvalds <torvalds@transmeta.com>
-Content-Type: text/plain; charset=koi8-r
+	id <S266097AbRGGL1t>; Sat, 7 Jul 2001 07:27:49 -0400
+Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:48050 "EHLO
+	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266094AbRGGL1m>; Sat, 7 Jul 2001 07:27:42 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tim McDaniel <tim.mcdaniel@tuxia.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Trouble Booting Linux PPC 2000 On Mac G4
+Date: Sat, 7 Jul 2001 13:27:26 +0200
+Message-Id: <20010707112726.14374@smtp.wanadoo.fr>
+In-Reply-To: <A16915712C18BD4EBD97897F82DA08CD480BFB@exchange1.win.agb.tuxia>
+In-Reply-To: <A16915712C18BD4EBD97897F82DA08CD480BFB@exchange1.win.agb.tuxia>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com>,
-        Linus Torvalds <torvalds@transmeta.com> writes:
+>I think what we are seeing is XBoot rather than yaboot and we tried just
+>about all conceivable "kernel options", as exposed by Xboot. When Xboot
+>comes up it shows a ramdisk_size=8192 as the only default parameter.
+>Rapidly growing to hate the non-intuitive nature of the MAC OS we are
+>not experts on the Mac OS.  P.S. We are running Mac OS 9.1.
+>
+>Oops, We just discovered that Xboot does not work with MacOS 9.1 (geez)
+>.... you MUST use yaboot.
 
-> I don't like the current initrd very much myself, I have to admit. I'm not
-> going to accept a "you have to have a ramdisk" approach - I think the
-> ramdisks are really broken.
-> 
-> But I've seen a "populate ramfs from a tar-file built into 'bzImage'"
-> patch somewhere, and that would be a whole lot more palatable to me.
+It's a generic issue with BootX (MacOS "takeover" bootloader). It
+won't work reliably with any recent machine, you should use the
+more complicated but safer OpenFirmware way of booting, either using
+yaboot or directly booting the CHRP ELF zImage.
 
-Doesn't the approach "treat a chunk of data built into bzImage as
-populated ramfs" look cleaner?  No need to fiddle with tar format,
-no copying data from place to place.
 
-Eugene
+

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSGTLwo>; Sat, 20 Jul 2002 07:52:44 -0400
+	id <S316608AbSGTM31>; Sat, 20 Jul 2002 08:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSGTLwo>; Sat, 20 Jul 2002 07:52:44 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13412 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316499AbSGTLwn>; Sat, 20 Jul 2002 07:52:43 -0400
-Date: Sat, 20 Jul 2002 05:55:43 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Neale Banks <neale@lowendale.com.au>
-cc: Ville Herva <vherva@niksula.hut.fi>, Andrew Rodland <arodland@noln.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -ac] Panicking in morse code
-In-Reply-To: <Pine.LNX.4.05.10207202142310.9273-100000@marina.lowendale.com.au>
-Message-ID: <Pine.LNX.4.44.0207200555180.3378-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S316786AbSGTM31>; Sat, 20 Jul 2002 08:29:27 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:52915 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S316608AbSGTM31> convert rfc822-to-8bit; Sat, 20 Jul 2002 08:29:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH]: scheduler complex macros fixes
+Date: Sat, 20 Jul 2002 14:32:11 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@linuxia64.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+References: <Pine.LNX.4.44.0207201937330.18265-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0207201937330.18265-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207201432.11496.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Ingo,
 
-On Sat, 20 Jul 2002, Neale Banks wrote:
-> You mean like an implementation of RFC 1926: "An Experimental
-> Encapsulation of IP Datagrams on Top of ATM[1]"? ;-)
+On Saturday 20 July 2002 19:43, Ingo Molnar wrote:
+> On Fri, 19 Jul 2002, Linus Torvalds wrote:
+> > So I'd rather have the non-batch stuff done first and independently.
+>
+> sure - all the non-batch bits are attached, against 2.5.26-vanilla. It
+> compiles & boots just fine on UP & SMP as well.
+>
+>         Ingo
 
-   The author assumes that the users take whatever precautions that are
-   necessary before attempting to use this protocol in any crowded area.
+thanks for the complete update without the SCHED_BATCH! I was too lazy
+to strip out all your changes and I'm sure I would have made mistakes...
 
-Same thing to add here...
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Best regards,
+Erich
 

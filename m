@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287617AbSAHDZf>; Mon, 7 Jan 2002 22:25:35 -0500
+	id <S287619AbSAHDjg>; Mon, 7 Jan 2002 22:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287629AbSAHDZP>; Mon, 7 Jan 2002 22:25:15 -0500
-Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:9742 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287619AbSAHDZI>;
-	Mon, 7 Jan 2002 22:25:08 -0500
+	id <S287629AbSAHDj1>; Mon, 7 Jan 2002 22:39:27 -0500
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:55728 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S287619AbSAHDjR>; Mon, 7 Jan 2002 22:39:17 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-Date: Tue, 8 Jan 2002 04:28:53 +0100
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Benjamin LaHaise <bcrl@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [BUG] in 2.4.17 after 10 days uptime
+Date: Mon, 7 Jan 2002 22:38:58 -0500
 X-Mailer: KMail [version 1.3.2]
-Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
-In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NbYF-0001Qq-00@starship.berlin> <3C3A33E2.D297F570@mandrakesoft.com>
-In-Reply-To: <3C3A33E2.D297F570@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020101145605.B3283@redhat.com> <Pine.LNX.4.21.0201071623380.18722-100000@freak.distro.conectiva> <20020107212445.A7376@redhat.com>
+In-Reply-To: <20020107212445.A7376@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Nmwe-0003D6-00@starship.berlin>
+Message-Id: <20020108033858.D62D31CB1F@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 8, 2002 12:48 am, Jeff Garzik wrote:
-> > Moving the ext2 headers from include/linux to fs/ext2 is an interesting
-> > feature of your patch, though it isn't essential to the idea you're
-> > presenting.  But is there a good reason why ext2_fs_i.h and ext2_fs_sb.h
-> > should remain separate from ext2_fs.h?  It looks like gratuitous
-> > modularity to me.
-> 
-> apparently userspace includes them, which is the reason for the strange
-> types.  good reason to continue to keep them separate.  That's also why
-> my patch7 adds an ifdef __KERNEL__.
+On January 7, 2002 09:24 pm, Benjamin LaHaise wrote:
+> On Mon, Jan 07, 2002 at 04:28:12PM -0200, Marcelo Tosatti wrote:
+> > Is my thinking correct ?
+>
+> Yes, that's the case I was thinking of.  sendfile() and tux are potential
+> triggers of this.
+>
+> > If so, I don't see why Ed's trace BUGs at rmqueue first: It should bug at
+> > __free_pages_ok() PageLRU check.
+>
+> Hmm, as we've discussed on irc, there are some other nasty implications of
+> the __free_pages code interacting with shrink_cache without this patch. 
+> I'm not certain that explains it, but it could.  Ed, have you seen this
+> oops again?  What kind of load is the machine under?
 
-It's unnecessary for userspace to include those headers, they are 
-kernel-private.
+After applyng your patch I ran for another couple of day on 18pre1 without
+seeing any problems.  The system is fairly lightly loaded running a caching
+news server, java apps and acts as a masq gateway/squid cache for the rest 
+of the boxes here (home network).  It also the box I use...
 
---
-Daniel
+Ed

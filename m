@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265361AbSJXJTH>; Thu, 24 Oct 2002 05:19:07 -0400
+	id <S265363AbSJXJXK>; Thu, 24 Oct 2002 05:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265362AbSJXJTH>; Thu, 24 Oct 2002 05:19:07 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2821 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S265361AbSJXJTG>; Thu, 24 Oct 2002 05:19:06 -0400
-Message-Id: <200210240920.g9O9KDp08623@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: EISA AIC7XXX not detected
-Date: Thu, 24 Oct 2002 12:12:49 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200210231448.g9NEmJp04017@Port.imtp.ilyichevsk.odessa.ua> <365640000.1035385777@aslan.btc.adaptec.com> <200210240853.g9O8qwp08460@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200210240853.g9O8qwp08460@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S265364AbSJXJXK>; Thu, 24 Oct 2002 05:23:10 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:20885 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265363AbSJXJXI>; Thu, 24 Oct 2002 05:23:08 -0400
+Date: Thu, 24 Oct 2002 15:05:16 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
+Message-ID: <20021024150516.C11418@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB7AC97.D31A3CB2@digeo.com>; from akpm@digeo.com on Thu, Oct 24, 2002 at 08:22:07AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I sticked some printks in the code, here is a new syslog output
-> (diff with printks is an the end).
->
-> ...
-> seems my controller is not considered compatible ;)
-> ...
+On Thu, Oct 24, 2002 at 08:22:07AM +0000, Andrew Morton wrote:
+> Andrew Morton wrote:
+> > 
+> > Hopefully the rcu fix in -mm4 will cure this.
+> 
+> Oh.  It was in -mm3 too.  But something went wrong with the
+> dcache shrinking there.
 
-With this patch it got detected. Seems to work fine.
-Please inform me when (and whether) you plan to push it
-to Marcelo.
+Hmm.. the thing to do here would be to look at cat /proc/sys/fs/dentry-state.
+The number of dentries in the system should tally with dentry slab,
+if it doesn't it might be an RCU issue in which case I would like to
+look at /proc/rcu. If not, then we need to do some more digging.
 
-(of course feel free to edit the patch, I don't insist on 'vda'
-being there :)
---
-vda
-
-
-diff -u --recursive linux-2.4.19net3.orig/drivers/scsi/aic7xxx/aic7770.c linux-2.4.19net3/drivers/scsi/aic7xxx/aic7770.c
---- linux-2.4.19net3.orig/drivers/scsi/aic7xxx/aic7770.c	Fri Aug  2 22:39:44 2002
-+++ linux-2.4.19net3/drivers/scsi/aic7xxx/aic7770.c	Thu Oct 24 11:56:23 2002
-@@ -56,6 +56,7 @@
- #define ID_AHA_274x	0x04907771
- #define ID_AHA_284xB	0x04907756 /* BIOS enabled */
- #define ID_AHA_284x	0x04907757 /* BIOS disabled*/
-+#define ID_AIC_vda	0x04907782
-
- static int aha2840_load_seeprom(struct ahc_softc *ahc);
- static ahc_device_setup_t ahc_aic7770_VL_setup;
-@@ -83,7 +84,14 @@
- 		0xFFFFFFFF,
- 		"Adaptec aic7770 SCSI adapter",
- 		ahc_aic7770_EISA_setup
--	}
-+	},
-+	/* vda */
-+	{
-+		ID_AIC_vda,
-+		0xFFFFFFFF,
-+		"Adaptec aic7782 SCSI adapter (seen: Olivetti 2 channel EISA)",
-+		ahc_aic7770_EISA_setup
-+	},
- };
- const int ahc_num_aic7770_devs = NUM_ELEMENTS(aic7770_ident_table);
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

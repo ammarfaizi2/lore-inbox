@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132952AbQLHWC7>; Fri, 8 Dec 2000 17:02:59 -0500
+	id <S133038AbQLHWEj>; Fri, 8 Dec 2000 17:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132857AbQLHWCu>; Fri, 8 Dec 2000 17:02:50 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20997
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132952AbQLHWCm>; Fri, 8 Dec 2000 17:02:42 -0500
-Date: Fri, 8 Dec 2000 13:27:59 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matan Ziv-Av <matan@svgalib.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Big IDE HD unclipping and IBM drive
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>
-Message-ID: <Pine.LNX.4.10.10012081327210.3346-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S132857AbQLHWE3>; Fri, 8 Dec 2000 17:04:29 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:45317 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S133038AbQLHWER>;
+	Fri, 8 Dec 2000 17:04:17 -0500
+Date: Fri, 8 Dec 2000 13:34:58 -0800
+From: David Hinds <dhinds@valinux.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: tytso@mit.edu, rgooch@ras.ucalgary.ca,
+        jgarzik@mandrakesoft.mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+Message-ID: <20001208133458.A24163@valinux.com>
+In-Reply-To: <200012081805.eB8I5AT08790@snap.thunk.org> <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com>; from Linus Torvalds on Fri, Dec 08, 2000 at 01:27:51PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Matan Ziv-Av wrote:
-
+On Fri, Dec 08, 2000 at 01:27:51PM -0800, Linus Torvalds wrote:
 > 
-> Hi,
-> 
-> 
-> I have an IBM drive, DTLA-307075 (75GB), and a bios that hangs with
-> large disks. I use a jumper to clip it to 32GB size, so the bios can
-> boot into linux. The problem is that WIN_READ_NATIVE_MAX returns 32GB,
-> and not the true size, and even trying to set the correct size with
-> WIN_SET_MAX fails. Is there a way to use this combination (Bios, HD,
-> Linux)?
+> (Of course, I use tulip instead of epic100, so maybe there's an epic
+> driver bug, but it's definitely hotplug-aware).
 
+There could be a problem in the epic driver; I've never had a card
+that uses this driver and have only limited user feedback.  Some
+people say it works, others not... but I have not even been able to
+tell if the problems are actually in the epic driver or elsewhere.
 
-Yep you have to use code/patches that are not in the standard kernel.
-Which kernel are you using?
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270443AbTHBUaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 16:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270447AbTHBUaR
+	id S270291AbTHBUh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 16:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270295AbTHBUhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 16:30:17 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:38844 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S270443AbTHBUaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 16:30:14 -0400
-Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
-From: Nicholas Miell <nmiell@attbi.com>
-To: Roland McGrath <roland@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200308021908.h72J82x10422@magilla.sf.frob.com>
-References: <200308021908.h72J82x10422@magilla.sf.frob.com>
-Content-Type: text/plain
-Message-Id: <1059856202.1374.12.camel@entropy>
+	Sat, 2 Aug 2003 16:37:25 -0400
+Received: from kknd.mweb.co.za ([196.2.45.79]:15800 "EHLO kknd.mweb.co.za")
+	by vger.kernel.org with ESMTP id S270291AbTHBUhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 16:37:24 -0400
+Subject: [2.6] Perl weirdness with ext3 and HTREE
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: KML <linux-kernel@vger.kernel.org>
+Cc: akpm@digeo.com, adilger@clusterfs.com, ext3-users@redhat.com,
+       x86-kernel@gentoo.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nYW7MKfrQDdlO19NgvbQ"
+Message-Id: <1059856625.14962.19.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.3 
-Date: 02 Aug 2003 13:30:11 -0700
-Content-Transfer-Encoding: 7bit
+Date: 02 Aug 2003 22:37:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-02 at 12:08, Roland McGrath wrote:
-> The problem exists with uids/gids as well, in the sense that they are
-> changed per-thread but POSIX semantics are that setuid et al affect the
-> whole process (i.e. all threads in a thread group).
 
-Is there any particular reason why the POSIX semantics are desirable
-(besides "that's the way POSIX says it should be")?
+--=-nYW7MKfrQDdlO19NgvbQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Personally, I can think of no benenfit to per-process uids/gids, and
-several scenarios where per-thread uids/gids would be good. (Think of a
-multi-threaded server handling connections from N different users on N
-threads, or a 1 thread per CPU server handling many different user
-connections, or a multi-threaded web server running perl/php/etc. stuff
-as different users in different threads.)
+Hi
 
-Just wondering, Nicholas.
+I have mailed about this previously, but back then it was not
+really confirmed, so I have let it be at that.
+
+Anyhow, problem is that for some reason 2.5/2.6 ext3 with HTREE
+support do not like what perl-5.8.0 does during installation.
+It *seems* like one of the temporary files created during manpage
+installation do not get unlinked properly, or gets into the
+hash (this possible?) and cause issues.
+
+It seems to work flawless on 2.4 still.
+
+Also, to be honest, I do not have that much free time these days,
+so if an interest in helping me/us debug this, it will be appreciated
+if some direction in what is needed/suggestions can be given as to what
+is required.  There are a few users that experience this issue, and
+I am sure that we can get whatever info needed.
+
+A bug on our tracker is here with more (hopefully) complete info:
+
+  http://bugs.gentoo.org/show_bug.cgi?id=3D24991
+
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-nYW7MKfrQDdlO19NgvbQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/LCDxqburzKaJYLYRAlAlAKCHTl+fK2XAQAPWIE/XXA/Jj5ZZEgCfXcfY
+vqhlCXEaJaJf/9ArqcSj2q4=
+=yXDo
+-----END PGP SIGNATURE-----
+
+--=-nYW7MKfrQDdlO19NgvbQ--
 

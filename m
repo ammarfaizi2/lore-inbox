@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTEIHXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 03:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbTEIHXJ
+	id S262321AbTEIHWs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 03:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTEIHWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 03:23:09 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:18321
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262324AbTEIHXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 03:23:07 -0400
-Message-ID: <3EBB5A44.7070704@redhat.com>
-Date: Fri, 09 May 2003 00:35:32 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
+	Fri, 9 May 2003 03:22:48 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:7947 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262321AbTEIHWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 03:22:47 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Gregoire Favre <greg@ulima.unil.ch>
+Subject: Re: Linux 2.4.21-rc2
+Date: Fri, 9 May 2003 09:35:06 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <fa.m0c9ksl.1ijqph1@ifi.uio.no> <200305090907.50284.m.c.p@wolk-project.de> <20030509073133.GB21140@ulima.unil.ch>
+In-Reply-To: <20030509073133.GB21140@ulima.unil.ch>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-Subject: hammer: MAP_32BIT
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305090935.06151.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Friday 09 May 2003 09:31, Gregoire Favre wrote:
 
-To allocate stacks for the threads in nptl we currently use MAP_32BIT to
-make sure we get <4GB addresses for faster context switching time.  But
-once the address space is allocated we have to resort to not using the
-flag.  This means we have to make 2 mmap() calls, one with MAP_32BIT and
-if it fails another one without.
+Hi Gregoire,
 
-It would be much better if there would also be a MAP_32PREFER flag with
-the appropriate semantics.  The failing mmap() calls seems to be quite
-expensive so programs with many threads are really punished a lot.
+> > or: http://www.kernel.org -> 2.4.21-rc2 -> Changelog
+> Yes, I agree, but... why no directly write it in the annonce?
+> And as I would like to have XFS included...
+I am quite sure he just forgot to include it into the mail.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+for XFS, use 2.5.
 
-iD8DBQE+u1pF2ijCOnn/RHQRAk2IAKDAzXZUOsxMPAKkK9ivOz8o6zAaHQCeMC24
-ysih3QB/I1w5MNXEIxNs284=
-=2cet
------END PGP SIGNATURE-----
+ciao, Marc
+
 

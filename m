@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVBNUjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVBNUkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVBNUjR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 15:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVBNUjQ
+	id S261449AbVBNUkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 15:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBNUkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 15:39:16 -0500
-Received: from waste.org ([216.27.176.166]:40149 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261446AbVBNUjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 15:39:07 -0500
-Date: Mon, 14 Feb 2005 12:39:02 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: benh@kernel.crashing.org, adaplas@pol.net
-Subject: Radeon FB troubles with recent kernels
-Message-ID: <20050214203902.GH15058@waste.org>
+	Mon, 14 Feb 2005 15:40:42 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:8595 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261449AbVBNUkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 15:40:36 -0500
+Subject: Re: [PATCH] make ACPI_BLACKLIST_YEAR depend on ACPI
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0502140801570.15516@ppc970.osdl.org>
+References: <200502141130.51901@bilbo.math.uni-mannheim.de>
+	 <Pine.LNX.4.58.0502140801570.15516@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1108413614.2092.5.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Feb 2005 15:40:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
-console video corruption if I start GDM, switch back to text mode,
-then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
+Re: ACPI_BLACKLIST_YEAR depending on ACPI or ACPI_INTERPRETER -- either
+are fine.
 
-The corruption shows up whenever the console scrolls after X has been
-shut down and manifests as horizontal lines spaced about 4 pixel rows
-apart containing contents recognizable as the X display. Switch from
-vt1 to vt2 and back or visual bell clears things back to normal, but
-corruption will reappear on the next scroll.
+Note that I'm planning to delete the separate ACPI_INTERPRETER build
+option and just use CONFIG_ACPI in the future.  We tested this in a
+config clean-up in -mm a while back, and I should probably revive it for
+early 2.6.12.  The reason is that there really isn't a valid concept of
+ACPI without the interpreter -- it can't even be used for configuring
+interrupts without the interpreter on hand.
 
-This has appeared in at least 2.6.11-rc3-mm2 and rc4.
+thanks,
+-Len
 
--- 
-Mathematics is the supreme nostalgia of our time.
+

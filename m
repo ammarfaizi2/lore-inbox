@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbUKPXip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbUKPX3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbUKPXip (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 18:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKPXga
+	id S261982AbUKPX3e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUKPX1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 18:36:30 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:11795 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261899AbUKPXf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:35:59 -0500
-Date: Tue, 16 Nov 2004 23:35:52 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-mm5
-In-Reply-To: <419A38EE.8000202@aknet.ru>
-Message-ID: <Pine.LNX.4.58L.0411162226500.8068@blysk.ds.pg.gda.pl>
-References: <41967669.3070707@aknet.ru> <Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
- <4198EFE5.5010003@aknet.ru> <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
- <419A38EE.8000202@aknet.ru>
+	Tue, 16 Nov 2004 18:27:22 -0500
+Received: from fire.osdl.org ([65.172.181.4]:15342 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261902AbUKPX0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 18:26:33 -0500
+Message-ID: <419A89A8.10704@osdl.org>
+Date: Tue, 16 Nov 2004 15:13:44 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: scottm@somanetworks.com, greg@kroah.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] cpcihp_generic: fix module_param data type
+Content-Type: multipart/mixed;
+ boundary="------------020709090809020501070506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Stas Sergeev wrote:
+This is a multi-part message in MIME format.
+--------------020709090809020501070506
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> I don't think it worked. I do not even
-> claim there is still some bug to that.
-> But I know that nmi_watchdog=1 worked -
-> thats for sure. I think there was some
-> fallback, which is now either broken or
 
- Indeed there was and it still is there, namely the following code:
+drivers/pci/hotplug/cpcihp_generic.c:214: warning: return from
+incompatible pointer type
 
-	if (nmi_watchdog != NMI_NONE)
-		nmi_watchdog = NMI_LOCAL_APIC;
+diffstat:=
+   drivers/pci/hotplug/cpcihp_generic.c |    2 +-
+   1 files changed, 1 insertion(+), 1 deletion(-)
 
-in detect_init_APIC().
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-> disabled intentionally, and that's what
-> I wanted to find out to make sure that
-> everything works as expected.
 
- Thanks for your insistence -- it helps.  We probably want to rewrite the
-fallback differently.
+--------------020709090809020501070506
+Content-Type: text/x-patch;
+ name="cpcihp_charp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cpcihp_charp.patch"
 
-> I applied your patch and here are 2 logs -
-> one from older kernel, one with -mm5 with
-> patch. Both have nmi_watchdog=1, but the
-> NMI works only with the old one.
-> Does this shed some light?
+diff -Naurp ./drivers/pci/hotplug/cpcihp_generic.c~cpcihp_charp ./drivers/pci/hotplug/cpcihp_generic.c
+--- ./drivers/pci/hotplug/cpcihp_generic.c~cpcihp_charp	2004-11-16 13:33:33.572046536 -0800
++++ ./drivers/pci/hotplug/cpcihp_generic.c	2004-11-16 14:30:06.588229672 -0800
+@@ -63,7 +63,7 @@
+ 
+ /* local variables */
+ static int debug;
+-static char bridge[256];
++static char *bridge;
+ static u8 bridge_busnr;
+ static u8 bridge_slot;
+ static struct pci_bus *bus;
 
- Thanks -- they prove you have no I/O APIC and the quoted fallback should 
-indeed be in effect.
 
-  Maciej
+--------------020709090809020501070506--

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135372AbRARTuG>; Thu, 18 Jan 2001 14:50:06 -0500
+	id <S130309AbRARTwG>; Thu, 18 Jan 2001 14:52:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135313AbRARTtq>; Thu, 18 Jan 2001 14:49:46 -0500
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:17674 "EHLO
-	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S132643AbRARTtj>; Thu, 18 Jan 2001 14:49:39 -0500
-Date: Thu, 18 Jan 2001 19:49:36 +0000 (GMT)
-From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-To: David Balazic <david.balazic@uni-mb.si>
-cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-        Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <3A672015.B69F7E90@uni-mb.si>
-Message-ID: <Pine.LNX.4.30.0101181944280.7321-100000@pine.parrswood.manchester.sch.uk>
+	id <S132484AbRARTv4>; Thu, 18 Jan 2001 14:51:56 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:35599 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S131202AbRARTvp>;
+	Thu, 18 Jan 2001 14:51:45 -0500
+Message-ID: <3A67494D.5D09DF2B@cup.hp.com>
+Date: Thu, 18 Jan 2001 11:51:41 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+To: Roman Zippel <zippel@fh-brandenburg.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.GSO.4.10.10101181938310.25170-100000@zeus.fh-brandenburg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What is the difference between physical and logical partitions ?
 
-primary (what you call physical) partitions are partitions in their own
-right logical partitions are partitions within a special partition
+> device-to-device is not the same as disk-to-disk. A better example would
+> be a streaming file server. Slowly the pci bus becomes a bottleneck, why
+> would you want to move the data twice over the pci bus if once is enough
+> and the data very likely not needed afterwards? Sure you can use a more
+> expensive 64bit/60MHz bus, but why should you if the 32bit/30MHz bus is
+> theoretically fast enough for your application?
 
-> How does this solve the "I deleted hda5 and now the old hda6 became
-> hda5" problem ?
+theoretically fast enough for the application would imply the dual
+transfers across the bus would fit :)
 
-It doesn't nothing can as the way that the pcbios extended partition works
-as a (linked?) list of partitions so removing one shuffles the rest up.
+also, if a system was doing something with that much throughput, i
+suspect it would not only be designed with 64/66 busses (or better), but
+also have things on several different busses. that makes device to
+device life more of a challenge.
+
+rick jones
 
 -- 
-   Tim Fletcher - Network manager   .~.
-                                    /V\      L   I   N   U   X
-     nightshade@solanum.net        // \\  >Don't fear the penguin<
-tim@parrswood.manchester.sch.uk   /(   )\
- irc: Night-Shade on quakenet      ^^-^^
-
-"While preceding your entrance with a grenade is a good tactic in
-   Quake, it can lead to problems if attempted at work." -- C Hacking
-
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTF3OHM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 10:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTF3OHM
+	id S264099AbTF3OEM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 10:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTF3OEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 10:07:12 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:14295 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264304AbTF3OHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 10:07:10 -0400
-Subject: Evaluation of three I/O schedulers
+	Mon, 30 Jun 2003 10:04:12 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:39684 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S264099AbTF3OEL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 10:04:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@digeo.com>, "Mike Sullivan" <mksully@us.ibm.com>,
-       "Bill Hartner" <bhartner@us.ibm.com>,
-       "Ray Venditti" <venditti@us.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
-From: "Peter Wong" <wpeter@us.ibm.com>
-Date: Mon, 30 Jun 2003 09:21:24 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/30/2003 10:21:28 AM
+Subject: PTY DOS vulnerability?
+Date: Mon, 30 Jun 2003 16:18:36 +0200
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306301613.11711.fredrik@dolda2000.cjb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We used 2.5.72+mm1 to evaluate three I/O schedulers, namely
-anticipatory, deadline and complete fair queueing under a very heavy
-database workload on an 8-way Pentium 4 machine. The workload is a
-decision support system doing mostly sequential I/O and each run takes
-about one hour. All three runs finished completely without encountering
-functional problems, and achieved similar performance level.
+Has someone considered PTYs as a possible attack vector for DOS 
+attacks? Correct me if I'm wrong, but cannot someone just open 
+all available PTYs on a console-less server and make everyone 
+unable to log in?
 
-The 8-way machine has Pentium 4 2.0 GHz processors, 16 GB physical
-memory, 2MB L3 cache, 8 FC controllers with 80 disks. Hyperthreading
-was turned on for the three runs. The CPU utilization is similar for all
-three runs: 65% user, 7% system and 28% idle.
+I mean, what if eg. apache is hacked, and the first thing the 
+attacker does is to tie up all PTYs, so that noone can log in to 
+correct the situation while the attacker can go about his 
+business? Then the only possible solution would be to reboot the 
+server, which might very well not be desirable.
 
-Regards,
-Peter
+If you want proof of concept code, look at
+http://www.dolda2000.cjb.net/~fredrik/ptmx.c
+I successfully ran this on one of my servers which effectively 
+disabled anyone from logging in via SSH.
 
-Peter Wai Yee Wong
-IBM Linux Technology Center Performance Team
-email: wpeter@us.ibm.com
+Shouldn't PTYs be a per-user resource limit?
 
+Someone must have thought of this before me, right? How am I 
+wrong?
+
+Fredrik Tolf
 

@@ -1,77 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEEQ2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264719AbUEEQ2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUEEQ2k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEEQ2f
+	id S264719AbUEEQ2H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 12:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEEQ2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:28:35 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:54571 "EHLO avexch01.qlogic.com")
-	by vger.kernel.org with ESMTP id S264725AbUEEQ2W convert rfc822-to-8bit
+	Wed, 5 May 2004 12:28:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54489 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264719AbUEEQ2F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:28:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: qla2300 at only 1 GBit on kernel 2.6.5
-Date: Wed, 5 May 2004 09:27:10 -0700
-Message-ID: <B179AE41C1147041AA1121F44614F0B0DD0114@AVEXCH02.qlogic.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: qla2300 at only 1 GBit on kernel 2.6.5
-Thread-Index: AcQyveBZeSokbcWYS22NZCyONlmCoQ==
-From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
-To: "Jan-Frode Myklebust" <janfrode@parallab.uib.no>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Cc: "Moore, Eric Dean" <Emoore@lsil.com>
-X-OriginalArrivalTime: 05 May 2004 16:26:27.0906 (UTC) FILETIME=[B7527A20:01C432BD]
+	Wed, 5 May 2004 12:28:05 -0400
+Date: Wed, 5 May 2004 17:28:03 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] code for raceless /sys/fs/foofs/*
+Message-ID: <20040505162802.GN17014@parcelfarce.linux.theplanet.co.uk>
+References: <16536.61900.721224.492325@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16536.61900.721224.492325@laputa.namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On , linux-scsi-owner@vger.kernel.org wrote:
-
-> This seems to be working fine with the RedHat 2.4.21-9.0.1.ELsmp
-> kernel,
->
-
-How are you verifying that the 2.4 driver is coming-up in 2Gig rather
-than 1gig?  Do you have an analyzer running between the HBA and
-storage device?  Or, as you mentioned later in the email when testing
-the 8.x driver, did you force 2gig at the RAID box and reload the
-2.4 driver?
-
-> but when I try running on the vanilla 2.6.5 kernel, it only
-> operates in 1 GB mode.
->
-
-Yes, the 8.x series driver started to display the connection speed
-during a loop_up event.
-
-	qla2300 0000:01:05.0: LOOP UP detected (1 Gbps).
-
-> The HBA is connected to a Infortrend
-> SATA/RAID box.
->
-
-Which model?  Actually, looking ahead, I can see you are running an
-
-	Vendor: IFT       Model: A16F-G1A2         Rev: 334A
-
-Of the three FC-SATA RAID boxes that are advertised, only the
-A16F-J1210-G1 model mentions support for 'full-duplex 2Gb FC-AL'.
-
-> If I try forcing the connection to 2 GBit from the
-> Infortrend, I get an error saying 'Cable unplugged' when loading the
-> qla2300 module on 2.6.5. 
+On Wed, May 05, 2004 at 05:53:16PM +0400, Nikita Danilov wrote:
+> Hello,
 > 
-
-Hmm, could you go into the BIOS utility (ctrl-q during boot) and check
-the 'Data Rate' settings for the HBA?  What is the value set to --
-auto/1gb/2gb?  If it is set to auto, could you set it to 2gb and retry
-the test.
-
-Regards,
-Andrew Vasquez
-QLogic Corporation
+> attached patch adds code necessary to safely export per-super-block
+> information in /sys/fs and /proc/fs.
+> 
+> Common problem with exporting file system information in procfs or sysfs
+> is a race between method that inputs/outputs data and concurrent umount
+> of the super-block involved.
+ 
+Aside of the implementation questions (will comment later), there is an
+interface problem here.  We end up allowing anyone who has sysfs mounted
+(in chroot jail, in limited namespace, etc.) to pin down _any_ reiser4
+superblock, whether they have the thing itself mounted or not.

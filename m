@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315428AbSEHWJi>; Wed, 8 May 2002 18:09:38 -0400
+	id <S315388AbSEHWHK>; Wed, 8 May 2002 18:07:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315436AbSEHWJh>; Wed, 8 May 2002 18:09:37 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:31474 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315428AbSEHWJg>; Wed, 8 May 2002 18:09:36 -0400
-Date: Thu, 9 May 2002 00:04:40 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre8-ac1
-In-Reply-To: <200205080045.g480j1404809@devserv.devel.redhat.com>
-Message-ID: <Pine.NEB.4.44.0205090002020.19321-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315393AbSEHWHJ>; Wed, 8 May 2002 18:07:09 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:2295 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S315388AbSEHWHI>; Wed, 8 May 2002 18:07:08 -0400
+Date: Wed, 8 May 2002 18:07:06 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Dan Yocum <yocum@fnal.gov>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ns83820 bug.  [was Re: Poor NFS client performance on 2.4.18?]
+Message-ID: <20020508180705.B14959@redhat.com>
+In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no> <3CD6FE1E.A20384D@fnal.gov> <E174zP0-0007N9-00@charged.uio.no> <3CD7F385.BAA3870B@fnal.gov> <3CD7F8A2.24DF8433@fnal.gov> <3CD98837.16B32F84@fnal.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Upgrade to 0.17 (which is in 2.4.19-pre5 or so and later) and you should 
+find the issue resolved.
 
-with CONFIG_VIDEO_MARGI enabled compilation fails with the following
-error:
+		-ben
 
-<--  snip  -->
-
-...
-make[4]: Entering directory
-`/home/bunk/linux/kernel-2.4/linux-full/drivers/media/video'
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-full/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=videodev  -c
--o videodev.o videodev.c
-make[4]: *** No rule to make target `margi/margi_cs.o', needed by
-`video.o'.  Stop.
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux-full/drivers/media/video'
-
-<--  snip  -->
-
-cu
-Adrian
+On Wed, May 08, 2002 at 03:19:03PM -0500, Dan Yocum wrote:
+> Trond, et al.
+> 
+> You're right, it's a driver (ns83820) issue.  Strange that it only shows up
+> when trying to execute an app that's mounted via NFS, but, whatever. 
+> Running apps from the the NFS volumes with the eepro100 adapter that's on
+> the machine works fine with the updated NFS_all patch applied.
+> 
+> Thanks, again,
+> Dan
+> 
+> 
+> Dan Yocum wrote:
+> > 
+> > Dan Yocum wrote:
+> > >
+> > > Trond Myklebust wrote:
+> > > >
+> > > > On Tuesday 7. May 2002 00:05, Dan Yocum wrote:
+> > > > > Trond,
+> > > > >
+> > > > > OK, so backing out the rpc_tweaks dif fixed the performance problem,
+> > > > > however, seems to have introduced another problem that appears to be
+> > > > > stemming from the seekdir.dif.  Attempting to run an app from an IRIX
+> > > > > client (that has the 32bitclients option set) freezes the NFS volume - one
+> > > > > can't access it from the Linux side, anymore.
+> > > > >
+> > > > > You can read and write to the NFS volume *before* trying to run something
+> > > > > from there, but not after.
+> > > > >
+> > > > > Ideas?
+> > > >
+> > > > That smells like another network driver bug. Have you tcpdumped the traffic
+> > > > between client and server?
+> > >
+> > > Ah, that may be the case - the problem also exists with a Linux server as
+> > > well... let me check, and I'll let you know.
+> > 
+> > I take that back - it's only hanging on the Linux server when the IRIX
+> > server is already hung.
+> 
+> 
+> -- 
+> Dan Yocum
+> Sloan Digital Sky Survey, Fermilab  630.840.6509
+> yocum@fnal.gov, http://www.sdss.org
+> SDSS.  Mapping the Universe.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+"You will be reincarnated as a toad; and you will be much happier."

@@ -1,116 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVCEN7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCEPEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVCEN7k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 08:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVCEN7j
+	id S261359AbVCEPEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVCEPEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 08:59:39 -0500
-Received: from tempo.di-net.ru ([213.248.12.5]:50693 "EHLO tempo.di-net.ru")
-	by vger.kernel.org with ESMTP id S261315AbVCEN6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 08:58:02 -0500
-Date: Sat, 5 Mar 2005 16:57:13 +0300
-From: Leo Yuriev <leo@yuriev.ru>
-X-Mailer: The Bat! (v3.0.1.33) Professional
-Reply-To: "leo.yuriev.ru" <leo@yuriev.ru>
-X-Priority: 3 (Normal)
-Message-ID: <1199527299.20050305165713@yuriev.ru>
-To: Lennert Buytenhek <buytenh@gnu.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] ethernet-bridge: update skb->priority in case forwarded frame has VLAN-header
-MIME-Version: 1.0
+	Sat, 5 Mar 2005 10:04:49 -0500
+Received: from europa.telenet-ops.be ([195.130.132.60]:12981 "EHLO
+	europa.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261359AbVCEPEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:04:20 -0500
+Date: Sat, 5 Mar 2005 16:03:43 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       dsaxena@plexity.net, ben-linux@fluff.org, green@crimea.edu,
+       wingel@nano-system.com
+Subject: [WATCHDOG] v2.6.11 patches
+Message-ID: <20050305150343.GG6650@infomag.infomag.iguana.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-1.6 (tempo.di-net.ru [213.248.12.5]); Sat, 05 Mar 2005 16:57:26 +0300 (MSK)
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.6 (2.6.11)
+Hi Linus,
 
-When ethernet-bridge forward a packet and such ethernet-frame has
-VLAN-tag, bridge should update skb->prioriry for properly QoS
-handling.
+please do a
 
-This small patch does this. Currently vlan_TCI-priority directly
-mapped to skb->priority, but this looks enough.
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-Patch-by: Leo Yuriev <leo@yuriev.ru>
+This will update the following files:
+
+ drivers/char/watchdog/ixp2000_wdt.c |    2 +-
+ drivers/char/watchdog/ixp4xx_wdt.c  |    2 +-
+ drivers/char/watchdog/pcwd_usb.c    |    9 +++++----
+ drivers/char/watchdog/s3c2410_wdt.c |    8 +++-----
+ drivers/char/watchdog/sa1100_wdt.c  |    2 +-
+ drivers/char/watchdog/scx200_wdt.c  |    2 +-
+ 6 files changed, 12 insertions(+), 13 deletions(-)
+
+through these ChangeSets:
+
+<wim@iguana.be> (05/03/05 1.2122)
+   [WATCHDOG] correct sysfs name for watchdog devices
+   
+   While looking for possible candidates for our udev.rules package,
+   I found a few odd ->name properties. /dev/watchdog has minor 130
+   according to devices.txt. Since all watchdog drivers use the
+   misc_register() call, they will end up in /sys/class/misc/$foo.
+   udev may create the /dev/watchdog node if the driver is loaded.
+   I dont have such a device, so I cant test it.
+   The drivers below provide names with spaces and even with / in it.
+   Not a big deal, but apps may expect /dev/watchdog.
+   
+   Signed-off-by: Olaf Hering <olh@suse.de>
+   Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+<wim@iguana.be> (05/03/05 1.2123)
+   [WATCHDOG] pcwd_usb: usb_control_msg-timeout-patch
+   
+   set timeout in usb_control_msg to USB_COMMAND_TIMEOUT instead of a 
+   full second.
+
+<ben-linux@fluff.org> (05/03/05 1.2124)
+   [WATCHDOG] s3c2410-divide-patch
+   
+   The s3c2410 watchdog driver has an incorrect /2
+   in the timer calculation, fix this problem
+   
+   Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
 
--- net/bridge/br_input.c.orig   2005-03-02 10:37:50.000000000 +0300
-+++ net/bridge/br_input.c       2005-03-05 16:11:00.000000000 +0300
-@@ -5,6 +5,10 @@
-  *     Authors:
-  *     Lennert Buytenhek               <buytenh@gnu.org>
-  *
-+ *     Changes:
-+ *             03/Mar/2005: Leo Yuriev <leo@yuriev.ru>
-+ *             Update skb->priority for packets with VLAN-tag.
-+ *
-  *     $Id: br_input.c,v 1.10 2001/12/24 04:50:20 davem Exp $
-  *
-  *     This program is free software; you can redistribute it and/or
-@@ -17,6 +21,9 @@
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
- #include <linux/netfilter_bridge.h>
-+#ifdef CONFIG_NET_SCHED
-+#      include <linux/if_vlan.h>
-+#endif /* CONFIG_NET_SCHED*/
- #include "br_private.h"
- 
- const unsigned char bridge_ula[6] = { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x00 };
-@@ -45,6 +52,40 @@ static void br_pass_frame_up(struct net_
-                        br_pass_frame_up_finish);
- }
- 
-+
-+#ifdef CONFIG_NET_SCHED
-+/*
-+ *   Leo Yuriev: Just update skb->priority for properly QoS handling in case
-+ *               frame in the skb is contain VLAN-header.
-+ *
-+ *  SANITY NOTE: We are referencing to the VLAN_HDR frields, which MAY be
-+ *               stored UNALIGNED in the memory.
-+ *               According to Dave Miller & Alexey, it will always be aligned,
-+ *               so there doesn't need to be any of the unaligned stuff.
-+ *
-+ */
-+static __inline__ void br_update_skb_priority_if_vlan(struct sk_buff *skb)
-+{
-+       unsigned short vlan_TCI;
-+       struct vlan_hdr *vhdr;
-+
-+       if (skb->protocol == __constant_htons(ETH_P_8021Q)) {
-+               vhdr = (struct vlan_hdr *)(skb->data);
-+               /* vlan_TCI = ntohs(get_unaligned(&vhdr->h_vlan_TCI)); */
-+               vlan_TCI = ntohs(vhdr->h_vlan_TCI);
-+#ifdef VLAN_DEBUG
-+               printk(VLAN_DBG "%s: skb: %p vlan_id: %hx\n",
-+                       __FUNCTION__, skb, (vlan_TCI & VLAN_VID_MASK));
-+#endif
-+               /*
-+                *   We map VLAN_TCI priority (0..7) to skb->priority (0..15) 
-+                *   most similarly e.g. 0->0, 1->1, .., 7->7
-+                */
-+               skb->priority = (vlan_TCI >> 13) & 7;
-+       }
-+}
-+#endif /* CONFIG_NET_SCHED */
-+
- /* note: already called with rcu_read_lock (preempt_disabled) */
- int br_handle_frame_finish(struct sk_buff *skb)
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/ixp2000_wdt.c b/drivers/char/watchdog/ixp2000_wdt.c
+--- a/drivers/char/watchdog/ixp2000_wdt.c	2005-03-05 15:58:26 +01:00
++++ b/drivers/char/watchdog/ixp2000_wdt.c	2005-03-05 15:58:26 +01:00
+@@ -186,7 +186,7 @@
+ static struct miscdevice ixp2000_wdt_miscdev =
  {
-@@ -54,6 +95,10 @@ int br_handle_frame_finish(struct sk_buf
-        struct net_bridge_fdb_entry *dst;
-        int passedup = 0;
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "IXP2000 Watchdog",
++	.name		= "watchdog",
+ 	.fops		= &ixp2000_wdt_fops,
+ };
  
-+#ifdef CONFIG_NET_SCHED
-+       br_update_skb_priority_if_vlan(skb);
-+#endif /* CONFIG_NET_SCHED*/
-+
-        if (br->dev->flags & IFF_PROMISC) {
-                struct sk_buff *skb2;
-
-
+diff -Nru a/drivers/char/watchdog/ixp4xx_wdt.c b/drivers/char/watchdog/ixp4xx_wdt.c
+--- a/drivers/char/watchdog/ixp4xx_wdt.c	2005-03-05 15:58:26 +01:00
++++ b/drivers/char/watchdog/ixp4xx_wdt.c	2005-03-05 15:58:26 +01:00
+@@ -180,7 +180,7 @@
+ static struct miscdevice ixp4xx_wdt_miscdev =
+ {
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "IXP4xx Watchdog",
++	.name		= "watchdog",
+ 	.fops		= &ixp4xx_wdt_fops,
+ };
+ 
+diff -Nru a/drivers/char/watchdog/sa1100_wdt.c b/drivers/char/watchdog/sa1100_wdt.c
+--- a/drivers/char/watchdog/sa1100_wdt.c	2005-03-05 15:58:26 +01:00
++++ b/drivers/char/watchdog/sa1100_wdt.c	2005-03-05 15:58:26 +01:00
+@@ -176,7 +176,7 @@
+ static struct miscdevice sa1100dog_miscdev =
+ {
+ 	.minor		= WATCHDOG_MINOR,
+-	.name		= "SA1100/PXA2xx watchdog",
++	.name		= "watchdog",
+ 	.fops		= &sa1100dog_fops,
+ };
+ 
+diff -Nru a/drivers/char/watchdog/scx200_wdt.c b/drivers/char/watchdog/scx200_wdt.c
+--- a/drivers/char/watchdog/scx200_wdt.c	2005-03-05 15:58:26 +01:00
++++ b/drivers/char/watchdog/scx200_wdt.c	2005-03-05 15:58:26 +01:00
+@@ -210,7 +210,7 @@
+ 
+ static struct miscdevice scx200_wdt_miscdev = {
+ 	.minor = WATCHDOG_MINOR,
+-	.name  = NAME,
++	.name  = "watchdog",
+ 	.fops  = &scx200_wdt_fops,
+ };
+ 
+diff -Nru a/drivers/char/watchdog/pcwd_usb.c b/drivers/char/watchdog/pcwd_usb.c
+--- a/drivers/char/watchdog/pcwd_usb.c	2005-03-05 15:58:29 +01:00
++++ b/drivers/char/watchdog/pcwd_usb.c	2005-03-05 15:58:29 +01:00
+@@ -1,7 +1,7 @@
+ /*
+  *	Berkshire USB-PC Watchdog Card Driver
+  *
+- *	(c) Copyright 2004 Wim Van Sebroeck <wim@iguana.be>.
++ *	(c) Copyright 2004-2005 Wim Van Sebroeck <wim@iguana.be>.
+  *
+  *	Based on source code of the following authors:
+  *	  Ken Hollis <kenji@bitgate.com>,
+@@ -33,6 +33,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ #include <linux/miscdevice.h>
+ #include <linux/watchdog.h>
+ #include <linux/notifier.h>
+@@ -56,8 +57,8 @@
+ 
+ 
+ /* Module and Version Information */
+-#define DRIVER_VERSION "1.00"
+-#define DRIVER_DATE "12 Jun 2004"
++#define DRIVER_VERSION "1.01"
++#define DRIVER_DATE "05 Mar 2005"
+ #define DRIVER_AUTHOR "Wim Van Sebroeck <wim@iguana.be>"
+ #define DRIVER_DESC "Berkshire USB-PC Watchdog driver"
+ #define DRIVER_LICENSE "GPL"
+@@ -227,7 +228,7 @@
+ 	if (usb_control_msg(usb_pcwd->udev, usb_sndctrlpipe(usb_pcwd->udev, 0),
+ 			HID_REQ_SET_REPORT, HID_DT_REPORT,
+ 			0x0200, usb_pcwd->interface_number, buf, sizeof(buf),
+-			HZ) != sizeof(buf)) {
++			msecs_to_jiffies(USB_COMMAND_TIMEOUT)) != sizeof(buf)) {
+ 		dbg("usb_pcwd_send_command: error in usb_control_msg for cmd 0x%x 0x%x 0x%x\n", cmd, *msb, *lsb);
+ 	}
+ 	/* wait till the usb card processed the command,
+diff -Nru a/drivers/char/watchdog/s3c2410_wdt.c b/drivers/char/watchdog/s3c2410_wdt.c
+--- a/drivers/char/watchdog/s3c2410_wdt.c	2005-03-05 15:58:32 +01:00
++++ b/drivers/char/watchdog/s3c2410_wdt.c	2005-03-05 15:58:32 +01:00
+@@ -26,6 +26,8 @@
+  *	05-Oct-2004	BJD	Added semaphore init to stop crashes on open
+  *				Fixed tmr_count / wdt_count confusion
+  *				Added configurable debug
++ *
++ *	11-Jan-2004	BJD	Fixed divide-by-2 in timeout code
+ */
+ 
+ #include <linux/module.h>
+@@ -163,11 +165,7 @@
+ 	if (timeout < 1)
+ 		return -EINVAL;
+ 
+-	/* I think someone must have missed a divide-by-2 in the 2410,
+-	 * as a divisor of 128 gives half the calculated delay...
+-	 */
+-
+-	freq /= 128/2;
++	freq /= 128;
+ 	count = timeout * freq;
+ 
+ 	DBG("%s: count=%d, timeout=%d, freq=%d\n",

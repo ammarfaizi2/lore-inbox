@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265891AbRF2PXF>; Fri, 29 Jun 2001 11:23:05 -0400
+	id <S266101AbRF2Pgu>; Fri, 29 Jun 2001 11:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265997AbRF2PWz>; Fri, 29 Jun 2001 11:22:55 -0400
-Received: from [192.48.153.1] ([192.48.153.1]:51818 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S265922AbRF2PWt>;
-	Fri, 29 Jun 2001 11:22:49 -0400
-Message-Id: <200106291523.f5TFNhC32686@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Dan Kegel <dank@kegel.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT please; Sybase 12.5 
-In-Reply-To: Message from Dan Kegel <dank@kegel.com> 
-   of "Fri, 29 Jun 2001 02:39:00 PDT." <3B3C4CB4.6B3D2B2F@kegel.com> 
-Date: Fri, 29 Jun 2001 10:23:43 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S266104AbRF2Pgk>; Fri, 29 Jun 2001 11:36:40 -0400
+Received: from mailhost.lineo.fr ([194.250.46.226]:29446 "EHLO
+	mailhost.lineo.fr") by vger.kernel.org with ESMTP
+	id <S266101AbRF2Pge>; Fri, 29 Jun 2001 11:36:34 -0400
+Date: Fri, 29 Jun 2001 17:36:31 +0200
+From: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Qlogic Fiber Channel
+Message-ID: <20010629173631.A15608@pc8.lineo.fr>
+In-Reply-To: <20010629151910.C27847@pc8.lineo.fr> <E15Fzu8-0000SK-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E15Fzu8-0000SK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on ven, jun 29, 2001 at 17:09:56 +0200
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-XFS supports O_DIRECT on linux, has done for a while.
+Le ven, 29 jun 2001 17:09:56, Alan Cox a écrit :
+> > From my point of view, this driver is sadly broken. The fun part is
+that
+> > the qlogic driver is certainly based on this one too (look at the code,
+> > the drivers differs not so much).
+> 
+> And if the other one is stable someone should spend the time merging the
+> two.
 
-Steve
+That what I would like to try but It seems impossible without an
+IP-enhanced firmware. I could try with the old firmware but I believe that
+the new code from QLogic use some features that are only in recent
+firmware.
 
-> At work I had to sit through a meeting where I heard
-> the boss say "If Linux makes Sybase go through the page cache on
-> reads, maybe we'll just have to switch to Solaris.  That's
-> a serious performance problem."
-> All I could say was "I expect Linux will support O_DIRECT
-> soon, and Sybase will support that within a year."  
 > 
-> Er, so did I promise too much?  Andrea mentioned O_DIRECT recently
-> ( http://marc.theaimsgroup.com/?l=linux-kernel&m=99253913516599&w=2,
->  http://lwn.net/2001/0510/bigpage.php3 )
-> Is it supported yet in 2.4, or is this a 2.5 thing?
+> > IMHO the qlogicfc driver should be removed from the kernel tree and
+> > perhaps replaced by the last qlogic one. We then lost the IP support
+> > but this is a broken support.
 > 
-> And what are the chances Sybase will support that flag any time
-> soon?  I just read on news://forums.sybase.com/sybase.public.ase.linux
-> that Sybase ASE 12.5 was released today, and a 60 day eval is downloadable
-> for NT and Linux.  I'm downloading now; it's a biggie.
+> For 2.5 that may wellk make sense. Personally I'd prefer someone worked
+> out
+> why the qlogicfc driver behaves as it does. It sounds like two small bugs
+> nothing more
 > 
-> It supports raw partitions, which is good; that might satisfy my
-> boss (although the administration will be a pain, and I'm not
-> sure whether it's really supported by Dell RAID devices).
-> I'd prefer O_DIRECT :-(
+> 1.	That the FC event code wasnt updated from 2.2 so now runs
+> 	with IRQ's off when it didnt expect it
 > 
-> Hope somebody can give me encouraging news.
-> 
-> Thanks,
-> Dan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> 2.	That someone has a slight glitch in the queue handling.
 
+This driver is already buggy under kernel 2.2. This driver is a well known
+source of problems in the GFS mailing lists.
 
+I believe that the better thing to do is to use the qlogic driver. If we
+manage to get a recent IP-enhanced firmware we could rewrite the missing IP
+code. Half of the job is already done in the source of this driver.
+
+I didn't manage to reach the good person from qlogic. Perhaps someone would
+have better results.
+
+Christophe
+
+-- 
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com

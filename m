@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbTJOXzX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 19:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJOXzX
+	id S262574AbTJPAEf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 20:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTJPAEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 19:55:23 -0400
-Received: from host42-162.pool81113.interbusiness.it ([81.113.162.42]:3200
-	"EHLO matrix") by vger.kernel.org with ESMTP id S262572AbTJOXzW
+	Wed, 15 Oct 2003 20:04:34 -0400
+Received: from h24-77-165-150.wp.shawcable.net ([24.77.165.150]:45195 "EHLO
+	boris.borinux.com") by vger.kernel.org with ESMTP id S262574AbTJPAEe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 19:55:22 -0400
-From: Frederik Nosi <fredi@e-salute.it>
+	Wed, 15 Oct 2003 20:04:34 -0400
+Date: Wed, 15 Oct 2003 19:03:23 -0500 (CDT)
+From: Boris Reisig <boris@boris.ca>
+X-X-Sender: boris@boris
 To: linux-kernel@vger.kernel.org
-Subject: Hangs with 2.4.23-preX kernels =?iso-8859-1?q?probab=F2y=20related=20to=20the=208139cp?= driver
-Date: Thu, 16 Oct 2003 02:01:50 +0000
-User-Agent: KMail/1.5.4
+Subject: MASQUERADE 2.4.23pre7 problems.
+Message-ID: <Pine.LNX.4.58.0310151822320.30845@boris>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310160201.50839.fredi@e-salute.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm experiencing hangs with 2.4.23-pre kernels when using the network with 
-the said driver. The last kernel that works is the 2.4.22-pre8. I noticed 
-that during this versions there where updates to the eth. drivers. 
-Unfortunately the kernel does not give any error, just the pc does not 
-respond to pings, the cursor on screen stops blinking. Tried with sysrq 
-enabled too but nothing on logs. I can reliabily reproduce this just doing 
-something network intensive, eg. accessing a remote desktop during a full 
-kernel download ;)
-Sorry for this terse info, if you need any other info just ask. And please CC 
-me on replies as I'm not subscribed to the list.
+Using the last few 2.4.23pre patches[even the latest 2.4.23pre7], I now
+get the following error messages on my console screen and when doing a
+dmesg. Here is the error I get when the computers in my lan use the
+internet for the first time. [on my server]
 
-Thanks,
-Fredi
+MASQUERADE: Route sent us somewhere else.
+MASQUERADE: Route sent us somewhere else.

@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbRBIUCH>; Fri, 9 Feb 2001 15:02:07 -0500
+	id <S129853AbRBIUIs>; Fri, 9 Feb 2001 15:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbRBIUB5>; Fri, 9 Feb 2001 15:01:57 -0500
-Received: from kiln.isn.net ([198.167.161.1]:1863 "EHLO kiln.isn.net")
-	by vger.kernel.org with ESMTP id <S129734AbRBIUBv>;
-	Fri, 9 Feb 2001 15:01:51 -0500
-Message-ID: <3A844C76.59CBEE74@isn.net>
-Date: Fri, 09 Feb 2001 16:00:54 -0400
-From: "Garst R. Reese" <reese@isn.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: compiling 2.4.1 with binutils-2.10.1.0.7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130533AbRBIUI3>; Fri, 9 Feb 2001 15:08:29 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:2052 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S129853AbRBIUIY>;
+	Fri, 9 Feb 2001 15:08:24 -0500
+Date: Fri, 9 Feb 2001 21:08:06 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Dimitromanolakis Apostolos <apdim@ovelix.softnet.tuc.gr>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/media/radio/radio-maxiradio.c - 2.4.1-ac8
+Message-ID: <20010209210806.A1001@se1.cogenit.fr>
+In-Reply-To: <20010206224451.A24412@ensta.fr> <Pine.LNX.4.10.10102072245460.17074-300000@kythira.softlab.tuc.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <Pine.LNX.4.10.10102072245460.17074-300000@kythira.softlab.tuc.gr>
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bbootsect.s:253 warning indirect lcall without *
-ld cannot open binary: no such file or directory
-binutils-2.10.0.33 works, but gives lots of similar warnings elsewhere.
-just a headsup.
-Garst
+Dimitromanolakis Apostolos <apdim@ovelix.softnet.tuc.gr> écrit :
+[...]
+> Your patch had some problem in the maxiradio_radio_init function as
+> pci_register_driver returns the number of devices found and not 0 when
+> succesful. I fixed it and here is my patch against the original driver.
+
+Patch-o-the-month candidate follows:
+
+--- linux-2.4.1-ac8.orig/drivers/media/radio/radio-maxiradio.c	Fri Feb  9 15:55:03 2001
++++ linux-2.4.1-ac8/drivers/media/radio/radio-maxiradio.c	Fri Feb  9 15:56:55 2001
+@@ -376,9 +376,7 @@
+ 
+ int __init maxiradio_radio_init(void)
+ {
+-	int count = pci_register_driver(&maxiradio_driver);
+-	
+-	if(count > 0) return 0; else return -ENODEV;
++	return pci_module_init(&maxiradio_driver);
+ }
+ 
+ void __exit maxiradio_radio_exit(void)
+
+-- 
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

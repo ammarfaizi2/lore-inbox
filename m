@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132887AbRDJAdf>; Mon, 9 Apr 2001 20:33:35 -0400
+	id <S132890AbRDJAyT>; Mon, 9 Apr 2001 20:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132888AbRDJAdZ>; Mon, 9 Apr 2001 20:33:25 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20740
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132887AbRDJAdQ>; Mon, 9 Apr 2001 20:33:16 -0400
-Date: Mon, 9 Apr 2001 17:33:13 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: ide.2.2.19.04092001.patch
-Message-ID: <Pine.LNX.4.10.10104091720030.1878-100000@master.linux-ide.org>
+	id <S132891AbRDJAyK>; Mon, 9 Apr 2001 20:54:10 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:15367 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132890AbRDJAyC>;
+	Mon, 9 Apr 2001 20:54:02 -0400
+Date: Mon, 9 Apr 2001 21:46:51 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Joseph Carter <knghtbrd@debian.org>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+In-Reply-To: <20010409164032.B853@debian.org>
+Message-ID: <Pine.LNX.4.21.0104092145570.11038-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Apr 2001, Joseph Carter wrote:
+> On Tue, Apr 10, 2001 at 01:00:08AM +0300, Matti Aarnio wrote:
+> > 	Dave said "remove DUL", I did that.
+> > 
+> > 	VGER uses now   RBL and RSS,  no others.
+> 
+> Thank you, I don't believe there is anyone on this list who is likely
+> to object to these lists.
 
-This is up with some updates
+It might even be good to add inputs.orbs.org to vger. This list
+is basically the same as RSS, except that sites can get on and
+off faster  (RSS is sometimes slow in adding sites to the list
+and it is at times also slow in removing sites that have already
+been fixed).
 
-Short notice development for Promise Ultra100 TX2 sponsored by
-Penguin Computer and again little/no help from Promise.
+regards,
 
-This is a unique chipset that does setfeatures sensing of the transfer
-rates and thus it is counter to the standard Promise design.  It does
-still use the pdc202xx.c chipset code, but much of it is skipped over to
-preserve the hidden settings calls.  The one issue for this chipset is
-that it may not be ideal for hotswap as the unknown states are issues.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-DiskPerf /dev/hde
-Device: IBM-DTLA-307075 Serial Number: YSDYSFA5874
-LBA 0 DMA Read Test                      = 63.35 MB/Sec (3.95 Seconds)
-Outer Diameter Sequential DMA Read Test  = 35.89 MB/Sec (6.97 Seconds)
-Inner Diameter Sequential DMA Read Test  = 17.64 MB/Sec (14.17 Seconds)
-
-CR3's adjusted:	for kernel transfer rates and conservative
-LBA 0 DMA Read Test                      = 85.52 MB/Sec
-Outer Diameter Sequential DMA Read Test  = 48.45 MB/Sec
-Inner Diameter Sequential DMA Read Test  = 23.81 MB/Sec
-
-There is about a 35%-40% under reporting of performance from kernel to
-user-space ioctl calls.
-
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
-
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVASUpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVASUrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVASUpe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVASUpe
+	id S261889AbVASUrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVASUrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:45:34 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:47884 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261885AbVASUpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:45:19 -0500
-Message-Id: <200501192044.j0JKiwJ2005994@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: John Richard Moser <nigelenki@comcast.net>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues 
-In-Reply-To: Your message of "Wed, 19 Jan 2005 20:53:51 +0100."
-             <1106164432.6310.195.camel@laptopd505.fenrus.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113082320.GB18685@infradead.org> <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <1106157152.6310.171.camel@laptopd505.fenrus.org> <41EEABEF.5000503@comcast.net> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu>
-            <1106164432.6310.195.camel@laptopd505.fenrus.org>
+	Wed, 19 Jan 2005 15:47:23 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:4638 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261889AbVASUrN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:47:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=iLZ08p8ZzUm5F6mxhMtodwFth9Dk/N9bPxn6WWGvTOjd5P7PhJ5tvhJU3VaYPNgQrt+CGA5lkfxd1BAfUejOrmZnk2vg69NSOmbg+kwMABouk4yZ1hdxpOLhAmJmnn1EP3omj3GxeliEJDsiUEvQquydsEdzLWWDTx5EsP5+KWs=
+Date: Wed, 19 Jan 2005 21:47:10 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-Id: <20050119214710.5c0797cf.diegocg@gmail.com>
+In-Reply-To: <41EEBF15.9050700@comcast.net>
+References: <20050112205350.GM24518@redhat.com>
+	<Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	<20050112182838.2aa7eec2.akpm@osdl.org>
+	<20050113033542.GC1212@redhat.com>
+	<Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
+	<20050113082320.GB18685@infradead.org>
+	<Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
+	<1105635662.6031.35.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org>
+	<41E6BE6B.6050400@comcast.net>
+	<20050119103020.GA4417@elte.hu>
+	<41EE96E7.3000004@comcast.net>
+	<1106157152.6310.171.camel@laptopd505.fenrus.org>
+	<41EEABEF.5000503@comcast.net>
+	<200501191947.j0JJlf3j024206@turing-police.cc.vt.edu>
+	<41EEBF15.9050700@comcast.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106167498_1885P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Jan 2005 15:44:58 -0500
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1106167498_1885P
-Content-Type: text/plain; charset=us-ascii
+[trimming of cc list since this has nothing to see with the thread]
 
-On Wed, 19 Jan 2005 20:53:51 +0100, Arjan van de Ven said:
+El Wed, 19 Jan 2005 15:12:05 -0500 John Richard Moser <nigelenki@comcast.net> escribió:
 
-> > Now look at http://www.kernel.org/pub/linux/kernel/people/arjan/execshield/
-.
-> > 4 separate hunks, the biggest is under 7K.  Other chunks of similar size
-> > for non-exec stack and NX support are already merged.
-> > 
-> > And why were they merged?  Because they showed up in 4-8K chunks.
-> >   
-> note to readers: I'm still not happy about the split up and want to
-> split this up even further in smaller pieces; the split up there is only
-> a first order split.
+> so you want 90-200 split out patches for GrSecurity?
 
-Right - the point is that even an idiot like me can get my head wrapped around
-that biggest 7K chunk and figure out what's going on.  On the other hand, even
-the Alan Cox gnome-cluster isn't able to digest a 280K patch...
+Documentation/SubmittingPatches.txt is all you need to read.
 
+There has been a lot of good projects that have failed just because they sat
+around saying "my stuff is better" without caring about how to merge it or
+without listening other kernel developers. Then someone reimplemented it
+better and submitted it in a way it could be handled, and listened to other
+developers, and it got in the kernel and everybody helped to make it better
+than the first alternative. Kbuild is a good examle of this
 
---==_Exmh_1106167498_1885P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB7sbKcC3lWbTT17ARAhfDAKCC7+/enOdRUmsQi3sh/L9y7v+OGwCgkaWv
-XOIghQrCAEYVZQvG8s932rE=
-=kMpQ
------END PGP SIGNATURE-----
-
---==_Exmh_1106167498_1885P--
+So, if you want to have have PAX or grsecurity in the kernel, you probably
+should submit patches (in the way described in SubmittingPatches.txt) and if
+everybody agrees that it's better and you listen other developers and make
+changes accordingly and you don't say "$SOMEPERSON is just a scheduler
+developer" perhaps it'll be merged. Of course that's more difficult since
+people has already cared about doing all that work with ES and it's already
+working OK for thousand of people.

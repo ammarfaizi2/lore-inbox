@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282410AbRKXKG4>; Sat, 24 Nov 2001 05:06:56 -0500
+	id <S282412AbRKXJ5H>; Sat, 24 Nov 2001 04:57:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282411AbRKXKGq>; Sat, 24 Nov 2001 05:06:46 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:10058 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S282410AbRKXKGf>; Sat, 24 Nov 2001 05:06:35 -0500
-Date: Sat, 24 Nov 2001 11:05:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Paulo J. Matos aka PDestroy" <pocm@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15aa1
-Message-ID: <20011124110544.J1419@athlon.random>
-In-Reply-To: <20011124085028.C1419@athlon.random> <m36680tscc.fsf@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <m36680tscc.fsf@localhost.localdomain>; from pocm@rnl.ist.utl.pt on Sat, Nov 24, 2001 at 09:45:39AM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S282410AbRKXJ4z>; Sat, 24 Nov 2001 04:56:55 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22230 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282409AbRKXJ4o>;
+	Sat, 24 Nov 2001 04:56:44 -0500
+Date: Sat, 24 Nov 2001 04:56:41 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.15-pre9 breakage (inode.c)
+In-Reply-To: <20011124103854.I1419@athlon.random>
+Message-ID: <Pine.GSO.4.21.0111240445520.4000-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 24, 2001 at 09:45:39AM +0000, Paulo J. Matos aka PDestroy wrote:
-> 
-> Will this fix the potential possibility of 2.4.15 screwing my
-> system? (inode problem as people have been mentioning it, etc?)
 
-yes.
 
-Andrea
+On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+
+> I think long term (2.5) the right way is to replace all the iput in the
+> slow fail paths with a iput_not_mounted, that will avoid both the iput
+> clobbering and the MS_ACTIVE tracking. The differentiation should be
+
+Egads...  Andrea, think for a bloody minute.  What's the point of adding
+a new helper that would share a lot of code with the iput() _and_ would
+bring additional calling rules?  We get
+	* more code in inode.c
+	* more code duplications
+	* a lot of opportunities to fsck up in fs code
+	* redundant invalidate_inodes() calls in fs/super.c existing just
+to catch these fsckups.
+	* some filesystems getting out with only iput(), some needing new
+helper.
+	* cut'n'paste programming getting one more source of bugs to
+introduce.
+
+And it's not even the case when filesystems could use that distinction in
+any sane way...
+

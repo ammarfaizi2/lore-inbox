@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136776AbREIRgR>; Wed, 9 May 2001 13:36:17 -0400
+	id <S136780AbREIRlH>; Wed, 9 May 2001 13:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136775AbREIRgH>; Wed, 9 May 2001 13:36:07 -0400
-Received: from ns.caldera.de ([212.34.180.1]:64915 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S136776AbREIRf4>;
-	Wed, 9 May 2001 13:35:56 -0400
-Date: Wed, 9 May 2001 19:35:21 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: "Andrew M. Theurer" <atheurer@austin.ibm.com>
-Cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        samba-technical <samba-technical@samba.org>
-Subject: Re: [Lse-tech] Re: Linux 2.4 Scalability, Samba, and Netbench
-Message-ID: <20010509193521.A25108@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	"Andrew M. Theurer" <atheurer@austin.ibm.com>,
-	Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	samba-technical <samba-technical@samba.org>
-In-Reply-To: <3AF97062.42465A53@austin.ibm.com> <20010509095658.B1150@w-mikek2.sequent.com> <3AF97EBB.9F0ABE9A@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AF97EBB.9F0ABE9A@austin.ibm.com>; from atheurer@austin.ibm.com on Wed, May 09, 2001 at 12:30:35PM -0500
+	id <S136781AbREIRk6>; Wed, 9 May 2001 13:40:58 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:14484 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S136775AbREIRko>; Wed, 9 May 2001 13:40:44 -0400
+Subject: Announcing Journaled File System (JFS)  release 0.3.1 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF1C31903A.08756E0F-ON85256A47.0060D8AF@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Wed, 9 May 2001 12:40:25 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 05/09/2001 01:40:32 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 12:30:35PM -0500, Andrew M. Theurer wrote:
-> I do have kernprof ACG and lockmeter for a 4P run.  We saw no
-> significant problems with lockmeter.  csum_partial_copy_generic was the
-> highest % in profile, at 4.34%.  I'll see if we can get some space on
-> http://lse.sourceforge.net to post the test data.
+Release 0.3.1 of JFS was made available today.
 
-Maybe you should try Kernel 2.4.4 (with Zerocopy TCP/IP) and Anton's
-sendfile for samba patch.  A copy of the latter was posted to lkml - see
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.3/0484.html,
-even if that maybe be unusable to due html crappieness.
+Drop 31 on May 9, 2001 (jfs-0.3.1.tar.gz) includes fixes to the
+file system and utilities.
 
-	Christoph
+For more details about the problems fixed, please see the README.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Steve
+JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
+
+
+
+
+

@@ -1,68 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQLDEKp>; Sun, 3 Dec 2000 23:10:45 -0500
+	id <S129257AbQLDETi>; Sun, 3 Dec 2000 23:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129596AbQLDEKf>; Sun, 3 Dec 2000 23:10:35 -0500
-Received: from mail5.doit.wisc.edu ([144.92.9.76]:41476 "EHLO
-	mail5.doit.wisc.edu") by vger.kernel.org with ESMTP
-	id <S129523AbQLDEKU>; Sun, 3 Dec 2000 23:10:20 -0500
-Message-Id: <200012040339.VAA43998@mail5.doit.wisc.edu>
-Date: Sun, 03 Dec 2000 21:39:52 -0600
-From: Erik Paulson <epaulson@students.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Exporting access_process_vm
-Reply-To: epaulson@students.wisc.edu
-X-Mailer: Spruce 0.7.2 for X11 w/smtpio 0.9.0
+	id <S129289AbQLDET3>; Sun, 3 Dec 2000 23:19:29 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:7631 "EHLO
+	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S129257AbQLDETZ>; Sun, 3 Dec 2000 23:19:25 -0500
+Date: Sun, 3 Dec 2000 22:51:26 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+To: Daniel Roesen <dr@bofh.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Phantom PS/2 mouse persists..
+In-Reply-To: <20001204004947.A1922@helios.swat.bofh.de>
+Message-ID: <Pine.LNX.4.21.0012032250361.3253-100000@pii.fast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	Back in September, David Howells sent in a one-line patch that just
-exported
-access_process_vm. It doesn't seem to have been applied, and there was no
-discussion of it. 
+On Mon, 4 Dec 2000, Daniel Roesen wrote:
 
-Was it simply overlooked, or was there a good reason not to apply it and no
-one
-ever replied to the list about it? 
+> On Sun, Dec 03, 2000 at 10:24:19AM -0500, Steven N. Hirsch wrote:
+> > Unfortunately, 2.2.18pre24 is still convinced that I have a PS/2 mouse
+> > attached to my machine.
+> 
+> Nod. Which board? I'm seeing the problem with Asus CUWE.
 
-I'm dragging some checkpointing code into the Wonderful World of Linux 2.4,
-and it'd
-be great if I could chuck all the scary
-walk-the-page-tables-and-hope-it-works
-code that's currently in there with more modern stuff. 
+Asus P2B-DS here.  Wonder what on earth they're doing differently with the
+Aux port?
 
-Thanks!
 
--Erik
 
-This was the original message: (I can re-create the "patch" against the
-current
-release, but it seemed straight-forward enough :)
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Could you please apply this little patch to export access_process_vm()?
-
-Cheers,
-David Howells
-=============
-
-diff -uNr linux-2.4.0-test8-orig/kernel/ksyms.c
-linux-2.4.0-test8/kernel/ksyms.c
---- linux-2.4.0-test8-orig/kernel/ksyms.c Fri Sep 15 00:04:36 2000
-+++ linux-2.4.0-test8/kernel/ksyms.c Mon Sep 11 23:39:38 2000
-@@ -123,6 +123,7 @@
-EXPORT_SYMBOL(find_vma);
-EXPORT_SYMBOL(get_unmapped_area);
-EXPORT_SYMBOL(init_mm);
-+EXPORT_SYMBOL(access_process_vm);
-#ifdef CONFIG_HIGHMEM
-EXPORT_SYMBOL(kmap_high);
-EXPORT_SYMBOL(kunmap_high);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

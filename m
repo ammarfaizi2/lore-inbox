@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261452AbTC0WTP>; Thu, 27 Mar 2003 17:19:15 -0500
+	id <S261440AbTC0WY0>; Thu, 27 Mar 2003 17:24:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261453AbTC0WTP>; Thu, 27 Mar 2003 17:19:15 -0500
-Received: from [12.242.167.130] ([12.242.167.130]:42368 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id <S261452AbTC0WTL>; Thu, 27 Mar 2003 17:19:11 -0500
-Message-ID: <3E837B7D.9010005@comcast.net>
-Date: Thu, 27 Mar 2003 14:30:21 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
-Subject: Re: vesafb problem
-References: <3E8329D2.7040909@comcast.net> <20030327190222.GA4060@middle.of.nowhere> <3E835241.9060407@comcast.net> <20030327233902.5963b0b1.bonganilinux@mweb.co.za>
-In-Reply-To: <20030327233902.5963b0b1.bonganilinux@mweb.co.za>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261460AbTC0WY0>; Thu, 27 Mar 2003 17:24:26 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:28653 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261440AbTC0WYZ>; Thu, 27 Mar 2003 17:24:25 -0500
+Date: Thu, 27 Mar 2003 14:37:14 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Patrick Mochel <mochel@osdl.org>, David Brownell <david-b@pacbell.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.recent: device_remove_file() doesn't
+Message-ID: <20030327223714.GB11246@beaverton.ibm.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Patrick Mochel <mochel@osdl.org>,
+	David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+References: <3E8275AD.40603@pacbell.net> <Pine.LNX.4.33.0303271154080.1001-100000@localhost.localdomain> <20030327200413.GA1687@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030327200413.GA1687@kroah.com>
+X-Operating-System: Linux 2.0.32 on an i486
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani Hlope wrote:
-
-> Strange I'm having the same problem, but I only have 256MB of memory and my GeForce 2 only has 32MB. This is what's on my messages file:
+Greg KH [greg@kroah.com] wrote:
+> On Thu, Mar 27, 2003 at 11:58:14AM -0600, Patrick Mochel wrote:
+> > 
+> > Greg/Mike, could you give this patch a shot and let me know if helps?
 > 
-> 
-> vesafb: framebuffer at 0xe0000000, mapped to 0xd0807000, size 32768k
-> vesafb: mode is 800x600x16, linelength=1600, pages=3
-> vesafb: protected mode interface info at c000:c060
-> vesafb: scrolling: redraw
-> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-> Looking for splash picture.... found (800x600, 13683 bytes).
-> Console: switching to colour frame buffer device 82x30
-> fb0: VESA VGA frame buffer device
+> Yes, this seems to fix the symlink problem I was seeing before, thanks.
 > 
 
-Hmmm. That's a different problem than I'm experiencing. Your system 
-appears to be correctly remapping the framebuffer and switching to it. 
-You don't get a graphical boot? Seems as if you should from the log 
-snippet you posted.
+It has also fixed my symlink issue.
 
--Walt
+thanks,
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

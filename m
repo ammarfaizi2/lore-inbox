@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbTEVRYK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 13:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTEVRYK
+	id S262884AbTEVRqO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 13:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTEVRqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 13:24:10 -0400
-Received: from ns2.jaj.com ([66.93.21.106]:42684 "EHLO ns2.jaj.com")
-	by vger.kernel.org with ESMTP id S262830AbTEVRYJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 13:24:09 -0400
-Date: Thu, 22 May 2003 13:37:11 -0400
-From: Phil Edwards <phil@jaj.com>
-To: Justin Cormack <justin@street-vision.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 SMP, a PDC20269, and a huge Maxtor disk.  Am I doomed?
-Message-ID: <20030522173711.GA22728@disaster.jaj.com>
-References: <20030522134847.GA20179@disaster.jaj.com> <1053620457.1458.45.camel@lotte>
+	Thu, 22 May 2003 13:46:14 -0400
+Received: from dhcp05.ists.dartmouth.edu ([129.170.249.105]:898 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id S262884AbTEVRqB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 13:46:01 -0400
+Message-Id: <200305221759.h4MHwwum013259@uml.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML build updates 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053620457.1458.45.camel@lotte>
-User-Agent: Mutt/1.5.3i
+Date: Thu, 22 May 2003 13:58:58 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22, 2003 at 05:20:56PM +0100, Justin Cormack wrote:
-> Also, to isolate things, can you
-> not use master and slave. I dont think they should be able to run at
-> different speeds.
+Please pull
+	http://jdike.stearns.org:5000/build-2.5
 
-My (limited) understanding is that they /should/ (i.e., according to theory)
-be able to, but that they might not /ought/ to (i.e., what the kernel
-actually supports).  I've been meaning to get another ide cable anyway.  :-)
+This update brings the UML build up to 2.5.69.
 
+It also fixes a bunch of bugs -
+	multi-line strings are gone, so gcc 3.[23] are happier
+	a bunch of missing dependencies were added, so -j builds work
+	cleaned up defconfig
 
-> Check /proc/interrupts. Are there lots of ERR interrupts listed? Thats
-> what has happaned with my 2 systems, all was well for a while, then they
-> started giving errors, and flaking out in nasty (different) ways. They
-> are raid5 systems, which causes all sorts of fun as they get taken off
-> line, and then come back and try to rebuild etc.
-
-No ERRs at all here.
-
-I am beginning to notice a pattern:  if the system is soft-rebooted, the
-errors in my oridinal email almost always occur during the boot sequence
-(which either hangs the system, or OOPSes the kernel).  Driving over to
-that building, reaching down and pushing the reset button hasn't (yet) had
-a problem.  I'll try to keep notes during the upcoming inevitable crashes.
+				Jeff
 
 
-> What motherboard do you have?
+ arch/um/Kconfig                      |  100 ++++++++++++++++++++++++++++++-----
+ arch/um/Kconfig_net                  |   70 ------------------------
+ arch/um/Makefile                     |   33 +++++++----
+ arch/um/Makefile-i386                |   20 ++++---
+ arch/um/Makefile-skas                |    6 +-
+ arch/um/config.release               |    1 
+ arch/um/defconfig                    |    1 
+ arch/um/drivers/mconsole_kern.c      |   26 ++++-----
+ arch/um/kernel/Makefile              |    8 +-
+ arch/um/kernel/config.c.in           |    4 -
+ arch/um/kernel/skas/Makefile         |   22 ++++---
+ arch/um/kernel/skas/util/mk_ptregs.c |    1 
+ arch/um/kernel/tt/ptproxy/proxy.c    |    8 +-
+ arch/um/sys-i386/Makefile            |   10 ++-
+ include/asm-um/common.lds.S          |    8 --
+ 15 files changed, 167 insertions(+), 151 deletions(-)
 
-Tyan Tiger MP, the S2460 model.
+ChangeSet@1.1042.83.2, 2003-05-02 12:59:05-04:00, jdike@uml.karaya.com
+  Got rid of multi-line strings.
+  Added a missing dependency to arch/um/Makefile.
+  Removed a bogus entry from defconfig.
 
+ChangeSet@1.889.410.2, 2003-03-27 12:19:48-05:00, jdike@uml.karaya.com
+  Updated to 2.5.66 build changes.
 
-Phil
+ChangeSet@1.889.410.1, 2003-03-22 14:07:47-05:00, jdike@uml.karaya.com
+  Merged the 2.5.65 changes.
 
--- 
-If ye love wealth greater than liberty, the tranquility of servitude greater
-than the animating contest for freedom, go home and leave us in peace.  We seek
-not your counsel, nor your arms.  Crouch down and lick the hand that feeds you;
-and may posterity forget that ye were our countrymen.            - Samuel Adams
+ChangeSet@1.889.307.3, 2003-03-22 13:11:46-05:00, jdike@uml.karaya.com
+  Fixed the build of arch/um/util by expanding $(call descend, ....)
+  in arch/um/Makefile because it's not available there, and by setting
+  build-targets to host-progs in arch/um/util/Makefile because 
+  host-progs doesn't get built otherwise.
+
+ChangeSet@1.889.308.2, 2003-03-07 12:35:02-05:00, jdike@uml.karaya.com
+  Fixed build races so that -j builds work.
+  The config is closer to the other arches.
+
+ChangeSet@1.889.99.31, 2003-02-07 12:53:42-05:00, jdike@uml.karaya.com
+  Added some help and removed an unneeded option from config.release.
+

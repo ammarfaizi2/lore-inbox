@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132144AbQKBIRq>; Thu, 2 Nov 2000 03:17:46 -0500
+	id <S130812AbQKBI2u>; Thu, 2 Nov 2000 03:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132157AbQKBIRg>; Thu, 2 Nov 2000 03:17:36 -0500
-Received: from smtp01.oce.nl ([134.188.1.25]:37062 "EHLO smtp01.oce.nl")
-	by vger.kernel.org with ESMTP id <S132144AbQKBIRU>;
-	Thu, 2 Nov 2000 03:17:20 -0500
->Received: from pc1-adve.oce.nl (pc1-adve.oce.nl [134.188.176.32])
-	by smtp02.oce.nl (8.9.3/8.9.3) with ESMTP id JAA21484;
-	Thu, 2 Nov 2000 09:06:37 +0100 (MET)
-Message-Id: <m13rFOP-000qDEC@pc1-adve.oce.nl>
-Date: Thu, 2 Nov 2000 09:06:37 +0100 (CET)
-From: adve@oce.nl (Arjan van de Ven)
-To: hjb@pro-linux.de (Hans-Joachim Baader)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: test10 won't boot
-X-Newsgroups: adve.linux.kernel
-In-Reply-To: <20001102070209.DFE7D355386@grumbeer.hjb.de>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre15 (i686))
-Content-Type: text
+	id <S130848AbQKBI2l>; Thu, 2 Nov 2000 03:28:41 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:9934 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130812AbQKBI2d>; Thu, 2 Nov 2000 03:28:33 -0500
+Message-ID: <3A0125AE.467B640B@uow.edu.au>
+Date: Thu, 02 Nov 2000 19:28:30 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Josefine Staff <staff@josefine.ben.tuwien.ac.at>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.2.17] 3c59x and Transmit list error
+In-Reply-To: <20001102013305.A17809@josefine.ben.tuwien.ac.at>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001102070209.DFE7D355386@grumbeer.hjb.de> you wrote:
-> Hi,
+Markus Fischer wrote:
+> 
+> Hello,
+> 
+>         For some time now we're observing a very bad [tm] network
+> problem with our 3Com 3c905B Cyclone card. After booting the
+> network works just fine, but after a few days ( ranging from five
+> to 10) really hard network problems occur, rendering the network
+> accessabilty to zero; only manually restarting the network solves
+> this problem (from local, of course).
 
-> The system is a AMD K6-2/400 on an ASUS P5A-B board. lspci output:
+eth0: Transmit error, Tx status register 82.
 
+This is an "out of window collision", otherwise known
+as a "Transmit reclaim error".
 
-[snip]
+It is almost certainly caused by another machine on
+your network entering full-duplex mode.  It stomps 
+on the 3c905's Tx packets and the collision is
+detected too late for the 905 to be able to
+retransmit - some of the packet contents have
+been discarded from the on-chip FIFO.
 
-> CONFIG_M686=y
+Next time it happens, you need to run around the
+building and find out who just did something such
+as turning their computer on, or mucking around
+with dangerous Linux netdriver module parameters.
 
-Ah ha!
-
-You have selected the Pentium II/III CPU type, which does NOT work on a K6. 
-The compiler (and the kernel) will use the "new" Pentium II instructions
-(such as "cmov") which are not supported by the K6, leading to "illegal
-instruction" usage very early.
-
-I'm sure your computer will work fine as soon as you select a "K6" processor
-in the configuration program you use (make menuconfig/xconfig/config), as I
-have the same CPU/mobo.
-
-Greetings,
-   Arjan van de Ven
-
+If this description doesn't match your situation
+please let me know and we'll work on it.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

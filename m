@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUDZM0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUDZM0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbUDZM0L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 08:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUDZM0L
+	id S264522AbUDZM0w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUDZM0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 08:26:11 -0400
-Received: from [203.14.152.115] ([203.14.152.115]:11019 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264526AbUDZM0G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 08:26:06 -0400
-Date: Mon, 26 Apr 2004 22:23:14 +1000
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, 241107@bugs.debian.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       t-kochi@bq.jp.nec.com
-Subject: Re: Bug#241107: Acknowledgement (kernel-image-2.4.24-1-686: 8139too ethernet driver's iomem resource not freed up on rmmod.)
-Message-ID: <20040426122314.GA7545@gondor.apana.org.au>
-References: <E1B8Okk-0000VO-4C@lkcl.net> <handler.241107.B.108067442320316.ack@bugs.debian.org> <20040413194259.GA8607@lkcl.net> <20040424211004.GA2585@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
+	Mon, 26 Apr 2004 08:26:52 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:22610 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264522AbUDZM0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 08:26:50 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Date: Mon, 26 Apr 2004 07:26:47 -0500
+User-Agent: KMail/1.6.1
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       Simon Kelley <simon@thekelleys.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net> <200404251653.55385.dtor_core@ameritech.net> <20040425235844.E13748@flint.arm.linux.org.uk>
+In-Reply-To: <20040425235844.E13748@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040424211004.GA2585@lkcl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404260726.47571.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, Apr 24, 2004 at 09:10:04PM +0000, Luke Kenneth Casson Leighton wrote:
+On Sunday 25 April 2004 05:58 pm, Russell King wrote:
+> On Sun, Apr 25, 2004 at 04:53:53PM -0500, Dmitry Torokhov wrote:
+> > On Friday 23 April 2004 03:39 pm, Russell King wrote:
+> > > On Fri, Apr 23, 2004 at 10:14:24PM +0200, Marcel Holtmann wrote:
+> > > > should we apply the pcmcia_get_sys_device() patch from Dmitry for now to
+> > > > fix the current drivers that need a device for loading the firmware?
+> > > 
+> > > I don't think so - it obtains the struct device for the bridge itself
+> > > which has nothing to do with the card inserted in the slot.
+> > > 
+> > 
+> > Yes, my bad... I wonder if something like the patch below could be useful
+> > for now (although it created only one device entry even if card has multiple
+> > functions so we really need another device for every function):
+> 
+> This breaks modular builds - pcmcia_bus_type is in ds.c which is a
+> separate module.
 >
-> Apr 24 21:01:33 localhost kernel: acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.4
-> Apr 24 21:02:00 localhost kernel: cpqphp: Compaq Hot Plug PCI Controller Driver version: 0.9.7
-> Apr 24 21:02:08 localhost kernel: shpchp: acpi_shpchprm:get_device PCI ROOT HID fail=0x1001
-> Apr 24 21:02:13 localhost kernel: acpi: Unknown symbol acpi_processor_unregister_performance
-> Apr 24 21:02:13 localhost kernel: acpi: Unknown symbol acpi_processor_register_performance
-> Apr 24 21:02:44 localhost kernel: acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.4
-> Apr 24 21:02:44 localhost kernel: Unable to handle kernel paging request at virtual address d0a95cf8
-> Apr 24 21:02:44 localhost kernel:  printing eip:
-> Apr 24 21:02:44 localhost kernel: c01c8d35
-> Apr 24 21:02:44 localhost kernel: *pde = 0fa26067
-> Apr 24 21:02:44 localhost kernel: *pte = 00000000
-> Apr 24 21:02:44 localhost kernel: Oops: 0000 [#1]
-> Apr 24 21:02:44 localhost kernel: PREEMPT 
-> Apr 24 21:02:44 localhost kernel: CPU:    0
-> Apr 24 21:02:44 localhost kernel: EIP:    0060:[acpi_pci_register_driver+25/92]    Not tainted
 
-Thanks.
+Ok, then one question before I shut up - why is it exported if other modules
+can not use it?
 
-The first load of acpiphp didn't clean up properly.  This patch should
-fix it.
-
-You can get the updated acpiphp module for that kernel at
-
-http://gondor.apana.org.au/debian/kernel/binary/2.6.5/686/
-
-Cheers,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: drivers/pci/hotplug/acpiphp_glue.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/pci/hotplug/acpiphp_glue.c,v
-retrieving revision 1.1.1.8
-diff -u -r1.1.1.8 acpiphp_glue.c
---- a/drivers/pci/hotplug/acpiphp_glue.c	5 Apr 2004 09:49:33 -0000	1.1.1.8
-+++ b/drivers/pci/hotplug/acpiphp_glue.c	26 Apr 2004 12:18:46 -0000
-@@ -1113,6 +1113,8 @@
- 
- 		kfree(bridge);
- 	}
-+
-+	acpi_pci_unregister_driver(&acpi_pci_hp_driver);
- }
- 
- 
-
---bg08WKrSYDhXBjb5--
+Dmitry

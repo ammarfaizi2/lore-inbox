@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263894AbRF1TH4>; Thu, 28 Jun 2001 15:07:56 -0400
+	id <S263933AbRF1TI0>; Thu, 28 Jun 2001 15:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263933AbRF1THg>; Thu, 28 Jun 2001 15:07:36 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63503 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263894AbRF1THb>; Thu, 28 Jun 2001 15:07:31 -0400
-Subject: Re: BIG PROBLEM
-To: difda@hotmail.com (james bond)
-Date: Thu, 28 Jun 2001 20:07:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <LAW2-F118HsRsWg8ubZ000077c1@hotmail.com> from "james bond" at Jun 28, 2001 06:49:46 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263948AbRF1TIQ>; Thu, 28 Jun 2001 15:08:16 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:128 "HELO spiral.extreme.ro")
+	by vger.kernel.org with SMTP id <S263933AbRF1TIB>;
+	Thu, 28 Jun 2001 15:08:01 -0400
+Date: Thu, 28 Jun 2001 22:09:46 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: Miquel van Smoorenburg <miquels@cistron-office.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <9hfter$9e7$1@ncc1701.cistron.net>
+Message-ID: <Pine.LNX.4.33L2.0106282206510.1123-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fh8J-0007Sz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i've  compiled the kernel 2.4.4 , once i finish and boot the first time on 
-> 2.4.4 everything goses ok ,
-> only too problemes
-> 1st-  klogd takes 100%  CPU time
 
-Old old versions of klogd had bugs where they would do that. If there is
-a continuous problem it may also do so - does 'dmesg' show anything ?
+Ok, my two cents.
 
-> 2nd- cat /proc/cpuinf --guives me too CPU'S  without putin any info about 
-> the CPU 1
+Print all copyright, config, etc. as KERN_DEBUG. Then use a 'verbose' or
+similar parameter to lilo/kernel to enable console printing of KERN_DEBUG,
+to be used when the system fails to boot, etc.
 
-Im not sure I follow the description - can you explain more.
+Dan.
+
 

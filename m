@@ -1,73 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262150AbSIZCwE>; Wed, 25 Sep 2002 22:52:04 -0400
+	id <S262152AbSIZDBC>; Wed, 25 Sep 2002 23:01:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262151AbSIZCwE>; Wed, 25 Sep 2002 22:52:04 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:55222 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S262150AbSIZCwD>;
-	Wed, 25 Sep 2002 22:52:03 -0400
-Message-ID: <1033009036.3d92778cee9b9@kolivas.net>
-Date: Thu, 26 Sep 2002 12:57:16 +1000
-From: Con Kolivas <conman@kolivas.net>
+	id <S262153AbSIZDBC>; Wed, 25 Sep 2002 23:01:02 -0400
+Received: from [213.181.64.18] ([213.181.64.18]:260 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S262152AbSIZDBB>;
+	Wed, 25 Sep 2002 23:01:01 -0400
+From: "Mr. Alex Dickson." <alexan2@mail.com>
+Date: Wed, 25 Sep 2002 16:05:38
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>
-Subject: Useful fork info? WAS Re: [BENCHMARK] fork_load module tested for contest
-References: <1032964936.3d91cb48b1cca@kolivas.net>
-In-Reply-To: <1032964936.3d91cb48b1cca@kolivas.net>
+Subject: URGENT ASSISTANCE NEEDED
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020926030101Z262152-8740+1301@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Con Kolivas <conman@kolivas.net>:
+Dear Sir,
 
-> I've been trialling a new load module for the contest benchmark
-> (http://contest.kolivas.net) which simply forks a process that just exits
-> waits for it to die, then repeats. Here are the results I have obtained so
-> far:
-> 
+Iam a consultant operating in West Africa. I represent
+a client who wishes to invest US$20 million  overseas.
+This money was made by his late father, a politician,
+in his capacity as a member of a  defunct contract
+award commitee of the Ecowas(Economic community of
+west African states) oil  industry.
 
-[...fresh results below...]
+For this reason he cannot move the money in his name
+through normal banking channels. I think the  only way
+to succeed is to seek help from a foreigner. I have
+enough diplomatic contacts to fly the  money in a
+diplomatic box to europe because the box will be moved
+under diplomatic cover. There will  be no problems
+with customs at the Airport.
 
-> ck7 uses O1, preempt, low latency
-> Preempt=N for all other kernels
-> 
-> Clearly you can see the 2.5 kernels have a substantial lead over the
-> current
-> stable kernel.
-> 
-> This load module is not part of the contest package yet. I could certainly
-> change it to fork n processes but I'm not really sure just how many n should
-> be.
+If you agree to assist me, we would send the box to
+that destination in your name, marked for your 
+collection. A security company will clear the box
+through customs and take it to their office  awaiting
+collection. All you have to do would be to claim the
+box and deposit the money in an  International Bank
+and then instruct the bank to wire the money to your
+account in your country.My  client cannot do this on
+his own as any bank would suspect a Black man of
+owning such huge some of  money.
+
+YOUR DUTY:
+
+1.	You shall fly down to the country where the money
+is to be deposited and you shall proceed  with my
+client to the security 	company to collect the money.
+
+2.	You shall pay for your flight ticket to the country
+and also hotel accomodation. My client  will not send
+you any money for this expenditure.
+
+3.	When you collect the box from the security company
+you and my client shall proceed to a  bank, there you
+will deposit the money in your name and ask the bank
+to wire it to your account in your country or
+elsewhere. Note that although this account shall be
+opened in your name, my client will have to be a
+co-signatory to the account, therefore you cannot
+operate this account without his consent.
+
+4.	You shall assist my client in investing his money.
 
 
-I have extra information from the trial of this module:
+YOUR COMMISSION:
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  72.90           99%             1.00
-2.4.19-ck7              71.55           100%            0.98
-2.5.38                  73.86           99%             1.01
-2.5.38-mm2              73.93           99%             1.01
+1.	Your commission shall be a down payment of 10% of
+the total sum ie US$2 million. you shall deduct this
+sum before investing the balance for my client.
 
-fork_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  97.11           67%             1.33
-2.4.19-ck7              72.34           92%             0.99
-2.5.38                  75.32           92%             1.03
-2.5.38-mm2              74.99           92%             1.03
+2.	For the first two years of the investment you shall
+be entitled to 10% of the after tax  returns on
+investments. Thereafter the terms will be reviewed.
 
-2.4.19: Children forked: 32750
-2.4.19-ck7: Children forked: 6477
-2.5.38: Children forked: 5545
-2.5.38-mm2: Children forked: 5351
+We shall commence this transaction immediately we
+receive the following information by my E-mail: 
 
-You can see clearly repeatedly forking a new process significantly slows down
-compile time for 2.4.19 but not the O(1) based kernels. However, the number of
-processes that are forked is significantly reduced.
+dicksonlk@consultant.com
 
-Is this information useful? 
+1.	Your banker's name, address. telephone and fax
+numbers.
 
-Con
+2.	The account number and name of would be
+beneficiary.
+
+Reply me immediately if you want to handle this
+assignment. We want to round up this business fast  so
+the sooner you reply the better.
+
+I await your positive response.
+
+Regards,
+
+Mr. Alex Dickson.
+
+Reply to: dicksonlk@consultant.com
+
+
+

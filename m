@@ -1,57 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261712AbSJBRby>; Wed, 2 Oct 2002 13:31:54 -0400
+	id <S261440AbSJBRbj>; Wed, 2 Oct 2002 13:31:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSJBRby>; Wed, 2 Oct 2002 13:31:54 -0400
-Received: from mail.3ware.com ([205.253.146.92]:31249 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S261712AbSJBRbw>; Wed, 2 Oct 2002 13:31:52 -0400
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672C726@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Ken Savage'" <kens1835@shaw.ca>, "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 3ware Escalade 7500 init problems on 2.4.19
-Date: Wed, 2 Oct 2002 10:38:53 -0700 
+	id <S261661AbSJBRbj>; Wed, 2 Oct 2002 13:31:39 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:44523 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S261440AbSJBRbh>; Wed, 2 Oct 2002 13:31:37 -0400
+Message-ID: <3D9B2EBC.4010102@drugphish.ch>
+Date: Wed, 02 Oct 2002 19:37:00 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, netdev <netdev@oss.sgi.com>
+Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
+References: <Pine.LNX.3.96.1020930133306.20863A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like you're failing partition table read.  The very first IO is
-timing
-out.  Jiggle your power or drive cables and see if the drives seem to 'spin
-up'.
+Hi,
 
--Adam
+>>I will do a new round of testing this weekend for a speech I'll be 
+>>giving. This time I will include ipchains, iptables (of course I am 
+>>willing to apply every interesting patch regarding hash table 
+>>optimisation and whatnot you want me to test), nf-hipac, the OpenBSD pf 
+>>and of course the work done by Jamal.
+>  
+> Look forward to any info you can provide.
 
------Original Message-----
-From: Ken Savage [mailto:kens1835@shaw.ca]
-Sent: Wednesday, October 02, 2002 10:19 AM
-To: Bryan O'Sullivan
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3ware Escalade 7500 init problems on 2.4.19
+Unfortunately (as always) there were tons of delays that didn't allow me 
+to finish the complete test suite as I hoped I could but I sent some 
+information off this list to Jamal and the nf-hipac guys about previous 
+test result. See below. I hope I can do more tests this weekend ...
+
+> I particularly like that nf-hipac can be put in and tried in one-to-one
+> comparison, that leaves an easy route to testing and getting confidence in
+> the code.
+
+Yes and it was very convincing after the first few tests Some prelimiary 
+test with raw TCP throughput have given me following really cool results:
+
+TCP RAW throughput 100Mbit/s max MTU:
+-------------------------------------
+ratz@laphish:~/netperf-2.2pl2 > ./netperf -H 192.168.1.141 -p 6666 -l 60
+TCP STREAM TEST to 192.168.1.141
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/s
+
+  87380  16384  16384    60.01      88.03 <------
+ratz@laphish:~/netperf-2.2pl2 >
 
 
-On October 2, 2002 10:01, Bryan O'Sullivan wrote:
+TCP RAW throughput 100Mbit/s max MTU with 10000 non-matching rules + 1 
+last matching rule at the end of the FORWARD chain [iptables]:
+----------------------------------------------------------------------
+ratz@laphish:~/netperf-2.2pl2 > ./netperf -H 192.168.1.141 -p 6666 -l 60
+TCP STREAM TEST to 192.168.1.141
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
 
-> The driver that ships with 2.4.19 isn't the most recent, though I doubt
-> there's anything in the up-to-date driver that should make a difference.
+  87380  16384  16384    60.12       3.28 <------
+ratz@laphish:~/netperf-2.2pl2 >
 
-'diff'ing the drivers, you can see a tiiiiny difference.  As you said,
-nothing
-that should make a difference.  In either case, both versions of the driver
-remain unhappy with the card, failing to initialize it.
 
-> The error message you report is replicated in several spots within the
-> driver, so it's not useful in itself.
+TCP RAW throughput 100Mbit/s max MTU with 10000 non-matching rules + 1 
+last matching rule at the end of the FORWARD chain [nf-hipac]:
+----------------------------------------------------------------------
+ratz@laphish:~/netperf-2.2pl2 > ./netperf -H 192.168.1.141 -p 6666 -l 60
+TCP STREAM TEST to 192.168.1.141
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
 
-What additional information would be of assistance?
+  87380  16384  16384    60.03      85.78 <------
+ratz@laphish:~/netperf-2.2pl2 >
 
-Ken
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+For nf-hipac I also have some statistics:
+-----------------------------------------
+bloodyhell:/var/FWTEST/nf-hipac # cat /proc/net/nf-hipac
+nf-hipac statistics
+-------------------
+
+Maximum available memory:          65308672 bytes
+
+Currently used memory:             1764160 bytes
+
+INPUT:
+   - INPUT chain is empty
+
+FORWARD:
+   - Number of rules:                 10002
+   - Total size:                    1033010 bytes
+   - Total size (allocated):        1764160 bytes
+   - Termrule size:                   80016 bytes
+   - Termrule size (allocated):      320064 bytes
+   - Number of btrees:                30007
+     * number of u32 btrees:          10003
+       + distribution of u32 btrees:
+                                     [     2,      4]:   10002
+                                     [ 16384,  32768]:       1
+     * number of u16 btrees:          10002
+       + distribution of u16 btrees:
+                                     [    1,     2]:   10002
+     * number of u8 btrees:           10002
+       + distribution of u8 btrees:
+                                     [  2,   4]:      18
+
+OUTPUT:
+   - OUTPUT chain is empty
+
+bloodyhell:/var/FWTEST/nf-hipac #
+
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+

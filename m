@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbTINXuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 19:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTINXuc
+	id S262059AbTINXuY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 19:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTINXuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 19:50:32 -0400
-Received: from [141.154.95.10] ([141.154.95.10]:64205 "EHLO peabody.ximian.com")
-	by vger.kernel.org with ESMTP id S262071AbTINXu2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 19:50:28 -0400
-Message-ID: <3F64FEAF.1070601@ximian.com>
-Date: Sun, 14 Sep 2003 19:50:07 -0400
-From: Kevin Breit <mrproper@ximian.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Sun, 14 Sep 2003 19:50:24 -0400
+Received: from dyn-ctb-210-9-246-130.webone.com.au ([210.9.246.130]:7172 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262059AbTINXuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 19:50:23 -0400
+Message-ID: <3F64FEB7.6010008@cyberone.com.au>
+Date: Mon, 15 Sep 2003 09:50:15 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Need fixing of a rebooting system
-References: <1063496544.3164.2.camel@localhost.localdomain>  <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>  <3F6450D7.7020906@ximian.com>  <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com> <1063561687.10874.0.camel@localhost.localdomain> <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: KConfig help text not shown in 2.6.0-test5
+References: <3F63197D.2000306@cyberone.com.au> <Pine.LNX.4.44.0309131720270.8124-100000@serv> <3F645F0A.1000104@cyberone.com.au> <Pine.LNX.4.44.0309141626540.19512-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0309141626540.19512-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
 
->On Sun, 14 Sep 2003, Kevin Breit wrote:
+
+Roman Zippel wrote:
+
+>Hi,
 >
->  
+>On Sun, 14 Sep 2003, Nick Piggin wrote:
 >
->>On Sun, 2003-09-14 at 09:05, Zwane Mwaikambo wrote:
->>    
->>
->>>On Sun, 14 Sep 2003, Kevin Breit wrote:
+>
+>>>BTW you can reach the individual help within 'make config' by appending a 
+>>>'?' to the number (e.g. '1?').
 >>>
->>>      
->>>
->>>>I set the CPU type to PII/Celeron and recompiled.  It was at 
->>>>PIII/Celeron but it still won't work.  It is still rebooting.
->>>>        
->>>>
->>>Please send your .config and a dmesg from a working kernel.
->>>      
->>>
->>The files should be attached.  If they aren't, please let me know!
->>
->>Thanks for your help.
->>    
+>>What I am seeing is the help text for the whole choice thingy is used as
+>>the help text for the individual choices. This patch doesn't fix that.
+>>How is it supposed to work? I assume you tried it and saw what it was
+>>doing, so am I just mistaken in how I think it should work?
 >>
 >
->Can you try with the following patch, courtesy of Adam Belay, my box 
->panicked with your .config without it.
+>Yes, it works here, what exactly did you try?
 >
->--- a/sound/pci/ens1370.c	2003-09-13 19:28:45.000000000 +0000
->+++ b/sound/pci/ens1370.c	2003-09-13 19:30:02.000000000 +0000
->@@ -2354,7 +2354,11 @@
-> }
->
-> static struct pci_driver driver = {
->-	.name = "Ensoniq AudioPCI",
->+#ifdef CHIP1371
->+	.name = "Ensoniq 1371",
->+#else
->+	.name = "Ensoniq 1370",
->+#endif
-> 	.id_table = snd_audiopci_ids,
-> 	.probe = snd_audiopci_probe,
-> 	.remove = __devexit_p(snd_audiopci_remove),
->  
->
-This unfortunately didn't help.  It still reboots right after it 
-uncompresses the kernel.
 
-Thanks
+I got a clean 2.6.0-test5 kernel tree, applied your patch, ran make
+oldconfig menuconfig, entered "processor type and features", move over
+"processor family" and select help. That works fine. Enter "processor
+family" and select help for "Pentium-4" and the same help text comes up.
+I just thought you should see the individual help text for that item.
 
-Kevin Breit
 

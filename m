@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUJHXVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUJHXZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUJHXVr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXVN
+	id S266186AbUJHXZA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:21:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35727 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266195AbUJHXUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:20:43 -0400
-Date: Fri, 8 Oct 2004 16:20:29 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041008162028.U2357@build.pdx.osdl.net>
-References: <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <1097276726.1442.82.camel@krustophenia.net> <20041008161205.T2357@build.pdx.osdl.net> <1097277337.1442.90.camel@krustophenia.net>
+	Fri, 8 Oct 2004 19:25:00 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:17385 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266186AbUJHXYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:24:11 -0400
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, openib-general@openib.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041008231307.GA32530@kroah.com>
+References: <20041008202247.GA9653@kroah.com>
+	 <m3d5zs966r.fsf@maxwell.lnxi.com>  <20041008231307.GA32530@kroah.com>
+Content-Type: text/plain
+Message-Id: <1097277840.1442.92.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1097277337.1442.90.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 08, 2004 at 07:15:37PM -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 19:24:00 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> I think the patch is reversed.  It does the opposite of what you say in
-> both cases ;-).  I fixed these by hand.  
+On Fri, 2004-10-08 at 19:13, Greg KH wrote:
+> All I know is a number of different people, from different companies are
+> suddenly very worried about this.  The fact that they don't want to
+> comment on it in public leads me to believe that there is something
+> behind their fears.
 
-Ooops, thanks.
+Sounds like our favorite software company's FUD squad has been busy.
 
-- rm unecessary #ifdef CONFIG_SECURITY
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Lee
 
 
---- security/realtime.c~static_exit	2004-10-08 16:12:14.199873592 -0700
-+++ security/realtime.c	2004-10-08 16:15:43.915991896 -0700
-@@ -28,8 +28,6 @@
- #include <linux/sysctl.h>
- #include <linux/moduleparam.h>
- 
--#ifdef CONFIG_SECURITY
--
- #define RT_LSM "Realtime LSM "		/* syslog module name prefix */
- #define RT_ERR "Realtime: "		/* syslog error message prefix */
- 
-@@ -231,5 +229,3 @@
- 
- MODULE_DESCRIPTION("Realtime Capabilities Security Module");
- MODULE_LICENSE("GPL");
--
--#endif	/* CONFIG_SECURITY */
+

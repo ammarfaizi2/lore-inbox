@@ -1,109 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbULHHds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbULHHjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbULHHds (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbULHHbX
+	id S262073AbULHHjA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbULHHgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:31:23 -0500
-Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:57723 "HELO
-	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262055AbULHH3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:29:14 -0500
-Subject: Re: Time sliced CFQ io scheduler
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041208072052.GC19522@suse.de>
-References: <20041202195232.GA26695@suse.de>
-	 <20041208003736.GD16322@dualathlon.random>
-	 <1102467253.8095.10.camel@npiggin-nld.site>
-	 <20041208013732.GF16322@dualathlon.random>
-	 <20041207180033.6699425b.akpm@osdl.org>
-	 <20041208022020.GH16322@dualathlon.random>
-	 <20041207182557.23eed970.akpm@osdl.org>
-	 <1102473213.8095.34.camel@npiggin-nld.site> <20041208065858.GH3035@suse.de>
-	 <1102490086.8095.63.camel@npiggin-nld.site>
-	 <20041208072052.GC19522@suse.de>
-Content-Type: text/plain
-Date: Wed, 08 Dec 2004 18:29:05 +1100
-Message-Id: <1102490945.8095.77.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 02:36:12 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:54154 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262059AbULHHbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 02:31:03 -0500
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org,
+       Ian.Pratt@cl.cam.ac.uk
+Subject: [5/6] Xen VMM #4: split free_irq into teardown_irq
+In-reply-to: Your message of "Wed, 08 Dec 2004 07:28:16 GMT."
+             <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk> 
+Date: Wed, 08 Dec 2004 07:31:00 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CbwHs-0006aT-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-08 at 08:20 +0100, Jens Axboe wrote:
-> On Wed, Dec 08 2004, Nick Piggin wrote:
-> > On Wed, 2004-12-08 at 07:58 +0100, Jens Axboe wrote:
-> > > On Wed, Dec 08 2004, Nick Piggin wrote:
-> > > > On Tue, 2004-12-07 at 18:25 -0800, Andrew Morton wrote:
-> > 
-> > > > I think we could detect when a disk asks for more than, say, 4
-> > > > concurrent requests, and in that case turn off read anticipation
-> > > > and all the anti-starvation for TCQ by default (with the option
-> > > > to force it back on).
-> > > 
-> > > CFQ only allows a certain depth a the hardware level, you can control
-> > > that. I don't think you should drop the AS behaviour in that case, you
-> > > should look at when the last request comes in and what type it is.
-> > > 
-> > > With time sliced cfq I'm seeing some silly SCSI disk behaviour as well,
-> > > it gets harder to get good read bandwidth as the disk is trying pretty
-> > > hard to starve me. Maybe killing write back caching would help, I'll
-> > > have to try.
-> > > 
-> > 
-> > I "fixed" this in AS. It gets (or got, last time we checked, many months
-> > ago) pretty good read latency even with a big write and a very large
-> > tag depth.
-> > 
-> > What were the main things I had to do... hmm, I think the main one was
-> > to not start on a new batch until all requests from a previous batch
-> > are reported to have completed. So eg. you get all reads completing
-> > before you start issuing any more writes. The write->read side of things
-> > isn't so clear cut with your "smart" write caches on the IO systems, but
-> > no doubt that helps a bit.
-> 
-> I can see the read/write batching being helpful there, at least to
-> prevent writes starving reads if you let the queue drain completely
-> before starting a new batch.
-> 
-> CFQ does something similar, just not batched together. But it does let
-> the depth build up a little and drain out. In fact I think I'm missing
-> a little fix there thinking about it, that could be why the read
-> latencies hurt on write intensive loads (the dispatch queue is drained,
-> the hardware queue is not fully).
-> 
 
-OK, you should look into that, because I found it was quite effective.
-Maybe you have a little bug or oversight somewhere if you read latencies
-are really bad. Note that AS read latencies at 256 tags aren't so good
-as at 2 tags... but I think they're an order of magnitude better than
-with deadline on the hardware we were testing.
+This patch moves the `unregister the irqaction' part of free_irq into
+a new function teardown_irq, leaving only the mapping from dev_id to
+irqaction and freeing the irqaction in free_irq.  free_irq
+calls teardown_irq to unregister the irqaction.  This is similar
+to how setup_irq and request_irq work for registering irq's.
+We need teardown_irq to allow us to unregister irq's which were
+registered early during boot when memory management wasn't ready
+yet, i.e. irq's which were registered using setup_irq and use a static
+irqaction which cannot be kfree'd.
 
-> > Of course, after you do all that your database performance has well and
-> > truly gone down the shitter. It is also hampered by the more fundamental
-> > issue that read anticipating can block up the pipe for IO that is cached
-> > on the controller/disks and would get satisfied immediately.
-> 
-> I think we need to end up with something that sets the machine profile
-> for the interesting disks. Some things you can check for at runtime
-> (like the writes being extremely fast is a good indicator of write
-> caching), but it is just not possible to cover it all. Plus, you end up
-> with 30-40% of the code being convoluted stuff added to detect it.
-> 
+Signed-off-by: ian.pratt@cl.cam.ac.uk
 
-Ideally maybe we would have a userspace program that is run to detect
-various disk parameters and ask the user / config file what sort of
-workloads we want to do, and spits out a recommended IO scheduler and
-/sys configuration to accompany it.
-
-That at least could be made quite sophisticated than a kernel solution,
-and could gather quite a lot of "static" disk properties.
-
-Of course there will be also some things that need to be done in
-kernel...
-
-
+---
+diff -Nurp pristine-linux-2.6.10-rc3/include/linux/irq.h tmp-linux-2.6.10-rc3-xen.patch/include/linux/irq.h
+--- pristine-linux-2.6.10-rc3/include/linux/irq.h	2004-12-03 21:55:13.000000000 +0000
++++ tmp-linux-2.6.10-rc3-xen.patch/include/linux/irq.h	2004-12-08 00:52:40.000000000 +0000
+@@ -73,6 +73,7 @@ extern irq_desc_t irq_desc [NR_IRQS];
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 
+ extern int setup_irq(unsigned int irq, struct irqaction * new);
++extern int teardown_irq(unsigned int irq, struct irqaction * old);
+ 
+ #ifdef CONFIG_GENERIC_HARDIRQS
+ extern cpumask_t irq_affinity[NR_IRQS];
+diff -Nurp pristine-linux-2.6.10-rc3/kernel/irq/manage.c tmp-linux-2.6.10-rc3-xen.patch/kernel/irq/manage.c
+--- pristine-linux-2.6.10-rc3/kernel/irq/manage.c	2004-12-03 21:55:12.000000000 +0000
++++ tmp-linux-2.6.10-rc3-xen.patch/kernel/irq/manage.c	2004-12-08 00:52:40.000000000 +0000
+@@ -144,9 +144,14 @@ int can_request_irq(unsigned int irq, un
+ 	return !action;
+ }
+ 
+-/*
+- * Internal function to register an irqaction - typically used to
+- * allocate special interrupts that are part of the architecture.
++/**
++ *	setup_irq - register an irqaction structure
++ *	@irq: Interrupt to register
++ *	@irqaction: The irqaction structure to be registered
++ *
++ *	Normally called by request_irq, this function can be used
++ *	directly to allocate special interrupts that are part of the
++ *	architecture.
+  */
+ int setup_irq(unsigned int irq, struct irqaction * new)
+ {
+@@ -215,28 +220,27 @@ int setup_irq(unsigned int irq, struct i
+ 	return 0;
+ }
+ 
+-/**
+- *	free_irq - free an interrupt
+- *	@irq: Interrupt line to free
+- *	@dev_id: Device identity to free
+- *
+- *	Remove an interrupt handler. The handler is removed and if the
+- *	interrupt line is no longer in use by any driver it is disabled.
+- *	On a shared IRQ the caller must ensure the interrupt is disabled
+- *	on the card it drives before calling this function. The function
+- *	does not return until any executing interrupts for this IRQ
+- *	have completed.
++/*
++ *	teardown_irq - unregister an irqaction
++ *	@irq: Interrupt line being freed
++ *	@old: Pointer to the irqaction that is to be unregistered
++ *
++ *	This function is called by free_irq and does the actual
++ *	business of unregistering the handler. It exists as a 
++ *	seperate function to enable handlers to be unregistered 
++ *	for irqactions that have been allocated statically at 
++ *	boot time.
+  *
+  *	This function must not be called from interrupt context.
+  */
+-void free_irq(unsigned int irq, void *dev_id)
++int teardown_irq(unsigned int irq, struct irqaction * old)
+ {
+ 	struct irq_desc *desc;
+ 	struct irqaction **p;
+ 	unsigned long flags;
+ 
+ 	if (irq >= NR_IRQS)
+-		return;
++		return -ENOENT;
+ 
+ 	desc = irq_desc + irq;
+ 	spin_lock_irqsave(&desc->lock,flags);
+@@ -248,7 +252,7 @@ void free_irq(unsigned int irq, void *de
+ 			struct irqaction **pp = p;
+ 
+ 			p = &action->next;
+-			if (action->dev_id != dev_id)
++			if (action != old)
+ 				continue;
+ 
+ 			/* Found it - now remove it from the list of entries */
+@@ -265,13 +269,52 @@ void free_irq(unsigned int irq, void *de
+ 
+ 			/* Make sure it's not being used on another CPU */
+ 			synchronize_irq(irq);
+-			kfree(action);
+-			return;
++			return 0;
+ 		}
+-		printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
++		printk(KERN_ERR "Trying to teardown free IRQ%d\n",irq);
+ 		spin_unlock_irqrestore(&desc->lock,flags);
++		return -ENOENT;
++	}
++}
++
++/**
++ *	free_irq - free an interrupt
++ *	@irq: Interrupt line to free
++ *	@dev_id: Device identity to free
++ *
++ *	Remove an interrupt handler. The handler is removed and if the
++ *	interrupt line is no longer in use by any driver it is disabled.
++ *	On a shared IRQ the caller must ensure the interrupt is disabled
++ *	on the card it drives before calling this function. The function
++ *	does not return until any executing interrupts for this IRQ
++ *	have completed.
++ *
++ *	This function must not be called from interrupt context.
++ */
++void free_irq(unsigned int irq, void *dev_id)
++{
++	struct irq_desc *desc;
++	struct irqaction *action;
++	unsigned long flags;
++
++	if (irq >= NR_IRQS)
++		return;
++
++	desc = irq_desc + irq;
++	spin_lock_irqsave(&desc->lock,flags);
++	for (action = desc->action; action != NULL; action = action->next) {
++		if (action->dev_id != dev_id)
++			continue;
++
++		spin_unlock_irqrestore(&desc->lock,flags);
++
++		if (teardown_irq(irq, action) == 0)
++			kfree(action);
+ 		return;
+ 	}
++	printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
++	spin_unlock_irqrestore(&desc->lock,flags);
++	return;
+ }
+ 
+ EXPORT_SYMBOL(free_irq);

@@ -1,95 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUFAVGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265221AbUFAVMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbUFAVGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 17:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265337AbUFAVBq
+	id S265221AbUFAVMc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 17:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUFAVMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 17:01:46 -0400
-Received: from mail.homelink.ru ([81.9.33.123]:42210 "EHLO eltel.net")
-	by vger.kernel.org with ESMTP id S265273AbUFAVAi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 17:00:38 -0400
-Date: Wed, 2 Jun 2004 01:00:36 +0400
-From: Andrew Zabolotny <zap@homelink.ru>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: two patches - request for comments
-Message-Id: <20040602010036.440fc5b4.zap@homelink.ru>
-In-Reply-To: <40BCE28A.1050601@mvista.com>
-References: <20040529012030.795ad27e.zap@homelink.ru>
-	<40B7B659.9010507@mvista.com>
-	<20040529121059.3789c355.zap@homelink.ru>
-	<40BCE28A.1050601@mvista.com>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+	Tue, 1 Jun 2004 17:12:32 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:5584 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265221AbUFAVMb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 17:12:31 -0400
+Message-Id: <200406012112.i51LC8SH001577@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: jsimmons@pentafluge.infradead.org
+Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: keyboard problem with 2.6.6 
+In-Reply-To: Your message of "Tue, 01 Jun 2004 22:01:10 BST."
+             <Pine.LNX.4.56.0406012158530.23458@pentafluge.infradead.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de> <20040530124353.GB1496@ucw.cz> <xb7aczq9he1.fsf@savona.informatik.uni-freiburg.de>
+            <Pine.LNX.4.56.0406012158530.23458@pentafluge.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_804014301P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Jun 2004 17:12:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Jun 2004 13:09:46 -0700
-Todd Poynor <tpoynor@mvista.com> wrote:
+--==_Exmh_804014301P
+Content-Type: text/plain; charset=us-ascii
 
-> I'm not questioning the usefulness of the other aspects of the patch, 
-> such as adding an LCD/backlight class for framebuffer access and adding 
-> attributes for the unique features of LCD/backlight devices.  My 
-> questions are specific to the power management interfaces, since there's 
-> already interfaces for this, with different semantics than the new class 
-> interfaces, and there's some value in sticking with a single consistent 
-> interface for it.
-Well, after thinking awhile, I have changed it so that 0 means power on,
-1..3 intermediate values (although for now they are interpreted as poweroff by
-existing drivers since there are no intermediate states) and 4 is 'off for
-real'. Indeed, there is no much reason to have them use different semantics.
+On Tue, 01 Jun 2004 22:01:10 BST, jsimmons@pentafluge.infradead.org said:
 
-> If I understand correctly, the LCD device is registered on a bus (either 
-> a platform-specific bus or the generic "platform" bus)
-No, they are registered just as a class device. There is no corresponding
-device on any other bus, this would mean a lot of unneeded overhead.
+> Why not use UML (user mode linux). Jon Smirl was using it to work on fbdev 
+> drivers in userland. Interrupts where tricky to handle but it might 
+> work fine now. I have to give it a try again. Once it is setup you can 
+> develope kernel driver in userland.
 
-> therefore already has a power/state attribute; the class entry could 
-> refer back to that device if needed.  So I'm interested in discussing 
-> whether the existing PM interface suffices for LCD/backlight devices, or 
-> if not, should the existing interfaces be improved (rather than working 
-> around deficiencies via device-specific interfaces)?
-Um, well, the LCD device actually has two power controls, like I said
-before: one toggles the power to the LCD itself, another one (the 'enable'
-attribute) controls power to the LCD controller. Not that this explicit
-separate control is required very much, but it would be nice to have a degree
-of freedom close to that allowed by hardware.
+UML helps the "boot/crash/reboot" cycle (and that sort of debugging was in
+fact one of the early design goals of IBM's CP/67 and VM/370 systems). but
+it doesn't help the fact that the infrastructure provided to kernel functions
+is vastly different than the glibc-based infrastructure available in userspace....
 
-In theory, if we would use the standard power interface, it could use the
-different levels of power saving, e.g. 0 - controller and LCD on, 1,2 - LCD
-off, controller on, 3,4 - both off.
 
-> But it also sounds like the single LDM registration for an LCD device 
-> could be better handled by registering the LCD display, LCD controller, 
-> and backlight as separate devices (which they probably are), allowing 
-> individual control through the standard interfaces.
-Well, the LCD panel is controllable only through the LCD controller, so for
-the most part they are the same. The only thing is that the LCD controller has
-a one-bit switch to disable the power to the panel. I don't think it makes
-sense to separate that bit into a separate device.
+--==_Exmh_804014301P
+Content-Type: application/pgp-signature
 
-> So none of my objections are terribly crucial, and if Greg et al don't 
-> have a problem with device-class-specific PM interfaces that have 
-> different semantics and/or capabilities than those of the device 
-> power/state attributes then I don't have much of a problem with it 
-> either.  Just seems worthwhile to check whether there's improvements 
-> needed in the existing PM interfaces instead.
-Well, the power interface under drivers/ is available for framebuffer.
-If it would handle it properly (the framebuffer drivers I've tried
-don't, alas), they would toggle the attached (to the framebuffer) LCD
-and backlight power state according to its own state (which is not so fine
-grained, but is logical). In any case, one of reasons this backlight/lcd patch
-has been written was to avoid that mess with callbacks that lately begun to
-appear in ARM-specific framebuffer devices (and I shudder at the thought that
-MIPS people should be doing something similar).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---
-Greetings,
-   Andrew
+iD8DBQFAvPEncC3lWbTT17ARAij3AKCJ0R1VLtse4QxbYiFs9hiFdj4rDgCeKydR
+/1dtzRScB9uADGphHkfPhQ0=
+=4j4X
+-----END PGP SIGNATURE-----
+
+--==_Exmh_804014301P--

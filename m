@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268345AbUIHOSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269156AbUIHOWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268345AbUIHOSp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269140AbUIHOSm
+	id S269156AbUIHOWo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269127AbUIHOV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:18:42 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:55790 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268345AbUIHOO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:14:29 -0400
-Date: Wed, 8 Sep 2004 10:18:55 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: takata@linux-m32r.org, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] Re: EXPORT_SYMBOL_NOVERS (was: Re: 2.6.9-rc1-mm3)
-In-Reply-To: <Pine.LNX.4.58.0409062105430.8377@anakin>
-Message-ID: <Pine.LNX.4.53.0409081017580.15087@montezuma.fsmlabs.com>
-References: <20040903014811.6247d47d.akpm@osdl.org> <20040903104239.A3077@infradead.org>
- <Pine.LNX.4.58.0409030814100.4481@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0409030823530.4481@montezuma.fsmlabs.com>
- <Pine.GSO.4.58.0409061539270.17329@waterleaf.sonytel.be>
- <Pine.LNX.4.53.0409061129260.14053@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0409062105430.8377@anakin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Sep 2004 10:21:57 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:30422 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S269156AbUIHOTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 10:19:04 -0400
+Date: Wed, 8 Sep 2004 07:18:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_CMDLINE broken on ppc
+Message-ID: <20040908141857.GB26381@smtp.west.cox.net>
+References: <20040908134028.GB15209@suse.de> <20040908135211.GA26381@smtp.west.cox.net> <20040908140323.GA15309@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040908140323.GA15309@suse.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Sep 2004, Geert Uytterhoeven wrote:
+On Wed, Sep 08, 2004 at 04:03:23PM +0200, Olaf Hering wrote:
+>  On Wed, Sep 08, Tom Rini wrote:
+> 
+> > On Wed, Sep 08, 2004 at 03:40:28PM +0200, Olaf Hering wrote:
+> > 
+> > > CONFIG_CMDLINE can not work on ppc.
+> > > machine_init() copies the string to cmd_line, then platform_init() is
+> > > called. It truncates the string to length zero.
+> > 
+> > This has come up before, actually.  What happens if CMDLINE isn't set,
+> > and we don't terminate cmd_line here?  It's part of the BSS and is
+> > zero'd out anyways?
+> 
+> strlcpy generates a null-terminated string, if size != 0. Looks like
+> that line can go.
 
-> No need to bug the janitors, I created a few patches myself:
+... but strlcpy might not be called if no one passes a commandline.
+Hence, is this part of the bss and already zeroed ?  If yes, then just
+remove the line.
 
-Thanks for doing this Geert.
+> Or move it at the start of machine_init().
 
-	Zwane
+Or always define CMDLINE, ala the ADVANCED_OPTIONS || defaults, no #if's
+that way :)
 
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

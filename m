@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRBURTl>; Wed, 21 Feb 2001 12:19:41 -0500
+	id <S129273AbRBURTV>; Wed, 21 Feb 2001 12:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129454AbRBURTc>; Wed, 21 Feb 2001 12:19:32 -0500
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:5272 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S129281AbRBURT1>;
-	Wed, 21 Feb 2001 12:19:27 -0500
-Message-ID: <XFMail.20010221092103.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <01022020011905.18944@gimli>
-Date: Wed, 21 Feb 2001 09:21:03 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Daniel Phillips <phillips@innominate.de>
-Subject: RE: [rfc] Near-constant time directory index for Ext2
-Cc: ext2-devel@lists.sourceforge.net, hch@ns.caldera.de,
-        Andreas Dilger <adilger@turbolinux.com>, tytso@valinux.com,
-        Linux-kernel@vger.kernel.org
+	id <S129281AbRBURTL>; Wed, 21 Feb 2001 12:19:11 -0500
+Received: from ns.caldera.de ([212.34.180.1]:3601 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129273AbRBURTF>;
+	Wed, 21 Feb 2001 12:19:05 -0500
+Date: Wed, 21 Feb 2001 18:18:24 +0100
+Message-Id: <200102211718.SAA25997@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: andrea@suse.de (Andrea Arcangeli)
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        Linux LVM Development list <lvm-devel@sistina.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Heinz Mauelshagen <mauelshagen@sistina.com>
+Subject: Re: [lvm-devel] *** ANNOUNCEMENT *** LVM 0.9.1 beta5 available at www.sistina.com
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010221180035.N25927@athlon.random>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010221180035.N25927@athlon.random> you wrote:
+> On Wed, Feb 21, 2001 at 02:49:17PM +1100, Richard Gooch wrote:
+>> You definately can mknod(2) on devfs. [..]
 
-On 20-Feb-2001 Daniel Phillips wrote:
-> Earlier this month a runaway installation script decided to mail all its
-> problems to root.  After a couple of hours the script aborted, having
-> created 65535 entries in Postfix's maildrop directory.  Removing those
-> files took an awfully long time.  The problem is that Ext2 does each
-> directory access using a simple, linear search though the entire
-> directory file, resulting in n**2 behaviour to create/delete n files. 
-> It's about time we fixed that.
-> 
-> Last fall in Miami, Ted Ts'o mentioned some ideas he was playing with
-> for an Ext2 directory index, including the following points:
-> 
->   - Fixed-size hash keys instead of names in the index
->   - Leaf blocks are normal ext2 directory blocks
->   - Leaf blocks are sequental, so readdir doesn't have to be changed
+> So then why don't we simply create the VG ourself with the right minor number
+> and use it as we do without devfs? We'll still have a global 256 VG limit this
+> way but that's not a minor issue.
 
-Have You tried to use skiplists ?
-In 93 I've coded a skiplist based directory access for Minix and it gave very
-interesting performances.
-Skiplists have a link-list like performance when linear scanned, and overall
-good performance in insertion/seek/delete.
+Yes - that's how I did it in my inital LVM & devfs patches.
+It would be really good to have something devfs-like just for LVM in
+setups that don't use LVM, so we could avoid mounting root read/write
+for device-creation.
+One of the stronger points for a per-driver devfs, IHMO.
 
+	Christoph
 
-
-
-- Davide
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

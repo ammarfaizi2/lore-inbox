@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266584AbSLQT21>; Tue, 17 Dec 2002 14:28:27 -0500
+	id <S266638AbSLQT3w>; Tue, 17 Dec 2002 14:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266637AbSLQT21>; Tue, 17 Dec 2002 14:28:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63238 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266584AbSLQT20>; Tue, 17 Dec 2002 14:28:26 -0500
-Date: Tue, 17 Dec 2002 11:37:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
+	id <S266733AbSLQT3w>; Tue, 17 Dec 2002 14:29:52 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30988 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S266638AbSLQT3I>; Tue, 17 Dec 2002 14:29:08 -0500
+Date: Tue, 17 Dec 2002 14:34:38 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Karina <kgs@acabtu.com.mx>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <3DFF7951.6020309@transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
+Subject: Re: Trouble with kernel 2.4.18-18.7.x
+In-Reply-To: <1039553498.14302.58.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.96.1021217142857.20007C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Dec 2002, Alan Cox wrote:
 
+> So it looks like its ok. Do file the kmod: failed to exec report in
+> https://bugzilla.redhat.com/bugzilla however. Regardless of it not being
+> a problem in your case it does want fixing
 
-On Tue, 17 Dec 2002, H. Peter Anvin wrote:
->
-> Let's see... it works fine on UP and on *most* SMP, and on the ones
-> where it doesn't work you just fill in a system call into the vsyscall
-> slot.  It just means that gettimeofday() needs a different vsyscall slot.
+It appears that recent RH build initrd files w/o all of the stuff in
+modules.conf. Perhaps only the first SCSI adaptor, perhaps just ignoring
+the ones which don't match the build hardware. I suspect the latter, since
+even using --with= in a manual mkinitrd failed (silently) to include the
+modules. I can't tell you how much that sucks if you build kernels for
+multiple machines on a compile server.
 
-The thing is, gettimeofday() isn't _that_ special. It's just not worth a
-vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
-Just because we can?
+Also, I installed 2.4.18-18.8.0 and it put a bunch of overlong label=
+statements in lilo.conf, then ran lilo and didn't check the status. Since
+it had deleted the old kernel that left a totally unbootable system. Guess
+RH really likes grub and only tests upgrades and such with that.
 
-This is especially true since the people who _really_ might care about
-gettimeofday() are exactly the people who wouldn't be able to use the fast
-user-space-only version.
+I will report this later tonight when I'm willing to take the time to
+prepare a proper bug report.
 
-How much do you think gettimeofday() really matters on a desktop? Sure, X
-apps do gettimeofday() calls, but they do a whole lot more of _other_
-calls, and gettimeofday() is really far far down in the noise for them.
-The people who really call for gettimeofday() as a performance thing seem
-to be database people who want it as a timestamp. But those are the same
-people who also want NUMA machines which don't necessarily have
-synchronized clocks.
-
-		Linus
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

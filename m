@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUFACBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUFACLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264811AbUFACBO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 22:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264856AbUFACBN
+	id S264860AbUFACLw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 22:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUFACLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 22:01:13 -0400
-Received: from scanmail3.cableone.net ([24.116.0.123]:15631 "EHLO
-	mail.cableone.net") by vger.kernel.org with ESMTP id S264811AbUFACBL
+	Mon, 31 May 2004 22:11:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18050 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264860AbUFACLn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 22:01:11 -0400
-Subject: Re: nfsd readahead
-From: Colin Gibbs <colin@gibbsonline.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <16571.54072.719572.522225@cse.unsw.edu.au>
-References: <20040531190525.GA20916@alpha.gibbsonline.net>
-	 <16571.54072.719572.522225@cse.unsw.edu.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1086055267.15496.55.camel@athlon.rexburg.gibbsonline.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 31 May 2004 20:01:07 -0600
-X-Server: High Performance Mail Server - http://surgemail.com
+	Mon, 31 May 2004 22:11:43 -0400
+Date: Mon, 31 May 2004 22:11:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: ndiamond@despammed.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to use floating point in a module?
+In-Reply-To: <200405310152.i4V1qNk03732@mailout.despammed.com>
+Message-ID: <Pine.LNX.4.53.0405312201450.7675@chaos>
+References: <200405310152.i4V1qNk03732@mailout.despammed.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-31 at 18:52, Neil Brown wrote:
+On Sun, 30 May 2004 ndiamond@despammed.com wrote:
 
-> Thanks a lot Colin. (I did get your earlier person email, but it
-> didn't get to the top of the priority queue until today).
+> A driver, implemented as a module, must do some floating-point
+> computations including trig functions.  Fortunately the architecture
+> is x86.  A few hundred kilograms of searching (almost a ton of searching :-) seems to reveal the following possibilities.
+>
 
-Well I sent it to the nfs list first (it seems to have been eaten by
-some moderation queue) and forgot I also sent it to you.
+Since you are using one of those Windows mailers and didn't enter a
+single end-of-line character, I detect that this is probably one
+of those trolls. Nevertheless, the use of floating-point is forbidden
+within the kernel. Period. Because anybody who thinks they need
+floating-point mathematics within the kernel is completely without
+a clue, the floating-point context is not saved/restored during system
+calls.
 
-> The current code is a bit of a mess isn't it!!!
-> 
-> I have one question about your patch:
-> 
-> > +	file_ra_state_init(&ra->p_ra, file->f_mapping);
-> 
-> I note that the corresponding code in fs/open.c(dentry_open) reads
-> 
-> 	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
-> 
-> i.e. there is an extra level of indirection.  Is there a reason that
-> you didn't copy that.
+You must pair a user-mode program (usually called a daemon) with
+the kernel-mode interface to your hardware (your module). This
+combination will provide whatever functionality you require. The
+user-mode daemon does the math and probably a lot of other things
+as well.
 
-Looks like that was in a patch after 2.6.6. Another good reason to avoid
-duplicate code paths. 
-
-> I am seriously thinking of getting rid of the "open_private_file"
-> stuff, and using dentry_open to open files for nfsd, and just allow it
-> to init the ra_state, so that nfsd doesn't do it itself.
-> However that patch touches 13 files, so I want to see it get a bit of
-> testing first.
-> 
-> Thanks again,
-> I'll make sure this fix gets through Andrew to Linus,
-> 
-> NeilBrown
-
-Thanks for taking care of this. 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5583.66 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-Colin

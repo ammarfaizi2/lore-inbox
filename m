@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133019AbREHVCL>; Tue, 8 May 2001 17:02:11 -0400
+	id <S135396AbREHVEv>; Tue, 8 May 2001 17:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135363AbREHVBv>; Tue, 8 May 2001 17:01:51 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:36735 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S133019AbREHVBk>; Tue, 8 May 2001 17:01:40 -0400
-Date: Tue, 8 May 2001 17:01:14 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: david-b@pacbell.net
-Cc: johannes@erdfelt.com, zaitcev@redhat.com, rmk@arm.linux.org.uk,
+	id <S135380AbREHVEl>; Tue, 8 May 2001 17:04:41 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:41231 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S135396AbREHVE3>;
+	Tue, 8 May 2001 17:04:29 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105082104.f48L4FJ132293@saturn.cs.uml.edu>
+Subject: Re: OT: ps source?
+To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
+Date: Tue, 8 May 2001 17:04:15 -0400 (EDT)
+Cc: jbourne@MtRoyal.AB.CA (James Bourne), fred4160@yahoo.com (Fred Fleck),
         linux-kernel@vger.kernel.org
-Subject: pci_pool_free from IRQ
-Message-ID: <20010508170114.A29075@devserv.devel.redhat.com>
-Mime-Version: 1.0
+In-Reply-To: <3AF7A005.4EA9E37A@wanadoo.fr> from "Pierre Rousselet" at May 08, 2001 09:28:05 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+Pierre Rousselet writes:
+> James Bourne wrote:
 
-Russel King complained that you might be calling pci_consistent_free
-from an interrupt, which is unsafe on ARM. Why don't you remove this
-part from pci_pool_free():
+>> From the procps man page:
+>>        Albert Cahalan <acahalan@cs.uml.edu> rewrote ps  for  full
+>>        Unix98  and  BSD  support,  along with some ugly hacks for
+>>        obsolete and foreign syntax.
+>> 
+>>        Michael K. Johnson <johnsonm@redhat.com>  is  the  current
+>>        maintainer.
 
-+       else if (!is_page_busy (pool->blocks_per_page, page->bitmap))
-+               pool_free_page (pool, page);
+There has been a bit of a fork actually... sorry.
 
-In that case, fully free pages will stick about until the whole
-pool is destroyed, which I think is not a big deal.
+> Right. For international support procps-2.0.7 is the one to choose with
+> the patch procps-2.0.7-intl.patch.
 
--- Pete
+That one is quite buggy. The parser is broken ("ps -o %p" fails),
+you can get a core dump if you get unlucky with the System.map file,
+the BSD-style process selection is incorrect... I've fixed about 100
+bugs and introduced only a few.
+
+What you really ought to use is the Debian package. That gives you
+my source plus a few fixes that I don't have yet. Head over to
+www.debian.org and drill down to the "unstable" package. There you
+will find a source tarball and a patch file for it.
+

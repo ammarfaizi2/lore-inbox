@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbSLRIiw>; Wed, 18 Dec 2002 03:38:52 -0500
+	id <S267204AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267204AbSLRIiw>; Wed, 18 Dec 2002 03:38:52 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:32993 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S265754AbSLRIiw>; Wed, 18 Dec 2002 03:38:52 -0500
-Date: 18 Dec 2002 09:20:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8c6-Z4kHw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.44.0212171157050.1095-100000@home.transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
+	id <S267206AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:52750 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267204AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
+Message-Id: <200212180835.gBI8ZDs22220@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: lk maintainers
+Date: Wed, 18 Dec 2002 11:24:26 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200212170628.gBH6Scs15943@Port.imtp.ilyichevsk.odessa.ua> <200212180600.gBI60js21347@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.50.0212180227100.8420-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0212180227100.8420-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <Pine.LNX.3.95.1021217144308.26554A-100000@chaos.analogic.com> <Pine.LNX.4.44.0212171157050.1095-100000@home.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 17.12.02 in <Pine.LNX.4.44.0212171157050.1095-100000@home.transmeta.com>:
-
-> On Tue, 17 Dec 2002, Richard B. Johnson wrote:
+On 18 December 2002 05:29, Zwane Mwaikambo wrote:
+> On Wed, 18 Dec 2002, Denis Vlasenko wrote:
+> > > > Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
+> > > > 	Send kernel configuration bug reports and suggestions to me.
+> > > > 	Also I'll be more than happy to accept help enties for kernel
+> > > > config options (Configure.help).
+> > >
+> > > Can't say i've seen this fellow in a while either.
 > >
-> > You can call intersegment with a full pointer. I don't know how
-> > expensive that is.
+> > If 'lk maintainers' will get excessively long, I'll start pruning.
+> > Do you think I should do it now?
 >
-> It's so expensive as to not be worth it, it's cheaper to load a register
-> or something, i eyou can do
->
-> 	pushl $0xfffff000
-> 	call *(%esp)
->
-> faster than doing a far call.
+> If it's supposed to be current information and to be used by bug
+> reporters, then by all means, chop away ;)
 
-Hmm ...
-
-How expensive would it be to have a special virtual DSO built into ld.so  
-which exported this (and any other future entry points), to be linked  
-against like any other DSO? That way, the *actual* interface would only be  
-between the kernel and ld.so.
-
-MfG Kai
+It is suppsed to be accurate. That is why there are timestamps.
+OTOH I should mark some entries <no longer true>, also with timestamp.
+--
+vda

@@ -1,29 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRBLKdB>; Mon, 12 Feb 2001 05:33:01 -0500
+	id <S129181AbRBLKgV>; Mon, 12 Feb 2001 05:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129098AbRBLKcv>; Mon, 12 Feb 2001 05:32:51 -0500
-Received: from phil.iph.to ([212.98.162.99]:29965 "EHLO iph.to")
-	by vger.kernel.org with ESMTP id <S129101AbRBLKci>;
-	Mon, 12 Feb 2001 05:32:38 -0500
-Message-ID: <3A87BBAB.22721100@iph.to>
-Date: Mon, 12 Feb 2001 12:32:11 +0200
-From: Philips <philips@iph.to>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S130522AbRBLKgL>; Mon, 12 Feb 2001 05:36:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19985 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129253AbRBLKgE>; Mon, 12 Feb 2001 05:36:04 -0500
+Subject: Re: ulimit syscall
+To: philips@iph.to (Philips)
+Date: Mon, 12 Feb 2001 10:36:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3A87BBAB.22721100@iph.to> from "Philips" at Feb 12, 2001 12:32:11 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: ulimit syscall
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14SGL5-0006ee-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All!
+> Hello All!
+> 	I'm running 2.2.18 kernel and as I see ulimit not implemented in 2.2
+> 	Is 2.4 has ulimit syscall implementation?
 
-	I'm running 2.2.18 kernel and as I see ulimit not implemented in 2.2
-
-	Is 2.4 has ulimit syscall implementation?
+Both 2.2 and 2.4 do - but via the rather more flexible rlimit() interface in
+the kernel. The C library will do ulimit->rlimit translation
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129574AbRB0V3I>; Tue, 27 Feb 2001 16:29:08 -0500
+	id <S129584AbRB0Vdi>; Tue, 27 Feb 2001 16:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129577AbRB0V26>; Tue, 27 Feb 2001 16:28:58 -0500
-Received: from www.wen-online.de ([212.223.88.39]:52232 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129574AbRB0V2p>;
-	Tue, 27 Feb 2001 16:28:45 -0500
-Date: Tue, 27 Feb 2001 22:28:18 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-In-Reply-To: <Pine.LNX.4.33.0102271644350.5502-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0102272050280.1114-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129577AbRB0Vd3>; Tue, 27 Feb 2001 16:33:29 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:24080 "EHLO
+	tepid.osl.fast.no") by vger.kernel.org with ESMTP
+	id <S129584AbRB0VdN>; Tue, 27 Feb 2001 16:33:13 -0500
+Date: Tue, 27 Feb 2001 21:47:44 GMT
+Message-Id: <200102272147.VAA76308@tepid.osl.fast.no>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+From: Dag Brattli <dag@brattli.net>
+Reply-To: dag@brattli.net
+Subject: [patch] patch-2.4.2-irda4 (misc fixes 2nd part)
+X-Mailer: Pygmy (v0.5.0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001, Rik van Riel wrote:
+Linus,
 
-> On Tue, 27 Feb 2001, Mike Galbraith wrote:
->
-> > Attempting to avoid doing I/O has been harmful to throughput here
-> > ever since the queueing/elevator woes were fixed. Ever since then,
-> > tossing attempts at avoidance has improved throughput markedly.
-> >
-> > IMHO, any patch which claims to improve throughput via code deletion
-> > should be worth a little eyeball time.. and maybe even a test run ;-)
-> >
-> > Comments welcome.
->
-> Before even thinking about testing this thing, I'd like to
-> see some (detailed?) explanation from you why exactly you
-> think the changes in this patch are good and how + why they
-> work.
+These are various irda patches (2nd part) to fix various bit of the stack. Please
+apply to your latest Linux-2.4.2 code. Changes:
 
-Ok.. quite reasonable ;-)
+o Fix socket stuck in CONN_PEND
+o NSC wakeup fix
+o Fix for IrDA stack static init
 
-First and foremost:  What does refill_inactive_scan do?  It places
-work to do on a list.. and nothing more.  It frees no memory in and
-of itself.. none (but we count it as freed.. that's important). It
-is the amount of memory we want desperately to free in the immediate
-future.  We count on it getting freed.  The only way to free I/O bound
-memory is to do the I/O.. as fast as the I/O subsystem can sync it.
+diff -u -p linux/net/irda/irlmp_event.d7.c linux/net/irda/irlmp_event.c
+--- linux/net/irda/irlmp_event.d7.c	Tue Feb 20 14:14:33 2001
++++ linux/net/irda/irlmp_event.c	Tue Feb 20 14:41:31 2001
+@@ -472,8 +472,6 @@ static int irlmp_state_disconnected(stru
+ 		irlmp_start_watchdog_timer(self, 5*HZ);
+ 		break;
+ 	case LM_CONNECT_INDICATION:
+-		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
+-
+ 		if (self->conn_skb) {
+ 			WARNING(__FUNCTION__ 
+ 				"(), busy with another request!\n");
+@@ -481,6 +479,8 @@ static int irlmp_state_disconnected(stru
+ 		}
+ 		self->conn_skb = skb;
+ 
++		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
++
+ 		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+ 		break;
+ 	default:
+@@ -562,6 +562,15 @@ static int irlmp_state_connect_pend(stru
+ 	switch (event) {
+ 	case LM_CONNECT_REQUEST:
+ 		/* Keep state */
++		break;
++	case LM_CONNECT_INDICATION:
++		/* Will happen in some rare cases when the socket get stuck,
++		 * the other side retries the connect request.
++		 * We just unstuck the socket - Jean II */
++		IRDA_DEBUG(0, __FUNCTION__ "(), LM_CONNECT_INDICATION, "
++			   "LSAP stuck in CONNECT_PEND state...\n");
++		/* Keep state */
++		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+ 		break;
+ 	case LM_CONNECT_RESPONSE:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), LM_CONNECT_RESPONSE, "
 
-This is the nut.. scan/deactivate percentages are fairly meaningless
-unless we do something about these pages.
+diff -u -p linux/drivers/net/irda/nsc-ircc.j1.c linux/drivers/net/irda/nsc-ircc.c
+--- linux/drivers/net/irda/nsc-ircc.j1.c	Fri Feb 23 15:56:05 2001
++++ linux/drivers/net/irda/nsc-ircc.c	Fri Feb 23 16:01:20 2001
+@@ -251,9 +251,14 @@ static int nsc_ircc_open(int i, chipio_t
+ 
+ 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
+ 
++	MESSAGE("%s, Found chip at base=0x%03x\n", driver_name,
++		info->cfg_base);
++
+ 	if ((nsc_ircc_setup(info)) == -1)
+ 		return -1;
+ 
++	MESSAGE("%s, driver loaded (Dag Brattli)\n", driver_name);
++
+ 	/* Allocate new instance of the driver */
+ 	self = kmalloc(sizeof(struct nsc_ircc_cb), GFP_KERNEL);
+ 	if (self == NULL) {
+@@ -699,8 +704,6 @@ static int nsc_ircc_setup(chipio_t *info
+ 		ERROR("%s, Wrong chip version %02x\n", driver_name, version);
+ 		return -1;
+ 	}
+-	MESSAGE("%s, Found chip at base=0x%03x\n", driver_name, 
+-		info->cfg_base);
+ 
+ 	/* Switch to advanced mode */
+ 	switch_bank(iobase, BANK2);
+@@ -729,8 +732,6 @@ static int nsc_ircc_setup(chipio_t *info
+ 	outb(0x0d, iobase+2); /* Set SIR pulse width to 1.6us */
+ 	outb(0x2a, iobase+4); /* Set beginning frag, and preamble length */
+ 
+-	MESSAGE("%s, driver loaded (Dag Brattli)\n", driver_name);
+-
+ 	/* Enable receive interrupts */
+ 	switch_bank(iobase, BANK0);
+ 	outb(IER_RXHDL_IE, iobase+IER);
+@@ -1859,7 +1860,7 @@ static int nsc_ircc_net_open(struct net_
+ 	if (request_dma(self->io.dma, dev->name)) {
+ 		WARNING("%s, unable to allocate dma=%d\n", driver_name, 
+ 			self->io.dma);
+-		free_irq(self->io.irq, self);
++		free_irq(self->io.irq, dev);
+ 		return -EAGAIN;
+ 	}
+ 	
+@@ -2011,18 +2012,10 @@ static void nsc_ircc_suspend(struct nsc_
+ 
+ static void nsc_ircc_wakeup(struct nsc_ircc_cb *self)
+ {
+-	int iobase;
+-
+ 	if (!self->io.suspended)
+ 		return;
+ 
+-	iobase = self->io.fir_base;
+-
+-	/* Switch to advanced mode */
+-	switch_bank(iobase, BANK2);
+-	outb(ECR1_EXT_SL, iobase+ECR1);
+-	switch_bank(iobase, BANK0);
+-
++	nsc_ircc_setup(&self->io);
+ 	nsc_ircc_net_open(self->netdev);
+ 	
+ 	MESSAGE("%s, Waking up\n", driver_name);
 
-What the patch does is simply to push I/O as fast as we can.. we're
-by definition I/O bound and _can't_ defer it under any circumstance,
-for in this direction lies constipation.  The only thing in the world
-which will make it better is pushing I/O.
+diff -urpN linux-2.4.1-pre8/init/main.c linux-2.4.1-pre8-irda-patch/init/main.c
+--- linux-2.4.1-pre8/init/main.c	Thu Jan  4 05:45:26 2001
++++ linux-2.4.1-pre8-irda-patch/init/main.c	Mon Jan 22 00:53:49 2001
+@@ -726,6 +726,7 @@ static void __init do_basic_setup(void)
+ 	filesystem_setup();
+ 
+ #ifdef CONFIG_IRDA
++	irda_proto_init();
+ 	irda_device_init(); /* Must be done after protocol initialization */
+ #endif
+ #ifdef CONFIG_PCMCIA
 
-If you test the patch, you'll notice one very important thing.  The
-system no longer over-reacts.. as badly.  That's a diagnostic point.
-(On my system under my favorite page turnover rate load, I see my box
-drowning in a pool of dirty pages.. which it's not allowed to drain)
 
-What we do right now (as kswapd) is scan a tiny portion of the active
-page list, and then push an arbitrary amount of swap because we can't
-possibly deactivate enough pages if our shortage is larger than the
-search area (nr_active_pages >> 6).. repeat until give-up time.  In
-practice here (test load, but still..), that leads to pushing soon
-to be unneeded [supposition!] pages into swap a full 3/4 of the time.
 
-> IMHO it would be good to not apply ANY code to the stable
-> kernel tree unless we understand what it does and what the
-> author meant the code to do...
-
-Yes.. I agree 100%.  I was not suggesting that this be blindly
-integrated.  (I know me.. can get all cornfoosed and fsck up;)
-
-	-Mike
+----
+Dag Brattli     <dag@brattli.net>
+My homepage     http://www.brattli.net/dag/
+Try Linux-IrDA: http://irda.sourceforge.net/
+Try Pygmy:      http://pygmy.sourceforge.net/
 

@@ -1,85 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSFSLVj>; Wed, 19 Jun 2002 07:21:39 -0400
+	id <S317849AbSFSL0z>; Wed, 19 Jun 2002 07:26:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317848AbSFSLVi>; Wed, 19 Jun 2002 07:21:38 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:9992 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S317851AbSFSLVg>; Wed, 19 Jun 2002 07:21:36 -0400
-Date: Wed, 19 Jun 2002 04:21:12 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH] (2/2) reverse mappings for current 2.5.23 VM
-In-Reply-To: <Pine.LNX.4.44.0206181340380.3031@loke.as.arizona.edu>
-Message-ID: <Pine.LNX.4.44.0206190231520.3637-100000@loke.as.arizona.edu>
+	id <S317850AbSFSL0y>; Wed, 19 Jun 2002 07:26:54 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:21120 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317849AbSFSL0w> convert rfc822-to-8bit;
+	Wed, 19 Jun 2002 07:26:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Date: Wed, 19 Jun 2002 13:26:47 +0200
+User-Agent: KMail/1.4.1
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <200205241004.g4OA4Ul28364@mail.pronto.tv> <200206181326.27860.roy@karlsbakk.net> <3D0F8D40.2FC13433@zip.com.au>
+In-Reply-To: <3D0F8D40.2FC13433@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206191326.47329.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Roy, all we know is that "nuke-buffers stops your machine from locking up".
+> But we don't know why your machine locks up in the first place.  This just
+> isn't sufficient grounds to apply it!  We need to know exactly why your
+> kernel is failing.  We don't know what the bug is.
 
+The bug, as previously described, occurs when multiple (20+) clients downloads 
+large files (3-6Gigs each) at a speed of ~5Mbps. The error does _not_ occur 
+when a fewer number of clients are downloading at speeds close to disk speed. 
+All testing is being done on gigE crossover.
 
-Where: 	   http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/
+> You have two gigabytes of RAM, yes?  It's very weird that stripping buffers
+> prevents a lockup on a machine with such a small highmem/lowmem ratio.
 
-This rather smaller patch serves a very different purpose than patch #1.  
-It introduces the "minimal" rmap functionality of Rik van Riel's reverse 
-mapping patches atop the current 2.5.23 classzone VM.  This quick patch 
-was done on a whim at 1 AM, but it actually seems to perform pretty 
-decently on my laptop.  Page eviction choice is quite good, even 
-in the absence of any sort of page aging.  Using the same quick test as 
-in the previous email: 
+No. I have 1GB - highmem (which is disabled) giving me ~900MB
 
-2.5.22 vanilla:
-Total kernel swapouts during test = 29068 kB
-Total kernel swapins during test  = 16480 kB
-Elapsed time for test: 141 seconds
+> I'll have yet another shot at reproducing it.  So, again, could you please
+> tell me *exactly*, in great deatail, what I need to do to reproduce this
+> problem?
 
-2.5.23-rmap (this patch -- "rmap-minimal"):           
-Total kernel swapouts during test = 24068 kB
-Total kernel swapins during test  =  6480 kB
-Elapsed time for test: 133 seconds
+> - memory size
 
-2.5.23-rmap13b (Rik's "rmap-13b complete") :
-Total kernel swapouts during test = 40696 kB
-Total kernel swapins during test  =   380 kB
-Elapsed time for test: 133 seconds
+1GB - highmem
 
-[Gotta tone down page_launder() a bit...]
+> - number of CPUs
 
-Modifications:
+1 Athlon 1133Mz, 256kB cache
 
-	- in vmscan.c: dropped swap_out_add_to_swap_cache(), integrated 
-	  its contents to rmap's add_to_swap() in swap_state.c.  This is a 
-	  more reasonable place for it anyway. 
+> - IO system
 
-	- Dropped try_to_swap_out(), swap_out(), and all its brethren from 
-	  vmscan.c.  What a great feeling! :)
+standard 33MHz/32bit single peer PCI motherboard (SiS based)
+on-board SiS IDE/ATA 100 controller.
+promise 20269 controller
+realtek 100mbps nic
+e1000 gigE nic
+4 IBM 40gig 120GXP drives - one on each IDE channel
+data partition on RAID-0 across all drives
 
-	- In vmscan.c's shrink_cache():
-	  If a page is actively referenced and page mapping in use, move 
-	  the inactive page to the active list; alloc some swap space for 
-	  anon pages, then if we must, fall to rmap's try_to_unmap() to 
-	  swap.  Drop the max_mapped logic, since swap_out() is gone and 
-	  we don't need it.  If try_to_unmap() fails, put the page on the 
-	  active list.  These are all pieces of Rik's page_launder() 
-	  logic in his integrated rmap scheme.  
+> - kernel version, any applied patches, compiler version
+kernel 2.4.19-pre8+tux+akpm buffer patch
+	I have tried _many_ different kernels, and as I needed the 20269 support, I
+	chose 2.4.19-pre, Tux is there as I did some testing with that. The problem
+	is _not_ tux specific, as I've tried with other server software (custom or
+	standard) as well.
+gcc2.95.3
 
-	- use page_referenced() instead of TestClearPageReferenced() in 
-	  refill_inactive()
+> - exact sequence of commands
 
-	- compilation patches as per "complete" rmap patch #1 (previous 
-	  email)
+start http server software
+start 20+ downloads. each downloaded file is 3-6 gigs
+after some time most processes are killed OOM
 
-Okay it's quick and dirty, but it seems to work pretty well in initial 
-(and not yet rigorous) tests.  Like the full rmap patch for 2.5, I'll try 
-to keep this patch up to date with the 2.5 and rmap trees until VM 
-development switches to 2.5.
+> - anything else you can think of
 
-Comments, patches, fixes & feedback always welcome. :)
+I have not tried to give it coffee yet, although that might help. I'm usually 
+pretty pissed if I haven't got my morning coffee
 
+> Have you been able to reproduce the failure on any other machine?
 
-Craig Kulesa
-Steward Observatory, Univ. of Arizona
+yes. I have set up one other machine with exact same setup and one with 
+slightly different setup and reproduced it.
 
+> No, not at all.  All the pagecache is still there - the patch just
+> throws away the buffer_heads which are attached to those pagecache
+> pages.
+
+oh. that's good.
+
+> The 2.5 kernel does it tons better.  Have you tried it?
+
+I haven't. I've tried to compile it a few times, but it has failed. And. I 
+don't want to run 2.5 on a production server.
+
+But - If you ask me to test it, I will
+
+thanks for all help
+
+roy
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

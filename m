@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTIHJeu (ORCPT <rfc822;willy@w.ods.org>);
+	id S262177AbTIHJeu (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 8 Sep 2003 05:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTIHJeg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTIHJe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:34:36 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:50002 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S262169AbTIHJd7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:33:59 -0400
-Date: Mon, 8 Sep 2003 11:33:58 +0200 (MEST)
-From: Daniel Blueman <daniel.blueman@gmx.net>
-To: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: [2.6.0-test4] [BUG, ALSA] no 44.1KHz sound for i8x0 ICH2...
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0008973862@gmx.net
-X-Authenticated-IP: [194.202.174.101]
-Message-ID: <31962.1063013638@www28.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 8 Sep 2003 05:34:29 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:21391 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262177AbTIHJdr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 05:33:47 -0400
+Date: Mon, 8 Sep 2003 10:33:22 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 2] Little fixes to previous futex patch
+Message-ID: <20030908093322.GA25176@mail.jlokier.co.uk>
+References: <20030907130017.GA19977@mail.jlokier.co.uk> <Pine.LNX.4.44.0309072331220.10791-100000@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309072331220.10791-100000@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't get any sound output with an Intel 815 chipset at 44.1KHz. ALSA
-reports the sound chipset can clock to 41KHz.
+Ingo Molnar wrote:
+> > Hugh's patch is clever and subtle.  It doesn't exit the loop; the loop
+> > continues from "next".
+> 
+> ugh. It would be much cleaner to simply do a list_add() instead of a
+> list_add_tail(). (the ordering of the queue doesnt matter anyway)
 
-What information do I need to post here?
+Why do you say the order doesn't matter?  If you change the order in
+FUTEX_WAIT & FUTEX_WAKE, then "fair" operations aren't fair any more.
 
-Please CC me on any replies.
+Is there a reason why FUTEX_REQUEUE is exempt from this?
 
---- [ lspci -v ]
-
-00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97 Audio
-(rev 11)
-        Subsystem: Dell Computer Corporation: Unknown device 00be
-        Flags: bus master, medium devsel, latency 0, IRQ 10
-        I/O ports at c800 [size=256]
-        I/O ports at cc40 [size=64]
-
---- [ dmesg ]
-
-Advanced Linux Sound Architecture Driver Version 0.9.6 (Wed Aug 20 20:27:13
-2003 UTC).
-PCI: Found IRQ 10 for device 0000:00:1f.5
-PCI: Sharing IRQ 10 with 0000:00:1f.3
-PCI: Setting latency timer of device 0000:00:1f.5 to 64
-hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-intel8x0: clocking to 41151          <----- should be 44100?
-ALSA device list:
-  #0: Intel 82801BA-ICH2 at 0xc800, irq 10
-
--- 
-Daniel J Blueman
-
-COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
---------------------------------------------------
-1. GMX TopMail - Platz 1 und Testsieger!
-2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
-3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
+-- Jamie
 

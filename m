@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUDDXez (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 19:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUDDXez
+	id S262924AbUDDXer (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 19:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUDDXer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 19:34:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63372 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262927AbUDDXev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 19:34:51 -0400
-Date: Sun, 4 Apr 2004 16:28:18 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: benh@kernel.crashing.org, marcel.lanz@ds9.ch, linux-kernel@vger.kernel.org
-Subject: Re: [PANIC] ohci1394 & copy large files
-Message-Id: <20040404162818.1caa25a9.rddunlap@osdl.org>
-In-Reply-To: <20040404231746.GX13168@phunnypharm.org>
-References: <20040404141600.GB10378@ds9.ch>
-	<20040404141339.GW13168@phunnypharm.org>
-	<1081119623.1285.121.camel@gaston>
-	<20040404231746.GX13168@phunnypharm.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Apr 2004 19:34:47 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:22149 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262924AbUDDXep
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 19:34:45 -0400
+Subject: Re: 2.6.5-rc3-mm4
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <32948.192.168.0.250.1081041322.squirrel@192.168.0.250>
+References: <32948.192.168.0.250.1081041322.squirrel@192.168.0.250>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1081121682.2585.30.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 04 Apr 2004 19:34:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Apr 2004 19:17:46 -0400 Ben Collins <bcollins@debian.org> wrote:
+On Sat, 2004-04-03 at 20:15, Paul Blazejowski wrote:
+> Under kernel 2.6.5-rc3-mm4 i get a nice oops when trying to see the
+> contents of NFS export from BSD box.The NFS share gets mounted and shows:
+> 
+> blazebox:/usr/home/paul on /mnt/nfs type nfs (rw,addr=192.168.0.1)
+> 
+> but any attempt to browse using ls or nautilus etc... gets seg faulted.
+> 
+> dmesg:
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000002
+>  printing eip:
+> 43bdb08f
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<43bdb08f>]    Tainted: P   VLI
+> EFLAGS: 00010206   (2.6.5-rc3-mm4)
+> EIP is at nfs3_decode_dirent+0xf/0x250 [nfs]
 
-| On Mon, Apr 05, 2004 at 09:00:24AM +1000, Benjamin Herrenschmidt wrote:
-| > On Mon, 2004-04-05 at 00:13, Ben Collins wrote:
-| > > On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
-| > > > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
-| > > > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
-| > > > 
-| > > > Has anyone similar problems ?
-| > > 
-| > > Known issue, fixed in our repo. I still need to sync with Linus once I
-| > > iron one more issue and merge some more patches.
-| > 
-| > Hi Ben !
-| > 
-| > I don't want to be too critical or harsh or whatever, but why don't you
-| > just send such fixes right upstream instead of stacking patches for a
-| > while in your repo ? From my experience, such "batching" of patches is
-| > the _wrong_ thing to do, and typically, there is a major useability
-| > issue with sbp2 that could have been "right" in 2.6.5 final and will not
-| > be (so we'll have to wait what ? 1 or 2 monthes more now to have a
-| > release kernel with a reliable sbp2)
-| 
-| Because the fix was pretty extensive and needed testing. It was
-| potentially more broken that the problem it was fixing. Sending untested
-| patches to Linus is far worse than batching a few up and pushing to him.
+If it hadn't been for Andrew sending me a copy this mail would have gone
+straight to /dev/null. Please ensure that you label NFS-related mails
+with a clear "NFS" in the subject header if you want me to notice them.
+Nobody has enough free time on their hands to spend reading all 1000
+LKML emails each day.
 
-Was (is) it already being tested more extensively in the -mm patches
-before going to Linus?  Should/could be.  E.g., that's what gregkh does,
-and ACPI, etc.
+Mind sending me a binary tcpdump of that readdir? Please use something
+like
+  tcpdump -s 9000 -w dump.out port 2049 and host insert_name_of_server
 
---
-~Randy
+Cheers,
+  Trond

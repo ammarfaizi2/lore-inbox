@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262179AbSJKXrr>; Fri, 11 Oct 2002 19:47:47 -0400
+	id <S262202AbSJKXun>; Fri, 11 Oct 2002 19:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262202AbSJKXrr>; Fri, 11 Oct 2002 19:47:47 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:17680 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262179AbSJKXrq>; Fri, 11 Oct 2002 19:47:46 -0400
-Message-ID: <3DA7647C.3060603@namesys.com>
-Date: Sat, 12 Oct 2002 03:53:32 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0 - (NUMA))
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262255AbSJKXun>; Fri, 11 Oct 2002 19:50:43 -0400
+Received: from ithilien.qualcomm.com ([129.46.51.59]:30672 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S262202AbSJKXum>; Fri, 11 Oct 2002 19:50:42 -0400
+Message-Id: <5.1.0.14.2.20021011165518.01bc8f80@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 11 Oct 2002 16:55:41 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: [BK] More Bluetooth 2.5.x updates and fixes
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+Hi Linus,
 
->The new uncharted territory for Linux, and the next major order-of-magnitude 
->jump in the installed base, is the desktop.  A kernel that could make a 
->credible stab at the desktop  would certainly be 3.0 material.  And the work 
->that matters for the desktop  is LATENCY work.  Not SMP, not throughput, not 
->more memory.  Latency.  O(1), deadline I/O scheduler, rmap, preempt, shorter 
->clock ticks, 
->
->  
->
-I must confess to thinking that namespace work is the most strategic 
-upcoming battle between Linux and Windows, but probably I am biased in 
-this regard.;-)  MS seems to think it also, given the rumors that OFS is 
-where they are shifting their focus away from the browser and over to 
-for Longhorn....
+Here are some more Bluetooth updates.
+         - Bluetooth core is initialized via subsys_initcall()
+         - RFCOMM fixes.
 
+Please do a
 
-Hans
+         bk pull bk://linux-bt.bkbits.net/bt-2.5
+
+This will update the following files:
+
+  include/net/bluetooth/rfcomm.h |    3 +
+  net/bluetooth/af_bluetooth.c   |    2 -
+  net/bluetooth/rfcomm/core.c    |   71 
++++++++++++++++++++++++++++++++++++++++++
+  net/bluetooth/rfcomm/sock.c    |   62 ++++++++++-------------------------
+  net/socket.c                   |    8 ----
+  5 files changed, 93 insertions(+), 53 deletions(-)
+
+through these ChangeSets:
+
+<maxk@qualcomm.com> (02/10/10 1.740)
+    RFCOMM core API extensions. Improved /proc/bluetooth/rfcomm format.
+    RFCOMM socket locking fixes.
+    Fix typo in rfcomm_pi() macro, no more oopses on socket destruction.
+
+<maxk@qualcomm.com> (02/10/10 1.739)
+    Initialize Bluetooth core using subsys_initcall().
+
+Thanks
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
 

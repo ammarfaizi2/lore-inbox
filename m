@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbULPJXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbULPJeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbULPJXP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 04:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbULPJXN
+	id S262651AbULPJeI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 04:34:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbULPJeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 04:23:13 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:31616 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S261899AbULPJXG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 04:23:06 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Thu, 16 Dec 2004 10:10:32 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Eric St-Laurent <ericstl34@sympatico.ca>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-Message-ID: <20041216091032.GA9774@iram.es>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <41BD483B.1000704@suse.de> <20041213135820.A24748@flint.arm.linux.org.uk> <1102949565.2687.2.camel@localhost.localdomain> <1102983378.9865.11.camel@orbiter> <1103133841.3180.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103133841.3180.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 16 Dec 2004 04:34:08 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:61665 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262651AbULPJeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 04:34:02 -0500
+Message-ID: <41C1567D.1020603@kolivas.org>
+Date: Thu, 16 Dec 2004 20:33:49 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Werner Almesberger <werner@almesberger.net>
+Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generalized prio_tree, revisited
+References: <20041216053118.M1229@almesberger.net> <41C14F1B.8000401@kolivas.org> <20041216061517.O1229@almesberger.net>
+In-Reply-To: <20041216061517.O1229@almesberger.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD55EF1268F423F7DE3F0D9C8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2004 at 06:04:03PM +0000, Alan Cox wrote:
-> On Maw, 2004-12-14 at 00:16, Eric St-Laurent wrote:
-> > Alan,
-> > 
-> > On a related subject, a few months ago you posted a patch which added a
-> > nice add_timeout()/timeout_pending() API and converted many (if not
-> > most) drivers to use it.
-> > 
-> > If I remember correctly it did not generate much comments and the work
-> > was not pushed into mainline.
-> > 
-> > I think it's a nice cleanup, IMHO the time_(before|after)(jiffies, ...)
-> > construct is horrible.
-> > 
-> > Any chance to resurrect this work ?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD55EF1268F423F7DE3F0D9C8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Werner Almesberger wrote:
+> Con Kolivas wrote:
 > 
-> I plan to ressurect it when I have a little time but with some small
-> additions from the original work. Several people said "it should be mS
-> not HZ" and someone at OLS proposed that the API also includes an
-> accuracy guide so that systems using programmed wakeups can aggregate
-> timers when accuracy doesn't matter.
+>>While not being able to comment on the actual patch I think having a 1 
+>>or 0 for different types is not clear.
+> 
+> 
+> Yeah, it's not pretty. I also hope this division to be very
+> transitional, that's why I didn't bother to do anything nicer.
+> 
+> 
+>>Naming them different struct names would seem to me much more readable.
+> 
+> 
+> Struct names ? I'd rather not duplicate everything. Or did you mean
+> initialization function names, e.g. INIT_RAW_PRIO_TREE_ROOT ?
+> Or, for just the flag, maybe something like
+> #define PRIO_TREE_RAW		1
+> #define PRIO_TREE_NORMAL	0
 
-I suspect people who want to push HZ to 10000 won't be happy with
-milliseconds since it would not give them a resolution of one jiffy.
+Initialisation function names.
 
-So the options are:
-1) microseconds, allows up to roughly half an hour (signed) 
-   or an hour (unsigned).
-2) nanoseconds, needs 64 bits, nice for 64 bit machines but 
-   at the risk of bloat on 32 bit ones.
-3) timespecs, somewhat wasteful on 64 bit machines (two longs).
+Cheers,
+Con
 
-I believe 1) is the best compromise.
+--------------enigD55EF1268F423F7DE3F0D9C8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-	Regards,
-	Gabriel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBwVZ/ZUg7+tp6mRURAriJAJ4z9MqboxWHmPJtqvoBx61EuJ6+6QCfTwER
+c4QdB55Ekyh9DxCF3hwLqfI=
+=OVFQ
+-----END PGP SIGNATURE-----
+
+--------------enigD55EF1268F423F7DE3F0D9C8--

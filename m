@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbRE2N6P>; Tue, 29 May 2001 09:58:15 -0400
+	id <S262313AbRE2N6X>; Tue, 29 May 2001 09:58:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbRE2N6F>; Tue, 29 May 2001 09:58:05 -0400
-Received: from [195.122.142.9] ([195.122.142.9]:10381 "EHLO
-	darkstar.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S262176AbRE2N54>; Tue, 29 May 2001 09:57:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: VIA KT133A Northbridge bug reported
-Date: Tue, 29 May 2001 15:56:15 +0200
-Organization: Internet Factory AG
-Message-ID: <3B13AA7F.F9C0454@internet-factory.de>
-In-Reply-To: <Pine.SOL.3.96.1010528204546.23787A-100000@virgo.cus.cam.ac.uk>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: darkstar.internet-factory.de 991144575 30971 195.122.142.158 (29 May 2001 13:56:15 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 29 May 2001 13:56:15 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac2 i686)
-X-Accept-Language: en
+	id <S262358AbRE2N6P>; Tue, 29 May 2001 09:58:15 -0400
+Received: from [200.1.19.3] ([200.1.19.3]:56589 "EHLO pincoya.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262313AbRE2N6D>;
+	Tue, 29 May 2001 09:58:03 -0400
+Message-Id: <200105291354.f4TDsvvU024757@pincoya.inf.utfsm.cl>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Edgar Toernig <froese@gmx.de>, Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup) 
+In-Reply-To: Message from Daniel Phillips <phillips@bonn-fries.net> 
+   of "Tue, 29 May 2001 12:54:18 +0200." <01052912541919.06233@starship> 
+Date: Tue, 29 May 2001 09:54:56 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Dr S.M. Huen" proclaimed:
+Daniel Phillips <phillips@bonn-fries.net> said:
+> On Monday 28 May 2001 03:26, Horst von Brand wrote:
+> > Daniel Phillips <phillips@bonn-fries.net> said:
+> > > On Sunday 27 May 2001 15:32, Edgar Toernig wrote:
+> >
+> > [...]
+> >
+> > > > you break UNIX fundamentals.  But I'm quite relieved now because
+> > > > I'm pretty sure that something like that will never go into the
+> > > > kernel.
+> > >
+> > > OK, I'll take that as "I couldn't find a piece of code that breaks,
+> > > so it's on to the legal issues".
+> >
+> > It boggles my (perhaps underdeveloped) mind to have things that are
+> > files _and_ directories at the same time.
 
-> I saw a report on AMDZone of another VIA chipset bug.  The original source
-> is:-
-> http://www.chip.de/news_stories/news_stories_163106.html
+> They are not, the device file and the directory are different objects 
+> that have the same name.  In C, "foo" and "struct foo" can appear in 
+> the same scope but they are different objects.  This must have seemed 
+> to be a strange idea at first.  Here we have "foo" (a device) and 
+> "directory foo" (the device's properties).
+
+They have the exact same name, how is anybody going to distinguish them?
+
+> When I first saw Linus mention the idea I did a double-take, I thought 
+> it was a strange idea and my first reaction was, it would break all 
+> kinds of things.  But when I started examining cases I was unable to 
+> find any real problems.  When I asked code examples of breakage none of 
+> the supplied examples survived scrutiny.  Then, when I looked through 
+> SUS I didn't find any prohibition.
+
+I isn't allowed either...
+
+> > The last time this was
+> > discussed was for handling forks (a la Mac et al) in files, and it
+> > was shot down.
 > 
-> The claim from AMDZone's translation is that:-
-> " According to the report KT133A boards with chipset codes of 1EA0 and
-> 1EA4 can have the bug which causes your computer to restart."
+> Do you have the subject line?  It might save us some time ;-)
 
-This seems like a translation error. The german original reads
-"Eigentlich für C-Athlons ausgelegt, produziert die Northbridge VT8363A
-Restart-Probleme mit genau dieser CPU." which roughly translates to
-"Originally intended for C-Athlons, the Northbridge VT8363A causes
-restart problems with exactly this CPU."
+Nope, sorry.
 
-The original article goes on with "Wie Stephan Schwolow von MSI
-Deutschland gegenüber CHIP Online mitteilte, lässt sich das Problem mit
-der VIA-Northbridge anhand eines Warmstarts aus dem DOS-Modus oder einem
-Windows-Neustart identifizieren: Bleibt der Bildschirm schwarz, hat der
-Chip einen Fehler."
+> I seem to recall that the fork idea died because it was thought to 
+> require changes to userspace programs such as tar and find.  The 
+> magicdev idea doesn't require such changes, none that I've seen so far.
 
-Translation: "As Stephan Schwolow from MSI Germany told Chip Online, the
-problem with the VIA northbridge can be identified by a warm start from
-DOS or a Windows reboot: If the screen stays black, the chip has an
-error."
+tar(1) of /dev should blow up in exactly the same way, AFAICS...
 
-As far as I understand it, the problem is only affecting "warm reboots".
-And I couldn't care less about warm reboots - my machines usually run
-24/7 :) 
+Everybody just knows a device is a device, a file is a file, and a
+directory is a directory. Standards notwithstanding, this is how things
+work, and have worked for a _long_ time; with absolutely no warning that
+the assumption might become wrong sometime or be wrong on some strange
+beast (you didn't find anything in your search). I'd suspect nobody
+bothered to cast this in stone because nobody even considered such a
+twisted possibility.
 
-Holger
+Take it up with somebody on the standards commitees, they (should) have
+looked long and hard at the nooks and cranies in the standard, and so are
+in a better position to comment than we here are.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

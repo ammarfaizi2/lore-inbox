@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272609AbTHKNx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 09:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272585AbTHKNxq
+	id S272604AbTHKNot (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 09:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272609AbTHKNnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 09:53:46 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:43500 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S272609AbTHKNxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 09:53:22 -0400
-Subject: Re: compiling external kernel modules (comedi.org)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Bernd Porr <Bernd.Porr@cn.stir.ac.uk>, linux-kernel@vger.kernel.org,
-       comedi@comedi.org
-In-Reply-To: <20030802230553.GA1188@mars.ravnborg.org>
-References: <3F2B0E06.9000907@cn.stir.ac.uk>
-	 <20030802070422.GA2404@mars.ravnborg.org> <3F2BA623.6030906@cn.stir.ac.uk>
-	 <20030802120756.GA964@mars.ravnborg.org> <3F2BB840.9060205@cn.stir.ac.uk>
-	 <20030802230553.GA1188@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1060609994.32631.3.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (dwmw2) 
-Date: Mon, 11 Aug 2003 14:53:14 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Aug 2003 09:43:23 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:29067 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S272593AbTHKNk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 09:40:56 -0400
+To: torvalds@transmeta.com
+From: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't refer to devel kernel in Kconfig option
+Message-Id: <E19mCuO-0003d6-00@tetrachloride>
+Date: Mon, 11 Aug 2003 14:40:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-03 at 00:05, Sam Ravnborg wrote:
-> EXTRA_CFLAGS := -I$(obj)/../include
-> in the Makefile should do the trick.
-
-Be careful -- in the case where you're building a newer driver than one
-which is already in the kernel, you may need to ensure your own include
-directory supersedes the kernel's. In that case 'CC=$(CROSS_COMPILE)gcc
--I$(obj)/../include' may be useful.
-
-An example which is currently working for 2.4 and 2.6 kernels, and which
-used to work for 2.2 too until quite recently, is at
-http://cvs.infradead.org/cgi-bin/cvsweb.cgi/mtd/drivers/mtd/
-
-Some people seem to think that the 'SUBDIRS=' trick is a new thing for
-2.6. It's not -- it's worked for ever, and was _always_ the only
-reliable way of building modules to match the kernel.
-
-
--- 
-dwmw2
-
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/Kconfig linux-2.5/arch/i386/Kconfig
+--- bk-linus/arch/i386/Kconfig	2003-08-06 16:39:02.000000000 +0100
++++ linux-2.5/arch/i386/Kconfig	2003-08-08 00:38:44.000000000 +0100
+@@ -276,9 +276,9 @@ config MWINCHIP3D
+ 	help
+ 	  Select this for an IDT Winchip-2A or 3.  Linux and GCC
+ 	  treat this chip as a 586TSC with some extended instructions
+-	  and alignment reqirements.  Development kernels also enable
+-	  out of order memory stores for this CPU, which can increase
+-	  performance of some operations.
++	  and alignment reqirements.  Also enable out of order memory
++	  stores for this CPU, which can increase performance of some
++	  operations.
+ 
+ config MCYRIXIII
+ 	bool "CyrixIII/VIA-C3"

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293426AbSCKA7d>; Sun, 10 Mar 2002 19:59:33 -0500
+	id <S293429AbSCKBEf>; Sun, 10 Mar 2002 20:04:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293429AbSCKA7X>; Sun, 10 Mar 2002 19:59:23 -0500
-Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:58829 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S293426AbSCKA7G>; Sun, 10 Mar 2002 19:59:06 -0500
-Date: Sun, 10 Mar 2002 20:01:45 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: Derek J Witt <djw@flinthills.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend support for IDE
-In-Reply-To: <009501c1c895$f9008e10$d3c02740@flinthills.com>
-Message-ID: <Pine.LNX.4.33.0203101959020.30983-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293434AbSCKBEZ>; Sun, 10 Mar 2002 20:04:25 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:32817 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293432AbSCKBEJ>; Sun, 10 Mar 2002 20:04:09 -0500
+Date: Mon, 11 Mar 2002 02:05:12 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: charles-heselton@cox.net, Dan Mann <mainlylinux@attbi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Kernel 2.5.6 Interactive performance
+Message-ID: <20020311020512.K8949@dualathlon.random>
+In-Reply-To: <NFBBKFIFGLNJKLMMGGFPOEPCCFAA.charles-heselton@cox.net> <200203100211.49572.Dieter.Nuetzel@hamburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200203100211.49572.Dieter.Nuetzel@hamburg.de>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suppose risking screwing up the IDE cable just to get it to  reach or fit
-> properly in a mid-tower isn't worth losing data via CRC errors...
-
-uh, that's an oxymoron - you specifically don't lose data because 
-of CRC checking.  
-
-> I now have this IDE setup:
+On Sun, Mar 10, 2002 at 02:11:49AM +0100, Dieter Nützel wrote:
+> On Sonntag, 10. März 2002 02:00:02, Charles Heselton wrote:
+> > How would you implement these thing?  I'm not on the same technical level
+> > that you guys are, and when/if things are out of context, I don't follow.
+> > Can you help?
 > 
-> Primary master: Quantum Fireball SE6.4A
-> Primary slave:  Western Digital WDC AC36400L
-> Secondary master: Acer ATAPI CD-ROM 40x N0AP
-> Secondary slave: Acer ATAPI CD-RW 2x6x CRW6206A.
+> If you are somewhat open for "new" (experimental) stuff I can prepare a patch 
+> on top of 2.4.18 or 2.4.19-pre2 for you.
+> 
+> But Andrea Arcangeli informed me that vm-29 had a deadlock bug in the recent 
+> fixes for the bh headers. vm-28 is fine or soon to be available vm-30.
 
-it's fairly common to have drives from different vendors, 
-especially oldish ones, not get along as master/slave.
+Confirm. I only wanted to add that only 2.4.19pre2aa1 and vm-29 can
+deadlock, all previous -aa kernels and vm-?? patches are rock solid
+AFIK. The bug is just fixed, it was a missing UnlockPage. The bug was
+introduced while fixing an highmem balancing thing (that nobody ever
+reported on production machines so I don't consider such problem a
+showstopper, but nevertheless vm-30 will fix both the new pratical and
+the old mostly theorical problem).
 
-> working just fine even with dma enabled. I'm using an ATA66 cable for the
-> hard drives.
-
-not to be *too* persnickety, but there's no such thing as "ata66 cable", 
-just 40 or 80-conductor...
-
+Andrea

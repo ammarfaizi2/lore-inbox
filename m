@@ -1,113 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVDBXqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDBXtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVDBXqD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 18:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVDBXqD
+	id S261355AbVDBXtA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 18:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVDBXtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 18:46:03 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64708 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261366AbVDBXpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 18:45:50 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20050402203550.GB16230@elte.hu>
-References: <20050325145908.GA7146@elte.hu>
-	 <200504011419.20964.gene.heskett@verizon.net> <424D9F6A.8080407@cybsft.com>
-	 <200504011834.22600.gene.heskett@verizon.net>
-	 <20050402051254.GA23786@elte.hu>
-	 <1112470675.27149.14.camel@localhost.localdomain>
-	 <1112472372.27149.23.camel@localhost.localdomain>
-	 <20050402203550.GB16230@elte.hu>
-Content-Type: multipart/mixed; boundary="=-seFKkFu8eElPj5FkxCVy"
-Date: Sat, 02 Apr 2005 18:45:46 -0500
-Message-Id: <1112485548.28826.91.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Sat, 2 Apr 2005 18:49:00 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:27095 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261355AbVDBXso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 18:48:44 -0500
+Message-ID: <424F20F6.8010804@latinsud.com>
+Date: Sun, 03 Apr 2005 00:47:18 +0200
+From: "SuD (Alex)" <sud@latinsud.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Oops in set_spdif_output in i810_audio
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, i got a new ahtec laptop and i get null pointer oops everytime i 
+load i810_audio on 2.4 and 2.6 (including 2.6.11.6) kernels.
 
---=-seFKkFu8eElPj5FkxCVy
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+*** These are init messages & oops:
+i810_audio: Unknown symbol ac97_set_dac_rate
+i810_audio: Unknown symbol ac97_release_codec
+i810_audio: Unknown symbol ac97_set_adc_rate
+i810_audio: Unknown symbol ac97_alloc_codec
+i810_audio: Unknown symbol ac97_probe_codec
+Intel 810 + AC97 Audio, version 1.01, 04:15:45 Jan 24 2005
+ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
+i810: Intel ICH4 found at IO 0x18c0 and 0x1c00, MEM 0xe0100c00 and 
+0xe0100800, IRQ 10
+i810: Intel ICH4 mmio at 0xde9f3c00 and 0xdea84800
+i810_audio: Primary codec has ID 0
+i810_audio: Audio Controller supports 6 channels.
+i810_audio: Defaulting to base 2 channel mode.
+i810_audio: Resetting connection 0
+i810_audio: Connection 0 with codec id 0
+ac97_codec: AC97 Modem codec, id: CXT48 (Unknown)
+i810_audio: codec 0 is a softmodem - skipping.
+...
+EIP:    0060:[<dec4b172>]    Not tainted
+EFLAGS: 00010246   (2.6.8-2-686)
+EIP is at i810_set_spdif_output+0x22/0x160 [i810_audio]
+eax: ffffffff   ebx: 00000000   ecx: d9c28400   edx: d9c28400
+esi: 00000000   edi: 00000000   ebp: d6edfb80   esp: d7383e30
+ds: 007b   es: 007b   ss: 0068
+Process insmod (pid: 3358, threadinfo=d7382000 task=dca643b0)
+Stack: 00004461 ffffffce c011c7f4 00000000 d6edfb80 00000000 d6edfc18 
+00000000
+       dec4ff9f d6edfb80 ffffffff 00000000 dec51740 d7383e7c dda3c240 
+00000a04
+       d9c28400 dec4fdb0 d6edfbb0 d9c28400 00000000 00000001 00000000 
+00000001
+Call Trace:
+ [<c011c7f4>] release_console_sem+0xc4/0xd0
+ [<dec4ff9f>] i810_configure_clocking+0xbf/0x4c0 [i810_audio]
+ [<dec4fdb0>] i810_ac97_init+0x4a0/0x5d0 [i810_audio]
+ [<dec5084f>] i810_probe+0x4af/0x690 [i810_audio]
 
-On Sat, 2005-04-02 at 22:35 +0200, Ingo Molnar wrote:
-> > For kicks I ran this on 2.6.11-rc2-RT-V0.7.36-02 (I still had it as a 
-> > Grub option), and the system just locked up hard.  I just was curious 
-> > if this was from a different change. But at least in the latest it 
-> > shows output, and not just a hard lockup.
-> > 
-> > Oh, the bug report was running kernel 2.6.12-rc1-RT-V0.7.43-06.
-> 
-> ok, so it's not the recent NFS changes.
-
-Here's an interesting trace I got today.  It looks either the emu10k1 or
-USB irq handler left IRQ 10 disabled.  This isn't a tracer bug because
-you can clearly see this leads to an xrun.  Since I've been hacking the
-emu10k1 driver quite a bit, I suspect this is the problem.
-
-This trace also shows that my trigger callback for the emu10k1
-multichannel device needs optimizing; it takes 300 usecs to stop all 16
-voices, not acceptable for an ALSA irq handler which uses SA_INTERRUPT.
-I think I can improve this significantly by reordering the register
-settings and eliminating some function call overhead.
-
-Lee
-
---=-seFKkFu8eElPj5FkxCVy
-Content-Disposition: attachment; filename=latency_trace.bz2
-Content-Type: application/x-bzip; name=latency_trace.bz2
-Content-Transfer-Encoding: base64
-
-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
+*** This is my device:
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM 
+(ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
+        Subsystem: QUANTA Computer Inc: Unknown device 0707
+        Flags: bus master, medium devsel, latency 0, IRQ 10
+        I/O ports at 1c00 [size=256]
+        I/O ports at 18c0 [size=64]
+        Memory at e0100c00 (32-bit, non-prefetchable) [size=512]
+        Memory at e0100800 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
 
 
---=-seFKkFu8eElPj5FkxCVy--
+*** What happened in set_spdif_output:
+      struct ac97_codec *codec = state->card->ac97_codec[0];
+     // ... for some reason codec is NULL, and then
+      if(!codec->codec_ops->digital)
+     // ... oops
+
+*** Why is that null?
+   Perhaps it is because the driver thinks that the card is a modem and 
+releases it. So no codecs are available, but some functions expect at 
+least one codec to exist.
+
+   if(codec->modem)
+                {
+                        printk(KERN_WARNING "i810_audio: codec %d is a 
+softmodem - skipping.\n", ac97_id);
+                        ac97_release_codec(codec);
+
+  And is detected as modem because of this condition (in ac97_codec.c):
+  /* Check for an AC97 1.0 soft modem (ID1) */
+  if(codec->codec_read(codec, AC97_RESET) & 2)                        
+
+I don't know much about ac97, i also have an ac97 modem. Anybody knows 
+what is wrong?
+
+Btw, Alsa snd-intel8x0 driver works, but as many distros still default 
+to Oss i think this bug should be hunt.
 

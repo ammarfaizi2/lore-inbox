@@ -1,530 +1,248 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266670AbUHCQDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUHCQSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266670AbUHCQDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 12:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUHCQDY
+	id S266704AbUHCQSC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 12:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUHCQSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 12:03:24 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17103 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266670AbUHCQCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 12:02:50 -0400
-Date: Tue, 3 Aug 2004 11:02:38 -0500
-From: Greg Howard <ghoward@sgi.com>
-X-X-Sender: ghoward@gallifrey.americas.sgi.com
-To: akpm@osdl.org
-cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.6.8-rc2-mm2] More Altix system controller changes
-Message-ID: <Pine.SGI.4.58.0408031041220.10767@gallifrey.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Aug 2004 12:18:02 -0400
+Received: from imf19aec.mail.bellsouth.net ([205.152.59.67]:63220 "EHLO
+	imf19aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S266692AbUHCQRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 12:17:51 -0400
+Date: Tue, 3 Aug 2004 11:17:47 -0500
+From: Zinx Verituse <zinx@epicsol.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd problems
+Message-ID: <20040803161747.GA16293@bliss>
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de> <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <1091490870.1649.23.camel@localhost.localdomain> <20040803055337.GA23504@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="9jxsPFA5p3P2qPhR"
+Content-Disposition: inline
+In-Reply-To: <20040803055337.GA23504@suse.de>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-Here's an update to the Altix system conroller communication driver.
-It incorporates some suggestions Christoph made about the last patch
-and fixes a couple of config files.  It's based on 2.6.8-rc2-mm2.
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks - Greg
+On Tue, Aug 03, 2004 at 07:53:40AM +0200, Jens Axboe wrote:
+> On Tue, Aug 03 2004, Alan Cox wrote:
+> > On Sad, 2004-07-31 at 21:00, Jens Axboe wrote:
+> > > If you want it to work that way, you have the have a pass-through filter
+> > > in the kernel knowing what commands are out there (including vendor
+> > > specific ones). That's just too ugly and not really doable or
+> > > maintainable, sorry.
+> > 
+> > I disagree providing you turn it the other way around. The majority of
+> > scsi commands have to be protected because you can destroy the drive
+> > with some of them or bypass the I/O layers. (Eg using SG_IO to do writes
+> > to raw disk to bypass auditing layers)
+> > 
+> > So you need CAP_SYS_RAWIO for most commands. You can easily build a list
+> > of sane commands for a given media type that are harmless and it fits
+> > the kernel role of a gatekeeper to do that.
+> 
+> So that's where we vehemently disagree - it fits the kernel role, if you
+> allow it to control policy all of a sudden. And it's not easy, unless
+> you do it per specific device (not just type, make and model).
+> 
 
-Signed-off-by: Greg Howard <ghoward@sgi.com>
+Vendor commands would be tricky (it would probably be best to limit
+vendor commands to well-established ones, and just disallow the rest
+without CAP_SYS_RAWIO or such), but standard commands wouldn't have a
+problem, and those don't get added very often.
 
-Changelog:
-Rearrange the code in snsc.c to get rid of unnecessary forward
-declarations.  Also manually inline some wrapper functions to make the
-file more readable, and fix scdrv_read() to always release the
-read-buffer semaphore before returning.  Add the system controller
-communication driver to the default SN2 config file, and fix the
-SGI_SNSC dependecy list in driver/char/Kconfig to depend on
-IA64_SGI_SN2 rather than CONFIG_IA64_SGI_SN2.
+> > Providing the 'allowed' function is driver level and we also honour
+> > read/write properly for that case (so it doesnt bypass block I/O
+> > restrictions and fail the least suprise test) then it seems quite
+> > doable.
+> > 
+> > For such I/O you'd then do
+> > 
+> > 	if(capable(CAP_SYS_RAWIO) || driver->allowed(driver, blah, cmdblock))
+> > 
+> > If the allowed function filters positively "unknown is not allowed" and
+> > the default allowed function is simply "no" it works.
+> 
+> Until there's a new valid command for some device, in which case you
+> have to update your kernel?
+> 
 
- arch/ia64/configs/sn2_defconfig |    1
- drivers/char/Kconfig            |    2
- drivers/char/snsc.c             |  357 +++++++++++++++++-----------------------
- 3 files changed, 159 insertions(+), 201 deletions(-)
+As standard commands don't get added very often, that's not a huge
+problem, but.. see the attached patch.
 
-diff -uprN -X dontdiff original/arch/ia64/configs/sn2_defconfig changed/arch/ia64/configs/sn2_defconfig
---- original/arch/ia64/configs/sn2_defconfig	2004-08-02 11:56:23.000000000 -0500
-+++ changed/arch/ia64/configs/sn2_defconfig	2004-08-03 10:13:50.000000000 -0500
-@@ -528,6 +528,7 @@ CONFIG_SERIAL_NONSTANDARD=y
- # CONFIG_SYNCLINKMP is not set
- # CONFIG_N_HDLC is not set
- # CONFIG_STALDRV is not set
-+CONFIG_SGI_SNSC=y
+> > We'd end up with a list of allowed commands for all sorts of operations
+> > that don't threaten the machine while blocking vendor specific wonders
+> > and also cases where users can do stuff like firmware erase.
+> 
+> Sorry, I think this model is totally bogus and I'd absolutely refuse to
+> merge any such beast into the block layer sg code.
+> 
 
- #
- # Serial drivers
-diff -uprN -X dontdiff original/drivers/char/Kconfig changed/drivers/char/Kconfig
---- original/drivers/char/Kconfig	2004-08-02 11:56:24.000000000 -0500
-+++ changed/drivers/char/Kconfig	2004-08-03 10:13:50.000000000 -0500
-@@ -426,7 +426,7 @@ config A2232
+Well, would something like this patch be acceptable?  It just makes
+SG_IO require write access to the device (cdrecord and cdrdao both
+open it this way already, so users shouldn't have a problem with it).
+I probably forgot some stuff, etc.  I'm not terribly familiar with the
+code in question.
 
- config SGI_SNSC
- 	bool "SGI Altix system controller communication support"
--	depends on CONFIG_IA64_SGI_SN2
-+	depends on IA64_SGI_SN2
- 	help
- 	  If you have an SGI Altix and you want to enable system
- 	  controller communication from user space (you want this!),
-diff -uprN -X dontdiff original/drivers/char/snsc.c changed/drivers/char/snsc.c
---- original/drivers/char/snsc.c	2004-08-02 11:56:24.000000000 -0500
-+++ changed/drivers/char/snsc.c	2004-08-03 10:13:50.000000000 -0500
-@@ -15,7 +15,6 @@
-  * controller (a.k.a. "IRouter") network in an SGI SN system.
+-- 
+Zinx Verituse                                    http://zinx.xmms.org/
+
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.6.8-rc2-cdrom-access.diff"
+
+Only in linux-2.6.8-rc2: .config
+diff -ru linux-2.6.8-rc2.orig/drivers/block/paride/pcd.c linux-2.6.8-rc2/drivers/block/paride/pcd.c
+--- linux-2.6.8-rc2.orig/drivers/block/paride/pcd.c	2004-08-02 19:58:12.000000000 -0500
++++ linux-2.6.8-rc2/drivers/block/paride/pcd.c	2004-08-02 20:17:37.000000000 -0500
+@@ -259,7 +259,7 @@
+ 				unsigned cmd, unsigned long arg)
+ {
+ 	struct pcd_unit *cd = inode->i_bdev->bd_disk->private_data;
+-	return cdrom_ioctl(&cd->info, inode, cmd, arg);
++	return cdrom_ioctl(&cd->info, inode, file, cmd, arg);
+ }
+ 
+ static int pcd_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/cdrom.c linux-2.6.8-rc2/drivers/cdrom/cdrom.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/cdrom.c	2004-08-02 19:58:12.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/cdrom.c	2004-08-02 20:18:22.000000000 -0500
+@@ -2065,15 +2065,18 @@
+  * mmc_ioct().
   */
-
--#include "snsc.h"
- #include <linux/interrupt.h>
- #include <linux/sched.h>
- #include <linux/device.h>
-@@ -24,165 +23,38 @@
- #include <linux/slab.h>
- #include <asm/sn/sn_sal.h>
- #include <asm/sn/nodepda.h>
--
-+#include "snsc.h"
-
- #define SYSCTL_BASENAME	"snsc"
-
- #define SCDRV_BUFSZ	2048
-+#define SCDRV_TIMEOUT	1000
-
--#ifdef SCDRV_DEBUG
--#define DPRINTF(x...)	printk(x)
--#else
--#define DPRINTF(x...)	do {} while(0)
--#endif
--
--static int scdrv_open(struct inode *, struct file *);
--static int scdrv_release(struct inode *, struct file *);
--static ssize_t scdrv_read(struct file *, char __user *, size_t, loff_t *);
--static ssize_t scdrv_write(struct file *, const char __user *,
--			   size_t, loff_t *);
--static unsigned int scdrv_poll(struct file *, struct poll_table_struct *);
--static irqreturn_t scdrv_interrupt(int, void *, struct pt_regs *);
--
--static struct file_operations scdrv_fops = {
--	.owner =	THIS_MODULE,
--	.read =		scdrv_read,
--	.write =	scdrv_write,
--	.poll =		scdrv_poll,
--	.open =		scdrv_open,
--	.release =	scdrv_release,
--};
--
--/*
-- * scdrv_wait
-- *
-- * Call this function to wait on one of the queues associated with an
-- * open subchannel.  Avoid races by entering this function with a held
-- * lock that protects the wait queue; don't release the lock until after
-- * we've added ourselves to the queue.
-- */
--static inline int
--scdrv_wait(wait_queue_head_t *waitq_head, spinlock_t *waitq_lock,
--	   unsigned long flags, unsigned long timeout)
--{
--	DECLARE_WAITQUEUE(wait, current);
--	int ret;
--
--	add_wait_queue(waitq_head, &wait);
--	set_current_state(TASK_INTERRUPTIBLE);
--	spin_unlock_irqrestore(waitq_lock, flags);
--
--	if (timeout) {
--		ret = schedule_timeout(timeout);
--	} else {
--		schedule();
--	}
--
--	remove_wait_queue(waitq_head, &wait);
--
--	if (signal_pending(current)) {
--		return (timeout ? -ret : -1);
--	}
--	return (timeout ? ret : 1);
--}
--
--/*
-- * scdrv_init
-- *
-- * Called at boot time to initialize the system controller communication
-- * facility.
-- */
--int __init
--scdrv_init(void)
-+static irqreturn_t
-+scdrv_interrupt(int irq, void *subch_data, struct pt_regs *regs)
+ int cdrom_ioctl(struct cdrom_device_info *cdi, struct inode *ip,
+-		unsigned int cmd, unsigned long arg)
++		struct file *file, unsigned int cmd, unsigned long arg)
  {
--	geoid_t geoid;
--	cmoduleid_t cmod;
--	int i;
--	char devname[32];
--	char *devnamep;
--	module_t *m;
--	struct sysctl_data_s *scd;
--	void *salbuf;
--	struct class_simple *snsc_class;
--	dev_t first_dev, dev;
--
--	if (alloc_chrdev_region(&first_dev, 0, (MAX_SLABS*nummodules), "snsc")
--	    < 0) {
--		printk("%s: failed to register SN system controller device\n",
--		       __FUNCTION__);
--		return -ENODEV;
--	}
--	snsc_class = class_simple_create(THIS_MODULE, SYSCTL_BASENAME);
--
--	for (cmod = 0; cmod < nummodules; cmod++) {
--		m = sn_modules[cmod];
--		for (i = 0; i <= MAX_SLABS; i++) {
--
--			if (m->nodes[i] == -1) {
--				/* node is not alive in module */
--				continue;
--			}
--
--			geoid = m->geoid[i];
--			devnamep = devname;
--			format_module_id(devnamep, geo_module(geoid),
--					 MODULE_FORMAT_BRIEF);
--			devnamep = devname + strlen(devname);
--			sprintf(devnamep, "#%d", geo_slab(geoid));
--
--			/* allocate sysctl device data */
--			scd = kmalloc(sizeof (struct sysctl_data_s),
--				      GFP_KERNEL);
--			if (!scd) {
--				printk("%s: failed to allocate device info"
--				       "for %s/%s\n", __FUNCTION__,
--				       SYSCTL_BASENAME, devname);
--				continue;
--			}
--			memset(scd, 0, sizeof (struct sysctl_data_s));
--
--			/* initialize sysctl device data fields */
--			scd->scd_nasid = cnodeid_to_nasid(m->nodes[i]);
--			if (!(salbuf = kmalloc(SCDRV_BUFSZ, GFP_KERNEL))) {
--				printk("%s: failed to allocate driver buffer"
--				       "(%s%s)\n", __FUNCTION__,
--				       SYSCTL_BASENAME, devname);
--				kfree(scd);
--				continue;
--			}
--
--			if (ia64_sn_irtr_init(scd->scd_nasid, salbuf,
--					      SCDRV_BUFSZ) < 0) {
--				printk
--				    ("%s: failed to initialize SAL for"
--				     " system controller communication"
--				     " (%s/%s): outdated PROM?\n",
--				     __FUNCTION__, SYSCTL_BASENAME, devname);
--				kfree(scd);
--				kfree(salbuf);
--				continue;
--			}
--
--			dev = first_dev + m->nodes[i];
--			cdev_init(&scd->scd_cdev, &scdrv_fops);
--			if (cdev_add(&scd->scd_cdev, dev, 1)) {
--				printk("%s: failed to register system"
--				       " controller device (%s%s)\n",
--				       __FUNCTION__, SYSCTL_BASENAME, devname);
--				kfree(scd);
--				kfree(salbuf);
--				continue;
--			}
-+	struct subch_data_s *sd = (struct subch_data_s *) subch_data;
-+	unsigned long flags;
-+	int status;
-
--			class_simple_device_add(snsc_class, dev, NULL,
--						"%s", devname);
-+	spin_lock_irqsave(&sd->sd_rlock, flags);
-+	spin_lock(&sd->sd_wlock);
-+	status = ia64_sn_irtr_intr(sd->sd_nasid, sd->sd_subch);
-
--			ia64_sn_irtr_intr_enable(scd->scd_nasid,
--						 0 /*ignored */ ,
--						 SAL_IROUTER_INTR_RECV);
-+	if (status > 0) {
-+		if (status & SAL_IROUTER_INTR_RECV) {
-+			wake_up_all(&sd->sd_rq);
-+		}
-+		if (status & SAL_IROUTER_INTR_XMIT) {
-+			ia64_sn_irtr_intr_disable
-+			    (sd->sd_nasid, sd->sd_subch,
-+			     SAL_IROUTER_INTR_XMIT);
-+			wake_up_all(&sd->sd_wq);
- 		}
- 	}
--	return 0;
-+	spin_unlock(&sd->sd_wlock);
-+	spin_unlock_irqrestore(&sd->sd_rlock, flags);
-+	return IRQ_HANDLED;
- }
-
- /*
-@@ -201,11 +73,6 @@ scdrv_open(struct inode *inode, struct f
- 	/* look up device info for this device file */
- 	scd = container_of(inode->i_cdev, struct sysctl_data_s, scd_cdev);
-
--	if (!scd) {
--		printk("%s: no such device\n", __FUNCTION__);
--		return -ENODEV;
--	}
--
- 	/* allocate memory for subchannel data */
- 	sd = kmalloc(sizeof (struct subch_data_s), GFP_KERNEL);
- 	if (sd == NULL) {
-@@ -313,16 +180,26 @@ scdrv_read(struct file *file, char __use
-
- 	/* if not, and we're blocking I/O, loop */
- 	while (status < 0) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
- 		if (file->f_flags & O_NONBLOCK) {
- 			spin_unlock_irqrestore(&sd->sd_rlock, flags);
- 			return -EAGAIN;
- 		}
-+
- 		len = CHUNKSIZE;
--		if (scdrv_wait(&sd->sd_rq, &sd->sd_rlock, flags, 1000) < 0) {
--			/* something went wrong with wait */
-+		add_wait_queue(&sd->sd_rq, &wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		spin_unlock_irqrestore(&sd->sd_rlock, flags);
-+
-+		schedule_timeout(SCDRV_TIMEOUT);
-+
-+		remove_wait_queue(&sd->sd_rq, &wait);
-+		if (signal_pending(current)) {
-+			/* wait was interrupted */
- 			return -ERESTARTSYS;
- 		}
--		/* sd->sd_rlock was unlocked by scdrv_wait(), above */
-+
- 		spin_lock_irqsave(&sd->sd_rlock, flags);
- 		status = read_status_check(sd, &len);
- 	}
-@@ -333,12 +210,12 @@ scdrv_read(struct file *file, char __use
- 		 * it out to user space
- 		 */
- 		if (count < len) {
--			DPRINTF("%s: only accepting %d of %d bytes\n",
--				__FUNCTION__, (int) count, len);
-+			pr_debug("%s: only accepting %d of %d bytes\n",
-+				 __FUNCTION__, (int) count, len);
- 		}
- 		len = min((int) count, len);
- 		if (copy_to_user(buf, sd->sd_rb, len))
--			return -EFAULT;
-+			len = -EFAULT;
- 	}
-
- 	/* release the read buffer and wake anyone who might be
-@@ -396,16 +273,25 @@ scdrv_write(struct file *file, const cha
-
- 	/* if we failed, and we want to block, then loop */
- 	while (status <= 0) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
- 		if (file->f_flags & O_NONBLOCK) {
- 			spin_unlock(&sd->sd_wlock);
- 			return -EAGAIN;
- 		}
--		if (scdrv_wait(&sd->sd_wq, &sd->sd_wlock, flags, 1000) < 0) {
--			/* something went wrong with wait */
-+
-+		add_wait_queue(&sd->sd_wq, &wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		spin_unlock_irqrestore(&sd->sd_wlock, flags);
-+
-+		schedule_timeout(SCDRV_TIMEOUT);
-+
-+		remove_wait_queue(&sd->sd_wq, &wait);
-+		if (signal_pending(current)) {
-+			/* wait was interrupted */
- 			return -ERESTARTSYS;
- 		}
-
--		/* sd->sd_wlock was unlocked by scdrv_wait(), above */
- 		spin_lock_irqsave(&sd->sd_wlock, flags);
- 		status = write_status_check(sd, count);
- 	}
-@@ -418,26 +304,12 @@ scdrv_write(struct file *file, const cha
- 	 * "chunk" as requested)
- 	 */
- 	if ((status >= 0) && (status < count)) {
--		DPRINTF("Didn't accept the full chunk; %d of %d\n",
--			status, (int) count);
-+		pr_debug("Didn't accept the full chunk; %d of %d\n",
-+			 status, (int) count);
- 	}
- 	return status;
- }
-
--static inline void
--scdrv_lock_all(struct subch_data_s *sd, unsigned long *flags)
--{
--	spin_lock_irqsave(&sd->sd_rlock, *flags);
--	spin_lock(&sd->sd_wlock);
--}
--
--static inline void
--scdrv_unlock_all(struct subch_data_s *sd, unsigned long flags)
--{
--	spin_unlock(&sd->sd_wlock);
--	spin_unlock_irqrestore(&sd->sd_rlock, flags);
--}
--
- static unsigned int
- scdrv_poll(struct file *file, struct poll_table_struct *wait)
- {
-@@ -449,9 +321,11 @@ scdrv_poll(struct file *file, struct pol
- 	poll_wait(file, &sd->sd_rq, wait);
- 	poll_wait(file, &sd->sd_wq, wait);
-
--	scdrv_lock_all(sd, &flags);
-+	spin_lock_irqsave(&sd->sd_rlock, flags);
-+	spin_lock(&sd->sd_wlock);
- 	status = ia64_sn_irtr_intr(sd->sd_nasid, sd->sd_subch);
--	scdrv_unlock_all(sd, flags);
-+	spin_unlock(&sd->sd_wlock);
-+	spin_unlock_irqrestore(&sd->sd_rlock, flags);
-
- 	if (status > 0) {
- 		if (status & SAL_IROUTER_INTR_RECV) {
-@@ -465,29 +339,112 @@ scdrv_poll(struct file *file, struct pol
- 	return mask;
- }
-
--static irqreturn_t
--scdrv_interrupt(int irq, void *subch_data, struct pt_regs *regs)
-+static struct file_operations scdrv_fops = {
-+	.owner =	THIS_MODULE,
-+	.read =		scdrv_read,
-+	.write =	scdrv_write,
-+	.poll =		scdrv_poll,
-+	.open =		scdrv_open,
-+	.release =	scdrv_release,
-+};
-+
-+/*
-+ * scdrv_init
-+ *
-+ * Called at boot time to initialize the system controller communication
-+ * facility.
-+ */
-+int __init
-+scdrv_init(void)
- {
--	struct subch_data_s *sd = (struct subch_data_s *) subch_data;
--	unsigned long flags;
--	int status;
-+	geoid_t geoid;
-+	cmoduleid_t cmod;
-+	int i;
-+	char devname[32];
-+	char *devnamep;
-+	module_t *m;
-+	struct sysctl_data_s *scd;
-+	void *salbuf;
-+	struct class_simple *snsc_class;
-+	dev_t first_dev, dev;
-
--	scdrv_lock_all(sd, &flags);
--	status = ia64_sn_irtr_intr(sd->sd_nasid, sd->sd_subch);
-+	if (alloc_chrdev_region(&first_dev, 0, (MAX_SLABS*nummodules),
-+				SYSCTL_BASENAME) < 0) {
-+		printk("%s: failed to register SN system controller device\n",
-+		       __FUNCTION__);
-+		return -ENODEV;
+ 	struct cdrom_device_ops *cdo = cdi->ops;
+ 	int ret;
+ 
+ 	/* Try the generic SCSI command ioctl's first.. */
+-	ret = scsi_cmd_ioctl(ip->i_bdev->bd_disk, cmd, (void __user *)arg);
+-	if (ret != -ENOTTY)
+-		return ret;
++	/* But only if the user has write access: open(,O_RDWR | O_NONBLOCK) */
++	if (file->f_mode & FMODE_WRITE) {
++		ret = scsi_cmd_ioctl(ip->i_bdev->bd_disk, cmd, (void __user *)arg);
++		if (ret != -ENOTTY)
++			return ret;
 +	}
-+	snsc_class = class_simple_create(THIS_MODULE, SYSCTL_BASENAME);
-
--	if (status > 0) {
--		if (status & SAL_IROUTER_INTR_RECV) {
--			wake_up_all(&sd->sd_rq);
--		}
--		if (status & SAL_IROUTER_INTR_XMIT) {
--			ia64_sn_irtr_intr_disable
--			    (sd->sd_nasid, sd->sd_subch,
--			     SAL_IROUTER_INTR_XMIT);
--			wake_up_all(&sd->sd_wq);
-+	for (cmod = 0; cmod < nummodules; cmod++) {
-+		m = sn_modules[cmod];
-+		for (i = 0; i <= MAX_SLABS; i++) {
-+
-+			if (m->nodes[i] == -1) {
-+				/* node is not alive in module */
-+				continue;
-+			}
-+
-+			geoid = m->geoid[i];
-+			devnamep = devname;
-+			format_module_id(devnamep, geo_module(geoid),
-+					 MODULE_FORMAT_BRIEF);
-+			devnamep = devname + strlen(devname);
-+			sprintf(devnamep, "#%d", geo_slab(geoid));
-+
-+			/* allocate sysctl device data */
-+			scd = kmalloc(sizeof (struct sysctl_data_s),
-+				      GFP_KERNEL);
-+			if (!scd) {
-+				printk("%s: failed to allocate device info"
-+				       "for %s/%s\n", __FUNCTION__,
-+				       SYSCTL_BASENAME, devname);
-+				continue;
-+			}
-+			memset(scd, 0, sizeof (struct sysctl_data_s));
-+
-+			/* initialize sysctl device data fields */
-+			scd->scd_nasid = cnodeid_to_nasid(m->nodes[i]);
-+			if (!(salbuf = kmalloc(SCDRV_BUFSZ, GFP_KERNEL))) {
-+				printk("%s: failed to allocate driver buffer"
-+				       "(%s%s)\n", __FUNCTION__,
-+				       SYSCTL_BASENAME, devname);
-+				kfree(scd);
-+				continue;
-+			}
-+
-+			if (ia64_sn_irtr_init(scd->scd_nasid, salbuf,
-+					      SCDRV_BUFSZ) < 0) {
-+				printk
-+				    ("%s: failed to initialize SAL for"
-+				     " system controller communication"
-+				     " (%s/%s): outdated PROM?\n",
-+				     __FUNCTION__, SYSCTL_BASENAME, devname);
-+				kfree(scd);
-+				kfree(salbuf);
-+				continue;
-+			}
-+
-+			dev = first_dev + m->nodes[i];
-+			cdev_init(&scd->scd_cdev, &scdrv_fops);
-+			if (cdev_add(&scd->scd_cdev, dev, 1)) {
-+				printk("%s: failed to register system"
-+				       " controller device (%s%s)\n",
-+				       __FUNCTION__, SYSCTL_BASENAME, devname);
-+				kfree(scd);
-+				kfree(salbuf);
-+				continue;
-+			}
-+
-+			class_simple_device_add(snsc_class, dev, NULL,
-+						"%s", devname);
-+
-+			ia64_sn_irtr_intr_enable(scd->scd_nasid,
-+						 0 /*ignored */ ,
-+						 SAL_IROUTER_INTR_RECV);
- 		}
- 	}
--	scdrv_unlock_all(sd, flags);
--	return IRQ_HANDLED;
-+	return 0;
+ 
+ 	/* the first few commands do not deal with audio drive_info, but
+ 	   only with routines in cdrom device operations. */
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/cdu31a.c linux-2.6.8-rc2/drivers/cdrom/cdu31a.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/cdu31a.c	2004-06-16 00:19:42.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/cdu31a.c	2004-08-02 20:19:06.000000000 -0500
+@@ -3179,7 +3179,7 @@
+ static int scd_block_ioctl(struct inode *inode, struct file *file,
+ 				unsigned cmd, unsigned long arg)
+ {
+-	return cdrom_ioctl(&scd_info, inode, cmd, arg);
++	return cdrom_ioctl(&scd_info, inode, file, cmd, arg);
  }
+ 
+ static int scd_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/cm206.c linux-2.6.8-rc2/drivers/cdrom/cm206.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/cm206.c	2004-06-16 00:20:03.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/cm206.c	2004-08-02 20:19:21.000000000 -0500
+@@ -1363,7 +1363,7 @@
+ static int cm206_block_ioctl(struct inode *inode, struct file *file,
+ 				unsigned cmd, unsigned long arg)
+ {
+-	return cdrom_ioctl(&cm206_info, inode, cmd, arg);
++	return cdrom_ioctl(&cm206_info, inode, file, cmd, arg);
+ }
+ 
+ static int cm206_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/mcd.c linux-2.6.8-rc2/drivers/cdrom/mcd.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/mcd.c	2004-06-16 00:19:37.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/mcd.c	2004-08-02 20:18:57.000000000 -0500
+@@ -227,7 +227,7 @@
+ static int mcd_block_ioctl(struct inode *inode, struct file *file,
+ 				unsigned cmd, unsigned long arg)
+ {
+-	return cdrom_ioctl(&mcd_info, inode, cmd, arg);
++	return cdrom_ioctl(&mcd_info, inode, file, cmd, arg);
+ }
+ 
+ static int mcd_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/mcdx.c linux-2.6.8-rc2/drivers/cdrom/mcdx.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/mcdx.c	2004-08-02 19:58:12.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/mcdx.c	2004-08-02 20:18:46.000000000 -0500
+@@ -233,7 +233,7 @@
+ 				unsigned cmd, unsigned long arg)
+ {
+ 	struct s_drive_stuff *p = inode->i_bdev->bd_disk->private_data;
+-	return cdrom_ioctl(&p->info, inode, cmd, arg);
++	return cdrom_ioctl(&p->info, inode, file, cmd, arg);
+ }
+ 
+ static int mcdx_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/sbpcd.c linux-2.6.8-rc2/drivers/cdrom/sbpcd.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/sbpcd.c	2004-06-16 00:18:59.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/sbpcd.c	2004-08-02 20:18:37.000000000 -0500
+@@ -5372,7 +5372,7 @@
+ 				unsigned cmd, unsigned long arg)
+ {
+ 	struct sbpcd_drive *p = inode->i_bdev->bd_disk->private_data;
+-	return cdrom_ioctl(p->sbpcd_infop, inode, cmd, arg);
++	return cdrom_ioctl(p->sbpcd_infop, inode, file, cmd, arg);
+ }
+ 
+ static int sbpcd_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/cdrom/viocd.c linux-2.6.8-rc2/drivers/cdrom/viocd.c
+--- linux-2.6.8-rc2.orig/drivers/cdrom/viocd.c	2004-08-02 19:58:12.000000000 -0500
++++ linux-2.6.8-rc2/drivers/cdrom/viocd.c	2004-08-02 20:19:35.000000000 -0500
+@@ -199,7 +199,7 @@
+ 		unsigned cmd, unsigned long arg)
+ {
+ 	struct disk_info *di = inode->i_bdev->bd_disk->private_data;
+-	return cdrom_ioctl(&di->viocd_info, inode, cmd, arg);
++	return cdrom_ioctl(&di->viocd_info, inode, file, cmd, arg);
+ }
+ 
+ static int viocd_blk_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/drivers/ide/ide-cd.c linux-2.6.8-rc2/drivers/ide/ide-cd.c
+--- linux-2.6.8-rc2.orig/drivers/ide/ide-cd.c	2004-08-02 19:58:13.000000000 -0500
++++ linux-2.6.8-rc2/drivers/ide/ide-cd.c	2004-08-02 20:16:59.000000000 -0500
+@@ -3394,7 +3394,7 @@
+ 	int err = generic_ide_ioctl(bdev, cmd, arg);
+ 	if (err == -EINVAL) {
+ 		struct cdrom_info *info = drive->driver_data;
+-		err = cdrom_ioctl(&info->devinfo, inode, cmd, arg);
++		err = cdrom_ioctl(&info->devinfo, inode, file, cmd, arg);
+ 	}
+ 	return err;
+ }
+diff -ru linux-2.6.8-rc2.orig/drivers/scsi/sr.c linux-2.6.8-rc2/drivers/scsi/sr.c
+--- linux-2.6.8-rc2.orig/drivers/scsi/sr.c	2004-08-02 19:58:24.000000000 -0500
++++ linux-2.6.8-rc2/drivers/scsi/sr.c	2004-08-02 20:17:23.000000000 -0500
+@@ -504,7 +504,7 @@
+                 case SCSI_IOCTL_GET_BUS_NUMBER:
+                         return scsi_ioctl(sdev, cmd, (void __user *)arg);
+ 	}
+-	return cdrom_ioctl(&cd->cdi, inode, cmd, arg);
++	return cdrom_ioctl(&cd->cdi, inode, file, cmd, arg);
+ }
+ 
+ static int sr_block_media_changed(struct gendisk *disk)
+diff -ru linux-2.6.8-rc2.orig/include/linux/cdrom.h linux-2.6.8-rc2/include/linux/cdrom.h
+--- linux-2.6.8-rc2.orig/include/linux/cdrom.h	2004-06-16 00:18:52.000000000 -0500
++++ linux-2.6.8-rc2/include/linux/cdrom.h	2004-08-02 20:20:09.000000000 -0500
+@@ -985,7 +985,7 @@
+ 			struct file *fp);
+ extern int cdrom_release(struct cdrom_device_info *cdi, struct file *fp);
+ extern int cdrom_ioctl(struct cdrom_device_info *cdi, struct inode *ip,
+-		unsigned int cmd, unsigned long arg);
++		struct file *file, unsigned int cmd, unsigned long arg);
+ extern int cdrom_media_changed(struct cdrom_device_info *);
+ 
+ extern int register_cdrom(struct cdrom_device_info *cdi);
 
- module_init(scdrv_init);
+--9jxsPFA5p3P2qPhR--

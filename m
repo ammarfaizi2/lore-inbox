@@ -1,508 +1,351 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267619AbUHEKJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUHEKM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267619AbUHEKJz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 06:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUHEKJz
+	id S267618AbUHEKM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 06:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267621AbUHEKM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 06:09:55 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:27833 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267619AbUHEKJA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 06:09:00 -0400
-Date: Thu, 5 Aug 2004 15:41:43 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@muc.de, akpm@osdl.org,
-       suparna@in.ibm.com
-Subject: [3/3] kprobes-netpktlog-268-rc3.patch
-Message-ID: <20040805101143.GC2303@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7qSK/uQB79J36Y4o"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 5 Aug 2004 06:12:56 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:8422 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267618AbUHEKMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 06:12:33 -0400
+Date: Thu, 5 Aug 2004 03:08:47 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
+       Jesse Barnes <jbarnes@sgi.com>,
+       Sylvain Jeaugey <sylvain.jeaugey@bull.net>, Dan Higgins <djh@sgi.com>,
+       linux-kernel@vger.kernel.org, Matthew Dobson <colpatch@us.ibm.com>,
+       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
+       lse-tech@lists.sourceforge.net, Paul Jackson <pj@sgi.com>,
+       Dimitri Sivanich <sivanich@sgi.com>
+Message-Id: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+Subject: [PATCH] new bitmap list format (for cpusets)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A bitmap print and parse format that provides lists of ranges of
+numbers, to be first used for by cpusets (next patch).
 
---7qSK/uQB79J36Y4o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cpusets provide a way to manage subsets of CPUs and Memory Nodes
+for scheduling and memory placement, via a new virtual file system,
+usually mounted at /dev/cpuset.  Manipulation of cpusets can be done
+directly via this file system, from the shell.
 
-Hi,
+However, manipulating 512 bit cpumasks or 256 bit nodemasks (which
+will get bigger) via hex mask strings is painful for humans.
 
-Below is the [3/3] kprobes-netpktlog-268-rc3.patch
+The intention is to provide a format for the cpu and memory mask files
+in /dev/cpusets that will stand the test of time.  This format is
+supported by a couple of new lib/bitmap.c routines, for printing and
+parsing these strings.  Wrappers for cpumask and nodemask are provided.
 
-This patch provides network packet tracing using source and destination IP by
-trapping at various routines in the network stack.It demonstrates how
-a packet travels through the network stack, as suggested by Andi Kleen.
+See the embedded comments, below in the patch, for more details of
+the format.  The input format supports adding or removing specified
+cpus or nodes, as well as entirely rewriting the mask.
 
-Usage: 
-	Compile the kernel with options CONFIG_KPROBES, CONFIG_NETPKTLOG,
-CONFIG_NETFILTER, CONFIG_IP_NF_IPTABLES and CONFIG_IP_NF_TARGET_LOG enabled.
-You need to specify the parameters to the netpktlog module.
-To filter packets based on source and target ip, insert the module with
-source and target ip.
-	$insmod netpktlog.ko netpktlog=@9.182.15.133,9.182.15.188
-To filter packets based on only source ip, insert module with source ip.
-	$insmod netpktlog.ko netpktlog=@9.182.15.133,
-To filter packets based on target ip, insert module with target ip.
-	$insmod netpktlog.ko netpktlog=@,9.182.15.188
+ include/linux/bitmap.h   |    8 ++
+ include/linux/cpumask.h  |   22 ++++++-
+ include/linux/nodemask.h |   22 ++++++-
+ lib/bitmap.c             |  142 +++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 189 insertions(+), 5 deletions(-)
 
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Please see the description of the patch for more details.
-
-Your comments are welcome!
-
-
-Thanks
-prasanna
-
--- 
-Have a Nice Day!
-
-Thanks & Regards
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
-
---7qSK/uQB79J36Y4o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-netpktlog-268-rc3.patch"
-
-
-
-This patch provides network packet tracing using source and destination IP by
-trapping at various routines in the network stack. It demonstrates how
-a packet travels through the network stack, as suggested by Andi Kleen.
-
----
-
-
-
----
-
-
-diff -puN drivers/net/Kconfig~kprobes-netpktlog-268-rc3 drivers/net/Kconfig
---- linux-2.6.8-rc3/drivers/net/Kconfig~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.945715952 -0700
-+++ linux-2.6.8-rc3-root/drivers/net/Kconfig	2004-08-06 04:42:27.301668776 -0700
-@@ -2598,3 +2598,16 @@ config NETCONSOLE
- 	If you want to log kernel messages over the network, enable this.
- 	See Documentation/networking/netconsole.txt for details.
+Index: 2.6.8-rc2-mm2/include/linux/bitmap.h
+===================================================================
+--- 2.6.8-rc2-mm2.orig/include/linux/bitmap.h	2004-08-04 19:29:15.000000000 -0700
++++ 2.6.8-rc2-mm2/include/linux/bitmap.h	2004-08-04 19:41:10.000000000 -0700
+@@ -41,7 +41,9 @@
+  * bitmap_shift_right(dst, src, n, nbits)	*dst = *src >> n
+  * bitmap_shift_left(dst, src, n, nbits)	*dst = *src << n
+  * bitmap_scnprintf(buf, len, src, nbits)	Print bitmap src to buf
+- * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from buf
++ * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from user buf
++ * bitmap_scnlistprintf(buf, len, src, nbits)	Print bitmap src as list to buf
++ * bitmap_parselist(buf, dst, nbits)		Parse bitmap dst from list
+  */
  
-+config NETPKTLOG
-+	tristate "Network packet Tracer using kernel probes(EXPERIMENTAL)"
-+	depends on KPROBES && IP_NF_TARGET_LOG
-+	---help---
-+	Network packet tracering is achived using kernel probes allowing you
-+	to see the network packets while moving up and down the stack. This
-+	module uses kprobes mechanism which is highly efficient for dynamic
-+	tracing.
-+
-+	See driver/net/netpktlog.c for details.
-+	To compile this driver as a module, choose M.If unsure, say N.
-+	This driver will be always compiled as kernel module.
-+
-diff -puN drivers/net/Makefile~kprobes-netpktlog-268-rc3 drivers/net/Makefile
---- linux-2.6.8-rc3/drivers/net/Makefile~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.949715344 -0700
-+++ linux-2.6.8-rc3-root/drivers/net/Makefile	2004-08-06 04:41:40.988709416 -0700
-@@ -191,3 +191,7 @@ obj-$(CONFIG_HAMRADIO) += hamradio/
- obj-$(CONFIG_IRDA) += irda/
+ /*
+@@ -98,6 +100,10 @@ extern int bitmap_scnprintf(char *buf, u
+ 			const unsigned long *src, int nbits);
+ extern int bitmap_parse(const char __user *ubuf, unsigned int ulen,
+ 			unsigned long *dst, int nbits);
++extern int bitmap_scnlistprintf(char *buf, unsigned int len,
++			const unsigned long *src, int nbits);
++extern int bitmap_parselist(const char *buf, unsigned long *maskp,
++			int nmaskbits);
+ extern int bitmap_find_free_region(unsigned long *bitmap, int bits, int order);
+ extern void bitmap_release_region(unsigned long *bitmap, int pos, int order);
+ extern int bitmap_allocate_region(unsigned long *bitmap, int pos, int order);
+Index: 2.6.8-rc2-mm2/include/linux/cpumask.h
+===================================================================
+--- 2.6.8-rc2-mm2.orig/include/linux/cpumask.h	2004-08-04 19:29:34.000000000 -0700
++++ 2.6.8-rc2-mm2/include/linux/cpumask.h	2004-08-04 20:35:10.000000000 -0700
+@@ -10,6 +10,8 @@
+  *
+  * For details of cpumask_scnprintf() and cpumask_parse(),
+  * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ * For details of cpulist_scnprintf() and cpulist_parse(), see
++ * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
+  *
+  * The available cpumask operations are:
+  *
+@@ -46,6 +48,8 @@
+  *
+  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
+  * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
++ * int cpulist_scnprintf(buf, len, mask) Format cpumask as list for printing
++ * int cpulist_parse(buf, map)		Parse ascii string as cpulist
+  *
+  * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask
+  *
+@@ -268,14 +272,28 @@ static inline int __cpumask_scnprintf(ch
+ 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+ }
  
- obj-$(CONFIG_NETCONSOLE) += netconsole.o
-+ifeq ($(CONFIG_NETPKTLOG),y)
-+ obj-m += netpktlog.o
-+endif
+-#define cpumask_parse(ubuf, ulen, src) \
+-			__cpumask_parse((ubuf), (ulen), &(src), NR_CPUS)
++#define cpumask_parse(ubuf, ulen, dst) \
++			__cpumask_parse((ubuf), (ulen), &(dst), NR_CPUS)
+ static inline int __cpumask_parse(const char __user *buf, int len,
+ 					cpumask_t *dstp, int nbits)
+ {
+ 	return bitmap_parse(buf, len, dstp->bits, nbits);
+ }
+ 
++#define cpulist_scnprintf(buf, len, src) \
++			__cpulist_scnprintf((buf), (len), &(src), NR_CPUS)
++static inline int __cpulist_scnprintf(char *buf, int len,
++					const cpumask_t *srcp, int nbits)
++{
++	return bitmap_scnlistprintf(buf, len, srcp->bits, nbits);
++}
 +
-diff -puN /dev/null drivers/net/netpktlog.c
---- /dev/null	2004-06-16 06:40:55.000000000 -0700
-+++ linux-2.6.8-rc3-root/drivers/net/netpktlog.c	2004-08-06 04:41:40.989709264 -0700
-@@ -0,0 +1,237 @@
++#define cpulist_parse(buf, dst) __cpulist_parse((buf), &(dst), NR_CPUS)
++static inline int __cpulist_parse(const char *buf, cpumask_t *dstp, int nbits)
++{
++	return bitmap_parselist(buf, dstp->bits, nbits);
++}
++
+ #if NR_CPUS > 1
+ #define for_each_cpu_mask(cpu, mask)		\
+ 	for ((cpu) = first_cpu(mask);		\
+Index: 2.6.8-rc2-mm2/include/linux/nodemask.h
+===================================================================
+--- 2.6.8-rc2-mm2.orig/include/linux/nodemask.h	2004-08-04 19:29:29.000000000 -0700
++++ 2.6.8-rc2-mm2/include/linux/nodemask.h	2004-08-04 20:28:50.000000000 -0700
+@@ -10,6 +10,8 @@
+  *
+  * For details of nodemask_scnprintf() and nodemask_parse(),
+  * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ * For details of nodelist_scnprintf() and nodelist_parse(), see
++ * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
+  *
+  * The available nodemask operations are:
+  *
+@@ -46,6 +48,8 @@
+  *
+  * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
+  * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
++ * int nodelist_scnprintf(buf, len, mask) Format nodemask as list for printing
++ * int nodelist_parse(buf, map)		Parse ascii string as nodelist
+  *
+  * for_each_node_mask(node, mask)	for-loop node over mask
+  *
+@@ -271,14 +275,28 @@ static inline int __nodemask_scnprintf(c
+ 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+ }
+ 
+-#define nodemask_parse(ubuf, ulen, src) \
+-			__nodemask_parse((ubuf), (ulen), &(src), MAX_NUMNODES)
++#define nodemask_parse(ubuf, ulen, dst) \
++			__nodemask_parse((ubuf), (ulen), &(dst), MAX_NUMNODES)
+ static inline int __nodemask_parse(const char __user *buf, int len,
+ 					nodemask_t *dstp, int nbits)
+ {
+ 	return bitmap_parse(buf, len, dstp->bits, nbits);
+ }
+ 
++#define nodelist_scnprintf(buf, len, src) \
++			__nodelist_scnprintf((buf), (len), &(src), MAX_NUMNODES)
++static inline int __nodelist_scnprintf(char *buf, int len,
++					const nodemask_t *srcp, int nbits)
++{
++	return bitmap_scnlistprintf(buf, len, srcp->bits, nbits);
++}
++
++#define nodelist_parse(buf, dst) __nodelist_parse((buf), &(dst), MAX_NUMNODES)
++static inline int __nodelist_parse(const char *buf, nodemask_t *dstp, int nbits)
++{
++	return bitmap_parselist(buf, dstp->bits, nbits);
++}
++
+ #if MAX_NUMNODES > 1
+ #define for_each_node_mask(node, mask)			\
+ 	for ((node) = first_node(mask);			\
+Index: 2.6.8-rc2-mm2/lib/bitmap.c
+===================================================================
+--- 2.6.8-rc2-mm2.orig/lib/bitmap.c	2004-08-04 19:29:15.000000000 -0700
++++ 2.6.8-rc2-mm2/lib/bitmap.c	2004-08-04 21:44:41.000000000 -0700
+@@ -291,6 +291,7 @@ EXPORT_SYMBOL(__bitmap_weight);
+ #define nbits_to_hold_value(val)	fls(val)
+ #define roundup_power2(val,modulus)	(((val) + (modulus) - 1) & ~((modulus) - 1))
+ #define unhex(c)			(isdigit(c) ? (c - '0') : (toupper(c) - 'A' + 10))
++#define BASEDEC 10		/* fancier cpuset lists input in decimal */
+ 
+ /**
+  * bitmap_scnprintf - convert bitmap to an ASCII hex string.
+@@ -409,6 +410,147 @@ int bitmap_parse(const char __user *ubuf
+ }
+ EXPORT_SYMBOL(bitmap_parse);
+ 
 +/*
-+ *  Network Packet Tracer using Kernel Probes (KProbes)
-+ *  net/driver/netpktlog.c
++ * bscnl_emit(buf, buflen, rbot, rtop, bp)
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2004
-+ *
-+ * 2004-Aug	Created by Prasanna S Panchamukhi <prasanna@in.ibm.com>
-+ *		for network packet tracing using kernel probes interface.
-+ * 		Suggested by Andi Kleen.
-+ *
-+ */
-+#include <linux/module.h>
-+#include <linux/kprobes.h>
-+
-+static char config[256];
-+static unsigned long src_ip, tgt_ip;
-+module_param_string(netpktlog, config, 256, 0);
-+MODULE_PARM_DESC(netpktlog, " netpktlog=@<source-ip>,<target-ip>\n");
-+
-+#include <linux/netpktlog.h>
-+
-+/*
-+ * Compile the kernel with options CONFIG_KPROBES, CONFIG_NETPKTLOG,
-+ * CONFIG_NETFILTER, CONFIG_IP_NF_IPTABLES and CONFIG_IP_NF_TARGET_LOG enabled.
-+ * You need to specify the parameters to the netpktlog module.
-+ * To filter packets based on source and target ip, insert the module with
-+ * source and target ip.
-+ * 	Example insmod netpktlog.ko netpktlog=@9.182.15.133,9.182.15.188
-+ * To filter packets based on only source ip, insert module with source ip.
-+ * 	Example insmod netpktlog.ko netpktlog=@9.182.15.133,
-+ * To filter packets based on target ip, insert module with target ip.
-+ * 	Example insmod netpktlog.ko netpktlog=@,9.182.15.188
-+ */
-+
-+static void jnetif_rx(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+}
-+
-+static void j__kfree_skb(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+}
-+
-+static int jnetif_receive_skb(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jip_rcv(struct sk_buff *skb, struct net_device *dev,
-+		struct packet_type *pt)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jip_local_deliver(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jip_queue_xmit(struct sk_buff *skb, int ipfragok)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jip_output(struct sk_buff **pskb)
-+{
-+	netfilter_ip(*pskb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jtcp_v4_rcv(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jtcp_v4_do_rcv(struct sock *sk, struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jtcp_rcv_established(struct sock *sk, struct sk_buff *skb,
-+			struct tcphdr *th, unsigned len)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static int jskb_copy_datagram_iovec(struct sk_buff *from, int offset,
-+			struct iovec *to, int size)
-+{
-+	netfilter_ip(from);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static void jtcp_send_dupack(struct sock *sk, struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+}
-+
-+static int jip_forward(struct sk_buff *skb)
-+{
-+	netfilter_ip(skb);
-+	jprobe_return();
-+	/*No tailcalls please */
-+	return 0;
-+}
-+
-+static struct jprobe netpkt[] = {
-+	{
-+		{.addr = (kprobe_opcode_t *) netif_rx},
-+		.entry = (kprobe_opcode_t *) jnetif_rx
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) __kfree_skb},
-+		.entry = (kprobe_opcode_t *) j__kfree_skb
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) netif_receive_skb},
-+		.entry = (kprobe_opcode_t *) jnetif_receive_skb
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) ip_rcv},
-+		.entry = (kprobe_opcode_t *) jip_rcv
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) ip_local_deliver},
-+		.entry = (kprobe_opcode_t *) jip_local_deliver
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) ip_queue_xmit},
-+		.entry = (kprobe_opcode_t *) jip_queue_xmit
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) ip_output},
-+		.entry = (kprobe_opcode_t *) jip_output
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) ip_forward},
-+		.entry = (kprobe_opcode_t *) jip_forward
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) tcp_v4_rcv},
-+		.entry = (kprobe_opcode_t *) jtcp_v4_rcv
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) tcp_v4_do_rcv},
-+		.entry = (kprobe_opcode_t *) jtcp_v4_do_rcv
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) tcp_rcv_established},
-+		.entry = (kprobe_opcode_t *) jtcp_rcv_established
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) skb_copy_datagram_iovec},
-+		.entry = (kprobe_opcode_t *) jskb_copy_datagram_iovec
-+	},
-+	{
-+		{.addr = (kprobe_opcode_t *) tcp_send_dupack},
-+		.entry = (kprobe_opcode_t *) jtcp_send_dupack
-+	}
-+
-+};
-+
-+static int init_netpktlog(void)
-+{
-+	int i;
-+	if (strlen(config))
-+		option_setup(config);
-+
-+        /* first time invokation to initialize probe handler */
-+        /* now we are all set to register the probe */
-+	for (i = 0;i < MAX_NETPKT_ROUTINE; i++) {
-+        	printk("plant jprobe at %p, handler addr %p\n",
-+			netpkt[i].kp.addr, netpkt[i].entry);
-+        	register_jprobe(&netpkt[i]);
-+	}
-+
-+	printk("Filtering of network packets enabled...\n");
-+	return 0;
-+}
-+
-+static void cleanup_netpktlog(void)
-+{
-+	int i;
-+	for (i = 0;i < MAX_NETPKT_ROUTINE; i++)
-+		unregister_jprobe(&netpkt[i]);
-+	printk("Filtering of network packets disabled...\n");
-+}
-+
-+module_init(init_netpktlog);
-+module_exit(cleanup_netpktlog);
-+MODULE_LICENSE("GPL");
-diff -puN /dev/null include/linux/netpktlog.h
---- /dev/null	2004-06-16 06:40:55.000000000 -0700
-+++ linux-2.6.8-rc3-root/include/linux/netpktlog.h	2004-08-06 04:41:40.990709112 -0700
-@@ -0,0 +1,87 @@
-+/*
-+ *  Network Packet Tracer using Kernel Probes (KProbes)
-+ *  include/linux/netpktlog.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2004
-+ *
-+ * 2004-Aug 	Created by Prasanna S Panchamukhi <prasanna@in.ibm.com>
-+ *		for network packet tracing using kernel probes interface.
-+ *		Suggested by Andi Kleen.
-+ */
-+#include <linux/inet.h>
-+#include <linux/ip.h>
-+#include <linux/netdevice.h>
-+#include <linux/netfilter_ipv4/ipt_LOG.h>
-+#include <net/ip.h>
-+#include <net/tcp.h>
-+
-+
-+void tcp_send_dupack(struct sock *sk, struct sk_buff *skb);
-+#define MAX_NETPKT_ROUTINE (sizeof(netpkt)/sizeof(struct jprobe))
-+
-+static inline void option_setup(char *opt)
-+{
-+	char *cur = opt, *delim;
-+
-+	if (*cur != '@')
-+	{
-+		printk("Wrong format\n");
-+		return;
-+	}
-+	cur++;
-+	if ((delim = strchr(cur, ',')) == NULL)
-+	{
-+		printk("No ipaddress found\n");
-+		return;
-+	}
-+	*delim = 0;
-+	src_ip = in_aton(cur);
-+	delim++;
-+	tgt_ip = in_aton(delim);
-+}
-+
-+/*
-+ * netfilter_ip: This is a generic routine that can be used to dump the
-+ * network packet for a given source and destination ip address.
-+ * Network packet filtering is done based on source/target ip or both source and
-+ * target ip.
++ * Helper routine for bitmap_scnlistprintf().  Write decimal number
++ * or range to buf, suppressing output past buf+buflen, with optional
++ * comma-prefix.  Return len of what would be written to buf, if it
++ * all fit.
 + */
 +
-+static inline void netfilter_ip(struct sk_buff *skb)
++int bscnl_emit(char *buf, int buflen, int rbot, int rtop, int len)
 +{
-+	struct ipt_log_info info;
-+	struct iphdr *iph;
-+	/* Log IP options */
-+	info.logflags = IPT_LOG_IPOPT;
++	if (len)
++		len += scnprintf(buf + len, buflen - len, ",");
++	if (rbot == rtop)
++		len += scnprintf(buf + len, buflen - len, "%d", rbot);
++	else
++		len += scnprintf(buf + len, buflen - len, "%d-%d", rbot, rtop);
++	return len;
++}
 +
-+	/*
-+	 * Check if the protocol is IP before dumping the packet.
-+	 */
-+	if (skb->protocol == htons(ETH_P_IP) )
-+	{
-+		iph = (struct iphdr *) skb->data;
++/**
++ * bitmap_scnlistprintf - convert bitmap to an ASCII hex string, list format
++ * @buf: byte buffer into which string is placed
++ * @buflen: reserved size of @buf, in bytes
++ * @maskp: pointer to bitmap to convert
++ * @nmaskbits: size of bitmap, in bits
++ *
++ * Output format is a comma-separated list of decimal numbers and
++ * ranges.  Consecutively set bits are shown as two hyphen-separated
++ * decimal numbers, the smallest and largest bit numbers set in
++ * the range.  Output format is a compatible subset of the format
++ * accepted as input by bitmap_parselist().
++ *
++ * The return value is the number of characters which would be
++ * generated for the given input, excluding the trailing '\0', as
++ * per ISO C99.
++ */
 +
-+		if ((src_ip == 0 && iph->daddr == tgt_ip)
-+			|| (tgt_ip == 0 && iph->saddr == src_ip)
-+			|| (iph->saddr == src_ip && iph->daddr == tgt_ip))
-+		{
++int bitmap_scnlistprintf(char *buf, unsigned int buflen,
++	const unsigned long *maskp, int nmaskbits)
++{
++	int len = 0;
++	/* current bit is 'cur', most recently seen range is [rbot, rtop] */
++	int cur, rbot, rtop;
 +
-+			dump_packet((struct ipt_log_info *)&info, skb, 0);
-+			printk("\n");
++	rbot = cur = find_first_bit(maskp, nmaskbits);
++	while (cur < nmaskbits) {
++		rtop = cur;
++		cur = find_next_bit(maskp, nmaskbits, cur+1);
++		if (cur >= nmaskbits || cur > rtop + 1) {
++			len = bscnl_emit(buf, buflen, rbot, rtop, len);
++			rbot = cur;
 +		}
 +	}
++	return len;
 +}
-diff -puN net/ipv4/ip_forward.c~kprobes-netpktlog-268-rc3 net/ipv4/ip_forward.c
---- linux-2.6.8-rc3/net/ipv4/ip_forward.c~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.955714432 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/ip_forward.c	2004-08-06 04:41:40.991708960 -0700
-@@ -125,3 +125,4 @@ drop:
- 	kfree_skb(skb);
- 	return NET_RX_DROP;
- }
-+EXPORT_SYMBOL(ip_forward);
-diff -puN net/ipv4/ip_input.c~kprobes-netpktlog-268-rc3 net/ipv4/ip_input.c
---- linux-2.6.8-rc3/net/ipv4/ip_input.c~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.959713824 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/ip_input.c	2004-08-06 04:41:40.991708960 -0700
-@@ -431,3 +431,4 @@ out:
- 
- EXPORT_SYMBOL(ip_rcv);
- EXPORT_SYMBOL(ip_statistics);
-+EXPORT_SYMBOL(ip_local_deliver);
-diff -puN net/ipv4/ip_output.c~kprobes-netpktlog-268-rc3 net/ipv4/ip_output.c
---- linux-2.6.8-rc3/net/ipv4/ip_output.c~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.963713216 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/ip_output.c	2004-08-06 04:41:40.993708656 -0700
-@@ -1326,6 +1326,7 @@ EXPORT_SYMBOL(ip_fragment);
- EXPORT_SYMBOL(ip_generic_getfrag);
- EXPORT_SYMBOL(ip_queue_xmit);
- EXPORT_SYMBOL(ip_send_check);
-+EXPORT_SYMBOL(ip_output);
- 
- #ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(sysctl_ip_default_ttl);
-diff -puN net/ipv4/tcp_input.c~kprobes-netpktlog-268-rc3 net/ipv4/tcp_input.c
---- linux-2.6.8-rc3/net/ipv4/tcp_input.c~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.969712304 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/tcp_input.c	2004-08-06 04:41:41.000707592 -0700
-@@ -3229,7 +3229,7 @@ static __inline__ void tcp_dsack_extend(
- 		tcp_sack_extend(tp->duplicate_sack, seq, end_seq);
- }
- 
--static void tcp_send_dupack(struct sock *sk, struct sk_buff *skb)
-+void tcp_send_dupack(struct sock *sk, struct sk_buff *skb)
- {
- 	struct tcp_opt *tp = tcp_sk(sk);
- 
-@@ -4864,3 +4864,4 @@ EXPORT_SYMBOL(tcp_cwnd_application_limit
- EXPORT_SYMBOL(tcp_parse_options);
- EXPORT_SYMBOL(tcp_rcv_established);
- EXPORT_SYMBOL(tcp_rcv_state_process);
-+EXPORT_SYMBOL(tcp_send_dupack);
-diff -puN net/ipv4/tcp_ipv4.c~kprobes-netpktlog-268-rc3 net/ipv4/tcp_ipv4.c
---- linux-2.6.8-rc3/net/ipv4/tcp_ipv4.c~kprobes-netpktlog-268-rc3	2004-08-06 04:41:40.974711544 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/tcp_ipv4.c	2004-08-06 04:41:41.004706984 -0700
-@@ -2646,6 +2646,7 @@ EXPORT_SYMBOL(tcp_v4_rebuild_header);
- EXPORT_SYMBOL(tcp_v4_remember_stamp);
- EXPORT_SYMBOL(tcp_v4_send_check);
- EXPORT_SYMBOL(tcp_v4_syn_recv_sock);
-+EXPORT_SYMBOL(tcp_v4_rcv);
- 
- #ifdef CONFIG_PROC_FS
- EXPORT_SYMBOL(tcp_proc_register);
++EXPORT_SYMBOL(bitmap_scnlistprintf);
++
++/**
++ * bitmap_parselist - parses a more flexible format for inputting bit masks
++ * @buf: read nul-terminated user string from this buffer
++ * @mask: write resulting mask here
++ * @nmaskbits: number of bits in mask to be written
++ *
++ * The input format supports a space separated list of one or more comma
++ * separated sequences of ascii decimal bit numbers and ranges.  Each
++ * sequence may be preceded by one of the prefix characters '=',
++ * '-', '+', or '!', which have the following meanings:
++ *    '=': rewrite the mask to have only the bits specified in this sequence
++ *    '-': turn off the bits specified in this sequence
++ *    '+': turn on the bits specified in this sequence
++ *    '!': same as '-'.
++ *
++ * If no such initial character is specified, then the default prefix '='
++ * is presumed.  The list is evaluated and applied in left to right order.
++ *
++ * Eamples of input format:
++ *	0-4,9				# rewrites to 0,1,2,3,4,9
++ *	-9				# removes 9
++ *	+6-8				# adds 6,7,8
++ *	1-6 -0,2-4 +11-14,16-19 -14-16	# same as 1,5,6,11-13,17-19
++ *	1-6 -0,2-4 +11-14,16-19 =14-16	# same as just 14,15,16
++ *
++ * Possible errno's returned for invalid input strings are:
++ *      -EINVAL:   second number in range smaller than first
++ *      -ERANGE:   bit number specified too large for mask
++ *      -EINVAL: invalid prefix char (not '=', '-', '+', or '!')
++ */
++
++int bitmap_parselist(const char *buf, unsigned long *maskp, int nmaskbits)
++{
++	char *p, *q;
++	int masklen = BITS_TO_LONGS(nmaskbits);
++
++	while ((p = strsep((char **)(&buf), " ")) != NULL) { /* blows const XXX */
++		char op = isdigit(*p) ? '=' : *p++;
++		unsigned long m[masklen];
++		int maskbytes = sizeof(m);
++		int i;
++
++		if (op == ' ')
++			continue;
++		memset(m, 0, maskbytes);
++
++		while ((q = strsep(&p, ",")) != NULL) {
++			unsigned a = simple_strtoul(q, 0, BASEDEC);
++			unsigned b = a;
++			char *cp = strchr(q, '-');
++			if (cp)
++				b = simple_strtoul(cp + 1, 0, BASEDEC);
++			if (!(a <= b))
++				return -EINVAL;
++			if (b >= nmaskbits)
++				return -ERANGE;
++			while (a <= b) {
++				set_bit(a, m);
++				a++;
++			}
++		}
++
++		switch (op) {
++			case '=':
++				memcpy(maskp, m, maskbytes);
++				break;
++			case '!':
++			case '-':
++				for (i = 0; i < masklen; i++)
++					maskp[i] &= ~m[i];
++				break;
++			case '+':
++				for (i = 0; i < masklen; i++)
++					maskp[i] |= m[i];
++				break;
++			default:
++				return -EINVAL;
++		}
++	}
++	return 0;
++}
++EXPORT_SYMBOL(bitmap_parselist);
++
+ /**
+  *	bitmap_find_free_region - find a contiguous aligned mem region
+  *	@bitmap: an array of unsigned longs corresponding to the bitmap
 
-_
-
---7qSK/uQB79J36Y4o--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

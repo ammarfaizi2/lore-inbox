@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268963AbRHYMib>; Sat, 25 Aug 2001 08:38:31 -0400
+	id <S268958AbRHYMlV>; Sat, 25 Aug 2001 08:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268958AbRHYMiU>; Sat, 25 Aug 2001 08:38:20 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:51729 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S268940AbRHYMiJ>;
-	Sat, 25 Aug 2001 08:38:09 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Boris Pisarcik <boris@acheron.sk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8: insmod ipx.o failed 
-In-Reply-To: Your message of "Mon, 20 Aug 2001 12:15:30 -0400."
-             <20010820121530.A2862@boris.localdomain> 
+	id <S268971AbRHYMlL>; Sat, 25 Aug 2001 08:41:11 -0400
+Received: from mx2.port.ru ([194.67.57.12]:16399 "EHLO mx2.port.ru")
+	by vger.kernel.org with ESMTP id <S268958AbRHYMkz>;
+	Sat, 25 Aug 2001 08:40:55 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: tyme@kobayashi.soze.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Howl of soul...
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 25 Aug 2001 22:38:20 +1000
-Message-ID: <11301.998743100@ocs3.ocs-net>
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.30.68]
+Date: Sat, 25 Aug 2001 12:41:06 +0000 (GMT)
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15ackM-000Ian-00@f4.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001 12:15:30 -0400, 
-Boris Pisarcik <boris@acheron.sk> wrote:
->c0194a70 make_8023_client_R__ver_make_8023_client
+> Does anyone know what this bug actually is, and whether there's a possible
+> workaround without disabling udma entirely?
+   so if i will disable udma and switch to 
+  -X34 == multiword dma2, then corruptions will go away????
 
-FAQ: http://www.tux.org/lkml/#s8-8
+   i have a VX chipset/Zida 5DVX with PIIX3...
 
+
+---
+
+
+cheers,
+
+
+   Samium Gromoff

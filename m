@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280785AbRKOIlM>; Thu, 15 Nov 2001 03:41:12 -0500
+	id <S280784AbRKOIqC>; Thu, 15 Nov 2001 03:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280786AbRKOIlC>; Thu, 15 Nov 2001 03:41:02 -0500
-Received: from devour.demon.co.uk ([158.152.76.196]:4360 "HELO
-	starbug.devour.org") by vger.kernel.org with SMTP
-	id <S280784AbRKOIku>; Thu, 15 Nov 2001 03:40:50 -0500
-Message-ID: <001e01c16db1$3685ec70$0f00a8c0@seduction>
-From: "Chris King" <chris@admins.devour.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fw: Linux on old i486 board
-Date: Thu, 15 Nov 2001 08:39:27 -0000
+	id <S280786AbRKOIpx>; Thu, 15 Nov 2001 03:45:53 -0500
+Received: from goliat.otpbank.hu ([195.228.126.225]:61477 "HELO
+	goliat.otptelebank.hu") by vger.kernel.org with SMTP
+	id <S280784AbRKOIpe>; Thu, 15 Nov 2001 03:45:34 -0500
+Message-ID: <3BF38129.AB197B01@otpbank.hu>
+Date: Thu, 15 Nov 2001 09:47:37 +0100
+From: Nagy Tibor <nagyt@otpbank.hu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: hu, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.14 hangs on Dell PowerEdge 6300
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I am experiencing rather strange problems with the 2.2 kernel.
-Basically, on this system, (which has an i486 w/ pentium overdrive
-processor - although this is probably irrelevent), pppd under 2.0 and 2.4
-works fine. However, on 2.2, during disk access or general strain on the ISA
-bus, ppp drops packets - either as errors or frame errors. Also, I
-occaisonally see VJ decompression errors in the logfiles.
-The distribution I'm using is Slackware 8.0, which utilises pppd 2.4.1.
+we were satisfied with linux kernel version 2.2.9. Our linux server is
+unusable with kernel version 2.2.10 and higher, also with 2.2.14
+declared to be stable.
 
-I am unsure what other information to supply, although the following could
-be relevant;
+We are working on Dell PowerEdge 6300 (4 Pentium Xeon/550Mhz, 4GB RAM).
+Any kernel from 2.2.10 to 2.2.14 brings our machine to a hanging state.
+Nothing can be determined, I guess, something is wrong with memory
+management. Unfortunately there is no more information about the
+problem.
 
-bootlog, (under 2.4.14)
-ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-
-If anyone could help in any way, it would be greatly appreciated.
-
-
+------------------------------------------------------------------------
+Tibor Nagy
+National Savings and Commercial Bank Ltd (OTP Bank)
+H-1051 Budapest Nador u. 16.
+Tel: 00 36 1 374 6990	Fax: 00 36 1 374 6981	E-mail: nagyt@otpbank.hu
+------------------------------------------------------------------------

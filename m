@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314362AbSE0GNy>; Mon, 27 May 2002 02:13:54 -0400
+	id <S314358AbSE0GOG>; Mon, 27 May 2002 02:14:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314379AbSE0GNx>; Mon, 27 May 2002 02:13:53 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:59342 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S314362AbSE0GNx>;
-	Mon, 27 May 2002 02:13:53 -0400
-Date: Mon, 27 May 2002 16:13:46 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] consolidate errno definitions
-Message-Id: <20020527161346.6ce3bde0.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S314379AbSE0GOF>; Mon, 27 May 2002 02:14:05 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:56014 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S314358AbSE0GOE>; Mon, 27 May 2002 02:14:04 -0400
+Date: Mon, 27 May 2002 15:58:04 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: swsusp for 2.5.18: kill broken Magic-D support
+Message-Id: <20020527155804.229232a1.rusty@rustcorp.com.au>
+In-Reply-To: <20020526185724.GA16004@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just remove duplicates among the asm-*/errno.h.
+On Sun, 26 May 2002 20:57:24 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-see <http://www.canb.auug.org.au/~sfr/18-errno.1.diff.gz>
+> Hi!
+> 
+> It is probably good idea to create rule that suspend may only be done
+> from process context... And it simplifies code a lot. Here's the
+> patch.
 
-Please have a look and comment.
+You could have it call "schedule_task" of course...
 
-I assume the differences are due to ABI requirements, if not
-then more consolidation is probably possible.
-
+Rusty.
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

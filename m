@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbTFJPVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 11:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTFJPV2
+	id S263150AbTFJPVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTFJPVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 11:21:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23915 "EHLO
+	Tue, 10 Jun 2003 11:21:19 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17726 "EHLO
 	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S263084AbTFJPU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 11:20:59 -0400
-Date: Tue, 10 Jun 2003 16:37:01 +0100 (BST)
+	id S263131AbTFJPSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:18:49 -0400
+Date: Tue, 10 Jun 2003 16:34:52 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop 8/9 copy_bio use highmem
+Subject: [PATCH] loop 6/9 remove LO_FLAGS_BH_REMAP
 In-Reply-To: <Pine.LNX.4.44.0306101606080.2285-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0306101636070.2285-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0306101633450.2285-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop_copy_bio uses one gfp_mask for bio_alloc and alloc_page calls.
-The bio_alloc obviously can't use highmem, but the alloc_page can.
-Yes, the underlying device might be unable to use highmem, and have
-to use one of its bounce buffers, with an extra copy: so be it.
+Jonah Sherman <jsherman@stuy.edu> pointed out back in February how
+LO_FLAGS_BH_REMAP is never actually set, since loop_init_xfer only calls
+the init for non-0 encryption type.  Fix that or scrap it?  Let's scrap
+it for now, that path (hacking values in bio instead of copying data)
+seems never to have been tested, and adds to the number of paths through
+loop: leave that optimization to some other occasion.
 
-(Originally I did propagate the underlying device's bounce needs down to
-the loop device, to avoid that possible extra copy; but let's keep this
-simple, the low end doesn't have highmem and the high end can I/O it.)
-
---- loop7/drivers/block/loop.c	Tue Jun 10 11:40:23 2003
-+++ loop8/drivers/block/loop.c	Tue Jun 10 11:55:11 2003
-@@ -432,13 +432,13 @@
+--- loop5/drivers/block/loop.c	Tue Jun 10 12:54:36 2003
++++ loop6/drivers/block/loop.c	Tue Jun 10 12:56:34 2003
+@@ -120,12 +120,6 @@
  	return 0;
  }
  
--static struct bio *loop_copy_bio(struct bio *rbh, int gfp_mask)
-+static struct bio *loop_copy_bio(struct bio *rbh)
+-static int none_status(struct loop_device *lo, const struct loop_info64 *info)
+-{
+-	lo->lo_flags |= LO_FLAGS_BH_REMAP;
+-	return 0;
+-}
+-
+ static int xor_status(struct loop_device *lo, const struct loop_info64 *info)
  {
+ 	if (info->lo_encrypt_key_size <= 0)
+@@ -136,7 +130,6 @@
+ struct loop_func_table none_funcs = { 
+ 	.number = LO_CRYPT_NONE,
+ 	.transfer = transfer_none,
+-	.init = none_status,
+ }; 	
+ 
+ struct loop_func_table xor_funcs = { 
+@@ -481,14 +474,6 @@
  	struct bio *bio;
- 	struct bio_vec *bv;
- 	int i;
  
--	bio = bio_alloc(gfp_mask, rbh->bi_vcnt);
-+	bio = bio_alloc(__GFP_NOWARN, rbh->bi_vcnt);
- 	if (!bio)
- 		return NULL;
+ 	/*
+-	 * for xfer_funcs that can operate on the same bh, do that
+-	 */
+-	if (lo->lo_flags & LO_FLAGS_BH_REMAP) {
+-		bio = rbh;
+-		goto out_bh;
+-	}
+-
+-	/*
+ 	 * When called on the page reclaim -> writepage path, this code can
+ 	 * trivially consume all memory.  So we drop PF_MEMALLOC to avoid
+ 	 * stealing all the page reserves and throttle to the writeout rate.
+@@ -507,8 +492,6 @@
  
-@@ -448,7 +448,7 @@
- 	__bio_for_each_segment(bv, rbh, i, 0) {
- 		struct bio_vec *bbv = &bio->bi_io_vec[i];
+ 	bio->bi_end_io = loop_end_io_transfer;
+ 	bio->bi_private = rbh;
+-
+-out_bh:
+ 	bio->bi_sector = rbh->bi_sector + (lo->lo_offset >> 9);
+ 	bio->bi_rw = rbh->bi_rw;
+ 	bio->bi_bdev = lo->lo_device;
+--- loop5/include/linux/loop.h	Sun Apr 20 08:02:13 2003
++++ loop6/include/linux/loop.h	Tue Jun 10 12:56:08 2003
+@@ -70,7 +70,6 @@
+  */
+ #define LO_FLAGS_DO_BMAP	1
+ #define LO_FLAGS_READ_ONLY	2
+-#define LO_FLAGS_BH_REMAP	4
  
--		bbv->bv_page = alloc_page(gfp_mask);
-+		bbv->bv_page = alloc_page(__GFP_NOWARN|__GFP_HIGHMEM);
- 		if (bbv->bv_page == NULL)
- 			goto oom;
- 
-@@ -483,8 +483,7 @@
- 		int flags = current->flags;
- 
- 		current->flags &= ~PF_MEMALLOC;
--		bio = loop_copy_bio(rbh,
--				    (GFP_ATOMIC & ~__GFP_HIGH) | __GFP_NOWARN);
-+		bio = loop_copy_bio(rbh);
- 		current->flags = flags;
- 		if (bio == NULL)
- 			blk_congestion_wait(WRITE, HZ/10);
+ #include <asm/posix_types.h>	/* for __kernel_old_dev_t */
+ #include <asm/types.h>		/* for __u64 */
 

@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263427AbUJ2RWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263386AbUJ2Rci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbUJ2RWt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUJ2RTo
+	id S263386AbUJ2Rci (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUJ2RXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:19:44 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:19053 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263383AbUJ2RPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:15:54 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm2
-Date: Fri, 29 Oct 2004 19:16:00 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20041029014930.21ed5b9a.akpm@osdl.org>
-In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 29 Oct 2004 13:23:24 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55429 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263429AbUJ2RUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:20:33 -0400
+Message-Id: <200410291720.i9THKPas013399@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: davids@webmaster.com
+Cc: Manu Abraham <manu@kromtek.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow 
+In-Reply-To: Your message of "Fri, 29 Oct 2004 09:41:42 PDT."
+             <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1682831821P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410291916.00687.petkov@uni-muenster.de>
+Date: Fri, 29 Oct 2004 13:20:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+--==_Exmh_-1682831821P
+Content-Type: text/plain; charset=us-ascii
 
-Hi there,
+On Fri, 29 Oct 2004 09:41:42 PDT, David Schwartz said:
 
-kernel/intermodule.c:179: warning: `inter_module_register' is deprecated (declared at kernel/intermodule.c:38)
-kernel/intermodule.c:180: warning: `inter_module_unregister' is deprecated (declared at kernel/intermodule.c:79)
-kernel/intermodule.c:183: warning: `inter_module_put' is deprecated (declared at kernel/intermodule.c:160)
-kernel/power/pm.c:201: warning: `pm_send' is deprecated (declared at kernel/power/pm.c:155)
-kernel/power/pm.c:242: warning: `pm_send' is deprecated (declared at kernel/power/pm.c:155)
-kernel/power/pm.c:259: warning: `pm_register' is deprecated (declared at kernel/power/pm.c:62)
-kernel/power/pm.c:260: warning: `pm_unregister' is deprecated (declared at kernel/power/pm.c:86)
-kernel/power/pm.c:261: warning: `pm_unregister_all' is deprecated (declared at kernel/power/pm.c:115)
-kernel/power/pm.c:262: warning: `pm_send_all' is deprecated (declared at kernel/power/pm.c:234)
-drivers/char/vt.c:748: warning: `pm_register' is deprecated (declared at include/linux/pm.h:106)
-drivers/char/agp/backend.c:279: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:577)
-drivers/char/agp/backend.c:299: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
-drivers/char/drm/drm_agpsupport.h:431: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
-drivers/char/drm/drm_drv.h:501: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-drivers/char/drm/drm_stub.h:183: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
-drivers/char/drm/drm_stub.h:188: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
-drivers/char/drm/drm_stub.h:255: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:577)
-drivers/parport/parport_pc.c:3193: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-sound/core/init.c:261: warning: `pm_unregister' is deprecated (declared at include/linux/pm.h:111)
-sound/core/init.c:776: warning: `pm_register' is deprecated (declared at include/linux/pm.h:106)
+> 	This position is conditioned on two facts, either:
+> 
+> 	1) Linus does not distribute his BK tree, or
+> 
+> 	2) Linus' BK tree is not a derivative work of the Linux kernel
+> 
+> 	If both of these are false, then the tree must be covered by the GPL. I
+> think 2 is clearly false.
 
-Is anyone fixing these?
+The *contents of the source of the tree itself* are indeed GPL, and I doubt that
+anybody argues otherwise.  The actual method(s) used to *STORE* said contents
+are *NOT* GPL - if you argue that the fact of storing the source in a BK tree
+renders the BK itself GPL, then we should stroll over to Redmond with a laptop
+that has a copy of the source untarred into an NTFS filesystem, and demand that
+they cough up the source for NTFS.
 
-Regards,
-Boris.
+Is anybody arguing that doing that would GPL NTFS? If no, then it doesn't GPL
+any of the BK bits either.
 
+--==_Exmh_-1682831821P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBgnvZcC3lWbTT17ARAo/0AJ9YatQemlyT3tTSRYh9SSf7fjNXHACfQ871
+9zgmN22M67bsZ8PgkrNtN4Q=
+=3TcG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1682831821P--

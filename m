@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUJWOdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUJWOfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbUJWOdU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUJWOdU
+	id S261206AbUJWOfL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUJWOey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:33:20 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:47883 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261198AbUJWOdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:33:17 -0400
-Date: Sat, 23 Oct 2004 15:33:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
-Message-ID: <20041023143309.GA32417@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Airlie <airlied@gmail.com>, Jon Smirl <jonsmirl@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e473391041022214570eab48a@mail.gmail.com> <20041023095644.GC30137@infradead.org> <21d7e99704102307287a08247@mail.gmail.com>
+	Sat, 23 Oct 2004 10:34:54 -0400
+Received: from holomorphy.com ([207.189.100.168]:39372 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261205AbUJWOep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 10:34:45 -0400
+Date: Sat, 23 Oct 2004 07:34:39 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041023143439.GO17038@holomorphy.com>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <20041023013518.GI31237@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21d7e99704102307287a08247@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20041023013518.GI31237@waste.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 12:28:18AM +1000, Dave Airlie wrote:
-> > 
-> > Sorry, wrong API.  At least export the individual functions and use them
-> > directly (and without the symbol_get abnomination that's not any better
-> > than inter_module_*).
-> 
-> I wonder what the reasoning behind the old drm_agp structure was in
-> the first place?
-> 
-> What about this patch?
+On Fri, Oct 22, 2004 at 06:15:49PM -0700, William Lee Irwin III wrote:
+>> It would be nice if this were qualified with something that distinguished
+>> the outlandish idealizations you're actually criticizing from real math,
+>> which makes no presumption that its axioms or hypotheses have any
+>> connection to reality, observations, or predictions thereof. The abuse
+>> you're speaking of is poor modelling for the sake of tractability of
+>> symbolic calculations, which has nothing to do with proof or logic.
 
-The patch looks good to me, I really like the reduced complexity.
+On Fri, Oct 22, 2004 at 08:35:18PM -0500, Matt Mackall wrote:
+> Actually just the opposite. It's more about Godel and Whitehead than
+> Feynmann in my interpretation.
 
-Some minor nitpicks below:
+"The notion of a perfectly modellable world is dead" and branding a
+field with the sins of those who misapplied it is not difficult to
+understand. Worse yet, it's even arguable that even the idealizations
+were done in full cognizance of their limited validity. Whatever else
+you're reading into it is not there. I suppose in this and the instance
+of some religiously-oriented .sig's there is little or no recourse.
 
-+	if (!(head = DRM(alloc)(sizeof(*head), DRM_MEM_AGPLISTS)))
-+		return NULL;
-+	memset((void *)head, 0, sizeof(*head));
 
-no need to cast to void * here
-
-@@ -428,41 +409,37 @@
-  */
- void DRM(agp_uninit)(void)
- {
--	DRM_AGP_PUT;
--	drm_agp = NULL;
- }
-
-is the function needed by BSD?  Else it should probably go away completely.
-
+-- wli

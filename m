@@ -1,308 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVBXPFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVBXPBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVBXPFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 10:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVBXPEF
+	id S262387AbVBXPBn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 10:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVBXPBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 10:04:05 -0500
+	Thu, 24 Feb 2005 10:01:42 -0500
 Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:41634 "EHLO
 	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S262375AbVBXOzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 09:55:44 -0500
-Date: Thu, 24 Feb 2005 15:45:39 +0100 (CET)
+	id S262377AbVBXOzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 09:55:47 -0500
+Date: Thu, 24 Feb 2005 15:49:09 +0100 (CET)
 From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 cc: Tejun Heo <htejun@gmail.com>
-Subject: [patch ide-dev 7/9] convert disk flush functions to use REQ_DRIVE_TASKFILE
-Message-ID: <Pine.GSO.4.58.0502241545041.13534@mion.elka.pw.edu.pl>
+Subject: [patch ide-dev 9/9] remove unused REQ_DRIVE_TASK handling
+Message-ID: <Pine.GSO.4.58.0502241548401.13534@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Original patch from Tejun Heo <htejun@gmail.com>,
-ported over recent IDE changes by me.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-* teach ide_tf_get_address() about CHS
-* use ide_tf_get_address() and remove ide_get_error_location()
-* use ide_task_init_flush() and remove ide_fill_flush_cmd()
-* convert idedisk_issue_flush() to use REQ_DRIVE_TASKFILE.
-  This and switching to ide_tf_get_address() removes
-  a possible race condition between getting the failed
-  sector number and other requests.
-* convert ide_queue_flush_cmd() to use REQ_DRIVE_TASKFILE
-
-By this change, when WIN_FLUSH_CACHE_EXT is used, full HOB
-registers are written and read.  This isn't optimal but
-shouldn't be noticeable either.
-
-diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	2005-02-24 15:29:50 +01:00
-+++ b/drivers/ide/ide-disk.c	2005-02-24 15:29:50 +01:00
-@@ -349,7 +349,7 @@
-
- 	/* if OK, compute maximum address value */
- 	if ((tf->command & 1) == 0) {
--		addr = ide_tf_get_address(tf);
-+		addr = ide_tf_get_address(drive, tf);
- 		addr++;	/* since the return value is (maxlba - 1), we add 1 */
- 	}
- 	return addr;
-@@ -392,7 +392,7 @@
- 	ide_raw_taskfile(drive, &args, NULL);
- 	/* if OK, compute maximum address value */
- 	if ((tf->command & 1) == 0) {
--		addr_set = ide_tf_get_address(tf);
-+		addr_set = ide_tf_get_address(drive, tf);
- 		addr_set++;
- 	}
- 	return addr_set;
-@@ -639,24 +639,18 @@
- {
- 	ide_drive_t *drive = q->queuedata;
- 	struct request *rq;
-+	ide_task_t task;
- 	int ret;
-
- 	if (!drive->wcache)
- 		return 0;
-
--	rq = blk_get_request(q, WRITE, __GFP_WAIT);
--
--	memset(rq->cmd, 0, sizeof(rq->cmd));
--
--	if (ide_id_has_flush_cache_ext(drive->id) &&
--	    (drive->capacity64 >= (1UL << 28)))
--		rq->cmd[0] = WIN_FLUSH_CACHE_EXT;
--	else
--		rq->cmd[0] = WIN_FLUSH_CACHE;
-+	ide_task_init_flush(drive, &task);
-
-+	rq = blk_get_request(q, WRITE, __GFP_WAIT);
-
--	rq->flags |= REQ_DRIVE_TASK | REQ_SOFTBARRIER;
--	rq->buffer = rq->cmd;
-+	rq->flags |= REQ_DRIVE_TASKFILE | REQ_SOFTBARRIER;
-+	rq->special = &task;
-
- 	ret = blk_execute_rq(q, disk, rq);
-
-@@ -664,7 +658,7 @@
- 	 * if we failed and caller wants error offset, get it
- 	 */
- 	if (ret && error_sector)
--		*error_sector = ide_get_error_location(drive, rq->cmd);
-+		*error_sector = ide_tf_get_address(drive, &task.tf);
-
- 	blk_put_request(rq);
- 	return ret;
+diff -Nru a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
+--- a/drivers/block/ll_rw_blk.c	2005-02-24 15:30:14 +01:00
++++ b/drivers/block/ll_rw_blk.c	2005-02-24 15:30:14 +01:00
+@@ -851,7 +851,6 @@
+ 	"REQ_QUIET",
+ 	"REQ_SPECIAL",
+ 	"REQ_DRIVE_CMD",
+-	"REQ_DRIVE_TASK",
+ 	"REQ_DRIVE_TASKFILE",
+ 	"REQ_PREEMPT",
+ 	"REQ_PM_SUSPEND",
 diff -Nru a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
---- a/drivers/ide/ide-io.c	2005-02-24 15:29:50 +01:00
-+++ b/drivers/ide/ide-io.c	2005-02-24 15:29:50 +01:00
-@@ -74,24 +74,6 @@
-
- EXPORT_SYMBOL_GPL(ide_task_init_flush);
-
--static void ide_fill_flush_cmd(ide_drive_t *drive, struct request *rq)
--{
--	char *buf = rq->cmd;
--
--	/*
--	 * reuse cdb space for ata command
--	 */
--	memset(buf, 0, sizeof(rq->cmd));
--
--	rq->flags |= REQ_DRIVE_TASK | REQ_STARTED;
--	rq->buffer = buf;
--	rq->buffer[0] = WIN_FLUSH_CACHE;
--
--	if (ide_id_has_flush_cache_ext(drive->id) &&
--	    (drive->capacity64 >= (1UL << 28)))
--		rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
--}
--
- /*
-  * preempt pending requests, and store this cache flush for immediate
-  * execution
-@@ -99,7 +81,9 @@
- static struct request *ide_queue_flush_cmd(ide_drive_t *drive,
- 					   struct request *rq, int post)
- {
--	struct request *flush_rq = &HWGROUP(drive)->wrq;
-+	ide_hwgroup_t *hwgroup = drive->hwif->hwgroup;
-+	struct request *flush_rq = &hwgroup->flush_rq;
-+	ide_task_t *task = &hwgroup->flush_task;
-
- 	/*
- 	 * write cache disabled, clear the barrier bit and treat it like
-@@ -110,11 +94,14 @@
- 		return rq;
- 	}
-
--	ide_init_drive_cmd(flush_rq);
--	ide_fill_flush_cmd(drive, flush_rq);
-+	ide_task_init_flush(drive, task);
-
--	flush_rq->special = rq;
-+	ide_init_drive_cmd(flush_rq);
-+	flush_rq->flags = REQ_DRIVE_TASKFILE | REQ_STARTED;
- 	flush_rq->nr_sectors = rq->nr_sectors;
-+	flush_rq->special = task;
-+
-+	hwgroup->flush_real_rq = rq;
-
- 	if (!post) {
- 		drive->doing_barrier = 1;
-@@ -124,7 +111,7 @@
- 		flush_rq->flags |= REQ_BAR_POSTFLUSH;
-
- 	__elv_add_request(drive->queue, flush_rq, ELEVATOR_INSERT_FRONT, 0);
--	HWGROUP(drive)->rq = NULL;
-+	hwgroup->rq = NULL;
- 	return flush_rq;
- }
-
-@@ -181,12 +168,13 @@
-
- int ide_end_request (ide_drive_t *drive, int uptodate, int nr_sectors)
- {
-+	ide_hwgroup_t *hwgroup = drive->hwif->hwgroup;
- 	struct request *rq;
- 	unsigned long flags;
- 	int ret = 1;
-
- 	spin_lock_irqsave(&ide_lock, flags);
--	rq = HWGROUP(drive)->rq;
-+	rq = hwgroup->rq;
-
- 	if (!nr_sectors)
- 		nr_sectors = rq->hard_cur_sectors;
-@@ -194,7 +182,7 @@
- 	if (!blk_barrier_rq(rq) || !drive->wcache)
- 		ret = __ide_end_request(drive, rq, uptodate, nr_sectors);
- 	else {
--		struct request *flush_rq = &HWGROUP(drive)->wrq;
-+		struct request *flush_rq = &hwgroup->flush_rq;
-
- 		flush_rq->nr_sectors -= nr_sectors;
- 		if (!flush_rq->nr_sectors) {
-@@ -330,60 +318,34 @@
- 	spin_unlock_irqrestore(&ide_lock, flags);
- }
-
--u64 ide_tf_get_address(struct ata_taskfile *tf)
-+u64 ide_tf_get_address(ide_drive_t *drive, struct ata_taskfile *tf)
- {
- 	u32 high, low;
-
--	if (tf->flags & ATA_TFLAG_LBA48)
-+	if (tf->flags & ATA_TFLAG_LBA48) {
- 		high = (tf->hob_lbah << 16) | (tf->hob_lbam << 8) | tf->hob_lbal;
--	else
--		high = tf->device & 0xf;
--
--	low = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
--
--	return ((u64)high << 24) | low;
--}
--
--EXPORT_SYMBOL_GPL(ide_tf_get_address);
--
--/*
-- * FIXME: probably move this somewhere else, name is bad too :)
-- */
--u64 ide_get_error_location(ide_drive_t *drive, char *args)
--{
--	u32 high, low;
--	u8 hcyl, lcyl, sect;
--	u64 sector;
--
--	high = 0;
--	hcyl = args[5];
--	lcyl = args[4];
--	sect = args[3];
--
--	if (ide_id_has_flush_cache_ext(drive->id)) {
--		low = (hcyl << 16) | (lcyl << 8) | sect;
--		HWIF(drive)->OUTB(drive->ctl|0x80, IDE_CONTROL_REG);
--		high = ide_read_24(drive);
-+		low = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
- 	} else {
--		u8 cur = HWIF(drive)->INB(IDE_SELECT_REG);
--		if (cur & 0x40)
--			low = (hcyl << 16) | (lcyl << 8) | sect;
--		else {
--			low = hcyl * drive->head * drive->sect;
--			low += lcyl * drive->sect;
--			low += sect - 1;
-+		if (drive->select.b.lba) {
-+			high = tf->device & 0xf;
-+			low = (tf->lbah << 16) | (tf->lbam << 8) | tf->lbal;
-+		} else {
-+			high = 0;
-+			low = tf->lbah * drive->head * drive->sect;
-+			low += tf->lbam * drive->sect;
-+			low += tf->lbal - 1;
+--- a/drivers/ide/ide-io.c	2005-02-24 15:30:14 +01:00
++++ b/drivers/ide/ide-io.c	2005-02-24 15:30:14 +01:00
+@@ -451,20 +451,6 @@
+ 			args[1] = err;
+ 			args[2] = hwif->INB(IDE_NSECTOR_REG);
  		}
- 	}
-
--	sector = ((u64) high << 24) | low;
--	return sector;
-+	return ((u64)high << 24) | low;
- }
--EXPORT_SYMBOL(ide_get_error_location);
-+
-+EXPORT_SYMBOL_GPL(ide_tf_get_address);
-
- static void ide_complete_barrier(ide_drive_t *drive, struct request *rq,
- 				 int error)
- {
--	struct request *real_rq = rq->special;
-+	struct request *real_rq = drive->hwif->hwgroup->flush_real_rq;
- 	int good_sectors, bad_sectors;
- 	sector_t sector;
-
-@@ -430,7 +392,9 @@
- 		 */
- 		good_sectors = 0;
- 		if (blk_barrier_postflush(rq)) {
--			sector = ide_get_error_location(drive, rq->buffer);
-+			ide_task_t *task = rq->special;
-+
-+			sector = ide_tf_get_address(drive, &task->tf);
-
- 			if ((sector >= real_rq->hard_sector) &&
- 			    (sector < real_rq->hard_sector + real_rq->hard_nr_sectors))
-diff -Nru a/include/linux/ide.h b/include/linux/ide.h
---- a/include/linux/ide.h	2005-02-24 15:29:50 +01:00
-+++ b/include/linux/ide.h	2005-02-24 15:29:50 +01:00
-@@ -962,8 +962,12 @@
- 	struct request *rq;
- 		/* failsafe timer */
- 	struct timer_list timer;
--		/* local copy of current write rq */
--	struct request wrq;
-+		/* rq used for flushing */
-+	struct request flush_rq;
-+		/* task used for flushing */
-+	ide_task_t flush_task;
-+		/* real_rq for flushing */
-+	struct request *flush_real_rq;
- 		/* timeout value during long polls */
- 	unsigned long poll_timeout;
- 		/* queried upon timeouts */
-@@ -1204,12 +1208,7 @@
-
- void ide_task_init_flush(ide_drive_t *, ide_task_t *);
-
--u64 ide_tf_get_address(struct ata_taskfile *);
+-	} else if (rq->flags & REQ_DRIVE_TASK) {
+-		u8 *args = (u8 *) rq->buffer;
+-		if (rq->errors == 0)
+-			rq->errors = !OK_STAT(stat,READY_STAT,BAD_STAT);
 -
--/*
-- * this function returns error location sector offset in case of a write error
-- */
--extern u64 ide_get_error_location(ide_drive_t *, char *);
-+u64 ide_tf_get_address(ide_drive_t *, struct ata_taskfile *);
+-		if (args) {
+-			args[0] = stat;
+-			args[1] = err;
+-			args[2] = hwif->INB(IDE_NSECTOR_REG);
+-			args[3] = hwif->INB(IDE_SECTOR_REG);
+-			args[4] = hwif->INB(IDE_LCYL_REG);
+-			args[5] = hwif->INB(IDE_HCYL_REG);
+-			args[6] = hwif->INB(IDE_SELECT_REG);
+-		}
+ 	} else if (rq->flags & REQ_DRIVE_TASKFILE) {
+ 		ide_task_t *args = (ide_task_t *) rq->special;
+ 		if (rq->errors == 0)
+@@ -667,7 +653,7 @@
+ 		return ide_stopped;
 
- /*
-  * "action" parameter type for ide_do_drive_cmd() below.
+ 	/* retry only "normal" I/O: */
+-	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK | REQ_DRIVE_TASKFILE)) {
++	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASKFILE)) {
+ 		rq->errors = 1;
+ 		ide_end_drive_cmd(drive, stat, err);
+ 		return ide_stopped;
+@@ -718,7 +704,7 @@
+ 		return ide_stopped;
+
+ 	/* retry only "normal" I/O: */
+-	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK | REQ_DRIVE_TASKFILE)) {
++	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASKFILE)) {
+ 		rq->errors = 1;
+ 		ide_end_drive_cmd(drive, BUSY_STAT, 0);
+ 		return ide_stopped;
+@@ -952,33 +938,7 @@
+ 		if (args->tf_out_flags.all != 0)
+ 			return flagged_taskfile(drive, args);
+ 		return do_rw_taskfile(drive, args);
+-	} else if (rq->flags & REQ_DRIVE_TASK) {
+-		u8 *args = rq->buffer;
+-		u8 sel;
+-
+-		if (!args)
+-			goto done;
+-#ifdef DEBUG
+- 		printk("%s: DRIVE_TASK_CMD ", drive->name);
+- 		printk("cmd=0x%02x ", args[0]);
+- 		printk("fr=0x%02x ", args[1]);
+- 		printk("ns=0x%02x ", args[2]);
+- 		printk("sc=0x%02x ", args[3]);
+- 		printk("lcyl=0x%02x ", args[4]);
+- 		printk("hcyl=0x%02x ", args[5]);
+- 		printk("sel=0x%02x\n", args[6]);
+-#endif
+- 		hwif->OUTB(args[1], IDE_FEATURE_REG);
+- 		hwif->OUTB(args[3], IDE_SECTOR_REG);
+- 		hwif->OUTB(args[4], IDE_LCYL_REG);
+- 		hwif->OUTB(args[5], IDE_HCYL_REG);
+- 		sel = (args[6] & ~0x10);
+- 		if (drive->select.b.unit)
+- 			sel |= 0x10;
+- 		hwif->OUTB(sel, IDE_SELECT_REG);
+- 		ide_cmd(drive, args[0], args[2], &drive_cmd_intr);
+- 		return ide_started;
+- 	} else if (rq->flags & REQ_DRIVE_CMD) {
++	} else if (rq->flags & REQ_DRIVE_CMD) {
+  		u8 *args = rq->buffer;
+
+ 		if (!args)
+@@ -1091,7 +1051,7 @@
+ 	if (!drive->special.all) {
+ 		ide_driver_t *drv;
+
+-		if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK))
++		if (rq->flags & REQ_DRIVE_CMD)
+ 			return execute_drive_cmd(drive, rq);
+ 		else if (rq->flags & REQ_DRIVE_TASKFILE)
+ 			return execute_drive_cmd(drive, rq);
+diff -Nru a/drivers/ide/ide-lib.c b/drivers/ide/ide-lib.c
+--- a/drivers/ide/ide-lib.c	2005-02-24 15:30:14 +01:00
++++ b/drivers/ide/ide-lib.c	2005-02-24 15:30:14 +01:00
+@@ -458,7 +458,7 @@
+ 	spin_unlock(&ide_lock);
+ 	if (!rq)
+ 		return;
+-	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
++	if (rq->flags & REQ_DRIVE_CMD) {
+ 		char *args = rq->buffer;
+ 		if (args) {
+ 			opcode = args[0];
+diff -Nru a/include/linux/blkdev.h b/include/linux/blkdev.h
+--- a/include/linux/blkdev.h	2005-02-24 15:30:14 +01:00
++++ b/include/linux/blkdev.h	2005-02-24 15:30:14 +01:00
+@@ -202,7 +202,6 @@
+ 	__REQ_QUIET,		/* don't worry about errors */
+ 	__REQ_SPECIAL,		/* driver suplied command */
+ 	__REQ_DRIVE_CMD,
+-	__REQ_DRIVE_TASK,
+ 	__REQ_DRIVE_TASKFILE,
+ 	__REQ_PREEMPT,		/* set for "ide_preempt" requests */
+ 	__REQ_PM_SUSPEND,	/* suspend request */
+@@ -229,7 +228,6 @@
+ #define REQ_QUIET	(1 << __REQ_QUIET)
+ #define REQ_SPECIAL	(1 << __REQ_SPECIAL)
+ #define REQ_DRIVE_CMD	(1 << __REQ_DRIVE_CMD)
+-#define REQ_DRIVE_TASK	(1 << __REQ_DRIVE_TASK)
+ #define REQ_DRIVE_TASKFILE	(1 << __REQ_DRIVE_TASKFILE)
+ #define REQ_PREEMPT	(1 << __REQ_PREEMPT)
+ #define REQ_PM_SUSPEND	(1 << __REQ_PM_SUSPEND)

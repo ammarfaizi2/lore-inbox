@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUHUI4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUHUI5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268914AbUHUI4i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 04:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUHUI4i
+	id S268915AbUHUI5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 04:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268920AbUHUI5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 04:56:38 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:13786 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268914AbUHUI4g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 04:56:36 -0400
-Message-ID: <41270EB4.5030104@drzeus.cx>
-Date: Sat, 21 Aug 2004 10:58:28 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+	Sat, 21 Aug 2004 04:57:45 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:22237 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268915AbUHUI5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 04:57:36 -0400
+Message-ID: <41270E84.9010307@namesys.com>
+Date: Sat, 21 Aug 2004 01:57:40 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Timer allocates too many ports
-References: <4126600F.4050302@drzeus.cx>	<20040820140503.67d23479.rddunlap@osdl.org>	<41266C5D.7000908@drzeus.cx> <20040820144106.46fb3b1b.rddunlap@osdl.org>
-In-Reply-To: <20040820144106.46fb3b1b.rddunlap@osdl.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Rik van Riel <riel@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Vitaly Fertman <vitaly@namesys.com>
+Subject: Re: 2.6.8.1-mm2 - reiser4
+References: <Pine.LNX.4.44.0408202014270.5028-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408202014270.5028-100000@chimarrao.boston.redhat.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+Rik van Riel wrote:
 
->On Fri, 20 Aug 2004 23:25:49 +0200 Pierre Ossman wrote:
->
->
->| I do not know which file contains this allocation so I haven't been able 
->| to change it. Any ideas?
->
->Sure, arch/i386/kernel/setup.c, near line 221 (in 2.6.8.1):
->
->	.name	= "timer",
->	.start	= 0x0040,
->	.end	= 0x005f,
->	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
->
->Just split that into 2 entries in the standard_io_resources[] array
->and it's done.
+>On Fri, 20 Aug 2004, Rik van Riel wrote:
 >
 >  
 >
-Thanks. That worked perfectly. Who is the responsible maintainer for 
-this part of the kernel? When my driver is ready to be added to the 
-Linus' kernel I need to have this changed.
-
-Rgds
-Pierre
-
+>>Oh, and another one.
+>>    
+>>
+>
+>Just spotted another nitpick.
+>
+>Documentation should probably live in Documentation/fs/reiser4/
+>instead of fs/reiser4/doc/.   It should be easy to get that fixed.
+>
+>  
+>
+Ok, thanks, Vitaly please correct it.

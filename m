@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287804AbSAXNdK>; Thu, 24 Jan 2002 08:33:10 -0500
+	id <S287817AbSAXNgA>; Thu, 24 Jan 2002 08:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287817AbSAXNdB>; Thu, 24 Jan 2002 08:33:01 -0500
-Received: from mgw-x1.nokia.com ([131.228.20.21]:57728 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id <S287804AbSAXNcs>;
-	Thu, 24 Jan 2002 08:32:48 -0500
-Message-ID: <3C500D09.4080206@nokia.com>
-Date: Thu, 24 Jan 2002 15:32:57 +0200
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-Reply-To: affix-devel@lists.sourceforge.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S287827AbSAXNfu>; Thu, 24 Jan 2002 08:35:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37385 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287817AbSAXNfg>;
+	Thu, 24 Jan 2002 08:35:36 -0500
+Message-ID: <3C500DA6.8DF536C8@mandrakesoft.com>
+Date: Thu, 24 Jan 2002 08:35:34 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Affix support <affix-support@lists.sourceforge.net>,
-        affix-devel@lists.sourceforge.net,
-        Bluetooth-Drivers-for-Linux 
-	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
-        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: New Affix Release: Affix-0_9pre10
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3-pre4 panics on boot )-:
+In-Reply-To: <5.1.0.14.2.20020124130949.02614370@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Anton Altaparmakov wrote:
+> Can't attach .config nor decode oops at the moment as the machine is now
 
-Find new affix release Affix-0_9pre10 on
-http://affix.sourceforge.net
+Normally that would suck but this is a BUG, so no problem...
 
-- additional locks added
-- Added Master Slave switch
-   btctl connectrole [master|slave]
-- added timeout for HCI commands (for buggy devices)
-- fixed action on receiving DM packet
-- added kpatch-2.4.17
-- fixed btsrv to be compiled w/o SDP
-- added *debmod* & *debapp* rules to compile Debian packages
-- !!! added additional installation notes
+[...]
+> Using local APIC timer interrupts.
+> calibrating APIC timer ...
+> ..... CPU clock speed is 1336.3655 MHz.
+> ..... host bus clock speed is 267.2731 MHz.
+> cpu: 0, clocks: 2672731, slice: 1336365
+> CPU0<T0:2672720,T1:1336352,D:3,S:1336365,C:2672731>
+> kernel BUG at sched.c:588!
+[...]
+>   spurious 8259A interrupt: IRQ7.
+> Kernel panic: Attempted to kill the idle task!
+> In idle task - not syncing
 
 
-br, Dmitry
+Scheduling in an interrupt?  Ouch.
+
+I would assume Ingo's latest, which is J6 AFAICS:
+http://people.redhat.com/mingo/O(1)-scheduler/sched-O1-2.5.3-pre4-J6.patch
+
+	Jeff
+
+
 
 -- 
-  Dmitry Kasatkin
-  Nokia Research Center / Helsinki
-  Mobile: +358 50 4836365
-  E-Mail: dmitry.kasatkin@nokia.com
-
-
-NB. Now I am Dmitry Kasatkin instead of Dmitri Kassatkine
-
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

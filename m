@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbSKNVQy>; Thu, 14 Nov 2002 16:16:54 -0500
+	id <S265243AbSKNVY2>; Thu, 14 Nov 2002 16:24:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbSKNVQx>; Thu, 14 Nov 2002 16:16:53 -0500
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:17427 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id <S265238AbSKNVQw>; Thu, 14 Nov 2002 16:16:52 -0500
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200211142115.gAELFNm0002811@wildsau.idv.uni.linz.at>
-Subject: bug: cant write to solaris partitioned disk
-To: linux-kernel@vger.kernel.org
-Date: Thu, 14 Nov 2002 22:15:20 +0100 (MET)
-Cc: herp@wildsau.idv.uni.linz.at (Herbert Rosmanith),
-       kernel@wildsau.idv.uni.linz.at (H.Rosmanith (Kernel Mailing List)),
-       ferdl@wildsau.idv.uni.linz.at (Ferdinand Goldmann)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+	id <S265246AbSKNVY2>; Thu, 14 Nov 2002 16:24:28 -0500
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:16023
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id <S265243AbSKNVY1>; Thu, 14 Nov 2002 16:24:27 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15828.5673.94643.36160@panda.mostang.com>
+Date: Thu, 14 Nov 2002 13:31:21 -0800
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: David Mosberger-Tang <David.Mosberger@acm.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove hugetlb syscalls
+In-Reply-To: <20021114203411.GG22031@holomorphy.com>
+References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
+	<08a601c28bbb$2f6182a0$760010ac@edumazet>
+	<20021114141310.A25747@infradead.org>
+	<ugel9oavk4.fsf@panda.mostang.com>
+	<20021114203411.GG22031@holomorphy.com>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: David.Mosberger@acm.org
+X-URL: http://www.mostang.com/~davidm/
+From: davidm@mostang.com (David Mosberger-Tang)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Thu, 14 Nov 2002 12:34:11 -0800, William Lee Irwin III <wli@holomorphy.com> said:
 
-hi,
+  William> (3) ->f_op->mmap() will hand -EINVAL back to userspace
+  William> instead of automatically placing the vma, for explicit and
+  William> 0 start adresses
 
-after not being active on a solaris machine, I forgot the root-password.
-since the machine is a blade100, I just plugged the harddisk to my
-linux-workstation, mounted the filesystem with ufs, but no matter what,
-I was not able to reset the root-password by modifying /mnt/etc/shadow,
-allthough I had CONFIG_EXPERIMENTAL=y and CONFIG_UFS_FS_WRITE=y and
-specifed -o ufstype=sun on the mount-command-line.
+This sounds like a receipe for creating unportable programs because
+the alignment constraints will be different from one platform to
+another.  (Adding gethugepagesize() in libc would alleviate the
+problem but it wouldn't solve it completely.)
 
-therefore, I tried a different approach: search the partition for
-the string "root:cryptpw:1234:::::" and clear the root-pw with
-"dd". so I specified "dd if=newrootpw of=/dev/hdc1 bs=4096 seek=10794 count=1"
-(the 10794 are the result of the previous search-operation). since I
-couldnt get "dd" to work, I wrote a small helperprog, which does an
-"lseek(fd,4096*10794,SEEK_SET)" and then write the new shadow-entry with
-the cleared root-pw. but that one failed too!! the error-code I got
-was -EBADF. quite strange.
+Overall, it does sound to me that the hugetlbfs is so specialized that
+it would be much cleaner to provide a separate interface at the
+user-level.  That would leave more flexibility should the
+implementation change over time (which it well might).
 
-so I tried another approach, which worked: copy the *whole* solaris-partition
-to my linux-disk, make a copy of that, modify the root-pw on the copy and
-copy the whole partition back. that worked, and I am now logged in as
-root with no password on the blade100 again (phew!).
-
-so, what the bug seems to me: it is not possible to write() to a solaris
-partition when previously, an lseek() operation has been performed, in
-contrast, write()ing without lseek()ing *is* possible.
-
-bug or feature?
-
-please comment/fix, thank you,
-herbert rosmanith
-
-
-
-
-
+	--david

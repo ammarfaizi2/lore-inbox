@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbTEZW3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 18:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTEZW3A
+	id S262316AbTEZW0i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 18:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTEZW0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 18:29:00 -0400
-Received: from web40007.mail.yahoo.com ([66.218.78.25]:61212 "HELO
-	web40007.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262321AbTEZW13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 18:27:29 -0400
-Message-ID: <20030526224041.1493.qmail@web40007.mail.yahoo.com>
-Date: Mon, 26 May 2003 15:40:41 -0700 (PDT)
-From: Jeff Smith <whydoubt@yahoo.com>
-Subject: Re: [netfilter-core] [2.5.69 PATCH] - Trivial patch to Netfilter Kconfig 
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org,
-       zippel@linux-m68k.org
-In-Reply-To: <20030526061024.5DA2C2C26E@lists.samba.org>
+	Mon, 26 May 2003 18:26:11 -0400
+Received: from imap.gmx.net ([213.165.65.60]:59845 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262323AbTEZWUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 18:20:03 -0400
+Message-ID: <3ED29626.4050800@gmx.net>
+Date: Tue, 27 May 2003 00:33:10 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gibbs@scsiguy.com,
+       acme@conectiva.com.br
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+References: <1053732598.1951.13.camel@mulgrave> <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva> <3ED2924D.2000409@gmx.net> <200305270018.47557.m.c.p@wolk-project.de>
+In-Reply-To: <200305270018.47557.m.c.p@wolk-project.de>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree the wording is still convoluted, here is the revised patch:
+Marc-Christian Petersen wrote:
+> On Tuesday 27 May 2003 00:16, Carl-Daniel Hailfinger wrote:
+> 
+>>This e-mail is meant as public encouragement and big THANKS for you.
+>>Every time I hit a bug in 2.4 and sent you a patch, it was applied after
+>>a short time (few days). So far, 2.4 has been working perfectly for me.
+>>There are many users and developers who are happy with the 2.4 kernel
+>>and with you as a maintainer, they just don't say it. Something that
+>>works is often forgotten, once it breaks or doesn't work as expected,
+>>people start crying loudly.
+>>Thank you for maintaining a stable tree,
+> 
+> Sorry, but are you kidding?
 
-========================================================================
---- a/net/ipv4/netfilter/Kconfig        Sun May  4 18:53:37 2003
-+++ b/net/ipv4/netfilter/Kconfig        Mon May 26 17:30:20 2003
-@@ -120,8 +120,8 @@
-        tristate "Packet type match support"
-        depends on IP_NF_IPTABLES
-        help
--         This patch allows you to match packet in accrodance
--         to its "class", eg. BROADCAST, MULTICAST, ...
-+         Packet type matching allows you to match a packet by
-+         its "class", eg. BROADCAST, MULTICAST, ...
-
-          Typical usage:
-          iptables -A INPUT -m pkttype --pkt-type broadcast -j LOG
+No. It works for me(TM). If it didn't work for you during the 2.4.21
+release cycle, my apologies. Marcelo stated he wants to take the patches
+you complained about for 2.4.22-pre1. That should also fix your issues.
 
 
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo.
-http://search.yahoo.com
+Regards,
+Carl-Daniel
+

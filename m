@@ -1,97 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263460AbSIQB4u>; Mon, 16 Sep 2002 21:56:50 -0400
+	id <S263476AbSIQCHX>; Mon, 16 Sep 2002 22:07:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263461AbSIQB4u>; Mon, 16 Sep 2002 21:56:50 -0400
-Received: from dp.samba.org ([66.70.73.150]:27109 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263460AbSIQB4s>;
-	Mon, 16 Sep 2002 21:56:48 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Experimental IDE oops dumper v0.1 
-In-reply-to: Your message of "Mon, 16 Sep 2002 08:18:07 -0400."
-             <200209161218.g8GCI7301692@devserv.devel.redhat.com> 
-Date: Tue, 17 Sep 2002 10:49:03 +1000
-Message-Id: <20020917020148.3413D2C125@lists.samba.org>
+	id <S263495AbSIQCHW>; Mon, 16 Sep 2002 22:07:22 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:20469 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S263476AbSIQCHV>; Mon, 16 Sep 2002 22:07:21 -0400
+Date: Mon, 16 Sep 2002 22:12:19 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: linux-aio@kvack.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: libaio 0.3.92 test release
+Message-ID: <20020916221219.A22465@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200209161218.g8GCI7301692@devserv.devel.redhat.com> you write:
-> > +	/* Pause (at least 400ns) in case we just issued a command */
-> > +	oopser_usec(1);
-> > +	for (i = 0; i < 1000; i++) {
-> > +		b = inb(HD_STATUS);
-> > +		if (!(b & BUSY_STAT)) {
-> > +			if (b & ERR_STAT) return 0;
-> > +			if (b & flag) return 1;
-> > +		}
-> > +		oopser_usec(1000);
-> 
-> This will stop working on SATA when VDMA goes into newer controllers btw.
+Hello folks,
 
-My ignorance of ATA is incredibly deep.  I read an old IDE spec to get
-this to work.  So thanks for checking it.
+I've just uploaded the libaio 0.3.92 test release to kernel.org.  Most 
+notably, this release passes a few basic tests on ia64, and should work 
+on x86-64 too (but isn't tested).  An updated kernel patch can be found
+in /pub/linux/kernel/people/bcrl/aio/patches/testing/aio-20020916.diff 
+which uses the registered syscall ABI (no more dynamic syscalls), fixes 
+a bug in io_submit that allowed iocbs to be read from kernel memory 
+(that bug is not present in RH 2.1AS; the fix was lost in the 2.4.18 
+merge), fixes an occasional hang caused by timers not being unregistered 
+in io_getevents, and probably introduces a few other bugs.  This is a 
+test release as I still have to split up the patches into -stable, 
+-alpha and -developement to prevent people from shipping experimental 
+code that was never meant to be used on production machines.  In any 
+case, if people could give this a whirl and submit reports to 
+linux-aio@kvack.org, it would be appreciated.  My hit list still 
+includes getting ARM, PPC, S/390, SPARC and m68k support merged into 
+libaio, so if anyone cares to provide patches, I'd appreciate it.  Cheers,
 
-There are several ways around this: we can detect in userspace and
-refuse to arm, we can detect in the kernel and refuse to arm, we can
-detect in kernel or userspace and set an "use LBA48" flag.  For
-example, my userspace code currently does:
-
-	if (ioctl(devfd, HDIO_GET_IDENTITY, &hdid) < 0) {
-		perror("Getting identity of drive");
-		exit(1);
-	}
-	if (!(hdid.capability & (1 << 1))) {
-		fprintf(stderr, "Drive does not support LBA\n");
-		exit(1);
-	}
-
-
-> > +	/* Bits 24-27, 0x40=LBA, 0x10=slave */
-> > +	if (!wait_before_command()) return -EIO;
-> > +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
-> 
-> Doesn't work for LBA48
-> 
-> > +	if (!wait_before_command()) return -EIO;
-> > +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
-> 
-> Ditto
-
-OK, what's the codepath for LBA48 look like?  And how do I detect it?
-
-> > +/* Called with interrupts off */
-> > +int oopser_read_ide(char dump[512], unsigned int block)
-> > +{
-> > +	/* Wait for non-busy: if not, reset anyway */
-> > +	wait_before_command();
-> > +	/* Soft reset of drive (set nIEN as well) */
-> > +	outb(0x0e, HD_CMD);
-> 
-> Be careful here - one or two drives get nIEN backwards, you might just
-> want to turn off interrupts and be done with it
-
-Hmm... I have interrupts disabled so I don't really care: should be OK
-I think.  Or were you thinking of something else?
-
-> > +	oopser_usec(1); /* 400ns according to spec */
-> > +	outb(0x0a, HD_CMD);
-> 
-> You really need to reset and reprogram/retune the controller as well.
-
-OK... How?
-
-> I like the infrastructure but the IDE dumper code is wishful thinking
-> in one or two spots. You don't know f the controller is in DMA modes,
-> tuned for different things to the drives or legacy free. Im not sure what
-> to do for legacy free cases but the other bits like LBA48 and retuning
-> probably can be handled with some small chipset specific hooks
-
-The code always does a read sector then a write: if the sector doesn't
-contain the right magic, it stops.  But the more robust the better.
-
-Patches appreciated 8)
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+		-ben

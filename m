@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSKMSla>; Wed, 13 Nov 2002 13:41:30 -0500
+	id <S262425AbSKMTFV>; Wed, 13 Nov 2002 14:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262418AbSKMSla>; Wed, 13 Nov 2002 13:41:30 -0500
-Received: from mail-3.tiscali.it ([195.130.225.149]:23265 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S262416AbSKMSl2>;
-	Wed, 13 Nov 2002 13:41:28 -0500
-Date: Wed, 13 Nov 2002 19:48:05 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: lord@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5.47] Unable to load XFS module
-Message-ID: <20021113184805.GA777@dreamland.darkstar.net>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262442AbSKMTFV>; Wed, 13 Nov 2002 14:05:21 -0500
+Received: from naig.caltech.edu ([131.215.49.17]:39838 "EHLO naig.caltech.edu")
+	by vger.kernel.org with ESMTP id <S262425AbSKMTFU>;
+	Wed, 13 Nov 2002 14:05:20 -0500
+To: mlist-linux-kernel@nntp-server.caltech.edu
+Path: not-for-mail
+From: Stuart Anderson <sba@srl.caltech.edu>
+Newsgroups: mlist.linux.kernel
+Subject: sk98lin driver in 2.5.47
+Date: Wed, 13 Nov 2002 19:12:10 +0000 (UTC)
+Organization: Caltech
+Message-ID: <slrnat590a.rui.sba@jelly.caltech.edu>
+Reply-To: -@-
+NNTP-Posting-Host: jelly.ligo.caltech.edu
+X-Trace: naig.caltech.edu 1037214730 20732 131.215.115.246 (13 Nov 2002 19:12:10 GMT)
+X-Complaints-To: abuse@caltech.edu
+NNTP-Posting-Date: Wed, 13 Nov 2002 19:12:10 +0000 (UTC)
+User-Agent: slrn/0.9.7.4 (SunOS)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been unable to compile the SysKonnect sk98lin GigE driver
+under linux-2.5.x. Is there a patch for the following linker
+problem of built-in.o? The following is from 2.5.47-ac2.
 
-Hi,
-I'm playing with kernel 2.5.47. XFS support is compiled as module and at
-boot time, while mounting /home, I get this:
+Thanks.
 
-insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
+drivers/built-in.o: In function `SkPnmiInit':
+drivers/built-in.o(.text+0x3a346): undefined reference to `__udivdi3'
+drivers/built-in.o: In function `SkPnmiEvent':
+drivers/built-in.o(.text+0x3ae97): undefined reference to `__udivdi3'
+drivers/built-in.o: In function `SensorStat':
+drivers/built-in.o(.text+0x3c0fd): undefined reference to `__udivdi3'
+drivers/built-in.o(.text+0x3c16d): undefined reference to `__udivdi3'
+drivers/built-in.o: In function `General':
+drivers/built-in.o(.text+0x3de99): undefined reference to `__udivdi3'
 
-Then, trying to modprobe xfs by hand:
 
-/lib/modules/2.5.47/kernel/fs/xfs/xfs.o: unresolved symbol page_states__per_cpu
-/lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
-/lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod xfs failed
 
-I'm using modutils 2.4.19
-
-ciao,
-Luca
 -- 
-Home: http://kronoz.cjb.net
-Windows /win'dohz/ n. : thirty-two  bit extension and graphical shell to
-a sixteen  bit patch to an  eight bit operating system  originally coded
-for a  four bit microprocessor  which was  written by a  two-bit company
-that can't stand a bit of competition.
+Stuart Anderson  sba@srl.caltech.edu  http://www.srl.caltech.edu/personnel/sba

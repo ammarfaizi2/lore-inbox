@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUFFQpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263817AbUFFQvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUFFQpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUFFQpd
+	id S263817AbUFFQvz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUFFQvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:45:33 -0400
-Received: from holomorphy.com ([207.189.100.168]:49842 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263802AbUFFQp3 (ORCPT
+	Sun, 6 Jun 2004 12:51:55 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:46045 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S263817AbUFFQvx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:45:29 -0400
-Date: Sun, 6 Jun 2004 09:44:36 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: pj@sgi.com, Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org,
-       ashok.raj@intel.com, colpatch@us.ibm.com, hch@infradead.org,
-       jbarnes@sgi.com, joe.korty@ccur.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040606164436.GW21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, pj@sgi.com,
-	Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org, ashok.raj@intel.com,
-	colpatch@us.ibm.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, linux-kernel@vger.kernel.org,
-	manfred@colorfullife.com, nickpiggin@yahoo.com.au,
-	rusty@rustcorp.com.au
-References: <200406061507.i56F7xdS029391@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406061507.i56F7xdS029391@harpo.it.uu.se>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 6 Jun 2004 12:51:53 -0400
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
+Subject: Re: keyboard problem with 2.6.6
+References: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
+	<200406061009.23831.dtor_core@ameritech.net>
+	<200406061929.45169.vda@port.imtp.ilyichevsk.odessa.ua>
+	<200406061140.35929.dtor_core@ameritech.net>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 06 Jun 2004 18:51:51 +0200
+In-Reply-To: <200406061140.35929.dtor_core@ameritech.net>
+Message-ID: <xb7r7ssy6hk.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 05:07:59PM +0200, Mikael Pettersson wrote:
-> Notice how it emits the high int before the low int.
-> (Which btw also is the native big-endian storage order,
-> so the memcpy() would have done the same.)
-> Now consider the location of bit 0, with mask value 1(*),
-> on a 64-bit big-endian machine. The code above puts this
-> in the second int, as bit 0 in *((char*)dst + 7).
-> But a 32-bit user-space, or a 64-bit user-space that sees
-> an array of ints not longs, wants it in the first int,
-> as bit 0 in *((char*)dst + 3).
+>>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
 
-Feh. So swap the assignments.
+    Dmitry> Here you are talking about regular startup procedure for a
+    Dmitry> very special setup - yours. We were talking about
+    Dmitry> emergency recovery of a "standard" Linux box.
+
+Well... it'd be a long thread to discuss what constitutes a "standard"
+Linux box, let alone what "emergency situation" should mean.
 
 
-On Sun, Jun 06, 2004 at 05:07:59PM +0200, Mikael Pettersson wrote:
-> Perfctr's marshalling procedure for cpumask_t values
-> (drivers/perfctr/init.c:cpus_copy_to_user() in recent -mm)
-> is endian-neutral and converts each long by emitting the
-> ints from least significant to most significant.
-> Considering the API for retrieving an array of unknown size,
-> perfctr's marshalling procedure does the following:
-> >	const unsigned int k_nrwords = PERFCTR_CPUMASK_NRLONGS*(sizeof(long)/sizeof(int));
-> >	unsigned int u_nrwords;
-> >	if (get_user(u_nrwords, &argp->nrwords))
-> >		return -EFAULT;
-> >	if (put_user(k_nrwords, &argp->nrwords))
-> >		return -EFAULT;
-> >	if (u_nrwords < k_nrwords)
-> >		return -EOVERFLOW;
-> That is, it always tells user-space how much space is needed,
-> and if user-space provided too little, it gets EOVERFLOW.
-> Knowing the number of words in the encoded cpumask_t also
-> avoids having to know the exact value of NR_CPUS in user-space.
-> /Mikael
-> (*) Normal bit order, not IBM POWER's reversed bit order.
-
-I don't really care about the particular format exported to userspace,
-but cpus_addr() is not a legitimate API. cpus_copy_to_user() is, but it
-should belong to the core. Just shove the stuff that's doing cpus_addr()
-for internals of cpumask_t into lib/bitmap.c etc. and it should be fine.
+As a matter of fact, more and more people are using a Knoppix CD as an
+emergency recovery boot disk, not  only for repairing Linux boxes, but
+also for repairing Windows boxes.
 
 
--- wli
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

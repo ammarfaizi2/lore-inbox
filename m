@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271811AbRICUu0>; Mon, 3 Sep 2001 16:50:26 -0400
+	id <S271813AbRICUwf>; Mon, 3 Sep 2001 16:52:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271813AbRICUuQ>; Mon, 3 Sep 2001 16:50:16 -0400
-Received: from c1765315-a.mckiny1.tx.home.com ([65.10.75.71]:260 "EHLO
-	aruba.maner.org") by vger.kernel.org with ESMTP id <S271811AbRICUuG> convert rfc822-to-8bit;
-	Mon, 3 Sep 2001 16:50:06 -0400
-Subject: atomic_dec_and_lock again - sparc64 - 2.4.9-ac7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Mon, 3 Sep 2001 15:50:25 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
-Message-ID: <C033B4C3E96AF74A89582654DEC664DBC969@aruba.maner.org>
-Thread-Topic: atomic_dec_and_lock again - sparc64 - 2.4.9-ac7
-Thread-Index: AcE0ug5gAVpHgg+VQji8C8vIvZPBXg==
-From: "Donald Maner" <donjr@maner.org>
-To: <linux-kernel@vger.kernel.org>
+	id <S271819AbRICUwP>; Mon, 3 Sep 2001 16:52:15 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:3319 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S271813AbRICUwL>; Mon, 3 Sep 2001 16:52:11 -0400
+Date: Mon, 3 Sep 2001 22:52:19 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Simon Hay <simon@haywired.org>, linux-kernel@vger.kernel.org
+Subject: Re: Multiple monitors
+Message-ID: <20010903225219.A29482897@informatics.muni.cz>
+In-Reply-To: <20010903214829.B17488@unthought.net> <Pine.LNX.4.33.0109032107280.2297-100000@localhost.localdomain> <20010903164953.A3243@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010903164953.A3243@animx.eu.org>; from wakko@animx.eu.org on Mon, Sep 03, 2001 at 04:49:53PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile 2.4.9-ac7, getting this...
+Wakko Warner wrote:
+: I thought of doing something like this but using a matrox g400 or g450 dual
+: head card.  primary would be for X, secondary would be a console.  Not sure
+: if that's more difficult or not.  Something I'd like to have, however.
+: 
+	FWIW, I was able to run my computer in dual-head setup with two
+keyboards and two mice (the second kbd and mouse on USB). I have Matrox
+G450 as one head, and S3 ViRGE/VX as the second one. I dont use it as a text
+console, though. I use it through a gdm login in X. I've followed the
+steps at http://139.82.28.40/multiuser/index.html with some minor tweaks.
 
+-Yenya
 
-sparc64-linux-gcc -D__KERNEL__ -I/home/donjr/linux-2.4.9-ac7/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
--mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7
--Wno-sign-compare -Wa,--undeclared-regs    -DEXPORT_SYMTAB -c
-sparc64_ksyms.c
-sparc64_ksyms.c:166: `atomic_dec_and_lock' undeclared here (not in a
-function)
-sparc64_ksyms.c:166: initializer element for
-`__ksymtab_atomic_dec_and_lock.value' is not constant
-make[1]: *** [sparc64_ksyms.o] Error 1
-make[1]: Leaving directory
-`/home/donjr/linux-2.4.9-ac7/arch/sparc64/kernel'
-make: *** [_dir_arch/sparc64/kernel] Error 2
-
-Any hints?
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+And quite frankly, if your disk can push 50MB/s through a 1kB non-contiguous
+filesystem, then my name is Bugs Bunny.                     --Linus Torvalds

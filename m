@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311369AbSCMU4n>; Wed, 13 Mar 2002 15:56:43 -0500
+	id <S311371AbSCMU5d>; Wed, 13 Mar 2002 15:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311370AbSCMU4d>; Wed, 13 Mar 2002 15:56:33 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:9973 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S311369AbSCMU4Y>; Wed, 13 Mar 2002 15:56:24 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 13 Mar 2002 13:55:37 -0700
-To: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-Message-ID: <20020313205537.GC429@turbolinux.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020313123114.A11658@greenhydrant.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020313123114.A11658@greenhydrant.com>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S311370AbSCMU51>; Wed, 13 Mar 2002 15:57:27 -0500
+Received: from [66.35.146.201] ([66.35.146.201]:64016 "EHLO int1.nea-fast.com")
+	by vger.kernel.org with ESMTP id <S311368AbSCMU5M>;
+	Wed, 13 Mar 2002 15:57:12 -0500
+Message-Id: <200203132056.PAA04508@int1.nea-fast.com>
+Content-Type: text/plain; charset=US-ASCII
+From: walter <walt@nea-fast.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: oracle rmap kernel version
+Date: Wed, 13 Mar 2002 15:56:52 -0500
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03D23@FMSMSX38> <3C8FAB25.1080706@us.ibm.com>
+In-Reply-To: <3C8FAB25.1080706@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, <davis@jdhouse.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 13, 2002  12:31 -0800, David Rees wrote:
-> I've got an interesting situation here where mke2fs and mkreiserfs core dump
-> with the message: File size limit exceeded (core dumped)
+On Wednesday 13 March 2002 02:40 pm, you wrote:
+> Chen, Kenneth W wrote:
+> > Depends on your hardware configuration and how you stress your system
+> > with db workload, you should consider some performance patch from the
+> > linux scalability effort project.
+> > http://lse.sourceforge.net
+>
+> In particular, take a look at the rollup patches:
+> http://sourceforge.net/project/shownotes.php?release_id=77093
+>
+> This one has been tested pretty well.
+> http://prdownloads.sourceforge.net/lse/lse01.patch
+>
+> This could use some more testing, but is not bad by any means:
+> http://prdownloads.sourceforge.net/lse/lse02.patch
+>
+> BTW, what SCSI controllers are you planning on using?  Some are better
+> than others.
 
-This is a ulimit bug caused by the kernel and libc 2.1.  If you log into
-the system as root at the console (no su) it should work.
+Not sure right off the top of my head. I'm planning on using 2 controllers, 
+each from a different manufactures. My reasoning behind this is two fold. 
+Number one is in case a "bug" creeps up with one of the drivers I can still 
+string all the drives off the other controller. Performance will decrease, 
+but I'd rather be slow than dead in the water. The second reason is the 
+probability of both controllers failing (hardware) at same time due to a bad 
+chip batch at the manufacture.  Do you have any suggestions on controllers? 
+Adaptec and IBM (not sure which models) ?
 
-> The kernel is 2.4.18-rc4 + Trond's NFS_ALL patch.
-
-I thought that the fix for this was in the 2.4.18 kernel, but I guess
-not.
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Thanks for your input!
+walt 

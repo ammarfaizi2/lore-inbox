@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267327AbTACAAO>; Thu, 2 Jan 2003 19:00:14 -0500
+	id <S267328AbTACADI>; Thu, 2 Jan 2003 19:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTACAAO>; Thu, 2 Jan 2003 19:00:14 -0500
-Received: from main.gmane.org ([80.91.224.249]:56457 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S267327AbTACAAN>;
-	Thu, 2 Jan 2003 19:00:13 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Steven Barnhart" <sbarn03@softhome.net>
-Subject: [2.5.54] OOPS: unable to handle kernel paging request
-Date: Thu, 02 Jan 2003 19:08:55 -0500
-Message-ID: <pan.2003.01.03.00.08.53.924016@softhome.net>
-References: <20030102171803.GQ6114@fs.tum.de> <Pine.LNX.4.33.0301021827160.649-100000@pnote.perex-int.cz> <20030102132640.GA328@neo.rr.com>
+	id <S267331AbTACADH>; Thu, 2 Jan 2003 19:03:07 -0500
+Received: from holomorphy.com ([66.224.33.161]:47814 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267328AbTACADH>;
+	Thu, 2 Jan 2003 19:03:07 -0500
+Date: Thu, 2 Jan 2003 16:11:27 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: Question about Zone Allocation 2.4.X
+Message-ID: <20030103001127.GV9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+References: <20030102175517.A21471@vger.timpanogas.org> <20030102235147.GS9704@holomorphy.com> <20030102180849.A21498@vger.timpanogas.org> <20030103000034.GU9704@holomorphy.com> <20030102181554.A21643@vger.timpanogas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.0 (The whole remains beautiful)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030102181554.A21643@vger.timpanogas.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Jan 02, 2003 at 06:15:54PM -0700, Jeff V. Merkey wrote:
+> Looks like we simply jetisioned the concept of a PPL (Physical Pages
+> List) and went with a zone allocator instead.  I'm sure there was a
+> good reason for it historically.  Rolling a separate zone is exactly
+> what I was thinking when I reviewed the code intially.  Question,
+> which files will be affected so when I put this one in, I don't end
+> up breaking the VM and userspace balancing logic.  i.e.  Could you
+> point me to Jens' ZONE_DMA32 code as well.
 
-I seem to get a very nasty oops exactly when booting 2.5.54. When i
-boot to the kernel I immediately get a kksymoops report flooding my
-screen. This happens to fast that the text blurs and basically everything
-stays where its at. There is no way to stop it except rebooting. I do not
-have any serial connections to send the output to so I got (hopefully) the
-most important line. The oops says "unable to handle kernel paging
-request at virtual address ffffff8d (there may be another 'f' in there). I
-searched through the archives and their seems to be a few oops reports of
-the same kind but no patches and the only kernel was 2.5.48-bk I think.
-Any thoughts?
+Adding new zone types is easy. Just add them to mmzone.h, avoid setting
+->virtual (which does not universally exist) in free_area_init_core()
+if it's not perma-mapped, stuff them in the fallback sequence in
+build_zonelists(), and detect them in arch/*/mm/init.c
 
 
+Bill

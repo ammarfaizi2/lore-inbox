@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSIAMyd>; Sun, 1 Sep 2002 08:54:33 -0400
+	id <S316887AbSIAM6o>; Sun, 1 Sep 2002 08:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSIAMyd>; Sun, 1 Sep 2002 08:54:33 -0400
-Received: from p50887EBD.dip.t-dialin.net ([80.136.126.189]:4574 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316882AbSIAMyc>; Sun, 1 Sep 2002 08:54:32 -0400
-Date: Sun, 1 Sep 2002 06:59:03 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Miles Lane <miles.lane@attbi.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.33 -- drivers/built-in.o: In function `isd200_get_inquiry_data':
- undefined reference to `ata_fix_driveid'
-In-Reply-To: <1030877078.10475.2.camel@agate.localdomain>
-Message-ID: <Pine.LNX.4.44.0209010658370.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S316898AbSIAM6o>; Sun, 1 Sep 2002 08:58:44 -0400
+Received: from mons.uio.no ([129.240.130.14]:44777 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S316887AbSIAM6m>;
+	Sun, 1 Sep 2002 08:58:42 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15730.4100.308481.326297@charged.uio.no>
+Date: Sun, 1 Sep 2002 15:03:00 +0200
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+In-Reply-To: <1030835635.1422.39.camel@ldb>
+References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
+	<1030822731.1458.127.camel@ldb>
+	<15729.17279.474307.914587@charged.uio.no>
+	<1030835635.1422.39.camel@ldb>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> " " == Luca Barbieri <ldb@ldb.ods.org> writes:
 
-On 1 Sep 2002, Miles Lane wrote:
-> drivers/built-in.o: In function `isd200_get_inquiry_data':
-> drivers/built-in.o(.text+0xc0652): undefined reference to
-> `ata_fix_driveid'
+     > For example, rather than this;
+<snip>
 
-That crap got removed in 2.5.31->2.5.32
+     > you can just do this:
+     > - uid_t saved_fsuid = current->fsuid;
+     > +               uid_t saved_fsuid = current->fscred.uid;
+     >                 kernel_cap_t saved_cap =
+     >                 current->cap_effective;
+ 
+But I don't want to have to do that at all. Why should I change the
+actual task's privileges in order to call down into a single VFS
+function?
+The point of VFS support for credentials is to eliminate these hacks,
+and cut down on all this gratuitous changing of privilege. That's what
+we want the API changes for.
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Who cares if changing fsuid/fsgid is more expensive? The only place we
+should actually be doing that is in sys_fsuid(), sys_fsgid(), and
+possibly daemonize(), where adequate security checks can be made.
 
+Cheers,
+  Trond

@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274027AbRISJ0o>; Wed, 19 Sep 2001 05:26:44 -0400
+	id <S274034AbRISJig>; Wed, 19 Sep 2001 05:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274028AbRISJ0e>; Wed, 19 Sep 2001 05:26:34 -0400
-Received: from unthought.net ([212.97.129.24]:29409 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S274027AbRISJ0Z>;
-	Wed, 19 Sep 2001 05:26:25 -0400
-Date: Wed, 19 Sep 2001 11:26:49 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: bdflush and postgres stuck in D state
-Message-ID: <20010919112649.B7537@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010918125605.F29908@unthought.net>, <20010918125605.F29908@unthought.net>; <20010918193023.P29908@unthought.net> <3BA78916.2984B011@zip.com.au> <20010918140820.A17263@greenhydrant.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010918140820.A17263@greenhydrant.com>; from dbr@greenhydrant.com on Tue, Sep 18, 2001 at 02:08:20PM -0700
+	id <S274029AbRISJi0>; Wed, 19 Sep 2001 05:38:26 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:32781 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274028AbRISJiH>; Wed, 19 Sep 2001 05:38:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: ebiederm@xmission.com (Eric W. Biederman),
+        "Rob Fuller" <rfuller@nsisoftware.com>
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Wed, 19 Sep 2001 11:45:44 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907BB98@xchgind02.nsisw.com> <m166ahst39.fsf@frodo.biederman.org>
+In-Reply-To: <m166ahst39.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010919093828Z17304-2759+92@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 02:08:20PM -0700, David Rees wrote:
-> On Tue, Sep 18, 2001 at 10:49:10AM -0700, Andrew Morton wrote:
-> > Jakob Østergaard wrote:
-> > > 
-> > > Sorry for following up on my own post, I have a little extra
-> > > information.
-> > > 
-> > > I started a g++ job to try to force the machine to write out some dirty
-> > > buffers before I reboot.   g++ now hangs along with two sync's, bdflush
-> > > and the postgres process.
-> > > 
-> > 
-> > Since 2.4.7 several bugs have been fixed in RAID1 which would
-> > cause this, including a missing blockdevice unplug and failure
-> > to hang onto the supposedly-reserved RAID1 buffer-heads.
-> 
-> Even kernels as recent as 2.4.9 have this bug.  See this thread for more
-> info and a patch which fixes this bug.
-> 
-> The thread:
-> http://marc.theaimsgroup.com/?t=99911655500004&w=2&r=1
-> 
-> The patch:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99913223508789&w=2
+On September 17, 2001 06:03 pm, Eric W. Biederman wrote:
+> In linux we have avoided reverse maps (unlike the BSD's) which tends
+> to make the common case fast at the expense of making it more
+> difficult to handle times when the VM system is under extreme load and
+> we are swapping etc.
 
+What do you suppose is the cost of the reverse map?  I get the impression you 
+think it's more expensive than it is.
 
-Thanks a lot !
-
-Somehow I seem not have lost "most" linux-raid mails, dunno why...  I hadn't
-seen that thread before, but it was indeed the problem I saw here too.
-
-I didn't lose any data on the 2.4.7 that did this, but it seems the situation
-is more severe in 2.4.9, leading potentially to significant data loss.
-
-/me prepares another boot (and a spare 32MB stick) for the raid-1 box
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+--
+Daniel

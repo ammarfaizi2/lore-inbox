@@ -1,53 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262134AbTCHS2a>; Sat, 8 Mar 2003 13:28:30 -0500
+	id <S261293AbTCHSkb>; Sat, 8 Mar 2003 13:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbTCHS2a>; Sat, 8 Mar 2003 13:28:30 -0500
-Received: from tartarus.telenet-ops.be ([195.130.132.46]:13730 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S262134AbTCHS23>; Sat, 8 Mar 2003 13:28:29 -0500
-Subject: Re: what's an OOPS
-From: Ludootje <ludootje@linux.be>
+	id <S261458AbTCHSkb>; Sat, 8 Mar 2003 13:40:31 -0500
+Received: from flying-dove.com ([63.105.29.25]:3712 "EHLO mail.flying-dove.com")
+	by vger.kernel.org with ESMTP id <S261293AbTCHSk3>;
+	Sat, 8 Mar 2003 13:40:29 -0500
+Date: Sat, 8 Mar 2003 10:51:03 -0800
+Subject: OLS2003 Performance BOF Proposals
+Content-Type: multipart/alternative; boundary=Apple-Mail-2-122786817
+Mime-Version: 1.0 (Apple Message framework v551)
+Cc: ajh@linuxsymposium.org
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <200303081654.h28Gskpk002027@81-2-122-30.bradfords.org.uk>
-References: <200303081654.h28Gskpk002027@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047148667.1428.1.camel@libranet>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 08 Mar 2003 19:37:48 +0100
-Content-Transfer-Encoding: 7bit
+From: Ruth Forester <rsf@flying-dove.com>
+Message-Id: <E981156C-5196-11D7-B7DA-000A95685D4E@flying-dove.com>
+X-Mailer: Apple Mail (2.551)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Op za 08-03-2003, om 17:54 schreef John Bradford:
-> > > The number of the oops, (I.E. whether it was the first, second, third,
-> > > etc, starting with 0000).
-> > 
-> > Urban myth (at least on i386). The "Oops:" part can be decoded on i386 as,
-> > 
-> >  *      bit 0 == 0 means no page found, 1 means protection fault
-> >  *      bit 1 == 0 means read, 1 means write
-> >  *      bit 2 == 0 means kernel, 1 means user-mode
-> 
-> Interesting - I wasn't aware of that.
-> 
-> Maybe we should note this in Documentation/oops-tracing.txt?
-> 
-> Infact, overall there must be quite a lot that isn't documented at
-> all, except in this mailing list's archives - I think an overhaul of
-> Documentation/* is more than slightly overdue...
-> 
-> John.
 
-Thanks a lot for the very good explanatiosn everyone, I really
-appreciate it!
+--Apple-Mail-2-122786817
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	delsp=yes;
+	charset=US-ASCII;
+	format=flowed
 
-Thanks,
-Ludootje
+Everyone,
 
--- 
+I would very much appreciate comments (even one-liners) on any  
+community interest in these two OLS Performance BoF sessions.  I  
+believe the topics are dissimilar and relevant enough to justify both:
+------------------------------------------------------------------------ 
+-------------------------------------------
+PROPOSAL FOR LINUX BENCHMARK AUTOMATION
+This BOF will include a discussion on Linux benchmark automation. We  
+will discuss the features needed to provide an effective benchmark  
+automation process for Linux. This will include, defining the  
+configuration, input files, benchmark execution, output files, etc.  We  
+will also discuss the types of benchmarks that are tailored for rapid  
+execution and results analysis, for maximum development impact.
 
- The Grasshoppers' Linux Journal - a free, online distributed magazine about GNU/Linux / Open Source / ... oriented towards newbies. Check it out @ http://ghj.sunsite.dk !
+PROPOSAL FOR LINUX PERFORMANCE
+Linux changes occur very quickly in the open source community. There is  
+a strong need to quickly collect and share performance data and  
+analysis. However, there may be some instances where good, quality  
+performance data collection and analysis take longer than the short  
+turnaround required for maximum impact regarding newly released  
+patches. We plan to discuss the most effective methodology for  
+impacting Linux performance in a rapidly changing Linux open source  
+community environment.
+------------------------------------------------------------------------ 
+---------------------------------------------
+Please reply immediately so we can quickly submit them to OLS?
+Thanks for your (speedy) replies!
+
+ruth
+Ruth Forester, Linux Performance LTC
+rsf@flying-dove.com
+notes: rsf@us.ibm.com
+IBM Linux Technology Center
+Beaverton, Oregon
+--Apple-Mail-2-122786817
+Content-Transfer-Encoding: 7bit
+Content-Type: text/enriched;
+	charset=US-ASCII
+
+Everyone,
+
+
+I would very much appreciate comments (even one-liners) on any
+community interest in these two OLS Performance BoF sessions.  I
+believe the topics are dissimilar and relevant enough to justify both:  
+
+-------------------------------------------------------------------------------------------------------------------
+
+<smaller>PROPOSAL FOR LINUX BENCHMARK AUTOMATION
+
+This BOF will include a discussion on Linux benchmark automation. We
+will discuss the features needed to provide an effective benchmark
+automation process for Linux. This will include, defining the
+configuration, input files, benchmark execution, output files, etc. 
+We will also discuss the types of benchmarks that are tailored for
+rapid execution and results analysis, for maximum development impact.
+
+
+PROPOSAL FOR LINUX PERFORMANCE
+
+Linux changes occur very quickly in the open source community. There
+is a strong need to quickly collect and share performance data and
+analysis. However, there may be some instances where good, quality
+performance data collection and analysis take longer than the short
+turnaround required for maximum impact regarding newly released
+patches. We plan to discuss the most effective methodology for
+impacting Linux performance in a rapidly changing Linux open source
+community environment.
+
+</smaller>---------------------------------------------------------------------------------------------------------------------
+
+Please reply immediately so we can quickly submit them to OLS? 
+
+Thanks for your (speedy) replies! 
+
+
+ruth
+
+Ruth Forester, Linux Performance LTC
+
+<smaller>rsf@flying-dove.com
+
+notes: rsf@us.ibm.com
+
+IBM Linux Technology Center
+
+Beaverton, Oregon</smaller>
+--Apple-Mail-2-122786817--
 

@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbULZUSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbULZUWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbULZUSg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 15:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbULZUSf
+	id S261155AbULZUWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 15:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbULZUWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 15:18:35 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:35870 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261153AbULZUSe
+	Sun, 26 Dec 2004 15:22:06 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:16019 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261155AbULZUWB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 15:18:34 -0500
-Date: Sun, 26 Dec 2004 21:19:36 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Mark Williams (MWP)" <mwp@internode.on.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 make script problems
-Message-ID: <20041226201936.GA15643@mars.ravnborg.org>
-Mail-Followup-To: "Mark Williams (MWP)" <mwp@internode.on.net>,
-	linux-kernel@vger.kernel.org
-References: <20041226145302.GA12627@linux.comp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041226145302.GA12627@linux.comp>
-User-Agent: Mutt/1.5.6i
+	Sun, 26 Dec 2004 15:22:01 -0500
+In-Reply-To: <20041226171900.GA27706@work.bitmover.com>
+References: <1104077531.5268.32.camel@mulgrave> <20041226162727.GA27116@work.bitmover.com> <1104079394.5268.34.camel@mulgrave> <20041226171900.GA27706@work.bitmover.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <92984B55-577B-11D9-BCB8-000A95E3BCE4@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+From: Martin Dalecki <martin@dalecki.de>
+Subject: Re: [BK] disconnected operation
+Date: Sun, 26 Dec 2004 21:20:23 +0100
+To: Larry McVoy <lm@bitmover.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 01:23:02AM +1030, Mark Williams (MWP) wrote:
-> Hi all,
-> First... im not on lkml, so can you please CC replies back to me, thanks.
-> 
-> 
-> This is a werid one...
-> 
-> On running "make menuconfig" for the first time on a freshly extracted
-> "linux-2.6.10.tar.bz2" everything works fine.
-> 
-> >From then on however, running "make" in any form ("make bzImage", "make
-> menuconfig", etc) brings on this:
-> 
-> [root@linux linux-2.6.10]# make bzImage
-> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 bzImage
-> ....
-> 
-> which continues until i ctrl-c.
 
-Check your Makefile. It looks like 'make O=...' was executed in the
-wrong directory, thus overwriting the original Makefile.
+On 2004-12-26, at 18:19, Larry McVoy wrote:
+> For James, could you do a little debugging please?  Run the following
+> when you are plugged in and it works and also when it doesn't:
+>
+> 	bk getuser
+> 	bk getuser -r
+> 	bk gethost
+> 	bk gethost -r
+> 	bk dotbk
+>
+> We'll track it down and fix it if it is a problem on our end.  This 
+> stuff
+> is supposed to work, we certainly haven't intentionally caused a 
+> problem.
 
-	Sam
+Larry, that's futile, please trust me, you really can't fix this 
+conveniently
+and properly, without changing the principles of operation. nscd, 
+mDNSresponder,
+dhclient, glibc, NDIS, netinfo, some NAT, proxy, OpenDirectory, and so 
+on, the whole gang,
+gosh even /etc/hostname will *always* get you sometime if you intend to
+accommodate mobile users. Eee... did I say mobile users, Well let's use 
+the proper
+buzz-word. *Roaming* users.  Take it as a given: The nice shiny easy 
+days of BSD4-Net
+release are long past and gone. A hostname simply isn't a fixed 
+attribute of a host anymore.
+Setting a host name has nowadays more the character of a prayer or 
+christmas wish to Santa,
+then any setup measure.
+
+I really recommend that you give him a cookie and check if he still 
+didn't eat it
+next time you meet him. (So don't give him a crispy well smelling 
+one...)
+Or even better please do yourself the favor and go straight the whole 
+way down to
+SASL, TSL and so on... There where already people around there with 
+similar problems before.
+(www.beepcore.org comes in to mind for something quite modern and not 
+directly
+Java/XML/SOAP/bla bla bloated...)
+

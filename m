@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265120AbTFMDwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 23:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265121AbTFMDwn
+	id S265111AbTFMD6v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 23:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265121AbTFMD6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 23:52:43 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:61635 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S265120AbTFMDwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 23:52:42 -0400
-Date: Thu, 12 Jun 2003 20:56:46 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Anders Karlsson <anders@trudheim.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Intel PRO/Wireless 2100 vs. Broadcom BCM9430x
-In-Reply-To: <1055450268.3989.27.camel@tor.trudheim.com>
-Message-ID: <Pine.LNX.4.44.0306122055580.4141-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Jun 2003 23:58:51 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:42425 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S265111AbTFMD6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 23:58:50 -0400
+Date: Fri, 13 Jun 2003 00:04:02 -0400
+From: Albert Cahalan <albert@users.sf.net>
+Subject: [PATCH] make pid_max readable
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <1055477042.4048.132.camel@cube>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.4
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can buy the cisco card from ibm and have installed when the thing 
-ships  if you so desire.
+This is needed so that apps can set appropriate column
+widths for PID display.
 
-joelja
+diff -Naurd old-2.5.70/kernel/sysctl.c new-2.5.70/kernel/sysctl.c
+--- old-2.5.70/kernel/sysctl.c	2003-06-12 23:43:00.000000000 -0400
++++ new-2.5.70/kernel/sysctl.c	2003-06-12 23:44:18.000000000 -0400
+@@ -539,7 +539,7 @@
+ 		.procname	= "pid_max",
+ 		.data		= &pid_max,
+ 		.maxlen		= sizeof (int),
+-		.mode		= 0600,
++		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ 	{
 
-On 12 Jun 2003, Anders Karlsson wrote:
-
-> On Thu, 2003-06-12 at 16:16, Joel Jaeggli wrote:
-> > most laptop vendors that provide multiple wireless options also support 
-> > the cisco aironet minipci card, you can allways vote with your wallet if 
-> > you think linux support for wireless chipsets is valuable.
-> 
-> And that is if your laptop will allow such a card to be plugged in and
-> used of course. Thinkpads with the tcpa chip in them might not allow
-> such a card, and consequently you can not vote with your wallet unless
-> you do not buy that laptop at all.
-> 
-> /A
-> 
-> 
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
 

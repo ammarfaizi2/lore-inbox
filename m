@@ -1,107 +1,211 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268430AbTANAmS>; Mon, 13 Jan 2003 19:42:18 -0500
+	id <S268444AbTANAnV>; Mon, 13 Jan 2003 19:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268444AbTANAmS>; Mon, 13 Jan 2003 19:42:18 -0500
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:60177 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S268430AbTANAmQ>; Mon, 13 Jan 2003 19:42:16 -0500
-Date: Mon, 13 Jan 2003 16:51:02 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: Andries.Brouwer@cwi.nl, Greg KH <greg@kroah.com>, mochel@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: sysfs
-Message-ID: <20030113165102.A26346@one-eyed-alien.net>
-Mail-Followup-To: Patrick Mansfield <patmans@us.ibm.com>,
-	Andries.Brouwer@cwi.nl, Greg KH <greg@kroah.com>, mochel@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl> <20030113162741.A18396@beaverton.ibm.com>
+	id <S268445AbTANAnV>; Mon, 13 Jan 2003 19:43:21 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:61094 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268444AbTANAnS>;
+	Mon, 13 Jan 2003 19:43:18 -0500
+Subject: [STABILITY] Compile / STP metrics for 2.5.57
+From: John Cherry <cherry@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: linstab@osdl.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042505597.29205.74.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030113162741.A18396@beaverton.ibm.com>; from patmans@us.ibm.com on Mon, Jan 13, 2003 at 04:27:41PM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 13 Jan 2003 16:53:17 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Compile statistics have been for kernel releases from 2.5.46 to 2.5.57
+at: www.osdl.org/archive/cherry/stability
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Warning/Error numbers are moving in the right direction again.
 
-Really, we don't want to hang the device under USB... it's really an
-emulated SCSI device.  Or, at least I think so.
+                           2.5.56                       2.5.57
+                       ------------------------ ------------------------
+bzImage (defconfig)      67 warnings/0 errors     21 warnings/0 errors
+bzImage (allmodconfig)   48 warnings/11 errors    33 warnings/9 errors
+modules (allmodconfig) 3151 warnings/201 errors 3145 warnings/161 errors
 
-Matt
+The script that generated this data is also at
+www.osdl.org/archive/cherry/stability.  Detailed information on warnings
+and errors can be found by following the links in the table, but a
+summary of the 2.5.56 run is shown here....
 
-On Mon, Jan 13, 2003 at 04:27:41PM -0800, Patrick Mansfield wrote:
-> Andries -
->=20
-> On Sat, Jan 11, 2003 at 03:43:27PM +0100, Andries.Brouwer@cwi.nl wrote:
-> > Yesterday evening I wrote a trivial utility fd ("find device")
-> > that gives the contents of sysfs. Mostly in order to see what
-> > name the memory stick card reader has today.
-> >=20
-> > I wondered about several things.
-> > Is there a description of the intended hierachy, so that one can
-> > compare present facts with intention?
-> >=20
-> > In /sysfs/devices I see
-> > 1:0:6:0  2:0:0:1  2:0:0:3  3:0:0:1  4:0:0:0  4:0:0:2   ide0  legacy  sys
-> > 2:0:0:0  2:0:0:2  3:0:0:0  3:0:0:2  4:0:0:1  ide-scsi  ide1  pci0
-> > many SCSI devices and some subdirectories.
-> > Would it not be better to have subdirectories scsiN just like ideN?
-> > One can have SCSI hosts, even when presently no devices are connected.
->=20
-> It looks like there is a missing scsi_set_device() call in scsiglue.c,
-> (similiar to what happens if we handled NULL dev pointer in scis_add_host)
-> so all the usb scsi devices end up under /sysfs/devices.
->=20
-> I don't have any usb mass storage devices, this patch against 2.5 bk
-> compiles but otherwise is not tested. It should put the usb-scsi mass
-> storage devices below the usb sysfs dev (I assume in your case under
-> /sysfs/devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.4).
->=20
-> Maybe Matthew or Greg can comment.
->=20
-> --- 1.33/drivers/usb/storage/scsiglue.c	Sun Nov 10 09:49:52 2002
-> +++ edited/drivers/usb/storage/scsiglue.c	Mon Jan 13 15:33:49 2003
-> @@ -90,6 +90,7 @@
->  	if (us->host) {
->  		us->host->hostdata[0] =3D (unsigned long)us;
->  		us->host_no =3D us->host->host_no;
-> +		scsi_set_device(us->host, &us->pusb_dev->dev);
->  		return 1;
->  	}
-> =20
-> -- Patrick Mansfield
+Kernel version: 2.5.57
+Kernel build: 
+   Making bzImage (defconfig): 21 warnings, 0 errors
+   Making modules (defconfig): 0 warnings, 0 errors
+   Making bzImage (allmodconfig): 33 warnings, 9 errors
+   Making modules (allmodconfig): 3145 warnings, 161 errors
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+Building directories:
+   Building fs/adfs: clean
+   Building fs/affs: clean
+   Building fs/afs: clean
+   Building fs/autofs: clean
+   Building fs/autofs4: clean
+   Building fs/befs: clean
+   Building fs/bfs: clean
+   Building fs/cifs: 4 warnings, 0 errors
+   Building fs/coda: clean
+   Building fs/cramfs: clean
+   Building fs/devfs: clean
+   Building fs/devpts: clean
+   Building fs/efs: clean
+   Building fs/exportfs: clean
+   Building fs/ext2: clean
+   Building fs/ext3: clean
+   Building fs/fat: clean
+   Building fs/freevxfs: clean
+   Building fs/hfs: clean
+   Building fs/hpfs: clean
+   Building fs/hugetlbfs: clean
+   Building fs/intermezzo: 2 warnings, 0 errors
+   Building fs/isofs: clean
+   Building fs/jbd: clean
+   Building fs/jffs: clean
+   Building fs/jffs2: clean
+   Building fs/jfs: clean
+   Building fs/lockd: 4 warnings, 0 errors
+   Building fs/minix: clean
+   Building fs/msdos: clean
+   Building fs/ncpfs: clean
+   Building fs/nfs: clean
+   Building fs/nfsd: 2 warnings, 0 errors
+   Building fs/nls: clean
+   Building fs/ntfs: 3 warnings, 0 errors
+   Building fs/openpromfs: clean
+   Building fs/partitions: clean
+   Building fs/proc: clean
+   Building fs/qnx4: clean
+   Building fs/ramfs: clean
+   Building fs/reiserfs: 1 warnings, 0 errors
+   Building fs/romfs: clean
+   Building fs/smbfs: 2 warnings, 0 errors
+   Building fs/sysfs: clean
+   Building fs/sysv: clean
+   Building fs/udf: clean
+   Building fs/ufs: clean
+   Building fs/vfat: clean
+   Building fs/xfs: 2 warnings, 0 errors
+   Building drivers/net: 593 warnings, 14 errors
+   Building drivers/base: clean
+   Building drivers/acpi: clean
+   Building drivers/media: 162 warnings, 20 errors
+   Building drivers/hotplug: 10 warnings, 0 errors
+   Building drivers/isdn: 489 warnings, 4 errors
+   Building drivers/serial: 1 warnings, 0 errors
+   Building drivers/fc4: clean
+   Building drivers/char: 373 warnings, 10 errors
+   Building drivers/i2c: 3 warnings, 0 errors
+   Building drivers/parport: 10 warnings, 0 errors
+   Building drivers/mtd: 30 warnings, 4 errors
+   Building drivers/usb: 29 warnings, 0 errors
+   Building drivers/acorn: clean
+   Building drivers/block: 10 warnings, 2 errors
+   Building drivers/pcmcia: 13 warnings, 0 errors
+   Building drivers/pci: clean
+   Building drivers/input: 5 warnings, 0 errors
+   Building drivers/pnp: clean
+   Building drivers/ide: 47 warnings, 0 errors
+   Building drivers/atm: 50 warnings, 0 errors
+   Building drivers/oprofile: clean
+   Building drivers/ieee1394: 17 warnings, 2 errors
+   Building drivers/cdrom: 34 warnings, 0 errors
+   Building drivers/zorro: clean
+   Building drivers/sgi: clean
+   Building drivers/message: 18 warnings, 2 errors
+   Building drivers/sbus: clean
+   Building drivers/macintosh: 1 warnings, 2 errors
+   Building drivers/bluetooth: 15 warnings, 0 errors
+   Building drivers/telephony: 9 warnings, 0 errors
+   Building drivers/md: 18 warnings, 0 errors
+   Building drivers/tc: clean
+   Building drivers/mca: clean
+   Building drivers/nubus: clean
+   Building drivers/misc: clean
+   Building drivers/dio: clean
+   Building drivers/video/aty: 0 warnings, 2 errors
+   Building drivers/video/console: 2 warnings, 0 errors
+   Building drivers/video/i810: clean
+   Building drivers/video/matrox: 106 warnings, 20 errors
+   Building drivers/video/riva: clean
+   Building drivers/video/sis: 37 warnings, 3 errors
+   Building sound/core: 2 warnings, 0 errors
+   Building sound/drivers: 1 warnings, 0 errors
+   Building sound/i2c: clean
+   Building sound/isa: 105 warnings, 36 errors
+   Building sound/oss: 156 warnings, 13 errors
+   Building sound/pci: 8 warnings, 0 errors
+   Building sound/synth: clean
+   Building sound/usb: clean
+   Building arch/i386: clean
+   Building crypto: clean
+   Building lib: clean
+   Building net: 295 warnings, 0 errors
+   Building security: 2 warnings, 0 errors
+   Building sound: 120 warnings, 49 errors
+   Building drivers/video: 297 warnings, 35 errors
+   Building usr: clean
 
-It was a new hope.
-					-- Dust Puppy
-User Friendly, 12/25/1998
 
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Error Summary:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+   drivers/block: 10 warnings, 2 errors
+   drivers/char: 373 warnings, 10 errors
+   drivers/ieee1394: 17 warnings, 2 errors
+   drivers/isdn: 489 warnings, 4 errors
+   drivers/macintosh: 1 warnings, 2 errors
+   drivers/media: 162 warnings, 20 errors
+   drivers/message: 18 warnings, 2 errors
+   drivers/mtd: 30 warnings, 4 errors
+   drivers/net: 593 warnings, 14 errors
+   drivers/video: 297 warnings, 35 errors
+   drivers/video/aty: 0 warnings, 2 errors
+   drivers/video/matrox: 106 warnings, 20 errors
+   drivers/video/sis: 37 warnings, 3 errors
+   sound: 120 warnings, 49 errors
+   sound/isa: 105 warnings, 36 errors
+   sound/oss: 156 warnings, 13 errors
 
-iD8DBQE+I171IjReC7bSPZARAsRYAJ9fYCX46xEMu8V2PUI9PDbOl4dVxwCgrn8X
-/1IFxvD4lEi6Elptlb15YMA=
-=Cu/+
------END PGP SIGNATURE-----
 
---ibTvN161/egqYuK8--
+Warning Summary:
+
+   drivers/atm: 50 warnings, 0 errors
+   drivers/bluetooth: 15 warnings, 0 errors
+   drivers/cdrom: 34 warnings, 0 errors
+   drivers/hotplug: 10 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 47 warnings, 0 errors
+   drivers/input: 5 warnings, 0 errors
+   drivers/md: 18 warnings, 0 errors
+   drivers/parport: 10 warnings, 0 errors
+   drivers/pcmcia: 13 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 9 warnings, 0 errors
+   drivers/usb: 29 warnings, 0 errors
+   drivers/video/console: 2 warnings, 0 errors
+   fs/cifs: 4 warnings, 0 errors
+   fs/intermezzo: 2 warnings, 0 errors
+   fs/lockd: 4 warnings, 0 errors
+   fs/nfsd: 2 warnings, 0 errors
+   fs/ntfs: 3 warnings, 0 errors
+   fs/reiserfs: 1 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   fs/xfs: 2 warnings, 0 errors
+   net: 295 warnings, 0 errors
+   security: 2 warnings, 0 errors
+   sound/core: 2 warnings, 0 errors
+   sound/drivers: 1 warnings, 0 errors
+   sound/pci: 8 warnings, 0 errors
+
+
+
+-- 
+John Cherry <cherry@osdl.org>
+

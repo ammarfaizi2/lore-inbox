@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130434AbQKISBj>; Thu, 9 Nov 2000 13:01:39 -0500
+	id <S130497AbQKISDJ>; Thu, 9 Nov 2000 13:03:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130391AbQKISBT>; Thu, 9 Nov 2000 13:01:19 -0500
-Received: from topaz.3com.com ([192.156.136.158]:21498 "EHLO topaz.3com.com")
-	by vger.kernel.org with ESMTP id <S129619AbQKISBQ>;
-	Thu, 9 Nov 2000 13:01:16 -0500
-X-Lotus-FromDomain: 3COM
-From: Steven_Snyder@3com.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <88256992.00632296.00@hqoutbound.ops.3com.com>
-Date: Thu, 9 Nov 2000 12:01:20 -0600
-Subject: Porting Linux v2.2.x Ethernet driver to v2.4.x?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130531AbQKISC7>; Thu, 9 Nov 2000 13:02:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37894 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130526AbQKISCu>; Thu, 9 Nov 2000 13:02:50 -0500
+Date: Thu, 9 Nov 2000 10:02:35 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: rd - deadlock removal
+In-Reply-To: <20001109103511.G467@suse.de>
+Message-ID: <Pine.LNX.4.10.10011091001030.1909-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Hello.
+On Thu, 9 Nov 2000, Jens Axboe wrote:
+> 
+> >  The second is more elegant in that it side steps the problem by
+> >  giving rd.c a make_request function instead of using the default
+> >  _make_request.   This means that io_request_lock is simply never
+> >  claimed my rd.
+> 
+> And this solution is much better, even given the freeze I think that
+> is the way to go.
 
-I am about to modify a Linux v2.2.x-compatible Ethernet driver to allow it to
-work in the new v2.4.x kernel.  Are there any documents which describe the
-differences in the device driver models (particularly PCI and Ethernet) of the 2
-kernel versions?  If so, where can I find them?
+I agree, I already applied it. The second approach just makes the problem
+go away, and also avoids needlessly merging the request etc. I suspect
+that the lack of request-merging could also eventually be used to simplify
+the driver a bit, as it now wouldn't need to worry about that issue any
+more at all.
 
-Thank you.
-
-(Sorry about the advertisement below.)
-
-
-
-
-PLANET PROJECT will connect millions of people worldwide through the combined
-technology of 3Com and the Internet. Find out more and register now at
-http://www.planetproject.com
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

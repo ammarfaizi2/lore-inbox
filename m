@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272908AbTG3OO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272906AbTG3OOQ
+	id S272901AbTG3OFb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272902AbTG3OFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:14:16 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22250 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272888AbTG3OMd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:12:33 -0400
-Date: Wed, 30 Jul 2003 11:08:24 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ROOT NFS fixes ...
-In-Reply-To: <20030730140739.GA24587@www.13thfloor.at>
-Message-ID: <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva>
-References: <20030729211521.GA19594@www.13thfloor.at>
- <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
- <20030730140739.GA24587@www.13thfloor.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jul 2003 10:05:30 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:56963 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272901AbTG3OFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:05:24 -0400
+Date: Wed, 30 Jul 2003 15:05:22 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The well-factored 386
+Message-ID: <20030730140522.GA21665@mail.jlokier.co.uk>
+References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com> <20030728194127.GA10673@mail.jlokier.co.uk> <20030729111423.GA5320@hh.idb.hist.no> <20030729161951.GA15889@mail.jlokier.co.uk> <20030730071131.GA6282@hh.idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030730071131.GA6282@hh.idb.hist.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting wrote:
+> So you can probably use paging in "forreal" mode too. I believe
+> you only get the page table's memory mapping capabilities
+> though, I don't think you get protection of "kernel" pages
+> without protection enabled.  
+> 
+> You could still "hide" kernel memory by giving userspace another
+> page table, but that means page table switching on each
+> syscall which kills performance worse than interrupt handling
+> in protecxted mode.
 
-On Wed, 30 Jul 2003, Herbert Pötzl wrote:
+Yes, that's exactly what I had in mind.
 
-> On Wed, Jul 30, 2003 at 10:57:52AM -0300, Marcelo Tosatti wrote:
-> >
-> >
-> > On Tue, 29 Jul 2003, Herbert Pötzl wrote:
-> >
-> > >
-> > > Hi Marcelo!
-> > >
-> > > just verified that the NFS root bug-fix was not
-> > > included in 2.4.22-pre9, unfortunately I have
-> > > to ask you again, why you do not want to fix
-> > > this issue in 2.4.22 ...
-> > >
-> > > I do not understand why Trond obviously is
-> > > ignoring my mails, regarding this particular
-> > > issue, maybe he is just too busy to look at
-> > > four twoline changes, and more, I do not
-> > > understand why this isn't accepted into the
-> > > marcelo kernel tree, as it obviously fixes a
-> > > misbehaviour?
-> > >
-> > > please explain!
-> > >
-> > > It is okay for me, if your argumentation goes
-> > > like "I don't like you, that's reason enough
-> > > for me to not include your patches ...", but I
-> > > would like to know ...
-> >
-> > I do not consider the patch critical enough.
-> >
-> > Get it in 2.5 first, then come back :)
->
-> I hope this is a joke, and you are still reading
-> your mail ...
+You say that page table switching kills performance, but consider
+Ingo's latest 64G patches do exactly that, and performance, though
+degraded, is not too bad.
 
-No, this is not a joke, at all.
+Whether it's worth doing that would depend on the balance of
+interrupts vs. syscalls.  Some embedded applications are dominated by
+interrupts, and there are apps which avoid syscalls altogether during
+the main part of their running.
 
-Let me repeat: I (and Trond) do not consider this patch critical.
-
+-- Jamie

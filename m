@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261669AbSKTVtq>; Wed, 20 Nov 2002 16:49:46 -0500
+	id <S261660AbSKTVrr>; Wed, 20 Nov 2002 16:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSKTVtq>; Wed, 20 Nov 2002 16:49:46 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:27524 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261669AbSKTVtp>; Wed, 20 Nov 2002 16:49:45 -0500
-Subject: Re: Linux 2.4.20 ACPI
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "'Ducrot Bruno'" <poup@poupinou.org>,
-       Felix Seeger <seeger@sitewaerts.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <25526.1037828842@passion.cambridge.redhat.com>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A52A@orsmsx119.jf.intel.com>  
-	<25526.1037828842@passion.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Nov 2002 22:24:15 +0000
-Message-Id: <1037831055.3241.97.camel@irongate.swansea.linux.org.uk>
+	id <S261678AbSKTVrr>; Wed, 20 Nov 2002 16:47:47 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:16522 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261660AbSKTVrq>;
+	Wed, 20 Nov 2002 16:47:46 -0500
+Date: Wed, 20 Nov 2002 21:55:40 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
+Message-ID: <20021120215540.GA11879@bjl1.asuk.net>
+References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com> <20021120033747.GB9007@bjl1.asuk.net> <3DDB09C2.3070100@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDB09C2.3070100@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 21:47, David Woodhouse wrote:
+Ulrich Drepper wrote:
+> > (That said, I'm not entirely convinced that blocking signals in cfork()
+> > is so bad, if we assume that cfork() is a relatively expensive
+> > operation anyway...)
 > 
-> andrew.grover@intel.com said:
-> >  It would be great if someone could take a look at the sonypi driver
-> > and see what can be done to integrate it better with ACPI. ACPI
-> > includes an EC driver, so at the minimum, sonypi should use that
-> > instead of poking the EC itself, perhaps. 
-> 
-> Surely a proper driver should always be preferred over binary-only bytecode?
-> 
-> The sonypi driver looks like it properly requests the regions it uses; they
-> should be marked busy. Why is the ACPI code touching them?
+> It could mean a signal cannot be delivered and reacted on in time.  The
+> other threads could have blocked the signal which arrives.  Every time
+> signals have to be blocked to implement a function something is wrong,
 
-The same microcontroller is handling both power management related
-operations and also funky things like the camera. In most laptops the
-microcontroller is either doing ACPI or APM so there is a convenient
-split. 
+I don't buy this argument.  You block signals, do something, unblock
+signals.  There may be a _tiny_ delay in delivering the signal - of
+the order of a single system call time, i.e. not significant.  (That
+delay is much shorter than signal delivery time itself).  No signals
+are actually _lost_, which would be important if it could happen.
 
-I guess sonypi could take the ACPI global lock ?
+Blocking signals briefly is very similar to taking a spinlock.  It has
+a small overhead, which is probably not significant in the case of
+cfork() and its likely applications.
 
+Regarding whether clone() needs a separate child tid_address pointer -
+I have no strong opinion (you can implement cfork() with or without),
+but you might want to consider, from Glibc's perspective, that there
+aren't many argument words left for future uses..
 
+-- Jamie

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbUBYFpi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 00:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUBYFpi
+	id S262310AbUBYGAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 01:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUBYGAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 00:45:38 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:35748 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262623AbUBYFpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 00:45:36 -0500
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-From: Albert Cahalan <albert@users.sf.net>
-To: David Ford <david+powerix@blue-labs.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <403C2E56.2060503@blue-labs.org>
-References: <403C014F.2040504@blue-labs.org>
-	 <1077674048.10393.369.camel@cube>  <403C2E56.2060503@blue-labs.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1077679677.10393.431.camel@cube>
+	Wed, 25 Feb 2004 01:00:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32237 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262310AbUBYGAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 01:00:20 -0500
+Date: Tue, 24 Feb 2004 22:00:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: christophe@saout.de, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-Id: <20040224220030.13160197.akpm@osdl.org>
+In-Reply-To: <20040225043209.GA1179@certainkey.com>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net>
+	<20040224223425.GA32286@certainkey.com>
+	<1077663682.6493.1.camel@leto.cs.pocnet.net>
+	<20040225043209.GA1179@certainkey.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Feb 2004 22:27:57 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-25 at 00:10, David Ford wrote:
+Jean-Luc Cooke <jlcooke@certainkey.com> wrote:
+>
+> How do I check for equal real addresses from two virtual ones?
 
-> I can see if a process long in the past would have a different time set 
-> on it, but shouldn't the entry in /proc coincide with the system clock 
-> that date is accessing?  Or how many different "clocks" does the kernel 
-> have going?
+I don't think there is a practical way of doing this.  It would involve
+comparing the virtual address with the kmap and atomic kmap regions,
+performing a pagetable walk, extracting the pageframe.  If the page is not
+in a kmap area generate the pageframe directly.  Make that work on all
+architectures.  Very yuk.
 
-There are way too many clocks, none of which are good.
-
-> Actually, it seems that there is a -significant- time difference in this 
-> phantom clock now, I suspended my notebook to bring it home from the 
-> station, and now this time difference is greater than 9 minutes.  I 
-> suspect it's roughly 46 seconds plus the amount of time that my notebook 
-> was suspended.  Yes, I'm running ntpd.
-> 
-> root     16894  0.0  0.0  1544  484 pts/3    S    Feb24   0:00 grep grep ps
-> Wed Feb 25 00:09:09 EST 2004
-
-OK, this is pointing right at the problem.
-
-Linux does not record process start times at all.
-Instead, it records the number of clock ticks
-from boot until the process starts.
-
-Either the boot time or current time is real.
-The other may be computed from the uptime, which
-may be measured in clock ticks.
-
-The clock doesn't tick when your laptop sleeps.
-I seem to recall recent changes to the way the
-boot time in /proc/stat gets reported. In any
-case, a sleeping laptop suggests some interesting
-questions about process run times.
-
-Here's another one to make you scream: Linux does
-not supply real %CPU data.
-
+If practical this API should have been defined in terms of
+(page/offset/len) and it should have kmapped the pages itself.  I guess
+it's too late for that.
 

@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbTDHNem (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTDHNem (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:34:42 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:10411 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S261404AbTDHNel convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 09:34:41 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
+	id S261413AbTDHNok (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbTDHNok (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:44:40 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34692 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261413AbTDHNoj (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 09:44:39 -0400
+Date: Tue, 8 Apr 2003 09:58:09 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: prasanna panchamukhi <pprasanna_2000@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Magic numner of /dev/mem
+In-Reply-To: <20030408133514.12649.qmail@web21404.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0304080952100.23087@chaos>
+References: <20030408133514.12649.qmail@web21404.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] TIObench performance for 2.5.67
-Date: Tue, 8 Apr 2003 19:16:05 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867238D7B0@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] TIObench performance for 2.5.67
-Thread-Index: AcL91TNNHXl8I7j0SHyRLoz8LgiA6Q==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Apr 2003 13:46:06.0156 (UTC) FILETIME=[33F830C0:01C2FDD5]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CPU utilization has gone down and hence around 6-7% improvement in CPU efficiency.
-Rest of the results have not varied by more than 5% since 2.5.62
+On Tue, 8 Apr 2003, prasanna panchamukhi wrote:
 
-********************************
-Linux 2.5.67
-********************************
-Unit information
-================
-File size = megabytes
-Blk Size  = bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
+> Hi,
+>
+> I have a few questions on /dev/mem
+>
+> 1.Is the magic no of /dev/mem is static or dynamic for
+> a specific architecture.
+> 2.If it is static/Dynamic why?
+> 3. How it is determined?
+> 3.Where do we use it?
+>
+> Thanks in advance...
+>
+> Regards
+> Prasanna S P.
 
-Sequential Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.67                        252   4096   10    7.53 3.698%    14.319     1872.15   0.00000  0.00000   204
+/dev/mem is not a "file" so it doesn't have a magic number. It
+is a device that creates a "window" into all the mapped memory
+pages in the system.
 
-Random Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.67                        252   4096   10    0.50 0.450%   206.402     1785.75   0.00000  0.00000   110
+If you were to read /dev/mem (just do `strings /dev/mem` from
+the root account), you will read the contents of physical memory.
 
-Sequential Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.67                        252   4096   10   10.99 16.23%     5.835    25371.58   0.09688  0.00000    68
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Random Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.67                        252   4096   10    0.65 0.747%     0.625     1531.00   0.00000  0.00000    87

@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265824AbUEZVr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265816AbUEZVrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265824AbUEZVr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 17:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUEZVr5
+	id S265816AbUEZVrd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 17:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265824AbUEZVrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 17:47:57 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18064 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265824AbUEZVrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 17:47:45 -0400
-Subject: Re: [PATCH] ppc32 implementation of ptep_set_access_flags
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405260756590.1929@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>
-	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	 <1085371988.15281.38.camel@gaston>
-	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	 <1085373839.14969.42.camel@gaston>
-	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	 <20040525034326.GT29378@dualathlon.random>
-	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	 <20040525153501.GA19465@foobazco.org>
-	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	 <20040525102547.35207879.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-	 <20040525105442.2ebdc355.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-	 <1085521251.24948.127.camel@gaston>
-	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
-	 <1085522860.15315.133.camel@gaston>
-	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
-	 <1085530867.14969.143.camel@gaston>
-	 <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>
-	 <1085541906.14969.412.camel@gaston>
-	 <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
-	 <1085546780.5584.19.camel@gaston>
-	 <Pine.LNX.4.58.0405252151100.15534@ppc970.osdl.org>
-	 <1085551152.6320.38.camel@gaston> <1085554527.7835.59.camel@gaston>
-	 <1085555491.7835.61.camel@gaston>
-	 <Pine.LNX.4.58.0405260756590.1929@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1085607795.5584.67.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 27 May 2004 07:43:16 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 17:47:33 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:25255 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265816AbUEZVrZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 17:47:25 -0400
+Message-Id: <200405262147.i4QLlFF23657@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: net_device->queue_lock contention on 32-way box
+Date: Wed, 26 May 2004 14:47:15 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRDY8RXbZLeHU+wSKuPpMjoTngKSQAAMbyA
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <20040526135436.657df321.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-27 at 01:22, Linus Torvalds wrote:
+>>>> David S. Miller wrote on Wednesday, May 26, 2004 1:55 PM
+> The net_tx_action() --> qdisc_run() --> qdisc_restart() code path
+> can hold the lock for a long time especially if lots of packets
+> have been enqueued before net_tx_action() had a chance to run.
+>
+> For each enqueued packet, we go all the way into the device driver
+> to give the packet to the device.  Given that PCI PIO accesses are
+> likely in these paths, along with some memory accesses (to setup
+> packet descriptors and the like) this could take quite a bit of
+> time.
+>
+> We do temporarily release the dev->queue_lock in between each
+> packet while we go into the driver.  It could be what you're
+> seeing is the latency to get the device's dev->xmit_lock because
+> we have to acquire that before we can release the dev->queue_lock
+>
 
-> The "new" rules (well, they aren't new, but now they are explicitly
-> spelled out) for this thing are:
+That's where I'm having trouble in interpreting the lockmeter
+data.  qdisc_restart() does a trylock on dev->xmit_lock, if it gets
+it, unlock queue_lock right away. If it didn't get it, queue the
+packet and return, then qdisc_run terminates and the caller to
+qdisc_run will unlock queue_lock.  Don't see that as a long operation
+at all.  Could netif_schedule() take long time to run?
 
-Looks fine. I'll dbl check everything on the g5 once I reach the office
 
-Ben.
+> If you bind the device interrupts to one cpu, do things change?
+
+We always bind network interrupt to one cpu, haven't tried with
+non-bound configuration.
 
 

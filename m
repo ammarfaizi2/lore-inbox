@@ -1,75 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbULPQ0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbULPQ1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbULPQ0f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbULPQ0a
+	id S261266AbULPQ1P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbULPQ1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:26:30 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:55529 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261523AbULPQ0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:26:12 -0500
-Message-Id: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with workaround...
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-787537636P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 16 Dec 2004 11:27:15 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36575 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261183AbULPQ05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:26:57 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
+Date: Thu, 16 Dec 2004 08:26:31 -0800
+User-Agent: KMail/1.7.1
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200412140941.56116.jbarnes@engr.sgi.com> <200412150900.18890.jbarnes@engr.sgi.com> <1103208922.25262.10.camel@gaston>
+In-Reply-To: <1103208922.25262.10.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 16 Dec 2004 11:26:05 -0500
+Content-Disposition: inline
+Message-Id: <200412160826.32315.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-787537636P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <16488.1103214353.1@turing-police.cc.vt.edu>
+On Thursday, December 16, 2004 6:55 am, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-12-15 at 09:00 -0800, Jesse Barnes wrote:
+> > Good, because that's exactly what it does.  The arch is responsible for
+> > returning the legacy I/O port or legacy ISA memory base address given a
+> > pci_dev, which is used as a base for the page offset passed into mmap. 
+> > So e.g. mmap(..., 0xa0000) after doing ioctl(fd,
+> > PCIIOC_MMAP_IS_LEGACY_MEM, ...) would get you the VGA framebuffer for the
+> > device corresponding to 'fd'.
+>
+> Sounds good... The only thing is a pci_dev may not be available if you
+> have a PCI->ISA bridge, tho you may just use the pci_dev of the
+> bridge...
 
-(Yes, I know NVidia is evil and all that.. If you're not Ingo or NVidia,
-consider this "documenting the workaround" ;)
+Well, you'll have to have a fake one at least.  Remember the fds used in the 
+above example come from fd = open("/proc/bus/pci/BB/SS.F", O_RDWR)...
 
-For reasons I can't explain, the NVidia module won't initialize
-correctly with V0-0.7.33-03 if built with CONFIG_SPINLOCK_BKL.  It however
-works fine with CONFIG_PREEMPT_BKL, changing nothing else in the config.
-It also works fine with 2.6.10-rc3-mm1 without Ingo's patch.
-
-Relevant .config snippet from the /proc/config.gz I'm running with right now:
-
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT_DESKTOP=y
-# CONFIG_PREEMPT_RT is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_SOFTIRQS=y
-CONFIG_PREEMPT_HARDIRQS=y
-# CONFIG_SPINLOCK_BKL is not set
-CONFIG_PREEMPT_BKL=y
-
-If built with SPINLOCK_BKL, we get this in the kernel messages:
-
-Dec 16 01:12:41 turing-police kernel: NVRM: rm_init_adapter failed
-
-rm_init_adapter is in NVidia's binary code, so I can't shoot it.
-
-The *odd* part is that it's failing with the spinlock but *not* the preempt version
-or the unpatched version. (I was *expecting* that code that was happy with
-the old-style BKL in -mm1 would be happy with the spinlock version and complain
-if somebody hit the preempt flavor, not the other way around...)
-
-Ingo? This ring any bells?
-
---==_Exmh_-787537636P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBwbcccC3lWbTT17ARAiKCAKCQ8RTIOZVyar21ZVVwjoH2PzFGYACgjuZo
-W3XEauHD1Msnwe8nYPLdfbE=
-=OBpG
------END PGP SIGNATURE-----
-
---==_Exmh_-787537636P--
+Jesse

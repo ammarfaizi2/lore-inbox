@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267227AbSKPGM2>; Sat, 16 Nov 2002 01:12:28 -0500
+	id <S267231AbSKPGRQ>; Sat, 16 Nov 2002 01:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267228AbSKPGM2>; Sat, 16 Nov 2002 01:12:28 -0500
-Received: from holomorphy.com ([66.224.33.161]:48083 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267227AbSKPGM1>;
-	Sat, 16 Nov 2002 01:12:27 -0500
-Date: Fri, 15 Nov 2002 22:15:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Patrick Finnegan <pat@purdueriots.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Dan Kegel <dank@kegel.com>,
-       john slee <indigoid@higherplane.net>,
+	id <S267232AbSKPGRQ>; Sat, 16 Nov 2002 01:17:16 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:49927 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S267231AbSKPGRO>; Sat, 16 Nov 2002 01:17:14 -0500
+Date: Sat, 16 Nov 2002 04:23:44 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Dan Kegel <dank@kegel.com>
+Cc: john slee <indigoid@higherplane.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Why can't Johnny compile?
-Message-ID: <20021116061534.GE23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Patrick Finnegan <pat@purdueriots.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Dan Kegel <dank@kegel.com>,
-	john slee <indigoid@higherplane.net>,
+Message-ID: <20021116062344.GM16673@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Dan Kegel <dank@kegel.com>, john slee <indigoid@higherplane.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD5DC77.2010406@pobox.com> <Pine.LNX.4.44.0211160059540.16668-100000@ibm-ps850.purdueriots.com>
+References: <3DD5D93F.8070505@kegel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211160059540.16668-100000@ibm-ps850.purdueriots.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <3DD5D93F.8070505@kegel.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Nov 2002, Jeff Garzik wrote:
->> If people want to get rivafb or an ancient ISA net driver building
->> again... patches welcome.  But I don't think calls for the kernel to
->> compile 100 percent of the drivers is realistic or even reasonable.
->> Some of the APIs, particularly SCSI, are undergoing API stabilization.
-[snip]
+Em Fri, Nov 15, 2002 at 09:35:59PM -0800, Dan Kegel escreveu:
+> john slee <indigoid@higherplane.net> wrote:
+> >On Thu, Nov 14, 2002 at 10:58:09PM -0500, Patrick Finnegan wrote:
+> >>It'd be nice if people simply tried compiling a patched kernel (all
+> >>affected modules) before they submitted the patch, I'm betting you'd catch
+> >>a lot of typos.  Also, compiling _everything_, even as a module, at
+> >>least once before sumbitting the patch would probably help.
 
-On Sat, Nov 16, 2002 at 01:04:35AM -0500, Patrick Finnegan wrote:
-> Wouldn't it then seem reasonable to remove things from the kernel that
-> have been broken for a long time, and no one seems to care enough to fix?
-> I know of at least one driver (IOmega Buz v4l) that seems to have fallen
-> into disrepair possibly since before 2.4.0, and as far as I know has not
-> been repaired since then.
+> >thats fine if there is an all-compiling kernel release out there.  right
+> >now 2.5-bk is far from it.  last i checked allmodconfig (a couple of
+> >days ago) there was major breakage all over llc, scsi, video, sound, ...
+> >which kinda masks any breakages you might have introduced. 
 
-A lot of driver writers probably aren't going to even start updating
-until the stable release is released. IIRC there are many vendors etc.
-who focus exclusively on stable kernel releases, and who will let their
-code (e.g. drivers) bitrot the entire way through the development cycle.
+> Hrmph.  Y'know, maybe it's time for us to collectively put our
+> feet down, get 2.5-linus to the point where everything compiles,
+> and keep it there.  After all, we are supposedly trying to
+> *stabilize* 2.5.  It isn't stable if it doesn't compile...
 
-And there is plenty of code that is being updated now for the first
-time since 2.0.x, and some arches that haven't merged since before 2.4.0
+mmkay, I'm working on the "missing symbols problems with llc in allmodconfig"
+But cli/sti will take some more time, I think.
 
-Bill
+- Arnaldo

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312464AbSDQIAF>; Wed, 17 Apr 2002 04:00:05 -0400
+	id <S313826AbSDQICg>; Wed, 17 Apr 2002 04:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313826AbSDQIAE>; Wed, 17 Apr 2002 04:00:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36622 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312464AbSDQIAD>; Wed, 17 Apr 2002 04:00:03 -0400
-Date: Wed, 17 Apr 2002 08:59:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.8-dj1, add 22 help texts to arch/arm/Config.help
-Message-ID: <20020417085954.A1412@flint.arm.linux.org.uk>
-In-Reply-To: <1019004148.16110.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314082AbSDQICf>; Wed, 17 Apr 2002 04:02:35 -0400
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:23717 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S313826AbSDQICd>;
+	Wed, 17 Apr 2002 04:02:33 -0400
+Date: Wed, 17 Apr 2002 08:59:52 +0100
+Message-Id: <200204170759.g3H7xqW02590@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: Robert Love <rml@tech9.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <1019023303.1670.37.camel@phantasy>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 06:54:08PM -0600, Steven Cole wrote:
-> This patch adds 22 help texts to arch/arm/Config.help.
-> The help texts were obtained from ESR's v2.97 Configure.help.
+In article <1019023303.1670.37.camel@phantasy> you wrote:
+> On Wed, 2002-04-17 at 01:34, Linus Torvalds wrote:
+> 
+>> No, it also makes it much easier to convert to/from the standard UNIX time
+>> formats (ie "struct timeval" and "struct timespec") without any surprises,
+>> because a jiffy is exactly representable in both if you have a HZ value
+>> of 100 or 100, but not if your HZ is 1024.
+> 
+> Exactly - this was my issue.  So what _was_ the rationale behind Alpha
+> picking 1024 
 
-Thanks.  It looks fine, apart from a minor case of mailer wrap.
-I'll fix that up and apply it to the ARM->Linus BK tree.
+I seem to remember that this was for allowing True64 unix binaries to run
+as well, those expect HZ to be 1024.....
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+But when you distribute the same sections as part of a whole which is a work 
+based on the Program, the distribution of the whole must be on the terms of 
+this License, whose permissions for other licensees extend to the entire whole,
+and thus to each and every part regardless of who wrote it. [sect.2 GPL]

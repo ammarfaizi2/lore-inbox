@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTIZCE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 22:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTIZCE3
+	id S261351AbTIZC0r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 22:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTIZC0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 22:04:29 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:21142
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S262331AbTIZCE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 22:04:28 -0400
-Date: Thu, 25 Sep 2003 22:04:42 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SGI linux 2.4 console driver patch
-Message-ID: <20030926020442.GN22041@kurtwerks.com>
-References: <200309251602.h8PG2FA22790@attica.americas.sgi.com>
-Mime-Version: 1.0
+	Thu, 25 Sep 2003 22:26:47 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:21150 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261351AbTIZC0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 22:26:46 -0400
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
+	<m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 26 Sep 2003 11:25:07 +0900
+In-Reply-To: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <buooex8477g.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309251602.h8PG2FA22790@attica.americas.sgi.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.20-xfs
-X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Pat Gefre:
+ebiederm@xmission.com (Eric W. Biederman) writes:
+> ARCH is barely distributed and architecturally it makes distributed
+> merging hard.
 
-Worked like a charm. ;-)
+Are you are kidding?  Arch is _insanely_ good at handling both
+distributed repositories and merging -- those are if anything its
+greatest strengths.  Everyday development of tla (the latest/greatest
+arch implementation) involves many people with their own repositories,
+merging back and forth.
 
-K
+Really, if you have explicit complaints/observations about arch's
+handling of these things, please share them, because on the surface
+that statement just seems kind of bizarre.
+
+-Miles
 -- 
-"Beware of bugs in the above code; I have only proved it correct, not
-tried it."
-		-- Donald Knuth
+`The suburb is an obsolete and contradictory form of human settlement'

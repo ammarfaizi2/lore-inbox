@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264903AbSKNO5m>; Thu, 14 Nov 2002 09:57:42 -0500
+	id <S264907AbSKNPCi>; Thu, 14 Nov 2002 10:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbSKNO5m>; Thu, 14 Nov 2002 09:57:42 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:3339 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S264903AbSKNO5l>;
-	Thu, 14 Nov 2002 09:57:41 -0500
-Date: Thu, 14 Nov 2002 18:03:42 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module parameters reimplementation 0/4
-Message-ID: <20021114150325.GA313@pazke.ipt>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <20021114032456.3337E2C057@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
-Content-Disposition: inline
-In-Reply-To: <20021114032456.3337E2C057@lists.samba.org>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17 
+	id <S264915AbSKNPCi>; Thu, 14 Nov 2002 10:02:38 -0500
+Received: from windsormachine.com ([206.48.122.28]:63751 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S264907AbSKNPCh>; Thu, 14 Nov 2002 10:02:37 -0500
+Date: Thu, 14 Nov 2002 10:09:24 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Jani Averbach <jaa@cc.jyu.fi>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How do I re-activate IDE controller (secondary channel) after
+ boot?
+In-Reply-To: <Pine.GSO.4.33.0211141655040.19612-100000@tukki.cc.jyu.fi>
+Message-ID: <Pine.LNX.4.33.0211141008480.10843-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Nov 2002, Jani Averbach wrote:
 
---BwCQnh7xodEAoBMC
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, 14 Nov 2002, Mike Dresser wrote:
+>
+> > Don't disable the ide channel, set the hard drive type to none in the
+> > bios, instead of auto.
+>
+> It was set to none. I emphazise that bios will halt if drive is connected
+> in 80G mode, regardless of bios setting (Disabling ide-2 will help,
+> however).
+>
+> I have found 3 different way to boot machine with this hd so far:
+> 1) jumpper drive to 32G mode
+> 2) disable ide-2 channel
+> 3) don't connect disk's cables at all. =)
 
-On =D0=A7=D1=82=D0=B2, =D0=9D=D0=BE=D1=8F 14, 2002 at 03:23:00 +1100, Rusty=
- Russell wrote:
-> Types "short", "ushort", "int", "ulong", "bool", "invbool" etc are
-> implemented pre-canned.  You can define your own, see linux/params.h
-> for how.
-Why not u8, u16, u32 etc ?
+Very odd BIOS, but that's a given.  What happens in case #1?  I thought I
+remembered a way to get the full capacity after Linux has booted up, using
+that method.
 
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---BwCQnh7xodEAoBMC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Mike
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE907tOBm4rlNOo3YgRAliQAKCLLqje2bWKCXb7mtQqC/cmHYASxACfQZki
-sHPxXun5YktkGbVRfshnfLU=
-=9kvx
------END PGP SIGNATURE-----
-
---BwCQnh7xodEAoBMC--

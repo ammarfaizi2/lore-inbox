@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263728AbUDMUNa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 16:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUDMUNa
+	id S263732AbUDMUPe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 16:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDMUPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 16:13:30 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47769 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263730AbUDMUNY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 16:13:24 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Adrian Bunk <bunk@fs.tum.de>, Meelis Roos <mroos@linux.ee>
-Subject: Re: [2.4 IDE PATCH] SanDisk is flash (fwd)
-Date: Tue, 13 Apr 2004 22:12:11 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20040413195344.GA523@fs.tum.de>
-In-Reply-To: <20040413195344.GA523@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 13 Apr 2004 16:15:34 -0400
+Received: from mail.tmr.com ([216.238.38.203]:36881 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S263732AbUDMUPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 16:15:32 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: message queue limits
+Date: Tue, 13 Apr 2004 16:16:10 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c5hhkn$gss$1@gatekeeper.tmr.com>
+References: <407A2DAC.3080802@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404132212.11481.bzolnier@elka.pw.edu.pl>
+X-Trace: gatekeeper.tmr.com 1081887191 17308 192.168.12.100 (13 Apr 2004 20:13:11 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <407A2DAC.3080802@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 of April 2004 21:53, Adrian Bunk wrote:
-> The patch forwarded below by Meelis Roos was already included in
-> 2.4.26-rc. It does apply against 2.6, too, so I assume it should also be
-> added there?
+Ulrich Drepper wrote:
+> Something has to change in the way message queues are created.
+> Currently it is possible for an unprivileged user to exhaust all mq
+> slots so that only root can create a few more.  Any other unprivileged
+> user has no change to create anything.
+> 
+> I think it is necessary to create a per-user limit instead of a
+> system-wide limit.
 
-Some time ago I sent mail to Meelis asking if this patch is really necessary.
-No answer yet.
+I think you mean "in addition to" rather than "instead of" here, one 
+limit would keep one user from hogging the resource, the other would 
+keep the resource from exhausting {whatever runs out first}.
 
-> cu
-> Adrian
->
->
-> ----- Forwarded message from Meelis Roos <mroos@linux.ee> -----
->
-> Date:	Thu, 1 Apr 2004 21:26:13 +0300 (EEST)
-> From: Meelis Roos <mroos@linux.ee>
-> To: Linux Kernel list <linux-kernel@vger.kernel.org>
-> Subject: [2.4 IDE PATCH] SanDisk is flash
->
-> This is self-explanatory - former SunDisk renamed itself to SanDisk and
-> now there are flash disks with both names.
-
-Please excuse me but I am dumb... ;-)
-
-Does this mean that CF test fail or that SunDisk is SanDisk now?
-
-id->config == 0x848a test was introduced in kernel 2.3.27 _after_
-SunDisk model name test and if id->config == 0x848a test fails
-comment to drive_is_flashcard() needs fixing.
-
-> ===== drivers/ide/ide-probe.c 1.21 vs edited =====
-> --- 1.21/drivers/ide/ide-probe.c	Mon Nov 24 00:05:18 2003
-> +++ edited/drivers/ide/ide-probe.c	Thu Apr  1 21:15:22 2004
-> @@ -102,7 +102,8 @@
->  		if (id->config == 0x848a) return 1;	/* CompactFlash */
->  		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
->
->  		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
->
-> -		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* SunDisk */
-> +		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
-> +		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
->
->  		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
->  		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
->  		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

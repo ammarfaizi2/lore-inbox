@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276973AbRJHP6r>; Mon, 8 Oct 2001 11:58:47 -0400
+	id <S276968AbRJHQBg>; Mon, 8 Oct 2001 12:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276968AbRJHP6g>; Mon, 8 Oct 2001 11:58:36 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14090 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S276966AbRJHP63>; Mon, 8 Oct 2001 11:58:29 -0400
-Date: Mon, 8 Oct 2001 11:54:00 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Breaking system configuration in stable kernels
-Message-ID: <Pine.LNX.3.96.1011008113808.27023A-100000@gatekeeper.tmr.com>
+	id <S272818AbRJHQB3>; Mon, 8 Oct 2001 12:01:29 -0400
+Received: from znx208-2-156-006.znyx.com ([208.2.156.6]:39698 "EHLO
+	rollsroyce.znyx.com") by vger.kernel.org with ESMTP
+	id <S276966AbRJHQBQ>; Mon, 8 Oct 2001 12:01:16 -0400
+Message-ID: <3BC1CEB5.8060703@znyx.com>
+Date: Mon, 08 Oct 2001 09:05:09 -0700
+From: Bob Miller <bob.miller@znyx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-21mdk i686; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@transmeta.com, kaos@ocs.com.au
+CC: linux-kernel@vger.kernel.org, jamal.hadi@znyx.com
+Subject: Possible change to ./scripts/split-include.c
+X-MIMETrack: Itemize by SMTP Server on rollsroyce/Znyx(Release 5.0.7 |March 21, 2001) at
+ 10/08/2001 09:04:52 AM,
+	Serialize by Router on rollsroyce/Znyx(Release 5.0.7 |March 21, 2001) at 10/08/2001
+ 09:04:56 AM,
+	Serialize complete at 10/08/2001 09:04:56 AM
+Content-Type: multipart/mixed;
+ boundary="------------080701070201080606040908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I've beaten this dead horse before, but Linux will not look to
-management like a viable candidate for default o/s until whoever releases
-new versions of *stable* kernel series with cosmetic changes which break
-existing systems running earlier releases of the same stable kernel
-series.
+This is a multi-part message in MIME format.
+--------------080701070201080606040908
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 
-  The last time I complained, it was about changing the name of a module
-itself, this time the names of the parameters of modules have been
-changed. Couldn't that have waited for 2.5, or for-bloody-ever? The names
-of the parameters to the cmpci module were changed, for example from
-"fm_io" to "fmio" which prevents the module from loading with a newer
-kernel. And if the "options" line in modules.conf is changed, then it
-won't load with older kernels. Maybe I'm to only one who has to roll back
-out of a new release?
+We are using CVS to keep track of the Linux kernels.  I am trying to 
+solve a problem where split-include clobbers our CVS directory under 
+./include/config.  I made a small change to split-include.c that only 
+finds files that are header files(.h).   However, I am unsure of the 
+history of split-include, and am concerned about possible side effects.
 
-  This is serious, because the module can't be loaded by hand if
-modules.conf has invalid parameters. So loading would have to be moved to
-rc.local, and done with correct parameters, which eliminates demand
-loading of the module. PITA when sound is only loaded to play a message to
-the operator to change the backup media.
+If this change is reasonable, could you consider merging it into future 
+kernels.  Attached is a diff -u for the change to split-include.c
 
-  I love getting problems like this on my vacation, I'm pissed, and I
-really think it indicates a lack of attention to detail. I think I saw
-this in another module while doing a quick diff and grep, but it should be
-in any modules. Cosmetic changes which impact users can wait, even
-including fixes in spelling in error messages, since people *do* grep logs
-for them. Grrr!
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Thanks,
+Bob Miller
+bobm@znyx.com
+
+
+
+
+
+--------------080701070201080606040908
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ name="afile-1"
+Content-Disposition: inline;
+ filename="afile-1"
+
+--- split-include.c,orig	Fri Oct  5 08:34:34 2001
++++ split-include.c	Fri Oct  5 08:42:53 2001
+@@ -188,7 +188,7 @@
+      * So by having an initial \n, strstr will find exact matches.
+      */
+ 
+-    fp_find = popen("find * -type f -print", "r");
++    fp_find = popen("find * -type f -name \"*.h\" -print", "r");
+     if (fp_find == 0)
+ 	ERROR_EXIT( "find" );
+ 
+
+
+--------------080701070201080606040908--
 

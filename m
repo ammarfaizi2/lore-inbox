@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263115AbREWO5F>; Wed, 23 May 2001 10:57:05 -0400
+	id <S263118AbREWPCP>; Wed, 23 May 2001 11:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263116AbREWO4z>; Wed, 23 May 2001 10:56:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:21521 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263115AbREWO4w>;
-	Wed, 23 May 2001 10:56:52 -0400
-Date: Wed, 23 May 2001 16:55:57 +0200
-From: Andi Kleen <ak@suse.de>
-To: =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sk_buff destructor in 2.2.18
-Message-ID: <20010523165557.A25277@gruyere.muc.suse.de>
-In-Reply-To: <20010523161654.C7531@pc8.lineo.fr> <20010523162739.A24463@gruyere.muc.suse.de> <20010523163758.C7823@pc8.lineo.fr> <20010523164036.A24809@gruyere.muc.suse.de> <20010523165028.A7917@pc8.lineo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010523165028.A7917@pc8.lineo.fr>; from christophe.barbe@lineo.fr on Wed, May 23, 2001 at 04:50:28PM +0200
+	id <S263119AbREWPCG>; Wed, 23 May 2001 11:02:06 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13319 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263118AbREWPCC>; Wed, 23 May 2001 11:02:02 -0400
+Date: Wed, 23 May 2001 10:25:06 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: write drop behind effect on active scanning
+In-Reply-To: <0105231633440L.06233@starship>
+Message-ID: <Pine.LNX.4.21.0105231022060.1874-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 23, 2001 at 04:50:28PM +0200, christophe barbé wrote:
-> I don't know about socket but I allocate myself the skbuff and I set the
-> destructor (and previously the pointer value is NULL). So I don't overwrite
-> a destructor.
-
-That just means you didn't test all cases; e.g. not TCP or UDP send/receive.
 
 
+On Wed, 23 May 2001, Daniel Phillips wrote:
 
+> On Wednesday 23 May 2001 09:33, Marcelo Tosatti wrote:
+> > Hi,
+> >
+> > I just noticed a "bad" effect of write drop behind yesterday during
+> > some tests.
+> >
+> > The problem is that we deactivate written pages, thus making the
+> > inactive list become pretty big (full of unfreeable pages) under
+> > write intensive IO workloads.
+> >
+> > So what happens is that we don't do _any_ aging on the active list,
+> > and in the meantime the inactive list (which should have "easily"
+> > freeable pages) is full of locked pages.
+> >
+> > I'm going to fix this one by replacing "deactivate_page(page)" to
+> > "ClearPageReferenced(page)" in generic_file_write(). This way the
+> > written pages are aged faster but we avoid the bad effect just
+> > described.
+> >
+> > Any comments on the fix ?
 > 
-> I believe net/core/sock.c is not involved in my problem but I can be wrong.
-> What is worrying me is that I don't know who clones my skbuff and why.
+>   page->age = 0 ?
 
-skbuffs are cloned all over the stack for various reasons.
+That would make any full scan through the active list move all dropped
+pages from generic_file_write() to the inactive list.
 
- 
-> To said everything, I know who clones my skbuff because it causes a oops
-> when it tries to free my buffer If I use my destructor.
-
-Because you're mistakely using a private field.
-
-
--Andi

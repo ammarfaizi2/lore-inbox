@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUE2OgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUE2Oh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUE2OgT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 10:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUE2OgS
+	id S264937AbUE2Oh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 10:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUE2Oh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 10:36:18 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:43140 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264297AbUE2OgL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 10:36:11 -0400
-Date: Sat, 29 May 2004 16:36:30 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/44] Support for scroll wheel on Office keyboards
-Message-ID: <20040529143630.GA15136@ucw.cz>
-References: <1079446776784@twilight.ucw.cz> <10794467761141@twilight.ucw.cz> <20040327195535.GA11610@wsdw14.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040327195535.GA11610@wsdw14.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+	Sat, 29 May 2004 10:37:58 -0400
+Received: from smtp.vzavenue.net ([66.171.59.140]:18005 "EHLO
+	smtp.vzavenue.net") by vger.kernel.org with ESMTP id S264937AbUE2OgW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 10:36:22 -0400
+Message-ID: <40B89FE7.5090203@vzavenue.net>
+Date: Sat, 29 May 2004 10:36:23 -0400
+From: Vincent van de Camp <vncnt@vzavenue.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: xfs partition refuses to mount
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Junkmail-Status: score=0/50, host=smtp.vzavenue.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 27, 2004 at 08:55:35PM +0100, Andries Brouwer wrote:
-> On Tue, Mar 16, 2004 at 03:19:36PM +0100, Vojtech Pavlik wrote:
-> 
-> >   input: Add support for scroll wheel on MS Office and similar keyboards.
-> 
-> > +static unsigned char atkbd_scroll_keys[5][2] = {
-> > +	{ ATKBD_SCR_1,     0x45 },
-> > +	{ ATKBD_SCR_2,     0x29 },
-> > +	{ ATKBD_SCR_4,     0x36 },
-> > +	{ ATKBD_SCR_8,     0x27 },
-> > +	{ ATKBD_SCR_CLICK, 0x60 },
-> > +};
-> 
-> Hi Vojtech,
-> 
-> Can you tell me what keyboard model uses these codes?
-> (I have different codes for the scroll wheel on certain MS Office
-> keyboards. See also somewhere below
-> http://www.win.tue.nl/~aeb/linux/kbd/scancodes-5.html#ss5.4 )
+I run a gentoo system, and after updating python 2.3.3-r1, the emerge 
+-DU that was running segfaulted. I had to hard reset the computer and 
+since then the main (and only) partition refuses to mount.
 
-The above codes are completely wrong. I don't know how I figured them
-out, nevertheless, my current tree has them fixed, and they correspond
-to your scancode table.
+The motherboard is an A7N8X Deluxe, with a Western Digital 36GB SATA 
+Raptor drive. Kernel version was 2.6.5. The message:
 
-> Apart from this concrete question - the number of keyboards and
-> mice is very large and growing by the day. I think it is hopeless
-> to try and teach the kernel about all details of each of them.
-> I think we should try to go for a keyboard/mouse definition file
-> maintained in user space and fed to the kernel.
- 
-That's the plan. But you can't describe the scrollwheel functionality
-there.
+XFS mounting filesystem ide2(33,1)
+Starting XFS recovery on filesystem: ide2(33,1) (dev: ide2(33,1))
+XFS assertion failed: *(uint *)dp == XFS_TRANS_HEADER_MAGIC, file: 
+xfs_log_recover.c, line: 1424
+kernel BUG at debug.c:55!
+invalid operand: 0000
+ohci1394 ieee1394 3c59x floppy serial isa-pnp usb-storage hid usb-ohci 
+ehci-hcd usbcore
+CPU:    0
+EIP:    0010:[<c02c4f96>]    Not tainted
+EFLAGS: 00010282
+eax: 00000061   ebx: 00000001   ecx: 00000000   edx: f773c000
+esi: f6d79780   edi: 00000034   ebp: 00000008   esp: f6de7b68
+ds: 0018   es: 0018   ss: 0018
+Process mount (pid: 2689, stackpage=f6de7000)
+Stack: c04180e0 c0414be0 c03ed901 00000590 c029d43e c0414be0 c03ed901 
+00000590
+        f7340720 f7c36260 f6d79774 00000008 c029f6e5 f7340720 f6d79780 
+00000034
+        f6d79780 00000020 f6d7a200 00000001 f7341200 f6de7c24 f73d1070 
+00000011
+Call Trace: [<c029d43e>]  [<c029f6e5>]  [<c02a04d5>]  [<c0308912>] 
+[<c02a0dd4>]  [<c02a0e96>]  [<c02a10a4>]  [<c029735b>]  [<c02a523f>] 
+[<c02b995a>]  [<c02a4782>]  [<c02b953c>]  [<c0294df0>]  [<c02ae54c>] 
+[<c02c4151>]  [<c02c3f80>]  [<c01daea5>]  [<c01db87d>]  [<c01eaedb>] 
+[<c01dbafb>]  [<c01ebcf1>]  [<c01ebf68>]  [<c01ebdef>]  [<c01ec2c8>] 
+[<c01aaab3>]
+Code: 0f 0b 37 00 6f f1 3e c0 83 c4 10 c3 89 f6 8b 0d e0 95 10 c0
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+If there's a separate xfs list, I'll be happy to post it there too.
+
+Thanks,
+Vincent

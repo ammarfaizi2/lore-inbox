@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266775AbUAWX5M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 18:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266788AbUAWX5L
+	id S266787AbUAWXqU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 18:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266788AbUAWXqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 18:57:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17598 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266775AbUAWX5J
+	Fri, 23 Jan 2004 18:46:19 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:65216 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266787AbUAWXqP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 18:57:09 -0500
-Message-ID: <4011B4C8.50908@pobox.com>
-Date: Fri, 23 Jan 2004 18:56:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Fri, 23 Jan 2004 18:46:15 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Pascal Schmidt <der.eremit@email.de>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
+Date: Sat, 24 Jan 2004 00:50:54 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0401240028030.878-100000@neptune.local>
+In-Reply-To: <Pine.LNX.4.44.0401240028030.878-100000@neptune.local>
 MIME-Version: 1.0
-To: mgabriel@ecology.uni-kiel.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: vt6410 in kernel 2.6
-References: <200401222238.09157.mgabriel@ecology.uni-kiel.de> <4011AE4C.5050408@pobox.com> <200401240047.19261.mgabriel@ecology.uni-kiel.de>
-In-Reply-To: <200401240047.19261.mgabriel@ecology.uni-kiel.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401240050.54792.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Gabriel wrote:
-> hi jeff,
-> 
-> 
->>>is there any chance of upcoming support for the vt6410 ide/raid chipset
->>>in the 2.6.x kernel? there has been an attempt by via itself, but it only
->>>suits redhat 7.2 kernels and systems, thus it is highly specific. is
->>>there any1 who is working on that?
->>
->>It should already be in there.
-> 
-> 
-> can you tell me the exact kernel-config-option or the menuconfig line? i have 
-> looked for it and couldn't find it. also most of the google hits were 
-> negative. there weren't many, either.
+On Saturday 24 of January 2004 00:29, Pascal Schmidt wrote:
+> On Fri, 23 Jan 2004, Pascal Schmidt wrote:
+> > With this patch applied, I can successfully use a 512 byte sector disc.
+> > However, then inserting a 2048 byte sector disk and trying to fsck it,
+> > I get a dozen of:
+> >
+> > hde: command error: status=0x51 { DriveReady SeekComplete Error }
+> > hde: command error: error=0x70
+> > end_request: I/O error, dev hde, sector 196608
+> > Buffer I/O error on device hde, logical block 24576
+> > lost page write due to I/O error on hde
+> >
+> > Notice how the sector and logical sector numbers are different by a
+> > factor of 8. Shouldn't this be a factor of 4?
+> >
+> > I don't see why this behaves differently than my previous patch, which
+> > shows no such problem.
+>
+> Slightly better patch, but I still don't get why this doesn't work while
+> my first patch does.
 
+Maybe you've tested them differently?
+You can start from your first patch then incrementally:
+apply some changes, check, repeat.
 
-CONFIG_BLK_DEV_GENERIC or CONFIG_SCSI_SATA_VIA should do it.
-
-	Jeff
-
-
+--bart
 

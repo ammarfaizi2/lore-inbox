@@ -1,82 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVBHUiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVBHUkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVBHUiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 15:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVBHUhi
+	id S261548AbVBHUkW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVBHUkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 15:37:38 -0500
-Received: from mailhub2.nextra.sk ([195.168.1.110]:22537 "EHLO toe.nextra.sk")
-	by vger.kernel.org with ESMTP id S261539AbVBHUh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 15:37:28 -0500
-Message-ID: <4209237C.4020901@rainbow-software.org>
-Date: Tue, 08 Feb 2005 21:39:24 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: Matthew Wilcox <matthew@wil.cx>, Jean Delvare <khali@linux-fr.org>,
-       Enrico Bartky <DOSProfi@web.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Maarten Deprez <maartendeprez@scarlet.be>, Greg KH <gregkh@suse.de>
-Subject: Re: M7101
-References: <41DC59A4.1070006@web.de> <20050206152615.1ab7498c.khali@linux-fr.org> <20050206150611.GR20386@parcelfarce.linux.theplanet.co.uk> <20050208141322.A2831@jurassic.park.msu.ru>
-In-Reply-To: <20050208141322.A2831@jurassic.park.msu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Feb 2005 15:40:22 -0500
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:55211 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S261539AbVBHUkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 15:40:05 -0500
+Date: Tue, 8 Feb 2005 21:39:50 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: swsusp logic error?
+Message-ID: <20050208203950.GA21623@cirrus.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Disposition: inline
+X-OS: Debian GNU/Linux 3.1 kernel 2.6.10-1-k7 i686
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+X-Spamtrap: madduck.bogus@madduck.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
-> On Sun, Feb 06, 2005 at 03:06:11PM +0000, Matthew Wilcox wrote:
-> 
->>Looks pretty good to me.  For clarity, I'd change:
->>
->>-	m7101 = pci_scan_single_device(dev->bus, 0x18);
->>+	m7101 = pci_scan_single_device(dev->bus, PCI_DEVFN(3, 0));
-> 
-> 
-> No, it's pretty broken regardless of the change. The integrated devices
-> on ALi southbridges (IDE, PMU, USB etc.) have programmable IDSELs,
-> so using hardcoded devfn is just dangerous. We must figure out what
-> the device number PMU will have before we turn it on.
-> Something like this:
-> 
-> 	// NOTE: These values are for m1543. Someone must verify whether
-> 	// they are the same for m1533 or not.
-> 	static char pmu_idsels[4] __devinitdata = { 28, 29, 14, 15 };
-> 
-> 	...
-> 
-> 	/* Get IDSEL mapping for PMU (bits 2-3 of 0x72). */
-> 	pci_read_config_byte(dev, 0x72, &val);
-> 	devnum = pmu_idsel[(val >> 2) & 3] - 11;
-> 	m7101 = pci_get_slot(dev->bus, PCI_DEVFN(devnum, 0));
-> 	if (m7101) {
-> 		/* Failure - there is another device with the same number. */
-> 		pci_dev_put(m7101);
-> 		return;
-> 	}
-> 
-> 	/* Enable PMU. */
-> 	...
-> 
-> 	m7101 = pci_scan_single_device(dev->bus, PCI_DEVFN(devnum, 0));
-> 	...
 
-In fact, the patch is completely wrong for M1533 south bridge, it will 
-work only with M1543.
-M1533 has different PCI config. register layout - the bit 2 of 0x5F 
-register is not used for enabling/disabling M7101 but for "on-chip 
-arbiter control". M7101 can be enabled/disabled using bit 6 of 0x5D 
-register... M1533 has also different M7101 registers.
-The best thing about this is that these two M7101s have the same PCI 
-device IDs (0x7101).
-The south bridges have the same PCI IDs too (0x1533 used by both M1533 
-and M1543). But according to the datasheet, M1543 should have revision 
-number at least 0xC0.
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Ondrej Zary
+I am trying to get swsusp working on a 2.6.10 Debian kernel
+(2.6.10-1-686, custom compile, enabling only CONFIG_SOFTWARE_SUSPEND
+and leaving CONFIG_PM_STD_PARTITION empty) on this Sony Vaio Z1RSP
+Centrino 1.7 Pentium M laptop... without much success. Whenever
+I enter swsusp mode, the kernel reports that it cannot find the swap
+space and aborts.
+
+I checked the code and found the following problem:
+
+swsusp_swap_check() calls is_resume_device(..), which compares the
+device specified in CONFIG_PM_STD_PARTITION and overridden by the
+'resume' kernel boot parameter with the list of available swap
+partitions.
+
+IMHO, the problem is not with the swap partitions, but rather with
+the handling of the resume_file variable. A dev_t is just an
+integer, and to compare the devices, is_resume_device(..) converts
+the device node of each swap file to a dev_t, using the MKDEV(..)
+macro. For me, the swap partition is hda2, and MKDEV correctly
+returns the dev_t for 3:2.
+
+However, in is_resume_device, the resume_device variable is 0, which
+translates to the 0:0 device. On inspection, this is no surprise:
+
+resume_device is a static in swsusp.c. However, it is only ever
+written once: in swsusp_read(), which is called to restore a memory
+image from swap. That image can never be created because
+is_resume_device(..) will always fail due to the comparison against
+the (uninitialised) static resume_device.
+
+I tried to rectify the situation by duplicating the line
+
+  resume_device =3D name_to_dev_t(resume_file);
+
+to the beginning of the swsusp_swap_check() function, so that it
+gets set to the dev_t corresponding to the device identified in
+resume_file before is_resume_device(..) is called.=20
+
+However, name_to_dev_t(..) does more than converting a name to the
+dev_t structure... in particular, it crashes the kernel when called
+=66rom swsusp_swap_check(). If I execute
+
+  echo platform >| disk; echo disk >| state
+
+=66rom the shell (zsh), then the kernel will report a crash in the zsh
+process, the top of the trace is
+
+  [<c0134780>] swsusp_swap_check+0x30/0x100
+
+and the corresponding disassembly is available from
+
+  http://rafb.net/paste/results/HV8eCI97.txt
+
+The Code at the bottom of the crash dump is 2.5 lines of 'cc cc
+=2E..', and I am being told that
+
+  <6>zsh[6632] exited with preempt_count 1.
+
+The machine is then pretty much dead. The network interface reports
+too much work at the interrupt, and I can still switch virtual
+consoles, but I cannot type, and sysrq does not work.
+
+Anyway, I have no more time to work on this, unfortunately.
+Hopefully my analysis helps to solve that problem.
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+spamtraps: madduck.bogus@madduck.net
+=20
+"there are two major products that come out of berkeley: lsd and unix.
+ we don't believe this to be a coincidence."
+                                                 -- jeremy s. anderson
+
+--Kj7319i9nmIyA2yE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCCSOWIgvIgzMMSnURAr37AKCwK3u+3E7gp7Wy2M1PWFDEVF09tgCfQ8oV
+JCyZll9ssW0ZKR2AW+mILaE=
+=QzU+
+-----END PGP SIGNATURE-----
+
+--Kj7319i9nmIyA2yE--

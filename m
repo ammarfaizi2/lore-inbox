@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHGK67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUHGLTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUHGK67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 06:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUHGK67
+	id S261405AbUHGLTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 07:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUHGLTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 06:58:59 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:53260 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261451AbUHGK64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 06:58:56 -0400
-Date: Sat, 7 Aug 2004 11:58:54 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Altix I/O code reorganization
-Message-ID: <20040807115854.A17606@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Pat Gefre <pfg@sgi.com>,
-	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <200408060919.20993.jbarnes@engr.sgi.com>
+	Sat, 7 Aug 2004 07:19:39 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:24705 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261405AbUHGLTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 07:19:37 -0400
+Date: Sat, 7 Aug 2004 13:19:33 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040807111933.GA4863@ucw.cz>
+References: <200408071053.i77Aromi006941@burner.fokus.fraunhofer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200408060919.20993.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Fri, Aug 06, 2004 at 09:19:20AM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200408071053.i77Aromi006941@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 09:19:20AM -0700, Jesse Barnes wrote:
-> On Friday, August 6, 2004 6:18 am, Christoph Hellwig wrote:
-> > Yikes, this is truely horrible.  First your patch ordering doesn't make
-> > any sense, with just the first patch applied the system won't work at all.
-> > Please submit a series of _small_ patches going from A to B keeping the
-> > code working everywhere inbetween.
+> >Well, so could you please enlighten the Linux people and say in a couple
+> >of words how it could be done?
 > 
-> Much of this stuff is clearly interdependent (and dependent on PROM changes), 
-> so I don't think that would make sense.
+> 1)	Fetch the Solaris install CD images from:
+> 	http://wwws.sun.com/software/solaris/solaris-express/get.html
 
-It's not.  E.g. hwgraph removal and dma code rework aren't related to hiding
-of lots of interfaces in the firmware at all.
+Grrr!  I wanted you to describe the solution, not how to install Solaris!
 
+You continue asserting that there is some solution to the device numbering
+problem (although most other people believe that the problem is unsolvable)
+and when asked for the solution, you keep pointing in random directions.
+
+So either show a proof (and shouting that some random OS and that everybody
+else should install to find out, is not a proof), or shut up and admit
+that you are wrong.
+
+Also, you still forget to state any valid reason why SCSI-like devices should
+be referred to in a way different from all other devices, which traditionally
+use names of special files.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Nothing is smiple enough to be not screwed up.

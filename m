@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRAZAdf>; Thu, 25 Jan 2001 19:33:35 -0500
+	id <S129169AbRAZAg2>; Thu, 25 Jan 2001 19:36:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131721AbRAZAd0>; Thu, 25 Jan 2001 19:33:26 -0500
-Received: from p3EE3C868.dip.t-dialin.net ([62.227.200.104]:55044 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129172AbRAZAdG> convert rfc822-to-8bit; Thu, 25 Jan 2001 19:33:06 -0500
-Date: Fri, 26 Jan 2001 01:02:02 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 + VM-global + reiserfs + ext3 0.0.5e safe?
-Message-ID: <20010126010202.C9075@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
+	id <S131721AbRAZAgT>; Thu, 25 Jan 2001 19:36:19 -0500
+Received: from cmn2.cmn.net ([206.168.145.10]:29814 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S129169AbRAZAgK>;
+	Thu, 25 Jan 2001 19:36:10 -0500
+Message-ID: <3A70C669.4090800@valinux.com>
+Date: Thu, 25 Jan 2001 17:35:53 -0700
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: x86 PAT errata
+In-Reply-To: <200101251745.SAA07063@harpo.it.uu.se> <94q9ag$9bs$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+H. Peter Anvin wrote:
 
-Short story:
+> Followup to:  <200101251745.SAA07063@harpo.it.uu.se>
+> By author:    Mikael Pettersson <mikpe@csd.uu.se>
+> In newsgroup: linux.dev.kernel
+> 
+>> Before people get too exited about the x86 Page Attribute Table ...
+>> Does Linux use mode B (CR4.PSE=1) or mode C (CR4.PAE=1) paging?
+>> If so, known P6 errata must be taken into account.
+>> In particular, Pentium III errata E27 and Pentium II errata A56
+>> imply that only the low four PAT entries are working for 4KB
+>> pages, if CR4.PSE or CR4.PAE is enabled.
+>> 
+> 
+> 
+> All of the above.  Sounds like PAT should be declared broken on these
+> chips.
+> 
+> 	-hpa
 
-it's again the reiserfs + ext3 issue. I managed to get ext3 and reiserfs
-into the same tree. Is that safe to use without further patching?
+We can do set PAT entry one to be write combined.  Currently it doesn't 
+look like anyone is using write through page mapping anywhere in the 
+kernel (Just PAGE_PWT set).  Am I correct in that assumption?
 
-Long story:
+-Jeff
 
-I have a heavily patched kernel (mostly drivers like I²C, dc390 and
-stuff), among the patches are VM-global-7 by Andrea Arcangeli and
-ReiserFS 3.5.28. After that, I merged ext3 0.0.5e, there were no
-conflicts in buffer code or anything (so I assume my last ext3 merge
-failed for VM-global-7, not for reiserfs). 
-
-However, the old symbol clashes (buffer_journaled and release_journal)
-remain. I used perl to rename these symbols to reiserfs_buffer_journaled
-and reiserfs_release_journal in fs/reiserfs/*.c and
-include/linux/fs_reiserfs.h, cleaned up the Makefile and *.h rejects
-(only "bad context" because reiserfs was already there, and
-prototypes). 
-
-Now, is there any reason for concern the kernel might cause fs
-corruption beyond the risk that EITHER reiserfs OR ext3 ONE BY ITSELF
-infer?
-
-The kernel patched like this compiles without relevant warnings and
-boots up ok, copying from a ro-mounted ext2 to either reiserfs or ext3
-does not cause obvious problems, but is there a potential for failure
-that I can't see at the moment?
-
--- 
-Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

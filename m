@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbTDMSdg (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 14:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbTDMSdg (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 14:33:36 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:7063 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261374AbTDMSdf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 14:33:35 -0400
-Date: Sun, 13 Apr 2003 20:32:23 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id S261387AbTDMSjn (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 14:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbTDMSjn (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 14:39:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19642 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261387AbTDMSjm (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 14:39:42 -0400
+Date: Sun, 13 Apr 2003 19:51:29 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Benefits from computing physical IDE disk geometry?
-Message-ID: <20030413183222.GA1318@marowsky-bree.de>
-References: <200304131407_MC3-1-3441-57C7@compuserve.com> <20030413182405.GG676@gallifrey>
+Message-ID: <20030413185129.GH676@gallifrey>
+References: <200304131407_MC3-1-3441-57C7@compuserve.com> <20030413182405.GG676@gallifrey> <20030413183222.GA1318@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030413182405.GG676@gallifrey>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <20030413183222.GA1318@marowsky-bree.de>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.5.66 (i686)
+X-Uptime: 19:51:07 up 2 days, 37 min,  1 user,  load average: 0.03, 0.09, 0.08
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-04-13T19:24:05,
-   "Dr. David Alan Gilbert" <gilbertd@treblig.org> said:
+* Lars Marowsky-Bree (lmb@suse.de) wrote:
+> 
+> Ah, you have reinvented SCSI (which can copy without involving the host...),
+> or reinvented the Object Based Storage (see Lustre).
 
-> Now given these discs have processors on board isn't it about time
-> someone improved the disc interface standards to push some of the
-> intelligence drivewards?  I guess with enough intelligence the drive
-> could do free block allocation and could do things like copying blocks
-> around for you.
+Gee and I just thought I was being mad.....
 
-Ah, you have reinvented SCSI (which can copy without involving the host...),
-or reinvented the Object Based Storage (see Lustre).
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

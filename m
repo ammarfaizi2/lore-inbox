@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbULQS5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbULQTB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbULQS5q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 13:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbULQS5q
+	id S262114AbULQTB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbULQTBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 13:57:46 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:14230 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262115AbULQS5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 13:57:44 -0500
-Date: Fri, 17 Dec 2004 19:54:03 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-ac16
-Message-ID: <20041217185403.GA4454@electric-eye.fr.zoreil.com>
-References: <1103222616.21920.12.camel@localhost.localdomain> <1103282619.4138.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103282619.4138.21.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Fri, 17 Dec 2004 14:01:55 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.20]:35131 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262114AbULQTBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 14:01:46 -0500
+Date: Fri, 17 Dec 2004 20:01:44 +0100
+Message-Id: <200412171901.iBHJ1iND011249@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 164] m68k: fix incorrect config comment in check_bugs()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> :
-> On Thu, 2004-12-16 at 18:43 +0000, Alan Cox wrote:
-> > o	Acenic must use __devinitdata for hotplug	(Alan Cox)
-> > 	| based on an RH patch
-[...]
->  MODULE_PARM_DESC(tx_ratio, "AceNIC/3C985/GA620 ratio of NIC memory used
-> for TX/RX descriptors (range 0-63)");
-> 
-> 
-> -static char version[] __initdata =
-> +static char version[] __devinitdata =
->    "acenic.c: v0.92 08/05/2002  Jes Sorensen, linux-acenic@SunSITE.dk\n"
->    "http://home.cern.ch/~jes/gige/acenic.html\n";
-> 
-> you broke this one... :-)
-> the version var *cannot* be initdata of any kind, since the ethtool
-> ioctl uses the variable. End Of Story(tm)
+M68k: Fix incorrect config comment in check_bugs()
 
-Episode 2
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Actually ethtool_drvinfo.get_drvinfo() does not use _this_ version var
-in the acenic driver. Btw it would be waaaaay too long for the 32 bytes
-allowed in the misc fields of struct ethtool_drvinfo) (I messed the
-r8169 driver this way).
+--- linux-2.4.29-pre2/arch/m68k/kernel/setup.c	2004-10-08 20:36:40.000000000 +0200
++++ linux-m68k-2.4.29-pre2/arch/m68k/kernel/setup.c	2004-10-10 16:51:05.000000000 +0200
+@@ -607,7 +607,5 @@ void check_bugs(void)
+ 		printk( KERN_EMERG "(see http://no-fpu.linux-m68k.org)\n" );
+ 		panic( "no FPU" );
+ 	}
+-
+-#endif /* CONFIG_SUN3 */
+-
++#endif /* !CONFIG_M68KFPU_EMU */
+ }
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Ueimor
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286934AbSBCMGa>; Sun, 3 Feb 2002 07:06:30 -0500
+	id <S286935AbSBCMQX>; Sun, 3 Feb 2002 07:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286935AbSBCMGU>; Sun, 3 Feb 2002 07:06:20 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:44474 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S286934AbSBCMGQ>;
-	Sun, 3 Feb 2002 07:06:16 -0500
-Date: Sun, 3 Feb 2002 15:03:57 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Erich Focht <focht@ess.nec.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O(1) J9 scheduler: set_cpus_allowed
-In-Reply-To: <Pine.LNX.4.21.0202011633580.6004-100000@sx6.ess.nec.de>
-Message-ID: <Pine.LNX.4.33.0202031502190.10158-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286959AbSBCMQN>; Sun, 3 Feb 2002 07:16:13 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11247 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S286935AbSBCMQE>; Sun, 3 Feb 2002 07:16:04 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020203091345.GA11207@tapu.f00f.org> 
+In-Reply-To: <20020203091345.GA11207@tapu.f00f.org>  <E16WQYs-0003Ux-00@the-village.bc.nu> <m17kpv8amu.fsf@frodo.biederman.org> <20020203080134.C19813@dea.linux-mips.net> 
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 03 Feb 2002 12:16:00 +0000
+Message-ID: <13070.1012738560@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 1 Feb 2002, Erich Focht wrote:
+cw@f00f.org said:
+>  For some hand-held devices (eg. iPAQ), we want as much memory free as
+> possible as the only filesystem available is ramfs...
 
-> Do I understand correctly that there is no clean way right now to
-> change cpus_allowed of a task (except for current)? In the old
-> scheduler it was enough to set cpus_allowed and need_resched=1...
+You took the flash out of your iPAQ? How does it boot?
 
-well, there is a way, by fixing the current mechanizm. But since nothing
-uses it currently it wont get much testing. I only pointed out that the
-patch does not solve some of the races.
+--
+dwmw2
 
-	Ingo
 

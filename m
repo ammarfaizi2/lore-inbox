@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbTIXJVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 05:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTIXJVd
+	id S261157AbTIXJ55 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 05:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbTIXJ55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 05:21:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61874 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261421AbTIXJVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 05:21:31 -0400
-Date: Wed, 24 Sep 2003 11:21:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __make_request() bug and a fix variant
-Message-ID: <20030924092130.GN1321@suse.de>
-References: <20030919231732.7f7874e6.zap@homelink.ru> <20030920113737.GQ21870@suse.de> <20030920193626.31d2b8f5.zap@homelink.ru>
+	Wed, 24 Sep 2003 05:57:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42894 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261157AbTIXJ5z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 05:57:55 -0400
+Date: Wed, 24 Sep 2003 10:57:54 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test5-mm4 boot crash
+Message-ID: <20030924095754.GW7665@parcelfarce.linux.theplanet.co.uk>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <3F716177.6060607@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030920193626.31d2b8f5.zap@homelink.ru>
+In-Reply-To: <3F716177.6060607@aitel.hist.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 20 2003, Andrew Zabolotny wrote:
-> On Sat, 20 Sep 2003 13:37:37 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > I dunno if you were the one posting this issue here some months ago?
-> No, it wasn't me :-)
-> 
-> > Show me a regular kernel path that passes invalid b_reqnext to
-> > __make_request? That would be a bug, indeed, but I've never heard of
-> > such a bug. Most likely it's a bug in your driver, not initialising
-> > b_reqnext.
-> I have been calling bread() which was causing me troubles. bread does
-> not accept a buffer_head from outside, it gets a new one and returns it.
-> So I don't have any control over b_reqnext field - the bug happens
-> inside bread() between these lines:
-> 
-> bh = getblk(dev, block, size);
-> /* here bh_reqnext is already junk. In fact, I partially solved this
->    problem by making my own clone of bread() and setting b_reqnext
->    to NULL right here. But unfortunately, there is no guarantee we'll
->    fix all invalid buffer_heads - maybe some remain in the pool and
->    will be returned to other innocent drivers requesting them. */
-> if (buffer_uptodate(bh))
-> 	return bh;
-> /* and now ll_rw_block will try to merge the bh with those already in
->    the queue, and if it will take the ELEVATOR_NO_MERGE path, bh_reqnext
->    will still remain junk. */
-> ll_rw_block(READ, 1, &bh);
+On Wed, Sep 24, 2003 at 11:18:47AM +0200, Helge Hafting wrote:
+> Unable to handle null pointer deref at virtual address 00000000
+> eip c02b7d1e  eip at md_probe
 
-Looks very odd, there must be a bug elsewhere. What else is junk in the
-bh?
+Oh, boy...  OK, I see what happens and it's _ugly_.  md_probe() is misused
+there big way.  The minimal fix is to revert the cleanup in md_probe() -
+replace
+	int unit = *part;
+with
+	int unit = MINOR(dev);
 
-It follows that if you submit a buffer_head for io, it must be properly
-initialized for io. Nobody complains that if b_blocknr is crap that data
-ends up in the wrong location. Likewise, b_reqnext must be initialized
-to NULL.
 
-> > You can see the initialisor for buffer_heads is
-> > init_buffer_head, which memsets the entire buffer_head. When a
-> > buffer_head is detached from the request list, b_reqnext is cleared
-> > too.
-> Ah, so I was correct that __make_request expects b_reqnext to be already
-> set to NULL. In this case the bug should be somewhere else - in some
-> code that returns buffer_head's back to the pool of buffers.
+However, that is crap solution.  The problem is that md_probe() is called
+directly with bogus arguments - not only part is NULL (which triggers the
+oops), but dev (which is supposed to be dev_t value) is actually mdidx(mddev).
 
-Exactly!
+Cleaner fix follows, but we really need to get the situation with gendisk
+allocations into the sane shape there.  Sigh...
 
-> Interesting that right before the driver crashes in bread() I call
-> grok_partitions. I think the bug is somewhere there. I will do a new
-> debug session at Monday (the code that breaks is at work), so I will
-> post new details if I find any.
-
-Please do.
-
--- 
-Jens Axboe
-
+diff -urN B5-tty_devnum-fix/drivers/md/md.c B5-current/drivers/md/md.c
+--- B5-tty_devnum-fix/drivers/md/md.c	Tue Sep 23 04:16:30 2003
++++ B5-current/drivers/md/md.c	Wed Sep 24 05:44:27 2003
+@@ -1500,6 +1500,7 @@
+ 	mdk_rdev_t *rdev;
+ 	struct gendisk *disk;
+ 	char b[BDEVNAME_SIZE];
++	int unit;
+ 
+ 	if (list_empty(&mddev->disks)) {
+ 		MD_BUG();
+@@ -1591,8 +1592,9 @@
+ 		invalidate_bdev(rdev->bdev, 0);
+ 	}
+ 
+-	md_probe(mdidx(mddev), NULL, NULL);
+-	disk = disks[mdidx(mddev)];
++	unit = mdidx(mddev);
++	md_probe(0, &unit, NULL);
++	disk = disks[unit];
+ 	if (!disk)
+ 		return -ENOMEM;
+ 

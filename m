@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291173AbSBGSXS>; Thu, 7 Feb 2002 13:23:18 -0500
+	id <S291203AbSBGSYs>; Thu, 7 Feb 2002 13:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291193AbSBGSXI>; Thu, 7 Feb 2002 13:23:08 -0500
-Received: from ns.caldera.de ([212.34.180.1]:41908 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S291173AbSBGSW4>;
-	Thu, 7 Feb 2002 13:22:56 -0500
-Date: Thu, 7 Feb 2002 19:22:42 +0100
-Message-Id: <200202071822.g17IMgS14802@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Martin.Wirth@dlr.de (Martin Wirth)
-Cc: akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, rml@tech9.net,
-        nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] New locking primitive for 2.5
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3C629F91.2869CB1F@dlr.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S291193AbSBGSYi>; Thu, 7 Feb 2002 13:24:38 -0500
+Received: from adsl-64-164-18-186.dsl.snfc21.pacbell.net ([64.164.18.186]:65339
+	"HELO switchmanagement.com") by vger.kernel.org with SMTP
+	id <S291192AbSBGSY0>; Thu, 7 Feb 2002 13:24:26 -0500
+Message-ID: <3C62C652.9070903@switchmanagement.com>
+Date: Thu, 07 Feb 2002 10:24:18 -0800
+From: Brian Strand <bstrand@switchmanagement.com>
+Organization: Switch Management
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Michael Cohen <lkml@ohdarn.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] 2.4.18-pre8-mjc: compile errors
+In-Reply-To: <1013073474.3684.3.camel@ohdarn.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C629F91.2869CB1F@dlr.de> you wrote:
-> The new lock uses a combination of a spinlock and a (mutex-)semaphore.
-> You can lock it for short-term issues in a spin-lock mode:
->
->         combi_spin_lock(struct combilock *x)
->         combi_spin_unlock(struct combilock *x)
->
-> and for longer lasting tasks in a sleeping mode by:
->
->         combi_mutex_lock(struct combilock *x)
->         combi_mutex_unlock(struct combilock *x)
+I got some miscellaneous errors/warnings upon compiling (this is with an 
+SMP build, .config is available if needed).  I don't need these modules 
+(I was just doing my standard "compile as much as possible" routine), so 
+I just disabled them and continued on my way.
 
-I think this API is really ugly.  If both pathes actually do the same,
-just with different defaults, one lock function with a flag would be
-much nicer.  Also why do we need two unlock functions?
+gcc -D__KERNEL__ -I/home/bstrand/src/linux-2.4.17/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 
+-fomit-frame-pointeri2c-tsunami.c:35: asm/hwrpb.h: No such file or directory
+i2c-tsunami.c:36: asm/core_tsunami.h: No such file or directory
+gcc -D__KERNEL__ -I/home/bstrand/src/linux-2.4.17/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointergcc 
+-D__KERNEL__ -I/home/bstrand/src/linux-2.4.17/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 
+-fomit-frame-pointeri2c-tsunami.c: In function `writempd':
+i2c-tsunami.c:72: `TSUNAMI_cchip' undeclared (first use in this function)
+i2c-tsunami.c:72: (Each undeclared identifier is reported only once
+i2c-tsunami.c:72: for each function it appears in.)
+i2c-tsunami.c: In function `readmpd':
+i2c-tsunami.c:78: `TSUNAMI_cchip' undeclared (first use in this function)
+i2c-tsunami.c:79: warning: control reaches end of non-void function
+i2c-tsunami.c: In function `i2c_tsunami_init':
+i2c-tsunami.c:156: `hwrpb' undeclared (first use in this function)
+i2c-tsunami.c:156: `ST_DEC_TSUNAMI' undeclared (first use in this function)
+i2c-tsunami.c:160: `TSUNAMI_cchip' undeclared (first use in this function)
 
-What about the following instead:
+gcc -D__KERNEL__ -I/home/bstrand/src/linux-2.4.17/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointerr128_cce.c: 
+In function `r128_cce_packet':
+r128_cce.c:1023: warning: unused variable `size'
+r128_cce.c:1021: warning: unused variable `buffer'
+r128_cce.c:1019: warning: unused variable `dev_priv'
 
-	combi_lock(struct combilock *x, int spin);
-	combi_unlock(struct combilock *x);
+gcc -D__KERNEL__ -I/home/bstrand/src/linux-2.4.17/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointeri810_dma.c: 
+In function `i810_free_page':
+i810_dma.c:296: warning: passing arg 1 of `wake_up_page_Rsmp_4acd422b' 
+makes pointer from integer without a cast
 
-> If a spin_lock request is blocked by a mutex_lock call, the spin_lock
-> attempt also sleeps i.e. behaves like a semaphore.
-> If you gained ownership of the lock, you can switch between spin-mode
-> and mutex-(ie.e sleeping) mode by calling:
->
->         combi_to_mutex_mode(struct combilock *x)
->         combi_to_spin_mode(struct combilock *x)
->
-> without loosing the lock. So you may start with a spin-lock and relax
-> to a sleeping lock if for example you need to call a non-atomic kmalloc.
+Regards,
+Brian
 
-This looks really ugly.  I'd really prefer an automatic fallback from
-spinning to sleeping after some timeout like e.g. solaris adaptive
-mutices.
 
->   * Does it make sense to also provide irq-save versions of the
->     locking functions? This means you could use the unlock functions
->     from interrupt context. But the main use in this situation is
->     completion handling and there are already (new) completion handlers
->     available. So I don't think this is a must have.
-
-You are no supposed to sleep in irq context, so irq-save combi-locks
-don't make that much sense, IMHO.
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTFBFmV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 01:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTFBFmV
+	id S261919AbTFBFxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 01:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTFBFxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 01:42:21 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:44786 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261893AbTFBFmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 01:42:20 -0400
-Subject: Re: [PATCH] include/linux/sysctl.h needs linux/compiler.h
-From: Martin Schlemmer <azarah@gentoo.org>
+	Mon, 2 Jun 2003 01:53:16 -0400
+Received: from h80ad26bd.async.vt.edu ([128.173.38.189]:4736 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261919AbTFBFxP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 01:53:15 -0400
+Message-Id: <200306020606.h5266A4v002522@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: "ismail (cartman) donmez" <kde@myrealbox.com>
-Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306011136.27211.kde@myrealbox.com>
-References: <3ED8D5E4.6030107@cox.net>
-	 <200306010016.05548.kde@myrealbox.com> <3ED93CC6.30200@cox.net>
-	 <200306011136.27211.kde@myrealbox.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054532617.5270.4.camel@workshop.saharacpt.lan>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: About 2.5.70-mm3 
+In-Reply-To: Your message of "Sat, 31 May 2003 23:21:22 +0300."
+             <200305312321.22847.kde@myrealbox.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200305311507.53284.kde@myrealbox.com> <20030531104443.63cb1445.akpm@digeo.com>
+            <200305312321.22847.kde@myrealbox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 02 Jun 2003 07:43:37 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_-1712630272P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Jun 2003 02:06:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-01 at 10:36, ismail (cartman) donmez wrote:
-> On Sunday 01 June 2003 02:37, Kevin P. Fleming wrote:
-> > Oh, I saw that discussion. I fully agree. If I can help the process of
-> > creating a sanitized userspace set of kernel headers I'll be happy to.
-> >
+--==_Exmh_-1712630272P
+Content-Type: text/plain; charset=us-ascii
 
-Well, Redhat do have "sanitized kernel headers", but according to the
-whole thread about glibc being broken, it is not the preferred solution.
+On Sat, 31 May 2003 23:21:22 +0300, "ismail (cartman) donmez" said:
+> On Saturday 31 May 2003 20:44, you wrote:
+> > There's a little hack in there which speeds up the loading of executables:
+> > when someone does a mmap of a file with executable permissions the kernel
+> > will slurp it all into pagecache during the mmap.  That tends to speed up
+> > program loading quite a lot, because the normal demand-loading produces
+> > quite poor I/O patterns.
+> Cool
 
-The solution is to have a set of API headers that userspace can use,
-and that the kernel headers in turn include.
+Yes, *majorly* cool.  Between that tweak and the anticipatory scheduler,
+it makes this laptop even more responsive than stock 2.5.70 was, and less
+prone to hiccups - without -mm3, it was pretty easy to make xmms pause/skip
+by suddenly hitting the disk with I/O.  I've been trying to make it skip
+for an hour, even doing things like launching an X application while running
+an MH 'scan' command on a 7,000 item folder (which involves an open, read,
+close for 7,000 separate files), and that doesn't phase it at all..
 
-Problem now (as usual), is that even though I and a few others did
-offer to help or organise help if one kernel hacker is willing to take
-the lead, nobody responded, so I guess we will not see this any time
-soon.
+> > I had a vague feeling that this code wasn't working actually, and
+> > reimplemented it for -mm4.
+> You do not really feel it in X but on system startup its *quite* impressive.
 
-> > In the meantime, a small change to a kernel header, that provides _zero_
-> > functional difference to the kernel itself (it's only there for source
-> > code checkers, as best I can tell) shouldn't break existing userspace
-> > libraries.
-> Fully ACK.
-> 
+It's noticeable on launching X apps on my laptop, and at boot time, I was
+wondering if my init scripts were scrogged - [OK] after [OK] faster than
+I'd seen before.
 
-Same here, as the "solution" will not be seen any time soon :/
+Amazing work, thanks Andrew (and all the contributors...)
 
+--==_Exmh_-1712630272P
+Content-Type: application/pgp-signature
 
-Regards,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Martin Schlemmer
+iD8DBQE+2ulQcC3lWbTT17ARAiDMAJ4tfjnsJ1/VL+dIMJ5LVPEeO7hd+gCglUuv
+dvdLRpPpUtpGShe7af2LTNo=
+=daPH
+-----END PGP SIGNATURE-----
 
-
+--==_Exmh_-1712630272P--

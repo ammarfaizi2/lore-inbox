@@ -1,120 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269337AbUICHtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUICHvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269337AbUICHtg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbUICHtf
+	id S269347AbUICHvY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUICHtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:49:35 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:44550 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S269328AbUICHtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:49:12 -0400
-Message-ID: <413822FC.8090600@hist.no>
-Date: Fri, 03 Sep 2004 09:53:32 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
+	Fri, 3 Sep 2004 03:49:51 -0400
+Received: from asplinux.ru ([195.133.213.194]:54280 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S269339AbUICHtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:49:33 -0400
+Message-ID: <413824B9.8080600@sw.ru>
+Date: Fri, 03 Sep 2004 12:00:57 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Stuart Young <cef-lkml@optusnet.com.au>
-CC: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Jeremy Allison <jra@samba.org>, Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <20040901205140.GL4455@legion.cup.hp.com> <20040902125417.GA12118@thunk.org> <200409030045.20098.cef-lkml@optusnet.com.au>
-In-Reply-To: <200409030045.20098.cef-lkml@optusnet.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Dmitry Torokhov <dtor_core@ameritech.net>, torvalds@osdl.org,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: INIT hangs with tonight BK pull (2.6.9-rc1+)
+References: <200409030204.11806.dtor_core@ameritech.net>
+In-Reply-To: <200409030204.11806.dtor_core@ameritech.net>
+Content-Type: multipart/mixed;
+ boundary="------------030601090606070406080409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Young wrote:
+This is a multi-part message in MIME format.
+--------------030601090606070406080409
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Thu, 2 Sep 2004 22:54, Theodore Ts'o wrote:
->  
->
->>On Wed, Sep 01, 2004 at 01:51:40PM -0700, Jeremy Allison wrote:
->>    
->>
->>>>So you're saying SCP, CVS, Subversion, Bitkeeper, Apache and rsyncd
->>>>will _all_ lose part of a Word document when they handle it on a
->>>>Window box?
->>>>
->>>>Ouch!
->>>>        
->>>>
->>>Yep. It's the meta data that Word stores in streams that will get lost.
->>>      
->>>
->>And this is why I believe that using streams in application is well,
->>ill-advised.  Indeed, one of my concerns with providing streams
->>support is that application authors may make the mistake of using it,
->>and we will be back to the bad old days (when MacOS made this mistake)
->>where you will need to binhex files before you ftp them (and unbinhex
->>them on the otherside) --- and if you forget, the resulting file will
->>be useless.
->>    
->>
-This is not a problem with multiple streams implemented right - as a 
-directory.
-You don't stay away from directories just because you have to tar
-them in order to put them on ftp sites? ;-)
+> After doing BK pull last night INIT gets stuck in do_tty_hangup after
+> executing rc.sysinit. Was booting fine with pull from 2 days ago...
+> 
+> Anyone else seeing this?
+> 
+> I suspect pidhash patch because it touched tty_io.c, but I have not tried
+> reverting it as it is getting too late here... So I apologize in advance
+> if I am pointing finger at the innocent ;)
 
-Still, you're right that apps using streams jsut for the hell of it is bad.
-That sort of thing happens all the time when something new shows up,
-some people will use it without thinking.
+Oops, you are right. These do_each_task_pid()/while_each_task_pid() do 
+loop 4ever with 'continue' inside.
+Strange, that I haven't faced the problem on my machine before sending 
+the patch... :(
 
->
->At least currently (to my knowledge anyway) all stream support in Windows is 
->data that is not important, and that can be either regenerated from 
->filesystem metadata or (more usually) the main file stream itself.
->
->This sort of data is really where streams excel, by providing a way to access 
->data that would otherwise take time/cpu to regenerate over and over, but that 
->in itself is not indispensable. 
->
-Streams as a cache.
+Sorry for the inconvinience. Patch is inside.
 
->Good examples of this are indexes of data 
->within a document, details of who owns/created/modified the document, common 
->views or reformatting of the data, etc. With audio/video/graphics, you could 
->store lower quality transforms of data (eg: stereo to mono, resolution 
->reduction, thumbnails, etc) in the streams for a file. With a word document, 
->it could be things like an index (assuming it's auto-generated from section 
->headings). With a database, it could be the indexes, and a few views that are 
->expensive time-wise to generate. All of these are easily regenerated from the 
->original data stream, but takes a while. And if you've got the disk, why not 
->use it?
->  
->
-Actually, some if this is bad examples of using streams.
-Why can't that index be stored _in_ the document?
-After all, the word processor is the one who knows the document's
-internal format, how to generate the index, and how to use it.  Well,
-this example is bad anyway as an index can be created so fast from
-a well structured document that there is little need for storing one.
-(Example - see how lyx keeps a live index in the "navigate" menu. . .)
+Kirill
 
-A document format may also contain fields specifying who made it, or
-even a log of who modified it and when. 
+--------------030601090606070406080409
+Content-Type: text/plain;
+ name="diff-pid-sent2-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-pid-sent2-fix"
 
-It seems to me that streams are more useful for stuff that the file's
-main application don't deal with itself.  Such as attaching icons that
-follow the file around.
+--- ./include/linux/pid.h.pid2	2004-09-03 11:52:27.510664040 +0400
++++ ./include/linux/pid.h	2004-09-03 11:40:33.616192496 +0400
+@@ -46,10 +46,10 @@ extern void switch_exec_pids(struct task
+ 		do {
+ 
+ #define while_each_task_pid(who, type, task)				\
+-			task = pid_task((task)->pids[type].pid_list.next,\
+-						type);			\
+-			prefetch((task)->pids[type].pid_list.next);	\
+-		} while (hlist_unhashed(&(task)->pids[type].pid_chain));\
++		} while (task = pid_task((task)->pids[type].pid_list.next,\
++						type),			\
++			prefetch((task)->pids[type].pid_list.next),	\
++			hlist_unhashed(&(task)->pids[type].pid_chain));	\
+ 	}								\
+ 
+ #endif /* _LINUX_PID_H */
 
->If streams were always to be considered volatile, then you could do all sorts 
->of interesting things with them. Any disk cleanup mechanism you have could 
->also reap old streams specifically if the disk gets below a certain amount 
->free. 
->
-That would limit streams to caching use _only_, disks fill occationally
-and we can't have _useful_ stuff disappearing at random.
+--------------030601090606070406080409--
 
-Helge Hafting

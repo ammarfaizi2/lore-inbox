@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261903AbREPMTy>; Wed, 16 May 2001 08:19:54 -0400
+	id <S261234AbREPMVE>; Wed, 16 May 2001 08:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261905AbREPMTo>; Wed, 16 May 2001 08:19:44 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:8722 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261903AbREPMTd>; Wed, 16 May 2001 08:19:33 -0400
-Date: Wed, 16 May 2001 14:18:02 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Jalajadevi Ganapathy <JGanapathy@storage.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel2.2 to kernel2.4!!
-Message-ID: <20010516141802.E902@arthur.ubicom.tudelft.nl>
-In-Reply-To: <OF8E6F662B.FFAB9815-ON85256A4E.00424ECA@storage.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF8E6F662B.FFAB9815-ON85256A4E.00424ECA@storage.com>; from JGanapathy@storage.com on Wed, May 16, 2001 at 08:05:01AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S261905AbREPMUy>; Wed, 16 May 2001 08:20:54 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:15859 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S261234AbREPMUl>; Wed, 16 May 2001 08:20:41 -0400
+Date: Wed, 16 May 2001 14:20:36 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Jonathan Lundell <jlundell@pobox.com>
+cc: Andrew Morton <andrewm@uow.edu.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <p0510033db727cdc4a244@[207.213.214.37]>
+Message-ID: <Pine.LNX.4.33.0105161408570.10700-100000@kenzo.iwr.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 08:05:01AM -0400, Jalajadevi Ganapathy wrote:
-> Hi , I encounter an unresolved symbol __bad_udelay when i ported a network
-> driver from kernel2.2 to 2.4.
-> Could anyone plz tell me what is the corresponding fxn in 2.4??
+On Tue, 15 May 2001, Jonathan Lundell wrote:
 
-It means that you're udelay()ing way to long in that driver. So you
-basically have to fix your driver.
+> >The 2.4 kernel allows you to rename an interface.  So you can build
+> >a little database of (MAC address/name) pairs. Apply this after booting
+> >and before bringing up the interfaces and everything has the name
+> >you wanted, based on MAC address.
+>
+> There's a bit of a catch 22, though, if you don't have unique MAC
+> addresses in the system (across multiple interfaces).
+
+The same situation appears when using bonding.o. For several years,
+Don Becker's (and derived) network drivers support changing MAC address
+when the interface is down. So Al's /dev/eth/<n>/MAC has different values
+depending on whether bonding is active or not. Should /dev/eth/<n>/MAC
+always have the original value (to be able to uniquely identify this card)
+or the in-use value (used by ARP, I believe) ? Or maybe have a
+/dev/eth/<n>/MAC_in_use ?
+
+Sincerely,
+
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

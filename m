@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288277AbSBDD3l>; Sun, 3 Feb 2002 22:29:41 -0500
+	id <S288274AbSBDD2l>; Sun, 3 Feb 2002 22:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288280AbSBDD3W>; Sun, 3 Feb 2002 22:29:22 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:48283 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288277AbSBDD3B>;
-	Sun, 3 Feb 2002 22:29:01 -0500
-Date: Mon, 4 Feb 2002 06:26:44 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [patch] O(1) scheduler, -K2
-Message-ID: <Pine.LNX.4.33.0202040621400.22435-100000@localhost.localdomain>
+	id <S288276AbSBDD2b>; Sun, 3 Feb 2002 22:28:31 -0500
+Received: from femail36.sdc1.sfba.home.com ([24.254.60.26]:33440 "EHLO
+	femail36.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288274AbSBDD2R>; Sun, 3 Feb 2002 22:28:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+Subject: Re: packet_socket = socket(PF_PACKET, int socket_type, int protocol);
+Date: Sun, 3 Feb 2002 22:29:21 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.10.10202032016260.27278-100000@dogbert>
+In-Reply-To: <Pine.SOL.4.10.10202032016260.27278-100000@dogbert>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020204032816.ECZE18592.femail36.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 03 February 2002 09:35 pm, Xinwen - Fu wrote:
+> Rob,
 
-the -K2 O(1) scheduler patch for kernels 2.5.3, 2.4.18-pre7 and 2.4.17 is
-available at:
+> I think you can give a hand to crack these bad guys' machine...
 
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.3-K2.patch
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-K2.patch
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.18-pre7-K2.patch
+Nope, sorry.
 
-the -K2 patch includes fixes, cleanups, performance improvements and
-interactivity improvements.
-
-Bug reports, comments, suggestions are welcome,
-
-	Ingo
-
+Rob

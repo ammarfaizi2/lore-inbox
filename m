@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTICLPI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 07:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTICLPI
+	id S261891AbTICLSO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 07:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbTICLSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 07:15:08 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:54728 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261904AbTICLPF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 07:15:05 -0400
-Date: Wed, 3 Sep 2003 04:14:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       lm@bitmover.com
-Subject: Re: Scaling noise
-Message-ID: <20030903111452.GE10257@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-	lm@bitmover.com
-References: <200309030710.h837AXnR000500@81-2-122-30.bradfords.org.uk> <20030903073858.GB15765@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903073858.GB15765@matchmail.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 3 Sep 2003 07:18:14 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:40452 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S261891AbTICLSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 07:18:10 -0400
+Date: Wed, 3 Sep 2003 12:19:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Jamie Lokier <jamie@shareable.org>
+cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
+In-Reply-To: <20030903073628.GA19920@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.44.0309031141310.1273-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 12:38:58AM -0700, Mike Fedyk wrote:
-> On Wed, Sep 03, 2003 at 08:10:33AM +0100, John Bradford wrote:
-> > boxes, but no Linux image will run on more than $smallnum virtual
-> > CPUs.
+On Wed, 3 Sep 2003, Jamie Lokier wrote:
 > 
-> Which is exactly what Larry is advocating.  Essencially, instead of having
-> one large image covering a large NUMA box, you have several images covering
-> each NUMA node (even if they're in the same box).
+> You will be please to know I have written a complete patch :)
 
-Right, that is indeed what I believe needs to happen.  Instead of spreading
-one kernel out over all the processors, run multiple kernels.  Most of the
-scaling problems go away.  Not all if you want to share memory between 
-kernels but for what John was talking about that is not even needed.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Me too, well, mine wasn't quite complete yet, so I'll switch to
+reviewing yours later instead.  I've not glanced at it so far, but
+what you've said about it leaves no doubt that you got my point.
+
+> That way, there is no need to walk the page table at all unless it's a
+> non-linear mapping (which my patch does handle).
+
+Gosh, I thought it was just a bit of one-up-man-ship from Andrew,
+futex on non-linear!  I doubt anyone really cares about that case.
+
+> Good question.  No kernel code seems to check VM_MAYSHARE - the one to
+> check is VM_SHARED.
+
+No, it should be VM_MAYSHARE (if the behaviour is to depend on
+whether user said MAP_SHARED or not: which is a good starting point,
+but if odd readonly compatibility issues force us away from that
+position, perhaps VM_MAYSHARE won't in the end be the right test).
+
+I agree it's peculiar, I agree (search LKML archives for VM_MAYSHARE)
+that again and again I'm having to make the distinction (I can't pretend
+to explain it, just indicate it), which strongly suggests it should be
+done better.  But that's some other patch, some other time,
+for now use VM_MAYSHARE.
+
+Observe fs/procfs/task_mmu.c show_map checking VM_MAYSHARE for 's'.
+Observe mm/mmap.c do_mmap_pgoff vm_flags &= ~(VM_MAYWRITE | VM_SHARED).
+VM_MAYSHARE reflects whether user chose MAP_SHARED, VM_SHARED may not.
+
+> I added a flag VM_NONLINEAR to distinguish them.
+
+Yes, I had that flag removed while it served no purpose,
+but I'm happy to have it back once it's useful for efficiency.
+
+> I have an obvious fix for mremap(): rehash all the futexes in its
+> range.  That's not in the attached patch, but it will be in the next one.
+
+Will it be worth the code added to handle it?  I wonder the same of
+non-linear (sys_mremap and sys_remap_file_pages, familiar troublemakers).
+But all credit for handling them, good to reduce "undefined behaviour"s.
+
+Hugh
+

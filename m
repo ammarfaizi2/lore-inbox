@@ -1,89 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319398AbSILBY7>; Wed, 11 Sep 2002 21:24:59 -0400
+	id <S319400AbSILBev>; Wed, 11 Sep 2002 21:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319401AbSILBY6>; Wed, 11 Sep 2002 21:24:58 -0400
-Received: from [61.149.34.176] ([61.149.34.176]:16396 "HELO bj.soulinfo.com")
-	by vger.kernel.org with SMTP id <S319398AbSILBY5>;
-	Wed, 11 Sep 2002 21:24:57 -0400
-Date: Thu, 12 Sep 2002 09:19:29 +0800
-From: Hu Gang <hugang@soulinfo.com>
-To: linux-kernel@vger.kernel.org
-Subject: back port piix ide fixup to 2.4.19.
-Message-Id: <20020912091929.285cc8d7.hugang@soulinfo.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.7.8claws9 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S319401AbSILBev>; Wed, 11 Sep 2002 21:34:51 -0400
+Received: from packet.digeo.com ([12.110.80.53]:52142 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319400AbSILBeu>;
+	Wed, 11 Sep 2002 21:34:50 -0400
+Message-ID: <3D7FF3E7.61772A26@digeo.com>
+Date: Wed, 11 Sep 2002 18:54:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pid_max hang again...
+References: <Pine.LNX.4.33.0209111428280.20725-100000@ccvsbarc.wipro.com> <20020911171934.GA12449@win.tue.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2002 01:39:32.0239 (UTC) FILETIME=[3E0C59F0:01C259FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all:
+Andries Brouwer wrote:
+> 
+> ...
+> Again. We have 2^30 = 10^9 pids. In reality there are fewer than 10^4
+> processes. So once in 10^5 pid allocations do we make a scan over
+> these 10^4 processes,
 
-My hardware is "00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)",
-
-In 2.4.19 without this patch, the hdparm can get only ~5M/sec.
-In 2.4.19 with this patch, the hdparm can get data up to 20M/sec.
-
-The old code is in 2.5.34.
-
-Please test it. 
--------
---- drivers/ide/ide-pci.c	Wed Aug  7 19:28:13 2002
-+++ drivers/ide/ide-pci.c.old	Wed Sep 11 13:42:15 2002
-@@ -951,6 +951,42 @@
- 	ide_setup_pci_device(dev2, d2);
- }
- 
-+inline void ide_register_xp_fix(struct pci_dev *dev)
-+{
-+        int i;
-+        unsigned short cmd;
-+        unsigned long flags;
-+        unsigned long base_address[4] = { 0x1f0, 0x3f4, 0x170, 0x374 };
-+
-+        local_irq_save(flags);
-+        pci_read_config_word(dev, PCI_COMMAND, &cmd);
-+        pci_write_config_word(dev, PCI_COMMAND, cmd & ~PCI_COMMAND_IO);
-+        for (i=0; i<4; i++) {
-+                dev->resource[i].start = 0;
-+                dev->resource[i].end = 0;
-+                dev->resource[i].flags = 0;
-+        }                                                                        
-+        for (i=0; i<4; i++) {                                                    
-+                dev->resource[i].start = base_address[i];
-+                dev->resource[i].flags |= PCI_BASE_ADDRESS_SPACE_IO;
-+                pci_write_config_dword(dev,
-+                        (PCI_BASE_ADDRESS_0 + (i * 4)),
-+                        dev->resource[i].start);
-+        }
-+        pci_write_config_word(dev, PCI_COMMAND, cmd);
-+        local_irq_restore(flags);
-+}
-+
-+void __init fixup_device_piix (struct pci_dev *dev, ide_pci_device_t *d)
-+{
-+        if (dev->resource[0].start != 0x01F1)
-+                ide_register_xp_fix(dev);
-+        printk("%s: IDE controller on PCI bus %02x dev %02x\n",
-+                d->name, dev->bus->number, dev->devfn);
-+        ide_setup_pci_device(dev, d);
-+
-+}
-+
- /*
-  * ide_scan_pcibus() gets invoked at boot time from ide.c.
-  * It finds all PCI IDE controllers and calls ide_setup_pci_device for them.
-@@ -977,6 +1013,8 @@
- 		hpt366_device_order_fixup(dev, d);
- 	else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20270))
- 		pdc20270_device_order_fixup(dev, d);
-+        else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_ICH3M))
-+                fixup_device_piix(dev, d);
- 	else if (!IDE_PCI_DEVID_EQ(d->devid, IDE_PCI_DEVID_NULL) || (dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
- 		if (IDE_PCI_DEVID_EQ(d->devid, IDE_PCI_DEVID_NULL))
- 			printk("%s: unknown IDE controller on PCI bus %02x device %02x, VID=%04x, DID=%04x\n",
-
--- 
-		--- Hu Gang
+Inside tasklist_lock?  That's pretty bad from a latency point of
+view.  A significant number of users would take the slower common
+case to avoid this.

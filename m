@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271505AbRHTRuP>; Mon, 20 Aug 2001 13:50:15 -0400
+	id <S268675AbRHTSAf>; Mon, 20 Aug 2001 14:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271510AbRHTRtz>; Mon, 20 Aug 2001 13:49:55 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10798 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S271505AbRHTRtn>; Mon, 20 Aug 2001 13:49:43 -0400
-To: "Kevin Krieser" <kkrieser_list@footballmail.com>
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: Re: Swap size for a machine with 2GB of memory
-In-Reply-To: <NDBBLFLJADKDMBPPNBALEEKBFCAA.kkrieser_list@footballmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Aug 2001 11:42:38 -0600
-In-Reply-To: <NDBBLFLJADKDMBPPNBALEEKBFCAA.kkrieser_list@footballmail.com>
-Message-ID: <m1ofpamxv5.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S268916AbRHTSA0>; Mon, 20 Aug 2001 14:00:26 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:32776 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268675AbRHTSAS>;
+	Mon, 20 Aug 2001 14:00:18 -0400
+Message-Id: <200108200211.GAA00342@mops.inr.ac.ru>
+Subject: Re: Problems with kernel-2.2.19-6.2.7 from RH update for 6.2
+To: dyp@perchine.COM (Denis Perchine)
+Date: Mon, 20 Aug 2001 06:11:40 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010819150344.AFC87204DB@mx.webmailstation.com> from "Denis Perchine" at Aug 19, 1 10:15:00 pm
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kevin Krieser" <kkrieser_list@footballmail.com> writes:
+Hello!
 
-> I was just experimenting on my personal Linux computer this weekend, which
-> has 512MB of RAM and 700MB of swap.  I also have an unpatched 2.4.8 kernel
-> installed.
+> socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 40
+> fcntl(40, F_GETFL)                      = 0x2 (flags O_RDWR)
+> fcntl(40, F_SETFL, O_RDWR|O_NONBLOCK)   = 0
+> setsockopt(40, SOL_SOCKET, SO_LINGER, [1], 8) = 0
+> connect(40, {sin_family=AF_INET, sin_port=htons(2030), 
+> sin_addr=inet_addr("127.0.0.1")}}, 16) = -1 EINPROGRESS (Operation now in 
+> progress)
+> select(41, NULL, [40], NULL, {180, 0})  = 1 (out [40], left {180, 0})
+> getsockopt(40, SOL_SOCKET, SO_ERROR, [0], [4]) = 0
+> select(41, [40], NULL, NULL, {180, 0})  = 1 (in [40], left {175, 550000})
+> ioctl(4, FIONREAD, [0])                 = 0
+> select(41, [40], NULL, NULL, {180, 0})  = 1 (in [40], left {180, 0})
+> recv(4, 0x806aa28, 1, 0x4000)           = -1 EAGAIN (Resource temporarily 
+> unavailable)
 > 
-> I wrote a program that allocated 700MB of RAM and touched every page, then
-> read it back in.  When finished, there remained 250+ meg of swap in use, but
-> no corresponding free space in RAM, compared to before running my test
-> program.  The expected behavior of the 2.4 kernels seemed to be followed,
-> where many programs retained space in both RAM and swap.
+> As far as you can see select say that socket is writable after connect. This 
+> mean that connection is completed... But later before read we do select on 
+> read, and get OK. But recv fails with EAGAIN. This situation is repeated 
+> constantly. The program stucks in the loop trying to connect, but fails.
+> 
+> Any ideas what can this be?
 
-This was even the behavior in 2.0, and 2.2.  2.4 can simply be more
-aggressive about it.  What this sounds like is that, your program
-pushed 250MB of other programs into swap.  The programs were the
-reread into memory when it was done, and their location in swap was
-remembered so that if they were ever pushed into swap again they could
-just be dropped from memory, and not need to be written out.
+F.e. this can be recv() on wrong descriptor, which is seen from strace above.
+:-)
 
-As long as you don't have problems where you can't run your program
-multiple times in a row, 2.4 sounds like is is behaving correctly and
-sanely.
 
-> However, since my normal behavior is for swap to not be used, I will wait a
-> little bit for some of the VM updates to be tested.
+BTW why do you use funny getsockopt instead of canonical non-blocking connect?
+Does standard way have some drawbacks or it is just legal desire
+to "think different"? :-) The question is very interesting: it is big puzzle
+for me what does motivate people to invent such strange combinations
+of selct/ioctl/getsockopt (f.e. qmail did another bizarre thing:
+getpeername() in the place where you use getsockopt(), so strace
+looks like a shizophrenic dialogue to itself: "I am Bob!", ...
+"Am I really Bob?" ... "Am I still Bob?" and so on for 3 minutes. :-))
 
-Are you saying something is wrong?
+And the second note: the whole sequence is equivalent to plain blocking
+connect, only with lots of overhead. In all the OSes standard connect timeout
+is of order 2-4 minutes. Yes, Linux-2.2 is unfortunate exception (13 minutes),
+but the difference is purely quantitative yet and for any installation
+this should be changed to smaller value via sysctl in any case.
+Seems, no reasons to worry.
 
-> I don't have 2X RAM because when I installed my system, I only had 256MB of
-> RAM.
-
-This is not a requirement but is a requirement to have swap > mem if
-you are swapping heavily and want good performance.  
-
-Eric
+Alexey

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVBPIaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVBPIf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVBPIaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 03:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBPIaw
+	id S261958AbVBPIf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 03:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBPIf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 03:30:52 -0500
-Received: from mail1.upco.es ([130.206.70.227]:38101 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261945AbVBPIan (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 03:30:43 -0500
-Date: Wed, 16 Feb 2005 09:30:40 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-Message-ID: <20050216083040.GB22816@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050214211105.GA12808@elf.ucw.cz> <1108500194.12031.21.camel@elrond.flymine.org> <42126506.8020407@colitti.com> <200502160141.11633.alistair@devzero.co.uk> <20050216015418.GC13753@elf.ucw.cz> <1108522024.3712.44.camel@desktop.cunningham.myip.net.au>
+	Wed, 16 Feb 2005 03:35:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38366 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261958AbVBPIfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 03:35:51 -0500
+Date: Wed, 16 Feb 2005 08:35:50 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] procfs: Fix sparse warnings
+Message-ID: <20050216083550.GO8859@parcelfarce.linux.theplanet.co.uk>
+References: <200502151455.55711.adobriyan@mail.ru> <20050215115934.GK8859@parcelfarce.linux.theplanet.co.uk> <200502151512.37774.adobriyan@mail.ru> <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1108522024.3712.44.camel@desktop.cunningham.myip.net.au>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 01:47:04PM +1100, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wed, 2005-02-16 at 12:54, Pavel Machek wrote:
-> > > Also, is USB suspend/resume supposed to work? My brief trials involved 
-> > > modprobing the USB HCD modules, which still allowed me to suspend/resume, but 
-> > > my USB mouse was non-functional on resume.
-> > 
-> > Yes, it seems to work quite okay. You may need to unplug/replug
-> > devices after resume, but it should be basically ok.
-> 
-> We still have plenty of people for whom the best option is to build as
-> modules, unload prior to suspending and reload afterwards. It seems to
-> depend on what type your controller is: I do this for uhci_hcd and get
-> fully functional usb post resume (-rc4).
-> 
+On Tue, Feb 15, 2005 at 07:26:18PM +0000, Al Viro wrote:
+> Umm...  Let's do it that way: I'll get carving the sucker up to relatively
+> sane point and post it again (-bird, that is).  Give me until tomorrow
+> morning and then feel free to send stuff my way - I'll merge it and feed
+> upstream when 2.6.11 opens (credited, obviously).
 
-I have no problem for USB "stateless" devices. The real problem is when you
-do a suspend/resume cycle with a *mounted* usb stick or disk. Upon resume,
-the device is found and associated with a diffent block device than before,
-and the previous mount point is stuck forever (well, almost forever).
-Sometime umount -f works, sometime no, but it is quite irritating that I
-need to reboot to have the "good old /dev/sda1" which is in the fstab
-working. 
+Gaack...  My apologies - I've seriously underestimated the amount of RL
+crap, so no, it won't be ready today.  I'll try to do that ASAP, but I can't
+make a good estimate of how much I'll be able to do during the next week.
+Crap...
 
-Romano 
+OK, let's do it that way - send the stuff my way, I'll port it if needed
+and if there are duplicates, your patches win.  FWIW, stuff in fs/* is
+	* a bunch of patches in fs/reiserfs/* (carved up, see R[0-4]-* on
+ftp.linux.org.uk/pub/people/viro)
+	* nfs, nfsd, lockd and net/sunrpc along with them (not carved up
+into sane form and that will be needed to even start talking about merge)
+	* compat_ioctl.c (part of i2c annotations)
+	* fs/hostfs/* (part of UML patches, so that'll a part of further split
+once the things stabilize a bit)
+	* couple of trivial ones - procfs (duplicate of your patch) and
+ncpfs (ncp_request_reply.sign made be32[6])
+	* include-ectomy in a lot of places, but that's not likely to clash
+with your stuff.
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+Most of the mess is in drivers/*, arch/* and (for endianness patches) net/*...

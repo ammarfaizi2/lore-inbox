@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264090AbSIQMZg>; Tue, 17 Sep 2002 08:25:36 -0400
+	id <S264139AbSIQMcH>; Tue, 17 Sep 2002 08:32:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264112AbSIQMZf>; Tue, 17 Sep 2002 08:25:35 -0400
-Received: from mail.pixelwings.com ([194.152.163.212]:43015 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id <S264090AbSIQMZc> convert rfc822-to-8bit;
-	Tue, 17 Sep 2002 08:25:32 -0400
-Date: Tue, 17 Sep 2002 14:30:28 +0200 (CEST)
-From: Clemens Schwaighofer <cs@pixelwings.com>
-X-X-Sender: gullevek@lynx.piwi.intern
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.35 ... ati patches still missing
-Message-ID: <Pine.LNX.4.44.0209171429440.2696-100000@lynx.piwi.intern>
+	id <S264145AbSIQMcG>; Tue, 17 Sep 2002 08:32:06 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:24072 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S264139AbSIQMcF>; Tue, 17 Sep 2002 08:32:05 -0400
+Message-ID: <3D8721FB.70B74C27@aitel.hist.no>
+Date: Tue, 17 Sep 2002 14:37:15 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.35 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Thomas Molina <tmolina@cox.net>
+CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: 2.5 Problem Report Status
+References: <Pine.LNX.4.44.0209162050140.10084-100000@dad.molina>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Molina wrote:
 
-System RH 7.3.94 ((null)) out of the box
+> 14   RAID boot problem          open                  2.5.34
+> 
+This one got fixed in 2.5.34-bk6 and is ok in 2.5.35.
 
-  gcc -Wp,-MD,./.aty128fb.o.d -D__KERNEL__ 
--I/usr/src/kernel/2.5.35/linux-2.5.35/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=aty128fb   -c -o aty128fb.o aty128fb.c
-aty128fb.c:419: unknown field `fb_get_fix' specified in initializer
-aty128fb.c:419: warning: initialization from incompatible pointer type
-aty128fb.c:420: unknown field `fb_get_var' specified in initializer
-aty128fb.c:420: warning: initialization from incompatible pointer type
-aty128fb.c: In function `aty128fb_set_var':
-aty128fb.c:1379: structure has no member named `visual'
-aty128fb.c:1380: structure has no member named `type'
-aty128fb.c:1381: structure has no member named `type_aux'
-aty128fb.c:1382: structure has no member named `ypanstep'
-aty128fb.c:1383: structure has no member named `ywrapstep'
-aty128fb.c:1384: structure has no member named `line_length'
-make[2]: *** [aty128fb.o] Error 1
-make[2]: Leaving directory 
-`/usr/src/kernel/2.5.35/linux-2.5.35/drivers/video'
-make[1]: *** [video] Error 2
-make[1]: Leaving directory `/usr/src/kernel/2.5.35/linux-2.5.35/drivers'
-make: *** [drivers] Error 2
+One may boot from a root RAID-1 now, if it don't
+need to resync.
 
-I still get this errors, and I have to apply the FB / aty patches ...
+The kernel dies within a minute or two 
+if it has to resync a sufficiently big
+raid-1 though - by freezing solid.  Sometimes
+with several 0-order allocation failures first.
+this is a known problem.
 
--- 
-"Der Krieg ist ein Massaker von Leuten, die sich nicht kennen, zum
-Nutzen von Leuten, die sich kennen, aber nicht massakrieren"
-- Paul Valéry (1871-1945)
-mfg, Clemens Schwaighofer                       PIXELWINGS Medien GMBH
-Kandlgasse 15/5, A-1070 Wien                      T: [+43 1] 524 58 50
-JETZT NEU! MIT FEWA GEWASCHEN       -->      http://www.pixelwings.com
+This is made a bit worse by the way later
+kernels also makes shutdown segfault so
+the RAID's cannot be shutdown correctly.
 
+My solution is to always boot 2.5.7 for
+a correct 5-min sync after shutdown, before testing
+a new kernel. :-/
+
+Helge Hafting

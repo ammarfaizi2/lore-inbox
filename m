@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUKNWEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbUKNWQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbUKNWEk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 17:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUKNWEk
+	id S261355AbUKNWQA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 17:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKNWQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 17:04:40 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:13321 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261354AbUKNWEh (ORCPT
+	Sun, 14 Nov 2004 17:16:00 -0500
+Received: from danga.com ([66.150.15.140]:8934 "EHLO danga.com")
+	by vger.kernel.org with ESMTP id S261355AbUKNWPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 17:04:37 -0500
-Date: Sun, 14 Nov 2004 23:04:31 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Spiegel <lkml@happyjack.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with loop devices on 2.6.9
-Message-ID: <20041114220431.GA20151@pclin040.win.tue.nl>
-References: <20041112104934.GA1711@midgard.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041112104934.GA1711@midgard.comcast.net>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sun, 14 Nov 2004 17:15:52 -0500
+Date: Sun, 14 Nov 2004 14:15:49 -0800 (PST)
+From: Brad Fitzpatrick <brad@danga.com>
+X-X-Sender: bradfitz@danga.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.9: unkillable processes during heavy IO
+Message-ID: <Pine.LNX.4.58.0411141403040.22805@danga.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 02:49:34AM -0800, Chris Spiegel wrote:
+We have two database servers which freeze up during heavy IO load.  The
+machines themselves are responsible, but the mysqld processes are forever
+locked, unkillable with even kill -9.  I can't restart with MySQL without
+rebooting the machines.
 
->   While playing around with loop mounts on kernel 2.6.9 I managed to get
-> a kernel panic.  After messing around with it I can reproduce the
-> problem reliably.  The sequence I came up with to cause the problem:
-> 
-> mount -o loop /dev/loop/0 /mnt
-> mount -o loop /dev/loop/1 /mnt
-> mount -o loop /dev/loop/2 /mnt
-> mount /dev/loop/0 /mnt -t ext2
-> 
-> Unable to handle kernel paging request at virtual address 98858a6f
->  printing eip:
-> c011345a
-> *pde = 00000000
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in:
-> CPU     0
-> EIP     0060:[<c011345a>]    Not tainted VLI
-> EFLAGS  00010083   (2.6.9)
-> EIP is at do_page_fault+0x99/0x599
-> eax: c9100000   ebx: 65642f3c   ecx: 0000007b   edx: f7d4858b
-> esi: 00000000   edi: c01133c1   ebp: 988589ff   esp: c9100108
-> ds: 007b   es: 007b   ss: 0068
-> Unable to handle kernel NULL pointer dereference at virtual address 00000070
->  printing eip:
-> c011345a
-> *pde = 00000000
+I can reasonable rule out hardware, since this is happening in the
+same way on two identical machines.
 
-I do not see precisely the same - but I do not use devfs.
-What happens for me is: the "mount -o loop /dev/loop0 /mnt"
-takes the first unused loop device, /dev/loop0, and then
-does "losetup /dev/loop0 /dev/loop0", and then does mount.
-But there is a loop in the loop devices and the kernel dies in
-infinite recursion.
+I'd like to know how I can debug this, to file a proper bug report.
 
-The easiest fix is saying "don't do that then".
-But, on the other hand, maybe it is reasonable to add a check.
-Hope to send a patch later this evening.
+The hardware/software stack is:
 
-Andries
+  - Dual Opteron 246, SMP kernel, w/ NUMA
+  - 9 GB of memory (4GB in one zone, 5GB in the other)
+  - MySQL, running mostly InnoDB, but some MyISAM
+  - MegaRAID raid-10
+  - device mapper
+  - XFS (used as both O_DIRECT from InnoDB and regularly from MyISAM)
+
+At this point I'm going to try changing different variables on
+different machines in order to try and isolate it, but it's a slow
+process.
+
+  - on raw partions, instead of device mapper
+  - ext3 instead of XFS
+  - not using O_DIRECT
+
+"Screenshot":
+
+roast:~# killall -9 mysqld
+roast:~# killall -9 mysqld
+roast:~# ps afx | grep mysqld
+31495 ?        D      0:08 /usr/local/mysql/bin/mysqld --defaults-extra-file=/usr/local/mysql/data/my.cnf --basedir=/usr/local/mysql/ --datadir=/data/mydb --user=root
+--pid-file=/var/run/mysqld/mysqld.pid --skip-locking --port=3306 --socket=/var/run/mysqld/mysqld.sock
+32391 ?        D      0:01 /usr/local/mysql/bin/mysqld --defaults-extra-file=/usr/local/mysql/data/my.cnf --basedir=/usr/local/mysql/ --datadir=/data/mydb --user=root
+--pid-file=/var/run/mysqld/mysqld.pid --skip-locking --port=3306 --socket=/var/run/mysqld/mysqld.sock
+  515 ?        D      0:00 /usr/local/mysql/bin/mysqld --defaults-extra-file=/usr/local/mysql/data/my.cnf --basedir=/usr/local/mysql/ --datadir=/data/mydb --user=root
+--pid-file=/var/run/mysqld/mysqld.pid --skip-locking --port=3306 --socket=/var/run/mysqld/mysqld.sock
+  517 ?        Z      0:00  \_ [mysqld] <defunct>
+
+Next time it hangs like this, how can I get a kernel backtrace or other useful information
+for a certain process?
+
+Thanks!
+
+- Brad
+

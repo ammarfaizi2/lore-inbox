@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbUAaKs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 05:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbUAaKs3
+	id S264510AbUAaLKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 06:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbUAaLKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 05:48:29 -0500
-Received: from pop.gmx.de ([213.165.64.20]:1237 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264498AbUAaKs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 05:48:29 -0500
-X-Authenticated: #4512188
-Message-ID: <401B87F4.5040702@gmx.de>
-Date: Sat, 31 Jan 2004 11:48:20 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Nigel Cunningham <ncunningham@clear.net.nz>, trelane@digitasaru.net,
-       Luke-Jr <luke7jr@yahoo.com>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Software Suspend 2.0
-References: <1075436665.2086.3.camel@laptop-linux> <200401310622.17530.luke7jr@yahoo.com> <1075531042.18161.35.camel@laptop-linux> <20040131064757.GB7245@digitasaru.net> <1075532166.17727.41.camel@laptop-linux> <20040131071619.GD7245@digitasaru.net> <1075534088.18161.61.camel@laptop-linux> <20040131073848.GE7245@digitasaru.net> <1075537924.17730.88.camel@laptop-linux> <401B6F7A.5030103@gmx.de> <1075540107.17727.90.camel@laptop-linux> <401B7312.3060207@gmx.de> <1075542685.25454.124.camel@laptop-linux> <401B86EB.50604@gmx.de>
-In-Reply-To: <401B86EB.50604@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 31 Jan 2004 06:10:54 -0500
+Received: from disk.smurf.noris.de ([192.109.102.53]:9442 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S264510AbUAaLKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 06:10:53 -0500
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Sat, 31 Jan 2004 11:46:06 +0100
+To: linux-kernel@vger.kernel.org
+Subject: BUG: NTPL: waitpid() doesn't return?
+Message-ID: <20040131104606.GA25534@kiste>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
+This partial trace is from Debian's mini-dinstall, which is a
+multithreaded Python script.
 
-> I compiled into kernel /dev/hde5 and put resume2=swap:/dev/hde5 into 
-> kernel paramters at grung.conf. Shouldn't that work?
+What happens here is that it spawns a bunch of threads, then some of
+these fork+execve external programs which they waitpid() for.
 
-It should be "grub.conf", of course.
+Unfortunately, some of these waitpid() calls don't return even though 
+the waited-for process clearly has exited.
 
-Prakash
+This is kernel 2.6.2-rc2, unmodified (except for modularized IDE).
+
+I've kept all the intervening clone() calls in the trace, hopefully
+somebody can shed some light on what might be going on here.
+
+(Imagine random other things happening between all of the following lines.)
+
+31338 execve("/usr/bin/mini-dinstall", ["mini-dinstall"], [/* 12 vars */]) = 0
+31338 rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+31338 execve("/usr/bin/mini-dinstall", ["mini-dinstall"], [/* 12 vars */]) = 0
+31338 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x4018e0c8) = 31339
+31339 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x4018e0c8) = 31340
+31340 clone(child_stack=0x42edbb48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0x42edbc18, {entry_number:6, base_addr:0x42edbbd0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0x42edbc18) = 31345
+31342 clone( <unfinished ...>
+31342 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x416dbc18) = 31346
+31346 execve("/usr/bin/apt-ftparchive", ["apt-ftparchive", "packages", "testing/all"], [/* 12 vars */] <unfinished ...>
+31346 <... execve resumed> )            = 0
+31346 exit_group(0)                     = ?
+31340 --- SIGCHLD (Child exited) @ 0 (0) ---
+31342 waitpid(31346,  <unfinished ...>
+
+This last call never returns.
+
+Any ideas?
+
+NB: When not using strace, the waidpid() call does return;
+unfortunately, it does so with "[Errno 10] No child processes".
+
+-- 
+Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/

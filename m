@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285881AbRLTDAm>; Wed, 19 Dec 2001 22:00:42 -0500
+	id <S285910AbRLTDIN>; Wed, 19 Dec 2001 22:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285899AbRLTDAb>; Wed, 19 Dec 2001 22:00:31 -0500
-Received: from [206.40.202.198] ([206.40.202.198]:30736 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id <S285881AbRLTDAQ>; Wed, 19 Dec 2001 22:00:16 -0500
-Date: Wed, 19 Dec 2001 18:57:34 +0000 (   )
-From: John Heil <kerndev@sc-software.com>
+	id <S285912AbRLTDIC>; Wed, 19 Dec 2001 22:08:02 -0500
+Received: from tierra.ucsd.edu ([132.239.214.132]:28818 "EHLO burn")
+	by vger.kernel.org with ESMTP id <S285910AbRLTDHp>;
+	Wed, 19 Dec 2001 22:07:45 -0500
+Date: Wed, 19 Dec 2001 19:07:16 -0800
 To: "David S. Miller" <davem@redhat.com>
-cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org, linux-aio@kvack.org
 Subject: Re: aio
-In-Reply-To: <20011219.184527.31638196.davem@redhat.com>
-Message-ID: <Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011219190716.A26007@burn.ucsd.edu>
+In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com> <20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.184527.31638196.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 06:45:27PM -0800
+From: Bill Huey <billh@tierra.ucsd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001, David S. Miller wrote:
-
-> Date: Wed, 19 Dec 2001 18:45:27 -0800 (PST)
-> From: "David S. Miller" <davem@redhat.com>
-> To: billh@tierra.ucsd.edu
-> Cc: bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
->     linux-aio@kvack.org
-> Subject: Re: aio
-> 
->    From: Bill Huey <billh@tierra.ucsd.edu>
->    Date: Wed, 19 Dec 2001 18:26:28 -0800
->    
->    The economic inertia of Java driven server applications should have
->    enough force that it is justifyable to RedHat and other commerical
->    organizations to support it regardless of what your current view is
->    on this topic.
-> 
+On Wed, Dec 19, 2001 at 06:45:27PM -0800, David S. Miller wrote:
 > So they'll get paid to implement and support it, and that is precisely
 > what is happening right now.  And the whole point I'm trying to make
 > is that that is where it's realm is right now.
@@ -43,24 +30,26 @@ On Wed, 19 Dec 2001, David S. Miller wrote:
 > If AIO was so relevant+sexy we'd be having threads of discussion about
 > the AIO implementation instead of threads about how relevant it is or
 > is not for the general populace.  Wouldn't you concur?  :-)
-> 
+
+I attribute the lack of technical discussion to the least common denomiator
+culture of the Linux community and not the merits of the actual technical
+system itself. That's what linux-aio@ is for...
+
+And using lkml as a AIO forum is probably outside of the scope of this list
+and group.
+
 > The people doing Java server applets are such a small fraction of the
 > Linux user community.
 
-True for now, but if we want to expand linux into the enterprise and the
-desktop to a greater degree, then we need to support the Java community to
-draw them and their management in, rather than delaying beneficial 
-features until their number on lkml reaches critical mass for a design
-discussion.
+Yeah, but the overall Unix community probably has something different to say
+about that, certainly. Even in BSD/OS, this JVM project I've been working on is
+recognized as one of the most important systems second (probably) only to the
+kernel itself. And, IMO, they have a more balanced view of this language
+system and the value of it economically as a money making platform instead of
+showing off to their peers. It's a greatly anticipated project in all of the
+BSDs.
 
+That's my semi-obnoxious take on it. ;-)
 
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
+bill
 

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275017AbTHLC4O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275019AbTHLC4O
+	id S275007AbTHLCwu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 22:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275010AbTHLCwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:56:14 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:37394 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S275017AbTHLC4N (ORCPT
+	Mon, 11 Aug 2003 22:52:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61625 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S275007AbTHLCws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:56:13 -0400
-Date: Tue, 12 Aug 2003 04:56:10 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2 of 2 - Allow O_EXCL on a block device to claim exclusive use.
-Message-ID: <20030812045610.B1650@pclin040.win.tue.nl>
-References: <E19m2XN-0002BU-00@notabene> <20030811082231.A20077@infradead.org> <16184.18284.969212.342794@gargle.gargle.HOWL>
+	Mon, 11 Aug 2003 22:52:48 -0400
+Date: Mon, 11 Aug 2003 19:46:06 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, yoshfuji@linux-ipv6.org,
+       jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+Subject: Re: virt_to_offset()
+Message-Id: <20030811194606.307a1606.davem@redhat.com>
+In-Reply-To: <16183.56997.123977.527982@napali.hpl.hp.com>
+References: <20030810081529.GX31810@waste.org>
+	<20030810.173215.102258218.yoshfuji@linux-ipv6.org>
+	<20030810013041.679ddc4c.davem@redhat.com>
+	<20030810.180241.71795022.yoshfuji@linux-ipv6.org>
+	<16183.56997.123977.527982@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16184.18284.969212.342794@gargle.gargle.HOWL>; from neilb@cse.unsw.edu.au on Tue, Aug 12, 2003 at 11:48:28AM +1000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 11:48:28AM +1000, Neil Brown wrote:
+On Mon, 11 Aug 2003 11:21:25 -0700
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
-> My first attempt at this did claim before openning.
-> However that didn't work.
-> Some aspects of the bdev that are needed for claiming are not
-> initialised before it is first opened.  In particular, bd_contains,
-> gets set up by do_open.
+> It's a bad choice of name.  X_to_Y() normally implies that X and Y are
+> basically different representations of the same thing (e.g., a page
+> pointer vs. a virtual address).  However, virt_to_pageoff() is a
+> one-way translation, so it's misleading.
 
-Size and structure of partitions are entirely independent of whether
-someone has opened them. Thus, the corresponding bookkeeping must
-not be in struct block_device, which exists only when the device
-is open, but in struct gendisk or so (and only there).
+By your arguments, virt_to_page() is also misnamed.  It is not possible
+to take the page pointer result and use that to get back to the virtual
+address input to virt_to_page().
 
-It is a design mistake to have such stuff in struct block device.
+I think as a first step, it's more important to have consistent names
+for the two translation routines used.
 
+As a secondary step, we can fix virt_to_*() naming, as appropriate.
+
+Ok?

@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbTJRO0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 10:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTJRO0W
+	id S261626AbTJROoH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 10:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJROoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 10:26:22 -0400
-Received: from D714e.d.pppool.de ([80.184.113.78]:47763 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261598AbTJRO0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 10:26:21 -0400
-Subject: Re: Where's the bzip2 compressed linux-kernel patch?
-From: Daniel Egger <degger@fhm.edu>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org, rob@landley.net
-In-Reply-To: <3F90CFE5.5000801@cyberone.com.au>
-References: <200310180018.21818.rob@landley.net>
-	 <3F90CFE5.5000801@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/PpnUPVp30c3q8EvrIyV"
-Message-Id: <1066477155.5606.34.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 18 Oct 2003 13:39:15 +0200
+	Sat, 18 Oct 2003 10:44:07 -0400
+Received: from mail.osdn.com ([66.35.250.105]:18757 "EHLO
+	sc8-osdn-mail.osdn.com") by vger.kernel.org with ESMTP
+	id S261626AbTJROoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 10:44:04 -0400
+From: koala@blooded.org
+To: linux-kernel@vger.kernel.org
+Subject: Mohammed Al-Foudari's ThinkGeek.com Wish List!
+X-Mailer: Spifforific ThinkGeek System OF DOOM! v4.6.011
+Message-Id: <E1AAsJG-0001MZ-00@admin.thinkgeek.com>
+Date: Sat, 18 Oct 2003 10:44:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings!
 
---=-/PpnUPVp30c3q8EvrIyV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mohammed Al-Foudari has created a ThinkGeek.com wish list and 
+has sent this e-mail to you to tell you about it.
 
-Am Sam, den 18.10.2003 schrieb Nick Piggin um 07:30:
+If you think they deserve it, you may follow the link provided below to
+see what they have in their wishlist. You may also select any of the
+items for purchase. Don't worry about buying a double for them, our
+software will tell you what items have already been purchased so that 
+you can avoid being the tenth person to give them a copy of the same book.
 
-> This came up on the list a while back. IIRC the conclusion was that
-> runtime memory usage and speed, and not so significant compression
-> improvement over gzip.
+To view Mohammed's wish list, simply click on (or copy) this URL:
 
-I quick test with a PowerPC kernel and the normal vmlinux image reveals
-that this is nonsense.=20
+    http://www.thinkgeek.com/brain/gimme.cgi?wid=81cfa69a0
 
--rwxr-xr-x    1 root     root      2766490 2003-09-27 22:29 vmlinux
--rwxr-xr-x    1 root     root      1149410 2003-09-27 22:29 vmlinux.gz
--rwxr-xr-x    1 root     root      1062999 2003-09-27 22:29 vmlinux.bz2
+If you have any questions or problems about ThinkGeek's Wish Lists,
+please feel free to drop us a note or give us a call at the address 
+or phone numbers below.
 
-This is a 86411 bytes or 8.1% reduction, seems significant to me...
+Your fellow smart masses,
+Jen, Jon, Scott, Willie, JenH, Chris, Mat, Andy, John & Trevor
 
-Granted, it takes 9 times as long to decompress the kernel and ca. 900kb
-more memory but considering an embedded DSL router I'm working with
-which has 16MB RAM but only 4MB Flash this is certainly worth it. At
-least when the target is an embedded device.
-
---=20
-Servus,
-       Daniel
-
---=-/PpnUPVp30c3q8EvrIyV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/kSZjchlzsq9KoIYRAhRQAKClhBbiqWoA+1lfWSRCcP12wDcBPACg25Fq
-Y1gaUl0YmtCTvTWkpGY+XoM=
-=9yAp
------END PGP SIGNATURE-----
-
---=-/PpnUPVp30c3q8EvrIyV--
-
+ -------------------------------------------------------------
+ ThinkGeek, Inc.                      voice://1-888-GEEK-STUFF
+ 10801 Main Street Suite 700              fax://1-703-293-6292
+ Fairfax, VA 22030                   http://www.thinkgeek.com/
+ -------------------------------------------------------------
+ S  T  U  F  F    F  O  R    S  M  A  R  T    M  A  S  S  E  S
+ 

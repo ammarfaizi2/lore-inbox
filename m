@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269099AbRH0V0M>; Mon, 27 Aug 2001 17:26:12 -0400
+	id <S269158AbRH0VfD>; Mon, 27 Aug 2001 17:35:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269197AbRH0V0C>; Mon, 27 Aug 2001 17:26:02 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:31713 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S269099AbRH0VZt>;
-	Mon, 27 Aug 2001 17:25:49 -0400
-Message-ID: <3B8AB96B.A978392E@osdlab.org>
-Date: Mon, 27 Aug 2001 14:19:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S269119AbRH0Vey>; Mon, 27 Aug 2001 17:34:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2578 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269174AbRH0Vef>; Mon, 27 Aug 2001 17:34:35 -0400
+Date: Mon, 27 Aug 2001 14:31:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: patch-2.4.10-pre1
+In-Reply-To: <Pine.LNX.4.21.0108271633140.7059-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108271421500.7562-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Andrew Theurer <habanero@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        reiserfs-dev@namesys.com
-Subject: Re: Journal Filesystem Comparison on Netbench
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8AA7B9.8EB836FF@namesys.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-
 
-Have you consider using OSDL machines for your testing?
-It probably wouldn't replicate Andrew's systems exactly,
-but we do have [2,4,8]-way systems that could be made
-available for your use.
+On Mon, 27 Aug 2001, Marcelo Tosatti wrote:
+>
+> There have been some reports of x-order allocation failures when you where
+> in Finland. They can be triggered by high IO stress on highmem machines.
+>
+> The following patch avoids that by allowing tasks allocating bounce memory
+> (lowmem) to block on low mem IO, thus applying more "IO pressure" to the
+> lowmem zone. (the lowmem zone is our "IOable memory" anyway, so...)
 
-~Randy
+I'd much rather set this up by splitting up __GFP_IO into two parts (ie
+__GFP_IO and __GFP_IO_BOUNCE), and avoiding have "negative" bits in the
+gfp_mask. That way the bits in gfp_mask always end up increasing things we
+can do, not ever decreasing them.
 
-Hans Reiser wrote:
-> 
-> Please mount with -notails and repeat your results.  ReiserFS can either save
-> you on disk space, or save you on performance, but not both at the same time.
-> That said, it does not surprise me that our locking is coarser than other
-> filesystems, and we will be fixing that in version 4.  Unfortunately we don't
-> have the hardware to replicate your results.
-> 
-> Hans
-> 
-> Andrew Theurer wrote:
-> >
-> > Hello all,
-> >
-> > I recently starting doing some fs performance comparisons with Netbench
-> > and the journal filesystems available in 2.4:  Reiserfs, JFS, XFS, and
-> > Ext3.  I thought some of you may be interested in the results.  Below
-> > is the README from the http://lse.sourceforge.net.  There is a kernprof
-> > for each test, and I am working on the lockmeter stuff right now.  Let
-> > me
-> > know if you have any comments.
-> >
-> > Andrew Theurer
-> > IBM LTC
+Also, your test is really wrong:
+
+	page->zone != &pgdat_list->node_zones[ZONE_HIGHMEM]
+
+is bogus and assumes MUCH too intimate knowledge of there being only one
+particular zone that is "highmem" (think NUMA machines where each node may
+have its own highmem setup). So it SHOULD be something along the lines of
+
+	#ifdef CONFIG_HIGHMEM
+		if (!(gfp_mask & __GFP_HIGHIO) && PageHighMem(page))
+			return;
+	#endif
+
+inside the write case of sync_page_buffers() (we can, and probably should,
+still _wait_ for highmem buffers - but whether we do it inside
+sync_page_buffers() or inside try_to_free_buffers() is probably mostly a
+matter of taste - I won't argue too much with your choice there).
+
+Other than that, the basic approach looks sane, I would just prefer for
+the testing and bits to be done more regularly.
+
+		Linus
+

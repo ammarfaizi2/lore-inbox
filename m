@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVBJTY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVBJTZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVBJTY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 14:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVBJTWX
+	id S261367AbVBJTZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 14:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBJTYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 14:22:23 -0500
-Received: from mail.tmr.com ([216.238.38.203]:5003 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261475AbVBJTTj (ORCPT
+	Thu, 10 Feb 2005 14:24:38 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:8343 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261365AbVBJTWs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 14:19:39 -0500
-Message-ID: <420BB77B.3080508@tmr.com>
-Date: Thu, 10 Feb 2005 14:35:23 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Arjan van de Ven <arjan@infradead.org>,
-       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
-References: <420631BF.7060407@pobox.com><420582C6.7060407@pobox.com> <58cb370e05020607197db9ecf4@mail.gmail.com>
-In-Reply-To: <58cb370e05020607197db9ecf4@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Feb 2005 14:22:48 -0500
+Date: Thu, 10 Feb 2005 20:23:19 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Steve Lee <steve@tuxsoft.com>
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050210192319.GA1864@ucw.cz>
+References: <000001c50f8f$7f420420$8119fea9@pluto>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000001c50f8f$7f420420$8119fea9@pluto>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Sun, 06 Feb 2005 10:03:27 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>Arjan van de Ven wrote:
->>
->>>>I consider it not a new feature, but a missing feature, since otherwise
->>>>user data cannot be accessed in the RAID setups.
->>>
->>>
->>>the same is true for all new hardware drivers and hardware support
->>>patches. And for new DRM (since new X may need it) and new .. and
->>>new ... where is the line?
->>>
->>>for me a deep maintenance mode is about keeping existing stuff working;
->>>all new hw support and derivative hardware support (such as this) can be
->>>pointed at the new stable series... which has been out for quite some
->>>time now..
->>
->>Red herring.
->>
->>2.4.x has ICH5/6 support -- but is missing the RAID support component.
->>
->>We are talking about hardware that is ALREADY supported by 2.4.x kernel,
->>not new hardware.
->>
->>We are also talking about inability to access data on hardware supported
->>by 2.4.x, not something that can easily be ignored or papered over with
->>a compatibility mode.
-> 
-> 
-> the same arguments can be used for crypto support etc.,
-> answer is - use 2.6.x or add extra patches to get 2.4.x working
+On Thu, Feb 10, 2005 at 10:42:15AM -0600, Steve Lee wrote:
 
-It's fix in a sense. The hardware is supported now, just not very well. 
-If an IDE chipset was capable of UDA4 and the driver only allowed UDA2 
-it would be a fix, in this case thehardware is supported partially, the 
-RAID conponent isn't working, and this is the fix.
+> Roman, besides BK being closed source, how exactly is it lacking for
+> your needs?  If what it lacks is a good idea and helps many, Larry and
+> crew might be willing to add whatever it is you need.
+ 
+A feature I lack is 'floating changesets', that would keep always at the
+top of the history, rediffed, remerged and updated as other changesets
+come in.
 
-It is stretching a point, but adding support for all the features of 
-hardware which is currently supported just seems to be a valud operation 
-to me. New crypto feels more like adding a whole new device.
-
-Opinion offered for clarification only, I don't feel strongly on this or 
-crypto, but I do identify because I have hardware with a 2.4 driver and 
-I can't use it unless I give up 2.6.
+I know quilt can do it, but quilt can't do other things I like on bk.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Vojtech Pavlik
+SuSE Labs, SuSE CR

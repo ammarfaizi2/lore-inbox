@@ -1,100 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUIUBmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUIUCH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267469AbUIUBmA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 21:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIUBmA
+	id S267460AbUIUCH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 22:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUIUCH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 21:42:00 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:61892 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S267464AbUIUBls (ORCPT
+	Mon, 20 Sep 2004 22:07:59 -0400
+Received: from relay.pair.com ([209.68.1.20]:30482 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S267460AbUIUCH4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 21:41:48 -0400
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface
-	support
-From: Alex Williamson <alex.williamson@hp.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: acpi-devel@lists.sourceforge.net,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       LHNS list <lhns-devel@lists.sourceforge.net>,
-       Linux IA64 <linux-ia64@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409202020.05776.dtor_core@ameritech.net>
-References: <20040920092520.A14208@unix-os.sc.intel.com>
-	 <200409201812.45933.dtor_core@ameritech.net>
-	 <1095727925.8780.58.camel@mythbox>
-	 <200409202020.05776.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Mon, 20 Sep 2004 19:41:40 -0600
-Message-Id: <1095730900.8780.76.camel@mythbox>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
+	Mon, 20 Sep 2004 22:07:56 -0400
+X-pair-Authenticated: 66.188.111.210
+Message-ID: <414F8CFB.3030901@cybsft.com>
+Date: Mon, 20 Sep 2004 21:07:55 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: BKL backtraces - was: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+References: <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
+In-Reply-To: <20040919122618.GA24982@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-20 at 20:20 -0500, Dmitry Torokhov wrote:
-> On Monday 20 September 2004 07:52 pm, Alex Williamson wrote:
-> > On Mon, 2004-09-20 at 18:12 -0500, Dmitry Torokhov wrote: 
-> > > 
-> > > Hi Anil,
-> > > 
-> > > I obviously failed to deliver my idea :) I meant that I would like add eject
-> > > attribute (along with maybe status, hid and some others) to kobjects in
-> > > /sys/firmware/acpi tree.
-> > > 
-> > 
-> > Dmitry,
-> > 
-> >    See the patch I just posted to acpi-devel and lkml (Subject:
-> > [PATCH/RFC] exposing ACPI objects in sysfs).  It exposes acpi objects as
-> > you describe.   Something simple like:
-> > 
-> >  # cat /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/_EJ0
-> > 
-> > Will call the _EJ0 method on the ACPI device.  You can evaluate eject
-> > dependencies using the _EJD method.
-> > 
-> > 	Alex
-> > 
+Ingo Molnar wrote:
+> i've released the -S1 VP patch:
 > 
-> Alex,
-> 
-> While I think that your patch is very important and should be included (maybe
-> if not as is if somebody has some objections but in some other form) I see it
-> more like developer's tool. I imagined status, HID, eject etc. attributes to
-> be sanitized interface to kernel's data, not necessarily causing re-evaluation.
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
 > 
 
-Dmitry,
+All of these were generated while booting:
 
-   I imagined the sanitized interfaces would be provided via a userspace
-library, similar to how lspci provides a clean interface to all of the
-PCI data.  An "lsacpi" tool could extract the information into something
-more like you suggest.  If you have objects exposed as human
-readable/writable files, I think you'll quickly end up with a _STA
-driver, _HID driver, _CID driver, _ADR driver, _UID driver, _EJx driver,
-etc, etc, etc...  I don't think we want that kind of bloat in the kernel
-(that's what userspace is for ;^).  Providing a solid, direct interface
-to ACPI methods in the kernel seems like the most flexible, powerful
-interface IMHO.  Thanks,
+Sep 20 19:45:10 porky kernel: using smp_processor_id() in preemptible 
+code: modprobe/1019
+Sep 20 19:45:10 porky kernel:  [<c011c58e>] smp_processor_id+0x8e/0xa0
+Sep 20 19:45:10 porky kernel:  [<c013ace6>] module_unload_init+0x46/0x70
+Sep 20 19:45:10 porky kernel:  [<c013ce58>] load_module+0x598/0xb10
+Sep 20 19:45:10 porky kernel:  [<c013d438>] sys_init_module+0x68/0x280
+Sep 20 19:45:10 porky kernel:  [<c01066b9>] sysenter_past_esp+0x52/0x71
 
-	Alex
+The above one of course repeats on each module load.
 
-> So it could be like this:
-> 
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/status
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/removable
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/lockable
-> ..
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/eject
-> 
-> And your raw access to the ACPI methods could reside under raw:
-> 
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/raw/_STA
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/raw/_RNV
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/raw/_LCK
-> ..
-> /sys/firmware/acpi/namespace/ACPI/_SB/LSB0/raw/_EJ0
+Sep 20 19:45:10 porky kernel: using smp_processor_id() in preemptible 
+code: X/1017
+Sep 20 19:45:10 porky kernel:  [<c011c58e>] smp_processor_id+0x8e/0xa0
+Sep 20 19:45:10 porky kernel:  [<c01d6c15>] add_timer_randomness+0x125/0x150
+Sep 20 19:45:10 porky kernel:  [<c01d6c9e>] add_mouse_randomness+0x1e/0x30
+Sep 20 19:45:10 porky kernel:  [<c022b835>] input_event+0x55/0x3f0
+Sep 20 19:45:10 porky kernel:  [<c01151e8>] mcount+0x14/0x18
+Sep 20 19:45:10 porky kernel:  [<c01e559e>] kbd_rate+0x5e/0xc0
+Sep 20 19:45:10 porky kernel:  [<c01e2196>] vt_ioctl+0xe06/0x1ad0
+Sep 20 19:45:10 porky kernel:  [<c014fdcf>] pte_alloc_map+0x9f/0xd0
+Sep 20 19:45:10 porky kernel:  [<c015214b>] handle_mm_fault+0x17b/0x1a0
+Sep 20 19:45:10 porky kernel:  [<c0119440>] do_page_fault+0x1e0/0x621
+Sep 20 19:45:10 porky kernel:  [<c0138759>] sub_preempt_count+0x69/0x80
+Sep 20 19:45:10 porky kernel:  [<c0138759>] sub_preempt_count+0x69/0x80
+Sep 20 19:45:10 porky kernel:  [<c0138512>] check_preempt_timing+0x192/0x200
+Sep 20 19:45:10 porky kernel:  [<c0175034>] sys_ioctl+0xe4/0x240
+Sep 20 19:45:10 porky kernel:  [<c01dbd1e>] tty_ioctl+0xe/0x4d0
+Sep 20 19:45:10 porky kernel:  [<c01151e8>] mcount+0x14/0x18
+Sep 20 19:45:10 porky kernel:  [<c01e1390>] vt_ioctl+0x0/0x1ad0
+Sep 20 19:45:10 porky kernel:  [<c01dc08b>] tty_ioctl+0x37b/0x4d0
+Sep 20 19:45:10 porky kernel:  [<c0175034>] sys_ioctl+0xe4/0x240
+Sep 20 19:45:10 porky kernel:  [<c01066b9>] sysenter_past_esp+0x52/0x71
 
+The X one above repeats once also.
 
+kr

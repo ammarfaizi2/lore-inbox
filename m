@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266998AbTBCXmW>; Mon, 3 Feb 2003 18:42:22 -0500
+	id <S267079AbTBCXqe>; Mon, 3 Feb 2003 18:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbTBCXmW>; Mon, 3 Feb 2003 18:42:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:49169 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266998AbTBCXmU>;
-	Mon, 3 Feb 2003 18:42:20 -0500
-Date: Tue, 4 Feb 2003 00:51:50 +0100
-From: Andi Kleen <ak@suse.de>
-To: jt@hpl.hp.com
-Cc: Andi Kleen <ak@suse.de>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: 32bit emulation of wireless ioctls
-Message-ID: <20030203235150.GA22202@wotan.suse.de>
-References: <15926.60767.451098.218188@harpo.it.uu.se> <20030128212753.GA29191@wotan.suse.de> <15927.62893.336010.363817@harpo.it.uu.se> <20030129162824.GA4773@wotan.suse.de> <15934.49235.619101.789799@harpo.it.uu.se> <20030203194923.GA27997@bougret.hpl.hp.com> <20030203201255.GA32689@wotan.suse.de> <20030203214325.GA28330@bougret.hpl.hp.com> <20030203224619.GA6405@wotan.suse.de> <20030203231740.GA29267@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030203231740.GA29267@bougret.hpl.hp.com>
-User-Agent: Mutt/1.4i
+	id <S267081AbTBCXqe>; Mon, 3 Feb 2003 18:46:34 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37884 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267079AbTBCXqd>;
+	Mon, 3 Feb 2003 18:46:33 -0500
+Message-ID: <3E3F0173.2090206@mvista.com>
+Date: Mon, 03 Feb 2003 15:55:31 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: a code slush for 2.5?
+References: <3E3E21D3.1090402@pobox.com> <20030203103146.GB31198@codemonkey.org.uk>
+In-Reply-To: <20030203103146.GB31198@codemonkey.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 03:17:40PM -0800, Jean Tourrilhes wrote:
-> > Anyways: for me it is just slightly annoying to not have 32bit 
-> > emulation for something, but for other ports like sparc64/ppc64/mips64 
-> > it can be show stopper because they only have 32bit userland.
+Dave Jones wrote:> On Mon, Feb 03, 2003 at 03:01:23AM -0500, Jeff 
+Garzik wrote:
 > 
-> 	<Puzzled of why you would *not* want a 64 bit userland>
-
-Of course I want to have a 64bit userland. In fact I have one.
-
-Just we offer the users the choice to boot 32bit distributions with
-64bit kernels too, in case they only need a single application
-that needs 64bit or similar. I'm also prepared to rip out or ignore
-very obscure parts of the 32bit emulation (in fact I did that already),
-but if it's used commonly or even called in bootup it should be supported.
-
-Short term I will just settle on getting that message away so that
-RedHat users won't bother me anymore. Can you suggest a good way to 
-handle SIOCGIWNAME? Should I just make it return -EINVAL?
-
-> > Expect trouble when DaveM wants to plug a wireless card into one of 
-> > his sparc64 boxes ;-)
+>  > Linux 2.5 is a really exciting leap forward, in a lot a ways.  I'm still 
+>  > hoping someone will draft a "What's new in 2.6?" document, just so we 
+>  > have a nice _long_ list of all the improvements that have been made.
 > 
-> 	I want to see that ;-)
-> 	I've always been telling David and Stephane here that they
-> should loan me an Itanium box to make sure IrDA and Wireless LAN work
-> properly, for the day we will release a PDA with an Itanium processor.
+> Feel free to munge http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> into whatever you were thinking of.  Or send me bits to add to it.
+> 
+> 		Dave
+> 
+Back before halloween Linus said that he only required the code to be 
+in his in box by halloween and that he would continue to move stuff 
+into the kernel post halloween, but would not accept any new features 
+that were not already in his in box.
 
-I understand why you don't see much point to run 32bit on Itanium
-because of the performance.  But that's not a problem on all 64bit ports...
+Has he ever said that he has finished the post halloween processing of 
+these new features?
 
--Andi
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

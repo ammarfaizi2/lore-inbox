@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263102AbSJFAlA>; Sat, 5 Oct 2002 20:41:00 -0400
+	id <S263078AbSJFAhZ>; Sat, 5 Oct 2002 20:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263108AbSJFAlA>; Sat, 5 Oct 2002 20:41:00 -0400
+	id <S263080AbSJFAhZ>; Sat, 5 Oct 2002 20:37:25 -0400
 Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:19925 "EHLO
 	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263102AbSJFAk6>; Sat, 5 Oct 2002 20:40:58 -0400
-Date: Sat, 5 Oct 2002 21:46:14 -0300 (BRT)
+	id <S263078AbSJFAhY>; Sat, 5 Oct 2002 20:37:24 -0400
+Date: Sat, 5 Oct 2002 21:42:52 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Gigi Duru <giduru@yahoo.com>
-cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: The end of embedded Linux?
-In-Reply-To: <20021005205238.47023.qmail@web13201.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44L.0210052144370.22735-100000@imladris.surriel.com>
+To: Nicolas Pitre <nico@cam.org>
+cc: Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       Ben Collins <bcollins@debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <Pine.LNX.4.44.0210051549570.5197-100000@xanadu.home>
+Message-ID: <Pine.LNX.4.44L.0210052142180.22735-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,23 +22,19 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Gigi Duru wrote:
+On Sat, 5 Oct 2002, Nicolas Pitre wrote:
+> On Sat, 5 Oct 2002, Larry McVoy wrote:
+>
+> > > patches in the kernel every day.  Now this isn't possible anymore without
+> >
+> > Nonsense.  There are all sorts of people who have taken the BK trees and
+> > made the patch snapshots available on timely basis.
+>
+> Timely != real time.
 
-> It's not about what I do not do, it's about what YOU
-> do (I'm not talking to you personally, but to the
-> hacker community as a whole). The kernel core didn't
-> jump to 270KB compressed because I didn't do
-> something.
-
-While that is true, you have to keep in mind that the
-kernel size won't go back to 270 kB _unless_ you (or
-other embedded people) do something.
-
-Do you care enough about the problem to help working
-on a solution, or do you only care enough to complain
-but not to fix ? ;)
-
-regards,
+That can be fixed, except for the fact that my script can't
+pull changesets before they've been pushed to the place I
+pull them from ;))
 
 Rik
 -- 

@@ -1,101 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbTJQEbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 00:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTJQEbW
+	id S263301AbTJQEpR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 00:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTJQEpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 00:31:22 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:46297 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263300AbTJQEbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 00:31:20 -0400
-Subject: Re: decaying average for %CPU
+	Fri, 17 Oct 2003 00:45:17 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19328 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263301AbTJQEpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 00:45:13 -0400
+Subject: Re: /proc reliability & performance
 From: Albert Cahalan <albert@users.sf.net>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F8F6020.2040206@cyberone.com.au>
-References: <1066358155.15931.145.camel@cube>
-	 <3F8F5A53.50209@cyberone.com.au> <1066359629.15920.161.camel@cube>
-	 <3F8F6020.2040206@cyberone.com.au>
+To: Brian McGroarty <brian@mcgroarty.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, lm@bitmover.com
+In-Reply-To: <20031017032436.GA17480@mcgroarty.net>
+References: <1066356438.15931.125.camel@cube>
+	 <20031017032436.GA17480@mcgroarty.net>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1066364241.15931.180.camel@cube>
+Message-Id: <1066365074.15931.195.camel@cube>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Oct 2003 00:17:22 -0400
+Date: 17 Oct 2003 00:31:14 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-16 at 23:21, Nick Piggin wrote:
-> Albert Cahalan wrote:
-> >On Thu, 2003-10-16 at 22:56, Nick Piggin wrote:
-> >>Albert Cahalan wrote:
-> >>
-> >>>The UNIX standard requires that Linux provide
-> >>>some measure of a process's "recent" CPU usage.
-> >>>Right now, it isn't provided. You might run a
-> >>>CPU hog for a year, stop it ("kill -STOP 42")
-> >>>for a few hours, and see that "ps" is still
-> >>>reporting 99.9% CPU usage. This is because the
-> >>>kernel does not provide a decaying average.
-> >>>
-> >>I think the kernel provides enough info for userspace to do
-> >>the job, doesn't it?
-> >>
-> >
-> >I'm pretty sure not. Linux provides:
-> >
-> >per-process start time
-> >current time
-> >per-process total (lifetime) CPU usage
-> >units of time measurement (awkwardly)
-> >boot time
+On Thu, 2003-10-16 at 23:24, Brian McGroarty wrote:
+> On Thu, Oct 16, 2003 at 10:07:18PM -0400, Albert Cahalan wrote:
+> > I created a process with 360 thousand threads,
+> > went into the /proc/*/task directory, and did
+> > a simple /bin/ls. It took over 9 minutes on a
+> > nice fast Opteron. (it's the same at top-level
+> > with processes, but I wasn't about to mess up
+> > my system that much)
 > 
-> But your userspace program can calculate deltas in the total
-> CPU statistics. Yep, its in /proc/stat.
+> Are there many cases where the /proc directory
+> contents are read in this fashion?
 
-Huh?
+Sure. Run any of: top, ps, lsof, fuser...
 
-This isn't about "top", which displays % of CPU
-time used over the refresh interval by reading
-all the process data multiple times.
+> I'd be more curious about how performance fares
+> with reading a thousand entries by name with 1k
+> processes and with 360k processes.
 
-This is about programs like "ps", which read
-everything and then spit out the output.
+Judging by the crazy example and the observation
+that an O(n*n) algorithm is involved, directory
+reads on that very fast machine should get annoying
+once you have a few thousand processes. They'd be
+perceptable one-by-one, which adds up when you have
+multiple reads due to scripts, top, or multiple
+users.
 
-I hope you're not suggesting to read things
-twice with a huge sleep(5) in the middle, or
-to run some kind of daemon that polls /proc
-once a second. That's far beyond horrid.
+Anyway, it's not just about performance! That's
+only half of the problem. The other half is
+reliability. The way /proc works is this:
 
-> >>From that you can compute %CPU over the whole
-> >life of the process. This does not meet the
-> >requirements of the UNIX standard.
-> >
-> >What we do for load average is about right,
-> >except that per-process values can't all get
-> >updated at the same time. So the algorithm
-> >needs to be adjusted a bit to allow for that
-> 
-> load average is not CPU load though
+Count tasks as you read them. The number is
+your directory offset. Return a few dozen entries
+at a time. For each read, you'll need to find
+back your place. You do this by counting tasks
+until you reach your offset. Of course, tasks
+will have been created and destroyed between
+reads, so who knows where you'll continue from?
 
-Sure, but the algorithm is pretty close. Put in
-a 1.0 when the CPU is used and a 0.0 when not,
-and you have system-wide %CPU. To make that be
-per-process instead, you need to adjust the
-multiplier to account for a variable amount of
-time since the process last ran. That involves
-fixed-point exponentiation I guess, which might be
-approximated with a polynomial or lookup table.
-
-You can push the last step (only) out into
-user-space, when the last-computed value is
-adjusted for time spent since there last was
-a state change between running and not. I've
-doubts about this being a good idea though,
-since it gives an ABI that prevents future
-changes to the time constants.
+That's simply not reliable.
 
 

@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270420AbTHOQe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbTHOQNI
+	id S270206AbTHOQ5M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267471AbTHOQzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:08 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268702AbTHOQJe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:34 -0400
-Date: Fri, 15 Aug 2003 16:13:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030815141328.GA16176@ucw.cz>
-References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl>
+	Fri, 15 Aug 2003 12:55:17 -0400
+Received: from AMarseille-201-1-4-67.w217-128.abo.wanadoo.fr ([217.128.74.67]:46889
+	"EHLO gaston") by vger.kernel.org with ESMTP id S270013AbTHOQzG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:55:06 -0400
+Subject: Re: [BUG] slab debug vs. L1 alignement
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Philippe Elie <phil.el@wanadoo.fr>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F3D2B96.6060903@wanadoo.fr>
+References: <1060956004.581.13.camel@gaston>  <3F3D2B96.6060903@wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1060966471.643.57.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815135248.GA7315@win.tue.nl>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Aug 2003 18:54:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 03:52:48PM +0200, Andries Brouwer wrote:
-> On Fri, Aug 15, 2003 at 10:46:07PM +1000, Neil Brown wrote:
-> 
-> > It seems to work (though some of the keys actually generate 'down'
-> > events for both the down and up transitions, so it seems that the key
-> > is pressed twice.
-> 
-> Maybe it really is as you say. But your description sounds fishy.
-> It would be nice to know what really happens.
-> (And it would be nice to know which scancodes are involved.)
 
-Indeed. Neil, please enable DEBUG in i8042.c ... both with and without the
-i8042_direct=1 and atkbd_set=3 options from my previous e-mail.
+> Attached untested patch should fix it (vs 2.6.0-test1), I've no
+> idea if it's acceptable.
 
-And for Andries, if you can, do the showkey -s test on 2.4, too ...
+That will just disable redzoning, which isn't what I want...
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270072AbRHGFSK>; Tue, 7 Aug 2001 01:18:10 -0400
+	id <S270073AbRHGFUT>; Tue, 7 Aug 2001 01:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270073AbRHGFR7>; Tue, 7 Aug 2001 01:17:59 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:23273 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S270072AbRHGFRp>;
-	Tue, 7 Aug 2001 01:17:45 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.7-ac8 
-In-Reply-To: Your message of "Mon, 06 Aug 2001 19:03:21 +0100."
-             <20010806190320.A5719@lightning.swansea.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 Aug 2001 15:17:49 +1000
-Message-ID: <14551.997161469@kao2.melbourne.sgi.com>
+	id <S270074AbRHGFUK>; Tue, 7 Aug 2001 01:20:10 -0400
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:12 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S270073AbRHGFUB>; Tue, 7 Aug 2001 01:20:01 -0400
+Message-ID: <20010807052011.41452.qmail@web10406.mail.yahoo.com>
+Date: Tue, 7 Aug 2001 15:20:11 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.4.7-ac7 kernel, system freezed when copying files onto loop device
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001 19:03:21 +0100, 
-Alan Cox <laughing@shared-source.org> wrote:
->2.4.7-ac8
+Hi,
 
-<rant>
-The aic7xxx maintainer keeps trying to break the kernel build system,
-introducing special cases just to support his broken makefiles.  At the
-same time he refuses to listen to suggestions for doing it correctly.
-This is unacceptable, and will not work in kbuild 2.5.  The module
-install structure is an exact match for the kernel source structure,
-with no need to install modules elsewhere.  modutils >= 2.3.12 takes
-care of the correct hierarchy, mkinitrd has no problem with the correct
-tree.
-</rant>
+I got my system frozen when copying my root partition
+to a loop device
 
-Index: 7.41/Rules.make
---- 7.41/Rules.make Tue, 07 Aug 2001 10:44:16 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.3 644)
-+++ 7.41(w)/Rules.make Tue, 07 Aug 2001 15:10:31 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.3 644)
-@@ -150,7 +150,7 @@ endif
- #
- ALL_MOBJS = $(filter-out $(obj-y), $(obj-m))
- ifneq "$(strip $(ALL_MOBJS))" ""
--MOD_DESTDIR ?= $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
-+MOD_DESTDIR := $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
- endif
- 
- unexport MOD_DIRS
-Index: 7.41/drivers/scsi/aic7xxx/Makefile
---- 7.41/drivers/scsi/aic7xxx/Makefile Tue, 07 Aug 2001 10:44:16 +1000 kaos (linux-2.4/y/d/24_Makefile 1.1.1.1.1.1 644)
-+++ 7.41(w)/drivers/scsi/aic7xxx/Makefile Tue, 07 Aug 2001 15:10:40 +1000 kaos (linux-2.4/y/d/24_Makefile 1.1.1.1.1.1 644)
-@@ -27,7 +27,6 @@ AIC7XXX_OBJS += aic7xxx_pci.o
- endif
- 
- # Override our module desitnation
--MOD_DESTDIR = $(shell cd .. && $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
- MOD_TARGET = aic7xxx.o
- 
- include $(TOPDIR)/Rules.make
+dd if=/dev/zero of=root bs=1k count=100k
+mke2fs -m 0 root
 
+mount -o loop root /mnt/disk
+
+tar -xf root.tgz -z
+(root.tgz is small compressed backup root partition)
+cd root
+cp -a * /mnt/disk
+
+(the source partition is ext3, target ext2)
+
+it runs for a while and system hang.No message, no
+oopses etc..
+
+It did not happen with 2.4.6 with ext3 version 0.9.5
+patch.
+
+what is the cause? 
+
+Regards
+
+
+
+
+=====
+S.KIEU
+
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

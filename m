@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264682AbUEPRvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUEPR4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264682AbUEPRvF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 13:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUEPRvF
+	id S264683AbUEPR4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 13:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbUEPR4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 13:51:05 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:29606 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264682AbUEPRuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 13:50:50 -0400
-Subject: Re: [patch] kill off PC9800
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, randy.dunlap@osdl.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 16 May 2004 12:50:37 -0500
-Message-Id: <1084729840.10938.13.camel@mulgrave>
+	Sun, 16 May 2004 13:56:09 -0400
+Received: from av8-2-sn2.hy.skanova.net ([81.228.8.111]:41183 "EHLO
+	av8-2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S264683AbUEPR4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 13:56:06 -0400
+X-Mailer: exmh version 2.6.3 04/02/2003 (gentoo 2.6.3) with nmh-1.1
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy' 
+In-Reply-To: Message from Alexander Bruder <anib@uni-paderborn.de> 
+   of "Sun, 16 May 2004 17:02:10 +0200." <40A78272.4020404@uni-paderborn.de> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 16 May 2004 19:55:38 +0200
+From: aeriksson@fastmail.fm
+Message-Id: <20040516175539.075544137@latitude.mynet.no-ip.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Randy.Dunlap" <rddunlap@osdl.org> wrote:
-    >
-    >  PC9800 sub-arch is incomplete, hackish (at least in IDE), maintainers
-    >  don't reply to emails and haven't touched it in awhile.
-    
-    And the hardware is obsolete, isn't it?  Does anyone know when they were
-    last manufactured, and how popular they are?
-    
-Hey, just being obsolete is no grounds for eliminating a
-subarchitecture...
+> Hello,
+> 
+> > The fact is, it worked _perfectly_ under 2.6.5 with the standard mode. No 
+> > problems whatsoever. Something must have changed (but I'm too unfamiliar with 
+> > kernel code) that causes some sort of a delay in the processing of the input 
+> > queue of the touchpad. 
+> 
+> same problem here with 2.6.6 (recent gentoo system). I am running 
+> 2.6.6-rc3 and 2.6.5 without the problems.
+> 
 
-However, I would have to say that being unmaintained is.  Because of the
-penchant of x86 people to go "it compiles on my PC, ship it", the x86
-subarchitectures are about the fastest bitrotting pieces of the kernel
-there are.
 
-Since mach-pc9800 cannot currently be compiled and there's no evidence
-that it actually was, I'd remove it unless someone steps up quickly to
-maintain it (and get it to the point where it's actually compileable).
+fwiw, I have the same observation moving from 2.6.5-mm4 -> 2.6.6 on a
+gentoo machine... On the observations side, i can add that it not
+only fails to smoothly follow the track it should, but it seems it's
+back to its old bad behavior of randomly jumping to the top-right
+corner of the screen... :-(
 
-James
+
+/Anders
 
 

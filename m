@@ -1,23 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292679AbSBQCLp>; Sat, 16 Feb 2002 21:11:45 -0500
+	id <S293386AbSBRAOF>; Sun, 17 Feb 2002 19:14:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292685AbSBQCLf>; Sat, 16 Feb 2002 21:11:35 -0500
-Received: from sccimhc01.insightbb.com ([63.240.76.163]:21131 "EHLO
-	sccimhc01.insightbb.com") by vger.kernel.org with ESMTP
-	id <S292679AbSBQCLY>; Sat, 16 Feb 2002 21:11:24 -0500
-Message-ID: <3C6F1146.9080000@insightbb.com>
-Date: Sat, 16 Feb 2002 21:11:18 -0500
-From: Timothy Robinson <tdrobinson@insightbb.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.8+) Gecko/20020211
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: \
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293396AbSBRAN4>; Sun, 17 Feb 2002 19:13:56 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39684 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293386AbSBRANf>;
+	Sun, 17 Feb 2002 19:13:35 -0500
+Date: Sun, 17 Feb 2002 16:08:47 -0800
+From: Greg KH <greg@kroah.com>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: khubd blocking in D state with 2.5.5-pre1
+Message-ID: <20020218000847.GA17106@kroah.com>
+In-Reply-To: <3C702FE3.B914C0D@delusion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C702FE3.B914C0D@delusion.de>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 20 Jan 2002 22:05:35 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel tdrobinson@home.com
+On Sun, Feb 17, 2002 at 11:34:11PM +0100, Udo A. Steinberg wrote:
+> 
+> My monitor acts as USB hub. When the monitor is switched off and then back
+> on the khubd kernel thread blocks in D state:
 
+<snip>
+
+> Is this a known problem?
+
+Yes it is.  See the lkml archives for some patches from me and Pat
+Mochel that fix this problem.  It is a combination of bugs in both the
+USB core, and the driverfs code that cause this.
+
+thanks,
+
+greg k-h

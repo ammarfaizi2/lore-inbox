@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVA0SLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVA0SJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVA0SLf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 13:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVA0SLf
+	id S262592AbVA0SJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 13:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVA0SJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 13:11:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262601AbVA0SJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 13:09:50 -0500
-Date: Thu, 27 Jan 2005 10:09:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jaco Kroon <jaco@kroon.co.za>
-cc: sebekpi@poczta.onet.pl, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: i8042 access timings
-In-Reply-To: <41F888CB.8090601@kroon.co.za>
-Message-ID: <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org>
-References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Jan 2005 13:09:44 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:4616 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262592AbVA0SJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 13:09:37 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <41F92D2B.4090302@comcast.net>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>
+	 <1106848051.5624.110.camel@laptopd505.fenrus.org>
+	 <41F92D2B.4090302@comcast.net>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 19:09:31 +0100
+Message-Id: <1106849371.5624.114.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 27 Jan 2005, Jaco Kroon wrote:
+On Thu, 2005-01-27 at 13:04 -0500, John Richard Moser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Which indicates (as far as my understanding goes) that the command times 
-> out, as such the param value stays the same (ready for re-use in the 
-> second command).  The second commands succeeds but does not return one 
-> of the expected (0x00, 0xff, 0xfa) values, instead it returns the value 
-> as expected by the first command (0xa5).  The last value on both lines 
-> is the return value.  From the second snippet:
+> What the hell?
+> 
+> So instead of bringing something in that works, you bring something in
+> that does significantly less, and gives no savings on overhead or patch
+> complexity why?  So you can later come out and say "We're so great now
+> we've increased the randomization by tweaking one variable aren't we
+> cool!!!"?
 
-No, I think the 0x5a you see is the 0x5a that is _still_ there, because we 
-never got any reply at all from the i8042_command(I8042_CMD_AUX_LOOP) 
-case, nor did the I8042_CMD_AUX_TEST thing do anything at all.
+no it is called getting features in via a long incremental and
+debuggable patch series.
+Apparently you still don't understand that despite the long flamewar in
+that other thread. I can't think of any more I can do to explain to you
+why doing things in incremental steps is good on top of that.
 
-I have a suspicion: these commands are also one of the few ones that write 
-a data byte to the data port immediately after writing the command byte to 
-the status port.
+> 
+> Red Hat is all smoke and mirrors anyway when it comes to security, just
+> like Microsoft.  This just reaffirms that.
 
-It so happens that if the hardware is slow to reach to the command byte,
-we might read the status word _before_ the hardware has had time to even
-say "ok, my input port is now full". We have a "udelay()" there in
-i8042_wait_write(), but we have it _after_ we've done the 
-i8042_read_status(), so effectively the i8042_read_status() happens 
-immediately after the i8042_write_command().
+I think you've been talking too much to another so called security
+expert that has been spouting similar words on full-disclosure recently.
 
-So what _might_ happen is that we write the command, and then 
-i8042_wait_write() thinks that there is space to write the data 
-immediately, and writes the data, but now the data got lost because the 
-buffer was busy.
+And I have to wonder.. where does Red Hat come in here?
 
-The IO delay should be _before_ the read of the status, not after it.
 
-So how about adding an extra "udelay(50)" to either the top of 
-i8042_wait_write(), or to the bottom of "i8042_write_command()"? Does that 
-make any difference?
-
-(50 usec is probably overkill, and an alternative is to just make the
-write_data/write_command inline functions in i8042-io.h use the
-"inb_p/outb_p" versions that put a serializing IO instruction in between,
-which should give you a nice 1us delay even on modern hardware.)
-
-		Linus

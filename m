@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbTHXUWP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 16:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTHXUWO
+	id S261297AbTHXUUK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 16:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTHXUUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 16:22:14 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:56459 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261299AbTHXUWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:22:13 -0400
-Message-ID: <3F491E69.5090206@austin.rr.com>
-Date: Sun, 24 Aug 2003 15:22:01 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+	Sun, 24 Aug 2003 16:20:09 -0400
+Received: from maile.telia.com ([194.22.190.16]:8953 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id S261297AbTHXUUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 16:20:08 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Message-ID: <3F491DFD.8080006@lanil.mine.nu>
+Date: Sun, 24 Aug 2003 22:20:13 +0200
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030823 Thunderbird/0.2a
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: via rhine network failure on 2.6.0-test4
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: "Barry K. Nathan" <barryn@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       linux-kernel@vger.kernel.org, lkml@kcore.org
+Subject: Re: Pentium-M?
+References: <200308231236.h7NCaMl0018383@harpo.it.uu.se> <Pine.LNX.4.53.0308230901200.15935@montezuma.fsmlabs.com> <20030823180338.GA3562@ip68-4-255-84.oc.oc.cox.net> <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0308231418070.15935@montezuma.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The via rhine driver fails to get a dhcp address on my test system on 
-2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
-ifconfig does show the device and it is detected in /proc/pci.   
-Switching from the test3 vs.  test4 snapshots built with equivalent 
-configure options on the same system (SuSE 8.2) - test3 works but test4 
-does not.   This is using essentially the default config for both the 
-test3 and test4 cases - the only changes are SMP disabled, scsi devices 
-disabled, Athlon, via-rhine enabled in network devices and a handful of 
-additional filesystems enabled, debug memory allocations enabled.   This 
-is the first time in many months that I have seen problems with the 
-via-rhine driver on 2.6
+Hmm.. I have compiled my whole system with -march=pentium4 and yet not 
+had a single breakage. Are you sure that this is p3?
 
-Analyzing the code differences between 2.6.0-test3 and test4 (in 
-via-rhine.c) is not very promising since the only line that has changed 
-(kfree to free_netdev) is in the routine via_rhine_remove_one that seems 
-unlikely to cause problems sending data on the network.
-
-Ideas as to what could have caused the regression?
+-- 
+Christan Axelsson
+smiler@lanil.mine.nu
 

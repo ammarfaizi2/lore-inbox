@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263293AbTFGRVc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 13:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTFGRVc
+	id S263298AbTFGRbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 13:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTFGRbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 13:21:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1292 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263293AbTFGRVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 13:21:31 -0400
-Date: Sat, 7 Jun 2003 10:34:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stewart Smith <stewart@linux.org.au>
-cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
-       <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [EVIL-PATCH] getting rid of lib/lib.a and breaking many archs
- in the processes (was Re: [PATCH] fixed: CRC32=y && 8193TOO=m unresolved
- symbols)
-In-Reply-To: <20030607073321.GC1540@cancer>
-Message-ID: <Pine.LNX.4.44.0306071028510.2956-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Jun 2003 13:31:46 -0400
+Received: from relay1.volja.net ([217.72.64.59]:47887 "EHLO relay1.volja.net")
+	by vger.kernel.org with ESMTP id S263298AbTFGRbp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 13:31:45 -0400
+Date: Sat, 7 Jun 2003 19:48:00 +0200
+From: Andrej Hocevar <drejcica@volja.net>
+To: linux-kernel@vger.kernel.org
+Subject: advice on adding functions to use with "loadkeys" (keyboard.c maybe?)
+Message-ID: <20030607174800.GA10131@sonet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Weltschmerz: A la recherche du temps perdu
+X-alter-ego: Woody Allen
+X-always: Counting Crows!
+X-me: the only friendly hacker
+X-geek: GL/AT d+(>pu) s: a--(-----(+++))>-- C++(>---) UL+++ P+++ L+++ !E W+ N-- o-- k? w- O? M? V? PS PE Y PGP- t+ 5? X- R- tv- b+++$ DI? !D G e(>++++) h---(>) r++(--) y+++
+X-OS: Debian GNU/Linux 3.0@2.4
+X-Host: sonet
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+in many trivial situations, one cannot make good use of common
+techniques for mapping certain functions to certain keys in the
+console. For example, using "loadkeys" to make F1 start
+"fetchmail\n" or something similar is convenient in most cases. But
+if one wants to make it change the keyboard-layout (like "loadkeys
+us"), it won't make much sense to use the previous approach, since
+it won't work from within an editor. Instead, a solution would be to
+map a key to "KeyboardSignal" and point it to a script from
+/etc/inittab. 
 
-On Sat, 7 Jun 2003, Stewart Smith wrote:
-> 
-> This patch needs a couple of extra things before it drops it's evil
-> status, and I'm not sure how to do them exactly.
+Now here's my question: the last approach is good but even if one
+maps multiple keys to the same signal, I don't see a way for the
+script to know which key was pressed to run it. So I thought I could
+add some custom functions to do mostly trivial tasks, maybe something
+like "ls -l" to test its functionality, and then use "loadkeys" to
+map a key to that new function. Is this possible? Is it a good idea
+at all? 
 
-How about making the lib/ directory separate out the "these are optional"  
-pieces from the "these are basic libs that got explicitly enabled by the
-user", and leave the archive usage for the truly optional stuff?
+Thanks,
+    andrej
 
-There's nothing inherently wrong with using the archive format per se, and
-it still makes sense to just let the linker do the simple stuff instead of
-adding unnecessary code to the configuration management to do stuff that
-the linker would give us for free.
-
-The _clean_ way to do this (I think) might be to make the normal build 
-rules understand a "obj-l" for "library objects", and always build a 
-"lib.a" for those, instead of having the magic "if there is a L_TARGET, 
-use obj-y and make a library of them" special case rule.
-
-Sam, can you try to sprinkle the proper Makefile magic pixie-dust around?
-
-
-		Linus
-
-
+-- 
+echo ${girl_name} > /etc/dumpdates

@@ -1,99 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264905AbTFCDHX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 23:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTFCDHW
+	id S264912AbTFCDQD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 23:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTFCDQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 23:07:22 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:5506 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264905AbTFCDHU convert rfc822-to-8bit
+	Mon, 2 Jun 2003 23:16:03 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:35341 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S264912AbTFCDQB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 23:07:20 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 100Hz v 1000Hz with contest
-Date: Tue, 3 Jun 2003 13:21:44 +1000
-User-Agent: KMail/1.5.1
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>
+	Mon, 2 Jun 2003 23:16:01 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Steven Cole" <elenstev@mesatop.com>, "Larry McVoy" <lm@bitmover.com>
+Cc: "Willy Tarreau" <willy@w.ods.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Question about style when converting from K&R to ANSI C.
+Date: Mon, 2 Jun 2003 20:29:25 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGAEBMCOAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306031322.01389.kernel@kolivas.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1054479734.19552.51.camel@spc>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Um... ich!  (ignoring the return type debate)
 
-I've attempted to answer the question does 1000Hz hurt responsiveness in 2.5 
-as much as I've found in 2.4; since subjectively the difference wasn't there 
-in 2.5. Using the same config with preempt enabled here are results from 
-2.5.70-mm3 set at default 1000Hz and at 100Hz (mm31):
+static unsigned long
+insert_bba(unsigned long insn,
+           long value,
+           const char **errmsg)
+{
+   return insn | (((insn >> 16) & 0x1f) << 11);
+}
 
-no_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          1   79      94.9    0.0     0.0     1.00
-2.5.70-mm31         1   77      94.8    0.0     0.0     1.00
-cacherun:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          1   76      97.4    0.0     0.0     0.96
-2.5.70-mm31         1   74      98.6    0.0     0.0     0.96
-process_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          2   108     68.5    64.5    28.7    1.37
-2.5.70-mm31         2   107     69.2    67.0    29.0    1.39
-ctar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          3   114     70.2    1.0     5.3     1.44
-2.5.70-mm31         3   105     73.3    0.7     3.8     1.36
-xtar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          3   123     62.6    2.3     5.7     1.56
-2.5.70-mm31         3   122     61.5    2.0     4.9     1.58
-io_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          4   116     66.4    40.6    18.8    1.47
-2.5.70-mm31         4   114     65.8    41.0    19.3    1.48
-io_other:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          2   116     66.4    50.0    22.2    1.47
-2.5.70-mm31         2   112     67.9    46.1    21.4    1.45
-read_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          2   104     75.0    8.2     5.8     1.32
-2.5.70-mm31         2   100     76.0    7.5     7.0     1.30
-list_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          2   95      80.0    0.0     7.4     1.20
-2.5.70-mm31         2   92      82.6    0.0     5.4     1.19
-mem_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          2   98      80.6    53.0    2.0     1.24
-2.5.70-mm31         2   95      81.1    53.0    2.1     1.23
-dbench_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.70-mm3          4   313     24.3    5.0     56.9    3.96
-2.5.70-mm31         4   297     24.9    4.5     52.5    3.86
 
-At first glance everything looks faster at 100Hz. However it is well known 
-that it will take slightly longer even with no load at 1000Hz. Taking that 
-into consideration and looking more at the final ratios than the absolute 
-numbers it is apparent that the difference is statistically insignificant, 
-except on ctar_load.
+...OR...
 
-Previously I had benchmark results on 1000Hz which showed preempt improved the 
-results in a few of the loads. For my next experiment I will compare 100Hz 
-with preempt to 100Hz without.
+static unsigned long insert_bba(unsigned long insn,
+                                long value,
+                                const char **errmsg)
+{
+   return insn | (((insn >> 16) & 0x1f) << 11);
+}
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+3BRIF6dfvkL3i1gRAnEbAKCpaj/kajzKV3qVrWGRIhOh+Q8O8gCfZp6c
-M3Iq1D/41t+4SB2jtNYQc48=
-=NMfC
------END PGP SIGNATURE-----
+NEVER line up the return type and the argument type like the text below.  It
+is mind-clobbering after a couple hundred pages.
+
+Also, though it didn't come up, once you decide to put the arguments on
+separate lines for readability never mix the styles in one function call.
+
+int X(int A, int B,
+      char **errormsg)
+{
+}
+
+is "very bad".  the above "looks ok" in that one instance but it isn't.
+Either I have to count the arguments, or there is one per line, but never
+seven arguments on five lines (if you please) as that is evil!  (It is good
+for driving instructors crazy too... 8-)
+
+
+Also, in your automatics, it is never ok to write
+
+   int A, *b;
+or even
+   int A, B;
+
+One variable per line please.
+
+  int A;
+  int *b;
+
+  (Especially if you are programming, or ever hope to program, tiny little
+embedded systems where you really have to visualize your stack requirements.
+8-)  The real reason is to facilitate and encourage automatic
+initializations.  Particularly of classes in C++, but profoundly so in basic
+C none the less.  Uninitialized variables should look bare and lonely, and
+perhaps even a tad wrong.  (Not to mention having more than one alphabetic
+character as a name, but I was being minimalist... 8-)
+
+Rob.
+
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Steven Cole
+
+/*ARGSUSED*/
+-static unsigned long
+-insert_bba (insn, value, errmsg)
+-     unsigned long insn;
+-     long value;
+-     const char **errmsg;
++static unsigned long insert_bba(
++       unsigned long insn,
++       long value,
++       const char **errmsg
++)
+{
+   return insn | (((insn >> 16) & 0x1f) << 11);
+}
+
 

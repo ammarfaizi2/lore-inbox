@@ -1,68 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263096AbTDZVqb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 17:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbTDZVqb
+	id S261994AbTDZVyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 17:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbTDZVyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 17:46:31 -0400
-Received: from mx12.arcor-online.net ([151.189.8.88]:21461 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263096AbTDZVqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 17:46:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Werner Almesberger <wa@almesberger.net>
-Subject: Re: Flame Linus to a crisp!
-Date: Sat, 26 Apr 2003 23:59:54 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030425143613.8646E130965@mx12.arcor-online.net> <20030425143734.W3557@almesberger.net>
-In-Reply-To: <20030425143734.W3557@almesberger.net>
+	Sat, 26 Apr 2003 17:54:40 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10153 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261994AbTDZVyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 17:54:39 -0400
+Date: Sat, 26 Apr 2003 15:06:43 -0700
+Message-Id: <200304262206.h3QM6hJ22525@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030426215843.2555712F7D8@mx12.arcor-online.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: davidm@hpl.hp.com
+X-Fcc: ~/Mail/linus
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] i386 vsyscall DSO implementation
+In-Reply-To: David Mosberger's message of  Friday, 25 April 2003 09:21:46 -0700 <16041.24730.267207.671647@napali.hpl.hp.com>
+X-Windows: a terminal disease.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 April 2003 19:37, Werner Almesberger wrote:
-> Daniel Phillips wrote:
-> > I imagine the likelihood of people running completely separate DRM Linux
-> > boxes, just to participate in DRM-controlled online games, is not high.
->
-> You could still dual-boot, as many people do today.
+> I like this.  Even better would be if all platforms could do the same.
+> I'm definitely interested in doing something similar for ia64 (the
+> getunwind() syscall was always just a stop-gap solution).
 
-Only neanderthals dual-boot ;-)
+It is very straightforward to implement.  The arch/i386/kernel/Makefile
+rules can be copied for other architectures, modified slightly if you don't
+need two different .so's (or name them differently).  The syntax in
+vsyscall.S using .incbin works in gas for any platform AFAIK.  You can also
+use -iformat binary and tweaks to the kernel linker script to do the
+equivalent without wrapper assembly file.  The vsyscall-syms.o hacks are
+only necessary if you want kernel code to refer to symbol names defined in
+the DSO source.  The vsyscall.lds linker script will be slightly different
+for each platform, but the tweaks should be trivial.  If you aren't making
+vsyscall-syms.o then you don't need to hard-wire the .text offset, and the
+entry point addresses will just be chosen by ld.  As Ulrich mentioned, you
+can write the contents of the page however you would like to write it as
+normal user code (C or assembly).
 
-> > the whole concept is inherently fragile, there are just too many parts
-> > involved.
->
-> ... and companies relying on DRM are likely to distrust Linux for
-> every single such flaw that is found. They'll put up with Windows,
-> because they have to.
+> I assume that these kernel ELF images would then show up in
+> dl_iterate_phdr()?
 
-Companies relying on DRM are candidates for Darwin awards, IMHO.  However, 
-the pure technical challenge of trying to make DRM work for something, 
-somehow, sometime might be enough to get decent support on Linux.  I wonder 
-if the Quake thing is interesting enough to motivate anyone.  It could be 
-advertised as "the only place you'll ever get a fair fight".
+Yes.  I have glibc changes for this that will go in when the kernel is ready.
+(This is the primary immediate benefit of the scheme.  The immediate need
+is for the unwind info, which with this and PT_GNU_EH_FRAME fits in neatly.)
 
-Maybe DRM support is a way for some Linux vendor to differentiate themselves. 
-Now... DRM in Debian?  Sounds like an oxymoron.  I certainly won't be asking 
-for it.
+> To complete the picture, it would be nice if the kernel ELF images were
+> mappable files (either in /sysfs or /proc) and would show up in
+> /proc/PID/maps.  That way, a distributed application such as a remote
+> debugger could gain access to the kernel unwind tables on a remote
+> machine (assuming you have a remote filesystem).
 
-> It all makes sense - in some ugly, twisted way.
+The /proc file is obviously trivial to do and I've considered offering it.
+A remote debugger is much better prepared to read it out of the inferior
+process's memory than to find the right filesystem, and that seems like the
+debugger implementation most likely to always find the right info.  (We
+expect to be hacking gdb to do this soon.)  The reason I can see for
+wanting a /proc/sys/vsyscall.so or such file is if you are linking a
+program against the DSO for its soname and symbols.  But for that purpose
+it isn't necessary, and I think not even desireable, to always use the
+fresh DSO image from the live kernel.  You can extract the DSO image from
+the running kernel with a trivial program, and store it in a normal file,
+package and version it manually for kernel-devel packages, etc.  I'm not
+opposed to having a /proc file, but I doubt there is any essential purpose
+for which it's really what you want to use.
 
-What seems to be missing is the motivation to get exited about it.  Seems to 
-me, I've never bought or played a copy-protected CD, or video disk (took a 
-pass on the whole video disk thing, didn't regret it) or anything else, and 
-it's not because I'm a fanatic about it, it's just that it never made sense.
+Having some note of the region in /proc/PID/maps is another question.  Even
+if it's not said to refer to some named file, it would be nice to have the
+address range indicated so as to preserve the pre-vsyscall property that
+maps lines show all addresses that the particular process could in fact
+access.  That can be implemented either by a hack or by having a normal vma
+for the vsyscall page.  The latter would also eliminate the need for a hack
+in ptrace to allow reading the page (I will post that patch again shortly).
 
-The whole DRM thing is likely to land with a dull thud and be as forgotten as 
-8 track tapes.  It's all just too clunky, and there's nothing in it for the 
-consumer.
 
-Regards,
-
-Daniel
-
+Thanks,
+Roland

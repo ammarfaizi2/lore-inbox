@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130719AbRCMBTr>; Mon, 12 Mar 2001 20:19:47 -0500
+	id <S130738AbRCMBah>; Mon, 12 Mar 2001 20:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130722AbRCMBTh>; Mon, 12 Mar 2001 20:19:37 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:52997 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S130719AbRCMBT0>; Mon, 12 Mar 2001 20:19:26 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Tue, 13 Mar 2001 12:18:45 +1100 (EST)
+	id <S130741AbRCMBa1>; Mon, 12 Mar 2001 20:30:27 -0500
+Received: from smtp.networkusa.net ([216.162.106.18]:32015 "EHLO
+	smtp.networkusa.net") by vger.kernel.org with ESMTP
+	id <S130738AbRCMBaP>; Mon, 12 Mar 2001 20:30:15 -0500
+Message-ID: <3AAD78C3.5E0AA355@networkusa.net>
+Date: Mon, 12 Mar 2001 19:32:51 -0600
+From: Ian Zink <zforce@networkusa.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: Broken Tulip Driver
+In-Reply-To: <3AAD67D3.A48285BE@networkusa.net> <3AAD6CC8.129801EA@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15021.30069.381855.886337@notabene.cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: PATCH - compile fix for 3c509.c in 2.4.3-pre3
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I will try tonight and let you know.
 
-Linus,
- in 2.4.3-pre3, drivers/net/3c509.c will not compile ifdef CONFIG_ISAPNP.
+Thanks, Ian
 
- The following patches fixes the error.  I suspect that 3c515.c has
- the same problem, but I didn't need to fix that to get my kernel to
- build... so I didn't.
+Jeff Garzik wrote:
 
-NeilBrown
+> Can you try out the updated Tulip driver in 2.4.2-ac19 and let me know
+> if it works?
+>
+> ftp://ftp.us.kernel.org/pub/linux/kernel/people/alan/2.4/
+>
+> --
+> Jeff Garzik       | May you have warm words on a cold evening,
+> Building 1024     | a full mooon on a dark night,
+> MandrakeSoft      | and a smooth road all the way to your door.
 
-
-
---- ./drivers/net/3c509.c	2001/03/12 00:39:58	1.1
-+++ ./drivers/net/3c509.c	2001/03/12 01:31:13	1.2
-@@ -327,7 +327,7 @@
- 			irq = idev->irq_resource[0].start;
- 			if (el3_debug > 3)
- 				printk ("ISAPnP reports %s at i/o 0x%x, irq %d\n",
--					el3_isapnp_adapters[i].name, ioaddr, irq);
-+					(char *)el3_isapnp_adapters[i].driver_data, ioaddr, irq);
- 			EL3WINDOW(0);
- 			for (j = 0; j < 3; j++)
- 				el3_isapnp_phys_addr[pnp_cards][j] =

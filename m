@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269300AbUIYKM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269301AbUIYKPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269300AbUIYKM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 06:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269301AbUIYKM5
+	id S269301AbUIYKPn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 06:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269303AbUIYKPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 06:12:57 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:51629 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269300AbUIYKM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 06:12:56 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Date: Sat, 25 Sep 2004 12:14:28 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Sat, 25 Sep 2004 06:15:43 -0400
+Received: from gprs214-249.eurotel.cz ([160.218.214.249]:50052 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S269301AbUIYKPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 06:15:35 -0400
+Date: Sat, 25 Sep 2004 12:15:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Message-ID: <20040925101522.GA4039@elf.ucw.cz>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com> <20040924143714.GA826@openzaurus.ucw.cz> <20040924210958.A3C5AA2073@voldemort.scrye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409251214.28743.rjw@sisk.pl>
+In-Reply-To: <20040924210958.A3C5AA2073@voldemort.scrye.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel,
+Hi!
 
-I've just tried to suspend my box and I must admit I've given up after 30 
-minutes (sic!) of waiting when there were only 12% of pages written to disk.  
-Apparently, swsusp slows down to an unacceptable level after saying "PM: 
-Writing image to disk".
+> >> Was trying to swsusp my 2.6.9-rc2-mm1 laptop tonight. It churned
+> >> for a while, but didn't hibernate. Here are the messages.
+> >> 
+> >> ....................................................................................................
+> >> .........................swsusp: Need to copy 34850 pages Sep 23
+> >> 16:53:37 voldemort kernel: hibernate: page allocation
+> >> failure. order:8, mode:0x120 Sep 23 16:53:37 voldemort kernel:
+> Pavel> Out of memory... Try again with less loaded system. 
+> 
+> The system was no more loaded than usual. I have 1GB memory and 4GB of
+> swap defined. I almost never touch swap. It might have been 100mb into
+> the 4Gb of swap when this happened. 
+> 
+> What would cause it to be out of memory? 
+> swsup needs to be reliable... rebooting when you are using your memory
+> kinda defeats the purpose of swsusp. 
 
-The box is an Athlon 64-based notebook.  The .config is available at:
-http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3.config
-and the output of dmesg is available at:
-http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3-dmesg.log
+Read FAQ.
 
-Greets,
-RJW
+> Felipe W Damasio <felipewd@terra.com.br> sent me a patch, but I
+> haven't had a chance to try it yet:
+> 
+> - --- linux-2.6.9-rc2-mm2/kernel/power/swsusp.c.orig	2004-09-23 23:46:49.292975768 -0300
+> +++ linux-2.6.9-rc2-mm2/kernel/power/swsusp.c	2004-09-24 00:07:01.933626368 -0300
+> @@ -657,6 +657,9 @@
+>  	int diff = 0;
+>  	int order = 0;
+>  
+> +	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+> +	nr_copy_pages += 1 << order;
+> +
+>  	do {
+>  		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
+>  		if (diff) {
+> 
+> 
 
+That does not look like it could help. I do not see why this patch
+should be good thing.
+							Pavel
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

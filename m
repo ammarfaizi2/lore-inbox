@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317958AbSGLAzx>; Thu, 11 Jul 2002 20:55:53 -0400
+	id <S317960AbSGLA6J>; Thu, 11 Jul 2002 20:58:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317959AbSGLAzw>; Thu, 11 Jul 2002 20:55:52 -0400
-Received: from p50886A23.dip.t-dialin.net ([80.136.106.35]:63620 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317958AbSGLAzv>; Thu, 11 Jul 2002 20:55:51 -0400
-Date: Thu, 11 Jul 2002 18:58:29 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Robert Love <rml@tech9.net>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Stevie O <oliver@klozoff.com>, lkml <linux-kernel@vger.kernel.org>
+	id <S317961AbSGLA6I>; Thu, 11 Jul 2002 20:58:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37135 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317960AbSGLA6I>; Thu, 11 Jul 2002 20:58:08 -0400
 Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <1026435320.1178.362.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0207111857290.30529-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+To: rml@tech9.net (Robert Love)
+Date: Fri, 12 Jul 2002 02:24:16 +0100 (BST)
+Cc: thunder@ngforever.de (Thunder from the hill),
+       oliver@klozoff.com (Stevie O), linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <1026435320.1178.362.camel@sinai> from "Robert Love" at Jul 11, 2002 05:55:20 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17SpAO-00021K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 11 Jul 2002, Robert Love wrote:
 > Uh, HZ is not scheduler calls per second.
+> 
+> Neither exactly is it interrupts per second, but _timer_ interrupts per
+> second.  It is the frequency of the timer interrupt.
 
-Sorry, I must be sleeping...
+Its not exactly that either. Its 'rate at which jiffies is incremented'.
+The distinction is not pedantic its rather critical when you go to a 
+variable timer tick...
 
-It's disnerving to fix that stuff I'm fixing. I can't even concentrate on 
-reading any more. Sure, you're right.
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Alan

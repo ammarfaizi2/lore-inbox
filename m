@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135648AbRDTHKi>; Fri, 20 Apr 2001 03:10:38 -0400
+	id <S135720AbRDTHSU>; Fri, 20 Apr 2001 03:18:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135656AbRDTHKS>; Fri, 20 Apr 2001 03:10:18 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:7105 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S135648AbRDTHJi>;
-	Fri, 20 Apr 2001 03:09:38 -0400
-Message-ID: <3ADFD7A3.67EE00AE@mandrakesoft.com>
-Date: Fri, 20 Apr 2001 02:30:59 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
-X-Accept-Language: en
+	id <S135710AbRDTHSC>; Fri, 20 Apr 2001 03:18:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:4365 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S135656AbRDTHRo>;
+	Fri, 20 Apr 2001 03:17:44 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Cc: Roberto Nibali <ratz@tac.ch>, linux-kernel@vger.kernel.org,
-        Donald Becker <becker@scyld.com>, Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <Pine.LNX.4.33.0104192241060.4771-100000@age.cs.columbia.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15071.58068.660040.412468@argo.ozlabs.ibm.com.au>
+Date: Fri, 20 Apr 2001 17:18:44 +1000 (EST)
+To: Jeff Galloway <jeff.galloway@rundog.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FW: Linux 2.4.3 Compile Errors - Power Mac
+In-Reply-To: <B704C0AA.4239%jeff.galloway@rundog.com>
+In-Reply-To: <B703E416.421B%jeff.galloway@rundog.com>
+	<B704C0AA.4239%jeff.galloway@rundog.com>
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> Well.. Space.c is a dinozaur. However, this is the 2.2 series and no more
-> surgery will happen on this kernel, at least normally.
-> 
-> Have you tried loading the drivers as modules? You might have more luck
-> with that approach. Space.c was designed at a time when having 4 NIC's in
-> a PC was "pushing the limits"...
+Jeff Galloway writes:
 
-2.2.recent has module_init/exit, so you don't even need Space.c.
+> I sent this report to the people indicated below, whose names I got from the
+> MAINTAINERS file in the 2.4.3 distribution, but the email address for Mr.
+> MacKerras is no longer good and Mr. Chastain wrote me back that he is not
+> following 2.4 issues.
 
--- 
-Jeff Garzik       | "The universe is like a safe to which there is a
-Building 1024     |  combination -- but the combination is locked up
-MandrakeSoft      |  in the safe."    -- Peter DeVries
+I have left Linuxcare and paulus@linuxcare.com no longer works.
+Please use paulus@samba.org.
+
+> The compiler error message along with the menuconfig-generated configuration
+> file are set out in the attached MS Word document.  I've had similar
+> problems with other versions of 2.4.
+
+Hmmm, I have to go to a lot of trouble to read Word documents, so I
+don't like receiving them.
+
+Paul.

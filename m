@@ -1,73 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUBIOSW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 09:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265231AbUBIOSW
+	id S265236AbUBIOJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 09:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUBIOJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 09:18:22 -0500
-Received: from pgramoul.net2.nerim.net ([80.65.227.234]:8437 "EHLO
-	philou.aspic.com") by vger.kernel.org with ESMTP id S265224AbUBIOSV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 09:18:21 -0500
-Date: Mon, 9 Feb 2004 15:18:18 +0100
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.3-rc1-mm1
-Message-Id: <20040209151818.32965df6@philou.gramoulle.local>
-In-Reply-To: <20040209014035.251b26d1.akpm@osdl.org>
-References: <20040209014035.251b26d1.akpm@osdl.org>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 9 Feb 2004 09:09:48 -0500
+Received: from gamma.utc.fr ([195.83.155.32]:20942 "EHLO gamma.utc.fr")
+	by vger.kernel.org with ESMTP id S265236AbUBIOJq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 09:09:46 -0500
+Message-ID: <1076335524.402793a4d04e9@mailetu.utc.fr>
+Date: Mon,  9 Feb 2004 15:05:24 +0100
+From: eric.piel@tremplin-utc.net
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Slight optimisation of the uhci-hcd init code
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-MOQ10763355247f93030b838805640614669d3e99af9b"
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Spam-Checked-By: localhost
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format.
 
-Hello Andrew,
+---MOQ10763355247f93030b838805640614669d3e99af9b
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-On Mon, 9 Feb 2004 01:40:35 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Hello,
 
-  | 
-  | 
-  | ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc1/2.6.3-rc1-mm1/
-  | 
-  | 
-  | - NFSD update
-  | 
+While trying to understand why starting usb on my laptop made the bus master
+activity full I came accross a strange code in uhci-hcd: a seven level nested
+"if". The same thing can be achieved with a simgle ffz(). The attached patch
+should give to the code a bit better looking, on my x86 it even saves 96 bytes,
+cool ;-) 
 
-Starting with 2.6.3-rc1-mm1, nfsd isn't working any more. Exportfs just hangs.
-Previous version (2.6.2-mm1) worked fine.
-Reverting the following patches makes it work again:
+hoping you like it,
+Eric Piel
 
-nfsd-01-schedule-in-spinlock-fix.patch
-nfsd-02-ip_map_init-kmalloc-check.patch
-nfsd-03-sunrpc-cache-init-fixes.patch
-nfsd-04-convert-proc-to-seq_file.patch
-nfsd-05-no-procfs-build-fix.patch
 
-You can find my .config here:
+PS: still, I'm not sure it's normal to see ffffffff as "bus master activity" in
+/proc/acpi/processor/CPU0/power as soon as uhci-hcd is loaded. In particular, it
+prevents the processor to go to C3 state. Could you give me your pint of view?
+---MOQ10763355247f93030b838805640614669d3e99af9b
+Content-Type: text/x-patch; name="uhci-hcd-uses-ffz.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="uhci-hcd-uses-ffz.patch"
 
-http://philou.org/linux/2.6.3-rc1-mm1/config-2.6.3-rc1-mm1
+LS0tIGRyaXZlcnMvdXNiL2hvc3QvdWhjaS1oY2QuYy5vcmlnCTIwMDQtMDItMDggMTI6MzA6MjMu
+NzMwOTM0NzQ0ICswMTAwCisrKyBkcml2ZXJzL3VzYi9ob3N0L3VoY2ktaGNkLmMJMjAwNC0wMi0w
+OCAxMzoxMjoxMS43MjM2NjE4OTYgKzAxMDAKQEAgLTUyLDYgKzUyLDcgQEAKICNpbmNsdWRlIDxh
+c20vaW8uaD4KICNpbmNsdWRlIDxhc20vaXJxLmg+CiAjaW5jbHVkZSA8YXNtL3N5c3RlbS5oPgor
+I2luY2x1ZGUgPGFzbS9iaXRvcHMuaD4KIAogI2luY2x1ZGUgIi4uL2NvcmUvaGNkLmgiCiAjaW5j
+bHVkZSAidWhjaS1oY2QuaCIKQEAgLTIyMTMsMTAgKzIyMTQsMTEgQEAKIHsKIAlzdHJ1Y3QgdWhj
+aV9oY2QgKnVoY2kgPSBoY2RfdG9fdWhjaShoY2QpOwogCWludCByZXR2YWwgPSAtRUJVU1k7Ci0J
+aW50IGksIHBvcnQ7CisJaW50IHBvcnQ7CiAJdW5zaWduZWQgaW9fc2l6ZTsKIAlkbWFfYWRkcl90
+IGRtYV9oYW5kbGU7CiAJc3RydWN0IHVzYl9kZXZpY2UgKnVkZXY7CisJdW5zaWduZWQgbG9uZyBp
+OwogI2lmZGVmIENPTkZJR19QUk9DX0ZTCiAJc3RydWN0IHByb2NfZGlyX2VudHJ5ICplbnQ7CiAj
+ZW5kaWYKQEAgLTIzMjEsNyArMjMyMyw3IEBACiAJZm9yIChpID0gMDsgaSA8IFVIQ0lfTlVNX1NL
+RUxRSDsgaSsrKSB7CiAJCXVoY2ktPnNrZWxxaFtpXSA9IHVoY2lfYWxsb2NfcWgodWhjaSwgdWRl
+dik7CiAJCWlmICghdWhjaS0+c2tlbHFoW2ldKSB7Ci0JCQllcnIoInVuYWJsZSB0byBhbGxvY2F0
+ZSBRSCAlZCIsIGkpOworCQkJZXJyKCJ1bmFibGUgdG8gYWxsb2NhdGUgUUggJWx1IiwgaSk7CiAJ
+CQlnb3RvIGVycl9hbGxvY19za2VscWg7CiAJCX0KIAl9CkBAIC0yMzYwLDI4ICsyMzYyLDggQEAK
+IAkgKiB1cyBhIHJlYXNvbmFibGUgZHluYW1pYyByYW5nZSBmb3IgaXJxIGxhdGVuY2llcy4KIAkg
+Ki8KIAlmb3IgKGkgPSAwOyBpIDwgVUhDSV9OVU1GUkFNRVM7IGkrKykgewotCQlpbnQgaXJxID0g
+MDsKLQotCQlpZiAoaSAmIDEpIHsKLQkJCWlycSsrOwotCQkJaWYgKGkgJiAyKSB7Ci0JCQkJaXJx
+Kys7Ci0JCQkJaWYgKGkgJiA0KSB7IAotCQkJCQlpcnErKzsKLQkJCQkJaWYgKGkgJiA4KSB7IAot
+CQkJCQkJaXJxKys7Ci0JCQkJCQlpZiAoaSAmIDE2KSB7Ci0JCQkJCQkJaXJxKys7Ci0JCQkJCQkJ
+aWYgKGkgJiAzMikgewotCQkJCQkJCQlpcnErKzsKLQkJCQkJCQkJaWYgKGkgJiA2NCkKLQkJCQkJ
+CQkJCWlycSsrOwotCQkJCQkJCX0KLQkJCQkJCX0KLQkJCQkJfQotCQkJCX0KLQkJCX0KLQkJfQor
+CQl1bnNpZ25lZCBsb25nIGlycTsKKwkJaXJxID0gZmZ6KGkgJiAoKDE8PDcpIC0gMSkpOwogCiAJ
+CS8qIE9ubHkgcGxhY2Ugd2UgZG9uJ3QgdXNlIHRoZSBmcmFtZSBsaXN0IHJvdXRpbmVzICovCiAJ
+CXVoY2ktPmZsLT5mcmFtZVtpXSA9IGNwdV90b19sZTMyKHVoY2ktPnNrZWxxaFs3IC0gaXJxXS0+
+ZG1hX2hhbmRsZSk7Cg==
 
-You can find an strace of the nfsd server startup as well as a sysrq-t capture here:
-
-http://philou.org/linux/2.6.3-rc1-mm1/nfsd-sysrq.txt
-
-System is a Dell 2650 SMP (ia32), running Debian Sid.
-
-Thanks,
-
-Philippe
-
---
-
-Philippe Gramoullé
-philippe.gramoulle@mmania.com
-Senior System and Network Architect
-Lycos Europe
+---MOQ10763355247f93030b838805640614669d3e99af9b--
 

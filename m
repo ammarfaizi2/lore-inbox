@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290917AbSASHIv>; Sat, 19 Jan 2002 02:08:51 -0500
+	id <S290921AbSASIV6>; Sat, 19 Jan 2002 03:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290918AbSASHIk>; Sat, 19 Jan 2002 02:08:40 -0500
-Received: from f58.law14.hotmail.com ([64.4.21.58]:1811 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290917AbSASHIa>;
-	Sat, 19 Jan 2002 02:08:30 -0500
-X-Originating-IP: [203.145.133.194]
-From: "Raman S" <raman_s_@hotmail.com>
-To: mjustice@austin.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [Question] Viewing and changing memory contents in Linux
-Date: Fri, 18 Jan 2002 23:08:24 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F58c0D543TuylJc0xvl0000505e@hotmail.com>
-X-OriginalArrivalTime: 19 Jan 2002 07:08:24.0575 (UTC) FILETIME=[15F2E0F0:01C1A0B8]
+	id <S290923AbSASIVs>; Sat, 19 Jan 2002 03:21:48 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:1736 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S290921AbSASIVg>; Sat, 19 Jan 2002 03:21:36 -0500
+Date: Sat, 19 Jan 2002 10:19:16 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Ben Clifford <benc@hawaga.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOPs reading audio data from CD, ide-cd.
+In-Reply-To: <Pine.LNX.4.33.0201180923490.18054-100000@barbarella.hawaga.org.uk>
+Message-ID: <Pine.LNX.4.44.0201191017360.10159-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Jan 2002, Ben Clifford wrote:
 
-I guess I should be using kdb... Thanks.
-Raman S
+> 2.5.2, patched with: accessfs, i810_audio 0.20
 
->From: Marvin Justice <mjustice@austin.rr.com>
->Reply-To: mjustice@austin.rr.com
->To: "Raman S" <raman_s_@hotmail.com>, linux-kernel@vger.kernel.org
->Subject: Re: [Question] Viewing and changing memory contents in Linux
->Date: Sat, 19 Jan 2002 00:46:30 -0600
->
->gdb lets you do it - but only for virtual addresses in the context of a
->specific process. If you're talking about memory referenced by physical
->address then I guess you'd have to be in kernel mode.
->
->-Marvin
->
->
->On Friday 18 January 2002 10:43 pm, Raman S wrote:
-> > Hi,
-> >   Is there an open source utility that allows viewing and modifying
-> > memory contents dynamically while the system is running.....
-> >    Thanks.
-> > Raman S
-> >
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+I submitted a patch to fix this in 2.4.18-pre2. Here it is again, 
+hopefully it will apply, if not send me drivers/ide/ide-cd.c and i'll do a 
+patch for you.
 
+Regards,
+	Zwane Mwaikambo
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
+--- linux-2.4.18-pre2/drivers/ide/ide-cd.c.orig	Wed Jan  9 11:04:47 2002
++++ linux-2.4.18-pre2/drivers/ide/ide-cd.c	Wed Jan  9 11:05:14 2002
+@@ -1462,11 +1462,8 @@
+ 		ide_init_drive_cmd (&req);
+ 		req.cmd = PACKET_COMMAND;
+ 		req.buffer = (char *)pc;
+-		if (ide_do_drive_cmd (drive, &req, ide_wait)) {
+-			printk("%s: do_drive_cmd returned stat=%02x,err=%02x\n",
+-				drive->name, req.buffer[0], req.buffer[1]);
+-			/* FIXME: we should probably abort/retry or something */
+-		}
++		ide_do_drive_cmd (drive, &req, ide_wait);
++
+ 		if (pc->stat != 0) {
+ 			/* The request failed.  Retry if it was due to a unit
+ 			   attention status
 

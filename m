@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135711AbRDXSgU>; Tue, 24 Apr 2001 14:36:20 -0400
+	id <S135707AbRDXSgu>; Tue, 24 Apr 2001 14:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135707AbRDXSgK>; Tue, 24 Apr 2001 14:36:10 -0400
-Received: from d141-221-152.home.cgocable.net ([24.141.221.152]:32144 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S135709AbRDXSf7>; Tue, 24 Apr 2001 14:35:59 -0400
-Date: Tue, 24 Apr 2001 14:37:07 -0400 (EDT)
-From: Garett Spencley <gspen@home.com>
-To: <imel96@trustix.co.id>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
-Message-ID: <Pine.LNX.4.30.0104241427570.14742-100000@localhost.localdomain>
+	id <S135709AbRDXSgl>; Tue, 24 Apr 2001 14:36:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59917 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135707AbRDXSgd>; Tue, 24 Apr 2001 14:36:33 -0400
+Subject: Re: BUG: Global FPU corruption in 2.2
+To: zandy@cs.wisc.edu (Victor Zandy)
+Date: Tue, 24 Apr 2001 19:37:38 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cpxitjurwei.fsf@goat.cs.wisc.edu> from "Victor Zandy" at Apr 24, 2001 01:21:41 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s7gz-0002fh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >         child->flags |= PF_PTRACED; 
+> > 
+> > without waiting for the child to have stopped. 
+> 
+> I can see how this could case PF_USEDFPU to be cleared inadvertently,
+> but I do not have any ideas for testing this.  Is it clear that this
+> is the source of the problem?
 
-> that also explain why win95 user doesn't want to use NT. not
-> because they can't afford it (belive me, here NT costs only
-> us$2), but additional headache isn't acceptable.
+There is no guarantee that |= is implemented atomically - in fact its quite
+likely to read
 
-I'm going to speak from experience:
+		get child->flags
+		or PF_PTRACED
+		write child->flags
 
-My mother, who is the biggest windoze fan on the face of the universe, got
-fed up with win98 and decided to move to win2k. The hole "multi-user" thing
-doesn't bother her in the slightest. She has a non-admin account for
-herself "karen".
+and a PF_USEDFPU on another processor at the same instant -would- end up being
+lost.
 
-You want a better example?
+There are two fixes
 
-My little cousin is not much into computers but he uses one enough to check
-mail, surf the web etc... Like many win98 users he was re-installing it
-about once a month. He finally got so fed up he asked me to install Linux
-for him!
+1.	Make all the ops atomic (foo_bit())
+2.	Split the flags
 
-He is now very happy. He doesn't care about the fact that he has to type
-in his user name. He even doesn't know any shell commands. He would
-probably actually get concerned if he had to use root always because that
-would reveal the same problems that he was having with win98.
-
-There's a lot of things you can do to make Linux easier for newbies. None
-of them involve hacking the kernel. Have you tried Linux-Mandrake 8.0 yet?
-
--- 
-Garett Spencley
+The preferable one for performance is certainly to backport the 2.4 changes
 

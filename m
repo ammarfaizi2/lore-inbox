@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313780AbSDHW7c>; Mon, 8 Apr 2002 18:59:32 -0400
+	id <S313744AbSDHW4S>; Mon, 8 Apr 2002 18:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313782AbSDHW7b>; Mon, 8 Apr 2002 18:59:31 -0400
-Received: from web13207.mail.yahoo.com ([216.136.174.192]:64011 "HELO
-	web13207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313780AbSDHW7a>; Mon, 8 Apr 2002 18:59:30 -0400
-Message-ID: <20020408225930.31178.qmail@web13207.mail.yahoo.com>
-Date: Mon, 8 Apr 2002 15:59:30 -0700 (PDT)
-From: joyhaa <joyhaa@yahoo.com>
-Subject: kernel instruction level tracing
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020408182923.D2047@devserv.devel.redhat.com>
+	id <S313748AbSDHW4R>; Mon, 8 Apr 2002 18:56:17 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:38524 "EHLO
+	hotmale.boyland.org") by vger.kernel.org with ESMTP
+	id <S313744AbSDHW4Q>; Mon, 8 Apr 2002 18:56:16 -0400
+Message-ID: <3CB220B8.3000305@blue-labs.org>
+Date: Mon, 08 Apr 2002 18:59:04 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020402
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Robert Love <rml@tech9.net>
+CC: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: system call for finding the number of cpus??
+In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A4451A@tayexc13.americas.cpqcorp.net> <1018301108.913.167.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm trying to analyze netfiltering and routing
-workload inside the kernel for PowerPC(a typical
-kernel 'application', and I can not figure out how to
-do the workload analysis in use space for them), is
-there a way to trace all the instruction flow(e.g. a
-packet coming-in--> going-out) so I can use the result
-to further analyze things like cache hit/miss,
-latency,drop rate,etc? I'd like to collect the raw
-instruction flow in simulation state(non realtime).
+# grep -c "^processor" /proc/cpuinfo
+2
 
-LTT(Linux Trace Toolkit) is a good tool, but I want
-more detailing tracing info. I tried UML, it doesn't
-work well on PowerPC so far.
+-d
 
-Is it possible at all?
+Robert Love wrote:
 
-Thanks
+>
+>Linux does not implement such a syscall.  Note
+>
+>	cat /proc/cpuinfo | grep processor | wc -l
+>
+>works and is simple; you do not have to do it via script - execute it in
+>your C program, save the one-line output, and atoi() it.
+>
+>	Robert Love
+>
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUD2IE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263654AbUD2IQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263663AbUD2IE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUD2IE1
+	id S263654AbUD2IQG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 04:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUD2IQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:04:27 -0400
-Received: from smtp5.libero.it ([193.70.192.55]:22168 "EHLO smtp5.libero.it")
-	by vger.kernel.org with ESMTP id S263663AbUD2IDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:03:39 -0400
-From: Mail Delivery Service <postmaster@iol.it>
-Subject: Delivery Status Notification
+	Thu, 29 Apr 2004 04:16:06 -0400
+Received: from anubis.medic.chalmers.se ([129.16.30.218]:5553 "EHLO
+	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
+	id S263654AbUD2IQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 04:16:03 -0400
+From: Goran Cengic <cengic@s2.chalmers.se>
+Organization: Chalmers University of Technology
 To: linux-kernel@vger.kernel.org
-Date: Thu, 29 Apr 2004 10:03:38 +0200
-Message-ID: <40886FC20146E46F@smtp5.libero.it>
+Subject: Re: Special place for tird-party modules.
+Date: Thu, 29 Apr 2004 10:15:59 +0200
+User-Agent: KMail/1.6
+References: <200404281814.24991.cengic@s2.chalmers.se> <200404281918.i3SJIPPR005391@turing-police.cc.vt.edu>
+In-Reply-To: <200404281918.i3SJIPPR005391@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: Multipart/Report; report-type=delivery-status; boundary="========/40886FC20146E46D/smtp5.libero.it"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404291015.59271.cengic@s2.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This multi-part MIME message contains a Delivery Status Notification.
-If you can see this text, your mail client may not be able to understand MIME
-formatted messages or DSNs (see RFC 2045 through 2049 for general MIME
-information and RFC 1891 through 1894 for DSN specific information).
+On Wednesday 28 April 2004 21.18, Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 28 Apr 2004 18:14:24 +0200, Goran Cengic <cengic@s2.chalmers.se>  
+said:
+> > I do understand that many developers have several kernel version
+> > installed at the same time but is it possible to share between the
+> > versions at least the modules that are not developed as the part of the
+> > kernel?
+> >
+> > If I'm missing something cruical please point it out to me.
+>
+> What you're missing is the reason for modversions to exist - the fact that
+> the kernel API *does* change between releases, and even within the same
+> source tree (UP vs SMP builds, for instance).  If we supported what you're
+> suggesting, then the following *will* happen:
+>
+> 1) Binary module for 2.6.N is released that uses an API that takes 5
+> parameters. 2) 2.6.N+1 comes out, and said API has another parameter added
+> (see the recent tweak-fest for elf_map() for an actual example).
+> 3) User loads old binary into kernel.
+> 4) Kernel OOPs when it dereferences the non-existent 6th parameter that
+> wasn't passed by the un-updated binary.
 
---========/40886FC20146E46D/smtp5.libero.it
-Content-Type: text/plain; charset=iso-8859-1
+Ok, I get it :) Thank you!
 
-Your message was refused by recipient's server filtering program.
-Reason given was as follows:
+/Goran
 
-Disallowed attach type
-
---========/40886FC20146E46D/smtp5.libero.it
-Content-Type: Message/Delivery-Status
-
-Reporting-MTA: dns; smtp5.libero.it
-Received-from-MTA: dns; libero.it (151.38.167.5)
-Arrival-Date: Thu, 29 Apr 2004 10:03:38 +0200
-
-Final-Recipient: rfc822; mantra@libero.it
-Action: Failed
-Status: 5.7.1 (delivery not authorized, message refused)
-
---========/40886FC20146E46D/smtp5.libero.it
-Content-Type: Text/RFC822-headers
-
-Return-Path: <linux-kernel@vger.kernel.org>
-Received: from libero.it (151.38.167.5) by smtp5.libero.it (7.0.027-DD01)
-        id 40886FC20146E46D for mantra@libero.it; Thu, 29 Apr 2004 10:03:38 +0200
-From: linux-kernel@vger.kernel.org
-To: mantra@libero.it
-Subject: Numbers
-Date: Thu, 29 Apr 2004 10:03:38 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0013_000059D0.0000171A"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
-
---========/40886FC20146E46D/smtp5.libero.it--
-
+----------------------------------
+Goran Cengic
+mailto:cengic@s2.chalmers.se
+----------------------------------
+Have a nice day :)

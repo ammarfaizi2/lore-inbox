@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293552AbSCSDfh>; Mon, 18 Mar 2002 22:35:37 -0500
+	id <S293627AbSCSDgh>; Mon, 18 Mar 2002 22:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293619AbSCSDf1>; Mon, 18 Mar 2002 22:35:27 -0500
-Received: from [211.238.181.68] ([211.238.181.68]:59661 "EHLO
-	mail.digitaldreamstudios.net") by vger.kernel.org with ESMTP
-	id <S293552AbSCSDfS>; Mon, 18 Mar 2002 22:35:18 -0500
-Message-ID: <3C96B1FB.BFE2C122@nownuri.net>
-Date: Tue, 19 Mar 2002 12:35:23 +0900
-From: SeongTae Yoo <alloying@nownuri.net>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
+	id <S293626AbSCSDg3>; Mon, 18 Mar 2002 22:36:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60168 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293619AbSCSDgR>;
+	Mon, 18 Mar 2002 22:36:17 -0500
+Message-ID: <3C96B207.8060006@mandrakesoft.com>
+Date: Mon, 18 Mar 2002 22:35:35 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: file listing problem in smbfs, kernel 2.4.18
-In-Reply-To: <Pine.LNX.4.44.0203182148020.15143-100000@cola.teststation.com>
-Content-Type: text/plain; charset=EUC-KR
+To: Dave Jones <davej@suse.de>
+CC: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <20020318153637.J4783@host110.fsmlabs.com> <Pine.LNX.4.33.0203181446200.10517-100000@penguin.transmeta.com> <15510.32200.595707.145452@argo.ozlabs.ibm.com> <20020319015722.N17410@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
+
+>On Tue, Mar 19, 2002 at 10:52:40AM +1100, Paul Mackerras wrote:
+> > The G4 has 4 performance monitor counters that you can set up to
+> > measure things like ITLB misses, DTLB misses, cycles spent doing
+> > tablewalks for ITLB misses and DTLB misses, etc.
+> > What I need to do now is
+> > to put some better infrastructure for using those counters in place
+> > and try your program using those counters instead of the timebase.
+>
+> Sounds like a good candidate for the first non-x86 port of oprofile[1].
+> Write the kernel part, and all the nice userspace tools come for free.
+> There are also a few other perfctr abstraction projects, which are
+> linked off the oprofile pages somewhere iirc.
+>
+
+Maybe this is why drepper doesn't like threaded profiling... he wants us 
+all to use oprofile.
+
+/me ducks and runs....
 
 
-Urban Widmark wrote:
-> 
-> You could also try the smbfs unicode patch for 2.4.18, and see if that
-> changes anything.
->     http://www.hojdpunkten.ac.se/054/samba/index.html
->     (Note the additional samba patch and mount flags needed)
-
-I tried it just before, but same result.
-
-> 
-> Do you have trouble with this set of files elsewhere?
-> 
-> If you have more than one server, does it make any difference if you copy
-> the files to some other server?
-
-I have already tested before the previous posting, but no difference.
-However, when the files are copied to a fat32 partition of w2k server,
-all files listed.
-
-> Does it matter how deep in the file hierarchy the dir is, for example is
-> there any difference between these two:
->    //server/share/some/long/path/the-dir-that-fails/
->    //server/share/the-dir-that-fails/
-
-The original depth is
-
-    //server/e$/1st-dir/2nd-dir/3rd-dir/
-
-tested depths are
-
-    //server/e$/2nd-dir/3rd-dir/     or
-    //server/e$/3rd-dir/
-
-but no difference.
 
 
-If you need some other tests, I will do it.

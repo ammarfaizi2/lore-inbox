@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279798AbSAPRRq>; Wed, 16 Jan 2002 12:17:46 -0500
+	id <S282978AbSAPRTQ>; Wed, 16 Jan 2002 12:19:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280588AbSAPRRg>; Wed, 16 Jan 2002 12:17:36 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:5291 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S279798AbSAPRRZ>; Wed, 16 Jan 2002 12:17:25 -0500
-Message-ID: <3C45B715.926A0BA0@nortelnetworks.com>
-Date: Wed, 16 Jan 2002 12:23:33 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S281214AbSAPRTG>; Wed, 16 Jan 2002 12:19:06 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:41905 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S280588AbSAPRS5>; Wed, 16 Jan 2002 12:18:57 -0500
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+In-Reply-To: <Pine.LNX.4.33.0201152009030.12670-100000@twinlark.arctic.org>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 16 Jan 2002 18:18:40 +0100
+Message-ID: <871ygqkydr.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-To: mcuss@cdlsystems.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Measuring execution time
-In-Reply-To: <Pine.LNX.4.33.0201151409270.1744-100000@barbarella.hawaga.org.uk> <042f01c19e13$6da6f4f0$160e10ac@hades>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Cuss wrote:
+dean gaudet <dean-list-linux-kernel@arctic.org> writes:
 
-> I am working on optimizing some software and would like to be able to
-> measure how long an instruction takes (down to the clock cycle of the CPU).
-> I recall reading somewhere about a kernel time measurement called a "Jiffy"
-> and figured that it would probably apply to this.
+> On 15 Jan 2002, Olaf Dietsche wrote:
 > 
-> If anyone has any tips on how to figure out how to do this I'd really
-> appreciate it.
+> > For example, you can say, user www is allowed to bind to port 80 or
+> > user mail is allowed to bind to port 25. Then, you can run apache as
+> > user www and sendmail as user mail. Now, you don't have to rely on
+> > apache or sendmail giving up superuser rights to enhance security.
+> 
+> typically logging must also occur as some other user than what the daemon
+> runs as, or else your logs are suspect in any sort of break-in.  this is
+> no problem for stuff using syslog, but since that's not the default
+> configuration for apache you might want to put a note in any docs you end
+> up including.  one suggestion is piped logging through a setuid logger
+> (setuid to user wwwlogs or something, root not required).
 
-Jiffies are quite coarse-grained.  On x86 you want the rdtsc instruction, while
-on ppc you want mfrtcu/mfrtcl or mftbu/mftb depending on the version of the
-chip.  These are used as inline assembly, and if you do a google search you
-should be able to find code snippets.
+Right. But that's user space and shouldn't impact the kernel/accessfs.
+Or did I miss something?
 
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Regards, Olaf.

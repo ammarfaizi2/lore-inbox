@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTDZQs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 12:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDZQs6
+	id S262627AbTDZQ5C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 12:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTDZQ5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 12:48:58 -0400
-Received: from [81.80.245.157] ([81.80.245.157]:51079 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id S261824AbTDZQs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 12:48:56 -0400
-Date: Sat, 26 Apr 2003 19:00:19 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
-Message-ID: <20030426170019.GE18917@vitel.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Ben Collins <bcollins@debian.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr> <20030426143445.GC2774@phunnypharm.org> <20030426161009.GC18917@vitel.alcove-fr> <20030426161233.GE2774@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030426161233.GE2774@phunnypharm.org>
-User-Agent: Mutt/1.3.25i
+	Sat, 26 Apr 2003 12:57:02 -0400
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:8088 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262627AbTDZQ45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 12:56:57 -0400
+Date: Sat, 26 Apr 2003 13:03:35 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] TRIVIAL -- fix annoying dependency order in menu
+Message-ID: <Pine.LNX.4.44.0304261302240.32403-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 26, 2003 at 12:12:34PM -0400, Ben Collins wrote:
 
-> > The FAQ on linux1394 site was indeed updated 2 days ago. I'm sorry
-> > I didn't think to look there.
-> 
-> The rescan-scsi-bus.sh info has been there since sbp2 was introduced
-> over a year ago.
+--- curr/arch/i386/Kconfig	2003-04-19 22:48:52.000000000 -0400
++++ rday/arch/i386/Kconfig	2003-04-20 17:33:33.000000000 -0400
+@@ -413,6 +413,18 @@
+ 
+ 	  If you don't know what to do here, say N.
+ 
++config NR_CPUS
++	int "Maximum number of CPUs (2-32)"
++	depends on SMP
++	default "32"
++	help
++	  This allows you to specify the maximum number of CPUs which this
++	  kernel will support.  The maximum supported value is 32 and the
++	  minimum value which makes sense is 2.
++
++	  This is purely to save memory - each supported CPU adds
++	  approximately eight kilobytes to the kernel image.
++
+ config PREEMPT
+ 	bool "Preemptible Kernel"
+ 	help
+@@ -465,18 +477,6 @@
+ 	depends on !SMP && X86_UP_IOAPIC
+ 	default y
+ 
+-config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	depends on SMP
+-	default "32"
+-	help
+-	  This allows you to specify the maximum number of CPUs which this
+-	  kernel will support.  The maximum supported value is 32 and the
+-	  minimum value which makes sense is 2.
+-
+-	  This is purely to save memory - each supported CPU adds
+-	  approximately eight kilobytes to the kernel image.
+-
+ config X86_TSC
+ 	bool
+ 	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
 
-The wording in that section suggested something changed three days ago.
 
-> > This means that if you do
-> > 	rmmod sbp2
-> > 	modprobe sbp2
-> > your SCSI device will be lost and you'll have to call 'rescan-scsi-bus'
-> > by hand...
-> 
-> That's what /sbin/hotplug et al are for.
-
-I don't think you understood my problem. Read again.
-
-> in scsi/ieee1394, use 2.5.x.
-> 
-> Look, I'm not going to get pulled into this argument anymore. 
-
-Neither will I.
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

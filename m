@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267313AbTBFOpl>; Thu, 6 Feb 2003 09:45:41 -0500
+	id <S267327AbTBFOwZ>; Thu, 6 Feb 2003 09:52:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267319AbTBFOpl>; Thu, 6 Feb 2003 09:45:41 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:19442 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id <S267313AbTBFOpk>;
-	Thu, 6 Feb 2003 09:45:40 -0500
-Message-Id: <200302061502.KAA06538@moss-shockers.ncsc.mil>
-Date: Thu, 6 Feb 2003 10:02:37 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-To: hch@infradead.org
-Cc: greg@kroah.com, torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: wWxe6jvvExDOR7bwD0OaLA==
-X-Mailer: dtmail 1.2.0 CDE Version 1.2 SunOS 5.6 sun4u sparc 
+	id <S267328AbTBFOwZ>; Thu, 6 Feb 2003 09:52:25 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:34229 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267327AbTBFOwY>; Thu, 6 Feb 2003 09:52:24 -0500
+Message-Id: <200302061500.h16F0pqD004143@eeyore.valparaiso.cl>
+To: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 2.95 vs 3.21 performance 
+In-Reply-To: Your message of "Wed, 05 Feb 2003 11:04:24 +0100."
+             <m3k7gfjb6f.fsf@Janik.cz> 
+Date: Thu, 06 Feb 2003 16:00:51 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=) said:
+> Linus Torvalds <torvalds@transmeta.com> said:
+>    > lcc isn't really something I want to use, since the license is so
+>    > strange, and thus can't be improved upon if there are issues with it.
 
-Christoph Hellwig wrote:
-> The wrong thing here is that you pass in the object itself, not
-> it's ACC-relevant attributes.
+> what is the difference between compiler and source management system
+> regarding licenses and improvements?
 
-That's no different than permission(), and it is the style of interface
-suggested by Linus originally for LSM.  SELinux did provide an
-interface more akin to what you describe (passing the security
-identifiers of the process and relevant objects and a value indicating
-the operation).  But SELinux was also more tightly integrated into the
-kernel.  The original guidance for LSM was to simply pass the objects
-and to use separate hooks for different operations, moving the
-processing entirely into the module.
+That bk was designed around Linus' and other head kernel hackers ideas of
+how it should work, and they are still bending over backwards to keep this
+biggest _*non*_customer of theirs happy.
 
-Bringing this all up now is definitely pointless.  LSM wasn't developed
-in secret, and you could have made your case for a different
-approach/interface at the very beginning.  If you had made a case early
-on, and had gotten Linus to sign off on it, then we certainly wouldn't
-have objected to such an approach.
+OTOH, lcc as a project seems to be dead for all practical purposes (it
+looks like 4.2 will be the endo of the line, no patches or updates have
+shown up for quite some time). Its licence
+<http://www.cs.princeton.edu/software/lcc/pkg/CPYRIGHT> is vaguely BSDish,
+but with a "you can't make money off this or any modified versions/software
+based on it" clause.
 
-> No it seems not pointless.  You add tons of undesigned cruft to 2.5 that
-> will have to be maintained through all of 2.6. unless Linus hopefully
-> pulls the plug soon enough.  You still haven't even submitted a single
-> example that actually uses LSM into mainline.
-
-Not undesigned, but designed to meet guidance with which you disagree.
-There is a difference.
-
-The capabilities module is one example, albeit a limited one.  As for
-modules like SELinux, it seems better to wait until all of the
-necessary hooks have either been accepted or definitively rejected
-before submitting an adapted form of the module for mainline.  After
-this set of changes, the only thing remaining is the networking hooks,
-which have already gone through a feedback cycle with the networking
-maintainers and are being pruned and revised accordingly.
-
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
-
-
-
+I've been inside lcc 4.1 (current version is 4.2, somewhat different, so
+YMMV...) myself a bit, and while it is a marvelous showpiece for classroom
+use, it is sorely lacking in what makes a _real_ C compiler (for kernel
+use).  For one, it only knows about i486-ish ia32 CPUs, to get others
+supported in its current incarnation would be a massive excercise in
+duplication or macro-massaging the backend source; other than the (very
+good) optimal instruction selection there is very little optimization (what
+there is is a bit of strength reduction), the organization of the compiler
+makes adding aditional higher-level optimization almost impossible, a
+separate SSA or such intermediate form would have to retrofitted; the
+register selection is very simplistic and doesn't work correctly (some
+experimental patches we had for generating PIC code on ia32 kept it
+crashing by running out of registers the code for fixing this case up just
+doesn't work). No hint at scheduling instructions or such.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

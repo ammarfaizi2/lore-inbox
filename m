@@ -1,111 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264740AbTF0Tzx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 15:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTF0Tzx
+	id S264753AbTF0T4o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 15:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264754AbTF0T4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 15:55:53 -0400
-Received: from s383.jpl.nasa.gov ([137.79.94.127]:37615 "EHLO
-	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S264740AbTF0Tzs
+	Fri, 27 Jun 2003 15:56:44 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:2021 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264753AbTF0T4j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 15:55:48 -0400
-Message-ID: <3EFCA478.7010404@jpl.nasa.gov>
-Date: Fri, 27 Jun 2003 13:09:28 -0700
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-Organization: Jet Propulsion Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
+	Fri, 27 Jun 2003 15:56:39 -0400
+Date: Fri, 27 Jun 2003 13:10:44 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 856] New: File Sysyem based AIO hangs on 2.5.73-mm1
+Message-ID: <44280000.1056744644@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Svein Ove Aas <svein.ove@aas.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP send behaviour leads to cable modem woes
-References: <200306272020.57502.svein.ove@aas.no>
-In-Reply-To: <200306272020.57502.svein.ove@aas.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take a look at the wondershaper script.
-
-It's helped my DSL get good rates from home both up and down...
-
-http://lartc.org/wondershaper/
-
-Svein Ove Aas wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> My internet connection is via a cable modem, and thereon from Telenor. (A 
-> Norwegian ISP.)
-> 
-> In general, when I download something I can get up to 1400-1500 Kb/s, which is 
-> pretty good for a 1024/256 account. (They don't appear to oversubscribe their 
-> lines (yahoo!), but mine is also uncapped when there is spare capacity. Think 
-> traffic-control.)
-> 
-> So far, so good.
-> 
-> My account includes 4 IP addresses, and when I actually have four computers 
-> directly connected I can easily get 7-8Kb/s upload from each of them.
-> Oddly, when one of them is acting as a firewall/bridge for the others or I'm 
-> just uploading from one, I get 7-8Kb/s for *all* of them. (Or the one.)
-> 
-> This is, dare I say, *not* expected behaviour.
-> I've been in contact with telenor about it, and have garnered the following 
-> information.
-> 
-> (A)	Although the line appear to be straight Ethernet attached to a 
-> packet-filtering switch (just ARP-filtering, actually), it's *actually* an 
-> ATM-based line. This should come as no surprise.
-> 
-> (B)	Whatever they have allocating the ATM cells for transfer is doing it in 
-> bursts of about 16KB. Or possibly 32KB. Well, the tech I talked to was pretty 
-> sure it was a power of two, at least.
-> 
-> (C)	This means that while I get 8 bursts (or more) of 16KB per second on 
-> download (empirically confirmed, but the cable modem will tend to space it 
-> out when the line is at capacity), giving me a latency of 128-256 ms and so 
-> on and so forth (which I have), I get only *two* bursts per second to upload 
-> things. I think. You may want to apply a multiplier somewhere.
-> 
-> And, finally, (D):
-> 
-> This thoroughly screws up TCP/IP for uploading purposes. It *completely* 
-> breaks Realtek cards, screws up uploading speeds in Linux and Windows XP (I 
-> assume they think there is a lot of intermittent packet loss because of the 
-> delay), and has no apparent effect on Windows 9x/2000.
-> 
-> The cable modem in question is manufactured by Coresma and is marked NeMo. 
-> It's also supposed to have a pretty large send buffer, so if I could just 
-> force Linux to send at some user-defined speed without being so paranoid 
-> about overloading the line, I could get a lot more use out of it.
-> 
-> For the curious, if I do just that with UDP, I can indeed send at up to 30KB/s 
-> without losing packets. They *do* come in bursts, though.
-> 
-> 
-> Please, save me before I lose my mind!
-> 
-> - - Svein Ove Aas
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
-> 
-> iD8DBQE+/IsG9OlFkai3rMARAmZ4AKCeGIXGhREfh0kcA4Dr8FJs9fNuFgCg1sTb
-> 1bk3+ipUs9tS35oZidxcY4I=
-> =Zz5P
-> -----END PGP SIGNATURE-----
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+           Summary: File Sysyem based AIO hangs on 2.5.73-mm1
+    Kernel Version: 2.5.73-mm1
+            Status: NEW
+          Severity: high
+             Owner: akpm@digeo.com
+         Submitter: slpratt@us.ibm.com
 
 
--- 
-Bryan Whitehead
-SysAdmin - JPL - Interferometry and Large Optical Systems
-Phone: 818 354 2903
-driver@jpl.nasa.gov
+Distribution:SLES8.0 + 2.5.73-mm1
+
+Hardware Environment:8way 900Mhz 4xIBM Servraid 80 disks
+
+Problem Description:
+Multithreaded file system based AIO results in defunct processes.
+
+Steps to reproduce:
+Get rawread from
+http://www-124.ibm.com/developerworks/opensource/linuxperf/rawread/rawread.html
+
+rawread -t12 -p160 -m20 -d6 -s 65536 -n4096 -f 
+
+Test passed for block sizes 1k, 2k, 4k, 8k, 16k, 32k, before dying on 64k block
+size.
+
+Trace of one of the defunct threads follows:
+
+rawread       D 00000001 18960  18891         18963 18959 (NOTLB)
+f33cbbd0 00000086 c0517660 00000001 000000ff f7abde00 f7378b60 f7abde00 
+       f7abde00 f6d0b6a0 f7abde00 f6d0b6a0 e42906f0 c0517660 f6d0b6a0 c0577680 
+       f33cbbdc c011dbf6 f33cbc0c d54c4420 c0158be5 f6d0b6a0 f33cbc04 00000000 
+Call Trace:
+ [<c011dbf6>] io_schedule+0x26/0x30
+ [<c0158be5>] __wait_on_buffer_wq+0xf5/0x100
+ [<c011eb40>] autoremove_wake_function+0x0/0x50
+ [<c011eb40>] autoremove_wake_function+0x0/0x50
+ [<c011eb40>] autoremove_wake_function+0x0/0x50
+ [<c015a05c>] __bread_slow_wq+0x3c/0x100
+ [<c015a3d0>] __bread_wq+0x40/0x50
+ [<c01ac66c>] ext2_get_branch_wq+0x7c/0x160
+ [<c01acaea>] ext2_get_block_wq+0x8a/0x440
+ [<c0306c55>] as_set_request+0x25/0x80
+ [<c0305bde>] as_update_arq+0x2e/0x80
+ [<c01acf0f>] ext2_get_block+0x2f/0x40
+ [<c0179881>] do_mpage_readpage+0x3c1/0x3d0
+ [<c01391e1>] add_to_page_cache+0x71/0x110
+ [<c01799ee>] mpage_readpages+0x15e/0x1b0
+ [<c01acee0>] ext2_get_block+0x0/0x40
+ [<c013d200>] __rmqueue+0xf0/0x160
+ [<c013fa6c>] read_pages+0x15c/0x170
+ [<c01acee0>] ext2_get_block+0x0/0x40
+ [<c013d6df>] __alloc_pages+0x14f/0x330
+ [<c013fbd6>] do_page_cache_readahead+0x156/0x1d0
+ [<c013fcc5>] page_cache_readahead+0x75/0x190
+ [<c017d34d>] aio_setup_iocb+0x14d/0x1c0
+ [<c017d58f>] io_submit_one+0x18f/0x220
+ [<c017d6dc>] sys_io_submit+0xbc/0x140
+ [<c010b03f>] syscall_call+0x7/0xb
+
 

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRBMMlb>; Tue, 13 Feb 2001 07:41:31 -0500
+	id <S129853AbRBMMrl>; Tue, 13 Feb 2001 07:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131270AbRBMMlV>; Tue, 13 Feb 2001 07:41:21 -0500
-Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:7172 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129536AbRBMMlH>;
-	Tue, 13 Feb 2001 07:41:07 -0500
-Date: Tue, 13 Feb 2001 12:43:43 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lost charaters -- this is becoming annoying!
-In-Reply-To: <3A892533.D7590C8F@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0102131237310.829-100000@penguin.homenet>
+	id <S129577AbRBMMrd>; Tue, 13 Feb 2001 07:47:33 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:35594 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129536AbRBMMrV>; Tue, 13 Feb 2001 07:47:21 -0500
+Date: Tue, 13 Feb 2001 06:47:13 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-sound@vger.kernel.org
+Subject: [PATCH] Via audio users please test...
+In-Reply-To: <20010212134359.4905.qmail@inbox.net>
+Message-ID: <Pine.LNX.3.96.1010213064044.31857C-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Andrew Morton wrote:
-> Well, an external keyboard in a Dell Latitude works just fine here.
-> Perhaps you should remove it from the docking station and test
-> with an external keyboard?
 
-yes, I can try that. In the meantime you can see for yourself -- just plug
-into the docking station and stop using external keyboard (you must have
-lots of spare space on your desk -- I am not so tidy to allow so much
-wasted space to be wasted by such insignificant item as keyboard :)
+Attached is a patch against 2.4.1-ac-XX which changes the initialization
+of SigmaTel audio codecs.  All recent reports of "no sound at all" with
+Via audio have been users with this codec.  With the Via audio driver,
+you can find out if you have one of the problematic Sigmatel codecs like
+so:
 
-> 
-> Or maybe it's just that chainsaw accident you had - have you tried
-> counting to ten lately?
-> 
+> [root@bivius via82cxxx-1.1.14]# cat /proc/driver/via/0/ac97 
+> Vendor name      : SigmaTel STAC????
+> Vendor id        : 8384 7600
 
-yes, my fingers are okay -- I frequently check the mapping between the
-items in Exodus 20 and the fingers to make sure I still have the right
-number (of both).
+I would greatly appreciate any testing of this patch by those users, to
+let me know if this patch works...
 
-Regards,
-Tigran
+Thanks,
+
+	Jeff
+
+
+
+
+
+Index: drivers/sound/ac97_codec.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/drivers/sound/ac97_codec.c,v
+retrieving revision 1.1.1.15.2.1
+diff -u -r1.1.1.15.2.1 ac97_codec.c
+--- drivers/sound/ac97_codec.c	2001/02/09 23:52:28	1.1.1.15.2.1
++++ drivers/sound/ac97_codec.c	2001/02/13 12:37:32
+@@ -103,7 +103,7 @@
+ 	{0x574D4C00, "Wolfson WM9704",		wolfson_init},
+ 	{0x574D4C03, "Wolfson WM9703/9704",	wolfson_init},
+ 	{0x574D4C04, "Wolfson WM9704 (quad)",	wolfson_init},
+-	{0x83847600, "SigmaTel STAC????",	NULL},
++	{0x83847600, "SigmaTel STAC????",	sigmatel_9744_init},
+ 	{0x83847604, "SigmaTel STAC9701/3/4/5", NULL},
+ 	{0x83847605, "SigmaTel STAC9704",	NULL},
+ 	{0x83847608, "SigmaTel STAC9708",	sigmatel_9708_init},
 

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbTD2PKM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 11:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbTD2PKM
+	id S262029AbTD2PHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 11:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTD2PHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 11:10:12 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:855 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id S262030AbTD2PKL convert rfc822-to-8bit (ORCPT
+	Tue, 29 Apr 2003 11:07:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:20232 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262029AbTD2PHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 11:10:11 -0400
-Message-Id: <seae44a4.027@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.2
-Date: Tue, 29 Apr 2003 11:22:00 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom BCM4306/BCM2050  support
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Tue, 29 Apr 2003 11:07:50 -0400
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software reset
+References: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Apr 2003 17:19:51 +0200
+In-Reply-To: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel>
+Message-ID: <p73vfwx2uw8.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+joe briggs <jbriggs@briggsmedia.com> writes:
 
+> Can anyone tell me how to absolutely force a reset on a i386?  Specifically, 
+> is there a system call that will call the assembly instruction to assert the 
+> RESET bus line? I try to use the "reboot(LINUX_REBOOT_CMD_RESTART,0,0,NULL)" 
+> call, but it will not always work.  Occassionally, I experience a "missed 
+> interrupt" on a Promise IDE controller, and while I can telnet into the 
+> system, I can't reset it.  Any help greatly appreciated!  Since these systems 
+> are 1000's of miles away, the need to remotely reset it paramont.
 
->>> Alan Cox <alan@lxorguk.ukuu.org.uk> 04/29/03 09:18AM >>>
-> > On Maw, 2003-04-29 at 14:26, Richard B. Johnson wrote:
-> > therefore different regulations exist in many other countries.
-> > In the UK, for instance, one has to purchase a license to
-> > use a receiver (you know, some Sony Walkman). 
+The most reliable way is to force a triple fault; load zero into
+the IDT register and then trigger an exception. The linux kernel 
+does that in fact for reboot and so far I haven't seen any machine failing
+to reset yet.
 
-> Wrong. You need a license to receive terrestrial TV but that is
-> rather different and relates to both cultural and historical tax
-> differences in philosophy between the US and UK.
+-Andi
 
-<snip>
-> Alan
+If you don't trust reboot you can use something like (untested!).
+Compile with -c and load with insmod. I'm pretty sure it will reset
+your box.
 
-And the reason is not repression, it is that the BBC is publicly funded. The licence
-fee is what pays for the BBC. And produces programming infinitely better that the
-total crap we get here in the US.
+#define MODULE 1
+#define __KERNEL__ 1
+#include <linux/module.h>
 
-Nik
+int init_module(void)
+{ 
+        static struct { 
+                short limit;
+                unsigned ptr;
+        } desc = { 64000, 0 }; 
 
-
+        asm volatile("lidt %0" : "m" (desc)); 
+        asm volatile("movl %0,%%esp ; int $3" : "g" (0)); 
+} 
 

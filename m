@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSJYDt1>; Thu, 24 Oct 2002 23:49:27 -0400
+	id <S261223AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261285AbSJYDt0>; Thu, 24 Oct 2002 23:49:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14229 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261271AbSJYDtY>;
-	Thu, 24 Oct 2002 23:49:24 -0400
-Date: Thu, 24 Oct 2002 20:55:26 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: SL Baur <steve@kbuxd.necst.nec.co.jp>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Forward port of aic7xxx driver to 2.5.44 [1/3]
-Message-ID: <20021024205526.A23827@eng2.beaverton.ibm.com>
-Mail-Followup-To: SL Baur <steve@kbuxd.necst.nec.co.jp>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <15800.43219.216824.411355@sofia.bsd2.kbnes.nec.co.jp>
-Mime-Version: 1.0
+	id <S261238AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
+Received: from p50813471.dip.t-dialin.net ([80.129.52.113]:13696 "EHLO
+	debian.at.home.org") by vger.kernel.org with ESMTP
+	id <S261223AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
+Message-ID: <3DB8C002.D2B94577@kph.uni-mainz.de>
+Date: Fri, 25 Oct 2002 05:52:34 +0200
+From: Thomas Reifferscheid <reiffer@kph.uni-mainz.de>
+Organization: Institut =?iso-8859-1?Q?f=FCr?= Kernphysik, Mainz
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Patch for 2.4.19pre11/fs/filesystems.c
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <15800.43219.216824.411355@sofia.bsd2.kbnes.nec.co.jp>; from steve@kbuxd.necst.nec.co.jp on Fri, Oct 25, 2002 at 11:13:39AM +0900
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 11:13:39AM +0900, SL Baur wrote:
-> Hi,
-> 
-> This patch updates the aic7xxx driver to be the same version as in
-> 2.4.20-pre11.  The version currently in 2.5.44 is too old to recognize
-> my controller.  It compiles cleanly, but I have not yet tried to boot
-> with it.  Would someone with experienced eyes please look it over to
-> be sure I didn't do anything stupid?  Thanks.
-> 
+When I do
+CONFIG_NFSD=M 
+and want to insert the module I get:
 
-You must have missed Justin's post:
+unresolved symbol nfsd_linkage
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103534482111734&w=2
+which already was described by Jean-Luc Fontaine in 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=98173746131993&w=2
 
-Pointing to this file:
 
-http://people.FreeBSD.org/~gibbs/linux/linux-2.5-aic79xxx.tar.gz
+My patch solves this and works for me.
 
-The above still needs changes, but they should be pretty small.
+Cheers,
+Thomas
 
--- Patrick Mansfield
+
+--- linux-2.4.20pre11-orig/fs/filesystems.c     Sat Aug  3 02:39:45 2002
++++ linux-2.4.20pre11/fs/filesystems.c  Fri Oct 25 04:44:15 2002
+@@ -13,7 +13,7 @@
+ #include <linux/kmod.h>
+ #include <linux/nfsd/interface.h>
+ 
+-#if ! defined(CONFIG_NFSD)
++#if ! defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+ struct nfsd_linkage *nfsd_linkage;
+ 
+ long

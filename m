@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUBWQcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 11:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbUBWQcJ
+	id S261950AbUBWQdr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 11:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUBWQdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 11:32:09 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:42513 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S261942AbUBWQcF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 11:32:05 -0500
-Date: Mon, 23 Feb 2004 11:32:04 -0500 (EST)
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: network / performance problems
-In-Reply-To: <Pine.OSF.4.21.0402221620090.20455-100000@mhc.mtholyoke.edu>
-Message-ID: <Pine.OSF.4.21.0402231122150.446245-100000@mhc.mtholyoke.edu>
+	Mon, 23 Feb 2004 11:33:47 -0500
+Received: from mail.tmr.com ([216.238.38.203]:23936 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261950AbUBWQdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 11:33:43 -0500
+Message-ID: <403A2B69.2070508@tmr.com>
+Date: Mon, 23 Feb 2004 11:33:45 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: andreas.hartmann@fiducia.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: distinguish two identical network cards
+References: <OF0D5B57F7.B29B3783-ONC1256E43.0035BF41@fiducia.de>
+In-Reply-To: <OF0D5B57F7.B29B3783-ONC1256E43.0035BF41@fiducia.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+andreas.hartmann@fiducia.de wrote:
+> Hello!
+> 
+> Some clarification:
+> It is important, that the cards can be distinguished without any user driven
+> action - it must run automatically. The machines will be delivered to somebody
+> who doesn't know anything about linux / unix. I must be able to do a
+> configuration like that:
+> 
+> Physical upper card: eth0
+> Physical lower card: eth1
+> 
+> The customer will be told, e.g.: plug in the network cable from switch a to the
+> upper card, the cable to the switch b must be connected to the lower card.
 
-On Sun, 22 Feb 2004, Ron Peterson wrote:
+Sorry, other than the already suggested use of nameif I don't see any 
+other good way to do it. At some point the hardware should pass through 
+the hands of someone who DOES know Linux enough to read the MAC address 
+off the sticker usually found on the NIC, and set the config to match.
 
-> I rebooted.  I set the BIOS to not run hyperthreaded, to see if that has
-> any effect.  Now wait...
+You better label the back of the NICs, if your customer can't identify 
+the one with the blinking light (as previously suggested) they may have 
+problems with UNIX terms like upper and lower ;-)
 
-Turning hyperthreading off hasn't helped.  Ping response times are still
-slowly increasing.
-
-I just put up another set of graphs that might be the most interesting
-yet.
-
-http://depot.mtholyoke.edu:8080/tmp/depot-depot/2002-02-12_10.30/
-
-They show depot, a very lightly used machine, monitoring itself, running
-e1000, then being rebooted to use a new kernel with ACPI support, then
-having the e1000 module swapped out for the bcm7500 module (switch back to
-built in NIC).  Reboot brought response times down to almost
-zero.  Switching module/NIC had no effect at all.
-
-Does anyone have any ideas of things they'd like me to try?  My
-imagination is running dry.  I have non-production 2650's and beige boxes
-I can try stuff on.
-
-_________________________
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbTJOTYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264180AbTJOTYP
+	id S264189AbTJOT3L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTJOT3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:24:15 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:62889 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264176AbTJOTYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:24:14 -0400
-Date: Wed, 15 Oct 2003 21:24:10 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Valdis.Kletnieks@vt.edu
-cc: Erik Mouw <erik@harddisk-recovery.com>,
-       Nikita Danilov <Nikita@Namesys.COM>, Josh Litherland <josh@temp123.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Transparent compression in the FS 
-In-Reply-To: <200310151914.h9FJEM5H013940@turing-police.cc.vt.edu>
-Message-ID: <Pine.GSO.4.21.0310152122370.21423-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Oct 2003 15:29:11 -0400
+Received: from richardson.uni2.net ([130.227.52.104]:5018 "EHLO
+	richardson.uni2.net") by vger.kernel.org with ESMTP id S264189AbTJOT3C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 15:29:02 -0400
+Date: Wed, 15 Oct 2003 21:30:13 +0200
+From: Atte =?ISO-8859-1?Q?Andr=E9?= Jensen <atte@ballbreaker.dk>
+To: linux-kernel@vger.kernel.org
+Subject: orinoco wireless pcmcia driver in test5
+Message-Id: <20031015213013.5244bb4c.atte@ballbreaker.dk>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: L)f+i9!Dd&?Kp0mK"X:JK~)"&w]slO5Hvz;j35_=8Ry!{';~cG?!m=7/OM'9lyAPa=\*pH~
+ |93u]Ze?mxx9v3u615xqSkL"1C)z#kWUW,d8p,Fr[9xHza(k4{[|o{I'|EhP1MB=pkMSNf'4myHm!x
+ rB|hf`h)m<vKj9H4>"=Q0Z-t*OiAS[_MZKI+/ztKNXI.QDk]m8LaI.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003 Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 15 Oct 2003 21:03:35 +0200, Geert Uytterhoeven said:
-> >   - 1989: Amiga 500, 7.14 MHz 68000, expensive SCSI disk, 675 KB/s
-> >   - 1992: Amiga 4000, 25 MHz 68040, IDE, 1.8 MB/s (SCSI with 5 MB/s should ha
-> ve
-> >     been possible)
-> >   - 1998: CHRP, 200 MHz 604e, UW-SCSI, 17 MB/s
-> > 
-> > The third CPU is ca. 25 times faster than the second (both in BogoMIPS as
-> > kernel cross-compiles). The disk isn't 25 faster, though.
-> 
-> %  dc
-> 3 k 17 .675 / p
-> 25.185
-> ^D
-> 
-> Huh?
+What is the result (and purpose) of no mention of the orinoco wireless
+drivers in the .config for test5?
 
-You're comparing the _third_ disk to the _first_. If you want to do that,
-please take note that the 68040 is a lot faster than the 68000, too.
+[atte@aarhus atte]$ grep -i orinoco /usr/src/linux-2.6.0-test5/.config
+[atte@aarhus atte]$ 
 
-Gr{oetje,eeting}s,
+Will the driver be linked in anyhow? If not is there a fix?
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+peace, love & harmony
+Atte

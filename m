@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286815AbRL1KP0>; Fri, 28 Dec 2001 05:15:26 -0500
+	id <S286821AbRL1KjN>; Fri, 28 Dec 2001 05:39:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286816AbRL1KPQ>; Fri, 28 Dec 2001 05:15:16 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23566 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S286815AbRL1KPN>; Fri, 28 Dec 2001 05:15:13 -0500
-Date: Fri, 28 Dec 2001 10:58:09 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011228095809.GB5294@emma1.emma.line.org>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011223174608.A25335@thyrsus.com> <E16JTce-0000cp-00@starship.berlin> <20011227112431.GA1582@msp-150.man.olsztyn.pl> <E16Jnci-000080-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <E16Jnci-000080-00@starship.berlin>
-User-Agent: Mutt/1.3.24i
+	id <S286825AbRL1KjC>; Fri, 28 Dec 2001 05:39:02 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:11222 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S286821AbRL1Kix>; Fri, 28 Dec 2001 05:38:53 -0500
+Date: Fri, 28 Dec 2001 12:37:25 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Anton Tinchev <atl@top.bg>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
+Message-ID: <Pine.LNX.4.33.0112281234260.29899-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001, Daniel Phillips wrote:
+>There're several problems with the stability of drivers in eepro drivers
+>May be the problem is lack of low level decumentation for the cards
+>They advise to use their binnary only driver (did you? :)).
 
-> So would you be happy with kB -> 1,000 bytes, and KB -> 1024 bytes?  Likewise
-> mB for 1,000,000 bytes and MB for 1048576 bytes?
+I used the kernel driver, binary only drivers are a royal pain.
 
-No way. m is the SI prefix for milli, one thousandth. (1/1000). K is the
-SI unit Kelvin (absolute temperature). Add to the confusion...
+Cheers,
+	Zwane Mwaikambo
 
--- 
-Matthias Andree
 
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin

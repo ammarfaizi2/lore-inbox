@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbUJ0G4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbUJ0IX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbUJ0G4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 02:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUJ0Gx7
+	id S262327AbUJ0IX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 04:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbUJ0IX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 02:53:59 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:22747 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262306AbUJ0GwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 02:52:10 -0400
-Date: Wed, 27 Oct 2004 02:52:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
+	Wed, 27 Oct 2004 04:23:57 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:59852 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262327AbUJ0IXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 04:23:55 -0400
+Message-ID: <47815.195.245.190.93.1098865388.squirrel@195.245.190.93>
+In-Reply-To: <200410262209.30332.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20041022155048.GA16240@elte.hu>
+    <200410260827.39888.vda@port.imtp.ilyichevsk.odessa.ua>
+    <62112.195.245.190.94.1098787213.squirrel@195.245.190.94>
+    <200410262209.30332.vda@port.imtp.ilyichevsk.odessa.ua>
+Date: Wed, 27 Oct 2004 09:23:08 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-Subject: [SATA] libata-dev queue updated
-Message-ID: <20041027065208.GA16230@havoc.gtf.org>
-Reply-To: linux-ide@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 27 Oct 2004 08:23:53.0890 (UTC) FILETIME=[4BAC8020:01C4BBFE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Denis Vlasenko wrote:
+>> >
+>> > <shameless plug>
+>> > Maybe this program will be useful. It is designed to give you
+>> > overall system statistics without the need to scan entire /proc/NNN
+>> > forest. Together with nice -20, it will hopefully not stall.
+>> >
+>> > Compiled with dietlibc. If you will have trouble compiling it,
+>> > binary is attached too.
+>> >
+>> > Latest version is 0.9 but it seems I forgot it in my home box :(
+>> </shameless plug>
+>>
+>> Thanks for nmeter. I have changed a couple of little bits to build with
+>> gcc-3.4 here (see diff attached).
+>
+> Hmm will it compile on 3.4 with "static inline"?
+>
 
-Nothing new, just updating for recent kernels.
+Yes, it now compiles on gcc-3.4.1 out of the box.
 
-BK users:
+Thanks for this nice little utility.
 
-	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
-
-Patch:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.10-rc1-bk5-libata1-dev1.patch.bz2
-
-The libata-dev-2.6 patch requires the libata-2.6 patch, which is
-available at:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.10-rc1-bk5-libata1.patch.bz2
-
-This will update the following files:
-
- drivers/scsi/Kconfig         |    8 
- drivers/scsi/Makefile        |    1 
- drivers/scsi/libata-core.c   |   38 +-
- drivers/scsi/libata-scsi.c   |  395 +++++++++++++++++++++-
- drivers/scsi/libata.h        |    2 
- drivers/scsi/pata_pdc2027x.c |  758 +++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/sata_promise.c  |   56 +++
- include/linux/ata.h          |    1 
- include/linux/libata.h       |    2 
- include/scsi/scsi.h          |    3 
- 10 files changed, 1249 insertions(+), 15 deletions(-)
-
-through these ChangeSets:
-
-<albertcc:tw.ibm.com>:
-  o [libata] add driver for Promise PATA 2027x
-
-<andyw:pobox.com>:
-  o [libata scsi] support 12-byte passthru CDB
-  o [libata scsi] passthru CDB check condition processing
-  o T10/04-262 ATA pass thru - patch
-
-<erikbenada:yahoo.ca>:
-  o [libata sata_promise] support PATA ports on SATA controllers
-
-Brad Campbell:
-  o libata basic detection and errata for PATA->SATA bridges
-
-Jeff Garzik:
-  o [libata] fix SATA->PATA bridge detect compile breakage
-  o [libata] use kunmap_atomic() correctly
-  o [libata] fix printk warning
-
-John W. Linville:
-  o libata: SMART support via ATA pass-thru
+Cheers.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

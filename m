@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268071AbUGWVRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUGWVVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268071AbUGWVRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 17:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUGWVRT
+	id S268074AbUGWVVe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 17:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268073AbUGWVVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 17:17:19 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27405 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268071AbUGWVRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 17:17:18 -0400
-Date: Fri, 23 Jul 2004 22:17:13 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC]: CONFIG_UNSUPPORTED (was: Re: [PATCH] delete devfs)
-Message-ID: <20040723221713.A20752@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	"R. J. Wysocki" <rjwysocki@sisk.pl>, linux-kernel@vger.kernel.org
-References: <20040721141524.GA12564@kroah.com> <20040722064952.GC20561@kroah.com> <20040722091335.A17187@home.com> <200407232106.41065.rjwysocki@sisk.pl> <20040723200416.GO19329@fs.tum.de>
-Mime-Version: 1.0
+	Fri, 23 Jul 2004 17:21:34 -0400
+Received: from web50609.mail.yahoo.com ([206.190.38.248]:3493 "HELO
+	web50609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268074AbUGWVVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 17:21:32 -0400
+Message-ID: <20040723212131.86635.qmail@web50609.mail.yahoo.com>
+Date: Fri, 23 Jul 2004 14:21:31 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: Ext3 problems in dual booting machine with SE Linux 
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200407232046.i6NKkZ5V003482@turing-police.cc.vt.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040723200416.GO19329@fs.tum.de>; from bunk@fs.tum.de on Fri, Jul 23, 2004 at 10:04:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 23, 2004 at 10:04:17PM +0200, Adrian Bunk wrote:
-> Quoting 2.6 MAINTAINERS:
-> 
-> <--  snip  -->
-> 
-> PCMCIA SUBSYSTEM
-> L:      http://lists.infradead.org/mailman/listinfo/linux-pcmcia
-> S:      Unmaintained
-> 
-> <--  snip  -->
+>Fix your boot to not use /dev/root, but an actual partition number.
 
-Not entirely true - it is "looked after" but not specifically maintained.
-I'm happy to act as a patch collection service for it, and do certain
-development on it, but I have enough to handle without having to
-diagnose every guys laptop problems. 8)
+Thanks for the suggestion, but booting is fine.
 
-I guess I should find a better way to express this in my sig as well!
+>What's happening is that /dev/sda3 is *both* your /mnt/target *and* your
+>root filesystem.  So when you start rm -rf'ing, you trash your root filesystem
+>and things go pear-shaped.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+/dev/sda2 is / under 2.4
+/dev/sda3 is /mnt/target under 2.4
+/dev/sda3 is / under 2.6 
+2.6 doesn't mount /dev/sda2.
+
+title Red Hat Linux (2.4.20-31.9smp)
+        root (hd1,0)
+        kernel /vmlinuz-2.4.20-31.9smp ro root=/dev/sda2 hdd=ide-scsi
+        initrd /initrd-2.4.20-31.9smp.img
+title Test (2.6.7)
+        root (hd1,2)
+        kernel /boot/vmlinuz-2.6.7-1.437.build ro root=0803 hdd=ide-scsi
+        initrd /boot/initrd-2.6.7-1.437.build.img
+
+They both use different fstabs.
+
+The problem is not that I trash my root filesystem under 2.4, my problem is I
+cannot unmount /mnt/target after I have been in SE Linux and ran fixfiles. My
+method of recovery is to remove files from /mnt/target until I get corruption
+detected at boot which finally lets me run mke2fs to get it back.
+
+What I really wished is that I can unmount the filesystem, run mke2fs, remount it
+and start doing whatever. My root filesystem is fine. /mnt/target is fine as long
+as I don't run fixfiles.
+
+BUT...this does point out the corruption that I have come to depend on...which is
+wrong.
+
+Best Regards,
+-Steve Grubb
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Vote for the stars of Yahoo!'s next ad campaign!
+http://advision.webevents.yahoo.com/yahoo/votelifeengine/

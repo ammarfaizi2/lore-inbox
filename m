@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbTIMJtx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 05:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTIMJtx
+	id S262116AbTIMK3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 06:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTIMK3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 05:49:53 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:4911 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262107AbTIMJtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 05:49:51 -0400
-Date: Sat, 13 Sep 2003 10:48:41 +0100
-From: Dave Jones <davej@redhat.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Xose Vazquez Perez <xose@wanadoo.es>, Tosatti <marcelo@cyclades.com.br>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci.ids 2.4.23-pre3
-Message-ID: <20030913094841.GA29307@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Xose Vazquez Perez <xose@wanadoo.es>,
-	Tosatti <marcelo@cyclades.com.br>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <3F61FF67.7080504@wanadoo.es> <20030912224447.GA3917@werewolf.able.es>
-Mime-Version: 1.0
+	Sat, 13 Sep 2003 06:29:37 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:7655 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262116AbTIMK3f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 06:29:35 -0400
+To: <linux-kernel@vger.kernel.org>
+Cc: Peter Osterlund <petero2@telia.com>
+Subject: Re: 2.6.0-test5 (nearly) success story - Synaptics touchpad
+References: <m3k78enooi.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 13 Sep 2003 12:27:47 +0200
+In-Reply-To: <m3k78enooi.fsf@defiant.pm.waw.pl>
+Message-ID: <m365jxaspo.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912224447.GA3917@werewolf.able.es>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 12:44:47AM +0200, J.A. Magallon wrote:
+Hi,
 
- > Changed to
- > 
- >     6325  SiS65x/M65x/740 PCI/AGP VGA Display Adapter
- >     0571  VT82C586x/C686x/33x/35 PIPC Bus Master IDE
+another thing: the Synaptics touchpad doesn't work:
 
-The latter parts of these strings are redundant and can be
-obtained by decoding other fields of the pci config header.
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+Synaptics Touchpad, model: 1
+ Firware: 4.6
+ Sensor: 19
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> multifinger detection
+ -> palm detection
+input: Synaptics Synaptics TouchPad on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+i2c-piix4 version 2.7.0 (20021208)
 
-		Dave
 
+Sometimes I also get before "Synaptics Touchpad, model: 1":
+synaptics reset failed
+synaptics reset failed
+synaptics reset failed
+
+
+With 2.4 kernel it works fine as plain PS/2 mouse.
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+Krzysztof Halasa, B*FH

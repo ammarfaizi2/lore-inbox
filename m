@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267662AbUBTBkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 20:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267688AbUBTBkL
+	id S267663AbUBTBnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 20:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUBTBnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 20:40:11 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:18078 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S267686AbUBTBj5
+	Thu, 19 Feb 2004 20:43:21 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:14810 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S267663AbUBTBkq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 20:39:57 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-cc: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Tridge <tridge@samba.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040220000054.GA5590@mail.shareable.org>
- <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org>
-From: Junio C Hamano <junkio@cox.net>
-Date: Thu, 19 Feb 2004 17:39:45 -0800
-Message-ID: <7vznbeleam.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+	Thu, 19 Feb 2004 20:40:46 -0500
+Message-ID: <40356599.3080001@cyberone.com.au>
+Date: Fri, 20 Feb 2004 12:40:41 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: miquels@cistron.nl, axboe@suse.de, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, thornber@redhat.com
+Subject: Re: [PATCH] per process request limits (was Re: IO scheduler, queue
+ depth, nr_requests)
+References: <20040216133047.GA9330@suse.de>	<20040217145716.GE30438@traveler.cistron.net>	<20040218235243.GA30621@drinkel.cistron.nl>	<20040218172622.52914567.akpm@osdl.org>	<20040219021159.GE30621@drinkel.cistron.nl>	<20040218182628.7eb63d57.akpm@osdl.org>	<20040219101519.GG30621@drinkel.cistron.nl>	<20040219101915.GJ27190@suse.de>	<20040219205907.GE32263@drinkel.cistron.nl>	<40353E30.6000105@cyberone.com.au>	<20040219235303.GI32263@drinkel.cistron.nl>	<40355F03.9030207@cyberone.com.au> <20040219172656.77c887cf.akpm@osdl.org>
+In-Reply-To: <20040219172656.77c887cf.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JL" == Jamie Lokier <jamie@shareable.org> writes:
 
-JL> The other thing I like is that DN_IGNORE_SELF would be useful for
-JL> other applications too.
 
-While I agree in principle that DN_IGNORE_SELF would be quite an
-effective and clean way to solve the Samba problem and also
-applicable to other situations, I also imagine that the value of
-DN_IGNORE_SELF would be greatly affected by how the "self" is
-defined.  A server implementation may be multithreaded, and you
-may or may not want to count all your threads in that server
-process as self; another may be implemented as one master
-process spawning multiple worker bee processes, in which case it
-would be more convenient if all the processes in one process
-group is counted as self.
+Andrew Morton wrote:
+
+>Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+>>Even with this patch, it might still be a good idea to allow
+>>pdflush to disregard the limits...
+>>
+>
+>Has it been confirmed that pdflush is blocking in get_request_wait()?  I
+>guess that can happen very occasionally because we don't bother with any
+>locking around there but if it's happening a lot then something is bust.
+>
+>
+
+Miquel's analysis is pretty plausible, but I'm not sure if
+he's confirmed it or not, Miquel? Even if it isn't happening
+a lot, and something isn't bust it might be a good idea to
+do this.
+
 

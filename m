@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVAMUix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVAMU05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVAMUix (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVAMUf1
+	id S261397AbVAMU05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:26:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVAMUXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:35:27 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:23269 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261469AbVAMUdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:33:14 -0500
-Subject: Re: thoughts on kernel security issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Marek Habersack <grendel@caudium.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112174203.GA691@logos.cnet>
-	 <1105627541.4624.24.camel@localhost.localdomain>
-	 <20050113194246.GC24970@beowulf.thanes.org>
-	 <20050113200308.GC3555@redhat.com>
-	 <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105644461.4644.102.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 19:27:42 +0000
+	Thu, 13 Jan 2005 15:23:38 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:57539 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261383AbVAMTik
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:38:40 -0500
+To: sander@humilis.net
+Cc: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NUMA or not on dual Opteron
+References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
+	<200501121824.44327.rathamahata@ehouse.ru>
+	<Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
+	<20050113094537.GB2547@favonius>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 13 Jan 2005 20:38:33 +0100
+In-Reply-To: <20050113094537.GB2547@favonius> (sander@humilis.net's message
+ of "Thu, 13 Jan 2005 10:45:37 +0100")
+Message-ID: <m1sm552k7a.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 20:10, Linus Torvalds wrote:
-> In fact, right now we seem to encourage even people who do _not_
-> necessarily want the delay and secrecy to go over to vendor-sec, just
-> because the vendor-sec people are clearly arguing even against
-> alternatives.
+Sander <sander@humilis.net> writes:
 
- If someone posts something to vendor-sec that says "please tell Linus"
-we would. If someone posts to vendor-sec saying "I posted this to
-linux-kernel here's a heads up" its useful. If you are uber cool elite 0
-day disclosure weenie you post to full-disclosure or bugtraq. There are
-alternatives 8)
+> Linus Torvalds wrote (ao):
+>> On Wed, 12 Jan 2005, Sergey S. Kostyliov wrote:
+>> > 2.6.10-rc1 hangs at boot stage for my dual opteron machine
+>> 
+>> Oops, yes. There's some recent NUMA breakage - either disable
+>> CONFIG_NUMA, or apply the patches that Andi Kleen just posted on the
+>> mailing list (the second option much preferred, just to verify that
+>> yes, that does fix it).
+>
+> I was under the impression that NUMA is useful on > 2-way systems only.
+> Is this true, and if not, under what circumstances is NUMA useful on
+> 2-way Opteron systems?
 
-> Which is something I do not understand. The _apologia_ for vendor-sec is 
-> absolutely stunning. Even if there are people who want to only interface 
-> with a fascist vendor-sec-style absolute secrecy list, THAT IS NOT AN 
-> EXCUSE TO NOT HAVE OPEN LISTS IN _ADDITION_!
+I don't know who gave you this impression, but it's wrong. Using a
+NUMA aware kernel is an advantage under many workloads on a 2way
+Opteron system. 
 
-I'm all for an open list too. Its currently called linux-kernel. Its
-full of such reports, and most of them are about new code or trivial
-holes where secrecy is pointless. Having an open linux-security list so
-they don't get missed as the grsecurity stuff did (and until I got fed
-up of waiting the coverity stuff did) would help because it would make
-sure that it didn't get buried in the noise.
+>
+> In other words: why should one want NUMA to be enabled or disabled for
+> dual Opteron?
 
-Similarly it would help if you are sneaking security fixes in (as you do
-regularly) you actually told the vendors about them.
+Because it is faster.
 
-Alan
-
+-Andi

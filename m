@@ -1,132 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263728AbTDGW2W (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263729AbTDGW2W (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:28:22 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:32708 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263728AbTDGW2S (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 18:28:18 -0400
-Date: Mon, 7 Apr 2003 15:34:26 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB changes for 2.5.67
-Message-ID: <20030407223426.GA4646@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	id S263733AbTDGWnq (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbTDGWnm (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:43:42 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36736
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263733AbTDGWnf (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:43:35 -0400
+Date: Tue, 8 Apr 2003 01:02:26 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200304080002.h3802QPe008910@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: Config.in typos
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Here are some USB changes.  Most notable here is a usbnet driver update
-that should remove the need for the separate cdc-ether.c driver, a
-DocBook documentation update for the usbfs interface, and a usb-storage
-update that fixes some bugs noted in the bug database.  There are some
-other good bugfixes in here too.
-
-I've also included my patches in here that add hotplug support for the
-kobject core, and convert the driver core to use this functionality.
-These patches were posted to lkml in the past, and Pat has said they
-look good to him.
-
-
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
-
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
-
- Documentation/DocBook/usb.tmpl     |  681 ++++++++++++++++++++++++++++++++
- arch/i386/kernel/edd.c             |    2 
- drivers/acpi/bus.c                 |    2 
- drivers/base/base.h                |    5 
- drivers/base/bus.c                 |    2 
- drivers/base/class.c               |    4 
- drivers/base/core.c                |   55 ++
- drivers/base/firmware.c            |    2 
- drivers/base/hotplug.c             |   32 -
- drivers/block/genhd.c              |   14 
- drivers/hotplug/pci_hotplug_core.c |    2 
- drivers/usb/class/usb-midi.c       |   31 -
- drivers/usb/core/hub.c             |   17 
- drivers/usb/core/message.c         |    2 
- drivers/usb/core/usb.c             |   34 -
- drivers/usb/host/ehci-mem.c        |    1 
- drivers/usb/host/ehci-q.c          |   13 
- drivers/usb/host/ohci-hcd.c        |    8 
- drivers/usb/host/ohci-q.c          |    2 
- drivers/usb/input/hid-core.c       |    3 
- drivers/usb/input/kbtab.c          |    2 
- drivers/usb/input/usbkbd.c         |    3 
- drivers/usb/input/usbmouse.c       |    3 
- drivers/usb/misc/speedtch.c        |   26 -
- drivers/usb/net/pegasus.c          |   18 
- drivers/usb/net/pegasus.h          |    2 
- drivers/usb/net/usbnet.c           |  765 +++++++++++++++++++++++++++----------
- drivers/usb/serial/io_edgeport.c   |    8 
- drivers/usb/serial/keyspan.h       |   26 -
- drivers/usb/serial/usb-serial.c    |    3 
- drivers/usb/storage/scsiglue.c     |   40 +
- drivers/usb/storage/transport.c    |   30 +
- drivers/usb/storage/transport.h    |    2 
- drivers/usb/storage/usb.c          |  339 ++++++++--------
- fs/filesystems.c                   |    2 
- fs/partitions/check.c              |    2 
- include/linux/kobject.h            |   22 +
- lib/kobject.c                      |  170 +++++++-
- net/core/dev.c                     |    2 
- 39 files changed, 1824 insertions(+), 553 deletions(-)
------
-
-<alborchers@steinerpoint.com>:
-  o USB: patch for oops in io_edgeport.c
-
-Art Haas <ahaas@airmail.net>:
-  o USB: C99 initializers for drivers/usb files
-
-David Brownell <david-b@pacbell.net>:
-  o USB: set_configuration() missed some state
-  o USB: kerneldoc for usbfs
-  o USB usbnet: dynamic config, cdc-ether, net1080
-  o USB: ohci-hcd, pci posting paranoia
-  o USB: ehci-hcd, minor hardware tweaks
-
-Duncan Sands <baldrick@wanadoo.fr>:
-  o USB speedtouch: handle failure of usb_set_interface
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: set port->tty to NULL after we have closed the port
-  o Kobject: add NULL to decl_subsys() due to addition of hotplug operations
-  o block: add /sbin/hotplug support for when block devices are created and destroyed
-  o driver core: move the hotplug support for /sys/devices to use the kobject logic
-  o Kobject: add NULL to decl_subsys() due to addition of hotplug operations
-  o kobject: cause /sbin/hotplug to be called when kobjects are added and removed
-  o USB: remove redundant checks for NULL when it can never happen
-
-Hanna Linder <hannal@us.ibm.com>:
-  o USB: input class hookup to existing support
-
-Matthew Dharm <mdharm-usb@one-eyed-alien.net>:
-  o usb-storage: add info to /proc interface
-  o usb-storage: remove BUG/BUG_ON
-  o usb-storage: variable renames
-  o usb-storage: fix CB/CBI
-
-Oliver Neukum <oliver@neukum.org>:
-  o USB: removing unnecessary calls to usb_set_configuration
-  o USB: locking reset/probe
-  o USB: leave usage counts during probe/remove to driver core
-
-Paul Mackerras <paulus@samba.org>:
-  o USB: small fix to pegasus.c
-
-Petko Manolov <petkan@users.sourceforge.net>:
-  o USB: pegasus link status fix
-
+(Steve Cole and co)
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/i386/Kconfig linux-2.5.67-ac1/arch/i386/Kconfig
+--- linux-2.5.67/arch/i386/Kconfig	2003-03-26 19:59:49.000000000 +0000
++++ linux-2.5.67-ac1/arch/i386/Kconfig	2003-04-04 16:22:18.000000000 +0100
+@@ -142,7 +150,7 @@
+ config M486
+ 	bool "486"
+ 	help
+-	  Select this for a x486 processor, ether Intel or one of the
++	  Select this for a 486 series processor, either Intel or one of the
+ 	  compatible processors from AMD, Cyrix, IBM, or Intel.  Includes DX,
+ 	  DX2, and DX4 variants; also SL/SLC/SLC2/SLC3/SX/SX2 and UMC U5D or
+ 	  U5S.
+@@ -150,8 +158,8 @@
+ config M586
+ 	bool "586/K5/5x86/6x86/6x86MX"
+ 	help
+-	  Select this for an x586 or x686 processor such as the AMD K5, the
+-	  Intel 5x86 or 6x86, or the Intel 6x86MX.  This choice does not
++	  Select this for an 586 or 686 series processor such as the AMD K5,
++	  the Intel 5x86 or 6x86, or the Intel 6x86MX.  This choice does not
+ 	  assume the RDTSC (Read Time Stamp Counter) instruction.
+ 
+ config M586TSC
+@@ -226,28 +234,28 @@
+ config MCRUSOE
+ 	bool "Crusoe"
+ 	help
+-	  Select this for Transmeta Crusoe processor.  Treats the processor
++	  Select this for a Transmeta Crusoe processor.  Treats the processor
+ 	  like a 586 with TSC, and sets some GCC optimization flags (like a
+ 	  Pentium Pro with no alignment requirements).
+ 
+ config MWINCHIPC6
+ 	bool "Winchip-C6"
+ 	help
+-	  Select this for a IDT Winchip C6 chip.  Linux and GCC
++	  Select this for an IDT Winchip C6 chip.  Linux and GCC
+ 	  treat this chip as a 586TSC with some extended instructions
+ 	  and alignment requirements.
+ 
+ config MWINCHIP2
+ 	bool "Winchip-2"
+ 	help
+-	  Select this for a IDT Winchip-2.  Linux and GCC
++	  Select this for an IDT Winchip-2.  Linux and GCC
+ 	  treat this chip as a 586TSC with some extended instructions
+ 	  and alignment requirements.
+ 
+ config MWINCHIP3D
+ 	bool "Winchip-2A/Winchip-3"
+ 	help
+-	  Select this for a IDT Winchip-2A or 3.  Linux and GCC
++	  Select this for an IDT Winchip-2A or 3.  Linux and GCC
+ 	  treat this chip as a 586TSC with some extended instructions
+ 	  and alignment reqirements.  Development kernels also enable
+ 	  out of order memory stores for this CPU, which can increase
+@@ -260,15 +268,15 @@
+ 	  treat this chip as a generic 586. Whilst the CPU is 686 class,
+ 	  it lacks the cmov extension which gcc assumes is present when
+ 	  generating 686 code.
+-	  Note, that Nehemiah (Model 9) and above will not boot with this
+-	  kernel due to them lacking the 3dnow instructions used in earlier
++	  Note that Nehemiah (Model 9) and above will not boot with this
++	  kernel due to them lacking the 3DNow! instructions used in earlier
+ 	  incarnations of the CPU.
+ 
+ config MVIAC3_2
+ 	bool "VIA C3-2 (Nehemiah)"
+ 	help
+-	  Select this for a VIA C3 "Nehemiah". Selecting this enables usage of SSE
+-	  and tells gcc to treat the CPU as a 686.
++	  Select this for a VIA C3 "Nehemiah". Selecting this enables usage
++	  of SSE and tells gcc to treat the CPU as a 686.
+ 	  Note, this kernel will not boot on older (pre model 9) C3s.
+ 
+ endchoice
+@@ -435,7 +443,8 @@
+ 	  enable and use it. If you say Y here even though your machine doesn't
+ 	  have a local APIC, then the kernel will still run with no slowdown at
+ 	  all. The local APIC supports CPU-generated self-interrupts (timer,
+-	  performance counters), and the NMI watchdog which detects hard lockups.
++	  performance counters), and the NMI watchdog which detects hard
++	  lockups.
+ 
+ 	  If you have a system with several CPUs, you do not need to say Y
+ 	  here: the local APIC will be used automatically.
+@@ -522,7 +531,7 @@
+ 	---help---
+ 	  This adds a driver to safely access the System Management Mode of
+ 	  the CPU on Toshiba portables with a genuine Toshiba BIOS. It does
+-	  not work on models with a Pheonix BIOS. The System Management Mode
++	  not work on models with a Phoenix BIOS. The System Management Mode
+ 	  is used to set the BIOS and power saving options on Toshiba portables.
+ 
+ 	  For information on utilities to make use of this driver see the

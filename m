@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSHMM2L>; Tue, 13 Aug 2002 08:28:11 -0400
+	id <S315267AbSHMMdx>; Tue, 13 Aug 2002 08:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSHMM2L>; Tue, 13 Aug 2002 08:28:11 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:11272 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S315266AbSHMM2K>; Tue, 13 Aug 2002 08:28:10 -0400
-Date: Tue, 13 Aug 2002 13:31:59 +0100
-To: Meelis Roos <mroos@cs.ut.ee>
-Cc: kuznet@ms2.inr.ac.ru, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux TCP problem while talking to hostme.bkbits.net ?
-Message-ID: <20020813133159.A21210@computer-surgery.co.uk>
-References: <200208121732.VAA18612@sex.inr.ac.ru> <Pine.GSO.4.43.0208131137110.14316-100000@romulus.cs.ut.ee>
+	id <S315275AbSHMMdx>; Tue, 13 Aug 2002 08:33:53 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:8437 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S315267AbSHMMdx>;
+	Tue, 13 Aug 2002 08:33:53 -0400
+Date: Tue, 13 Aug 2002 08:37:38 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       riel@conectiva.com.br
+Cc: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [patch 1/21] random fixes
+Message-ID: <20020813123738.GA28603@www.kroptech.com>
+References: <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812002739.GA778@www.kroptech.com> <3D57406E.D39E9B89@zip.com.au> <20020813002603.GA20817@www.kroptech.com> <3D5857A4.FE358FA2@zip.com.au> <20020813022550.GA6810@www.kroptech.com> <3D587706.A0F2DC21@zip.com.au> <20020813041011.GA12227@www.kroptech.com> <20020813052559.GC9642@clusterfs.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.43.0208131137110.14316-100000@romulus.cs.ut.ee>; from mroos@cs.ut.ee on Tue, Aug 13, 2002 at 11:40:08AM +0300
-From: Roger Gammans <roger@computer-surgery.co.uk>
+In-Reply-To: <20020813052559.GC9642@clusterfs.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 12, 2002 at 11:25:59PM -0600, Andreas Dilger wrote:
+> On Aug 13, 2002  00:10 -0400, Adam Kropelin wrote:
+> > On Mon, Aug 12, 2002 at 08:03:34PM -0700, Andrew Morton wrote:
+> > > Are you _sure_ it was bad with ext2?
+> > 
+> > Yes.
+> > 
+> > [root@devbox adk0212] mount
+> > /dev/hda3 on / type ext2 (rw)
+> > /dev/hda1 on /boot type ext2 (rw)
+> > 
+> > Is it possible that the darn thing is mounted ext3 even though fstab and mount
+> > agree that it's ext2?
+> 
+> Yes, if you have a journal on your root filesystem, then it will be mounted
+> as ext3 regardless of what it says in /etc/fstab.  Since "mount" also
+> looks in /etc/fstab for writing the entry in /etc/mtab _after_ the root
+> filesystem is mounted, the output from "mount" can also be bogus.  You
+> need to check /proc/mounts to see the real answer.
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ahhh, carp.
 
-On Tue, Aug 13, 2002 at 11:40:08AM +0300, Meelis Roos wrote:
-> > The problem is that checksum in tcpdump is OK.
-> > This smells really bad.
-> >
-> > I feel you have to hunt where exactly the segment is dropped
-> > and TCPInErrs is incremented.
->=20
-> Things got stranger. The symptoms started to appear on other connections
-> [....]
-> I did a reboot with the same kernel (2.4.19+bk of some
-> state, 4. Aug probably) and it just started to work with the same kernel
-> image.
+It's still ext3, precisely as you describe.
 
-I've seen these sort of symptoms before and it turned out
-to be faulty memory.=20
+*/me hangs head in shame*
 
-Back in 2.2 I had a box which picked the behavior up if
-you did a ifconfig down/ifconfig up after it had been running
-for some time.
+When I get home tonight I'll reboot with a rescue disk and blow away the
+journal. *That* should fix its little red wagon.
 
-tcpdump on the localbox it that case showed Ok (outgoing) packets, but=20
-another box on the same network segment showed the same packets as
-corrupted.
+--Adam
 
-Changing the RAM cured it completely.
-
-TTFN
---=20
-Roger.
-Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)
-GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
-
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9WPw+qQ3nO4jeCz4RArHgAJ0R7cvnNv1+BGjVDlP5cZYVBgZEfQCgmgRV
-Z2aVHeA2LODtN4Nds/0cPJE=
-=iARk
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--

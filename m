@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284955AbRLFDIk>; Wed, 5 Dec 2001 22:08:40 -0500
+	id <S284953AbRLFDSE>; Wed, 5 Dec 2001 22:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284953AbRLFDIa>; Wed, 5 Dec 2001 22:08:30 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:55823 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284954AbRLFDIV>; Wed, 5 Dec 2001 22:08:21 -0500
-Date: Wed, 5 Dec 2001 19:19:19 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
-        <Martin.Bligh@us.ibm.com>, <riel@conectiva.com.br>,
-        <lars.spam@nocrew.org>, <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: SMP/cc Cluster description
-In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.40.0112051915440.1644-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284957AbRLFDRx>; Wed, 5 Dec 2001 22:17:53 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:45067 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S284953AbRLFDRg>; Wed, 5 Dec 2001 22:17:36 -0500
+Date: Thu, 6 Dec 2001 14:18:26 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: riel@conectiva.com.br, kiran@in.ibm.com, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Scalable Statistics Counters
+Message-Id: <20011206141826.16833acc.rusty@rustcorp.com.au>
+In-Reply-To: <3C0E7ED9.1F0BD44E@zip.com.au>
+In-Reply-To: <20011205163153.E16315@in.ibm.com>
+	<Pine.LNX.4.33L.0112051109340.4079-100000@imladris.surriel.com>
+	<3C0E7ED9.1F0BD44E@zip.com.au>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Rusty Russell wrote:
+On Wed, 05 Dec 2001 12:08:57 -0800
+Andrew Morton <akpm@zip.com.au> wrote:
 
-> I'd love to say that I can solve this with RCU, but it's vastly non-trivial
-> and I haven't got code, so I'm not going to say that. 8)
+> Rik van Riel wrote:
+> > 
+> > (it'd be so cool if we could just start using a statistic variable
+> > through some macro and it'd be automatically declared and visible
+> > in /proc ;))
+> > 
+> 
+> Marcelo and I worked out a thing which did that a while back.
+> 
+> http://www.zipworld.com.au/~akpm/linux/2.4/2.4.7/
 
-Lockless algos could help if we're able to have "good" quiescent point
-inside the kernel. Or better have a good quiescent infrastructure to have
-lockless code to plug in.
+Oops, guess I should have read this thread first (still catching up on mail).
 
+Please see my per-cpu patch (just posted under [PATCH] 2.5.1-pre5: per-cpu
+areas), and my previous /proc patch.  Combining the two into convenient form
+is left as an exercise for the reader...
 
-
-- Davide
-
-
+Cheers!
+Rusty.
+-- 
+  Anyone who quotes me is an idiot. -- Rusty Russell.

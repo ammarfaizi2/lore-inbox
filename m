@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269445AbUIIKpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269418AbUIIKsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269445AbUIIKpF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 06:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269418AbUIIKpE
+	id S269418AbUIIKsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 06:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269419AbUIIKsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 06:45:04 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:41390 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S269442AbUIIKoh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 06:44:37 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "colin" <colin@realtek.com.tw>
-Subject: Re: What File System supports Application XIP
-Date: Thu, 9 Sep 2004 12:43:55 +0200
-User-Agent: KMail/1.6.2
-Cc: <linux-kernel@vger.kernel.org>
-References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
-In-Reply-To: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
+	Thu, 9 Sep 2004 06:48:14 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:21435 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269418AbUIIKsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 06:48:10 -0400
+Message-ID: <4140311D.4080405@yahoo.com.au>
+Date: Thu, 09 Sep 2004 20:31:57 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_vPDQB9V81j0vZns";
-  charset="iso-8859-15"
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Nick Piggin <piggin@cyberone.com.au>,
+       Nathan Lynch <nathanl@austin.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2/2] cpu hotplug notifier for updating sched domains
+References: <200409071849.i87Inw3f143238@austin.ibm.com>	 <413E55D8.8030608@cyberone.com.au> <1094608996.8015.5.camel@booger>	 <413E6C49.5080106@cyberone.com.au> <1094725124.25639.18.camel@bach>
+In-Reply-To: <1094725124.25639.18.camel@bach>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409091243.59637.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> On Wed, 2004-09-08 at 12:19, Nick Piggin wrote:
 
---Boundary-02=_vPDQB9V81j0vZns
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>>Do you have a theoretical race here? Can we hotplug a CPU before the notifier
+>>is registered? (I know we *can't* because it is still earlyish boot).
+> 
+> 
+> No, init has so many serial assumptions that this is the least of our
+> worries.
+> 
 
-On Donnerstag, 9. September 2004 10:55, colin wrote:
-> I know that Cramfs has supported Application XIP. Is there any other FS that
-> also supports it? Ramdisk? Ramfs? Romfs?
+No. But the point is, you cannot (easily) set something up like this:
 
-On http://linuxvm.org/Patches/, you can find a file system called xip2fs,
-that uses an ext2 read-only fs for XIP. The code there works only if the
-backing memory is a zSeries DCSS memory segment, but it should be fairly
-easy to port to some other low-level memory provider.
+"do some setup with this specific, valid cpu_online_map";
+"register notifier so we can keep everything valid";
 
-	Arnd <><
-
---Boundary-02=_vPDQB9V81j0vZns
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBQDPv5t5GS2LDRf4RAnjyAJ4uLJUNO/n1sIW61BNkhQn98jd30ACdFv8a
-cKmF03+P8G0C3X3ZjVIgNck=
-=/dTH
------END PGP SIGNATURE-----
-
---Boundary-02=_vPDQB9V81j0vZns--
+without a race between them. Protecting the notifier chain under a
+different lock is the trivial fix. I'll send the patch if you'd
+like?

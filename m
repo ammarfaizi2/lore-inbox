@@ -1,32 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270619AbRHWWMl>; Thu, 23 Aug 2001 18:12:41 -0400
+	id <S270624AbRHWWOM>; Thu, 23 Aug 2001 18:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270624AbRHWWMb>; Thu, 23 Aug 2001 18:12:31 -0400
-Received: from wet-pants.ximian.com ([141.154.95.105]:7296 "EHLO wet-pants")
-	by vger.kernel.org with ESMTP id <S270619AbRHWWMX>;
-	Thu, 23 Aug 2001 18:12:23 -0400
-Subject: mmap() return value when length == 0
-From: jacob berkman <jacob@ximian.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S270630AbRHWWOC>; Thu, 23 Aug 2001 18:14:02 -0400
+Received: from ppp-165.51.triton.net ([216.65.165.51]:35719 "HELO
+	tabris.domedata.com") by vger.kernel.org with SMTP
+	id <S270624AbRHWWNz>; Thu, 23 Aug 2001 18:13:55 -0400
+Message-ID: <3B85802C.90306@lycosmail.com>
+Date: Thu, 23 Aug 2001 18:14:04 -0400
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Very-OT] Best Mobo to get for Linux 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 23 Aug 2001 18:12:54 -0400
-Message-Id: <998604774.796.10.camel@wet-pants>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-
-on linux (2.4.9 and 2.2.18), the mmap() syscall will return NULL if the
-length argument is 0 rather than returning MAP_FAILED (-1).  this is
-different than both solaris and hp-ux, and the linux man page doesn't
-indicate that it should do this.
-
-so, is this indeed the desired behaviour or a longstanding bug?
-
-thanks,
-jacob
+I forgot to mention that I track the kernel releases fairly closely. My 
+current kernel is Kernel 2.4.9-pre4, and likely going to 2.4.8-ac9 soon.
 

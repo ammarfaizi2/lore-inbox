@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVBDRLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbVBDRS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVBDRLt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbVBDRLs
+	id S263824AbVBDRS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbVBDRS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:11:48 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:59269 "EHLO vana")
-	by vger.kernel.org with ESMTP id S265965AbVBDRLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:11:41 -0500
-Date: Fri, 4 Feb 2005 18:11:40 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: maxer <maxer@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SysKonnect sk98lin Gigabit lan missing in action from 2.6.10 on
-Message-ID: <20050204171140.GD1889@vana.vc.cvut.cz>
-References: <42038994.20401@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42038994.20401@xmission.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 4 Feb 2005 12:18:57 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:61969 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264490AbVBDRSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:18:31 -0500
+Date: Fri, 4 Feb 2005 17:17:55 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Bryan Henderson <hbryan@us.ibm.com>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, nathans@sgi.com,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: RFC: [PATCH-2.6] Add helper function to lock multiple page cache
+    pages - nopage alternative
+In-Reply-To: <1107531392.12460.14.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.61.0502041657080.10578@goblin.wat.veritas.com>
+References: <OF29E48791.2D4A4A03-ON88256F9D.0068D5C2-88256F9D.006A8ECF@us.ibm.com> 
+    <1107531392.12460.14.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 07:41:24AM -0700, maxer wrote:
-> What is the status of sk98lin? Do we have to wait until Syskonnect gets 
-> their act together
-> and write a new driver for 2.6.10?
+On Fri, 4 Feb 2005, Anton Altaparmakov wrote:
+> On Thu, 2005-02-03 at 11:23 -0800, Bryan Henderson wrote:
+> > 
+> > I think the point is that we can't have a "handler for writes," because 
+> > the writes are being done by simple CPU Store instructions in a user 
+> > program.  The handler we're talking about is just for page faults.  Other 
 > 
-> Their latest is Oct 2004 and not at all compatible with 2.6.10 and beyond.
+> That was my understanding.
+> 
+> > operating systems approach this by actually _having_ a handler for a CPU 
+> > store instruction, in the form of a page protection fault handler -- the 
+> > nopage routine adds the page to the user's address space, but write 
+> > protects it.  The first time the user tries to store into it, the 
+> > filesystem driver gets a chance to do what's necessary to support a dirty 
+> > cache page -- allocate a block, add additional dirty pages to the cache, 
+> > etc.  It would be wonderful to have that in Linux.
+> 
+> It would.  This would certainly solve this problem.
 
-What is problem with driver which is in the kernel?  It works flawlessly for
-me, on ia32 and x86-64.  Only thing I had to do is patch below so hotplug
-code knows that sk98lin driver can handle some PCI hardware...
+Isn't this exactly what David Howells' page_mkwrite stuff in -mm's
+add-page-becoming-writable-notification.patch is designed for?
 
-Linux ppc 2.6.11-rc3-c2048-64 #1 SMP Fri Feb 4 00:48:12 CET 2005 x86_64 GNU/Linux
+Though it looks a little broken to me as it stands (beyond the two
+fixup patches already there).  I've not found time to double-check
+or test, apologies in advance if I'm libelling, but...
 
-0000:00:0a.0 Ethernet controller: Marvell Technology Group Ltd. Yukon Gigabit Ethernet 10/100/1000Base-T Adapter (rev 13)
+(a) I thought the prot bits do_nopage gives a pte in a shared writable
+    mapping include write permission, even when it's a read fault:
+    that can't be allowed if there's a page_mkwrite.
 
-						Petr Vandrovec
+(b) I don't understand how do_wp_page's "reuse" logic for whether it
+    can just go ahead and use the existing anonymous page, would have
+    any relevance to calling page_mkwrite on a shared writable page,
+    which must be used and not COWed however many references there are.
 
+Didn't look further, think you should take a look at page_mkwrite,
+but don't expect the implementation to be correct yet.
 
-diff -urdN linux/drivers/net/sk98lin/skge.c linux/drivers/net/sk98lin/skge.c
---- linux/drivers/net/sk98lin/skge.c	2005-01-29 17:31:14.000000000 +0100
-+++ linux/drivers/net/sk98lin/skge.c	2005-01-30 00:11:49.000000000 +0100
-@@ -5151,6 +5151,7 @@
- 	{ PCI_VENDOR_ID_LINKSYS, 0x1064, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ 0, }
- };
-+MODULE_DEVICE_TABLE (pci, skge_pci_tbl);
- 
- static struct pci_driver skge_driver = {
- 	.name		= "skge",
+Hugh

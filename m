@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUJZByx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbUJZB7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUJZByx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 21:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUJZBwi
+	id S262091AbUJZB7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbUJZB6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:52:38 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:33924 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262060AbUJZB2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:28:19 -0400
-Date: Mon, 25 Oct 2004 18:28:12 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Larry McVoy <lm@work.bitmover.com>, Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041026012812.GA3978@taniwha.stupidest.org>
-References: <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <9e47339104102511182f916705@mail.gmail.com> <20041025230128.GA1232@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025230128.GA1232@work.bitmover.com>
+	Mon, 25 Oct 2004 21:58:10 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24277 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262071AbUJZB33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 21:29:29 -0400
+Date: Mon, 25 Oct 2004 18:28:53 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Hugepages demand paging V2 [3/8]: simple numa compatible allocator
+In-Reply-To: <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0410251828060.12962@schroedinger.engr.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 04:01:28PM -0700, Larry McVoy wrote:
+Changelog
+	* Simple NUMA compatible allocation of hugepages in the nearest node
 
-> Things we are working on include performance (Wayne has a hot cache
-> linux-2.5 tree consistency check down to around 2 seconds, that's
-> about a 10x improvement over what it is now),
+Index: linux-2.6.9/mm/hugetlb.c
+===================================================================
+--- linux-2.6.9.orig/mm/hugetlb.c	2004-10-22 13:28:27.000000000 -0700
++++ linux-2.6.9/mm/hugetlb.c	2004-10-25 16:56:22.000000000 -0700
+@@ -32,14 +32,17 @@
+ {
+ 	int nid = numa_node_id();
+ 	struct page *page = NULL;
+-
+-	if (list_empty(&hugepage_freelists[nid])) {
+-		for (nid = 0; nid < MAX_NUMNODES; ++nid)
+-			if (!list_empty(&hugepage_freelists[nid]))
+-				break;
++	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
++	struct zone **zones = zonelist->zones;
++	struct zone *z;
++	int i;
++
++	for(i=0; (z = zones[i])!= NULL; i++) {
++		nid = z->zone_pgdat->node_id;
++		if (!list_empty(&hugepage_freelists[nid]))
++			break;
+ 	}
+-	if (nid >= 0 && nid < MAX_NUMNODES &&
+-	    !list_empty(&hugepage_freelists[nid])) {
++	if (z) {
+ 		page = list_entry(hugepage_freelists[nid].next,
+ 				  struct page, lru);
+ 		list_del(&page->lru);
 
-i'm still at 16s here, i would *love* to see this performance speed
-increase in the free version that is made available for kernel people
-
-> we're revamping the GUIs to be useable by normal humans, we're
-> working on scaling to >500,000 changesets in one tree
-
-one thing i wondered about, is there some way you can optimize
-performance knowing for repositories like the kernel tree where the
-access patterns are pretty much (for me anyhow) pull in new stuff,
-look back a few weeks, maybe clone back as far as a month but beyond
-that i rarely pay any attention?
-
-i guess what i'm doing a bad job of saying is that it seems i'm using
-only the most recent weeks/days of changes 99% of the time --- can i
-do something knowing this that makes my day to day life easier at
-maybe the expensive of cloning something really old?
-
-> As for handling AndrewM's workflow, we're very interested in that
-> area because there seems to be a sort of bimodal development model,
-> changes which are not yet "frozen" (best managed by something like
-> quilt it seems) and changes which are frozen (best managed by BK).
-
-right now i use quilt and bk together, i'm still trying to refine a
-nice way of doing that (which i should document) but on the whole they
-don't conflict as a rule and it's really not that bad.  previously i
-was using bk like quilt using a script to make csets from patches and
-then i would undo to roll back before pulling and what-not but this
-was error-prone at times (sometimes i would pull from the parent which
-would do a merge so i couldn't roll back after that)
-
-
-i really don't know why people bitch so much about bk personally, i
-really like it, it's much more reliable than svn for me (bk checksums
-whilst i might complain about them have found fs bogons a number of
-times, with svn i just have a collection of busted db files), it's
-much faster than CVS and the bk development model (well, the model i
-have when i use it) works better by far than anything i've used
-previously
-
-i like bk, i'll continue to use it where possible, for those that have
-strong feelings against bk, well, stick with CVS (or whatever) then.
-enjoy your pain.

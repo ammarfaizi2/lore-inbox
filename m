@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbTFOAgo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 20:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTFOAgo
+	id S261651AbTFOAjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 20:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbTFOAjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 20:36:44 -0400
-Received: from mail.ccur.com ([208.248.32.212]:780 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S261568AbTFOAgn (ORCPT
+	Sat, 14 Jun 2003 20:39:09 -0400
+Received: from main.gmane.org ([80.91.224.249]:9921 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261651AbTFOAjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 20:36:43 -0400
-Date: Sat, 14 Jun 2003 20:50:20 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Lars Unin <lars_unin@linuxmail.org>
-Cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-Subject: Re: kernel spinlocks; when to use; when appropriate?
-Message-ID: <20030615005020.GA16776@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20030614164144.8583.qmail@linuxmail.org>
+	Sat, 14 Jun 2003 20:39:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Neal Becker <nbecker@fred.net>
+Subject: pty question [OT]
+Date: Sat, 14 Jun 2003 20:25:52 -0400
+Message-ID: <bcge5p$gkt$1@main.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030614164144.8583.qmail@linuxmail.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I wrote a while ago (thanks to you guys on LKML I almost 
-> understand now):
+I suppose this isn't exactly specific to linux kernel.  I have some programs
+running at work, each writing results to stdout.  Each is running within a
+shell within some type of xterm-like device.  I want to be able to check on
+the results from home.
 
-I missed the start of this thread, so forgive me if I state what was
-stated before.
+I know if I had thought about it in advance, I could use screen, or even
+xemacs/gnuclient.
 
-Use semaphores when the average hold time will be much longer than
-two context switches, spinlocks for everything else.  Semaphores when
-contended force the process to go to sleep (one context switch), later,
-the process will be switched back in when it gets the semaphore (another
-context switch).  This double context switch takes a fixed amount of
-time and if you can get through your critical region much faster than
-that fixed time, then it should be protected by a spinlock.
+I'm wondering if I can get anything by looking at /proc/pid/fd/.  
+For example, I'm running top and I see:
 
-There are places where you have to use spinlocks irrespective of the
-above: when in interrupt code (where sleeping is not allowed), and in
-regions of code where some other spinlock is held (where sleeping is also
-not allowed).  The latter is especially insideous -- the more kernel
-code protected by spinlocks, the more likely those existing spinlocks
-will force new code to have to use spinlocks instead of semaphores.
+ls -l /proc/5012/fd/
+total 0
+lrwx------    1 nbecker  nbecker        64 Jun 14 20:24 0 -> /dev/pts/2
+lrwx------    1 nbecker  nbecker        64 Jun 14 20:24 1 -> /dev/pts/2
+lrwx------    1 nbecker  nbecker        64 Jun 14 20:24 2 -> /dev/pts/2
+lr-x------    1 nbecker  nbecker        64 Jun 14 20:24 3 -> /proc/uptime
+lr-x------    1 nbecker  nbecker        64 Jun 14 20:24 4 -> /proc/stat
+lr-x------    1 nbecker  nbecker        64 Jun 14 20:24 5 -> /proc/loadavg
+lr-x------    1 nbecker  nbecker        64 Jun 14 20:24 6 -> /proc/meminfo
 
-Joe
+I guess the problem is I can't find any documentation on devpts.  Maybe if I
+could find some I'd be able to figure out a device I could open to peek at
+the stdout of a process?
+

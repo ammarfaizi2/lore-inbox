@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbUJ0DvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUJ0Dyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbUJ0DvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 23:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUJ0DvO
+	id S261443AbUJ0Dyd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUJ0Dyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 23:51:14 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:61520 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261339AbUJ0Dux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 23:50:53 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: ncunningham@linuxmail.org
-Subject: Re: Fixing MTRR smp breakage and suspending sysdevs.
-Date: Tue, 26 Oct 2004 22:50:40 -0500
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Li, Shaohua" <shaohua.li@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com> <200410262220.38052.dtor_core@ameritech.net> <1098847066.5661.47.camel@desktop.cunninghams>
-In-Reply-To: <1098847066.5661.47.camel@desktop.cunninghams>
-MIME-Version: 1.0
+	Tue, 26 Oct 2004 23:54:33 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:9625 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261443AbUJ0DyY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 23:54:24 -0400
+Date: Tue, 26 Oct 2004 20:54:12 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041027035412.GA8493@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
+	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+References: <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com> <Pine.LNX.4.61.0410270338310.877@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410262250.40674.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.61.0410270338310.877@scrub.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 10:17 pm, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wed, 2004-10-27 at 13:20, Dmitry Torokhov wrote:
-> > On Tuesday 26 October 2004 09:48 pm, Li, Shaohua wrote:
-> > > >One thing I have noticed is that by adding the sysdev suspend/resume
-> > > >calls, I've gained a few seconds delay. I'll see if I can track down
-> > > the
-> > > >cause.
-> > > Is the problem MTRR resume must be with IRQ enabled, right? Could we
-> > > implement a method sysdev resume with IRQ enabled?
-> > 
-> > If I understand correctly the point of classifying device as sysdev is
-> > that it (device) is essential for the system and must be suspended last
-> > and resumed first, presumably with interrupts off. IRQ controller comes
-> > to mind...
-> 
-> Yes, but could we not do something like the process with regular
-> devices. ie a call with interrupts disabled and then a similar call with
-> interrupts enabled?
-> 
+Roman, 
 
-Yes, re-reading the parent post it seems that's what required for ACPI.
-Doing a pass with IRQ ON for regular devices, then IRQ OFF, then IRQ on
-again for sysdevs and then again with IRQ off. Man, that's getting messy...
+While I respect your position that anything not GPL is evil, without
+agreeing with it, that does not in any way extend to anything which
+violates our license.
 
-Well, I understand that ACPI is using semaphore and a GFP_KERNEL, but what
-is the problem with MTRR? I understand that they should be set with IRQ
-off but I highly doibt that enabling IRQ at the end is a requirement.
-I think what is described in the commnet is rather a "normal flow of events".
+If there is some information that you need as a kernel developer which
+BK is hiding from you of course we would provide that information.
+To the best of my knowledge there is absolutely nothing that we are
+hiding from you in that context.  If there is, let us know.  Our belief
+is at least in part based on the lack of queries from anyone else.
+
+On the other hand, if there is information that is not interesting to
+a kernel developer but is interesting to someone trying to rip off our
+software, no, we must respectfully decline to offer that.
+
+Thanks,
+
+--lm
+
+On Wed, Oct 27, 2004 at 04:30:37AM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 25 Oct 2004, Larry McVoy wrote:
+> 
+> > You are mistakenly assuming that the way BK stores the data, or does
+> > merges, or synchronizes is what we think is worth protecting, and you
+> > are pretty much wrong.
+> 
+> Does that mean you don't mind if someones export the changeset information 
+> in an useful way? All I need is pretty much the information that already 
+> comes via the commit list (actually in the format used until May, where 
+> it still contained information about renames) plus some useful identifiers 
+> to identify the predecessors of a changeset.
+> 
+> bye, Roman
 
 -- 
-Dmitry
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

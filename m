@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271578AbRINXrW>; Fri, 14 Sep 2001 19:47:22 -0400
+	id <S271592AbRIOADn>; Fri, 14 Sep 2001 20:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271589AbRINXrL>; Fri, 14 Sep 2001 19:47:11 -0400
-Received: from mx2.port.ru ([194.67.57.12]:61444 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S271578AbRINXq6>;
-	Fri, 14 Sep 2001 19:46:58 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109150404.f8F44wV02060@vegae.deep.net>
-Subject: Re: tail corruptions: saga continues
-To: vs@namesys.com (Vladimir V. Saveliev)
-Date: Sat, 15 Sep 2001 04:04:01 +0000 (UTC)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA080E2.39742E30@namesys.com> from "Vladimir V. Saveliev" at Sep 13, 2001 01:48:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271597AbRIOADe>; Fri, 14 Sep 2001 20:03:34 -0400
+Received: from gear.torque.net ([204.138.244.1]:21764 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S271592AbRIOAD3>;
+	Fri, 14 Sep 2001 20:03:29 -0400
+Message-ID: <3BA299D7.55F6C2D6@torque.net>
+Date: Fri, 14 Sep 2001 19:59:19 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre6 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Joseph Cheek <joseph@cheek.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2 IDE cd-roms + ide-scsi = 4 scsi cdroms ???
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Vladimir V. Saveliev wrote:"
+Joseph Cheek <joseph@cheek.com> wrote:
+> i added a second ide cdrom to this system and now notice that i have 
+> four scsi cdroms show up.  really weird.  this was on 2.4.7-ac10 and 
+> repros on 2.4.9-ac10.
 > 
-> Hi
-> 
-> > Subject: tail corruptions: saga continues
-> > Date: Thu, 13 Sep 2001 00:33:23 +0000 (UTC)
-> > From: Samium Gromoff <_deepfire@mail.ru>
-> > To: reiser@namesys.com
-> > CC: linux-kernel@vger.kernel.org
-> >
-> >          2.4.7/3.x.0k-pre8 pair in _very_rare_ circumsistances
-> 
-> You should get 3.x.0k-pre9.
-   Ouch! Actually that was pre9... sorry for a mistake.
-> 
-> >
-> >     gives tails corruptions with --rebuild-tree.
-> 
-> >     Actually i found only one file filled with "." (ofcourse <4k)
-> >          As a detail, on sudden reboots i have log tails filled with "."
-> >     but it seems to be unrelated.
-> >          It may look like this one file "." fill was caused by sudden
-> >     inability to sync while corruption raised, but in fact at the moment
-> >     when fs was corrupted i havent accessed this file for ages... (.c file)
-> >
-> 
-> So, am I correct that before running reiserfsck --rebuild-tree the file
-> contained proper data and did not after it?
-  Yep
-> Or the file appeared corrupted after sudden reboot/mount and it was not
-> touched before that sudden crash?
-> 
-> Why did you decide to run --rebuild-tree? Did reiserfsck --check recommend you
-> to do that?
-  To repair fs with some blocks set to zero. Zeroified blks are unrelated though...
-> 
-> Thanks,
-> vs
-> 
-> 
-> 
+> when i had one cdrom (/dev/hdc) i had just one scsi cdrom after loading 
+> ide-scsi (/dev/sr0).
 
+Joseph,
+Try turning off CONFIG_SCSI_MULTI_LUN in your kernel
+config and recompile your kernel (or modules in your case
+because lsmod shows all your scsi components are modules).
+
+This will stop 2 luns being seen for each actual
+device.
+
+Doug Gilbert

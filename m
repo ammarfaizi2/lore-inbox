@@ -1,148 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUAPTvU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUAPTvT
+	id S263697AbUAPTlT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAPTlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:51:19 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:31918 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265772AbUAPTuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:50:35 -0500
-Message-ID: <40084086.7030108@sbcglobal.net>
-Date: Fri, 16 Jan 2004 13:50:30 -0600
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.6b) Gecko/20031219
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Unterkircher <unki@netshadow.at>
-CC: linux-kernel@vger.kernel.org, Claude.PARISOT@wanadoo.fr
-Subject: Re: DMA problem
-References: <40083A5F.4060802@wanadoo.fr> <00cc01c3dc67$87fc58b0$02bfa8c0@kuecken>
-In-Reply-To: <00cc01c3dc67$87fc58b0$02bfa8c0@kuecken>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 14:41:18 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:65001 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265746AbUAPTkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:40:40 -0500
+Date: Fri, 16 Jan 2004 20:40:34 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Murilo Pontes <murilo_pontes@yahoo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nforce2 66MHz IDE without idebus=xx and "Athlon-xp powersaving system lock"
+Message-ID: <20040116194034.GA24256@ucw.cz>
+References: <200401161352.25732.murilo_pontes@yahoo.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401161352.25732.murilo_pontes@yahoo.com.br>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If those options don't work, you might try dropping down the dma mode by 
-one.  I have a Maxtor drive that does something like that with my 
-Promise PDC20269 when trying to use UDMA 2, but it works fine in UDMA 1.
+On Fri, Jan 16, 2004 at 01:52:25PM +0000, Murilo Pontes wrote:
 
--Wes-
+> If all Nvidia Nforce2 based systems have 2 pci buses (First is 66mhz for onboard devices and
+> second is 33mhz for pci expansion slots) and IDE controller work in 66mhz,
+> will be change kernel to start IDE controller in 66mhz mode automatic?
 
-Andreas Unterkircher wrote:
+The IDE controller base clock is 33MHz on the NForce2, although the ide
+controller itself is connected to the HyperTransport link, running at
+200 MHz or so.
 
->Is it possible that your ide-cable can't handle the higher dma speeds
->and makes errors? is it udma compatible? have you looked for a
->firmware update for the burner @ www.plextor.com?
->
->andreas
->
->
->----- Original Message ----- 
->From: "claude parisot" <Claude.PARISOT@wanadoo.fr>
->To: <linux-kernel@vger.kernel.org>
->Cc: <Claude.PARISOT@wanadoo.fr>
->Sent: Friday, January 16, 2004 8:24 PM
->Subject: DMA problem
->
->
->  
->
->>  Hello !
->>
->>Sorry to post a seconfd message on the list, I am only trying
->>to get an answern for this - it seems so - DMA-problem ??
->>
->>
->>I have some
->>problems with a brand new Plextor-drive, PX-W5224TA/T3B, I cannot
->>mount any CD or burn a CDR or CD-RW, except if I disable DMA with
->>following command :# hdparm -d0 /dev/hdd , a little bit annoying,
->>isn't it ?
->>
->>If I insert a cdrom in the drive the led doesn't go out, it flashes
->>as usual but it stays green.
->>
->>It seems to be a DMA-problem or a kernel-bug ???
->>Its only a supposition, I am a Linux-newbie, and I am looking
->>for an explanation and a solution ....
->>
->>By mounting a cdrom I get following error messages :
->>
->>Jan 11 20:46:00 ishwara kernel: scsi : aborting command due to timeout
->>: pid 102, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00 00 01 00
->>Jan 11 20:46:00 ishwara kernel: hdd: error waiting for DMA
->>Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry: status=0x7f {
->>DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index
->>Error } Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry:
->>error=0x7f Jan 11 20:46:00 ishwara kernel: hdd: DMA disabled
->>Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
->>Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
->>Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
->>Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
->>Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
->>Jan 11 20:46:07 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
->>Jan 11 20:46:07 ishwara kernel: scsi0 channel 0 : resetting for second
->>half of retries. Jan 11 20:46:07 ishwara kernel: SCSI bus is being reset
->>for host 0 channel 0. Jan 11 20:46:07 ishwara kernel: hdd: status
->>timeout: status=0x80 { Busy } Jan 11 20:46:07 ishwara kernel: hdd: drive
->>not ready for command Jan 11 20:46:07 ishwara kernel: hdd: ATAPI reset
->>complete Jan 11 20:46:32 ishwara kernel: scsi : aborting command due to
->>timeout : pid 103, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00
->>rive not ready for command
->>
->>And then I have a freeze or at least a blocking of the sysem.
->>I have to reboot.
->>
->>Could someone give me an explanation of what is happening and a way to
->>solve the problem .... is this a kernel-bug ? Or an incompatibility
->>between the motherboard and the drive ??
->>
->>If you choose to help me, please don't be to esoteric, as I already
->>said, I am a newbie.
->>
->>Please, could you Cc all answers to the adress :
->>
->>Claude.PARISOT@wanadoo.fr
->>
->>My apologizes for my english ....
->>
->>
->>Claude
->>
->>System : Pentium 2,8C
->>Asus P4P800 DeLuxe
->>Intel I865PE
->>
->>
->>
->>
->>
->>
->>
->>
->>
->>
->>
->>
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>    
->>
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+> dmesg
+> ================================================
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> NFORCE2: IDE controller at PCI slot 0000:00:09.0
+> NFORCE2: chipset revision 162
+> NFORCE2: not 100% native mode: will probe irqs later
+> NFORCE2: BIOS didn't set cable bits correctly. Enabling workaround.
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
+>     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+>     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+> hda: Maxtor 6E040L0, ATA DISK drive
+> hdb: HL-DT-ST GCE-8525B, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hda: max request size: 128KiB
+> hda: 80293248 sectors (41110 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(133)
+> ==================================================
+> 
+> lspci -v
+> ===================================================
+> 00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2) (prog-if 8a [Master SecP PriP])
+>         Subsystem: Micro-Star International Co., Ltd.: Unknown device 5700
+>         Flags: bus master, 66Mhz, fast devsel, latency 0
+>         I/O ports at f000 [size=16]
+>         Capabilities: [44] Power Management version 2
+> ====================================================
+
+This 66 MHz and the above 33 MHz numbers are completely unrelated. Just
+forget about setting idebus to anything else than it is default. Bigger
+numbers mean _slower_ performance anyway.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

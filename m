@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313299AbSC1X2R>; Thu, 28 Mar 2002 18:28:17 -0500
+	id <S313304AbSC1XwV>; Thu, 28 Mar 2002 18:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313300AbSC1X2H>; Thu, 28 Mar 2002 18:28:07 -0500
-Received: from zoon.lafn.org ([206.117.18.9]:27973 "EHLO zoon.lafn.org")
-	by vger.kernel.org with ESMTP id <S313299AbSC1X1u>;
-	Thu, 28 Mar 2002 18:27:50 -0500
-Date: Thu, 28 Mar 2002 13:39:43 -0800
-From: David Lawyer <dave@lafn.org>
-To: Ed Vance <EdV@macrolink.com>
-Cc: "'Henrique Gobbi'" <henrique@cyclades.com>, linux-kernel@vger.kernel.org,
-        "'linux-serial'" <linux-serial@vger.kernel.org>
-Subject: Re: Char devices drivers
-Message-ID: <20020328133942.A446@lafn.org>
-Mail-Followup-To: David Lawyer <dave>, Ed Vance <EdV@macrolink.com>,
-	'Henrique Gobbi' <henrique@cyclades.com>,
-	linux-kernel@vger.kernel.org,
-	'linux-serial' <linux-serial@vger.kernel.org>
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76EC@EXCHANGE>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S313305AbSC1XwB>; Thu, 28 Mar 2002 18:52:01 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5362 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S313304AbSC1Xv7>;
+	Thu, 28 Mar 2002 18:51:59 -0500
+Date: Thu, 28 Mar 2002 18:51:54 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] ext2_fill_super breakage
+In-Reply-To: <3CA356AE.2E61F712@zip.com.au>
+Message-ID: <Pine.GSO.4.21.0203281838310.25746-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 09:59:14AM -0800, Ed Vance wrote:
-> On Mon, Mar 11, 2002, Henrique Gobbi wrote:
-> > 
-> > Can anyone explain what is the utility of the callout devices 
-> > in the char drivers ???
+
+
+On Thu, 28 Mar 2002, Andrew Morton wrote:
+
+> > For one thing, the latter is hell on any search.
 > 
-> To further confuse things, most vendors have a "back door" port
-> configuration mechanism outside of termio(s)/sgtty. For example, Linux has
-> the setserial command. There is less need for separate callout devices when
-> the user can set a port to open with the desired flag values.
+> If the usage of the type is hard to search for then
+> then wrong identifier was chosen.
 
-Setserial doesn't have facilities to set open flags for the ports.  The
-reason cua isn't needed is that the programmer can make a ttyS port look
-like a cua port by using the O_NONBLOCK or O_NDELAY flags.  However the
-non-blocking flag will not only force an open when CD is asserted, but
-will make all reads of the port non-blocking.  So the programmer can
-change this if he wants after the port has opened.
+Huh?
 
-So eliminating cua means more work for the programmer but less confusion
-for users.  Overall, it's a good thing since there are many more users
-than programmers.
+Search for ext2_sb_info will give you all places that refer to it.
+Including a buttload of
+	struct ext2_sb_info *p;
 
-			David Lawyer
+Now, search for ext2_sb_info[ 	]*[^ 	*] is much more interesting.
+With explicit sizeof it is guaranteed to give you all places where
+such beast is allocated or subjected to memset, etc.
+
+In this case it's not too interesting.  But try it for struct super_block
+or struct dentry or struct buffer_head, etc. - anything that is widely
+used.
+ 
+> (and I think this is something on which you and I somewhat
+> differ) code should be written for the convenience of others,
+> not the original author.
+
+Ahem.  Right now I'm digging through the <expletives> known as lvm.c
+trying to fix the use of kdev_t in ioctls.  Believe me, I'm _not_
+the original author.  "Where the heck do they initialize <field>" is
+the question I've to deal with all the time and I'd rather have it
+(along with "where the heck do they allocate and free their monsters")
+as greppable as possible.
+
+BTW, I _really_ wonder who had audited lvm.c for inclusion - quite a
+few places in there pull such lovely stunts as, say it, use of strcmp()
+on a user-supplied array of characters.  Whaddya mean, "what if there's
+no NUL"?  Sigh...
+

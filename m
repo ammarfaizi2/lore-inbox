@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSHFQol>; Tue, 6 Aug 2002 12:44:41 -0400
+	id <S313202AbSHFQmZ>; Tue, 6 Aug 2002 12:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSHFQol>; Tue, 6 Aug 2002 12:44:41 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:61670 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313537AbSHFQok>;
-	Tue, 6 Aug 2002 12:44:40 -0400
-Message-ID: <3D4FFDBD.8070100@candelatech.com>
-Date: Tue, 06 Aug 2002 09:47:57 -0700
+	id <S313305AbSHFQmZ>; Tue, 6 Aug 2002 12:42:25 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:59622 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S313202AbSHFQmZ>;
+	Tue, 6 Aug 2002 12:42:25 -0400
+Message-ID: <3D4FFD23.5010707@candelatech.com>
+Date: Tue, 06 Aug 2002 09:45:23 -0700
 From: Ben Greear <greearb@candelatech.com>
 Organization: Candela Technologies
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Robert Latham <robl@mcs.anl.gov>, linux-kernel@vger.kernel.org
-Subject: Re: tigon3: 2466 and bad performance at 32bits/33mhz ?
-References: <20020806053508.GJ25554@mcs.anl.gov> <20020806084840.GB32229@alpha.home.local>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+References: <Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Tue, Aug 06, 2002 at 12:35:08AM -0500, Robert Latham wrote:
+Marcelo Tosatti wrote:
 > 
->>The fast curve is with the 3c996B-T in the 64/66 slot.  It peaks out
->>around 850 Mbps.  The slow curve is the same card in the 32/33 slot.
->>It peaks around 180 Mbps.
-> 
-> [snip]
-> 
->>So, am i looking at a hardware limitation?  driver quirk?  I'm open to
->>any suggestions.  
+> On Mon, 5 Aug 2002, Ben Greear wrote:
 > 
 > 
-> on a 32/33 slot, with a quad fast ethernet card, I can reach 400 Mbps
-> on good hardware. The *theorical* bandwidth limit is 1.06 Gbps for
-> 32 bits/33 Mhz. Of course, there's some overhead, but you would need 80%
-> overhead to get you numbers, not very likely...
+>>Marcelo Tosatti wrote:
+>>
+>>>So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
+>>>stuff.
+>>>
+>>>2.4.20 will be a much faster release cycle than 2.4.19 was.
+>>
+>>Two questions:  I see change logs about NAPI going in, and then
+>>NAPI being removed.  I assume it is removed...but maybe it will
+>>be back soon?
 > 
-> Perhaps this slot is on another bus, perhaps the latency timer is too
-> low and the card receives small chunks at once, or perhaps this bus
-> is shared with another hungry device ?
 > 
-> Regards,
-> willy
+> I want arguments from Davem to include NAPI. Changing the drivers is a
+> reason for me to _not_ want it in.
+> 
+> But lets see if Davem can convince me ;)
 
-I'm pushing 650Mbps on a 32/33 PCI bus using a Netgear GA620 GigE
-card (the card supports 64bit PCI).  So, its not exactly a PCI bus
-limitation you are hitting unless your PCI chipset somehow really
-sucks.
+Well, I hope he does, and I hope it really works :)
+
+The patch I was looking for was the pre-patch you put out.
+I see it's on kernel.org now, so no problem there.
 
 Ben
-
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+>>Second:  Where is the patch?  I looked on kernel.org and didn't
+>>find it.  If it's going to be there shortly, that's fine, I'll
+>>keep checking back.
+> 
+> 
+> Maybe at davem's CVS repo?
 > 
 
 

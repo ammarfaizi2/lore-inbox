@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270005AbRHEUhG>; Sun, 5 Aug 2001 16:37:06 -0400
+	id <S270010AbRHEUqI>; Sun, 5 Aug 2001 16:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270006AbRHEUgq>; Sun, 5 Aug 2001 16:36:46 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:29707 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270005AbRHEUgl>; Sun, 5 Aug 2001 16:36:41 -0400
-Date: Sun, 5 Aug 2001 13:33:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mike Black <mblack@csihq.com>, Ben LaHaise <bcrl@redhat.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, Andrew Morton <andrewm@uow.edu.au>
+	id <S270012AbRHEUp7>; Sun, 5 Aug 2001 16:45:59 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:18869 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S270010AbRHEUpr>;
+	Sun, 5 Aug 2001 16:45:47 -0400
+Message-Id: <m15TUmQ-000PQbC@amadeus.home.nl>
+Date: Sun, 5 Aug 2001 21:45:46 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <E15TURJ-0008Jy-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108051325070.7988-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108051315540.7988-100000@penguin.transmeta.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.33.0108051315540.7988-100000@penguin.transmeta.com> you wrote:
 
-On Sun, 5 Aug 2001, Alan Cox wrote:
+> In general, I think we can get latency to acceptable values, and latency
+> is the _hard_ thing. We seem to have become a lot better already, by just
+> removing the artificial ll_rw_blk code.
 
-> > On Sun, 5 Aug 2001, Mike Black wrote:
-> > And quite frankly, if your disk can push 50MB/s through a 1kB
-> > non-contiguous filesystem, then my name is Bugs Bunny.
->
-> Hi Bugs 8), previously Frodo Rabbit, .. I think you watch too much kids tv
-> 8)
+Ok how about a scheme (in 2.5) where every request has a "priority" assigned
+to it. The way I see this is:
 
-Three kids will do that to you. Some day, you too will be there.
+* priority is a signed value
+* negative priority means "no need to do IO yet" to allow for gathering
+  and grouping more requests in the request queues. It would be possible
+  to get most of the inactive-dirty list in this state, eg io scheduled but
+  not yet running
+* on merging requests, the highest priority obviously becomes the overall 
+  priority of the request
+* "interactive" requests get a higher priority; this can be helped by adding
+  a ll_rw_block_sync function, as 99% if the ll_rw_block users ends up
+  waiting for io anyway
+* priority needs to be "aged up" in time to take care of latency and such
 
-> [To be fair I can do this through a raid controller with write back caches
-> and the like ..]
+If a device is truely idle (eg no io for X jiffies), it could steal negative
+requests from the queue to do preemtive writes in order to prevent the
+current situation of 5 seconds of no IO, and then suddenly a problem and
+long-latency IO.
 
-Note that this was _read_ performance.
+Also, intelligent devices such as aacraid, where the hardware controller has
+the notion of priority, can be used more effectively this way. Such hardware
+raid controllers also like to have deep IO queues for non-priority requests
+to keep all disks in the raid array busy...
 
-I agree that writing is easier, and contiguous buffers do not mean much if
-you have a big write cache.
+Comments ?
 
-> One problem I saw with scsi was that non power of two readaheads were
-> causing lots of small I/O requests to actual hit the disk controller (which
-> hurt big time on hardware raid as it meant reading/rewriting chunks). I
-> ended up seeing 128/127/1 128/127/1 128/127/1 with a 255 block queue.
-
-Uhhuh. I think the read-ahead is actually a power-of-two, because it ends
-up being "127 pages plus the current one", but hey, I could easily be
-off-by-one.
-
-I would actually love to see the read-ahead code just pass down the
-knowledge that it is a read-ahead to the IO layer, and let the IO layer do
-whatever it wants. In the case of block devices, for example, the READA
-code is still there and looks very simple and functional - so it should be
-trivial for generic_block_read_page() to pass down the READA information
-and just return "no point in doing read-ahead, the queue is full"..
-
-That way we'd never have the situation that we end up breaking up large
-reads into badly sized entities.
-
-		Linus
-
+Greetings,
+   Arjan van de Ven

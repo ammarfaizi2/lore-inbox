@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289250AbSA3PRq>; Wed, 30 Jan 2002 10:17:46 -0500
+	id <S289243AbSA3PSG>; Wed, 30 Jan 2002 10:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289243AbSA3PR1>; Wed, 30 Jan 2002 10:17:27 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:55312 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289241AbSA3PRG>; Wed, 30 Jan 2002 10:17:06 -0500
-Message-ID: <3C580E6B.6080905@namesys.com>
-Date: Wed, 30 Jan 2002 18:16:59 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> <20020130092100.KCMT17610.femail45.sdc1.sfba.home.com@there>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289251AbSA3PR6>; Wed, 30 Jan 2002 10:17:58 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:9963 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289243AbSA3PRr>;
+	Wed, 30 Jan 2002 10:17:47 -0500
+Date: Wed, 30 Jan 2002 20:51:15 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Fw: Writeup on AIO design (uploaded) - corrected url
+Message-ID: <20020130205115.B1864@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
 
->
->
->This is eleven "top level" maintainers, one of whom is handling ext3 which 
->sounds kind of odd...  (If David Miller is networking and Jeff Garzik is 
->network drivers, would there be a "filesystem drivers" guy paired off with Al 
->Viro?  Does EXT2 go through Andrew Morton as well?  Would Hans Reiser submit 
->directly to you for ReiserFS patches, or should he get a signoff from...  
->Um...  Andrew?  Al?  Try to get it into the -dj tree first?  Could I have a 
->hint?)
->
+Oops, oops, oops, I mispelt the website.
+It should have been:
 
-There is a maintainers list somewhere in the kernel tree.  I am listed 
-there as  the ReiserFS maintainer, and I send our patches directly to 
-Linus and Marcelo.  I don't think that a filesystems maintainer would be 
-easily achieved, since if we agreed about architecture we would have 
-written the same filesystems.   We can't even agree about whether 
-streams and extended attributes should be implemented as files, and as 
-for whether keyword search and database functionality should go into the 
-filesystem namespace.....
+http://lse.sourceforge.net/io/aionotes.txt
 
-So, there is a maintainers list, and for many subsystems it works fairly 
-well.  For ReiserFS, while I review and approve all patches we accept, 
-Oleg Drokin is my patch whirlwind who does the work of testing and 
-inspecting line by line for bugs (I inspect more for desirable 
-functionality).
+My apologies !
 
-ReiserFS has been well-tended by Marcelo, so things are working well for 
-us.  Dave Jones tends to 2.5 ReiserFS patches quite nicely also.  None 
-of our 2.5 patches are earth-shattering, so I think it is very 
-reasonable for Linus to pay attention to, say,  bio stuff for now rather 
-than our patches (I am sure he will eventually fold them in from Dave 
-Jones's tree.)  I worry more that I haven't had a few hours to brief 
-Linus on the strategic direction of Reiser4, and what I think is needed 
-longterm to compete with Longhorn, but this is probably my fault for not 
-asking him for it.
+(Thanks to Daniel Phillips and John Williams for pointing this out)
 
-I know that others have had real problems in this regard, and I don't 
-discount them, but ReiserFS patches are going well at this time.
+Regards
+Suparna
 
-Hans
+----- Forwarded message from Suparna Bhattacharya <suparna@in.ibm.com> -----
 
+Date: 	Wed, 30 Jan 2002 20:13:04 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>, ak@suse.de, viro@math.psu.edu,
+   jgmyers@netscape.com
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+   lse-tech@lists.sourceforge.net
+Subject: Writeup on AIO design (uploaded)
+Reply-To: suparna@in.ibm.com
+
+Hello,
+
+I have just uploaded the aio design notes to:
+ http://lse.sourcefourge.net/io/aionotes.txt
+
+Thanks to all those who helped with inputs and reviews of the interim 
+drafts.
+
+The writeup attempts to bring out some of the interesting design issues 
+and discuss the solutions to those issues and the approach taken in 
+Ben's design, and touches on the ideas for addressing some of the pending 
+issues, todo items and potential enhancements. It also looks at some of
+these aspects in the context of other implementations that exist or have 
+been attempted on Linux (SGI kaio, Univ of Winsconsin-Madison's BAIO, 
+Andi Kleen's early prototype), and the AIO related interfaces available 
+on other OS's (POSIX aio, NT IOCPs, BSD kqueues), and also the DAFS api 
+specifications. 
+
+This was written with the intention of triggering discussions (though
+this writeup wouldn't have been possible without all the discusions we've
+already had :)). 
+
+So please do share your insights, perspectives and comments. 
+
+All the more so, if you already have a good understanding the aio 
+design ! 
+
+For those who are new to aio:
+The focus here is only the in-kernel aio design, so you won't find much 
+about actually using aio (Dan Kegel's page might be a better
+place to start on that). There should, however, be some insights,
+and pointers to the in-kernel primitives introduced as part of aio,
+say, if you intend to implement your own async state machine (for some 
+reason !). However, the writeup does not get into low level details and 
+is not intended to be a substitute for looking at the code :). 
+It should help you follow the code more easily though (I hope).
+
+Regards
+Suparna
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-aio' in
+the body to majordomo@kvack.org.  For more info on Linux AIO,
+see: http://www.kvack.org/aio/
+
+----- End forwarded message -----

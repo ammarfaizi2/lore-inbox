@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262134AbTCZTrr>; Wed, 26 Mar 2003 14:47:47 -0500
+	id <S261707AbTCZT4t>; Wed, 26 Mar 2003 14:56:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262128AbTCZTrr>; Wed, 26 Mar 2003 14:47:47 -0500
-Received: from cpt-dial-196-30-180-122.mweb.co.za ([196.30.180.122]:27008 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id <S262000AbTCZTrn>;
-	Wed, 26 Mar 2003 14:47:43 -0500
-Subject: Re: w83781d i2c driver updated for 2.5.66 (without sysfs support)
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, KML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>, sensors@stimpy.netroedge.com
-In-Reply-To: <3E82024A.4000809@portrix.net>
-References: <1048582394.4774.7.camel@workshop.saharact.lan>
-	 <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan>
-	 <3E82024A.4000809@portrix.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ynr/LxAGDvxyxBJVDjjL"
-Organization: 
-Message-Id: <1048708449.7569.34.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 26 Mar 2003 21:54:09 +0200
+	id <S261921AbTCZT4s>; Wed, 26 Mar 2003 14:56:48 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:38406 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261707AbTCZT4k>; Wed, 26 Mar 2003 14:56:40 -0500
+Date: Wed, 26 Mar 2003 20:07:49 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Framebuffer updates.
+In-Reply-To: <3E81B317.3080504@coyotegulch.com>
+Message-ID: <Pine.LNX.4.44.0303262007240.21188-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Ynr/LxAGDvxyxBJVDjjL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > As usually I have a patch avalaible at 
+> > The patch has updates for the ATI Rage 128, Control, and Platnium 
+> > framebuffer driver. The Radeon patch adds PLL times for the R* series of
+> > cards. Memory is now safe to allocate for the software cursor and inside 
+> > fbcon. There still are issues with syncing which cause the cursor on some 
+> > systems to become corrupt sometimes. 
+> 
+>  From your description, this doesn't sound like these patches solve the 
+> problem with radeonfb not detecting a DFP connected to the DVI. I posted 
+> a message about this bug a week ago, and am more than willing to look 
+> into fixing it myself if it isn't on your schedule.
 
-On Wed, 2003-03-26 at 21:40, Jan Dittmer wrote:
-> Martin Schlemmer wrote:
-> >=20
-> > I did look at the changes needed for sysfs, but this beast have
-> > about 6 ctl_tables, and is hairy in general.  I am not sure what
-> > is the best way to do it for the different chips, so here is what
-> > I have until I or somebody else can do the sysfs stuff.
-> >=20
-> I've just done this with the via686a driver. Saves about 100 lines of cod=
-e.
->=20
-> Comments?
->=20
+If you have the docs and teh ahrdware could you? I don't have either.
 
-Nice example, thanks =3D)  The w83781d does things in similar fashion,
-except that it support 6 different 'models', that have more or less
-the same readouts except for here and there a few more or less.
-
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
---=-Ynr/LxAGDvxyxBJVDjjL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+ggVgqburzKaJYLYRAvV0AJkB/HWNymc1o/QMU8V26kHuOFlmfgCfUlDI
-nSZCcHH2s455OidEl1LS934=
-=aVwK
------END PGP SIGNATURE-----
-
---=-Ynr/LxAGDvxyxBJVDjjL--
 

@@ -1,86 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbTEETkW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 15:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTEETkW
+	id S261267AbTEETq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 15:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbTEETq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 15:40:22 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:51592 "EHLO
-	einstein31.homenet") by vger.kernel.org with ESMTP id S261255AbTEETkR
+	Mon, 5 May 2003 15:46:59 -0400
+Received: from p508EE977.dip.t-dialin.net ([80.142.233.119]:20400 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id S261267AbTEETq6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 15:40:17 -0400
-Date: Mon, 5 May 2003 21:53:48 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein31.homenet
-To: Joseph Fannin <jhf@rivenstone.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: microcode driver fails on PIII-Celeron
-In-Reply-To: <Pine.LNX.4.44.0305052150310.4017-100000@einstein31.homenet>
-Message-ID: <Pine.LNX.4.44.0305052152340.4017-100000@einstein31.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 May 2003 15:46:58 -0400
+Date: Mon, 5 May 2003 21:59:27 +0200
+From: Patrick Mau <mau@oscar.ping.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.69, DRI, Radeon 8500 AGP working for me
+Message-ID: <20030505195927.GA28347@oscar.ping.de>
+Reply-To: Patrick Mau <mau@oscar.ping.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-btw, I assume that you have the latest microcode data downloaded from:
+Many thnks, Linus
 
-http://www.urbanmyth.org/microcode
+The current BK 2.5 tree fixes all my DRI and AGP related problems.
+I did stress it very hard running various screensavers and quake 3,
+so far everything is all right.
 
-On Mon, 5 May 2003, Tigran Aivazian wrote:
+I'm currently using XFree from CVS:
 
-> This is not a bug. It simply means that there is no microcode data for 
-> your processor. So, I recommend disabling invocation of microcode_ctl on 
-> startup until there is a latest set of microcode data which contains a 
-> chunk for your cpu (i.e. until your cpu has some bugs worthy of fixing :)
-> 
-> Regards
-> Tigran
-> 
-> On Mon, 5 May 2003, Joseph Fannin wrote:
-> 
-> >     The microcode driver in the kernel fails for me on my laptop with
-> > a PIII-era Celeron 900.  I've tested both 2.4 and 2.5 kernels over
-> > course of a year or so; all abort with the same error when trying to
-> > load the microcode:
-> > 
-> > microcode: CPU0 no microcode found! (sig=68a, pflags=32)
-> > 
-> >     My amateur reading of the code leads me to think the processor
-> > might be misidentified somehow (or something, my head doesn't like bit
-> > operations).
-> > 
-> > /proc/cpuinfo:
-> > processor       : 0
-> > vendor_id       : GenuineIntel
-> > cpu family      : 6
-> > model           : 8
-> > model name      : Celeron (Coppermine)
-> > stepping        : 10
-> > cpu MHz         : 897.366
-> > cache size      : 128 KB
-> > fdiv_bug        : no
-> > hlt_bug         : no
-> > f00f_bug        : no
-> > coma_bug        : no
-> > fpu             : yes
-> > fpu_exception   : yes
-> > cpuid level     : 2
-> > wp              : yes
-> > flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> > bogomips        : 1773.56
-> > 
-> >     FWIW, this is a Debian unstable system, using the microcode
-> > utilities as packaged for Debian.  The laptop is a Dell Inspiron 2500,
-> > based on the i815 chipset.
-> > 
-> >     Is this a bug, or is this really not supposed to work?
-> > 
-> > --
-> > Joseph Fannin
-> > jhf@rivenstone.net
-> > 
-> > "That's all I have to say about that." -- Forrest Gump.
-> > 
-> 
-> 
+XFree86 Version 4.3.99.3
+Release Date: 29 April 2003
+X Protocol Version 11, Revision 0, Release 6.6
+Build Operating System: Linux 2.4.20 i686 [ELF]
+Build Date: 01 May 2003
 
+"Page Flipping" and "AGP Fast Write" are enabled,
+AGP speed is set to "1" (the default ?).
+
+Thanks a lot,
+Patrick

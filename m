@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293110AbSB1BWo>; Wed, 27 Feb 2002 20:22:44 -0500
+	id <S293113AbSB1BWD>; Wed, 27 Feb 2002 20:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292971AbSB1BWh>; Wed, 27 Feb 2002 20:22:37 -0500
-Received: from [216.151.155.108] ([216.151.155.108]:47621 "EHLO
-	varsoon.wireboard.com") by vger.kernel.org with ESMTP
-	id <S293116AbSB1BWX>; Wed, 27 Feb 2002 20:22:23 -0500
-To: "Doug O'Neil" <DougO@seven-systems.com>
-Cc: "lk" <linux-kernel@vger.kernel.org>
-Subject: Re: LFS Support for Sendfile
-In-Reply-To: <036801c1bfee$b5b0f780$1801010a@Mauser>
-From: Doug McNaught <doug@wireboard.com>
-Date: 27 Feb 2002 20:22:10 -0500
-In-Reply-To: "Doug O'Neil"'s message of "Wed, 27 Feb 2002 16:27:30 -0800"
-Message-ID: <m34rk2tn7h.fsf@varsoon.denali.to>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
+	id <S293114AbSB1BVa>; Wed, 27 Feb 2002 20:21:30 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29969 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293115AbSB1BUu>;
+	Wed, 27 Feb 2002 20:20:50 -0500
+Date: Wed, 27 Feb 2002 22:20:30 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Allo!Allo! <lachinois@hotmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel module ethics.
+In-Reply-To: <Pine.LNX.3.95.1020227164752.16918A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33L.0202272218000.2801-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Doug O'Neil" <DougO@seven-systems.com> writes:
+On Wed, 27 Feb 2002, Richard B. Johnson wrote:
 
-> Hello group.
-> 
-> First time poster. If this isn't the right place for this then please point
-> me in the right direction and accept my apology.
-> 
-> I'm using Linux 2.4.12 on a PIII
+> That said, there may be responses from others who say; "No you can't
+> do that!" The FSF makes free software, etc. I won't be responding
+> to those because I understand that nothing I do at work is free.
 
-That's pretty darn old.  Can you try it with a modern kernel (2.4.18)?
+In that sense, the GPL isn't free either.
 
--Doug
+You get to use software published under the GPL in
+exchange for publishing your additions and changes
+to that software under the GPL as well.
+
+If I wanted proprietary people to be able to use my
+code without giving anything back to me I'd choose
+the BSD license instead of the GPL.
+
+regards,
+
+Rik
 -- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

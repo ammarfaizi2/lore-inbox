@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTIPAik (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 20:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbTIPAik
+	id S261750AbTIPAjf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 20:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTIPAjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 20:38:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52141 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261735AbTIPAi0 (ORCPT
+	Mon, 15 Sep 2003 20:39:35 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:4351 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261750AbTIPAjW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 20:38:26 -0400
-Message-ID: <3F665AC0.7070104@us.ibm.com>
-Date: Mon, 15 Sep 2003 17:35:12 -0700
+	Mon, 15 Sep 2003 20:39:22 -0400
+Message-ID: <3F665AF9.9050505@us.ibm.com>
+Date: Mon, 15 Sep 2003 17:36:09 -0700
 From: Matthew Dobson <colpatch@us.ibm.com>
 Reply-To: colpatch@us.ibm.com
 Organization: IBM LTC
@@ -20,15 +20,15 @@ MIME-Version: 1.0
 To: Jesse Barnes <jbarnes@sgi.com>
 CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, wli@holomorphy.com
-Subject: [PATCH[ Clean up MAX_NR_NODES/NUMNODES/etc. [2/5]
+Subject: [PATCH] Clean up MAX_NR_NODES/NUMNODES/etc. [3/5]
 References: <20030910153601.36219ed8.akpm@osdl.org> <41000000.1063237600@flay> <20030911000303.GA20329@sgi.com> <3F6659DF.1090508@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------070000030007080904070203"
+ boundary="------------020601020609060306020802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070000030007080904070203
+--------------020601020609060306020802
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -62,83 +62,69 @@ Cheers!
 
 -Matt
 
---------------070000030007080904070203
+--------------020601020609060306020802
 Content-Type: text/plain;
- name="02-remove-max_nr_nodes.patch"
+ name="03-fix-sh.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="02-remove-max_nr_nodes.patch"
+ filename="03-fix-sh.patch"
 
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5-max_numnodes2nodes_shift/arch/i386/kernel/smpboot.c linux-2.6.0-test5-remove-max_nr_nodes/arch/i386/kernel/smpboot.c
---- linux-2.6.0-test5-max_numnodes2nodes_shift/arch/i386/kernel/smpboot.c	Mon Sep  8 12:50:03 2003
-+++ linux-2.6.0-test5-remove-max_nr_nodes/arch/i386/kernel/smpboot.c	Mon Sep 15 13:44:57 2003
-@@ -499,8 +499,8 @@ static struct task_struct * __init fork_
- #ifdef CONFIG_NUMA
- 
- /* which logical CPUs are on which nodes */
--cpumask_t node_2_cpu_mask[MAX_NR_NODES] =
--				{ [0 ... MAX_NR_NODES-1] = CPU_MASK_NONE };
-+cpumask_t node_2_cpu_mask[MAX_NUMNODES] =
-+				{ [0 ... MAX_NUMNODES-1] = CPU_MASK_NONE };
- /* which node each logical CPU is on */
- int cpu_2_node[NR_CPUS] = { [0 ... NR_CPUS-1] = 0 };
- 
-@@ -518,7 +518,7 @@ static inline void unmap_cpu_to_node(int
- 	int node;
- 
- 	printk("Unmapping cpu %d from all nodes\n", cpu);
--	for (node = 0; node < MAX_NR_NODES; node ++)
-+	for (node = 0; node < MAX_NUMNODES; node ++)
- 		cpu_clear(cpu, node_2_cpu_mask[node]);
- 	cpu_2_node[cpu] = -1;
- }
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5-max_numnodes2nodes_shift/include/linux/mmzone.h linux-2.6.0-test5-remove-max_nr_nodes/include/linux/mmzone.h
---- linux-2.6.0-test5-max_numnodes2nodes_shift/include/linux/mmzone.h	Mon Sep 15 13:44:27 2003
-+++ linux-2.6.0-test5-remove-max_nr_nodes/include/linux/mmzone.h	Mon Sep 15 13:44:57 2003
-@@ -304,19 +304,27 @@ extern void setup_per_zone_pages_min(voi
- #define numa_node_id()		(cpu_to_node(smp_processor_id()))
- 
- #ifndef CONFIG_DISCONTIGMEM
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5/include/asm-sh/numnodes.h linux-2.6.0-test5-max_numnodes2nodes_shift/include/asm-sh/numnodes.h
+--- linux-2.6.0-test5/include/asm-sh/numnodes.h	Wed Dec 31 16:00:00 1969
++++ linux-2.6.0-test5-max_numnodes2nodes_shift/include/asm-sh/numnodes.h	Fri Sep 12 17:26:31 2003
+@@ -0,0 +1,7 @@
++#ifndef _ASM_MAX_NUMNODES_H
++#define _ASM_MAX_NUMNODES_H
 +
- extern struct pglist_data contig_page_data;
- #define NODE_DATA(nid)		(&contig_page_data)
- #define NODE_MEM_MAP(nid)	mem_map
--#define MAX_NR_NODES		1
-+#define MAX_NODES_SHIFT		0
++/* Max 2 Nodes */
++#define NODES_SHIFT	1
 +
- #else /* CONFIG_DISCONTIGMEM */
++#endif /* _ASM_MAX_NUMNODES_H */
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5/arch/sh/mm/init.c linux-2.6.0-test5-nr_nodes/arch/sh/mm/init.c
+--- linux-2.6.0-test5/arch/sh/mm/init.c	Mon Sep  8 12:50:21 2003
++++ linux-2.6.0-test5-nr_nodes/arch/sh/mm/init.c	Fri Sep 12 17:28:43 2003
+@@ -51,8 +51,8 @@ unsigned long mmu_context_cache = NO_CON
+ #endif
  
- #include <asm/mmzone.h>
--
--/* page->zone is currently 8 bits ... */
--#define MAX_NR_NODES		(255 / MAX_NR_ZONES)
-+/*
-+ * page->zone is currently 8 bits
-+ * there are 3 zones (2 bits)
-+ * this leaves 8-2=6 bits for nodes
-+ */
-+#define MAX_NODES_SHIFT		6
+ #ifdef CONFIG_DISCONTIGMEM
+-pg_data_t discontig_page_data[NR_NODES];
+-bootmem_data_t discontig_node_bdata[NR_NODES];
++pg_data_t discontig_page_data[MAX_NUMNODES];
++bootmem_data_t discontig_node_bdata[MAX_NUMNODES];
+ #endif
  
- #endif /* !CONFIG_DISCONTIGMEM */
+ void show_mem(void)
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5/include/asm-sh/mmzone.h linux-2.6.0-test5-nr_nodes/include/asm-sh/mmzone.h
+--- linux-2.6.0-test5/include/asm-sh/mmzone.h	Mon Sep  8 12:50:27 2003
++++ linux-2.6.0-test5-nr_nodes/include/asm-sh/mmzone.h	Fri Sep 12 17:28:08 2003
+@@ -10,14 +10,14 @@
  
-+#if NODES_SHIFT > MAX_NODES_SHIFT
-+#error NODES_SHIFT > MAX_NODES_SHIFT
-+#endif
+ #include <linux/config.h>
  
- extern DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
- extern DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.0-test5-max_numnodes2nodes_shift/mm/page_alloc.c linux-2.6.0-test5-remove-max_nr_nodes/mm/page_alloc.c
---- linux-2.6.0-test5-max_numnodes2nodes_shift/mm/page_alloc.c	Mon Sep  8 12:49:52 2003
-+++ linux-2.6.0-test5-remove-max_nr_nodes/mm/page_alloc.c	Mon Sep 15 13:44:57 2003
-@@ -50,7 +50,7 @@ EXPORT_SYMBOL(nr_swap_pages);
-  * Used by page_zone() to look up the address of the struct zone whose
-  * id is encoded in the upper bits of page->flags
++#ifdef CONFIG_DISCONTIGMEM
++
+ /* Currently, just for HP690 */
+ #define PHYSADDR_TO_NID(phys)	((((phys) - __MEMORY_START) >= 0x01000000)?1:0)
+-#define NR_NODES 2
+ 
+-extern pg_data_t discontig_page_data[NR_NODES];
+-extern bootmem_data_t discontig_node_bdata[NR_NODES];
++extern pg_data_t discontig_page_data[MAX_NUMNODES];
++extern bootmem_data_t discontig_node_bdata[MAX_NUMNODES];
+ 
+-#ifdef CONFIG_DISCONTIGMEM
+ /*
+  * Following are macros that each numa implmentation must define.
   */
--struct zone *zone_table[MAX_NR_ZONES*MAX_NR_NODES];
-+struct zone *zone_table[MAX_NR_ZONES*MAX_NUMNODES];
- EXPORT_SYMBOL(zone_table);
+@@ -46,7 +46,7 @@ static inline int is_valid_page(struct p
+ {
+ 	unsigned int i;
  
- static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+-	for (i = 0; i < NR_NODES; i++) {
++	for (i = 0; i < MAX_NUMNODES; i++) {
+ 		if (page >= NODE_MEM_MAP(i) &&
+ 		    page < NODE_MEM_MAP(i) + NODE_DATA(i)->node_size)
+ 			return 1;
 
---------------070000030007080904070203--
+--------------020601020609060306020802--
 

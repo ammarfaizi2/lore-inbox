@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129220AbQJ3LJE>; Mon, 30 Oct 2000 06:09:04 -0500
+	id <S129229AbQJ3LPe>; Mon, 30 Oct 2000 06:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129244AbQJ3LIp>; Mon, 30 Oct 2000 06:08:45 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:6926 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129220AbQJ3LIe>; Mon, 30 Oct 2000 06:08:34 -0500
-Date: Mon, 30 Oct 2000 05:08:21 -0600
-To: Rusty Russell <rusty@linuxcare.com.au>
-Cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
-Message-ID: <20001030050821.B9175@wire.cadcamlab.org>
-In-Reply-To: <4309.972694843@ocs3.ocs-net> <20001029232347.D4EB081F9@halfway.linuxcare.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001029232347.D4EB081F9@halfway.linuxcare.com.au>; from rusty@linuxcare.com.au on Mon, Oct 30, 2000 at 10:23:46AM +1100
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129244AbQJ3LPZ>; Mon, 30 Oct 2000 06:15:25 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:23815 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S129229AbQJ3LPP>; Mon, 30 Oct 2000 06:15:15 -0500
+Message-Id: <200010301115.MAA10601@magma.cs.uni-dortmund.de>
+Date: Mon, 30 Oct 2000 12:15:13 +0100 (MET)
+From: Christoph Pleger <pleger@carmin.cs.uni-dortmund.de>
+Reply-To: Christoph Pleger <pleger@carmin.cs.uni-dortmund.de>
+Subject: FIFO-Scheduling in Kernel 2.2
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: ZwO/m2HIn59zfzkMTK3+rw==
+X-Mailer: dtmail 1.2.1 CDE Version 1.2.1 SunOS 5.6 sun4m sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-[Rusty]
-> > CC=gcc-2723 make 2.0 kernel
-> > CC=gcc-2723 make 2.2 kernel
-> > CC=egcs make 2.4 kernel
-> 
-> No, environment doesn't override make variables by default.  This
-> works on any shell:
-> 
-> 	make CC=egcs <targets>
+I experienced problems in programs which used priorities under FIFO-Scheduling 
+with Kernel 2.2 although these programs worked well with Kernel 2.0. 
 
-If you're going to get pedantic, that won't work either -- since the
-makefiles in kernels 2.0 and 2.2 expect $(CC) to include some compiler
-flags.  This was fixed somewhere in 2.3.3x.
+I read in this list that other people had the same problems.
 
-Peter
+Is any solution (a newer kernel version or a special patch) available for that
+problem?
+
+Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

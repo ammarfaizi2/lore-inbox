@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135573AbRDXMkQ>; Tue, 24 Apr 2001 08:40:16 -0400
+	id <S135577AbRDXMwH>; Tue, 24 Apr 2001 08:52:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135574AbRDXMkH>; Tue, 24 Apr 2001 08:40:07 -0400
-Received: from t2.redhat.com ([199.183.24.243]:49394 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135573AbRDXMj4>; Tue, 24 Apr 2001 08:39:56 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010424095304.A2389@flint.arm.linux.org.uk> 
-In-Reply-To: <20010424095304.A2389@flint.arm.linux.org.uk>  <200104232232.AAA12700@kufel.dom> <Pine.LNX.4.33.0104232349530.15177-100000@imladris.demon.co.uk> 
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
-        Matan Ziv-Av <matan@svgalib.org>, mythos <papadako@csd.uoc.gr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Can't compile 2.4.3 with agcc 
-Mime-Version: 1.0
+	id <S135579AbRDXMv5>; Tue, 24 Apr 2001 08:51:57 -0400
+Received: from viper.haque.net ([66.88.179.82]:48306 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S135577AbRDXMvm>;
+	Tue, 24 Apr 2001 08:51:42 -0400
+Message-ID: <3AE576D1.18B857A1@haque.net>
+Date: Tue, 24 Apr 2001 08:51:29 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: imel96@trustix.co.id
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 24 Apr 2001 13:37:49 +0100
-Message-ID: <19649.988115869@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+imel96@trustix.co.id wrote:
+> 
+> hi,
+> 
+> a friend of my asked me on how to make linux easier to use
+> for personal/casual win user.
+> 
+> i found out that one of the big problem with linux and most
+> other operating system is the multi-user thing.
+> 
+> i think, no personal computer user should know about what's
+> an operating system idea of a user. they just want to use
+> the computer, that's it.
+> 
+> by a personal computer i mean home pc, notebook, tablet,
+> pda, and communicator. only one user will use those devices,
+> or maybe his/her friend/family. do you think that user want
+> to know about user account?
+> 
+> from that, i also found out that it is very awkward to type
+> username and password every time i use my computer.
 
-rmk@arm.linux.org.uk said:
->  grep '__BUG__' System.map | cut -d\  -f3
+Sounds to me like you really don't get the whole concept of permissions
+and that it's how Unix works.
 
-Nice try, but nothing prevents even a correct compiler from including it in 
-System.map even though it wouldn't have been called.
+Besides, why should the kernel do anythign different for you when there
+are userland tools that you can use to have the system auto-login as a
+specified user?
 
+-- 
 
---
-dwmw2
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

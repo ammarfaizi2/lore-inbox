@@ -1,87 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136103AbRD0QUd>; Fri, 27 Apr 2001 12:20:33 -0400
+	id <S136108AbRD0QXX>; Fri, 27 Apr 2001 12:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136107AbRD0QUY>; Fri, 27 Apr 2001 12:20:24 -0400
-Received: from mail2.bonn-fries.net ([62.140.6.78]:24588 "HELO
-	mail2.bonn-fries.net") by vger.kernel.org with SMTP
-	id <S136103AbRD0QUR>; Fri, 27 Apr 2001 12:20:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        Pavel Machek <pavel@suse.cz>
-Subject: Re: Hashing and directories
-Date: Fri, 27 Apr 2001 18:20:19 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Bill Crawford <billc@netcomuk.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Daniel Phillips <phillips@innominate.de>
-In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk> <20000101020213.D28@(none)> <87ofvcv3dj.fsf@mose.informatik.uni-tuebingen.de>
-In-Reply-To: <87ofvcv3dj.fsf@mose.informatik.uni-tuebingen.de>
-MIME-Version: 1.0
-Message-Id: <01042718201900.01336@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S136109AbRD0QXN>; Fri, 27 Apr 2001 12:23:13 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:44004 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S136108AbRD0QW6>; Fri, 27 Apr 2001 12:22:58 -0400
+Date: Fri, 27 Apr 2001 10:22:49 -0600
+Message-Id: <200104271622.f3RGMn703075@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: AJ Lewis <lewis@sistina.com>
+Cc: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: devfs and /proc/ide/hda
+In-Reply-To: <20010427110935.C1632@sistina.com>
+In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>
+	<20010228161023.A19929@win.tue.nl>
+	<20010301084133.C16667@sistina.com>
+	<87snkov3uk.fsf@mose.informatik.uni-tuebingen.de>
+	<20010427110935.C1632@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 March 2001 13:42, Goswin Brederlow wrote:
-> >>>>> " " == Pavel Machek <pavel@suse.cz> writes:
->      > Hi!
->      >
->     >> I was hoping to point out that in real life, most systems that
->     >> need to access large numbers of files are already designed to
->     >> do some kind of hashing, or at least to divide-and-conquer by
->     >> using multi-level directory structures.
->     >>
->      > Yes -- because their workaround kernel slowness.
->      >
->      > I had to do this kind of hashing because kernel disliked 70000
->      > html files (copy of train time tables).
->      >
->      > BTW try rm * with 70000 files in directory -- command line will
->      > overflow.
->
-> There are filesystems that use btrees (reiserfs) or hashing (affs) for
-> directories.
->
-> That way you get a O(log(n)) or even O(1) access time for
-> files. Saddly the hashtable for affs depends on the blocksize and
-> linux AFAIK only allows far too small block sizes (512 byte) for affs.
-> It was designed for floppies, so the lack of dynamically resizing hash
-> tables is excused.
->
-> What also could be done is to keed directories sorted. Creating of
-> files would cost O(N) time but a lookup could be done in
-> O(log(log(n))) most of the time with reasonable name distribution.
-> This could be done with ext2 without breaking any compatibility. One
-> would need to convert (sort all directories) every time the FS was
-> mounted RW by an older ext2, but otherwise nothing changes.
->
-> Would you like to write support for this?
+AJ Lewis writes:
+> 
+> --CblX+4bnyfN0pR09
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
+> 
+> On Thu, Mar 08, 2001 at 01:32:03PM +0100, Goswin Brederlow wrote:
+> >      > What it should do is change based on whether devfs is mounted
+> >      > or not.  It doesn't make *any* sense to have
+> >      > /dev/ide/host0/foo/bar in your /proc/partitions entries if you
+> >      > aren't mounting devfs.  The /proc/partitions entry is the only
+> >      > way I know of for something like LVM to determine which devices
+> >      > to scan for Volume Groups.  If you can't read /proc/partitions,
+> >      > it has to attempt to scan all block devices it recognizes,
+> >      > regardless of whether they are actually on the system or not.
+> >      > This can take several minutes.
+> >=20
+> > First:
+> >=20
+> > % cat /proc/partitions=20
+> > major minor  #blocks  name
+> >=20
+> >    3     0   20010816 ide/host0/bus0/target0/lun0/disc
+> >    3     1     192748 ide/host0/bus0/target0/lun0/part1
+> >    3     2     249007 ide/host0/bus0/target0/lun0/part2
+> >    3     3          1 ide/host0/bus0/target0/lun0/part3
+> >    3     5     289138 ide/host0/bus0/target0/lun0/part5
+> >    3     6    1951866 ide/host0/bus0/target0/lun0/part6
+> >    3     7     979933 ide/host0/bus0/target0/lun0/part7
+> >    3     8   16346106 ide/host0/bus0/target0/lun0/part8
+> >   33     0   80043264 ide/host2/bus0/target0/lun0/disc
+> >   33     1   80035798 ide/host2/bus0/target0/lun0/part1
+> >=20
+> > So its already right.
+> 
+> Only if devfs is mounted.  That's my point.  Maybe it's an corner
+> case to have devfs compiled into the kernel, but not mounted, and so
+> we can just ignore this, but it seems to me that /proc/partitions
+> should reflect which /dev system is currently running.
 
-Hi, I missed this whole thread at the time, ironically, because I was 
-too busy working on my hash-keyed directory index.
+I consider it a corner case. There isn't really an alternative.
+Firstly, it would be really messy to magically change the output of
+/proc/partitions depending on whether devfs was mounted. Secondly,
+just because it's mounted doesn't mean it's mounted on /dev, so it's
+still easy to get wrong.
 
-How do you get log(log(n))?  The best I can do is logb(n), with
-b=large.  For practical purposes this is O(1).
+> > Secondly with devfs, why not just scan all /dev/discs/?
+> >=20
+> > % ls -l /dev/discs=20
+> > total 0
+> > lr-xr-xr-x    1 root     root           30 Jan  1  1970 disc0 -> ../ide/h=
+> ost0/bus0/target0/lun0/
+> > lr-xr-xr-x    1 root     root           30 Jan  1  1970 disc1 -> ../ide/h=
+> ost2/bus0/target0/lun0/
+> >=20
+> > Also if lvm opens all known devices by way of /dev/whatever while
+> > scanning, it will only find existing devices there with devfs.
+> 
+> Yeah, as long as devfs is running, that makes sense.
 
-The only problem I ran into is the mismatch between the storage order
-of the sorted directory and that of the inodes, which causes thrashing
-in the inode table.  I was able to eliminate this thrashing completely
-from user space by processing the files in inode order.  I went on to 
-examine ways of eliminating the thrashing without help from user space,
-and eventually came up with a good way of doing that that relies on
-setting an inode allocation target that corresponds loosely to the sort
-order.
+If you want a really robust solution, have your tool scan
+/proc/filesystems and see if devfs is available. If not, scan
+/proc/partitions. If devfs is available, then create a temporary mount
+point and mount it there, then scan $mntpoint/discs.
 
-The thrashing doesn't hurt much anyway compared to the current N**2
-behaviour.  For a million files I saw a 4X slowdown for delete vs
-create.  Create shows no thrashing because it works in storage order
-in the inodes, with the directory blocks themselves being smaller by
-a factor of 6-7, so not contributing significantly to the cache
-pressure.  Compare this to the 150 times slowdown you see with normal
-Ext2, creating 100,000 files.
+				Regards,
 
---
-Daniel
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVCAVCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVCAVHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVCAVCz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 16:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVCAVCz
+	id S262036AbVCAVHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 16:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCAVHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 16:02:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45459 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262067AbVCAVCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 16:02:52 -0500
-Subject: Re: [PATCH] New operation for kref to help avoid locks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Corey Minyard <minyard@acm.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050301201528.GA23484@kroah.com>
-References: <42209BFD.8020908@acm.org>
-	 <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org>
-	 <20050301201528.GA23484@kroah.com>
-Content-Type: text/plain
-Date: Tue, 01 Mar 2005 22:02:43 +0100
-Message-Id: <1109710964.6293.166.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 1 Mar 2005 16:07:44 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:56259 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S261720AbVCAVHd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 16:07:33 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: x86_64: 32bit emulation problems
+Date: Tue, 1 Mar 2005 22:07:01 +0100
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <20050301202417.GA40466@muc.de>
+In-Reply-To: <20050301202417.GA40466@muc.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200503012207.02915.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-01 at 12:15 -0800, Greg KH wrote:
-> On Sat, Feb 26, 2005 at 04:23:04PM -0600, Corey Minyard wrote:
-> > Add a routine to kref that allows the kref_put() routine to be
-> > unserialized even when the get routine attempts to kref_get()
-> > an object without first holding a valid reference to it.  This is
-> > useful in situations where this happens multiple times without
-> > freeing the object, as it will avoid having to do a lock/semaphore
-> > except on the final kref_put().
-> > 
-> > This also adds some kref documentation to the Documentation
-> > directory.
-> 
-> I like the first part of the documentation, that's nice.
-> 
-> But I don't like the new kref_get_with_check() function that you
-> implemented.  If you look in the -mm tree, kref_put() now returns if
-> this was the last put on the reference count or not, to help with lists
-> of objects with a kref in it.
-> 
-> Perhaps you can use that to implement what you need instead?
+Hello Andi,
 
-note that I'm not convinced the "lockless" implementation actually is
-faster. It still uses an atomic variable, which is just as expensive as
-taking a lock normally...
+sorry, due to some mail sending/refusing problems, I had to resend to the 
+nfs-list, which prevented the answers there to be posted to the other CCs.
 
+> It is most likely some kind of user space problem.  I would change
+> it to int err = stat(dir, &buf);
+> and then go through it with gdb and see what value err gets assigned.
+>
+> I cannot see any kernel problem.
+
+The err value will become -1 here.
+
+ Trond Myklebust already suggested to look at the results of errno:
+
+On Tuesday 01 March 2005 00:43, Bernd Schubert wrote:
+> On Monday 28 February 2005 23:26, you wrote:
+> > Given that strace shows that both syscalls (stat64() and stat())
+> > succeed, I expect the "problem" is probably just glibc setting an
+> > EOVERFLOW error in the 32-bit case. That's what it is supposed to do if
+> > a 64 bit value overflows the 32-bit buffers.
+>
+> Right, thanks.
+>
+> > Have you tried looking at errno?
+>
+> bernd@hitchcock tests>./test_stat32 /mnt/test/yp
+> stat for /mnt/test/yp failed
+> ernno: 75 (Value too large for defined data type)
+>
+> But why does stat64() on a 64-bit kernel tries to fill in larger data than
+> on a 32-bit kernel and larger data also only for nfs-mount points? Hmm, I
+> will tomorrow compare the tcp-packges sent by the server.
+
+So I still think thats a kernel bug.
+
+
+Thanks,
+ Bernd
+
+-- 
+Bernd Schubert
+Physikalisch Chemisches Institut / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+e-mail: bernd.schubert@pci.uni-heidelberg.de

@@ -1,35 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277740AbRJRPRE>; Thu, 18 Oct 2001 11:17:04 -0400
+	id <S277743AbRJRPVo>; Thu, 18 Oct 2001 11:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277743AbRJRPQz>; Thu, 18 Oct 2001 11:16:55 -0400
-Received: from t2.redhat.com ([199.183.24.243]:49908 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S277740AbRJRPQi>; Thu, 18 Oct 2001 11:16:38 -0400
-Message-ID: <3BCEF26E.12D69882@redhat.com>
-Date: Thu, 18 Oct 2001 16:17:02 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
-X-Accept-Language: en
+	id <S277750AbRJRPVf>; Thu, 18 Oct 2001 11:21:35 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:50049 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277743AbRJRPVY>; Thu, 18 Oct 2001 11:21:24 -0400
+Date: Thu, 18 Oct 2001 11:21:38 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Non-GPL modules
+In-Reply-To: <200110181453.f9IErMI18783@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.3.95.1011018110604.802A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Roy Murphy <murphy@panix.com>, linux-kernel@vger.kernel.org
-Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
-In-Reply-To: <3bceefa6.3cf6.0@panix.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Oct 2001, Peter T. Breuer wrote:
 
-> Exported interfaces are "methods of operation" in the sense of US
-> Copyright Law.  Copyright Law affords no protection to "methods of
-> operation".  The GPL, which gains its strength from Copyright Law, also
-> has no rights in this area.  If a GPLed module does not want other code
-> using its interfaces, they should not be exported.
+> "Richard B. Johnson wrote:"
+> > We have a data interface that feeds high-speed data from 4,000 +
+> > X-Ray detectors directly to memory at RAM/Bus memory speeds. There
+> > is no way in hell that we are going to let the world know how this
+> 
+> Oh my gosh. You aren't working on a project for CERN too, are you?
+> 
+> Peter
 
-I think you're missing one thing: binary only modules are only allowed
-because of an exception license grant Linus made for functions that are
-marked EXPORT_SYMBOL(). EXPORT_SYMBOL_GPL() just says "not part of this 
-exception grant"....
+No. Amongst many other things, we make the "Exact" baggage scanners
+market by L3 division of Lockheed-Martin. All airplane baggage
+will eventually be scanned (at baggage-conveyor speeds) at all
+airports serving commercial airliners. The scanning detects
+various devices and chemical compounds. It uses X-Rays of different
+frequencies (hardness) to actually detect chemical compounds
+at their elementary atomic levels.
+
+For instance, most X-Ray systems only detect density. The X-Ray
+density of a jar of peanut butter is similar to the density of
+the explosive C4. Without chemical discrimination, anybody with
+a jar of peanut butter in their luggage is suspect. However,
+by using dual-energy, we can zero in on nitrogen, while allowing
+the same-density substances containing other atoms.
+
+We do this in an incredibly fast hardware/software environment
+so that baggage runs through the machines at normal conveyor
+speeds, not slowing down the loading/boarding process.
+
+This is NOT the scanner used to X-Ray carry-on luggage. That
+uses a much less robust and cheaper process because there
+are attendants present that can ask that suspect carry-on
+luggage be opened for inspection. 
+
+Presently, we are using DEC/Alpha machines for the hardware/software
+interface. Our next generation will use PC/AT/Linux machines for
+the same function (at twice the performance).
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

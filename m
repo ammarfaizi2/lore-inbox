@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTARAiF>; Fri, 17 Jan 2003 19:38:05 -0500
+	id <S261742AbTARAnh>; Fri, 17 Jan 2003 19:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbTARAiF>; Fri, 17 Jan 2003 19:38:05 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:61617 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261701AbTARAiF>; Fri, 17 Jan 2003 19:38:05 -0500
-From: Richard Stallman <rms@gnu.org>
-To: Nicolas Pitre <nico@cam.org>
-CC: mark@mark.mielke.cc, galibert@pobox.com, linux-kernel@vger.kernel.org,
-       dax@gurulabs.com, lm@bitmover.com, root@chaos.analogic.com,
-       pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net
-In-reply-to: <Pine.LNX.4.44.0301152026350.1403-100000@xanadu.home> (message
-	from Nicolas Pitre on Wed, 15 Jan 2003 21:51:48 -0500 (EST))
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Reply-to: rms@gnu.org
-References: <Pine.LNX.4.44.0301152026350.1403-100000@xanadu.home>
-Message-Id: <E18Zh8X-0000u2-00@fencepost.gnu.org>
-Date: Fri, 17 Jan 2003 19:47:01 -0500
+	id <S261854AbTARAnh>; Fri, 17 Jan 2003 19:43:37 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:26026 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261742AbTARAng>; Fri, 17 Jan 2003 19:43:36 -0500
+Date: Fri, 17 Jan 2003 16:52:28 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: MAX_IO_APICS #ifdef'd wrongly
+Message-ID: <332970000.1042851147@titus>
+In-Reply-To: <20030117231417.GT919@holomorphy.com>
+References: <20030117090031.GD940@holomorphy.com> <224570000.1042818820@titus> <20030117231417.GT919@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Trying to force the name "GNU/Linux"  will never stick for many reasons,
+> I shot for the one liner that fixed the case I could test. Shoving it
+> into subarch is cleaner, but needs more code movement and changes the
+> prior semantics. The prior semantics were broken for larger Summit
+> configurations, hmm. Maybe _all_ the array sizes should go into some
+> kind of subarch analogue of param.h, e.g. mach_param.h
 
-It isn't useful to second-guess what other people will or won't do.  I
-will make my request to them, and they will decide how to respond.
+That sounds like the right thing to do longer-term ... let's change it 
+to the defn below for now, so people's trees work, then have a proper 
+think about to organise subarch to make this stuff work easily 
+(no doubt there's other gremlins there to be fixed at the same time).
 
-See http://www.gnu.org/gnu/gnu-linux-faq.html#lost.
+M.
 
-    I, for one, admit and recognize all the effort and work the GNU project did
-    and I really enjoy exercising my freedom of running the GNU system on my
-    hardware.  This, however, won't make me call this system "GNU/Linux"  
-    regardless.
-
-I'm glad you appreciate our work, but if you call the system "Linux",
-you lead other people to suppose it was done by Linus.  If you call
-it "GNU/Linux" you will teach other people to appreciate our work too.
-
-
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-i386/apicdef.h max_io_apics/include/asm-i386/apicdef.h
+--- virgin/include/asm-i386/apicdef.h	Fri Jan 17 09:18:31 2003
++++ max_io_apics/include/asm-i386/apicdef.h	Fri Jan 17 16:49:41 2003
+@@ -115,7 +115,7 @@
+ 
+ #define APIC_BASE (fix_to_virt(FIX_APIC_BASE))
+ 
+-#ifdef CONFIG_X86_NUMA
++#ifdef CONFIG_NUMA
+  #define MAX_IO_APICS 32
+ #else
+  #define MAX_IO_APICS 8
 

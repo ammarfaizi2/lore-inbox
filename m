@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310545AbSCLKEi>; Tue, 12 Mar 2002 05:04:38 -0500
+	id <S310540AbSCLKGG>; Tue, 12 Mar 2002 05:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310540AbSCLKE3>; Tue, 12 Mar 2002 05:04:29 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:29701 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S310545AbSCLKEO>; Tue, 12 Mar 2002 05:04:14 -0500
-Date: Tue, 12 Mar 2002 11:05:33 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre2aa2
-Message-ID: <20020312110533.B25226@dualathlon.random>
-In-Reply-To: <20020311082031.B10413@dualathlon.random> <E16kRp6-0000rR-00@the-village.bc.nu> <20020311230729.I10413@dualathlon.random> <20020312081114.GA704@suse.de>
+	id <S310544AbSCLKF6>; Tue, 12 Mar 2002 05:05:58 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:34565 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S310540AbSCLKFh>;
+	Tue, 12 Mar 2002 05:05:37 -0500
+Date: Tue, 12 Mar 2002 12:06:44 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3
+Message-Id: <20020312120644.1f111c09.skraw@ithnet.com>
+In-Reply-To: <20020312015059.GA711@matchmail.com>
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
+	<200203112255.XAA02708@webserver.ithnet.com>
+	<20020312015059.GA711@matchmail.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020312081114.GA704@suse.de>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 09:11:14AM +0100, Jens Axboe wrote:
-> On Mon, Mar 11 2002, Andrea Arcangeli wrote:
-> > On Mon, Mar 11, 2002 at 03:34:52PM +0000, Alan Cox wrote:
-> > > > Only in 2.4.19pre2aa2: 00_amd-viper-7441-guessed-1
-> > > > 
-> > > > 	Let amd74xx recognize the 7441 amd chipset, it works and I needed it
-> > > > 	mainly to set ->highmem = 1 and to skip the bounce buffers on my
-> > > > 	desktop.  (Tried also mode 5 and it failed, so I #undef __CAN_MODE_5
-> > > > 	back)
-> > > 
-> > > The correct AMD 7441 fixes are in the IDE patch and have been for a few
-> > > months. They were supplied by AMD and work a treat. I don't believe there is
-> > > any reason they require the new IDE infrastructure. They are howeve 32bit
-> > > still so the 64bit IDE will be nice
-> > 
-> > thanks for the info. I will merge the IDE patch then (with the
-> > additional modification to enable high-IO, that is why I looked into
-> > it). btw, while making that change, I was also wondering that it would
-> > be simpler to enable the highio in the common ide-dma part, rather than
-> > in the chipsets tunings, the highio is completly unrelated to the fact
-> > we compile amd7xxx or viaxxx into the kernel or not. but I didn't made
-> > that change because the amd7xxx driver was working fine for me and also
-> > because of possibly broken chipsets with the 31th bit of the bus address
-> > disconnected, just to stay on the very safe side and not to trigger
-> > hardware (not software) bugs.
-> 
-> We can probably safely just drop the highio flag in the hwif now. I just
-> added it way back then as a safeguard, it might be a better idea to just
-> have potentially buggy chipsets set their dma mask appropriately and let
-> ide-dma enable the right bounce address (if any).
-> 
-> I'll update the block-highmem for 2.4.19-pre3 now that the IDE merge is
-> in.
+On Mon, 11 Mar 2002 17:50:59 -0800
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 
-I will send you my latest version, you probably want to hack on top of
-it I think, I synched up the VM part and fixed some silly bug (like
-pages_to_phys on alpha).
+> On Mon, Mar 11, 2002 at 11:55:23PM +0100, Stephan von Krawczynski wrote:
+> > >                                                                     
+> > > Hi,                                                                 
+> > >                                                                     
+> > > Here goes -pre3, with the new IDE code. It has been stable enough   
+> > time in                                                               
+> > > the -ac tree, in my and Alan's opinion.                             
+> > >                                                                     
+> > > The inclusion of the new IDE code makes me want to have a longer    
+> > 2.4.19                                                                
+> > > release cycle, for stress-testing reasons.                          
+> > >                                                                     
+> > > Please stress test it with huge amounts of data ;)                  
+> >                                                                       
+> > Would like to, but:                                                   
+> >                                                                       
+> > gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3/include -Wall           
+> > [...]
+> > make[2]: *** [pppoe.o] Error 1                                        
+> > make[2]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers/net'   
+> > make[1]: *** [_modsubdir_net] Error 2                                 
+> > make[1]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers'       
+> > make: *** [_mod_drivers] Error 2                                      
+> 
+> same here, with gcc 2.95.4 (debian -woody).
+> 
+> What is your compiler version (in case it's 3.x)?
 
-Andrea
+gcc version 2.95.3 20010315 (SuSE)
+
+

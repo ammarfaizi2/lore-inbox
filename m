@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129568AbRCGQ7X>; Wed, 7 Mar 2001 11:59:23 -0500
+	id <S131123AbRCGQ6n>; Wed, 7 Mar 2001 11:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129609AbRCGQ7O>; Wed, 7 Mar 2001 11:59:14 -0500
-Received: from names.epcnet.de ([195.127.138.70]:14350 "HELO names.epcnet.de")
-	by vger.kernel.org with SMTP id <S129568AbRCGQ7I>;
-	Wed, 7 Mar 2001 11:59:08 -0500
-Message-ID: <F1457AD86AB6D311A6F200105AD9FB0219E251@EPCNETIN>
-From: Jochen Dolze <dolze@epcnet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Status of posix-ACL's
-Date: Wed, 7 Mar 2001 17:58:44 +0100 
+	id <S131122AbRCGQ6d>; Wed, 7 Mar 2001 11:58:33 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:30457 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131120AbRCGQ6V>; Wed, 7 Mar 2001 11:58:21 -0500
+Date: Wed, 7 Mar 2001 13:56:39 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: BUG? race between kswapd and ptrace (access_process_vm )
+In-Reply-To: <004701c0a724$45004240$5517fea9@local>
+Message-ID: <Pine.LNX.4.33.0103071356140.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 7 Mar 2001, Manfred Spraul wrote:
 
-i found at http://acl.bestbits.at the ACL-linux-project. Now i want to know,
-if there is a plan to integrate posix-ACLs into the fs-part of the kernel,
-e.g. into the VFS-Layer? Is there a general discussion about this anywhere?
-What are the biggest problems? (i know that many userland-tools must be
-changed for this).
+> Is kswapd now running without lock_kernel()?
 
-Greetings
+Indeed ...
 
-   Jochen Dolze
+> Then there is a race between swapout and ptrace:
+> access_process_vm() accesses the page table entries, only protected with
+> the mmap_sem semaphore and lock_kernel().
+>
+> Isn't
+>
+>     spin_lock(&mm->page_table_lock);
+>
+> missing in access_one_page() [in linux/kernel/ptrace.c]?
 
----
-EPCNet GmbH
-ISP & Web Design
-Bleichstrasse 24
-89077 Ulm
-Tel. 0731-1416 0
-Fax 0731-1416-120 
+You're probably right here ...
 
+regards,
 
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

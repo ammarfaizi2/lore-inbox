@@ -1,82 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTDXXlY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 19:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTDXXhH
+	id S264523AbTDXXlM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTDXXjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:37:07 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:30101 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264500AbTDXXeH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:34:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1051228051504@kroah.com>
-Subject: Re: [PATCH] More USB fixes for 2.5.68
-In-Reply-To: <10512280511698@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 24 Apr 2003 16:47:31 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 19:39:06 -0400
+Received: from kathmandu.sun.com ([192.18.98.36]:27020 "EHLO kathmandu.sun.com")
+	by vger.kernel.org with ESMTP id S264501AbTDXXid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 19:38:33 -0400
+Message-ID: <3EA878A9.40106@sun.com>
+Date: Thu, 24 Apr 2003 16:52:09 -0700
+From: Duncan Laurie <duncan@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: problem with Serverworks CSB5 IDE
+References: <20030423212713.GD21689@puck.ch> <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk> <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch> <20030424080023.GG21689@puck.ch> <20030424080023.GG21689@puck.ch> <3EA85C5C.7060402@sun.com>
+In-Reply-To: <3EA85C5C.7060402@sun.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1165.2.2, 2003/04/23 12:04:22-07:00, akpm@digeo.com
+Duncan Laurie wrote:
+> Olivier Bornet wrote:
+> 
+>> Hi all,
+>>
+>> I reply to myself, after having test this solution.
+>>
+>>
+>>> At this time, I have compiled and installed a 2.4.20-ac2 + some cobalt
+>>> patches. Is the bug also fixed in 2.4.20-ac2, or must I rebuild the
+>>> 2.4.20 with the check commented out ?
+>>
+>>
+>>
+>> The 2.4.20-ac2 patched kernel help a little : the system don't crash
+>> anymore. But the disk is marked as defective, and is removed from the
+>> raid1 metadevice.
+>>
+>> One other problem with the -ac2 is the speed for the rebuild : it seems
+>> to be 2 times slower than with the Ducan patch. (about 2 hours instead
+>> of 1 hour).
+>>
+>> So, my solution is to use the patch from Ducan. I hope it (or a
+>> derivative form of it) will be included in the next kernel releases.
+>>
+>> Good day, and thanks all for the help.
+>>
+> 
+> Here is a 2.4.21-rc1 version of the patch, with a few modificaions
+> due to the changes in IDE..
+> 
+> Actually UDMA mode detection is not working at all for CSB5 in
+> 2.4.21-rc1 because svwks_revision variable is set in __init function
+> so was reading as 0 in svwks_ratemask().  This made it think UDMA
 
-[PATCH] usb: minor usb stuff
+Oops, this analysis is wrong..  The svwks_revision variable is set
+in the init_chipset_svwks() function, which doesn't appear to ever
+get called because dev->irq==0.  The init_chipset function is also
+responsible for the call to ide_pci_register_host_proc(), so since
+it isn't being called there is no /proc/ide/svwks.
 
-- nail a couple of warnings
+I think for Serverworks IDE you will never get a valid dev->irq out
+of the pci config register, so maybe should there still be a call to
+d->init_chipset in this block from drivers/ide/setup-pci.c:
 
-- usbnet is not compilable with gcc-2.95.3.  Fix.
+   } else if (!pciirq) {
+       if (noisy)
+           printk(KERN_WARNING "%s: bad irq (%d): will probe later\n",
+                  d->name, pciirq);
+       pciirq = 0;
+   }
 
-
- drivers/usb/class/usb-midi.c |    2 +-
- drivers/usb/net/kaweth.c     |    2 +-
- drivers/usb/net/usbnet.c     |    8 ++++++--
- 3 files changed, 8 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/drivers/usb/class/usb-midi.c b/drivers/usb/class/usb-midi.c
---- a/drivers/usb/class/usb-midi.c	Thu Apr 24 16:28:38 2003
-+++ b/drivers/usb/class/usb-midi.c	Thu Apr 24 16:28:38 2003
-@@ -820,7 +820,7 @@
- 	struct list_head      *devs, *mdevs;
- 	struct usb_midi_state *s;
- 	struct usb_mididev    *m;
--	int flags;
-+	unsigned long flags;
- 	int succeed = 0;
- 
- #if 0
-diff -Nru a/drivers/usb/net/kaweth.c b/drivers/usb/net/kaweth.c
---- a/drivers/usb/net/kaweth.c	Thu Apr 24 16:28:39 2003
-+++ b/drivers/usb/net/kaweth.c	Thu Apr 24 16:28:39 2003
-@@ -744,7 +744,7 @@
- 		}
- 	}
- 
--	private_header = __skb_push(skb, 2);
-+	private_header = (u16 *)__skb_push(skb, 2);
- 	*private_header = cpu_to_le16(skb->len-2);
- 	kaweth->tx_skb = skb;
- 
-diff -Nru a/drivers/usb/net/usbnet.c b/drivers/usb/net/usbnet.c
---- a/drivers/usb/net/usbnet.c	Thu Apr 24 16:28:38 2003
-+++ b/drivers/usb/net/usbnet.c	Thu Apr 24 16:28:39 2003
-@@ -314,8 +314,12 @@
- 			: (in_interrupt () ? "in_interrupt" : "can sleep"))
- 
- #ifdef DEBUG
--#define devdbg(usbnet, fmt, arg...) \
--	printk(KERN_DEBUG "%s: " fmt "\n" , (usbnet)->net.name, ## arg)
-+#define devdbg(usbnet, fmt, arg...)				\
-+	do {							\
-+		printk(KERN_DEBUG "%s:", (usbnet)->net.name);	\
-+		printk(fmt, ## arg);				\
-+		printk("\n");					\
-+	} while (0)
- #else
- #define devdbg(usbnet, fmt, arg...) do {} while(0)
- #endif
+-duncan
 

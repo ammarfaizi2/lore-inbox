@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbULOXiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbULOXlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbULOXiS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 18:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbULOXhm
+	id S262509AbULOXlt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 18:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbULOXlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 18:37:42 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:55769 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262509AbULOXhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 18:37:33 -0500
-Date: Wed, 15 Dec 2004 17:37:10 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-cc: Andi Kleen <ak@suse.de>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, jrsantos@austin.ibm.com
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-In-Reply-To: <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
-Message-ID: <Pine.SGI.4.61.0412151725040.24052@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
- <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de>
- <20041215144730.GC24000@krispykreme.ozlabs.ibm.com>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Dec 2004 18:41:49 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:41643 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262509AbULOXlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 18:41:47 -0500
+Date: Wed, 15 Dec 2004 15:41:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
+Message-ID: <20041215234141.GA9268@kroah.com>
+References: <20041215011132.GA16099@kroah.com> <Pine.LNX.4.44.0412151656010.2704-100000@localhost.localdomain> <20041215175805.GA9207@kroah.com> <20041215190343.GI16322@dualathlon.random> <20041215224826.GC28286@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041215224826.GC28286@dualathlon.random>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004, Anton Blanchard wrote:
+On Wed, Dec 15, 2004 at 11:48:26PM +0100, Andrea Arcangeli wrote:
+> On Wed, Dec 15, 2004 at 08:03:43PM +0100, Andrea Arcangeli wrote:
+> > +			if (page->mapping)
+> > +				page_remove_rmap(page);
+> 
+> This had to be page_mapping, since I believe the page->mapping can go
+> away with the truncate while the page is still being mapped.
+> 
+> The rule is that if a page must not be accounted it will never be
+> accounted and page_mapping will be always 0. If it has been accounted
+> previously, then it must be unaccounted too. This worked fine so far.
+> 
+> Plus I noticed other goodness that got dropped in the same area from my
+> original 2.6.5 patches, and I resurrected those too in sync with SP1
+> (I'm talking about the fork path).
+>  
+> So here an updated patch, please give this one a spin.
 
-> Id like to see a benchmark that has a large footprint in the hash. A few
-> connection netperf run isnt going to stress the hash is it?
+No oops with this patch or odd messages in the syslog!  It works fine
+for me, thanks a lot.
 
-Not as well as I'd like, I'll admit.  I really couldn't find any
-standard benchmark that would push the TCP hashes hard.
+I'll let the mm developers battle it out to determine if this is a good
+fix or not :)
 
-> Also what page size were the runs done with? On x86-64 and ppc64 the 4kB page
-> size may make a difference to Brents runs.
+thanks,
 
-16K pages on IA64.  As the patch currently stands x86-64 and ppc64
-would not be a concern, as we still use the old behavior by default
-for those architectures.  Only IA64 NUMA kernel configurations will
-have this on by default.  Additionally, this only affects NUMA machines,
-and I'm not aware of any x86-64 architectures of that nature (please
-educate me if I'm mistaken).
-
-> specSFS (an NFS server benchmarmk) has been very sensitive to TLB issues
-> for us, it uses all the memory as pagecache and you end up with 10
-> million+ dentries. Something similar that pounds on the dcache would be
-> interesting.
-
-I'll look into running that, but have my doubts as to whether I
-can scare up appropriate quantities/types of hardware.
-
-Brent
-
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars
+greg k-h

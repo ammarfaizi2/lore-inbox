@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVCVFxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbVCVFt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVCVFxy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 00:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVCVFuZ
+	id S262519AbVCVFt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVCVFr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 00:50:25 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14930 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262469AbVCVFsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 00:48:25 -0500
-Date: Tue, 22 Mar 2005 05:47:13 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <20050321142650.7364fac1.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0503220543100.5484@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
-    <20050321142650.7364fac1.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 22 Mar 2005 00:47:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64981 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262469AbVCVFnb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 00:43:31 -0500
+Date: Mon, 21 Mar 2005 21:43:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, christoph@lameter.com,
+       kenneth.w.chen@intel.com
+Subject: Re: [PATCH 6/5] timers: enable irqs in __mod_timer()
+Message-Id: <20050321214305.3b7af964.akpm@osdl.org>
+In-Reply-To: <423ED7E4.2A1F0970@tv-sign.ru>
+References: <423ED7E4.2A1F0970@tv-sign.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, David S. Miller wrote:
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+> If the timer is currently running on another CPU, __mod_timer()
+>  spins with interrupts disabled and timer->lock held. I think it
+>  is better to spin_unlock_irqrestore(&timer->lock) in __mod_timer's
+>  retry path.
 > 
-> flush_tlb_pgtables() on sparc64 has a BUG() check which
-> is basically:
+>  This patch is unneccessary long. It is because it tries to cleanup
+>  the code a bit. I do not like the fact that lock+test+unlock pattern
+>  is duplicated in the code.
 > 
-> 	BUG((long)start > (long)end);
-> 
-> This catches two cases of bogus arguments:
-> 
-> 1) start --> end straddles sparc64 address space hole
+>  If you think that this patch uglifies the code or does not match
+>  kernel's coding style - just say nack :)
 
-That's an interesting remark.  I hadn't noticed the signed long type.
-I believe the vma gathering in free_pgtables will have no problem with
-that, but what about the old code?  What happens if an app does a huge
-munmap straddling the address space hole?  Or is all the user address
-space below the hole?
+I've seen worse ;)
 
-Hugh
+I think this makes it a bit more kernel-like?
+
+--- 25/kernel/timer.c~timers-enable-irqs-in-__mod_timer-tidy	2005-03-21 21:41:03.000000000 -0800
++++ 25-akpm/kernel/timer.c	2005-03-21 21:41:57.000000000 -0800
+@@ -174,12 +174,13 @@ int __mod_timer(struct timer_list *timer
+ {
+ 	tvec_base_t *old_base, *new_base;
+ 	unsigned long flags;
+-	int new_lock, ret;
++	int new_lock;
++	int ret = -1;
+ 
+ 	BUG_ON(!timer->function);
+ 	check_timer(timer);
+ 
+-	for (ret = -1; ret < 0; ) {
++	do {
+ 		spin_lock_irqsave(&timer->lock, flags);
+ 		new_base = &__get_cpu_var(tvec_bases);
+ 		old_base = timer_base(timer);
+@@ -227,7 +228,7 @@ unlock:
+ 		if (new_lock)
+ 			spin_unlock(&new_base->lock);
+ 		spin_unlock_irqrestore(&timer->lock, flags);
+-	}
++	} while (ret == -1);
+ 
+ 	return ret;
+ }
+_
+

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313421AbSFSRXD>; Wed, 19 Jun 2002 13:23:03 -0400
+	id <S317946AbSFSR1D>; Wed, 19 Jun 2002 13:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317946AbSFSRXC>; Wed, 19 Jun 2002 13:23:02 -0400
-Received: from otter.mbay.net ([206.55.237.2]:30728 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S313421AbSFSRXB> convert rfc822-to-8bit;
-	Wed, 19 Jun 2002 13:23:01 -0400
-From: John Alvord <jalvo@mbay.net>
-To: Rob Landley <landley@trommello.org>
-Cc: zaimi@pegasus.rutgers.edu, linux-kernel@vger.kernel.org
-Subject: Re: kernel upgrade on the fly
-Date: Wed, 19 Jun 2002 10:22:59 -0700
-Message-ID: <l8f1hu0ptese1cie90tnvathd36jqc41ca@4ax.com>
-References: <Pine.GSO.4.44.0206181703540.26846-100000@pegasus.rutgers.edu> <20020619010945.6725B7D9@merlin.webofficenow.com>
-In-Reply-To: <20020619010945.6725B7D9@merlin.webofficenow.com>
-X-Mailer: Forte Agent 1.8/32.553
+	id <S317947AbSFSR1C>; Wed, 19 Jun 2002 13:27:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24838 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317946AbSFSR1B>; Wed, 19 Jun 2002 13:27:01 -0400
+Date: Wed, 19 Jun 2002 10:27:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Cort Dougan <cort@fsmlabs.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+In-Reply-To: <m1hejztprs.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002 15:37:23 -0400, Rob Landley
-<landley@trommello.org> wrote:
 
->On Tuesday 18 June 2002 05:21 pm, zaimi@pegasus.rutgers.edu wrote:
->> Hi all,
->>
->>  has anybody worked or thought about a property to upgrade the kernel
->> while the system is running?  ie. with all processes waiting in their
->> queues while the resident-older kernel gets replaced by a newer one.
+
+On 19 Jun 2002, Eric W. Biederman wrote:
 >
->Thought about, yes.  At length.  That's why it hasn't been done. :)
+> 10-20 years or someone finds a good way to implement a single system
+> image on linux clusters.  They are already into the 1000s of nodes,
+> and dual processors per node category.  And as things continue they
+> might even grow bigger.
 
-IMO the biggest reason it hasn't been done is the existence of
-loadable modules. Most driver-type development work can be tested
-without rebooting.
+Oh, clusters are a separate issue. I'm absolutely 100% conviced that you
+don't want to have a "single kernel" for a cluster, you want to run
+independent kernels with good communication infrastructure between them
+(ie global filesystem, and try to make the networking look uniform).
 
-john
+Trying to have a single kernel for thousands of nodes is just crazy. Even
+if the system were ccNuma and _could_ do it in theory.
+
+The NuMA work can probably take single-kernel to maybe 64+ nodes, before
+people just start turning stark raving mad. There's no way you'll have
+single-kernel for thousands of CPU's, and still stay sane and claim any
+reasonable performance under generic loads.
+
+So don't confuse the issue with clusters like that. The "set_affinity()"
+call simply doesn't have anything to do with them. If you want to move
+processes between nodes on such a cluster, you'll probably need user-level
+help, the kernel is unlikely to do it for you.
+
+			Linus
+

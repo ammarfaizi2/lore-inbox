@@ -1,110 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUCYWr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263655AbUCYWq7
+	id S263657AbUCYWtg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263655AbUCYWrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:46:59 -0500
-Received: from expms3.cites.uiuc.edu ([128.174.5.207]:11065 "EHLO
-	expms3.cites.uiuc.edu") by vger.kernel.org with ESMTP
-	id S263640AbUCYWoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:44:18 -0500
-Date: Thu, 25 Mar 2004 16:44:17 -0600
-From: Shawn Lindberg <slindber@uiuc.edu>
-Subject: Re: [Problem]: "access beyond end" of DVD-R
-To: linux-kernel@vger.kernel.org
-X-Mailer: Webmail Mirapoint Direct 3.3.7-GR
-MIME-Version: 1.0
-Message-Id: <61db4321.26d1c342.8185f00@expms3.cites.uiuc.edu>
+	Thu, 25 Mar 2004 17:47:43 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63982 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263675AbUCYWrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 17:47:15 -0500
+Date: Thu, 25 Mar 2004 23:47:07 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: 239952@bugs.debian.org, debian-devel@lists.debian.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+Message-ID: <20040325224706.GE16746@fs.tum.de>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Jeff Garzik <jgarzik@pobox.com>, 239952@bugs.debian.org,
+	debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de> <20040325082949.GA3376@gondor.apana.org.au> <20040325220803.GZ16746@fs.tum.de> <40635DD9.8090809@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <40635DD9.8090809@pobox.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Mar 24 2004, Shawn Lindberg wrote:
+On Thu, Mar 25, 2004 at 05:31:53PM -0500, Jeff Garzik wrote:
 > 
->>Jens Axboe wrote:
->>
->>>On Mon, Mar 22 2004, slindber@uiuc.edu wrote:
->>>
->>>
->>>>attempt to access beyond end of device
->>>>hdc: rw=0, want=8174536, limit=8123200
->>>>Buffer I/O error on device hdc, logical block 2043633
->>>>
->>>>There are more attempt to "access beyond end of device" messages, but
->>>>they are similar so I've snipped them.
->>>
->>>Does this make a difference for you (2.6 patch)?
->>
->>I made that one line change to my 2.6.3 kernel from gentoo and it
->>fixed the problem for both the ISO/UDF and UDF discs (I couldn't try
->>the ISO only disc since I don't have it anymore).  I also tried a few
->>CDs to get a rough check for whether it introduced new errors, but
->>they were fine also.  Please let me know if I should do any further
->>testing, and THANKS!
+> Well IANAL, but it seems not so cut-n-dried, at least.
 > 
-> 
-> If you could do one more test to see how they differ that would be
-> great. Attaching a patch for that, apply that instead of the other one
-> (or just manually paste the added printk in there).
-> 
-> ===== drivers/ide/ide-cd.c 1.75 vs edited =====
-> --- 1.75/drivers/ide/ide-cd.c	Tue Mar 16 09:39:41 2004
-> +++ edited/drivers/ide/ide-cd.c	Thu Mar 25 07:55:14 2004
-> @@ -2372,7 +2372,8 @@
->  
->  	/* Now try to get the total cdrom capacity. */
->  	stat = cdrom_get_last_written(cdi, &last_written);
-> -	if (!stat && last_written) {
-> +	if (!stat && (last_written > toc->capacity)) {
-> +		printk("old cap %lu, new cap %lu\n", toc->capacity, last_written);
->  		toc->capacity = last_written;
->  		set_capacity(drive->disk, toc->capacity * sectors_per_frame);
->  	}
-> 
+> Firmware is a program that executes on another processor, so no linking 
+> is taking place at all.  It is analagous to shipping a binary-only 
+> program in your initrd, IMO.
 
-First I made the above patch.  I saw no change in the output (there was no instance of the new printk in the output - but reading the disc worked).  Then I made this patch:
+My point in this mail was a bit "besides the main firmware discussion":
 
---- /usr/src/linux/drivers/ide/ide-cd.c.pre-patch	2004-03-24 08:32:50.000000000 -0600
-+++ /usr/src/linux/drivers/ide/ide-cd.c	2004-03-25 16:30:37.000000000 -0600
-@@ -2420,6 +2420,7 @@
- 	/* Now try to get the total cdrom capacity. */
- 	stat = cdrom_get_last_written(cdi, &last_written);
- 	if (!stat && last_written) {
-+		printk("cdrom: old cap %lu, new cap %lu\n", toc->capacity, last_written);
- 		toc->capacity = last_written;
- 		set_capacity(drive->disk, toc->capacity * sectors_per_frame);
- 	}
+I was not asking whether it's OK to ship this file in the kernel 
+sources, I was asking whether the contents of the file is really under 
+the GPL as stated in the header of this file if it contains this binary 
+code.
 
-and I got this as output:
+cu
+Adrian
 
-cdrom: old cap 2227408, new cap 2030800
-UDF-fs DEBUG fs/udf/lowlevel.c:57:udf_get_last_session: XA disk: no, vol_desc_start=0
-UDF-fs DEBUG fs/udf/super.c:1550:udf_fill_super: Multi-session=0
-UDF-fs DEBUG fs/udf/super.c:538:udf_vrs: Starting at sector 16 (2048 byte sectors)
-UDF-fs DEBUG fs/udf/super.c:565:udf_vrs: ISO9660 Primary Volume Descriptor found
-UDF-fs DEBUG fs/udf/super.c:568:udf_vrs: ISO9660 Supplementary Volume Descriptor found
-UDF-fs DEBUG fs/udf/super.c:574:udf_vrs: ISO9660 Volume Descriptor Set Terminator found
-UDF-fs DEBUG fs/udf/super.c:881:udf_load_pvoldesc: recording time 1078289507/0, 2004/03/02 22:51 (1e98)
-UDF-fs DEBUG fs/udf/super.c:892:udf_load_pvoldesc: volIdent[] = 'NARUTO (01-25)'
-UDF-fs DEBUG fs/udf/super.c:899:udf_load_pvoldesc: volSetIdent[] = '40451003'
-UDF-fs DEBUG fs/udf/super.c:1091:udf_load_logicalvol: Partition (0:0) type 1 on volume 1
-UDF-fs DEBUG fs/udf/super.c:1101:udf_load_logicalvol: FileSet found in LogicalVolDesc at block=0, partition=0
-UDF-fs DEBUG fs/udf/super.c:929:udf_load_partdesc: Searching map: (0 == 0)
-UDF-fs DEBUG fs/udf/super.c:1011:udf_load_partdesc: Partition (0:0 type 1511) starts at physical 257, block length 2226881
-UDF-fs DEBUG fs/udf/super.c:1344:udf_load_partition: Using anchor in block 256
-UDF-fs DEBUG fs/udf/super.c:1577:udf_fill_super: Lastblock=0
-UDF-fs DEBUG fs/udf/super.c:853:udf_find_fileset: Fileset at block=0, partition=0
-UDF-fs DEBUG fs/udf/super.c:915:udf_load_fileset: Rootdir at block=7, partition=0
-UDF-fs INFO UDF 0.9.7 (2002/11/15) Mounting volume 'NARUTO (01-25)', timestamp 2004/03/02 22:51 (1e98)
-attempt to access beyond end of device
-hdc: rw=0, want=8174536, limit=8123200
-Buffer I/O error on device hdc, logical block 2043633
+-- 
 
-with tons more attempt to access beyond end of device messages (and of course reading didn't work).  The moral of the story is that the block inside the if statement is resetting the capacity to something smaller, which is causing my problem.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-I hope this helps, and let me know if you'd like me to try anything else.
-
-Shawn Lindberg

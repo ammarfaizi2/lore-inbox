@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbTLAQgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 11:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTLAQgM
+	id S263777AbTLAQlI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 11:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTLAQlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 11:36:12 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:43762 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263742AbTLAQgK
+	Mon, 1 Dec 2003 11:41:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:48773 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263777AbTLAQlF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 11:36:10 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: David Lang <david.lang@digitalinsight.com>,
-       =?CP 1252?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Date: Mon, 1 Dec 2003 10:20:18 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       "Robert White <rwhite@casabyte.com> \"'Florian Weimer'\"" 
-	<fw@deneb.enyo.de>,
-       Valdis.Kletnieks@vt.edu, "'Daniel Gryniewicz'" <dang@fprintf.net>,
-       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com> <20031127100217.GA9199@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0311270253130.6400@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.58.0311270253130.6400@dlang.diginsite.com>
+	Mon, 1 Dec 2003 11:41:05 -0500
+Date: Mon, 1 Dec 2003 11:43:15 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Juergen Oberhofer <j.oberhofer@gmx.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: wake_up_interruptible problem
+Message-ID: <Pine.LNX.4.53.0312011138350.31222@chaos>
 MIME-Version: 1.0
-Message-Id: <03120110201800.12834@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 November 2003 04:58, David Lang wrote:
-[snip]
-> actually thinking about it a bit more, did I make a stupid mistake and
-> think that the FD points at the beginning of the file when it really
-> points at the inode? if it points at the inode then the problems I was
-> refering to don't exist.
+On -1 xxx -1, Juergen Oberhofer wrote:
 
-Actually, it points to inode and offset in the file. The advantage this has
-is in the case of appending to a file... open the destination file, seek to
-the end, then copy. It also allows seeking some offset in the input file,
-then copying the rest of the file.
+> Hi,
+> I'm trying to implement a timer, which on each timer interrupt wakes up
+> every process that got blocked by a read call.
+> My problem is the following: if I'm insmod'ing the module (I've attached the
+> file) the execution gets
+> blocked on the wake_up_interruptible(&timer_queue); call. If I'm
+> uncommenting this line everything
+> goes smooth and the timer counts without problems. Does somebody have a
+> hint? Some ideas?
+> Regards
+> Juergen
+
+Well you don't provide enough code to actually compile NotGood(tm).
+
+I would guess that you failed to do:
+
+        init_waitqueue_head(&timer_queue);
+
+... in your initialization code, so wake_up_interruptible() is
+waiting forever...... Look at the drivers provided in the
+kernel source. All the initialization stuff is mandatory.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

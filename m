@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285166AbSACJ3d>; Thu, 3 Jan 2002 04:29:33 -0500
+	id <S285186AbSACJcN>; Thu, 3 Jan 2002 04:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285186AbSACJ3Z>; Thu, 3 Jan 2002 04:29:25 -0500
-Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:11904 "EHLO
-	ohdarn.net") by vger.kernel.org with ESMTP id <S285166AbSACJ3Q>;
-	Thu, 3 Jan 2002 04:29:16 -0500
-Date: Thu, 3 Jan 2002 04:29:12 -0500
-From: lkml@ohdarn.net
-Message-Id: <200201030929.g039TCZ02342@ohdarn.net>
-To: linux-kernel@vger.kernel.org
-Subject: Second edition of the -mjc branch has been released
-Cc: lkml@ohdarn.net
+	id <S285188AbSACJcE>; Thu, 3 Jan 2002 04:32:04 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11512 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S285186AbSACJbt>; Thu, 3 Jan 2002 04:31:49 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020103041244.D6936@thyrsus.com> 
+In-Reply-To: <20020103041244.D6936@thyrsus.com>  <20020103040301.A6936@thyrsus.com> <20020102211038.C21788@thyrsus.com> <20020102174824.A21408@thyrsus.com> <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de> <20020102211038.C21788@thyrsus.com> <3021.1010048894@redhat.com> <20020103040301.A6936@thyrsus.com> <4658.1010049555@redhat.com> 
+To: esr@thyrsus.com
+Cc: Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 Jan 2002 09:31:34 +0000
+Message-ID: <6364.1010050294@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Performance and stability issues have been fixed to some degree.
-A lot of the patches I have received either did not have names attached
-or I was unable to locate a name.  Please contact me if changes must
-be made.  All of the patches that have been included in this release can
-be found at:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/included/mjc2
-The release itself is located here:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/current
 
-Below is a snippet from Changelog.mjc:
-mjc2:
-Reverse Mapping Patch #10                       (Rik van Riel)
-Bootmem patch                                   (William Lee Irwin III)
-entry.S speedups                                (Alex Khripin)
--fixed entry.S to apply to mjc tree             (Luuk van der Duim)
-NFS Updates                                     (Trond Myklebust)
-kmem_cache_estimate optimization                (Balbir Singh)
-IRQrate                                         (Ingo Molnar)
-Pagecache & Icache hash changes                 (Chuck Lever,
-                                                William Lee Irwin III,
-                                                Rusty Russell,
-                                                Anton Blanchard)
-Voodoo Framebuffer Fixes                        (Jurriaan)
-SiS 5513 Fixes                                  (Lionel Bouton)
-ATI Rage128 Framebuffer Fixes                   (?)
+esr@thyrsus.com said:
+> > Making it _easier_ for Aunt Tillie to install something like 2.4.10 is
+> > not necessarily doing her a favour.
 
-removed in mjc2:
-Software Suspend        (does not function correctly,
-                         very poor style in some areas)
-Lock-Break              (known to cause problems with other modules)
+> But making it unnecessarily harder is *certainly* not a favor.
+
+Making it _gratuitously_ harder isn't called for, true - but it's definitely
+not a case we need to _optimise_ for.
+
+I'm surprised you feel the need to do it, but I'll not try and stop you - as
+long as in doing so you don't make it more difficult for the people who _do_
+actually do this all day every day.
+
+--
+dwmw2
 
 
-------
-Michael Cohen
-OhDarn.net

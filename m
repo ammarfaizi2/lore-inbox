@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUD3Vdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUD3VeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUD3Vdj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 17:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUD3Vdi
+	id S261396AbUD3VeC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 17:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUD3VeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 17:33:38 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:32275 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261179AbUD3Vdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 17:33:36 -0400
-Message-ID: <4092C751.9060603@techsource.com>
-Date: Fri, 30 Apr 2004 17:38:25 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>
-CC: "'Sean Estabrooks'" <seanlkml@rogers.com>,
-       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
-       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "'Peter Williams'" <peterw@aurema.com>, Hua Zhong <hzhong@cisco.com>,
-       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       koke@sindominio.net, "'Rusty Russell'" <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "'David Gibson'" <david@gibson.dropbear.id.au>
-Subject: Re: A compromise that could have been reached.  Re: [PATCH] Blacklist
- binary-only modules lying about their license
-References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com> <4092BB75.7050400@techsource.com> <58E313D6-9AEA-11D8-B83D-000A95BCAC26@linuxant.com>
-In-Reply-To: <58E313D6-9AEA-11D8-B83D-000A95BCAC26@linuxant.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 17:34:02 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:40083 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261396AbUD3Vd4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 17:33:56 -0400
+Date: Fri, 30 Apr 2004 16:33:24 -0500
+From: "Jose R. Santos" <jrsantos@austin.ibm.com>
+To: "Jose R. Santos" <jrsantos@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Jose R. Santos" <jrsantos@austin.ibm.com>,
+       linux-kernel@vger.kernel.org, anton@samba.org, dheger@us.ibm.com
+Subject: Re: [PATCH] dentry and inode cache hash algorithm performance changes.
+Message-ID: <20040430213324.GK14271@rx8.ibm.com>
+References: <20040430191539.GC14271@rx8.ibm.com> <20040430131832.45be6956.akpm@osdl.org> <20040430205701.GG14271@rx8.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040430205701.GG14271@rx8.ibm.com> (from jrsantos@austin.ibm.com on Fri, Apr 30, 2004 at 15:57:01 -0500)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marc Boucher wrote:
+On 04/30/04 15:57:01, Jose R. Santos wrote:
+> err... Wrote the patch to fast.  It should read
 > 
-> Indeed. The driver in question contains 8 interdependent modules. What 
-> we were thinking of doing to settle the issue short-term in a fair way 
-> for both our users and kernel developers, is removing the \0 from the 
-> central one (hsfengine), causing the kernel to be properly tainted and 
-> one instance of the messages to be automatically printed when the driver 
-> is used.
+> 	tmp = (hashval * sb) ^ (GOLDEN_RATIO_PRIME + hashval) / L1_CACHE_BYTES
 > 
-> Hopefully the community will view this as an acceptable compromise. Once 
-> patches have propagated onto people's computers, we will be happy to 
-> remove all \0's completely.
-> 
+> I screw up... I'll send a fixed patch in a while.
 
-At this point, you're not going to get any slack.  If this is what you'd 
-done to start with, you might have gotten away with it.  As it stands, 
-you appear to be unwilling to comply with the rules, except as a last 
-resort when you've been flamed for days.
+Just notice I've made another error in the inode hash code.
 
-I think what you need to do right now is do a lot of begging.  I agree 
-that in principle, it's only technically necessary to have one of the 
-modules taint the kernel.  But it's still "bad" to lie about the module 
-license and should only be done after much scrutiny and discussion.
+Fixed patch (I hope) with beautification.
 
-So if everyone who has a stake in this agrees to let you do it, then go 
-ahead.  Otherwise, sorry Charley, but you're SOL.
+-JRS
 
+
+diff -Nru a/fs/dcache.c b/fs/dcache.c
+--- a/fs/dcache.c	Fri Apr 30 16:27:41 2004
++++ b/fs/dcache.c	Fri Apr 30 16:27:41 2004
+@@ -28,6 +28,7 @@
+ #include <asm/uaccess.h>
+ #include <linux/security.h>
+ #include <linux/seqlock.h>
++#include <linux/hash.h>
+ 
+ #define DCACHE_PARANOIA 1
+ /* #define DCACHE_DEBUG 1 */
+@@ -799,8 +800,8 @@
+ 
+ static inline struct hlist_head * d_hash(struct dentry * parent, unsigned long hash)
+ {
+-	hash += (unsigned long) parent / L1_CACHE_BYTES;
+-	hash = hash ^ (hash >> D_HASHBITS);
++	hash += ((unsigned long) parent ^ GOLDEN_RATIO_PRIME) / L1_CACHE_BYTES;
++	hash = hash ^ ((hash ^ GOLDEN_RATIO_PRIME) >> D_HASHBITS);
+ 	return dentry_hashtable + (hash & D_HASHMASK);
+ }
+ 
+diff -Nru a/fs/inode.c b/fs/inode.c
+--- a/fs/inode.c	Fri Apr 30 16:27:41 2004
++++ b/fs/inode.c	Fri Apr 30 16:27:41 2004
+@@ -671,12 +671,13 @@
+ 
+ static inline unsigned long hash(struct super_block *sb, unsigned long hashval)
+ {
+-	unsigned long tmp = hashval + ((unsigned long) sb / L1_CACHE_BYTES);
+-	tmp = tmp + (tmp >> I_HASHBITS);
++	unsigned long tmp;
++	
++	tmp = (hashval * (unsigned long)sb) ^ (GOLDEN_RATIO_PRIME + hashval) /
++			L1_CACHE_BYTES;
++	tmp = tmp ^ ((tmp ^ GOLDEN_RATIO_PRIME) >> I_HASHBITS);
+ 	return tmp & I_HASHMASK;
+ }
+-
+-/* Yeah, I know about quadratic hash. Maybe, later. */
+ 
+ /**
+  *	iunique - get a unique inode number

@@ -1,111 +1,57 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154026AbQAYG45>; Tue, 25 Jan 2000 01:56:57 -0500
-Received: by vger.rutgers.edu id <S154015AbQAYGpK>; Tue, 25 Jan 2000 01:45:10 -0500
-Received: from [151.4.188.55] ([151.4.188.55]:2192 "HELO maticad") by vger.rutgers.edu with SMTP id <S154137AbQAYGnz>; Tue, 25 Jan 2000 01:43:55 -0500
-Message-ID: <02e701bf6721$8a1077e0$1f0104c0@maticad>
-From: "Davide Libenzi" <davidel@maticad.it>
-To: "David Schwartz" <davids@webmaster.com>, <dg50@daimlerchrysler.com>, <linux-kernel@vger.rutgers.edu>
-References: <000f01bf66da$872a6730$021d85d1@youwant.to>
-Subject: Re: SMP Theory (was: Re: Interesting analysis of linux kernel threading by IBM)
-Date: Tue, 25 Jan 2000 11:47:13 +0100
+Received: by vger.rutgers.edu via listexpand id <S154407AbQAYPi0>; Tue, 25 Jan 2000 10:38:26 -0500
+Received: by vger.rutgers.edu id <S154271AbQAYPeY>; Tue, 25 Jan 2000 10:34:24 -0500
+Received: from smtp6.mindspring.com ([207.69.200.110]:2534 "EHLO smtp6.mindspring.com") by vger.rutgers.edu with ESMTP id <S154365AbQAYPdg>; Tue, 25 Jan 2000 10:33:36 -0500
+Message-ID: <388DFBD8.5A89B100@10xinc.com>
+Date: Tue, 25 Jan 2000 11:39:04 -0800
+From: Iain McClatchie <iain@10xinc.com>
+Organization: 10x
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: SMP Theory (was: Re: Interesting analysis of linux kernel threading  by IBM)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Tuesday, January 25, 2000 3:18 AM
-David Schwartz <davids@webmaster.com> wrote :
+One of the problems with this forum is that you can't hear the murmur
+of assent ripple through the hardware design crowd when Larry rants
+about this stuff.  Larry has had his head out of the box for a long
+time.
 
-> If you wanted completely separate memory spaces for each processor, the
-> current hardware will let you have it. Just separate the address space
-into
-> logical chunks and code each processor only to use its chunk. The current
-> hardware design lets you do exactly what you are suggesting. And if one
-> processor does need to acceess the memory earmarked for another, the
-current
-> hardware provides a fast way to do it.
+Look at the ASCI project.  The intention was for SGI to build an
+Origin with around 1000 CPUs.  That Origin had extra cache coherence
+directory RAM and special encodings in that RAM so that the hardware
+could actually keep the memory across all 1000 CPUs coherent.  We
+added extra physical address bits to the R10K to make this machine
+possible.
 
-100% agree, and is faster than an ethernet connection between N separated UP
-machines.
-Probably the cost of a N way SMP machine is higher than N single UP machines
-( at least
-for PCs ) but this isn't linux-business, isn't it ?
+Last I heard, the machine is mostly programmed with message passing.
 
-The cache misses cost that an SMP architecture must sustain is :
+I remember having a talk with an O/S guy who was implementing some
+sort of message delivery utility inside the O/S.  This was when
+Cellular IRIX was in development, and they were investigating having
+the various O/S images talk to each other with messages across the
+shared memory.  Then someone found out the O/S images could signal
+each other FASTER through the HIPPI connections than they could
+through shared memory.  That is, this machine had a HIPPI port local
+to each O/S image, and all those HIPPI ports were connected together
+via a HIPPI switch.
 
-CMTc = Nm * F( Np * Ms * WTR )
+Those HIPPI connections were build with the _same_physical_link_ as
+the shared memory - an 800 MB/s source-synchronous channel.  But if
+you're sending a message, it's better to have the I/O system just
+send the bits one way than have the shared memory system do two round
+trips, one to invalidate the mailbox buffer for writing and another to
+process the remote cache miss to receive the message.
 
-where :
-
-CMTc = cache misses time cost
-Ms = memory size shared between :
-Np = number of processes sharing Ms
-WTR = write touch rate ( statistical average ) at which the Np processes
-write access Ms
-F = a probably non linear function depending on architecture, etc ...
-Nm = number of memory shares
-
-
-This is an absolute value that _must_ be compared ( weighted ) with the time
-spent by the single processes in computing to ponder if the application
-design
-we've chosen for SMP is right, or even more, if SMP is the correct target
-for
-our app.
-
-
-Take at the rendering pipeline example.
-We've each step read a bit of data ( think as from stdin ), do a relatively
-long compute on data and write another kind of data ( think as to stdout )
-to be processed by the next pipeline step.
-The step pattern can be expressed as :
-
-RCCCCCCCCCCCCW
-
-where R = read, C = compute and W = write.
-Say we've a six step pipeline, so :
-
-Nm = 5 ( 6 - 1 )
-Np = 2
-Ms = tipically small ( triangles, scanlines, ...)
-WTR = small compared with the computing times
-
-We can think as Ms be a ( relatively big ) object set.
-This increase Ms but lengthen the computing path, so the weighted cost
-equals.
-This is, IMVHO, a good candidate for SMP.
-
-
-Consider now a typical data centric application in which we've a continuous
-read-write cycles along the entire data set :
-
-RCCWRCRWCCRCWC
-
-If we can't split this data set into autonomous chunks of data, we have :
-
-Nm = the number threads we've split the app
-Np = typically equal to Nm
-Ms = probably the entire data set
-WTR = typically high coz the nature of the application
-
-This is not a good candidate for SMP.
-
-Typical examples of these applications are the ones in which the lower steps
-of the computing path must access to data computed ( read as
-write-accessed ) from
-most of previous steps.
-
-
-
-Davide.
-
---
-All this stuff is IMVHO
-
-
+-Iain McClatchie
+www.10xinc.com
+iain@10xinc.com
+650-364-0520 voice
+650-364-0530 FAX
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,28 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277220AbRJDUsZ>; Thu, 4 Oct 2001 16:48:25 -0400
+	id <S277225AbRJDUvB>; Thu, 4 Oct 2001 16:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277222AbRJDUsL>; Thu, 4 Oct 2001 16:48:11 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46607 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277220AbRJDUsE>; Thu, 4 Oct 2001 16:48:04 -0400
-Subject: Re: Whining about 2.5 (was Re: [PATCH] Re: bug? in using generic read/write functions to read/write block devices in 2.4.11-pre2O
-To: landley@trommello.org
-Date: Thu, 4 Oct 2001 21:53:06 +0100 (BST)
-Cc: riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
-In-Reply-To: <01100318274901.00728@localhost.localdomain> from "Rob Landley" at Oct 03, 2001 06:27:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277224AbRJDUuv>; Thu, 4 Oct 2001 16:50:51 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:20484 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S277222AbRJDUuj> convert rfc822-to-8bit; Thu, 4 Oct 2001 16:50:39 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4418.65
+content-class: urn:content-classes:message
+Subject: Is kiobuf->end_io still used?
+Date: Thu, 4 Oct 2001 15:49:43 -0500
+Message-ID: <45B36A38D959B44CB032DA427A6E106410AA61@cceexc18.americas.cpqcorp.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pFUQ-00045y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Thread-Topic: Is kiobuf->end_io still used?
+Thread-Index: AcFNFhgAzz2lV/FgRAWhFERv9GL7DQ==
+From: "Bond, Andrew" <Andrew.Bond@COMPAQ.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Oct 2001 20:49:44.0124 (UTC) FILETIME=[18A60FC0:01C14D16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there really a NUMA machine out there where you can DMA out of another 
-> node's 16 bit ISA space?  So far the differences in the zones seem to be 
+Is the end_io field from the kiobuf structure still used?
 
-DMA engines are tied to the node the device is tied to not to the processor
-in question in most NUMA systems.
+The only usage of it that I can find is in fs/iobuf.c:end_kio_request().
 
+	if (kiobuf->end_io)
+		kiobuf->end_io(kiobuf);
+
+I can't find code in the kernel that sets the end_io field.  The kiobuf
+structure should be hidden from drivers, so a driver shouldn't be
+setting it.  The callback routines for the IO are set in the individual
+buffer headers.  So far it looks like this check in end_kio_request()
+always does nothing because the end_io field is initialized as 0.
+
+Am I missing something?
+
+Thanks,
+Andrew

@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265651AbTFSAL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbTFSAJQ
+	id S265650AbTFSALz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTFSALf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:09:16 -0400
-Received: from dsl-217-155-128-73.zen.co.uk ([217.155.128.73]:34985 "EHLO
-	heart.pulsesol.com") by vger.kernel.org with ESMTP id S265648AbTFSAI1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:08:27 -0400
-Message-ID: <009a01c335f8$da220510$4c809bd9@PULSEDESKTOP>
-From: "Antony Gelberg" <antony@antgel.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Promise RAID driver
-Date: Thu, 19 Jun 2003 01:22:22 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 18 Jun 2003 20:11:35 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19849 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265650AbTFSAK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:10:26 -0400
+Date: Wed, 18 Jun 2003 17:25:16 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: greg@kroah.com, oliver@neukum.org, rml@tech9.net, mochel@osdl.org,
+       sdake@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Message-Id: <20030618172516.5ed02221.akpm@digeo.com>
+In-Reply-To: <3EF10002.7020308@cox.net>
+References: <3EE8D038.7090600@mvista.com>
+	<1055459762.662.336.camel@localhost>
+	<20030612232523.GA1917@kroah.com>
+	<200306132201.47346.oliver@neukum.org>
+	<20030618225913.GB2413@kroah.com>
+	<3EF10002.7020308@cox.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-OriginalArrivalTime: 19 Jun 2003 00:24:23.0798 (UTC) FILETIME=[2278D960:01C335F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+"Kevin P. Fleming" <kpfleming@cox.net> wrote:
+>
+> > Yes, we should add the sequence number last.
+>  > 
+> 
+>  While this is not a bad idea, I don't think you want to make a promise 
+>  to userspace that there will never be gaps in the sequence numbers. When 
+>  this sequence number was proposed, in my mind it seemed perfect because 
+>  then userspace could _order_ multiple events for the same device to 
+>  ensure they got processed in the correct order. I don't know that any 
+>  hotplug userspace implementation is going to be large and complex enough 
+>  to warrant "holding" events until lower-numbered events have been 
+>  delivered. That just seems like a very difficult task with little 
+>  potential gain, but I could very well be mistaken :-)
 
-Apologies if this is a little OT but I was hoping someone in here might be
-able to give me a hand.
+The userspace support tools need to be able to handle gaps
+in any case, because call_usermodehelper() may fail.
 
-I'm doing a new Debian install on a PC with a Promise 20376 onboard SATA
-RAID controller.  Promise have sent me a driver, which I built.
+(In practice it won't fail, because the memory allocator is immortal.
+But the capability should be there.
 
-During the install, there is a point where it asks for any floppy-based
-modules of this nature.  I've successfully loaded scsi_mod.o then the
-Promise ft3xx.o.  (Also done it from the ash prompt to confirm that they
-link ok.)  The message comes up from the driver recognising my controller
-and drives.
+(Well actually, it could fail because the VM overcommit code might
+refuse the mmap.
 
-Problem is, Debian still can't see the array, and the documentation for the
-driver is pants.  I've had a look through the source but am at my limit of
-comprehension.  There is a call to scsi_register(), but then I lose the
-plot.
-
-I've tried fdisk on
-/dev/hda
-/dev/sda (even though this has a major number 8)
-/dev/ataraid/d0 (major number 114)
-
-Each time I get: Unable to open /dev/whatever.
-
-FWIW, I have noted the following: cat /proc/devices shows that the ft3xx
-device registers itself as 254 (it's dynamic - I assume that they go down
-from 254).  But an ls -l /dev/* shows no node with a major number of 254.
-
-When I created one (/dev/raid) with mknod, I got messages complaining about
-ioctl then a hang.  So this seems to confirm that it uses a SCSI device.  In
-addition, it does call scsi_register.  It then sets (in the returned struct)
-max_channel=0, max_id=1, max_lun=1.  I've tried poking about in the kernel
-to see what this actually does but I'm out of my depth.
-
-If anyone could give me a pointer (no pun intended), I'd be ever so
-grateful.
-
-(There is a driver in the kernel - this is for the earlier series (20276 not
-20376), and will not work with this controller.)
-
-Antony
+(But probably not, because root gets an extra margin.)))
 
 

@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbUB1AhF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbUB1AhF
+	id S263217AbUB1AjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUB1AjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:37:05 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51612 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263215AbUB1AhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 19:37:01 -0500
-Subject: Re: [patch] u64 casts
-From: Albert Cahalan <albert@users.sf.net>
-To: davidm@hpl.hp.com
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton OSDL <akpm@osdl.org>
-In-Reply-To: <16447.56941.774257.925722@napali.hpl.hp.com>
-References: <1077915522.2255.28.camel@cube>
-	 <16447.56941.774257.925722@napali.hpl.hp.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1077920213.2233.44.camel@cube>
+	Fri, 27 Feb 2004 19:39:25 -0500
+Received: from waste.org ([209.173.204.2]:63644 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263217AbUB1AjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 19:39:22 -0500
+Date: Fri, 27 Feb 2004 18:39:00 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@intercode.com.au>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+Message-ID: <20040228003900.GN3883@waste.org>
+References: <1077651839.11170.4.camel@leto.cs.pocnet.net> <20040224203825.GV3883@waste.org> <20040225214308.GD3883@waste.org> <1077824146.14794.8.camel@leto.cs.pocnet.net> <20040226200244.GH3883@waste.org> <1077897901.29711.44.camel@leto.cs.pocnet.net> <20040227200214.GK3883@waste.org> <1077912813.2505.8.camel@leto.cs.pocnet.net> <20040227205501.GM3883@waste.org> <1077916595.2773.17.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 27 Feb 2004 17:16:53 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1077916595.2773.17.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-27 at 19:18, David Mosberger wrote:
-> >>>>> On 27 Feb 2004 15:58:42 -0500, Albert Cahalan <albert@users.sourceforge.net> said:
+On Fri, Feb 27, 2004 at 10:16:36PM +0100, Christophe Saout wrote:
+> Am Fr, den 27.02.2004 schrieb Matt Mackall um 21:55:
 > 
->   Albert> Casts are considered harmful, because they bypass
->   Albert> type checking, but how do you print a u64 value?
->   Albert> You cast it to "unsigned long long" like this:
+> > I certainly understand the issues of deep vs shallow copy. What I'm
+> > saying is we should try to avoid needing deep copies in the first
+> > place. They invite lots of complexity and for something as
+> > straightforward as a cipher or digest should not be necessary.
 > 
->   Albert> printk("%llu\n", (unsigned long long)foo);
+> Right. But we should still keep the ->init, ->copy, ->exit mechanism
+> complete then, just because it's there and not having them fore some
+> cases makes things just incomplete. Or we set the methods to NULL and
+> the copy function only works if both init and exit are null, so we don't
+> need the copy method because it also would be NULL and we know the
+> algorithm doesn't use external structures. This would work for "fixed
+> up" cipher and digest algorithms.
 > 
->   Albert> Well, this is silly and ugly. As x86-64 has shown,
->   Albert> even a 64-bit port can use "long long" for 64-bit
->   Albert> values. This patch changes all other 64-bit ports.
->   Albert> It now becomes possible to avoid adding new casts
->   Albert> all over the place; existing ones may be removed
->   Albert> if so desired.
+> There's just one small difficulty with having some of the structures in
+> the context: Their size is variable. But known after the init function.
+> So the cra_ctxsize isn't sufficient to describe the length of a tfm
+> strucure. So we need another per-algorithm-category method that returns
+> the additional size required. They might just return iv_size or iv_size
+> + omac_pad_size for ciphers and hmac_pad_size for digests or something
+> like this.
+
+Hmmm, crypto_alloc_tfm does:
+
+        tfm = kmalloc(sizeof(*tfm) + alg->cra_ctxsize, GFP_KERNEL);
+
+So I'm not clear on how the necessary size can be anything else at
+copy time?
+ 
+> > > Hmm. It should be there, but could return -EOPNOTSUPP. Copying a
+> > > compress tfm doesn't make much sense. We need a way to detect things
+> > > that are bad in a generic way, everything else is hacky.
+> > 
+> > Some way of preventing copies of some TFMs is called for, agreed.
 > 
-> Did you verify that none of the kernel header files that are still
-> being used by glibc contain declarations based on __u64 or __s64?  If
-> not, your patch breaks user-level code.
+> What about the idea above?
+> 
+> I could think we could start from my patch and simple throw 70% away. ;)
+> (or yours, it isn't too far either)
 
-Supposing that this is the case, you may get warnings.
-Well, good, maybe somebody will fix glibc. The data
-types are obviously the same size, so no data-corrupting
-errors will result.
+Either way.
 
-Note that x86-64, a 64-bit port using glibc, is just
-fine with "long long" already.
+> I'd like too keep my names: (init), copy, exit vs. alloc, clone and
+> free.
 
-Also note that /usr/include/asm is a modified copy of
-kernel headers. It won't be suddenly changing as a
-result of the patch, even after a kernel upgrade.
-(the symlink hasn't been OK since libc5 days)
+Not terribly concerned about the naming, so long as the header file
+makes it clear that every copy needs a matching cleanup call and not a
+free.
 
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

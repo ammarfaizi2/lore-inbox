@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268073AbUHVTSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268075AbUHVTWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268073AbUHVTSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 15:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUHVTSY
+	id S268075AbUHVTWz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 15:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUHVTWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 15:18:24 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:52117 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S268073AbUHVTSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 15:18:09 -0400
+	Sun, 22 Aug 2004 15:22:55 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42932 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S268075AbUHVTWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 15:22:53 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Sun, 22 Aug 2004 21:22:10 +0200
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
-References: <200408221527.10303.karl.vogel@seagha.com>
-	<m38yc757pu.fsf@seagha.com>
-From: Karl Vogel <karl.vogel@seagha.com>
-In-Reply-To: <m38yc757pu.fsf@seagha.com> (karl vogel's message of "Sun, 22
- Aug 2004 20:49:17 +0200")
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Date: Sun, 22 Aug 2004 21:18:51 +0200
-Message-ID: <m33c2f56ck.fsf_-_@seagha.com>
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+Message-ID: <4128F262.nail9U41NRYLH@burner>
+References: <2ptdY-42Y-55@gated-at.bofh.it>
+ <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
+ <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
+ <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
+ <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
+ <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
+ <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
+ <Pine.LNX.4.58.0408221450540.297@neptune.local>
+ <m37jrr40zi.fsf@zoo.weinigel.se> <4128CAA2.nail9RG21R1OG@burner>
+ <m3u0uv2iri.fsf@zoo.weinigel.se>
+In-Reply-To: <m3u0uv2iri.fsf@zoo.weinigel.se>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using elevator=as I'm unable to trigger the swap of death, so it seems
-that the CFQ scheduler is at blame here.
+Julien Oster wrote:
 
-With AS scheduler, the system recovers in +-10 seconds, vmstat output during
-that time:
+>> http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
+>> "Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
+>> and Linux."
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0      0 295632  40372  49400   87  278   324   303 1424   784  7  2 78 13
- 0  0      0 295632  40372  49400    0    0     0     0 1210   648  3  1 96  0
- 0  0      0 295632  40372  49400    0    0     0     0 1209   652  4  0 96  0
- 2  0      0 112784  40372  49400    0    0     0     0 1204   630 23 34 43  0
- 1  9 156236    788    264   8128   28 156220  3012 156228 3748  3655 11 31  0 59
- 0 15 176656   2196    280   8664    0 20420   556 20436 1108   374  2  5  0 93
- 0 17 205320    724    232   7960   28 28664   396 28664 1118   503  7 12  0 81
- 2 12 217892   1812    252   8556  248 12584   864 12584 1495   318  2  7  0 91
- 4 14 253268   2500    268   8728  188 35392   432 35392 1844   399  3  7  0 90
- 0 13 255692   1188    288   9152  960 2424  1408  2424 1173  2215 10  5  0 85
- 0  7 266140   2288    312   9276  604 10468   752 10468 1248   644  5  5  0 90
- 0  7 190516 340636    348   9860 1400    0  2016     0 1294   817  4  8  0 88
- 1  8 190516 339460    384  10844  552    0  1556     4 1241   642  3  1  0 96
- 1  3 190516 337084    404  11968 1432    0  2576     4 1292   788  3  1  0 96
- 0  6 190516 333892    420  13612 1844    0  3500     0 1343   850  5  2  0 93
- 0  1 190516 333700    424  13848  480    0   720     0 1250   654  3  2  0 95
- 0  1 190516 334468    424  13848  188    0   188     0 1224   589  3  2  0 95
+>That article is way too hypey.
 
-With CFQ processes got stuck in 'D' and never left that state. See URL's in my
-initial post for diagnostics.
+The article is ay too pessimisctic compared to the real possibilities that 
+Dtrace offers.
 
+
+>The same applies to that article, I couldn't even read it completely,
+>it was just too much.
+
+If you did not read it completely, how cah you judge about it?
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

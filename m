@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbULIDKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbULIDor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbULIDKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 22:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbULIDKj
+	id S261449AbULIDor (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 22:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbULIDor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 22:10:39 -0500
-Received: from [209.195.52.120] ([209.195.52.120]:1728 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261445AbULIDKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 22:10:34 -0500
-Date: Wed, 8 Dec 2004 19:10:16 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Bernard Normier <bernard@zeroc.com>
-cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-In-Reply-To: <079001c4dcc9$1bec3a60$6401a8c0@centrino>
-Message-ID: <Pine.LNX.4.60.0412081905140.17193@dlang.diginsite.com>
-References: <006001c4d4c2$14470880$6400a8c0@centrino>
- <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino>
- <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino>
- <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org>
- <079001c4dcc9$1bec3a60$6401a8c0@centrino>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 8 Dec 2004 22:44:47 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21004 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261449AbULIDop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 22:44:45 -0500
+Date: Thu, 9 Dec 2004 04:44:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: IDE: strange WAIT_READY dependency on APM
+Message-ID: <20041209034438.GF22324@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Dec 2004, Bernard Normier wrote:
+IDE contains the following strange code:
 
-> I am just trying to generate UUIDs (without duplicates, obviously).
->
+<--  snip  -->
 
-pulling data from /dev/random or /dev/urandom will not ensure that you 
-don't have duplicates.
+#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
+#define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
+#else
+#define WAIT_READY      (HZ/10)         /* 100msec - should be instantaneous */
+#endif /* CONFIG_APM || CONFIG_APM_MODULE */
 
-the key factor in a random number generator is that the next number to 
-coem out must be (sufficiantly) unpredictable. this says nothing about it 
-being unique, in fact it says that if you pull the number 1234 the first 
-time you should have the exact same odds of pulling 1234 the second time 
-as you have in pulling 4321 (or any other number)
+<--  snip  -->
 
-no much of the time you can get away with useing a random number generator 
-like this, but if you pull enough numbers you will get collisions.
+On the one hand APM isn't enabled on all laptops.
+On the other hand, this also affects regular PCs with APM support (or 
+using a distribution kernel with APM support).
 
-remember the birthday paradox. it says that if you get a group of 26 
-people in a room you have about a 50% chance that two of these people have 
-the same birthday.
+The time for the !APM case was already increased from 30msec in 2.4 .
+Isn't there a timeout that is suitable for all cases?
 
-now that's only with numbers in the range of 1-365 if you pull 16 bit 
-numbers (1-65536) you will need a much larger group to see the problem, 
-but if you pull enough you WILL see the problem eventually.
-
-David Lang
+cu
+Adrian
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281836AbRLCIv4>; Mon, 3 Dec 2001 03:51:56 -0500
+	id <S282999AbRLCIvz>; Mon, 3 Dec 2001 03:51:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281843AbRLCIst>; Mon, 3 Dec 2001 03:48:49 -0500
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:24069 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S284797AbRLCFqh>; Mon, 3 Dec 2001 00:46:37 -0500
-To: linux-kernel@vger.kernel.org
-Cc: j-nomura@ce.jp.nec.com
-Subject: [PATCH] 2.4.16 kernel/printk.c (per processor initialization check)
-From: j-nomura@ce.jp.nec.com
-X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Copyleft)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011203144615C.nomura@hpc.bs1.fc.nec.co.jp>
-Date: Mon, 03 Dec 2001 14:46:15 +0900
-X-Dispatcher: imput version 20000414(IM141)
+	id <S283003AbRLCItG>; Mon, 3 Dec 2001 03:49:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:56074 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281820AbRLBVjG>;
+	Sun, 2 Dec 2001 16:39:06 -0500
+Date: Sun, 2 Dec 2001 22:39:05 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <3C0A9BD7.47473324@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0112022236150.26183-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 2 Dec 2001, Andrew Morton wrote:
 
-I experienced system hang on my SMP machine and it turned out to be due to
-console write before mmu initialization completes.
+> > Really?  So then people should be designing for 128 CPU machines, right?
+> Linux only supports 99 CPUs.  At 100, "ksoftirqd_CPU100" overflows
+> task_struct.comm[].
+> Just thought I'd sneak in that helpful observation.
 
-To be more specific, even if secondary processors are not in status enough
-to do actual console I/O (e.g. mmu is not initialized), call_console_drivers()
-tries to do it.
-This leads to unpredictable result. For me, for example, it cause machine
-check abort and hang up system.
+Wasn't someone looking at fixing that problem so it didn't need a per-cpu
+thread ? 128 kernel threads sitting around waiting for a problem that
+rarely happens seems a little.. strange. (for want of a better word).
 
-Attached is a patch for it.
+Dave.
 
---- kernel/printk.c	2001/11/27 04:41:49	1.1.1.8
-+++ kernel/printk.c	2001/12/03 05:25:26
-@@ -491,20 +491,22 @@
-  */
- void release_console_sem(void)
- {
- 	unsigned long flags;
- 	unsigned long _con_start, _log_end;
- 	unsigned long must_wake_klogd = 0;
- 
- 	for ( ; ; ) {
- 		spin_lock_irqsave(&logbuf_lock, flags);
- 		must_wake_klogd |= log_start - log_end;
-+		if (!(cpu_online_map & 1UL << smp_processor_id()))
-+			break;
- 		if (con_start == log_end)
- 			break;			/* Nothing to print */
- 		_con_start = con_start;
- 		_log_end = log_end;
- 		con_start = log_end;		/* Flush */
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 		call_console_drivers(_con_start, _log_end);
- 	}
- 	console_may_schedule = 0;
- 	up(&console_sem);
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-Best regards.
---
-NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com, nomura@hpc.bs1.fc.nec.co.jp>
-HPC Operating System Group, 1st Computers Software Division,
-Computers Software Operations Unit, NEC Solutions.

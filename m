@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264693AbSJUCYB>; Sun, 20 Oct 2002 22:24:01 -0400
+	id <S264698AbSJUCbz>; Sun, 20 Oct 2002 22:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264694AbSJUCYA>; Sun, 20 Oct 2002 22:24:00 -0400
-Received: from rth.ninka.net ([216.101.162.244]:51594 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S264693AbSJUCX7>;
-	Sun, 20 Oct 2002 22:23:59 -0400
-Subject: Re: [Design] [PATCH] USAGI IPsec
-From: "David S. Miller" <davem@rth.ninka.net>
-To: Sandy Harris <sandy@storm.ca>
-Cc: Mitsuru KANDA <mk@linux-ipv6.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, cryptoapi-devel@kerneli.org,
-       design@lists.freeswan.org, usagi@linux-ipv6.org
-In-Reply-To: <3DB41338.3070502@storm.ca>
-References: <m3k7kpjt7c.wl@karaba.org>  <3DB41338.3070502@storm.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Oct 2002 19:41:06 -0700
-Message-Id: <1035168066.4817.1.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S264697AbSJUCby>; Sun, 20 Oct 2002 22:31:54 -0400
+Received: from services.cam.org ([198.73.180.252]:1738 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S264696AbSJUCbx>;
+	Sun, 20 Oct 2002 22:31:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.44-mm1
+Date: Sun, 20 Oct 2002 22:32:47 -0400
+User-Agent: KMail/1.4.3
+References: <3DB2FFEA.4048E82@digeo.com>
+In-Reply-To: <3DB2FFEA.4048E82@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210202232.47601.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this code being checked in to the mainline kernel? Or becoming part 
-> of the
-> CryptoAPI patch set? Bravo, in either case.
+Hi,
 
-We will be incorporating lots of ideas and small code pieces
-from USAGI's work, but most of the core engine will be a new
-implementation.
+Looks like something was missed (UP config):
 
-A completely new CryptoAPI subsystem has been implemented so that
-full lists of page vectors can be passed into the ciphers, which is
-necessary for a clean IPSEC implementation.
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.44-mm1; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/drivers/char/agp/agpgart.o
+depmod:         page_states__per_cpu
+depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/drivers/char/drm/mga.o
+depmod:         page_states__per_cpu
+depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/fs/ext3/ext3.o
+depmod:         posix_acl_create_masq
+depmod:         posix_acl_permission
+depmod:         posix_acl_clone
+depmod:         posix_acl_alloc
+depmod:         posix_acl_chmod_masq
+depmod:         posix_acl_valid
+depmod:         posix_acl_equiv_mode
+depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/net/packet/af_packet.o
+depmod:         page_states__per_cpu
+depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/sound/core/snd.o
+depmod:         page_states__per_cpu
 
-It is intended that this work will be complete (it isn't done as I
-type this) and pushed to Linus upon his return from vacation.
+Hope this helps
+Ed
+
 

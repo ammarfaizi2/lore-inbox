@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270462AbTG1Tbl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270473AbTG1Tbl
+	id S270864AbTG1Tlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270880AbTG1Tlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:31:41 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:33340
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S270462AbTG1Tbk (ORCPT
+	Mon, 28 Jul 2003 15:41:46 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:899 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S270864AbTG1Tln (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:31:40 -0400
-Message-ID: <3F257CC3.1030209@rogers.com>
-Date: Mon, 28 Jul 2003 15:42:59 -0400
-From: gaxt <gaxt@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 - Strange Terminal Problems- Gramofile
-References: <bg1df5$1c2$1@ask.hswn.dk> <20030728022818.GA7221@yahoo.com>
-In-Reply-To: <20030728022818.GA7221@yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [65.49.219.239] using ID <dw2price@rogers.com> at Mon, 28 Jul 2003 15:31:00 -0400
+	Mon, 28 Jul 2003 15:41:43 -0400
+Date: Mon, 28 Jul 2003 20:41:27 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jack Dennon <jdd@seasurf.net>, linux-kernel@vger.kernel.org
+Subject: Re: The well-factored 386
+Message-ID: <20030728194127.GA10673@mail.jlokier.co.uk>
+References: <03072809023201.00228@linux24> <20030728093245.60e46186.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030728093245.60e46186.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in 260-test1-mm2-O8+O9 gramofile worked fine
+David S. Miller wrote:
+> He talks about his x86 emulator he wrote, and people complain to me
+> all the time about his postings.
+> 
+> Nobody ever follows up to any of his postings, he's not even
+> discussing anything, he's just showing how great he thinkgs
+> his x86 emulator is.
 
-in 260-test2 gramofile loads but when you press on "start recording" 
-where you are supposed to get an ASCII equalizer changing with the music 
-input, you get a blank screen. Same in an xterm as in a virtual terminal.
+I didn't realise he was talking about an x86 emulator.  I thought he
+was analyzing real hardware.
 
+The one thing that made it on-topic for me was his quiet suggestion
+that "forreal" mode interrupts are faster, and that it might, perhaps,
+be possible to modify a Linux kernel to run in that mode - to take
+advantage of the faster interrupts.
+
+-- Jamie

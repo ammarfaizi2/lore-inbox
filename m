@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTJFNu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTJFNu0
+	id S262092AbTJFNoa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTJFNoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:50:26 -0400
-Received: from itaqui.terra.com.br ([200.176.3.19]:12252 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262086AbTJFNuV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:50:21 -0400
-Message-ID: <3F8173EA.7040802@terra.com.br>
-Date: Mon, 06 Oct 2003 10:53:46 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] check copy_from_user return value in sony535
-Content-Type: multipart/mixed;
- boundary="------------030401000804050001060109"
+	Mon, 6 Oct 2003 09:44:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11528 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262092AbTJFNnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:43:31 -0400
+Date: Mon, 6 Oct 2003 14:43:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix sysrq-t free stack output
+Message-ID: <20031006144328.A24910@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030401000804050001060109
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+It seems that we're attempting to work out the free stack size using two
+unrelated pointers for the lowest address of the stack.  Fix this to use
+the correct pointer.
 
-	Hi Jens,
+--- orig/kernel/sched.c	Sun Sep 28 09:55:57 2003
++++ linux/kernel/sched.c	Mon Oct  6 14:40:37 2003
+@@ -2465,7 +2465,7 @@
+ 		unsigned long * n = (unsigned long *) (p->thread_info+1);
+ 		while (!*n)
+ 			n++;
+-		free = (unsigned long) n - (unsigned long)(p+1);
++		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
+ 	}
+ 	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
+ 	if ((relative = eldest_child(p)))
 
-	Patch against 2.6.0-test6.
-
-	- Check the return value of copy_from_user on sony535 CDROM driver. 
-Found by smatch.
-
-	Following the local style, btw :)
-
-	Please apply,
-
-	Thanks.
-
-Felipe
-
---------------030401000804050001060109
-Content-Type: text/plain;
- name="sonycd535-copy_from_user.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sonycd535-copy_from_user.patch"
-
---- linux-2.6.0-test6/drivers/cdrom/sonycd535.c.orig	2003-10-06 10:46:56.000000000 -0300
-+++ linux-2.6.0-test6/drivers/cdrom/sonycd535.c	2003-10-06 10:48:20.000000000 -0300
-@@ -1158,7 +1158,8 @@
- 			return err;
- 		spin_up_drive(status);
- 		set_drive_mode(SONY535_AUDIO_DRIVE_MODE, status);
--		copy_from_user(params, (void *)arg, 6);
-+		if (copy_from_user(params, (void *)arg, 6))
-+			return -EFAULT;
- 
- 		/* The parameters are given in int, must be converted */
- 		for (i = 0; i < 3; i++) {
-
---------------030401000804050001060109--
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

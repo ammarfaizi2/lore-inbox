@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261639AbTCTT3F>; Thu, 20 Mar 2003 14:29:05 -0500
+	id <S261829AbTCTTZP>; Thu, 20 Mar 2003 14:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261766AbTCTT3F>; Thu, 20 Mar 2003 14:29:05 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:30684 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S261639AbTCTT3E>; Thu, 20 Mar 2003 14:29:04 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Oops with bttv in latest bk
-Date: 20 Mar 2003 20:42:35 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87y939x1sk.fsf@bytesex.org>
-References: <3E78BB99.3070605@portrix.net> <87he9z7z95.fsf@bytesex.org> <3E796530.2010707@portrix.net> <87znnqmitn.fsf@bytesex.org> <3E79ED9F.1000402@portrix.net>
-NNTP-Posting-Host: localhost
+	id <S261834AbTCTTZP>; Thu, 20 Mar 2003 14:25:15 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261829AbTCTTZO>;
+	Thu, 20 Mar 2003 14:25:14 -0500
+Date: Thu, 20 Mar 2003 20:35:13 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: share COMPATIBLE_IOCTL()s across architectures
+Message-ID: <20030320193513.GC312@elf.ucw.cz>
+References: <20030320001013$67af@gated-at.bofh.it> <20030320001013$68b4@gated-at.bofh.it> <200303200136.h2K1aDsD001827@post.webmailer.de> <20030320023843.GA22795@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1048189355 22970 127.0.0.1 (20 Mar 2003 19:42:35 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Content-Disposition: inline
+In-Reply-To: <20030320023843.GA22795@wotan.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer <j.dittmer@portrix.net> writes:
+Hi!
 
-> bttv: driver version 0.9.7 loaded
+> > Why not simply move the common COMPATIBLE_IOCTLs and includes into
+> > kernel/compat_ioctl.c or similar? That would IMHO be cleaner and
+> > it does not need more preprocessing hacks.
+> > There can still be a second init_sys32_ioctl() copy to handle the arch
+> > specific list with additional translations.
+> 
+> This would work for COMPATIBLE_IOCTLS, but the conversions handlers
+> would need a new asm/ file for the macros. They're declared with assembler
+> magic to avoid declaring all the functions. This way you need less files.
 
-Dammit, the must be yet another patch which can trigger that BUG().
-I've already killed at least two of them ...
-
-As it kills the X-Server I guess you are using the X-Servers v4l
-module and the Xvideo extention, correct?
-
-> Would it make sense to try as module? Currently it is compiled in.
-
-I don't expect that makes a difference.
-
-  Gerd
+include/linux/compat_ioctl.h can be renamed to fs/compat_ioctl.c if
+people prefer. I do not know which one is better.
+								Pavel
 
 -- 
-/join #zonenkinder
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

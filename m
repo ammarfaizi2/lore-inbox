@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267484AbUBSSz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUBSSxj
+	id S267485AbUBSS5A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267481AbUBSSzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:53:39 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:17671 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267477AbUBSSw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:52:28 -0500
-Date: Thu, 19 Feb 2004 18:52:24 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Permedia2 framebuffer update.
-Message-ID: <Pine.LNX.4.44.0402191850370.26734-100000@phoenix.infradead.org>
+	Thu, 19 Feb 2004 13:55:55 -0500
+Received: from spf13.us4.outblaze.com ([205.158.62.67]:2983 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S267477AbUBSSyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:54:22 -0500
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 19 Feb 2004 13:53:47 -0500
+Subject: Re: stty utf8
+X-Originating-Ip: 172.197.154.129
+X-Originating-Server: ws3-4.us4.outblaze.com
+Message-Id: <20040219185347.A94A23CE24D@ws3-4.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In an application that is taking input in utf-8,
+if I want to search, compare, yada yada, I need
+to convert to wchar_t first (for iswspace() et al),
+then convert back to utf-8 for output (so grep et al
+and operations on pathnames are not hosed by embedded
+nul bytes in the output).
 
-Hi!
+Why would not terminals do the same thing?
 
-  Here is the new permedia2 framebuffer driver ported to the new api. Link 
-to diff for viewing is at
+Done that way, Jamie's delete example is
+backspace-space-backspace and remove sizeof(wchar_t)
+from the input.
 
-http://phoenix.infradead.org:~/jsimmons/pm2fb.diff
+Ok, it takes more space than operating on the utf-8
+encoding directly, but otherwise why not? All display
+characters begin at the same offset from the
+character before or after. It's up to the terminal
+code to convert to/from utf-8 when talking to the rest
+of the kernel.
 
-Linus, please do a
+Regards,
 
-	bk pull bk://fbdev.bkbits.net/fbdev-2.6
+Clayton Weaver
+<mailto: cgweav@email.com>
 
-This will update the following files:
-
- drivers/video/cvisionppc.h |   51 
- include/video/pm2fb.h      |  222 ---
- drivers/video/Kconfig      |   18 
- drivers/video/Makefile     |    2 
- drivers/video/pm2fb.c      | 3014 +++++++++++++--------------------------------
- include/video/cvisionppc.h |   51 
- include/video/permedia2.h  |  222 +++
- 7 files changed, 1210 insertions(+), 2370 deletions(-)
-
-through these ChangeSets:
-
-<jsimmons@infradead.org> (04/02/17 1.1562)
-   [PERMEDIA2 FBDEV] Updated to the new api.
-
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
 

@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbUK0F7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbUK0F7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbUK0F7J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 00:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbUK0Du2
+	id S262089AbUK0F7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbUK0Dtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:50:28 -0500
+	Fri, 26 Nov 2004 22:49:50 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262538AbUKZTdo (ORCPT
+	by vger.kernel.org with ESMTP id S262540AbUKZTdo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 Nov 2004 14:33:44 -0500
-Date: Fri, 26 Nov 2004 04:42:01 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Sumit Pandya <sumit@elitecore.com>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: OOPS - APIC or othere?
-Message-ID: <20041126064200.GB4912@logos.cnet>
-References: <Pine.LNX.4.61.0411170941130.3941@musoma.fsmlabs.com> <HGEFKOBCHAIJDIEJLAKDAEMKCAAA.sumit@elitecore.com>
-Mime-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <19865.1101395592@redhat.com>
+	<orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 26 Nov 2004 09:47:44 -0200
+In-Reply-To: <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <ory8goygpr.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <HGEFKOBCHAIJDIEJLAKDAEMKCAAA.sumit@elitecore.com>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 26, 2004 at 02:23:57PM +0530, Sumit Pandya wrote:
-> Marcelo,
-> 	No other message except my name "Sumit" ? 
+On Nov 25, 2004, Matthew Wilcox <matthew@wil.cx> wrote:
 
-Yes, because Zwane has written the message
+> On Thu, Nov 25, 2004 at 04:20:06PM -0200, Alexandre Oliva wrote:
+>> This means these headers shouldn't reference each other as
+>> linux/user/something.h, but rather as linux/something.h, such that
+>> they still work when installed in /usr/include/linux.  This may
+>> require headers include/linux/something.h to include
+>> linux/user/something.h, but that's already part of the proposal.
 
-"Sending bug report for partially patched kernel isn't easy for us to 
-debug, is there no way for you to simply try booting 2.4.27?"
+> That's going to take severe brain-ache to get right ... and worse,
+> keep right.  These headers aren't going to get tested outside the kernel
+> tree often.  So we'll have missing includes and files that only work if
+> the <linux/> they're including is a kernel one rather than a user one.
 
-And I was assuming you read that. Did you?
+How about moving the internals (i.e., what's not to be exported to
+userland) from linux and asm elsewhere, then?
 
-The bugzilla entry makes it understand that Len has fixed the 
-problem in 2.4.27:
+Sure, it means significantly more churn in the kernel, but there's
+going to be a lot of moving stuff around one way or the other.
 
-------- Additional Comment #2 From Len Brown  2004-11-04 13:32 -------
+While at that, we could also split what's kernel internal for real and
+what's to be visible to external kernel modules as well.  So we'd have
+3 layers of headers, instead of two.  I'm not sure this actually makes
+any sense though, since there might be lots of dependencies of headers
+for modules on internal headers.
 
-shipped in 2.4.27 - closing
-
-
-> Any update in my problem
-> statement?	My problem is having an embaded LinuxOS and changing kernel
-> version is very critical.
-
-Zwane's statement is valid here.
-
-> Expecting just a quick answer from anyone. Could
-> following solution patch break any other functionality if applied on the top
-> of 2.4.26?
-> http://bugzilla.kernel.org/show_bug.cgi?id=2834
-> 	I got attachemnt from the above link and applied patch. Above patch applies
-> nicely and runs without any problem. But wanted just a final confirmation
-> from authers.
-
-Seems to be doing its job then isnt it?
-
-> Thanks for your time,
-> -- Sumit
-> 
-> > -----Original Message-----
-> > From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
-> > Sent: Thursday, November 25, 2004 5:46 PM
-> >
-> >
-> > On Wed, Nov 17, 2004 at 09:42:58AM -0700, Zwane Mwaikambo wrote:
-> > > On Wed, 17 Nov 2004, Sumit Pandya wrote:
-> > >
-> > > > 	At one of our client I faced timer problem in kernel-2.4.26
-> > and I tried to
-> > > > fixed with patching "arch/i386/kernel/mpparse.c" file taken from
-> > > > patch-2.4.27.
-> > > > ...	...	...
-> > > > Mikael Pettersson:
-> > > >   o i386 and x86_64 ACPI mpparse timer bug
-> > > > ...	...	...
-> > > > 	After booting up the system now I get OOPS. Did I applied
-> > partial patch by
-> > > > taking only patch for mpparse.c from the whole buntch? Does it broken
-> > > > dependency to some other functionality? I've ACPI support enabled into
-> > > > kernel.
-> > > > 	Does following Len's patch provide solution to my OOPS?
-> > > >
-> > ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/test/2.4.
-> 26-rc4/200
-> > > 40422153228-irq2.patch
-> > >
-> > > Here is output of ksymsoops.
-> >
-> > Sending bug reports for partially patched kernels isn't easy for us to
-> > debug, is there no way for you to simply try booting 2.4.27?
-> 
-> Sumit?
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

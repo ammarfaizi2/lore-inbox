@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbTHVGK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 02:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbTHVGK7
+	id S263046AbTHVGNY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 02:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbTHVGNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 02:10:59 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:4361 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263029AbTHVGK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 02:10:57 -0400
-Date: Fri, 22 Aug 2003 03:10:12 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       marcelo@conectiva.com.br
-Subject: Re: [PATCH] 2/10 2.4.22-rc2 fix __FUNCTION__ warnings
- drivers/hotplug
-Message-Id: <20030822031012.0036b2ce.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <20030822052000.GA7589@kroah.com>
-References: <20030821012932.7179f30c.vmlinuz386@yahoo.com.ar>
-	<20030822052000.GA7589@kroah.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Aug 2003 02:13:24 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:59811 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S263046AbTHVGNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 02:13:22 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthew Wilcox <willy@debian.org>, Lou Langholtz <ldl@aros.net>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+Date: Thu, 21 Aug 2003 23:10:48 -0700 (PDT)
+Subject: Re: [PATCH] bio.c: reduce verbosity at boot
+In-Reply-To: <Pine.LNX.4.44.0308211254360.1606-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0308212308350.2232-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003 22:20:00 -0700, Greg KH wrote:
->On Thu, Aug 21, 2003 at 01:29:32AM -0300, Gerardo Exequiel Pozzi wrote:
->>  cpqphp.h           |    6 ++--
->>  cpqphp_core.c      |   30 +++++++++++------------
->>  cpqphp_ctrl.c      |   68 ++++++++++++++++++++++++++---------------------------
->>  cpqphp_nvram.c     |    2 -
->>  cpqphp_pci.c       |   12 ++++-----
->>  pci_hotplug_core.c |    2 -
->>  pci_hotplug_util.c |    2 -
->>  7 files changed, 61 insertions(+), 61 deletions(-)
->> 
->> http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.hotplug.patch
->> http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.hotplug.patch.asc
+On Thu, 21 Aug 2003, Linus Torvalds wrote:
+
+> On Thu, 21 Aug 2003, Matthew Wilcox wrote:
+> >
+> > But why is it interesting to have this information at boot time?  As a
+> > user, I certainly don't care.  As a developer, I don't find it interesting
+> > information.
 >
->$ wget http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.hotplug.patch
->--22:18:07--  http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.hotplug.patch
->           => `drivers.hotplug.patch'
->Resolving www.vmlinuz.com.ar... done.
->Connecting to www.vmlinuz.com.ar[65.200.24.183]:80... connected.
->HTTP request sent, awaiting response... 404 Not Found
->22:18:36 ERROR 404: Not Found.
-
-That strange the IP is 200.32.4.71 and not 65.200.24.183 (similar in your mail headers).
-
-dns problem ?
-
-
+> I do agree. The message may have been useful when the code was young and
+> people wanted to see that it got executed correctly at all, but there
+> doesn't seem to be a lot of point to it any more.
 >
+> But hey, I'll leave it to the maintainer..
 >
->
->Please send send patches inline in email messages to the maintainers of
->the code that you are modifying, like Documentation/SubmittingPatches
->says to.
+> 		Linus
 
+as a user I find a minimal set of messages (loading driver, hardware
+found) handy for identifying what hardware is actually in old machines I
+am given.
 
-OK, sorry :(, in few minutes resending all the patches inline,
-CC to the respective mantainers, and split in three parts one that is 90kb.
+that said there is a lot of distance between that and the current
+situation where you print out 3-4 screens worth of info for a single
+driver.
 
-
->
->thanks,
->
->greg k-h
->-
-
-
-Take Care,
- djgera
-
-
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+David Lang

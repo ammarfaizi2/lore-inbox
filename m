@@ -1,280 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbULJSJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbULJSKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbULJSJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 13:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbULJSJy
+	id S261783AbULJSKn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 13:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbULJSKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 13:09:54 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:28403 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261779AbULJSHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 13:07:49 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CAA5@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: RE: [PATCH 1/2] RE: How to add/drop SCSI drives from within the d
-	rive r?
-Date: Fri, 10 Dec 2004 12:59:57 -0500
+	Fri, 10 Dec 2004 13:10:43 -0500
+Received: from crusoe.degler.net ([66.114.64.229]:18419 "EHLO
+	crusoe.degler.net") by vger.kernel.org with ESMTP id S261783AbULJSHw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 13:07:52 -0500
+Message-ID: <43220.166.84.149.254.1102702048.squirrel@crusoe.degler.net>
+Date: Fri, 10 Dec 2004 13:07:28 -0500 (EST)
+Subject: NUMA on i386 with Opterons
+From: "Stephen Degler" <stephen@degler.net>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4DEE2.0F286FE0"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Hello,
 
-------_=_NextPart_000_01C4DEE2.0F286FE0
-Content-Type: text/plain
+Should i386 NUMA be working on with Opteron systems?  I'm blowing up
+on various Tyan motherboards.  Of course x86_64 kernels run fine.
 
->
->This patch won't apply --- it looks like your mailer broke the lines.
->Could you resend it?
->
->Thanks,
->
->James
->
+Any insight you could provide would be welcome.  The same error occurs
+with vanilla 2.6.10-rc3.
 
-diff -Naur a/Documentation/scsi/ChangeLog.megaraid
-b/Documentation/scsi/ChangeLog.megaraid
---- a/Documentation/scsi/ChangeLog.megaraid	2004-12-07
-16:40:23.000000000 -0500
-+++ b/Documentation/scsi/ChangeLog.megaraid	2004-12-09
-19:05:47.795231320 -0500
-@@ -1,3 +1,10 @@
-+Release Date	: Thu Dec  9 19:02:14 EST 2004 - Sreenivas Bagalkote
-<sreenib@lsil.com>
-+
-+Current Version	: 2.20.4.1 (scsi module), 2.20.2.3 (cmm module)
-+Older Version	: 2.20.4.1 (scsi module), 2.20.2.2 (cmm module)
-+
-+i.	Fix a bug in kioc's dma buffer deallocation
-+
- Release Date	: Thu Nov  4 18:24:56 EST 2004 - Sreenivas Bagalkote
-<sreenib@lsil.com>
- 
- Current Version	: 2.20.4.1 (scsi module), 2.20.2.2 (cmm module)
-diff -Naur a/drivers/scsi/megaraid/megaraid_ioctl.h
-b/drivers/scsi/megaraid/megaraid_ioctl.h
---- a/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-07
-16:40:16.000000000 -0500
-+++ b/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-09
-19:00:59.284091680 -0500
-@@ -142,7 +142,7 @@
- 
- 	caddr_t			buf_vaddr;
- 	dma_addr_t		buf_paddr;
--	uint8_t			pool_index;
-+	int8_t			pool_index;
- 	uint8_t			free_buf;
- 
- 	uint8_t			timedout;
-diff -Naur a/drivers/scsi/megaraid/megaraid_mm.c
-b/drivers/scsi/megaraid/megaraid_mm.c
---- a/drivers/scsi/megaraid/megaraid_mm.c	2004-12-07
-16:40:16.000000000 -0500
-+++ b/drivers/scsi/megaraid/megaraid_mm.c	2004-12-09
-19:03:27.659535184 -0500
-@@ -10,7 +10,7 @@
-  *	   2 of the License, or (at your option) any later version.
-  *
-  * FILE		: megaraid_mm.c
-- * Version	: v2.20.2.2 (Nov 04 2004)
-+ * Version	: v2.20.2.3 (Dec 09 2004)
-  *
-  * Common management module
-  */
-@@ -614,23 +614,27 @@
- 	mm_dmapool_t	*pool;
- 	unsigned long	flags;
- 
--	pool = &adp->dma_pool_list[kioc->pool_index];
-+	if (kioc->pool_index != -1) {
-+		pool = &adp->dma_pool_list[kioc->pool_index];
- 
--	/* This routine may be called in non-isr context also */
--	spin_lock_irqsave(&pool->lock, flags);
-+		/* This routine may be called in non-isr context also */
-+		spin_lock_irqsave(&pool->lock, flags);
- 
--	/*
--	 * While attaching the dma buffer, if we didn't get the required
--	 * buffer from the pool, we would have allocated it at the run time
--	 * and set the free_buf flag. We must free that buffer. Otherwise,
--	 * just mark that the buffer is not in use
--	 */
--	if (kioc->free_buf == 1)
--		pci_pool_free(pool->handle, kioc->buf_vaddr,
-kioc->buf_paddr);
--	else
--		pool->in_use = 0;
-+		/*
-+		 * While attaching the dma buffer, if we didn't get the 
-+		 * required buffer from the pool, we would have allocated 
-+		 * it at the run time and set the free_buf flag. We must 
-+		 * free that buffer. Otherwise, just mark that the buffer is
+Serial console output below:
 
-+		 * not in use
-+		 */
-+		if (kioc->free_buf == 1)
-+			pci_pool_free(pool->handle, kioc->buf_vaddr, 
-+							kioc->buf_paddr);
-+		else
-+			pool->in_use = 0;
- 
--	spin_unlock_irqrestore(&pool->lock, flags);
-+		spin_unlock_irqrestore(&pool->lock, flags);
-+	}
- 
- 	/* Return the kioc to the free pool */
- 	spin_lock_irqsave(&adp->kioc_pool_lock, flags);
-diff -Naur a/drivers/scsi/megaraid/megaraid_mm.h
-b/drivers/scsi/megaraid/megaraid_mm.h
---- a/drivers/scsi/megaraid/megaraid_mm.h	2004-12-07
-16:40:15.000000000 -0500
-+++ b/drivers/scsi/megaraid/megaraid_mm.h	2004-12-09
-19:03:00.020736920 -0500
-@@ -29,10 +29,9 @@
- #include "megaraid_ioctl.h"
- 
- 
--#define LSI_COMMON_MOD_VERSION	"2.20.2.2"
-+#define LSI_COMMON_MOD_VERSION	"2.20.2.3"
- #define LSI_COMMON_MOD_EXT_VERSION	\
--		"(Release Date: Thu Nov  4 17:46:29 EST 2004)"
--
-+		"(Release Date: Thu Dec  9 19:02:14 EST 2004)"
- 
- #define LSI_DBGLVL			dbglevel
- 
+Linux version 2.6.8.1+xfsigetfix (sdegler@localhost.localdomain) (gcc
+version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)) #16 SMP Thu D
+ec 9 22:08:15 GMT 2004
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 00000000f7ff0000 (usable)
+ BIOS-e820: 00000000f7ff0000 - 00000000f7fff000 (ACPI data)
+ BIOS-e820: 00000000f7fff000 - 00000000f8000000 (ACPI NVS)
+ BIOS-e820: 00000000ff7c0000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 0000000180000000 (usable)
+get_memcfg_from_srat: assigning address to rsdp
+RSD PTR  v2 [ACPIAM]
+Begin SRAT table scan....
+CPU 0x00 in proximity domain 0x00
+CPU 0x01 in proximity domain 0x01
+Memory range 0x100 to 0xF8000 (type 0x0) in proximity domain 0x00 enabled
+Memory range 0x100000 to 0x180000 (type 0x0) in proximity domain 0x01 enabled
+Memory range 0x0 to 0x9F (type 0x0) in proximity domain 0x00 enabled
+pxm bitmap: 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00
+ 00 00 00 00 00 00 00 00 00
+Number of logical nodes in system = 2
+
+Number of memory chunks in system = 3
+chunk 0 nid 0 start_pfn 00000000 end_pfn 0000009f
+chunk 1 nid 0 start_pfn 00000100 end_pfn 000f8000
+chunk 2 nid 1 start_pfn 00100000 end_pfn 00180000
+Node: 0, start_pfn: 0, end_pfn: 1015808
+  Setting physnode_map array to node 0 for pfns:
+  0 65536 131072 196608 262144 327680 393216 458752 524288 589824 655360
+720896
+786432 851968 917504 983040
+Node: 1, start_pfn: 1048576, end_pfn: 1572864
+  Setting physnode_map array to node 1 for pfns:
+  1048576 1114112 1179648 1245184 1310720 1376256 1441792 1507328
+Reserving 4608 pages of KVA for lmem_map of node 1
+Shrinking node 1 from 1572864 pages to 1568256 pages
+Reserving total of 4608 pages for numa KVA remap
+reserve_pages = 4608 find_max_low_pfn() ~ 229376
+max_pfn = 1572864
+5266MB HIGHMEM available.
+878MB LOWMEM available.
+min_low_pfn = 1918, max_low_pfn = 224768, highstart_pfn = 224768
+Low memory ends at vaddr f6e00000
+node 0 will remap to vaddr f8000000 - f8000000
+node 1 will remap to vaddr f6e00000 - f8000000
+High memory starts at vaddr f6e00000
+ACPI: S3 and PAE do not like each other for now, S3 disabled.
+found SMP MP-table at 000ff780
+NX (Execute Disable) protection: active
+DMI 2.3 present.
+Using APIC driver default
+ACPI: RSDP (v002 ACPIAM                                    ) @ 0x000f6700
+ACPI: XSDT (v001 A M I  OEMXSDT  0x10000314 MSFT 0x00000097) @ 0xf7ff0100
+ACPI: FADT (v001 A M I  OEMFACP  0x10000314 MSFT 0x00000097) @ 0xf7ff0281
+ACPI: MADT (v001 A M I  OEMAPIC  0x10000314 MSFT 0x00000097) @ 0xf7ff0380
+ACPI: OEMB (v001 A M I  OEMBIOS  0x10000314 MSFT 0x00000097) @ 0xf7fff040
+ACPI: SRAT (v001 A M I  OEMSRAT  0x10000314 MSFT 0x00000097) @ 0xf7ff3580
+ACPI: ASF! (v001 AMIASF AMDSTRET 0x00000001 INTL 0x02002026) @ 0xf7ff3670
+ACPI: DSDT (v001  0ABCF 0ABCF007 0x00000007 INTL 0x02002026) @ 0x00000000
+ES7000: did not find Unisys ACPI OEM table!
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Processor #0 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+Processor #1 15:5 APIC version 16
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: Assigned apic_id 2
+IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+IOAPIC[1]: Assigned apic_id 3
+IOAPIC[1]: apic_id 3, version 17, address 0xfebfe000, GSI 24-27
+ACPI: IOAPIC (id[0x04] address[0xfebff000] gsi_base[28])
+IOAPIC[2]: Assigned apic_id 4
+IOAPIC[2]: apic_id 4, version 17, address 0xfebff000, GSI 28-31
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+Enabling APIC mode:  Flat.  Using 3 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Built 2 zonelists
+ying to fix it up, but a reboot is needed
+Bad page state at free_hot_cold_page (in process 'swapper', page f6e02360)
+flags:0x06207320 mapping:446e4970 mapcount:2099263264 count:0
+Backtrace:
+ [<c0106fc4>] dump_stack+0x1e/0x22
+ [<c013faf7>] bad_page+0x6f/0x9c
+ [<c01402af>] free_hot_cold_page+0x61/0x134
+ [<c06cb7d5>] one_highpage_init+0x6d/0xd4
+ [<c06cc764>] set_highmem_pages_init+0xc4/0xd4
+ [<c06cbd3b>] mem_init+0xed/0x226
+ [<c06bc958>] start_kernel+0x10c/0x1be
+ [<c06bc958>] start_kernel+0x10c/0x1be
+ [<c0100211>] 0xc0100211
+Trying to fix it up, but a reboot is needed
+Bad page state at free_hot_cold_page (in process 'swapper', page f6e02380)
+flags:0x06544345 mapping:20584154 mapcount:538976266 count:0
+Backtrace:
+ [<c0106fc4>] dump_stack+0x1e/0x22
+ [<c013faf7>] bad_page+0x6f/0x9c
+ [<c01402af>] free_hot_cold_page+0x61/0x134
+ [<c06cb7d5>] one_highpage_init+0x6d/0xd4
+ [<c06cc764>] set_highmem_pages_init+0xc4/0xd4
+ [<c06cbd3b>] mem_init+0xed/0x226
+ [<c06bc958>] start_kernel+0x10c/0x1be
+ [<c0100211>] 0xc0100211
 
 
-------_=_NextPart_000_01C4DEE2.0F286FE0
-Content-Type: application/octet-stream;
-	name="megaraid-kioc.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="megaraid-kioc.patch"
+That trace above looks like there was some loossage on the serial line
+right around the error.  Here is another similar run.
 
-diff -Naur a/Documentation/scsi/ChangeLog.megaraid =
-b/Documentation/scsi/ChangeLog.megaraid=0A=
---- a/Documentation/scsi/ChangeLog.megaraid	2004-12-07 =
-16:40:23.000000000 -0500=0A=
-+++ b/Documentation/scsi/ChangeLog.megaraid	2004-12-09 =
-19:05:47.795231320 -0500=0A=
-@@ -1,3 +1,10 @@=0A=
-+Release Date	: Thu Dec  9 19:02:14 EST 2004 - Sreenivas Bagalkote =
-<sreenib@lsil.com>=0A=
-+=0A=
-+Current Version	: 2.20.4.1 (scsi module), 2.20.2.3 (cmm module)=0A=
-+Older Version	: 2.20.4.1 (scsi module), 2.20.2.2 (cmm module)=0A=
-+=0A=
-+i.	Fix a bug in kioc's dma buffer deallocation=0A=
-+=0A=
- Release Date	: Thu Nov  4 18:24:56 EST 2004 - Sreenivas Bagalkote =
-<sreenib@lsil.com>=0A=
- =0A=
- Current Version	: 2.20.4.1 (scsi module), 2.20.2.2 (cmm module)=0A=
-diff -Naur a/drivers/scsi/megaraid/megaraid_ioctl.h =
-b/drivers/scsi/megaraid/megaraid_ioctl.h=0A=
---- a/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-07 =
-16:40:16.000000000 -0500=0A=
-+++ b/drivers/scsi/megaraid/megaraid_ioctl.h	2004-12-09 =
-19:00:59.284091680 -0500=0A=
-@@ -142,7 +142,7 @@=0A=
- =0A=
- 	caddr_t			buf_vaddr;=0A=
- 	dma_addr_t		buf_paddr;=0A=
--	uint8_t			pool_index;=0A=
-+	int8_t			pool_index;=0A=
- 	uint8_t			free_buf;=0A=
- =0A=
- 	uint8_t			timedout;=0A=
-diff -Naur a/drivers/scsi/megaraid/megaraid_mm.c =
-b/drivers/scsi/megaraid/megaraid_mm.c=0A=
---- a/drivers/scsi/megaraid/megaraid_mm.c	2004-12-07 16:40:16.000000000 =
--0500=0A=
-+++ b/drivers/scsi/megaraid/megaraid_mm.c	2004-12-09 19:03:27.659535184 =
--0500=0A=
-@@ -10,7 +10,7 @@=0A=
-  *	   2 of the License, or (at your option) any later version.=0A=
-  *=0A=
-  * FILE		: megaraid_mm.c=0A=
-- * Version	: v2.20.2.2 (Nov 04 2004)=0A=
-+ * Version	: v2.20.2.3 (Dec 09 2004)=0A=
-  *=0A=
-  * Common management module=0A=
-  */=0A=
-@@ -614,23 +614,27 @@=0A=
- 	mm_dmapool_t	*pool;=0A=
- 	unsigned long	flags;=0A=
- =0A=
--	pool =3D &adp->dma_pool_list[kioc->pool_index];=0A=
-+	if (kioc->pool_index !=3D -1) {=0A=
-+		pool =3D &adp->dma_pool_list[kioc->pool_index];=0A=
- =0A=
--	/* This routine may be called in non-isr context also */=0A=
--	spin_lock_irqsave(&pool->lock, flags);=0A=
-+		/* This routine may be called in non-isr context also */=0A=
-+		spin_lock_irqsave(&pool->lock, flags);=0A=
- =0A=
--	/*=0A=
--	 * While attaching the dma buffer, if we didn't get the required=0A=
--	 * buffer from the pool, we would have allocated it at the run =
-time=0A=
--	 * and set the free_buf flag. We must free that buffer. Otherwise,=0A=
--	 * just mark that the buffer is not in use=0A=
--	 */=0A=
--	if (kioc->free_buf =3D=3D 1)=0A=
--		pci_pool_free(pool->handle, kioc->buf_vaddr, kioc->buf_paddr);=0A=
--	else=0A=
--		pool->in_use =3D 0;=0A=
-+		/*=0A=
-+		 * While attaching the dma buffer, if we didn't get the =0A=
-+		 * required buffer from the pool, we would have allocated =0A=
-+		 * it at the run time and set the free_buf flag. We must =0A=
-+		 * free that buffer. Otherwise, just mark that the buffer is =0A=
-+		 * not in use=0A=
-+		 */=0A=
-+		if (kioc->free_buf =3D=3D 1)=0A=
-+			pci_pool_free(pool->handle, kioc->buf_vaddr, =0A=
-+							kioc->buf_paddr);=0A=
-+		else=0A=
-+			pool->in_use =3D 0;=0A=
- =0A=
--	spin_unlock_irqrestore(&pool->lock, flags);=0A=
-+		spin_unlock_irqrestore(&pool->lock, flags);=0A=
-+	}=0A=
- =0A=
- 	/* Return the kioc to the free pool */=0A=
- 	spin_lock_irqsave(&adp->kioc_pool_lock, flags);=0A=
-diff -Naur a/drivers/scsi/megaraid/megaraid_mm.h =
-b/drivers/scsi/megaraid/megaraid_mm.h=0A=
---- a/drivers/scsi/megaraid/megaraid_mm.h	2004-12-07 16:40:15.000000000 =
--0500=0A=
-+++ b/drivers/scsi/megaraid/megaraid_mm.h	2004-12-09 19:03:00.020736920 =
--0500=0A=
-@@ -29,10 +29,9 @@=0A=
- #include "megaraid_ioctl.h"=0A=
- =0A=
- =0A=
--#define LSI_COMMON_MOD_VERSION	"2.20.2.2"=0A=
-+#define LSI_COMMON_MOD_VERSION	"2.20.2.3"=0A=
- #define LSI_COMMON_MOD_EXT_VERSION	\=0A=
--		"(Release Date: Thu Nov  4 17:46:29 EST 2004)"=0A=
--=0A=
-+		"(Release Date: Thu Dec  9 19:02:14 EST 2004)"=0A=
- =0A=
- #define LSI_DBGLVL			dbglevel=0A=
- =0A=
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Initializing HighMem for node 0
+Initializing HighMem for node 1
+Bad page state at free_hot_cold_page (in process 'swapper', page f6e02000)
+flags:0x06454342 mapping:41544e59 mapcount:537544016 count:0
+Backtrace:
+ [<c0106fc4>] dump_stack+0x1e/0x22
+ [<c013fa9b>] bad_page+0x6f/0x9c
+ [<c0140253>] free_hot_cold_page+0x61/0x134
+ [<c06cb7d5>] one_highpage_init+0x6d/0xd4
+ [<c06cc764>] set_highmem_pages_init+0xc4/0xd4
+ [<c06cbd3b>] mem_init+0xed/0x226
+ [<c06bc958>] start_kernel+0x10c/0x1be
+ [<c0100211>] 0xc0100211
 
-------_=_NextPart_000_01C4DEE2.0F286FE0--
+Thanks,
+
+skd
+
+

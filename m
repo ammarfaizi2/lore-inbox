@@ -1,116 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVBCKoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVBCKsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVBCKoR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVBCKnw
+	id S262941AbVBCKsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVBCKpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:43:52 -0500
-Received: from gprs215-57.eurotel.cz ([160.218.215.57]:1920 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262925AbVBCKll (ORCPT
+	Thu, 3 Feb 2005 05:45:33 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:43959 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262881AbVBCKna (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:41:41 -0500
-Date: Thu, 3 Feb 2005 11:41:26 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
-Message-ID: <20050203104126.GC1389@elf.ucw.cz>
-References: <200502021428.12134.rjw@sisk.pl> <20050202133153.GD29579@elf.ucw.cz> <200502030108.09508.rjw@sisk.pl>
+	Thu, 3 Feb 2005 05:43:30 -0500
+Date: Thu, 3 Feb 2005 11:45:02 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Daniele Venzano <webvenza@libero.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050203104501.GC3144@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Daniele Venzano <webvenza@libero.it>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050202155403.GE3117@crusoe.alcove-fr> <51cfdfdc084037ae1e3f164b0c524abc@libero.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502030108.09508.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <51cfdfdc084037ae1e3f164b0c524abc@libero.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Feb 02, 2005 at 10:47:58PM +0100, Daniele Venzano wrote:
 
-> > > I have noticed that the condition (cur_freq != cpu_policy->cur), which is
-> > > unlikely() according to cpufreq.c:cpufreq_resume(), occurs on every resume
-> > > on my box (Athlon64-based Asus).  Every time the box resumes, I get a message
-> > > like that:
-> > > 
-> > > Warning: CPU frequency out of sync: cpufreq and timing core thinks of 1600000, is 1800000 kHz.
-> > > 
-> > > (the numbers vary: there may be 800000 vs 1600000 or even 800000 vs 1800000).
-> > > 
-> > > Also, when the box is suspended on AC power and resumed on batteries, it often
-> > > reboots.
-> > > 
-> > > Please let me know if there's anything (relatively simple :-)) that I can do
-> > > about it.
-> > 
-> > Introduce _suspend() routine to cpufreq, and force cpu to 800MHz
-> > during suspend().
+> Il giorno 02/feb/05, alle 16:54, Stelian Pop ha scritto:
 > 
-> Do you mean like that:
-
-Yes, this looks okay. Does it fix your "it reboots during resume" problem?
-
-> --- linux-2.6.11-rc2-orig/drivers/cpufreq/cpufreq.c	2005-01-30 23:30:53.000000000 +0100
-> +++ linux-2.6.11-rc2/drivers/cpufreq/cpufreq.c	2005-02-03 00:50:05.000000000 +0100
-> @@ -939,10 +939,42 @@
->  	return ret;
->  }
->  
-> +static int cpufreq_suspend(struct sys_device * sysdev, u32 state)
-> +{
-> +	int cpu = sysdev->id;
-> +	struct cpufreq_policy *cpu_policy;
-> +
-> +	dprintk("suspending cpu %u\n", cpu);
-> +
-> +	if (!cpu_online(cpu))
-> +		return 0;
-> +
-> +	cpu_policy = cpufreq_cpu_get(cpu);
-> +	if (!cpu_policy)
-> +		return -EINVAL;
-> +
-> +	/* only handle each CPU group once */
-> +	if (unlikely(cpu_policy->cpu != cpu)) {
-> +		cpufreq_cpu_put(cpu_policy);
-> +		return 0;
-> +	}
-> +
-> +	if (cpufreq_driver->target) {
-> +		dprintk("cpufreq: trying to set CPU frequency to the minimal (%u kHz)\n", 
-> +				cpu_policy->min);
-> +		cpufreq_driver->target(cpu_policy, cpu_policy->min,
-> +			CPUFREQ_RELATION_L);
-> +	}
-> +
-> +	cpufreq_cpu_put(cpu_policy);
-> +	return 0;
-> +}
-> +	
->  static struct sysdev_driver cpufreq_sysdev_driver = {
->  	.add		= cpufreq_add_dev,
->  	.remove		= cpufreq_remove_dev,
->  	.resume		= cpufreq_resume,
-> +	.suspend	= cpufreq_suspend,
->  };
->  
->  
+> >Hi,
+> >
+> >I've played lately a bit with Subversion and used it for managing
+> >the kernel sources, using Larry McVoy's bk2cvs bridge and Ben Collins'
+> >bkcvs2svn conversion script.
 > 
-> > Put it back to right frequency during resume(). 
-> 
-> Well, I don't know which one is right, because the box might have been
-> suspended in different conditions (eg AC power vs batteries).  I think it's
-> better to leave it at the minimal frequency for a while.  Moreover, I don't
-> know if it's not necessary to force the minimal frequency again in resume()
-> (I imagine that some CPUs may change the frequency on the fly if they
-> are sufficiently loaded, and eg in swsusp we restore the image between
-> suspend() and resume(), so this may very well happen sometimes, it
-> seems).
+> Really useful, thanks !
+> I'm using svn to manage a very small part of the kernel tree (2 files). 
+> It is difficult to keep in sync with mainstream development without 
+> having to fetch and keep huge amounts of data (this regardless of the 
+> version control system used).
 
-Okay, you are right, restoring it unconditionaly would be bad
-idea. Still it would be nice to tell cpufreq governor "please change
-the frequency ASAP" so it does not run at 800MHz for half an hour
-compiling kernels on AC power.
-								Pavel
+Indeed. As I put it in the howto, the SVN repository is about 900 MB
+(but I think it can be less when using svn's fsfs storage backend,
+I must test this...), plus 600 MB per working copy.
+
+There is not much anybody can do about this.
+
+> For now I'm keeping the latest stable 2.6 release of the files I need 
+> in the svn repo, then when I need to sync with the rest of the world, I 
+> get the latest -bk patch and see if there are some related changes. If 
+> so, I create a new branch, apply the -bk patch (only the interesting 
+> part) and then apply my modifications on top of that.
+
+With the 'full' svn solution you lose some storage space but you
+gain in time. The above steps are automatic and you don't have to
+bother looking at the changes, decide if it matters or not, etc.
+
+> That still means I have to download usually a >1MB compressed file for 
+> ~60KB of interesting (uncompressed) data, but that is still much better 
+> than the gigabytes of network traffic needed for a full kernel tree and 
+> up to date working copies.
+
+I think you end up with pretty much the same network traffic in both
+cases (svn or linux.tar.gz + bk patches). The only difference is the
+storage cost.
+
+Stelian.
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Stelian Pop <stelian@popies.net>

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288759AbSAIVAg>; Wed, 9 Jan 2002 16:00:36 -0500
+	id <S289020AbSAIVCS>; Wed, 9 Jan 2002 16:02:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289025AbSAIVA3>; Wed, 9 Jan 2002 16:00:29 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:50368 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S288759AbSAIVAQ>; Wed, 9 Jan 2002 16:00:16 -0500
-Message-ID: <3C3CAEDD.8040707@bigpond.net.au>
-Date: Thu, 10 Jan 2002 04:58:05 +0800
-From: peter <arevill@bigpond.net.au>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289021AbSAIVCH>; Wed, 9 Jan 2002 16:02:07 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:9220 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S289022AbSAIVCD>; Wed, 9 Jan 2002 16:02:03 -0500
+Message-ID: <3C3CAE90.E415A2A2@didntduck.org>
+Date: Wed, 09 Jan 2002 15:56:48 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Steps to open a file/handled by kernel?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: lgb@lgb.hu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Western Digital 33C296A SCSI support
+In-Reply-To: <20020109202159.GA24136@vega.digitel2002.hu>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CC: all replies to: arevill@bigpond.net.au
-Hi guys, im in discussion with one of my compsci mates to start an 
-intresting little project, its not concrete yet, not at all, i really 
-need to get a good grasp of what im going to have to code before i 
-decide to jump in or not, ill give you a quick run down
+Gábor Lénárt wrote:
+> 
+> Hi!
+> 
+> Is there $subject inside eg version 2.4.17 of Linux kernel? I've been told
+> that this chip was used on boards named 'wd7xxx' inside kernel config.
+> However after eyeballing the source (drivers/scsi/wd7000.c) it seems that
+> it's for ISA cards but my card is PCI one:
+> 
+> 01:09.0 SCSI storage controller: Western Digital 33C296A
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 66 (1250ns min, 1500ns max), cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at 1000 [size=256]
+>         Region 1: Memory at 40200000 (32-bit, non-prefetchable) [size=256]
+>         Expansion ROM at <unassigned> [disabled] [size=64K]
+> 
+> Is there any hope to use this scsi adaptor with Linux?
 
-Basically we want to make a sort of.. auto compression/uncompression of 
-files as there accessed/not accessed, basically to save a hell of alot 
-of space, but before we even BEGIN to do it, i really need to understand 
-the calls and the "arguments" and the stages the kernel/userspace (if it 
-is invovled (if userspace is even the right word!) takes to read from a 
-file (and write to it while we are at it)
+WD killed off it's SCSI host adapter division many years ago, and it
+took to the grave all the documentation needed for a Linux driver (or
+for any other modern OS).  Sorry to say, but you'll need a new card.
 
-any information people feel is relevant or any sort of url u can point 
-me to or just a little guide of waht happens would be appreciiated, 
-please CC: all msgs to arevill@bigpond.net.au
+--
 
-Cheers
-:)
-Peter
-
-
-
+				Brian Gerst

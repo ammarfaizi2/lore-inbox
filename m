@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUJWFcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUJWEaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266756AbUJWFcV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 01:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUJWFcI
+	id S267624AbUJWEaH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 00:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269193AbUJWE3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 01:32:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3460 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266756AbUJWF3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 01:29:44 -0400
-Date: Fri, 22 Oct 2004 22:27:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: printk() with a spin-lock held.
-Message-Id: <20041022222746.0313ed9f.akpm@osdl.org>
-In-Reply-To: <1098503815.13176.2.camel@krustophenia.net>
-References: <Pine.LNX.4.61.0410221504500.6075@chaos.analogic.com>
-	<1098503815.13176.2.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 00:29:19 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:3975
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S267661AbUJWE0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 00:26:17 -0400
+Subject: [patch 4/5] uml: KBUILD_OUTPUT fix
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Sat, 23 Oct 2004 05:53:21 +0200
+Message-Id: <20041023035321.47D4E95D3@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> On Fri, 2004-10-22 at 15:07 -0400, Richard B. Johnson wrote:
-> > Linux-2.6.9 will bug-check and halt if my code executes
-> > a printk() with a spin-lock held.
-> > 
-> > Is this the intended behavior?
-> 
-> Yes.  printk() can sleep.  No sleeping with a spinlock held.
-> 
 
-printk() does not sleep and may be called from any context except
 
-a) NMI handlers and
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-b) when holding a scheduler runqueue->lock while klogd is running.
+ vanilla-linux-2.6.9-paolo/arch/um/Makefile |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN arch/um/Makefile~uml-KBUILD_OUTPUT-fix arch/um/Makefile
+--- vanilla-linux-2.6.9/arch/um/Makefile~uml-KBUILD_OUTPUT-fix	2004-10-21 02:05:31.482358736 +0200
++++ vanilla-linux-2.6.9-paolo/arch/um/Makefile	2004-10-21 02:15:20.592800336 +0200
+@@ -28,14 +28,14 @@ MAKEFILE-$(CONFIG_MODE_TT) += Makefile-t
+ MAKEFILE-$(CONFIG_MODE_SKAS) += Makefile-skas
+ 
+ ifneq ($(MAKEFILE-y),)
+-  include $(addprefix $(ARCH_DIR)/,$(MAKEFILE-y))
++  include $(addprefix $(srctree)/$(ARCH_DIR)/,$(MAKEFILE-y))
+ endif
+ 
+ ARCH_INCLUDE	:= -I$(ARCH_DIR)/include
+ SYS_DIR		:= $(ARCH_DIR)/include/sysdep-$(SUBARCH)
+ 
+-include $(ARCH_DIR)/Makefile-$(SUBARCH)
+-include $(ARCH_DIR)/Makefile-os-$(OS)
++include $(srctree)/$(ARCH_DIR)/Makefile-$(SUBARCH)
++include $(srctree)/$(ARCH_DIR)/Makefile-os-$(OS)
+ 
+ # -Derrno=kernel_errno - This turns all kernel references to errno into
+ # kernel_errno to separate them from the libc errno.  This allows -fno-common
+_

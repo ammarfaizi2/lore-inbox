@@ -1,44 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312136AbSCZTqB>; Tue, 26 Mar 2002 14:46:01 -0500
+	id <S312425AbSCZU0L>; Tue, 26 Mar 2002 15:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312451AbSCZTpv>; Tue, 26 Mar 2002 14:45:51 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:12422 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S312136AbSCZTpo>;
-	Tue, 26 Mar 2002 14:45:44 -0500
-Date: Tue, 26 Mar 2002 20:38:27 +0100
-From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-To: Vinolin <vinolin@nodeinfotech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: struct fib_table
-Message-ID: <20020326203827.D2539@ragnar-hojland.com>
-In-Reply-To: <02032514471601.00954@Vinolin>
+	id <S312452AbSCZU0G>; Tue, 26 Mar 2002 15:26:06 -0500
+Received: from vracs001.vrac.iastate.edu ([129.186.232.215]:38545 "EHLO
+	vracs001.vrac.iastate.edu") by vger.kernel.org with ESMTP
+	id <S312425AbSCZUZv>; Tue, 26 Mar 2002 15:25:51 -0500
+Subject: [Fwd: ne2k-pci] connections dying out
+From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-I8fQrTHjBD4u3+3VFW6k"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 26 Mar 2002 14:25:46 -0600
+Message-Id: <1017174348.3160.6.camel@regatta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 25, 2002 at 02:47:16PM +0530, Vinolin wrote:
-> Hello all ,
->
-> In linux routing, two tables are maintained ( main_table and local_table ).
-> Can somebody explains what is the need for these two tables ?
-> Please give a detailed explanation.
 
-The need for the tables is in userspace.  Have a look here:
+--=-I8fQrTHjBD4u3+3VFW6k
+Content-Type: multipart/mixed; boundary="=-XjiCeHsl3Ql/NuvBhmhf"
 
-        http://www.compendium.com.ar/policy-routing.txt
-	
-and related tarballs mentioned in CONFIG_IP_MULTIPLE_TABLES in
-Configure.help I think.
 
--- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."      [15 pend. Mar 10]
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+I have a computer that on most web sites, ftp transfers or anything related=
+ to the network
+will start a connection and atart transferring for about 2 seconds and then=
+ the connection
+will die out.  This does not happen on all sites but with most.  When boote=
+d into windows it has
+no problem. It is very strange.  Have tried many different kernels includin=
+g 2.4.18 with no luck.
+all info is attached below.  There seems to be no pattern also for this.  b=
+ut it doesn't matter=20
+it is ssh, http, ftp...they have this problem......any clues.
+
+daniel.e.shipton
+
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Disposition: attachment; filename="INTERRUPTS"
+Content-Type: application/octet-stream; NAME=INTERRUPTS
+Content-Transfer-Encoding: base64
+
+ICAgICAgICAgICBDUFUwICAgICAgIAogIDA6ICAgICAxMDc1MDQgICAgICAgICAgWFQtUElDICB0
+aW1lcgogIDE6ICAgICAgIDIwODUgICAgICAgICAgWFQtUElDICBrZXlib2FyZAogIDI6ICAgICAg
+ICAgIDAgICAgICAgICAgWFQtUElDICBjYXNjYWRlCiAgODogICAgICAgICAgMSAgICAgICAgICBY
+VC1QSUMgIHJ0YwogIDk6ICAgICAgICAgIDAgICAgICAgICAgWFQtUElDICBFTVUxMEsxCiAxMDog
+ICAgICA1MTE2NyAgICAgICAgICBYVC1QSUMgIG52aWRpYQogMTE6ICAgICAgMTE3NTQgICAgICAg
+ICAgWFQtUElDICBldGgwCiAxMjogICAgICAgNDE0MiAgICAgICAgICBYVC1QSUMgIFBTLzIgTW91
+c2UKIDE0OiAgICAgIDE5MTYxICAgICAgICAgIFhULVBJQyAgaWRlMAogMTU6ICAgICAgMTc1Nzgg
+ICAgICAgICAgWFQtUElDICBpZGUxCk5NSTogICAgICAgICAgMCAKTE9DOiAgICAgICAgICAwIApF
+UlI6ICAgICAgICAgIDAKTUlTOiAgICAgICAgICAwCg==
+
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Disposition: attachment; filename="LSPCI"
+Content-Type: application/octet-stream; NAME=LSPCI
+Content-Transfer-Encoding: base64
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgzNjMvODM2NSBb
+S1QxMzMvS00xMzNdIChyZXYgMDIpCjAwOjAxLjAgUENJIGJyaWRnZTogVklBIFRlY2hub2xvZ2ll
+cywgSW5jLjogVW5rbm93biBkZXZpY2UgMDU4MwowMDowNy4wIElTQSBicmlkZ2U6IFZJQSBUZWNo
+bm9sb2dpZXMsIEluYy4gVlQ4MkM2ODYgW0Fwb2xsbyBTdXBlciBTb3V0aF0gKHJldiAyMikKMDA6
+MDcuMSBJREUgaW50ZXJmYWNlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIEJ1cyBNYXN0ZXIgSURF
+IChyZXYgMTApCjAwOjA3LjQgSG9zdCBicmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4
+MkM2ODYgW0Fwb2xsbyBTdXBlciBBQ1BJXSAocmV2IDMwKQowMDowOS4wIEV0aGVybmV0IGNvbnRy
+b2xsZXI6IEFkdmFuY2VkIE1pY3JvIERldmljZXMgW0FNRF0gNzljOTc4IFtIb21lUE5BXSAocmV2
+IDUxKQowMDowYi4wIE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogQ3JlYXRpdmUgTGFicyBT
+QiBMaXZlISBFTVUxMDAwMCAocmV2IDA4KQowMDowYi4xIElucHV0IGRldmljZSBjb250cm9sbGVy
+OiBDcmVhdGl2ZSBMYWJzIFNCIExpdmUhIChyZXYgMDgpCjAwOjBjLjAgRXRoZXJuZXQgY29udHJv
+bGxlcjogUmVhbHRlayBTZW1pY29uZHVjdG9yIENvLiwgTHRkLiBSVEwtODAyOShBUykKMDE6MDAu
+MCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb24gVmFudGEgW05W
+Nl0gKHJldiAxNSkK
+
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Disposition: attachment; filename="NETCARD"
+Content-Type: application/octet-stream; NAME=NETCARD
+Content-Transfer-Encoding: base64
+
+RVpDQVJEMTAKU01DMTIwOFQKU01DCgpwL246IDE0MzEyOC00MDMKcmV2OiAwMwpGQ0MgSUQ6IEhF
+RDEyMDhFTkkKICAgIChvciBIRUQxMjA4RU4xKQoK
+
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Disposition: attachment; filename="PROCPCI"
+Content-Type: application/octet-stream; NAME=PROCPCI
+Content-Transfer-Encoding: base64
+
+UENJIGRldmljZXMgZm91bmQ6CiAgQnVzICAwLCBkZXZpY2UgICAwLCBmdW5jdGlvbiAgMDoKICAg
+IEhvc3QgYnJpZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODM2My84MzY1IFtLVDEzMy9L
+TTEzM10gKHJldiAyKS4KICAgICAgUHJlZmV0Y2hhYmxlIDMyIGJpdCBtZW1vcnkgYXQgMHhkMDAw
+MDAwMCBbMHhkM2ZmZmZmZl0uCiAgQnVzICAwLCBkZXZpY2UgICAxLCBmdW5jdGlvbiAgMDoKICAg
+IFBDSSBicmlkZ2U6IFBDSSBkZXZpY2UgMTEwNjowNTgzIChWSUEgVGVjaG5vbG9naWVzLCBJbmMu
+KSAocmV2IDApLgogICAgICBNYXN0ZXIgQ2FwYWJsZS4gIE5vIGJ1cnN0cy4gIE1pbiBHbnQ9MTIu
+CiAgQnVzICAwLCBkZXZpY2UgICA3LCBmdW5jdGlvbiAgMDoKICAgIElTQSBicmlkZ2U6IFZJQSBU
+ZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM2ODYgW0Fwb2xsbyBTdXBlciBTb3V0aF0gKHJldiAzNCku
+CiAgQnVzICAwLCBkZXZpY2UgICA3LCBmdW5jdGlvbiAgMToKICAgIElERSBpbnRlcmZhY2U6IFZJ
+QSBUZWNobm9sb2dpZXMsIEluYy4gQnVzIE1hc3RlciBJREUgKHJldiAxNikuCiAgICAgIE1hc3Rl
+ciBDYXBhYmxlLiAgTGF0ZW5jeT0zMi4gIAogICAgICBJL08gYXQgMHhjMDAwIFsweGMwMGZdLgog
+IEJ1cyAgMCwgZGV2aWNlICAgNywgZnVuY3Rpb24gIDQ6CiAgICBIb3N0IGJyaWRnZTogVklBIFRl
+Y2hub2xvZ2llcywgSW5jLiBWVDgyQzY4NiBbQXBvbGxvIFN1cGVyIEFDUEldIChyZXYgNDgpLgog
+ICAgICBJUlEgMTEuCiAgQnVzICAwLCBkZXZpY2UgICA5LCBmdW5jdGlvbiAgMDoKICAgIEV0aGVy
+bmV0IGNvbnRyb2xsZXI6IEFkdmFuY2VkIE1pY3JvIERldmljZXMgW0FNRF0gNzljOTc4IFtIb21l
+UE5BXSAocmV2IDgxKS4KICAgICAgSVJRIDExLgogICAgICBNYXN0ZXIgQ2FwYWJsZS4gIExhdGVu
+Y3k9MzIuICBNaW4gR250PTI0Lk1heCBMYXQ9MjQuCiAgICAgIEkvTyBhdCAweGQ4MDAgWzB4ZDgx
+Zl0uCiAgICAgIE5vbi1wcmVmZXRjaGFibGUgMzIgYml0IG1lbW9yeSBhdCAweGQ4MDAwMDAwIFsw
+eGQ4MDAwMDFmXS4KICBCdXMgIDAsIGRldmljZSAgMTEsIGZ1bmN0aW9uICAwOgogICAgTXVsdGlt
+ZWRpYSBhdWRpbyBjb250cm9sbGVyOiBDcmVhdGl2ZSBMYWJzIFNCIExpdmUhIEVNVTEwazEgKHJl
+diA4KS4KICAgICAgSVJRIDkuCiAgICAgIE1hc3RlciBDYXBhYmxlLiAgTGF0ZW5jeT0zMi4gIE1p
+biBHbnQ9Mi5NYXggTGF0PTIwLgogICAgICBJL08gYXQgMHhkYzAwIFsweGRjMWZdLgogIEJ1cyAg
+MCwgZGV2aWNlICAxMSwgZnVuY3Rpb24gIDE6CiAgICBJbnB1dCBkZXZpY2UgY29udHJvbGxlcjog
+Q3JlYXRpdmUgTGFicyBTQiBMaXZlISAocmV2IDgpLgogICAgICBNYXN0ZXIgQ2FwYWJsZS4gIExh
+dGVuY3k9MzIuICAKICAgICAgSS9PIGF0IDB4ZTAwMCBbMHhlMDA3XS4KICBCdXMgIDAsIGRldmlj
+ZSAgMTIsIGZ1bmN0aW9uICAwOgogICAgRXRoZXJuZXQgY29udHJvbGxlcjogUmVhbHRlayBTZW1p
+Y29uZHVjdG9yIENvLiwgTHRkLiBSVEwtODAyOShBUykgKHJldiAwKS4KICAgICAgSVJRIDExLgog
+ICAgICBJL08gYXQgMHhlNDAwIFsweGU0MWZdLgogIEJ1cyAgMSwgZGV2aWNlICAgMCwgZnVuY3Rp
+b24gIDA6CiAgICBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb24g
+VmFudGEgW05WNl0gKHJldiAyMSkuCiAgICAgIElSUSAxMC4KICAgICAgTWFzdGVyIENhcGFibGUu
+ICBMYXRlbmN5PTI0OC4gIE1pbiBHbnQ9NS5NYXggTGF0PTEuCiAgICAgIE5vbi1wcmVmZXRjaGFi
+bGUgMzIgYml0IG1lbW9yeSBhdCAweGQ2MDAwMDAwIFsweGQ2ZmZmZmZmXS4KICAgICAgUHJlZmV0
+Y2hhYmxlIDMyIGJpdCBtZW1vcnkgYXQgMHhkNDAwMDAwMCBbMHhkNWZmZmZmZl0uCg==
+
+--=-XjiCeHsl3Ql/NuvBhmhf
+Content-Disposition: attachment; filename="SYSTEMBOARD"
+Content-Type: application/octet-stream; NAME=SYSTEMBOARD
+Content-Transfer-Encoding: base64
+
+dGhlIG1hY2hpbmUgdXNlcyBhIFRyaW5pdHkgS1Qgc3lzdGVtIGJvYXJkIGZyb20gVHlhbgoocHJv
+ZHVjdCAjUzIzOTApIHdoaWNoIGhhcyB0aGUgZm9sbG93aW5nIHNwZWNzOgpBTUQgRHVyb24sMjAw
+TUh6IEZTQiwKVklBIEtUIC0gMTMzIGNoaXBzZXQgKFZUODJDNjg2QSksIFBDMTAwLzEzMyBTRFJB
+TSwgQVRYCgo=
+
+--=-XjiCeHsl3Ql/NuvBhmhf--
+
+--=-I8fQrTHjBD4u3+3VFW6k
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8oNlK/jQriTaG5JURApxaAJ0UbWVWCLNYfmHIW2YjN0zJwUVubgCghcOS
+OdOh+xvFt20ax5q2/lVnpPg=
+=X5pY
+-----END PGP SIGNATURE-----
+
+--=-I8fQrTHjBD4u3+3VFW6k--
+

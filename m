@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUC1SyX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 13:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUC1SyX
+	id S262345AbUC1Syq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 13:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUC1Syq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 13:54:23 -0500
-Received: from gprs214-54.eurotel.cz ([160.218.214.54]:19841 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262316AbUC1SyV (ORCPT
+	Sun, 28 Mar 2004 13:54:46 -0500
+Received: from ns.suse.de ([195.135.220.2]:50410 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262345AbUC1Syn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 13:54:21 -0500
-Date: Sun, 28 Mar 2004 20:54:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ivan Godard <igodard@pacbell.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel support for peer-to-peer protection models...
-Message-ID: <20040328185410.GE406@elf.ucw.cz>
-References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21> <20040328062422.GB307@elf.ucw.cz> <06ea01c4148e$67436c80$fc82c23f@pc21>
+	Sun, 28 Mar 2004 13:54:43 -0500
+Date: Sun, 28 Mar 2004 20:54:41 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jens Axboe <axboe@suse.de>, Stephen Rothwell <sfr@au1.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm4
+Message-ID: <20040328185441.GA30602@suse.de>
+References: <20040326131816.33952d92.akpm@osdl.org> <20040326132212.14bac327.akpm@osdl.org> <20040326214007.A10869@infradead.org> <20040326140027.044c96a3.akpm@osdl.org> <20040327175412.GB3175@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <06ea01c4148e$67436c80$fc82c23f@pc21>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040327175412.GB3175@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ On Sat, Mar 27, Jens Axboe wrote:
 
-> > I meant "User Mode Linux" == linux running under linux. Someone
-> > probably has an URL.
+> On Fri, Mar 26 2004, Andrew Morton wrote:
+> > > > 
+> > > >  Suppress cdroms in /proc/partitions
+> > > 
+> > > What's this patch trying to archive?  IDE cdroms are partitionable in
+> > > 2.5..
 > 
-> Sorry - I plead ignorance :-)  As the protection is recursive and
-> transitive, I suppose that you could do this. When the UMK (user mode
-> kernel) went to change the "real" machine it would get a protection fault
-> that would be handled by the KMK, emulating the effect. Getting it right and
-> also performant would be tricky though - is UML a necessary feature?
+> I'm not trying to kill partioning (which doesn't exist, btw), it's just
+> an artifact of flagging the gendisk removable that they don't show up in
+> /proc/partitions
 
-No. Its just "nice to have", and it does not support too many
-architectures.
+you need this one as well:
 
-> > Strange system.... If an application does not grant kernel access to
-> > its space, how is kernel supposed to do its job? For example, that
-> > "paranoid DLL" becomes unswappable, then?
-> 
-> Pretection is in the *virtual* space, not physical. The physical-page
-> manager (who has the TLB and underlying mapping tables in its space) can see
-> and deal with any physical address, which in turn has the usual aliasing
-> relationship with virtual addresses. Of course, physical is just one of the
-> virtual spaces (and is distinguished solely by the one-to-one
-> virtual-physical mapping). So the protection can be penetrated by anyone who
-> can see the underlying physical page - but that's always true.
 
-Aha, so some part of kernel exist that has "absolute right". Ok, now I
-can imagine that it can work.
+--- ./drivers/cdrom/viocd.c~	2004-03-28 18:36:16.000000000 +0000
++++ ./drivers/cdrom/viocd.c	2004-03-28 18:44:19.000000000 +0000
+@@ -615,7 +615,7 @@ static int __init viocd_init(void)
+ 				VIOCD_DEVICE_DEVFS "%d", deviceno);
+ 		gendisk->queue = viocd_queue;
+ 		gendisk->fops = &viocd_fops;
+-		gendisk->flags = GENHD_FL_CD;
++		gendisk->flags = GENHD_FL_CD|GENHD_FL_REMOVABLE;
+ 		set_capacity(gendisk, 0);
+ 		gendisk->private_data = d;
+ 		d->viocd_disk = gendisk;
 
-> > If most changes are in arch/, it should be acceptable...
-> 
-> I fear that it might be more extensive than that :-)
-
-Well, make patch and lets see... That means that 2.8 needs to be your
-target. If impact outside of arch is not "total rewrite", you might
-have a chance. If it is "total rewrite".... well you just need to be
-very clever.
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

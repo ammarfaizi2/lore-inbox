@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130600AbRCISfk>; Fri, 9 Mar 2001 13:35:40 -0500
+	id <S130585AbRCISkk>; Fri, 9 Mar 2001 13:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130603AbRCISfb>; Fri, 9 Mar 2001 13:35:31 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:8914 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S130600AbRCISfR>; Fri, 9 Mar 2001 13:35:17 -0500
-Date: Fri, 09 Mar 2001 10:29:22 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch [RFC: API]
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: "David S. Miller" <davem@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
-        zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Message-id: <060e01c0a8c6$ddbcc1e0$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <001f01c0a5c0$e942d8f0$5517fea9@local>
- <00d401c0a5c6$f289d200$6800000a@brownell.org>
- <20010305232053.A16634@flint.arm.linux.org.uk>
- <15012.27969.175306.527274@pizda.ninka.net>
- <055e01c0a8b4$8d91dbe0$6800000a@brownell.org>
- <3AA91B2C.BEB85D8C@colorfullife.com>
-X-Priority: 3
+	id <S130586AbRCISka>; Fri, 9 Mar 2001 13:40:30 -0500
+Received: from waste.org ([209.173.204.2]:33551 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S130585AbRCISkJ>;
+	Fri, 9 Mar 2001 13:40:09 -0500
+Date: Fri, 9 Mar 2001 12:39:06 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James R Bruce <bruce+@andrew.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: quicksort for linked list
+In-Reply-To: <E14bLPz-0004r4-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103091227210.5548-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > unlike the slab allocator bug(s) I pointed out.  (And which
-> > Manfred seems to have gone silent on.)
-> 
-> which bugs?
+On Fri, 9 Mar 2001, Alan Cox wrote:
 
-See my previous email ...  its behavior contradicts its spec,
-and I'd sent a patch.  You said you wanted kmalloc to have
-an "automagic redzoning" feature, which would involve one
-more change (to the flags used in kmalloc init when magic
-redzoning is in effect).  I'd expected a response.
+> > Quicksort works just fine on a linked list, as long as you broaden
+> > your view beyond the common array-based implementations.  See
+> > "http://www.cs.cmu.edu/~jbruce/sort.cc" for an example, although I
+> > would recommend using a radix sort for linked lists in most situations
+> > (sorry for the C++, but it was handy...).
+>
+> In a network environment however its not so good. Quicksort has an N^2
+> worst case and the input is controlled by a potential enemy.
 
+It's not too hard to patch that up, eg quickersort. N^2 isn't too bad for
+short queues anyway especially considering the complexity of the
+alternatives.
 
-> >  * this can easily be optimized, but the best fix would be to
-> >  * make this just a bus-specific front end to mm/slab.c logic.
->                ^^^^
-> 
-> Adding that new frond end was already on my todo list for 2.5, but it
-> means modifying half of mm/slab.c.
+> Im dubious about anyone doing more than simple bucket sorting for packets.
 
-Exactly why I think we need a usable solution changing that
-half!  And why I asked for feedback about the API, not a
-focus on this particular implementation.
+Assume you mean sorting into hash buckets as opposed to "count the number
+of occurrences of each type of element in a narrow range, discarding the
+actual element". Most hashes are subvertible too and probably don't fair
+any better than N^2.
 
-
-> >  if (align < L1_CACHE_BYTES)
-> >   align = L1_CACHE_BYTES;
-> 
-> Why?
-
-To see who was awake, of course!  That shouldn't be there.
-
-
-> > /* Convert a DMA mapping to its cpu address (as returned by pci_pool_alloc).
-> >  * Don't assume this is cheap, although on some platforms it may be simple
-> >  * macros adding a constant to the DMA handle.
-> >  */
-> > extern void *
-> > pci_pool_dma_to_cpu (struct pci_pool *pool, dma_addr_t handle);
-> 
-> Do lots of drivers need the reverse mapping? It wasn't on my todo list
-> yet.
-
-Some hardware (like OHCI) talks to drivers using those dma handles.
-
-- Dave
-
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

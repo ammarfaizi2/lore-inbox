@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKJMpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUKJMsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbUKJMpk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 07:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUKJMpk
+	id S261797AbUKJMsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 07:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUKJMsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 07:45:40 -0500
-Received: from user-10mt71s.cable.mindspring.com ([65.110.156.60]:14961 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S261776AbUKJMnj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 07:43:39 -0500
-Date: Wed, 10 Nov 2004 07:42:01 -0500
-From: David Roundy <droundy@darcs.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] darcs mirror of the linux kernel repository
-Message-ID: <20041110124158.GD31123@abridgegame.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 10 Nov 2004 07:48:36 -0500
+Received: from shinjuku.zaphods.net ([194.97.108.52]:29662 "EHLO
+	shinjuku.zaphods.net") by vger.kernel.org with ESMTP
+	id S261797AbUKJMsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 07:48:32 -0500
+Date: Wed, 10 Nov 2004 13:48:11 +0100
+From: Stefan Schmidt <zaphodb@zaphods.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041110124810.GG28163@zaphods.net>
+References: <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109235201.GC20754@zaphods.net> <20041110012733.GD20754@zaphods.net> <20041109173920.08746dbd.akpm@osdl.org> <20041110020327.GE20754@zaphods.net> <419197EA.9090809@cyberone.com.au> <20041110102854.GI20754@zaphods.net> <20041110120624.GF28163@zaphods.net> <20041110085831.GB10740@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041110085831.GB10740@logos.cnet>
+X-Origin-AS: AS5430
+X-NCC-nic-hdl: ZAP-RIPE
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: zaphodb@zaphods.net
+X-SA-Exim-Scanned: No (on shinjuku.zaphods.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am pleased to announce the availability of a darcs mirror of the linux
-kernel repository.  Darcs is a fully distributed and simple to use revision
-control system.  Instructions on accessing the repository are available at
+On Wed, Nov 10, 2004 at 06:58:31AM -0200, Marcelo Tosatti wrote:
+> > > > Can you try the following patch, please? It is diffed against 2.6.10-rc1,
+> > I did. No apparent change with mm4 and vm.min_free_kbytes = 8192. I will try
+> > latest bk next.
 
-http://darcs.net/linux.html
+> > > I set it back to CONFIG_PACKET_MMAP=y and if the application does not freeze
+> > > for some hours at this load we can blame at least this issue (-1 EAGAIN) on
+> > > that parameter.
+> > Nope, that didn't change anything, still getting EAGAIN, checked two times.
+> Its not clear to me - do you have Nick's watermark patch in? 
+Yes i have vm.min_free_kbytes=8192 and Nick's patch in mm4. I'll try
+rc1-bk19 with his restore-atomic-buffer patch in a few minutes.
 
-
-In brief, you can get a copy of the latest kernel (converted from the bkcvs
-branch) using
-
-darcs get --partial http://darcs.net/linux
-
-You can leave out the --partial, if you want to get the full history of the
-kernel repository (which obviously will take longer).
-
-
-Be forewarned that darcs is a bit of a memory hog when run with large
-repositories, so the above command may take quite a while, and probably
-will require 700 or 800 megabytes of virtual memory.  The actual working
-set of memory is under 300 megabytes.  Work is underway to improve both the
-speed and memory usage of darcs.  So far the emphasis in darcs development
-has been on correctness and stability.
-
-The darcs kernel mirror is sponsored by Aktiom Networks
-(http://aktiom.net). Aktiom specializes in Linux Virtual Private Servers
-(VPS) for technology professionals and consultants.
-
+	Stefan
 -- 
-David Roundy
-http://www.darcs.net
+The reason computer chips are so small is computers don't eat much.

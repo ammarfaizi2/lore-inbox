@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280810AbRKUCh3>; Tue, 20 Nov 2001 21:37:29 -0500
+	id <S281128AbRKUCzw>; Tue, 20 Nov 2001 21:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280813AbRKUChT>; Tue, 20 Nov 2001 21:37:19 -0500
-Received: from davinci.artisan.calpoly.edu ([129.65.60.31]:36365 "EHLO
-	davinci.artisan.calpoly.edu") by vger.kernel.org with ESMTP
-	id <S280810AbRKUChK>; Tue, 20 Nov 2001 21:37:10 -0500
-From: mroth@calpoly.edu
-X-OpenMail-Hops: 1
-Date: Tue, 20 Nov 2001 18:37:01 -0800
-Message-Id: <H000060409379e23.1006310106.davinci.artisan.calpoly.edu@MHS>
-Subject: Re: Spawning kernel threads from other kernel threads(?) 
-MIME-Version: 1.0
-TO: jjs@lexus.com
-CC: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-	;Creation-Date="Tue, 20 Nov 2001 18:35:06 -0800"
-	;Modification-Date="Tue, 20 Nov 2001 18:37:00 -0800"
-Content-Transfer-Encoding: 7bit
+	id <S281159AbRKUCzn>; Tue, 20 Nov 2001 21:55:43 -0500
+Received: from mnh-1-22.mv.com ([207.22.10.54]:40462 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S281128AbRKUCzc>;
+	Tue, 20 Nov 2001 21:55:32 -0500
+Message-Id: <200111210412.XAA05883@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Adam Feuer <adamf@pobox.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Gabor Kuti <seasons@falcon.sch.bme.hu>
+Subject: Re: [swsusp] Re: swsusp for 2.4.14 
+In-Reply-To: Your message of "Tue, 20 Nov 2001 18:07:15 PST."
+             <20011120180715.N11355@sunflower.zipcon.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 20 Nov 2001 23:12:44 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>and BTW what is an "?entity?" ?
+adamf@pobox.com said:
+> but will not resume afterwards... just boots normally. Suspending
+> doesn't seem to write the swsusp signature to the swap partition... 
 
-Oops. Excuse my ambiguity. When I said "entity" I was describing the design in
-a very general form. Let me phrase it like this; my software in theory looks
-like:
+It sounds like you need a hook into the early UML boot process.  Tell me
+what functionality you need and I'll tell you where to put the code...
 
-- a manager "entity" is responsible for destroying and creating "worker"
-threads.
-- the worker threads then perform a specific tasks.
-
-That's theory though. The implementation actually looks like:
-
-A linux kernel thread has the responsibility of creating and killing threads
-(thus 
-termed "manager").
-The worker threads (also kernel threads) perform specific tasks.
-
->>2.4.3 is awfully stale for starters -
-
-Yup. This is not by choice :-) The hardware/OS is pretty much fixed at this
-point.
-
-Would spawning a kernel thread from a kernel thread work with a recent kernel?
-
->>cu
-
->>jjs
-
-> Question:
->         Can you spawn a kernel thread from another kernel thread? I want to
-> have one manager ?entity? which will dynamically create kernel threads as
-> needed. Right now, when I try to spawn another thread from the manager
- ?entity?
-> [as of today, still a kernel thread] it will crash. Is this legal? If not,
- what
-> is the alternative?
->
-> kernel_thread()
-> Kernel Version 2.4.3
-
+				Jeff
 

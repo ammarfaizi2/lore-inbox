@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290520AbSAQWzE>; Thu, 17 Jan 2002 17:55:04 -0500
+	id <S290516AbSAQWxy>; Thu, 17 Jan 2002 17:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290523AbSAQWyz>; Thu, 17 Jan 2002 17:54:55 -0500
-Received: from [63.204.6.12] ([63.204.6.12]:26842 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S290520AbSAQWyp>;
-	Thu, 17 Jan 2002 17:54:45 -0500
-Date: Thu, 17 Jan 2002 17:54:14 -0500
-From: "Mark Frazer" <mark@somanetworks.com>
-To: Andi Kleen <ak@muc.de>
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] new sysctl net/ipv4/ip_default_bind
-Message-ID: <20020117175414.A2187@somanetworks.com>
-In-Reply-To: <20020117172713.A1893@somanetworks.com> <20020117234103.A2797@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020117234103.A2797@averell>; from ak@muc.de on Thu, Jan 17, 2002 at 11:41:03PM +0100
-X-Message-Flag: Lookout!
-Organization: Detectable, well, not really
+	id <S290515AbSAQWxo>; Thu, 17 Jan 2002 17:53:44 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:61412 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S290513AbSAQWxd>; Thu, 17 Jan 2002 17:53:33 -0500
+Date: Thu, 17 Jan 2002 22:53:31 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: probably very irrelevant oops
+In-Reply-To: <3C4739D3.DCFFA025@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0201172247040.24397-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doh.  I was using the old SIOCADDRT to add routes and such.  Off to
-learn rtnetlink...
+At 12:53 -0800 Andrew Morton wrote:
 
-thanks
--mark
+>> find /lib/modules/2.4.17-expt/kernel/ -type f|while read i; do insmod $i; done
 
-Andi Kleen <ak@muc.de> [02/01/17 17:42]:
-> You can already do that using the 'from' attribute in iproute2
-> aka prefered source address per route. Just set it for your default
-> route.
-> 
-> -Andi
+[etc..]
 
--- 
-"we are like unbaked soma vessels"
+>You're sick.  I like you.
+
+I'm only using the sledgehammers you guys give me :)
+
+[snip]
+>
+>It appears that one of the modules failed to unregister itself
+>from the global driver list.  Then when the next module went
+>walking the list, it tried to refer to the bad module's vmalloc'ed
+>space.
+>
+>One strange thing: why was it `modprobe' which crashed?  Were you
+>not purely running `rmmod' at the time?
+
+I was, but maybe magicdev or something got in the way. I'll try it with no
+GUI or any crazy daemons loaded.
+
+>The bug probably is in the module which immediately preceded
+>es1371 in your /proc/modules output.  Could you please load
+>them all up again, send me your /proc/modules output?
+
+I will do, when I'm back at work. I don't fancy remote crashing my
+machine!
+
+>Also, change your scripts to print out the names of the modules
+>as they're being loaded and unloaded, run the test again and
+>see which modules were being loaded/unloaded shortly before the
+>crash.
+
+Sure :)
+

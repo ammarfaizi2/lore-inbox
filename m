@@ -1,308 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbVAKQxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVAKQze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbVAKQxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVAKQwD
+	id S262847AbVAKQze (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbVAKQxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:52:03 -0500
-Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:32640 "EHLO
+	Tue, 11 Jan 2005 11:53:42 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:33664 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262827AbVAKQa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:30:58 -0500
+	id S262830AbVAKQbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 11:31:53 -0500
 To: akpm@osdl.org, torvalds@osdl.org
 CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 8/11] FUSE - extended attribute operations
-Message-Id: <E1CoOuk-0003M9-00@dorka.pomaz.szeredi.hu>
+Subject: [PATCH 10/11] FUSE - NFS export
+Message-Id: <E1CoOvl-0003Ms-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 11 Jan 2005 17:30:38 +0100
+Date: Tue, 11 Jan 2005 17:31:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the extended attribute operations to FUSE.
+This patch adds support for exporting a FUSE filesystem through NFS.
 
-The following operations are added:
+The following export operations are defined:
 
- o getxattr
- o setxattr
- o listxattr
- o removexattr
+ o get_dentry
+ o encode_fh
+
+Currently only inodes still in the cache are found.  This is adequate
+for most applications.
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-diff -Nurp a/fs/fuse/dir.c b/fs/fuse/dir.c
---- a/fs/fuse/dir.c	2005-01-11 16:28:28.000000000 +0100
-+++ b/fs/fuse/dir.c	2005-01-11 16:28:28.000000000 +0100
-@@ -739,6 +739,177 @@ static struct dentry *fuse_lookup(struct
- 	return d_splice_alias(inode, entry);
+diff -Nurp a/fs/fuse/inode.c b/fs/fuse/inode.c
+--- a/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
++++ b/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
+@@ -437,6 +437,63 @@ static struct inode *get_root_inode(stru
+ 	return fuse_iget(sb, 1, 0, &attr, 0);
  }
  
-+static int fuse_setxattr(struct dentry *entry, const char *name,
-+			 const void *value, size_t size, int flags)
++static struct dentry *fuse_get_dentry(struct super_block *sb, void *vobjp)
 +{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = get_fuse_conn(inode);
-+	struct fuse_req *req;
-+	struct fuse_setxattr_in inarg;
-+	int err;
++	__u32 *objp = vobjp;
++	unsigned long nodeid = objp[0];
++	__u32 generation = objp[1];
++	struct inode *inode;
++	struct dentry *entry;
 +
-+	if (size > FUSE_XATTR_SIZE_MAX)
-+		return -E2BIG;
++	if (nodeid == 0)
++		return ERR_PTR(-ESTALE);
 +
-+	if (fc->no_setxattr)
-+		return -EOPNOTSUPP;
++	inode = ilookup5(sb, nodeid, fuse_inode_eq, &nodeid);
++	if (!inode || inode->i_generation != generation)
++		return ERR_PTR(-ESTALE);
 +
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTNOINTR;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	inarg.flags = flags;
-+	req->in.h.opcode = FUSE_SETXATTR;
-+	req->in.h.nodeid = get_node_id(inode);
-+	req->inode = inode;
-+	req->in.numargs = 3;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	req->in.args[1].size = strlen(name) + 1;
-+	req->in.args[1].value = name;
-+	req->in.args[2].size = size;
-+	req->in.args[2].value = value;
-+	request_send(fc, req);
-+	err = req->out.h.error;
-+	fuse_put_request(fc, req);
-+	if (err == -ENOSYS) {
-+		fc->no_setxattr = 1;
-+		err = -EOPNOTSUPP;
++	entry = d_alloc_anon(inode);
++	if (!entry) {
++		iput(inode);
++		return ERR_PTR(-ENOMEM);
 +	}
-+	return err;
++
++	return entry;
 +}
 +
-+static ssize_t fuse_getxattr(struct dentry *entry, const char *name,
-+			     void *value, size_t size)
++static int fuse_encode_fh(struct dentry *dentry, __u32 *fh, int *max_len,
++			  int connectable)
 +{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = get_fuse_conn(inode);
-+	struct fuse_req *req;
-+	struct fuse_getxattr_in inarg;
-+	struct fuse_getxattr_out outarg;
-+	ssize_t ret;
++	struct inode *inode = dentry->d_inode;
++	int len = *max_len;
++	int type = 1;
 +
-+	if (fc->no_getxattr)
-+		return -EOPNOTSUPP;
++	if (len < 2 || (connectable && len < 4))
++		return 255;
 +
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTNOINTR;
++	len = 2;
++	fh[0] = get_fuse_inode(inode)->nodeid;
++	fh[1] = inode->i_generation;
++	if (connectable && !S_ISDIR(inode->i_mode)) {
++		struct inode *parent;
 +
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	req->in.h.opcode = FUSE_GETXATTR;
-+	req->in.h.nodeid = get_node_id(inode);
-+	req->inode = inode;
-+	req->in.numargs = 2;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	req->in.args[1].size = strlen(name) + 1;
-+	req->in.args[1].value = name;
-+	/* This is really two different operations rolled into one */
-+	req->out.numargs = 1;
-+	if (size) {
-+		req->out.argvar = 1;
-+		req->out.args[0].size = size;
-+		req->out.args[0].value = value;
-+	} else {
-+		req->out.args[0].size = sizeof(outarg);
-+		req->out.args[0].value = &outarg;
++		spin_lock(&dentry->d_lock);
++		parent = dentry->d_parent->d_inode;
++		fh[2] = get_fuse_inode(parent)->nodeid;
++		fh[3] = parent->i_generation;
++		spin_unlock(&dentry->d_lock);
++		len = 4;
++		type = 2;
 +	}
-+	request_send(fc, req);
-+	ret = req->out.h.error;
-+	if (!ret)
-+		ret = size ? req->out.args[0].size : outarg.size;
-+	else {
-+		if (ret == -ENOSYS) {
-+			fc->no_getxattr = 1;
-+			ret = -EOPNOTSUPP;
-+		}
-+	}
-+	fuse_put_request(fc, req);
-+	return ret;
++	*max_len = len;
++	return type;
 +}
 +
-+static ssize_t fuse_listxattr(struct dentry *entry, char *list, size_t size)
-+{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = get_fuse_conn(inode);
-+	struct fuse_req *req;
-+	struct fuse_getxattr_in inarg;
-+	struct fuse_getxattr_out outarg;
-+	ssize_t ret;
-+
-+	if (fc->no_listxattr)
-+		return -EOPNOTSUPP;
-+
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTNOINTR;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.size = size;
-+	req->in.h.opcode = FUSE_LISTXATTR;
-+	req->in.h.nodeid = get_node_id(inode);
-+	req->inode = inode;
-+	req->in.numargs = 1;
-+	req->in.args[0].size = sizeof(inarg);
-+	req->in.args[0].value = &inarg;
-+	/* This is really two different operations rolled into one */
-+	req->out.numargs = 1;
-+	if (size) {
-+		req->out.argvar = 1;
-+		req->out.args[0].size = size;
-+		req->out.args[0].value = list;
-+	} else {
-+		req->out.args[0].size = sizeof(outarg);
-+		req->out.args[0].value = &outarg;
-+	}
-+	request_send(fc, req);
-+	ret = req->out.h.error;
-+	if (!ret)
-+		ret = size ? req->out.args[0].size : outarg.size;
-+	else {
-+		if (ret == -ENOSYS) {
-+			fc->no_listxattr = 1;
-+			ret = -EOPNOTSUPP;
-+		}
-+	}
-+	fuse_put_request(fc, req);
-+	return ret;
-+}
-+
-+static int fuse_removexattr(struct dentry *entry, const char *name)
-+{
-+	struct inode *inode = entry->d_inode;
-+	struct fuse_conn *fc = get_fuse_conn(inode);
-+	struct fuse_req *req;
-+	int err;
-+
-+	if (fc->no_removexattr)
-+		return -EOPNOTSUPP;
-+
-+	req = fuse_get_request(fc);
-+	if (!req)
-+		return -ERESTARTNOINTR;
-+
-+	req->in.h.opcode = FUSE_REMOVEXATTR;
-+	req->in.h.nodeid = get_node_id(inode);
-+	req->inode = inode;
-+	req->in.numargs = 1;
-+	req->in.args[0].size = strlen(name) + 1;
-+	req->in.args[0].value = name;
-+	request_send(fc, req);
-+	err = req->out.h.error;
-+	fuse_put_request(fc, req);
-+	if (err == -ENOSYS) {
-+		fc->no_removexattr = 1;
-+		err = -EOPNOTSUPP;
-+	}
-+	return err;
-+}
-+
- static struct inode_operations fuse_dir_inode_operations = {
- 	.lookup		= fuse_lookup,
- 	.mkdir		= fuse_mkdir,
-@@ -752,6 +923,10 @@ static struct inode_operations fuse_dir_
- 	.mknod		= fuse_mknod,
- 	.permission	= fuse_permission,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- static struct file_operations fuse_dir_operations = {
-@@ -765,6 +940,10 @@ static struct inode_operations fuse_comm
- 	.setattr	= fuse_setattr,
- 	.permission	= fuse_permission,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- static struct inode_operations fuse_symlink_inode_operations = {
-@@ -773,6 +952,10 @@ static struct inode_operations fuse_syml
- 	.put_link	= fuse_put_link,
- 	.readlink	= generic_readlink,
- 	.getattr	= fuse_getattr,
-+	.setxattr	= fuse_setxattr,
-+	.getxattr	= fuse_getxattr,
-+	.listxattr	= fuse_listxattr,
-+	.removexattr	= fuse_removexattr,
- };
- 
- void fuse_init_common(struct inode *inode)
-diff -Nurp a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
---- a/fs/fuse/fuse_i.h	2005-01-11 16:28:28.000000000 +0100
-+++ b/fs/fuse/fuse_i.h	2005-01-11 16:28:28.000000000 +0100
-@@ -230,6 +230,18 @@ struct fuse_conn {
- 	/** Is flush not implemented by fs? */
- 	unsigned no_flush : 1;
- 
-+	/** Is setxattr not implemented by fs? */
-+	unsigned no_setxattr : 1;
-+
-+	/** Is getxattr not implemented by fs? */
-+	unsigned no_getxattr : 1;
-+
-+	/** Is listxattr not implemented by fs? */
-+	unsigned no_listxattr : 1;
-+
-+	/** Is removexattr not implemented by fs? */
-+	unsigned no_removexattr : 1;
-+
- 	/** Backing dev info */
- 	struct backing_dev_info bdi;
- };
-diff -Nurp a/include/linux/fuse.h b/include/linux/fuse.h
---- a/include/linux/fuse.h	2005-01-11 16:28:28.000000000 +0100
-+++ b/include/linux/fuse.h	2005-01-11 16:28:28.000000000 +0100
-@@ -80,6 +80,10 @@ enum fuse_opcode {
- 	FUSE_STATFS	   = 17,
- 	FUSE_RELEASE       = 18,
- 	FUSE_FSYNC         = 20,
-+	FUSE_SETXATTR      = 21,
-+	FUSE_GETXATTR      = 22,
-+	FUSE_LISTXATTR     = 23,
-+	FUSE_REMOVEXATTR   = 24,
- 	FUSE_FLUSH         = 25,
- 	FUSE_INIT          = 26
- };
-@@ -89,6 +93,7 @@ enum fuse_opcode {
- 
- #define FUSE_NAME_MAX 1024
- #define FUSE_SYMLINK_MAX 4096
-+#define FUSE_XATTR_SIZE_MAX 4096
- 
- struct fuse_entry_out {
- 	__u64	nodeid;		/* Inode ID */
-@@ -183,6 +188,19 @@ struct fuse_fsync_in {
- 	__u32	fsync_flags;
- };
- 
-+struct fuse_setxattr_in {
-+	__u32	size;
-+	__u32	flags;
++static struct export_operations fuse_export_operations = {
++	.get_dentry	= fuse_get_dentry,
++	.encode_fh      = fuse_encode_fh,
 +};
 +
-+struct fuse_getxattr_in {
-+	__u32	size;
-+};
-+
-+struct fuse_getxattr_out {
-+	__u32	size;
-+};
-+
- struct fuse_init_in_out {
- 	__u32	major;
- 	__u32	minor;
+ static struct super_operations fuse_super_operations = {
+ 	.alloc_inode    = fuse_alloc_inode,
+ 	.destroy_inode  = fuse_destroy_inode,
+@@ -479,6 +536,7 @@ static int fuse_fill_super(struct super_
+ 	sb->s_magic = FUSE_SUPER_MAGIC;
+ 	sb->s_op = &fuse_super_operations;
+ 	sb->s_maxbytes = MAX_LFS_FILESIZE;
++	sb->s_export_op = &fuse_export_operations;
+ 
+ 	file = fget(d.fd);
+ 	if (!file)

@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTIAU1W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 16:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbTIAU1W
+	id S262148AbTIAUiP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 16:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTIAUiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 16:27:22 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:37647
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262076AbTIAU1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 16:27:20 -0400
-Date: Mon, 1 Sep 2003 13:27:29 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
-Message-ID: <20030901202729.GB31760@matchmail.com>
-Mail-Followup-To: Andreas Dilger <adilger@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-References: <20030830235819.GD898@matchmail.com> <20030831164448.O15623@schatzie.adilger.int>
+	Mon, 1 Sep 2003 16:38:15 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:6633 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262148AbTIAUiN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 16:38:13 -0400
+Date: Mon, 1 Sep 2003 11:33:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030901093344.GC155@elf.ucw.cz>
+References: <20030831232812.GA129@elf.ucw.cz> <20030901075726.A12457@flint.arm.linux.org.uk> <20030901081154.GB155@elf.ucw.cz> <20030901092646.B15370@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030831164448.O15623@schatzie.adilger.int>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030901092646.B15370@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 04:44:48PM -0600, Andreas Dilger wrote:
-> On Aug 30, 2003  16:58 -0700, Mike Fedyk wrote:
-> > But how do I re-enable htree on the directories (besides an fsck -D) in a
-> > live system?
-> 
-> You need to re-enable the dir_index feature, and then for directories which
-> are larger than a block in size you need something like:
-> 
-> 	mkdir new_dir
-> 	mv old_dir/* new_dir
-> 	rmdir old_dir
-> 	mv new_dir old_dir
-> 
-> The new directory will have htree enabled because it started out at 1 block
-> in size.
+Hi!
 
-Ok I ended up doing this after a little thought.  Thanks.
+> > Its the only way to have power managment working by 2.6.1.
+> 
+> Rubbish.  PM is now working here on ARM again - within a week of Pat's
+> change.
 
-But I am seeing segfaults in mutt under 2.6 ext3 with 1k blocks, that I
-don't see in 2.4, and didn't see under reiserfs.  I can try with 4k blocks,
-if you'd like, is there anything I can do to capture more information that
-could be happening to cause this?
+As you said, you are not using kernel/power.
 
-And now mutt is segfaulting on non-htree directories too.
+> > Lots of
+> > work went into pm during 2.5 series, and Patrick invalidated all that
+> > with one, 140KB, untested and broken patch (and he managed to break
+> > about all rules about patch submission).
+> 
+> I agree that it needed public review _before_ hitting Linus' tree - a
+> change of that magnitude with only half the subsystems fixed up should
+> not go directly into Linus' tree without review.
+
+Good. [I believe it was big enough to require testing on separate tree
+(-mm? -ac?) before going mainline].
+
+> > It is not possible to fix damage he done within week.
+> 
+> It is my understanding that the old PM in 2.5 was not suitable for
+> the PPC architecture and the new PM model is.  As far as the drivers
+> are concerned, the interface presented is a definite improvement on
+> what there was before (there are a few things which I'd like to see
+> further improvement on, but that's not a subject for discussion in
+> this thread.)
+
+I only see dm getting more and more complicated :-(.
+
+> I don't particularly care about kernel/power/* because its not useful
+> for me - whereas you obviously do.  Maybe that's where your axe is
+> grinding.  But whatever, don't throw the baby (driver model changes)
+> out with the bath water.
+
+kernel/power/* changes are worst, because that's subsystem I should be
+maintainer of. Driver model changes are quite bad, too, because they
+mean we should go over all drivers and fix them. And driver failures
+are often pretty subtle.
+
+> And finally, there's longer than a week to fix it. 8)
+
+I'm not looking forward to another half-a-year before kernel gets into
+state where it was in -test3.
+
+I still want that crap killed, at least because of the way *how* it
+was merged. Altrough killing kernel/power/* would be good start, and
+maybe it would lead us to a state where dm changes can be debugged. 
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290281AbSAOV1a>; Tue, 15 Jan 2002 16:27:30 -0500
+	id <S289680AbSAOV1k>; Tue, 15 Jan 2002 16:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289686AbSAOV1X>; Tue, 15 Jan 2002 16:27:23 -0500
-Received: from mail.spylog.com ([194.67.35.220]:60649 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S289680AbSAOV1L>;
-	Tue, 15 Jan 2002 16:27:11 -0500
-Date: Wed, 16 Jan 2002 00:28:57 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: http://www.spylog.ru
-X-Priority: 3 (Normal)
-Message-ID: <15850171252.20020116002857@spylog.ru>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re[2]: 3.5G user space speed
-In-Reply-To: <3C4499A3.781E5A85@didntduck.org>
-In-Reply-To: <16247691406.20020115234737@spylog.ru>
- <3C4499A3.781E5A85@didntduck.org>
+	id <S289686AbSAOV1a>; Tue, 15 Jan 2002 16:27:30 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:42766 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S289680AbSAOV1X>; Tue, 15 Jan 2002 16:27:23 -0500
+Date: Tue, 15 Jan 2002 22:27:21 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: <arjanv@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+ the elegant solution)
+In-Reply-To: <m16QaOc-000OVeC@amadeus.home.nl>
+Message-ID: <Pine.LNX.4.33.0201152223480.11441-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Brian,
+On Tue, 15 Jan 2002 arjanv@redhat.com wrote:
 
-Wednesday, January 16, 2002, 12:05:39 AM, you wrote:
+[...]
+> > and no
+> > way to actually use them to modify the kernel. I spent hours, putting
+> > them in order, based upon the time/date stamp within the files, not
+> > the file time which was something more or less random. I made a script
+> > and tried, over a period of weeks, to patch the supplied kernel with
+> > the supplied patches. Forget it. If anything in this universe is truly
+> > impossible, then making a Red Hat distribution kernel from the provided
+> > tools, patches, and sources is a definitive example.
+> 
+> Ok now you offend me. I spent quite a bit of time making the .spec file easy
+> to read, AND we provide a convenient kernel-source rpm which installs
+> /usr/src/linux (for RHL7.0) or /usr/src/linux-2.4 for 2.4 kernels (7.1/7.2) 
+> which contains the full source AND all configs we used. AND if you type
+> "make oldconfig" it picks the one you are currently running. Heck I even put
+	 	   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+that one I didn't know, I've always done a manual cp from configs/*.
+Thanks for the hint. B-)  (And for the good job)
 
+> Greetings,
+>    Arjan van de Ven
+>    Red Hat Linux kernel maintainer
+>    
 
-Well. May be you can tell about the numbers a bit ? I can chose 3.0G
-for user instead of 3.5G for user with not really huge loss, but I'd
-like to know how much it will increase speed and in which cases, also
-about standard 2/2 mode.
-
->>
->>   2.4.xaa Series as well as  SuSE kernels have  3.5G userspace option,
->>   which seems to be quite useful, therefore I see it's not included
->>   is stock kernel for some reasons. Also I've heard this
->>   configuration may have some performance problems.
->> 
->>   Can anyone comment on this topic ?
->> 
->>   I need large amount of address space for my application but I also
->>   need to get as much I/O performance as it's possible, so I can switch
->>   to 3.0/1.0 memory distribution if it will benefit here.
-
-BG> You can't have it both ways with the x86 (speed vs. large userspace). 
-BG> Kernel 2.5 may help a bit here because changes were made to allow DMA
-BG> from all memory (subject to card limitations), lessening the burden for
-BG> direct-mapped memory.  Otherwise you'll need to move to a 64-bit arch.
-
-
-
-
+.TM.
 -- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 

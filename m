@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314670AbSD1CxH>; Sat, 27 Apr 2002 22:53:07 -0400
+	id <S314671AbSD1DEB>; Sat, 27 Apr 2002 23:04:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314671AbSD1CxH>; Sat, 27 Apr 2002 22:53:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35245 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314670AbSD1CxG>;
-	Sat, 27 Apr 2002 22:53:06 -0400
-Date: Sat, 27 Apr 2002 19:43:02 -0700 (PDT)
-Message-Id: <20020427.194302.02285733.davem@redhat.com>
-To: jd@epcnet.de
+	id <S314672AbSD1DEA>; Sat, 27 Apr 2002 23:04:00 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:4939 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314671AbSD1DD7>; Sat, 27 Apr 2002 23:03:59 -0400
+Message-Id: <5.1.0.14.2.20020427191820.04003500@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 28 Apr 2002 04:03:56 +0100
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [prepatch] address_space-based writeback
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: VLAN and Network Drivers 2.4.x
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <877576231.avixxmail@nexxnet.epcnet.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+In-Reply-To: <20020427155323.GA1275@mentor.odyssey.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jd@epcnet.de
-   Date: Sat, 27 Apr 2002 22:34:09 +0200
+At 16:53 27/04/02, Jan Harkes wrote:
+>On Fri, Apr 12, 2002 at 08:57:17AM +0100, Anton Altaparmakov wrote:
+> > Yet, this really begs the question of defining the concept of a file. I am
+> > quite happy with files being the io entity in ntfs. It is just that each
+> > file in ntfs can contain loads of different data holding attributes which
+> > are all worth placing in address spaces. Granted, a dummy inode could be
+> > setup for each of those which just means a lot of wasted ram but ntfs is
+> > not that important so I have to take the penalty there. But if I also need
+> > unique inode numbers in those dummy inodes then the overhead is becoming
+> > very, very high...
+>
+>You could have all additional IO streams use the same inode number and
+>use iget4. Several inodes can have the same i_ino and the additional
+>argument would be a stream identifier that selects the correct 'IO
+>identity'.
 
-   > We don't call it NETIF_F_VLAN because the hope is that eventually
-   > it will be rare for a network device to not be able to support it.
-   > Not the other day around.
-   
-   I don't know how many cards won't support VLAN nowadays. But i will test
-   these changes with my third party driver (just recompile it against pre-2.4.19)
-   and report the results.
-   
-This will tell us exactly nothing.  It will continue to tell us
-nothing until I make the change whereby NETIF_F_VLAN_CHALLENGED is set
-by default and devices known to work are updated to clear it.
+Great idea! I quickly looked into the implementation details and using 
+iget4/read_inode2 perfectly reconciles my ideas of using an address space 
+mapping for each ntfs attribute with the kernels requirement of using 
+inodes as the i/o entity by allowing a clean and unique mapping between 
+multiple inodes with the same inode numbers and their attributes and 
+address spaces.
 
-Please don't bother posting the results, we know what will happen.
+I need to work out exactly how to do it but I will definitely go that way. 
+That will make everything nice and clean and get rid of the existing 
+kludges of passing around other types of objects instead of struct file * 
+to my various readpage functions. Also I will be able to have fewer 
+readpage functions... (-:
+
+Thanks for the suggestion!
+
+Best regards,
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

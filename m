@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265436AbTFSE4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 00:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265444AbTFSE4K
+	id S265085AbTFSFcF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 01:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbTFSFcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 00:56:10 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:1809 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265436AbTFSE4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 00:56:08 -0400
-Date: Thu, 19 Jun 2003 06:10:02 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
-Subject: Re: [2.5 patch] fix for drivers/video/sis/init301.c
-In-Reply-To: <20030617232726.GI29247@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0306190609510.30417-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jun 2003 01:32:04 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:7586 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265085AbTFSFcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 01:32:03 -0400
+Date: Wed, 18 Jun 2003 22:46:56 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Solarz-Niesluchowski 
+	<B.Solarz-Niesluchowski@wsisiz.edu.pl>
+Subject: Re: 2.5.72 oops (scheduling while atomic)
+Message-Id: <20030618224656.0f5639bb.akpm@digeo.com>
+In-Reply-To: <20030617143551.GA3057@glitch.localdomain>
+References: <20030617143551.GA3057@glitch.localdomain>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Jun 2003 05:46:01.0344 (UTC) FILETIME=[10B4B000:01C33626]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg Norris <haphazard@kc.rr.com> wrote:
+>
+> I'm getting the following oops when booting 2.5.72, preceded by a
+>  quite a few "bad: scheduling while atomic!" messages.  My .config and
+>  the decoded oops are attached.
 
-Already fixed in the newer driver.
+I was able to reproduce this.  Pid #0 (swapper) ends up with a preempt
+count of two and everything goes pear-shaped.
+
+This appears to be because you haven't selected any chip drivers in IDE
+config.  I selected PIIX and things started working better.
+
+Just to double-check I took my usual .config, enable preemption, disabled
+all IDE chip drivers and the same thing happened.  Over to Bart ;)
 
 
-On Wed, 18 Jun 2003, Adrian Bunk wrote:
+Your .config seems broken in other ways btw.  Suggest you do 
 
-> Hi James,
-> 
-> the following patch fixes some nonsense in drivers/video/sis/init301.c . 
-> I've tested the compilation with 2.5.72.
-> 
-> --- linux-2.5.72/drivers/video/sis/init301.c.old	2003-06-18 01:22:27.000000000 +0200
-> +++ linux-2.5.72/drivers/video/sis/init301.c	2003-06-18 01:23:23.000000000 +0200
-> @@ -5282,7 +5282,7 @@
->  #ifdef SIS315H	/* 310/325 series */
->  
->  	if(SiS_Pr->SiS_IF_DEF_CH70xx != 0) {
-> -		temp =  temp = SiS_GetCH701x(SiS_Pr,0x61);
-> +		temp = SiS_GetCH701x(SiS_Pr,0x61);
->  		if(temp < 1) {
->  		   SiS_SetCH701x(SiS_Pr,0xac76);
->  		   SiS_SetCH701x(SiS_Pr,0x0066);
-> 
-> 
-> 
-> Please apply
-> Adrian
-> 
-> 
+	cp arch/i386/defconfig .config
+
+and start again.
 

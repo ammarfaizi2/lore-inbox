@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbUKRKXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbUKRKXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbUKRKXf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 05:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbUKRKWr
+	id S262712AbUKRKXg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 05:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbUKRKWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 05:22:47 -0500
-Received: from holomorphy.com ([207.189.100.168]:49874 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262706AbUKRKWT (ORCPT
+	Thu, 18 Nov 2004 05:22:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7396 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262712AbUKRKOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 05:22:19 -0500
-Date: Thu, 18 Nov 2004 02:22:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm1
-Message-ID: <20041118102210.GB3217@holomorphy.com>
-References: <20041116014213.2128aca9.akpm@osdl.org> <20041117113225.GP3217@holomorphy.com> <20041117123401.GQ3217@holomorphy.com> <20041117125624.GR3217@holomorphy.com>
+	Thu, 18 Nov 2004 05:14:44 -0500
+Date: Thu, 18 Nov 2004 02:14:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
+Cc: Keir.Fraser@cl.cam.ac.uk, haveblue@us.ibm.com, Ian.Pratt@cl.cam.ac.uk,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [patch 2] Xen core patch : arch_free_page return value
+Message-Id: <20041118021419.0c0d1dad.akpm@osdl.org>
+In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D122E52@liverpoolst.ad.cl.cam.ac.uk>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D122E52@liverpoolst.ad.cl.cam.ac.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117125624.GR3217@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 04:56:24AM -0800, William Lee Irwin III wrote:
-> It does not appear to have helped. So bk snapshot searching it is. =(
+"Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk> wrote:
+>
+> We forwarded the patches around
+>  so many different people for comment before sending them to lkml that
+>  somewhere along the line something bad happned.
 
-sparc64 broke between 2.6.9 and 2.6.10-rc1. Are there any split-up
-diffs of what went on between 2.6.9 and 2.6.10-rc1?
+Just send 'em to linux-kernel first-up and cc everyone else.  That way you
+avoid duplication of effort and everyone is on the same page.
 
+I'm still struggling to understand the rationale behind the mem.c change
+btw.  io_remap_page_range() _is_ remap_page_range() (or, now,
+remap_pfn_range()) on x86.  So whatever the patch is supposed to be doing,
+it's a no-op.
 
--- wli

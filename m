@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317528AbSGJP5i>; Wed, 10 Jul 2002 11:57:38 -0400
+	id <S317525AbSGJP4Q>; Wed, 10 Jul 2002 11:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317533AbSGJP5h>; Wed, 10 Jul 2002 11:57:37 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59911 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317528AbSGJP5g>; Wed, 10 Jul 2002 11:57:36 -0400
-Date: Wed, 10 Jul 2002 12:49:32 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 10, 2002
-In-Reply-To: <3D2B89AC.25661.91896FEB@localhost>
-Message-ID: <Pine.LNX.4.44L.0207101247440.14432-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317528AbSGJP4P>; Wed, 10 Jul 2002 11:56:15 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:48842 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317525AbSGJP4O> convert rfc822-to-8bit; Wed, 10 Jul 2002 11:56:14 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+To: linux-kernel@vger.kernel.org
+Subject: Booting problems with Compaq ML570 >2 CPUs
+Date: Wed, 10 Jul 2002 17:58:28 +0200
+X-Mailer: KMail [version 1.4]
+Organization: Linux-Systeme GmbH
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207101758.28028.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jul 2002, Guillaume Boissiere wrote:
+Hi there,
 
-> Also on the planned deletion list:
->    - Add thrashing control
+does anyone have a clue what can cause a hard reset with a Compaq ML570 Quad 
+CPU System? If i use "maxcpus=2" the kernel boots fine and works fine, if i 
+boot with "maxcpus=3" i see "Loading Linux..." and then hard reset, if i use 
+maxcpus=4 the same, if i use "noapic" also the same.
 
-I've had the mechanism working for well over a year now, but
-still don't have a proper policy for load control implemented.
+I totally have no clue about it and also don't see any error messages, also 
+not with early printk() patch from William Lee Irwin III.
 
-> o Beta        New VM with reverse mappings                    (Rik van Riel)
+This is with 2.4.18, 2.4.19rc1, 2.4.19rc1-aa2, 2.4.19-rc1-aa2-jam2 and my 
+kernel tree wolk 3.5.
 
-This is (in limited form) ready for merging and has been
-stability tested by Andrew Morton. A patch should go to
-Linus soon...
+For anyone who don't know the mashine:
+http://www.compaq.com/products/servers/proliantml570/description.html
 
-kind regards,
+Please CC, I am not subscribed to the mailinglist.
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
+Kind regards,
+        Marc-Christian Petersen
 
-http://www.surriel.com/		http://distro.conectiva.com/
+http://sourceforge.net/projects/wolk
 
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
+Key available at www.keyserver.net. Encrypted e-mail preferred.

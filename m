@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289371AbSAJKOI>; Thu, 10 Jan 2002 05:14:08 -0500
+	id <S289372AbSAJKT6>; Thu, 10 Jan 2002 05:19:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289372AbSAJKN7>; Thu, 10 Jan 2002 05:13:59 -0500
-Received: from moutng1.kundenserver.de ([212.227.126.171]:26346 "EHLO
-	moutng1.schlund.de") by vger.kernel.org with ESMTP
-	id <S289371AbSAJKNs>; Thu, 10 Jan 2002 05:13:48 -0500
-From: "Matthias Benkmann" <matthias@winterdrache.de>
-To: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Date: Thu, 10 Jan 2002 11:13:53 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <3C3D7771.17083.27A755@localhost>
-In-Reply-To: <200201100019.g0A0JOM32110@hyper.wm.sps.mot.com>
-In-Reply-To: <20020110004952.A11641@werewolf.able.es> (jamagallon@able.es)
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S289373AbSAJKTs>; Thu, 10 Jan 2002 05:19:48 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:30736 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289372AbSAJKTh>; Thu, 10 Jan 2002 05:19:37 -0500
+Date: Thu, 10 Jan 2002 11:18:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
+Message-ID: <20020110111825.C3357@inspiron.school.suse.de>
+In-Reply-To: <20020109132148.C12609@redhat.com> <200201091928.g09JSdH23535@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200201091928.g09JSdH23535@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Wed, Jan 09, 2002 at 11:28:39AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jan 2002, at 19:19, Peter Barada wrote:
+On Wed, Jan 09, 2002 at 11:28:39AM -0800, Badari Pulavarty wrote:
+> Ben,
+> 
+> By any chance do you have a list of drivers that assume this ? 
+> What does it take to fix them ? 
+> 
+> I think Jens BIO changes for 2.5 will fix this problem. But 
+> 2.4 needs a solution in this area too. This patch showed 
+> significant improvement for database workloads. 
 
-> 
-> >Even
-> >
-> >int	b;
-> >volatile const int a = 5;
-> >b = a - a;
-> >
-> >can not be optimized to 
-> >
-> >b = 0;
-> 
-> Until you define the scope of the variables, you can't make that
-> assertion.  If the code is:
-> 
-> int b;
-> volatile const a=5;
-> void stuff()
-> {
->   b = a - a;
-> }
-> 
-> I can see how a can change in the midst of the execution since
-> some other code has access to a since its global scope.
-> 
-> If the code is:
-> 
-> int b;
-> void stuff()
-> {
->   volatile const a=5;
-> 
->   b = a - a;
-> }
-> 
-> Then the code can be optimized to 'b = 0;' since nowhere in the scope
-> of 'a' does anyone take its address(which would allow it to be changed).
+I didn't checked the implementation but as far as the blkdev is
+concerned the b_size changes without notification as soon as you 'mkfs
+-b somethingelse' and then mount the fs. So it cannot break as far I can
+tell. The only important thing is that b_size stays between 512 and 4k.
 
-I could have hardware attached directly to the data bus (a hardware 
-debugger for instance) that watches for the value 5 to appear. This is 
-beyond the knowledge of the compiler.
+> If it is not reasonable to fix all the brokern drivers,
+> how about making this configurable (to do variable size IO) ?
+> Do you favour this solution ?
 
-> 2) No one takes the address of b, so there is no way for any external
->    hardware/thread to modify b.
+no.
 
-see above. You don't need to take the address to catch the variable 
-access.
- 
-MSB
-
--- 
-Who is this General Failure,
-and why is he reading my disk ?
-
+Andrea

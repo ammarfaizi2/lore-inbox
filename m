@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285925AbRLJHYn>; Mon, 10 Dec 2001 02:24:43 -0500
+	id <S286179AbRLJH3X>; Mon, 10 Dec 2001 02:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286172AbRLJHYe>; Mon, 10 Dec 2001 02:24:34 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:12307 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S285925AbRLJHYS>; Mon, 10 Dec 2001 02:24:18 -0500
-Date: Mon, 10 Dec 2001 01:24:08 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Leigh Orf <orf@mailbag.com>, "M.H.VanLeeuwen" <vanl@megsinet.net>,
-        Mark Hahn <hahn@physics.mcmaster.ca>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 memory badness (fixed?)
-Message-ID: <20011210012408.B11697@asooo.flowerfire.com>
-In-Reply-To: <200112091607.fB9G7mj01944@orp.orf.cx> <Pine.LNX.4.33.0112091758180.411-100000@mikeg.weiden.de>
+	id <S286174AbRLJH3O>; Mon, 10 Dec 2001 02:29:14 -0500
+Received: from bitmover.com ([192.132.92.2]:37538 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S286177AbRLJH3A>;
+	Mon, 10 Dec 2001 02:29:00 -0500
+Date: Sun, 9 Dec 2001 23:28:59 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Stevie O <stevie@qrpff.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Colo[u]rs"
+Message-ID: <20011209232859.I25754@work.bitmover.com>
+Mail-Followup-To: Stevie O <stevie@qrpff.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0112091758180.411-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Dec 09, 2001 at 06:17:11PM +0100
+In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>; from stevie@qrpff.net on Mon, Dec 10, 2001 at 02:07:06AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about moving the calls to shrink_[di]cache_memory() after the
-nr_pages check after the call to kmem_cache_reap?  Or perhaps keep it at
-the beginning, but only call it after priority has gone a number of
-notches down from DEF_PRIORITY?
+On Mon, Dec 10, 2001 at 02:07:06AM -0500, Stevie O wrote:
+> After a few failed web searches (combos like 'linux cache color' just gave 
+> me a bunch of references to video), I am resorting to this list for this 
+> question.
+> 
+> What exactly do y'all mean by these "colors"? Task colors, cache colors, 
+> and probably a few other colors i've missed/forgotten about. What do these 
+> colors represent? How are they used to group tasks/cache entries? Is what 
+> they're actually for?
 
-Something like that seems like the only obvious way to balance how soon
-these caches are flushed without over- or under-kill.
+Coloring usually means the laying out of data such that the data will 
+not collide in the cache, usually the second (or third) level cache.
 
-Also, shouldn't shrink_dqcache_memory use priority rather than
-DEF_PRIORITY?  I'm also not sure what the reasoning is behind the
-nr_pages=chunk_size reset.
+Data references are virtual, most caches are physically tagged.  That 
+means that where data lands in the cache is a function of the physical
+page address and offset within that page.  If the cache is what is called
+direct mapped, which means each address has exactly one place it can be
+in the cache, then page coloring becomes beneficial.  More on that in
+a second.  Most caches these days are set associative, which means there
+are multiple places the same cache line could be.  A 2 way set associative
+cache means there are 2 places, 4 way means there are 4, and so on.  The
+trend is that the last big cache before memory is at least 2 way and more
+typically 4 way set associative.  There is a cost with making it N-way
+associative, you have to run all the tag comparitors in parallel or
+you have unacceptable performance.  With shrinking transistors and high
+yields we are currently enjoying, the costs are somewhat reduced.
 
-In the case that Leigh and I are seeing (and my readprofile runs) it
-sounds like shrink_cache is getting called a ton, while the bloated d/i
-caches are flushed too little, too late.
-
-Just $0.02 from a newby. ;)
-
-Thanks for the tip, Mike,
+So what's page coloring?  Suppose we have a 10 page address space and
+we touch each page.  As we touch them, the OS takes a page fault, grabs
+a physical page, and makes it part of our address space.  The actual
+physical addresses of those pages determine where the cache lines
+will land in the cache.  If the pages are allocated at random, worst
+case is that all 10 pages will map to the same location in the cache,
+reducing the cache effectiveness by 10x assuming a direct mapped cache,
+where there is only one place to go.   Page coloring is the careful
+allocation of pages such that each virtual page maps to a physical page
+which will be at a different location in the cache.  Linus doesn't like
+it because it adds cost to the page free/page alloc paths, they now have
+to go put/get the page from the right bucket.  He also says it's pointless
+because the caches are becoming enough associative that there is no need
+and he's mostly right.  Life can really suck on small cache systems that
+are direct mapped, as are some embedded systems, but that's life.  It's
+a tradeoff.
 -- 
-Ken.
-brownfld@irridia.com
-
-
-On Sun, Dec 09, 2001 at 06:17:11PM +0100, Mike Galbraith wrote:
-| On Sun, 9 Dec 2001, Leigh Orf wrote:
-| 
-| > In a personal email, Mike Galbraith wrote to me:
-| >
-| > |   On Sat, 8 Dec 2001, Leigh Orf wrote:
-| > |
-| > |   > inode_cache       439584 439586    512 62798 62798    1
-| > |   > dentry_cache      454136 454200    128 15140 15140    1
-| > |
-| > |   I'd try moving shrink_[id]cache_memory to the very top of vmscan.c::shrink_caches.
-| > |
-| > |   	-Mike
-| >
-| > Mike,
-| >
-| > I tried what you suggested starting with a stock 2.4.16 kernel, and it
-| > did fix the problem with 2.4.16 ENOMEM being returned.
-| >
-| > Now with that change and after updatedb runs, here's what the memory
-| > situation looks like. Note inode_cache and dentry_cache are almost
-| > nothing. Dunno if that's a good thing or not, but I'd definitely
-| 
-| Almost nothing isn't particularly good after updatedb ;-)
-| 
-| > consider this for a patch.
-| 
-| No, but those do need faster pruning imho.  The growth rate can be
-| really really fast at times.
-| 
-| 	-Mike
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

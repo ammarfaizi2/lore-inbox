@@ -1,73 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBAOGh>; Thu, 1 Feb 2001 09:06:37 -0500
+	id <S129150AbRBAOMS>; Thu, 1 Feb 2001 09:12:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbRBAOG2>; Thu, 1 Feb 2001 09:06:28 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:11279 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129026AbRBAOGR>; Thu, 1 Feb 2001 09:06:17 -0500
-Message-ID: <3A796D20.853374FB@idb.hist.no>
-Date: Thu, 01 Feb 2001 15:05:20 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: no, da, en
+	id <S129249AbRBAOMI>; Thu, 1 Feb 2001 09:12:08 -0500
+Received: from picard.csihq.com ([204.17.222.1]:40600 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S129150AbRBAOL6>;
+	Thu, 1 Feb 2001 09:11:58 -0500
+Message-ID: <03b401c08c58$ef72e930$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: IDE timeouts 2.4.1
+Date: Thu, 1 Feb 2001 09:11:56 -0500
 MIME-Version: 1.0
-To: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: modules as drivers and the order of loading
-In-Reply-To: <ptah7t4do0ts1cukrnqfs38ok1bd2rlnal@4ax.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Chandler wrote:
-> 
-> As I was building 2.4.1 afresh I took the opportunity to build some of
-> the device drivers as modules.  In particular I have a SCSI cdrom
-> device (it actually is a cd writer) and I had made that and its
-> controller (Adaptec AIC-7xxx driver) modules.
-> 
-> However, during boot they fail to load because at the time they are
-> brought up VFS had not mounted the root filesystem
-> 
-Is your root disk also connected to that adaptec controller?
-If so, compile the adapter into the kernel and let the scsi-CD support
-be a module.
+Happens every night on both hda and hdc -- no sure yet what triggers it but
+it is repeatable.  Has happened since I've installed this machine with all
+the 2.4.x series.
+Jan 31 00:34:16  kernel: hdc: timeout waiting for DMA
+Jan 31 00:34:16  kernel: ide_dmaproc: chipset supported ide_dma_timeout func
+only: 14
+Jan 31 00:34:16  kernel: hdc: irq timeout: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jan 31 00:34:26  kernel: hdc: timeout waiting for DMA
+Jan 31 00:34:26  kernel: ide_dmaproc: chipset supported ide_dma_timeout func
+only: 14
+Jan 31 00:34:26  kernel: hdc: irq timeout: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jan 31 00:34:36  kernel: hdc: timeout waiting for DMA
+Jan 31 00:34:36  kernel: ide_dmaproc: chipset supported ide_dma_timeout func
+only: 14
+Jan 31 00:34:36  kernel: hdc: irq timeout: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jan 31 00:34:46  kernel: hdc: timeout waiting for DMA
+Jan 31 00:34:46  kernel: ide_dmaproc: chipset supported ide_dma_timeout func
+only: 14
+Jan 31 00:34:46  kernel: hdc: irq timeout: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Jan 31 00:34:46  kernel: hdc: DMA disabled
+Jan 31 00:34:46 i kernel: ide1: reset: success
 
-> I am not sure why they can be built as modules if they then can't be
-> loaded?
+2.4.1 on Dual PIII/1G, 4G RAM,
+WDC WD450AA-00BAA0
+/dev/hda:
 
-It is usually not worth the trouble making modules of something
-you need before the root fs is mounted.  (There are special cases,
-but generally - don't do it!) 
-About the only thing you need to mount root is harddisk support
-and a driver for whatever kind of adapter (scsi, ide,...) that the
-root fs disk is connected to.  
+ Model=WDC WD450AA-00BAA0, FwRev=10.09K11, SerialNo=WD-WMA2E1605263
+ Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+ RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=87930864
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
 
-If it isn't connected to the adaptec (perhaps you have an IDE disk?)
-then something else is wrong.  Maybe the root device isn't set
-right in the kernel image you are booting.  Check your lilo.conf
-(or whatever kernel loader you use)
+00:0f.1 IDE interface: ServerWorks: Unknown device 0211 (prog-if 8a [Master
+SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at ffa0 [size=16]
 
-The general rules for modules:
-Stuff you need almost all the time is compiled in.  Stuff you use
-only occationally makes sense as modules.  Developers often
-use modules for drivers they work on - so they can recompile
-and reload without a reboot.  Modules also makes sense for
-buggy drivers - you can force re-initialization by
-unloading and reloading the module.
+BIOS Vendor: American Megatrends Inc.
+BIOS Version: 0700xx
+BIOS Release: 12/12/00
+System Vendor: Supermicro.
+Product Name: 370DL3/370DLE.
+Version 1234567890.
+Serial Number 1234567890.
+Board Vendor: Supermicro.
+Board Name: 370DL3/370DLE.
+Board Version: PCB Version.
 
-There are a couple of reasons for not modularizing everything.  First,
-you get a complicated setup for loading the right modules.
-Second, there is a memory overhead of half a page per module.  (But of
-course you save memory for modules when they aren't loaded.)
-Third, compiled-in stuff goes in the single big "kernel page" for
-those systems that support big pages.  Pentiums do.  This
-gives a performance enhancement as the cpu looks up less
-page table entries.  That could be important if the driver is
-a high-performance thing like a network or disk controller.
+ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+ServerWorks OSB4: chipset revision 0
+ServerWorks OSB4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: WDC WD450AA-00BAA0, ATA DISK drive
+hdc: WDC WD450AA-60BAA0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 87930864 sectors (45021 MB) w/2048KiB Cache, CHS=5473/255/63, UDMA(33)
+hdc: 87930864 sectors (45021 MB) w/2048KiB Cache, CHS=87233/16/63, UDMA(33)
 
-Helge Hafting
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

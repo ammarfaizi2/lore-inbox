@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSGAR22>; Mon, 1 Jul 2002 13:28:28 -0400
+	id <S315925AbSGARcd>; Mon, 1 Jul 2002 13:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315925AbSGAR21>; Mon, 1 Jul 2002 13:28:27 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7069 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315923AbSGAR20>;
-	Mon, 1 Jul 2002 13:28:26 -0400
-Date: Mon, 1 Jul 2002 10:25:26 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: David Brownell <david-b@pacbell.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: driverfs bus_id, name (was: [PATCH] /proc/scsi/map)
-In-Reply-To: <3D18CACE.608@pacbell.net>
-Message-ID: <Pine.LNX.4.33.0207011019130.8496-100000@geena.pdx.osdl.net>
+	id <S315928AbSGARcd>; Mon, 1 Jul 2002 13:32:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315925AbSGARcc>;
+	Mon, 1 Jul 2002 13:32:32 -0400
+Message-ID: <3D209401.C89C6EE4@zip.com.au>
+Date: Mon, 01 Jul 2002 10:40:17 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lightweight patch manager <patch@luckynet.dynu.com>
+CC: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: BUG_ON(x) instead of if (x) BUG() in mm/page_alloc,swap_state.c
+References: <200207011231.g61CVJLX026313@hawkeye.luckynet.adm>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 25 Jun 2002, David Brownell wrote:
-
-> >>- It'd be more appropriate for PCI devices to copy pci_device.name into
-> >>   device.name and get the user-friendly names from the PCI device name
-> >>   database (when available), and only fallback to those nasty strings
-> >>   when the more user-friendly names aren't available.
-> > 
-> > 
-> > That is what happens with PCI devices. They're not appearing as meaningful 
-> > names probably because CONFIG_PCI_NAMES isn't set. Whether or not that 
-> > information belongs in the kernel is another debate. 
+Lightweight patch manager wrote:
 > 
-> ERm ... it wasn't on the systems I looked at.  CONFIG_PCI_NAMES has
-> clearly been set, but the names were the user-unfriendly style.  And
-> yet I know the kernel has them accessible, since they're presented
-> by the USB layer and by /proc/pci.  But not in driverfs.
-> 
-> I now see some code (presumably yours) to set those two fields
-> to be identical, in pci_scan_device(), but the useful description
-> is instead set in pci_scan_slot().  Presumably this is a case of
-> various init paths in PCI not wholly agreeing with each other;
-> maybe pci_name_device() should set both name/description fields
-> instead of only the one.  (Though ... why have two copies? :)
+> This replaces if(x) BUG() with BUG_ON(x) where necessarry, at least in
+> mm/page_alloc.c and mm/swap_state.c
 
-Hrm, they do appear to be out of sync. Thanks for pointing that out. 
+Thanks - I'll add to my pile.
 
-> You didn't respond to the question about changing the identifier
-> from "name" to be the more appropriate "description" ... is that
-> because you're still thinking (it'd cost to change) or because
-> you like using the (IMO ambiguous) identifier "name" there?
+> ...
+> -                       if (!nr_pages--)
+> -                               BUG();
+> +                       BUG_ON(!nr_pages--)
 
-That's what the name field is - the ascii description of the device. I 
-understand that "description" is more obvious, so I'll consider the 
-change.
+Except for this chunk.  It's best to avoid putting statements
+with side-effects inside BUG_ON().  If someone wants to build
+a super-small kernel with a no-op BUG_ON() then code such as the
+above will cause it to fail.
 
-	-pat
+It'll probably fail anyway, but hey - may as well try.
 
+-

@@ -1,98 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267967AbRGVLtX>; Sun, 22 Jul 2001 07:49:23 -0400
+	id <S267975AbRGVNKX>; Sun, 22 Jul 2001 09:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267968AbRGVLtO>; Sun, 22 Jul 2001 07:49:14 -0400
-Received: from jdi.jdimedia.nl ([212.204.192.51]:25557 "EHLO jdi.jdimedia.nl")
-	by vger.kernel.org with ESMTP id <S267967AbRGVLtD>;
-	Sun, 22 Jul 2001 07:49:03 -0400
-Date: Sun, 22 Jul 2001 13:48:40 +0200 (CEST)
-From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-X-X-Sender: <igmar@jdi.jdimedia.nl>
-To: "Robert J.Dunlop" <rjd@xyzzy.clara.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: New PCI device
-In-Reply-To: <20010722123944.A21182@xyzzy.clara.co.uk>
-Message-ID: <Pine.LNX.4.33.0107221342140.1363-100000@jdi.jdimedia.nl>
+	id <S267976AbRGVNKO>; Sun, 22 Jul 2001 09:10:14 -0400
+Received: from femail22.sdc1.sfba.home.com ([24.0.95.147]:39162 "EHLO
+	femail22.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S267975AbRGVNKA>; Sun, 22 Jul 2001 09:10:00 -0400
+Message-ID: <3B5AD0DF.8DDC5D1E@home.com>
+Date: Sun, 22 Jul 2001 08:10:55 -0500
+From: Steven Lass <stevenlass1@home.com>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: bug: 2.4.[<=6] kernel has Cyrix 'coma' bug?
+Content-Type: multipart/mixed;
+ boundary="------------22DA69911B5B974812BF17FD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 22 Jul 2001, Robert J.Dunlop wrote:
-
-> On Sat, Jul 21,  Igmar Palsenberg wrote:
-> >
-> > Hi,
-> >
-> > I've got a new toy in my computer :
-> >
-> > 02:09.0 Network controller: Unknown device 1638:1100 (rev 02)
-> >         Subsystem: Unknown device 1638:1100
-> >         Flags: medium devsel, IRQ 9
-> >         I/O ports at d800 [disabled] [size=128]
-> >         Memory at d5800000 (32-bit, non-prefetchable) [disabled] [size=4K]
-> >         I/O ports at d400 [disabled] [size=64]
-> >
-> > Device itself says :
-> >
-> > WL11000P
-> > It's a PCMCIA bridge, with one big IC : Manufacturer : PLX , type PCI9052
->
-> The PLX PCI9052 is a generic bridge chip used by a lot of manufactures for
-> many different cards.  What the card does is determined by other chips on
-> the board not the PCI interface. We use the PLX PCI9052 to build multiport
-> intelligent synchronous comms cards that are reported as "Communication
-> controller". The PLX chip does not determine the type of device.
-
-I've got hold of the datasheet. It's a generic PCI to ISA bridge indeed.
-
-> > No idea why the PCI type ID says it's a network controller, it certainly
-> > isn't. The whole package is sold as a Dynalink wireless LAN L11H, a PCI
-> > PCICIA controller with one slot and a PCMCIA card based on a PrismII
-> > chipset.
->
-> Well the manufacturer ID 0x1638 belongs to Eumitcom Technology Inc and
-> their website (http://www.eumitcom.com/) shows the WL11000P combo to be a
-> IEEE 802.11b compliant wireless card. That's my definition of a Network
-> controller.
-
-I'm still thinking about what driver to create.. A driver that
-emulates a PCMCIA controller is a knightmare, but so is an ethernet driver
-for this setup.
-
-The 2.4.x kernel has support for the wireless card itself, but in a PCMCIA
-context. Creating a ethernet driver creates a lot of duplicate code.
-
-> > I'm gonna plug the PCMCIA card in my notebook, see what it doesn. It it
-> > does work, the problem is the PCMCIA card bot been supported. Else I'v got
-> > a big problem :)
->
-> They say they have Linux support but no indication of which version. Don't
-> see drivers in the standard kernel so I guess they must be supplying it
-> as a patch. See http://www.eumitcom.com/html/wlan3.htm for download.
-
-I don't call it support. The drivers are ancient, pcmcia-cs on their site
-is a 1.5 year old version, and the driver itself doesn't work. Making it
-work would require a large amount of code change to their driver, so it's
-better to start from scratch.
-
-> HTH
+This is a multi-part message in MIME format.
+--------------22DA69911B5B974812BF17FD
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
-	Igmar (who is confused about what to do)
+dev-list,
+
+Every 2.4 kernel that I've tried freezes my Cyrix MediaGX system at boot
+up.
+
+Typically the last messages displayed are:
+
+Working around Cyrix MediaGX virtual DMA bugs 
+CPU: Cyrix Media GX Core/Bus Clock Stepping 02 
+Checking 'hlt' instruction
+
+Occasionally, the "Checking 'hlt' instruction" is not displayed before
+it freezes.
+
+My system is a PowerSpec Model 1810 (no laughs please), my Phoenix BIOS
+reports "Cyrix GX 3.2 180MHz".
+
+I've compiled/installed numerous 2.2.x kernels w/o any trouble.  The
+Redhat 7.1 CDROM image freezes at boot.  I've compiled the 2.4.4, 2.4.5,
+& 2.4.6 kernels with various config settings, but they all freeze at
+boot.  I'm currently running redhat 7.0, so I've tried compiling with
+gcc (gcc 2.96 20000731) & kgcc (egcs 1.1.2 release), no luck.
+ 
+I'm willing to compile the 2.4.[<4} kernels or try any other
+pre-compiled kernels is anyone has a suggestion.
+
+Please CC: me on any response
+-steve
+--------------22DA69911B5B974812BF17FD
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+X-Mozilla-Status2: 00000000
+Message-ID: <3B5A453E.15B631F9@home.com>
+Date: Sat, 21 Jul 2001 22:15:10 -0500
+From: Steven Lass <stevenlass1@home.com>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: stevenlass@mail.com
+Subject: bug: 2.4.[<=6] kernel has Cyrix 'coma' bug?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
--- 
+dev-list,
 
-Igmar Palsenberg
-JDI Media Solutions
+Every 2.4 kernel that I've tried freezes my Cyrix MediaGX system at boot
+up.
 
-Boulevard Heuvelink 102
-6828 KT Arnhem
-The Netherlands
+The point at which it hangs varies, but typically the last messages
+displayed are:
 
-mailto: i.palsenberg@jdimedia.nl
-PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+Working around Cyrix MediaGX virtual DMA bugs
+CPU: Cyrix Media GX Core/Bus Clock Stepping 02
+Checking 'hlt' instruction
+
+My system is a PowerSpec Model 1810 (no laughs please), my Phoenix BIOS
+reports "Cyrix GX 3.2 180MHz".
+
+I've compiled/installed numerous 2.2.x kernels w/o incident.  The Redhat
+7.1 CDROM image freezes.  I've compiled the 2.4.4, 2.4.5, & 2.4.6
+kernels with various config settings, but they all freeze.  I'm
+currently running redhat 7.0, so I've tried compiling with gcc (gcc 2.96
+20000731) & kgcc (egcs 1.1.2 release), no luck.
+ 
+I'm willing to compile the 2.4.[<4} kernels or try any other
+pre-compiled kernels is anyone has a suggestion.
+
+Please CC: me on any response
+-steve
+
+
+--------------22DA69911B5B974812BF17FD--
 

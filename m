@@ -1,50 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFTOeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265541AbUFTOi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUFTOeo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbUFTOeo
+	id S265541AbUFTOi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbUFTOi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:34:44 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:39081 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265494AbUFTOem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:34:42 -0400
-From: Hans-Frieder Vogt <hfvogt@arcor.de>
-Reply-To: hfvogt@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.7-bk2 runs faster than linux-2.6.7 ;)
-Date: Sun, 20 Jun 2004 16:36:13 +0200
-User-Agent: KMail/1.6.1
-Cc: len.brown@intel.com
-MIME-Version: 1.0
+	Sun, 20 Jun 2004 10:38:28 -0400
+Received: from pdbn-d9bb9eb6.pool.mediaWays.net ([217.187.158.182]:60940 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S265541AbUFTOiZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:38:25 -0400
+Date: Sun, 20 Jun 2004 16:38:21 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: Kernel 2.6.6 & 2.6.7 sometime hang after much I/O
+Message-ID: <20040620143821.GA28338@citd.de>
+References: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de> <40D56700.2030206@yahoo.com.au> <20040620115908.GA27241@citd.de> <40D58B93.4040304@yahoo.com.au> <20040620141734.GA28048@citd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406201636.13058.hfvogt@arcor.de>
+In-Reply-To: <20040620141734.GA28048@citd.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+On Sun, Jun 20, 2004 at 04:17:34PM +0200, Matthias Schniedermeyer wrote:
+> On Sun, Jun 20, 2004 at 11:05:23PM +1000, Nick Piggin wrote:
+> > Matthias Schniedermeyer wrote:
+> > 
+> > >Here we go.
+> > >
+> > >Addendum: After some time more and more konsole froze. Up to the point
+> > >where i (had to) kill(ed) X(CTRL-ALT-Backspace) and after i couldn't
+> > >even log in at the console anymore i rebooted (into 2.6.5). Then i
+> > >recompiled 2.6.7 with SYSRQ-support and tried to reproduce the hanging
+> > >without X. After 3 runs i "gave up" and started X. Here i had luck and
+> > >the process ('cut-movie.pl') froze at first try. Then i killed X and did
+> > >the above on the console.
+> > >
+> > >As the system is currently unsuable enough to reboot, i will reboot in
+> > >2.6.5 after this mail, but i can always reboot into 2.6.7 if you need
+> > >more input.
+> > >
+> > >
+> > 
+> > The attached trace was with 2.6.7, right?
+> 
+> Yes.
+> 
+> > Can you reproduce the hang, then, as root, do:
+> > 
+> > 	echo 1024 > /sys/block/sda/queue/nr_requests
+> > 
+> > Replace sda with whatever devices your hung processes were
+> > doing IO to. Do things start up again?
+> 
+> 1 try (with X) with unchanged nr_requests. (I was stupid enough to issues the
+> command on the wrong HDD :-) )
+> (AFAIR i had the same situation with 2.6.6, sometimes the hang didn't happen)
+> 
+> 6 tries (with X) with nr_requests=1024 and no hang.
+> 
+> 1 try with nr_requests back to 128 and now it hangs.
+> now changing to nr_request=1024 doesn't seem to change anyting, my
+> konsoles start to freeze.
+> 
+> 
+> Don't know if it is relevant but the bytes transfered are always rougly
+> around 3000-3400MB (1500-1700 MB read & 1500-1700 MB write. The program
+> reads 100MB, then writes 100MB, then issues "sync", the hangs happend
+> always about every after 15-17 "rounds")
 
-I traced the current double-speed issue for 2.6.7-bk2 on x86-64 back to an 
-ACPI-change in mpparse.c. The small attached patch solved the issue at least 
-on my MSI K8T Neo (Athlon 64 3200+) system.
+After a fresh bootup i did another try with nr_requests=1024.
+This time it froze at the third try. At the same round as the former
+try. (17th round)
 
---- linux-2.6.7-bk2.orig/arch/x86_64/kernel/mpparse.c	2004-06-19 
-17:17:15.824315000 +0200
-+++ linux-2.6.7-bk2/arch/x86_64/kernel/mpparse.c	2004-06-20 16:02:34.974446912 
-+0200
-@@ -861,7 +861,7 @@
- 
- 		for (idx = 0; idx < mp_irq_entries; idx++)
- 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
--				(mp_irqs[idx].mpc_dstapic == ioapic) &&
-+				(mp_irqs[idx].mpc_dstapic == intsrc.mpc_dstapic) &&
- 				(mp_irqs[idx].mpc_srcbusirq == i ||
- 				mp_irqs[idx].mpc_dstirq == i))
- 					break;
+
+
+
+
+Bis denn
 
 -- 
---
-Hans-Frieder Vogt                 e-mail: hfvogt (at) arcor (dot) de
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

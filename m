@@ -1,64 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281558AbRKMJek>; Tue, 13 Nov 2001 04:34:40 -0500
+	id <S281561AbRKMJg6>; Tue, 13 Nov 2001 04:36:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281560AbRKMJe3>; Tue, 13 Nov 2001 04:34:29 -0500
-Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:49924 "EHLO
-	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
-	id <S281558AbRKMJeP>; Tue, 13 Nov 2001 04:34:15 -0500
-Date: Tue, 13 Nov 2001 10:34:06 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.15-pre4 full build for i386, warnings
-In-Reply-To: <13136.1005634661@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.33.0111131018010.31786-100000@chaos.tp1.ruhr-uni-bochum.de>
+	id <S281560AbRKMJgi>; Tue, 13 Nov 2001 04:36:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61703 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281561AbRKMJg0>; Tue, 13 Nov 2001 04:36:26 -0500
+Subject: Re: Partitioning wierdness with 2048-byte sectors
+To: andersen@codepoet.org
+Date: Tue, 13 Nov 2001 09:43:29 +0000 (GMT)
+Cc: viro@math.psu.edu (Alexander Viro),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20011112235727.A6932@codepoet.org> from "Erik Andersen" at Nov 12, 2001 11:57:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E163a6L-0000Z6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Keith Owens wrote:
+> I was just trying out 2.4.15-pre4 and noticed that I am
+> completely unable to create partitions on my magneto optical
+> drives (2048 byte hardware sectors).  Using fdisk to (try to)
+> create a single partition uttery fails.  dmesg shows:
+>     ll_rw_block: device 08:10: only 2048-char blocks implemented (1024)
+>     sd.c:Bad block number requested I/O error: dev 08:10, sector 0
 
-> depmod: *** Unresolved symbols in /var/tmp/lib/modules/2.4.15-pre4/kernel/drivers/char/isicom.o
-> depmod:		xquad_portio
-> depmod: *** Unresolved symbols in /var/tmp/lib/modules/2.4.15-pre4/kernel/drivers/isdn/hysdn/hysdn.o
-> depmod:		xquad_portio
-> [...]
-
-That's supposedly because xquad_portio (ifdef CONFIG_MULTIQUAD) is not 
-exported, thus causing all modules using I/O instructions to fail.
-
-I also see a static definition of xquad_portio in 
-arch/i386/boot/compressed/misc.c, for which I don't understand why it's 
-needed at all.
-
-Trivial patch appended.
-
---Kai
-
-
-diff -ur linux-2.4.15-pre4/arch/i386/kernel/i386_ksyms.c linux-2.4.15-pre4.work/arch/i386/kernel/i386_ksyms.c
---- linux-2.4.15-pre4/arch/i386/kernel/i386_ksyms.c	Tue Nov 13 10:15:23 2001
-+++ linux-2.4.15-pre4.work/arch/i386/kernel/i386_ksyms.c	Tue Nov 13 10:28:39 2001
-@@ -177,3 +177,7 @@
- 
- extern int is_sony_vaio_laptop;
- EXPORT_SYMBOL(is_sony_vaio_laptop);
-+
-+#ifdef CONFIG_MULTIQUAD
-+EXPORT_SYMBOL(xquad_portio);
-+#endif
-diff -ur linux-2.4.15-pre4/arch/i386/kernel/smpboot.c linux-2.4.15-pre4.work/arch/i386/kernel/smpboot.c
---- linux-2.4.15-pre4/arch/i386/kernel/smpboot.c	Fri Oct  5 03:42:54 2001
-+++ linux-2.4.15-pre4.work/arch/i386/kernel/smpboot.c	Tue Nov 13 10:26:50 2001
-@@ -969,7 +969,7 @@
- 
- static int boot_cpu_logical_apicid;
- /* Where the IO area was mapped on multiquad, always 0 otherwise */
--void *xquad_portio = NULL;
-+void *xquad_portio;
- 
- void __init smp_boot_cpus(void)
- {
-
+Looks like either Andrea's block device in page cache or the updated
+partition code broke stuff. 

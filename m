@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132440AbRCZOI3>; Mon, 26 Mar 2001 09:08:29 -0500
+	id <S132445AbRCZOPT>; Mon, 26 Mar 2001 09:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132442AbRCZOIT>; Mon, 26 Mar 2001 09:08:19 -0500
-Received: from mail.xmission.com ([198.60.22.22]:43787 "EHLO mail.xmission.com")
-	by vger.kernel.org with ESMTP id <S132440AbRCZOII>;
-	Mon, 26 Mar 2001 09:08:08 -0500
-Message-ID: <3ABF4D3D.2070401@xmission.com>
-Date: Mon, 26 Mar 2001 07:07:57 -0700
-From: Frank Jacobberger <f1j@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-pre7 i686; en-US; 0.8.1) Gecko/20010322
-X-Accept-Language: en
+	id <S132446AbRCZOO7>; Mon, 26 Mar 2001 09:14:59 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:15868 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S132445AbRCZOO5>; Mon, 26 Mar 2001 09:14:57 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27197@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'Leonid Mamtchenkov'" <leonid@francoudi.com>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: Q: How do I get from the latest stable kernel version to the 
+	latest prepatch version ?
+Date: Mon, 26 Mar 2001 06:14:06 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3-pre8 problem with 8139too - failure to load
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something has changed regarding the 8139too driver in pre8.
+Thanks.
+It just struck me odd that the latest is 2.4.2 while the prepatches were
+2.4.3 so I figured there must be something I missed in between (my logic
+told me that a 2.4.3 patch would be against a 2.4.3 something ;-).
 
-I worked on it all morning long trying to resolve why the sucker
-failed to load. There are new configuration options that need to
-be addressed. As you recall there were zippo options in the pre7.
+BTW, I haven't seen any announcements from Linus in this mailing list
+regarding new versions, just the updates on the web site and Alan's release
+notes saying he's merging with 2.4.3xx. Are those announcements being posted
+somewhere else now ?
 
-There are now:
+-----Original Message-----
+From: Leonid Mamtchenkov [mailto:leonid@francoudi.com]
+Sent: Monday, March 26, 2001 2:33 PM
+To: Hen, Shmulik
+Cc: 'LKML'
+Subject: Re: Q: How do I get from the latest stable kernel version to
+the late st prepatch version ?
 
-RealTek RTL-8139 PCI Fast Ethernet Adapter support      [M]      
-  Use PIO instead of MMIO                                               
-      [*]    
-  Support for automatic channel equalization (EXPERIMENTAL)   [ ]    
-  Support for older RTL-8129/8130 boards                            [*]
 
-Doing any combination of the above netted no positive result here.
+Hello Hen, Shmulik,
 
-I have run every kernel patch since 2.4.0 blah and
-have never seen this driver fail to load or perform to some degree.
+Once you wrote about "Q: How do I get from the latest stable kernel version
+to the late st prepatch version ?":
+HS> According to http://www.kernel.org, the latest stable kernel version is
+HS> 2.4.2. The latest prepatch version is 2.4.3-pre3.
+HS> 
+HS> In order to get a full 2.4.3-pre8 kernel do I have to:
+HS> 
+HS> A. download linux-2.4.2.tar.gz and all the patch-2.4.3-preX.gz and apply
+HS> them in succession or,
+HS> B. download linux-2.4.3.tar.gz (exists ?) and then apply the all patches
+or,
+HS> C. download linux-2.4.3-pre7.tar.gz (exists ?) and apply only
+HS> patch-2.4.3-pre8.gz ?
 
-Trying to do insmod 8139too.o from the :
-/lib/modules/2.4.3-pre8/kernel/drivers/net directory show these
-unresolved symbols:
+Download 2.4.2 and then apply 2.4.3-preX (latest) on it... that's it.
+You might want to visit http://kernelnewbies.org .  They have some good docs
+there.
 
-8139too.o: unresolved symbol alloc_etherdev
-8139too.o: unresolved symbol unregister_netdev
-8139too.o: unresolved symbol register_netdev
+-- 
+ Best regards,
+ Leonid Mamtchenkov
+ System Administrator
 
-Maybe Jeff can shed more light on these changes....
-
-Thanks,
-
-Frank
 

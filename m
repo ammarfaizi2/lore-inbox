@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276717AbRJJVoX>; Wed, 10 Oct 2001 17:44:23 -0400
+	id <S277419AbRJJVpF>; Wed, 10 Oct 2001 17:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277424AbRJJVoN>; Wed, 10 Oct 2001 17:44:13 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39690 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277419AbRJJVn7>; Wed, 10 Oct 2001 17:43:59 -0400
-Date: Wed, 10 Oct 2001 18:44:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: <kernelnewbies@nl.linux.org>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [CFT][PATCH] smoother VM for -ac
-In-Reply-To: <Pine.LNX.4.33L.0110101815140.26495-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0110101842590.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277424AbRJJVoy>; Wed, 10 Oct 2001 17:44:54 -0400
+Received: from helios.ankara.gantek.com ([213.74.180.65]:28070 "EHLO
+	helios.ankara.gantek.com") by vger.kernel.org with ESMTP
+	id <S277419AbRJJVol>; Wed, 10 Oct 2001 17:44:41 -0400
+Date: Thu, 11 Oct 2001 00:41:43 +0300
+From: Baurjan Ismagulov <ibr@gantek.com>
+To: linux-kernel@vger.kernel.org
+Subject: window_ret_fault on SPARC
+Message-ID: <20011011004142.A12773@kerberos.local.ankara.gantek.com>
+Mail-Followup-To: Baurjan Ismagulov <ibr@gantek.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="mmm.txt"
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Rik van Riel wrote:
-> On Wed, 10 Oct 2001, Benjamin LaHaise wrote:
+Hi,
 
-> > There's a small problem with this one: I know that during
-> > testing of earlier 2.4 kernels we saw a livelock which was
-> > caused by the vm subsystem spinning without scheduling.
+my kernel gets into window_ret_fault while returning from trap to
+user mode.
 
-I added back the reschedule at the zone->pages_min() limit
-and have documented this piece of black magic. New patch
-can be found at:
+In the trap return code, SRMMU sets "Fault Address Valid" during
+"save; LOAD_WINDOW(sp); restore". After that, SFSR=00000127 and
+SFAR=efffed18. Loaded %fp value is efffece0, and [efffece0+38]
+contains efffed50 -- at least, that is what I see in kgdb using "p/x
+*(struct reg_window *)0xefffece0". I also tried to see that using
+printk from window_ret_fault, but the kernel hung solidly (L1-A didn't
+work).
 
-	http://www.surriel.com/patches/
+I followed all vm_next links in current->mm->mmap; efffd000-effff000
+area seems to be there. However, I was unable to track it via
+current->pgd.
 
-regards,
+So:
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+1. Why do I get multiple (SFSR.OV=1) faults in srmmu_rett_stackchk?
 
-http://www.surriel.com/		http://distro.conectiva.com/
+2. How can I see whether page directories of the current process are
+   set up correctly?
 
+I would be very grateful if someone could help me to solve this problem. I'm using 2.2.19 on sun4m.
+
+Thanks in advance,
+Baurjan.

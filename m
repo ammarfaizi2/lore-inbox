@@ -1,62 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263527AbTJaTQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 14:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTJaTQw
+	id S262925AbTJaTI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 14:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJaTI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 14:16:52 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:32522 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id S263527AbTJaTQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 14:16:51 -0500
-Message-ID: <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
-Date: Fri, 31 Oct 2003 14:16:04 -0500
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Javier Villavicencio <jvillavicencio@arnet.com.ar>
-Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
-References: <20031029210321.GA11437@dreamland.darkstar.lan>	 <1067491238.1735.4.camel@ktkhome> <1067587196.715.1.camel@gaston>
-In-Reply-To: <1067587196.715.1.camel@gaston>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Oct 2003 14:08:59 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:3457 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262925AbTJaTIt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 14:08:49 -0500
+Date: Fri, 31 Oct 2003 21:08:29 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Something corrupts raid5 disks slightly during reboot
+Message-ID: <20031031190829.GM4868@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+I've been experiencing strange corruption on a raid5 volume for some time.
+Basically, after unmounting the filesystem, I can mount it again without
+problems. I can also raidstop the raid device in between and all is still
+fine:
 
->Ok, first thing: XFree "radeon" _is_ accelerated, though it doesn't
->do 3D on recent cards
->
-Hi Ben - Right, sorry, I mean to apply "accelerated" to the 3D effects; 
-the private ATI driver is much faster on glxgears than the version that 
-bundles with XFree.
+> umount /dev/md4; mount /dev/md4
+    - no corruption
+> umount /dev/md4; raidstop /dev/md4; raidstart /dev/md4; mount /dev/md4
+    - no corruption
 
->Then, the problem you are having is well known
->
-I'm having two, actually.  The first is that YPAN is getting quite 
-confused.  If I switch VCs, then switch back, the text has been 
-re-arranged, the cursor is often invisible, and sometimes a page or two 
-of new text must be written before anything starts to show up on the 
-screen again.  Experimenting shows that setting VYRES = YRES works 
-around this problem.
+But after a reboot, the filesystem is corrupted:
 
-The second problem is of course the register contents issue when 
-returning from certain graphics programs (e.g. X+fglr) to text mode..  I 
-rather like your idea of doing a re-init when switching from KD_GRAPHICS 
-to KD_TEXT, as the monitor blank during resolution switch will likely 
-overshadow the re-init process.
+> mount /dev/md4
+ EXT2-fs error (device md(9,4)): ext2_check_descriptors: Block bitmap for
+ group 17 not in group (block 0)!
+ EXT2-fs: group descriptors corrupted !
 
->Can you verify that running fbset -accel 0 then back 1 cures the
->problem for you ?
->  
->
+(This is recoverable with e2fsck.)
 
-At work now, will try when I return home later...
+The array consists of three 80GB Samsung disks in raid5 mode, but I
+experienced this problem with two of the disks in raid0 mode, too. The raid
+consists of raw disks hdb,hdc,hdg (rather than partitions hdb1,hdc1,hdg1).
 
-Kris
+On the same box I have three other raid arrays on different disks, all of
+which consist of partitions. These do not show corruption on boot.
 
+I made a little experiment and saved first megabyte of hd[bcg] between
+umount,mount and umount,raidstop,raidstart,mount operations. They did not
+change.
+
+The I did umount,raidstop and rebooted. After boot, the beginning hdb was
+intact, but hdc and hdg had been tampered. (Unfortunately, raidstart was
+automatically run on boot, but I did raidstop as the first thing.)
+
+I narrowed the difference down to bytes between 1060-1080 on hdc:
+
+root@linux:/scratch>od -x hdc_bytes-1060-1080_before_boot
+0000000 1e1e 00d0 000d 00d0 752e 4264 7714 3fa2
+0000020 0002 0014
+root@linux:/scratch>od -x hdc_bytes-1060-1080_after_boot
+0000000 1e1e 00d0 000d 00d0 75ff 4264 7427 3fa2
+0000020 0003 0014
+
+On hdg, this range differed too:
+
+root@linux:/scratch>od -x hdg_bytes-1060-1080_after_boot
+0000000 8000 0000 8000 0000 7526 3fa2 7539 3fa2
+0000020 0002 0014
+root@linux:/scratch>od -x hdg_bytes-1060-1080_after_boot
+0000000 8000 0000 8000 0000 75f7 3fa2 760a 3fa2
+0000020 0003 0014
+
+But there was additional difference somewhere between 1kB and 5kB that
+wasn't there on hdc.
+
+When I copied the saved 1MB blocks back in place, the fs mounted without
+problems.
+
+AFAIK, the first 512b on each disk should be the raid superblock and the
+next 512 may be ext2 superblock. I assume 1060-1080 falls into group
+descriptor table that gets corrupted.
+
+It may be something in userspace that corrupts the disks, but I cannot think
+what it could be.
+
+Right now, the kernel is 2.2.25-secure + patches, but earlier 2.2.x kernels
+exhibited this as well. These include the newest raid 0.90 patches for 2.2.
+
+Any ideas what might cause this or how to debug this further?
+
+
+-- v --
+
+v@iki.fi

@@ -1,106 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVCWTJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVCWTRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbVCWTJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 14:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVCWTJo
+	id S261774AbVCWTRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 14:17:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVCWTRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 14:09:44 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:40664 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S262050AbVCWTJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 14:09:18 -0500
-Date: Wed, 23 Mar 2005 20:09:14 +0100
-To: perex@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6.11] audio failing: ac97
-Message-ID: <20050323190911.GU29897@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Wed Mar 23 21:52:36 CET 2005
-X-MSMail-Priority: High
-User-Agent: Mutt/1.5.6+20040907i
-From: folkert@vanheusden.com (Folkert van Heusden)
+	Wed, 23 Mar 2005 14:17:31 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:24488 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261774AbVCWTR0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 14:17:26 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 1/6] freepgt: free_pgtables use vma list
+Date: Wed, 23 Mar 2005 11:16:27 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0324516D@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/6] freepgt: free_pgtables use vma list
+Thread-Index: AcUvy4/Dv9gq5dTkQkCmsoEWc9QL5QAC7DqA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Hugh Dickins" <hugh@veritas.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>
+Cc: <akpm@osdl.org>, <davem@davemloft.net>, <benh@kernel.crashing.org>,
+       <ak@suse.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Mar 2005 19:16:29.0083 (UTC) FILETIME=[D0B60EB0:01C52FDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
++	 * Why all these "- 1"s?  Because 0 represents both the bottom
++	 * of the address space and the top of it (using -1 for the
++	 * top wouldn't help much: the masks would do the wrong thing).
++	 * The rule is that addr 0 and floor 0 refer to the bottom of
++	 * the address space, but end 0 and ceiling 0 refer to the top
++	 * Comparisons need to use "end - 1" and "ceiling - 1" (though
++	 * that end 0 case should be mythical).
 
-I have a hp pavillion zv5231ea. Upto version 2.6.10 audio worked fine.
-Since version 2.6.11 that stopped. Sound is silent or repeats the same
-fragment over and over before doing the same with the next fragment.
+Can we legislate that "end==0" isn't possible.  On ia64 this is
+certainly true (user virtual space is confined to regions 0-4, so
+the max value of end is 0xa000000000000000[*]).  Same applies on x86
+where the max user address is 0xc0000000 (assuming a standard 3G/1G
+split, and ignoring the 4G-4G patch).  What do the other architectures
+do?  Does anyone allow:
+	mmap((void *)-PAGE_SIZE, PAGE_SIZE, MAP_FIXED, ...)
+to succeed?
 
-During startup this is outputted:
-...
-atiixp: codec read timeout (reg 1c)
-atiixp: codec read timeout (reg 0)
-atiixp: codec read timeout (reg 3c)
-atiixp: codec read timeout (reg 1c)
-atiixp: codec read timeout (reg 0)
-atiixp: codec read timeout (reg 3c)
-atiixp: codec read timeout (reg 1c)
-atiixp: codec read timeout (reg 0)
-atiixp: codec read timeout (reg 3c)
-atiixp: codec read timeout (reg 1c)
-atiixp: codec read timeout (reg 0)
-atiixp: codec read timeout (reg 3c)
-atiixp: codec read timeout (reg 1c)
-atiixp: codec read timeout (reg 0)
-atiixp: codec read timeout (reg 3c)
-atiixp: codec read timeout (reg 1c)
-AC'97 2 does not respond - RESET
-AC'97 2 access is not valid [0xffffffff], removing mixer.
+Otherwise throw in some extra macros to hide the computation needed
+to make the masks work on ceiling values that represent the last byte
+of the vma rather than the address beyond.  Presumably we can use a
+few cycles on some extra arithmetic to help us save gazillions of
+cycles for all the cache misses that we currently expend traversing
+empty areas of page tables at each level.
 
-(the timeouts appear a lot more by the way, I shortened things)
+Latest patches run on ia64 ... I did at least throw a fork-tester at
+it to make sure that we aren't leaking pagetables ... it is still
+running after a few million forks, so the simple cases are not doing
+anything completely bogus.
 
-The devices in my laptop are:
-ehm:/home/folkert# lspci
-0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5833 (rev 02)
-0000:00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 5838
-0000:00:13.0 USB Controller: ATI Technologies Inc: Unknown device 4347 (rev 01)
-0000:00:13.1 USB Controller: ATI Technologies Inc: Unknown device 4348 (rev 01)
-0000:00:14.0 SMBus: ATI Technologies Inc ATI SMBus (rev 16)
-0000:00:14.1 IDE interface: ATI Technologies Inc: Unknown device 4349
-0000:00:14.3 ISA bridge: ATI Technologies Inc: Unknown device 434c
-0000:00:14.4 PCI bridge: ATI Technologies Inc: Unknown device 4342
-0000:00:14.5 Multimedia audio controller: ATI Technologies Inc IXP150 AC'97 Audio Controller
-0000:00:14.6 Modem: ATI Technologies Inc: Unknown device 434d (rev 01)
-0000:01:05.0 VGA compatible controller: ATI Technologies Inc: Unknown device 5835
-0000:02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
-0000:02:02.0 Network controller: Broadcom Corporation BCM4301 802.11b (rev 02)
-0000:02:03.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-0000:02:04.0 CardBus bridge: Texas Instruments: Unknown device ac54 (rev 01)
-0000:02:04.1 CardBus bridge: Texas Instruments: Unknown device ac54 (rev 01)
-0000:02:04.2 System peripheral: Texas Instruments: Unknown device 8201 (rev 01)
-0000:02:07.0 USB Controller: NEC Corporation USB (rev 43)
-0000:02:07.1 USB Controller: NEC Corporation USB (rev 43)
-0000:02:07.2 USB Controller: NEC Corporation USB 2.0 (rev 04)
+-Tony
 
-pci-ids:
-ehm:/home/folkert# lspci -n | grep 0000:00:14.5
-0000:00:14.5 0401: 1002:4341
+[*] Since a three level page table doesn't give us enough bits, the
+actual limit (with a 16k page size) is 0x8000100000000000 with a hole
+for the rest of region 4).
 
-The complete .config can be found here:
-http://keetweej.vanheusden.com/~folkert/config_laptop
-
-
-Folkert van Heusden
-
-Auto te koop! Zie: http://www.vanheusden.com/daihatsu.php
-Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
-+------------------------------------------------------------------+
-|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
-|a try, it brings monitoring logfiles to a different level! See    |
-|http://vanheusden.com/multitail/features.html for a feature list. |
-+------------------------------------------= www.unixsoftware.nl =-+
-Phone: +31-6-41278122, PGP-key: 1F28D8AE
-Get your PGP/GPG key signed at www.biglumber.com!

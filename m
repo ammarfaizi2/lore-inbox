@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319304AbSIFSlE>; Fri, 6 Sep 2002 14:41:04 -0400
+	id <S319312AbSIFSiv>; Fri, 6 Sep 2002 14:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319320AbSIFSlD>; Fri, 6 Sep 2002 14:41:03 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:14768 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S319304AbSIFSlA>; Fri, 6 Sep 2002 14:41:00 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: /dev/ entries change owner
-Date: Fri, 6 Sep 2002 20:45:37 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209062045.37478.bernd-schubert@web.de>
+	id <S319316AbSIFSiv>; Fri, 6 Sep 2002 14:38:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64390 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319312AbSIFSiu>;
+	Fri, 6 Sep 2002 14:38:50 -0400
+Date: Fri, 06 Sep 2002 11:36:11 -0700 (PDT)
+Message-Id: <20020906.113611.102227888.davem@redhat.com>
+To: Martin.Bligh@us.ibm.com
+Cc: gh@us.ibm.com, hadi@cyberus.ca, tcw@tempest.prismnet.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <60449712.1031311608@[10.10.2.3]>
+References: <E17nNhM-0003PD-00@w-gerrit2>
+	<60449712.1031311608@[10.10.2.3]>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+   Date: Fri, 06 Sep 2002 11:26:49 -0700
+   
+   The fact that we're doing something different from everyone else
+   and turning up a different set of kernel issues is a good thing, 
+   to my mind. You're right, we could use Tux if we wanted to ... but
+   that doesn't stop Apache being interesting ;-)
 
-we (all adminitrators from our group) would like to know, why the owner of 
-/dev/ entries are changed in 2.4.x kernels on accessing them.
-
-We DON'T use devfs, so this can't be the reason.
-
-For example if the user joerg (in this case also an admin :) )uses the 
-soundcard, he magically owns all dsp-entries, though these were previously 
-owned by root:
-
-lrwxrwxrwx    1 root     root            9 Apr 12 18:35 /dev/dsp -> /dev/dsp0
-crw-rw-rw-    1 joergb   user      14,   3 Apr 12 18:35 /dev/dsp0
-crw-------    1 joergb   user      14,  19 Apr 12 18:35 /dev/dsp1
-crw-------    1 joergb   user      14,  35 Apr 12 18:35 /dev/dsp2
-crw-------    1 joergb   user      14,  51 Apr 12 18:35 /dev/dsp3
-
-Or if the user sven (no admin, so no root rights so he has no possibility to 
-affect this behaviour) uses the floppy drive:
- 
-brw-------    1 sven     user       2,   0 Sep 24  2001 /dev/fd0
-
-Unfortunality this causes that no other user might use the floppy drive -- a 
-desaster in a multi user environment (our group has over 40 members).
-
-This seems to happen to lots of devices (another example are tty's) and it is 
-distribution independent (I see it at home (Slackware) and at work (Suse)).
-
-
-Any suggestions what I could do ???
-
-
-
-Thanks in advance for your help,
-
-Bernd
-
--- 
-Bernd Schubert
-Physikalisch Chemisches Institut
-Abt. Theoretische Chemie
-INF 229, 69120 Heidelberg
-Tel.: 06221/54-5210
-e-mail: 	bernd (dot) schubert (at) pci (dot) uni-heidelberg (dot) de 
+Tux does not obviate Apache from the equation.
+See my other emails.

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUAHPvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 10:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbUAHPvP
+	id S265392AbUAHPoh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 10:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUAHPnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 10:51:15 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:30396 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265431AbUAHPvN
+	Thu, 8 Jan 2004 10:43:10 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:44717 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S265392AbUAHPm4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 10:51:13 -0500
-Message-ID: <3FFD7B92.8090301@cyberone.com.au>
-Date: Fri, 09 Jan 2004 02:47:30 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: martin f krafft <madduck@madduck.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 8 Jan 2004 10:42:56 -0500
+Date: Thu, 8 Jan 2004 16:42:55 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: scheduling problems in X with 2.6.0
-References: <20040107102352.GA2954@piper.madduck.net> <3FFC2621.7060808@cyberone.com.au> <20040107174606.GA25307@piper.madduck.net> <3FFD789D.7020908@cyberone.com.au> <20040108154109.GB29224@piper.madduck.net>
-In-Reply-To: <20040108154109.GB29224@piper.madduck.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040108154255.GC29224@piper.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040107102352.GA2954@piper.madduck.net> <3FFC2621.7060808@cyberone.com.au> <20040107174606.GA25307@piper.madduck.net> <3FFD789D.7020908@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sHrvAb52M6C8blB9"
+Content-Disposition: inline
+In-Reply-To: <3FFD789D.7020908@cyberone.com.au>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--sHrvAb52M6C8blB9
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-martin f krafft wrote:
+also sprach Nick Piggin <piggin@cyberone.com.au> [2004.01.08.1634 +0100]:
+> OK so its not VM stalls. In fact, it looks like your system is
+> only under a moderate load.
 
->also sprach Nick Piggin <piggin@cyberone.com.au> [2004.01.08.1634 +0100]:
->
->>You could try my alternate CPU scheduler which would tell us if your
->>problem is the scheduler or something else. Its against the mm tree.
->>http://www.kerneltrap.org/~npiggin/v29p6.gz
->>
->
->From a quick glance, it mentions the Pentium 4 and Hyperthreading.
->This *is* an SMP system, but it uses Athlon XPs. Will your scheduler
->still work?
->
+I would not expect so. I find it kinda hard to load a system with 2Gb
+of RAM and a dual Athlon XP 2400+ using only rsync... the
+harddrive bottleneck prevents it from breaking a sweat.
 
-Yeah, my interactivity stuff has to be applied after my SMP stuff,
-so I had to give you both ;)
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+linux is like a wigwam.
+no gates, no windoze, and an apache inside.
 
-You'll want to run make oldconfig after patching, and you needn't say
-yes to CONFIG_SCHED_SMT, although if you did it wouldn't hurt either,
-it just wouldn't do anything.
+--sHrvAb52M6C8blB9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Nick
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE//Xp/IgvIgzMMSnURAkA2AJ91MBjQxszYHVHf8Re9Vs4FbdPAJACg64ic
+CQgJc41rUyH5dhqQ6WDm55c=
+=94Qk
+-----END PGP SIGNATURE-----
 
+--sHrvAb52M6C8blB9--

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290219AbSAORxI>; Tue, 15 Jan 2002 12:53:08 -0500
+	id <S290214AbSAORu1>; Tue, 15 Jan 2002 12:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290212AbSAORwu>; Tue, 15 Jan 2002 12:52:50 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:54664 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S290213AbSAORvw>;
-	Tue, 15 Jan 2002 12:51:52 -0500
-Date: Tue, 15 Jan 2002 09:53:27 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Greg KH <greg@kroah.com>
-cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Defining new section for bus driver init
-In-Reply-To: <20020115050512.GA24580@kroah.com>
-Message-ID: <Pine.LNX.4.33.0201150951131.827-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290216AbSAORuK>; Tue, 15 Jan 2002 12:50:10 -0500
+Received: from ns.suse.de ([213.95.15.193]:21004 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290212AbSAORsp>;
+	Tue, 15 Jan 2002 12:48:45 -0500
+Date: Tue, 15 Jan 2002 18:48:43 +0100
+From: Dave Jones <davej@suse.de>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1-2-3 GB
+Message-ID: <20020115184843.D32088@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, rwhron@earthlink.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020115090746.B6007@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020115090746.B6007@earthlink.net>; from rwhron@earthlink.net on Tue, Jan 15, 2002 at 09:07:46AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 15, 2002 at 09:07:46AM -0500, rwhron@earthlink.net wrote:
+ 
+ > The 3 patches in this thread combined into one, with a default
+ > config option of 2GB, and help saying, if unsure, say "1GB":
 
-> I like it.  Are you going to want to move the other busses to this
-> (sbus, mca, ecard, zorro, etc.)?
+ This may be confusing for some, bringing up the question
+ "I'm unsure, but why is the default at 2GB?"
 
-Yes, though I don't have a way to test them...
+ Default option should match default advice.
 
-> Don't add USB to the list of busses that should be
-> moved to this scheme, it works just fine today in the initcall section
-> (after pci starts up.)
-
-Ok, fine. My main concern was to remedy the root buses of the system. I
-don't believe that USB is such a thing, except maybe on some ARM systems?
-
-	-pat
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

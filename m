@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270759AbTGNTrY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTGNTrX
+	id S270761AbTGNTtL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTGNTtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:47:23 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:29667 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S270759AbTGNTrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:47:22 -0400
-Date: Mon, 14 Jul 2003 22:01:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Eric Altendorf <EricAltendorf@orst.edu>
-Cc: linux-kernel@vger.kernel.org,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Subject: Re: Hotplug USB mouse bugs in 2.4+swsusp
-Message-ID: <20030714200155.GA24964@ucw.cz>
-References: <200307110916.13785.EricAltendorf@orst.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307110916.13785.EricAltendorf@orst.edu>
-User-Agent: Mutt/1.5.4i
+	Mon, 14 Jul 2003 15:49:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44938 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270761AbTGNTsY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:48:24 -0400
+Message-ID: <3F130C75.3010603@pobox.com>
+Date: Mon, 14 Jul 2003 16:03:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David griego <dagriego@hotmail.com>
+CC: alan@storlinksemi.com, linux-kernel@vger.kernel.org
+Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+References: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
+In-Reply-To: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 09:16:13AM -0700, Eric Altendorf wrote:
+David griego wrote:
+> Intel Clusters and Network Storage Volume Platforms Lab reported that it 
+> takes about 1MHz to process 1Mbps on a PIII.  Using this rule of thumb 
+> (they showed it scaling from 400MHz to 800MHz) it would take 10GHz to 
+> process 10Mbps.  Well you might say "what about multi-processers?"  This 
 
-> 1) 
-> The mouse, under normal operation at times of heavy CPU or disk usage, 
-> will be spontaneously lost.  No messages are issued.  Physically 
-> unplugging and re-plugging the mouse restores it.
+Um.  It doesn't take nearly 10Ghz to handle 10Mbps, or even 100Mbps.
 
-Can be anything, from lost interrupts to noise on the USB connection.
-Need more data.
 
-> 2) 
-> No matter what I've tried, after switching to using hotplug 
-> (previously I had been using the 2.5 kernel w/o the hotplug daemon), 
-> I have been unable to get the internal pointer multiplexed into 
-> /dev/input/mice.  USB mouse shows up under /dev/input/mice and 
-> internal pointer shows up under /dev/psaux only.
+> would be good for people that have multi-processors, but there is a 
+> large segment of embedded processors that are not going have SMP, or be 
+> at 10GHz anytime soon.  Besides that processing interrupts does not 
+> scale across MPs liniarly.  The truth is that communication speeds are 
+> outpacing processor speeds at this time.
 
-Not possible. They're handled by the very same code in 2.5.
+If the host CPU is a bottleneck after large-send and checksums have been 
+offloaded, then logically you aren't getting any work done _anyway_. 
+You have to interface with the net stack at some point, in which case 
+you incur a fixed cost, for socket handling, TCP exception handling, etc.
 
-> 3)
-> After suspend & resume, USB mouse is gone.  Physically replugging it 
-> doesn't help.  /etc/init.d/hotplug restart  fixes it.
+Maybe somebody needs to be looking into AMP (asymmetric 
+multiprocessing), too.
 
-No idea here. Too many scripts involved.
+	Jeff
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+

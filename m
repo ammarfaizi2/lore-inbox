@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUHFQX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUHFQ2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUHFQX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 12:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268168AbUHFQVd
+	id S268142AbUHFQ2D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 12:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268163AbUHFQYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 12:21:33 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29117 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268172AbUHFQVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:21:14 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: Altix I/O code reorganization
-Date: Fri, 6 Aug 2004 09:19:20 -0700
-User-Agent: KMail/1.6.2
-Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org>
-In-Reply-To: <20040806141836.A9854@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408060919.20993.jbarnes@engr.sgi.com>
+	Fri, 6 Aug 2004 12:24:47 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:5114 "EHLO
+	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S268155AbUHFQYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 12:24:15 -0400
+Message-Id: <200408061623.i76GNfDa016095@falcon10.austin.ibm.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
+In-reply-to: <4112E2D7.9020606@pobox.com> 
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brett Russ <russb@emc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] (IDE) restore access to low order LBA following error 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 06 Aug 2004 11:23:41 -0500
+From: Doug Maxey <dwm@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, August 6, 2004 6:18 am, Christoph Hellwig wrote:
-> Yikes, this is truely horrible.  First your patch ordering doesn't make
-> any sense, with just the first patch applied the system won't work at all.
-> Please submit a series of _small_ patches going from A to B keeping the
-> code working everywhere inbetween.
 
-Much of this stuff is clearly interdependent (and dependent on PROM changes), 
-so I don't think that would make sense.
+On Thu, 05 Aug 2004 21:45:59 EDT, Jeff Garzik wrote:
+>ATAPI works too.....  assuming your CD/DVD drive never encounters a 
+>CHECK CONDITION requiring REQUEST SENSE to be issued...  ;-)
 
-Jesse
+  Heh.  Where should one start looking to get this enabled?  I have to
+  admit that I have given the code only a few minutes viewing.
+
+++doug

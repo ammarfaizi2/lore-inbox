@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbRBNRmz>; Wed, 14 Feb 2001 12:42:55 -0500
+	id <S129066AbRBNRtp>; Wed, 14 Feb 2001 12:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129620AbRBNRmp>; Wed, 14 Feb 2001 12:42:45 -0500
-Received: from smtp8.xs4all.nl ([194.109.127.134]:41698 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S130127AbRBNRmb>;
-	Wed, 14 Feb 2001 12:42:31 -0500
-Date: Wed, 14 Feb 2001 17:41:40 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Ingo Molnar <mingo@chiara.elte.hu>, Andrew Morton <andrewm@uow.edu.au>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Frank de Lange <frank@unternet.org>,
-        Martin Josefsson <gandalf@wlug.westbo.se>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.1, 2.4.2-pre3: APIC lockups
-Message-ID: <20010214174140.B824@grobbebol.xs4all.nl>
-In-Reply-To: <Pine.GSO.3.96.1010213203553.1931A-100000@delta.ds2.pg.gda.pl> <20010214173057.A824@grobbebol.xs4all.nl>
+	id <S129075AbRBNRtg>; Wed, 14 Feb 2001 12:49:36 -0500
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:11793 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S129066AbRBNRt0>; Wed, 14 Feb 2001 12:49:26 -0500
+Date: Wed, 14 Feb 2001 17:46:56 +0000
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Carlos Carvalho <carlos@fisica.ufpr.br>
+Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org,
+        axp-hardware@talisman.alphalinux.org
+Subject: Re: Alpha: bad unaligned access handling
+Message-ID: <20010214174656.H11048@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Carlos Carvalho <carlos@fisica.ufpr.br>, jbglaw@lug-owl.de,
+	linux-kernel@vger.kernel.org, axp-hardware@talisman.alphalinux.org
+In-Reply-To: <20010214154808.A15974@lug-owl.de> <14986.48181.55212.358637@hoggar.fisica.ufpr.br> <20010214172607.E11048@dev.sportingbet.com> <14986.49817.44381.454285@hoggar.fisica.ufpr.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010214173057.A824@grobbebol.xs4all.nl>; from roel@grobbebol.xs4all.nl on Wed, Feb 14, 2001 at 05:30:57PM +0000
-X-OS: Linux grobbebol 2.4.1 
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14986.49817.44381.454285@hoggar.fisica.ufpr.br>; from carlos@fisica.ufpr.br on Wed, Feb 14, 2001 at 03:38:33PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 05:30:57PM +0000, Roeland Th. Jansen wrote:
-> other observations -- approx 6000 ints from the ne2k card/sec.
-> MIS shows approx 1% that goes wrong with a ping flood.
+On Wed, Feb 14, 2001 at 03:38:33PM -0200, Carlos Carvalho wrote:
+> Sean Hunter (sean@dev.sportingbet.com) wrote on 14 February 2001 17:26:
+>  >This is an application problem, not a kernel one.  You need to upgrade your
+>  >netkit.
+> 
+> Yes, I was quite confident of this. However, unaligned traps are a
+> frequent problem with alphas. For a looong time we had zsh produce
+> lots of it, to the point of making it unusable. Strangely, the problem
+> disappeared without changing anything in zsh. It was either a library
+> or kernel problem.
 
-oops. had to count both CPU0 and CPU1's interrupts. after 23 minutes :
+Definitely library, I'd think.
 
-           CPU0       CPU1
- 19:    3824114    3823371   IO-APIC-level  eth0
-MIS:      29025
+> 
+>  >P.S. I wrote a small wrapper to aid in the debugging of unaligned
+>  >traps, which I'll send to anyone who's interested.
+> 
+> I'd like it!
+> 
 
-makes approx 0.3%..
+OK, my alpha is a sick bunny at the moment, so I'll have to wait until I get
+home (so I can see why I can't ssh to it).  What the wrapper does is set some
+settings so your program gets sigbus when it generates an unaligned trap, and
+then runs your program in gdb so gdb helpfully stops at the line which
+generated the trap.  It goes without saying you need to build the program in
+question with debugging symbols so that you see the code.
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+You then need to fix the unaligned access.  This sometimes requires real alpha
+guruhood (Which I do not possess, but Richard Henderson or Michal Jagerman do,
+if you need advice), but sometimes simply requires adding __attribute__
+((__unaligned__)) to a struct member in a c file.
+
+Sean
+

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVB1BpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVB1B6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVB1BpM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 20:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVB1BpM
+	id S261376AbVB1B6e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 20:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVB1B6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 20:45:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:17374 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261538AbVB1BpH (ORCPT
+	Sun, 27 Feb 2005 20:58:33 -0500
+Received: from orb.pobox.com ([207.8.226.5]:24026 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261376AbVB1B6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 20:45:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=FcWuY+2GE/o+rVajlRp159+KpE4EH6ZyoMiH/g+04HnQosjfbE2L7D6ittZDNljCd2yfZ9NSr5CgLhCTkfupirliR4VKt2E5C5URQhUkNWZqFVm8syTK17ntWV8enWqY/fTpj/e2VR0Ifm0sD9bGwURDZoHST6uLxXXBcWNc9jM=
-Message-ID: <29495f1d05022717454bc81cfa@mail.gmail.com>
-Date: Sun, 27 Feb 2005 17:45:06 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Wen Xiong <wendyx@us.ibm.com>
-Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
-Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-In-Reply-To: <42225A64.6070904@us.ltcfwd.linux.ibm.com>
+	Sun, 27 Feb 2005 20:58:31 -0500
+Date: Sun, 27 Feb 2005 17:58:26 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp logic error?
+Message-ID: <20050228015826.GF7524@ip68-4-98-123.oc.oc.cox.net>
+References: <20050208203950.GA21623@cirrus.madduck.net> <20050227174309.GA27265@piper.madduck.net> <20050227175039.GL1441@elf.ucw.cz> <200502271927.39982.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <42225A64.6070904@us.ltcfwd.linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502271927.39982.rjw@sisk.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -Nuar linux-2.6.9.orig/drivers/serial/jsm/jsm_driver.h linux-2.6.9.new/drivers/serial/jsm/jsm_driver.h
-> --- linux-2.6.9.orig/drivers/serial/jsm/jsm_driver.h    1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.9.new/drivers/serial/jsm/jsm_driver.h     2005-02-27 17:14:44.747952016 -0600
+On Sun, Feb 27, 2005 at 07:27:39PM +0100, Rafael J. Wysocki wrote:
+> On Sunday, 27 of February 2005 18:50, Pavel Machek wrote:
+[snip]
+> > Ok, this one.
+> > 
+> > I do not know what is going wrong. swsusp seems to work for
+> > people... or at least it works for me. Here's my .config, perhaps you
+> > have something unusual?
+> > 
+> > I do have CONFIG_PM_STD_PARTITION="/dev/hda1", perhaps that's
+> > neccessary?
+> 
+> I don't set CONFIG_PM_STD_PARTITION, but I pass the "resume" parameter
+> to the kernel and it works (no fuss, on x86-64 and i386).
 
-<snip>
+I have the same setup as Rafael, on i386 boxes. swsusp was very
+messed-up for me in earlier 2.6.11-rc, but with -rc4 (or maybe it's one
+of the -bk snapshots between -rc4 and -rc5) it works for me again.
+Specifically, in the failing releases, swsusp would never succeed in
+suspending the machine.
 
-> +#define jsm_jiffies_from_ms(a) (((a) * HZ) / 1000)
+Since the problem is gone now, I think I have better uses for my time
+than figuring out when the problem started and when it was fixed, but I
+just wanted to mention that in fact there are problems in earlier
+2.6.11-rc releases that seem to be fixed later on.
 
-Please use the existing msecs_to_jiffies(), which has both a more
-sensible name and is correct.
+-Barry K. Nathan <barryn@pobox.com>
 
-Thanks,
-Nish

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315481AbSFJQI0>; Mon, 10 Jun 2002 12:08:26 -0400
+	id <S315483AbSFJQWX>; Mon, 10 Jun 2002 12:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSFJQIZ>; Mon, 10 Jun 2002 12:08:25 -0400
-Received: from melchi.fuller.edu ([65.118.138.13]:55826 "EHLO
-	melchi.fuller.edu") by vger.kernel.org with ESMTP
-	id <S315481AbSFJQIY>; Mon, 10 Jun 2002 12:08:24 -0400
-Date: Mon, 10 Jun 2002 09:08:19 -0700 (PDT)
-From: <christoph@lameter.com>
-X-X-Sender: <christoph@melchi.fuller.edu>
-To: <joe.mathewson@btinternet.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-In-Reply-To: <TiM$20020610084203$1595@fusion.mathewson.int>
-Message-ID: <Pine.LNX.4.33.0206100906030.29218-100000@melchi.fuller.edu>
+	id <S315485AbSFJQWW>; Mon, 10 Jun 2002 12:22:22 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:17299 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315483AbSFJQWW>;
+	Mon, 10 Jun 2002 12:22:22 -0400
+Date: Mon, 10 Jun 2002 09:17:54 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] PCI device matching fix
+In-Reply-To: <Pine.LNX.4.44.0206100935080.20438-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.33.0206100917230.654-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jun 2002, Joseph Mathewson wrote:
 
-> Does the proposed patch give full symlink support or does it just read
-> .lnk files?  Most source tarballs will not have .lnk files in them,
-> they will have symlinks.  Would tar create the .lnk files if it was
-> extracting to vfat?  If the patch gives symlink support in some other
-> way than .lnk files, why can't we just use that and not meddle with
-> reading the .lnk files to allow Linux to run in a vfat partition.
+> Sounds okay. Well, I'm generally lost in too many patches, if you put
+> the whole thing onto bkbits.net or so, I'll try to give it a look.
 
-Full symlink support. Yes, tar creates symlinks and the vfat fs makes .lnk
-files out of the symlinks. when ls displays the directory contents the
-vfat fs recognizes the .lnk files and tells the os that there is a
-symlink. Its fully transparent. The .lnk files are only visible
-under windoze.
+Heh, sure. You can pull from bk://ldm.bkbits.net/linux-2.5-module.
 
+	-pat
 

@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263990AbUDQQsC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 12:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbUDQQsC
+	id S263993AbUDQRPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 13:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbUDQRPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 12:48:02 -0400
-Received: from disk.smurf.noris.de ([192.109.102.53]:49604 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S263990AbUDQQsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 12:48:00 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: NFS and kernel 2.6.x
-Date: Sat, 17 Apr 2004 18:44:01 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.04.17.16.44.00.630010@smurf.noris.de>
-References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1082220239 25055 192.109.102.35 (17 Apr 2004 16:43:59 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sat, 17 Apr 2004 16:43:59 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Sat, 17 Apr 2004 13:15:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24709 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263993AbUDQRPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 13:15:02 -0400
+Date: Sat, 17 Apr 2004 10:14:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, bfennema@falcon.csc.calpoly.edu
+Subject: Re: Fix UDF-FS potentially dereferencing null
+In-Reply-To: <200404171313.02784.ioe-lkml@rameria.de>
+Message-ID: <Pine.LNX.4.58.0404171009320.3947@ppc970.osdl.org>
+References: <20040416214104.GT20937@redhat.com> <Pine.LNX.4.58.0404161720450.3947@ppc970.osdl.org>
+ <1082195458.4691.1.camel@laptop.fenrus.com> <200404171313.02784.ioe-lkml@rameria.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Trond Myklebust wrote:
 
-> As for blanket statements like the above: I have seen no evidence yet
-> that they are any more warranted in 2.6.x than they were in 2.4.x.
 
-Oh, I saw the problem too: a slow client couldn't do full-size reads from
-a fast server because the buffer on the client's network card was just 8k.
+On Sat, 17 Apr 2004, Ingo Oeser wrote:
+> 
+> Or even call the attribute "nonnull", because this is a very obvious
+> naming, even to non-native English readers.
 
-Granted that the client is a slow m68k Mac, but 2.4 was fast enough to get
-the first packet entirely off the card before the last one overruns the
-buffer -- while 2.6 has a bit more latency, so it can't.
+I did that at first, but decided that what I really wanted was "safe".
 
-Apparently that bit of increased latency is offset by the fact that the
-machine still limps along if I packet-bomb it. Under 2.4 it locked solid,
-so overall I think that the 2.6 situation is an improvement.
+"nonnull" is nice for avoiding the NULL check, but it's useless for 
+anything else.
 
--- 
-Matthias Urlichs
+"safe" to my mind means that not only is it not NULL, it's also safe to 
+dereference early (ie "prefetchable"), which has a lot of meaning for the 
+back-end.
+
+> "safe" can mean anything from "safe to use under spinlock" to
+> "you cannot get pregnant from using this variable".
+
+That's pretty much _exactly_ what "safe" means.
+
+Basically, a real C compiler is not allowed to dereference a pointer
+speculatively, since that could have undefined side effects in the
+machine. And "safe" means that there are no side effects, pregnancy- 
+or otherwise.
+
+> GCC will not only optimize out the check, but also ensure that the we
+> will not pass NULL ptrs, if it can notice it. If this gets pushed high
+> enough (up to the register-like functions, where it gets first
+> assigned), we will never face this kind of problem anymore and document
+> this fact per function. Sounds like C coder heaven ;-)
+
+No. "nonnull" is useless. Even if it isn't NULL, the C standard does not 
+allow the compiler to just dereference something willy-nilly.
+
+In contrast, "safe" means that the compiler could do something like
+
+	int * safe ptr;
+
+	if (!a)
+		a = *ptr;
+
+and know that it is "safe" to transform this into
+
+	tmp = *ptr;
+	a = a ? : tmp;
+
+which it otherwise can't necessarily determine.
+
+		Linus
+		

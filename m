@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261591AbRESWFt>; Sat, 19 May 2001 18:05:49 -0400
+	id <S261769AbRESWHt>; Sat, 19 May 2001 18:07:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261769AbRESWFj>; Sat, 19 May 2001 18:05:39 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58539 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261591AbRESWFd>;
-	Sat, 19 May 2001 18:05:33 -0400
-Message-ID: <3B06EE28.157D327C@mandrakesoft.com>
-Date: Sat, 19 May 2001 18:05:28 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
+	id <S261771AbRESWHj>; Sat, 19 May 2001 18:07:39 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:12424 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S261769AbRESWHc>; Sat, 19 May 2001 18:07:32 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Has anybody a working pppoed for 2.4 (2.4.4-ac10/11)?
+Date: Sun, 20 May 2001 00:33:56 +0200
+X-Mailer: KMail [version 1.2.1]
+Cc: support@suse.de, feedback@suse.de, "Jamal Hadi Salim" <hadi@cyberus.ca>
 MIME-Version: 1.0
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.4-ac11 aironet fixes
-In-Reply-To: <200105192142.XAA02267@green.mif.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010519220738Z261769-1104+2718@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch looks generally ok.
+I have pppoed-0.48b1-6, ppp-2.4.0-5 (SuSE 7.1) but it didn't work (with 
+kernel pppoe.o/pppox.o).
+So I have to use rp-pppoe-2.5-5 (which should be slower I've heard) for the 
+German Telekom ADSL (product name TDSL).
 
-Comments:
-* you forgot to cc Elmer Joandi, the maintainer, who wakes up every now
-and then :)
-* When is aironet4500_card version string printed, for the modular case?
-* did you actually trace the code paths to mark sure code marked __init
-was never called by the pcmcia hotplug part of the code?  I just want to
-make sure you didn't mark them __init due to an assumption based on
-function name.
-
+Thanks,
+	Dieter
 -- 
-Jeff Garzik      | "Do you have to make light of everything?!"
-Building 1024    | "I'm extremely serious about nailing your
-MandrakeSoft     |  step-daughter, but other than that, yes."
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
+
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de

@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCAUql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVCAUr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVCAUql (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCAUql
+	id S262057AbVCAUr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCAUrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:46:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21447 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262070AbVCAUqA (ORCPT
+	Tue, 1 Mar 2005 15:47:22 -0500
+Received: from mail.tmr.com ([216.238.38.203]:62468 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262061AbVCAUoD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:46:00 -0500
-Date: Tue, 1 Mar 2005 12:45:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+	Tue, 1 Mar 2005 15:44:03 -0500
+Date: Tue, 1 Mar 2005 15:32:15 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: James Bruce <bruce@andrew.cmu.edu>
+cc: Paulo Marques <pmarques@grupopie.com>, Gerd Knorr <kraxel@bytesex.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1
-Message-ID: <20050301204509.GH23484@kroah.com>
-References: <20050301012741.1d791cd2.akpm@osdl.org> <200503011336.j21DaaqC008164@turing-police.cc.vt.edu> <20050301135529.A1940@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301135529.A1940@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+Subject: Re: Potentially dead bttv cards from 2.6.10
+In-Reply-To: <42248DE0.9090003@andrew.cmu.edu>
+Message-ID: <Pine.LNX.3.96.1050301152915.13613A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 01:55:29PM +0000, Russell King wrote:
-> On Tue, Mar 01, 2005 at 08:36:36AM -0500, Valdis.Kletnieks@vt.edu wrote:
-> > On Tue, 01 Mar 2005 01:27:41 PST, Andrew Morton said:
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc5/2.6.11-rc5-mm1/
-> > 
-> > > - A pcmcia update which obsoletes cardmgr (although cardmgr still works) and
-> > >   makes pcmcia work more like regular hotpluggable devices.  See the
-> > >   changelong in pcmcia-dont-send-eject-request-events-to-userspace.patch for
-> > >   details.
-> > 
-> > This is still showing the same 'cs: unable to map card memory!' issue on my
-> > Dell laptop.  Backing out bk-pci.patch makes it work again.
-> > 
-> > For what it's worth, the hotplug system wasn't able to initialize the wireless
-> > card (TrueMobile 1150) at boot - still needed cardmgr to get it started up.
-> > But that might just me being an idiot...
-> 
-> It's probably a clash between the PCI updates and the PCMCIA updates.
-> 
-> The PCI updates change the prototype of a helper function for 
-> pci_bus_alloc_resource(), but don't touch the actual helper function
-> in PCMCIA.
-> 
-> This means that the PCI update is actually broken - if it's merged as
-> is into Linus' tree, PCMCIA will break there as well.
-> 
-> Can whoever did the PCI update please resolve this mismatch.  Moreover,
-> if 2.6.11 appears, please do not merge the PCI updates until this has
-> been resolved.  Thanks.
+On Tue, 1 Mar 2005, James Bruce wrote:
 
-Andrew had a stale bk-pci tree in his local copy, and that is where that
-change came from.  It will not show up in the next -mm release, and will
-not be sent to Linus until after I have fixed up the _whole_ tree.
+> Sorry, I wasn't clear in the previous email; I did try the card= option 
+> anyway.  I wrote a looping script and tested first 70 card= options, and 
+> none worked properly for streaming capture.  Some did show different 
+> behavior though.  I might try the remaining 50 later today.
+> 
+> I did notice one strange thing though; the card= option is only applied 
+> to the first bttv card.  All remaining cards in the system are still 
+> autodetected (which ends up assuming card=0 in my case).  Not sure if 
+> this is the intended behavior or not, since someone really could run two 
+> different bttv cards in the same system.
 
-So sorry for the inconvience.
+Just for grins, did you try pulling one of the cards? I have to guess that
+having multiple cards is a low occurence configuration, and that you *may*
+be following some less traveled path here.
 
-thakns,
+At least now that you know how to set the type for the cards separately
+you can test two configurations at a time.
 
-greg k-h
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

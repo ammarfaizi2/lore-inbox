@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265024AbSKANki>; Fri, 1 Nov 2002 08:40:38 -0500
+	id <S265018AbSKANh5>; Fri, 1 Nov 2002 08:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265025AbSKANki>; Fri, 1 Nov 2002 08:40:38 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:41934 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S265024AbSKANkg>;
-	Fri, 1 Nov 2002 08:40:36 -0500
-Message-ID: <3DC285D4.2040305@colorfullife.com>
-Date: Fri, 01 Nov 2002 14:47:00 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265024AbSKANh5>; Fri, 1 Nov 2002 08:37:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:5357 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265018AbSKANhO>;
+	Fri, 1 Nov 2002 08:37:14 -0500
+Date: Fri, 1 Nov 2002 13:42:38 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David C. Hansen" <haveblue@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (3/3) stack overflow checking for x86
+Message-ID: <20021101134238.GA23904@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"David C. Hansen" <haveblue@us.ibm.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1036091906.4272.87.camel@nighthawk> <1036092052.4272.96.camel@nighthawk> <20021031213032.GA25685@suse.de> <1036155546.12551.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036155546.12551.3.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd wrote:
-> I have been looking for more places in 2.5 that can be marked 
-> might_sleep() and noticed that all the functions in asm/uaccess.h
-> are not marked although they sleep if the memory they access
-> has to be paged in.
-> 
+On Fri, Nov 01, 2002 at 12:59:06PM +0000, Alan Cox wrote:
+ > On Thu, 2002-10-31 at 21:30, Dave Jones wrote:
+ > >  > This won't apply cleanly without the irqstack patch, but the conflict is
+ > >  > easy to resolve.  It requires the thread_info cleanup.
+ > > 
+ > > I'm wondering about interaction between this patch and the
+ > > already merged CONFIG_DEBUG_STACKOVERFLOW ?
+ > 
+ > It replaces it and actually makes it useful since IRQ usage is now
+ > bounded and defined relative to non IRQ usage. Without IRQ stacks you
+ > don't have a hope in hell of catching overflows that depend on an irq
+ > occuring at the right moment
 
-Good idea.
-There is some abuse of __get_user to identify bad pointers:
-show_registers in the oops codepath, mm/slab.c in the /proc/slabinfo code.
+ Yeah, I figured it worked better, but wondered why the patch didn't
+ remove the existing implementation.
 
-Could you omit the test from the __ versions?
+		Dave
 
---
-	Manfred
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

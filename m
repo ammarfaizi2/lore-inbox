@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287994AbSAHM1W>; Tue, 8 Jan 2002 07:27:22 -0500
+	id <S287997AbSAHMfx>; Tue, 8 Jan 2002 07:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287995AbSAHM1N>; Tue, 8 Jan 2002 07:27:13 -0500
-Received: from weta.f00f.org ([203.167.249.89]:62661 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S287994AbSAHM1C>;
-	Tue, 8 Jan 2002 07:27:02 -0500
-Date: Wed, 9 Jan 2002 01:30:05 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "APIC error on CPUx" - what does this mean?
-Message-ID: <20020108123005.GA29924@weta.f00f.org>
-In-Reply-To: <E3B8D7A16F6@vcnet.vc.cvut.cz> <Pine.GSO.3.96.1020108130224.28906B-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.3.96.1020108130224.28906B-100000@delta.ds2.pg.gda.pl>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: Yes
+	id <S287995AbSAHMfn>; Tue, 8 Jan 2002 07:35:43 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:56744 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287997AbSAHMfc>;
+	Tue, 8 Jan 2002 07:35:32 -0500
+Date: Tue, 8 Jan 2002 15:32:55 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: [patch] O(1) scheduler, -E1, 2.5.2-pre10, 2.4.17
+In-Reply-To: <20020108113251.GB20897@krispykreme>
+Message-ID: <Pine.LNX.4.33.0201081503250.6793-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 01:12:04PM +0100, Maciej W. Rozycki wrote:
 
-    A possible reason is the 8259A in the chipset deasserts its INT
-    output late enough for the Athlon CPU's local APIC to register
-    another ExtINTA interrupt sometimes, possibly under specific
-    circumstances.
+this is the latest update of the O(1) scheduler:
 
-Actully... we could potentially measure this... after an interrupt it
-serviced (or before, or both) we could store the interrupt source
-globally and the cycle counter... when a suprrious interrupt is
-received check the last interrupt and how long ago it was and then
-start looking for a pattern...
+	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre10-E1.patch
 
+        http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-E1.patch
 
+now that Linus has put the -D2 patch into the 2.5.2-pre10 kernel, the
+2.5.2-pre10-E1 patch has become quite small :-)
 
-  --cw
+The patch compiles, boots & works just fine on my UP/SMP boxes.
+
+Changes since -D2:
+
+ - make rq->bitmap big-endian safe. (Anton Blanchard)
+
+ - documented and cleaned up the load estimator bits, no functional
+   changes apart from small speedups.
+
+ - do init_idle() before starting up the init thread, this removes a race
+   where we'd run the init thread on CPU#0 before init_idle() has been
+   called.
+
+	Ingo
+

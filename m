@@ -1,109 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbTI3Opr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 10:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbTI3Opq
+	id S261538AbTI3O6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 10:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTI3O6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 10:45:46 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:2694 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S261542AbTI3Opo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 10:45:44 -0400
-Date: Tue, 30 Sep 2003 15:45:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, richard.brunner@amd.com
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
-Message-ID: <20030930144526.GC28876@mail.shareable.org>
-References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com> <20030930133936.GA28876@mail.shareable.org> <20030930135324.GC5507@redhat.com>
+	Tue, 30 Sep 2003 10:58:52 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:41990 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261538AbTI3O6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 10:58:48 -0400
+Date: Tue, 30 Sep 2003 12:04:31 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+Message-ID: <20030930150430.GA2996@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Adrian Bunk <bunk@fs.tum.de>, "David S. Miller" <davem@redhat.com>,
+	netdev@oss.sgi.com, pekkas@netcore.fi,
+	lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20030928225941.GW15338@fs.tum.de> <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de> <20030928233909.GG1039@conectiva.com.br> <20030929001439.GY15338@fs.tum.de> <20030929003229.GM1039@conectiva.com.br> <20030929221129.7689e088.davem@redhat.com> <20030930133729.GJ295@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030930135324.GC5507@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030930133729.GJ295@fs.tum.de>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Tue, Sep 30, 2003 at 02:39:36PM +0100, Jamie Lokier wrote:
->  > Dave Jones wrote:
->  > > This looks to be completely gratuitous. Why disable it when we have the
->  > > ability to work around it ?
->  > 
->  > Because some people expressed a wish to have kernels that don't
->  > contain the workaround code, be they P4-optimised or 486-optimised
->  > kernels.
+Em Tue, Sep 30, 2003 at 03:37:29PM +0200, Adrian Bunk escreveu:
+> On Mon, Sep 29, 2003 at 10:11:29PM -0700, David S. Miller wrote:
+> > On Sun, 28 Sep 2003 21:32:30 -0300
+> > Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+> > 
+> > > Em Mon, Sep 29, 2003 at 02:14:39AM +0200, Adrian Bunk escreveu:
+> > > > On Sun, Sep 28, 2003 at 08:39:10PM -0300, Arnaldo Carvalho de Melo wrote:
+> > > > What about the following solution (the names and help texts for the
+> > > > config options might not be optimal, I hope you understand the
+> > > > intention):
+> > > > 
+> > > > config IPV6_SUPPORT
+> > > > 	bool "IPv6 support"
+> > > > 
+> > > > config IPV6_ENABLE
+> > > > 	tristate "enable IPv6"
+> > > > 	depends on IPV6_SUPPORT
+> > > > 
+> > > > IPV6_SUPPORT changes structs etc. and IPV6_ENABLE is responsible for 
+> > > > ipv6.o .
+> > > 
+> > > Humm, and the idea is? This seems confusing, could you elaborate on why such
+> > > scheme is a good thing?
+> > 
+> > I think the idea is totally broken.  At first, Adrian comments that
+> > changing the layout of structs based upon a config option is broken,
+> > then he proposes a config option that does nothing except change the
+> > layout of structures.
+> > 
+> > The current situation is perfectly fine.
 > 
-> And those people are wrong. If they want to save bloat, instead of
-> 'fixing' things by removing <1 page of .text, how about working on
-> some of the real problems like shrinking some of the growth of various
-> data structures that actually *matter*.
-
-How about both?
-
-> The "I don't want Athlon code in my kernel because I run a P4 and
-> it makes it slow/bigger" argument is totally bogus. It's akin to
-> the gentoo-esque "I compiled my distro with -march=p4 and now
-> my /bin/ls is faster than yours" argument.
-
-I'm talking about people with embedded 486s or old 486s donated.  P4s
-are abundant in RAM, but 2MB is still not unheard of in the small
-boxes, and in 2MB, 512 bytes of code (which is about the size of the
-prefetch workaround) is more significant.  Not by itself, but by
-virtue of being yet another unnecessary, and very clearly removable
-chunk.  Diligence and all that.
-
->  > After all we have kernels that don't contain the F00F
->  > workaround too.  I'm not pushing this patch as is, it's for
->  > considering the pros and cons.
+> I did perhaps express my opinion not clearly.
 > 
-> F00F workaround was enabled on every kernel that is possible
-> to boot on affected hardware last time I looked.
-> This is what you seem to be missing, it's not optional.
-> If its possible to boot that kernel on affected hardware, 
-> it needs errata workarounds.
-
-We have a few confusing issues here.
-
-1. First, your point about affected hardware.
-
-   I see your point, and the new "alternative" macro is allowing things
-   to develop along those lines even better: using fancier features (like
-   prefetch) but not requiring them.  Most of the x86 kernel is like that now.
-   All the stuff in arch/i386/kernel/cpu/* is mandatory.  Yet:
-
-   - I don't see anything that prevents a PPro-compiled kernel from booting
-     on a P5MMX with the F00F erratum.
-
-   - Nor do I see anything that prevents a PII-compiled kernel from booting
-     on a PPro with the store ordering erratum (X86_PPRO_FENCE).
-
-   Those are both nasty bugs, and the latter can corrupt data on an SMP PPro.
-
-   Currently, it seems quite hypocritical to treat the AMD workaround
-   as, in effect, mandatory, while there are others which aren't.
-   Perhaps it's this apparent hypocrisy which needs healing.
-
-2. I'm not sure if you're criticising the other chap who wants
-   rid of the AMD errata workaround, or my X86_PREFETCH_FIXUP code.
-
-   In case you hadn't fully grokked it, my code doesn't disable the
-   workaround!  It simply substitutes it for a smaller, slightly
-   slower one, on kernels which are not optimised for AMD.  Those
-   kernels continue to work just fine on AMD processors.
-
-   Given that, I'm not sure what the thrust of your argument is.
-
->  > CONFIG_X86_PREFETCH_WORKAROUND makes more makes more sense with the
->  > recently available "split every x86 CPU into individually selectable
->  > options" patch, and, on reflection, that's probably where it belongs.
+> My personal opinions:
 > 
-> Said patch isn't included in mainline, so this argument is bogus.
-> Relative merits of that patch were already discussed in another thread.
+> It's OK that setting an option to y changes structs or whatever else in 
+> the kernel.
+> 
+> It's not OK if adding a module changes the layout of structs compiled 
+> into the kernel.
+> 
+> Modules have many advantages, one advantage is e.g. that they allow 
+> generic distribution kernels without resulting in huge kernel images.
+> 
+> Another advantage is that you can later add modules to a running kernel, 
+> you can compile a module for your kernel and insert it without rebooting 
+> the machine. This is currently not possible with moduler IPv6.
+> 
+> That was my personal opinion.
+> 
+> My opinions seem to be very close to the opinions of David Woodhouse, so 
+> there's no need to repeat your discussion.
 
-That wasn't an argument and the patch from me isn't in the mainline
-either, but anyway I agree that topic has its own thread.  Let's
-please leave it out of this one and focus on the merits, or otherwise,
-of my patch and Andi's.
+And just for the record, as a matter of taste I'd like to see all #ifdefs in
+structs to disappear, look at what I did to struct sock in 2.5 and look at
+struct sock (include/net/sock.h) in 2.4: no #ifdefs where there was a ton,
+what I disagree is to make IPV6 not to be built as a module, that would harm
+generic kernels, what I said was that this has to be fixed properly, this
+requires time and we are too late in 2.6 for such bigger changes, as this is
+not just #ifdefs in structs, it is #ifdefs in the IPV4 code, etc.
 
--- Jamie
+Lets revisit this in 2.7.
+
+- Arnaldo
+
+For the record: I did an audit in 99% of the headers in the linux source tree,
+#ifdefs in structs are mostly just for: CONFIG_PROCFS, DEBUG, NETFILTER and
+IPV6, and just a few.

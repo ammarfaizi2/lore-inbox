@@ -1,115 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUEAWVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUEAWUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbUEAWVa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 18:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUEAWVa
+	id S262425AbUEAWUw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 18:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUEAWUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 18:21:30 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:47348 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262431AbUEAWVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 18:21:04 -0400
-Date: Sat, 1 May 2004 18:21:04 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Keith Owens <kaos@sgi.com>
-Subject: Re: [PATCH][2.6-mm] Allow i386 to reenable interrupts on lock
- contention
-In-Reply-To: <20040501143955.10d1cea1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0405011750070.2332@montezuma.fsmlabs.com>
-References: <2015.1083331968@ocs3.ocs.com.au> <Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
- <20040501143955.10d1cea1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 1 May 2004 18:20:52 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:41099 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262425AbUEAWUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 18:20:49 -0400
+Date: Sat, 1 May 2004 15:20:40 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: koke@amedias.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strange delays on console logouts (tty != 1)
+Message-ID: <20040501222040.GA10780@taniwha.stupidest.org>
+References: <20040430195351.GA1837@amedias.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040430195351.GA1837@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 May 2004, Andrew Morton wrote:
+On Fri, Apr 30, 2004 at 09:53:51PM +0200, Jorge Bernal wrote:
 
-> Could we move all the irq-handling stuff into the out-of-line section, to
-> keep the fast-path cache footprint smaller?
+> On tty's != 1 it takes a long time (~20-30 secs) from logout to next
+> login but on tty1 it takes a normal time.
 
-Of course, oversight on my part. Done and restested.
+Can you check your logs and see if getty is complaining about the tty
+being already in use?
 
-Index: linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 08:19:15 -0000	1.1.1.1
-+++ linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 21:53:36 -0000
-@@ -42,7 +42,6 @@ typedef struct {
+or perhaps try something like (not actually tested in this form):
 
- #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
--#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+   for i in `seq 1 1000` ; do \
+       echo before > /dev/tty7 ; \
+       strace -ttogetty-trace.$i getty 38400 tty7 linux ; \
+       echo after > /dev/tty7 ; \
+   done
 
- #ifdef CONFIG_SPINLINE
+switch to tty7 (or whatever you use, make sure nothing else like is
+using it --- that means comment out of inittab) and then see if you
+see delays between the 'before' and the actually logic prompt --- or
+as I see in some cases the getty exist without printing anything.
 
-@@ -58,6 +57,21 @@ typedef struct {
- 		"jmp 1b\n" \
- 		"3:\t"
+If this is the case for you then I'll have a quick poke at why getty
+things the tty is in use (which is what is apparently causing it
+here).
 
-+	#define spin_lock_string_flags \
-+		"\n1:\t" \
-+		"lock ; decb %0\n\t" \
-+		"jns 3f\n" \
-+		"testl $0x200, %1\n\t" \
-+		"jz 2f\n\t" \
-+		"sti\n\t" \
-+		"2:\t" \
-+		"rep;nop\n\t" \
-+		"cmpb $0, %0\n\t" \
-+		"jle 2b\n\t" \
-+		"cli\n\t" \
-+		"jmp 1b\n" \
-+		"3:\t"
-+
- #else /* !CONFIG_SPINLINE */
+Please let me know what getty (version, etc) you are using and what
+distro and other relevant things as it might be a bug specific to some
+distro's and not others as few people have reported this.
 
- 	#define spin_lock_string \
-@@ -72,6 +86,23 @@ typedef struct {
- 		"jmp 1b\n" \
- 		LOCK_SECTION_END
 
-+	#define spin_lock_string_flags \
-+		"\n1:\t" \
-+		"lock ; decb %0\n\t" \
-+		"js 2f\n\t" \
-+		LOCK_SECTION_START("") \
-+		"2:\t" \
-+		"testl $0x200, %1\n\t" \
-+		"jz 3f\n\t" \
-+		"sti\n\t" \
-+		"3:\t" \
-+		"rep;nop\n\t" \
-+		"cmpb $0, %0\n\t" \
-+		"jle 3b\n\t" \
-+		"cli\n\t" \
-+		"jmp 1b\n" \
-+		LOCK_SECTION_END
-+
- #endif /* CONFIG_SPINLINE */
- /*
-  * This works. Despite all the confusion.
-@@ -143,6 +174,20 @@ here:
- 		:"=m" (lock->lock) : : "memory");
- }
 
-+static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-+{
-+#ifdef CONFIG_DEBUG_SPINLOCK
-+	__label__ here;
-+here:
-+	if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
-+		printk("eip: %p\n", &&here);
-+		BUG();
-+	}
-+#endif
-+	__asm__ __volatile__(
-+		spin_lock_string_flags
-+		:"=m" (lock->lock) : "r" (flags) : "memory");
-+}
+Thanks,
 
- /*
-  * Read-write spinlocks, allowing multiple readers
+  --cw

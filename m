@@ -1,54 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132262AbQKWQIB>; Thu, 23 Nov 2000 11:08:01 -0500
+        id <S129091AbQKWQKv>; Thu, 23 Nov 2000 11:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129091AbQKWQHv>; Thu, 23 Nov 2000 11:07:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2566 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S132262AbQKWQHe>; Thu, 23 Nov 2000 11:07:34 -0500
-Date: Thu, 23 Nov 2000 07:37:27 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries.Brouwer@cwi.nl
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: {PATCH} isofs stuff
-In-Reply-To: <UTC200011230350.EAA138908.aeb@aak.cwi.nl>
-Message-ID: <Pine.LNX.4.10.10011230727310.7927-100000@penguin.transmeta.com>
+        id <S129153AbQKWQKl>; Thu, 23 Nov 2000 11:10:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61972 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129091AbQKWQKc>; Thu, 23 Nov 2000 11:10:32 -0500
+Subject: Linux 2.4.0test11-ac3
+To: linux-kernel@vger.kernel.org
+Date: Thu, 23 Nov 2000 15:40:57 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yyUc-0007U6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Changes in 2.4.0test11ac3
 
+o	Features is back to flags for compatibility	(me)
+o	Cleanup ramdisk namespace			(Jeff Garzik)
+o	ACPI updates					(Andrew Grover)
+o	Make SET_MODULE_OWNER macro safer		(Jeff Garzik)
+o	Hisax needed __init				(Jeff Garzik)
+o	Tidy riscom8 and sx namespace			(Jeff Garzik)
+o	Tidy network drivers module locking		(Jeff Garzik)
+o	APM updates, fix the Dell 5000e check for APM=m	(Stephen Rothwell)
+o	Fix module initialization oops 			(Keith Owens)
+o	Clean up Abyss driver				(Jeff Garzik)
+o	Fix raid linking order				(Neil Brown)
+o	Clean up rcpci driver (new style pci etc)	(Jeff Garzik)
+o	Fix SCSI / PCI dependancies			(Jeff Garzik)
+o	Better trap for MP board with no MP cpu		(Maciej W. Rozycki)
+o	Tidy up mad16 driver				(Pavel Rabel)
+o	Update EATA driver and Ultrastor driver		(Dario Ballabio)
+o	Clean up printk formatting in a few drivers	(me)
+o	Disable PMC511 driver - its obviously broken	(me)
 
-On Thu, 23 Nov 2000 Andries.Brouwer@cwi.nl wrote:
-> 
-> I never read assembler, but looking at the code produced
-> by gcc (2.95.2) it seemed peculiar, maybe an attempt to
-> optimize something combining the
-> 	if (filp->f_pos >= inode->i_size)
-> with the
-> 	while (filp->f_pos < inode->i_size)
-> slightly later.
+Changes in 2.4.0test11ac2
 
-Can you send me the code in question? I don't have gcc-2.95.2, and I don't
-want to install it. If this is truly a compiler bug, I'd like to see it
-and verify it and get it reported to the gcc lists asap, as these kinds of
-things are so damn nasty to find.
+o	Fix pcnet32 printk problems			(Vojtech Pavlik)
+o	Fix kd_mksound declaration			(Geert Uytterhoeven)
+o	m68k config fixes				(Geert Uytterhoeven)
+o	Make uid16 macros safer				(Andreas Schwab)
+o	Fix dquot overflow/recovery			(Jan Kara)
+o	Rename block_til_ready in generic_serial      (Patrick van de Lageweg)
+o	Fix missing Config doc and sound doc error	(Thierry Vignaud)
+o	Fix Ruffian Alpha boot				(Ivan Kokshaysky)
+o	Bridge handling patches needed for Alpha	(Ivan Kokshaysky /
+							Richard Henderson)
+o	APM update 					(Stephen Rothwell)
+o	Fix SMP build on x86				(Steven Cole)
+o	Remove unneeded inits to 0 in ide code	  (Bartlomiej Zolnierkiewicz)
+o	IDE documentation fixes			  (Bartlomiej Zolnierkiewicz)
+o	Maestro ioctl locking fix			(Zach Brown)
+o	NFS atomic fixes				(Trond Myklebust)
+o	Drop out escaped hp-plus noise			(me)
+o	Make console_* static inline not extern		(Jeff Garzik)
+o	Update to new ramfs patches			(David Gibson)
+o	Work arounds for broken Dell laptop APM		(me)
+	| If you have an Inspiron 5000e please send 
+	| me the dmesg of this kernel booting. Thanks
+o	Fix aha1542 memory scribbles			(Phil Stracchino)
+o	Fix O_SYNC for ext2fs				(Stephen Tweedie)
+o	Fix ide scsi printk				(Geert Uytterhoeven)
+o	Change the SMP but no apic check to handle
+	older Intel boards with 82489DX devices		(me)
 
-> I have seen that there were discussions on the right compiler to use.
-> Is 2.95.2 wrong? Have other things to do tomorrow, so it will be
-> 24 hours before I can look at this again.
+Differences between 2.4.0test11ac1 and 2.4.0test11, pretty much all merged
+from stuff off the maintainers and kernel list.
 
-2.95.2 should have been reasonably ok, but egcs-2.91.66 is probably
-considered the most stable compiler right now.
+o	Documentation for CONFIG_TOSHIBA
+o	Updated version of Rusty's kernel-hacking doc
+o	Updated SubmittingDrivers
+o	Added SubmittingPatches
+o	Updated procfs docs
+o	Updated initrd docs
 
-Note that gcc has always had problems with "long long" variables. Very few
-people use them as they aren't standard, and the code generation can be
-much trickier, so bugs are much more likely. This (along with performance
-issues) was why I refused the original LFS patches - they put "long long"
-code all over the place.
+o	Support kgcc autodetect
+o	Link correctly with ACPI on ACPI_INTERPRETER off
+o	Rusty's fixes/review of unsafe set_bit usage
+o	Cleanup console_verbose() dunplication
+o	MTRR updates (36bit etc)
+o	Dont crash on boot with a dual cpu board holding a non intel cpu
+o	Ramdisk missing blkdev_put
+o	Radio driver cleanups
+o	BTTV radio config option
+o	Fix qcam VIDIOCGWIN bugs
+o	3c503 error return cleanup
+o	8390 seperate tx timeout path
+o	Acenic update
+o	Network driver check/request region fixes
+o	Epic100 update
+o	Tulip crash fix on weird eeproms
+o	ISAPnP hang on boot port fix
+o	CS46xx update
+o	Maestro pci_enable fix
+o	Support mixed pnp and legacy sb cards
+o	Fix function prototype in wacom drivr
+o	Hopefully fix the bugs in the FAT and HPFS file systems that
+	caused fs corruption
+o	Fix cramfs vanishing data bug
+o	Fix NLS config.in bug for SMB
+o	Fix generic bitops bugs
+o	Power management locking fixes
+o	filemap posix compliance fix
+o	Fix pte handling race
 
-			Linus
+Also the ramfs changes are in my tree. I don't plan to submit the ramfs bits
+to Linus in their current state, thats just an Alan Convenience
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

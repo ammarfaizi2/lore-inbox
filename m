@@ -1,78 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAIVWw>; Tue, 9 Jan 2001 16:22:52 -0500
+	id <S131884AbRAIVZO>; Tue, 9 Jan 2001 16:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRAIVWd>; Tue, 9 Jan 2001 16:22:33 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21139 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129383AbRAIVW3>;
-	Tue, 9 Jan 2001 16:22:29 -0500
-Date: Tue, 9 Jan 2001 16:22:27 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Floppy disk strange behavior
-In-Reply-To: <m3itnoihys.fsf@shookay.e-steel.com>
-Message-ID: <Pine.GSO.4.21.0101091540330.9953-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129406AbRAIVZE>; Tue, 9 Jan 2001 16:25:04 -0500
+Received: from obelix.plusnet.ch ([194.158.230.8]:33297 "EHLO
+	obelix.spectraweb.ch") by vger.kernel.org with ESMTP
+	id <S131884AbRAIVYv>; Tue, 9 Jan 2001 16:24:51 -0500
+Message-Id: <200101092118.WAA01032@pingu.hargarten>
+Subject: Re: Did anybody have compiled nvidia driver with 2.4.0. (final)  
+	kernel ?
+From: Marcel Weber <mmweber@ncpro.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/alternative; boundary="=-Cu/fB4899IxmscDgWMr3"
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 09 Jan 2001 22:19:59 +0100
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-Cu/fB4899IxmscDgWMr3
+Content-Type: text/plain
 
-On 9 Jan 2001, Mathieu Chouquet-Stringer wrote:
 
-> I use GRUB to boot my system. Basically, when you want to install GRUB on a
-> floppy disk, you do that:
-> 
-> dd if=stage1 of=/dev/fd0 bs=512 count=1
-> dd if=stage2 of=/dev/fd0 bs=512 seek=1
-> 
-> But since kernel 2.3.xx (I don't remember exactly), I got this error
-> message when I try to do the second dd (even as root):
-> dd: advancing past 1 blocks in output file `/dev/fd0': Permission denied
+ 
+Yes I did
+ 
+It's not that difficult: I've got SuSE 7.0 with xfree86 4.0.2 (SuSE
+packages) and Kernel 2.4.0 final. Take the nvidia 0.9-5 tarballs. Unpack
+them. Apply this patch (attached patch < patch... from within the
+NVIDIA_kernel directory):
 
-dd bug. It tries to ftruncate() the output file and gets all upset when
-kernel refuses to truncate a block device (surprise, surprise).
+Okay, if you try to compile it complains about some unmap stuff. 
 
-Workaround: use conv=notrunc.
+Open nv.c
 
-Proper fix:
-ed src/dd.c <<EOF
-/^main/
-/^$/i
-	struct stat stat_buf;
-.
-/HAVE_FTRUNCATE/i
-	if (fstat(STDOUT_FILENO, &stat_buf) < 0)
-	        error (1, errno, "%s", output_file);
-	if (!S_ISREG(stat_buf.st_mode))
-		conversions_mask |= C_NOTRUNC;
-.
-w
-q
-EOF
+Go to line 860. Remove all the lines from and including the else
+expression. Go some lines up and remove the if expression looking for
+the right kernel version. Now, you have the declaration for the 2.4.0
+kernel, right. 
+ 
+Save and exit
 
-Notice that for regular files dd will truncate everything past its
-output unless you say notrunc. This behaviour obviously makes no
-sense for devices - they have fixed size and there's no way in hell
-to truncate a floppy (well, there is, but it requires manual
-operations ;-) The _only_ possible behaviour for anything except
-regular files is notrunc one. Patch above forces notrunc for everything
-that is not a regular file.
+Now do a make.
 
-Basically, dd(1) expects kernel to fake success for ftruncate() on the
-things that can't be truncated. Bad idea. 2.2 didn't bother to report
-error in that case, so this bug didn't show up. 2.4 (and many other
-Unices) return error and dd fails when you have block device as output file,
-non-zero as initial seek and don't have notrunc.
+For beeing sure copy the NVdriver to /lib/modules/2.4.0/video/NVdriver
 
-Try to build GNU dd on other Unices and you will be able to trigger that
-bug on quite a few of them.
+Try a modprobe NVdriver. With a lsmod it should appear now. Okay no
+configure X and glx as before.
 
-ftruncate(2) is _not_ supposed to succeed on anything other than regular
-files. I.e. dd(1) should not call it and expect success if file is not
-regular. Plain and simple...
+Works perfectly on my system
+
+Enjoy
+
+Marcel
+
+
+
+
+________________________________________________________________________
+
+Marcel Weber 
+mmweber@ncpro.com 
+http://www.ncpro.com 
+
+
+Made and sent with Linux 
+
+
+
+________________________________________________________________________
+
+Marcel Weber 
+mmweber@ncpro.com 
+http://www.ncpro.com 
+
+
+Made and sent with Linux 
+
+--=-Cu/fB4899IxmscDgWMr3
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/0.8">
+</HEAD>
+<BODY><pre><br>
+ <br>
+Yes I did<br>
+ <br>
+It's not that difficult: I've got SuSE 7.0 with xfree86 4.0.2 (SuSE<br>
+packages) and Kernel 2.4.0 final. Take the nvidia 0.9-5 tarballs. Unpack<br>
+them. Apply this patch (attached patch &lt; patch... from within the<br>
+NVIDIA_kernel directory):<br>
+<br>
+Okay, if you try to compile it complains about some unmap stuff. <br>
+<br>
+Open nv.c<br>
+<br>
+Go to line 860. Remove all the lines from and including the else<br>
+expression. Go some lines up and remove the if expression looking for<br>
+the right kernel version. Now, you have the declaration for the 2.4.0<br>
+kernel, right. <br>
+ <br>
+Save and exit<br>
+<br>
+Now do a make.<br>
+<br>
+For beeing sure copy the NVdriver to /lib/modules/2.4.0/video/NVdriver<br>
+<br>
+Try a modprobe NVdriver. With a lsmod it should appear now. Okay no<br>
+configure X and glx as before.<br>
+<br>
+Works perfectly on my system<br>
+<br>
+Enjoy<br>
+<br>
+Marcel<br>
+<br>
+<br>
+<br>
+<br>
+________________________________________________________________________<br>
+<br>
+Marcel Weber <br>
+mmweber@ncpro.com <br>
+http://www.ncpro.com <br>
+<br>
+<br>
+Made and sent with Linux </pre><br>
+
+<HR>
+<h4>Marcel Weber 
+<br>
+mmweber@ncpro.com 
+<br>
+http://www.ncpro.com 
+<br>
+
+<br>
+</h4>
+<h5>Made and sent with Linux </h5>
+</BODY>
+</HTML>
+
+--=-Cu/fB4899IxmscDgWMr3--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

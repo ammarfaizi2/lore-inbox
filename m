@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136049AbRD0OdQ>; Fri, 27 Apr 2001 10:33:16 -0400
+	id <S136050AbRD0Ohq>; Fri, 27 Apr 2001 10:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136050AbRD0OdH>; Fri, 27 Apr 2001 10:33:07 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:22101 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S136049AbRD0OdB>; Fri, 27 Apr 2001 10:33:01 -0400
-Date: Fri, 27 Apr 2001 17:32:50 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010427173250.G3529@niksula.cs.hut.fi>
-In-Reply-To: <20010427095840.A701@suse.cz> <Pine.GSO.4.21.0104270922360.18661-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S136058AbRD0Ohg>; Fri, 27 Apr 2001 10:37:36 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:10506
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S136050AbRD0OhU>; Fri, 27 Apr 2001 10:37:20 -0400
+Date: Fri, 27 Apr 2001 10:36:44 -0400
+From: Chris Mason <mason@suse.com>
+To: Pavel Machek <pavel@suse.cz>, viro@math.psu.edu,
+        kernel list <linux-kernel@vger.kernel.org>,
+        jack@atrey.karlin.mff.cuni.cz
+cc: torvalds@transmeta.com
+Subject: Re: [patch] linux likes to kill bad inodes
+Message-ID: <221900000.988382204@tiny>
+In-Reply-To: <20010427002853.A11426@bug.ucw.cz>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104270922360.18661-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Apr 27, 2001 at 09:23:57AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 09:23:57AM -0400, you [Alexander Viro] claimed:
-> 
-> 
-> On Fri, 27 Apr 2001, Vojtech Pavlik wrote:
-> 
-> > Actually this is done quite often, even on mounted fs's:
-> > 
-> > hdparm -t /dev/hda
-> 
-> You would need either hdparm -t /dev/hda<something> or mounting the
-> whole /dev/hda.
-> 
-> Buffer cache for the disk is unrelated to buffer cache for parititions.
-
-Well, I for one have been running
-
-hdparm -t /dev/md0
-or
-time head -c 1000m /dev/md0 > /dev/null
-
-while /dev/md0 was mounted without realizing that this could be "stupid" or
-that it could eat my data.
-
-/dev/md0 on /backup-versioned type ext2 (rw)
-
-I often cat(1) or head(1) partitions or devices (even mounted ones) if I
-need dummy randomish test data for compression or tape drives (that I've
-been having trouble with). 
-
-BTW: is 2.2 affected? 2.0? 
 
 
--- v --
+On Friday, April 27, 2001 12:28:54 AM +0200 Pavel Machek <pavel@suse.cz>
+wrote:
 
-v@iki.fi
+> Okay, so what about following patch, followed by attempt to debug it?
+> [I'd really like to get patch it; killing user's data without good
+> reason seems evil to me, and this did quite a lot of damage to my
+> $HOME.]
+
+2.4.4-pre8 does have the patch to keep write_inode from syncing a
+bad_inode.        In the short term this is the best way to go.
+
+For debugging further, it is probably best to put the warning in when
+marking the inode dirty, and randomly returning bad_inodes from read_inode.
+I'll give this a try next week.  
+
+My guess is that UPDATE_ATIME is the offending caller, the follow_link path
+in open_namei is at least one place that should trigger it.
+
+-chris
+
+
+

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129350AbQKFTyl>; Mon, 6 Nov 2000 14:54:41 -0500
+	id <S129392AbQKFT5L>; Mon, 6 Nov 2000 14:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129392AbQKFTyb>; Mon, 6 Nov 2000 14:54:31 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:22282 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S129350AbQKFTyV>; Mon, 6 Nov 2000 14:54:21 -0500
-Message-ID: <3A070BEF.7712DEDB@didntduck.org>
-Date: Mon, 06 Nov 2000 14:52:15 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: forop066@zaz.com.br
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Calling module symbols from inside the kernel !
-In-Reply-To: <200011061924.QAA31314@srv1-for.for.zaz.com.br>
+	id <S130000AbQKFT5B>; Mon, 6 Nov 2000 14:57:01 -0500
+Received: from u-245.karlsruhe.ipdial.viaginterkom.de ([62.180.10.245]:57095
+	"EHLO u-245.karlsruhe.ipdial.viaginterkom.de") by vger.kernel.org
+	with ESMTP id <S129392AbQKFT4t>; Mon, 6 Nov 2000 14:56:49 -0500
+Date: Mon, 6 Nov 2000 18:14:06 +0100
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Aaron Sethman <androsyn@ratbox.org>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Tim Riker <Tim@Rikers.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+Message-ID: <20001106181406.A22305@bacchus.dhis.org>
+In-Reply-To: <20001102201836.A14409@gruyere.muc.suse.de> <Pine.LNX.4.21.0011040031450.11261-100000@squeaker.ratbox.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0011040031450.11261-100000@squeaker.ratbox.org>; from androsyn@ratbox.org on Sat, Nov 04, 2000 at 12:34:23AM -0500
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-forop066@zaz.com.br wrote:
-> 
-> Is it possible to access symbols exported by modules from inside the kernel ?
-> 
-> I put a funtion call inside the kernel code but this funtion must be implemented in a module. I tried export as a module symbol but when i tried to recompile the kernel.. :-(
-> 
-> Warning: implicit declaration of my_funtion
-> .
-> .
-> .
-> Error: Undefined reference to my_funtion.
-> 
-> How can i fix this mistake!????
-> 
-> Thanks in advance,
-> Cris Amon.
+On Sat, Nov 04, 2000 at 12:34:23AM -0500, Aaron Sethman wrote:
 
-You will need to use a function pointer hook that the module fills in
-when it is loaded.  For an example look at devpts_upcall_new and
-devpts_upcall_kill in fs/devpts/inode.c.  The hooks are resident in the
-kernel and are exported so the module can see them.  The caller then
-needs to check if the hook is null and optionally request the module be
-loaded.
+> > SGI's pro64 is free software and AFAIK is able to compile a kernel on IA64.
+> > It is also not clear if gcc will ever produce good code on IA64.
+> 
+> Well if its compiling the kernel just fine without alterations to the
+> code, then fine. If not, if the SGI compiler is GPL'd pillage its sources
+> and get that code working in gcc. Otherwise, trying to get linux to work
+> with other C compilers doesn't seem worth the effort. 
 
---
+Pro64 is gcc derived and intended to be 100% source compatible with gcc.
+Past experience with new optimizations in gcc is they they frequently
+triggered bugs in the kernel source which simply was relying on the code
+generation working in a certain way.  Given that and assuming that the
+degree of Pro64's optimizations is somewhat revolutionary when compared
+to gcc I would expect that we'll hit a number of kernel bugs.  I'm not
+even thinking about actual Pro64 bugs itself.
 
-				Brian Gerst
+  Ralf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

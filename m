@@ -1,88 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbTEWHJL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 03:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTEWHJL
+	id S263847AbTEWHHM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 03:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTEWHHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 03:09:11 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:57791 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263850AbTEWHJJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 03:09:09 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Fri, 23 May 2003 03:07:12 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:28097 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S263847AbTEWHHL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 03:07:11 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, ext2-devel@lists.sourceforge.net,
+       Alex Tomas <bzzz@tmi.comex.ru>
+Subject: [RFC] probably invalid accounting in jbd
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Fri, 23 May 2003 11:20:31 +0000
+In-Reply-To: <20030521093848.59ada625.akpm@digeo.com> (Andrew Morton's
+ message of "Wed, 21 May 2003 09:38:48 -0700")
+Message-ID: <871xypx62o.fsf_-_@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+References: <87d6igmarf.fsf@gw.home.net>
+	<1053376482.11943.15.camel@sisko.scot.redhat.com>
+	<87he7qe979.fsf@gw.home.net>
+	<1053377493.11943.32.camel@sisko.scot.redhat.com>
+	<87addhd2mc.fsf@gw.home.net> <20030521093848.59ada625.akpm@digeo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16077.52259.718519.389903@laputa.namesys.com>
-Date: Fri, 23 May 2003 11:22:11 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: "Robert White" <rwhite@casabyte.com>
-Cc: "Nick Piggin" <piggin@cyberone.com.au>, <elladan@eskimo.com>,
-       "Rik van Riel" <riel@imladris.surriel.com>,
-       "David Woodhouse" <dwmw2@infradead.org>, <ptb@it.uc3m.es>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>,
-       <root@chaos.analogic.com>
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGEEKJCMAA.rwhite@casabyte.com>
-References: <3ECC4C3A.9000903@cyberone.com.au>
-	<PEEPIDHAKMCGHDBJLHKGEEKJCMAA.rwhite@casabyte.com>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta11) "cabbage" XEmacs Lucid
-X-Tom-Swifty: "The ASCII standard sucks," Tom said characteristically.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert White writes:
- > This will, hopefully, be my out-comment on this thread.
- > 
 
-[...]
+hi!
 
- > 
- > 4) All locks (spin or otherwise) should obviously be held for the shortest
- > amount of time reasonably possible which still produces the correct result.
- > 
- > If this needs explaining...  8-)
+I think current journal_release_buffer() which is used by ext3 allocator
+in -mm tree has a bug. look, it won't decrement credits if concurrent
+thread already put buffer on metadata list. but this may ext3_try_to_allocate()
+may overflow handle's credist.
+so, jbd will hit J_ASSERT_JH(jh, handle->h_buffer_credits > 0) somewhere
 
-It surely does.
 
-Consider two loops:
-
-(1)
-
-spin_lock(&lock);
-list_for_each_entry(item, ...) {
-  do something with item;
-}
-spin_unlock(&lock);
-
-versus
-
-(2)
-
-list_for_each_entry(item, ...) {
-  spin_lock(&lock);
-  do something with item;
-  spin_unlock(&lock);
+void journal_release_buffer (handle_t *handle, struct buffer_head *bh)
+{
+        .....
+        if (jh->b_jlist == BJ_Reserved && jh->b_transaction == transaction &&
+            !buffer_jdirty(jh2bh(jh))) {
+                JBUFFER_TRACE(jh, "unused: refiling it");
+                handle->h_buffer_credits++;
+                __journal_refile_buffer(jh);
+        }
+        ....
 }
 
-and suppose they both are equally correct. Now, in (2) total amount of
-time &lock is held is smaller than in (1), but (2) will usually perform
-worse on SMP, because:
 
-. spin_lock() is an optimization barrier
+here is the patch against 2.5.69-mm6:
 
-. taking even un-contended spin lock is an expensive operation, because
-of the cache coherency issues.
+diff -puNr linux-2.5.69-mm6/fs/jbd/transaction.c edited/fs/jbd/transaction.c
+--- linux-2.5.69-mm6/fs/jbd/transaction.c	Fri May 16 18:03:20 2003
++++ b_commited_data-race/fs/jbd/transaction.c	Fri May 23 11:10:21 2003
+@@ -1146,10 +1146,10 @@ void journal_release_buffer (handle_t *h
+ 	if (jh->b_jlist == BJ_Reserved && jh->b_transaction == transaction &&
+ 	    !buffer_jdirty(jh2bh(jh))) {
+ 		JBUFFER_TRACE(jh, "unused: refiling it");
+-		handle->h_buffer_credits++;
+ 		__journal_refile_buffer(jh);
+ 	}
+ 	spin_unlock(&journal_datalist_lock);
++	handle->h_buffer_credits++;
+ 
+ 	JBUFFER_TRACE(jh, "exit");
+ 	unlock_journal(journal);
 
- > 
-
-[...]
-
- > 
- > Rob.
- > 
-
-Nikita.

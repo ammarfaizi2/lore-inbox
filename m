@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132636AbRDYVwf>; Wed, 25 Apr 2001 17:52:35 -0400
+	id <S132806AbRDYV64>; Wed, 25 Apr 2001 17:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132629AbRDYVwZ>; Wed, 25 Apr 2001 17:52:25 -0400
-Received: from smtp04.wxs.nl ([195.121.6.59]:57019 "EHLO smtp04.wxs.nl")
-	by vger.kernel.org with ESMTP id <S132659AbRDYVwN>;
-	Wed, 25 Apr 2001 17:52:13 -0400
-Message-ID: <3AE746F7.3CA186D3@planet.nl>
-Date: Wed, 25 Apr 2001 23:51:51 +0200
-From: Erik van Asselt <e.van.asselt@planet.nl>
-X-Mailer: Mozilla 4.7 [nl] (Win98; U)
-X-Accept-Language: nl
+	id <S132805AbRDYV6q>; Wed, 25 Apr 2001 17:58:46 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:62473 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S132801AbRDYV6k>; Wed, 25 Apr 2001 17:58:40 -0400
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, tim@tjansen.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
+In-Reply-To: <01042522404901.00954@cookie>
+	<200104252116.QAA46520@tomcat.admin.navo.hpc.mil>
+	<20010425235000.A3432@werewolf.able.es>
+From: Doug McNaught <doug@wireboard.com>
+Date: 25 Apr 2001 17:58:35 -0400
+In-Reply-To: "J . A . Magallon"'s message of "Wed, 25 Apr 2001 23:50:00 +0200"
+Message-ID: <m34rvcy73o.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [Fwd: Help with Fasttrack/100 Raid on Linux]
-Content-Type: multipart/mixed;
- boundary="------------33B17D64266B3B1F7E9A3EAF"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dit is een multi-gedeelten-bericht in MIME-formaat.
---------------33B17D64266B3B1F7E9A3EAF
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+"J . A . Magallon" <jamagallon@able.es> writes:
 
+> Question: it is possible to redirect the same fs call (say read) to different
+> implementations, based on the open mode of the file descriptor ? So, if
+> you open the entry in binary, you just get the number chunk, if you open
+> it in ascii you get a pretty printed version, or a format description like
 
+There is no distinction between "text" and "binary" modes on a file
+descriptor.  The distinction exists in the C stdio layer, but is a
+no-op on Unix systems.
 
---------------33B17D64266B3B1F7E9A3EAF
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-X-Mozilla-Status2: 00000000
-Message-ID: <3AE74611.D28E04C1@planet.nl>
-Date: Wed, 25 Apr 2001 23:48:01 +0200
-From: Erik van Asselt <e.van.asselt@planet.nl>
-X-Mailer: Mozilla 4.7 [nl] (Win98; U)
-X-Accept-Language: nl
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Help with Fasttrack/100 Raid on Linux
-In-Reply-To: <Pine.LNX.4.10.10104212104160.627-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-> This is probably the first and last time I will openly agree for someone
-> to tell me were to go, and do it ;-).
->
-> You tell me what you want the driver to do, and I will make it happen.
-> It will be legal and technically correct.  Does that sound like a good
-> idea?
->
-> Cheers,
->
-> Andre Hedrick
->
-
-that would be great
-
-the first thing the driver must do is boot from the boot partition and mount my
-partition where i installed linux on with the promise driver for redhat     ;=)
-
-assie
-
-
-
-
---------------33B17D64266B3B1F7E9A3EAF--
-
+-Doug
+-- 
+The rain man gave me two cures; he said jump right in,
+The first was Texas medicine--the second was just railroad gin,
+And like a fool I mixed them, and it strangled up my mind,
+Now people just get uglier, and I got no sense of time...          --Dylan

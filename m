@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbTJNTFB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 15:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTJNTFB
+	id S262484AbTJNTf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 15:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTJNTf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 15:05:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5603 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262901AbTJNTE7 (ORCPT
+	Tue, 14 Oct 2003 15:35:57 -0400
+Received: from nondot.cs.uiuc.edu ([128.174.245.159]:15802 "EHLO nondot.org")
+	by vger.kernel.org with ESMTP id S262484AbTJNTcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 15:04:59 -0400
-Date: Tue, 14 Oct 2003 12:13:46 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: linux-kernel@vger.kernel.org
-Subject: fs/proc/array.c Compile Error
-Message-ID: <Pine.LNX.4.44.0310141204150.28049-100000@cherise>
+	Tue, 14 Oct 2003 15:32:35 -0400
+Date: Tue, 14 Oct 2003 14:48:43 -0500 (CDT)
+From: Chris Lattner <sabre@nondot.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [x86] Access off the bottom of stack causes a segfault?
+In-Reply-To: <Pine.LNX.4.53.0310141521130.2240@chaos>
+Message-ID: <Pine.LNX.4.44.0310141447300.4666-100000@nondot.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Any interrupt causes the return address to be pushed onto the
+> stack. This will overwrite any data you've put there. In principle,
+> in user-mode, you can write below the stack-pointer because an
+> interrupt uses the kernel stack. However, your data will still
+> get corrupted by signal delivery, etc. So as to not corrupt your
+> user-mode stack, the kernel calls your signal code, just like
+> a nested call. This means the new return address will be below
+> the non-signal user-mode stack-pointer value. This will surely
+> corrupt anything you have written below the stack-pointer.
 
-As of this morning, I'm getting a neat compile error in fs/proc/array.c: 
+Thanks to everyone for all of the answers. :)  I guess the moral of the
+story is to not perform leaf function optimization on X86.  At least
+frame-pointer elimination is still safe.
 
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:392: Unrecognizable insn:
-(insn/i 711 995 989 (parallel[
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 705 (nil))
-    (nil))
-fs/proc/array.c:392: confused by earlier errors, bailing out
+Thanks again,
 
+-Chris
 
-The GCC version I'm using is 
-
-$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
-
-Any ideas? 
-
-Thanks,
-
-
-	Pat
-
+-- 
+http://llvm.cs.uiuc.edu/
+http://www.nondot.org/~sabre/Projects/
 

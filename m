@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVBCGqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVBCGzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262332AbVBCGqk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 01:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVBCGqk
+	id S262825AbVBCGzE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 01:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVBCGzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 01:46:40 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:2240 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262332AbVBCGq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 01:46:28 -0500
-Date: Thu, 3 Feb 2005 07:46:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Message-ID: <20050203064645.GA2342@ucw.cz>
-References: <20050123190109.3d082021@localhost.localdomain> <m3acqr895h.fsf@telia.com> <20050201234148.4d5eac55@localhost.localdomain> <m3lla64r3w.fsf@telia.com> <20050202141117.688c8dd3@localhost.localdomain> <Pine.LNX.4.58.0502022345320.18555@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 01:55:04 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:4204 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262825AbVBCGy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 01:54:56 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: Possible bug in keyboard.c (2.6.10)
+Date: Thu, 3 Feb 2005 01:54:51 -0500
+User-Agent: KMail/1.7.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
+       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050130084154.GU8859@parcelfarce.linux.theplanet.co.uk> <200501301821.53924.dtor_core@ameritech.net>
+In-Reply-To: <200501301821.53924.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502022345320.18555@telia.com>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200502030154.52660.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 11:58:05PM +0100, Peter Osterlund wrote:
+On Sunday 30 January 2005 18:21, Dmitry Torokhov wrote:
+> On Sunday 30 January 2005 03:41, Al Viro wrote:
+> > On Sat, Jan 29, 2005 at 12:25:10PM +0100, Vojtech Pavlik wrote:
+> > > I know. As I said, this is a problem I know about, and will be fixed. I
+> > > was mainly interested whether anyone sees further problems in scenarios
+> > > which don't include device addition/removal.
+> > > 
+> > > We already fixed this in serio, and input and gameport are next in the
+> > > list.
+> > 
+> > OK, I'll bite.  What's to guarantee that no events will happen in
+> > the middle of serio_unregister_port(), right after we'd done
+> > serio_remove_pending_events()?
+> 
+> At this point serio is disconnected from driver and serio_interrupt
+> will only queue rescans only if serio->registered. I guess I will need
+> to protect change to serio->registered and take serio->lock to be
+> completely in clear.
+> 
 
-> In practice I don't think it will make any significant difference. What
-> the code should do depends on what you want to happen if you move the
-> mouse pointer 1/2 pixel with one finger stroke, then move it another 1/2
-> pixel with a second stroke. The patch I posted will move the pointer one
-> pixel in this case and your code will move it 0 pixels. (The X driver does
-> not reset the fractions, but that doesn't of course mean that it's the
-> only right thing to do.)
-> 
-> > Also, I think the extra unary minus is uncoth.
-> 
-> The code was written like that to emphasize the fact that X and Y use the
-> same formula, with the only difference that the kernel Y axis is mirrored
-> compared to the touchpad Y axis.
-> 
-> It didn't make any difference for the generated assembly code though,
-> using gcc 3.4.2 from Fedora Core 3.
-> 
-> > +	enum {  FRACTION_DENOM = 100 };
-> 
-> The enum is much nicer than my #define.
-
-OK. I like this patch, too. Can you guys send me a final version
-incorporating the changes of you both for inclusion in the input tree?
+Thinking about it some more - serio driver should take care of shutting
+off interrupt delivery either in ->close() or ->stop() methods so we
+don't really need to worry about having new events delivered here.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Dmitry

@@ -1,78 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268835AbRHBHCZ>; Thu, 2 Aug 2001 03:02:25 -0400
+	id <S268837AbRHBHDz>; Thu, 2 Aug 2001 03:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268834AbRHBHCK>; Thu, 2 Aug 2001 03:02:10 -0400
-Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:43526 "EHLO
+	id <S268833AbRHBHDi>; Thu, 2 Aug 2001 03:03:38 -0400
+Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:47110 "EHLO
 	vyger.freesoft.org") by vger.kernel.org with ESMTP
-	id <S268832AbRHBHBs>; Thu, 2 Aug 2001 03:01:48 -0400
-Message-ID: <3B68FADE.DBABBE85@freesoft.org>
-Date: Thu, 02 Aug 2001 03:01:50 -0400
+	id <S268832AbRHBHCk>; Thu, 2 Aug 2001 03:02:40 -0400
+Message-ID: <3B68FB0C.5BC83115@freesoft.org>
+Date: Thu, 02 Aug 2001 03:02:36 -0400
 From: Brent Baccala <baccala@freesoft.org>
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kernel gdb for intel
+To: linux-usb-devel@lists.sourceforge.net
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problem with usb-storage using HP 8200 external CD-ROM burner
 Content-Type: multipart/mixed;
- boundary="------------FD874D4518F698B1F5858707"
+ boundary="------------AC12D36791113BB38F081CD1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------FD874D4518F698B1F5858707
+--------------AC12D36791113BB38F081CD1
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 Hi -
 
-I've been trying to track down a problem I've had with a USB CD-Burner
-locking up.  In the course of my investigations I ported the i386 remote
-gdb stuff to the Linux kernel, because I'm used to using gdb on the
-kernel (it works on SPARC and PPC) instead of trying to read oopses.
+I've been having some problems with my USB CD-ROM burner (HP 8200) - it
+locks up the machine occasionally.  This is with Linux 2.4.6.
 
-For those not familiar with the remote debug feature, you use two
-computers, connected together with a null modem serial line.  One
-computer has a complete Linux kernel tree on it, compiled with debugging
-information (-g); the other computer is the one running the kernel under
-test.  You can breakpoint and halt the kernel, which puts it in a tight
-little loop reading packets (gdb, not IP) from the serial port and
-responding to the debugger.  You get almost all the features you're used
-to with gdb - stack backtraces, single stepping, source-based variable
-names, intelligent structure decodes, etc.
+I saw a posting to this list (linux-usb-devel) by Cody Pisto with some
+HP
+8200 patches (17 Jul 2001), but the geocrawler archive doesn't archive
+the
+attachments - or at least I couldn't figure out how to retrieve them.  I
+wouldn't mind if somebody (Cody?) could send me a copy, but here's what
+I've
+found out...
 
-Anyway, I'm attaching the patch (against 2.4.6).  After installing, a
-menu option appears under "Kernel hacking" for remote debugging. 
-Recompile the whole kernel (make clean) so that it compiles with
-debugging info.  Then supply the "kgdb" switch to the kernel command
-line, make sure the debugging computer is attached on COM1 (or whatever
-you want to call it), and run "target remote /dev/whatever" on the
-debugging computer.  See arch/i386/kernel/stub-i386.c for more info.
+Of course, first you have to patch drivers/usb/Config.in to add an
+HP8200 option.
 
-Known problems:
+Next, the lockups.  They're caused by an attempt to lock the
+io_request_lock spinlock while it's already locked.  I'm running on a
+single processor machine.  I'm posting two patches to linux-kernel - one
+is enhanced spinlock debugging code that reveals the problem, the other
+is a remote debugger stub for intel so I can use gdb on the kernel like
+sparc & ppc.
 
-- only runs on COM1.  Shouldn't be hard to fix this
+In, short, here's the problem:
 
-- doesn't switch stacks, so you can't use gdb's "call" feature, which
-scribbles on the stack.  Other than that, no problem.
+The trouble starts when scsi_try_to_abort_command is called (for reasons
+I'm still unclear on).  This function is in drivers/scsi/scsi_error.c:
 
-- doesn't support SMP, since I don't have an Intel SMP box.  I'd guess
-what you'd want it to do is an smp_call_function that would halt all the
-processors and put them into some tight little loop while gdb fiddles
-things.  ideas?
+     755 STATIC int scsi_try_to_abort_command(Scsi_Cmnd * SCpnt, int
+timeout)
+     756 {
+     757         int rtn;
+     758         unsigned long flags;
+     759 
+     760         SCpnt->eh_state = FAILED;   /* Until we come up with
+something better */
+     761 
+     762         if (SCpnt->host->hostt->eh_abort_handler == NULL) {
+     763                 return FAILED;
+     764         }
+     765         /* 
+     766          * scsi_done was called just after the command timed
+out and before
+     767          * we had a chance to process it. (DB)
+     768          */
+     769         if (SCpnt->serial_number == 0)
+     770                 return SUCCESS;
+     771 
+     772         SCpnt->owner = SCSI_OWNER_LOWLEVEL;
+     773 
+     774         spin_lock_irqsave(&io_request_lock, flags);
+     775         rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
+     776         spin_unlock_irqrestore(&io_request_lock, flags);
+     777         return rtn;
+     778 }
 
-- doesn't support any concept of multiple tasks/threads, though GDB can
-do this with it's remote protocol, and I've discovered that it'd be
-really nice to switch to another task within the kernel.  Lacking this,
-you have to do stack backtraces by hand for other tasks.
+Notice, at the end, the call to eh_abort_handler while the
+io_request_lock is held (lines 774-777).
 
-- we have to compile Linux with -O2 to get inline functions, and this
-can confuse GDB sometimes.  When in doubt, study the assembly.
+For the USB CD-ROM burner, eh_abort_handler is a pointer to
+command_abort in drivers/usb/storage/scsiglue.c:
 
-And it still sometimes does some strange things, so might need some
-tweaks here and there, but works 95% of the time.  Please try it out and
-let me know what you think.
+     173 static int command_abort( Scsi_Cmnd *srb )
+     174 {
+     175         struct us_data *us = (struct us_data
+*)srb->host->hostdata[0];
+     176 
+     177         US_DEBUGP("command_abort() called\n");
+     178 
+     179         /* if we're stuck waiting for an IRQ, simulate it */
+     180         if (atomic_read(us->ip_wanted)) {
+     181                 US_DEBUGP("-- simulating missing IRQ\n");
+     182                 up(&(us->ip_waitq));
+     183         }
+     184 
+     185         /* if the device has been removed, this worked */
+     186         if (!us->pusb_dev) {
+     187                 US_DEBUGP("-- device removed already\n");
+     188                 return SUCCESS;
+     189         }
+     190 
+     191         /* if we have an urb pending, let's wake the control
+thread up */
+     192         if (us->current_urb->status == -EINPROGRESS) {
+     193                 /* cancel the URB -- this will automatically
+wake the thread */
+     194                 usb_unlink_urb(us->current_urb);
+     195 
+     196                 /* wait for us to be done */
+     197                 down(&(us->notify));
+     198                 return SUCCESS;
+     199         }
+     200 
+     201         US_DEBUGP ("-- nothing to abort\n");
+     202         return FAILED;
+     203 }
 
+The problem is the down on line 197.  It causes the kernel to schedule
+while the io_request_lock is held.  Now, if anything else comes along
+that needs the io_request_lock, and runs before the down completes, the
+kernel locks up.  Lots of stuff can actually trigger the lockup; I've
+seen a page fault trying to read something in from disk cause it, as
+well as just a normal disk read from user space.
+
+I'm attaching a kernel gdb trace of one of these lockups.  It's a bit
+cryptic, because the kernel gdb doesn't let me switch between tasks, so
+I have to read back through a stack dump manually.  Basically, the trace
+starts with a BUG() in my revised spinlock code that detects when the
+same processor that holds the lock attempts to grab it again.  The
+spinlock recorded the PC and task_struct when the lock was first
+grabbed, so even though we're looking at the moment when the second task
+came along and tried to grab it again, we can use the stored information
+to find 1) which task grabbed the lock; 2) what it's PC counter was when
+it grabbed it; and 3) (by reading the stack trace) what's it's doing
+now.  In this trace, the answers to those questions are: 1) pid 1370
+(comm = "scsi_eh"; unclear what that is); 2) the spinlock in
+scsi_try_to_abort_command; and 3) scheduled from the down on line 197
+
+Anyway, I don't know enough about this code to try and figure what the
+fix should be, so maybe somebody on this list can suggest it.  Then
+I'll need to figure out why scsi_try_to_abort_command() is being called
+in the first place - any ideas?  It seems to be about a 50/50
+proposition that during an entire CD burn, sometimes it locks up, and
+sometimes it completes the whole thing.
+
+And like I said, I'm attaching the kernel gdb trace... as an
+attachment... so geocrawler can lose it too..
 
 -- 
                                         -bwb
@@ -85,1345 +165,806 @@ let me know what you think.
    
 mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
 ==============================================================================
---------------FD874D4518F698B1F5858707
+--------------AC12D36791113BB38F081CD1
 Content-Type: text/plain; charset=us-ascii;
- name="linux-kgdb-diff"
+ name="kgdb.trace"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="linux-kgdb-diff"
+ filename="kgdb.trace"
 
-diff -Nru linux-2.4.6-dist/Makefile linux-2.4.6-kgdb/Makefile
---- linux-2.4.6-dist/Makefile	Wed Jul 25 13:53:08 2001
-+++ linux-2.4.6-kgdb/Makefile	Wed Jul 25 15:14:17 2001
-@@ -87,8 +87,13 @@
- 
- CPPFLAGS := -D__KERNEL__ -I$(HPATH)
- 
-+ifdef CONFIG_REMOTE_DEBUG
-+CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -g
-+else
- CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
-           -fomit-frame-pointer -fno-strict-aliasing
-+endif
-+
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
- 
- #
-diff -Nru linux-2.4.6-dist/arch/i386/config.in linux-2.4.6-kgdb/arch/i386/config.in
---- linux-2.4.6-dist/arch/i386/config.in	Wed Jul 25 13:53:08 2001
-+++ linux-2.4.6-kgdb/arch/i386/config.in	Wed Jul 25 14:00:34 2001
-@@ -388,4 +388,5 @@
- 
- #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
- bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
-+bool 'Remote kernel debugger (gdb)' CONFIG_REMOTE_DEBUG
- endmenu
-diff -Nru linux-2.4.6-dist/arch/i386/kernel/Makefile linux-2.4.6-kgdb/arch/i386/kernel/Makefile
---- linux-2.4.6-dist/arch/i386/kernel/Makefile	Fri Dec 29 17:35:47 2000
-+++ linux-2.4.6-kgdb/arch/i386/kernel/Makefile	Wed Jul 25 14:00:34 2001
-@@ -40,5 +40,6 @@
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o
- obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
-+obj-$(CONFIG_REMOTE_DEBUG)	+= i386-stub.o
- 
- include $(TOPDIR)/Rules.make
-diff -Nru linux-2.4.6-dist/arch/i386/kernel/entry.S linux-2.4.6-kgdb/arch/i386/kernel/entry.S
---- linux-2.4.6-dist/arch/i386/kernel/entry.S	Wed Jul 25 13:53:08 2001
-+++ linux-2.4.6-kgdb/arch/i386/kernel/entry.S	Wed Aug  1 18:43:36 2001
-@@ -64,6 +64,7 @@
- OLDSS		= 0x38
- 
- CF_MASK		= 0x00000001
-+TF_MASK		= 0x00000100
- IF_MASK		= 0x00000200
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
-@@ -317,25 +318,128 @@
- 	addl $4,%esp
- 	jmp ret_from_exception
- 
-+ENTRY(nmi)
-+	pushl %eax
-+	SAVE_ALL
-+	movl %esp,%edx
-+	pushl $0
-+	pushl %edx
-+	call SYMBOL_NAME(do_nmi)
-+	addl $8,%esp
-+	RESTORE_ALL
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+#define DEBUGGER_SAVE_REGISTERS				\
-+	movl %eax, SYMBOL_NAME(kgdb_registers)		\
-+	movl %ecx, SYMBOL_NAME(kgdb_registers)+4	\
-+	movl %edx, SYMBOL_NAME(kgdb_registers)+8	\
-+	movl %ebx, SYMBOL_NAME(kgdb_registers)+12	\
-+	movl %ebp, SYMBOL_NAME(kgdb_registers)+20	\
-+	movl %esi, SYMBOL_NAME(kgdb_registers)+24	\
-+	movl %edi, SYMBOL_NAME(kgdb_registers)+28	\
-+	movw $0, %ax					\
-+	movw %ds, SYMBOL_NAME(kgdb_registers)+48	\
-+	movw %ax, SYMBOL_NAME(kgdb_registers)+50	\
-+	movw %es, SYMBOL_NAME(kgdb_registers)+52	\
-+	movw %ax, SYMBOL_NAME(kgdb_registers)+54	\
-+	movw %fs, SYMBOL_NAME(kgdb_registers)+56	\
-+	movw %ax, SYMBOL_NAME(kgdb_registers)+58	\
-+	movw %gs, SYMBOL_NAME(kgdb_registers)+60	\
-+	movw %ax, SYMBOL_NAME(kgdb_registers)+62
-+
-+
-+
-+/* If we get an breakpoint interrupt in kernel space, we want to be as
-+ * lean as possible.  On the other hand, a breakpoint in user space
-+ * requires error_code and all its friends, since we might have to
-+ * stop the process, signal the debugger, and reschedule.  So we check
-+ * the low 2 bits of the saved CS register here to figure out if we're
-+ * in kernel space.  If they're zero, call the kernel debugger;
-+ * otherwise do a normal int 3.
-+ */
-+
-+ENTRY(int3)
-+	pushl $0
-+	pushl %eax
-+	movl 12(%esp),%eax
-+	andl $3,%eax
-+	popl %eax
-+	jnz user_int3
-+	cmpl $0, kgdb_initialized
-+	jz user_int3
-+	SAVE_ALL
-+	movl %esp,%edx
-+	pushl %edx
-+	pushl $5				/* 5 = SIGTRAP */
-+	call SYMBOL_NAME(handle_exception)
-+	addl $8,%esp
-+	RESTORE_ALL
-+	
-+user_int3:
-+	pushl $ SYMBOL_NAME(do_int3)
-+	jmp error_code
-+
-+/* Same rational for interrupt 1; the debug (single step) fault.
-+ * If kgdb_stepping isn't set, then it's a spurious trap, so
-+ * ignore it, i.e, if we single stepped through a save_flags(),
-+ * then we'll get a trap later on after restore_flags()
-+ */
-+
-+
- ENTRY(debug)
-+	pushl %eax
-+	movl 8(%esp),%eax
-+	andl $3,%eax
-+	popl %eax
-+	jnz user_debug
-+	cmpl $0, kgdb_stepping
-+	jz spurious_debug
-+	pushl $0
-+	SAVE_ALL
-+	movl %esp,%edx
-+	pushl %edx
-+	pushl $5				/* 5 = SIGTRAP */
-+	call SYMBOL_NAME(handle_exception)
-+	addl $8,%esp
-+	RESTORE_ALL
-+
-+spurious_debug:
-+	andl $~TF_MASK, 8(%esp)			/* Clear trace flag */
-+	iret
-+	
-+user_debug:
- 	pushl $0
- 	pushl $ SYMBOL_NAME(do_debug)
- 	jmp error_code
- 
--ENTRY(nmi)
--	pushl %eax
-+/* When the kernel debugger is active, it installs this routine as the
-+ * page fault handler, to trap illegal memory accesses.  Since it's
-+ * never used except while the kernel is halted and the debugger is
-+ * active, it's very simple - just hand off to the C routine.
-+ */
-+
-+ENTRY(debugger_fault)
- 	SAVE_ALL
- 	movl %esp,%edx
- 	pushl $0
- 	pushl %edx
--	call SYMBOL_NAME(do_nmi)
-+	call SYMBOL_NAME(do_debugger_fault)
- 	addl $8,%esp
- 	RESTORE_ALL
-+#else
- 
- ENTRY(int3)
- 	pushl $0
- 	pushl $ SYMBOL_NAME(do_int3)
- 	jmp error_code
-+
-+ENTRY(debug)
-+	pushl $0
-+	pushl $ SYMBOL_NAME(do_debug)
-+	jmp error_code
-+
-+#endif
- 
- ENTRY(overflow)
- 	pushl $0
-diff -Nru linux-2.4.6-dist/arch/i386/kernel/i386-stub.c linux-2.4.6-kgdb/arch/i386/kernel/i386-stub.c
---- linux-2.4.6-dist/arch/i386/kernel/i386-stub.c	Wed Dec 31 19:00:00 1969
-+++ linux-2.4.6-kgdb/arch/i386/kernel/i386-stub.c	Wed Aug  1 20:30:12 2001
-@@ -0,0 +1,622 @@
-+/****************************************************************************
-+
-+		THIS SOFTWARE IS NOT COPYRIGHTED
-+
-+   HP offers the following for use in the public domain.  HP makes no
-+   warranty with regard to the software or it's performance and the
-+   user accepts the software "AS IS" with all faults.
-+
-+   HP DISCLAIMS ANY WARRANTIES, EXPRESS OR IMPLIED, WITH REGARD
-+   TO THIS SOFTWARE INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+   OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-+
-+****************************************************************************/
-+
-+/****************************************************************************
-+ *  Header: remcom.c,v 1.34 91/03/09 12:29:49 glenne Exp $
-+ *
-+ *  Module name: remcom.c $
-+ *  Revision: 1.34 $
-+ *  Date: 91/03/09 12:29:49 $
-+ *  Contributor:     Lake Stevens Instrument Division$
-+ *
-+ *  Description:     low level support for gdb debugger. $
-+ *
-+ *  Considerations:  only works on target hardware $
-+ *
-+ *  Written by:      Glenn Engel $
-+ *  ModuleState:     Experimental $
-+ *
-+ *  NOTES:           See Below $
-+ *
-+ *  Modified for 386 by Jim Kingdon, Cygnus Support.
-+ *
-+ *  Modified for Linux i386 kernel by Brent Baccala <baccala@freesoft.org>
-+ *
-+ *  The basic idea is to attach two machines together via a null modem
-+ *  cable between their serial ports.  The debugging machine should have
-+ *  the linux kernel source tree and vmlinux object file.  The machine
-+ *  under test should boot the same version of the kernel (possibily
-+ *  by copying bzImage to it from the debugging machine).  The debugging
-+ *  machine runs gdb (unmodified) on the linux kernel and controls the
-+ *  machine under test via the serial connection, the gdb remote protocol,
-+ *  and this code (in the kernel of the machine under test).
-+ *
-+ *  To enable debugger support, two things need to happen.  One, any
-+ *  breakpoints or error conditions need to be properly intercepted
-+ *  and reported to gdb via handle_exception(), which is called from
-+ *  int1/int3 handlers (in entry.S), do_page_fault (in fault.c), and
-+ *  do_trap() (in traps.c) on any kernel fault if remote debugging has
-+ *  been enabled.  Two, a breakpoint needs to be generated to begin
-+ *  communication.  This is most easily accomplished by a call to
-+ *  breakpoint().  Breakpoint() simulates a breakpoint by executing an
-+ *  INT3.
-+ *
-+ *  The INT 3 (breakpoint) and INT 1 (debug) handlers should install
-+ *  as interrupt gates so that interrupts are masked while the handler
-+ *  runs.
-+ *
-+ *  Because gdb will sometimes write to the stack area to execute function
-+ *  calls, this program cannot rely on using the supervisor stack.
-+ *
-+ *  CAVEAT:  This is currently broken; we use the supervisor stack,
-+ *  so the gdb "call" command will trash the kernel.  Don't use it.
-+ *
-+ *  CAVEAT:  No smp support at this time
-+ *
-+ *  CAVEAT:  Hardware watchpoints could be done, but presently aren't
-+ *  supported by either this code or the gdb i386 remote backend.
-+ *
-+ *************
-+ *  TEST PROCEDURE FOR THIS CODE
-+ *
-+ *  1.  boot kernel, specifying "kgdb" as a kernel argument
-+ *  2.  kernel should halt almost immediately after loading, and send
-+ *      an "$S05#84" out the serial port at 9600N8.  Should be visible
-+ *      with a standard serial program.  Tests kernel INT3 handler.
-+ *  3.  run "gdb vmlinux" on remote machine from the linux source dir
-+ *  4.  "target remote /dev/cua0" (or whatever the serial device is)
-+ *  5.  debugger should show a breakpoint in function breakpoint()
-+ *      Tests basic debugger/kernel serial interface
-+ *  6.  "info reg" - tests debuggers ability to read processor registers
-+ *  7.  "where" - shows stack trace and tests memory fault handler
-+ *      (the "Cannot access memory" message is normal)
-+ *  8.  "break blk_get_queue"
-+ *  9.  "cont" - tests debugger's ability to set a breakpoint, restart
-+ *      kernel, and get control back a few seconds later
-+ *  10. "next" - tests kernel single step trap, and single steps past a
-+ *      save_flags() in blk_get_queue, thus pushing the flags register
-+ *      with the TF bit set
-+ *  11. "dis 1" - disable the breakpoint
-+ *  12. "cont" - tests spurious single step trap handling, since the
-+ *      saved flags registers will generate a spurious trap when it
-+ *      is popped and restored.  Kernel should _not_ halt; there should
-+ *      be no visible indication of the spurious trap
-+ *  13. wait for kernel to finish booting
-+ *  14. hit CNTL-C on debugger
-+ *  15. kernel should halt and give control to debugger.  Tests ability
-+ *      to grab control via a serial interrupt.  "continue"
-+ *  16. on the machine under test, run ordinary gdb on some ordinary program
-+ *  17. "break main" and "run" (ordinary gdb)
-+ *  18. should breakpoint normally, without a breakpoint on the kernel
-+ *      debugger.  Tests user space INT 3 handling
-+ *  19. "next" (ordinary gdb)
-+ *  20. should step normally, without affecting the kernel debugger.
-+ *      Tests user space single step trap handling
-+ *
-+ *************
-+ *
-+ *    The following gdb commands are supported:
-+ *
-+ * command          function                               Return value
-+ *
-+ *    g             return the value of the CPU registers  hex data or ENN
-+ *    G             set the value of the CPU registers     OK or ENN
-+ *
-+ *    mAA..AA,LLLL  Read LLLL bytes at address AA..AA      hex data or ENN
-+ *    MAA..AA,LLLL: Write LLLL bytes at address AA.AA      OK or ENN
-+ *
-+ *    c             Resume at current address              SNN   ( signal NN)
-+ *    cAA..AA       Continue at address AA..AA             SNN
-+ *
-+ *    s             Step one instruction                   SNN
-+ *    sAA..AA       Step one instruction from AA..AA       SNN
-+ *
-+ *    k             kill
-+ *
-+ *    ?             What was the last sigval ?             SNN   (signal NN)
-+ *
-+ * All commands and responses are sent with a packet which includes a
-+ * checksum.  A packet consists of
-+ *
-+ * $<packet info>#<checksum>.
-+ *
-+ * where
-+ * <packet info> :: <characters representing the command or response>
-+ * <checksum>    :: < two hex digits computed as modulo 256 sum of <packetinfo>>
-+ *
-+ * When a packet is received, it is first acknowledged with either '+' or '-'.
-+ * '+' indicates a successful transfer.  '-' indicates a failed transfer.
-+ *
-+ * Example:
-+ *
-+ * Host:                  Reply:
-+ * $m0,10#2a               +$00010203040506070809101112131415#42
-+ *
-+ ****************************************************************************/
-+
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/smp.h>
-+#include <linux/smp_lock.h>
-+
-+#include <asm/ptrace.h>
-+#include <asm/desc.h>
-+
-+/************************************************************************
-+ *
-+ * external low-level support routines
-+ */
-+
-+extern void putDebugChar(char);	/* write a single character      */
-+extern char getDebugChar(void);	/* read and return a single char */
-+extern void kgdb_interruptible(int); /* true if recv data triggers breakpt */
-+
-+/************************************************************************/
-+/* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/
-+/* at least NUMREGBYTES*2 are needed for register packets */
-+#define BUFMAX 400
-+
-+char kgdb_initialized = 0;	/* TRUE = we've been initialized */
-+int kgdb_active = 0;		/* TRUE = we're in the exception handler */
-+int kgdb_stepping = 0;		/* TRUE = we're single-stepping the kernel*/
-+
-+static const char hexchars[]="0123456789abcdef";
-+
-+/* Number of registers.  */
-+#define NUMREGS	16
-+
-+/* Number of bytes of registers.  */
-+#define NUMREGBYTES (NUMREGS * 4)
-+
-+/* This is the register order that GDB uses - it is _not_ the order
-+ * that Linux uses (struct pt_regs), so we need to be careful
-+ */
-+
-+enum regnames {GDB_EAX, GDB_ECX, GDB_EDX, GDB_EBX,
-+	       GDB_ESP, GDB_EBP, GDB_ESI, GDB_EDI,
-+	       GDB_PC /* also known as eip */,
-+	       GDB_PS /* also known as eflags */,
-+	       GDB_CS, GDB_SS, GDB_DS, GDB_ES, GDB_FS, GDB_GS};
-+
-+static int registers[NUMREGS];
-+
-+int hex(char ch)
-+{
-+  if ((ch >= 'a') && (ch <= 'f')) return (ch-'a'+10);
-+  if ((ch >= '0') && (ch <= '9')) return (ch-'0');
-+  if ((ch >= 'A') && (ch <= 'F')) return (ch-'A'+10);
-+  return (-1);
-+}
-+
-+static char remcomInBuffer[BUFMAX];
-+static char remcomOutBuffer[BUFMAX];
-+
-+/* scan for the sequence $<data>#<checksum>     */
-+
-+unsigned char *
-+getpacket (void)
-+{
-+  unsigned char *buffer = &remcomInBuffer[0];
-+  unsigned char checksum;
-+  unsigned char xmitcsum;
-+  int count;
-+  char ch;
-+
-+  while (1)
-+    {
-+      /* wait around for the start character, ignore all other characters */
-+      while ((ch = getDebugChar ()) != '$')
-+	;
-+
-+retry:
-+      checksum = 0;
-+      xmitcsum = -1;
-+      count = 0;
-+
-+      /* now, read until a # or end of buffer is found */
-+      while (count < BUFMAX)
-+	{
-+	  ch = getDebugChar ();
-+          if (ch == '$')
-+	    goto retry;
-+	  if (ch == '#')
-+	    break;
-+	  checksum = checksum + ch;
-+	  buffer[count] = ch;
-+	  count = count + 1;
-+	}
-+      buffer[count] = 0;
-+
-+      if (ch == '#')
-+	{
-+	  ch = getDebugChar ();
-+	  xmitcsum = hex (ch) << 4;
-+	  ch = getDebugChar ();
-+	  xmitcsum += hex (ch);
-+
-+	  if (checksum != xmitcsum)
-+	    {
-+	      putDebugChar ('-');	/* failed checksum */
-+	    }
-+	  else
-+	    {
-+	      putDebugChar ('+');	/* successful transfer */
-+
-+	      /* if a sequence char is present, reply the sequence ID */
-+	      if (buffer[2] == ':')
-+		{
-+		  putDebugChar (buffer[0]);
-+		  putDebugChar (buffer[1]);
-+
-+		  return &buffer[3];
-+		}
-+
-+	      return &buffer[0];
-+	    }
-+	}
-+    }
-+}
-+
-+/* send the packet in buffer.  */
-+
-+void putpacket(char *buffer)
-+{
-+  unsigned char checksum;
-+  int  count;
-+  char ch;
-+
-+  /*  $<packet info>#<checksum>. */
-+  do {
-+  putDebugChar('$');
-+  checksum = 0;
-+  count    = 0;
-+
-+  while ((ch=buffer[count])) {
-+    putDebugChar(ch);
-+    checksum += ch;
-+    count += 1;
-+  }
-+
-+  putDebugChar('#');
-+  putDebugChar(hexchars[checksum >> 4]);
-+  putDebugChar(hexchars[checksum % 16]);
-+
-+  } while (getDebugChar() != '+');
-+
-+}
-+
-+/* Get/set a byte in memory, with error indication on page faults
-+ *
-+ * I originally tried using the exception table mechanism for this
-+ * code, but the standard page fault handler is too heavy weight - it
-+ * grabs semaphores, spinlocks, and such.  Since the kernel is halted
-+ * when this code runs, the only page faults we should get are our
-+ * own, so I just install my own custom page fault handler, and
-+ * restore the system handler when the kernel restarts.  The assembler
-+ * statements are hard coded so I know exactly what the critical
-+ * instructions are.  Each is a two-byte move that I just step past in
-+ * the fault handler.
-+ *
-+ * debugger_fault and page_fault are defined in arch/i386/kernel/entry.S
-+ * They are the fault handlers registered in the processor's IDT.  They
-+ * save the registers onto the stack and set up a C call frame before
-+ * calling do_page_fault (the normal fault routine) or do_debugger_fault.
-+ */
-+
-+static volatile int mem_err = 0;
-+
-+unsigned char get_char (unsigned char *addr)
-+{
-+	int val = 0;
-+
-+	__asm__("movb (%1), %%al"
-+                : "=a" (val) : "r" (addr));
-+
-+	return val;
-+}
-+
-+void set_char (unsigned char *addr, unsigned char val)
-+{
-+	__asm__("movb %%al, (%1)"
-+                : : "a" (val), "r" (addr));
-+}
-+
-+asmlinkage void debugger_fault(void);
-+asmlinkage void page_fault(void);
-+
-+asmlinkage void do_debugger_fault(struct pt_regs *regs, long error_code)
-+{
-+	mem_err = 1;
-+	regs->eip += 2;
-+}
-+
-+/* convert the memory pointed to by mem into hex, placing result in buf */
-+/* return a pointer to the last char put in buf (null) */
-+/* If MAY_FAULT is non-zero, then we should set mem_err in response to
-+   a fault; if zero treat a fault like any other fault in the stub.  */
-+char* mem2hex(char *mem, char *buf, int count, int may_fault)
-+{
-+      int i;
-+      unsigned char ch;
-+
-+      for (i=0;i<count;i++) {
-+          ch = get_char (mem++);
-+	  if (may_fault && mem_err)
-+	    return (buf);
-+          *buf++ = hexchars[ch >> 4];
-+          *buf++ = hexchars[ch % 16];
-+      }
-+      *buf = 0;
-+      return(buf);
-+}
-+
-+/* convert the hex array pointed to by buf into binary to be placed in mem */
-+/* return a pointer to the character AFTER the last byte written */
-+char* hex2mem(char *buf, char *mem, int count, int may_fault)
-+{
-+      int i;
-+      unsigned char ch;
-+
-+      for (i=0;i<count;i++) {
-+          ch = hex(*buf++) << 4;
-+          ch = ch + hex(*buf++);
-+          set_char (mem++, ch);
-+	  if (may_fault && mem_err)
-+	    return (mem);
-+      }
-+      return(mem);
-+}
-+
-+/**********************************************/
-+/* WHILE WE FIND NICE HEX CHARS, BUILD AN INT */
-+/* RETURN NUMBER OF CHARS PROCESSED           */
-+/**********************************************/
-+int hexToInt(char **ptr, int *intValue)
-+{
-+    int numChars = 0;
-+    int hexValue;
-+
-+    *intValue = 0;
-+
-+    while (**ptr)
-+    {
-+        hexValue = hex(**ptr);
-+        if (hexValue >=0)
-+        {
-+            *intValue = (*intValue <<4) | hexValue;
-+            numChars ++;
-+        }
-+        else
-+            break;
-+
-+        (*ptr)++;
-+    }
-+
-+    return (numChars);
-+}
-+
-+/*
-+ * This function does all command procesing for interfacing to gdb.
-+ */
-+
-+void handle_exception(int sigval, struct pt_regs *regs)
-+{
-+  int    addr, length;
-+  char * ptr;
-+  int    newPC;
-+
-+  if (kgdb_active) {
-+	  printk("interrupt while in kgdb, returning\n");
-+	  return;
-+  }
-+  kgdb_active = 1;
-+
-+  kgdb_interruptible(0);
-+  set_intr_gate(14,&debugger_fault);
-+  /* lock_kernel(); */
-+
-+  registers[GDB_EAX] = regs->eax;
-+  registers[GDB_EBX] = regs->ebx;
-+  registers[GDB_ECX] = regs->ecx;
-+  registers[GDB_EDX] = regs->edx;
-+  registers[GDB_EBP] = regs->ebp;
-+  registers[GDB_ESI] = regs->esi;
-+  registers[GDB_EDI] = regs->edi;
-+  registers[GDB_PC]  = regs->eip;
-+  registers[GDB_PS]  = regs->eflags;
-+  registers[GDB_CS]  = regs->xcs;
-+  registers[GDB_DS]  = regs->xds;
-+  registers[GDB_ES]  = regs->xes;
-+
-+  /* Kernel doesn't use FS or GS */
-+  registers[GDB_FS]  = 0;
-+  registers[GDB_GS]  = 0;
-+
-+  /* We came in through a trap gate from the same privilege level, so
-+   * the CPU didn't change stacks and push ESP/SP like it would have
-+   * for a trap from user space (different privilege level), so
-+   * regs->esp and regs->xss are invalid.  We figure out ESP based
-+   * the address of the register frame (go past the register frame,
-+   * then backup 8 bytes to account for ESP/SS that didn't get pushded),
-+   * and SS we ignore because GDB doesn't use it.
-+   */
-+
-+  registers[GDB_ESP] = (int)regs + sizeof(struct pt_regs) - 8;
-+  registers[GDB_SS]  = 0;
-+
-+  /* reply to host that an exception has occurred */
-+  remcomOutBuffer[0] = 'S';
-+  remcomOutBuffer[1] =  hexchars[sigval >> 4];
-+  remcomOutBuffer[2] =  hexchars[sigval % 16];
-+  remcomOutBuffer[3] = 0;
-+
-+  putpacket(remcomOutBuffer);
-+
-+  kgdb_stepping = 0;
-+
-+  while (1==1) {
-+    remcomOutBuffer[0] = 0;
-+    ptr = getpacket();
-+
-+    switch (*ptr++) {
-+      case '?' :   remcomOutBuffer[0] = 'S';
-+                   remcomOutBuffer[1] =  hexchars[sigval >> 4];
-+                   remcomOutBuffer[2] =  hexchars[sigval % 16];
-+                   remcomOutBuffer[3] = 0;
-+                 break;
-+      case 'd' : /* toggle debug flag */
-+                 break;
-+      case 'g' : /* return the value of the CPU registers */
-+	      mem2hex((char*) registers, remcomOutBuffer, NUMREGBYTES, 0);
-+	      break;
-+      case 'G' : /* set the value of the CPU registers - return OK */
-+                hex2mem(ptr, (char*) registers, NUMREGBYTES, 0);
-+                strcpy(remcomOutBuffer,"OK");
-+                break;
-+      case 'P' : /* set the value of a single CPU register - return OK */
-+                {
-+                  int regno;
-+
-+                  if (hexToInt (&ptr, &regno) && *ptr++ == '=') 
-+                  if (regno >= 0 && regno < NUMREGS)
-+                    {
-+                      hex2mem (ptr, (char *)&registers[regno], 4, 0);
-+                      strcpy(remcomOutBuffer,"OK");
-+                      break;
-+                    }
-+
-+                  strcpy (remcomOutBuffer, "E01");
-+                  break;
-+                }
-+
-+      /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
-+      case 'm' :
-+		    /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
-+                    if (hexToInt(&ptr,&addr))
-+                        if (*(ptr++) == ',')
-+                            if (hexToInt(&ptr,&length))
-+                            {
-+                                ptr = 0;
-+				mem_err = 0;
-+                                mem2hex((char*) addr, remcomOutBuffer, length, 1);
-+				if (mem_err) {
-+				    strcpy (remcomOutBuffer, "E03");
-+				}
-+                            }
-+
-+                    if (ptr)
-+                    {
-+		      strcpy(remcomOutBuffer,"E01");
-+		    }
-+	          break;
-+
-+      /* MAA..AA,LLLL: Write LLLL bytes at address AA.AA return OK */
-+      case 'M' :
-+		    /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
-+                    if (hexToInt(&ptr,&addr))
-+                        if (*(ptr++) == ',')
-+                            if (hexToInt(&ptr,&length))
-+                                if (*(ptr++) == ':')
-+                                {
-+				    mem_err = 0;
-+                                    hex2mem(ptr, (char*) addr, length, 1);
-+
-+				    if (mem_err) {
-+					strcpy (remcomOutBuffer, "E03");
-+				    } else {
-+				        strcpy(remcomOutBuffer,"OK");
-+				    }
-+
-+                                    ptr = 0;
-+                                }
-+                    if (ptr)
-+                    {
-+		      strcpy(remcomOutBuffer,"E02");
-+		    }
-+                break;
-+
-+     /* cAA..AA    Continue at address AA..AA(optional) */
-+     /* sAA..AA   Step one instruction from AA..AA(optional) */
-+     case 's' :
-+	 kgdb_stepping = 1;
-+     case 'c' :
-+          /* try to read optional parameter, pc unchanged if no parm */
-+         if (hexToInt(&ptr,&addr))
-+             registers[ GDB_PC ] = addr;
-+
-+          newPC = registers[ GDB_PC];
-+
-+          /* clear the trace bit */
-+          registers[ GDB_PS ] &= 0xfffffeff;
-+
-+          /* set the trace bit if we're stepping */
-+          if (kgdb_stepping) registers[ GDB_PS ] |= 0x100;
-+
-+	  regs->eax = registers[GDB_EAX];
-+	  regs->ebx = registers[GDB_EBX];
-+	  regs->ecx = registers[GDB_ECX];
-+	  regs->edx = registers[GDB_EDX];
-+	  regs->ebp = registers[GDB_EBP];
-+	  regs->esi = registers[GDB_ESI];
-+	  regs->edi = registers[GDB_EDI];
-+	  regs->eip = registers[GDB_PC];
-+	  regs->eflags = registers[GDB_PS];
-+	  regs->xcs = registers[GDB_CS];
-+	  regs->xds = registers[GDB_DS];
-+	  regs->xes = registers[GDB_ES];
-+
-+	  /* We didn't restore FS, GS, or SS because we never saved them,
-+	   * nor did we restore ESP because we're using the same stack
-+	   * ourselves!
-+	   */
-+
-+	  set_intr_gate(14,&page_fault);
-+	  kgdb_interruptible(1);
-+	  /* unlock_kernel(); */
-+	  kgdb_active = 0;
-+
-+	  return;
-+
-+      /* kill the program */
-+      case 'k' :
-+	      strcpy(remcomOutBuffer, "OK");
-+	      putpacket(remcomOutBuffer);
-+	      machine_restart(NULL);
-+	      break;
-+
-+      } /* switch */
-+
-+    /* reply to the request */
-+    putpacket(remcomOutBuffer);
-+    }
-+}
-+
-+/* this function is used to set up exception handlers for tracing and
-+   breakpoints */
-+void set_debug_traps(void)
-+{
-+  kgdb_initialized = 1;
-+}
-+
-+/* This function will generate a breakpoint exception.  It is used at the
-+   beginning of a program to sync up with a debugger and can be used
-+   otherwise as a quick means to stop program execution and "break" into
-+   the debugger. */
-+
-+void breakpoint(void)
-+{
-+	if (kgdb_initialized) {
-+		asm("   int $3");
-+	}
-+}
-diff -Nru linux-2.4.6-dist/arch/i386/kernel/setup.c linux-2.4.6-kgdb/arch/i386/kernel/setup.c
---- linux-2.4.6-dist/arch/i386/kernel/setup.c	Fri May 25 20:07:09 2001
-+++ linux-2.4.6-kgdb/arch/i386/kernel/setup.c	Wed Jul 25 14:00:34 2001
-@@ -104,6 +104,12 @@
- #include <asm/dma.h>
- #include <asm/mpspec.h>
- #include <asm/mmu_context.h>
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+extern int serial_kgdb_hook(int);
-+extern void set_debug_traps(void);
-+#endif
-+
- /*
-  * Machine setup..
-  */
-@@ -1016,6 +1022,19 @@
- 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
- 	if (low_mem_size > pci_mem_start)
- 		pci_mem_start = low_mem_size;
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+	if (strstr(*cmdline_p, "kgdb") && (serial_kgdb_hook(0) == 0)) {
-+
-+	     /* We can't breakpoint yet because traps haven't been set up,
-+	      * but we'll just grab the UART (serial_kgdb_hook did that)
-+	      * and initialize.  We'll breakpoint in traps.c as soon
-+	      * as it's ready.
-+	      */
-+
-+	     set_debug_traps();
-+        }
-+#endif
- 
- #ifdef CONFIG_VT
- #if defined(CONFIG_VGA_CONSOLE)
-diff -Nru linux-2.4.6-dist/arch/i386/kernel/traps.c linux-2.4.6-kgdb/arch/i386/kernel/traps.c
---- linux-2.4.6-dist/arch/i386/kernel/traps.c	Wed Jul 25 13:53:09 2001
-+++ linux-2.4.6-kgdb/arch/i386/kernel/traps.c	Tue Jul 31 00:48:24 2001
-@@ -86,6 +86,17 @@
- asmlinkage void spurious_interrupt_bug(void);
- asmlinkage void machine_check(void);
- 
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+extern char kgdb_initialized;
-+extern int kgdb_active;
-+extern int kgdb_stepping;
-+
-+extern void handle_exception(int sigval, struct pt_regs *regs);
-+extern void breakpoint(void);
-+
-+#endif
-+
- int kstack_depth_to_print = 24;
- 
- /*
-@@ -263,6 +274,16 @@
- 		unsigned long fixup = search_exception_table(regs->eip);
- 		if (fixup)
- 			regs->eip = fixup;
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+		/* This is not the main entry point for the remote debugger.
-+		 * That's in entry.S's int3 (breakpoint) handler.  This code
-+		 * just drops us into the debugger on the odd kernel fault.
-+		 */
-+
-+		else if (kgdb_initialized)
-+			handle_exception(signr, regs);
-+#endif
- 		else	
- 			die(str, regs, error_code);
- 		return;
-@@ -432,6 +453,16 @@
- 	 */
- 	int sum, cpu = smp_processor_id();
- 
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+	/* If GDB is active, then we're sitting in a loop waiting for the
-+	 * remote debugger, so the CPU may appear hung.  Skip the checks.
-+	 */
-+
-+	if (kgdb_active) return;
-+
-+#endif
-+
- 	sum = apic_timer_irqs[cpu];
- 
- 	if (last_irq_sums[cpu] == sum) {
-@@ -527,6 +558,25 @@
- 
- 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
- 
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+	/* If we running GDB on the kernel, then check for a single
-+	 * step trap in kernel space and hand it off to the debugger.
-+	 * If kgdb_stepping isn't set, then it's a spurious trap, so
-+	 * ignore it, i.e, if we single stepped through a save_flags(),
-+	 * then we'll get a trap later on after restore_flags()
-+	 */
-+
-+	if ((condition & DR_STEP) && !(regs->xcs & 3)) {
-+		if (kgdb_stepping) {
-+			handle_exception(5, regs);	/* 5 is SIGTRAP */
-+			return;
-+		} else {
-+			goto clear_TF;
-+		}
-+	}
-+#endif
-+
- 	/* Mask out spurious debug traps due to lazy DR7 setting */
- 	if (condition & (DR_TRAP0|DR_TRAP1|DR_TRAP2|DR_TRAP3)) {
- 		if (!tsk->thread.debugreg[7])
-@@ -817,21 +867,42 @@
-  * Pentium F0 0F bugfix can have resulted in the mapped
-  * IDT being write-protected.
-  */
-+
-+/* Interrupt gate - masks off interrupts and can't be called from user space,
-+ * only by a hardware interrupt, processor fault, or "INT n" instruction
-+ * in kernel space (but that never happens)
-+ */
-+
- void set_intr_gate(unsigned int n, void *addr)
- {
- 	_set_gate(idt_table+n,14,0,addr);
- }
- 
-+/* Trap gate - doesn't mask interrupts and can't be called from user space */
-+
- static void __init set_trap_gate(unsigned int n, void *addr)
- {
- 	_set_gate(idt_table+n,15,0,addr);
- }
- 
-+/* System gate - doesn't mask interrupts and can be called from user space,
-+ * via an "INT n" instruction
-+ */
-+
- static void __init set_system_gate(unsigned int n, void *addr)
- {
- 	_set_gate(idt_table+n,15,3,addr);
- }
- 
-+/* System interrupt gate - masks ints and can be called from user space */
-+
-+static void __init set_system_intr_gate(unsigned int n, void *addr)
-+{
-+	_set_gate(idt_table+n,14,3,addr);
-+}
-+
-+/* Call gate - accessed via a far CALL rather than an exception or INT n */
-+
- static void __init set_call_gate(void *a, void *addr)
- {
- 	_set_gate(a,12,3,addr);
-@@ -965,10 +1036,18 @@
- 		EISA_bus = 1;
- #endif
- 
-+	/* Interrupts 1 and 3 are interrupt gates in case they were
-+	 * generated within the kernel, in which case we want
-+	 * interrupts masked off while the kernel debugger runs.
-+	 * Additionally, interrupt 3 could be called from user space
-+	 * by an "INT 3" inserted by a user space debugger, so it gets
-+	 * a system interrupt gate.
-+	 */
-+
- 	set_trap_gate(0,&divide_error);
--	set_trap_gate(1,&debug);
-+	set_intr_gate(1,&debug);
- 	set_intr_gate(2,&nmi);
--	set_system_gate(3,&int3);	/* int3-5 can be called from all */
-+	set_system_intr_gate(3,&int3);	/* int3-5 can be called from all */
- 	set_system_gate(4,&overflow);
- 	set_system_gate(5,&bounds);
- 	set_trap_gate(6,&invalid_op);
-@@ -1004,5 +1083,12 @@
- 	superio_init();
- 	lithium_init();
- 	cobalt_init();
-+#endif
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+	/* Traps are now setup - OK to fire off an initial breakpoint,
-+	 * which should halt the kernel and hand control to the debugger.
-+	 */
-+	if (kgdb_initialized) breakpoint();
- #endif
- }
-diff -Nru linux-2.4.6-dist/arch/i386/mm/fault.c linux-2.4.6-kgdb/arch/i386/mm/fault.c
---- linux-2.4.6-dist/arch/i386/mm/fault.c	Tue May 15 03:16:51 2001
-+++ linux-2.4.6-kgdb/arch/i386/mm/fault.c	Wed Aug  1 12:39:33 2001
-@@ -25,6 +25,10 @@
- 
- extern void die(const char *,struct pt_regs *,long);
- 
-+#ifdef CONFIG_REMOTE_DEBUG
-+extern char kgdb_initialized;
-+#endif
-+
- /*
-  * Ugly, ugly, but the goto's result in better assembly..
-  */
-@@ -270,6 +274,13 @@
-  * Oops. The kernel tried to access some bad page. We'll have to
-  * terminate things with extreme prejudice.
-  */
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+	if (kgdb_initialized) {
-+		handle_exception(11, regs);	/* 11 - SIGSEGV */
-+		return;
-+	}
-+#endif
- 
- 	bust_spinlocks();
- 
-diff -Nru linux-2.4.6-dist/drivers/char/serial.c linux-2.4.6-kgdb/drivers/char/serial.c
---- linux-2.4.6-dist/drivers/char/serial.c	Sun May 20 15:11:38 2001
-+++ linux-2.4.6-kgdb/drivers/char/serial.c	Wed Jul 25 14:00:34 2001
-@@ -264,6 +264,8 @@
- static int IRQ_timeout[NR_IRQS];
- #ifdef CONFIG_SERIAL_CONSOLE
- static struct console sercons;
-+#endif
-+#if defined(CONFIG_SERIAL_CONSOLE) || defined(CONFIG_REMOTE_DEBUG)
- static int lsr_break_flag;
- #endif
- #if defined(CONFIG_SERIAL_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
-@@ -360,6 +362,17 @@
- #define DBG_CNT(s)
- #endif
- 
-+/* If kgdb is active is one of the serial ports, kgdb_index holds
-+ * the port's offset in rs_table[].  No normal operations are permitted
-+ * on a port running kgdb.
-+ */
-+
-+static int kgdb_index = -1;
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+void enable_kgdb_interrupts(void);
-+#endif
-+
- /*
-  * tmp_buf is used as a temporary buffer by serial_write.  We need to
-  * lock it in case the copy_from_user blocks while swapping in a page,
-@@ -3133,7 +3146,7 @@
- 
- 	MOD_INC_USE_COUNT;
- 	line = MINOR(tty->device) - tty->driver.minor_start;
--	if ((line < 0) || (line >= NR_PORTS)) {
-+	if ((line < 0) || (line >= NR_PORTS) || (line == kgdb_index)) {
- 		MOD_DEC_USE_COUNT;
- 		return -ENODEV;
- 	}
-@@ -5285,6 +5298,12 @@
- 		panic("Couldn't register callout driver\n");
- 	
- 	for (i = 0, state = rs_table; i < NR_PORTS; i++,state++) {
-+#ifdef CONFIG_REMOTE_DEBUG
-+		if (i == kgdb_index) {
-+			enable_kgdb_interrupts();
-+			continue;
-+		}
-+#endif
- 		state->magic = SSTATE_MAGIC;
- 		state->line = i;
- 		state->type = PORT_UNKNOWN;
-@@ -5307,7 +5326,7 @@
- 			autoconfig(state);
- 	}
- 	for (i = 0, state = rs_table; i < NR_PORTS; i++,state++) {
--		if (state->type == PORT_UNKNOWN)
-+		if ((state->type == PORT_UNKNOWN) || (i == kgdb_index))
- 			continue;
- 		if (   (state->flags & ASYNC_BOOT_AUTOCONF)
- 		    && (state->flags & ASYNC_AUTO_IRQ)
-@@ -5564,12 +5583,10 @@
-  * Serial console driver
-  * ------------------------------------------------------------
-  */
--#ifdef CONFIG_SERIAL_CONSOLE
-+#if defined(CONFIG_SERIAL_CONSOLE) || defined(CONFIG_REMOTE_DEBUG)
- 
- #define BOTH_EMPTY (UART_LSR_TEMT | UART_LSR_THRE)
- 
--static struct async_struct async_sercons;
--
- /*
-  *	Wait for transmitter & holding register to empty
-  */
-@@ -5595,6 +5612,12 @@
- 	}	
- }
- 
-+#endif
-+
-+
-+#ifdef CONFIG_SERIAL_CONSOLE
-+
-+static struct async_struct async_sercons;
- 
- /*
-  *	Print a string to the serial port trying not to disturb
-@@ -5821,6 +5844,215 @@
- void __init serial_console_init(void)
- {
- 	register_console(&sercons);
-+}
-+#endif
-+
-+/*
-+ *   Hooks for remote GDB driver
-+ *
-+ * GDB has a mode ("target remote") which allows it to debug a program
-+ * via a simple serial protocol, documented in GDB's "remote.c" file.
-+ * In our case, the "program" is the Linux kernel itself, and the
-+ * protocol runs over a standard serial port.  Standard configuration
-+ * is to run a null modem cable between two machines, then GDB can be
-+ * run on one and be used to breakpoint, single step, and do all that
-+ * neat source debugger stuff to the kernel on the other machine.
-+ *
-+ * If the "kgdb" option is given to the kernel, serial_kgdb_hook(index) is
-+ * called which sets up for remote GDB on the "index"th serial line.
-+ * The index is squirreled away in kgdb_index, to make sure the normal
-+ * serial code doesn't try to init the UART or open the device.
-+ * A special interrupt handler is installed, and the putDebugChar() and
-+ * getDebugChar() functions are exported, along with kgdb_interruptible(),
-+ * which tells the system's state:
-+ *
-+ *    kgdb_interruptible(1) - system running,
-+ *                            CNTL-C from the remote triggers a breakpoint
-+ *    kgdb_interruptible(0) - system halted,
-+ *                            characters from the remote go to getDebugChar()
-+ */
-+
-+#ifdef CONFIG_REMOTE_DEBUG
-+
-+void breakpoint(void);
-+
-+static struct async_struct async_kgdb;
-+static int kgdb_interrupts_active = 0;
-+
-+static void rs_interrupt_kgdb(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	while (serial_in(&async_kgdb, UART_LSR) & UART_LSR_DR) {
-+		if (serial_in(&async_kgdb, UART_RX) == '\003') {
-+			breakpoint();
-+			return;
-+		}
-+	}
-+}
-+
-+int serial_kgdb_hook(int index)
-+{
-+	struct async_struct *info;
-+        struct serial_state *state;
-+        unsigned cval;
-+        int     baud = 9600;
-+        int     bits = 8;
-+        int     parity = 'n';
-+        int     cflag = CREAD | HUPCL | CLOCAL;
-+        int     quot = 0;
-+
-+        kgdb_index = index;
-+
-+        /*
-+         *      Now construct a cflag setting.
-+         */
-+        switch(baud) {
-+	case 1200:
-+		cflag |= B1200;
-+		break;
-+	case 2400:
-+		cflag |= B2400;
-+		break;
-+	case 4800:
-+		cflag |= B4800;
-+		break;
-+	case 19200:
-+		cflag |= B19200;
-+		break;
-+	case 38400:
-+		cflag |= B38400;
-+		break;
-+	case 57600:
-+		cflag |= B57600;
-+		break;
-+	case 115200:
-+		cflag |= B115200;
-+		break;
-+	case 9600:
-+	default:
-+		cflag |= B9600;
-+		break;
-+        }
-+        switch(bits) {
-+	case 7:
-+		cflag |= CS7;
-+		break;
-+	default:
-+	case 8:
-+		cflag |= CS8;
-+		break;
-+        }
-+        switch(parity) {
-+	case 'o': case 'O':
-+		cflag |= PARODD;
-+		break;
-+	case 'e': case 'E':
-+		cflag |= PARENB;
-+		break;
-+        }
-+
-+        /*
-+         *      Divisor, bytesize and parity
-+         */
-+        state = rs_table + index;
-+	info = &async_kgdb;
-+	info->magic = SERIAL_MAGIC;
-+	info->state = state;
-+	info->port = state->port;
-+	info->flags = state->flags;
-+#ifdef CONFIG_HUB6
-+	info->hub6 = state->hub6;
-+#endif
-+	info->io_type = state->io_type;
-+	info->iomem_base = state->iomem_base;
-+	info->iomem_reg_shift = state->iomem_reg_shift;
-+        quot = state->baud_base / baud;
-+        cval = cflag & (CSIZE | CSTOPB);
-+#if defined(__powerpc__) || defined(__alpha__)
-+        cval >>= 8;
-+#else /* !__powerpc__ && !__alpha__ */
-+        cval >>= 4;
-+#endif /* !__powerpc__ && !__alpha__ */
-+        if (cflag & PARENB)
-+                cval |= UART_LCR_PARITY;
-+        if (!(cflag & PARODD))
-+                cval |= UART_LCR_EPAR;
-+
-+
-+        /*
-+         *      Set DTR and RTS high along with OUT1 and OUT2 (to
-+         *      enable interrupts) and set speed.
-+	 */
-+	serial_out(info, UART_LCR, cval | UART_LCR_DLAB);	/* set DLAB */
-+	serial_out(info, UART_DLL, quot & 0xff);	/* LS of divisor */
-+	serial_out(info, UART_DLM, quot >> 8);		/* MS of divisor */
-+	serial_out(info, UART_LCR, cval);		/* reset DLAB */
-+	serial_out(info, UART_IER, 0);			/* int off for now */
-+	/* serial_out(info, UART_MCR, UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT1 | UART_MCR_OUT2); */
-+	serial_out(info, UART_MCR, UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2);
-+
-+        /*
-+         *      If we read 0xff from the LSR, there is no UART here.
-+         */
-+	if (serial_in(info, UART_LSR) == 0xff) {
-+                return -1;
-+        }
-+        return 0;
-+}
-+
-+static void enable_kgdb_interrupts(void)
-+{
-+        /* This routine gets called from rs_init(), and sets up the
-+	 * IRQ handler and I/O block for the KGDB debugger.  We don't
-+	 * need this to make KGDB work - we only need it to debug
-+	 * asynchronously (hit CTRL-C on the debugger and break into
-+	 * the kernel).  We didn't do this in serial_kgdb_hook() since
-+	 * IRQs hadn't been initialized yet!
-+	 */
-+
-+        /* Allocate the IRQ (we don't share it) and IO ports */
-+
-+        if (request_irq(async_kgdb.state->irq, rs_interrupt_kgdb, 0,
-+                        "serial(kgdb)", NULL)) {
-+                printk("Can't get KGDB IRQ - no asynchronous debugging\n");
-+        }
-+
-+	/* enable UART recv data interrupt */
-+	serial_out(&async_kgdb, UART_IER, UART_IER_RDI);
-+
-+	rs_interrupt_kgdb(async_kgdb.state->irq, NULL, NULL);
-+
-+	kgdb_interrupts_active = 1;
-+
-+        request_region(async_kgdb.port, 8, "serial(kgdb)");
-+}
-+
-+void putDebugChar(char kgdb_char)
-+{
-+        wait_for_xmitr(&async_kgdb);
-+	serial_out(&async_kgdb, UART_TX, kgdb_char);
-+        wait_for_xmitr(&async_kgdb);
-+}
-+
-+char getDebugChar(void)
-+{
-+        int lsr;
-+
-+        do {
-+                lsr = serial_in(&async_kgdb, UART_LSR);
-+        } while (!(lsr & UART_LSR_DR));
-+
-+        return serial_in(&async_kgdb, UART_RX);
-+}
-+
-+void kgdb_interruptible(int i)
-+{
-+        if (i && kgdb_interrupts_active) {
-+                /* KGDB interruptible - enable UART recv data interrupt */
-+                serial_out(&async_kgdb, UART_IER, UART_IER_RDI);
-+        } else {
-+                /* KGDB not interruptible - disable UART interrupts */
-+                serial_out(&async_kgdb, UART_IER, 0);
-+        }
- }
- #endif
- 
+[baccala@y2k intel:linux-2.4.6-kgdb]$ gdb vmlinux
+GNU gdb 19991004
+Copyright 1998 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux"...
+(gdb) target remote /dev/cua0
+Remote debugging using /dev/cua0
+breakpoint () at i386-stub.c:622
+622	}
+(gdb) cont
+Continuing.
+
+Program received signal SIGILL, Illegal instruction.
+0xc01b76d9 in blk_get_queue (dev=769)
+    at /home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:103
+103			BUG();
+(gdb) print io_request_lock
+$1 = {lock = 0, magic = 3735899821, last_lock_addr = 0xc01e9c60, 
+  last_lock_current = 0xc135a000, last_lock_processor = 0}
+(gdb) print io_request_lock->last_lock_addr
+$2 = (void *) 0xc01e9c60
+(gdb) list *io_request_lock->last_lock_addr
+0xc01e9c60 is in scsi_try_to_abort_command (/home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:97).
+92	static inline void spin_lock(spinlock_t *lock)
+93	{
+94	#if SPINLOCK_DEBUG
+95		__label__ here;
+96	here:
+97		if (lock->magic != SPINLOCK_MAGIC) {
+98	printk("eip: %p\n", &&here);
+99			BUG();
+100		}
+101		if (spin_is_locked(lock)
+(gdb) print io_request_lock->last_lock_current
+$3 = (void *) 0xc135a000
+(gdb) print (struct task_struct *)io_request_lock->last_lock_current
+$4 = (struct task_struct *) 0xc135a000
+(gdb) print ((struct task_struct *)io_request_lock->last_lock_current)->thread
+$5 = {esp0 = 3241525248, eip = 3222356453, esp = 3241524852, fs = 24, gs = 24, 
+  debugreg = {0, 0, 0, 0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, 
+  i387 = {fsave = {cwd = -64641, swd = -65536, twd = -1, fip = 0, fcs = 0, 
+      foo = 0, fos = -65536, st_space = {0 <repeats 16 times>, -2146699776, 
+        16405, 0, 0}, status = 0}, fxsave = {cwd = 895, swd = 65535, twd = 0, 
+      fop = 65535, fip = -1, fcs = 0, foo = 0, fos = 0, mxcsr = -65536, 
+      reserved = 0, st_space = {0 <repeats 15 times>, -2146699776, 16405, 
+        0 <repeats 15 times>}, xmm_space = {0 <repeats 32 times>}, padding = {
+        0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65536, twd = -1, 
+      fip = 0, fcs = 0, foo = 0, fos = -65536, st_space = {
+        0 <repeats 16 times>, -2146699776, 16405, 0, 0}, ftop = 0 '\000', 
+      changed = 0 '\000', lookahead = 0 '\000', no_update = 0 '\000', 
+      rm = 0 '\000', alimit = 0 '\000', info = 0x0, entry_eip = 0}}, 
+  vm86_info = 0x0, screen_bitmap = 0, v86flags = 0, v86mask = 0, v86mode = 0, 
+  saved_esp0 = 0, ioperm = 0, io_bitmap = {4294967295, 0 <repeats 32 times>}}
+(gdb) print ((struct task_struct *)io_request_lock->last_lock_current)->thread->eip
+$6 = 3222356453
+(gdb) printf "%x\n", ((struct task_struct *)io_request_lock->last_lock_current)->thread->eip
+c01141e5
+(gdb) list *((struct task_struct *)io_request_lock->last_lock_current)->thread->eip
+0xc01141e5 is in schedule (sched.c:669).
+664	
+665		/*
+666		 * This just switches the register state and the
+667		 * stack.
+668		 */
+669		switch_to(prev, next, prev);
+670		__schedule_tail(prev);
+671	
+672	same_process:
+673		reacquire_kernel_lock(current);
+(gdb) printf "%x\n", ((struct task_struct *)io_request_lock->last_lock_current)->thread->esp
+c135be74
+(gdb) x/64x  ((struct task_struct *)io_request_lock->last_lock_current)->thread->esp
+0xc135be74:	0xc135bef0	0xc24ed7a0	0x00000000	0xc135a000
+0xc135be84:	0xc14469dc	0xc14469e4	0xc24ed7a0	0x44505c49
+0xc135be94:	0x00000092	0xc1649ec0	0xc5f3bf78	0xc5f69000
+0xc135bea4:	0x55665351	0x00000083	0xc1649ec0	0xc5f3bf78
+0xc135beb4:	0xc5f69000	0xc5f69098	0xc0312000	0xc02fbb40
+0xc135bec4:	0x00000083	0xc135be00	0xc135a000	0x00000000
+0xc135bed4:	0xc135a000	0xc14469dc	0xc135a000	0xfffffc18
+0xc135bee4:	0x00000000	0xc135a000	0xc0353040	0xc135bf1c
+0xc135bef4:	0xc0105d1d	0xc1446800	0xc03071c8	0x00000206
+0xc135bf04:	0xc14469e4	0xc135bf0c	0x00000001	0xc135a000
+0xc135bf14:	0xc14469f8	0xc14469f8	0xc135bf3c	0xc01061e4
+0xc135bf24:	0xc14469dc	0xc5f69000	0x00000000	0xc02848c3
+0xc135bf34:	0xc1649ec0	0xc135a000	0xc135bf58	0xc01e9cf0
+0xc135bf44:	0xc1975400	0xc4db74a0	0xc135bf84	0xc1975400
+0xc135bf54:	0xc01060a1	0xc135bf88	0xc01ea614	0xc1975400
+0xc135bf64:	0x000005dc	0xc4db74a0	0xc135a000	0xc02fb2a0
+(gdb) print *((struct task_struct *)io_request_lock->last_lock_current)
+$7 = {state = 2, flags = 64, sigpending = 0, addr_limit = {seg = 4294967295}, 
+  exec_domain = 0xc02fbc60, need_resched = 0, ptrace = 0, lock_depth = -1, 
+  counter = 11, nice = 0, policy = 0, mm = 0x0, has_cpu = 0, processor = 0, 
+  cpus_allowed = 4294967295, run_list = {next = 0x0, prev = 0xc02fbb40}, 
+  sleep_time = 12446, next_task = 0xc14dc000, prev_task = 0xc135c000, 
+  active_mm = 0x0, binfmt = 0x0, exit_code = 0, exit_signal = 0, 
+  pdeath_signal = 0, personality = 0, dumpable = 0, did_exec = 0, pid = 1370, 
+  pgrp = 1, tty_old_pgrp = 0, session = 1, tgid = 1370, leader = 0, 
+  p_opptr = 0xc5f52000, p_pptr = 0xc5f52000, p_cptr = 0x0, p_ysptr = 0x0, 
+  p_osptr = 0xc135c000, thread_group = {next = 0xc135a098, prev = 0xc135a098}, 
+  pidhash_next = 0x0, pidhash_pprev = 0xc037493c, wait_chldexit = {lock = {
+      lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+      last_lock_current = 0x0, last_lock_processor = 0}, task_list = {
+      next = 0xc135a0bc, prev = 0xc135a0bc}}, vfork_sem = 0x0, 
+  rt_priority = 0, it_real_value = 0, it_prof_value = 0, it_virt_value = 0, 
+  it_real_incr = 0, it_prof_incr = 0, it_virt_incr = 0, real_timer = {list = {
+      next = 0x0, prev = 0x0}, expires = 0, data = 3241517056, 
+    function = 0xc011d648 <it_real_fn>}, times = {tms_utime = 0, 
+    tms_stime = 0, tms_cutime = 0, tms_cstime = 0}, start_time = 6420, 
+  per_cpu_utime = {0 <repeats 32 times>}, per_cpu_stime = {
+    0 <repeats 32 times>}, min_flt = 0, maj_flt = 0, nswap = 0, cmin_flt = 0, 
+  cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 0, euid = 0, suid = 0, 
+  fsuid = 0, gid = 0, egid = 0, sgid = 0, fsgid = 0, ngroups = 0, groups = {
+---Type <return> to continue, or q <return> to quit---
+    0 <repeats 32 times>}, cap_effective = 4294967039, cap_inheritable = 0, 
+  cap_permitted = 4294967295, keep_capabilities = 0, user = 0xc02fc9d4, 
+  rlim = {{rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 8388608, rlim_max = 4294967295}, {
+      rlim_cur = 0, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 3072, rlim_max = 3072}, {
+      rlim_cur = 1024, rlim_max = 1024}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}}, used_math = 1, 
+  comm = "scsi_eh_0\000\000\000\000\000\000", link_count = 0, tty = 0x0, 
+  locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {esp0 = 3241525248, 
+    eip = 3222356453, esp = 3241524852, fs = 24, gs = 24, debugreg = {0, 0, 0, 
+      0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, i387 = {fsave = {
+        cwd = -64641, swd = -65536, twd = -1, fip = 0, fcs = 0, foo = 0, 
+        fos = -65536, st_space = {0 <repeats 16 times>, -2146699776, 16405, 0, 
+          0}, status = 0}, fxsave = {cwd = 895, swd = 65535, twd = 0, 
+        fop = 65535, fip = -1, fcs = 0, foo = 0, fos = 0, mxcsr = -65536, 
+        reserved = 0, st_space = {0 <repeats 15 times>, -2146699776, 16405, 
+          0 <repeats 15 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65536, 
+        twd = -1, fip = 0, fcs = 0, foo = 0, fos = -65536, st_space = {
+          0 <repeats 16 times>, -2146699776, 16405, 0, 0}, ftop = 0 '\000', 
+---Type <return> to continue, or q <return> to quit---
+        changed = 0 '\000', lookahead = 0 '\000', no_update = 0 '\000', 
+        rm = 0 '\000', alimit = 0 '\000', info = 0x0, entry_eip = 0}}, 
+    vm86_info = 0x0, screen_bitmap = 0, v86flags = 0, v86mask = 0, 
+    v86mode = 0, saved_esp0 = 0, ioperm = 0, io_bitmap = {4294967295, 
+      0 <repeats 32 times>}}, fs = 0xc02f9440, files = 0xc02f9480, 
+  sigmask_lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+    last_lock_current = 0x0, last_lock_processor = 0}, sig = 0xc145a080, 
+  blocked = {sig = {4294967294, 4294967295}}, pending = {head = 0x0, 
+    tail = 0xc135a668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 0, self_exec_id = 0, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0312000, last_lock_processor = 0}}
+(gdb) list *0xc0105d1c
+0xc0105d1c is in __down (semaphore.c:80).
+75				break;
+76			}
+77			sem->sleepers = 1;	/* us - see -1 above */
+78			spin_unlock_irq(&semaphore_lock);
+79	
+80			schedule();
+81			tsk->state = TASK_UNINTERRUPTIBLE;
+82			spin_lock_irq(&semaphore_lock);
+83		}
+84		spin_unlock_irq(&semaphore_lock);
+(gdb) list *0xc01061e4
+0xc01061e4 is at af_packet.c:1878.
+1873	{
+1874		remove_proc_entry("net/packet", 0);
+1875		unregister_netdevice_notifier(&packet_netdev_notifier);
+1876		sock_unregister(PF_PACKET);
+1877		return;
+1878	}
+1879	
+1880	static int __init packet_init(void)
+1881	{
+1882		sock_register(&packet_family_ops);
+(gdb) list *0xc01e9cf0
+0xc01e9cf0 is in scsi_try_to_abort_command (scsi_error.c:775).
+770			return SUCCESS;
+771	
+772		SCpnt->owner = SCSI_OWNER_LOWLEVEL;
+773	
+774		spin_lock_irqsave(&io_request_lock, flags);
+775		rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
+776		spin_unlock_irqrestore(&io_request_lock, flags);
+777		return rtn;
+778	}
+779	
+(gdb) list *0xc0219f29
+0xc0219f29 is in command_abort (scsiglue.c:198).
+193			/* cancel the URB -- this will automatically wake the thread */
+194			usb_unlink_urb(us->current_urb);
+195	
+196			/* wait for us to be done */
+197			down(&(us->notify));
+198			return SUCCESS;
+199		}
+200	
+201		US_DEBUGP ("-- nothing to abort\n");
+202		return FAILED;
+(gdb) print $esp
+$8 = -1067844024
+(gdb) printf "%x\n", $esp
+c059fe48
+(gdb) printf "%x\n", $esp&(~8191)
+c059e000
+(gdb) set $current =$esp&(~8191)
+(gdb) set $current =(struct task_struct *)$esp&(~8191)
+Argument to arithmetic operation not a number or boolean.
+(gdb) print (struct task_struct *)$current
+$9 = (struct task_struct *) 0xc059e000
+(gdb) print *(struct task_struct *)$current
+$10 = {state = 0, flags = 1048576, sigpending = 0, addr_limit = {
+    seg = 3221225472}, exec_domain = 0xc02fbc60, need_resched = 1, ptrace = 0, 
+  lock_depth = -1, counter = 6, nice = 0, policy = 0, mm = 0xc24ed3e0, 
+  has_cpu = 1, processor = 0, cpus_allowed = 4294967295, run_list = {
+    next = 0xc02fbb40, prev = 0xc234003c}, sleep_time = 12739, 
+  next_task = 0xc13bc000, prev_task = 0xc060c000, active_mm = 0xc24ed3e0, 
+  binfmt = 0xc02fe0a4, exit_code = 0, exit_signal = 17, pdeath_signal = 0, 
+  personality = 0, dumpable = -1, did_exec = -1, pid = 1411, pgrp = 1411, 
+  tty_old_pgrp = 0, session = 1403, tgid = 1411, leader = 0, 
+  p_opptr = 0xc060c000, p_pptr = 0xc060c000, p_cptr = 0xc13bc000, 
+  p_ysptr = 0x0, p_osptr = 0x0, thread_group = {next = 0xc059e098, 
+    prev = 0xc059e098}, pidhash_next = 0x0, pidhash_pprev = 0xc03749d8, 
+  wait_chldexit = {lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+      last_lock_current = 0x0, last_lock_processor = 0}, task_list = {
+      next = 0xc059e0bc, prev = 0xc059e0bc}}, vfork_sem = 0xc059ff80, 
+  rt_priority = 0, it_real_value = 0, it_prof_value = 0, it_virt_value = 0, 
+  it_real_incr = 0, it_prof_incr = 0, it_virt_incr = 0, real_timer = {list = {
+      next = 0x0, prev = 0x0}, expires = 7151, data = 3227115520, 
+    function = 0xc011d648 <it_real_fn>}, times = {tms_utime = 76, 
+    tms_stime = 17, tms_cutime = 0, tms_cstime = 0}, start_time = 12261, 
+  per_cpu_utime = {76, 0 <repeats 31 times>}, per_cpu_stime = {17, 
+    0 <repeats 31 times>}, min_flt = 662, maj_flt = 1053, nswap = 0, 
+  cmin_flt = 0, cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 500, 
+---Type <return> to continue, or q <return> to quit---
+  euid = 500, suid = 500, fsuid = 500, gid = 500, egid = 500, sgid = 500, 
+  fsgid = 500, ngroups = 2, groups = {500, 300, 0 <repeats 30 times>}, 
+  cap_effective = 0, cap_inheritable = 0, cap_permitted = 0, 
+  keep_capabilities = 0, user = 0xc4dc8f20, rlim = {{rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 8388608, 
+      rlim_max = 4294967295}, {rlim_cur = 1024000000, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 3072, 
+      rlim_max = 3072}, {rlim_cur = 1024, rlim_max = 1024}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}}, 
+  used_math = 1, comm = "sol\000\000-terminal\000", link_count = 0, 
+  tty = 0xc0613000, locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {
+    esp0 = 3227123712, eip = 3222356453, esp = 3227123520, fs = 0, gs = 0, 
+    debugreg = {0, 0, 0, 0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, 
+    i387 = {fsave = {cwd = -64641, swd = -65248, twd = -1, fip = 1078387819, 
+        fcs = 98041891, foo = 0, fos = -65493, st_space = {0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, status = 0}, 
+      fxsave = {cwd = 895, swd = 65535, twd = 288, fop = 65535, fip = -1, 
+        fcs = 1078387819, foo = 98041891, fos = 0, mxcsr = -65493, 
+        reserved = 0, st_space = {0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 
+          0 <repeats 23 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65248, 
+---Type <return> to continue, or q <return> to quit---
+        twd = -1, fip = 1078387819, fcs = 98041891, foo = 0, fos = -65493, 
+        st_space = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0}, ftop = 0 '\000', changed = 0 '\000', 
+        lookahead = 0 '\000', no_update = 0 '\000', rm = 0 '\000', 
+        alimit = 0 '\000', info = 0x0, entry_eip = 0}}, vm86_info = 0x0, 
+    screen_bitmap = 0, v86flags = 0, v86mask = 0, v86mode = 0, saved_esp0 = 0, 
+    ioperm = 0, io_bitmap = {4294967295, 0 <repeats 32 times>}}, 
+  fs = 0xc1318e20, files = 0xc060eac0, sigmask_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0124760, 
+    last_lock_current = 0xc059e000, last_lock_processor = 0}, 
+  sig = 0xc069f5a0, blocked = {sig = {0, 0}}, pending = {head = 0x0, 
+    tail = 0xc059e668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 10, self_exec_id = 11, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0d90000, last_lock_processor = 0}}
+(gdb) where
+#0  0xc01b76d9 in blk_get_queue (dev=769)
+    at /home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:103
+#1  0xc01b8a3c in generic_make_request (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:904
+#2  0xc01b8ae9 in submit_bh (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:946
+#3  0xc01460be in block_read_full_page (page=0xc1158840, 
+    get_block=0xc016f884 <ext2_get_block>) at buffer.c:1737
+#4  0xc016fd65 in ext2_readpage (file=0xc05b1180, page=0xc1158840)
+    at inode.c:583
+#5  0xc012f078 in do_generic_file_read (filp=0xc05b1180, ppos=0xc05b11a0, 
+    desc=0xc059ff88, actor=0xc012f324 <file_read_actor>) at filemap.c:1207
+#6  0xc012f3ed in generic_file_read (filp=0xc05b1180, buf=0x8123438 "", 
+    count=4096, ppos=0xc05b11a0) at filemap.c:1310
+#7  0xc0141005 in sys_read (fd=8, buf=0x8123438 "", count=4096)
+    at read_write.c:133
+#8  0xc01077d7 in system_call () at af_packet.c:1878
+#9  0x40474fef in ?? () at af_packet.c:1878
+#10 0x4047505e in ?? () at af_packet.c:1878
+#11 0x40482c89 in ?? () at af_packet.c:1878
+#12 0x40482bd2 in ?? () at af_packet.c:1878
+#13 0x40468a05 in ?? () at af_packet.c:1878
+#14 0x4044cb4b in ?? () at af_packet.c:1878
+#15 0x40468b04 in ?? () at af_packet.c:1878
+#16 0x40462f63 in ?? () at af_packet.c:1878
+---Type <return> to continue, or q <return> to quit---q
+Quit
+(gdb) print io_request_lock
+$11 = {lock = 0, magic = 3735899821, last_lock_addr = 0xc01e9c60, 
+  last_lock_current = 0xc135a000, last_lock_processor = 0}
+(gdb) set io_request_lock->lock=1
+(gdb) x/2i $pc
+0xc01b76d9 <blk_get_queue+121>:	ud2a   
+0xc01b76db <blk_get_queue+123>:	add    $0xc,%esp
+(gdb) set $pc=$pc+2
+(gdb) cont
+Continuing.
+
+0xc135bf14:	0xc14469f8	0xc14469f8	0xc135bf3c	0xc01061e4
+0xc135bf24:	0xc14469dc	0xc5f69000	0x00000000	0xc02848c3
+0xc135bf34:	0xc1649ec0	0xc135a000	0xc135bf58	0xc01e9cf0
+0xc135bf44:	0xc1975400	0xc4db74a0	0xc135bf84	0xc1975400
+0xc135bf54:	0xc01060a1	0xc135bf88	0xc01ea614	0xc1975400
+0xc135bf64:	0x000005dc	0xc4db74a0	0xc135a000	0xc02fb2a0
+(gdb) print *((struct task_struct *)io_request_lock->last_lock_current)
+$7 = {state = 2, flags = 64, sigpending = 0, addr_limit = {seg = 4294967295}, 
+  exec_domain = 0xc02fbc60, need_resched = 0, ptrace = 0, lock_depth = -1, 
+  counter = 11, nice = 0, policy = 0, mm = 0x0, has_cpu = 0, processor = 0, 
+  cpus_allowed = 4294967295, run_list = {next = 0x0, prev = 0xc02fbb40}, 
+  sleep_time = 12446, next_task = 0xc14dc000, prev_task = 0xc135c000, 
+  active_mm = 0x0, binfmt = 0x0, exit_code = 0, exit_signal = 0, 
+  pdeath_signal = 0, personality = 0, dumpable = 0, did_exec = 0, pid = 1370, 
+  pgrp = 1, tty_old_pgrp = 0, session = 1, tgid = 1370, leader = 0, 
+  p_opptr = 0xc5f52000, p_pptr = 0xc5f52000, p_cptr = 0x0, p_ysptr = 0x0, 
+  p_osptr = 0xc135c000, thread_group = {next = 0xc135a098, prev = 0xc135a098}, 
+  pidhash_next = 0x0, pidhash_pprev = 0xc037493c, wait_chldexit = {lock = {
+      lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+      last_lock_current = 0x0, last_lock_processor = 0}, task_list = {
+      next = 0xc135a0bc, prev = 0xc135a0bc}}, vfork_sem = 0x0, 
+  rt_priority = 0, it_real_value = 0, it_prof_value = 0, it_virt_value = 0, 
+  it_real_incr = 0, it_prof_incr = 0, it_virt_incr = 0, real_timer = {list = {
+      next = 0x0, prev = 0x0}, expires = 0, data = 3241517056, 
+    function = 0xc011d648 <it_real_fn>}, times = {tms_utime = 0, 
+    tms_stime = 0, tms_cutime = 0, tms_cstime = 0}, start_time = 6420, 
+  per_cpu_utime = {0 <repeats 32 times>}, per_cpu_stime = {
+    0 <repeats 32 times>}, min_flt = 0, maj_flt = 0, nswap = 0, cmin_flt = 0, 
+  cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 0, euid = 0, suid = 0, 
+  fsuid = 0, gid = 0, egid = 0, sgid = 0, fsgid = 0, ngroups = 0, groups = {
+---Type <return> to continue, or q <return> to quit---
+    0 <repeats 32 times>}, cap_effective = 4294967039, cap_inheritable = 0, 
+  cap_permitted = 4294967295, keep_capabilities = 0, user = 0xc02fc9d4, 
+  rlim = {{rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 8388608, rlim_max = 4294967295}, {
+      rlim_cur = 0, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 3072, rlim_max = 3072}, {
+      rlim_cur = 1024, rlim_max = 1024}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}}, used_math = 1, 
+  comm = "scsi_eh_0\000\000\000\000\000\000", link_count = 0, tty = 0x0, 
+  locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {esp0 = 3241525248, 
+    eip = 3222356453, esp = 3241524852, fs = 24, gs = 24, debugreg = {0, 0, 0, 
+      0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, i387 = {fsave = {
+        cwd = -64641, swd = -65536, twd = -1, fip = 0, fcs = 0, foo = 0, 
+        fos = -65536, st_space = {0 <repeats 16 times>, -2146699776, 16405, 0, 
+          0}, status = 0}, fxsave = {cwd = 895, swd = 65535, twd = 0, 
+        fop = 65535, fip = -1, fcs = 0, foo = 0, fos = 0, mxcsr = -65536, 
+        reserved = 0, st_space = {0 <repeats 15 times>, -2146699776, 16405, 
+          0 <repeats 15 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65536, 
+        twd = -1, fip = 0, fcs = 0, foo = 0, fos = -65536, st_space = {
+          0 <repeats 16 times>, -2146699776, 16405, 0, 0}, ftop = 0 '\000', 
+---Type <return> to continue, or q <return> to quit---
+        changed = 0 '\000', lookahead = 0 '\000', no_update = 0 '\000', 
+        rm = 0 '\000', alimit = 0 '\000', info = 0x0, entry_eip = 0}}, 
+    vm86_info = 0x0, screen_bitmap = 0, v86flags = 0, v86mask = 0, 
+    v86mode = 0, saved_esp0 = 0, ioperm = 0, io_bitmap = {4294967295, 
+      0 <repeats 32 times>}}, fs = 0xc02f9440, files = 0xc02f9480, 
+  sigmask_lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+    last_lock_current = 0x0, last_lock_processor = 0}, sig = 0xc145a080, 
+  blocked = {sig = {4294967294, 4294967295}}, pending = {head = 0x0, 
+    tail = 0xc135a668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 0, self_exec_id = 0, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0312000, last_lock_processor = 0}}
+(gdb) list *0xc0105d1c
+0xc0105d1c is in __down (semaphore.c:80).
+75				break;
+76			}
+77			sem->sleepers = 1;	/* us - see -1 above */
+78			spin_unlock_irq(&semaphore_lock);
+79	
+80			schedule();
+81			tsk->state = TASK_UNINTERRUPTIBLE;
+82			spin_lock_irq(&semaphore_lock);
+83		}
+84		spin_unlock_irq(&semaphore_lock);
+(gdb) list *0xc01061e4
+0xc01061e4 is at af_packet.c:1878.
+1873	{
+1874		remove_proc_entry("net/packet", 0);
+1875		unregister_netdevice_notifier(&packet_netdev_notifier);
+1876		sock_unregister(PF_PACKET);
+1877		return;
+1878	}
+1879	
+1880	static int __init packet_init(void)
+1881	{
+1882		sock_register(&packet_family_ops);
+(gdb) list *0xc01e9cf0
+0xc01e9cf0 is in scsi_try_to_abort_command (scsi_error.c:775).
+770			return SUCCESS;
+771	
+772		SCpnt->owner = SCSI_OWNER_LOWLEVEL;
+773	
+774		spin_lock_irqsave(&io_request_lock, flags);
+775		rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
+776		spin_unlock_irqrestore(&io_request_lock, flags);
+777		return rtn;
+778	}
+779	
+(gdb) list *0xc0219f29
+0xc0219f29 is in command_abort (scsiglue.c:198).
+193			/* cancel the URB -- this will automatically wake the thread */
+194			usb_unlink_urb(us->current_urb);
+195	
+196			/* wait for us to be done */
+197			down(&(us->notify));
+198			return SUCCESS;
+199		}
+200	
+201		US_DEBUGP ("-- nothing to abort\n");
+202		return FAILED;
+(gdb) print $esp
+$8 = -1067844024
+(gdb) printf "%x\n", $esp
+c059fe48
+(gdb) printf "%x\n", $esp&(~8191)
+c059e000
+(gdb) set $current =$esp&(~8191)
+(gdb) set $current =(struct task_struct *)$esp&(~8191)
+Argument to arithmetic operation not a number or boolean.
+(gdb) print (struct task_struct *)$current
+$9 = (struct task_struct *) 0xc059e000
+(gdb) print *(struct task_struct *)$current
+$10 = {state = 0, flags = 1048576, sigpending = 0, addr_limit = {
+    seg = 3221225472}, exec_domain = 0xc02fbc60, need_resched = 1, ptrace = 0, 
+  lock_depth = -1, counter = 6, nice = 0, policy = 0, mm = 0xc24ed3e0, 
+  has_cpu = 1, processor = 0, cpus_allowed = 4294967295, run_list = {
+    next = 0xc02fbb40, prev = 0xc234003c}, sleep_time = 12739, 
+  next_task = 0xc13bc000, prev_task = 0xc060c000, active_mm = 0xc24ed3e0, 
+  binfmt = 0xc02fe0a4, exit_code = 0, exit_signal = 17, pdeath_signal = 0, 
+  personality = 0, dumpable = -1, did_exec = -1, pid = 1411, pgrp = 1411, 
+  tty_old_pgrp = 0, session = 1403, tgid = 1411, leader = 0, 
+  p_opptr = 0xc060c000, p_pptr = 0xc060c000, p_cptr = 0xc13bc000, 
+  p_ysptr = 0x0, p_osptr = 0x0, thread_group = {next = 0xc059e098, 
+    prev = 0xc059e098}, pidhash_next = 0x0, pidhash_pprev = 0xc03749d8, 
+  wait_chldexit = {lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+      last_lock_current = 0x0, last_lock_processor = 0}, task_list = {
+      next = 0xc059e0bc, prev = 0xc059e0bc}}, vfork_sem = 0xc059ff80, 
+  rt_priority = 0, it_real_value = 0, it_prof_value = 0, it_virt_value = 0, 
+  it_real_incr = 0, it_prof_incr = 0, it_virt_incr = 0, real_timer = {list = {
+      next = 0x0, prev = 0x0}, expires = 7151, data = 3227115520, 
+    function = 0xc011d648 <it_real_fn>}, times = {tms_utime = 76, 
+    tms_stime = 17, tms_cutime = 0, tms_cstime = 0}, start_time = 12261, 
+  per_cpu_utime = {76, 0 <repeats 31 times>}, per_cpu_stime = {17, 
+    0 <repeats 31 times>}, min_flt = 662, maj_flt = 1053, nswap = 0, 
+  cmin_flt = 0, cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 500, 
+---Type <return> to continue, or q <return> to quit---
+  euid = 500, suid = 500, fsuid = 500, gid = 500, egid = 500, sgid = 500, 
+  fsgid = 500, ngroups = 2, groups = {500, 300, 0 <repeats 30 times>}, 
+  cap_effective = 0, cap_inheritable = 0, cap_permitted = 0, 
+  keep_capabilities = 0, user = 0xc4dc8f20, rlim = {{rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 8388608, 
+      rlim_max = 4294967295}, {rlim_cur = 1024000000, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 3072, 
+      rlim_max = 3072}, {rlim_cur = 1024, rlim_max = 1024}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}}, 
+  used_math = 1, comm = "sol\000\000-terminal\000", link_count = 0, 
+  tty = 0xc0613000, locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {
+    esp0 = 3227123712, eip = 3222356453, esp = 3227123520, fs = 0, gs = 0, 
+    debugreg = {0, 0, 0, 0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, 
+    i387 = {fsave = {cwd = -64641, swd = -65248, twd = -1, fip = 1078387819, 
+        fcs = 98041891, foo = 0, fos = -65493, st_space = {0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, status = 0}, 
+      fxsave = {cwd = 895, swd = 65535, twd = 288, fop = 65535, fip = -1, 
+        fcs = 1078387819, foo = 98041891, fos = 0, mxcsr = -65493, 
+        reserved = 0, st_space = {0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 
+          0 <repeats 23 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65248, 
+---Type <return> to continue, or q <return> to quit---
+        twd = -1, fip = 1078387819, fcs = 98041891, foo = 0, fos = -65493, 
+        st_space = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0}, ftop = 0 '\000', changed = 0 '\000', 
+        lookahead = 0 '\000', no_update = 0 '\000', rm = 0 '\000', 
+        alimit = 0 '\000', info = 0x0, entry_eip = 0}}, vm86_info = 0x0, 
+    screen_bitmap = 0, v86flags = 0, v86mask = 0, v86mode = 0, saved_esp0 = 0, 
+    ioperm = 0, io_bitmap = {4294967295, 0 <repeats 32 times>}}, 
+  fs = 0xc1318e20, files = 0xc060eac0, sigmask_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0124760, 
+    last_lock_current = 0xc059e000, last_lock_processor = 0}, 
+  sig = 0xc069f5a0, blocked = {sig = {0, 0}}, pending = {head = 0x0, 
+    tail = 0xc059e668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 10, self_exec_id = 11, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0d90000, last_lock_processor = 0}}
+(gdb) where
+#0  0xc01b76d9 in blk_get_queue (dev=769)
+    at /home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:103
+#1  0xc01b8a3c in generic_make_request (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:904
+#2  0xc01b8ae9 in submit_bh (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:946
+#3  0xc01460be in block_read_full_page (page=0xc1158840, 
+    get_block=0xc016f884 <ext2_get_block>) at buffer.c:1737
+#4  0xc016fd65 in ext2_readpage (file=0xc05b1180, page=0xc1158840)
+    at inode.c:583
+#5  0xc012f078 in do_generic_file_read (filp=0xc05b1180, ppos=0xc05b11a0, 
+    desc=0xc059ff88, actor=0xc012f324 <file_read_actor>) at filemap.c:1207
+#6  0xc012f3ed in generic_file_read (filp=0xc05b1180, buf=0x8123438 "", 
+    count=4096, ppos=0xc05b11a0) at filemap.c:1310
+#7  0xc0141005 in sys_read (fd=8, buf=0x8123438 "", count=4096)
+    at read_write.c:133
+#8  0xc01077d7 in system_call () at af_packet.c:1878
+#9  0x40474fef in ?? () at af_packet.c:1878
+#10 0x4047505e in ?? () at af_packet.c:1878
+#11 0x40482c89 in ?? () at af_packet.c:1878
+#12 0x40482bd2 in ?? () at af_packet.c:1878
+#13 0x40468a05 in ?? () at af_packet.c:1878
+#14 0x4044cb4b in ?? () at af_packet.c:1878
+#15 0x40468b04 in ?? () at af_packet.c:1878
+#16 0x40462f63 in ?? () at af_packet.c:1878
+---Type <return> to continue, or q <return> to quit---q
+Quit
+(gdb) print io_request_lock
+$11 = {lock = 0, magic = 3735899821, last_lock_addr = 0xc01e9c60, 
+  last_lock_current = 0xc135a000, last_lock_processor = 0}
+(gdb) set io_request_lock->lock=1
+(gdb) x/2i $pc
+0xc01b76d9 <blk_get_queue+121>:	ud2a   
+0xc01b76db <blk_get_queue+123>:	add    $0xc,%esp
+(gdb) set $pc=$pc+2
+(gdb) cont
+Continuing.
+86_info = 0x0, screen_bitmap = 0, v86flags = 0, v86mask = 0, 
+    v86mode = 0, saved_esp0 = 0, ioperm = 0, io_bitmap = {4294967295, 
+      0 <repeats 32 times>}}, fs = 0xc02f9440, files = 0xc02f9480, 
+  sigmask_lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+    last_lock_current = 0x0, last_lock_processor = 0}, sig = 0xc145a080, 
+  blocked = {sig = {4294967294, 4294967295}}, pending = {head = 0x0, 
+    tail = 0xc135a668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 0, self_exec_id = 0, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0312000, last_lock_processor = 0}}
+(gdb) list *0xc0105d1c
+0xc0105d1c is in __down (semaphore.c:80).
+75				break;
+76			}
+77			sem->sleepers = 1;	/* us - see -1 above */
+78			spin_unlock_irq(&semaphore_lock);
+79	
+80			schedule();
+81			tsk->state = TASK_UNINTERRUPTIBLE;
+82			spin_lock_irq(&semaphore_lock);
+83		}
+84		spin_unlock_irq(&semaphore_lock);
+(gdb) list *0xc01061e4
+0xc01061e4 is at af_packet.c:1878.
+1873	{
+1874		remove_proc_entry("net/packet", 0);
+1875		unregister_netdevice_notifier(&packet_netdev_notifier);
+1876		sock_unregister(PF_PACKET);
+1877		return;
+1878	}
+1879	
+1880	static int __init packet_init(void)
+1881	{
+1882		sock_register(&packet_family_ops);
+(gdb) list *0xc01e9cf0
+0xc01e9cf0 is in scsi_try_to_abort_command (scsi_error.c:775).
+770			return SUCCESS;
+771	
+772		SCpnt->owner = SCSI_OWNER_LOWLEVEL;
+773	
+774		spin_lock_irqsave(&io_request_lock, flags);
+775		rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
+776		spin_unlock_irqrestore(&io_request_lock, flags);
+777		return rtn;
+778	}
+779	
+(gdb) list *0xc0219f29
+0xc0219f29 is in command_abort (scsiglue.c:198).
+193			/* cancel the URB -- this will automatically wake the thread */
+194			usb_unlink_urb(us->current_urb);
+195	
+196			/* wait for us to be done */
+197			down(&(us->notify));
+198			return SUCCESS;
+199		}
+200	
+201		US_DEBUGP ("-- nothing to abort\n");
+202		return FAILED;
+(gdb) print $esp
+$8 = -1067844024
+(gdb) printf "%x\n", $esp
+c059fe48
+(gdb) printf "%x\n", $esp&(~8191)
+c059e000
+(gdb) set $current =$esp&(~8191)
+(gdb) set $current =(struct task_struct *)$esp&(~8191)
+Argument to arithmetic operation not a number or boolean.
+(gdb) print (struct task_struct *)$current
+$9 = (struct task_struct *) 0xc059e000
+(gdb) print *(struct task_struct *)$current
+$10 = {state = 0, flags = 1048576, sigpending = 0, addr_limit = {
+    seg = 3221225472}, exec_domain = 0xc02fbc60, need_resched = 1, ptrace = 0, 
+  lock_depth = -1, counter = 6, nice = 0, policy = 0, mm = 0xc24ed3e0, 
+  has_cpu = 1, processor = 0, cpus_allowed = 4294967295, run_list = {
+    next = 0xc02fbb40, prev = 0xc234003c}, sleep_time = 12739, 
+  next_task = 0xc13bc000, prev_task = 0xc060c000, active_mm = 0xc24ed3e0, 
+  binfmt = 0xc02fe0a4, exit_code = 0, exit_signal = 17, pdeath_signal = 0, 
+  personality = 0, dumpable = -1, did_exec = -1, pid = 1411, pgrp = 1411, 
+  tty_old_pgrp = 0, session = 1403, tgid = 1411, leader = 0, 
+  p_opptr = 0xc060c000, p_pptr = 0xc060c000, p_cptr = 0xc13bc000, 
+  p_ysptr = 0x0, p_osptr = 0x0, thread_group = {next = 0xc059e098, 
+    prev = 0xc059e098}, pidhash_next = 0x0, pidhash_pprev = 0xc03749d8, 
+  wait_chldexit = {lock = {lock = 1, magic = 3735899821, last_lock_addr = 0x0, 
+      last_lock_current = 0x0, last_lock_processor = 0}, task_list = {
+      next = 0xc059e0bc, prev = 0xc059e0bc}}, vfork_sem = 0xc059ff80, 
+  rt_priority = 0, it_real_value = 0, it_prof_value = 0, it_virt_value = 0, 
+  it_real_incr = 0, it_prof_incr = 0, it_virt_incr = 0, real_timer = {list = {
+      next = 0x0, prev = 0x0}, expires = 7151, data = 3227115520, 
+    function = 0xc011d648 <it_real_fn>}, times = {tms_utime = 76, 
+    tms_stime = 17, tms_cutime = 0, tms_cstime = 0}, start_time = 12261, 
+  per_cpu_utime = {76, 0 <repeats 31 times>}, per_cpu_stime = {17, 
+    0 <repeats 31 times>}, min_flt = 662, maj_flt = 1053, nswap = 0, 
+  cmin_flt = 0, cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 500, 
+---Type <return> to continue, or q <return> to quit---
+  euid = 500, suid = 500, fsuid = 500, gid = 500, egid = 500, sgid = 500, 
+  fsgid = 500, ngroups = 2, groups = {500, 300, 0 <repeats 30 times>}, 
+  cap_effective = 0, cap_inheritable = 0, cap_permitted = 0, 
+  keep_capabilities = 0, user = 0xc4dc8f20, rlim = {{rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 8388608, 
+      rlim_max = 4294967295}, {rlim_cur = 1024000000, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 3072, 
+      rlim_max = 3072}, {rlim_cur = 1024, rlim_max = 1024}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}}, 
+  used_math = 1, comm = "sol\000\000-terminal\000", link_count = 0, 
+  tty = 0xc0613000, locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {
+    esp0 = 3227123712, eip = 3222356453, esp = 3227123520, fs = 0, gs = 0, 
+    debugreg = {0, 0, 0, 0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, 
+    i387 = {fsave = {cwd = -64641, swd = -65248, twd = -1, fip = 1078387819, 
+        fcs = 98041891, foo = 0, fos = -65493, st_space = {0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, status = 0}, 
+      fxsave = {cwd = 895, swd = 65535, twd = 288, fop = 65535, fip = -1, 
+        fcs = 1078387819, foo = 98041891, fos = 0, mxcsr = -65493, 
+        reserved = 0, st_space = {0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 
+          0 <repeats 23 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65248, 
+---Type <return> to continue, or q <return> to quit---
+        twd = -1, fip = 1078387819, fcs = 98041891, foo = 0, fos = -65493, 
+        st_space = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0}, ftop = 0 '\000', changed = 0 '\000', 
+        lookahead = 0 '\000', no_update = 0 '\000', rm = 0 '\000', 
+        alimit = 0 '\000', info = 0x0, entry_eip = 0}}, vm86_info = 0x0, 
+    screen_bitmap = 0, v86flags = 0, v86mask = 0, v86mode = 0, saved_esp0 = 0, 
+    ioperm = 0, io_bitmap = {4294967295, 0 <repeats 32 times>}}, 
+  fs = 0xc1318e20, files = 0xc060eac0, sigmask_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0124760, 
+    last_lock_current = 0xc059e000, last_lock_processor = 0}, 
+  sig = 0xc069f5a0, blocked = {sig = {0, 0}}, pending = {head = 0x0, 
+    tail = 0xc059e668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 10, self_exec_id = 11, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0d90000, last_lock_processor = 0}}
+(gdb) where
+#0  0xc01b76d9 in blk_get_queue (dev=769)
+    at /home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:103
+#1  0xc01b8a3c in generic_make_request (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:904
+#2  0xc01b8ae9 in submit_bh (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:946
+#3  0xc01460be in block_read_full_page (page=0xc1158840, 
+    get_block=0xc016f884 <ext2_get_block>) at buffer.c:1737
+#4  0xc016fd65 in ext2_readpage (file=0xc05b1180, page=0xc1158840)
+    at inode.c:583
+#5  0xc012f078 in do_generic_file_read (filp=0xc05b1180, ppos=0xc05b11a0, 
+    desc=0xc059ff88, actor=0xc012f324 <file_read_actor>) at filemap.c:1207
+#6  0xc012f3ed in generic_file_read (filp=0xc05b1180, buf=0x8123438 "", 
+    count=4096, ppos=0xc05b11a0) at filemap.c:1310
+#7  0xc0141005 in sys_read (fd=8, buf=0x8123438 "", count=4096)
+    at read_write.c:133
+#8  0xc01077d7 in system_call () at af_packet.c:1878
+#9  0x40474fef in ?? () at af_packet.c:1878
+#10 0x4047505e in ?? () at af_packet.c:1878
+#11 0x40482c89 in ?? () at af_packet.c:1878
+#12 0x40482bd2 in ?? () at af_packet.c:1878
+#13 0x40468a05 in ?? () at af_packet.c:1878
+#14 0x4044cb4b in ?? () at af_packet.c:1878
+#15 0x40468b04 in ?? () at af_packet.c:1878
+#16 0x40462f63 in ?? () at af_packet.c:1878
+---Type <return> to continue, or q <return> to quit---q
+Quit
+(gdb) print io_request_lock
+$11 = {lock = 0, magic = 3735899821, last_lock_addr = 0xc01e9c60, 
+  last_lock_current = 0xc135a000, last_lock_processor = 0}
+(gdb) set io_request_lock->lock=1
+(gdb) x/2i $pc
+0xc01b76d9 <blk_get_queue+121>:	ud2a   
+0xc01b76db <blk_get_queue+123>:	add    $0xc,%esp
+(gdb) set $pc=$pc+2
+(gdb) cont
+Continuing.
+, nswap = 0, 
+  cmin_flt = 0, cmaj_flt = 0, cnswap = 0, swappable = -1, uid = 500, 
+---Type <return> to continue, or q <return> to quit---
+  euid = 500, suid = 500, fsuid = 500, gid = 500, egid = 500, sgid = 500, 
+  fsgid = 500, ngroups = 2, groups = {500, 300, 0 <repeats 30 times>}, 
+  cap_effective = 0, cap_inheritable = 0, cap_permitted = 0, 
+  keep_capabilities = 0, user = 0xc4dc8f20, rlim = {{rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 8388608, 
+      rlim_max = 4294967295}, {rlim_cur = 1024000000, rlim_max = 4294967295}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 3072, 
+      rlim_max = 3072}, {rlim_cur = 1024, rlim_max = 1024}, {
+      rlim_cur = 4294967295, rlim_max = 4294967295}, {rlim_cur = 4294967295, 
+      rlim_max = 4294967295}, {rlim_cur = 4294967295, rlim_max = 4294967295}}, 
+  used_math = 1, comm = "sol\000\000-terminal\000", link_count = 0, 
+  tty = 0xc0613000, locks = 0, semundo = 0x0, semsleeping = 0x0, thread = {
+    esp0 = 3227123712, eip = 3222356453, esp = 3227123520, fs = 0, gs = 0, 
+    debugreg = {0, 0, 0, 0, 0, 0, 0, 0}, cr2 = 0, trap_no = 0, error_code = 0, 
+    i387 = {fsave = {cwd = -64641, swd = -65248, twd = -1, fip = 1078387819, 
+        fcs = 98041891, foo = 0, fos = -65493, st_space = {0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, status = 0}, 
+      fxsave = {cwd = 895, swd = 65535, twd = 288, fop = 65535, fip = -1, 
+        fcs = 1078387819, foo = 98041891, fos = 0, mxcsr = -65493, 
+        reserved = 0, st_space = {0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 
+          0 <repeats 23 times>}, xmm_space = {0 <repeats 32 times>}, 
+        padding = {0 <repeats 56 times>}}, soft = {cwd = -64641, swd = -65248, 
+---Type <return> to continue, or q <return> to quit---
+        twd = -1, fip = 1078387819, fcs = 98041891, foo = 0, fos = -65493, 
+        st_space = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1073709056, 0, 0, 0, 0, 0, 0, 
+          0, 0, 0, 0}, ftop = 0 '\000', changed = 0 '\000', 
+        lookahead = 0 '\000', no_update = 0 '\000', rm = 0 '\000', 
+        alimit = 0 '\000', info = 0x0, entry_eip = 0}}, vm86_info = 0x0, 
+    screen_bitmap = 0, v86flags = 0, v86mask = 0, v86mode = 0, saved_esp0 = 0, 
+    ioperm = 0, io_bitmap = {4294967295, 0 <repeats 32 times>}}, 
+  fs = 0xc1318e20, files = 0xc060eac0, sigmask_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0124760, 
+    last_lock_current = 0xc059e000, last_lock_processor = 0}, 
+  sig = 0xc069f5a0, blocked = {sig = {0, 0}}, pending = {head = 0x0, 
+    tail = 0xc059e668, signal = {sig = {0, 0}}}, sas_ss_sp = 0, 
+  sas_ss_size = 0, notifier = 0, notifier_data = 0x0, notifier_mask = 0x0, 
+  parent_exec_id = 10, self_exec_id = 11, alloc_lock = {lock = 1, 
+    magic = 3735899821, last_lock_addr = 0xc0114200, 
+    last_lock_current = 0xc0d90000, last_lock_processor = 0}}
+(gdb) where
+#0  0xc01b76d9 in blk_get_queue (dev=769)
+    at /home/baccala/src/linux-2.4.6-kgdb/include/asm/spinlock.h:103
+#1  0xc01b8a3c in generic_make_request (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:904
+#2  0xc01b8ae9 in submit_bh (rw=0, bh=0xc3e38d40) at ll_rw_blk.c:946
+#3  0xc01460be in block_read_full_page (page=0xc1158840, 
+    get_block=0xc016f884 <ext2_get_block>) at buffer.c:1737
+#4  0xc016fd65 in ext2_readpage (file=0xc05b1180, page=0xc1158840)
+    at inode.c:583
+#5  0xc012f078 in do_generic_file_read (filp=0xc05b1180, ppos=0xc05b11a0, 
+    desc=0xc059ff88, actor=0xc012f324 <file_read_actor>) at filemap.c:1207
+#6  0xc012f3ed in generic_file_read (filp=0xc05b1180, buf=0x8123438 "", 
+    count=4096, ppos=0xc05b11a0) at filemap.c:1310
+#7  0xc0141005 in sys_read (fd=8, buf=0x8123438 "", count=4096)
+    at read_write.c:133
+#8  0xc01077d7 in system_call () at af_packet.c:1878
+#9  0x40474fef in ?? () at af_packet.c:1878
+#10 0x4047505e in ?? () at af_packet.c:1878
+#11 0x40482c89 in ?? () at af_packet.c:1878
+#12 0x40482bd2 in ?? () at af_packet.c:1878
+#13 0x40468a05 in ?? () at af_packet.c:1878
+#14 0x4044cb4b in ?? () at af_packet.c:1878
+#15 0x40468b04 in ?? () at af_packet.c:1878
+#16 0x40462f63 in ?? () at af_packet.c:1878
+---Type <return> to continue, or q <return> to quit---q
+Quit
+(gdb) print io_request_lock
+$11 = {lock = 0, magic = 3735899821, last_lock_addr = 0xc01e9c60, 
+  last_lock_current = 0xc135a000, last_lock_processor = 0}
+(gdb) set io_request_lock->lock=1
+(gdb) x/2i $pc
+0xc01b76d9 <blk_get_queue+121>:	ud2a   
+0xc01b76db <blk_get_queue+123>:	add    $0xc,%esp
+(gdb) set $pc=$pc+2
+(gdb) cont
+Continuing.
 
 
---------------FD874D4518F698B1F5858707--
+--------------AC12D36791113BB38F081CD1--
 

@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUH1Qi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUH1QrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUH1Qi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUH1Qa7
+	id S266250AbUH1QrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUH1QjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:30:59 -0400
-Received: from verein.lst.de ([213.95.11.210]:6559 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267489AbUH1Q2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:28:24 -0400
-Date: Sat, 28 Aug 2004 18:28:17 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Your message to Alsa-devel awaits moderator approval
-Message-ID: <20040828162817.GC15381@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, perex@suse.cz,
-	linux-kernel@vger.kernel.org
-References: <E1C161j-0006Cx-La@sc8-sf-list2.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Aug 2004 12:39:19 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37637 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267363AbUH1Qhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:37:45 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch][3/3] mm/ BUG -> BUG_ON conversions
+Date: Sat, 28 Aug 2004 19:32:05 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20040828151137.GA12772@fs.tum.de> <20040828151837.GD12772@fs.tum.de>
+In-Reply-To: <20040828151837.GD12772@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1C161j-0006Cx-La@sc8-sf-list2.sourceforge.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Message-Id: <200408281932.05964.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav, could you please turn off the moderation for alsa-devel?
-Mailinglists mentioned in MAINTAINERS should be easily accessible for
-bugreports.  And for things like this where a bugtracking system is
-listening this is _really_ annoying.
+On Saturday 28 August 2004 18:18, Adrian Bunk wrote:
+> The patch below does BUG -> BUG_ON conversions in mm/ .
+>
+> diffstat output:
+>  mm/bootmem.c    |    6 ++----
+>  mm/filemap.c    |    6 ++----
+>  mm/highmem.c    |   15 +++++----------
+>  mm/memory.c     |   12 ++++--------
+>  mm/mempool.c    |    5 +++--
+>  mm/mmap.c       |   12 ++++--------
+>  mm/mprotect.c   |    3 +--
+>  mm/msync.c      |    3 +--
+>  mm/page_alloc.c |    3 +--
+>  mm/pdflush.c    |    3 +--
+>  mm/shmem.c      |    3 +--
+>  mm/slab.c       |   30 ++++++++++--------------------
+>  mm/swap.c       |   12 ++++--------
+>  mm/swap_state.c |    6 ++----
+>  mm/swapfile.c   |    6 ++----
+>  mm/vmalloc.c    |    3 +--
+>  mm/vmscan.c     |   18 ++++++------------
+>  17 files changed, 50 insertions(+), 96 deletions(-)
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+>
+> --- linux-2.6.9-rc1-mm1-full-3.4/mm/bootmem.c.old	2004-08-28
+> 16:25:18.000000000 +0200 +++
+> linux-2.6.9-rc1-mm1-full-3.4/mm/bootmem.c	2004-08-28 16:26:48.000000000
+> +0200 @@ -125,8 +125,7 @@
+>  	sidx = start - (bdata->node_boot_start/PAGE_SIZE);
+>
+>  	for (i = sidx; i < eidx; i++) {
+> -		if (unlikely(!test_and_clear_bit(i, bdata->node_bootmem_map)))
+> -			BUG();
+> +		BUG_ON(!test_and_clear_bit(i, bdata->node_bootmem_map));
+>  	}
+>  }
+>
+> @@ -246,8 +245,7 @@
+>  	 * Reserve the area now:
+>  	 */
+>  	for (i = start; i < start+areasize; i++)
+> -		if (unlikely(test_and_set_bit(i, bdata->node_bootmem_map)))
+> -			BUG();
+> +		BUG_ON(test_and_set_bit(i, bdata->node_bootmem_map));
 
-On Sat, Aug 28, 2004 at 09:26:03AM -0700, alsa-devel-admin@lists.sourceforge.net wrote:
-> Your mail to 'Alsa-devel' with the subject
-> 
->     #256008 kernel-image-2.6.6-1-686: hard reboot when playing sound
-> (maestro3, Dell i8100, k 2.6.6)
-> 
-> Is being held until the list moderator can review it for approval.
-> 
-> The reason it is being held:
-> 
->     Post by non-member to a members-only list
-> 
-> Either the message will get posted to the list, or you will receive
-> notification of the moderator's decision.
----end quoted text---
+BUG_ON is like assert(). It may be #defined to nothing.
+Do not place expression with side effects into it.
+--
+vda
+

@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133063AbRDRJLR>; Wed, 18 Apr 2001 05:11:17 -0400
+	id <S133060AbRDRJKQ>; Wed, 18 Apr 2001 05:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133062AbRDRJK6>; Wed, 18 Apr 2001 05:10:58 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:25507 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S133061AbRDRJKp>;
-	Wed, 18 Apr 2001 05:10:45 -0400
-Message-ID: <3ADD5A0B.97A6AF9B@alsa-project.org>
-Date: Wed, 18 Apr 2001 11:10:35 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Pavel Machek <pavel@suse.cz>, torvalds@transmeta.com,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: i386 cleanups
-In-Reply-To: <20010417232614.A4377@bug.ucw.cz> <3ADCCA57.2A354359@mandrakesoft.com>
+	id <S133061AbRDRJKH>; Wed, 18 Apr 2001 05:10:07 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:50059 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S133060AbRDRJJ7>; Wed, 18 Apr 2001 05:09:59 -0400
+Date: Wed, 18 Apr 2001 05:00:26 -0400
+From: Tim Peeler <tim@iss.dccc.edu>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I can eject a mounted CD
+Message-ID: <20010418050026.A21602@iss.dccc.edu>
+In-Reply-To: <E14pcR4-0003E2-00@the-village.bc.nu> <XFMail.010418092543.pochini@shiny.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <XFMail.010418092543.pochini@shiny.it>; from pochini@shiny.it on Wed, Apr 18, 2001 at 09:25:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Apr 18, 2001 at 09:25:43AM +0200, Giuliano Pochini wrote:
 > 
-> Pavel Machek wrote:
+> >> > /dev/cdrom        /mnt/cdrom        auto        noauto,user,ro    0 0
+> >> >
+> >> > And remove the other cdrom listing. This will allow mounting any
+> >> > supported format and eliminate the duel support for one device.
+> >>
+> >> That's not the point. The kernel should not allow someone to
+> >> eject a mounted media.
 > >
-> > Hi!
-> >
-> > These are tiny cleanups you might like. sizes are "logically"
-> > long. No, it does not matter on i386.
-> >
-> > processor.h makes INIT_TSS look much more readable. [Please tell me
-> > applied or rejected]
-> >
-> >                                                         Pavel
-> >
-> > Index: include/asm-i386/posix_types.h
-> > ===================================================================
-> > RCS file: /home/cvs/Repository/linux/include/asm-i386/posix_types.h,v
-> > retrieving revision 1.1.1.1
-> > diff -u -u -r1.1.1.1 posix_types.h
-> > --- include/asm-i386/posix_types.h      2000/09/04 16:50:33     1.1.1.1
-> > +++ include/asm-i386/posix_types.h      2001/02/13 13:49:18
-> > @@ -16,9 +16,9 @@
-> >  typedef unsigned short __kernel_ipc_pid_t;
-> >  typedef unsigned short __kernel_uid_t;
-> >  typedef unsigned short __kernel_gid_t;
-> > -typedef unsigned int   __kernel_size_t;
-> > -typedef int            __kernel_ssize_t;
-> > -typedef int            __kernel_ptrdiff_t;
-> > +typedef unsigned long  __kernel_size_t;
-> > +typedef long           __kernel_ssize_t;
-> > +typedef long           __kernel_ptrdiff_t;
+> > rpm -e magicdev
 > 
-> If it doesn't matter on i386 why bother?
+> Magicdev is not installed.
+> Ok, I'm the only one with this problem, I'll manage to find the bug by myself.
 
-It helps with printf %-formats to avoid some arch specific warnings.
+eject(1) line 36:
+
+   If the device is currently mounted, it is unmounted before
+   ejecting.
 
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!

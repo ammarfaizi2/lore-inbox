@@ -1,30 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313006AbSDCBBn>; Tue, 2 Apr 2002 20:01:43 -0500
+	id <S312991AbSDCBBD>; Tue, 2 Apr 2002 20:01:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313004AbSDCBBY>; Tue, 2 Apr 2002 20:01:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32271 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312995AbSDCBBQ>; Tue, 2 Apr 2002 20:01:16 -0500
-Subject: Re: Update on Promise 100TX2 + Serverworks IDE issues -- 2.2.20
-To: xyzzy@speakeasy.org (Trent Piepho)
-Date: Wed, 3 Apr 2002 02:18:15 +0100 (BST)
-Cc: jim@rubylane.com, linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.04.10204021623420.5141-100000@xyzzy.dsl.speakeasy.net> from "Trent Piepho" at Apr 02, 2002 04:48:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312995AbSDCBAx>; Tue, 2 Apr 2002 20:00:53 -0500
+Received: from rasmus.uib.no ([129.177.12.30]:17373 "EHLO rasmus.uib.no")
+	by vger.kernel.org with ESMTP id <S312991AbSDCBAs>;
+	Tue, 2 Apr 2002 20:00:48 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+In-Reply-To: <NDBBLFLJADKDMBPPNBALCEOFHPAA.kkrieser@lcisp.com>
+From: hklygre@online.no (=?iso-8859-1?q?H=E5vard?= Lygre)
+Date: 03 Apr 2002 02:59:50 +0200
+Message-ID: <871ydxppfd.fsf@frode.valhall.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16sZPj-0002vm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-checked-clean: by exiscan on rasmus
+X-Scanner: bc033b1c1f58199ead5e3844a206aa08 http://tjinfo.uib.no/virus.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think the serverworks IDE is only mode4, not even UDMA33.  I heard a lot of
-> bad things about it, and removed all the IDE drives from our serverworks
-> system's controller.
+"Kevin Krieser" <kkrieser@lcisp.com> writes:
 
-Serverworks OSB4 IDE will do UDMA33 but seems to have problems with certain
-combinations of drives, controllers and unknown influences. The newer CSB5 
-seems to work beautifully
+> You forgot that your required Passport membership is free, though you will
+> require Passport to login.
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hristo Doichev
+> Sent: Monday, April 01, 2002 3:32 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: Linus Torvalds
+> Subject: Re: Linux needs new leadership.
+> 
+> Bill Gates.
+> 	If we only had him as a leader money will be flowing like a river
+> towards OSS and GNU. For starters this entire list will be subscription
+> based with required certification (about $10K per person and $3K if you
+> only want to read it)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+
+Not to mention the fact that he would immediately release patches to
+every MUA so that they automatically insert the text you type on top
+of the message you reply to, don't put proper quote-marks on the
+beginning of each line, and don't strip signatures.
+
+
+
+-- 
+Håvard Lygre, hklygre@online.no
+BLUG: http://blug.linux.no/   RFC1149: http://blug.linux.no/rfc1149/
+Sysadmin/ENO, Core Convergence AS

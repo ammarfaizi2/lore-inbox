@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270354AbTHBVnu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270365AbTHBVnu
+	id S270378AbTHBVwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 17:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270382AbTHBVwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:43:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10378 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270354AbTHBVnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:43:49 -0400
-Date: Sat, 2 Aug 2003 14:44:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Scott L. Burson" <gyro@zeta-soft.com>
-Cc: linux-kernel@vger.kernel.org, Mathieu.Malaterre@creatis.insa-lyon.fr
-Subject: Re: SMP performance problem in 2.4 (was: Athlon spinlock
- performance)
-Message-Id: <20030802144422.111d6893.akpm@osdl.org>
-In-Reply-To: <16171.31418.271319.316382@kali.zeta-soft.com>
-References: <16171.31418.271319.316382@kali.zeta-soft.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 2 Aug 2003 17:52:39 -0400
+Received: from postman1.arcor-online.net ([151.189.0.187]:2720 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S270378AbTHBVwh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 17:52:37 -0400
+Date: Sat, 2 Aug 2003 23:52:46 +0200
+From: Juergen Quade <quade@hs-niederrhein.de>
+To: linux-kernel@vger.kernel.org
+Cc: Juergen Quade <quade@postman.arcor.de>
+Subject: Does Kernel 2.6 needs to call modprobe with a minor number?
+Message-ID: <20030802215246.GA14636@hsnr.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Scott L. Burson" <gyro@zeta-soft.com> wrote:
->
-> The problem is in `try_to_free_pages' and its associated routines,
+In kernel 2.6 it is possible for devices to share a major number as long
+as they use different minor numbers (see register_chrdev_region).
+Doesn't it mean, that now a device is clearly identified by a major
+_and_ a minor number?
 
-This is not unusual.
+Right?
 
-> In one approximately 60-second period with the problematic workload running, 
+In this case, wouldn't it be necessary to call modprobe with
+major _and_ minornumber (for example in function base_probe(),
+sourcefile fs/char_dev.c)?
 
-What is the problematic workload?  Please describe it in great detail.
+Otherwise the modprobe program can not clearly identify, which driver to
+load.
 
-> Clearly the kernel group has been aware of the problems with `shrink_cache',
-> as I see that it has received quite a bit of attention in the course of 2.5
-> development.  I am hopeful that the problem will be substantially
-> ameliorated in 2.6.0.  (The comment at the top of `try_to_free_pages' --
-> "This is a fairly lame algorithm - it can result in excessive CPU burning"
-> -- suggests it won't be cured entirely.)
-
-That comment has thus far proved to be wrong.
-
-> However, it seems the kernel group may not have been aware of just how bad
-> the problem can be in recent 2.4 kernels on dual-processor machines with
-> lots of memory.  It's bad enough that running two `find' jobs at the same
-> time on large filesystems can bring the machine pretty much to its knees.
-
-oh, is that the workload?
-
-Send a copy of /proc/meminfo, captured when the badness is happening.  Also
-/proc/slabinfo.
-
-Probably you will find that all of the low memory is consumed by inodes and
-dentries.  ext2 is particularly prone to this because its directory pages
-are placed in highmem, and those pages can pin down the dentries (and hence
-the inodes).  
-
-So sigh.  It is a problem which has been solved for a year at least.  Try
-running one of Andrea's kernels, from
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4
-
-The most important patch for you is 10_inode-highmem-2.
-
-
+       Juergen.

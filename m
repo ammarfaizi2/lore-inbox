@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275399AbTHIUgk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 16:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275401AbTHIUgk
+	id S275408AbTHIUlB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 16:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275409AbTHIUlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 16:36:40 -0400
-Received: from ALille-209-1-1-70.w80-11.abo.wanadoo.fr ([80.11.175.70]:39172
-	"EHLO lenhof.homelinux.net") by vger.kernel.org with ESMTP
-	id S275399AbTHIUgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 16:36:39 -0400
-Subject: Re: kernel oops...
-From: Jean-Yves LENHOF <jean-yves@lenhof.eu.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060432742.620.17.camel@mydebian>
-References: <1060432742.620.17.camel@mydebian>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1060461449.622.22.camel@mydebian>
+	Sat, 9 Aug 2003 16:41:01 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61636 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S275408AbTHIUk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 16:40:59 -0400
+Date: Sat, 9 Aug 2003 22:40:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Adam Belay <ambx1@neo.rr.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
+Subject: Re: 2.5.73: ALSA ISA pnp_init_resource_table compile errors
+Message-ID: <20030809204051.GQ16091@fs.tum.de>
+References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com> <20030622234447.GB3710@fs.tum.de> <20030623000808.GA14945@neo.rr.com> <20030703025343.GC282@fs.tum.de> <20030703190304.GA17707@neo.rr.com> <20030704121124.GB12633@fs.tum.de> <20030715224732.GA31942@neo.rr.com> <20030716182251.GW10191@fs.tum.de> <20030716184317.GC31942@neo.rr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 09 Aug 2003 22:37:29 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716184317.GC31942@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le sam 09/08/2003 à 14:39, Jean-Yves LENHOF a écrit :
-> Hello all,
-> 
-> I've just add two hangs with a plain vanilla kernel 2.4.21 on a Debian
-> woody up2date. The machine is an old Pentium 100 with 64 Mb. Softs
-> running on this machine are :
+On Wed, Jul 16, 2003 at 06:43:17PM +0000, Adam Belay wrote:
+>...
+> Hi Adrian,
 
-Seems the problem has gone by using the original Debian kernel 2.4.18...
-Reading a little bit the different changelog of kernel between 2.4.18
-and 2.4.21, it seems that there are some vm change incorporated (from
--aa)...but I'm not an expert at all.
+Hi Adam,
 
-Another thing is that the load is about 2 or 3...
+>...
+> Also there is a kernel parameter to allow dma 0.  It is 'allowdma0' and
+> I predict the extra dma will get the sound card working.
 
-I hope somebody will have an idea off what's going on...
+FYI:
+I do still need allowdma0 for working sound in 2.6.0-test3.
 
-Have fun,
+> Thanks,
+> Adam
 
-Jean-Yves
+cu
+Adrian
 
-PS : Please CC me as I'm not on the list
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

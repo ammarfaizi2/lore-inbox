@@ -1,35 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbULMNDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbULMNKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbULMNDm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 08:03:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbULMNDm
+	id S262256AbULMNKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 08:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbULMNKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 08:03:42 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:9134 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S262240AbULMNDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 08:03:31 -0500
-Date: Mon, 13 Dec 2004 14:02:35 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hans Kristian Rosbach <hk@isphuset.no>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-Message-ID: <20041213130235.GA16322@dualathlon.random>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org> <1102936790.17227.24.camel@linux.local> <20041213112229.GS6272@elf.ucw.cz> <1102942270.17225.81.camel@linux.local> <20041213130142.GZ16322@dualathlon.random>
+	Mon, 13 Dec 2004 08:10:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10890 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262256AbULMNKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 08:10:08 -0500
+Date: Mon, 13 Dec 2004 14:09:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time sliced cfq with basic io priorities
+Message-ID: <20041213130926.GH3033@suse.de>
+References: <20041213125046.GG3033@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="v9Ux+11Zm5mwPlX6"
 Content-Disposition: inline
-In-Reply-To: <20041213130142.GZ16322@dualathlon.random>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041213125046.GG3033@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 02:01:42PM +0100, Andrea Arcangeli wrote:
-> believe the only real cost is the cacheline anyway.
 
-[..] and in turn I guess by adding a second dynamic variable you just
-doubled the only real cost ;)
+--v9Ux+11Zm5mwPlX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Dec 13 2004, Jens Axboe wrote:
+> 2.6.10-rc2-mm4 patch:
+
+So 2.6.10-rc3-mm1 is out I notice, here's a patch for that:
+
+http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-10-2.6.10-rc3-mm1.gz
+
+And an updated ionice.c attached, the syscall numbers changed.
+
+-- 
+Jens Axboe
+
+
+--v9Ux+11Zm5mwPlX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ionice.c"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <sys/ptrace.h>
+#include <asm/unistd.h>
+
+extern int sys_ioprio_set(int);
+extern int sys_ioprio_get(void);
+
+#if defined(__i386__)
+#define __NR_ioprio_set		294
+#define __NR_ioprio_get		295
+#elif defined(__ppc__)
+#define __NR_ioprio_set		277
+#define __NR_ioprio_get		278
+#elif defined(__x86_64__)
+#define __NR_ioprio_set		254
+#define __NR_ioprio_get		255
+#elif defined(__ia64__)
+#define __NR_ioprio_set		1274
+#define __NR_ioprio_get		1275
+#else
+#error "Unsupported arch"
+#endif
+
+_syscall1(int, ioprio_set, int, ioprio);
+_syscall0(int, ioprio_get);
+
+int main(int argc, char *argv[])
+{
+	int ioprio = 2, set = 0;
+	int c;
+
+	while ((c = getopt(argc, argv, "+n:")) != EOF) {
+		switch (c) {
+		case 'n':
+			ioprio = strtol(optarg, NULL, 10);
+			set = 1;
+			break;
+		}
+	}
+
+	if (!set) {
+		int ioprio = ioprio_get();
+		if (ioprio == -1)
+			perror("ioprio_get");
+		else
+			printf("%d\n", ioprio_get());
+	} else if (argv[optind]) {
+		if (ioprio_set(ioprio) == -1) {
+			perror("ioprio_set");
+			return 1;
+		}
+		execvp(argv[optind], &argv[optind]);
+	}
+
+	return 0;
+}
+
+--v9Ux+11Zm5mwPlX6--

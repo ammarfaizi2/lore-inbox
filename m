@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269532AbTGJRPR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269417AbTGJRNt
+	id S269473AbTGJRNc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269532AbTGJRKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:13:49 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:53684 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265525AbTGJRLF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:11:05 -0400
-Date: Thu, 10 Jul 2003 10:24:06 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74 CONFIG_USB_SERIAL_CONSOLE gone?
-Message-Id: <20030710102406.1f61c2ba.rddunlap@osdl.org>
-In-Reply-To: <200307110115.05364.mflt1@micrologica.com.hk>
-References: <200307101453.57857.mflt1@micrologica.com.hk>
-	<20030710080345.7907d810.rddunlap@osdl.org>
-	<20030710094535.1ea2270b.rddunlap@osdl.org>
-	<200307110115.05364.mflt1@micrologica.com.hk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 10 Jul 2003 13:10:19 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:5035 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S265525AbTGJRDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 13:03:36 -0400
+Date: Thu, 10 Jul 2003 18:20:52 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: NBD oops in 2.5-bk.
+Message-ID: <20030710172052.GA32479@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003 01:15:05 +0800 Michael Frank <mflt1@micrologica.com.hk> wrote:
+Current bitkeeper tree seems to have problems with NBD.
+As soon as I modprobe nbd (or boot with it compiled in)
+I get this..
 
-| On Friday 11 July 2003 00:45, Randy.Dunlap wrote:
-| > On Thu, 10 Jul 2003 08:03:45 -0700 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-| > | On Thu, 10 Jul 2003 14:53:57 +0800 Michael Frank <mflt1@micrologica.com.hk> wrote:
-| > | | Tried to config usb serial console on 2.5.74 but it's no more
-| > | | configurable.
-| > | |
-| > | | Searched the tree and these are the only references
-| > | |
-| > | | ./BitKeeper/deleted/.del-Config.help~23cda2581f02cfcb
-| > | | ./BitKeeper/deleted/.del-Config.in~92fe774f90db89d
-| > | | ./drivers/usb/serial/Makefile
-| > | | ./drivers/usb/serial/usb-serial.h
-| > | |
-| > | | Has this been deleted?
-| > |
-| > | No, but there is a typo in the Kconfig file for it.
-| > | Patch for it is below.  (It is from the -kj patchset. :)
-| > | Patch by Francois Romieu <romieu@fr.zoreil.com>.
-| >
-| > Nope.  See Greg's reply.  It's correct.
-| >
-| > --
-| > ~Randy
-| 
-| Really, I just configed and compiled it ;)
-| 
-| Those dragons....
+nbd: registered device at major 43
+Unable to handle kernel paging request at virtual address 5a5a5a7e
+ printing eip:
+c027864b
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c027864b>]    Not tainted
+EFLAGS: 00010206
+EIP is at kobject_get+0xb/0x50
+eax: 5a5a5a6a   ebx: 5a5a5a6a   ecx: c0492e7f   edx: 00000000
+esi: ffffffea   edi: c60b91a0   ebp: c4f01f14   esp: c4f01f10
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 1141, threadinfo=c4f00000 task=c6524000)
+Stack: c60b91a0 c4f01f24 c0278319 5a5a5a6a c60b91a0 c4f01f38 c0278537 c60b91a0 
+       c77f8004 c60b9004 c4f01f60 c03063e6 c60b91a0 c60b91a0 00000014 c0492e7d 
+       c046f3c6 c77f8004 d087bf60 00000001 c4f01fa8 d08151d9 c77f8004 d087bf40 
+Call Trace:
+ [<c0278319>] kobject_init+0x29/0x50
+ [<c0278537>] kobject_register+0x17/0x50
+ [<c03063e6>] blk_register_queue+0x56/0x90
+ [<d08151d9>] nbd_init+0x1d9/0x250 [nbd]
+ [<c0144f5c>] sys_init_module+0x1cc/0x370
+ [<c010a027>] syscall_call+0x7/0xb
 
-Yes, I did too.
-But with plain vanilla 2.5.74, without the patch that I posted.
-You shouldn't need that patch, but like Greg said,
-USB_SERIAL=y is required for USB_SERIAL_CONSOLE.
-It can't be built as modules.
+Code: 8b 43 14 85 c0 74 0c ff 43 14 89 d8 8b 5d fc 89 ec 5d c3 68 
+ 
 
-Let's get rid of those dragons.  If the problem persists, please
-send me your .config file.
 
---
-~Randy
-$ hostname
-dragon.pdx.osdl.net
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

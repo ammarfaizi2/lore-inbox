@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbSLNWNT>; Sat, 14 Dec 2002 17:13:19 -0500
+	id <S266038AbSLNWro>; Sat, 14 Dec 2002 17:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbSLNWNT>; Sat, 14 Dec 2002 17:13:19 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:22471 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265998AbSLNWNS>; Sat, 14 Dec 2002 17:13:18 -0500
-Message-ID: <3DFBAED2.1030905@namesys.com>
-Date: Sun, 15 Dec 2002 01:21:06 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Oleg Drokin <green@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large
- writes
-References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214162108.A3452@namesys.com> <3DFB7B9E.FC404B6B@digeo.com> <20021214222053.A10506@namesys.com> <3DFB904F.2ADDE2D4@digeo.com>
-In-Reply-To: <3DFB904F.2ADDE2D4@digeo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266041AbSLNWro>; Sat, 14 Dec 2002 17:47:44 -0500
+Received: from imap.laposte.net ([213.30.181.7]:62140 "EHLO smtp.laposte.net")
+	by vger.kernel.org with ESMTP id <S266038AbSLNWrm>;
+	Sat, 14 Dec 2002 17:47:42 -0500
+Subject: Re: 2.4.20-ac1 KT400 AGP support
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gMfT85xO4ZZRmPCct539"
+Organization: 
+Message-Id: <1039906511.26129.9.camel@rousalka>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-1) 
+Date: 14 Dec 2002 23:55:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->  
->
->>(and btw you have not even seen reiser4 stack usage ;) )
->>    
->>
->
->uh-oh.   We need to be very sparing indeed.
->
-It is not appropriate to reduce functionality and twist the code so as 
-to reduce the stack, in my opinion.  I suppose we'll get to that 
-argument later though....
+--=-gMfT85xO4ZZRmPCct539
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+>Dave Jones wrote :
+>On Fri, Dec 13, 2002 at 07:57:59PM -0600, Courtney Grimland wrote:
+> > You should be able to set AGP to 4x or 2x in the BIOS.
+
+> Aparently some KT400 BIOS's got clever, and took away the option.
+> They switch to AGP 3.0 if an AGP 3.0 card is present, and drop
+> back to 2.0 if a 2.0 card is present.
+
+Well they didn't get as far as removing the option but secreted it
+in a bios setup screen that can only be accessed via a magic key
+sequence (which can be found after some serious googling).=20
+
+Real nice for a normal user when it works (and so far I didn't heard=20
+from anyone their agp recognition was broken). In fact I spend quite
+a long time searching why my system just-worked when people started=20
+reporting KT400 problems.
+
+I'd be really surprised if my board (GA-7VAX) did this and the=20
+GA-7VAXP didn't.
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-gMfT85xO4ZZRmPCct539
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA9+7bPI2bVKDsp8g0RAq8XAJ4wfxdi2ZuhtPjxpM32HBgWgZ/SdACg8cNz
+fXI9dTDCrg7NZHrK48jDuGw=
+=K/M1
+-----END PGP SIGNATURE-----
+
+--=-gMfT85xO4ZZRmPCct539--
 

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311320AbSEEOkC>; Sun, 5 May 2002 10:40:02 -0400
+	id <S312920AbSEEOrJ>; Sun, 5 May 2002 10:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311564AbSEEOkB>; Sun, 5 May 2002 10:40:01 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:9484 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S311320AbSEEOkB>;
-	Sun, 5 May 2002 10:40:01 -0400
-Date: Sun, 5 May 2002 07:39:30 -0700 (PDT)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: "J.P. Morris" <jpm@it-he.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.x keyboard oddities
-In-Reply-To: <20020505124704.GC4990@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.33.0205050737160.5576-100000@osdlab.pdx.osdl.net>
+	id <S312938AbSEEOrI>; Sun, 5 May 2002 10:47:08 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:41885 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S312920AbSEEOrH>; Sun, 5 May 2002 10:47:07 -0400
+From: Chris Rankin <cj.rankin@ntlworld.com>
+Message-Id: <200205051447.g45El62s000615@twopit.underworld>
+Subject: Re: Linux 2.4.18 floppy driver EATS floppies
+To: sony@faraday.ee.utt.ro (Sebastian Szonyi)
+Date: Sun, 5 May 2002 15:47:06 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0205051654260.10373-100000@faraday.ee.utt.ro> from "Sebastian Szonyi" at May 05, 2002 04:58:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002, Tomas Szepe wrote:
+> I buyed once (a long time ago) a box with 10 floppies.
+> Two died in the first day of use. From the others i still have some today.
+> 
+> I think the quality of the floppies (and other products) today isn't so
+> high :-(
 
-| > [J.P. Morris <jpm@it-he.org>]
-| >
-| > The keyboard is a bog-standard AT 102 keyboard, attached through a
-| > AT/PS2 converter to an ABIT KT133 ATX motherboard.. no USB stuff.
-| > Keyboard is turned on in the input devices option in kernel config.
-| > But it's utterly dead: even ALT-SYSRQ-B.  Is this normal?
-|
-| 1) Try booting with 'acpi=off'. It's broken for a number of systems
-| (does precisely what you've described) and no official update is
-| available as of yet. Alternatively, you can try to apply the most
-| recent ACPI patch from [1].
-|
-| 2) Make sure you've enabled core input support and userland keyboard
-| interface (CONFIG_INPUT, CONFIG_INPUT_KEYBDEV).
+Well, that's one explanation. Curiously, I've just managed to salvage
+my floppy disk. My initial attempt to run either "mkfs -t vfat" or "dd
+if=mini.ima of=/dev/fd0" failed, so I ran "mkfs -t ext2" instead. Once
+that ran successfully, I was able to dd the image again, and this time
+it worked.
 
-Under "Input device support", you should also enable
-CONFIG_SERIO (Serial I/O support).
+Sounds like either a floppy driver bug or a vfat filesystem bug to me.
 
--- 
-~Randy
-
+Chris

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263291AbSJCOb7>; Thu, 3 Oct 2002 10:31:59 -0400
+	id <S261498AbSJCOvc>; Thu, 3 Oct 2002 10:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263296AbSJCOb7>; Thu, 3 Oct 2002 10:31:59 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64979 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263291AbSJCOb6>;
-	Thu, 3 Oct 2002 10:31:58 -0400
-Date: Thu, 3 Oct 2002 10:37:28 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd breakage in 2.5.38-2.5.40
-In-Reply-To: <15772.12175.196556.383774@kim.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0210031035160.15787-100000@weyl.math.psu.edu>
+	id <S261540AbSJCOvc>; Thu, 3 Oct 2002 10:51:32 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:15761 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261498AbSJCOvb>; Thu, 3 Oct 2002 10:51:31 -0400
+Date: Thu, 3 Oct 2002 09:56:56 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: kbuild-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RfC: Don't cd into subdirs during kbuild
+In-Reply-To: <1033633277.27227.2.camel@nomade>
+Message-ID: <Pine.LNX.4.44.0210030954070.24570-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3 Oct 2002, Xavier Bestel wrote:
 
+> Could you do instead:
+> 
+> 	include subdir/Makefile
+> ?
 
-On Thu, 3 Oct 2002, Mikael Pettersson wrote:
+It's not quite that easy, unfortunately ;(
 
-> That loop does set_capacity() on each element in rd_disks[], but
-> set_capacity(disk,size) just sets disk->capacity = size, and
-> initrd_disk is a different variable so I don't see how initrd_disk
-> could ever get a capacity assigned to it unless by an explicit
-> "set_capacity(&initrd_disk, rd_size * 2);".
+> This would avoid recursive make, which isn't really a good idea (even if
+> it's used widely). Here is a good agument about that:
+> http://www.cse.iitb.ac.in/~soumen/teach/cs699a1999/make.html
 
-_Oh_.
+I think I heard that before, but I would argue that recursive builds if 
+done right are just fine from the correctness point of view.
 
-Yes, you are right - it's my fault.  FWIW, it should be
-	(initrd_end-initrd_start+511)>>9
-rather than rd_size * 2.  Thanks, fixed in my tree, will go to Linus
-today.
+--Kai
+
 

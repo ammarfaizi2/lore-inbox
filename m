@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbVCKFTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263198AbVCKFYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbVCKFTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 00:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbVCKFTV
+	id S263198AbVCKFYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 00:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVCKFYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 00:19:21 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:26256 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263184AbVCKFTI (ORCPT
+	Fri, 11 Mar 2005 00:24:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5029 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263198AbVCKFXP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 00:19:08 -0500
-Date: Fri, 11 Mar 2005 16:18:06 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Andrew Morton <akpm@osdl.org>, Roland Dreier <roland@topspin.com>
-Cc: Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       willy@debian.org
-Subject: Re: [PATCH, RFC 1/3] Add sem_getcount() to arches that lack it
-Message-ID: <20050311161806.A2976910@wobbly.melbourne.sgi.com>
-References: <20050311000646.GJ1111@conscoop.ottawa.on.ca> <20050310205503.6151ab83.akpm@osdl.org> <52fyz2938t.fsf@topspin.com>
+	Fri, 11 Mar 2005 00:23:15 -0500
+Date: Thu, 10 Mar 2005 21:23:02 -0800
+From: Greg KH <greg@kroah.com>
+To: long <tlnguyen@snoqualmie.dp.intel.com>, benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+Subject: Re: [PATCH] PCI Express Advanced Error Reporting Driver
+Message-ID: <20050311052302.GB27775@kroah.com>
+References: <200503102304.j2AN4INc018805@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <52fyz2938t.fsf@topspin.com>; from roland@topspin.com on Thu, Mar 10, 2005 at 09:10:42PM -0800
+In-Reply-To: <200503102304.j2AN4INc018805@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 09:10:42PM -0800, Roland Dreier wrote:
->     Andrew> (Why do they want to do this anyway?)
-> 
-> Neither use seems really fundamental.  The XFS use is explicitly
-> inside #ifdef DEBUG and seems to be used only for assertions.
+On Thu, Mar 10, 2005 at 03:04:18PM -0800, long wrote:
+> PCI Express error signaling can occur on the PCI Express link itself
+> or on behalf of transactions initiated on the link. PCI Express
+> defines the Advanced Error Reporting capability, which is implemented 
+> with a PCI Express advanced error reporting extended capability
+> structure, to provide more robust error reporting. With the Advanced
+> Error Reporting capability a PCI Express component, which detects an
+> error, can send an error message to the Root Port associated with
+> its hierarchy.  
 
-Right, our peeking at that value is debug-only (so usually its not
-even compiled in).  I wouldn't go out of your way to add a more
-permanent interface just for this, we can live without it.
+<snip>
 
-cheers.
+This patch was too big for lkml, and should also be sent to the
+linux-pci list.  Care to split it up and resend it?
 
--- 
-Nathan
+Also, how does this tie into the recent discussion about pci error
+recovery?
+
+thanks,
+
+greg k-h

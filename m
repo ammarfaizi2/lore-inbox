@@ -1,63 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVAJUYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbVAJTqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVAJUYR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVAJUWc
+	id S262513AbVAJTqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 14:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVAJTqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:22:32 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:192 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262494AbVAJUMD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:12:03 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	<41DD9968.7070004@comcast.net>
-	<1105045853.17176.273.camel@localhost.localdomain>
-	<1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>
-	<1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>
-	<1105278618.12054.37.camel@localhost.localdomain>
-	<41E1CCB7.4030302@comcast.net>
-	<21d7e99705010917281c6634b8@mail.gmail.com>
-	<1105361337.12054.66.camel@localhost.localdomain>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 10 Jan 2005 21:11:54 +0100
-In-Reply-To: <1105361337.12054.66.camel@localhost.localdomain> (Alan Cox's
- message of "Mon, 10 Jan 2005 18:27:52 +0000")
-Message-ID: <m1fz196o39.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Jan 2005 14:46:25 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:64690 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262490AbVAJTNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:13:05 -0500
+To: akpm@osdl.org, torvalds@osdl.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 9/11] FUSE - readpages operation
+Message-Id: <E1Co4y9-0004AB-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 10 Jan 2005 20:12:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
->
-> We've seen that with the proposed 1Gb DMA area on x86-64 - Nvidia wanted
-> a 4Gb one to fix their hardware needs and various other drivers want a
-> 1Gb DMA area. That happens to also sort Nvidia's problems.
+This patch adds readpages support to FUSE.
 
-To clarify there are other drivers who also want 4GB (e.g. the free
-Intel and ATI DRM drivers and also some other video drivers) 
+With the help of the readpages() operation multiple reads are bundled
+together and sent as a single request to userspace.  This can improve
+reading performace.
 
-I haven't seen a real request from someone who requires 1GB, but needs
-to use more than 96MB (16MB GFP_DMA + 64-128MB softiommu/amd iommu memory) 
-
-But 1GB is not enough for the higherend 3d users, especially when you
-put multiple adapters into the machine.
-
->>From DRI experience I'd say that a mostly user space nvidia driver would
-> probably be almost as problematic as a binary kernel module. It would
-> make reverse engineering a lot easier though 8)
-
-I think it would be a good idea to perhaps to move common services
-needed by Nvidia and others (ATI, free DRI drivers, others) into a
-common free library. This way we would probably break them less often
-and there would be less potentially buggy code in the kernel. 
-
-And anything that shrinks binary only drivers and replaces them with
-more and more free code is probably a good thing. And doing this in baby
-steps is probably the only realistic option.
-
--Andi
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+diff -Nurp a/fs/fuse/file.c b/fs/fuse/file.c
+--- a/fs/fuse/file.c	2005-01-10 19:28:35.000000000 +0100
++++ b/fs/fuse/file.c	2005-01-10 19:28:35.000000000 +0100
+@@ -218,6 +218,72 @@ static int fuse_readpage(struct file *fi
+ 	return err;
+ }
+ 
++static int fuse_send_readpages(struct fuse_req *req, struct file *file,
++			       struct inode *inode)
++{
++	loff_t pos = (loff_t) req->pages[0]->index << PAGE_CACHE_SHIFT;
++	size_t count = req->num_pages << PAGE_CACHE_SHIFT;
++	unsigned i;
++	req->out.page_zeroing = 1;
++	fuse_send_read(req, file, inode, pos, count);
++	for (i = 0; i < req->num_pages; i++) {
++		struct page *page = req->pages[i];
++		if (!req->out.h.error)
++			SetPageUptodate(page);
++		unlock_page(page);
++	}
++	return req->out.h.error;
++}
++
++struct fuse_readpages_data {
++	struct fuse_req *req;
++	struct file *file;
++	struct inode *inode;
++};
++
++static int fuse_readpages_fill(void *_data, struct page *page)
++{
++	struct fuse_readpages_data *data = _data;
++	struct fuse_req *req = data->req;
++	struct inode *inode = data->inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++
++	if (req->num_pages &&
++	    (req->num_pages == FUSE_MAX_PAGES_PER_REQ ||
++	     (req->num_pages + 1) * PAGE_CACHE_SIZE > fc->max_read ||
++	     req->pages[req->num_pages - 1]->index + 1 != page->index)) {
++		int err = fuse_send_readpages(req, data->file, inode);
++		if (err) {
++			unlock_page(page);
++			return err;
++		}
++		fuse_reset_request(req);
++	}
++	req->pages[req->num_pages] = page;
++	req->num_pages ++;
++	return 0;
++}
++
++static int fuse_readpages(struct file *file, struct address_space *mapping,
++			  struct list_head *pages, unsigned nr_pages)
++{
++	struct inode *inode = mapping->host;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	struct fuse_readpages_data data;
++	int err;
++	data.file = file;
++	data.inode = inode;
++	data.req = fuse_get_request_nonint(fc);
++	if (!data.req)
++		return -EINTR;
++
++	err = read_cache_pages(mapping, pages, fuse_readpages_fill, &data);
++	if (!err && data.req->num_pages)
++		err = fuse_send_readpages(data.req, file, inode);
++	fuse_put_request(fc, data.req);
++	return err;
++}
++
+ static ssize_t fuse_send_write(struct fuse_req *req, struct file *file,
+ 			       struct inode *inode, loff_t pos, size_t count)
+ {
+@@ -321,6 +387,7 @@ static struct address_space_operations f
+ 	.readpage	= fuse_readpage,
+ 	.prepare_write	= fuse_prepare_write,
+ 	.commit_write	= fuse_commit_write,
++	.readpages	= fuse_readpages,
+ 	.set_page_dirty	= fuse_set_page_dirty,
+ };
+ 
+diff -Nurp a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+--- a/fs/fuse/fuse_i.h	2005-01-10 19:28:35.000000000 +0100
++++ b/fs/fuse/fuse_i.h	2005-01-10 19:28:35.000000000 +0100
+@@ -199,6 +199,9 @@ struct fuse_conn {
+ 	/** The fuse mount flags for this mount */
+ 	unsigned flags;
+ 
++	/** Maximum read size */
++	unsigned max_read;
++
+ 	/** Readers of the connection are waiting on this */
+ 	wait_queue_head_t waitq;
+ 
+diff -Nurp a/fs/fuse/inode.c b/fs/fuse/inode.c
+--- a/fs/fuse/inode.c	2005-01-10 19:28:35.000000000 +0100
++++ b/fs/fuse/inode.c	2005-01-10 19:28:35.000000000 +0100
+@@ -42,6 +42,7 @@ struct fuse_mount_data {
+ 	unsigned rootmode;
+ 	unsigned user_id;
+ 	unsigned flags;
++	unsigned max_read;
+ };
+ 
+ static struct inode *fuse_alloc_inode(struct super_block *sb)
+@@ -253,6 +254,7 @@ enum {
+ 	OPT_ALLOW_OTHER,
+ 	OPT_ALLOW_ROOT,
+ 	OPT_KERNEL_CACHE,
++	OPT_MAX_READ,
+ 	OPT_ERR
+ };
+ 
+@@ -264,6 +266,7 @@ static match_table_t tokens = {
+ 	{OPT_ALLOW_OTHER,		"allow_other"},
+ 	{OPT_ALLOW_ROOT,		"allow_root"},
+ 	{OPT_KERNEL_CACHE,		"kernel_cache"},
++	{OPT_MAX_READ,			"max_read=%u"},
+ 	{OPT_ERR,			NULL}
+ };
+ 
+@@ -272,6 +275,7 @@ static int parse_fuse_opt(char *opt, str
+ 	char *p;
+ 	memset(d, 0, sizeof(struct fuse_mount_data));
+ 	d->fd = -1;
++	d->max_read = ~0;
+ 
+ 	while ((p = strsep(&opt, ",")) != NULL) {
+ 		int token;
+@@ -316,6 +320,12 @@ static int parse_fuse_opt(char *opt, str
+ 			d->flags |= FUSE_KERNEL_CACHE;
+ 			break;
+ 
++		case OPT_MAX_READ:
++			if (match_int(&args[0], &value))
++				return 0;
++			d->max_read = value;
++			break;
++
+ 		default:
+ 			return 0;
+ 		}
+@@ -339,6 +349,8 @@ static int fuse_show_options(struct seq_
+ 		seq_puts(m, ",allow_root");
+ 	if (fc->flags & FUSE_KERNEL_CACHE)
+ 		seq_puts(m, ",kernel_cache");
++	if (fc->max_read != ~0)
++		seq_printf(m, ",max_read=%u", fc->max_read);
+ 	return 0;
+ }
+ 
+@@ -478,6 +490,9 @@ static int fuse_read_super(struct super_
+ 
+ 	fc->flags = d.flags;
+ 	fc->user_id = d.user_id;
++	fc->max_read = d.max_read;
++	if (fc->max_read / PAGE_CACHE_SIZE < fc->bdi.ra_pages)
++		fc->bdi.ra_pages = fc->max_read / PAGE_CACHE_SIZE;
+ 
+ 	*get_fuse_conn_super_p(sb) = fc;
+ 

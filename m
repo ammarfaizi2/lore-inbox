@@ -1,101 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVATCuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVATC6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVATCuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 21:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVATCuV
+	id S261953AbVATC6P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 21:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVATC6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 21:50:21 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:51650 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S261926AbVATCuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 21:50:09 -0500
-Date: Wed, 19 Jan 2005 18:49:00 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, zaitcev@yahoo.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on USB_STORAGE=n
-Message-ID: <20050120024900.GA5506@one-eyed-alien.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
-	zaitcev@yahoo.com, linux-usb-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20041220001644.GI21288@stusta.de> <20041220003146.GB11358@kroah.com> <20041223024031.GO5217@stusta.de> <20050119220707.GM4151@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20050119220707.GM4151@kroah.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Wed, 19 Jan 2005 21:58:15 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:57524 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261953AbVATC5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 21:57:04 -0500
+Message-ID: <41EF1DFB.6090103@yahoo.co.uk>
+Date: Thu, 20 Jan 2005 02:56:59 +0000
+From: Paul Marrons <pmarrons@yahoo.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mj@ucw.cz, linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: Backport of pci cardbus number enumeration from 2.6 to 2.4.29
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Martin,
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+To overcome a problem with my laptop cardbus not being assigned the 
+correct bus number in 2.4.29 (I originally did this change for 2.4.27) I 
+backported a portion of the code in the 2.6 kernel drivers/pci/pci.c 
+file. I did this because I noticed that only 2.6 assigned the correct 
+bus number and I specifically need to run 2.4.X because of a driver I 
+need that is not 2.6 compatible. Basically without this change on my 
+laptop (Thinkpad 240) both the main PCI bus and cardbus bridge both get 
+assigned bus#0 and as a result any cardbus devices present are not 
+correctly detected and allocated any resources, in addition the 
+/proc/bus/pci contains two '0' entries and tools such as lspci fail to 
+work.
 
-On Wed, Jan 19, 2005 at 02:07:07PM -0800, Greg KH wrote:
-> On Thu, Dec 23, 2004 at 03:40:31AM +0100, Adrian Bunk wrote:
-> > On Sun, Dec 19, 2004 at 04:31:46PM -0800, Greg KH wrote:
-> > > On Mon, Dec 20, 2004 at 01:16:44AM +0100, Adrian Bunk wrote:
-> > > > I've already seen people crippling their usb-storage driver with=20
-> > > > enabling BLK_DEV_UB - and I doubt the warning in the help text adde=
-d=20
-> > > > after 2.6.9 will fix all such problems.
-> > > >=20
-> > > > Is there except for kernel size any good reason for using BLK_DEV_U=
-B=20
-> > > > instead of USB_STORAGE?
-> > >=20
-> > > You don't want to use the scsi layer?  You like the stability of it at
-> > > times?  :)
-> > >=20
-> > > > If not, I'd suggest the patch below to let BLK_DEV_UB depend
-> > > > on EMBEDDED.
-> > >=20
-> > > No, it's good for non-embedded boxes too.
-> >=20
-> >=20
-> > My current understanding is:
-> > - BLK_DEV_UB supports a subset of what USB_STORAGE can support
-> > - for an average user, there's no reason to enable BLK_DEV_UB
-> > - if you really know what you are doing, there might be several reasons
-> >   why you might want to use BLK_DEV_UB
->=20
-> I have been running with just the code portion of this patch for a while
-> now, with good results (no Kconfig changes.)
->=20
-> Pete and Matt, do you mind me applying the following portion of the
-> patch to the kernel tree?
+I am aware of people overcoming this problem (with my model of laptop) 
+by setting defining pcibios_assign_all_busses() as 1. But this backport 
+is a superior solution to the problem.
 
-I have no objection.
+The few small changes are isolated to pci_add_new_bus and 
+pci_scan_bridge. I hope you will be able to incorporate them into the 
+next 2.4 kernel release.
 
-Matt
+If there is anything else I need to do please let me know.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+Regards,
 
-E:  You run this ship with Windows?!  YOU IDIOT!
-L:  Give me a break, it came bundled with the computer!
-					-- ESR and Lan Solaris
-User Friendly, 12/8/1998
+Paul Marrons.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFB7xwcIjReC7bSPZARAvrVAKCXa5mDlqDqtRGHqT7ujkUlW0593ACffe5H
-jyu83Dp36AaVWzUisZBx+Fs=
-=FONx
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--

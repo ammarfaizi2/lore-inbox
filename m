@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUEVRpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUEVSCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUEVRpg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 13:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUEVRpg
+	id S261711AbUEVSCo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 14:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUEVSCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 13:45:36 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:11246 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261611AbUEVRpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 13:45:33 -0400
-Date: Sat, 22 May 2004 19:45:23 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>, akpm@osdl.org,
-       torvalds@osdl.org
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: rfc: test whether a device has a partition table
-Message-ID: <20040522174523.GA1475@apps.cwi.nl>
-References: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de> <20040522125633.GA4777@apps.cwi.nl> <16559.28240.860047.83057@hertz.ikp.physik.tu-darmstadt.de>
-Mime-Version: 1.0
+	Sat, 22 May 2004 14:02:43 -0400
+Received: from hadar.amcc.com ([192.195.69.168]:51401 "EHLO hadar.amcc.com")
+	by vger.kernel.org with ESMTP id S261711AbUEVSCk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 14:02:40 -0400
+From: "Adam Radford" <aradford@amcc.com>
+To: hch@infradead.org, Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: RE: 2.6.6-mm5
+Date: Sat, 22 May 2004 11:02:18 -0700
+Organization: AMCC
+X-Sent-Folder-Path: Sent Items
+X-Mailer: Oracle Connector for Outlook 9.0.4 51114 (9.0.6627)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16559.28240.860047.83057@hertz.ikp.physik.tu-darmstadt.de>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8BIT
+Message-ID: <HY4NGC01.77W@hadar.amcc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22, 2004 at 05:14:24PM +0200, Uwe Bonnes wrote:
+Hch,
 
-> Yes, the test for 0x80/0 is sufficant.
+I did try to CC linux-scsi in the original email for the 3ware driver submission/review,
+and 2 emails since then.  None of them went through (no bounce message either).  
 
-Good.
+Does anybody know what the max email size is?  Is it < 145k?
 
-> +	  if ( (p->boot_ind != 0x80) &&  (p->boot_ind!= 0x0))
-> +	    return 0;
+--
+Adam Radford
+Staff Software Engineer
+AMCC
 
-You'll need a "put_dev_sector(sect);" as well. Say,
-
---- msdos.c~	2003-12-18 03:58:58
-+++ msdos.c	2004-05-22 19:38:00
-@@ -389,8 +389,23 @@
- 		put_dev_sector(sect);
- 		return 0;
- 	}
-+
-+	/*
-+	 * Now that the 55aa signature is present, this is probably
-+	 * either the boot sector of a FAT filesystem or a DOS-type
-+	 * partition table. Reject this in case the boot indicator
-+	 * is not 0 or 0x80.
-+	 */
- 	p = (struct partition *) (data + 0x1be);
-+	for (slot = 1; slot <= 4; slot++, p++) {
-+		if (p->boot_ind != 0 && p->boot_ind != 0x80) {
-+			put_dev_sector(sect);
-+			return 0;
-+		}
-+	}
-+
- #ifdef CONFIG_EFI_PARTITION
-+	p = (struct partition *) (data + 0x1be);
- 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
- 		/* If this is an EFI GPT disk, msdos should ignore it. */
- 		if (SYS_IND(p) == EFI_PMBR_OSTYPE_EFI_GPT) {
-@@ -398,8 +413,8 @@
- 			return 0;
- 		}
- 	}
--	p = (struct partition *) (data + 0x1be);
- #endif
-+	p = (struct partition *) (data + 0x1be);
- 
- 	/*
- 	 * Look for partitions in two passes:
-
-Andries
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of hch@infradead.org
+Sent: Saturday, May 22, 2004 2:23 AM
+To: Jeff Garzik
+Cc: Andrew Morton; linux-kernel@vger.kernel.org; SCSI Mailing List
+Subject: Re: 2.6.6-mm5
 
 
-[Linus, Andrew - I have no objections against this.]
+On Sat, May 22, 2004 at 05:09:59AM -0400, Jeff Garzik wrote:
+> Andrew Morton wrote:
+> >- Added a new SATA RAID driver from 3ware.  From a quick peek it seem to
+> >  need a little work yet.
+> 
+> 
+> It's not too bad... but it looks more like a 2.2 driver forward ported 
+> to 2.4, than a 2.6.x driver.  Needs some luvin' from the 2.6 scsi api crew.
+> 
+> Overall, it appears to be a message-based firmware engine like 
+> drivers/block/carmel.c, that hides the SATA details in the firmware.
+
+In addition driver submission should always go through linux-scsi.  Please
+tell them to submit it to linux-scsi so we can have a public review process
+there.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

@@ -1,91 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTJAOSO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 10:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTJAOSO
+	id S262108AbTJAOID (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTJAOID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 10:18:14 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:18436 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S262188AbTJAOSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 10:18:07 -0400
-Date: Wed, 1 Oct 2003 16:21:25 +0200
-From: DervishD <raul@pleyades.net>
-To: "Lisa R. Nelson" <lisanels@cableone.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+	Wed, 1 Oct 2003 10:08:03 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54656 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262108AbTJAOH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 10:07:56 -0400
+Date: Wed, 1 Oct 2003 10:09:51 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jurjen Oskam <jurjen@stupendous.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: File Permissions are incorrect. Security flaw in Linux
-Message-ID: <20031001142125.GA14994@DervishD>
-References: <1065012013.4078.2.camel@lisaserver>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1065012013.4078.2.camel@lisaserver>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+In-Reply-To: <20031001135322.GA16692@quadpro.stupendous.org>
+Message-ID: <Pine.LNX.4.53.0310011004570.3612@chaos>
+References: <1065012013.4078.2.camel@lisaserver> <20031001135322.GA16692@quadpro.stupendous.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Lisa :)
+On Wed, 1 Oct 2003, Jurjen Oskam wrote:
 
- * Lisa R. Nelson <lisanels@cableone.net> dixit:
-> [1.] One line summary of the problem:    
-> A low level user can delete a file owned by root and belonging to group
-> root even if the files permissions are 744.  This is not in agreement
-> with Unix, and is a major security issue.
+> On Wed, Oct 01, 2003 at 06:40:13AM -0600, Lisa R. Nelson wrote:
+>
+> > [1.] One line summary of the problem:
+> > A low level user can delete a file owned by root and belonging to group
+> > root even if the files permissions are 744.  This is not in agreement
+> > with Unix, and is a major security issue.
+>
+> This *is* in agreement with Unix. It works exactly the same on AIX, for
+> example.
+>
+> --
+> Jurjen Oskam
+>
 
-    You're not right here: all Unices I have knowledge about has this
-same scheme. But really it doesn't matter, because the reason behind
-this is that files are just links in a directory, so for deleting a
-file, that is, *unlinking* it, you need to have write permission on
-the *container*: the directory.
+Yes. File removal is subject to DIRECTORY permissions.
 
->     Permissions on a file basis take precedence over directory
-> permissions (for most cases), but in Linux they do not.
+Script started on Wed Oct  1 10:03:26 2003
+# pwd
+/tmp
+# >foo
+# chmod 744 foo
+# ls -la
+total 8
+drwxrwxrwx   2 root     root         4096 Oct  1 10:03 .
+drwxr-xr-x  25 root     root         4096 Oct  1 04:09 ..
+-rwxr--r--   1 root     root            0 Oct  1 10:03 foo
+-rw-r--r--   1 root     root            0 Oct  1 10:03 typescript
+# su johnson
+$ ls -la
+total 8
+drwxrwxrwx   2 root     root         4096 Oct  1 10:03 .
+drwxr-xr-x  25 root     root         4096 Oct  1 04:09 ..
+-rwxr--r--   1 root     root            0 Oct  1 10:03 foo
+-rw-r--r--   1 root     root            0 Oct  1 10:03 typescript
+$ pwd
+/tmp
+$ rm foo
+rm: remove write-protected file `foo'? y
+$ ls -la
+total 8
+drwxrwxrwx   2 root     root         4096 Oct  1 10:04 .
+drwxr-xr-x  25 root     root         4096 Oct  1 04:09 ..
+-rw-r--r--   1 root     root            0 Oct  1 10:03 typescript
+$ exit
+exit
+# ls
+typescript
+# exit
+exit
+Script done on Wed Oct  1 10:04:17 2003
 
-    Just curiosity: which Unix behaves that way?
+...So anything you put into "/tmp", for instance, can be deleted
+by anybody. This is the Unix way.
 
-> In order to secure a file, you have to secure the directory which
-> effects all files within it.
 
-    Not exactly, but you're true. You can use the sticky bit for
-directories if you want them to be 'append only'. This way anybody
-can read your files if you want, add files and remove them, *but*
-they WON'T be able to delete YOUR files. This is used in /tmp, for
-example.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
->     I verified this on a sun station today
 
-    I may be wrong here, for a long time has passed since I last used
-a SparcStation or similar, but AFAIK SunOS behaves like Linux in this
-issue. In fact, this is the common Unix behaviour.
-
-> http://www.auburn.edu/oit/software/os/unix_files.html
-
-    Quote: "Permissions are divided into three types [...] Write
-permission allows the user [...] For directories, write permission
-allows the user to create new files or delete files within that
-directory".
-
-> http://www.dartmouth.edu/~rc/help/faq/permissions.html
-
-    The same: "w [...] file is writeable. On a directory, write
-access means you can add or delete files".
-
-> http://www.december.com/unix/tutor/permissions.html
-
-    Nothing relevant. A lame tutorial on Unix permissions, BTW.
-
-> http://www.itc.virginia.edu/desktop/web/permissions/
-
-    "Write [...] create a new file in the directory". Incomplete, but
-will do...
-
-    As you can see, even your sources say exactly the same...
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310439AbSCGSdK>; Thu, 7 Mar 2002 13:33:10 -0500
+	id <S310438AbSCGSmx>; Thu, 7 Mar 2002 13:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310440AbSCGSdC>; Thu, 7 Mar 2002 13:33:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53775 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310439AbSCGScx>; Thu, 7 Mar 2002 13:32:53 -0500
+	id <S310443AbSCGSmm>; Thu, 7 Mar 2002 13:42:42 -0500
+Received: from guardian.hermes.si ([193.77.5.150]:5899 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP
+	id <S310438AbSCGSmf>; Thu, 7 Mar 2002 13:42:35 -0500
+From: Damjan Lango <damjan.lango@hermes.si>
+Message-Id: <200203071842.TAA22197@akira.hermes.si>
+Subject: patch-kernel script usage help
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: a faster way to gettimeofday? rdtsc strangeness
-Date: 7 Mar 2002 10:32:36 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a68bo4$b18$1@cesium.transmeta.com>
-In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu> <1015515815.4373.61.camel@pc-16.office.scali.no>
+Date: Thu, 7 Mar 2002 19:42:09 +0100 (MET)
+Cc: torvalds@transmeta.com, marcelo@conectiva.com.br
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1015515815.4373.61.camel@pc-16.office.scali.no>
-By author:    Terje Eggestad <terje.eggestad@scali.com>
-In newsgroup: linux.dev.kernel
-> 
-> Can /proc/cpuinfo really be trusted in figuring out how long a cycle is?
-> 
 
-It uses RDTSC, so yes.
+Hi,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Would you consider applying this patch that adds a little usage help
+to the patch-kernel script if the Makefile isn't found or if it is
+given -h or --help options:
+
+ciao
+Damjan
+
+diff -u patch-kernel-orig patch-kernel
+--- patch-kernel-orig	Tue Feb 26 11:15:53 2002
++++ patch-kernel	Tue Feb 26 11:31:42 2002
+@@ -46,6 +46,15 @@
+ patchdir=${2-.}
+ stopvers=${3-imnotaversion}
+ 
++if [ "$1" = -h -o "$1" = --help -o ! -r "$sourcedir/Makefile" ]; then
++cat << USAGE
++usage: patch-kernel [-h] [ sourcedir [ patchdir [ stopversion ] [ -acxx ] ] ]
++  The source directory defaults to /usr/src/linux, and
++  the patch directory defaults to the current directory.
++USAGE
++exit 1
++fi
++
+ # See if we have any -ac options
+ for PARM in $*
+ do
+
+
+

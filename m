@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263345AbTKFH6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 02:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKFH6P
+	id S263412AbTKFIGC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 03:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTKFIGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 02:58:15 -0500
-Received: from tarantel.rz.fh-muenchen.de ([129.187.244.239]:38114 "HELO
-	mailserv.rz.fh-muenchen.de") by vger.kernel.org with SMTP
-	id S263345AbTKFH6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 02:58:13 -0500
-Date: Thu, 6 Nov 2003 09:01:32 +0100
-From: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Daniel Egger <degger@fhm.edu>, Dustin Lang <dalang@cs.ubc.ca>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Re:No backlight control on PowerBook G4
-Message-ID: <20031106090132.B18367@tarantel.rz.fh-muenchen.de>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca> <1067820334.692.38.camel@gaston> <1067878624.7695.15.camel@sonja> <1067896476.692.36.camel@gaston> <1067976347.945.4.camel@sonja> <1068078504.692.175.camel@gaston>
+	Thu, 6 Nov 2003 03:06:02 -0500
+Received: from bay4-f41.bay4.hotmail.com ([65.54.171.41]:1042 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263412AbTKFIGA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 03:06:00 -0500
+X-Originating-IP: [202.172.55.22]
+X-Originating-Email: [slashboy84@msn.com]
+From: "Wee Teck Neo" <slashboy84@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: Over used cache memory?
+Date: Thu, 06 Nov 2003 16:05:59 +0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2us
-In-Reply-To: <1068078504.692.175.camel@gaston>
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY4-F41WYf5UPHvAo10001c90f@hotmail.com>
+X-OriginalArrivalTime: 06 Nov 2003 08:05:59.0424 (UTC) FILETIME=[D02F0000:01C3A43C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06, 2003 at 11:28:25AM +1100, Benjamin Herrenschmidt wrote:
+My system having 1GB ram and this is the output of vmstat
 
-> > Just checked. It doesn't work with the  latest (Linus) 2.6-test and
-> > radeonfb. Do you have any special patches in your tree for radeonfb?
- 
-> No, I told you to use _my_ 2.6 tree which contains a new radeonfb
-> that have not yet been merged upstream.
+   procs                      memory      swap          io     system      
+cpu
+r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy 
+id
+0  0  0   5640  21224 121512 797832    0    0     6     9    3    17  0  0  
+6
 
-I noticed that, however I do not have the bandwitdh to track several trees
-simultaneously. Will do that on a high bandwidth machine and create a diff.
 
-> bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from
-> source.mvista.com::linuxppc-2.5-benh
- 
-> Yaboot normally loads a plain vmlinux, though if you are using tftp, you
-> need to modify yaboot to be able to d/l more than 4Mb (edit fs_of.c and
-> change the allocated size). 
+It seems that 797MB is used for caching... thats a high number. Anyway to 
+set a lower cache size?
 
-This is probably it. The raw image is just a bit over 4 megs. Is there a
-chance that this will change upstream? Also a warning would be nice while
-creating the kernel as I'm probably not the only one experiencing this.
+I've read about the /proc/sys/vm/buffermem but my /proc doesn't have it.
 
-> The ELF image should work, at least the
-> one produced by my tree does, it's possible that there's a similar size
-> problem with the one in Linus tree, a few of those recent changes haven't
-> yet made it to Linus.
+Kernel: 2.4.22
 
-Size problem? At least it's not triggered by the yaboot limitation because
-the image is similar in size to zImage.chrp which would be around 1.8 megs.
+_________________________________________________________________
+Get 10mb of inbox space with MSN Hotmail Extra Storage 
+http://join.msn.com/?pgmarket=en-sg
 
---
-Servus,
-       Daniel

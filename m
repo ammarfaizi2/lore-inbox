@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275573AbRJAVju>; Mon, 1 Oct 2001 17:39:50 -0400
+	id <S275594AbRJAVuE>; Mon, 1 Oct 2001 17:50:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275576AbRJAVjk>; Mon, 1 Oct 2001 17:39:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27406 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275573AbRJAVjg>; Mon, 1 Oct 2001 17:39:36 -0400
-Date: Mon, 1 Oct 2001 14:39:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.11-pre2
-Message-ID: <Pine.LNX.4.33.0110011438230.990-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275598AbRJAVto>; Mon, 1 Oct 2001 17:49:44 -0400
+Received: from mailrelay1.inwind.it ([212.141.54.101]:61165 "EHLO
+	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
+	id <S275594AbRJAVtf>; Mon, 1 Oct 2001 17:49:35 -0400
+Message-Id: <3.0.6.32.20011001235032.02571860@pop.tiscalinet.it>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Mon, 01 Oct 2001 23:50:32 +0200
+To: Rik van Riel <riel@conectiva.com.br>
+From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome
+ .conectiva>
+In-Reply-To: <3.0.6.32.20011001203320.02381600@pop.tiscalinet.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 16.23 01/10/01 -0300, you wrote:
+>On Mon, 1 Oct 2001, Lorenzo Allegrucci wrote:
+>
+>> Disclaimer:
+>> I don't know if this "benchmark" is meaningful or not, but anyhow..
+>
+>I'm not sure either, since qsort doesn't really have much
+>locality of reference but just walks all over the place.
 
-Available in the usual places..
+Yes, it was exactly my goal :)
 
-		Linus
+>This is direct contrast with the basic assumption on which
+>VM and CPU caches are built ;)
 
----
-pre2:
- - me/Al Viro: fix bdget() oops with block device modules that don't
-   clean up after they exit
- - Alan Cox: continued merging (drivers, license tags)
- - David Miller: sparc update, network fixes
- - Christoph Hellwig: work around broken drivers that add a gendisk more
-   than once
- - Jakub Jelinek: handle more ELF loading special cases
- - Trond Myklebust: NFS client and lockd reclaimer cleanups/fixes
- - Greg KH: USB updates
- - Mikael Pettersson: sparate out local APIC / IO-APIC config options
+Indeed, it put strain the VM by a pseudo random-sequential access pattern.
 
-pre1:
- - Chris Mason: fix ppp race conditions
- - me: buffers-in-pagecache coherency, buffer.c cleanups
- - Al Viro: block device cleanups/fixes
- - Anton Altaparmakov: NTFS 1.1.20 update
- - Andrea Arcangeli: VM tweaks
+>I wonder how eg. merge sort would perform ...
 
+It would perform better, but merge sort doesn't trash the system :)
+I wanted to test the system in trashing conditions.
+Just curious.
+
+
+-- 
+Lorenzo

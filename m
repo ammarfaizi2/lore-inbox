@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266596AbUBRBR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 20:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267083AbUBRBR6
+	id S267034AbUBRA4d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267036AbUBRA4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 20:17:58 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:9367
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S266596AbUBRBR5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 20:17:57 -0500
-Date: Tue, 17 Feb 2004 20:28:39 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-Message-ID: <20040217202839.A16590@animx.eu.org>
-References: <402A887D.7030408@t-online.de> <402EDBA8.4070102@lovecn.org> <402F42DE.5090308@t-online.de> <20040217184132.541a5a76.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20040217184132.541a5a76.rusty@rustcorp.com.au>; from Rusty Russell on Tue, Feb 17, 2004 at 06:41:32PM +1100
+	Tue, 17 Feb 2004 19:56:33 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S267034AbUBRA4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:56:31 -0500
+Date: Wed, 18 Feb 2004 00:52:06 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200402180052.i1I0q6Wh000340@81-2-122-30.bradfords.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Marc <pcg@goof.com>, Marc Lehmann <pcg@schmorp.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402171318550.2154@home.osdl.org>
+References: <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
+ <20040216222618.GF18853@mail.shareable.org>
+ <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+ <20040217071448.GA8846@schmorp.de>
+ <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
+ <20040217163613.GA23499@mail.shareable.org>
+ <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
+ <20040217192917.GA24311@mail.shareable.org>
+ <20040217195348.GQ8858@parcelfarce.linux.theplanet.co.uk>
+ <200402172035.i1HKZM4j000154@81-2-122-30.bradfords.org.uk>
+ <20040217204024.GE24311@mail.shareable.org>
+ <200402172050.i1HKoLPG000210@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.58.0402171259440.2154@home.osdl.org>
+ <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.58.0402171318550.2154@home.osdl.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Most users don't want to remember that it's ip_conntrack but uhci-hcd.
+> Sane people choose compatibility. But it's your choice. You can always 
+> normalize thing if you want to - but don't complain to me if it breaks 
+> things. It will still break _fewer_ things than UCS-4 would, so even if 
+> you always normalize you'd still be _better_ off with UTF-8 than you would 
+> be with UCS-4.
 
-I'd like to chime in about this.
+Well, if all the UTF-8 diddling is eventually done by glibc, or some
+other library, it might just be made to work.
 
-I'd prefer it be - all the way around (I know I can use either).  Since I
-can ask for module uhci_hcd or uhci-hcd and get uhci-hcd.ko loaded, I've
-been using -.  It's a bit easier to type since I don't have to hit shift for
-each _
+The keep-it-in-UTF-8-all-the-time thing will still break down when a
+user inputs a filename by copying the display of a badly encoded
+filename using GPM, or in X, but that isn't a kernel issue.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+I still don't really get what enforcing strictly standards compliant
+UTF-8 has to do with backwards compatibility, though.
+
+_But_ at least I'm about 5% more confident that filenames won't
+suddenly blow up in my face, so I can sleep soundly tonight :-).
+
+John.

@@ -1,119 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286447AbSAIQg4>; Wed, 9 Jan 2002 11:36:56 -0500
+	id <S286336AbSAIQiq>; Wed, 9 Jan 2002 11:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286336AbSAIQgr>; Wed, 9 Jan 2002 11:36:47 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6061 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S286413AbSAIQgh>; Wed, 9 Jan 2002 11:36:37 -0500
-Date: Wed, 9 Jan 2002 09:36:30 -0700
-Message-Id: <200201091636.g09GaU705860@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Ivan Passos <ivan@cyclades.com>
-Cc: Andrew Morton <akpm@zip.com.au>, "Michael H. Warfield" <mhw@wittsend.com>,
-        David Weinehall <tao@acc.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-In-Reply-To: <3C3B81D7.F1F43495@cyclades.com>
-In-Reply-To: <3C33E0D3.B6E932D6@zip.com.au>
-	<3C33BCF3.20BE9E92@cyclades.com>
-	<200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
-	<200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca>
-	<3C38BC19.72ECE86@zip.com.au>
-	<200201070636.g076asR25565@vindaloo.ras.ucalgary.ca>
-	<3C3A7DA7.381D033D@zip.com.au>
-	<20020108071548.J5235@khan.acc.umu.se>
-	<3C3A9048.CB80061A@zip.com.au>
-	<20020108165851.B26294@alcove.wittsend.com>
-	<3C3B6E96.8FB0341A@zip.com.au>
-	<3C3B81D7.F1F43495@cyclades.com>
+	id <S286413AbSAIQih>; Wed, 9 Jan 2002 11:38:37 -0500
+Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:2556 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S286336AbSAIQia>; Wed, 9 Jan 2002 11:38:30 -0500
+Date: Wed, 9 Jan 2002 16:34:50 +0000
+From: Andy Jeffries <lkml@andyjeffries.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Difficulties in interoperating with Windows
+Message-Id: <20020109163450.77a39cfc.lkml@andyjeffries.co.uk>
+In-Reply-To: <E16OLV2-0001an-00@the-village.bc.nu>
+In-Reply-To: <20020109152823.62f65b7c.andy@i-a.co.uk>
+	<E16OLV2-0001an-00@the-village.bc.nu>
+Organization: Scramdisk Linux
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Passos writes:
-> 
-> Andrew Morton wrote:
-> > 
-> > "Michael H. Warfield" wrote:
-> > >
-> > > The trouble there is the problem with conventional lock files under
-> > > /var/lock which only use the base name of the device name so cua/42
-> > > and cuf/42 both have the same lock file of /var/lock/LCK..42 and
-> > > would collide.
-> > 
-> > OK, thanks.  So it looks like we stick with
-> > 
-> >         http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre2/tty_name.patch
-> > 
-> > Which just puts %d's at the end of all the device names in the
-> > non-devfs case.
-> > 
-> > I'll have another go at that patch, check for missed drivers,
-> > then send it out again.  OK?
-> 
-> OK, just two comments:
-> - As you'll have to patch all drivers anyway, in case Richard Gooch 
->   doesn't have a problem with this suggestion, I'd suggest you patch 
->   the kernel as follows:
-> 
->   (1) drivers/char/tty_io.c
->       ---------------------
-> @@ -193,10 +193,13 @@ _tty_make_name(struct tty_struct *tty, c
-> 
->         if (!tty) /* Hmm.  NULL pointer.  That's fun. */
->                 strcpy(buf, "NULL tty");
->         else
-> -               sprintf(buf, name,
-> -                       idx + tty->driver.name_base);
-> +               sprintf(buf, "%s%d", name, idx + tty->driver.name_base);
->  
->         return buf;
->  }
-> 
->   (2) drivers/char/serial.c
->       ---------------------
-> @@ -5387,7 +5387,7 @@ static int __init rs_init(void)
->         serial_driver.driver_name = "serial";
->  #endif
->  #if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
-> -       serial_driver.name = "tts/%d";
-> +       serial_driver.name = "tts/";
->  #else
->         serial_driver.name = "ttyS";
->  #endif
-> 
-> 
->   (3) drivers/char/whatever_other_driver.c
->       ------------------------------------
-> @@ -5387,7 +5387,7 @@ static int __init wod_init(void)
->         wod_driver.driver_name = "whatever_other_driver";
->  #endif
->  #ifdef CONFIG_DEVFS_FS
-> -       wod_driver.name = "tts/N%d";
-> +       wod_driver.name = "tts/N";
->  #else
->         wod_driver.name = "ttyN";
->  #endif
-> 
->   I've already suggested this in a previous msg, but nobody gave 
->   feedback. I believe this is cleaner, as it removes the %d from 
->   the driver.name field, while fixes the problem I reported.
+On Wed, 9 Jan 2002 16:22:48 +0000 (GMT), "Alan Cox"
+<alan@lxorguk.ukuu.org.uk> wrote:> > for the purposes of interoperability
+surely that is final.  As the> > contract would have been between
+Microsoft UK and you (note I'm only> > discussing the UK and we don't have
+an equivalent of the DMCA here)> 
+> I would not perform such work in the united kingdom. Perform it in a
+free> country. Reverse engineering that might offend a large corporation
+in the UK> is only viable if you have five million pounds to hand, a law
+firm and a> year to kill.
 
-Since you have to change all the drivers anyway, I'd prefer if
-_tty_make_name() was left unchanged, and instead you put the "%d" in
-each driver.name, thusly:
-#ifdef CONFIG_DEVFS_FS
-	wod_driver.name = "tts/N%d";
-#else
-	wod_driver.name = "ttyN%d";
-#endif
+I still don't see why you'd need a lawyer.  They could say all they want
+and hire all the lawyers they'd want...at the end of the day, could you
+just go to court and say:
 
-The reason: maximum flexibility in the kinds of names we can
-support. If for some reason we want a name like "tts/N%d_A" and
-"tts/N%d_B" (say a driver with linked ttys, like the pty driver), we
-don't need to make a global change.
+According to the Copyright, Designs and Patents Act 1988 as amended by the
+Copyright (Computer Programs) Regulations 1992 under section 50B, as
+detailed below:
 
-				Regards,
+Decompilation.
+50B.(1)  It is not an infringement of copyright for a lawful user of a
+copy of a computer program expressed in a low level language?
+      (a) to convert it into a version expressed in a higher level
+language, or
+      (b) incidentally in the course of so converting the program, to copy
+it,
+(that is, to "decompile" it), provided that the conditions in subsection
+(2) are met.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+    (2)  The conditions are that?
+      (a) it is necessary to decompile the program to obtain the
+information necessary to create an independent program which can be
+operated with the program decompiled or with another program ("the
+permitted objective"); and
+      (b) the information so obtained is not used for any purpose other
+than the permitted objective.
+
+    (3)  In particular, the conditions in subsection (2) are not met if
+the lawful user?
+      (a) has readily available to him the information necessary to
+achieve the permitted objective;
+      (b) does not confine the decompiling to such acts as are necessary
+to achieve the permitted objective;
+      (c) supplies the information obtained by the decompiling to any
+person to whom it is not necessary to supply it in order to achieve the
+permitted objective; or
+      (d) uses the information to create a program which is substantially
+similar in its expression to the program decompiled or to do any act
+restricted by copyright.
+
+    (4)  Where an act is permitted under this section, it is irrelevant
+whether or not there exists any term or condition in an agreement which
+purports to prohibit or restrict the act (such terms being, by virtue of
+section 296A, void).
+
+
+The law seems pretty damn clear on this issue (in fact Subsection 3.c
+sounds like I could quite happily send it to someone in the USA if they
+can do the work better than I).
+
+Again, just looking for thoughts...although I hope no-one else uses my i-a
+address ;-)
+
+Cheers,
+
+-- 
+Andy Jeffries                   | Scramdisk Linux Project
+http://www.scramdisklinux.org   | Lead developer
+
+"testing? What's that? If it compiles, it is good, if it boots up 
+ it is perfect."
+  --- Linus Torvalds

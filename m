@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131150AbQLNWmB>; Thu, 14 Dec 2000 17:42:01 -0500
+	id <S129773AbQLNWwO>; Thu, 14 Dec 2000 17:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129666AbQLNWlw>; Thu, 14 Dec 2000 17:41:52 -0500
-Received: from fe3.rdc-kc.rr.com ([24.94.163.50]:59911 "EHLO mail3.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S131150AbQLNWlj>;
-	Thu, 14 Dec 2000 17:41:39 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Chris Lattner <sabre@nondot.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit (and ioctl must die!)
-In-Reply-To: <Pine.GSO.4.21.0012141331460.8287-100000@weyl.math.psu.edu>
-From: Mike Coleman <mcoleman2@kc.rr.com>
-Date: 14 Dec 2000 16:10:46 -0600
-In-Reply-To: Alexander Viro's message of "Thu, 14 Dec 2000 14:11:32 -0500 (EST)"
-Message-ID: <87wvd2mz6h.fsf@subterfugue.org>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129666AbQLNWwE>; Thu, 14 Dec 2000 17:52:04 -0500
+Received: from overdrive.iworld.com ([63.236.72.248]:27908 "EHLO
+	linuxtoday.com") by vger.kernel.org with ESMTP id <S132531AbQLNWvu>;
+	Thu, 14 Dec 2000 17:51:50 -0500
+Date: Thu, 14 Dec 2000 22:16:31 +0000 (UTC)
+From: Marty Pitts <marty@linuxtoday.com>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+cc: David Riley <oscar@the-rileys.net>, linux-kernel@vger.kernel.org
+Subject: Re: test13-pre1 changelog
+In-Reply-To: <Pine.LNX.4.21.0012141210420.10916-100000@sol.compendium-tech.com>
+Message-ID: <Pine.LNX.4.10.10012142210570.20830-100000@overdrive>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
-> ioctl() is avoidable. Proof: Plan 9. They don't _have_ that system call.
-> It doesn't mean that we should (or could) remove it. It _does_ mean that
-> new APIs do not need it.
+On Thu, 14 Dec 2000, Dr. Kelsey Hudson wrote:
 
-*I* sure wish we could.  From the standpoint of trying to trace system calls,
-it's a big stinking black hole.  All of the other syscalls (I think) have
-pretty well defined semantics in terms of what they do to a process' memory
-space, but the semantics of ioctl are "may read or write any memory
-whatsoever, and if you want to know what, well, it sucks to be you".
+> On Thu, 14 Dec 2000, David Riley wrote:
+> 
+> > Did I miss a post from Linus on the list, or is there no posted
+> > changelog for test13-pre1?  Nothing's posted at kernel.org yet, either.
+> > 
+> 
+> I musta missed the post too... But then again I went back and looked for
+> it and couldnt find it so...
+> 
+> i'd like to know what changed, anyways :)
+> 
+Occasionally Linus will put out a 'pre' release that is not for 'public
+consumption', as was the case in 2.4.0-test12pre1.
 
-Even NT does this better, if I'm interpreting this correctly:
+Subsequent 'pre' releases will show the the change log for test13pre1.  
 
-   http://msdn.microsoft.com/library/psdk/winbase/devio_9quk.htm
+We just have to be patient. 8-)
 
---Mike
+--
+Marty Pitts
+Linux Today
+http://linuxtoday.com
 
-
--- 
-[O]ne of the features of the Internet [...] is that small groups of people can
-greatly disturb large organizations.  --Charles C. Mann
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

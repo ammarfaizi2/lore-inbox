@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287051AbSABW3e>; Wed, 2 Jan 2002 17:29:34 -0500
+	id <S287089AbSABWcY>; Wed, 2 Jan 2002 17:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287027AbSABW3Q>; Wed, 2 Jan 2002 17:29:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41230 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287040AbSABW2i>; Wed, 2 Jan 2002 17:28:38 -0500
-Subject: Re: ISA slot detection on PCI systems?
-To: esr@thyrsus.com
-Date: Wed, 2 Jan 2002 22:39:27 +0000 (GMT)
-Cc: davej@suse.de (Dave Jones), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020102170833.A17655@thyrsus.com> from "Eric S. Raymond" at Jan 02, 2002 05:08:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287069AbSABWcQ>; Wed, 2 Jan 2002 17:32:16 -0500
+Received: from fep02.swip.net ([130.244.199.130]:42694 "EHLO
+	fep02-svc.swip.net") by vger.kernel.org with ESMTP
+	id <S287084AbSABWcC>; Wed, 2 Jan 2002 17:32:02 -0500
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] scheduler fixups ...
+In-Reply-To: <Pine.LNX.4.40.0201021236390.1034-100000@blue1.dev.mcafeelabs.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Jan 2002 23:31:04 +0100
+In-Reply-To: <Pine.LNX.4.40.0201021236390.1034-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <m28zbgpeqf.fsf@pengo.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Lu2i-0005nd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, that's my point.  Saying "just make it suid" is not a good answer, 
-> because it ignores the fact that smart sysdamins don't want to run suid
-> programs more than absolutely necessary.  Not to mention screwing people
-> who follow Linus's good advice and configure/build kernels as non-root.
+Davide Libenzi <davidel@xmailserver.org> writes:
 
-So you want the lowest possible priviledge level. Because if so thats
-setuid app not kernel space. Arguing about the same code in either kernel
-space verus setuid app space is garbage.
+> a still lower ts
 
-Alan
+This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
+run two cpu hogs at nice values 0 and 19 respectively, the niced task
+will get approximately 20% cpu time (on x86 with HZ=100) and this
+patch will give even more cpu time to the niced task. Isn't 20% too
+much?
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265279AbRFUWzA>; Thu, 21 Jun 2001 18:55:00 -0400
+	id <S262658AbRFUW7W>; Thu, 21 Jun 2001 18:59:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265278AbRFUWyu>; Thu, 21 Jun 2001 18:54:50 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:62938 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S265279AbRFUWyi>;
-	Thu, 21 Jun 2001 18:54:38 -0400
-Message-ID: <3B327B2A.26DBC2C4@candelatech.com>
-Date: Thu, 21 Jun 2001 15:54:34 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Guy Van Den Bergh <guy.vandenbergh@pandora.be>
-CC: linux-kernel@vger.kernel.org, Holger Kiehl <Holger.Kiehl@dwd.de>,
-        "David S. Miller" <davem@redhat.com>,
-        VLAN Mailing List <vlan@Scry.WANfear.com>,
-        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
-        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
-Subject: Re: [Vlan-devel] Should VLANs be devices or something else?
-In-Reply-To: <Pine.LNX.4.30.0106191016200.27487-100000@talentix.dwd.de> <3B2FCE0C.67715139@candelatech.com> <3B3270C4.3080103@pandora.be>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265278AbRFUW7L>; Thu, 21 Jun 2001 18:59:11 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:29349 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262658AbRFUW7A>;
+	Thu, 21 Jun 2001 18:59:00 -0400
+Date: Fri, 22 Jun 2001 00:58:53 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106212258.AAA370096.aeb@vlet.cwi.nl>
+To: jari.ruusu@pp.inet.fi, torvalds@transmeta.com
+Subject: Re: loop device broken in 2.4.6-pre5
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guy Van Den Bergh wrote:
-> 
-> Maybe this has been discussed already, but what about integration
-> with the bridging code? Is it possible to add add a vlan interface to a
-> bridge? In other words, can you bridge between one or more regular
-> interfaces and a vlan?
-> 
-> Regards,
-> Guy
+    From: Jari Ruusu <jari.ruusu@pp.inet.fi>
 
-I hear it does work with the bridging code, just as you would expect
-it to.  I have not tried it personally...
+    File backed loop device on 4k block size ext2 filesystem:
 
-Ben
+    # dd if=/dev/zero of=file1 bs=1024 count=10
+    10+0 records in
+    10+0 records out
+    # losetup /dev/loop0 file1
+    # dd if=/dev/zero of=/dev/loop0 bs=1024 count=10 conv=notrunc
+    dd: /dev/loop0: No space left on device
+    9+0 records in
+    8+0 records out
+    # tune2fs -l /dev/hda1 2>&1| grep "Block size"
+    Block size:               4096
+    # uname -a
+    Linux debian 2.4.6-pre5 #1 Thu Jun 21 14:27:25 EEST 2001 i686 unknown
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+    Stock 2.4.5 and 2.4.5-ac15 don't have this problem.
+
+I am not sure there is an error here.
+
+The default block size of a loop device is that of the underlying device.
+There was a kernel bug that was recently fixed, where the block size
+of a file backed loop device could be essentially random.
+So, earlier you happened to get blocksize 1024, and you had room for
+10 blocks of size 1024.
+Now you have blocksize 4096, and you have room for 2 blocks of size 4096.
+There are no fractional blocks at the end of a block device.
+
+Andries

@@ -1,78 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUHUScc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUHUSgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267625AbUHUScc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 14:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHUScb
+	id S267624AbUHUSgq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 14:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUHUSgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 14:32:31 -0400
-Received: from ppp2-adsl-157.the.forthnet.gr ([193.92.233.157]:28455 "EHLO
-	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
-	id S267625AbUHUScA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 14:32:00 -0400
-From: V13 <v13@priest.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Subject: Re: Possible dcache BUG
-Date: Sat, 21 Aug 2004 21:31:31 +0300
-User-Agent: KMail/1.7
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Marc Ballarin <Ballarin.Marc@gmx.de>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408201608.51038.gene.heskett@verizon.net> <20040821092556.GA14991@ip68-4-98-123.oc.oc.cox.net>
-In-Reply-To: <20040821092556.GA14991@ip68-4-98-123.oc.oc.cox.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12569762.SpULFajyao";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 21 Aug 2004 14:36:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41362 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267624AbUHUSgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 14:36:45 -0400
+Date: Sat, 21 Aug 2004 11:34:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, torvalds@osdl.org, kaos@sgi.com
+Subject: Re: [PATCH][1/4] Completely out of line spinlocks / i386
+Message-Id: <20040821113459.14b9d4ad.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408211320520.27390@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408211320520.27390@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408212131.38019.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart12569762.SpULFajyao
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Saturday 21 August 2004 12:25, Barry K. Nathan wrote:
-> > Memtest86 may not know howto enable it if its an
-> > nforce2 option.  Whatever cache shown as switchable in the bios,
-> > turning it off makes a very sick bird out of the machine, like a
-> > 33mhz 386sx?
+Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
 >
-> Yeah, disabling the L2 cache on a modern CPU makes it really slow. But,
-> it's still a useful troubleshooting option...
+> It's been benchmarked with bonnie++ on 2x and 4x PIII
 
-When I had the problem described in my previous mail I came to the concluss=
-ion=20
-that it was related with cache *BUT* it seemed that the cache was just=20
-caching wrong data. Disabling the cache would just reduce the problem.
-
-One reason for this is that when the program detected errors in a buffer (i=
-=2Ee.=20
-0x1234 instead of 0x1111) then they would NOT go away if the program was=20
-reading from this buffer all the time. This means that the cache always=20
-returned the same data. The error was 'gone' every time the program was=20
-suspended for a while or when something else used a lot of memory (i.e.=20
-another instance of this program).
-
-So, I'm not suggesting that his cache is faulty but that there can be a CPU=
-=20
-(or even a M/B) problem that corrupts data when they are transfered from=20
-memory to the processor.
-
-> -Barry K. Nathan <barryn@pobox.com>
-<<V13>>
-
---nextPart12569762.SpULFajyao
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBJ5UJVEjwdyuhmSoRAig6AJ904SwtzHs4j+kPwwbp5+l4REVfZwCgs0N/
-1Q6uq26BVoQ54jmr8MdjfJM=
-=Ka+W
------END PGP SIGNATURE-----
-
---nextPart12569762.SpULFajyao--
+What were the results?

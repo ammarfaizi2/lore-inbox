@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287530AbRLaNNr>; Mon, 31 Dec 2001 08:13:47 -0500
+	id <S287514AbRLaNSQ>; Mon, 31 Dec 2001 08:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287529AbRLaNNd>; Mon, 31 Dec 2001 08:13:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43022 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287527AbRLaNM7>; Mon, 31 Dec 2001 08:12:59 -0500
-Subject: Re: [patch] A slightly smarter dmi_scan.c ?
-To: ioshadi@sltnet.lk (Alvin of Diaspar)
-Date: Mon, 31 Dec 2001 13:23:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, james@and.org
-In-Reply-To: <3C309FB1.63544633@sltnet.lk> from "Alvin of Diaspar" at Dec 31, 2001 11:26:09 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S287512AbRLaNR4>; Mon, 31 Dec 2001 08:17:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63497 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287509AbRLaNRq>;
+	Mon, 31 Dec 2001 08:17:46 -0500
+Date: Mon, 31 Dec 2001 14:17:32 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: merge in progress.
+Message-ID: <20011231141732.G7130@suse.de>
+In-Reply-To: <20011231140455.F7130@suse.de> <E16L2Nu-000530-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16L2Pa-00053f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16L2Nu-000530-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	James, Alan is right. No need for #ifdef's *when* (and only when)
-> there's a better way to do it. Thanks.
+On Mon, Dec 31 2001, Alan Cox wrote:
+> > On Mon, Dec 31 2001, Alan Cox wrote:
+> > > > Things unlikely to merge yet.
+> > > > o  Alans aacraid driver (not bio aware)
+> > > 
+> > > Thats fine. I don't plan to worry about that until 2.5 is a lot more stable.
+> > 
+> > I'm assuming you mean stable wrt code base changes, otherwise I'd like
+> > to hear about any instability of the kernel wrt bio.
+> 
+> Until I am sure the block I/O layer is totally stable and the changes to
+> both it and the scsi layer are complete.
 
-Looks ok to me
+Fair enough
+
+-- 
+Jens Axboe
+

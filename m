@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316842AbSHBUTZ>; Fri, 2 Aug 2002 16:19:25 -0400
+	id <S316857AbSHBU2g>; Fri, 2 Aug 2002 16:28:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSHBUTZ>; Fri, 2 Aug 2002 16:19:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1042 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316842AbSHBUTZ>;
-	Fri, 2 Aug 2002 16:19:25 -0400
-Message-ID: <3D4AE995.DFD862EF@zip.com.au>
-Date: Fri, 02 Aug 2002 13:20:37 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S316903AbSHBU2g>; Fri, 2 Aug 2002 16:28:36 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:16865 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316857AbSHBU2f>;
+	Fri, 2 Aug 2002 16:28:35 -0400
+Date: Fri, 02 Aug 2002 15:31:53 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.30] Allow tasks to share credentials
+Message-ID: <98040000.1028320313@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.33.0208021309200.2466-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.33.0208021309200.2466-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <E17aiJv-0007cr-00@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> This patch eliminates about 35% of the raw rmap setup/teardown overhead by
-> adopting a new locking interface that allows the add_rmaps to be batched in
-> copy_page_range.
 
-Well that's fairly straightforward, thanks.  Butt-ugly though ;)
+--On Friday, August 02, 2002 01:10:48 PM -0700 Linus Torvalds
+<torvalds@transmeta.com> wrote:
 
-Don't bother doing teardown yet.  I have patches which batch
-all the zap_page_range activity into 16-page chunks, so we
-eventually end up in a single function with 16 virtually-contiguous
-pages to release.  Adding the batched locking to that will
-be simple.
+> This still has the "security hole you can run a slow-moving bight yellow
+> truck with flashing lights on through" problem..
 
-Sigh.  I have a test which sends the 2.5.30 VM into a five-minute
-coma and which immediately panics latest -ac with pte_chain oom.
-Remind me again why all this is worth it?
+My apologies. I've been trying to get a copy of the patch that lkml would
+accept, and had not seen your reply when I sent that one out.  I'll rework
+the patch and resubmit.
 
-I'll port your stuff to 2.5 over the weekend, let you know...
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

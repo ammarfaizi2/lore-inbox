@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270584AbUJTXWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270588AbUJTX2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270584AbUJTXWx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270472AbUJTXWs
+	id S270588AbUJTX2k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270589AbUJTX2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:22:48 -0400
-Received: from wang.choosehosting.com ([212.42.1.230]:6801 "EHLO
-	wang.choosehosting.com") by vger.kernel.org with ESMTP
-	id S270276AbUJTXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:22:07 -0400
-From: Thomas Stewart <thomas@stewarts.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Subject: Re: belkin usb serial converter (mct_u232), break not working
-Date: Thu, 21 Oct 2004 00:04:13 +0100
-User-Agent: KMail/1.6.2
-References: <200410201946.35514.thomas@stewarts.org.uk> <200410202308.02624.thomas@stewarts.org.uk> <1098311228.6006.3.camel@at2.pipehead.org>
-In-Reply-To: <1098311228.6006.3.camel@at2.pipehead.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-X-PGP-Key: http://www.stewarts.org.uk/public-key.asc
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 20 Oct 2004 19:28:39 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52947 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269186AbUJTX0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:26:03 -0400
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Timothy Miller <miller@techsource.com>,
+       Andrea Arcangeli <andrea@novell.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1098298310.12411.11.camel@localhost.localdomain>
+References: <593560000.1094826651@[10.10.2.4]>
+	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+	 <20040910151538.GA24434@devserv.devel.redhat.com>
+	 <20040910152852.GC15643@x30.random>
+	 <20040910153421.GD24434@devserv.devel.redhat.com>
+	 <41768858.8070709@techsource.com>
+	 <20041020153521.GB21556@devserv.devel.redhat.com>
+	 <1098290345.1429.65.camel@krustophenia.net>
+	 <1098298310.12411.11.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1098314395.2758.5.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 19:19:56 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410210004.13214.thomas@stewarts.org.uk>
-X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-21 00:22:04
-X-Spam-Score: 0.0
-X-Spam-Bars: /
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 October 2004 23:21, you wrote:
-> What kernel version are you running?
+On Wed, 2004-10-20 at 14:51, Alan Cox wrote:
+> On Mer, 2004-10-20 at 17:39, Lee Revell wrote:
+> > The IDE I/O completion in hardirq context means that one can run for
+> > almost 3ms.  Apparently at OLS it was decided that the target for
+> > desktop responsiveness was 1ms.  So this is a real problem.
+> > 
+> > What exactly do you mean by "draconian"?
+> 
+> It means "fix the ide layer", patches welcome. 
+> 
 
-2.6.8.1
+In addition to the IDE layer how about this (from the link in my
+previous mail):
 
-Well, a stock debian one out of sarge, kernel-image-2.6.8-1-686-smp, configs 
-at http://www.stewarts.org.uk/stuff/config-2.6.8-1-686. There is not much 
-difference between a stock 2.6.8.1 and the debian 2.6.8:-
-http://www.stewarts.org.uk/stuff/debian.2.6.8.patch
+On Sat, 2004-07-24 at 02:43, Ingo Molnar wrote: 
+> 
+> Another thing would be to create a compound structure for bio and
+> [typical sizes of] bio->bi_io_vec and free them as one entity, this
+> would get rid of one of the cachemisses. (there cannot be a 3-way
+> compound structure that includes the bh too because the bh is freed
+> later on by ext3.)
+> 
 
-On Wednesday 20 October 2004 23:27, you wrote:
-> Can you record and display the return code from the ioctl()?
+Sounds like a big win for any user of the bio layer, if it's as
+straightforward as Ingo says...
 
-porttest.c:
-#include <sys/fcntl.h>
-#include <sys/ioctl.h>
-main(int argc, char ** argv) {
-        int r, fd = open(argv[1], O_RDWR|O_NOCTTY);
-        r=ioctl(fd, TCSBRKP, 20);
-        printf("%d\n", r);
-        close(fd);
-}
+Lee
 
-$ ./porttest /dev/ttyS0
-0
-$ ./porttest /dev/ttyUSB0
-0
-
-Regards
--- 
-Tom
-
-PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
-PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
-PGP ID  [0x68A70C48]

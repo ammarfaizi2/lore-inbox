@@ -1,53 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269778AbRHYRBB>; Sat, 25 Aug 2001 13:01:01 -0400
+	id <S269795AbRHYRFv>; Sat, 25 Aug 2001 13:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269779AbRHYRAv>; Sat, 25 Aug 2001 13:00:51 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:19724 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269778AbRHYRAn>;
-	Sat, 25 Aug 2001 13:00:43 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200108251700.VAA22595@ms2.inr.ac.ru>
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
-To: Gunther.Mayer@t-online.de (Gunther Mayer)
-Date: Sat, 25 Aug 2001 21:00:49 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B877D8B.67D53F82@t-online.de> from "Gunther Mayer" at Aug 25, 1 12:27:23 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S269796AbRHYRFn>; Sat, 25 Aug 2001 13:05:43 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:49672 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S269795AbRHYRFX>; Sat, 25 Aug 2001 13:05:23 -0400
+Date: Sat, 25 Aug 2001 19:05:26 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: David Schmitt <david@heureka.co.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
+In-Reply-To: <20010824162425.D27794@www.heureka.co.at>
+Message-ID: <Pine.LNX.4.10.10108251801480.13314-100000@ada.teststation.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 24 Aug 2001, David Schmitt wrote:
 
-> Before you use onboard resources you should know what it is !
-> Surely you don't want to place a PCI ioport window over unknown ports
-> (as this is what yenta did).
+> Aug 24 11:15:07 cheesy kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Aug 24 11:15:07 cheesy kernel: eth0: Transmit timed out, status 0000, PHY status 782d, resetting...
+> Aug 24 11:15:07 cheesy kernel: eth0: reset did not complete in 10 ms.
+> Aug 24 11:15:07 cheesy kernel: eth0: reset finished after 10005 microseconds.
+> Aug 24 11:15:07 cheesy kernel: eth0: Transmit frame #1 queued in slot 0.
+[snip]
+> Aug 24 11:15:07 cheesy kernel: eth0: Transmit frame #10 queued in slot 9.
+> Aug 24 11:15:09 cheesy kernel: eth0: VIA Rhine monitor tick, status 0000.
+> Aug 24 11:15:11 cheesy kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Aug 24 11:15:11 cheesy kernel: eth0: Transmit timed out, status 0000, PHY status 782d, resetting...
+> Aug 24 11:15:11 cheesy kernel: eth0: reset did not complete in 10 ms.
+> Aug 24 11:15:11 cheesy kernel: eth0: reset finished after 10005 microseconds.
+> 
+> 	Reloading the module doesn't help either. Only a reboot
+> 	reenables network connectivity.
 
-This is right.
+There is a patch in the 2.4.8-acX kernels that fixes a problem with
+reseting the card when it is first used. I can't say that I know that it
+fixes anything you are seeing, but it could be worth trying.
 
-Though, to make situation more clean explain me one much simpler thing:
-look at these lines from beginning of my lspnp -v:
+Did this start with recent versions, or have you never run older kernels
+on this hw?
 
-00 PNP0c01 System board
-        mem 0x00000000-0x0009ffff
-        mem 0x00100000-0x0bfdffff
-        mem 0x0bfe0000-0x0bfeffff
-        mem 0x000e0000-0x000fffff
-        mem 0xffff0000-0xffffffff
+Reloading the module is to the hardware about the same as the watchdog
+reset.
 
-Look at line mem 0x0bfe0000-0x0bfeffff. I hope you never saw this
-motherboard before, like this happens with our poor kernel,
-so you are not in better position. Imagine, you are kernel,
-and decide are you allowed to use these 64K or not? :-)
+Rebooting obviously triggers something else too ... perhaps the BIOS talks
+some sense to the card.
 
-Additional information: bios-e820 reports this area as ram in one block
-with all the rest of memory 0x00100000-0x0bfeffff.
+> [6.] A small shell script or example program which triggers the
+> 	problem (if possible)
+> 
+> 	Downloading amounts of data (>50MB) will eventually trigger
+> 	the problem. Transmitting data at less than full speed will
+> 	not trigger it (or at least I haven't waited long enough?)
+
+What do you use to download? from a server on the LAN or something remote?
+and how do you slow down the speed of your transmission? How fast is it
+when it is fast, and how much do you slow it down?
+
+My other machine does not have anything useful installed, but it did have
+chargen and discard open.
+
+nc other.machine chargen > /dev/null
+	iptraf says about 64Mbps
+nc other.machine discard < /dev/zero
+	iptraf says about 44Mbps
+
+Sending about 1.5G in both directions, without problems. I used to have a
+netperf setup and that would (more or less) fill the 100Mbps.
 
 
-> What docs ?
+> [X.] Other notes, patches, fixes, workarounds
+> 
+> Further information from lspci, via-diag and ifconfig output as well
+> as well as complete kernel syslog from boot to network-lock can be
+> found on http://www.heureka.co.at/~david/dfe530tx/
 
-Intel datashits from developer.intel.com.
+The syslog gives a few hints that something is wrong ...
 
-Alexey
+eth0: Transmit error, Tx status 00008100.
+	8 - transmit error
+	1 - transmit aborted after excessive collisions
+
+but at the same time the 00 part means that the "collision retry count" is
+0 and that it hasn't set a flag that it "experienced collisions in this
+transmit event".
+
+I think there were 3 of these, and from all but the last it recovers by
+itself. Perhaps the collisions (or whatever it is that the card sees as
+collisions) continued for a longer period.
+
+It ends up in "eth0: transmit timed out" and the driver tries to reset the
+card. That does not appear to work at all.
+
+
+It's a nice report, I wish I had something more useful to reply with.
+
+The driver source has links to some datasheets. They might be useful in
+improving the reset code.
+(Hmm, the tx_timeout code does: reset -> initialise ring -> wait for hw
+ but initialise ring talks to the hw, perhaps it should wait for hw first
+ ...)
+
+/Urban
 

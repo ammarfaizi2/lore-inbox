@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275398AbRIZSJb>; Wed, 26 Sep 2001 14:09:31 -0400
+	id <S275420AbRIZSLV>; Wed, 26 Sep 2001 14:11:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275405AbRIZSJV>; Wed, 26 Sep 2001 14:09:21 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:43652 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S275398AbRIZSJM>;
-	Wed, 26 Sep 2001 14:09:12 -0400
-Subject: Re: Locking comment on shrink_caches()
-To: davej@suse.de (Dave Jones)
-Date: Wed, 26 Sep 2001 19:07:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        davem@redhat.com (David S. Miller), bcrl@redhat.com,
-        marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de> from "Dave Jones" at Sep 26, 2001 07:59:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mJ5S-0001LS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S275418AbRIZSLL>; Wed, 26 Sep 2001 14:11:11 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:17413 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S275416AbRIZSK7>; Wed, 26 Sep 2001 14:10:59 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: login vs. portmap revisited
+Date: Wed, 26 Sep 2001 18:11:21 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9ot5o9$uuk$4@ncc1701.cistron.net>
+In-Reply-To: <20010926131931.D5832@emma1.emma.line.org>
+X-Trace: ncc1701.cistron.net 1001527881 31700 195.64.65.67 (26 Sep 2001 18:11:21 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> nothing: 30 cycles
-> locked add: 31 cycles
-> cpuid: 79 cycles
-> 
-> Only slightly worse, but I'd not expected this.
-> This was from a 866MHz part too, whereas you have a 533 iirc ?
+In article <20010926131931.D5832@emma1.emma.line.org>,
+Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
+>I recently dug through the mail archives to figure why my login requires
+>portmap. It seems that poll or recvfrom return semantics  have changed
+>from 2.2 to 2.4, and some login or PAM didn't track the change.
 
-The 0.13u part has a couple more pipeline steps I believe
+It's probably NIS.
+
+>Does anyone have details on this? Whom do I ask for updates? PAM guys?
+>glibc guys? "login" maintainer?
+
+Yep, all those, but NOT the kernel development mailinglist.
+
+Mike.
+-- 
+"I think...I think it's in my basement. Let me go upstairs and check."
+	-- M.C. Escher (1898-1972)
+

@@ -1,43 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264048AbTH1PsK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTH1PsJ
+	id S264082AbTH1P4X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTH1P4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:48:09 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:9476 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S264048AbTH1PsH (ORCPT
+	Thu, 28 Aug 2003 11:56:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21225 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264082AbTH1P4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:48:07 -0400
-To: linux-kernel@vger.kernel.org
-Message-ID: <3F4E23EC.6080609@_netscape_._net_>
-Date: Thu, 28 Aug 2003 17:46:52 +0200
-From: David Zaffiro <davzaffiro@tasking.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021220 Debian/1.2.1-3
-X-Accept-Language: nl, en-us
-MIME-Version: 1.0
-Subject: Re: Looking for tunable hardware parameters in 2.4.22
-References: <200308262313.h7QNDKIu007249@twopit.underworld>
-In-Reply-To: <200308262313.h7QNDKIu007249@twopit.underworld>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 28 Aug 2003 11:56:10 -0400
+Date: Thu, 28 Aug 2003 08:59:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] floppy driver cleanup
+Message-Id: <20030828085916.035632ce.akpm@osdl.org>
+In-Reply-To: <16205.58701.762150.49446@gargle.gargle.HOWL>
+References: <20030827224135.75f344dd.rddunlap@osdl.org>
+	<16205.58701.762150.49446@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-NNTP-Posting-Host: 172.17.1.72
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This board has suddenly become unstable when there is a CPU in what
-> the motherboard calls "slot 2" and when the FSB is 133 MHz. The
-> motherboard is fine when either:
-> a) both CPUs are installed, and the FSB is set to 100 MHz, or
-> b) the CPU is removed from slot 2 and the FSB is set to 133 MHz.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Randy.Dunlap writes:
+>  > -static void schedule_bh( void (*handler)(void*) )
+>  > +static void schedule_bh(void (*handler) (void *))
+> ...
+>  > -		schedule_bh( (void *)(void *) handler);
+>  > +		schedule_bh((void *) handler);
+> ...
+>  > -	schedule_bh((void *)(void *)handler);
+>  > +	schedule_bh((void *) handler);
+> ...
+>  > -		schedule_bh( (void *)(void *) floppy_start);
+>  > +		schedule_bh((void *) floppy_start);
+> ...
+>  > -	schedule_bh( (void *)(void *) redo_fd_request);
+>  > +	schedule_bh((void *) redo_fd_request);
 > 
-> I've swapped the CPUs around and tried replacing them entirely to no
-> avail, and so I know these CPUs are OK. I've also run memtest 3.0 over
-> the memory for almost 6 hours (with FSB=133 MHz; 3 times through the
-> entire RAM) with no problems, so I'm sure the RAM is OK too.
+> Am I the only one having problems with code like this?
+> (Not Randy's, the original.)
 
-I'm probably of no use to you at all, but there's a slight chance that you're suffering from the same problem as I did a while ago... Since two CPU's at 100MHz consume less power than at 133MHz, it just might be that your PSU doesn't deliver enough power, you could messure the voltages and check this... I've suffered from that problem, buying a more powerfull 350W PSU *really* helped me...
+No, you're not - I also instapuked over that.
 
-Of course there's also a chance that it's somewhat software related... ;-)
 
+
+diff -puN drivers/block/floppy.c~floppy-more-cleanup drivers/block/floppy.c
+--- 25/drivers/block/floppy.c~floppy-more-cleanup	2003-08-27 22:51:16.000000000 -0700
++++ 25-akpm/drivers/block/floppy.c	2003-08-27 22:56:54.000000000 -0700
+@@ -1007,9 +1007,9 @@ static void empty(void)
+ 
+ static DECLARE_WORK(floppy_work, NULL, NULL);
+ 
+-static void schedule_bh(void (*handler) (void *))
++static void schedule_bh(void (*handler) (void))
+ {
+-	PREPARE_WORK(&floppy_work, handler, NULL);
++	PREPARE_WORK(&floppy_work, (void (*)(void *))handler, NULL);
+ 	schedule_work(&floppy_work);
+ }
+ 
+@@ -1799,9 +1799,9 @@ irqreturn_t floppy_interrupt(int irq, vo
+ 			max_sensei--;
+ 		} while ((ST0 & 0x83) != UNIT(current_drive) && inr == 2 && max_sensei);
+ 	}
+-	if (handler) {
+-		schedule_bh((void *) handler);
+-	} else
++	if (handler)
++		schedule_bh(handler);
++	else
+ 		FDCS->reset = 1;
+ 	is_alive("normal interrupt end");
+ 
+@@ -2063,7 +2063,7 @@ static int wait_til_done(void (*handler)
+ {
+ 	int ret;
+ 
+-	schedule_bh((void *) handler);
++	schedule_bh(handler);
+ 
+ 	if (command_status < 2 && NO_SIGNAL) {
+ 		DECLARE_WAITQUEUE(wait, current);
+@@ -2974,7 +2974,7 @@ static void redo_fd_request(void)
+ 
+ 		if (TESTF(FD_NEED_TWADDLE))
+ 			twaddle();
+-		schedule_bh((void *) floppy_start);
++		schedule_bh(floppy_start);
+ #ifdef DEBUGT
+ 		debugt("queue fd request");
+ #endif
+@@ -2993,7 +2993,7 @@ static struct cont_t rw_cont = {
+ static void process_fd_request(void)
+ {
+ 	cont = &rw_cont;
+-	schedule_bh((void *) redo_fd_request);
++	schedule_bh(redo_fd_request);
+ }
+ 
+ static void do_fd_request(request_queue_t * q)
+@@ -3057,9 +3057,9 @@ static void reset_intr(void)
+ 
+ static struct cont_t reset_cont = {
+ 	.interrupt = reset_intr,
+-	. redo = success_and_wakeup,
+-	. error = generic_failure,
+-	. done = generic_done
++	.redo = success_and_wakeup,
++	.error = generic_failure,
++	.done = generic_done
+ };
+ 
+ static int user_reset_fdc(int drive, int arg, int interruptible)
+
+_
 

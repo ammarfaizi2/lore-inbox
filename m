@@ -1,96 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVAKQJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVAKQKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbVAKQJm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVAKQJm
+	id S262813AbVAKQKc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVAKQKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:09:42 -0500
-Received: from penguin.cohaesio.net ([212.97.129.34]:55739 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S262816AbVAKQJO convert rfc822-to-8bit
+	Tue, 11 Jan 2005 11:10:32 -0500
+Received: from penguin.cohaesio.net ([212.97.129.34]:700 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S262813AbVAKQKW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:09:14 -0500
+	Tue, 11 Jan 2005 11:10:22 -0500
 From: Anders Saaby <as@cohaesio.com>
 Organization: Cohaesio A/S
 To: linux-kernel@vger.kernel.org
-Subject: Re: panic - Attempting to free lock with active block list
-Date: Tue, 11 Jan 2005 17:09:42 +0100
+Subject: Re: Bad things happening to journaled filesystem machines; Was: Oops in kjournald
+Date: Tue, 11 Jan 2005 17:10:53 +0100
 User-Agent: KMail/1.7.2
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501111709.42934.as@cohaesio.com>
-X-OriginalArrivalTime: 11 Jan 2005 16:09:11.0596 (UTC) FILETIME=[E3515EC0:01C4F7F7]
+Message-Id: <200501111710.53730.as@cohaesio.com>
+X-OriginalArrivalTime: 11 Jan 2005 16:10:22.0221 (UTC) FILETIME=[0D69E3D0:01C4F7F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Myklebust(s) :)
+Hi,
 
-I have seen the exact same error on one of my webservers which is serving
-from an NFS export and under heavy load. ~2 hours uptime before panic'ing.
-I then tried Trond's patch which seems to work. 14 hours of uptime now. :)
+Well I just want to count my self in. - I have had quite a few of these
+errors,
+both on XFS and EXT3. I tried a lot of different 2.6.x kernels without
+luck. (See other mails here on LKML from me and Jakob Oestergaard et al.) 
 
-Anyways, I have a couple of issues you might be able to clear up for me:
+It seems something is very broken in VFS(?) on 2.6 (atleast after 2.6.5,
+which was the last kernel I didn't see this on, but had other errors that
+forced me away from it).
 
-First issue:
-New strange message in the kernel log:
+Sadly it looks to me as if either noone cares (enough) about this, or noone
+is capable of fixing it (myself included). :( 
 
-"nlmclnt_lock: VFS is out of sync with lock manager!"
+- 2.4.28 fixed it for me. - Just have to live with the poor performance.
 
-- What does this mean? - Is it bad?, What can i do?
+Jeffrey E. Hundstad wrote:
 
-
-Second issue:
-my fs/nfs/file.c doesn't look like yours (Vanilla 2.6.10):
-
-<fs/nfs/file.c SNIP>
-        status = NFS_PROTO(inode)->lock(filp, cmd, fl);
-        /* If we were signalled we still need to ensure that
-         * we clean up any state on the server. We therefore
-         * record the lock call as having succeeded in order to
-         * ensure that locks_remove_posix() cleans it out when
-         * the process exits.
-         */
-        if (status == -EINTR || status == -ERESTARTSYS)
-                posix_lock_file_wait(filp, fl);
-        unlock_kernel();
-        if (status < 0)
-                return status;
-        /*
-         * Make sure we clear the cache whenever we try to get the lock.
-         * This makes locking act as a cache coherency point.
-         */
-        filemap_fdatawrite(filp->f_mapping);
-        down(&inode->i_sem);
-        nfs_wb_all(inode);      /* we may have slept */
-        up(&inode->i_sem);
-        filemap_fdatawait(filp->f_mapping);
-        nfs_zap_caches(inode);
-        return 0;
-</SNIP>
-
-So... Am I missing another patch or something else?
-
-Jan-Frode Myklebust wrote:
-
-> On Wed, Jan 05, 2005 at 10:54:03PM +0100, Trond Myklebust wrote:
->> 
->> Looking at the NFS code, I can attempt a wild guess about what may be
->> happening: there may be a race when pressing ^C in the middle of a
->> blocking NFS lock RPC call, and if so, the following patch will fix it.
+> I've had 4 machines do the similiar things.  It happens during backups
+> or during updatedb.  This has happened on 2.6.9, 2.6.10, 2.6.10-ac7, and
+> 2.6.10-ac8.  I've seen several similiar reports with journaled file
+> systems.  I use XFS exclusively; but have seen reports on XFS and EXT3.
+> I would report something more useful but what I'm usually left with is
+> XFS unmounted and nothing useful on the screen.  This has been on Xeon,
+> Pentium-3 and Athlon systems. ...wish I could report more but perhaps it
+> will add /part/ of a data point.
 > 
-> 
-> A whopping 9 hours of uptime now :) So the one-liner patch seems to have
-> fixed it.
-> 
-> Thanks!
-> 
->> -   posix_lock_file(filp, fl);
->> +   posix_lock_file_wait(filp, fl);
-> 
-> 
->   -jf
 
 -- 
 Med venlig hilsen - Best regards - Meilleures salutations

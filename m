@@ -1,131 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTIIBFH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 21:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTIIBFH
+	id S263864AbTIIBEA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 21:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTIIBEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 21:05:07 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:29419 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S263870AbTIIBEp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 21:04:45 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3766E.588EA4C4"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: [Patch] asm workarounds in generic header files
-Date: Mon, 8 Sep 2003 18:04:40 -0700
-Message-ID: <A609E6D693908E4697BF8BB87E76A07A022114BC@fmsmsx408.fm.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] asm workarounds in generic header files
-Thread-Index: AcN2blh6yIzeFTtzTdqmKY7NfoqQgQ==
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 09 Sep 2003 01:04:40.0725 (UTC) FILETIME=[58F22450:01C3766E]
+	Mon, 8 Sep 2003 21:04:00 -0400
+Received: from holomorphy.com ([66.224.33.161]:37799 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263864AbTIIBDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 21:03:54 -0400
+Date: Mon, 8 Sep 2003 18:05:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Use of AI for process scheduling
+Message-ID: <20030909010504.GE1715@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Timothy Miller <miller@techsource.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3F5CD863.4020605@techsource.com> <20030908225749.GJ4306@holomorphy.com> <20030908230621.GC17441@matchmail.com> <20030908231439.GK4306@holomorphy.com> <3F5D1D32.7020704@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F5D1D32.7020704@techsource.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+I thought better of sending this as it seemed perhaps too unfriendly,
+but after pasting a few lines of it on IRC, it appears some people
+found it humorous. So, on with the diatribe^Wshow:
 
-------_=_NextPart_001_01C3766E.588EA4C4
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+William Lee Irwin III wrote:
+>> Worse than useless unless backed by code. We have enough managers already.
 
-Intel ecc compiler doesn't support inline assembly.=20
-Attached patch is required to enable linux kernel build with Intel ecc =
-compiler.
-Please apply.
+On Mon, Sep 08, 2003 at 08:22:10PM -0400, Timothy Miller wrote:
+> Your hostility is misplaced.  I have been participating in discussions 
+> of a number of things for a while now, and if you've paid attention, 
+> mostly what I do is discuss ideas.  I'm more of a lurker than a hacker. 
+>  I do intend to get into kernel hacking, but I have decided, 
+> particularly with my limited free time, that it would be best to watch 
+> and learn before blindly diving into kernel development.  In the time 
+> I've been on LKML, I've learned a great deal about the Linux culture 
+> which has direct bearing on how one goes about doing just about any kind 
+> of kernel hacking.  At least as I see it, the social aspect is as 
+> important as actual coding.  The definition of Free Software is 
+> something which is shared, and sharing is social.
 
-thanks,
-suresh
+Such far-flung notions have far better ways to be pursued, starting
+with some kind of review of concrete issues they address and some kind
+of meaningful prediction of the results. e.g. what performance metric
+do you expect your AI-produced scheduler to optimize? How much better
+than some other algorithm? What other algorithms? Does it do something
+unique that other algorithms can't, e.g. predicting task behavior?
+What's the advantage of its unique capability? How is it exploited?
 
-diff -Nru linux/include/linux/compiler.h =
-linux-2.5/include/linux/compiler.h
---- linux/include/linux/compiler.h	Mon Sep  8 11:51:00 2003
-+++ linux-2.5/include/linux/compiler.h	Mon Sep  8 13:22:13 2003
-@@ -74,10 +74,26 @@
- #define __attribute_pure__	/* unimplemented */
- #endif
-=20
-+#if defined(__INTEL_COMPILER) && defined(__ECC)
-+/* Optimization barrier */
-+#include <asm/intrinsics.h>
-+#define barrier()	__memory_barrier()
-+
-+#define RELOC_HIDE(ptr, off)					\
-+  ({ unsigned long __ptr;					\
-+     __ptr =3D (unsigned long) (ptr);				\
-+    (typeof(ptr)) (__ptr + (off)); })
-+#else
-+/* Optimization barrier */
-+/* The "volatile" is due to gcc bugs */
-+#define barrier()	asm volatile ("":::"memory")
-+
- /* This macro obfuscates arithmetic on a variable address so that gcc
-    shouldn't recognize the original var, and make assumptions about it =
-*/
- #define RELOC_HIDE(ptr, off)					\
-   ({ unsigned long __ptr;					\
-     __asm__ ("" : "=3Dg"(__ptr) : "0"(ptr));		\
-     (typeof(ptr)) (__ptr + (off)); })
-+#endif
-+
- #endif /* __LINUX_COMPILER_H */
-diff -Nru linux/include/linux/kernel.h linux-2.5/include/linux/kernel.h
---- linux/include/linux/kernel.h	Mon Sep  8 11:51:01 2003
-+++ linux-2.5/include/linux/kernel.h	Mon Sep  8 12:06:14 2003
-@@ -15,10 +15,6 @@
- #include <asm/byteorder.h>
- #include <asm/bug.h>
-=20
--/* Optimization barrier */
--/* The "volatile" is due to gcc bugs */
--#define barrier() __asm__ __volatile__("": : :"memory")
--
- #define INT_MAX		((int)(~0U>>1))
- #define INT_MIN		(-INT_MAX - 1)
- #define UINT_MAX	(~0U)
+I don't see any of this happening and don't really want/expect answers.
 
-------_=_NextPart_001_01C3766E.588EA4C4
-Content-Type: application/octet-stream;
-	name="asm.patch"
-Content-Transfer-Encoding: base64
-Content-Description: asm.patch
-Content-Disposition: attachment;
-	filename="asm.patch"
 
-ZGlmZiAtTnJ1IGxpbnV4L2luY2x1ZGUvbGludXgvY29tcGlsZXIuaCBsaW51eC0yLjUvaW5jbHVk
-ZS9saW51eC9jb21waWxlci5oCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L2NvbXBpbGVyLmgJTW9u
-IFNlcCAgOCAxMTo1MTowMCAyMDAzCisrKyBsaW51eC0yLjUvaW5jbHVkZS9saW51eC9jb21waWxl
-ci5oCU1vbiBTZXAgIDggMTM6MjI6MTMgMjAwMwpAQCAtNzQsMTAgKzc0LDI2IEBACiAjZGVmaW5l
-IF9fYXR0cmlidXRlX3B1cmVfXwkvKiB1bmltcGxlbWVudGVkICovCiAjZW5kaWYKIAorI2lmIGRl
-ZmluZWQoX19JTlRFTF9DT01QSUxFUikgJiYgZGVmaW5lZChfX0VDQykKKy8qIE9wdGltaXphdGlv
-biBiYXJyaWVyICovCisjaW5jbHVkZSA8YXNtL2ludHJpbnNpY3MuaD4KKyNkZWZpbmUgYmFycmll
-cigpCV9fbWVtb3J5X2JhcnJpZXIoKQorCisjZGVmaW5lIFJFTE9DX0hJREUocHRyLCBvZmYpCQkJ
-CQlcCisgICh7IHVuc2lnbmVkIGxvbmcgX19wdHI7CQkJCQlcCisgICAgIF9fcHRyID0gKHVuc2ln
-bmVkIGxvbmcpIChwdHIpOwkJCQlcCisgICAgKHR5cGVvZihwdHIpKSAoX19wdHIgKyAob2ZmKSk7
-IH0pCisjZWxzZQorLyogT3B0aW1pemF0aW9uIGJhcnJpZXIgKi8KKy8qIFRoZSAidm9sYXRpbGUi
-IGlzIGR1ZSB0byBnY2MgYnVncyAqLworI2RlZmluZSBiYXJyaWVyKCkJYXNtIHZvbGF0aWxlICgi
-Ijo6OiJtZW1vcnkiKQorCiAvKiBUaGlzIG1hY3JvIG9iZnVzY2F0ZXMgYXJpdGhtZXRpYyBvbiBh
-IHZhcmlhYmxlIGFkZHJlc3Mgc28gdGhhdCBnY2MKICAgIHNob3VsZG4ndCByZWNvZ25pemUgdGhl
-IG9yaWdpbmFsIHZhciwgYW5kIG1ha2UgYXNzdW1wdGlvbnMgYWJvdXQgaXQgKi8KICNkZWZpbmUg
-UkVMT0NfSElERShwdHIsIG9mZikJCQkJCVwKICAgKHsgdW5zaWduZWQgbG9uZyBfX3B0cjsJCQkJ
-CVwKICAgICBfX2FzbV9fICgiIiA6ICI9ZyIoX19wdHIpIDogIjAiKHB0cikpOwkJXAogICAgICh0
-eXBlb2YocHRyKSkgKF9fcHRyICsgKG9mZikpOyB9KQorI2VuZGlmCisKICNlbmRpZiAvKiBfX0xJ
-TlVYX0NPTVBJTEVSX0ggKi8KZGlmZiAtTnJ1IGxpbnV4L2luY2x1ZGUvbGludXgva2VybmVsLmgg
-bGludXgtMi41L2luY2x1ZGUvbGludXgva2VybmVsLmgKLS0tIGxpbnV4L2luY2x1ZGUvbGludXgv
-a2VybmVsLmgJTW9uIFNlcCAgOCAxMTo1MTowMSAyMDAzCisrKyBsaW51eC0yLjUvaW5jbHVkZS9s
-aW51eC9rZXJuZWwuaAlNb24gU2VwICA4IDEyOjA2OjE0IDIwMDMKQEAgLTE1LDEwICsxNSw2IEBA
-CiAjaW5jbHVkZSA8YXNtL2J5dGVvcmRlci5oPgogI2luY2x1ZGUgPGFzbS9idWcuaD4KIAotLyog
-T3B0aW1pemF0aW9uIGJhcnJpZXIgKi8KLS8qIFRoZSAidm9sYXRpbGUiIGlzIGR1ZSB0byBnY2Mg
-YnVncyAqLwotI2RlZmluZSBiYXJyaWVyKCkgX19hc21fXyBfX3ZvbGF0aWxlX18oIiI6IDogOiJt
-ZW1vcnkiKQotCiAjZGVmaW5lIElOVF9NQVgJCSgoaW50KSh+MFU+PjEpKQogI2RlZmluZSBJTlRf
-TUlOCQkoLUlOVF9NQVggLSAxKQogI2RlZmluZSBVSU5UX01BWAkofjBVKQo=
+On Mon, Sep 08, 2003 at 08:22:10PM -0400, Timothy Miller wrote:
+> As for the idea I suggested, I don't expect some other person to "run 
+> with it", although I'd be delighted if someone did.
+> I proposed the idea in order to get people's thoughts on it.  If, for 
+> instance, enough people had logical reasons why it was a _bad_idea_, 
+> then I would drop it before writing a line of code.
+> Don't you ever discuss your ideas with anyone before writing code?  I 
+> do.  I'm reasonably intelligent, but not arrogant enough to think that I 
+> always know the right thing to do before bouncing ideas off of other 
+> intelligent people.  Perhaps it is not your style, but it is my style to 
+> begin discussing ideas very early in development.
 
-------_=_NextPart_001_01C3766E.588EA4C4--
+The trouble with this is the implication that someone will do the hacking
+for you. Ideas can be worthwhile, but ultimately only if backed by some
+potential of ever being utilized, i.e. coded. As one of those frequently
+pegged to run off and do various kinds of coding, I'm rather wary of
+stuff like this cropping up as requirements phrased in Star Trek dialogue.
+
+
+On Mon, Sep 08, 2003 at 08:22:10PM -0400, Timothy Miller wrote:
+> Are we on the same page here?  If it's generally agreed that a 
+> kernel-related discussion is "off topic" unless code is involved, then 
+> I'll shut up and go work on the code in silence until I have something. 
+>  But keep in mind that this is a purely academic (in both meanings) 
+> issue until we can interface it with some real kernel scheduler code.
+
+Yes and no. I know what you're on about, but frankly, the mere Subject:
+line had me falling off my chair with laughter when I saw it. At the
+level you're presenting it, this is coming off as unicorns, leprechauns,
+dancing munchkins, and witches squished by falling houses. If it were
+serious it wouldn't have been "AI" but rather some specific learning
+method (probably a computationally inexpensive one) and a specific kind
+of decision to improve.
+
+Not that I mean to "verbally attack" at all. This is all dead serious.
+"AI" is frankly a buzzword and suggests more science fiction than
+science. The lack of detail and the fumbling around for general
+categories of learning methods ruled out any coherent plan. There isn't
+even a hint of what the thing is supposed to do inside the scheduler;
+presumably the entire algorithm is supposed to spring forth from the
+mind of some self-aware computational entity. It's just far too removed
+from reality not to dismiss out of hand.
+
+Sorry, this one was a turkey. Ideas for solutions to problems we're
+having instead of not-yet-decided solutions looking for problems hoping
+for a blast radius somewhere near kernel/sched.c would be far preferable.
+
+
+-- wli

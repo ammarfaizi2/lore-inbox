@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbTITCdL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 22:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTITCdL
+	id S261304AbTITC0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 22:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTITC0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 22:33:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:6622 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261658AbTITCdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 22:33:09 -0400
-Date: Fri, 19 Sep 2003 19:34:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: John Wendel <jwendel10@comcast.net>
+	Fri, 19 Sep 2003 22:26:12 -0400
+Received: from primary.dns.nitric.com ([64.81.197.236]:21767 "EHLO
+	primary.mx.nitric.com") by vger.kernel.org with ESMTP
+	id S261304AbTITC0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 22:26:10 -0400
+To: Allen Martin <AMartin@nvidia.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ATTN IBM Guys] NMI count on X440 box
-Message-ID: <20030920023415.GD4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	John Wendel <jwendel10@comcast.net>, linux-kernel@vger.kernel.org
-References: <20030919193103.1d08fbff.jwendel10@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030919193103.1d08fbff.jwendel10@comcast.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+From: Merlin Hughes <lnx@merlin.org>
+Subject: Re: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE drive r 
+In-reply-to: <8F12FC8F99F4404BA86AC90CD0BFB04F039F714A@mail-sc-6.nvidia.com> 
+Date: Fri, 19 Sep 2003 22:26:05 -0400
+Message-Id: <20030920022607.A6D35338DA@primary.mx.nitric.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 07:31:03PM -0700, John Wendel wrote:
-> I just noticed that our 8-way X440 is showing (in /proc/interrupts)
-> about 100 NMIs / second, on each CPU. Would some kind soul please tell
-> me if this is OK? A brief explanation of what this interrupt is being
-> used for would be appreciated.
-> We're running the latest RH Advanced server kernel.
-> </curious>
-> Sorry if this is a stupid question.
+r/AMartin@nvidia.com/2003.09.19/16:49:45
+>You can try downgrading your drive to udma5 to see if udma6 really does make
+>it more stable (hdparm -X udma5 /dev/hdX) but I can't think of any reason
+>why it should.
 
-A common use for intentional NMI's is NMI-based profiling, i.e. oprofile.
-I can't say for sure this is where your NMI's are coming from without
-seeing more about your kernel.
+That's it; downgrading to UDMA100 crashes within a few minutes
+of heavy I/O. Running at UDMA133 is rock solid.
 
+>> I take it that I should boot with noapic in future to be safe.
+>
+>I've been telling people to disable APIC / ACPI because of the interrupt
+>problem, but your interrupts are fine, so I'd leave it alone.  I'm curious,
+>what version BIOS do you have?
 
--- wli
+Very good, thanks. Shuttle SN45G, FN45 mobo, AwardBIOS v6.00PG.
+Is that the info you're looking for?
+
+Thanks, Merlin

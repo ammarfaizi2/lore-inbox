@@ -1,182 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUIXDnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIXDnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbUIXDnm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 23:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUIXDls
+	id S267767AbUIXDnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 23:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUIXDmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 23:41:48 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:59343 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266878AbUIWUdZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:33:25 -0400
-Subject: [patch 1/3]  message/mptbase: replace 	schedule_timeout() with msleep_interruptible()
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:33:21 +0200
-Message-ID: <E1CAaHK-0001n2-2Q@sputnik>
+	Thu, 23 Sep 2004 23:42:21 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:20451 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S267666AbUIXDfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 23:35:46 -0400
+Subject: Re: [1/1] connector: Kernel connector - userspace <-> kernelspace
+	"linker".
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
+Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040923215447.GD30131@ruslug.rutgers.edu>
+References: <1095331899.18219.58.camel@uganda>
+	 <20040921124623.GA6942@uganda.factory.vocord.ru>
+	 <20040924000739.112f07dd@zanzibar.2ka.mipt.ru>
+	 <20040923215447.GD30131@ruslug.rutgers.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8fpkCBNjFfMFdPaA8Oer"
+Organization: MIPT
+Message-Id: <1095997232.17587.8.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 24 Sep 2004 07:40:32 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-8fpkCBNjFfMFdPaA8Oer
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, 2004-09-24 at 01:54, Luis R. Rodriguez wrote:
+> RFC:=20
+>=20
+> Can and should we work towards using this as interface for drivers that
+> need callbacks from an external (closed source) library/HAL?
 
-Any comments would be appreciated. I was recently informed that
-i2o_core.c was removed from the kernel, so one of my patches was
-obsoleted. Hence, the total number has dropped to 3.
+As I mentioned to Richard Jonson, it can be considered as
+ioctl. ioctl-ng!
+Unified interface (as ioctl) can be used for any type of modules.
+It is just a bit extended ioctl :)
 
-Description: Use msleep_interruptible() instead of schedule_timeout()
-to guarantee the task delays as expected.
+And _yes_, it can be used to turn on/off binary-only callbacks.
+Remember pwc - closed part can register callback and open part can
+send message, or even closed part can register notification when
+open part registers itself and begin to "trash the kernel".
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+I understand that it is not right way to include it is into the kernel,
+but I personally do not understand how it is different=20
+from just extended ioctl. It was designed to be usefull and convenient,
+and it is.
 
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
+BTW, any binary-only module can _itself_ create netlink socket
+with input callback. And that is all - it will be absolutely
+the same as above.
 
- linux-2.6.9-rc2-bk7-max/drivers/message/fusion/mptbase.c |   42 +++++----------
- 1 files changed, 14 insertions(+), 28 deletions(-)
+One may consider connector as yet-another-netlink-helper.
 
-diff -puN drivers/message/fusion/mptbase.c~msleep_interruptible-drivers_message_fusion_mptbase drivers/message/fusion/mptbase.c
---- linux-2.6.9-rc2-bk7/drivers/message/fusion/mptbase.c~msleep_interruptible-drivers_message_fusion_mptbase	2004-09-21 21:17:12.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/message/fusion/mptbase.c	2004-09-21 21:17:12.000000000 +0200
-@@ -2229,8 +2229,7 @@ MakeIocReady(MPT_ADAPTER *ioc, int force
- 		}
- 
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1 * HZ / 1000);
-+			msleep_interruptible(1);
- 		} else {
- 			mdelay (1);	/* 1 msec delay */
- 		}
-@@ -2599,8 +2598,7 @@ SendIocInit(MPT_ADAPTER *ioc, int sleepF
- 	state = mpt_GetIocState(ioc, 1);
- 	while (state != MPI_IOC_STATE_OPERATIONAL && --cntdn) {
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1 * HZ / 1000);
-+			msleep_interruptible(1);
- 		} else {
- 			mdelay(1);
- 		}
-@@ -2867,8 +2865,7 @@ mpt_downloadboot(MPT_ADAPTER *ioc, int s
- 
- 	/* wait 1 msec */
- 	if (sleepFlag == CAN_SLEEP) {
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(1 * HZ / 1000);
-+		msleep_interruptible(1);
- 	} else {
- 		mdelay (1);
- 	}
-@@ -2885,8 +2882,7 @@ mpt_downloadboot(MPT_ADAPTER *ioc, int s
- 		}
- 		/* wait 1 sec */
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1000 * HZ / 1000);
-+			msleep_interruptible (1000);
- 		} else {
- 			mdelay (1000);
- 		}
-@@ -2986,8 +2982,7 @@ mpt_downloadboot(MPT_ADAPTER *ioc, int s
- 			return 0;
- 		}
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(10 * HZ / 1000);
-+			msleep_interruptible (10);
- 		} else {
- 			mdelay (10);
- 		}
-@@ -3038,8 +3033,7 @@ KickStart(MPT_ADAPTER *ioc, int force, i
- 		SendIocReset(ioc, MPI_FUNCTION_IOC_MESSAGE_UNIT_RESET, sleepFlag);
- 
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1000 * HZ / 1000);
-+			msleep_interruptible (1000);
- 		} else {
- 			mdelay (1000);
- 		}
-@@ -3061,8 +3055,7 @@ KickStart(MPT_ADAPTER *ioc, int force, i
- 			return hard_reset_done;
- 		}
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(10 * HZ / 1000);
-+			msleep_interruptible (10);
- 		} else {
- 			mdelay (10);
- 		}
-@@ -3133,8 +3126,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
- 
- 			/* wait 100 msec */
- 			if (sleepFlag == CAN_SLEEP) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(100 * HZ / 1000);
-+				msleep_interruptible (100);
- 			} else {
- 				mdelay (100);
- 			}
-@@ -3213,8 +3205,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
- 
- 				/* wait 1 sec */
- 				if (sleepFlag == CAN_SLEEP) {
--					set_current_state(TASK_INTERRUPTIBLE);
--					schedule_timeout(1000 * HZ / 1000);
-+					msleep_interruptible (1000);
- 				} else {
- 					mdelay (1000);
- 				}
-@@ -3241,8 +3232,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
- 
- 				/* wait 1 sec */
- 				if (sleepFlag == CAN_SLEEP) {
--					set_current_state(TASK_INTERRUPTIBLE);
--					schedule_timeout(1000 * HZ / 1000);
-+					msleep_interruptible(1000);
- 				} else {
- 					mdelay (1000);
- 				}
-@@ -3276,8 +3266,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
- 
- 		/* wait 100 msec */
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(100 * HZ / 1000);
-+			msleep_interruptible (100);
- 		} else {
- 			mdelay (100);
- 		}
-@@ -3371,8 +3360,7 @@ SendIocReset(MPT_ADAPTER *ioc, u8 reset_
- 		}
- 
- 		if (sleepFlag == CAN_SLEEP) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1 * HZ / 1000);
-+			msleep_interruptible(1);
- 		} else {
- 			mdelay (1);	/* 1 msec delay */
- 		}
-@@ -3808,8 +3796,7 @@ WaitForDoorbellAck(MPT_ADAPTER *ioc, int
- 			intstat = CHIPREG_READ32(&ioc->chip->IntStatus);
- 			if (! (intstat & MPI_HIS_IOP_DOORBELL_STATUS))
- 				break;
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1 * HZ / 1000);
-+			msleep_interruptible (1);
- 			count++;
- 		}
- 	} else {
-@@ -3858,8 +3845,7 @@ WaitForDoorbellInt(MPT_ADAPTER *ioc, int
- 			intstat = CHIPREG_READ32(&ioc->chip->IntStatus);
- 			if (intstat & MPI_HIS_DOORBELL_INTERRUPT)
- 				break;
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(1 * HZ / 1000);
-+			msleep_interruptible(1);
- 			count++;
- 		}
- 	} else {
-_
+--=20
+	Evgeniy Polyakov
+
+Crash is better than data corruption. -- Art Grabowski
+
+--=-8fpkCBNjFfMFdPaA8Oer
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBU5cwIKTPhE+8wY0RArB9AJ9BVtouc/+Y4NtRR36frbG5W/k/gACeKd9o
+Va1gj+T3Fd5AXJOAOMWsLpU=
+=mKmD
+-----END PGP SIGNATURE-----
+
+--=-8fpkCBNjFfMFdPaA8Oer--
+

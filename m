@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUCVPe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCVPe5
+	id S262065AbUCVPip (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUCVPip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:34:57 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:27410 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262062AbUCVPez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:34:55 -0500
-Message-ID: <405F0B8D.8040408@techsource.com>
-Date: Mon, 22 Mar 2004 10:51:41 -0500
-From: Timothy Miller <miller@techsource.com>
+	Mon, 22 Mar 2004 10:38:45 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:33291 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262065AbUCVPin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 10:38:43 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org, piotr@larroy.com
+Subject: Re: 2.6.5-rc1-mm1
+Date: Mon, 22 Mar 2004 16:38:00 +0100
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040316015338.39e2c48e.akpm@osdl.org> <20040322125305.GA2306@larroy.com>
+In-Reply-To: <20040322125305.GA2306@larroy.com>
+X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: David Schwartz <davids@webmaster.com>, Justin Piszcz <jpiszcz@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Microcode Question
-References: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
-In-Reply-To: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403221638.01029@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 22 March 2004 13:53, Pedro Larroy wrote:
 
 
-Tigran Aivazian wrote:
-> On Thu, 18 Mar 2004, David Schwartz wrote:
-> 
->>	It is at least theoeretically possible that a microcode update might cause
->>an operation that's normally done very quickly (in dedicated hardware) to be
->>done by a slower path (microcode operations) to fix a bug in the dedicated
->>hardware
-> 
-> 
-> Did you dream that up or did you read it somewhere? If the latter, where?
-> 
-> All operations are done by "dedicated hardware" and microcode DOES modify
-> that hardware, or rather the way instructions are "digested". So, applying
-> microcode doesn't make anything slower per se, it's just replacing one
-> code sequence with another code sequence. If a new code happens to be
-> slower than the old one then of course the result will be slower, but the
-> reverse is also true. When you fix a bug in a particular software why
-> should a bugfix be apriori slower than the original code? Think about it.
-> 
-> So please do not spread misinformation that applying microcode makes 
-> something slower. If anything, it should make things faster, as long as 
-> the guys at Intel are writing the correct (micro)code.
+Hi Pedro,
 
-I don't see anything wrong with what he said.  As I understand it, 
-Pentium 4 CPUs don't use microcode for much of anything.  If an 
-instruction which was done entirely in dedicated hardware was buggy, and 
-it's replaced by microcode, then it will most certainly be slower.
+> I think I have an abnormal memory situation, seems all my ram got exhausted
+> and I don't see it used by userland processes.
 
-You seem to have missed where David used terms like "theoretically 
-possible" and "an operation".
+yeah, I've experienced the same here. My machine starts to swap _very_ early 
+where previous -mm tree's (imho 2.6.4-mm'ish) worked fine.
 
+Sorry, no time atm to check this further :(
+
+ciao, Marc

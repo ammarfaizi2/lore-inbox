@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTJHHts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 03:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTJHHts
+	id S261277AbTJHIAT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 04:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTJHIAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 03:49:48 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:21473 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261262AbTJHHtr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 03:49:47 -0400
-Date: Wed, 8 Oct 2003 09:49:37 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: resent [PATCH][2.6] Fix early __might_sleep() calls
-Message-ID: <20031008074937.GA20511@k3.hellgate.ch>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	trivial@rustcorp.com.au
+	Wed, 8 Oct 2003 04:00:19 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:59010 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261277AbTJHIAR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 04:00:17 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 8 Oct 2003 10:09:19 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] v4l: bttv driver update
+Message-ID: <20031008080919.GB24796@bytesex.org>
+References: <20031007105846.GA3426@bytesex.org> <20031007201534.GA2148@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031007201534.GA2148@elf.ucw.cz>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__might_sleep prints warnings only after jiffies wrap (typically after 5
-minutes of uptime).
+> > Please apply,
+> 
+> Are those "IR remote using input layer" patches going in?
 
-Patch against 2.6 CVS.
+Not yet, probably with the next batch of updates.
 
-Roger
+  Gerd
 
---- linux-2.5/kernel/sched.c.orig	2003-10-06 20:58:47.258167317 +0200
-+++ linux-2.5/kernel/sched.c	2003-10-06 21:31:32.676707449 +0200
-@@ -2847,7 +2847,7 @@ void __might_sleep(char *file, int line)
- 	static unsigned long prev_jiffy;	/* ratelimiting */
- 
- 	if (in_atomic() || irqs_disabled()) {
--		if (time_before(jiffies, prev_jiffy + HZ))
-+		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
- 			return;
- 		prev_jiffy = jiffies;
- 		printk(KERN_ERR "Debug: sleeping function called from invalid"
+-- 
+You have a new virus in /var/mail/kraxel

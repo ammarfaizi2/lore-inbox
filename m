@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbUCJXlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 18:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUCJXlP
+	id S262765AbUCJXqO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 18:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbUCJXqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 18:41:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:55532 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262884AbUCJXkl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 18:40:41 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 10 Mar 2004 18:46:14 -0500
+Received: from piglet.student.utwente.nl ([130.89.161.100]:32896 "EHLO
+	piglet.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S262765AbUCJXqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 18:46:11 -0500
+From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-Date: Thu, 11 Mar 2004 00:33:08 +0100
-Message-ID: <yw1x7jxsxop7.fsf@kth.se>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org>
- <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org>
- <Pine.LNX.4.53.0403101416001.20251@chaos> <404F6D03.3030504@blue-labs.org>
- <20040310232018.GA21922@var.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:SAWxgrdyAB2355F0ln/Sz0aOl0k=
+Subject: Re: [PATCH for testing] cow behaviour for hard links
+Date: Thu, 11 Mar 2004 00:46:04 +0100
+User-Agent: KMail/1.6.1
+References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <200403110007.43727.s.b.wielinga@student.utwente.nl>
+In-Reply-To: <200403110007.43727.s.b.wielinga@student.utwente.nl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403110046.05347.s.b.wielinga@student.utwente.nl>
+X-Spam-Score: -4.9 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank v Waveren <fvw@var.cx> writes:
+Oh, sorry, actually read your patch now, and see that you already have the 
+function outline, and nice remarks and all... I'll try to get the link 
+breaking part done now, if you don't mind :-)
 
-> This is good design, however horribly incompatible with the current
-> state of email/news postings. Luckily, a solution that doesn't break
-> anything has been found: If you want your text wrapped by the MUA, use
-> format=flowed in the content type header. Read RFC 2646.
-
-But don't do that if there's C (or other) code in the message.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+Sytse

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUIEEwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUIEF31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265410AbUIEEwS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 00:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUIEEwS
+	id S265697AbUIEF31 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 01:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUIEF30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 00:52:18 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:60879 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265410AbUIEEwJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 00:52:09 -0400
-Date: Sat, 4 Sep 2004 21:52:05 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: torvalds@osdl.org, ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
-Message-Id: <20040904215205.0a067ab8.pj@sgi.com>
-In-Reply-To: <20040904211749.3f713a8a.pj@sgi.com>
-References: <m3zn4bidlx.fsf@averell.firstfloor.org>
-	<20040831183655.58d784a3.pj@sgi.com>
-	<20040904133701.GE33964@muc.de>
-	<20040904171417.67649169.pj@sgi.com>
-	<Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org>
-	<20040904180548.2dcdd488.pj@sgi.com>
-	<Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
-	<20040904204850.48b7cfbd.pj@sgi.com>
-	<Pine.LNX.4.58.0409042055460.2331@ppc970.osdl.org>
-	<20040904211749.3f713a8a.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 5 Sep 2004 01:29:26 -0400
+Received: from launch.server101.com ([216.218.196.178]:49863 "EHLO
+	mail-pop3-1.server101.com") by vger.kernel.org with ESMTP
+	id S265697AbUIEF3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 01:29:24 -0400
+From: Tim Fairchild <tim@bcs4me.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [OT] NVIDIA Driver 1.0-6111 fix
+Date: Sun, 5 Sep 2004 15:29:08 +1000
+User-Agent: KMail/1.6.1
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Christoph Hellwig <hch@infradead.org>,
+       Sid Boyce <sboyce@blueyonder.co.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200409050203.i8523X6W031952@localhost.localdomain> <1094355154.6575.604.camel@krustophenia.net>
+In-Reply-To: <1094355154.6575.604.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409051529.08786.tim@bcs4me.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> starting with backing out the changes made to it this week.
+On Sunday 05 Sep 2004 13:32, Lee Revell wrote:
 
-Andi,
+> I meant that the number of people using the nvidia driver was way more
+> than I would have thought.  There are a *lot* of people gaming on Linux
+> these days, I had no idea.  This is great.
 
-Given that Linus has gutted most of your patch to sched_setaffinity,
-do you have a preference between where the code started the week,
-and where it ended?
+I knew what you meant, and yes, it's cool. The 2.6 kernel is looking better 
+than ever for gaming IMO...
 
-If I'm reading Linus' mind right (well ... there's a first time
-for everything) then your preference, either way, would likely
-carry the day.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+tim

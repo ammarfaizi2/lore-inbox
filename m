@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbTKPAOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 19:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTKPAOL
+	id S262195AbTKPALK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 19:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTKPALK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 19:14:11 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:19717 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S262197AbTKPAOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 19:14:10 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 crash on Intel SDS2 
-In-reply-to: Your message of "Sat, 15 Nov 2003 22:12:01 BST."
-             <20031115211201.GC9634@alpha.home.local> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 16 Nov 2003 11:13:45 +1100
-Message-ID: <26656.1068941625@ocs3.intra.ocs.com.au>
+	Sat, 15 Nov 2003 19:11:10 -0500
+Received: from CPE-138-130-214-20.qld.bigpond.net.au ([138.130.214.20]:8109
+	"EHLO jeeves.home.house") by vger.kernel.org with ESMTP
+	id S262195AbTKPALI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 19:11:08 -0500
+From: Ben Hoskings <ben@jeeves.bpa.nu>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0 yenta_socket eats kernel time on Toshiba Laptop
+Date: Sun, 16 Nov 2003 10:11:03 +1000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <43376.138.130.214.20.1068871325.squirrel@jeeves.home.house> <20031115015927.4e31e6ee.akpm@osdl.org>
+In-Reply-To: <20031115015927.4e31e6ee.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311161011.03804.ben@jeeves.bpa.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Nov 2003 22:12:01 +0100, 
-Willy Tarreau <willy@w.ods.org> wrote:
->And please
->also try to disable automatic modprobe, or change it to
->something which logs what is loaded.
+Thanks for the reply, Andrew.
 
-modprobe can log what isloaded.  mkdir /var/log/ksymoops and insmod
-will automatically and safel log all module loads and unloads in that
-directory.
+> >  Attepting a modprobe on any of the other PCMCIA bus drivers gives a
+> >  'device not found' error.
+> >
+> >  Under 2.4, the PCMCIA bus uses the i82365 module, which works perfectly.
+> >  Under 2.6, it appears that the related driver has been moved to the
+> >  yenta_socket module (It's a ToPIC100 Controller; see dmesg below).
+>
+> Have you tried disabling i82365 in kernel config?
+
+All the PCMCIA options are configured as modules, and when I modprobed 
+yenta_socket, the only one already loaded was pcmcia_core. Disabling in the 
+kernel config won't make a difference here will it?
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

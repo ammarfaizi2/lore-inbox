@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316367AbSEZUR0>; Sun, 26 May 2002 16:17:26 -0400
+	id <S315239AbSEZUcP>; Sun, 26 May 2002 16:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316364AbSEZURZ>; Sun, 26 May 2002 16:17:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12016 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S316367AbSEZURI>;
-	Sun, 26 May 2002 16:17:08 -0400
-Date: Sun, 26 May 2002 16:17:07 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Larry McVoy <lm@bitmover.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Schleef <ds@schleef.org>,
-        Karim Yaghmour <karim@opersys.com>, Wolfgang Denk <wd@denx.de>,
-        linux-kernel@vger.kernel.org
+	id <S315278AbSEZUcO>; Sun, 26 May 2002 16:32:14 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:44788 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315239AbSEZUcO>; Sun, 26 May 2002 16:32:14 -0400
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: David Schleef <ds@schleef.org>, Karim Yaghmour <karim@opersys.com>,
+        Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
 In-Reply-To: <20020526120630.C30610@work.bitmover.com>
-Message-ID: <Pine.GSO.4.21.0205261536360.16963-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 26 May 2002 22:33:14 +0100
+Message-Id: <1022448794.11811.142.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 26 May 2002, Larry McVoy wrote:
-
-> On Sun, May 26, 2002 at 08:40:44PM +0100, Alan Cox wrote:
-> > On Sun, 2002-05-26 at 05:03, Larry McVoy wrote:
-> > > Me too.  I've been here before, I was one of about 8 people who actually
-> > > knew that AT&T should have won the BSD lawsuit because I diffed the code.
-> > > And you can't diff it with a perl script, that simply doesn't work.  The
-> > 
-> > And then went on to cite bmap which is clearly different. Yes Larry, now
-> > would you mind returning to the ward like a good patient 8)
+On Sun, 2002-05-26 at 20:06, Larry McVoy wrote:
+> > there are many different implementations which are very different but
+> > which in pure mathematics are strictly identical.
 > 
-> Sniffle, whimper.  It is clearly different in that it calls out to the
-> BSD allocation policy, which is completely different.
+> Is this theory or practice, Alan?  We're not talking about pure copyright,
+> we're also discussing derived works.  And anyway, I'd like you to cite a
+> case where two independently developed substantial chunks of code compile
+> to the same expression tree.  I'm sure you can find strcmp() implementations
+> which do, but I'd be surprised if you could find a stdio implementation that
+> was, and you sure as hell won't find two file system implementations that do.
+> Righ?  Or do you have a counter example?
 
-Um...  In 4.2 - more or less so.  In 4.4 - way more than that:
-	* ffs_bmap() is not doing any allocations now
-	* ffs_balloc() does (and is an analog of old bmap()) and it contains
-a *lot* more code than bmap() had - handling of fragments, stuff forced
-by new VM _and_ seriously different overall structure of code.
+I was very careful to say "pure mathematics". With perfect optimisation
+all implementations of the same algorithm should produce the same parse
+tree.
 
-	WTF?  4BSD code is out there, in SCCS, no less.  Goes back
-to 1982 or so.  It's not that checking it would be a problem - grab
-the 4th CD from Kirk's 4-parter (CSRG archives) and see yourself.
+I can think of lots of trivial counter examples. The most obvious of
+which is that given any set beginning pascal type homework the parse
+tree of all the implementations with the noise/comments/names filtered
+out is probably going to be identical.
 
-	BTW, having _that_ converted to BK might be an interesting thing.
-To do that one would need to take file moves into account, but they'd
-got enough snapshots of the tree to reconstruct that...
+The same exercise on library implementations of qsort, strcmp and so
+forth are probably also going to show that.
 

@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbUCaXlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 18:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUCaXlm
+	id S262108AbUCaXmz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 18:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUCaXmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 18:41:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31975 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262092AbUCaXld (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 18:41:33 -0500
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0403311433240.1116@ppc970.osdl.org>
-References: <1080771361.1991.73.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0403311433240.1116@ppc970.osdl.org>
+	Wed, 31 Mar 2004 18:42:54 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:13218 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262108AbUCaXmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 18:42:15 -0500
+Subject: Re: finding out the value of HZ from userspace
+From: Albert Cahalan <albert@users.sf.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Peter Williams <peterw@aurema.com>, albert@users.sourceforge.net,
+       arjanv@redhat.com, ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040331134009.76ca3b6d.rddunlap@osdl.org>
+References: <1079453698.2255.661.camel@cube>
+	 <20040320095627.GC2803@devserv.devel.redhat.com>
+	 <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com>
+	 <20040331134009.76ca3b6d.rddunlap@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1080776487.1991.113.camel@sisko.scot.redhat.com>
+Message-Id: <1080776817.2233.2326.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2004 00:41:27 +0100
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 Mar 2004 18:46:58 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 2004-03-31 at 23:37, Linus Torvalds wrote:
-> On Wed, 31 Mar 2004, Stephen C. Tweedie wrote:
-> >         
-> > although I can't find an unambiguous definition of "queued for service"
-> > in the online standard.  I'm reading it as requiring that the I/O has
-> > reached the block device layer, not simply that it has been marked dirty
-> > for some future writeback pass to catch; Uli agrees with that
-> > interpretation.
+> | >>>>there is one. Nothing uses it
+> | >>>>(sysconf() provides this info)
+> | >>>
+> | >>>If you have a recent glibc on a recent kernel, it might.
+> | >>>You could also get a -1 or a supposed ABI value that
+> | >>>has nothing to do with the kernel currently running.
+> | >>>The most reliable way is to first look around on the
+> | >>>stack in search of ELF notes, and then fall back to
+> | >>>some horribly gross hacks as needed.
+> | >>
+> | >>eh sysconf() is the nice way to get to the ELF notes
+> | >>instead of having to grovel yourself.
+> | > 
+> | > 
+> | > Unless there is some hidden feature that lets
+> | > me specify the ELF note number directly, no way.
+> | > 
+> | > The sysconf(_SC_CLK_TCK) call does not return an
+> | > error code when used on a 2.2.xx i386 kernel.
+> | > You get an arbitrary value that fails for ARM,
+> | > Alpha, and any system with modified HZ.
+> | 
+> | As Linux is supposed to be POSIX compliant this is a bug and should be 
+> | fixed.
 > 
-> That interpretation makes pretty much zero sense.
 > 
-> If you care about the data hitting the disk, you have to use fsync() or 
-> similar _anyway_, and pretending anything else is just bogus.
+> My understanding (from a few years back) is that Linux is POSIX
+> if/when/where it makes sense, but not necessarily POSIX-just-to-be-POSIX.
 
-You can make the same argument for either implementation of MS_ASYNC. 
-And there's at least one way in which the "submit IO now" version can be
-used meaningfully --- if you've got several specific areas of data in
-one or more mappings that need flushed to disk, you'd be able to
-initiate IO with multiple MS_ASYNC calls and then wait for completion
-with either MS_SYNC or fsync().  That gives you an interface that
-corresponds somewhat with the region-based filemap_sync();
-filemap_fdatawrite(); filemap_datawait() that the kernel itself uses.  
+The fixing has been done.
 
-> Having the requirement that it is on some sw-only request queue is
-> nonsensical, since such a queue is totally invisible from a user
-> perspective.
+This is not yet helpful for app developers, because
+old kernels and old libraries are still in use.
 
-It's very much visible, just from a performance perspective, if you want
-to support "kick off this IO, I'm going to wait for the completion
-shortly."  If that's the interpretation of MS_ASYNC, then the app is
-basically saying it doesn't want the writeback mechanism to be idle
-until the writes have completed, regardless of whether it's a block
-device or an NFS file or whatever underneath.
+If you rely on sysconf(_SC_CLK_TCK) to work, then
+your software will support:
 
-But whether that's a legal use of MS_ASYNC really depends on what the
-standard is requiring.  I could be persuaded either way.  Uli?
+* all systems with a 2.6.xx kernel
+* all systems with a 2.4.xx kernel and recent glibc
+* all i386 systems running with the default HZ
 
-Does anyone know what other Unixen do here?
+That's quite a bit I suppose. Maybe you have no
+interest in supporting a 1200 HZ Alpha with an old
+kernel or glibc. Maybe you don't care about somebody
+running a 2.2.xx kernel with modified HZ.
 
---Stephen
+For the moment, I still care. I won't for long.
+
 

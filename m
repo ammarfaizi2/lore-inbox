@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUKTKgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbUKTKjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbUKTKgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 05:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUKTKfh
+	id S261687AbUKTKjm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 05:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKTKjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 05:35:37 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:46467 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261555AbUKTKd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 05:33:29 -0500
-Date: Sat, 20 Nov 2004 02:33:19 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: James Morris <jmorris@redhat.com>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, davem@redhat.com
-Subject: Re: [6/7] Xen VMM patch set : add alloc_skb_from_cache
-Message-ID: <20041120103319.GB1950@taniwha.stupidest.org>
-References: <20041120060330.GA23850@taniwha.stupidest.org> <E1CVSTT-0004aw-00@mta1.cl.cam.ac.uk>
+	Sat, 20 Nov 2004 05:39:02 -0500
+Received: from ems.hclinsys.com ([203.90.70.242]:32004 "EHLO ems.hclinsys.com")
+	by vger.kernel.org with ESMTP id S261687AbUKTKgJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 05:36:09 -0500
+Subject: on the concept of COW
+From: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1100947100.4038.41.camel@myLinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CVSTT-0004aw-00@mta1.cl.cam.ac.uk>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 20 Nov 2004 16:08:21 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 10:28:10AM +0000, Keir Fraser wrote:
+Hi,
 
-> Could make __alloc_skb 'static inline'?
+ When a process forks, every resource of the parent, including the
+virtual memory is copied to the child process. The copying of VM uses
+copy-on-write(COW). I know that COW comes when a write request comes,
+and then the copy is made. Now my query follows:
 
-i don't think that will make much difference, i was more wondering
-about the cost of an (additional) pointer dereference in a hot-path.
-i think most modern x86 CPUs have pretty decent speculation logic so
-the load won't usually cause horrible stalls whereas for some other
-some other CPUs this isn't the case
+How will the copy be distributed. Whether giving the child process a new
+copy of VM be permanent or whether they will be merged anywhere? And
+shouldn't the operations/updations by one process be visible to the
+other which inherited the copy of the same VM?
 
-of course w/o measurements this is just wild speculation
+How can this work? Can someone please help me on this regard?
+
+-- 
+With regards,
+
+Jagadeesh Bhaskar P
+R&D Engineer
+HCL Infosystems Ltd
+Pondicherry
+INDIA
+

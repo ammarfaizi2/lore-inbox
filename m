@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUAVS6e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:58:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266320AbUAVS6e
+	id S264534AbUAVP16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 10:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUAVP15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:58:34 -0500
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:28944 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S266319AbUAVS6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:58:33 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Terence Ripperda <tripperda@nvidia.com>
-Date: Thu, 22 Jan 2004 12:58:07 -0600
-From: <tripperda@nvidia.com>
-Subject: 2.6 agpgart and acpi standby/resume
-Message-ID: <20040122185807.GD506@hygelac>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.4.19
+	Thu, 22 Jan 2004 10:27:57 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:28558 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264534AbUAVP1u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 10:27:50 -0500
+In-Reply-To: <20040122150713.GC15271@stop.crashing.org>
+References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <400F0759.5070309@mvista.com> <20040122150713.GC15271@stop.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v609)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <30216351-4CEF-11D8-A2A1-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+Cc: KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>,
+       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: PPC KGDB changes and some help?
+Date: Thu, 22 Jan 2004 09:25:19 -0600
+To: Tom Rini <trini@kernel.crashing.org>
+X-Mailer: Apple Mail (2.609)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-when working on supporting the 2.6 kernel's acpi support, I ran into some issues on a Dell Inspiron 4100 notebook (w/ Intel Corp. 82830 830 Chipset Host Bridge) when resuming from standby. the basic problem was that agp configuration was lost in the host bridge's pci config space, causing dma problems with our chip.
+On Jan 22, 2004, at 9:07 AM, Tom Rini wrote:
+>
+> On Wed, Jan 21, 2004 at 03:12:25PM -0800, George Anzinger wrote:
+>
+>> A question I have been meaning to ask:  Why is the arch/common 
+>> connection
+>> via a structure of addresses instead of just calls?  I seems to me 
+>> that
+>> just calling is a far cleaner way to do things here.  All the struct 
+>> seems
+>> to offer is a way to change the backend on the fly.  I don't thing we 
+>> ever
+>> want to do that.  Am I missing something?
+>
+> I imagine it's a style thing.  I don't have a preference either way.
 
-I checked through the agpgart code (specifically the intel-agp.c driver) and saw that the driver did support acpi resume and attempted to reconfigure the chipset when resuming. but the problem is that the driver only does this if the bridge is using the generic or 845 driver. in my case, the 830mp driver was being used. I hacked in support for my driver and everything worked fine.
+I think we in PPC land have gotten used to that "style" because we have 
+one kernel that supports different "platforms", i.e. it selects the 
+appropriate code at runtime as George says. In general that's a little 
+bit slower and a little bit bigger.
 
-I'm curious why support was only added for 2 cases, instead of reconfiguring the chipset in every case. Is this because there were problems with some drivers, or is support added only on an "as-needed" basis?
+Unless you need to choose among PPC KGDB functions at runtime, which I 
+don't think you do, you don't need it...
 
-(in this case, I happen to be testing with 2.6.0, but I see the same problem in the 2.6.1 code)
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-Thanks,
-Terence
-
-this fixed my problem:
-
---- intel-agp.c.orig    2004-01-22 12:51:31.000000000 -0600
-+++ intel-agp.c 2004-01-22 12:51:20.000000000 -0600
-@@ -1432,6 +1432,8 @@
-                intel_configure();
-        else if (bridge->driver == &intel_845_driver)
-                intel_845_configure();
-+       else if (bridge->driver == &intel_830mp_driver)
-+               intel_830mp_configure();
- 
-        return 0;
- }

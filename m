@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273008AbTGaMPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 08:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272999AbTGaMPn
+	id S272401AbTGaMfE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 08:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272896AbTGaMfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 08:15:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:424 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S273008AbTGaMPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 08:15:38 -0400
-Date: Thu, 31 Jul 2003 14:15:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: "Marcelo Tosatti (E-mail)" <marcelo@conectiva.com.br>,
-       "Lkml (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: cciss updates for 2.4.22
-Message-ID: <20030731121520.GS22104@suse.de>
-References: <D4CFB69C345C394284E4B78B876C1CF104052AC9@cceexc23.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF104052AC9@cceexc23.americas.cpqcorp.net>
+	Thu, 31 Jul 2003 08:35:04 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:48907 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S272401AbTGaMfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 08:35:01 -0400
+Message-Id: <200307311224.h6VCOMj19676@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Ren <l.s.r@web.de>
+Subject: Re: [PATCH] Inline vfat_strnicmp()
+Date: Thu, 31 Jul 2003 15:33:49 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20030727172150.15f8df7f.l.s.r@web.de> <87wue4udxl.fsf@devron.myhome.or.jp>
+In-Reply-To: <87wue4udxl.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30 2003, Miller, Mike (OS Dev) wrote:
-> The attached tarball contains 2 patches. The first is an author change
-> for the cciss driver. The second resolves an issue when sharing IRQs
-> with another controller. The patches have been built & tested against
-> 2.4.22-pre9. They can be installed in any order.
+On 27 July 2003 19:33, OGAWA Hirofumi wrote:
+> Ren <l.s.r@web.de> writes:
+> 
+> > the function vfat_strnicmp() has just one callsite. Inlining it
+> > actually shrinks vfat.o slightly.
+> 
+> Thanks. I'll submit this patch to Linus.
 
-Don't feel bad for Charles, he never was the original author of the
-driver anyways. So the label was misleading.
+Just to deinline it in some months?
 
-Marcelo, both patches look fine to apply.
-
--- 
-Jens Axboe
-
+Come on, automatically inlining static functions with
+just one callsite is a compiler's job. Don't do it.
+--
+vda

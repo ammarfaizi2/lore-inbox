@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267276AbSK3Rnr>; Sat, 30 Nov 2002 12:43:47 -0500
+	id <S267277AbSK3RsT>; Sat, 30 Nov 2002 12:48:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267277AbSK3Rnq>; Sat, 30 Nov 2002 12:43:46 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:3245 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267276AbSK3Rnq>;
-	Sat, 30 Nov 2002 12:43:46 -0500
-Date: Sat, 30 Nov 2002 18:50:48 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <conman@kolivas.net>,
-       Srihari Vijayaraghavan <harisri@bigpond.com>
-Subject: Re: [PATCHSET] Linux 2.4.20-jam0
-Message-ID: <20021130175048.GF28164@dualathlon.random>
-References: <20021129233807.GA1610@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021129233807.GA1610@werewolf.able.es>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S267278AbSK3RsT>; Sat, 30 Nov 2002 12:48:19 -0500
+Received: from monarch.prairienet.org ([192.17.3.5]:59609 "HELO
+	mail.prairienet.org") by vger.kernel.org with SMTP
+	id <S267277AbSK3RsS>; Sat, 30 Nov 2002 12:48:18 -0500
+Message-ID: <3DE8FB9A.2080009@prairienet.org>
+Date: Sat, 30 Nov 2002 11:55:38 -0600
+From: John Belmonte <jvb@prairienet.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: seq_file / proc_fs userdata issue
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 30, 2002 at 12:38:07AM +0100, J.A. Magallon wrote:
-> - reverted the fast-pte part of -aa. Still have to try again
->   to see if it is more stable now.
+The proc_fs interface supports userdata, which can be used for an
+object-oriented style of programming.  Used intelligently, this can
+eliminate a fair amount of code redundancy in drivers that handle many
+proc files.
 
-AFIK this was reproduced by Srihari on nohighmem so it must be that
-somebody is calling pgd_free_fast on a pgd that cannot be re-used.
-Can you try this patch on top of 2.4.20rc2aa1? (or jam0 after backing
-out the fast-pte removal that would otherwise forbid the debugging check
-to trigger)
+Recently there has been work on the kernel to convert proc reads to use
+seq_file.  The problem is, although seq_file also has userdata support,
+the userdata given to proc_fs is not automatically propagated to
+seq_file.  The only way to set the seq_file userdata is in the open
+handler, which as far as I can tell does not have access to the
+proc_dir_entry.  The result is a proliferation of nearly-identical
+functions and tables that could otherwise be generalized.
 
---- 2.4.20rc2aa1/include/asm-i386/pgalloc.h.~1~	2002-11-27 10:09:30.000000000 +0100
-+++ 2.4.20rc2aa1/include/asm-i386/pgalloc.h	2002-11-30 18:43:29.000000000 +0100
-@@ -97,6 +97,20 @@ static inline pgd_t *get_pgd_fast(void)
- 
- static inline void free_pgd_fast(pgd_t *pgd)
- {
-+	{
-+		int i;
-+		for (i = 0; i < USER_PTRS_PER_PGD; i++)
-+			if (pgd_val(pgd[i])) {
-+				printk("non zero idx %d\n", i);
-+				BUG();
-+			}
-+		for (i = USER_PTRS_PER_PGD; i < PTRS_PER_PGD - USER_PTRS_PER_PGD -
-+		     ((-VMALLOC_START + PGDIR_SIZE - 1) >> PGDIR_SHIFT); i++)
-+			if (pgd_val(pgd[i]) != pgd_val(swapper_pg_dir[i])) {
-+				printk("corrupted idx %d\n", i);
-+				BUG();
-+			}
-+	}
- 	*(unsigned long *)pgd = (unsigned long) pgd_quicklist;
- 	pgd_quicklist = (unsigned long *) pgd;
- 	pgtable_cache_size++;
+In summary, I'm suggesting that the proc_fs internals automatically
+propagate the userdata placed in the proc_dir_entry to the seq_file 
+instance, so that it is available in the read handler.  After all, this 
+is what we enjoyed before the move to seq_file.
 
-the stack trace should tell us who is freeing a not valid pgd.
-without this check the crash happens in an innocent place and it's not
-obvious why it breaks.
 
-Andrea
+Regards,
+-John Belmonte
+

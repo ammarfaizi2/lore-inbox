@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVCFXtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVCFXtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVCFXtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVCFXss
+	id S261570AbVCFXtd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVCFXrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:48:48 -0500
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:18678 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261554AbVCFXbL (ORCPT
+	Sun, 6 Mar 2005 18:47:24 -0500
+Received: from coderock.org ([193.77.147.115]:7088 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261583AbVCFWiI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 18:31:11 -0500
-Date: Mon, 7 Mar 2005 08:30:52 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.11-mm1] mips: fix section type conflict about mpc30x
-Message-Id: <20050307083052.3366678c.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Mar 2005 17:38:08 -0500
+Subject: [patch 2/8] isdn/capi: replace interruptible_sleep_on() with wait_event_interruptible()
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
+       domen@coderock.org, nacc@us.ibm.com
+From: domen@coderock.org
+Date: Sun, 06 Mar 2005 23:38:02 +0100
+Message-Id: <20050306223803.77C4F1EC90@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes section type conflict about mpc30x
 
-  CC      arch/mips/pci/fixup-mpc30x.o
-arch/mips/pci/fixup-mpc30x.c:26: error: internal_func_irqs causes a section type conflict
-make[1]: *** [arch/mips/pci/fixup-mpc30x.o] Error 1
-make: *** [arch/mips/pci] Error 2
 
-Yoichi
+Use wait_event_interruptible() instead of the deprecated
+interruptible_sleep_on(). Patch is straight-forward as current sleep is
+conditionally looped. Patch is compile-tested.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
 
-diff -urN -X dontdiff a-orig/arch/mips/pci/fixup-mpc30x.c a/arch/mips/pci/fixup-mpc30x.c
---- a-orig/arch/mips/pci/fixup-mpc30x.c	Fri Nov  5 00:42:26 2004
-+++ a/arch/mips/pci/fixup-mpc30x.c	Mon Jan 10 23:54:09 2005
-@@ -29,7 +29,7 @@
- 	VRC4173_USB_IRQ,
- };
+
+ kj-domen/drivers/isdn/capi/capi.c |    9 ++-------
+ 1 files changed, 2 insertions(+), 7 deletions(-)
+
+diff -puN drivers/isdn/capi/capi.c~int_sleep_on-drivers_isdn_capi_capi drivers/isdn/capi/capi.c
+--- kj/drivers/isdn/capi/capi.c~int_sleep_on-drivers_isdn_capi_capi	2005-03-05 16:11:36.000000000 +0100
++++ kj-domen/drivers/isdn/capi/capi.c	2005-03-05 16:11:36.000000000 +0100
+@@ -675,13 +675,8 @@ capi_read(struct file *file, char __user
+ 		if (file->f_flags & O_NONBLOCK)
+ 			return -EAGAIN;
  
--static char irq_tab_mpc30x[] __initdata = {
-+static const int irq_tab_mpc30x[] __initdata = {
-  [12] = VRC4173_PCMCIA1_IRQ,
-  [13] = VRC4173_PCMCIA2_IRQ,
-  [29] = MQ200_IRQ,
-
+-		for (;;) {
+-			interruptible_sleep_on(&cdev->recvwait);
+-			if ((skb = skb_dequeue(&cdev->recvqueue)) != 0)
+-				break;
+-			if (signal_pending(current))
+-				break;
+-		}
++		wait_event_interruptible(cdev->recvwait,
++				((skb = skb_dequeue(&cdev->recvqueue)) == 0));
+ 		if (skb == 0)
+ 			return -ERESTARTNOHAND;
+ 	}
+_

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTJDKlh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 06:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJDKlh
+	id S261979AbTJDKif (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 06:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJDKif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 06:41:37 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:35456
-	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
-	id S261988AbTJDKlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 06:41:35 -0400
-Date: Sat, 4 Oct 2003 12:41:31 +0200
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: crypto benchmark results with 2.6.0-test6
-Message-ID: <20031004104131.GA1533@leto2.endorphin.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens-dated-1066128091.d4fe@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+	Sat, 4 Oct 2003 06:38:35 -0400
+Received: from mail.gmx.net ([213.165.64.20]:29644 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261979AbTJDKif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 06:38:35 -0400
+X-Authenticated: #1033915
+Message-ID: <3F7E9E27.20500@GMX.li>
+Date: Sat, 04 Oct 2003 12:17:11 +0200
+From: Jan Schubert <Jan.Schubert@GMX.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, dz@debian.org
+Subject: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for special buttons
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There are 4 special buttons on dell-laptops which you could only get to 
+work using CONFIG_I8K. This worked well in any 2.4-kernel, by pressing 
+these buttons the keycodes 129. 130, 131, 132 get produced. In 
+2.6.0-test6_mm2 it produces <nothing>, 162, <nothing>, 110. I've digged 
+into the code without any succes for now. Any hints?
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thx,
+Jan
 
-Hi,
+PS: Beside that i've also problems to get some of my pcmcia-cards runnig 
+(ISDN and WLAN). May someone point me to any URL getting more 
+information concerning the new ISDN-TTY-Interface in kernel-2.6?
 
-would you like to benchmark
-
-http://clemens.endorphin.org/patches/aes-i586-asm-2.6.0-test5.diff
-
-and
-
-http://clemens.endorphin.org/twofish-i586/ (experimential)=20
-
-too? :)
-
-Regards, Clemens
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/fqPbW7sr9DEJLk4RAozcAJ49gVTwREsuSQuBqj/5oxGLE2jvlgCfazUO
-dU1ihYQH+PxubQrkE935W/o=
-=cDFL
------END PGP SIGNATURE-----
-
---X1bOJ3K7DJ5YkBrT--

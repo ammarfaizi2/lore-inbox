@@ -1,105 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbTJUCF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 22:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTJUCF2
+	id S262601AbTJUCcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 22:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbTJUCcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 22:05:28 -0400
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:55494 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262683AbTJUCFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 22:05:18 -0400
-Message-ID: <20031021020513.90943.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "David Liontooth" <liontooth@post.com>
+	Mon, 20 Oct 2003 22:32:03 -0400
+Received: from www.paclaw.org ([149.175.1.5]:46298 "HELO lewis.lclark.edu")
+	by vger.kernel.org with SMTP id S262601AbTJUCcB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 22:32:01 -0400
+Subject: DRM and pci_driver conversion
+From: Eric Anholt <eta@lclark.edu>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 20 Oct 2003 21:05:13 -0500
-Subject: Re: [2.6.0-test-7] natsemi oops
-X-Originating-Ip: 128.97.184.97
-X-Originating-Server: ws1-2.us4.outblaze.com
+Cc: linux-fbdev-devel@lists.sf.net
+Content-Type: text/plain
+Message-Id: <1066703516.646.24.camel@leguin>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 20 Oct 2003 19:31:56 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I recently committed a change to the DRM for Linux in DRI CVS that
+converted it to use pci_driver and that probe system.  Unfortunately,
+we've found that there is a conflict between the DRM now and at least
+the radeon framebuffer.  Both want to attach to the same device, and
+with pci_driver, the second one to come along doesn't get probe called
+for that device.  Is there any way to mark things shared, or in some
+other way get the DRM to attach to a device that's already attached to,
+in the new model?
 
-Correction: I get the oops also when natsemi is compiled as a module. 
-It is triggered not when the module is loaded, but when it is used 
-the first time. Oops (some fragments below) followed by a total freeze;
-nothing gets logged.
-
-Is this a known problem? 
-
-Is there a workaround?
-
-Cheers,
-David
-
-
------ Original Message -----
-From: David Liontooth
-Date: Mon, 20 Oct 2003 05:24:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test-7] natsemi oops
-
-> 
-> The 2.6.0-test-7 boots fine and works great -- until I plug
-> in the ethernet cable. Within a second I get an oops and
-> everything freezes. Booting with "acpi=off" makes no difference.
-> If I boot with the ethernet cable plugged in, I get to the 
-> login prompt, and it oopses within a second. If I time it right,
-> I can log into the machine remotely for one second before it 
-> oopses (so the natsemi driver is working). Very reproducible! 
-> /proc/kmsg is empty. 
-> 
-> If I compile natsemi as a module, I don't get the oops. 
-> However, now the driver is not working -- I can't ping out.
-> Everything works fine in 2.5.69, which I've been running
-> since early July.
-> 
-> Here's some of the oops, taken by hand:
-> 
-> Process swapper (pid: 0, threadinfo=c042a000 task c03a47a0)
-> 
-> Stack
-> 
-> Call trace:
-> 
-> ipxitf_auto_create
-> ipx_rcv
-> netif_receive_skb
-> process_backlog
-> net_rx_action
-> do_softirq
-> do_IRQ
-> _stext
-> common_interrupt
-> acpi_processor_idle
-> cpu_idle
-> start_kernel
-> unknown_bootoption
-> 
-> Kernel panic: Fatal exception in interrupt
-> In interrupt handler -- not syncing
-> 
-> Configuration, lspci, and dmesg attached.
-> 
-> Cheers,
-> David
-> 
-> 
-> 
-<< config-2.6.0-test7-3 >>
-<< dmesg-2.6.0-test7-7 >>
-<< lspci-2.6.0-test7 >>
+Please CC me on replies as I'm not subscribed to these lists.
 
 -- 
-__________________________________________________________
-Sign-up for your own personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+Eric Anholt                                eta@lclark.edu          
+http://people.freebsd.org/~anholt/         anholt@FreeBSD.org
 
-CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
-http://corp.mail.com/careers
 

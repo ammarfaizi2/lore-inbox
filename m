@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUDBJL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 04:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbUDBJL5
+	id S263371AbUDBJOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 04:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDBJOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 04:11:57 -0500
-Received: from gate.corvil.net ([213.94.219.177]:43016 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S263370AbUDBJLz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 04:11:55 -0500
-Message-ID: <406D2CD6.50609@draigBrady.com>
-Date: Fri, 02 Apr 2004 10:05:26 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-CC: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
-In-Reply-To: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Apr 2004 04:14:18 -0500
+Received: from fmr10.intel.com ([192.55.52.30]:55452 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263371AbUDBJOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 04:14:16 -0500
+Subject: Re: irq 16 : Nobody cared  - alsa v. io-apic in 2.6.5-rc3-bk2
+From: Len Brown <len.brown@intel.com>
+To: sean <seandarcy@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F7212@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F7212@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080897252.30361.147.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 02 Apr 2004 04:14:12 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Weigand wrote:
-> Hello,
+
+On Thu, 2004-04-01 at 14:24, sean wrote:
+> I have a VIA k400 motherboard.
 > 
-> I'm seeing a race condition on Linux 2.6 that rather reproducibly
-> causes GCC bootstrap failures on current mainline.
 
-Ho hum.
-I knew this was going to cause problems:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0110.1/0017.html
+> irq 16: nobody cared!
+> Call Trace:
+>   [<c0108508>] __report_bad_irq+0x28/0x80
+>   [<c01088ae>] do_IRQ+0x15e/0x1a0
+>   [<c0106e08>] common_interrupt+0x18/0x20
+>   [<c01044e3>] default_idle+0x23/0x30
+>   [<c010455d>] cpu_idle+0x2d/0x40
+>   [<c04ee61b>] start_kernel+0x2ab/0x320
+>   [<c04ee1c0>] unknown_bootoption+0x0/0x180
+>  
+> 
+> handlers:
+> [<c0395800>] (snd_cmipci_interrupt+0x0/0x130)
+> Disabling IRQ #16
+> ..............
 
-Pádraig.
+> IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> IRQ 16 Mode:1
+> Active:1)
+> 00:00:01[A] -> 2-16 -> IRQ 16
+
+Does acpi=off make a difference and change how /proc/interrupts looks?
+
+If yes, can you try the latest ACPI code that 2.6.5 is missing?
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.5/
+
+thanks,
+-Len
+
+

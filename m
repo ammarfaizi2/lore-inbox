@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSHTN3T>; Tue, 20 Aug 2002 09:29:19 -0400
+	id <S317232AbSHTNco>; Tue, 20 Aug 2002 09:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317170AbSHTN3S>; Tue, 20 Aug 2002 09:29:18 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:24980 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S317117AbSHTN3S>;
-	Tue, 20 Aug 2002 09:29:18 -0400
-Date: Tue, 20 Aug 2002 15:32:48 +0200
+	id <S317189AbSHTNco>; Tue, 20 Aug 2002 09:32:44 -0400
+Received: from mailserver1.hrz.tu-darmstadt.de ([130.83.126.41]:62480 "EHLO
+	mailserver1.hrz.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id <S317232AbSHTNcn>; Tue, 20 Aug 2002 09:32:43 -0400
+Message-ID: <3D6245DC.3A189656@hrzpub.tu-darmstadt.de>
+Date: Tue, 20 Aug 2002 15:36:28 +0200
+From: Jens Wiesecke <j_wiese@hrzpub.tu-darmstadt.de>
+X-Mailer: Mozilla 4.75 [de] (Windows NT 5.0; U)
+X-Accept-Language: de
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au, torvalds@transmeta.com
-Subject: [PATCH] __devexit_p in drivers/net/tulip/de2104x.c
-Message-ID: <20020820133248.GA577@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
+Subject: P4 with i845E not booting with 2.4.19 / 3.5.31
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds __devexit_p to de_remove_one in drivers/net/tulip/de2104x.c to make it
-possible to compile it with new binutils
+Hi,
 
+I have the problem that my new P4 (1.6 GHz Northwood) box with i845E
+chipset doesn't boot with the 2.4.19(-pre2) kernel nor with the 2.5.31
+kernel (I also tested RedHat and Suse kernels without success). But it
+does boot with the late 2.2 series kernels (I tested 2.2.19 and 2.2.21).
+After displaying the message "umcompressing linux ... ok. Bootig the
+kernel" nothing else happens.
+
+Can anybody please give me a hint how I can look for further debug
+information ?
+
+Best regards
 -- 
+Jens Wiesecke
+Institute for Makromolecular Chemistry
+64287 Darmstadt
+Germany
 
-//anders/g
-
---- a/drivers/net/tulip/de2104x.c	Tue Aug 20 15:28:00 2002
-+++ b/drivers/net/tulip/de2104x.c	Tue Aug 20 15:28:00 2002
-@@ -2136,7 +2136,7 @@
- 	return rc;
- }
- 
--static void __exit de_remove_one (struct pci_dev *pdev)
-+static void __devexit de_remove_one (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct de_private *de = dev->priv;
-@@ -2216,7 +2216,7 @@
- 	.name		= DRV_NAME,
- 	.id_table	= de_pci_tbl,
- 	.probe		= de_init_one,
--	.remove		= de_remove_one,
-+	.remove		= __devexit_p(de_remove_one),
- #ifdef CONFIG_PM
- 	.suspend	= de_suspend,
- 	.resume		= de_resume,
+e-mail: j_wiese@hrzpub.tu-darmstadt.de

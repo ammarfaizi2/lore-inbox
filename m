@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUIEVTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIEVYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267232AbUIEVTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUIEVTL
+	id S267235AbUIEVYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUIEVYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:19:11 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:24734 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267232AbUIEVTI (ORCPT
+	Sun, 5 Sep 2004 17:24:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:11675 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267235AbUIEVYG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:19:08 -0400
-Date: Sun, 5 Sep 2004 14:18:37 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tony Luck <tony.luck@intel.com>, ianw@gelato.unsw.edu.au,
-       William Irwin <wli@holomorphy.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20040905211837.3068.64652.58313@sam.engr.sgi.com>
-Subject: [PATCH] SN2 build fix CONFIG_VIRTUAL_MEM_MAP and CONFIG_DISCONTIGMEM
+	Sun, 5 Sep 2004 17:24:06 -0400
+Message-ID: <9e47339104090514244873fd05@mail.gmail.com>
+Date: Sun, 5 Sep 2004 17:24:05 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel ICH - sound/pci/intel8x0.c
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>
+In-Reply-To: <20040905184852.GA25431@linux.ensimag.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040905184852.GA25431@linux.ensimag.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The change on 2004-09-03 by ianw@gelato.unsw.edu.au appears to have
-a typo, which causes builds of configurations which define both
-CONFIG_VIRTUAL_MEM_MAP and CONFIG_DISCONTIGMEM to emit some 890
-warnings for redefines of each of pfn_valid, page_to_pfn,
-pfn_to_page.  This shows up compiling sn2_defconfig, the SN2
-config of arch ia64.  I believe that this is a simply typo,
-an extra "#else" line.  Removing this exta line enables sn2_defconfig
-to build as before.  Builds of other arch's untested.  No effort
-made to boot this.
+I'd don't know enough about the LPC bridge chip to know what the
+correct answer is for this. Right now I tend to think that the PCI
+driver should own the bridge chip. If not the PCI driver then there
+should be an explicit bridge driver. I don' think it is correct that a
+joystick driver is attaching to a bridge chip given the simple fact
+that all legacy IO - joystick, PS/2, parallel, serial, etc is located
+off from that same bridge chip.
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Matthieu's comments about using PNP for this seem to make sense. Are
+we missing implementation of an ACPI feature for controlling these
+ports?
 
---- 2.6.9-rc1-pre/include/asm-ia64/page.h	2004-09-05 13:39:15.000000000 -0700
-+++ 2.6.9-rc1-post/include/asm-ia64/page.h	2004-09-05 13:48:22.000000000 -0700
-@@ -90,7 +90,6 @@ extern struct page *vmem_map;
- #  define page_to_pfn(page)    ((unsigned long) (page - vmem_map))
- #  define pfn_to_page(pfn)     (vmem_map + (pfn))
- # endif
--#else /* !CONFIG_VIRTUAL_MEM_MAP */
- #define pfn_valid(pfn)		(((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
- #define page_to_pfn(page)	((unsigned long) (page - mem_map))
- #define pfn_to_page(pfn)	(mem_map + (pfn))
+On Sun, 5 Sep 2004 20:48:52 +0200, Matthieu Castet
+<mat@ensilinx1.imag.fr> wrote:
+> On Sul, 2004-09-05 at 03:43, Jon Smirl wrote:
+> > The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
+> > MIDI ports are ISA devices and need be located by manual probing. This
+> > ID table needs to be removed. Joystick and MIDI ports do not have PCI
+> > IDs.
+> 
+> I agree, that was I explain in a previous post
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109420281830288&w=2)
+> see the PS.
+> 
+> 
+> > It isn't that simple. The LPC bridge also contains the controls for
+> > the
+> > joystick ports. You also need them for hotplug handling of the bridge
+> > should someone stick one in a laptop docking station. The ID table
+> > also
+> > ensures the driver is loaded. It's probably true that it will need
+> > splitting up a bit if another driver also needs ownership of the LPC
+> > bridge but for now that hasn't happened.
+> 
+> Not for jostick and midi stuff you have to use pnp bus.
+> On my computer it works well :
+> I have removed the support of MIDI and GAMEPORT in alsa driver.
+> The gameport is handle with ns558
+> The midi device with a mpu401_pnp I post on the alsa mailling list
+> (http://sourceforge.net/mailarchive/forum.php?thread_id=5468125&forum_id=1751)
+> For that it work well you need a pnpbios patch
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109411306024720&w=2) or
+> even try to use my pnpacpi patch
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109430451522335&w=2)
+> And the isapnp hotplug script auto load the right module...
+> 
+> Regards,
+> Matthieu
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jon Smirl
+jonsmirl@gmail.com

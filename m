@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262051AbTCRAXj>; Mon, 17 Mar 2003 19:23:39 -0500
+	id <S262036AbTCRAZo>; Mon, 17 Mar 2003 19:25:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbTCRAXj>; Mon, 17 Mar 2003 19:23:39 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:17680
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S262043AbTCRAXh>; Mon, 17 Mar 2003 19:23:37 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33DE9@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Linux-2.4.20 modem control
-Date: Mon, 17 Mar 2003 16:34:25 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262043AbTCRAZo>; Mon, 17 Mar 2003 19:25:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60903
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262036AbTCRAZn>; Mon, 17 Mar 2003 19:25:43 -0500
+Subject: Re: Ptrace hole / Linux 2.2.25
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: blp@cs.stanford.edu
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87smtlbzx8.fsf@pfaff.Stanford.EDU>
+References: <20030317161020$42ed@gated-at.bofh.it>
+	 <87smtlbzx8.fsf@pfaff.Stanford.EDU>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047952000.25577.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 18 Mar 2003 01:46:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 4:34 PM, Richard B. Johnson wrote:
-> 
-> On Mon, 17 Mar 2003, Ed Vance wrote:
-> [SNIPPED...]
-> 
-> > >
-> > Hi Richard,
-> >
-> > What you are doing looks just fine.
-> >
-> > As long as HUPCL is set when the close happens, DTR will 
-> > drop. There are delays that are enforced in both open and 
-> > close when a second process is blocked opening a closing 
-> > port. Of course, that would not be your case, because the 
-> > open does not occur until the closing process terminates. 
-> > In a quick look, I didn't see an enforced close-to-open 
-> > delay for your case. Maybe I missed something. I am 
-> > looking at 2.4.18 Red Hat -3. I didn't notice a patch to 
-> > serial.c in the 2.4.19 or 2.4.20 changelog that would 
-> > affect this. There are some weird calculations that 
-> > appear to scale the close_delay field value based on HZ.
-> >
-> > Which was the last "working" kernel rev that you used?
-> >
-> > Did you switch to a faster CPU?
-> >
-> > Are you using any "low latency" patches?
-> >
-> > Did the HZ value change between the last rev that worked 
-> > and 2.4.20?
-> >
-> > What HZ value are you running with?
-> >
-> > Cheers,
-> > Ed
-> 
-> I'm now using 2.4.20. The previous version was 2.2.18 (yikes)!
-> I just transferred my old hard disks (SCSI) to a new system and
-> everything worked fine, so I decided to upgrade to a later more
-> stable kernel. I use this system to be my own internet provider
-> and I am, in fact, logged in running a ppp link from home over
-> the modem at this time. I had to modify `agetty` to make it
-> work with the new kernel and a faster CPU (1.2 GHz, 330 MHz
-> front-side bus, Tyan Thunder-II).
-> 
-> The agetty code is attached. It hangs up before it sleeps for
-> a new connection because when the previous process terminates,
-> init instantly starts a new instance, the modem never hangs up
-> even though, possibly the DTR was lowered for that instant.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-> Why is the government concerned about the lunatic fringe? 
-> Think about it.
-> 
-Hi,
+On Mon, 2003-03-17 at 18:39, Ben Pfaff wrote:
+> I am concerned about this change because it will break sandboxing
+> software that I have written, which uses prctl() to turn
+> dumpability back on so that it can open a file, setuid(), and
+> then execve() through the open file via /proc/self/fd/#.  Without
+> calling prctl(), the ownership of /proc/self/fd/* becomes root,
+> so the process cannot exec it after it drops privileges.  It uses
+> prctl() in other places to get the same effect in /proc, but
+> that's one of the most critical.
 
-Yep. 2.2.18 was a good one.
-I'll look at it.
+The dumpability is per mm, which means that you have to consider
+all the cases of a thread being created in parallel to dumpability
+being enabled.
 
-Cheers,
-Ed
+So consider a three threaded process. Thread one triggers kernel thread
+creation, thread two turns dumpability back on, thread three ptraces
+the new kernel thread.
 
----------------------------------------------------------------- 
-Ed Vance              edv (at) macrolink (dot) com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+Proving that is safe is non trivial so the current patch chooses not
+to attempt it. For 2.4.21 proper someone can sit down and do the needed
+verification if they wish
+

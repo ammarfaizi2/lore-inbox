@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291102AbSBSKie>; Tue, 19 Feb 2002 05:38:34 -0500
+	id <S291104AbSBSKko>; Tue, 19 Feb 2002 05:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291096AbSBSKiY>; Tue, 19 Feb 2002 05:38:24 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1285 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291106AbSBSKiU>;
-	Tue, 19 Feb 2002 05:38:20 -0500
-Date: Tue, 19 Feb 2002 07:38:02 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] reduce struct_page size
-In-Reply-To: <Pine.LNX.4.33.0202181806340.24597-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0202190736290.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291106AbSBSKke>; Tue, 19 Feb 2002 05:40:34 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.93]:27396 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S291104AbSBSKkZ>; Tue, 19 Feb 2002 05:40:25 -0500
+Date: Tue, 19 Feb 2002 10:40:16 +0000
+From: Bob Dunlop <bob.dunlop@xyzzy.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, sfr@canb.auug.org.au,
+        linux-kernel@vger.kernel.org
+Subject: Re: Moving fasync_struct into struct file?
+Message-ID: <20020219104016.A16542@xyzzy.org.uk>
+In-Reply-To: <E16d4XU-0003VI-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16d4XU-0003VI-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Tue, Feb 19, 2002 at 08:00:31AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Linus Torvalds wrote:
-> On Mon, 18 Feb 2002, Rik van Riel wrote:
-> >
-> > o page->zone is shrunk from a pointer to an index into a small
-> >   array of zones ... this means we have space for 3 more chars
-> >   in the struct page to other stuff (say, page->age)
->
-> Why not put "page->zone" into the page flags instead?
+Hi,
 
-The original reason it's not in page->flags is that the
-rmap patch also has page->age.
+On Tue, Feb 19,  Rusty Russell wrote:
+> 	This means we need a move the "struct fasync_struct
+> fasync_list" into struct file (up from all the subsystems which use
+> it, eg. struct socket).
+> 
+> See any problems with this?
 
-Furthermore, the NUMA folks wanted the ability to have
-quite a few zones.
+At first I thought I would clean up the drivers a little moving common
+code from the release routine.  The release code is not called in the
+example you gave because of the fork, correct ?
 
-> The patch looks good, it's just silly to say that you made "struct page"
-> smaller, and then waste four bytes.
-
-If you want I'll look into shoving the zone bits into
-page->flags ...
-
-regards,
-
-Rik
+Then I realised what happens if several processes all request SIGIO
+notification on different descriptors.  The driver still needs to keep
+a private list of all the processes registered with it.  struct file
+should at best contain a pointer back to the relevant structure in the
+driver private list for cleanup ?
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+        Bob Dunlop

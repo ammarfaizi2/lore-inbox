@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269978AbRHNBkX>; Mon, 13 Aug 2001 21:40:23 -0400
+	id <S269971AbRHNBkE>; Mon, 13 Aug 2001 21:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269979AbRHNBkF>; Mon, 13 Aug 2001 21:40:05 -0400
-Received: from web14602.mail.yahoo.com ([216.136.224.82]:39942 "HELO
-	web14602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S269978AbRHNBjo>; Mon, 13 Aug 2001 21:39:44 -0400
-Message-ID: <20010814013956.38104.qmail@web14602.mail.yahoo.com>
-Date: Mon, 13 Aug 2001 18:39:56 -0700 (PDT)
-From: cardhore <cardhore@yahoo.com>
-Subject: cs4232 sound chip problem
-To: linux-kernel@vger.kernel.org
-Cc: nils@kernelconcepts.de, twoller@crystal.cirrus.com
+	id <S269985AbRHNBjJ>; Mon, 13 Aug 2001 21:39:09 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:16266 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S269979AbRHNBi1>;
+	Mon, 13 Aug 2001 21:38:27 -0400
+Message-ID: <3B7882CF.D8CE4A0@randomlogic.com>
+Date: Mon, 13 Aug 2001 18:45:51 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
+In-Reply-To: <E15WJv2-0007eS-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*Please CC all responses to cardhore@yahoo.com as I am
-not subscribed.
+Alan Cox wrote:
+> 
+> > I don't know what version we have.  Is there a way to query it through /proc?
+> 
+> You need to look at the lspci hex data. There's an errata document for the
+> MP chipset on www.amd.com if you realyl want to scare yourself 8)
+> 
 
-I'm using the cs4232 sound driver, in Linux 2.4.8 (or
-2.4.7) for my motherboard's onboard chip.  (The
-motherboard is the Intel SE440BX.)  Whenever the sound
-device is opened, it makes a loud "pop."  Does this in
-all kernels.  Any help would be appreciated!  Thanks.
+I don't find the errata. Can you hold my hand and point me to it? :)
 
-__________________________________________________
-Do You Yahoo!?
-Send instant messages & get email alerts with Yahoo! Messenger.
-http://im.yahoo.com/
+PGA
+
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbUBYGAW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 01:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUBYGAW
+	id S262624AbUBYGGr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 01:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbUBYGGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 01:00:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32237 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262310AbUBYGAU (ORCPT
+	Wed, 25 Feb 2004 01:06:47 -0500
+Received: from [152.101.81.89] ([152.101.81.89]:41997 "HELO southa.com")
+	by vger.kernel.org with SMTP id S262624AbUBYGGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 01:00:20 -0500
-Date: Tue, 24 Feb 2004 22:00:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: christophe@saout.de, jmorris@intercode.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: cryptoapi highmem bug
-Message-Id: <20040224220030.13160197.akpm@osdl.org>
-In-Reply-To: <20040225043209.GA1179@certainkey.com>
-References: <1077655754.14858.0.camel@leto.cs.pocnet.net>
-	<20040224223425.GA32286@certainkey.com>
-	<1077663682.6493.1.camel@leto.cs.pocnet.net>
-	<20040225043209.GA1179@certainkey.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 25 Feb 2004 01:06:45 -0500
+Message-ID: <004c01c3fb66$b7ba9440$9c02a8c0@southa.com>
+From: "Kyle Wong" <kylewong@southa.com>
+To: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
+Subject: Any recommended PATA or SATA chip for kernel 2.6.x ?
+Date: Wed, 25 Feb 2004 14:15:07 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Luc Cooke <jlcooke@certainkey.com> wrote:
->
-> How do I check for equal real addresses from two virtual ones?
+Hi,
 
-I don't think there is a practical way of doing this.  It would involve
-comparing the virtual address with the kmap and atomic kmap regions,
-performing a pagetable walk, extracting the pageframe.  If the page is not
-in a kmap area generate the pageframe directly.  Make that work on all
-architectures.  Very yuk.
+I need to build a six disk IDE md raid-5 with-in a month, Is here anyone and
+recommed some PATA or SATA chip which is known to be trouble free and kernel
+2.6.x friendly?
 
-If practical this API should have been defined in terms of
-(page/offset/len) and it should have kmapped the pages itself.  I guess
-it's too late for that.
+I found in the market that most PCI IDE card are using "siimage (CMD?),
+HiPoint and IT8212 chip, are they working well with 2.6.x ?
+
+Also, is the Intel ICH-5 SATA problem (somthing about interrupt) solved?
+
+Thanks in advance, Please CC my email.
+
+Kyle
+
+
+
+
 

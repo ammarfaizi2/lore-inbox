@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRACXlm>; Wed, 3 Jan 2001 18:41:42 -0500
+	id <S129370AbRACXnM>; Wed, 3 Jan 2001 18:43:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbRACXld>; Wed, 3 Jan 2001 18:41:33 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2063 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129267AbRACXl1>; Wed, 3 Jan 2001 18:41:27 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: gcc2.96 + prerelease BUG at inode.c:372
-Date: 3 Jan 2001 15:40:23 -0800
-Organization: Transmeta Corporation
-Message-ID: <930d97$83s$1@penguin.transmeta.com>
-In-Reply-To: <200101031919.f03JJQU13197@interno.emmenet.it>
+	id <S131989AbRACXnC>; Wed, 3 Jan 2001 18:43:02 -0500
+Received: from ANancy-101-1-1-133.abo.wanadoo.fr ([193.251.70.133]:1277 "HELO
+	the-babel-tower.nobis.phear.org") by vger.kernel.org with SMTP
+	id <S131987AbRACXmz>; Wed, 3 Jan 2001 18:42:55 -0500
+Date: Thu, 4 Jan 2001 00:48:07 +0100 (CET)
+From: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>
+To: "Linux-kernel's Mailing list" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
+ bug exploits
+In-Reply-To: <Pine.LNX.4.30.0101031528180.32282-100000@anime.net>
+Message-ID: <Pine.LNX.4.21.0101040044000.12420-100000@the-babel-tower.nobis.phear.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101031919.f03JJQU13197@interno.emmenet.it>,
-Diego Liziero  <pmcq@interno.emmenet.it> wrote:
->
->->1: The sound module for my mad16 based card plays the bytes swapped
->     (the same module recompiled with egcs-2.91.66 works fine).
+Excuse-me but, am I wrong or is this thread completely useless?
 
-Could you try to figure this one out a bit more? This sounds like a real
-compiler issue, whether it is because egcs just happens to get the right
-result for bogus kernel source, of whether gcc-2.96 has problems..
+Since Alan Cox and I said that Solar Design has done a complete patch to
+do the same, and since this patch is alvailble to everybody at
+http://www.openwall.com in that way that everybody can download it and
+have the choice to install it or not, do we still need to discuss over a
+way to include a similar patch into the kernel?
 
->->2: after two day under heavy load I've got the following BUG:
->     (I don't know if it's related to the compiler, that's why I'm reporting
->     this.)
+Regards,
 
-Unrelated. This one is a known bug that hits if you are a bit unlucky
-with a race on deleting the pages from the inode page-lists. Fixed in
-the current prerelease patches on ftp.kernel.org.
+  -- Nicolas Noble
 
-		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbTF2XDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 19:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTF2XDA
+	id S265040AbTF2XI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 19:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTF2XI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 19:03:00 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:18561 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265029AbTF2XC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 19:02:59 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [RFC] My research agenda for 2.7
-Date: Sun, 29 Jun 2003 01:18:18 +0200
-User-Agent: KMail/1.5.2
-Cc: Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306282354.43153.phillips@arcor.de> <20030629220756.GB26348@holomorphy.com>
-In-Reply-To: <20030629220756.GB26348@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jun 2003 19:08:26 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:54207 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S265040AbTF2XIZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 19:08:25 -0400
+Date: Sun, 29 Jun 2003 19:22:44 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Jeff Mock <jeff@mock.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
+Message-ID: <20030629232244.GB276@kurtwerks.com>
+References: <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306290118.18266.phillips@arcor.de>
+In-Reply-To: <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 June 2003 00:07, William Lee Irwin III wrote:
-> On Sunday 29 June 2003 23:26, Mel Gorman wrote:
-> > ...I will occupy myself with the
-> > gritty details of how to move pages without making the system crater.
->
-> This sounds like it's behind dependent on physically scanning slabs,
-> since one must choose slab pages for replacement on the basis of their
-> potential to restore contiguity, not merely "dump whatever's replaceable
-> and check how much got freed".
+Quoth Jeff Mock:
+> 
+> I'm running a 2.4.21 kernel on a redhat 9.0 system.
+> 
+> I'm having a problem when using serial ATA drives on an Intel 875P/ICH5
+> motherboard where the kernel will hang at approximately the same place
+> in the boot process about 25% of the time.
 
-Though I'm not sure what "behind dependent" means, and I'm not the one 
-advocating slab for this, it's quite correct that scanning strategy would 
-need to change, at least when the system runs into cross-order imbalances.  
-But this isn't much different from the kinds of things we do already.
+[tale of woe elided]
 
-Regards,
+[lots of snippage]
 
-Daniel
+> 1: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4363  Sat 
+> Apr 19 17:46:46 PDT 2003
 
+You won't get a lot of help here until you lose this module. 
+
+
+> Linux agpgart interface v0.99 (c) Jeff Hartmann
+> agpgart: Maximum main memory to use for agp memory: 1919M
+> agpgart: Unsupported Intel chipset (device id: 2578), you might want to try 
+> agp_try_unsupported=1.
+> agpgart: no supported devices found.
+> 1: NVRM: AGPGART: unable to retrieve symbol table
+
+Hmm.
+
+Kurt
+-- 
+Very few profundities can be expressed in less than 80 characters.

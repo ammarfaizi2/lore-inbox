@@ -1,26 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312914AbSCZBlV>; Mon, 25 Mar 2002 20:41:21 -0500
+	id <S312898AbSCZBqV>; Mon, 25 Mar 2002 20:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312915AbSCZBlM>; Mon, 25 Mar 2002 20:41:12 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4591
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S312914AbSCZBk7>; Mon, 25 Mar 2002 20:40:59 -0500
-Date: Mon, 25 Mar 2002 17:42:19 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
+	id <S312918AbSCZBqL>; Mon, 25 Mar 2002 20:46:11 -0500
+Received: from [208.48.139.185] ([208.48.139.185]:34181 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S312898AbSCZBqD>; Mon, 25 Mar 2002 20:46:03 -0500
+Date: Mon, 25 Mar 2002 17:45:55 -0800
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Putrid Elevator Behavior 2.4.18/19
-Message-ID: <20020326014219.GA3536@matchmail.com>
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	jmerkey@timpanogas.org
+Message-ID: <20020325174555.A3252@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
 In-Reply-To: <20020320120455.A19074@vger.timpanogas.org> <20020320220241.GC29857@matchmail.com> <20020320152008.A19978@vger.timpanogas.org> <20020320152504.B19978@vger.timpanogas.org> <3C9935CA.38E6F56F@zip.com.au> <20020320234552.A21740@vger.timpanogas.org> <20020325181645.A17171@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,25 +44,16 @@ On Mon, Mar 25, 2002 at 06:16:45PM -0700, Jeff V. Merkey wrote:
 > > 
 > > No, but I will test this tonight.  I am in tonight working on 
 > > this problem until I run it down.
-> > 
-> > Jeff
-> > 
-> 
-> 
-> Andrew,
 > 
 > I have been running a test run against 2.4.19-pre4 (and later) for 
 > over a week non-stop and the elevator problem appears to have been 
 > corrected by this fix.  I will update further if the problem 
 > resurfaces.
->
 
-That's good news.
+Jeff,
 
-Are you still working on the A/B list patch?  I'd imagine that it could make
-several problems easier to fix in the block layer.
+Did upgrading to 2.4.19-pre4 by itself fix your problems, or did you need to
+tweak with elvtune as well?  If so, what values did you find produced
+optimal results?
 
-> :-)
->
-
-:)
+-Dave

@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129147AbQKKDJp>; Fri, 10 Nov 2000 22:09:45 -0500
+	id <S129097AbQKKDXd>; Fri, 10 Nov 2000 22:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129198AbQKKDJf>; Fri, 10 Nov 2000 22:09:35 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:54719 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129147AbQKKDJa>; Fri, 10 Nov 2000 22:09:30 -0500
-Message-ID: <3A0CB871.B660B938@uow.edu.au>
-Date: Sat, 11 Nov 2000 14:09:37 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S129198AbQKKDXX>; Fri, 10 Nov 2000 22:23:23 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:31749 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S129097AbQKKDXO>; Fri, 10 Nov 2000 22:23:14 -0500
+Message-ID: <3A0CBD16.5A07D189@alacritech.com>
+Date: Fri, 10 Nov 2000 19:29:26 -0800
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: Wild thangs, was: sendmail fails to deliver mail with attachments in 
- /var/spool/mqueue
-In-Reply-To: <20001110095227.A15010@sendmail.com> <3A0C37FF.23D7B69@timpanogas.org> <20001110101138.A15087@sendmail.com> <3A0C3F30.F5EB076E@timpanogas.org> <20001110133431.A16169@sendmail.com> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <3A0C929B.EE6F7137@linux.com> <3A0C9277.273FA907@timpanogas.org> <3A0C96FD.8441F995@linux.com>,
-			<3A0C96FD.8441F995@linux.com>; from david@linux.com on Fri, Nov 10, 2000 at 04:46:53PM -0800 <20001110202527.A3342@vger.timpanogas.org> <3A0CB2D8.EA3E3DA4@uow.edu.au>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+CC: Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
+        Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <200011110012.TAA22015@tsx-prime.MIT.EDU>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+"Theodore Y. Ts'o" wrote:
 > 
-> "Jeff V. Merkey" wrote:
-> >
-> > They're not modprobes, they're misnamed processes sleeping from NWFS.
-> > I got the fix from someone so now they display their proper names.
-> > top displays the names correctly, ps does not.  Several people have
-> > verified this problem, and all you are saying is that your servers
-> > are never heavily loaded for long periods of time, say 200 hours
-> > at a stretch of consatnt ftp traffic?
+>    Date: Fri, 10 Nov 2000 10:36:31 -0800
+>    From: "Matt D. Robinson" <yakker@alacritech.com>
 > 
-> Kernel threads?  Do this:
+>    As soon as I finish writing raw write disk routines (not using kiobufs),
+>    we can _maybe_ get LKCD accepted one of these days, especially now that we
+>    don't have to build 'lcrash' against a kernel revision.  I'm in the
+>    middle of putting together raw IDE functions now -- see LKCD mailing
+>    list for details if you're curious.
 > 
->      strcpy(current->comm, "threadname");                       /* 16 char array!! */
->      current->mm->arg_start = current->mm->arg_end = 0;         /* black magic */
+> Great!  Are you thinking about putting the crash dumper and the raw
+> write disk routines in a separate text section, so they can be located
+> in pages which are write-protected from accidental modification in case
+> some kernel code goes wild?  (Who me?  Paranoid?  :-)
 > 
-> and `ps' should be happy.
+>                                                 - Ted
 
-Even better, use sched.c:daemonize().
+We're planning to isolate the write functions as much as possible.
+In the past, we've been bitten by this whole concept of Linux "raw I/O".
+When I was at SGI, we were able to write to a block device directly
+through low-level driver functions that weren't inhibited by any
+locking, and that was after shutting down all processors and any
+other outstanding interrupts.  For Linux, I had given up and stuck
+with the raw I/O interpretation of kiobufs, which is just flat out
+wrong to do for dumping purposes.  Secondly, as Linus said to me a
+few weeks ago, he doesn't trust the current disk drivers to be able
+to reliably dump when a crash occurs.  Don't even ask me to go into
+all the reasons kiobufs are wrong for crash dumping.  Just read
+the code -- it'll be obvious enough.
+
+So I guess after a few months/years, we're finally at a point where
+we're saying, "Okay, forget all this, let's do this the right way,
+so we don't have these problems anymore."  We're removing lcrash from
+the kernel, putting it into its own RPM, and adding patches to the
+kernel for LKCD that build in crash dump functionality and make a new
+"Kernsyms" file so that we can dynamically read the symbol table of
+major parts of the kernel and give you memory dumps, stack traces,
+and even dump out entire structures dynamically.  Then we'll have
+the right crash dump mechanism for everyone.
+
+It's time to get RAS moving for Linux.  GKHI and LKCD are the first
+steps to get us there (IMHO).
+
+--Matt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

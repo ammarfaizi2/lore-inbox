@@ -1,56 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbRDEB3o>; Wed, 4 Apr 2001 21:29:44 -0400
+	id <S132526AbRDEBbE>; Wed, 4 Apr 2001 21:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132526AbRDEB3f>; Wed, 4 Apr 2001 21:29:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27409 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132513AbRDEB3Z>; Wed, 4 Apr 2001 21:29:25 -0400
-Subject: Re: linux 2.4.3 crashed my hard disk
-To: ionut@moisil.cs.columbia.edu (Ion Badulescu)
-Date: Thu, 5 Apr 2001 02:30:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200104050110.f351AMu20890@moisil.dev.hydraweb.com> from "Ion Badulescu" at Apr 04, 2001 06:10:22 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132539AbRDEBay>; Wed, 4 Apr 2001 21:30:54 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:517 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132526AbRDEBai> convert rfc822-to-8bit; Wed, 4 Apr 2001 21:30:38 -0400
+Message-ID: <3ACBCA89.EFA3BEEB@baldauf.org>
+Date: Thu, 05 Apr 2001 03:29:45 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: de-DE,en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kybO-0003Bk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Urban Widmark <urban@teststation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] smbfs: caching problems
+In-Reply-To: <Pine.LNX.4.30.0104050032430.16277-200000@cola.teststation.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> is about the most ominous message one can receive from the IDE driver:
-> 
-> 1. it's not in English, so it doesn't tell you jack
-
-It tells you the chipset doesnt support an IDE dma timeout handling function
-(ie all it can do is reset and retry)
-
-> 2. it's usually a sign of "mkfs + reinstall needed"
-
-Not in my experience. Its just a drive throwing a fit.
-
-> 3. I've had it happen on Intel and VIA chipsets alike, 100% guaranteed
->    non-overclocked
-
-I've only seen it on broken boards that also needed DMA off in 2.2 and
-on the VIA stuff before the VIA fixups went in and the new via driver.
-
-> 5. I have yet to see a coherent explanation from Andre as to what the
->    message means, or what causes it.
 
 
-We issued a DMA, the drive sat their and did nothing. The default handler 
-asks the controller handling the request to retry it in PIO mode. Which is
-readonable. On the 440BX this uses disable_irq which may also trigger a bug
-in the APIC on SMP machines and hang solid unless you have -ac. I dont think
-thats statistically likely here.
+Urban Widmark wrote:
 
-The code looks correct, its a bit convoluted but it does seem to correctly
-reissue the request, although not as PIO. Perhaps Andre can explain why its
-ignoring the 'please use pio' hint on the return
+> On Sun, 1 Apr 2001, Xuan Baldauf wrote:
+>
+> > there is something wrong with smbfs caching which makes my
+> > applications fail. The behaviour happens with
+> > linux-2.4.3-pre4 and linux-2.4.3-final.
+> >
+> > Consider following shell script: (where /mnt/n is a
+> > smbmounted smb share from a Win98SE box)
+>
+> Try the attached patch, as a workaround.
+>
 
-Alan
+Works for me. :-)
+
+It survived codified test case at the end of this message.
+
+Xuân.
+
+
+#!/bin/bash
+#
+
+if test -z "$1"; then
+ LOCAL=0
+fi
+
+if test -n "$LOCAL"; then
+ umount /mnt/n
+
+ rmmod smbfs
+
+ # mount
+ ~/bin/lwc
+
+ cd /mnt/n/temp
+fi
+
+
+rm -f /tmp/test.abc /tmp/test.xyz testfile
+
+I=0
+while test $I -lt 127; do
+ echo "abc" >>/tmp/test.abc
+ I=$((I+1))
+done
+
+I=0
+while test $I -lt 129; do
+ echo "xyz" >>/tmp/test.xyz
+ I=$((I+1))
+done
+
+I=0
+
+while test $I -lt 8; do
+ cp /tmp/test.abc testfile
+ tail -1 testfile
+ cp /tmp/test.xyz testfile
+ tail -1 testfile
+
+ I=$((I+1))
+done
+
+rm -f /tmp/test.abc /tmp/test.xyz testfile
+
+
+if test -n "$LOCAL"; then
+ umount /mnt/n
+fi
+
 

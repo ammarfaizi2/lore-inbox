@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265864AbUAEVHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUAEVHB
+	id S265366AbUAEVMl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbUAEVMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:07:01 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:61581 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265697AbUAEVG4 (ORCPT
+	Mon, 5 Jan 2004 16:12:35 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:8638 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S265366AbUAEVLt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:06:56 -0500
-Date: Mon, 5 Jan 2004 13:01:18 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       gibbs@scsiguy.com
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
- map/unmaps
-Message-Id: <20040105130118.0cb404b8.davem@redhat.com>
-In-Reply-To: <p73brpi1544.fsf@verdi.suse.de>
-References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kernel>
-	<20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
-	<p73brpi1544.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 5 Jan 2004 16:11:49 -0500
+Date: Mon, 5 Jan 2004 21:53:16 +0100
+From: j.beyer@web.de
+To: linux-kernel@vger.kernel.org
+Subject: build requirements for 2.6.0 (make)
+Message-ID: <20040105205315.GA27080@dilbert.beyer.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05 Jan 2004 22:02:19 +0100
-Andi Kleen <ak@suse.de> wrote:
+Dear Listreader,
 
-> It sets length to zero to terminate the list when entries were merged.
-> It doesn't have a dma_length.
+the Documentation/Changes file suggest that make-3.78 is new enough to 
+build the 2.6.0 kernel:
+# grep "make --version"  Documentation/Changes 
+o  Gnu make               3.78                    # make --version
 
-I understand, and you are defining dma_length to just use the
-normal sg->length field, and I'm trying to explain to you that this
-is not allowed.  If you want to modify the length field to zero terminate
-the DMA chunks, you must have a seperate dma_length field in your
-platforms scatterlist structure.
+I saw reproducable sig segv's with that make at my setup. I ran
+the "make all" command in gdb which gave the following output
 
-Again, for the 3rd time, see what sparc64 is doing here.
+...
+make[2]: Nothing to be done for `__build'.
+/usr/local/bin/make -f scripts/Makefile.build obj=net/sunrpc
+make[2]: Nothing to be done for `__build'.
+/usr/local/bin/make -f scripts/Makefile.build obj=net/unix
+make[2]: Nothing to be done for `__build'.
+/usr/local/bin/make -f scripts/Makefile.build obj=net/xfrm
+make[2]: Nothing to be done for `__build'.
+/usr/local/bin/make -f scripts/Makefile.build obj=lib
+make[1]: Nothing to be done for `__build'.
+/usr/local/bin/make -f scripts/Makefile.build obj=arch/i386/lib
+make[1]: Nothing to be done for `__build'.
 
-> It tripping over remapped lists is an side effect, but an useful one 
-> because remapping is not supported (merging destroys information that
-> cannot be reconstructed). If the bug didn't exist you would get data
-> corruption.
+Program received signal SIGSEGV, Segmentation fault.
+expand_argument (
+    str=0x8071ebc " echo '  GEN     .version'; . $(srctree)/scripts/mkversion > .tmp_version; mv -f .tmp_version .version; $(MAKE) $(build)=init; ) $(if $($(quiet)cmd_vmlinux__), echo '  $($(quiet)cmd_vmlinux__)' &&) $("..., 
+    end=0xffffffff <Address 0xffffffff out of bounds>) at expand.c:417
+417       if (*end == '\0')
 
-You should not be modifying any portion of the non-DMA fields.
-Therefore, if the SG is unmapped, then passed into your IOMMU code for
-a future map call, it should just work.
+this happend with make-3.78.
 
+I assume that it only happens with certain environments (e.g. path lengths,
+or number and length of enviroment variables and so on). I did not
+track that further, but updated to make-3.80 (which is the most 
+current release).
+
+So I suggest to lift the requirement in the Documentation/Changes
+file. It works here with make-3.80, maybe older version will
+work also.
+
+        hope this helps
+        Joerg

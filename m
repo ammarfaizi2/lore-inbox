@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbSKHJ2v>; Fri, 8 Nov 2002 04:28:51 -0500
+	id <S261723AbSKHJeq>; Fri, 8 Nov 2002 04:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261718AbSKHJ2u>; Fri, 8 Nov 2002 04:28:50 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49930 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261714AbSKHJ2u>; Fri, 8 Nov 2002 04:28:50 -0500
-Date: Fri, 8 Nov 2002 09:35:16 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader against 2.5.46: 9/9
-Message-ID: <20021108093516.A15440@flint.arm.linux.org.uk>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-References: <25206.1036586620@ocs3.intra.ocs.com.au> <20021108003238.B01AD2C04C@lists.samba.org>
+	id <S261725AbSKHJep>; Fri, 8 Nov 2002 04:34:45 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:5547 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261723AbSKHJel>;
+	Fri, 8 Nov 2002 04:34:41 -0500
+Date: Fri, 8 Nov 2002 10:41:22 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Mike Diehl <mdiehl@dominion.dyndns.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [documentation] Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
+Message-ID: <20021108094122.GB16512@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Mike Diehl <mdiehl@dominion.dyndns.org>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021107091822.GA21030@outpost.ds9a.nl> <20021107.025250.35525477.davem@redhat.com> <20021107130244.GA25032@outpost.ds9a.nl> <20021108023926.51B985606@dominion.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021108003238.B01AD2C04C@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Nov 07, 2002 at 10:08:24PM +1100
+In-Reply-To: <20021108023926.51B985606@dominion.dyndns.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 10:08:24PM +1100, Rusty Russell wrote:
-> That explains it: I didn't think you were insane 8).  Thanks, I'll
-> move it to some other name which just does the "add symbols to oops"
-> minimum.
+On Thu, Nov 07, 2002 at 08:59:32PM -0500, Mike Diehl wrote:
+> So the IPSec in the 2.5 kernel actually works!!!  I had heard it was mostly 
+> nonfunctional.
 
-I doubt that we need all of the kallsyms data in the kernel as well (unless
-you're using kdb.)
+Well, it requires patches still. I hope 2.5.47 will contain everything you
+need. As of this moment, there is no set of patches that will apply cleanly
+to bitkeeper HEAD to give you working IPSEC, unless you manage to check out
+a tree from Thursday morning CET.
 
-One of the things on my todo list is to look into a kallsyms replacement
-that allows cross-compilation (and actually allows kallsyms to work at
-all on ARM.)
+Perhaps dave can re-diff?
 
-ARM requires the ELF architecture private flags to be set correctly to link
-two objects together.  So there's two problems with the current setup:
+I'm writing documentation on http://lartc.org/howto/lartc.ipsec.html which
+explains how to set everything up.
 
-1. can't cross-compile with kallsyms
-2. can't natively compile with kallsyms on architectures that require
-   the private flags to be set correctly.
+Regards,
+
+bert
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

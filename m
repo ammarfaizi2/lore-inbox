@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263167AbUCST02 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 14:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbUCST02
+	id S263164AbUCSTZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 14:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUCSTZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 14:26:28 -0500
-Received: from [65.39.167.249] ([65.39.167.249]:6349 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S263167AbUCST0G convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 14:26:06 -0500
-Date: Fri, 19 Mar 2004 14:26:05 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Peter Williams <peterw@aurema.com>,
-       =?iso-8859-1?B?IkZy6WTpcmljIEwuIFcuIE1ldW5pZXIi?= 
-	<1@pervalidus.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
- thing
-In-Reply-To: <20040319190355.GA30255@ucw.cz>
-Message-ID: <Pine.LNX.4.58.0403191424290.12113@innerfire.net>
-References: <40593015.9090507@aurema.com> <Pine.LNX.4.58.0403180346000.1276@pervalidus.dyndns.org>
- <40594984.3010001@aurema.com> <Pine.LNX.4.58.0403191236170.10220@innerfire.net>
- <20040319190355.GA30255@ucw.cz>
+	Fri, 19 Mar 2004 14:25:55 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:32192 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S263164AbUCSTXt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 14:23:49 -0500
+From: "Fab Tillier" <ftillier@infiniconsys.com>
+To: "'Ulrich Drepper'" <drepper@redhat.com>,
+       "Woodruff, Robert J" <woody@co.intel.com>
+Cc: "Woodruff, Robert J" <woody@jf.intel.com>, <linux-kernel@vger.kernel.org>,
+       "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>
+Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
+Date: Fri, 19 Mar 2004 11:21:15 -0800
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A7A@mercury.infiniconsys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+In-Reply-To: <405B403F.4000702@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-OriginalArrivalTime: 19 Mar 2004 19:23:48.0813 (UTC) FILETIME=[B461C7D0:01C40DE7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Vojtech Pavlik wrote:
+> -----Original Message-----
+> From: Ulrich Drepper [mailto:drepper@redhat.com]
+> Sent: Friday, March 19, 2004 10:47 AM
+> 
+> So, these people come up with their own software stacks, unreviewed
+> interface extensions, and demand that everybody accepts what they were
+> "designing" without the ability to question anything.
 
-> Date: Fri, 19 Mar 2004 20:03:55 +0100
-> From: Vojtech Pavlik <vojtech@suse.cz>
-> To: Gerhard Mack <gmack@innerfire.net>
-> Cc: Peter Williams <peterw@aurema.com>,
->      "[iso-8859-1] \"Frédéric L. W. Meunier\"" <1@pervalidus.net>,
->      linux-kernel@vger.kernel.org
-> Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
->     thing
->
-> On Fri, Mar 19, 2004 at 12:37:37PM -0500, Gerhard Mack wrote:
-> > On Thu, 18 Mar 2004, Peter Williams wrote:
-> >
-> > > Frédéric L. W. Meunier wrote:
-> > > > Wrongly ?
-> > >
-> > > Yes, wrongly.  XFree86 wasn't even running when the messages appeared so
-> > > there's no way that it could be to blame.  Also no keys had been pressed
-> > > or released.
-> >
-> > I have a machine here I see that message on before the init scripts even
-> > load.
->
-> Quick question: Does it go away if you compile USB support into the
-> kernel statically?
->
+Yes, a design review with a period to provide feedback at the design level,
+not the code level, would make sense.  I don't see how one could argue
+against that.
 
-I have USB compiled in and it's still there.  I should also note that the
-keyboard is plugged into the ps/2 port.
+> 
+> I surely find this completely  unacceptable and any consideration of
+> accepting anything the Infiniband group comes up with should be
+> postponed until every bit of the design can be reviewed.  If bits and
+> pieces are accepted prematurely it'll just be "now that this is support
+> you have to add this too, otherwise it'll not be useful".
 
-The mouse on the other hand is plugged into the USB port.
+For the IBAL stack, there are numerous documents on the Linux InfiniBand
+Project (http://infiniband.sourceforge.net/) describing most everything from
+the overall architecture to the APIs.  On the project home page is a general
+overview of what InfiniBand is, and how it fits into the OS.  More detailed
+documentation is available there too.  Of particular interest to this thread
+would be the Access Layer documents. Below are links to documents of
+interest.
 
-	Gerhard
+- The overall software architecture spec is the "Linux SAS", available at
+http://infiniband.sourceforge.net/LinuxSAS.1.0.1.pdf.
+- A presentation describing the IBAL APIs is here:
+http://infiniband.sourceforge.net/IAL/Access/AlInterface.pdf
+- The IBAL high level design is here:
+http://infiniband.sourceforge.net/IAL/Access/IBA_AL_HLD.pdf
+- A user's guide to IBAL is here:
+http://infiniband.sourceforge.net/IAL/Access/AL_Users_Guide.pdf
+- And finally, the API documentation is here:
+http://infiniband.sourceforge.net/IAL/Access/IBAL/IBAL_mi.html
 
+HTH,
 
+- Fab
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.

@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264309AbUDSJRq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 05:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbUDSJRq
+	id S263804AbUDSJoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 05:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbUDSJoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 05:17:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32705 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264309AbUDSJRo (ORCPT
+	Mon, 19 Apr 2004 05:44:19 -0400
+Received: from mail.shareable.org ([81.29.64.88]:1700 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S263804AbUDSJoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 05:17:44 -0400
-Date: Mon, 19 Apr 2004 02:17:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc1-mm1 failure: kmod.o didn't compile with module-less
- setup
-Message-Id: <20040419021723.3a8295ec.akpm@osdl.org>
-In-Reply-To: <40839850.2010907@aitel.hist.no>
-References: <20040418230131.285aa8ae.akpm@osdl.org>
-	<40839850.2010907@aitel.hist.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 19 Apr 2004 05:44:17 -0400
+Date: Mon, 19 Apr 2004 10:44:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: chris@scary.beasts.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Add 64-bit get_user and __get_user for i386
+Message-ID: <20040419094408.GA13007@mail.shareable.org>
+References: <Pine.LNX.4.58.0404180026490.16486@sphinx.mythic-beasts.com> <Pine.LNX.4.58.0404172005260.23917@ppc970.osdl.org> <20040419004657.GD11064@mail.shareable.org> <Pine.LNX.4.58.0404182220470.2808@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404182220470.2808@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> wrote:
->
-> This one zonked out. I haven't configured module support, I simply
-> compile a monolithic kernel tailored for this particular machine.
-> I got this error, where 2.6.5-mm6 works well:
-> 
->   CC      kernel/kmod.o
-> kernel/kmod.c: In function `call_usermodehelper':
-> kernel/kmod.c:253: error: `khelper_wq' undeclared (first use in this function)
-> kernel/kmod.c:253: error: (Each undeclared identifier is reported only once
-> kernel/kmod.c:253: error: for each function it appears in.)
-> kernel/kmod.c: In function `usermodehelper_init':
-> kernel/kmod.c:267: error: `khelper_wq' undeclared (first use in this function)
-> make[1]: *** [kernel/kmod.o] Error 1
-> make: *** [kernel] Error 2
-> 
+Linus Torvalds wrote:
+> I agree that it's an ugly special case. get/put_user should really accept 
+> all the normal cases, and that includes 'u64'.
 
+Enjoy,
+-- Jamie
 
-diff -puN kernel/kmod.c~use-workqueue-for-call_usermodehelper-fix kernel/kmod.c
---- 25/kernel/kmod.c~use-workqueue-for-call_usermodehelper-fix	2004-04-19 01:45:50.561866616 -0700
-+++ 25-akpm/kernel/kmod.c	2004-04-19 01:45:56.323990640 -0700
-@@ -40,9 +40,10 @@
+Subject: [PATCH] Add 64-bit get_user and __get_user for i386
+Patch: uaccess64-2.6.5
+
+Add 64-bit get_user and __get_user for i386.
+Don't ask me how, but this shrinks the kernel too.
+
+--- orig-2.6.5/include/asm-i386/uaccess.h	2003-12-18 02:58:16.000000000 +0000
++++ uaccess64-2.6.5/include/asm-i386/uaccess.h	2004-04-19 10:33:20.000000000 +0100
+@@ -169,16 +169,19 @@
+  * On error, the variable @x is set to zero.
+  */
+ #define get_user(x,ptr)							\
+-({	int __ret_gu,__val_gu;						\
++(sizeof (*(ptr)) == 8							\
++ ? (__copy_from_user_ll((void *)&(x), (ptr), 8) ? -EFAULT : 0) :	\
++({									\
++  	int __ret_gu,__val_gu;						\
+ 	switch(sizeof (*(ptr))) {					\
+ 	case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;		\
+ 	case 2:  __get_user_x(2,__ret_gu,__val_gu,ptr); break;		\
+ 	case 4:  __get_user_x(4,__ret_gu,__val_gu,ptr); break;		\
+-	default: __get_user_x(X,__ret_gu,__val_gu,ptr); break;		\
++	default: __get_user_bad(); break;				\
+ 	}								\
+ 	(x) = (__typeof__(*(ptr)))__val_gu;				\
+ 	__ret_gu;							\
+-})
++}))
  
- extern int max_threads;
+ extern void __put_user_bad(void);
  
--#ifdef CONFIG_KMOD
- static struct workqueue_struct *khelper_wq;
+@@ -333,13 +336,14 @@
+ 		: ltype (x), "m"(__m(addr)), "i"(errret), "0"(err))
  
-+#ifdef CONFIG_KMOD
-+
- /*
- 	modprobe_path is set via /proc/sys.
- */
-
-_
-
+ 
+-#define __get_user_nocheck(x,ptr,size)				\
+-({								\
+-	long __gu_err, __gu_val;				\
+-	__get_user_size(__gu_val,(ptr),(size),__gu_err,-EFAULT);\
+-	(x) = (__typeof__(*(ptr)))__gu_val;			\
+-	__gu_err;						\
+-})
++#define __get_user_nocheck(x,ptr,size)					     \
++((size) == 8 ? (__copy_from_user_ll((void *)&(x), (ptr), 8) ? -EFAULT : 0) : \
++({									     \
++	long __gu_err, __gu_val;					     \
++	__get_user_size(__gu_val,(ptr),(size),__gu_err,-EFAULT);	     \
++	(x) = (__typeof__(*(ptr)))__gu_val;				     \
++	__gu_err;							     \
++}))
+ 
+ extern long __get_user_bad(void);
+ 

@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUG1XiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUG1XmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267352AbUG1XiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUG1Xec
+	id S267362AbUG1XmC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUG1Xly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:34:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267351AbUG1Xbe (ORCPT
+	Wed, 28 Jul 2004 19:41:54 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:39040 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267327AbUG1Xjr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:31:34 -0400
-Date: Wed, 28 Jul 2004 16:34:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Johannes Stezenbach <js@convergence.de>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm1
-Message-Id: <20040728163440.395b22e0.akpm@osdl.org>
-In-Reply-To: <20040728232453.GA6377@convergence.de>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
-	<20040728222455.GC5878@convergence.de>
-	<20040728224423.GJ12308@parcelfarce.linux.theplanet.co.uk>
-	<20040728232453.GA6377@convergence.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 28 Jul 2004 19:39:47 -0400
+Date: Thu, 29 Jul 2004 01:39:29 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mochel@digitalimplant.org, akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: -mm swsusp: do not default to platform/firmware
+Message-ID: <20040728233929.GD16494@elf.ucw.cz>
+References: <20040728222445.GA18210@elf.ucw.cz> <20040728161448.336183e2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728161448.336183e2.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach <js@convergence.de> wrote:
->
-> This is a hack introduced by someone years ago. The "pointer" is
-> actually an integer argument, e.g. in include/linux/dvb/audio.h:
+Hi!
+
+> > -mm swsusp now defaults to platform/firmware suspend... That's
+> > certainly unexpected, changes behaviour from previous version, and
+> > only works on one of three machines I have here. I'd like the default
+> > to be changed back.
 > 
-> #define AUDIO_SET_MUTE             _IO('o', 6)
+> You overestimate my knowledge of suspend stuff.  AFAICT the current -mm
+> default is to enter ACPI sleep state via the BIOS rather than via Linux's
+> ACPI driver.  Correct?
+
+Its actually bit more complex. There are 3 methods:
+
+shutdown: save state in linux, then tell bios to powerdown
+
+platform: save state in linux, then tell bios to powerdown and blink
+	  "suspended led"
+
+firmware: tell bios to save state itself
+
+"platform" is actually right thing to do, but "shutdown" is most
+reliable.
+
+Old code always did "shutdown". New code does "shutdown", "platform"
+or "firmware" depending on what BIOS can do.
+
+> If not, then what?
 > 
-> actually takes an integer argument (!0 mute, 0 unmute), so one can write
+> If so, then why do we feel this change is needed, and why did Pat change things?
 > 
-> 	if (ioctl(fd, AUDIO_SET_MUTE, 1) == -1)
-> 		perror("mute");
+> My major concern here is that Pat may have made that change to get suitable
+> coverage testing for new code paths, and we wouldn't want to undo that right away.
 
-Is it a boolean argument?
-
-If so, we could change the code to do
-
-	parg = (void *)(arg ? 1 : 0);
-
-so if someone dereferences it they'll get a nice oops.
+I believe "platform" is so unreliable (for now) that it blocks usefull
+testing... I'd like it to default to "shutdown" when it is merged
+upstream.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

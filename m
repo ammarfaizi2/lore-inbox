@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262091AbREUR43>; Mon, 21 May 2001 13:56:29 -0400
+	id <S262297AbREUSDA>; Mon, 21 May 2001 14:03:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262255AbREUR4T>; Mon, 21 May 2001 13:56:19 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:1542 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262091AbREUR4D>;
-	Mon, 21 May 2001 13:56:03 -0400
-Date: Mon, 21 May 2001 13:58:57 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Wayne.Brown@altec.com
-Cc: David Woodhouse <dwmw2@infradead.org>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy
-Message-ID: <20010521135857.B11361@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Wayne.Brown@altec.com, David Woodhouse <dwmw2@infradead.org>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <86256A53.0060ACF6.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <86256A53.0060ACF6.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Mon, May 21, 2001 at 12:36:48PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S262295AbREUSCv>; Mon, 21 May 2001 14:02:51 -0400
+Received: from waste.org ([209.173.204.2]:35616 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262265AbREUSCo>;
+	Mon, 21 May 2001 14:02:44 -0400
+Date: Mon, 21 May 2001 13:04:05 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <Pine.LNX.4.33.0105210925390.26948-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.30.0105211259180.17263-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne.Brown@altec.com <Wayne.Brown@altec.com>:
-> Speaking from the perspective of a user of the CML tools, rather
-> than as a developer, all I've been trying to say is this: When I
-> type "make menuconfig" or "make oldconfig" in the future, I want to
-> see the same interface and the same results that I've always seen,
-> because it's always worked for me in the past.
+On Mon, 21 May 2001, David Lang wrote:
 
-Visual details will differ, but I've been careful about maintaining
-functional compatibility.  There was a phase of the development during
-which I was mostly processing feature requests from people who wanted
-features of the old system that I had not properly understood (such as
-the NEW tag).  That phase ended almost a month ago.  Nobody who has
-actually tried the CML2 tools more recently has reported that the UI
-changes present any difficulty.
+> what makes you think it's safe to say there's only one floppy drive?
 
-CML2 drops its configuration results in the same place, in the same
-formats, as CML1.  So you should in fact be able to type `make menuconfig'
-and `make oldconfig' with good results.  Have you actually tried this?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Read as: it doesn't make sense to have per-fd state on a single floppy
+device given that there's only one actual hardware instance associated
+with it and multiple openers don't make sense. Opening a floppy at
+different densities with magic filenames was an example Linus used earlier
+in the thread. Surely there can be more than one drive and more than one
+serial port.
 
-The right of the citizens to keep and bear arms has justly been considered as
-the palladium of the liberties of a republic; since it offers a strong moral
-check against usurpation and arbitrary power of rulers; and will generally,
-even if these are successful in the first instance, enable the people to resist
-and triumph over them."
-        -- Supreme Court Justice Joseph Story of the John Marshall Court
+> On Mon, 21 May 2001, Oliver Xymoron wrote:
+>
+> > On Sat, 19 May 2001, Alexander Viro wrote:
+> >
+> > > Let's distinguish between per-fd effects (that's what name in
+> > > open(name, flags) is for - you are asking for descriptor and telling
+> > > what behaviour do you want for IO on it) and system-wide side effects.
+> > >
+> > > IMO encoding the former into name is perfectly fine, and no write on
+> > > another file can be sanely used for that purpose. For the latter, though,
+> > > we need to write commands into files and here your miscdevices (or procfs
+> > > files, or /dev/foo/ctl - whatever) is needed.
+> >
+> > I'm a little skeptical about the necessity of these per-fd effects in the
+> > first place - after all, Plan 9 does without them.  There's only one
+> > floppy drive, yes? No concurrent users of serial ports? The counter that
+> > comes to mind is sound devices supporting multiple opens, but I think
+> > esound and friends are a better solution to that problem.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

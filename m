@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbTESWpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTESWpo
+	id S263171AbTESWqP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263208AbTESWqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:45:44 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:10750 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263201AbTESWpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:45:40 -0400
-Date: Mon, 19 May 2003 15:54:55 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: jgmyers@netscape.com (John Myers)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: aio_poll in 2.6
-Message-Id: <20030519155455.7fb9788d.akpm@digeo.com>
-In-Reply-To: <3EC94DB6.8000405@netscape.com>
-References: <fa.mc7vl0v.u7u2ah@ifi.uio.no>
-	<200305170054.RAA10802@pagarcia.nscp.aoltw.net>
-	<20030516195025.4bf5dd8d.akpm@digeo.com>
-	<200305191938.MAA11946@pagarcia.nscp.aoltw.net>
-	<1053373716.29227.27.camel@dhcp22.swansea.linux.org.uk>
-	<20030519141654.31901ee3.akpm@digeo.com>
-	<3EC94DB6.8000405@netscape.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 19 May 2003 18:46:15 -0400
+Received: from holomorphy.com ([66.224.33.161]:46057 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263171AbTESWqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:46:13 -0400
+Date: Mon, 19 May 2003 15:59:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI mapping on large memory 32-bit machines
+Message-ID: <20030519225904.GI8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Timothy Miller <miller@techsource.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EC91F3B.8010005@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 May 2003 22:58:33.0128 (UTC) FILETIME=[2C0A7A80:01C31E5A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EC91F3B.8010005@techsource.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jgmyers@netscape.com (John Myers) wrote:
->
-> Andrew Morton wrote:
-> 
-> >I can do that, but would need the test app...
-> >  
-> >
-> Unfortunately, the thread pool framework the test app uses is proprietary.
-> 
+On Mon, May 19, 2003 at 02:15:23PM -0400, Timothy Miller wrote:
+> On x86 with PAE and 4 gigs of RAM or more, where do memory-mapped I/O 
+> devices get mapped (in the physical address space)?  Most PCI devices 
+> can't handle 64-bit addresses.  Can PC chipsets physically remap some of 
+> the RAM to above 4 gig?  Or do you just lose that much RAM?  If both RAM 
+> and some I/O device are mapped to the same location, isn't there a conflict?
 
-That is a problem.
+AFAIK most (if not all) of that lands below 4GB in extant chipsets/BIOS's.
 
-Generally, adding new code in codepaths which lots of apps use is low-risk
-because problems will be found quickly.
+Remapping above 4GB is possible but various things would probably barf.
 
-But from a stabilising-the-kernel viewpoint, adding new code which does not
-require elevated privileges, and which is not used by any current
-applications and which doesn't even have a decent test suite is a big
-worry.
 
-There is a little testcase in
-http://www.kvack.org/~bcrl/aio/aio-userspace-18a.tar.gz but it is singly
-threaded.
-
+-- wli

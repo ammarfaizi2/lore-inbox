@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279202AbRKAP5D>; Thu, 1 Nov 2001 10:57:03 -0500
+	id <S279233AbRKAQBX>; Thu, 1 Nov 2001 11:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279231AbRKAP4x>; Thu, 1 Nov 2001 10:56:53 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:6416 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S279202AbRKAP4r>;
-	Thu, 1 Nov 2001 10:56:47 -0500
-Message-ID: <3BE17D30.BCB3F35F@evision-ventures.com>
-Date: Thu, 01 Nov 2001 17:49:52 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S279238AbRKAQBO>; Thu, 1 Nov 2001 11:01:14 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:22807 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279233AbRKAQAw>; Thu, 1 Nov 2001 11:00:52 -0500
+Date: Thu, 1 Nov 2001 11:00:23 -0500 (EST)
+From: Peter Jones <pjones@redhat.com>
+X-X-Sender: <pjones@lacrosse.corp.redhat.com>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+cc: Paul Mackerras <paulus@samba.org>,
+        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0111011318420.1468-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0111011053140.9216-100000@lacrosse.corp.redhat.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <3BE1271C.6CDF2738@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> > No kernel-formatted tables: use a directory.  (eg. kernel symbols
-> > become a directory of symbol names, each containing the symbol value).
-> >
-> > For cases when you don't want to take the overhead of creating a new
-> > proc entry (eg. tcp socket creation), you can create directories on
-> > demand when a user reads them using:
-> >
-> >         proc_dir("net", "subdir", dirfunc, NULL);
-> >         unproc_dir("net", "subdir");
-> >
-> > Note that with kbuild 2.5, you can do something like:
-> >
-> >         proc(KBUILD_OBJECT, "foo", my_foo, int, 0644);
-> >
-> > And with my previous parameter patch:
-> >         PARAM(foo, int, 0444);
-> 
-> Is this designed to replace sysctl?
-> 
-> In general we want to support using sysctl and similar features WITHOUT
-> procfs support at all (of any type).  Nice for embedded systems
-> especially.
-> 
-> sysctl may be ugly but it provides for a standard way of manipulating
-> kernel variables... sysctl(2) or via procfs or via /etc/sysctl.conf.
-> 
-> AFAICS your proposal, while nice and clean :), doesn't offer all the
-> features that sysctl presently does.
-> 
->         Jeff
+On Thu, 1 Nov 2001, Alex Buell wrote:
 
-sysctl IS NOT UGLY. Not the sysctl I know from Solaris or BSD. Both are
-far more pleasant solutions then the proliferation of ad-hoc,
-undocumented
-ever changing, redunand, slow, overcomplex in implementation,
-(insert a list of random invectives here) interfaces shown under /proc.
-And yes I don't give a shit about "cool features" like:
+> On Thu, 1 Nov 2001, Paul Mackerras wrote:
+> 
+> > > Anyway, I can fix it now by adding the appropriate AFMT_S16_BE statement
+> > > guarded by a #ifdef but this sucks. Thanks to Peter Jones who spotted this
+> > > one.
+> >
+> > Why can't you just use AFMT_S16_NE on all platforms?  That is supposed
+> > to be equal to AFMT_S16_BE on big-endian platforms and to AFMT_S16_LE
+> > on little-endian platforms.  NE == native endian.
+> 
+> Ah, is that what it does. OK, I'll carefully suggest to the authors of ESD
+> (preferably with a blunt trauma instrument) using AFMT_S16_NE. Thanks.
 
-echo "bull shit" >
-/proc/this/is/some/random/peace/of/crappy/interface/design
+It should probably be mentioned that you're using a really old version of 
+ESD, and that they've at least made it so that you'll get the right one 
+for any BE machine.  NE is still the better answer though -- now their 
+configure script figures out BE/LE, and it'll build wrong if you're 
+crosscompiling.
 
-BTW.> /proc/sys is indeed silly, since it's a "second order" interface
-to something you can gat your gip on far easier already. And redundant
-system
-intrefaces are not a nice design.
+-- 
+        Peter
+
+"Don't everyone thank me at once!"
+		-- Solo
+

@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbUCENAy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 08:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbUCENAy
+	id S262591AbUCENJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 08:09:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbUCENJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 08:00:54 -0500
-Received: from butters.phys.uwm.edu ([129.89.57.31]:11710 "EHLO
-	butters.phys.uwm.edu") by vger.kernel.org with ESMTP
-	id S262587AbUCENAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 08:00:50 -0500
-Date: Fri, 5 Mar 2004 07:00:47 -0600 (CST)
-From: Paul Armor <parmor@gravity.phys.uwm.edu>
-X-X-Sender: parmor@butters.phys.uwm.edu
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.24 AIC7xxx kernel messages
-Message-ID: <Pine.LNX.4.44.0403050638300.14927-100000@butters.phys.uwm.edu>
+	Fri, 5 Mar 2004 08:09:56 -0500
+Received: from av8.netikka.fi ([213.250.83.8]:8131 "EHLO mail.linuxvaasa.com")
+	by vger.kernel.org with ESMTP id S262591AbUCENJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 08:09:54 -0500
+Message-ID: <40487C20.7030002@netikka.fi>
+Date: Fri, 05 Mar 2004 15:09:52 +0200
+From: Johnny Strom <jonny.strom@netikka.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: sv, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, jr@xor.at
+Subject: Re: Multiple oopses with 2.4.25
+References: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
+In-Reply-To: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Marcelo Tosatti wrote:
+> 
+> On Wed, 3 Mar 2004, Johnny Strom wrote:
+> 
+> 
+>>Hi
+>>
+>>It seems that I have the same problem as in this
+>>mail:
+>>
+>>http://www.ussg.iu.edu/hypermail/linux/kernel/0403.0/0635.html
+>>
+>>
+>>I also get multiple oopse's with 2.4.25 plus the latest
+>>ipsec kernel patch form http://www.freeswan.org/.
+>>
+>>I have to reset the computer to get it working again,
+>>below is the oopse's:
+> 
+> 
+> Dear fellows,
+> 
+> I have seen similar reports. 
+> 
+> Can you find out which kernel does not exhibit the behaviour with the same
+> freeswan/grsec patches ?
+> 
+> 
+> 
 
-Please include me in responses, as I'm not currently subscribed.
-
-Googling and searching various archives, I can't find more than passing 
-references to my problem, so I'll ask here.  Has anyone else seen anything 
-like this, or can anyone offer suggestions as to what may be wrong?  I've 
-got an Adaptec 29160, off of which I've got 4 Promise UltraTrak SX8000's, 
-across which I'm striping software RAID.  Sometimes, when under heavy 
-load, the kernel will log lot's of messages, starting with:
-
-Mar  5 03:47:15 storage2 kernel: scsi0:0:0:0: Attempting to queue an ABORT 
-message
-Mar  5 03:47:15 storage2 kernel: CDB: 0x28 0x0 0x27 0xaa 0xe5 0x57 0x0 0x0 
-0x10 0x0
-Mar  5 03:47:15 storage2 kernel: scsi0: At time of recovery, card was not 
-paused
-Mar  5 03:47:15 storage2 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins 
-<<<<<<<<<<<<<<<<<
-Mar  5 03:47:15 storage2 kernel: scsi0: Dumping Card State in Data-in 
-phase, at SEQADDR 0x54
-Mar  5 03:47:15 storage2 kernel: Card was paused
+Well I have been running 2.4.24 plus the freeswan patch for over a month 
+and I had no problems att all. It is only with 2.4.25 plus the freeswan 
+patch that I saw this oops, note that it have only happend once with 
+2.4.25 and I have no idea how to trigger it yet.
 
 
-...after which it will list SCB stats and info.
-	This last occurance started after the machine had been copying 
-data from one striped partition to another (it was ~250GB/1.1TB complete), 
-and the log messages stopped ~11 minutes later; and the cp has continued.  
-It seems as though the card/kernel/external arrays will work well together 
-for many hours, get into this state for a few minutes, then work for many 
-more hours, etc...  Any comments or suggestions would be GREATLY 
-appreciated.
+So I think this started to happen with 2.4.25 plus the freeswan patch.
 
-Here is the config:
 
-> motherboard -                 Asus A7M266
->
-> kernel -              linux-2.4.24
->
-> controller -          Adaptec AIC7xxx driver version: 6.2.36
->                       Adaptec 29160 Ultra160 SCSI adapter
->                       aic7892: Ultra160 Wide Channel A, SCSI Id=7, 
-32/253 SCBs
->
-> ext. RAID arrays -    4 x Promise UltraTrak SX8000
->                       F/W version 1.1.0.30 (2/4/2003)
->
-> Each box has three partitions
->
-> We're running software raid 0 striping across the 4 boxes such that
->     md0=sd[abcd]1, md1=sd[abcd]2, md2=sd[abcd]3.
+
+
+
+
+
+
+
+
 

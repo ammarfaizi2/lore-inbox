@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBPKlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVBPLPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVBPKlh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 05:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVBPKlg
+	id S262004AbVBPLPH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 06:15:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVBPLPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 05:41:36 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:19800 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261999AbVBPKld (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 05:41:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZMh+THtA3mLMPrq1Zy+cXpHMBBnhGe1uhQHsqdklDgCKctjOtQkI8ASPYwO9E256lKgWwWN2/XA9wG0gKqgslG/gEF9LUyIyVlDBsUKieGP/naToSSWrx4FOYc9HT6TtV/Ww/ZlnO6HXMN2xS01CorZefNkRwObEAT5AaGwZmqQ=
-Message-ID: <3f250c710502160241222dce47@mail.gmail.com>
-Date: Wed, 16 Feb 2005 06:41:32 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: /proc/*/statm, exactly what does "shared" mean?
-Cc: "Richard F. Rebel" <rrebel@whenu.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Feb 2005 06:15:07 -0500
+Received: from ptb-relay01.plus.net ([212.159.14.212]:59145 "EHLO
+	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
+	id S262004AbVBPLPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 06:15:02 -0500
+Message-ID: <42132B31.7010503@dsvr.net>
+Date: Wed, 16 Feb 2005 11:14:57 +0000
+From: Jonathan Sambrook <jonathan@dsvr.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Klaus Muth <muth@hagos.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic with 2.4.26
+References: <200501210715.03716.muth@hagos.de> <200502111015.54681.muth@hagos.de>
+In-Reply-To: <200502111015.54681.muth@hagos.de>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
-	 <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
-	 <1108219160.12693.184.camel@blue.obulous.org>
-	 <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-Sorry for responding this email so late. I was busy with my trip.
-
-On Sat, 12 Feb 2005 15:42:15 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
-> On Sat, 12 Feb 2005, Richard F. Rebel wrote:
-> >
-> > That said, many mod_perl users are *VERY* interested in being able to
-> > detect and observe how "shared" our forked children are.  Shared meaning
-> > private pages shared with children (copy on write).  Is it even possible
-> > to do this in 2.6 kernels?  If so, any pointers would be very helpful.
+Klaus Muth wrote:
+> Am Freitag, 21. Januar 2005 07:15 schrieb Klaus Muth:
 > 
-> Not in any of the vanilla kernels.
+>>Every now and then (maybe twice a week) my server panics. [...]
+>>Any help will be appreciated.
 > 
-> Mauricio has a /proc/<pid>/smaps patch, in which he returns to looking
-> at every pte slot of every vma of the process as /proc/<pid>/statm did
-> in 2.4.  I suggest you ask him offline for his latest version (the last
-> I saw did not include support for 2.6.11's pud level; 
-I put the pud level on the last patch I sent to the linux-kernel list
-as suggested by Marcelo Tosatti.
+> 
+> Did help myself. Seems to work.
+> 
+> 
+>>ksymoops 2.4.5 on i686 2.4.26-msi1.  Options used
+> 
+> 
+> Updated to 2.4.29, keeping my kernel config. No panic since then (2 weeks) 
+> which seems to be a drastic decrease of the panics/week ratio ;).
 
-> and looped in an
-> inefficient way, repeatedly locating, mapping and unmapping the page
-> table for each pte slot - needs refactoring into pgd_range, pud_range,
-> pmd_range, pte_range levels like 2.4's statm).
-Well, for each vma it is checked how many pages are mapped to rss. So
-I have to check per page if it is allocated in physical memory. I know
-that this is a heavy function, but do you have any suggestion to
-improve this?  What do you mean "needs refactoring into pgd_range,
-pud_range, pmd_range, pte_range levels like 2.4's statm"? Could you
-give more details, please?
+Sorry, didn't spot your previous email.
 
-BR,
+I've not set aside time to investigate further, but turning HT off made 
+the problem go away. Would be interested to hear further reports.
 
-Mauricio Lin.
+Regards,
+Jonathan
+

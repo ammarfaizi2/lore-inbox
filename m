@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289149AbSAGIzN>; Mon, 7 Jan 2002 03:55:13 -0500
+	id <S289152AbSAGJDy>; Mon, 7 Jan 2002 04:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289144AbSAGIzE>; Mon, 7 Jan 2002 03:55:04 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:41480 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289146AbSAGIyt>; Mon, 7 Jan 2002 03:54:49 -0500
-Message-ID: <3C39611A.F5C9BD3@zip.com.au>
-Date: Mon, 07 Jan 2002 00:49:30 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
-In-Reply-To: <3C395A2C.B7A24844@zip.com.au> <Pine.LNX.4.33.0201070933590.4076-100000@lola.stud.fh-heilbronn.de>
+	id <S289153AbSAGJDp>; Mon, 7 Jan 2002 04:03:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:61444 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289152AbSAGJDm>;
+	Mon, 7 Jan 2002 04:03:42 -0500
+Date: Mon, 7 Jan 2002 10:03:35 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.2-pre9/drivers/block/ll_rw_blk.c blk_rq_map_sg simplification
+Message-ID: <20020107100335.A6940@suse.de>
+In-Reply-To: <20020107005546.A2459@baldur.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020107005546.A2459@baldur.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Paukstadt wrote:
+On Mon, Jan 07 2002, Adam J. Richter wrote:
+> Hello Jens,
 > 
-> Heavy traffic on ext3 seems to cause short system freezes.
+> 	The following patch removes gotos from blk_rq_map_sg, making
+> it more readable and five lines shorter.  I think the compiler should
+> generate the same code.  I have not tested this other than to
+> verify that it compiles.
 
-This could be due to disk request elevator latency and VM imbalance.
-Your application has a page dropped due to the competing write activity,
-and it takes ages to be restored, due to the write activity.
- 
-> Seems only to happen on 2 or more processor boxes.
+Well, I really think the original is much more readable than the changed
+version :-)
 
-In which case the above theory is wrong.
- 
-> I'm not deep into kernel nor ext3, but how is the journal flushed if
-> full?
+> 	Also, if there is some other way by which you would like
+> me to submit future bio patches (if any), please let me know.
 
-Nothing special, really - we just pump a stream of data out to disk.
-While this is happening, other processes can still attach data to the
-journal without getting blocked.  Up to a point.  Our handling of this
-is a bit sudden at present.  Some people have reported benefit from
-radically decreasing the buffer flushtimes. See Daniel Robbins' article
-at http://www-106.ibm.com/developerworks/linux/library/l-fs8/ for this.
-Yes, improvements are needed in this area.  Not only in ext3.
+This is quite fine.
 
-You haven't really defined "freeze", but it's certainly different
-from Matti's freeze.
+-- 
+Jens Axboe
 
--

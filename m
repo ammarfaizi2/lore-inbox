@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265543AbUFIFZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUFIGU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265543AbUFIFZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 01:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbUFIFZH
+	id S265545AbUFIGU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 02:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265551AbUFIGU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 01:25:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42650 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265544AbUFIFZE (ORCPT
+	Wed, 9 Jun 2004 02:20:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40593 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265545AbUFIGU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 01:25:04 -0400
-Date: Tue, 8 Jun 2004 22:24:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mason@suse.com, mika.penttila@kolumbus.fi, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] writeback_inodes can race with unmount
-Message-Id: <20040608222415.5caaee16.akpm@osdl.org>
-In-Reply-To: <20040608202217.0b7a6371.akpm@osdl.org>
-References: <1086722523.10973.157.camel@watt.suse.com>
-	<40C61A20.4000906@kolumbus.fi>
-	<1086725926.10973.161.camel@watt.suse.com>
-	<20040608145627.0191c026.akpm@osdl.org>
-	<1086744565.10973.192.camel@watt.suse.com>
-	<20040608202217.0b7a6371.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 9 Jun 2004 02:20:56 -0400
+Subject: Re: [RFC][PATCH] ALSA: Remove subsystem-specific malloc (0/8)
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, tiwai@suse.de
+In-Reply-To: <200406082124.i58LOrMm016152@melkki.cs.helsinki.fi>
+References: <200406082124.i58LOrMm016152@melkki.cs.helsinki.fi>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KkMHCPzgPMUZ/eJ/LFvL"
+Organization: Red Hat UK
+Message-Id: <1086762046.2810.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Jun 2004 08:20:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Something like this?
 
-No, that's not going to work, is it - we don't hold I_LOCK across the
-critical iput().
+--=-KkMHCPzgPMUZ/eJ/LFvL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-May have to do it your way, but the trylock is irksome...
+On Tue, 2004-06-08 at 23:24, Pekka J Enberg wrote:
+> This patch introduces a kcalloc()=20
+
+too bad you didn't make kcalloc an array allocator, which then could
+check for multiplication overfow nicely.....
+
+--=-KkMHCPzgPMUZ/eJ/LFvL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAxqw+xULwo51rQBIRAg1vAJwO2fWtTfKcqjolJbDwwpU/37UKdACeJvCM
+cq1W+rPerG5IlSInMhAg3f0=
+=bAW1
+-----END PGP SIGNATURE-----
+
+--=-KkMHCPzgPMUZ/eJ/LFvL--
+

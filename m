@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSBDPgJ>; Mon, 4 Feb 2002 10:36:09 -0500
+	id <S289026AbSBDPrD>; Mon, 4 Feb 2002 10:47:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289032AbSBDPf7>; Mon, 4 Feb 2002 10:35:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7187 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289025AbSBDPfs>; Mon, 4 Feb 2002 10:35:48 -0500
-Subject: Re: O_DIRECT fails in some kernel and FS
-To: lord@sgi.com (Steve Lord)
-Date: Mon, 4 Feb 2002 15:46:20 +0000 (GMT)
-Cc: cw@f00f.org (Chris Wedgwood), garzik@havoc.gtf.org (Jeff Garzik),
-        mason@suse.com (Chris Mason), andrea@suse.de (Andrea Arcangeli),
-        akpm@zip.com.au (Andrew Morton), gallir@uib.es (Ricardo Galli),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <1012835730.26397.519.camel@jen.americas.sgi.com> from "Steve Lord" at Feb 04, 2002 09:15:30 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289030AbSBDPqu>; Mon, 4 Feb 2002 10:46:50 -0500
+Received: from smtp02do.de.uu.net ([192.76.144.69]:48612 "EHLO
+	smtp02do.de.uu.net") by vger.kernel.org with ESMTP
+	id <S289026AbSBDPqg> convert rfc822-to-8bit; Mon, 4 Feb 2002 10:46:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tobias Wollgam <tobias.wollgam@materna.de>
+Organization: Materna GmbH
+To: linux-kernel@vger.kernel.org
+Subject: UNDI/PXE for 2.4.x available?
+Date: Mon, 4 Feb 2002 16:46:31 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16XlK0-0007Wu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+X-Encoded: Changed encoding from 8bit for 7bit transmission
+Message-Id: <20020204154633.E2BC267F3@penelope.materna.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If an application is multithreaded and is doing mmap and direct I/O
-> from different threads without doing its own synchronization, then it
-> is broken, there is no ordering guarantee provided by the kernel as
-> to what happens first.
+Hello,
 
-Providing we don't allow asynchronous I/O with O_DIRECT once asynchronous
-I/O is merged.
+is there a UNDI (Universal Network Driver Interface, a part of the 
+PXE-specification) for the 2.4x kernel available?
 
-Alan
+We found one from Intel in its linux-pxe-sdk for the 2.2.x kernel. This 
+one works, but not with all pxe-networkcards.
+
+Potentially we will port it from 2.2 to 2.4 or rewrite it for 2.4 with 
+a little assistance.
+
+TIA for all information,
+
+	Tobias
+
+-- 
+Tobias Wollgam * Softwaredevelopment * Business Unit Information 
+MATERNA GmbH Information & Communications
+Vosskuhle 37 * 44141 Dortmund  
+http://www.materna.de

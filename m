@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKXBq>; Mon, 11 Dec 2000 18:01:46 -0500
+	id <S129710AbQLKXCE>; Mon, 11 Dec 2000 18:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbQLKXBh>; Mon, 11 Dec 2000 18:01:37 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:56840 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129314AbQLKXBZ>;
-	Mon, 11 Dec 2000 18:01:25 -0500
-Date: Mon, 11 Dec 2000 14:31:03 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.2.X patches for fbcon
-Message-ID: <Pine.LNX.4.21.0012111416050.296-100000@euclid.oak.suse.com>
+	id <S130067AbQLKXBq>; Mon, 11 Dec 2000 18:01:46 -0500
+Received: from front4m.grolier.fr ([195.36.216.54]:7311 "EHLO
+	front4m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129464AbQLKXBh> convert rfc822-to-8bit; Mon, 11 Dec 2000 18:01:37 -0500
+Date: Mon, 11 Dec 2000 22:30:59 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: "David S. Miller" <davem@redhat.com>
+cc: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <200012112148.NAA24830@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.10.10012112207400.2144-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch allows you select different modes on a Mac. The functionality
-was there but not taken advantage of. This is needed because the resolution 
-can be 834x628 on a Mac and the screen is really screwed up with more than
-8 bit in that case.
 
---- fbmem.c.orig	Mon Dec 11 14:18:44 2000
-+++ fbmem.c	Mon Dec 11 14:19:08 2000
-@@ -92,6 +92,8 @@
- extern void hpfb_setup(char *options, int *ints);
- extern void sbusfb_init(void);
- extern void sbusfb_setup(char *options, int *ints);
-+extern void platinum_init(void);
-+extern void platinum_setup(char *options, int *ints);
- extern void valkyriefb_init(void);
- extern void valkyriefb_setup(char *options, int *ints);
- extern void control_init(void);
-@@ -183,6 +185,9 @@
- #ifdef CONFIG_FB_HP300
- 	{ "hpfb", hpfb_init, hpfb_setup },
- #endif 
-+#ifdef CONFIG_FB_PLATINUM
-+        { "platinumfb", platinum_init, platinum_setup },
-+#endif
- #ifdef CONFIG_FB_VALKYRIE
- 	{ "valkyriefb", valkyriefb_init, valkyriefb_setup },
- #endif
-------------------------------------------------------------------------------
+On Mon, 11 Dec 2000, David S. Miller wrote:
 
-This patch forces 1024x768-60 modes on PowerBook Lombard and
-Mainstreet. No need to pass vmode:14 anymore.
+>    Date: 	Mon, 11 Dec 2000 21:49:52 +0100 (CET)
+>    From: Gérard Roudier <groudier@club-internet.fr>
+> 
+>    If now, the PCI stuff is claimed to be cleaned up, then _all_ the
+>    hacks have to be removed definitely.  As a result, the driver will
+>    not work anymore on Sparc64, neither on PPC and I am not sure it
+>    will still work on Alpha, in my opinion.
+> 
+> Actually Gerard, in your current 2.4.x NCR53c8xx and SYM53c8XX drivers
+> only real ifdefs for sparc64 are printf format strings for PCI interrupt
+> numbers :-)
+> 
+> Really, in 2.4.x sparc64 requires PCI config space hackery no longer.
 
+Really?
 
---- atyfb.c	Mon Dec 11 14:28:19 2000
-+++ atyfb.c.orig	Wed Oct  4 22:22:28 2000
-@@ -2796,7 +2796,7 @@
-      * works on iMacs as well as the G3 powerbooks. - paulus
-      */
-     if (default_vmode == VMODE_CHOOSE) {
--	if ((Gx == LG_CHIP_ID)||(Gx == LI_CHIP_ID)||(Gx == LP_CHIP_ID))
-+	if (Gx == LG_CHIP_ID)
- 	    /* G3 PowerBook with 1024x768 LCD */
- 	    default_vmode = VMODE_1024_768_60;
- 	else if (Gx == LN_CHIP_ID)
+I was thinking about the pcivtophys() alias bus_dvma_to_mem() hackery used
+to retrieve the actual BAR address from the so-called pcidev bar cookies.
 
+As you know the driver needs to know the actual values of MEM BARs, since
+SCRIPTS may access either the IO registers and/or the on-chip RAM using
+non sci-fi but actual BUS adresses (those that are actually used by PCI
+transactions and that devices compare against their BARs in order to
+claim access they are targetted).
+
+Even for chips that donnot actually master themselves (896 for example),
+due to LOAD/STORE and using internal cycles to access the on-chip RAM, 
+the actual on-chip RAM BAR address we need.
+
+Note that if reading the BARs using pci_read_config_*() interface is
+allowed, then the pcivtophys() is and was an useless thing.
+
+About the PPC, it is the memcpy_toio() for the on-chip RAM that does not
+work using iomapped bar cookie. The driver has to use SCRIPT that does
+self-mastering, but self-mastering is no more compliant with PCI-2.2 as we
+know.
+
+About the Alpha. The pcivtobus/bus_dvma_to_mem thing in the driver, is not
+defined as just nilpotent, but in fact it is so (d & 0xffffffff) at least
+for 32 bit scsi-fi cookies.
+
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

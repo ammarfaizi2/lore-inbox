@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261208AbSIYXZp>; Wed, 25 Sep 2002 19:25:45 -0400
+	id <S261205AbSIYXk2>; Wed, 25 Sep 2002 19:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261228AbSIYXZo>; Wed, 25 Sep 2002 19:25:44 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:30725 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S261208AbSIYXZn>;
-	Wed, 25 Sep 2002 19:25:43 -0400
-Subject: Mouse/Keyboard problems with 2.5.38
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Sep 2002 01:31:12 +0200
-Message-Id: <1032996672.11642.6.camel@chevrolet>
-Mime-Version: 1.0
+	id <S261238AbSIYXk1>; Wed, 25 Sep 2002 19:40:27 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:5760 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261205AbSIYXk1>;
+	Wed, 25 Sep 2002 19:40:27 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Wed, 25 Sep 2002 16:45:34 -0700
+User-Agent: KMail/1.4.7-cool
+References: <E17uINs-0003bG-00@think.thunk.org> <3D923E88.30104@pobox.com> <20020925232949.GA15765@think.thunk.org>
+In-Reply-To: <20020925232949.GA15765@think.thunk.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209251645.40575.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I haven't really tried a 2.5 kernel for a very long time. I used some of
-the earliest, but then I suddenly had problems booting one of them, and
-haven't really taken much effort in getting it boot lately.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-But now I decided I should try again. I got 2.5.38 booted after some
-initial trouble. But, I have a couple of weird problems. First, the
-mouse. I have a Logitech Cordless Optical mouse. With kernel 2.4.x I use
-MouseManPlusPS/2 as the XFree mouse-driver. Then I can use the wheel and
-the fourth button just as expected. But with kernel 2.5.38 neither the
-wheel or the fourth button works. I change protocol to IMPS/2 in XFree,
-and everything works like expected, but the fourth button works just
-like pussing the wheel (third button). This is excactly the same
-behavior as with 2.4.20-pre7 (that's why I use MouseManPlusPS/2). Anyone
-have a clue why this doesn't work with kernel 2.5.38?
+On September 25, 2002 16:29, Theodore Ts'o wrote:
+> There is also a 2.4.19 patch available as well:
+>
+> 	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.4.19-2
+>
 
-Second problem, if I press SHIFT+PAGEUP, my computer freezes. It spits
-out this message: "input: AT Set 2 keyboard on isa0060/serio0, and then
-it's dead. I have a Logitech cordless keyboard. 
+I got some pretty nasty results with that patch. After enabling the dir_index 
+superblock flag and running e2fsck -fD, the filesystem would spontaneously 
+remount itself read-only (I have errors=remount-ro set) after a few minutes 
+of use. Once I disabled dir_index, e2fsck picked up many duplicate blocks. 
+There doesn't appear to be any severe filesystem damage, however.
 
-Anyone else experienced this?
+- -Ryan 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-Best regards,
-Stian Jordet
-
-
-
-
+iD8DBQE9kkqkLGMzRzbJfbQRAiiSAJwLFZSyHkG9WSGw6HY23g6i+N+z0QCggQEF
+ixJJJJLCe56O5lL51sTDgaE=
+=sywJ
+-----END PGP SIGNATURE-----

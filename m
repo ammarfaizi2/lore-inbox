@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261335AbTCaA1H>; Sun, 30 Mar 2003 19:27:07 -0500
+	id <S261351AbTCaBl5>; Sun, 30 Mar 2003 20:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261338AbTCaA1H>; Sun, 30 Mar 2003 19:27:07 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:33734 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261335AbTCaA1G>;
-	Sun, 30 Mar 2003 19:27:06 -0500
-Message-ID: <32798.4.64.238.61.1049071088.squirrel@webmail.osdl.org>
-Date: Sun, 30 Mar 2003 16:38:08 -0800 (PST)
-Subject: Re: 2.5.59: Input subsystem initialised really late
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-Cc: <vojtech@suse.cz>
-X-Mailer: SquirrelMail (version 1.2.11 [cvs])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S261352AbTCaBl5>; Sun, 30 Mar 2003 20:41:57 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:51865 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261351AbTCaBl4>;
+	Sun, 30 Mar 2003 20:41:56 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre6 modules can't access kernel symbols - build system problem? 
+In-reply-to: Your message of "Mon, 31 Mar 2003 05:29:18 +0800."
+             <200303310529.18782.mflt1@micrologica.com.hk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 31 Mar 2003 11:53:04 +1000
+Message-ID: <26914.1049075584@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on 18-jan-2003 Russell King wrote:
-It appears to be impossible to get a SysRQ-T dump out of a kernel which has
-hung during (eg) the SCSI initialisation with 2.5.
+On Mon, 31 Mar 2003 05:29:18 +0800, 
+Michael Frank <mflt1@micrologica.com.hk> wrote:
+>I encounter a problem which baffles me, having built same release before
+>1) Checked 21-pre6 out from local BK tree
+>2) Patched with latest acpi and win4lin
+>3) make oldconfig
+>4) Made some config changes
+>5) make dep, bzImage, modules - use gcc295
+>depmod reports missing symbols in all modules
 
-Unlike previous 2.4 kernels, the keyboard is no longer initialised until
-fairly late - after many of the other drivers have initialised.
-Unfortunately, this means that it is quite difficult to debug these hangs
-(we'll leave discussion about in-kernel debuggers for another time!)
-
-Can we initialise the input subsystem earlier (eg, after pci bus
-initialisation, before disks etc) so that we do have the ability to use the
-SysRQ features?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-and Vojtech replied:
-I think this should be possible, yes.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Any updates to this?  Any clues?
-
-I have changed 5 module_inits to be run a little earlier in the initcall
-sequence (the 5 being:  atkbd_init, kbd_init, serio_init, input_init,
-and chr_dev_init).
-However, this still isn't enough to allow keyboard input (like
-ctrl-S, ctrl-Q, SysRq) during init messages as can be done with 2.4.20.
-
-Thanks,
-~Randy
-
-
+Broken kernel build.  You must make mrproper after applying patches
+that change dependencies when using CONFIG_MODVERSIONS=y.
 

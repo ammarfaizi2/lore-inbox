@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbTI1Rvf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 13:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbTI1Rvf
+	id S262677AbTI1SDu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 14:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTI1SDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 13:51:35 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:56846 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262397AbTI1Rve (ORCPT
+	Sun, 28 Sep 2003 14:03:50 -0400
+Received: from holomorphy.com ([66.224.33.161]:40095 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262677AbTI1SDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 13:51:34 -0400
-Date: Sun, 28 Sep 2003 19:51:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030928175126.GA22812@win.tue.nl>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <pan.2003.09.28.11.05.34.596021@dungeon.inka.de> <20030928123432.GA23693@redhat.com> <1064765545.741.69.camel@simulacron>
+	Sun, 28 Sep 2003 14:03:49 -0400
+Date: Sun, 28 Sep 2003 11:04:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] No Swap. Re: [BUG 2.6.90-test5] kernel shits itself with 48mb ram under moderate load
+Message-ID: <20030928180450.GN4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ihar 'Philips' Filipau <filia@softhome.net>,
+	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <ArQ0.821.25@gated-at.bofh.it> <ArQ0.821.21@gated-at.bofh.it> <ArZC.8f1.9@gated-at.bofh.it> <3F75EC3B.4030305@softhome.net> <20030927202148.GA31080@k3.hellgate.ch> <3F76DCEC.60508@softhome.net> <Pine.LNX.4.58.0309281747460.13202@artax.karlin.mff.cuni.cz> <3F771893.1020405@softhome.net> <Pine.LNX.4.58.0309281922050.17752@artax.karlin.mff.cuni.cz> <3F77203F.8010704@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064765545.741.69.camel@simulacron>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <3F77203F.8010704@softhome.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 06:12:26PM +0200, Andreas Jellinghaus wrote:
+On Sun, Sep 28, 2003 at 07:54:07PM +0200, Ihar 'Philips' Filipau wrote:
+>   That's what matters. Try to work in vim if it is permanently get 
+> swaped out. _*Very*_ _*very*_ not nice.
+>   And there is no memory pressure - kernel just decided to enlarge I/O 
+> cache... 100% stupid.
+>   I personally prefer to have statical I/O cache - never saw it working 
+> reliably with dynamic allocation.
 
-> Is there any tool that will change chs begin/end values
-> from */255/63 geometry to */16/63 geometry? 
-
-You could try sfdisk. Perhaps
-	sfdisk -d /dev/hda > hda.pt
-	sfdisk -H 16 -S 63 /dev/hda < hda.pt
-will do the trick.
-(Read the man page. Save your old table. Maybe -f is needed.)
+This is a different question from what I had in mind. There are some
+controls in 2.6.x to control the relative tendencies to evict unmapped
+pagecache vs. unmapping etc. anonymous memory. I'd try adjusting
+/proc/sys/vm/swappiness and reporting how (in)effective that is, then
+if that still doesn't work, various things can be adjusted.
 
 
-
+-- wli

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292297AbSBBPHN>; Sat, 2 Feb 2002 10:07:13 -0500
+	id <S292298AbSBBPND>; Sat, 2 Feb 2002 10:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292296AbSBBPHD>; Sat, 2 Feb 2002 10:07:03 -0500
-Received: from brick.kernel.dk ([195.249.94.204]:65172 "EHLO
-	burns.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S292297AbSBBPGx>; Sat, 2 Feb 2002 10:06:53 -0500
-Date: Sat, 2 Feb 2002 16:06:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Roger Larsson <roger.larsson@norran.net>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Errors in the VM - detailed
-Message-ID: <20020202160641.E4934@suse.de>
-In-Reply-To: <20020202154449.D4934@suse.de> <Pine.LNX.4.30.0202021602001.10631-100000@mustard.heime.net>
+	id <S292299AbSBBPMy>; Sat, 2 Feb 2002 10:12:54 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:62214 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S292298AbSBBPMg>; Sat, 2 Feb 2002 10:12:36 -0500
+X-Authentication: 6b0a6c24d87cd2d88db5ba834064fe46d7a226f9
+Date: Sat, 2 Feb 2002 09:12:09 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Larry McVoy <lm@work.bitmover.com>
+Subject: Re: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
+Message-ID: <20020202091209.A7679@twoflower.internal.do>
+In-Reply-To: <lm@bitmover.com> <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de> <20020201083855.C8664@work.bitmover.com> <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there> <20020201191928.D2122@twoflower.internal.do> <20020201215040.F27081@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0202021602001.10631-100000@mustard.heime.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020201215040.F27081@work.bitmover.com>; from lm@bitmover.com on Fri, Feb 01, 2002 at 09:50:40PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02 2002, Roy Sigurd Karlsbakk wrote:
-> On Sat, 2 Feb 2002, Jens Axboe wrote:
+Larry McVoy <lm@bitmover.com> wrote:
 > 
-> > On Sat, Feb 02 2002, Roy Sigurd Karlsbakk wrote:
-> > > > Jens said earlier "Roy, please try and change
-> > > > the queue_nr_requests assignment in ll_rw_blk:blk_dev_init() to
-> > > > something like 2048." - Roy have you tested this too?
-> > >
-> > > No ... Where do I change it?
-> >
-> > drivers/block/ll_rw_blk.c:blk_dev_init()
-> > {
-> > 	queue_nr_requests = 64;
-> > 	if (total_ram > MB(32))
-> > 		queue_nr_requests = 256;
-> >
-> > Change the 256 to 2048.
+>     bk clone main temporary-fork
 > 
-> Is this an attempt to fix the problem #2 (as described in the initial
-> email), or to further improve throughtput?
+> >   [hack hack hack]
+> >   bk commit
+> >   [hack hack hack]
+> 
+>     bk fix -c
+> 
+> >   [hack hack hack]
+> >   bk commit 
+> >   [hack hack hack]
+> >   bk commit
+> 
+>     bk push
+> 
+> All exists, works as described, no changes necessary.
 
-Further "improvement", the question is will it make a difference.
-Bumping READA count would interesting too, as outlined.
+But will the changes which were committed and then reverted from the
+temporary tree show up in the main tree after the "push"?  There should be no
+evidence that they ever took place, so as not to clutter Linus' tree with
+changes a developer made and had no intention of sending to Linus.
 
-> Problem #2 is _the_ worst problem, as it makes the server more-or-less
-> unusable
-
-Please send sysrq-t traces for such stuck processes. It's _impossible_
-to guess whats going on from here, the crystal ball just isn't good
-enough :-)
-
+Charles
 -- 
-Jens Axboe
-
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbSLTSN7>; Fri, 20 Dec 2002 13:13:59 -0500
+	id <S264659AbSLTSPP>; Fri, 20 Dec 2002 13:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263837AbSLTSN7>; Fri, 20 Dec 2002 13:13:59 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:652 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263491AbSLTSN6>;
-	Fri, 20 Dec 2002 13:13:58 -0500
-Date: Fri, 20 Dec 2002 19:09:31 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Colin Slater <hoho@tacomeat.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.5.52-bk4
-Message-ID: <20021220180931.GA29150@mail.muni.cz>
-References: <20021220.092818.74750920.hoho@tacomeat.net>
+	id <S264688AbSLTSPP>; Fri, 20 Dec 2002 13:15:15 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:36101
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S264659AbSLTSPO>; Fri, 20 Dec 2002 13:15:14 -0500
+Subject: Re: [PATCH] Fix CPU bitmask truncation
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, bjorn_helgaas@hp.com
+In-Reply-To: <je7ke4yje3.fsf@sykes.suse.de>
+References: <200212161213.29230.bjorn_helgaas@hp.com>
+	 <20021220103028.GB9704@holomorphy.com>  <je7ke4yje3.fsf@sykes.suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040408597.1867.24.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021220.092818.74750920.hoho@tacomeat.net>
-User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Dec 2002 10:23:17 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 09:28:18AM -0500, Colin Slater wrote:
-> > solved that problem. Now it works ok for me.
-> 
-> Do you mean the patch compiles now or that it fixes the problem you
-> were having?
+On Fri, 2002-12-20 at 04:17, Andreas Schwab wrote:
+> This is useless.  Assigning -1 to any unsigned type is garanteed to give
+> you all bits one, and with two's complement this also holds for any signed
+> type.
 
-It fixed both compiling and runing. Now I am able to open /proc/net/tcp.
+Only if the -1 is the same size as the unsigned type.  Otherwise it will
+be 0-extended.
 
--- 
-Luká¹ Hejtmánek
+	J
+

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262723AbREOKZC>; Tue, 15 May 2001 06:25:02 -0400
+	id <S262729AbREOKlC>; Tue, 15 May 2001 06:41:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262724AbREOKYx>; Tue, 15 May 2001 06:24:53 -0400
-Received: from mx10.port.ru ([194.67.23.89]:40071 "EHLO mx10.port.ru")
-	by vger.kernel.org with ESMTP id <S262723AbREOKYi>;
-	Tue, 15 May 2001 06:24:38 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: "Vladimir V. Saveliev" <monstr@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re[2]: ReiserFS 2.4.4/3.x.0k-pre2
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.26]
-In-Reply-To: <3AF6A6D2.B0C285BC@namesys.com>
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E14zc0K-0000ya-00@f6.mail.ru>
-Date: Tue, 15 May 2001 14:24:36 +0400
+	id <S262730AbREOKkw>; Tue, 15 May 2001 06:40:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8207 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262729AbREOKkt>; Tue, 15 May 2001 06:40:49 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: viro@math.psu.edu (Alexander Viro)
+Date: Tue, 15 May 2001 11:36:30 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        neilb@cse.unsw.edu.au (Neil Brown),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.GSO.4.21.0105150556120.21081-100000@weyl.math.psu.edu> from "Alexander Viro" at May 15, 2001 06:12:52 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zcBq-0002Ku-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-          Hello,
-     I`m still experiencing file tail corruptions
-  on subj.
-     And more: after i had restored bblocked patrition
-  (by relying on drive`s ability to remap bblks on
-  write by wroting small modification of debugreiserfs
-  which zeroified all bblks), i had _runtime_ tail
-   corruptions of the mc`s dir hotlist which i tried 
-   to rewrite again and again.
-  i found, that "sync"ing after modifying helps to keep
-  file fine, so it does until now.
+> Cost of adding IOCTL_REWIND_TAPE - two words in each tape driver. That
+> alone kills a bunch of crap in userland and makes _both_ sides more
+> maintainable.
+
+A lot lot more than that. There are some cases where what you are saying is
+true and we have duplication. The worst culprit was the cd layer and that
+has been cleaned up for a while now.
+
+In most of the other cases it varies what is done in drive firmware or in
+userspace by the app. Reimplementing half of the drive firmware in kernel
+space not user space does not appeal
+
+Where it just normalising ioctl numbers I'd agree 100%
+
+

@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265478AbRFVRe3>; Fri, 22 Jun 2001 13:34:29 -0400
+	id <S265479AbRFVRe3>; Fri, 22 Jun 2001 13:34:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265479AbRFVReK>; Fri, 22 Jun 2001 13:34:10 -0400
-Received: from mailimailo.univ-rennes1.fr ([129.20.131.1]:35828 "EHLO
-	mailimailo.univ-rennes1.fr") by vger.kernel.org with ESMTP
-	id <S265477AbRFVReA>; Fri, 22 Jun 2001 13:34:00 -0400
-Date: Fri, 22 Jun 2001 21:53:05 +0200 (CEST)
-From: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
-To: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with select() - 2.4.5
-In-Reply-To: <Pine.LNX.4.21.0106221233540.11061-100000@pc-astro.spm.univ-rennes1.fr>
-Message-ID: <Pine.LNX.4.21.0106222150090.12493-100000@pc-astro.spm.univ-rennes1.fr>
+	id <S265477AbRFVReL>; Fri, 22 Jun 2001 13:34:11 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:32568 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S265478AbRFVReB>; Fri, 22 Jun 2001 13:34:01 -0400
+Message-ID: <3B338174.1070507@blue-labs.org>
+Date: Fri, 22 Jun 2001 10:33:40 -0700
+From: David Ford <david@blue-labs.org>
+Organization: Blue Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [bug] OOPS/stunted boot, aic7xxx, 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jun 2001, Thomas Speck wrote:
+'lo
 
-> 
-> Hi !
-> I have a problem with reading from a serial port using select() under
-> 2.4.5. What I am doing is basically the following: 
-> 
-> fd_set readfds;
-> struct timeval timeout;
-> int s;
-> 
-> serialfd = open("/dev/ttyS0", O_RDWR );
-> 
-> init_serial(B9600);
-> 
-> timeout.tv_sec = 2; /* ! */
-> timeout.tv_usec = 0;
-> FD_ZERO(&readfds);
-> FD_SET(serialfd,&readfds);
-> 
-> s=select(serialfd+1, &readfds, NULL, NULL, &timeout);
-> ...
-> 
-> But s is always equal to 0 even when I am sure there are data to read.
-> If I use 
-> 
-> s=select(serialfd+1, NULL, &writefds, NULL,  &timeout);
-> 
-> (with the corresponding initialisation of writefds) it returns s=1 and I
-> can write to the serial port. I can see that since the lights of the modem
-> are flashing. 
-> I noticed that behavior since I tried to send some "ATZ" with the
-> write-function but I never got the "OK" back.
-> 
-> However, the same programme works under 2.2.19.
+I have a client machine that I can't get 2.4 to boot on.  It is an SMP 
+motherboard with one CPU  , dual port aic7896/97 ultra2 onboard.
 
-Probably I should have given the init_serial() as well; So here it is:
-(it is basically the one from the serial-programming-howto)
+I'm slowing going backwards from 2.4.6-pre5 and am currently compiling 
+2.4.3.  With the later kernels, the machine simply hangs, flat out does 
+nothing instead of initializing the aic driver.  With the earlier 
+kernels I get the below messages.  BTW, why the heck is the linux kernel 
+relying on Berkely DB?  I find it rather bothersome that I have to go 
+fetch and compile a userland library just to compile the aic driver.
 
-int init_serial(tcflag_t baud)
-{
-        struct termios tio;
-        tcgetattr(serialfd,&tio);
-        tio.c_cflag = baud | CLOCAL;
-        tio.c_iflag = IGNPAR;
-        tio.c_oflag = 0;
-        tio.c_lflag = 0;
-        tio.c_cc[VTIME] = 0;
-        tio.c_cc[VMIN] = 1;
-        tcflush(serialfd, TCIFLUSH);
-        tcsetattr(serialfd,TCSANOW,&tio);
-        return 0;
-}
+More details to follow I'm sure.
 
-Thank you for any help
---
-Thomas
+David
+
+--------
+
+
+scsi:0:0:0:0 Attempting to queue an ABORT message
+..Command already completed
+aic7xxx_abort returns 8194
+..Attempting to queue an ABORT message
+..Device is active, asserting aTN
+Recovery code sleeping
+Recovery code awake
+..Timer expired
+..returns 8195
+..attepting to queue a TARET RESET message
+..returns 8195
+..recovery SCB completes
+..attempting to queue an abort
+ahc_intr : HOST_MSG_LOOP bad phase 0x0
+..command aborted from QINFIFO
+..returns 8194
+scsi: device set offline - not ready or command retry failed after bus 
+reset: host  0 channel 0  id 0 lun 0
+
+(partially repeats for each id, 1-15, on both  ports)
+
 

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263133AbSJBO2c>; Wed, 2 Oct 2002 10:28:32 -0400
+	id <S263135AbSJBO3P>; Wed, 2 Oct 2002 10:29:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263134AbSJBO2c>; Wed, 2 Oct 2002 10:28:32 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59663
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263133AbSJBO2b>; Wed, 2 Oct 2002 10:28:31 -0400
-Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
-From: Robert Love <rml@tech9.net>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021002132331.GA17376@nevyn.them.org>
-References: <20021001164907.GA25307@nevyn.them.org>
-	 <20021001134552.A26557@figure1.int.wirex.com>
-	 <20021001211210.GA8784@nevyn.them.org>
-	 <20021002003817.B26557@figure1.int.wirex.com>
-	 <20021002132331.GA17376@nevyn.them.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1033569212.24108.20.camel@phantasy>
+	id <S263138AbSJBO3P>; Wed, 2 Oct 2002 10:29:15 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:263 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id <S263135AbSJBO3N>;
+	Wed, 2 Oct 2002 10:29:13 -0400
+Date: Wed, 2 Oct 2002 16:34:31 +0200
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia framebuffer in 2.5
+Message-ID: <20021002143431.GA27029@poup.poupinou.org>
+References: <200210012211.59573.ivg2@cornell.edu> <20021002080530.GA780@tapu.f00f.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 02 Oct 2002 10:33:32 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021002080530.GA780@tapu.f00f.org>
+User-Agent: Mutt/1.3.28i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-02 at 09:23, Daniel Jacobowitz wrote:
+On Wed, Oct 02, 2002 at 01:05:30AM -0700, Chris Wedgwood wrote:
+> On Tue, Oct 01, 2002 at 10:11:59PM -0400, Ivan Gyurdiev wrote:
+> 
+> > This stopped working many kernels ago, and I thought perhaps it's
+> > being converted to a different API... but it hasn't been fixed
+> > yet..is it a bug?
+> 
+> That are patches floating about to make it work for 2.5.x; however it
+> has some 'schedule while holding locks' issues which may not be fixed
+> anytime soon.
+> 
+> Bug nVIDIA :)
 
-> How very odd.  I have been running 2.5 on that machine for a while, and
-> the bug only showed up somewhere between 2.5.36 and 2.5.40.  Maybe a
-> coincidence triggered by the PID hashing... your tabbing is a little
-> odd but the patch looks right to me.  Thanks!
+This is the rivafb driver.  Not the binary provided by nvidia.
 
-I too wonder if the bug is due to the pid changes and not me :)
-
-find_task_by_pid(0) should just return current, which was my intention
-to avoid conditional code-paths.  Maybe I should of used
-find_process_by_pid()... it seems in the latest 2.5 that still returns
-current if !pid, at least.
-
-	Robert Love
-
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

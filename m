@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRATPRf>; Sat, 20 Jan 2001 10:17:35 -0500
+	id <S129413AbRATPRp>; Sat, 20 Jan 2001 10:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129729AbRATPRZ>; Sat, 20 Jan 2001 10:17:25 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:58344 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129444AbRATPRN>;
-	Sat, 20 Jan 2001 10:17:13 -0500
+	id <S129860AbRATPRf>; Sat, 20 Jan 2001 10:17:35 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:1713 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S129610AbRATPRT>;
+	Sat, 20 Jan 2001 10:17:19 -0500
 From: mkloppstech@freenet.de
-Message-Id: <200101201347.OAA00225@john.epistle>
-Subject: oops, continued
+Message-Id: <200101201246.NAA15788@john.epistle>
+Subject: oops,  signal 11
 To: linux-kernel@vger.kernel.org
-Date: Sat, 20 Jan 2001 14:47:18 +0100 (CET)
+Date: Sat, 20 Jan 2001 13:46:50 +0100 (CET)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM979998438-198-0_
+Content-Type: multipart/mixed; boundary=ELM979994810-15761-0_
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ELM979998438-198-0_
+--ELM979994810-15761-0_
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Sorry, but  it seems to be hardware. More conservative  memory settings
-let the system live longer, but after some time the same errors occur.
-Now the oopses seem to be just random oopses.
+I know that signal 11 with gcc is a sign of bad hardware; however  it
+strikes me that I don't get random oopses - a whole bunch of them is appended.
 
-Mirko Kloppstech, please cc to mkloppstech@freenet.de
+I used 2.4.0 with alsa, kmp3player running and an endless loop compiling the
+kernel.
 
---ELM979998438-198-0_
+Mirko Kloppstech
+
+--ELM979994810-15761-0_
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Disposition: attachment; filename=tmp2.oops
 Content-Description: /tmp/tmp2.oops
@@ -42,130 +44,816 @@ ksymoops 2.3.7 on i686 2.4.0.  Options used
      -o /lib/modules/2.4.0/ (default)
      -m /boot/System.map (specified)
 
-kernel BUG at page_alloc.c:190!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012b46d>]
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 ccaafcc0 ccaafce0 cb09df90 
+       c0124530 ffffffea ccaafcc0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010092
-eax: 00000020   ebx: c12bd09c   ecx: 00000000   edx: 00000007
-esi: c01ed9e0   edi: c01ed9b8   ebp: 00000000   esp: caa73e44
-ds: 0018   es: 0018   ss: 0018
-Process cpp (pid: 22337, stackpage=caa73000)
-Stack: c01c6865 c01c69f3 000000be c01ed9b8 c01edb90 00000001 ca79b398 00000005 
-       c01edb34 c01edb30 00000286 00000000 c01ed9b8 c012b80b cc75ce40 cc75ce40 
-       ccddbcc0 ca79b398 00000000 cfcdca04 00000005 00000001 c01edb8c c012185f 
-Call Trace: [<c012b80b>] [<c012185f>] [<c01218e0>] [<c0121a58>] [<c0111fc7>] [<c0111e70>] [<c0122768>] 
-       [<c0122a8a>] [<c0121c6b>] [<c0109040>] 
-Code: 0f 0b 83 c4 0c 89 f6 8b 53 04 8b 03 89 50 04 89 02 89 5c 24 
 
->>EIP; c012b46d <rmqueue+6d/260>   <=====
-Trace; c012b80b <__alloc_pages+eb/300>
-Trace; c012185f <do_anonymous_page+2f/80>
-Trace; c01218e0 <do_no_page+30/c0>
-Trace; c0121a58 <handle_mm_fault+e8/160>
-Trace; c0111fc7 <do_page_fault+157/420>
-Trace; c0111e70 <do_page_fault+0/420>
-Trace; c0122768 <do_munmap+58/290>
-Trace; c0122a8a <do_brk+aa/160>
-Trace; c0121c6b <sys_brk+bb/e0>
-Trace; c0109040 <error_code+34/3c>
-Code;  c012b46d <rmqueue+6d/260>
-00000000 <_EIP>:
-Code;  c012b46d <rmqueue+6d/260>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012b46f <rmqueue+6f/260>
-   2:   83 c4 0c                  addl   $0xc,%esp
-Code;  c012b472 <rmqueue+72/260>
-   5:   89 f6                     movl   %esi,%esi
-Code;  c012b474 <rmqueue+74/260>
-   7:   8b 53 04                  movl   0x4(%ebx),%edx
-Code;  c012b477 <rmqueue+77/260>
-   a:   8b 03                     movl   (%ebx),%eax
-Code;  c012b479 <rmqueue+79/260>
-   c:   89 50 04                  movl   %edx,0x4(%eax)
-Code;  c012b47c <rmqueue+7c/260>
-   f:   89 02                     movl   %eax,(%edx)
-Code;  c012b47e <rmqueue+7e/260>
-  11:   89 5c 24 00               movl   %ebx,0x0(%esp,1)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-c012a6c9
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c012a6c9>]
-EFLAGS: 00010282
-eax: c02486a8   ebx: c12bc6e4   ecx: 00000001   edx: 00000000
-esi: c12bc6c8   edi: 00000015   ebp: 00000000   esp: c147ffc8
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 3, stackpage=c147f000)
-Stack: 00010f00 c01c6631 c147e239 0008e000 c012aaf6 00000006 00000000 c1449fbc 
-       c0105000 ffffff9c c01074f3 00000000 c022c48c c01fbfc4 
-Call Trace: [<c012aaf6>] [<c0105000>] [<c01074f3>] 
-Code: 89 02 ff 0d b4 84 24 c0 e9 96 00 00 00 89 f6 b8 02 00 00 00 
-
->>EIP; c012a6c9 <refill_inactive_scan+49/100>   <=====
-Trace; c012aaf6 <kswapd+96/140>
-Trace; c0105000 <empty_bad_page+0/1000>
-Trace; c01074f3 <kernel_thread+23/30>
-Code;  c012a6c9 <refill_inactive_scan+49/100>
-00000000 <_EIP>:
-Code;  c012a6c9 <refill_inactive_scan+49/100>   <=====
-   0:   89 02                     movl   %eax,(%edx)   <=====
-Code;  c012a6cb <refill_inactive_scan+4b/100>
-   2:   ff 0d b4 84 24 c0         decl   0xc02484b4
-Code;  c012a6d1 <refill_inactive_scan+51/100>
-   8:   e9 96 00 00 00            jmp    a3 <_EIP+0xa3> c012a76c <refill_inactive_scan+ec/100>
-Code;  c012a6d6 <refill_inactive_scan+56/100>
-   d:   89 f6                     movl   %esi,%esi
-Code;  c012a6d8 <refill_inactive_scan+58/100>
-   f:   b8 02 00 00 00            movl   $0x2,%eax
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000018
-c0122f07
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0122f07>]
-EFLAGS: 00010246
-eax: 00000000   ebx: c12bd344   ecx: 00000001   edx: 00000001
-esi: 00000000   edi: ca13d9a4   ebp: 00000000   esp: cd2fbef4
-ds: 0018   es: 0018   ss: 0018
-Process rm (pid: 22364, stackpage=cd2fb000)
-Stack: c12bd344 c0122f6a c12bd344 c12bd344 c0123188 c12bd344 cd2fbf44 ca13d9ac 
-       ca13d9a4 ca13d9b4 cc65acc0 c12bd344 cd2fbf44 c012325f ca13d900 c01f0240 
-       cc63f3c0 cc6450b0 00000000 ca13d9ac 00000000 c0143e40 ca13d9a4 00000000 
-Call Trace: [<c0122f6a>] [<c0123188>] [<c012325f>] [<c0143e40>] [<c014292e>] [<c013c2ce>] [<c013c3a5>] 
-       [<c0108f27>] 
-Code: ff 48 18 8b 53 04 8b 03 89 50 04 89 02 c7 43 08 00 00 00 00 
-
->>EIP; c0122f07 <__remove_inode_page+27/60>   <=====
-Trace; c0122f6a <remove_inode_page+2a/30>
-Trace; c0123188 <truncate_list_pages+128/1b0>
-Trace; c012325f <truncate_inode_pages+4f/80>
-Trace; c0143e40 <iput+90/150>
-Trace; c014292e <d_delete+4e/70>
-Trace; c013c2ce <vfs_unlink+fe/130>
-Trace; c013c3a5 <sys_unlink+a5/120>
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
 Trace; c0108f27 <system_call+33/38>
-Code;  c0122f07 <__remove_inode_page+27/60>
+Code;  00000000 Before first symbol
 00000000 <_EIP>:
-Code;  c0122f07 <__remove_inode_page+27/60>   <=====
-   0:   ff 48 18                  decl   0x18(%eax)   <=====
-Code;  c0122f0a <__remove_inode_page+2a/60>
-   3:   8b 53 04                  movl   0x4(%ebx),%edx
-Code;  c0122f0d <__remove_inode_page+2d/60>
-   6:   8b 03                     movl   (%ebx),%eax
-Code;  c0122f0f <__remove_inode_page+2f/60>
-   8:   89 50 04                  movl   %edx,0x4(%eax)
-Code;  c0122f12 <__remove_inode_page+32/60>
-   b:   89 02                     movl   %eax,(%edx)
-Code;  c0122f14 <__remove_inode_page+34/60>
-   d:   c7 43 08 00 00 00 00      movl   $0x0,0x8(%ebx)
+Code;  00000000 Before first symbol
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)
+Code;  00000003 Before first symbol
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> fffffff5 <END_OF_CODE+2f7904e2/????>
+Code;  00000005 Before first symbol
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  00000009 Before first symbol
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  0000000c Before first symbol
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> fffffff5 <END_OF_CODE+2f7904e2/????>
+Code;  0000000e Before first symbol
+   e:   53                        pushl  %ebx
+Code;  0000000f Before first symbol
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> 00004d61 Before first symbol
+
+Unable to handle kernel paging request at virtual address 00003640
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 00003638   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cad1ff40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15018, stackpage=cad1f000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cbe42340 cbe42360 cad1ff90 
+       c0124530 ffffffea cbe42340 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003659
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 00003651   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: ca31df40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15039, stackpage=ca31d000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cc5fed40 cc5fed60 ca31df90 
+       c0124530 ffffffea cc5fed40 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003663
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 0000365b   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb09df40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15089, stackpage=cb09d000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 ccfa5440 ccfa5460 cb09df90 
+       c0124530 ffffffea ccfa5440 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003663
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 0000365b   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: ca31df40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15110, stackpage=ca31d000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cbe42a40 cbe42a60 ca31df90 
+       c0124530 ffffffea cbe42a40 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 0000366f
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 00003667   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c8ebff40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15160, stackpage=c8ebf000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cd4ff3c0 cd4ff3e0 c8ebff90 
+       c0124530 ffffffea cd4ff3c0 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003671
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 00003669   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c96cdf40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15182, stackpage=c96cd000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 ccaafec0 ccaafee0 c96cdf90 
+       c0124530 ffffffea ccaafec0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003676
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 0000366e   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cadaff40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15232, stackpage=cadaf000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cbe42840 cbe42860 cadaff90 
+       c0124530 ffffffea cbe42840 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 00003676
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 0000366e   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb709f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15253, stackpage=cb709000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cd4ff5c0 cd4ff5e0 cb709f90 
+       c0124530 ffffffea cd4ff5c0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 0000369f
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 00003697   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c96cdf40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15303, stackpage=c96cd000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cc5fedc0 cc5fede0 c96cdf90 
+       c0124530 ffffffea cc5fedc0 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 0000369f
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 00003697   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cadaff40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15324, stackpage=cadaf000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 ccf89940 ccf89960 cadaff90 
+       c0124530 ffffffea ccf89940 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036a2
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 0000369a   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb709f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15374, stackpage=cb709000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 ccf89e40 ccf89e60 cb709f90 
+       c0124530 ffffffea ccf89e40 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036a2
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 0000369a   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c96cdf40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15395, stackpage=c96cd000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c91217c0 c91217e0 c96cdf90 
+       c0124530 ffffffea c91217c0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036a2
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 0000369a   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c9127f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15445, stackpage=c9127000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 cbe42740 cbe42760 c9127f90 
+       c0124530 ffffffea cbe42740 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036c5
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 000036bd   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb709f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15466, stackpage=cb709000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9121440 c9121460 cb709f90 
+       c0124530 ffffffea c9121440 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036c5
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 000036bd   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c96cdf40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15516, stackpage=c96cd000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9fa8740 c9fa8760 c96cdf90 
+       c0124530 ffffffea c9fa8740 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036c5
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 000036bd   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c9127f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15537, stackpage=c9127000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9121a40 c9121a60 c9127f90 
+       c0124530 ffffffea c9121a40 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036c5
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 000036bd   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb709f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15587, stackpage=cb709000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9fa84c0 c9fa84e0 cb709f90 
+       c0124530 ffffffea c9fa84c0 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036cd
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010206
+eax: cff40000   ebx: 000036c5   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c96cdf40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15608, stackpage=c96cd000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c91219c0 c91219e0 c96cdf90 
+       c0124530 ffffffea c91219c0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000036d8
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 000036d0   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: c9127f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15658, stackpage=c9127000)
+Stack: 000027ad 0809ab20 00000000 bfffd900 c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9dc30c0 c9dc30e0 c9127f90 
+       c0124530 ffffffea c9dc30c0 000027ad 00001000 000017ad 0809bb20 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
+
+Unable to handle kernel paging request at virtual address 000037fa
+c012414f
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012414f>]
+EFLAGS: 00010202
+eax: cff40000   ebx: 000037f2   ecx: 00000010   edx: cff7ea64
+esi: cca70780   edi: cca70824   ebp: 00001000   esp: cb709f40
+ds: 0018   es: 0018   ss: 0018
+Process cpp (pid: 15694, stackpage=cb709000)
+Stack: 000027ad 08140b88 00000000 bfffe03c c125abd8 00000000 cff7ea64 00000001 
+       00000000 00000001 cca70824 cca70780 c01245f3 c9fa8cc0 c9fa8ce0 cb709f90 
+       c0124530 ffffffea c9fa8cc0 000027ad 00001000 000017ad 08141b88 00000000 
+Call Trace: [<c01245f3>] [<c0124530>] [<c013029e>] [<c0108f27>] 
+Code: 39 7b 08 75 f0 8b 74 24 24 39 73 0c 75 e7 53 e8 4d 4d 00 00 
+
+>>EIP; c012414f <do_generic_file_read+1af/590>   <=====
+Trace; c01245f3 <generic_file_read+63/80>
+Trace; c0124530 <file_read_actor+0/60>
+Trace; c013029e <sys_read+8e/d0>
+Trace; c0108f27 <system_call+33/38>
+Code;  c012414f <do_generic_file_read+1af/590>
+00000000 <_EIP>:
+Code;  c012414f <do_generic_file_read+1af/590>   <=====
+   0:   39 7b 08                  cmpl   %edi,0x8(%ebx)   <=====
+Code;  c0124152 <do_generic_file_read+1b2/590>
+   3:   75 f0                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c0124154 <do_generic_file_read+1b4/590>
+   5:   8b 74 24 24               movl   0x24(%esp,1),%esi
+Code;  c0124158 <do_generic_file_read+1b8/590>
+   9:   39 73 0c                  cmpl   %esi,0xc(%ebx)
+Code;  c012415b <do_generic_file_read+1bb/590>
+   c:   75 e7                     jne    fffffff5 <_EIP+0xfffffff5> c0124144 <do_generic_file_read+1a4/590>
+Code;  c012415d <do_generic_file_read+1bd/590>
+   e:   53                        pushl  %ebx
+Code;  c012415e <do_generic_file_read+1be/590>
+   f:   e8 4d 4d 00 00            call   4d61 <_EIP+0x4d61> c0128eb0 <age_page_up+0/30>
 
 
---ELM979998438-198-0_--
+--ELM979994810-15761-0_--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

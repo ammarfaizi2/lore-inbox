@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285497AbRLNUk2>; Fri, 14 Dec 2001 15:40:28 -0500
+	id <S285498AbRLNUli>; Fri, 14 Dec 2001 15:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285498AbRLNUkT>; Fri, 14 Dec 2001 15:40:19 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34576 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285497AbRLNUkJ>;
-	Fri, 14 Dec 2001 15:40:09 -0500
-Date: Fri, 14 Dec 2001 21:34:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kirk Alexander <kirkalx@yahoo.co.nz>
-Cc: groudier@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20011214203435.GV1180@suse.de>
-In-Reply-To: <20011214041151.91557.qmail@web14904.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011214041151.91557.qmail@web14904.mail.yahoo.com>
+	id <S285499AbRLNUla>; Fri, 14 Dec 2001 15:41:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32527 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285498AbRLNUlN>; Fri, 14 Dec 2001 15:41:13 -0500
+Date: Fri, 14 Dec 2001 12:40:16 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Simon Kirby <sim@netnation.com>
+cc: <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kill(-1,sig)
+In-Reply-To: <20011214123628.A22506@netnation.com>
+Message-ID: <Pine.LNX.4.33.0112141237470.3063-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14 2001, Kirk Alexander wrote:
-> [cc'ed to lkml and Gerard Roudier]
-> 
-> Hi Jens,
-> 
-> You asked people to send in reports of which drivers
-> were broken by the removal of io_request_lock.
-> 
-> My system is a clunky old Digital Pentium Pro with a
-> NCR53c810 rev 2 scsi controller, so it can't use the
-> sym driver. I fixed the problem by seeing what the sym
-> driver did i.e. the patch below 
-> This may not be right at all, and I haven't had a
-> chance to boot the kernel - but it did build OK.
 
-Missed your original post, it had no subject line. At first view, your
-patch looks correct. However, check the ->detect() routing and verify
-it's not assuming the lock is held there. That should be the only
-pitfall.
+On Fri, 14 Dec 2001, Simon Kirby wrote:
+>
+> On Fri, Dec 14, 2001 at 05:34:48PM +0000, Andries.Brouwer@cwi.nl wrote:
+>
+> > + * POSIX (2001) specifies "If pid is -1, sig shall be sent to all processes
+> > + * (excluding an unspecified set of system processes) for which the process
+> > + * has permission to send that signal."
+> > + * So, probably the process should also signal itself.
+> > -			if (p->pid > 1 && p != current) {
+> > +			if (p->pid > 1) {
+>
+> Argh, I hate this.  I fail to see what progress a process could make if
+> it kills everything _and_ itself.  I frequently use "kill -9 -1" to kill
+> everything except my shell, and now I'll have to kill everything else
+> manually, one by one.
 
-Minor nit pick -- since this driver is _in_ the 2.5 tree, there's no way
-the #ifdef would not hit. So the way I've been fixing these is to just
-always assume latest kernel.
+I do agree, I've used "kill -9 -1" myself.
 
-I think this was already fixed though, but at least know you now you did
-it right :-)
+However, let's see how problematic it is to try to follow it (in 2.5.x,
+not 2.4.x) and if people really complain.
 
--- 
-Jens Axboe
+Count one for the complaints, but I want more to overrule a published
+standard.
+
+(Of course, a language lawyer will call "self" a "system process",
+although I cannot for the life of me really see what kind of excuse we
+would come up with to do se ;)
+
+		Linus
 

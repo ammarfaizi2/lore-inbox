@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262326AbSLASrM>; Sun, 1 Dec 2002 13:47:12 -0500
+	id <S262324AbSLASqp>; Sun, 1 Dec 2002 13:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbSLASrM>; Sun, 1 Dec 2002 13:47:12 -0500
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:63104
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S262326AbSLASrL>; Sun, 1 Dec 2002 13:47:11 -0500
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: xizard@enib.fr
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DEA322B.40204@enib.fr>
-References: <3DEA322B.40204@enib.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1038768875.12518.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 01 Dec 2002 12:54:35 -0600
+	id <S262326AbSLASqp>; Sun, 1 Dec 2002 13:46:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30989 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262324AbSLASqo>; Sun, 1 Dec 2002 13:46:44 -0500
+Date: Sun, 1 Dec 2002 10:54:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: sfr@canb.auug.org.au, <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       <ak@muc.de>, <davidm@hpl.hp.com>, <schwidefsky@de.ibm.com>,
+       <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] Start of compat32.h (again)
+In-Reply-To: <20021127.212638.35873260.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-01 at 10:00, XI wrote:
-> Hi,
-> [1] With kernel-2.4.19 and kernel-2.4.20 the sound stutter, sizzle
+
+On Wed, 27 Nov 2002, David S. Miller wrote:
 > 
-> [2] The problem seems be correlated with my PCI graphic card (matrox
-> G200 PCI) and my sound card (sound blaster live 5.1).
-> In fact every time I listen music and that something appens on my screen
-> (moving a window, watching a movie) the sound stutter.
+> I envisioned moving the compat stuff right next to the "normal"
+> implementation.
 
-I had a similar problem. Turned out to be where my TV card was plugged
-into + my mixer settings. I had the tv sound out plugged into mic,
-instead of line in. Using aumix I was able to figure out that changing
-which input was allowed to recored got rid of the noise. Have you
-attempted such trouble shooting?
+Why?
 
-> I think the first thing I should do is to try different kernel version
-> in order to find when this problem appeared first.
+> A problem currently, is that when people change VFS stuff up one has
+> to pay attention to update all the compat syscall layers as well.
 
---The GrandMaster
+Doesn't matter. The thing is, you have two kinds of fixups for things like 
+VFS changes:
+
+ - compiler warning/error based fixups (in which case it doesn't _matter_ 
+   where it is, since in neither case will it get compiled for x86
+
+ - a simple "grep xxxx *.c" kind of approach.
+
+Yes, the latter often misses out on architecture files, because people
+just won't even look at hits in sparc/ppc64/xxx, either being too timid to
+want to check, or just not caring. But if the file is in kernel/xxxx, it 
+will be noticed - at least as well as it would be if it was uglifying 
+regular files with #ifdef's.
+
+> Now if we put the stuff next to the non-compat stuff, it likely won't
+> get missed.
+
+.. but it will have ugly #ifdef's inside the source file, something that I 
+absolutely detest. 
+
+Face it, the "compat" stuff is _secondary_. If it breaks, it breaks. It's
+better to have the main code paths clean and unsullied, and take the risk
+of occasionally breaking the compatibility stuff (that will break
+occasionally anyway, see above).
+
+Quite frankly, I want people to literally have the option to just ignore
+the compat stuff, simply because it's not as important as the core kernel 
+code. 
+
+I see the compat32 patches as a convenience, and as a way to avoid 
+duplicating bus over the system. I do NOT consider it to be core 
+functionality, and I do _not_ think it should be a first-class citizen. 
+Sorry, guys. Code cleanliness is _way_ more important to me.
+
+		Linus
+

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310474AbSCLHYW>; Tue, 12 Mar 2002 02:24:22 -0500
+	id <S310460AbSCLH1W>; Tue, 12 Mar 2002 02:27:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310460AbSCLHYN>; Tue, 12 Mar 2002 02:24:13 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:45210 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S310468AbSCLHX4>; Tue, 12 Mar 2002 02:23:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <akeys@post.cis.smu.edu>
-To: Tony Hoyle <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
-Subject: Re: Dog slow IDE
-Date: Tue, 12 Mar 2002 01:23:38 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C8CB3EB.8070704@nothing-on.tv>
-In-Reply-To: <3C8CB3EB.8070704@nothing-on.tv>
+	id <S310469AbSCLH1M>; Tue, 12 Mar 2002 02:27:12 -0500
+Received: from ip68-4-52-101.pv.oc.cox.net ([68.4.52.101]:15068 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S310460AbSCLH06>; Tue, 12 Mar 2002 02:26:58 -0500
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+From: junkio@cox.net
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <fa.npg7nmv.si46bq@ifi.uio.no>
+Date: 11 Mar 2002 23:26:47 -0800
+Message-ID: <7vadteqma0.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020312072348.WUOR1214.rwcrmhc54.attbi.com@there>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 11, 2002 07:40, Tony Hoyle wrote:
-> For some reason the my IDE is running extremely slow (which accounts for
-> why this box feels so sluggish).
+This update seems to have the same change as 2.2.21-pre4 in
+arch/i386/kernel/bluesmoke.c that broke booting some Intel SMP
+boxes over the weekend and was reported by many people.
 
-Are they dog slow after a *cold* start?  My solution to slow Maxtor drives 
-was to fix the CPU fans in my machine and put the main drive in a bay cooler. 
- The drive wasn't spewing bad data, so it wasn't the drive controller 
-overheating.  That leads me to believe that the motor (or the motor control 
-DSP) was overheating and degrading performance on that route.  Trying that 
-will save you lots of hours toying with hdparm like I did :).
-
-Good luck..its a sucky problem but once you get it fixed your machine will 
-seem like new!
--- 
-akk~
+--- 2.4.19-pre2/arch/i386/kernel/bluesmoke.c	Sun Mar 10 20:43:53 2002
++++ 2.4.19-pre3/arch/i386/kernel/bluesmoke.c	Mon Mar 11 23:14:14 2002
+@@ -169,7 +169,7 @@
+ 	if(l&(1<<8))
+ 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ 	banks = l&0xff;
+-	for(i=1;i<banks;i++)
++	for(i=0;i<banks;i++)
+ 	{
+ 		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
+ 	}

@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263257AbREaWw6>; Thu, 31 May 2001 18:52:58 -0400
+	id <S263267AbREaWv6>; Thu, 31 May 2001 18:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263268AbREaWws>; Thu, 31 May 2001 18:52:48 -0400
-Received: from beaker.bluetopia.net ([63.219.235.110]:35356 "EHLO
-	beaker.bluetopia.net") by vger.kernel.org with ESMTP
-	id <S263257AbREaWwl>; Thu, 31 May 2001 18:52:41 -0400
-Date: Thu, 31 May 2001 18:52:23 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-To: Pavel Roskin <proski@gnu.org>
-cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
-Subject: Re: AT keyboard optional on i386?
-In-Reply-To: <Pine.LNX.4.33.0105290021420.12495-100000@portland.hansa.lan>
-Message-ID: <Pine.LNX.4.04.10105311822560.1601-100000@beaker.bluetopia.net>
+	id <S263257AbREaWvk>; Thu, 31 May 2001 18:51:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53010 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263267AbREaWvf>; Thu, 31 May 2001 18:51:35 -0400
+Subject: Re: 2.4.5 VM
+To: vichu@digitalme.com (Trever L. Adams)
+Date: Thu, 31 May 2001 23:49:37 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3B16C9A8.7090402@digitalme.com> from "Trever L. Adams" at May 31, 2001 06:46:00 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155bG5-0008AX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 May 2001, Pavel Roskin wrote:
->> You can a few nice tricks with it like plug in two PS/2 keyboards. I
->> have this for my home setup. The only thing is make sure you don't
->> have both keyboards plugged in when you turn your PC on. I found BIOS
->> get confused by two PS/2 keyboards. As you can it is very easy to
->> multiplex many keyboards with the above design. I have had 4 different
->> keyboards hooked up to my system and functioning at the same time. We
->> even got a Sun keyboard to work on a intel box :-)
->
->That's what we like Linux for. It doesn't get confused when everything
->else does :-)
+> My system has 128 Meg of Swap and RAM.
 
-Heh, that's funny.  I must admit I'd never thought of that.
+Linus 2.4.0 notes are quite clear that you need at least twice RAM of swap
+with 2.4.
 
-Anyway, the bios gets confused because it's trying to figure out (in a very
-simple way) where the keyboard and mouse are.  It's true there's lots of
-voodoo in PC BIOSes; keyboard/mouse detection isn't one of them.
-
-(As I recall, I have to have something in the port to get it enabled.  Linux
- doesn't seem to know how to enable it.)
-
---Ricky
-
+Marcelo is working to change that but right now you are running something 
+explicitly explained as not going to work as you want
 

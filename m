@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310359AbSCPNjY>; Sat, 16 Mar 2002 08:39:24 -0500
+	id <S310366AbSCPNxZ>; Sat, 16 Mar 2002 08:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310357AbSCPNjP>; Sat, 16 Mar 2002 08:39:15 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:12804 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S310354AbSCPNix>;
-	Sat, 16 Mar 2002 08:38:53 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Sat Mar 16 13:38:38 2002
-Message-ID: <3C934AA1.6060308@nothing-on.tv>
-Date: Sat, 16 Mar 2002 13:37:37 +0000
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-MIME-Version: 1.0
-Newsgroups: lists.linux-kernel
-To: Robert Love <rml@tech9.net>
-Cc: "Udo A. Steinberg" <reality@delusion.de>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Kernel powerdown
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com> 	<3C926B56.FC147170@delusion.de> <1016229350.1148.63.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310367AbSCPNxP>; Sat, 16 Mar 2002 08:53:15 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:15120 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S310366AbSCPNxF>;
+	Sat, 16 Mar 2002 08:53:05 -0500
+Date: Sat, 16 Mar 2002 13:52:47 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, Paul Mackerras <paulus@samba.org>,
+        Balbir Singh <balbir_soni@yahoo.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nice values for kernel modules
+Message-ID: <20020316135247.A31434@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+	Keith Owens <kaos@ocs.com.au>, Paul Mackerras <paulus@samba.org>,
+	Balbir Singh <balbir_soni@yahoo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <16358.1016282075@ocs3.intra.ocs.com.au> <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet>; from tigran@aivazian.fsnet.co.uk on Sat, Mar 16, 2002 at 01:04:16PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
->>
->>The board is an Asus A7V.
->>
-> 
-Hmm... I had exactly the same (failure to poweroff) on the A7M.  A BIOS
-upgrade came out last week that seems to have fixed it (I'm still 
-looking at why the power button doesn't work though).
+On Sat, Mar 16, 2002 at 01:04:16PM +0000, Tigran Aivazian wrote:
+> There are lots of good reasons why it has been exported, e.g. ability to
+> replace some system calls while leaving overall Linux personality (i.e.
+> without switching to an ABI emulation).
 
-Tony
+No, that never was a good reason and has been removed by Arjan and me
+in current Linux-ABI versions.
 
+I'm all for removing it, too.
+ 
+> Also, ability to call those system calls from a module which are not
+> exported individually.
 
-
-
+If syscalls are supposed to be used by modules they should be exported
+and have proper prototypes.

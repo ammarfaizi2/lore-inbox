@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316437AbSH0QCf>; Tue, 27 Aug 2002 12:02:35 -0400
+	id <S316491AbSH0QDl>; Tue, 27 Aug 2002 12:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSH0QCf>; Tue, 27 Aug 2002 12:02:35 -0400
-Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:11193 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316437AbSH0QCf>; Tue, 27 Aug 2002 12:02:35 -0400
-Date: Tue, 27 Aug 2002 10:06:50 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: block device/VM question
-In-Reply-To: <200208270858.g7R8wJF15076@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.44.0208271006260.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316500AbSH0QDk>; Tue, 27 Aug 2002 12:03:40 -0400
+Received: from mail.coastside.net ([207.213.212.6]:59570 "EHLO
+	mail.coastside.net") by vger.kernel.org with ESMTP
+	id <S316491AbSH0QDj>; Tue, 27 Aug 2002 12:03:39 -0400
+Mime-Version: 1.0
+Message-Id: <p05111a0db99151da8f21@[207.213.214.37]>
+In-Reply-To: <1030446205.2539.13.camel@sonja.de.interearth.com>
+References: <1030446205.2539.13.camel@sonja.de.interearth.com>
+Date: Tue, 27 Aug 2002 09:07:45 -0700
+To: Daniel Egger <degger@fhm.edu>, linux kernel <linux-kernel@vger.kernel.org>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: Two equal harddrives on one cable behaving different
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 1:03pm +0200 8/27/02, Daniel Egger wrote:
+>I'm currently in the process of mirroring a drive with bad sector
+>to an equal second one (same modell, same version, same firmware).
+>Both of them are on the same cable, the old one as master, the new
+>one is slave (now on the outer end of the cable). According to
+>smartctl the old one is continously ressolving a couple CRC errors
+>per hour while the second one hasn't suffered a single one yet.
+>
+>(195)Hardware ECC Recovered  0x001a   100   100   000       29678
+>few minutes later:
+>(195)Hardware ECC Recovered  0x001a   100   100   000       29694
+>
+>other drive:
+>(195)Hardware ECC Recovered  0x001a   100   100   000       0
+>
+>The cable (80 conductor) seems fine (optically) and I'd wonder if it
+>is the culprit because the drive on the outer end (now) works fine.
 
-On Tue, 27 Aug 2002, Peter T. Breuer wrote:
-> Is there any way of turning off VMS caching for a block device?
-> 
-> I want all reads to come down to the driver, where I decide what to do
-> about them.  I don't want reads to read locally cached buffers in VMS
-> unless I say so.  The reason is that the device might have a remote
-> writer.
-> 
-> I'll have a look at the raw character device later (but I recall
-> having looked before without it telling me anything - probably
-> they make a fake request and transfer it to the device queue
-> directly and treat the return with their own substituted end_req).
-> I need a block device - I can't mount a character device. Now
-> there's an idea! A mouse represented as a file system ..
-
-O_DIRECT, or easily set the buffer to zero...
-
-			Thunder
+ECC errors get corrected in the drive, so it would be surprising if 
+the cable had an effect. Do you have reason to think that's 
+happening? That is, if you swap the drives on the cable, do the 
+errors stick with the cable position, or the physical drive? I'd 
+expect the latter, and if so would retire the drive.
 -- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+/Jonathan Lundell.

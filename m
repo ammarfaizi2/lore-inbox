@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265238AbUEYXrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265257AbUEYXs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbUEYXrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 19:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUEYXrN
+	id S265257AbUEYXs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 19:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUEYXs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 19:47:13 -0400
-Received: from skif.spylog.com ([194.67.35.250]:42184 "EHLO mail.spylog.com")
-	by vger.kernel.org with ESMTP id S265238AbUEYXrK (ORCPT
+	Tue, 25 May 2004 19:48:56 -0400
+Received: from av2-2-sn3.vrr.skanova.net ([81.228.9.108]:1962 "EHLO
+	av2-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S265257AbUEYXsn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 19:47:10 -0400
-Date: Wed, 26 May 2004 03:46:57 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-Reply-To: Andrey Nekrasov <andy@spylog.ru>
-X-Priority: 3 (Normal)
-Message-ID: <1236867749.20040526034657@spylog.ru>
+	Tue, 25 May 2004 19:48:43 -0400
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
 To: linux-kernel@vger.kernel.org
-Subject: sata promise and software raid5...
+Subject: Re: Modifying kernel so that non-root users have some root capabilities
+Date: Wed, 26 May 2004 01:43:06 +0200
+User-Agent: KMail/1.6.52
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405260143.06439.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> I've been tasked with modifying a 2.4 kernel so that a non-root user can
+> do the following:
+> 
+> Dynamically change the priorities of processes (up and down)
+> Lock processes in memory
+> Can change process cpu affinity
+> 
+> Anyone got any ideas about how I could start doing this? (I'm new to
+> kernel development, btw.)
 
-controller - Promise SATA 150 TX4, linux 2.6.7-rc1-bk1, HDD Maxtor
-250Gb (x4)
+Audio development folks has a SELinux module that does almost this.
 
-Why so slowly reads (and writes) with software raid5?
+"The latest version of the realtime Linux Security Module is now
+available on SourceForge...
 
-gnome:~ # hdparm -t /dev/sda2
+  
+http://prdownloads.sourceforge.net/realtime-lsm/realtime-lsm-0.1.1.tar.gz?download
 
-/dev/sda2:
- Timing buffered disk reads:  148 MB in  3.01 seconds =  49.16 MB/sec
-gnome:~ # hdparm -t /dev/sdb2
+This release handles changes to the capabilities structure introduced
+in Linux 2.6.6, but still works with earlier 2.6 kernels.  There are
+no functional changes.  Unless you are running 2.6.6, there is no need
+to upgrade.  Changes in the 2.6.6 kernel makefiles affect the
+procedure for building the realtime-lsm.  Please consult the INSTALL
+instructions for details.
 
-/dev/sdb2:
- Timing buffered disk reads:  148 MB in  3.02 seconds =  49.01 MB/sec
-gnome:~ # hdparm -t /dev/sdc2
+The realtime LSM is an installable kernel module that enables realtime
+capabilities for any 2.6 kernel without needing to directly patch the
+kernel.  It was written by Torben Hohn and Jack O'Quin, who make no
+warranty concerning the safety, security or even stability of your
+system when using it.  It is provided under the provisions of the GPL.
+-- 
+  joq"
 
-/dev/sdc2:
- Timing buffered disk reads:  148 MB in  3.03 seconds =  48.90 MB/sec
-gnome:~ # hdparm -t /dev/sdd2
+Usage like this:
+"Once the LSM has been installed and the kernel for which it was built
+is running, the root user can load it and pass parameters as follows:
 
-/dev/sdd2:
- Timing buffered disk reads:  144 MB in  3.00 seconds =  47.96 MB/sec
-gnome:~ #
-gnome:~ #
-gnome:~ # hdparm -t /dev/md0
+  # modprobe realtime any=1
 
-/dev/md0:
- Timing buffered disk reads:   64 MB in  3.12 seconds =  20.52 MB/sec
-gnome:~ #
+  Any program can request realtime privileges.  This allows any local
+  user to crash the system by hogging the CPU in a tight loop or
+  locking down too much memory.  But, it is simple to administer.  :-)
 
+  # modprobe realtime gid=29
 
-gnome:~ # cat /etc/raidtab
-raiddev /dev/md0
-        raid-level              5
-        nr-raid-disks           4
-        nr-spare-disks          0
-        persistent-superblock   1
-        parity-algorithm        left-symmetric
-        chunk-size              1024
+  All users belonging to group 29 and programs that are setgid to that
+  group have realtime privileges.  Use any group number you like.
 
-        device                  /dev/sda2
-        raid-disk               0
+  # modprobe realtime mlock=0
 
-        device                  /dev/sdb2
-        raid-disk               1
+  Grants realtime scheduling privileges without the ability to lock
+  memory using mlock() or mlockall() system calls.  This option can be
+  used in conjunction with any of the other options.
+"
 
-        device                  /dev/sdc2
-        raid-disk               2
+/RogerL
+(not subscribed but reading archives now and then)
 
-        device                  /dev/sdd2
-        raid-disk               3
-
-        
-bye
---
-
-
+-- 
+Roger Larsson
+Skellefteå
+Sweden

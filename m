@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTLSQYN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 11:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTLSQYN
+	id S262323AbTLSQRg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 11:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTLSQRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 11:24:13 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44018 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263485AbTLSQYM
+	Fri, 19 Dec 2003 11:17:36 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:1028 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262323AbTLSQRe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 11:24:12 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [patch] ide.c as a module
-Date: Fri, 19 Dec 2003 17:26:46 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031211202536.GA10529@starbattle.com> <200312121837.31121.bzolnier@elka.pw.edu.pl> <m3u13zynm8.fsf@defiant.pm.waw.pl>
-In-Reply-To: <m3u13zynm8.fsf@defiant.pm.waw.pl>
+	Fri, 19 Dec 2003 11:17:34 -0500
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module Alias back compat code
+References: <20031219031034.A38502C06C@lists.samba.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 20 Dec 2003 01:16:45 +0900
+In-Reply-To: <20031219031034.A38502C06C@lists.samba.org>
+Message-ID: <87hdzwye8i.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312191726.46147.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 of December 2003 01:29, Krzysztof Halasa wrote:
-> BTW: modular IDE in 2.4.23 is still problematic - you can't unload the
-> chipset driver (piix.o or something like) which in turn references the
-> core IDE module.
+Rusty Russell <rusty@rustcorp.com.au> writes:
 
-It is probably too much work to fix it (properly) in 2.4.x and 2.6.x...
+> The provides backwards compat for old char and block aliases.
+> 
+> MODULE_ALIAS_BLOCK() and MODULE_ALIAS_CHAR() define aliases of form
+> "XXX-<major>-<minor>", so we should probe for modules using this
+> form.  Unfortunately in 2.4, block aliases were "XXX-<major>" and
+> char aliases were of both forms.
+> 
+> Ideally, all modules would now be using MODULE_ALIAS() macros to
+> define their aliases, and the old configuration files wouldn't
+> matter as much.  Unfortunately, this hasn't happened, so we make
+> request_module() return the exit status of modprobe, and then
+> do fallback when probing for char and block devices.
 
-Please note that there is no refcounting in IDE drivers,
-there is no host object type, also table of IDE ports (ide_hwifs[]) is static.
+Umm.. Although I may be mis-understanding this problem, is the following
+scripts the not enough?
 
-I hope 2.7 will obsolete drivers/ide...
+This does
 
---bart
+	block-major-1 -> block-major-1-*
 
+
+--- generate-modprobe.conf.orig	2003-08-12 05:03:59.000000000 +0900
++++ generate-modprobe.conf	2003-12-20 00:31:17.000000000 +0900
+@@ -59,8 +59,9 @@
+ parse_alias()
+ {
+     PA_ALIAS=`resolve_alias $1 $3`
++    NAME=`echo $2|sed -e 's/\(block\|char\)-major-\([0-9]\+\)$/\1-major-\2-*/'`
+ 
+-    echo "alias $2 $PA_ALIAS"
++    echo "alias $NAME $PA_ALIAS"
+ }
+ 
+ # Parse options: args modulename aliasto.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

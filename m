@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319155AbSIFQgr>; Fri, 6 Sep 2002 12:36:47 -0400
+	id <S319234AbSIFQqq>; Fri, 6 Sep 2002 12:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319223AbSIFQgr>; Fri, 6 Sep 2002 12:36:47 -0400
-Received: from windsormachine.com ([206.48.122.28]:266 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S319155AbSIFQgq>; Fri, 6 Sep 2002 12:36:46 -0400
-Date: Fri, 6 Sep 2002 12:41:21 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Billy Harvey <Billy.Harvey@thrillseeker.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide drive dying?
-In-Reply-To: <1031328893.16365.243.camel@rhino>
-Message-ID: <Pine.LNX.4.33.0209061226520.30387-100000@router.windsormachine.com>
+	id <S319242AbSIFQqq>; Fri, 6 Sep 2002 12:46:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55826 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319234AbSIFQqp>;
+	Fri, 6 Sep 2002 12:46:45 -0400
+Message-ID: <3D78DCE9.5040808@mandrakesoft.com>
+Date: Fri, 06 Sep 2002 12:50:49 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jordan Crouse <jordanc@censoft.com>
+CC: Theewara Vorakosit <g4465018@pirun.ku.ac.th>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VIA82cxxx sound problem
+References: <Pine.GSO.4.44.0209061822580.1094-100000@pirun.ku.ac.th> <20020906092705.7a746d39.jordanc@censoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Sep 2002, Billy Harvey wrote:
+Jordan Crouse wrote:
+>>Dear All,
+>>	I use Gigabyte GA-7VTXE+, equip with on board sound card. When I
+>>use sound card (when start KDE), there is a lot of message:
+>>
+>>via82cxxx warning: SG stopped or paused
+>>
+>>I'm using kernel 2.4.18-3, Red Hat 7.3. Would you please tell me how to solve this problem?
+> 
+> 
+> You motherboard has a VA8233A south bridge, which is more fully supported in 2.4.19 than in the Red Hat kernel.  Upgrade, and your problems should go away (or at least, get easier to debug).
 
-> use the LAN more.  On the LAN put the money into a quality shared
-> resource - a heavy duty UPS'd, etc. RAID system.  Especially if a RAID
-> system is as easy to build/maintain/use as Alan alludes to (don't know -
-> never built one).
->
-> Billy
 
-And don't forget the cost of cluebats to beat the users over the head
-with.  I've been trying for 3 years to get people to save their documents
-to the H: drive.  Still find stuff stored wherever they feel like storing
-it.
+The newer multi-channel VT8233A audio chip isn't supported at all in the 
+2.4.x via audio driver, you need ALSA for that support.  The VT8233A is 
+_almost_ register compatible, but not enough to not require additional 
+changes.
 
-So each facility has a backup server that nightly grabs their entire
-drive, gzip's it, and then dumps it to a DDS-4 tape.  Also keeps X days of
-daily full backups, and X weeks as well.
+	Jeff
 
-Aside from Windows filesharing being so slow(1500kps via smbtar is average
-here), it works quite nicely.  Even with a P4/2.53, I still can't get
-more than the 1500kps that a p133 is capable of.  All the p4 gives me, is
-the ability to gzip -9 or even bzip2 the files, instead of the gzip -1
-that the p133 is capable of in real time.
 
-Mike
 

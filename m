@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269257AbRHQArP>; Thu, 16 Aug 2001 20:47:15 -0400
+	id <S269254AbRHQArZ>; Thu, 16 Aug 2001 20:47:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269254AbRHQArF>; Thu, 16 Aug 2001 20:47:05 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:25872 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S269212AbRHQAqx>; Thu, 16 Aug 2001 20:46:53 -0400
-Message-Id: <200108170047.f7H0l4I83032@aslan.scsiguy.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx driver that does not need db library? 
-In-Reply-To: Your message of "Thu, 16 Aug 2001 09:44:26 PDT."
-             <200108161644.JAA02547@adam.yggdrasil.com> 
-Date: Thu, 16 Aug 2001 18:47:04 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S269226AbRHQArQ>; Thu, 16 Aug 2001 20:47:16 -0400
+Received: from odyssey.netrox.net ([204.253.4.3]:7604 "EHLO t-rex.netrox.net")
+	by vger.kernel.org with ESMTP id <S269212AbRHQArI>;
+	Thu, 16 Aug 2001 20:47:08 -0400
+Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
+From: Robert Love <rml@tech9.net>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010816190255.A17095@se1.cogenit.fr>
+In-Reply-To: <997936615.921.22.camel@phantasy>
+	<20010816105010.A10595@se1.cogenit.fr> <997973433.684.3.camel@phantasy> 
+	<20010816190255.A17095@se1.cogenit.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 16 Aug 2001 20:47:48 -0400
+Message-Id: <998009276.660.69.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->	Currently, building Justin Gibbs's otherwise excellent
->aic7xxx driver requires the Berkeley DB library, because the
->aic7xxx assembler that is used in the build process uses db
->basically just to implement associative arrays in memory.
+On 16 Aug 2001 19:02:55 +0200, Francois Romieu wrote:
+> Robert Love <rml@tech9.net> :
+> > What is experimental about it?
+> 
+> The implicit-and-should-be-debated-in-2.5 assumption that the entropy 
+> estimate still makes sense ?
 
-You don't need to use the assembler.  Compiled firmware is
-provided in every distrubution I've made, including the one
-in the 2.4.9 kernel.  The default is to *not* build the
-firmware.  Just make sure that you don't have this option
-inadvertantly turned on in your config and you should be happy.
+then mark the entropy generator experimental if you believe that.  its
+irrelevant here.
 
-A wise CS proff once said, "Smart programmers are lazy.  They
-re-use stuff rather than write it over and over again."  In this
-case, I was able to implement my symbol table in all of 5 mintues
-without the need to debug the code that implements its core.  It
-may seem like overkill, but it allowed me to focus on the important
-things, like making the assembler useful.  The assember dates from
-1995, which might explain why it uses the dbv1 interface.
+this is just taking a behavior that is inconsistent (do NICs enable
+SA_SAMPLE_RANDOM), making it consistent (SA_SAMPLE_NET_RANDOM), and
+making it configurable.  Nothing is experimental.  This does not change
+things; it makes things configurable.
 
-"If it ain't broke, don't fix it."
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
---
-Justin

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266150AbUALMLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 07:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbUALMLv
+	id S266178AbUALMZG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 07:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbUALMZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 07:11:51 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:12239 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266150AbUALMLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 07:11:49 -0500
-Date: Mon, 12 Jan 2004 13:11:42 +0100 (MET)
-Message-Id: <200401121211.i0CCBg5u006677@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, raul@pleyades.net
+	Mon, 12 Jan 2004 07:25:05 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:65028 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S266178AbUALMY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 07:24:59 -0500
+Date: Mon, 12 Jan 2004 13:25:38 +0100
+From: DervishD <raul@pleyades.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: SMP or UP???
+Message-ID: <20040112122538.GD18408@DervishD>
+References: <200401121211.i0CCBg5u006677@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200401121211.i0CCBg5u006677@harpo.it.uu.se>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jan 2004 11:20:39 +0100, DervishD <raul@pleyades.net> wrote:
->    I have an used Gigabyte GA-7ZXE mobo, with chipset VIA KT133A,
->wearing a Duron 1000 processor, since December. AFAIK this mobo is
->uniprocessor (it has only a socket, that should be a good
->evidence...), but when booting I get these messages (I just show
->those relevant to the issue):
->
->kernel: Linux version 2.4.21 (root@DervishD) (gcc version 3.2.2) #1 Wed Jul 2 17:25:21 CEST 2003
->kernel: found SMP MP-table at 000fb210
->
->    What, SMP table?
-...
->    This is not an issue, because the system seems to work OK, but
->for me is very strange and I'm not sure wether this may cause
->problems or not...
+    Hi Mikael :)
 
-You have an anti-problem. The chipset includes an I/O-APIC
-(good) and your mobo manufacturer was decent enough to include
-the appropriate BIOS MP tables to describe it to the OS.
+ * Mikael Pettersson <mikpe@csd.uu.se> dixit:
+> >kernel: found SMP MP-table at 000fb210
+> >    What, SMP table?
+> You have an anti-problem. The chipset includes an I/O-APIC
+> (good) and your mobo manufacturer was decent enough to include
+> the appropriate BIOS MP tables to describe it to the OS.
 
-Other manufacturers skip the MP table, forcing you to enable
-ACPI and pray it actually works. 
+    Oh, nice. I thought that the mobo was a simple reisuing of a SMP
+mobo from Gigabyte with one socket removed O:)
 
-This is one area where Gigabyte seems to be consistently
-better (more user-friendly) than ASUS.
+> Other manufacturers skip the MP table, forcing you to enable
+> ACPI and pray it actually works. 
 
-/Mikael
+    Excuse my ignorance but: why a UP system needs the MP table? Why
+the I/O-APIC needs anything related with multiprocessor in an UP
+system?. I lost my way on hardware back in the 486, I think...
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286311AbSBITzm>; Sat, 9 Feb 2002 14:55:42 -0500
+	id <S286179AbSBITzc>; Sat, 9 Feb 2002 14:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSBITzc>; Sat, 9 Feb 2002 14:55:32 -0500
-Received: from pD950EABC.dip.t-dialin.net ([217.80.234.188]:4486 "EHLO
+	id <S286161AbSBITzS>; Sat, 9 Feb 2002 14:55:18 -0500
+Received: from pD950EABC.dip.t-dialin.net ([217.80.234.188]:1926 "EHLO
 	oenone.homelinux.org") by vger.kernel.org with ESMTP
-	id <S286311AbSBITzT>; Sat, 9 Feb 2002 14:55:19 -0500
-Message-Id: <200202092053.g19KrSN05200@oenone.homelinux.org>
+	id <S286179AbSBITyF>; Sat, 9 Feb 2002 14:54:05 -0500
+Message-Id: <200202092053.g19Kre705325@oenone.homelinux.org>
 Content-Type: text/plain; charset=US-ASCII
 From: Oliver Neukum <oliver@neukum.org>
 To: Gerd Knorr <kraxel@bytesex.org>,

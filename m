@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUBCAHx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 19:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUBCAHw
+	id S264917AbUBCAMn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 19:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUBCAMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 19:07:52 -0500
-Received: from hb6.lcom.net ([216.51.236.182]:21120 "EHLO
-	petrus.dynamic.digitasaru.net") by vger.kernel.org with ESMTP
-	id S261957AbUBCAHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 19:07:44 -0500
-Date: Mon, 2 Feb 2004 18:07:36 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Len Brown <len.brown@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI breakage in 2.6.2-rc3 (and before)
-Message-ID: <20040203000732.GA6376@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Len Brown <len.brown@intel.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE0020AEAEA@hdsmsx402.hd.intel.com> <1075664452.2394.5.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075664452.2394.5.camel@dhcppc4>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+	Mon, 2 Feb 2004 19:12:43 -0500
+Received: from d235-143-242.home1.cgocable.net ([24.235.143.242]:36858 "EHLO
+	ns1.emaildesktop.com") by vger.kernel.org with ESMTP
+	id S264917AbUBCAMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 19:12:37 -0500
+Message-ID: <002601c3e9ea$7968db80$0201a8c0@wksdan>
+From: "Dan McGrath" <troubled@emaildesktop.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Tape backups cant be read read using crypto loop
+Date: Mon, 2 Feb 2004 19:12:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Len Brown on Sunday, 01 February, 2004:
->Joseph,
->Please try this patch
->http://bugzilla.kernel.org/attachment.cgi?id=1965&action=view
->from this bug report:
->http://bugzilla.kernel.org/show_bug.cgi?id=1766
->It should be in the next mm patch, and if it causes no regression will
->be pushed to 2.6.2.
->thanks,
->-Len
+Hello,
 
-Patch works!  I just applied and tested, and it worked great.
-What magic does that patch work?
-Thanks!
+I have a few DDS2 tape backups of my ripped CD's in mp3 format. I noticed
+that under 2.4.24 with loop-jari patch, I cant read them when I enable
+crypto loop support. I found disabling it works fine. Just curious if this
+problem is the same in 2.6.x or if anyone has noticed that its broken for
+old tape backups.
 
--Joseph
+Its not a big deal I guess, I can always just remake the tape with crypto
+loop enabled and things seem fine, just thought I would share and see what
+everyone has to say. Thanks guys.
 
->On Sun, 2004-02-01 at 15:19, Joseph Pingenot wrote:
->> From Linus Torvalds on Friday, 30 January, 2004:
->> >The bulk of this is an ACPI update, but there's USB, ia-64, i2c, XFS
->> and
->> >PCI hotplug updates here too.
->> >Please don't send in anything but critical fixes until after the
->> final
->> >2.6.2 release.
->> Hmm.  I just tried 2.6.2-rc3 (after having tried 2.6.1 after having
->>   tried 2.6.2-rc2-mm1), and I note that ACPI can get my battery
->>   status in 2.6.1, but *not* in 2.6.2-rc2-mm1 or in 2.6.2-rc3.
->>   It notes that there is a battery in one of the two bays, and
->>   that it's on battery or AC power, but nothing more; all status
->>   readouts say that the battery's drained.
->> System is a Dell Inspiron 8600.
->> Thanks!
+
+troubled
+
+

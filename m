@@ -1,31 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130253AbRDJR3J>; Tue, 10 Apr 2001 13:29:09 -0400
+	id <S130038AbRDJRb7>; Tue, 10 Apr 2001 13:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbRDJR2t>; Tue, 10 Apr 2001 13:28:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61958 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130038AbRDJR2j>; Tue, 10 Apr 2001 13:28:39 -0400
-Subject: Re: No 100 HZ timer !
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Tue, 10 Apr 2001 18:27:35 +0100 (BST)
-Cc: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka),
-        ds@schleef.org (David Schleef), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
-        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010410191528.B21024@pcep-jamie.cern.ch> from "Jamie Lokier" at Apr 10, 2001 07:15:28 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130317AbRDJRbu>; Tue, 10 Apr 2001 13:31:50 -0400
+Received: from pua.physik.fu-berlin.de ([160.45.33.106]:2061 "EHLO
+	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
+	id <S130038AbRDJRbn>; Tue, 10 Apr 2001 13:31:43 -0400
+Date: Tue, 10 Apr 2001 19:31:25 +0200
+From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+To: "Manuel A. McLure" <mmt@unify.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Still IRQ routing problems with VIA
+Message-ID: <20010410193125.A31792@pua.domain>
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C1A0@pcmailsrv1.sac.unify.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14n1vV-0004gX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C1A0@pcmailsrv1.sac.unify.com>; from mmt@unify.com on Tue, Apr 10, 2001 at 09:51:18AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Games would like to be able to page flip at vertical refresh time --
-> <1ms accuracy please.  Network traffic shaping benefits from better than
+On Tue, Apr 10, 2001 at 09:51:18AM -0700, Manuel A. McLure wrote:
+> Axel Thimm said...
+> > Several weeks ago there had been a thread on the pirq assignments of newer
+> > VIA and SiS chipsets ending with everybody happy.
+> > Everybody? Not everybody - there is a small village of chipsets resisting
+> > the advent of 2.4.x :(
+> > The system is a KT133A (MSI's K7T Turbo MS-6330 board)/Duron 700
+> > system. Kernel 2.4.x have IRQ routing problems and USB failures (the
+> > latter will most probably be due to IRQ mismatches, I believe).
+> I have the same motherboard with the same lspci output (i.e. I get the "pin
+> ?" part), but I don't see any problems running 2.4.3 or 2.4.3-ac[23]. I am
+> only using a trackball on my USB port - what problems are you seeing?
 
-This is an X issue. I was talking with Jim Gettys about what is needed to
-get the relevant existing X extensions for this working
+Well, a part of the attached dmesg output yields:
 
+> PCI: Found IRQ 11 for device 00:07.2
+> IRQ routing conflict in pirq table for device 00:07.2
+> IRQ routing conflict in pirq table for device 00:07.3
+> PCI: The same IRQ used for device 00:0e.0
+> uhci.c: USB UHCI at I/O 0x9400, IRQ 5
+
+and later:
+
+> uhci: host controller process error. something bad happened
+> uhci: host controller halted. very bad
+
+0.7.[2,3] are the usb devices. BIOS (and 2.2 kernels) had them at IRQ 5. 2.4
+somehow picks the irq of the ethernet adapter, iqr 11, instead.
+
+At least usb is then unusable.
+
+As you say that you have the same board, what is the output of dump_pirq - are
+your link values in the set of {1,2,3,5} or are they continuous 1-4? Maybe you
+are lucky - or better say, I am having bad luck :(
+-- 
+Axel.Thimm@physik.fu-berlin.de

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313566AbSDHG3t>; Mon, 8 Apr 2002 02:29:49 -0400
+	id <S313567AbSDHGaH>; Mon, 8 Apr 2002 02:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313567AbSDHG3s>; Mon, 8 Apr 2002 02:29:48 -0400
-Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:7943 "HELO
-	alhambra.merseine.nu") by vger.kernel.org with SMTP
-	id <S313566AbSDHG3r>; Mon, 8 Apr 2002 02:29:47 -0400
-Date: Mon, 8 Apr 2002 09:27:37 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        John Levon <movement@marcelothewonderpenguin.com>,
-        "Steven N. Hirsch" <shirsch@adelphia.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Two fixes for 2.4.19-pre5-ac3
-Message-ID: <20020408092737.D10733@actcom.co.il>
-In-Reply-To: <E16uJHZ-0006eO-00@the-village.bc.nu> <20020407225504.Z10733@actcom.co.il> <E16uJHZ-0006eO-00@the-village.bc.nu> <20020407232339.B10733@actcom.co.il> <5.1.0.14.2.20020408000103.03cda5a0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313568AbSDHGaG>; Mon, 8 Apr 2002 02:30:06 -0400
+Received: from ns1.crl.go.jp ([133.243.3.1]:19082 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S313567AbSDHGaF>;
+	Mon, 8 Apr 2002 02:30:05 -0400
+Date: Mon, 8 Apr 2002 15:29:47 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+X-X-Sender: tomh@holly.crl.go.jp
+To: Keith Owens <kaos@ocs.com.au>
+cc: marcelo@conectiva.com.br,
+        kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Extraversion in System.map? 
+In-Reply-To: <422.1018246695@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0204081526200.548-100000@holly.crl.go.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08, 2002 at 12:03:06AM +0100, Anton Altaparmakov wrote:
-> At 21:23 07/04/02, Muli Ben-Yehuda wrote:
+On Mon, 8 Apr 2002, Keith Owens wrote:
 
-> >Right, this module (syscall_hijack.o) currently has the interface:
-> >
-> >int hijack_syscall_before(int syscall_id, func_ptr func);
-> >int hijack_syscall_after(int syscall_id, func_ptr func);
-> >
-> >int release_syscall_before(int syscall_id);
-> >int release_syscall_after(int syscall_id);
-> >
-> >where 'before' and 'after' correspond to a hook which should run
-> >before the original system call is invoked (allowing it to specify
-> >that the original system call should not be executed) or after the
-> >original system call is invoked (allowing it access to its return
-> >value).
-> [snip]
-> 
-> So are you coping with someone hijacking YOU as well between calls to 
-> hijack_syscall_* and release_syscall_*? Or would that trash the
-> caller chain?
+> System.map only contains the numeric kernel version.  After all, it is
+> difficult to convert 2.4.19-pre6 to Version_132115-pre6 when symbols
+> cannot contain '-'.
 
-That should work fine, since we never explicitly refer to the entry in
-the sys_call_table in our call chain (our callchain goes 
+Well, that has an obvious solution, but modifying the Version string
+would likely break something.  Adding another string would work.  It
+could even be done without making the kernel image bigger.  In fact,
+the Version_* symbol (and Extraversion_* symbol) could both be made
+__initdata, couldn't they?
 
-hijacked_function 
-   -> hook_before
-   if call original syscall
-   ->  original syscall (the entry that was in the sys_call_table when we
-       hijacked it, not the currrent entry!)
-   -> hook_after
+> Don't reinvent the wheel, use ksymoops -s save.map.  ksymoops has all
+> the verification code that I can think off, -s writes the merged map
+> including module information.
 
-Note that we don't support stacking of hooks right now - we never had
-need to. 
--- 
-The ill-formed Orange
-Fails to satisfy the eye:       http://vipe.technion.ac.il/~mulix/
-Segmentation fault.             http://syscalltrack.sf.net/
+Now there's a clever idea.
+

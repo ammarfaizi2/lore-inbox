@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318661AbSHLDW7>; Sun, 11 Aug 2002 23:22:59 -0400
+	id <S318649AbSHLDVf>; Sun, 11 Aug 2002 23:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318662AbSHLDW7>; Sun, 11 Aug 2002 23:22:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38552 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318661AbSHLDW6>;
-	Sun, 11 Aug 2002 23:22:58 -0400
-Date: Sun, 11 Aug 2002 20:13:14 -0700 (PDT)
-Message-Id: <20020811.201314.111686100.davem@redhat.com>
-To: kaos@ocs.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unix-domain sockets - abstract addresses 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1160.1029122409@kao2.melbourne.sgi.com>
-References: <20020811.195906.107999483.davem@redhat.com>
-	<1160.1029122409@kao2.melbourne.sgi.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318650AbSHLDVf>; Sun, 11 Aug 2002 23:21:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53772 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318649AbSHLDVf>; Sun, 11 Aug 2002 23:21:35 -0400
+Date: Sun, 11 Aug 2002 20:27:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Simon Kirby <sim@netnation.com>, <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+In-Reply-To: <3D572B4C.90F4AF3C@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0208112023200.1518-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Owens <kaos@ocs.com.au>
-   Date: Mon, 12 Aug 2002 13:20:09 +1000
-   
-   The problem here is that 'unix' is
- ...
-   a symbol that is defined by gcc.
 
-I see.  GCC really shouldn't be doing that as it pollutes the global
-namespace.  However, I see current 3.x vintage gcc is still doing it
-under Linux so there must be a reason it is kept around.
+On Sun, 11 Aug 2002, Andrew Morton wrote:
+> 
+> At least that's the theory, and the testing I did yesterday
+> was succesful.
+
+Did you try Simons test-case which seemed to be just a "cat" on a floppy 
+
+  "To demonstrate the problem reliably, I've used "strace -r cat" on a
+   floppy, which is a sufficiently slow medium. :)  This is on a 2.4.19
+   kernel, but 2.5 behaves similarly.")
+
+although that may be different from the NFS issue, it is kind of
+interesting: the perfect behaviour would be a steady stream of data, not
+too many hickups. 
+
+		Linus
+

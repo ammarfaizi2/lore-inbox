@@ -1,79 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268383AbTCFUfm>; Thu, 6 Mar 2003 15:35:42 -0500
+	id <S268347AbTCFUwx>; Thu, 6 Mar 2003 15:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268386AbTCFUfl>; Thu, 6 Mar 2003 15:35:41 -0500
-Received: from packet.digeo.com ([12.110.80.53]:6130 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268383AbTCFUe4>;
-	Thu, 6 Mar 2003 15:34:56 -0500
-Date: Thu, 6 Mar 2003 12:42:57 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: rml@tech9.net, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Message-Id: <20030306124257.4bf29c6c.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-References: <20030228202555.4391bf87.akpm@digeo.com>
-	<Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Mar 2003 20:42:58.0243 (UTC) FILETIME=[F8B40930:01C2E420]
+	id <S268348AbTCFUwv>; Thu, 6 Mar 2003 15:52:51 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:32700 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268347AbTCFUwH>;
+	Thu, 6 Mar 2003 15:52:07 -0500
+Date: Thu, 6 Mar 2003 14:38:30 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Alistair Strachan <alistair@devzero.co.uk>
+cc: <linux-kernel@vger.kernel.org>, <thundercloud@devzero.co.uk>,
+       <bonganilinux@mweb.co.za>
+Subject: Re: [2.5.64-mm1] sysfs oops
+In-Reply-To: <200303062026.18224.alistair@devzero.co.uk>
+Message-ID: <Pine.LNX.4.33.0303061436030.994-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->
+
+On Thu, 6 Mar 2003, Alistair Strachan wrote:
+
+> Hi,
 > 
-> ===== kernel/sched.c 1.161 vs edited =====
-> --- 1.161/kernel/sched.c	Thu Feb 20 20:33:52 2003
-> +++ edited/kernel/sched.c	Wed Mar  5 19:09:45 2003
-> @@ -337,8 +337,15 @@
->  		 * boost gets as well.
->  		 */
->  		p->sleep_avg += sleep_time;
-> -		if (p->sleep_avg > MAX_SLEEP_AVG)
-> +		if (p->sleep_avg > MAX_SLEEP_AVG) {
-> +			int ticks = p->sleep_avg - MAX_SLEEP_AVG + current->sleep_avg;
->  			p->sleep_avg = MAX_SLEEP_AVG;
-> +			if (ticks > MAX_SLEEP_AVG)
-> +				ticks = MAX_SLEEP_AVG;
-> +			if (!in_interrupt())
-> +				current->sleep_avg = ticks;
-> +		}
-> +			
->  		p->prio = effective_prio(p);
->  	}
->  	enqueue_task(p, array);
+> The following was experienced while running Andrew's 2.5.64-mm1 kernel. My 
+> dialup (ppp) connection was terminated, and when I attempted to re-establish, 
+> pppd would not come up. I found the following oops in dmesg and have provided 
+> a decoded version below.
+> 
+> This doesn't appear to be fixed in mainline, yet. Is it mm specific? dcache?
 
-This improves the X interactivity tremendously.  I went back to 2.5.64 base
-just to verify, and the difference was very noticeable.
+Argh. A bk merge ate my change!
 
-The test involved doing the big kernel compile while moving large xterm,
-mozilla and sylpheed windows about.  With this patch the mouse cursor was
-sometimes a little jerky (0.1 seconds, perhaps) and mozilla redraws were
-maybe 0.5 seconds laggy.
+This has been around for a while, and I merged a patch to fix it. However, 
+a leter merge with previous work to split fs/sysfs/inode.c up reverted it 
+back to the old code. 
 
-So.  A big thumbs up on that one.  It appears to be approximately as
-successful as sched-2.5.64-a5.
+Could you (both) try the following patch and let me know if it fixes it?
 
-Ingo's combo patch is better still - that is sched-2.5.64-a5 and your patch
-combined (yes?).  The slight mouse jerkiness is gone and even when doing
-really silly things I cannot make it misbehave at all.  I'd handwavingly
-describe both your patch and sched-2.5.64-a5 as 80% solutions, and the combo
-95%.
+Thanks,
 
+	-pat
 
-So I'm a happy camper, and will be using Ingo's combo patch.  But I do not
-use XMMS and xine and things like that - they may be running like crap with
-these patches.  I do not know, and I do not have a base to compare against
-even if I could work out how to get them going.
-
-
-I did spend a bit of time a while back trying to come up with some
-combination of tests which would exhibit this problem, and which would allow
-it to be measured and tweaked.  It was unsuccessful - the peculiar
-combination of a compilation and X seems to bring it out.
-
+===== fs/sysfs/dir.c 1.2 vs edited =====
+--- 1.2/fs/sysfs/dir.c	Thu Jan 30 17:10:06 2003
++++ edited/fs/sysfs/dir.c	Thu Mar  6 14:34:01 2003
+@@ -71,7 +71,7 @@
+ 
+ void sysfs_remove_dir(struct kobject * kobj)
+ {
+-	struct list_head * node, * next;
++	struct list_head * node;
+ 	struct dentry * dentry = dget(kobj->dentry);
+ 	struct dentry * parent;
+ 
+@@ -83,31 +83,28 @@
+ 	down(&parent->d_inode->i_sem);
+ 	down(&dentry->d_inode->i_sem);
+ 
+-	list_for_each_safe(node,next,&dentry->d_subdirs) {
+-		struct dentry * d = dget(list_entry(node,struct dentry,d_child));
+-		/** 
+-		 * Make sure dentry is still there 
+-		 */
+-		pr_debug(" o %s: ",d->d_name.name);
+-		if (d->d_inode) {
++	spin_lock(&dcache_lock);
++	node = dentry->d_subdirs.next;
++	while (node != &dentry->d_subdirs) {
++		struct dentry * d = list_entry(node,struct dentry,d_child);
++		list_del_init(node);
+ 
++		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
++		if (d->d_inode) {
++			d = dget_locked(d);
+ 			pr_debug("removing");
++
+ 			/**
+ 			 * Unlink and unhash.
+ 			 */
+-			simple_unlink(dentry->d_inode,d);
++			spin_unlock(&dcache_lock);
+ 			d_delete(d);
+-
+-			/**
+-			 * Drop reference from initial sysfs_get_dentry().
+-			 */
++			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
++			spin_lock(&dcache_lock);
+ 		}
+-		pr_debug(" done (%d)\n",atomic_read(&d->d_count));
+-		/**
+-		 * drop reference from dget() above.
+-		 */
+-		dput(d);
++		pr_debug(" done\n");
++		node = dentry->d_subdirs.next;
+ 	}
+ 
+ 	up(&dentry->d_inode->i_sem);
 

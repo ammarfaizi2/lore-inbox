@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263079AbTCWPAQ>; Sun, 23 Mar 2003 10:00:16 -0500
+	id <S263080AbTCWPOQ>; Sun, 23 Mar 2003 10:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263080AbTCWPAQ>; Sun, 23 Mar 2003 10:00:16 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:64272 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263079AbTCWPAP>; Sun, 23 Mar 2003 10:00:15 -0500
-Date: Sun, 23 Mar 2003 16:11:16 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andries.Brouwer@cwi.nl, <linux-kernel@vger.kernel.org>, <akpm@digeo.com>
-Subject: Re: [PATCH] alternative dev patch
-In-Reply-To: <20030323084621.A6788@infradead.org>
-Message-ID: <Pine.LNX.4.44.0303231605470.5042-100000@serv>
-References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
- <Pine.LNX.4.44.0303202314210.5042-100000@serv> <20030323084621.A6788@infradead.org>
+	id <S263081AbTCWPOQ>; Sun, 23 Mar 2003 10:14:16 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:34185 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263080AbTCWPOP>; Sun, 23 Mar 2003 10:14:15 -0500
+Date: Sun, 23 Mar 2003 07:25:18 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 490] New: psmouse.c fails detecting Microsoft PS/2 wheel mice 
+Message-ID: <379510000.1048433118@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+http://bugme.osdl.org/show_bug.cgi?id=490
 
-On Sun, 23 Mar 2003, Christoph Hellwig wrote:
+           Summary: psmouse.c fails detecting Microsoft PS/2 wheel mice
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: normal
+             Owner: vojtech@suse.cz
+         Submitter: idan@idanso.dyndns.org
 
-> That;s not exactly true.  A tradition major device is nothing but a
-> region with a fixed size, and we need to get rid of this major/minor
-> thinking.  Converting a dev_t to struct char_device * / struct block_device *
-> early is the way we wan't to go for that.  It helped the block layer
-> a lot..
 
-I basically agree, I only want to note that the block layer only has to 
-deal with disks, where we have different types of character devices. So 
-having one major per serial/tape/tty/... devices might not be necessary, 
-but it could makes things bit easier. In any case the actual drivers 
-should not see any of this.
+Distribution: Debian unstable(sid)
+Hardware Environment:  PIII I815e board, microsoft ps/2 whell mouse(IntelliMouse
+1.1A)
+Software Environment: GPM/XFree 4.2
+Problem Description:
 
-bye, Roman
+Mouse is not detected either built-in or as a module(No notice in dmesg or
+whatsoever, XFree/GPM have no interaction with the mouse).
+
+I did however managed to track where the problem comes from, appearently one of
+the tests at psmouse_probe() fails for some reason:
+
+/*
+ * Then we reset and disable the mouse so that it doesn't generate events.
+ */
+
+      if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_RESET_DIS))
+              return -1;
+
+Commenting it out solved the problem for me and the mouse is detected and
+working flawlessly.
+
 

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270764AbTG0MsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 08:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTG0MsU
+	id S270773AbTG0Mu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 08:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTG0Mu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 08:48:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51428 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270764AbTG0MsT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 08:48:19 -0400
-Date: Sun, 27 Jul 2003 14:47:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Sean Estabrooks <seanlkml@rogers.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]  Block layer bug handling partial bvec
-Message-ID: <20030727124750.GB2261@suse.de>
-References: <099001c35434$f9ac3130$7f0a0a0a@lappy7>
+	Sun, 27 Jul 2003 08:50:57 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7428 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S270773AbTG0Mu4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 08:50:56 -0400
+Date: Sun, 27 Jul 2003 15:05:24 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Ihar Philips Filipau <filia@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: Vanilla not for embedded?! Re: Kernel 2.6 size increase - get_current()?
+Message-ID: <20030727150524.A23878@electric-eye.fr.zoreil.com>
+References: <dbTZ.5Z5.19@gated-at.bofh.it> <3F214EC3.9010804@softhome.net> <20030725204613.GB1686@matchmail.com> <3F23BE18.5000600@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <099001c35434$f9ac3130$7f0a0a0a@lappy7>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F23BE18.5000600@softhome.net>; from filia@softhome.net on Sun, Jul 27, 2003 at 01:57:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 27 2003, Sean Estabrooks wrote:
-> Previously I submitted a patch for "blk: request botched" on floppy
-> write.  While the patch did make the floppy work, Jens mentioned 
-> that an underlying error still existed.   This spurred me on to look a 
-> little deeper and finally i found the root cause.   
-> 
-> There is a bug in "ll_rw_blk.c" handling partial bvec submissions.
-> For whatever reason the floppy driver was triggering it more than
-> other users.  Note that with the attached patch, my previous 
-> floppy_ patch is no longer needed.
+Ihar Philips Filipau <filia@softhome.net> :
+[...]
+>    Patches to remove mandatory (for 2.2/2.0) PCI/IDE support were pretty 
+> common too.
+>    Patch to shrink network hashes - norm of life.
+>    Patch to kill PCI names database.
+>    And this is only things I was using personally (and I remember about) 
+> in my short 4 years carrier.
 
-Good catch! Applied.
+Would you mind publishing the patches ?
 
--- 
-Jens Axboe
+>    CONFIG_TINY - http://lwn.net/Articles/14186/ - got something like 
+> this merged? - so I'm the first guy in the download queue on ftp.kernel.org!
 
+See CONFIG_EMBEDDED.
+
+[...]
+>    For some reasons all "improvements" to kernel had lead to increase of 
+> kernel size, not decrease. Strange, isn't it?
+
+No time for sarcasm here.
+
+Regards
+
+--
+Ueimor

@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289067AbSANVfM>; Mon, 14 Jan 2002 16:35:12 -0500
+	id <S288948AbSANVjC>; Mon, 14 Jan 2002 16:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289078AbSANVfC>; Mon, 14 Jan 2002 16:35:02 -0500
-Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:1983 "EHLO
-	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S289067AbSANVey>; Mon, 14 Jan 2002 16:34:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Charles Cazabon <charlesc@discworld.dyndns.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Date: Mon, 14 Jan 2002 08:32:53 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou \(ETL\)" <Michael.Lazarou@etl.ericsson.se>
-In-Reply-To: <20020114125228.B14747@thyrsus.com> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do>
-In-Reply-To: <20020114125508.A3358@twoflower.internal.do>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020114213453.YJCM15906.femail44.sdc1.sfba.home.com@there>
+	id <S289078AbSANVim>; Mon, 14 Jan 2002 16:38:42 -0500
+Received: from THANK.THUNK.ORG ([216.175.175.163]:8587 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S288948AbSANVid>;
+	Mon, 14 Jan 2002 16:38:33 -0500
+Date: Mon, 14 Jan 2002 12:54:33 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        felix-dietlibc@fefe.de, andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements, round 2
+Message-ID: <20020114125433.A1357@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Juan Quintela <quintela@mandrakesoft.com>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
+	andersen@codepoet.org
+In-Reply-To: <20020110231849.GA28945@kroah.com> <m2r8ovjpey.fsf@trasno.mitica>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <m2r8ovjpey.fsf@trasno.mitica>; from quintela@mandrakesoft.com on Sat, Jan 12, 2002 at 09:16:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 January 2002 01:55 pm, Charles Cazabon wrote:
-> Eric S. Raymond <esr@thyrsus.com> wrote:
-> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > > Now to do everything you describe does not need her to configure a
-> > > custom kernel tree. Not one bit. You think apt or up2date build each
-> > > user a custom kernel tree ?
-> >
-> > Is it OK in your world that Aunt Tillie is dependent on a distro maker? 
-> > Is it OK that she never gets to have a kernel compiled for anything above
-> > the least-common-denominator chip?
->
-> Yes, and yes.  Aunt Tillie is running Linux because someone installed a
-> distribution for her.
+On Sat, Jan 12, 2002 at 09:16:21PM +0100, Juan Quintela wrote:
+> >>>>> "greg" == Greg KH <greg@kroah.com> writes:
+> 
+> Hi
+> 
+> greg> To summarize, here's a partial list of the programs people want to run:
+> greg> - mount
+> greg> - hotplug
+> greg> - busybox
+> greg> - dhcpcd
+> greg> - image viewer
+> greg> - mkreiserfs
+> greg> - partition discovery (currently in the kernel)
+> greg> - lots of other, existing in kernel code.
+> 
+> I still think that fsck at this point will be great.  You will
+> minimize the need to have the kernel special case for fsck the root fs
+> with respect to the rest of fs.
 
-Or, some glorious day in the future, it came preinstalled on her hardware.
+The development sources for e2fsprogs will already work with diet
+libc.  Unfortunately, diet libc doesn't do shared libraries, so
+resulting binaries are sufficiently big that I doubt they would be
+interesting for initrd and rescue floppy applications (which is why I
+tried the experiment in the first place).
 
-> She is never going to need anything out of her kernel that her
-> vendor-shipped update kernels do not provide.
+In any case, given that e2fsprogs is already portable to NetBSD and
+Solaris (the latter so I can run purify to catch memory errors), it
+shouldn't be particularly difficult to get e2fsprogs to run on some
+other alternative libc.
 
-I wouldn't go THAT far, but when she does she'll have someone else upgrade it 
-for her.  (Just because you CAN learn to change the oil in your car doesn't 
-mean you want to.  Can aunt tillie actually unscrew her case and insert a PCI 
-card?  More to the point, WOULD she?)
+						- Ted
 
-> > But the point of this game is for Aunt Tillie to have more and better
-> > choices.  Isn't that what we're supposed to be about?
-
-No.  The point is to offer EVERYBODY more and better choices.  Whether 
-they'll be any use to aunt tillie specifically is secondary.
-
-> No.  We're supposed to be about stuff that works.  Vendor-shipped kernels
-> work for 99.9% of people.  The remaining 0.1% have no need for an
-> "auto-configurator".
-
-I like the auto-configurator.  I build custom kernels for all sorts of 
-different machines and it can take me half an hour to walk through the menus 
-with a command line open in a second window doing cat /proc/pci, cat 
-/proc/bus/usb, and whatever replaced isapnp (cat /proc/bus/isapnp probably) 
-to figure out and properly select everything that's in this box.
-
-If the autoprobe saves me that half an hour, I'm all for it.  People who 
-don't see much use in an autoprober probably don't work with other people's 
-hardware very often.
-
-It's also a nice educational tool for newbies learning the linux kernel, 
-which I suspect is the real reason some people actively object to it. :) 
-
-> Charles
-
-Rob

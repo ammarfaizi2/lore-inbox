@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318416AbSHEMXn>; Mon, 5 Aug 2002 08:23:43 -0400
+	id <S318417AbSHEMY1>; Mon, 5 Aug 2002 08:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318417AbSHEMXn>; Mon, 5 Aug 2002 08:23:43 -0400
-Received: from web20514.mail.yahoo.com ([216.136.173.246]:51574 "HELO
-	web20514.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318416AbSHEMXm>; Mon, 5 Aug 2002 08:23:42 -0400
-Message-ID: <20020805122717.78585.qmail@web20514.mail.yahoo.com>
-Date: Mon, 5 Aug 2002 05:27:17 -0700 (PDT)
-From: Aaron Denny <euphguy86@yahoo.com>
-Subject: ppp problem
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318418AbSHEMY1>; Mon, 5 Aug 2002 08:24:27 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:53757 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318417AbSHEMYZ>; Mon, 5 Aug 2002 08:24:25 -0400
+Subject: Re: Sv: i810 sound broken...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thomas Munck Steenholdt <tmus@get2net.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200208051145.g75BjRN30389@eday-fe5.tele2.ee>
+References: <200208051145.g75BjRN30389@eday-fe5.tele2.ee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 14:46:36 +0100
+Message-Id: <1028555196.18130.36.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, i recently updated my kernel to 2.4.9 from 2.2.13,
-quite a large jump obviously, im in slackware 7.0, ok
-so here is my problem. after updating the kernel i did
-ppp-go, it dialed and i heard the noise that it makes
-when its dialing an ISP then at the end, it says:
-seriel connection made then on the next line i get:
-Couldn't attach tty to PPP unit 0: invalid argument
+On Mon, 2002-08-05 at 12:45, Thomas Munck Steenholdt wrote:
+> > The changes in the recent i810 audio are
+> > - Being more pessimistic in our interpretation of codec power up
+> > - Turning on EAPD in case the BIOS didn't do so at boot up
+> > 
+> > Longer term full EAPD control as we do with the cs46xx is on my list,
+> > paticularly as i8xx laptops are becoming common . (EAPD is the amplifier
+> > power controller)
+> 
+> That's strange - I get the same scratchy sounds on 2.4.19 as I did on 2.4.18 
+> and a couple of the 2.4.19-pre's... Is there anything I should try, to
+> make sure things are configged / built correctly..?
 
-i know i put ppp support in and unixpty when i
-installed the kernel help me pleease
+What was the last tree that worked correctly on your box ?
 
- Aaron Denny
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - Feel better, live better
-http://health.yahoo.com
+Alan

@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQKUA72>; Mon, 20 Nov 2000 19:59:28 -0500
+	id <S129208AbQKUMC7>; Tue, 21 Nov 2000 07:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129428AbQKUA7S>; Mon, 20 Nov 2000 19:59:18 -0500
-Received: from 198-ZARA-X13.libre.retevision.es ([62.82.224.198]:3846 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S129340AbQKUA7H>;
-	Mon, 20 Nov 2000 19:59:07 -0500
-Message-ID: <3A19C21B.4782570D@zaralinux.com>
-Date: Tue, 21 Nov 2000 01:30:19 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: es-ES, es, en
-MIME-Version: 1.0
-To: Dan Hollis <goemon@anime.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Documentacion proc.txt update (2.4.x)
-In-Reply-To: <Pine.LNX.4.30.0011201306580.28714-100000@anime.net>
+	id <S130177AbQKUMCt>; Tue, 21 Nov 2000 07:02:49 -0500
+Received: from styx.suse.cz ([195.70.145.226]:65007 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129208AbQKUMCf>;
+	Tue, 21 Nov 2000 07:02:35 -0500
+Date: Mon, 20 Nov 2000 13:47:08 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Thomas Sailer <sailer@ife.ee.ethz.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test11-pre6 still very broken
+Message-ID: <20001120134708.A941@suse.cz>
+In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com> <20001117235624.B26341@wirex.com> <8v6h3d$rp$1@penguin.transmeta.com> <3A191B03.6DE258C8@ife.ee.ethz.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A191B03.6DE258C8@ife.ee.ethz.ch>; from sailer@ife.ee.ethz.ch on Mon, Nov 20, 2000 at 01:37:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis wrote:
-> 
-> On Mon, 20 Nov 2000, Jorge Nerin wrote:
-> > Well, this is a little update to the proc.txt file, it's based in 2.2 kernel, and I have updated it a little to the 2.4 series, I have updated all the thing I have been told in lk, so I submit this in order to include this in the main tree in order to have a better updated info.
-> >
-> > +The   latest   version    of   this   document   is    available   online   at
-> >  http://skaro.nightcrawler.com/~bb/Docs/Proc as HTML version.
-> 
-> How about a working URL?
-> 
-> traceroute to skaro.nightcrawler.com (216.186.140.118), 30 hops max, 38 byte packets
-> [...]
-> 11  pos3-0-0-155M.sjc-bb3.cerf.net (134.24.29.26)  66.400 ms  74.860 ms  68.486 ms
-> 12  dslnetworks1.dslnetworks.com (206.19.42.193)  105.303 ms  86.436 ms  68.749 ms
-> 13  206.16.72.114 (206.16.72.114)  79.867 ms  63.365 ms  59.919 ms
-> 14  * * *
-> 15  * * *
-> 
-> -Dan
+On Mon, Nov 20, 2000 at 01:37:23PM +0100, Thomas Sailer wrote:
 
-Well, the URL came with the text, it was there before me ;-) I didn't
-work for me either, but I left it because I don't have a URL with the
-updated version online, even I don't have an updated version, I had to
-do it myself.
+> > I hope EHCI makes it all moot. Some way or another.
+> 
+> Only for USB2 devices. EHCI is supposed to be paired with an existing
+> UHCI or OHCI controller core that is supposed to take over the USB connector
+> if an USB 1.x hub or device is plugged in. So we end up needing to support
+> UHCI and OHCI for a very long time, I don't see mice and keyboards going
+> USB2 anytime soon 8-)
 
-I have left it because I don't have replies from the author nor from the
-website.
+Oops? I thought the paired controller there is for OSes not being able
+to handle EHCI yet? So that USB works even for those ... I think EHCI
+should handle even 1.x devices ... I may be wrong, though.
 
 -- 
-Jorge Nerin
-<comandante@zaralinux.com>
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

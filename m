@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIUWdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUIUWdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUIUWdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 18:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUIUWdJ
+	id S266585AbUIUWdv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 18:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUIUWdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 18:33:09 -0400
-Received: from mailgw3.technion.ac.il ([132.68.238.35]:8856 "EHLO
-	mailgw3.technion.ac.il") by vger.kernel.org with ESMTP
-	id S265487AbUIUWdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 18:33:04 -0400
-Date: Wed, 22 Sep 2004 00:33:00 +0200 (IST)
-From: Alon Altman <alon@8ln.org>
-X-X-Sender: alon@alon1.dhs.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ICH5 SATA problem loading ide-cd module
-In-Reply-To: <1095797341.31593.11.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0409220027570.3228@alon1.dhs.org>
-References: <Pine.LNX.4.61.0409212317570.2932@alon1.dhs.org>
- <1095797341.31593.11.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 21 Sep 2004 18:33:51 -0400
+Received: from imap.gmx.net ([213.165.64.20]:22197 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266585AbUIUWds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 18:33:48 -0400
+X-Authenticated: #1725425
+Date: Wed, 22 Sep 2004 00:36:46 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@osdl.org, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+Message-Id: <20040922003646.3a84f4c5.Ballarin.Marc@gmx.de>
+In-Reply-To: <1095803902.1942.211.camel@bach>
+References: <1095721742.5886.128.camel@bach>
+	<20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
+	<1095803902.1942.211.camel@bach>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Sep 2004, Alan Cox wrote:
+On Wed, 22 Sep 2004 07:58:22 +1000
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> On Maw, 2004-09-21 at 21:23, Alon Altman wrote:
->> Please Cc me to any replies, as I'm not subscribed to LKML.
->
-> Firstly try booting with "acpi=off"
+> Sure, but you have to start somewhere.  Next step will be #error.  Then
+> finally remove the whole thing (I don't want to remove the whole thing
+> to start with, since that would create a silent failure).
 
-Just tried it. I get a kernel oops (copied via paper):
+I was rather thinking of some prominent printks at module init time.
+People using distro kernels will never see compile time warnings.
 
-Undable to handle kernel null pointer dereference at virtual address 0000000c
+I just added some warnings, but modprobe ipchains always fails on
+2.6.9-rc2:
 
-eip: c01a1a7f
-*pde=0
-Oops: 0000[#1]
-PREEMPT SMP
-Modules linked in: ata_piix libata scsi_mod unix font vesafb cfbcopyarea
-                    cfbimgblt cfbfillrect
-CPU: 0
-EIP: 0060:[<c01a1a7f>]
-EFLAGS: 00010286
-EIP is at sysfs_hash_and_remove+0xf
-EAX: 00000000 EBX: f8876744 ECX: c02b4306 EDX: ffff0001
-ESI: 00000000 EDI: f88766e0 EBP: f8876744 ESP: f7eb7d9c
+FATAL: Error inserting ipchains
+(/lib/modules/2.6.9-rc2-rcf/kernel/net/ipv4/netfilter/ipchains.ko): Device
+or resource busy
 
-Process modprobe
+in log buffer:
+ip_conntrack version 2.1 (8191 buckets, 65528 max) - 332 bytes per
+conntrack
+Unable to register netfilter socket option
 
-Call Trace:
-c0209d2b class_device_dev_unlink
-c020a3fe          .
-                   .
-                   .
-f882200f piix_init
-                   .
-                   .
-                   .
+Am I missing something?
 
-If you need more of the call trace, I can copy more via paper...
-
-Thanks,
-   Alon
-
--- 
-This message was sent by Alon Altman (alon@alon.wox.org) ICQ:1366540
-GPG public key at http://8ln.org/pubkey.txt
-Key fingerprint = A670 6C81 19D3 3773 3627  DE14 B44A 50A3 FE06 7F24
---------------------------------------------------------------------------
-  -=[ Random Fortune ]=-
-If you stand on your head, you will get footprints in your hair.
+Regards

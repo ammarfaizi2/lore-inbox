@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263855AbTIIAsj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 20:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTIIAsj
+	id S263853AbTIIAsL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 20:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTIIAsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 20:48:39 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:12294 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263855AbTIIAsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 20:48:35 -0400
-Message-ID: <3F5D2336.A1AF2EBF@SteelEye.com>
-Date: Mon, 08 Sep 2003 20:47:50 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
+	Mon, 8 Sep 2003 20:48:11 -0400
+Received: from www.mail15.com ([194.186.131.96]:4624 "EHLO www.mail15.com")
+	by vger.kernel.org with ESMTP id S263853AbTIIAsG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 20:48:06 -0400
+Message-ID: <3F5D235D.7020604@myrealbox.com>
+Date: Mon, 08 Sep 2003 17:48:29 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>,
-       "Sven =?iso-8859-1?Q?K=F6hler?=" <skoehler@upb.de>
+To: Jeff Garzik <jgarzik@pobox.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [NBD] patch and documentation
-References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com> <3F5CE3E6.8070201@upb.de> <3F5CF045.DDDE475C@SteelEye.com> <3F5CFF0B.6080609@upb.de> <20030908222111.GG429@elf.ucw.cz> <3F5D0186.4030001@upb.de> <20030908232824.GH429@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] Re: Linux 2.6.0-test5
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5D0B09.1040802@pobox.com>
+In-Reply-To: <3F5D0B09.1040802@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Jeff Garzik wrote:
+> Note that people seeing "ifconfig down ... ifconfig up" problems need to 
+> apply this patch.  (to 2.4.23-pre, too)
 > 
-> Hi!
+>     Jeff
 > 
-> > >>Another idea would be to be abled to specify the max_sectors while
-> > >>connecting an NBD. That would add an optional paramter to the nbd-client
-> > >>command line. (like it is possible for the blocksize)
-> > >
-> > >I do not see why it should be configurable...
-> >
-> > We may regret to use a certain value, although i agree that 1MB should
-> > be sufficient for the future.
 > 
-> I believe that 1MB is good, and good enough for close future. If that
-> ever proves to be problem, we can add handshake at that point. But I
-> do not believe it will be neccessary.
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -Nru a/net/core/dev.c b/net/core/dev.c
+> --- a/net/core/dev.c	Mon Sep  8 18:14:36 2003
+> +++ b/net/core/dev.c	Mon Sep  8 18:14:36 2003
+> @@ -851,7 +851,11 @@
+>  	 * engine, but this requires more changes in devices. */
+>  
+>  	smp_mb__after_clear_bit(); /* Commit netif_running(). */
+> -	netif_poll_disable(dev);
+> +	while (test_bit(__LINK_STATE_RX_SCHED, &dev->state)) {
+> +		/* No hurry. */
+> +		current->state = TASK_INTERRUPTIBLE;
+> +		schedule_timeout(1);
+> +	}
+>  
+>  	/*
+>  	 *	Call the device specific close. This cannot fail.
 
-But, who ever said the buffer in the nbd-server had to be statically
-allocated? I have a version of nbd-server that is modified to handle any
-size request that the client side throws at it -- if the buffer is not
-large enough, it simply reallocates it.
+I wrote recently:
 
---
-Paul
+ > Okay!  I'm at least back where I started.  This patch doen't fix the
+ > ifconfig down/up problem, but it does reverse the disastrous effects
+ > of the last tg3 updates in both 2.6 and 2.4...
+
+When I wrote that I didn't realize you were referring to a different
+thread about ifonfig up/down instead of my long-standing bug.
+
+My reference to the 'disastrous effects' does refer to the problem
+described in the 'ifconfig up/down' thread elsewhere in the lkml
+today.  Sorry for the confusion.  That problem seems to be fixed
+by this patch.  I'll keep hoping for a fix for my other tg3 bug.
+
+
+

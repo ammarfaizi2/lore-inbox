@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312169AbSD0Jbb>; Sat, 27 Apr 2002 05:31:31 -0400
+	id <S312296AbSD0KQQ>; Sat, 27 Apr 2002 06:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312279AbSD0Jbb>; Sat, 27 Apr 2002 05:31:31 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:62159 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S312169AbSD0Jba>; Sat, 27 Apr 2002 05:31:30 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-In-Reply-To: <20020421095715.A10525@work.bitmover.com>
-	<20020422143527.K18800@work.bitmover.com>
-	<20020425150158.A88@toy.ucw.cz>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Sat, 27 Apr 2002 11:30:12 +0200
-Message-ID: <878z79fpzv.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S312302AbSD0KQP>; Sat, 27 Apr 2002 06:16:15 -0400
+Received: from freedom.icomedias.com ([193.154.7.22]:54338 "EHLO
+	freedom.icomedias.com") by vger.kernel.org with ESMTP
+	id <S312296AbSD0KQP> convert rfc822-to-8bit; Sat, 27 Apr 2002 06:16:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: AW: 160gb disk showing up as 137gb
+Date: Sat, 27 Apr 2002 12:16:06 +0200
+Message-ID: <D143FBF049570C4BB99D962DC25FC2D2159B3A@freedom.icomedias.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 160gb disk showing up as 137gb
+Thread-Index: AcHt0HOzQP7CAsq7SUyaA+gaWDA5OAAAsaUA
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: "Wakko Warner" <wakko@animx.eu.org>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+Hi,
 
-> Oh and btw how can you change licence retroactively? Those "abusers" have
-> right to continue to use old versions under old licences...
+> It's not on a raid controller.  The machine has a PIIX3 ide 
+> controller and a
+> AHA-2940UW scsi controller.  Both exibit the same problem.
 
-BK licenses become invalid as soon as a new BK version is released
-which contains bug fixes or behaves differently in any way.
+Actually, no: To fully use 160GB ATA drives, whatever device is on the other end of the ATA bus needs to actively support 48-bit address mode. In for the two cases you tried, that means 
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+IDE: The kernel IDE driver needs to support 48-bit addresseing to support 160GB.
+
+SCSI: The firmware in your IDE<->SCSI Adapter needs to support 48-bit addressing.
+
+So, while the symptoms are the same in both cases the problem is actually in two completely different places.
+
+Most probably, you can't do anything about the IDE<->SCSI adapters firmware; however, you can do something about the linux ATA driver: code is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
+
+Bye, Martin

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTAJTXj>; Fri, 10 Jan 2003 14:23:39 -0500
+	id <S266959AbTAJTeS>; Fri, 10 Jan 2003 14:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbTAJTXj>; Fri, 10 Jan 2003 14:23:39 -0500
-Received: from mail.set-software.de ([193.218.212.121]:15322 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP
-	id <S266987AbTAJTXi> convert rfc822-to-8bit; Fri, 10 Jan 2003 14:23:38 -0500
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Fri, 10 Jan 2003 19:31:38 GMT
-Message-ID: <20030110.19313830@knigge.local.net>
-Subject: Re: FW: Fastest possible UDMA - how?
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Manish Lachwani <m_lachwani@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042229748.32431.13.camel@irongate.swansea.linux.org.uk>
-References: <20030110190403.2127.qmail@web20510.mail.yahoo.com> <1042229748.32431.13.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
+	id <S266930AbTAJTeS>; Fri, 10 Jan 2003 14:34:18 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:38669 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266959AbTAJTeR>; Fri, 10 Jan 2003 14:34:17 -0500
+Date: Fri, 10 Jan 2003 19:42:59 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] rotation.
+In-Reply-To: <1042171520.933.126.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301101940460.18287-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not always true. There are a wide number of cases where the
-> UDMA mode being used is not the highest one the drive
-> or controller supports. The most simple example is if we
-> decide the cabling is not suitable for UDMA66 and higher.
 
-Thank you all for your support.... 
+> > Yes. Hardware rotation shouldn't also not effect the way accel 
+> > operatations are done.
+>  
+> The main difference is if the hardware supports rotation, fbcon will
+> present it with "normal" data.  With the generic implementation, fbcon
+> will present the driver with rotated data.
+> 
+> So we need a driver capabilities field either in fb_info or
+> fb_fix_screeninfo.
 
-Bye
-  Michael
+We can just test if the rotation hook exist for the fbdev driver. No hook 
+then use generic code in fbcon. Also we have a angle field in var so we 
+can see if the user wants the data rotated.
 
+> Not really.  We can dynamically rotate the fontdata using the default
+> display->fontdata into another buffer.  I believe I have functions that
+> do that in the patch I submitted.  (Sorry, I lost it when one of my
+> drives crashed :-(.
 
-
+I have that patch. It just has to be updated to the latest changes.
 

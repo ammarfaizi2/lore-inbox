@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270458AbTGSD0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 23:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270447AbTGSD0Y
+	id S270447AbTGSD3I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 23:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270488AbTGSD3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 23:26:24 -0400
-Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:24455 "EHLO
-	hera.eugeneteo.net") by vger.kernel.org with ESMTP id S270486AbTGSD0F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 23:26:05 -0400
-Date: Sat, 19 Jul 2003 11:40:59 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH] O7int for interactivity
-Message-ID: <20030719034059.GE10120@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <200307190210.49687.kernel@kolivas.org> <20030718230717.GG2289@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718230717.GG2289@matchmail.com>
-X-Operating-System: Linux 2.6.0-test1-mm1+o6.1int
-User-Agent: Mutt/1.5.4i
+	Fri, 18 Jul 2003 23:29:08 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:31878 "EHLO server")
+	by vger.kernel.org with ESMTP id S270447AbTGSD3B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 23:29:01 -0400
+Message-ID: <000601c34da7$e71954a0$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
+       "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>   <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171545460.1789@freak.distro.c onectiva> <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171649340.2003@freak.distro.c onectiva> <01d701c34cc0$7f698740$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307180925580.6642@freak.dis tro.conectiva> <002e01c34d41$687dbe30$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307181421550.7889@freak.distro.conectiva> <courier.3F18518C.00003D85@server> <1058565666.19511.93.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: 2.4.22-pre6 deadlock
+Date: Fri, 18 Jul 2003 15:51:03 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<quote sender="Mike Fedyk">
-> On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
-> > Here is an update to my Oint patches for 2.5/6 interactivity. Note I will be 
-> > away for a week so bash away and abuse this one lots and when I get back I can 
-> > see what else needs doing. Note I posted a preview earlier but this is the formal
-> > O7 patch (check the datestamp which people hate in the naming of my patches).
-> > I know this is turning into a marathon effort but... as you're all probably aware
-> > there is nothing simple about tuning this beast. Thanks to all the testers and
-> > people commenting; keep it coming please.
-> 
-> Is this on top of 06 or 06.1?
+----- Original Message ----- 
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Jim Gifford" <maillist@jg555.com>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Friday, July 18, 2003 3:01 PM
+Subject: Re: 2.4.22-pre6 deadlock
 
-His patches are usually on top of the previous patch,
-so if you applied O6int, apply O6.1int on it, then O7int on O6.1int.
-But do read his readme file when you download it.
 
-Eugene
+> On Gwe, 2003-07-18 at 20:59, Jim Gifford wrote:
+> > It is part of the antivirus program, information is available here.
+> >
+> > http://www.dazuko.org
+>
+> What a fascinating little toy. This ties in with some interesting
+> desktop project stuff rather nicely (rememberance agents, live indexing)
+>
+> However can you duplicate the hang without it loaded ?
+>
+>
+Yes, I can unfortunatly. I just started using the version of Clam Antivirus
+that uses it about 2 weeks ago, I thought the problem was virus related at
+first. I can disable it with no problems, it's really simple. That was
+before I started posting and asking stupid question on lkml.
+

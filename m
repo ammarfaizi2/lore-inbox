@@ -1,49 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVBSV35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVBSVpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVBSV35 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 16:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVBSV34
+	id S261955AbVBSVpn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 16:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVBSVpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 16:29:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18617 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261953AbVBSV3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 16:29:55 -0500
+	Sat, 19 Feb 2005 16:45:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22282 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261955AbVBSVp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 16:45:29 -0500
+Date: Sat, 19 Feb 2005 22:45:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: updated list of unused kernel exports posted
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1108847674.6304.158.camel@laptopd505.fenrus.org>
+Message-ID: <20050219214524.GF4337@stusta.de>
 References: <1108847674.6304.158.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sat, 19 Feb 2005 22:29:51 +0100
-Message-Id: <1108848592.6304.162.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108847674.6304.158.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-19 at 22:14 +0100, Arjan van de Ven wrote:
-> Hi,
+On Sat, Feb 19, 2005 at 10:14:33PM +0100, Arjan van de Ven wrote:
+
+>...
+> The following symbols are added to this list since the last posted list;
+> some of these will be of the "emerging functionality" type, others will
+> be now-redundant and should be investigated for removal; after all each
+> exported symbol uses easily over a hundred bytes of unswappable kernel
+> memory for every linux user out there.
 > 
-> an updated list of currently unused-on-i386 kernel exports is now posted
+> +++ unused.new  2005-02-19 21:27:59.556557390 +0100
+> +alloc_chrdev_region
 
-Russell asked me to clarify this: symbols on this list may well be used
-on other architectures than i386; before sending patches to remove them
-please use grep to make sure it's really globally unused...
+Used on s390:
+drivers/s390/char/vmlogrdr.c
+drivers/s390/char/tape_char.c
 
+>...
+> +backlight_device_register
+> +backlight_device_unregister
+
+Used on the Sharp Zaurus:
+drivers/video/backlight/corgi_bl.c
+
+>...
+> +cpufreq_get
+
+Used on ARM:
+drivers/pcmcia/sa11xx_base.c
+
+But ist seems to be wrong that it gets exported twice on ARM.
+
+>...
+> +nr_free_pages
+
+In -mm, it's used by reiser4.
+
+> +nr_pagecache
+
+Used on s390:
+arch/s390/appldata/appldata_mem.c
+
+>...
+> +pccard_static_ops
+
+Used on ARM and m32r:
+drivers/pcmcia/m32r_pcc.c
+drivers/pcmcia/soc_common.c
+drivers/pcmcia/m32r_cfc.c
+drivers/pcmcia/hd64465_ss.c
+
+>...
+> +platform_get_irq_byname
+
+Used on ppc:
+drivers/net/gianfar.c
+
+> +platform_get_resource_byname
+
+Used on ARM, m32r and ppc:
+drivers/net/smc91x.c
+
+>...
+> +totalram_pages
+
+In -mm, it's used by reiser4.
+
+>...
+> +try_acquire_console_sem
+
+It's used in -mm:
+drivers/video/aty/radeon_pm.c
+
+>...
+> +wait_for_completion_interruptible
+>...
+> +wait_for_completion_timeout
+
+Both are used in -mm:
+drivers/i2c/i2c-core.c
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

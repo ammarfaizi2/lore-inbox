@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265467AbSJSCB1>; Fri, 18 Oct 2002 22:01:27 -0400
+	id <S265472AbSJSCCc>; Fri, 18 Oct 2002 22:02:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265471AbSJSCB1>; Fri, 18 Oct 2002 22:01:27 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:3603 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265467AbSJSCBZ>;
-	Fri, 18 Oct 2002 22:01:25 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Exploit for the Kernel 
-In-reply-to: Your message of "Fri, 18 Oct 2002 18:51:16 MST."
-             <20021018.185116.128890469.davem@redhat.com> 
+	id <S265473AbSJSCCb>; Fri, 18 Oct 2002 22:02:31 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:41349 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S265472AbSJSCC1>; Fri, 18 Oct 2002 22:02:27 -0400
+Message-Id: <5.1.0.14.2.20021018190424.055a4600@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 18 Oct 2002 19:08:18 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: [BK] More Bluetooth 2.5.x HCI, L2CAP and RFCOMM updates.
+Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 19 Oct 2002 12:07:10 +1000
-Message-ID: <4105.1034993230@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002 18:51:16 -0700 (PDT), 
-"David S. Miller" <davem@redhat.com> wrote:
->   From: "Breno" <breno_silva@bandnet.com.br>
->   Date: Fri, 18 Oct 2002 22:42:12 -0300
->
->   http://online.securityfocus.com/archive/1/295855/2002-10-15/2002-10-21/1 
->   
->There is nothing concrete at all about said "exploit".
->
->It looks like just a clever way to divert the victim's
->attention from the real mechanism these guys are using
->to root peoples boxes.
+Hi Linus, 
 
-Agreed.
+Here is some more Bluetooth stuff before I'll let you go enjoy your vacation ;-)
 
->It is nearly impossible for a TCP frag handling exploit
->to allow a root shell and socket to that shell to be
->created.  So I think the claims are total nonsense.
+Please pull from
+        bk://linux-bt.bkbits.net/bt-2.5
 
-The last mail on that thread is interesting[*], fooling the victim into
-running a vulnerable version of tcpdump by claiming a vulnerability in
-TCP.
+This will update the following files:
 
-[*] http://online.securityfocus.com/archive/1/295855/2002-10-15/2002-10-21/2
+ drivers/bluetooth/hci_h4.c       |   12 
+ drivers/bluetooth/hci_usb.c      |    8 
+ include/net/bluetooth/hci.h      |  701 +++++++++++++++++----------------------
+ include/net/bluetooth/hci_core.h |   99 +++--
+ include/net/bluetooth/l2cap.h    |   57 +--
+ include/net/bluetooth/rfcomm.h   |    5 
+ net/bluetooth/hci_conn.c         |   52 +-
+ net/bluetooth/hci_core.c         |  147 +++-----
+ net/bluetooth/hci_event.c        |  313 ++++++++---------
+ net/bluetooth/hci_sock.c         |   20 -
+ net/bluetooth/l2cap.c            |  345 +++++++++----------
+ net/bluetooth/rfcomm/core.c      |   16 
+ net/bluetooth/rfcomm/sock.c      |    7 
+ net/bluetooth/rfcomm/tty.c       |   93 +++--
+ net/bluetooth/syms.c             |    1 
+ 15 files changed, 895 insertions(+), 981 deletions(-)
+
+through these ChangeSets:
+
+<maxk@qualcomm.com> (02/10/17 1.798)
+   Correct RFCOMM modem status implementation.
+   RFCOMM DLC API fixes.
+
+<maxk@qualcomm.com> (02/10/17 1.797)
+   Consistent naming for Bluetooth HCI events, commands and parameters.
+   Cleanup unused HCI stuff.
+   Optimize HCI receive path.
+
+<maxk@qualcomm.com> (02/10/17 1.796)
+   Just like many other parts of the kernel Bluetooth code was abusing
+   typedefs for non opaque objects. This Changeset cleanups Bluetoth HCI
+   code and headers.
+
+<maxk@qualcomm.com> (02/10/17 1.795)
+   Just like many other parts of the kernel Bluetooth code was abusing
+   typedefs for non opaque objects. This changeset cleans up L2CAP code
+   and headers. In addition it optimizes sendmsg for L2CAP sockets.
+
+<maxk@qualcomm.com> (02/10/16 1.794)
+   Users must have CAP_NET_ADMIN capability in order to create
+   or destroy RFCOMM devices. 
+
+
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
 

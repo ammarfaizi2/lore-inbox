@@ -1,111 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264618AbTDYALI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTDYAJs
+	id S264637AbTDYAOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 20:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbTDYANu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 20:09:48 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:44440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264602AbTDYAIu (ORCPT
+	Thu, 24 Apr 2003 20:13:50 -0400
+Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:64755 "EHLO
+	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id S264629AbTDYAMp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 20:08:50 -0400
-Subject: [PATCH 2.5.68 1/2] i_size atomic access
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-wYx3ds37+cTnPTIOHWxJ"
-Organization: 
-Message-Id: <1051230054.2448.14.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 24 Apr 2003 17:20:56 -0700
+	Thu, 24 Apr 2003 20:12:45 -0400
+From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch?] SiS 746 AGP-Support
+Date: Fri, 25 Apr 2003 02:24:50 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200304250224.50431.volker.hemmann@heim9.tu-clausthal.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-wYx3ds37+cTnPTIOHWxJ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+this is my first try of making and submitting a patch, so please, don't kill 
+me for it. 
 
-This adds a sequence counter only version of the reader/writer
-consistent mechanism to seqlock.h  This is used in the second
-part of this patch give atomic access to i_size.
+I don't know, if the following changes are 'clean' but they give me a working 
+agpsupport for my SiS 746Fx based mobo.
 
-re-diff against 2.5.68.
+This (attempt) of a patch is against 2.4.21-rc1:
 
-The patch is also available for download from OSDL's patch lifecycle 
-manager (PLM):
-http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1801
+*** /usr/src/linux-2.4.21-rc1/drivers/pci/pci.ids       2003-04-25 01:
+52:30.000000000 +0200
+--- /usr/src/linux/drivers/pci/pci.ids  2003-04-23 07:18:54.000000000
++0200
+***************
+*** 1119,1124 ****
+--- 1119,1125 ----
+        0735  735 Host
+        0740  740 Host
+        0745  745 Host
++       0756  746 Host
+        0900  SiS900 10/100 Ethernet
+                1039 0900  SiS900 10/100 Ethernet Adapter
+        0961  SiS961 [MuTIOL Media IO]
 
-Thanks,
--- 
-Daniel McNeil <daniel@osdl.org>
+*** /usr/src/linux-2.4.21-rc1/drivers/char/agp/agpgart_be.c     2003-0
+4-25 01:52:29.000000000 +0200
+--- /usr/src/linux/drivers/char/agp/agpgart_be.c        2003-04-23 07:
+33:48.000000000 +0200
+*************** static struct {
+*** 4595,4600 ****
+--- 4595,4606 ----
+                "SiS",
+                "745",
+                sis_generic_setup },
++       { PCI_DEVICE_ID_SI_746,
++               PCI_VENDOR_ID_SI,
++               SIS_GENERIC,
++               "SiS",
++               "746",
++               sis_generic_setup },
+        { PCI_DEVICE_ID_SI_730,
+                PCI_VENDOR_ID_SI,
+                SIS_GENERIC,
 
---=-wYx3ds37+cTnPTIOHWxJ
-Content-Disposition: attachment; filename=patch-2.5.68-isize.1
-Content-Type: text/x-troff-man; name=patch-2.5.68-isize.1; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I am doing this since 2.4.21-pre6 without any problems.
 
---- linux-2.5.68/include/linux/seqlock.h	Sat Apr 19 19:49:23 2003
-+++ linux-2.5.68-isize/include/linux/seqlock.h	Thu Apr 24 14:30:57 2003
-@@ -94,6 +94,57 @@ static inline int read_seqretry(const se
- 	return (iv & 1) | (sl->sequence ^ iv);
- }
- 
-+
-+/*
-+ * Version using sequence counter only. 
-+ * This can be used when code has its own mutex protecting the
-+ * updating starting before the write_seqcntbeqin() and ending
-+ * after the write_seqcntend().
-+ */
-+
-+typedef struct seqcnt {
-+	unsigned sequence;
-+} seqcnt_t;
-+
-+#define SEQCNT_ZERO { 0 }
-+#define seqcnt_init(x)	do { *(x) = (seqcnt_t) SEQCNT_ZERO; } while (0)
-+
-+/* Start of read using pointer to a sequence counter only.  */
-+static inline unsigned read_seqcntbegin(const seqcnt_t *s)
-+{
-+	unsigned ret = s->sequence;
-+	smp_rmb();
-+	return ret;
-+}
-+
-+/* Test if reader processed invalid data.
-+ * Equivalent to: iv is odd or sequence number has changed.
-+ *                (iv & 1) || (*s != iv)
-+ * Using xor saves one conditional branch.
-+ */
-+static inline int read_seqcntretry(const seqcnt_t *s, unsigned iv)
-+{
-+	smp_rmb();
-+	return (iv & 1) | (s->sequence ^ iv);
-+}
-+
-+
-+/* 
-+ * Sequence counter only version assumes that callers are using their
-+ * own mutexing.
-+ */
-+static inline void write_seqcntbegin(seqcnt_t *s)
-+{
-+	s->sequence++;
-+	smp_wmb();			
-+}	
-+
-+static inline void write_seqcntend(seqcnt_t *s) 
-+{
-+	smp_wmb();
-+	s->sequence++;
-+}
-+
- /*
-  * Possible sw/hw IRQ protected versions of the interfaces.
-  */
-
---=-wYx3ds37+cTnPTIOHWxJ--
-
+Glück Auf,
+Volker

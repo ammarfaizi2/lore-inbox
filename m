@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262770AbTC0Bji>; Wed, 26 Mar 2003 20:39:38 -0500
+	id <S262406AbTC0Bqe>; Wed, 26 Mar 2003 20:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262776AbTC0Bji>; Wed, 26 Mar 2003 20:39:38 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:25572 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S262770AbTC0Bjg>; Wed, 26 Mar 2003 20:39:36 -0500
-Message-Id: <5.1.0.14.2.20030326174507.05351f98@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 26 Mar 2003 17:50:41 -0800
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: [BK] Bluetooth updates for 2.4.21-pre6
+	id <S262776AbTC0Bqe>; Wed, 26 Mar 2003 20:46:34 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:3055 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262406AbTC0Bqd>; Wed, 26 Mar 2003 20:46:33 -0500
+Date: Wed, 26 Mar 2003 17:56:00 -0800
+From: Chris Wright <chris@wirex.com>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
+Subject: Re: setfs[ug]id syscall return value and include/linux/security.h question
+Message-ID: <20030326175600.A20611@figure1.int.wirex.com>
+Mail-Followup-To: David Wagner <daw@mozart.cs.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+References: <20030326181509.Q13397@devserv.devel.redhat.com> <b5tdbk$hoj$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <b5tdbk$hoj$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Wed, Mar 26, 2003 at 11:33:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, 
+* David Wagner (daw@mozart.cs.berkeley.edu) wrote:
+> Jakub Jelinek  wrote:
+> >Before include/linux/security.h was added, setfsuid/setfsgid always returned
+> >old_fsuid, no matter if the fsuid was actually changed or not.
+> 
+> Out of curiousity:
+> 
+> Do you have any idea why setfsuid() returns the old fsuid, rather than
+> 0 or -EPERM like all the other set*id() calls?
 
-Could you pull a few Bluetooth updates from
-        bk://linux-bt.bkbits.net/bt-2.4
+I agree, it seems odd.
 
-This will update the following files:
+> I find it mysterious that setfsuid()'s interface is so different.
+> It is also strange that setfsuid() has no way to indicate whether the
+> call failed or succeeded.  Does this inconsistency with the rest of the
+> set*id() interface strike anyone else as a little odd?
 
- Documentation/Configure.help     |   13 
- drivers/bluetooth/Config.in      |    1 
- drivers/bluetooth/hci_usb.c      |  748 +++++++++++++++++++++++----------------
- drivers/bluetooth/hci_usb.h      |  105 ++++-
- include/net/bluetooth/hci.h      |   98 ++---
- include/net/bluetooth/hci_core.h |   24 -
- net/bluetooth/hci_conn.c         |    1 
- net/bluetooth/hci_core.c         |   84 ++--
- net/bluetooth/hci_sock.c         |  104 ++---
- net/bluetooth/syms.c             |    4 
- 10 files changed, 712 insertions(+), 470 deletions(-)
+You're not alone ;-)  Even the manpage suggests this is a bug.
 
-through these ChangeSets:
+> It is also mysterious that there is no getfsuid() call.  One has to use
+> /proc to find this information.  Do you have any idea why the fsuid/fsgid
+> interface was designed this way?  Is this an old kludge that we now have
+> to live with, was it designed this way for a reason, or do we have the
+> opportunity to fix the semantics of the interface?
 
-<maxk@qualcomm.com> (03/03/24 1.1110)
-   [Bluetooth] Use atomic allocations in HCI USB functions called under spinlock.
+I can't comment on the history of the interface.  While it's Linux
+specific, I'm not sure of the legacy impact of changing the semantics of
+the current interface.  Ugh.
 
-<marcel@holtmann.org> (03/03/21 1.1109)
-   [Bluetooth] Add help entry for CONFIG_BLUEZ_USB_SCO
-   
-   This patch adds the missing help entry for CONFIG_BLUEZ_USB_SCO.
-
-<marcel@holtmann.org> (03/03/21 1.1108)
-   [Bluetooth] Use R1 for default value of pscan_rep_mode
-   
-   Most devices seem to use R1 for pscan_rep_mode to save power
-   consumption, so R1 is preferable for default value, if there
-   is no entry in the inquiry cache. Using R1 will improve the
-   average of connect time in many cases.
-
-<marcel@holtmann.org> (03/03/20 1.1107)
-   [Bluetooth] Add support for the Ultraport Module from IBM
-   
-   This patch adds the specific vendor and product id's for the
-   Bluetooth Ultraport Module from IBM. This is needed, because
-   the device itself don't uses the USB Bluetooth class id.
-
-<maxk@qualcomm.com> (03/03/19 1.1106)
-   [Bluetooth]
-   Do not submit more than one usb bulk rx request. It crashes uhci.o driver.
-
-<maxk@qualcomm.com> (03/03/19 1.1105)
-   [Bluetooth]
-   Support for SCO (voice) over HCI USB
-
-<maxk@qualcomm.com> (03/03/19 1.1053.2.2)
-   [Bluetooth]
-   Kill incoming SCO connection when SCO socket is closed.
-
-<maxk@qualcomm.com> (03/03/05 1.953.2.3)
-   [Bluetooth] 
-   Use very short disconnect timeout for SCO connections.
-   They cannot be reused and therefor there is no need to
-   keep them around.
-
---
-
-Thanks
-Max
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

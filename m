@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263353AbUJ2O3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263343AbUJ2Od5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263353AbUJ2O3b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUJ2O0b
+	id S263343AbUJ2Od5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbUJ2Od4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:26:31 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:57604 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263342AbUJ2OY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:24:27 -0400
-Date: Fri, 29 Oct 2004 15:21:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pantelis Antoniou <panto@intracom.gr>
-Cc: Ingo Molnar <mingo@elte.hu>, Tom Rini <trini@kernel.crashing.org>,
-       Linuxppc-Embedded <linuxppc-embedded@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix early request_irq
-Message-ID: <20041029142104.GB13092@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pantelis Antoniou <panto@intracom.gr>, Ingo Molnar <mingo@elte.hu>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Linuxppc-Embedded <linuxppc-embedded@lists.linuxppc.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <41824E15.4090906@intracom.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41824E15.4090906@intracom.gr>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 29 Oct 2004 10:33:56 -0400
+Received: from lrsehosting.com ([69.55.238.31]:1548 "EHLO
+	scoop.lrsehosting.com") by vger.kernel.org with ESMTP
+	id S263343AbUJ2O1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:27:45 -0400
+Message-ID: <24015.65.208.227.246.1099060106.squirrel@www.lrsehosting.com>
+In-Reply-To: <200410291209.30255.manu@kromtek.com>
+References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+    <Pine.LNX.4.61.0410281120150.877@scrub.home>
+    <20041028224534.GB29335@work.bitmover.com>
+    <200410291209.30255.manu@kromtek.com>
+Date: Fri, 29 Oct 2004 07:28:26 -0700 (PDT)
+Subject: Re: BK kernel workflow
+From: "Scott Lockwood" <lkml@www.lrsehosting.com>
+To: manu@kromtek.com
+Cc: "Larry McVoy" <lm@bitmover.com>, "Roman Zippel" <zippel@linux-m68k.org>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrea Arcangeli" <andrea@novell.com>, "Joe Perches" <joe@perches.com>,
+       "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>, akpm@osdl.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 05:05:09PM +0300, Pantelis Antoniou wrote:
-> Hi there
-> 
-> The recent consolidation of the IRQ code has caused
-> a number of PPC embedded cpus to stop working.
-> 
-> The problem is that on init_IRQ these platforms call
-> request_irq very early, which in turn calls kmalloc
-> without the memory subsystem being initialized.
-> 
-> The following patch fixes it by keeping a small static
-> array of irqactions just for this purpose.
+Microsoft does own certains things in their business that people put their
+data thru. That doesn't mean MS owns your word document. It means they own
+parts of their technology that allow you to create that word document.
 
-This is bogus.  Switch them to use setup_irq instead like
-I did for pmac.
+Why is this so hard for (some of) you people to understand?
+
+The horse is dead - you can stop beating it now.
+
+> On Fri October 29 2004 2:45 am, Larry McVoy wrote:
+>> On Thu, Oct 28, 2004 at 11:03:42PM +0200, Roman Zippel wrote:
+>> > [complaints about the awful horrible evil BK2CVS tool]
+>>
+>>  You
+>> do not get to use BK metadata to do so either, those are also our rules.
+>>
+>
+> The contents of the BK, ie the metadata is Free software, licensed under
+> the
+> GPL. Therefore i don't understand .. Isn't this then a violation of the
+> GPL ?
+>
+> Isn't this something like M$ stating that you are the property of M$
+> because
+> you are using one of their systems. Worser still ? Do you mean to say M$
+> owns
+> all *.doc, *.xls  files etc as an example... If so, then that is really
+> bad ..
+>
+>> Free software, at least
+>> some of it, is no more than a copy.
+>>
+>
+> sarcasm ? Even the linux kernel is free software ..
+> Isn't this is just like M$ marketing talk ?
+>
+>> It's my claim that I value free software even *more* than you do.  Why?
+>
+> It's a contradiction, considering the earlier two statements.
+>
+> I agree to the fact that BK has made Kernel development faster, which has
+> therefore helped.
+>
+> I'm not a BK user. I download the tarballs, but the statements by Mr.
+> Larry
+> has shaken me a bit.
+>
+> As per the statements by Mr. Larry, what i understood is that the BK
+> metadata
+> belongs to Mr. Larry legally as per the US rules and regulations.
+>
+>
+> Manu
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

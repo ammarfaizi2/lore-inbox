@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288484AbSAQLBn>; Thu, 17 Jan 2002 06:01:43 -0500
+	id <S288494AbSAQLL4>; Thu, 17 Jan 2002 06:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288494AbSAQLBd>; Thu, 17 Jan 2002 06:01:33 -0500
-Received: from port-213-20-128-120.reverse.qdsl-home.de ([213.20.128.120]:27660
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S288484AbSAQLBZ> convert rfc822-to-8bit; Thu, 17 Jan 2002 06:01:25 -0500
-Date: Thu, 17 Jan 2002 12:00:14 +0100 (CET)
-Message-Id: <20020117.120014.730561837.rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: O(1) scheduler-J0 on 2.4.17
-From: Rene Rebe <rene.rebe@gmx.net>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S288511AbSAQLLq>; Thu, 17 Jan 2002 06:11:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38927 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288494AbSAQLLj>;
+	Thu, 17 Jan 2002 06:11:39 -0500
+Date: Thu, 17 Jan 2002 09:11:16 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Luigi Genoni <venom@DarkStar.sns.it>
+Cc: <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.44.0201170841110.456-100000@DarkStar.sns.it>
+Message-ID: <Pine.LNX.4.33L.0201170910420.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, 17 Jan 2002, Luigi Genoni wrote:
 
-I just tried the sched-J0 patch for 2.4.17. I works great! The
-interactive performance is back where it was with sched-G1. Even with
-multiple gcc running I can move X11 windows arround very smothly! -
-Thanks!
+> Excuse me, I write as a journalist on a magazine too,
+> and so I have a little esperience about those things.
+> Before the interview was published, did you read it for final
+> permission to publish it?
 
-k33p h4ck1n6
-  René
+No, I didn't get offered to see the interview before it was published.
 
+regards,
+
+Rik
 -- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Homepage: http://drocklinux.dyndns.org/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

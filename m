@@ -1,70 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbTAAFn1>; Wed, 1 Jan 2003 00:43:27 -0500
+	id <S267156AbTAAFnR>; Wed, 1 Jan 2003 00:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbTAAFn1>; Wed, 1 Jan 2003 00:43:27 -0500
-Received: from emory.viawest.net ([216.87.64.6]:1429 "EHLO emory.viawest.net")
-	by vger.kernel.org with ESMTP id <S267163AbTAAFnZ>;
-	Wed, 1 Jan 2003 00:43:25 -0500
-Date: Tue, 31 Dec 2002 21:51:45 -0800
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Hell.Surfers@cwctv.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030101055145.GA8790@wizard.com>
-References: <0f8e32227050113DTVMAIL7@smtp.cwctv.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0f8e32227050113DTVMAIL7@smtp.cwctv.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.4.19 (i686)
-X-uptime: 21:35:07 up 26 days, 16:33,  2 users,  load average: 0.00, 0.00, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+	id <S267163AbTAAFnR>; Wed, 1 Jan 2003 00:43:17 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:61001 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S267156AbTAAFnQ>;
+	Wed, 1 Jan 2003 00:43:16 -0500
+From: <Hell.Surfers@cwctv.net>
+To: davids@webmaster.com, linux-kernel@vger.kernel.org, rms@gnu.org
+Date: Wed, 1 Jan 2003 05:51:28 +0000
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041400288890"
+Message-ID: <0facf3248050113DTVMAIL7@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 05:30:18AM +0000, Hell.Surfers@cwctv.net wrote:
-> They are stealing by changing GPL files, and not giving the source, its 
 
-        And just how the smeg do you KNOW they're CHANGING these files, aye? 
-Do you have some super secret K-9 nose that the rest of us don't, and can 
-tell? Have you reverse engineered the binary to see? Please, enlighten us.
+--1041400288890
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-not for personal use so they are DISTRIBUTING it, and INCLUDING IT. 
+You must understand the GNU/LINUX community is being manipulated by NVidia.
 
-        This does not make sense. You're saying they're changing GPL'd files, 
-though they can use them any way they choose, as long as they notify the 
-original author of the changes they made. Whether they redistribute the CODE, 
-is up to them. They chose not to. As long as they have notified those who 
-wrote the headers, no GPL violation has been made.
+Dean. Three ways to kill yourself, and ive been drove in one...
 
-BUT they dont give out their DERIVED source. 
+On 	Mon, 30 Dec 2002 22:55:35 -0800 	David Schwartz <davids@webmaster.com> wrote:
 
-        Once again, there is no clause in the GPL that states they MUST give 
-out the code. All they need to do is notify the author. Also, They MUST give 
-out the code, if they've MODIFIED the headers. You'd be stewing and eating 
-your boots for dinner if NVidia released the code, and you found no headers to 
-be modified. their code, they can do anything they want. But for the headers, 
-all they'd need to do for changing their code, is to keep a current version of 
-the headers from the kernel, and program their C code to their content. Once 
-again, No. GPL. Violation.
- 
-I work with C everyday and when you put in a header file you are including it,
-all kernel headers are GPL. I read the license 4 times a day and have 
-since 1995.
+--1041400288890
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-        And we don't deal with C at all. The kernel is programmed in COBOL, 
-ADA, Modula-2, Mumps, and Pick. Hell, I just might port it part of it over to 
-Logo. Oh damn.. Apple will sue me for that.. Let's port it to C! I'll learn 
-it, with my trusty Visual C, and Borland C compilers! </sarcasm>
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Tue, 31 Dec 2002 06:57:23 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S267172AbSLaGrO>; Tue, 31 Dec 2002 01:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S267171AbSLaGrO>; Tue, 31 Dec 2002 01:47:14 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:32465 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267167AbSLaGrN> convert rfc822-to-8bit; Tue, 31 Dec 2002 01:47:13 -0500
+Received: from whenever ([206.171.168.130]) by shell.webmaster.com
+          (Post.Office MTA v3.5.3 release 223 ID# 0-12345L500S10000V35)
+          with SMTP id com; Mon, 30 Dec 2002 22:55:37 -0800
+From: David Schwartz <davids@webmaster.com>
+To: <Hell.Surfers@cwctv.net>, <linux-kernel@vger.kernel.org>,
+	   <rms@gnu.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Mon, 30 Dec 2002 22:55:35 -0800
+In-Reply-To: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021231065537.AAA8309@shell.webmaster.com@whenever>
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+
+On Tue, 31 Dec 2002 03:57:06 +0000, Hell.Surfers@cwctv.net wrote:
+
+	To respond first to your subject, GPL'd code is given to everyone to do what 
+they wish with, subject to certain very specific and narrow limitations.
+
+>Why does the community continue to make pacts with a company that steals
+>from its rivals, makes pacts with M$, and refuses to clearly GPL and open
+>source its work on drivers,
+
+	What type of "pact" are you talking about?
+
+>there is a clear difference between their use of
+>GPL files, and what the GPL says they can do.
+
+	I presume you're talking about the inclusion of GPL'd header files into 
+non-GPL'd code that is then distributed without source code? IMO, if the 
+header file only includes things like structs and thin macros, that's 
+insufficient to consider the compilation a derived work.
+
+	You are welcome to argue for stronger and stronger copyright law enforcement 
+and narrower and narrower constructions of fair use and first sale doctrines. 
+However, IMO, it would be the stupidest possible thing the open source 
+community could ever do.
+
+>You cannot expect embedded
+>kernel developers to GPL, if you excuse Nvidia, its a vain hope to grab M$
+>users, but in the long run it destroys the community.
+
+	I don't expect anyone to GPL unless they think they get more benefit from 
+GPLing than the potential harm done. People GPL code because they want to 
+'donate' it to improve the open source movement, community, and code base. 
+Attempting to arm twist such donations is worse than foolish. You think the 
+open source community should be a bunch of bullies? Convince people open 
+source is best, and avoid them if they don't agree.
+
+	DS
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1041400288890--
+
 

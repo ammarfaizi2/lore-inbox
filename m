@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268339AbTGTVHG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268391AbTGTVHG
+	id S268586AbTGTVTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268587AbTGTVTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:07:06 -0400
-Received: from web13306.mail.yahoo.com ([216.136.175.42]:39295 "HELO
-	web13306.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268339AbTGTVHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:07:04 -0400
-Message-ID: <20030720212205.73683.qmail@web13306.mail.yahoo.com>
-Date: Sun, 20 Jul 2003 14:22:05 -0700 (PDT)
-From: Ronald Jerome <imun1ty@yahoo.com>
-Subject: 2.6.0-test1-mm2 kernel oops in RH 9.0 c840 laptop
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Jul 2003 17:19:53 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:3332
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S268586AbTGTVTw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:19:52 -0400
+Subject: Re: [PATCH] (resend) support for 900MHz Pentium M for
+	speedstep-centrino.c
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: cpufreq list <cpufreq@www.linux.org.uk>
+In-Reply-To: <1058728605.5980.41.camel@localhost.localdomain>
+References: <1058728605.5980.41.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1058736891.5980.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 20 Jul 2003 14:34:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right after the last INIT:
+On Sun, 2003-07-20 at 12:16, Jeremy Fitzhardinge wrote:
+> The 900MHz Pentium M has two spaces before the frequency:
+> "Intel(R) Pentium(R) M processor  900MHz"
 
-Starting Freewnn:   [ok]
-Starting xfs:       [ok]
+Gah, Ignore this - it's in test1-mm2.
 
-Unable to handle kernel NULL pointer dereference at
-virtual address 00000014
+	J
 
-printing eid:
-c0187e19
-*pde = 00000000
-
-
-Oops: 0000 [#1]
-
-
-
-
-But this does  not happen on every boot only
-occationally after a fresh boot to 2.6.0-test1-mm2
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com

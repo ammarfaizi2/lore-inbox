@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317748AbSGZOjS>; Fri, 26 Jul 2002 10:39:18 -0400
+	id <S317528AbSGZOfs>; Fri, 26 Jul 2002 10:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317753AbSGZOjS>; Fri, 26 Jul 2002 10:39:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317748AbSGZOjR>; Fri, 26 Jul 2002 10:39:17 -0400
-Date: Fri, 26 Jul 2002 10:39:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Daniel Phillips <phillips@arcor.de>, Andrew Rodland <arodland@noln.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -ac] Panicking in morse code
-In-Reply-To: <Pine.LNX.3.96.1020726091213.16487A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.3.95.1020726100704.2003A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317743AbSGZOfs>; Fri, 26 Jul 2002 10:35:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57504 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317528AbSGZOfr>;
+	Fri, 26 Jul 2002 10:35:47 -0400
+Date: Fri, 26 Jul 2002 16:38:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
+Message-ID: <20020726143840.GC8761@suse.de>
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com> <3D40E62B.9070202@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D40E62B.9070202@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jul 2002, Bill Davidsen wrote:
+On Fri, Jul 26 2002, Marcin Dalecki wrote:
+> The attached patch does the following:
 
-> On Fri, 26 Jul 2002, Daniel Phillips wrote:
-> 
-> > On Thursday 25 July 2002 14:51, Bill Davidsen wrote:
-> > > On Fri, 19 Jul 2002, Alan Cox wrote:
-> > > 
-> > > > > +static const char * morse[] = {
-> > > > > +	".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", /* A-H */
-> [...snip...]
-> > > > 
-> > > > How about using bitmasks here. Say top five bits being the length, lower
-> > > > 5 bits being 1 for dash 0 for dit ?
-> > > 
-> > > ??? If the length is 1..5 I suspect you could use the top two bits and fit
-> > > the whole thing in a byte. But since bytes work well, use the top three
-> > > bits for length without the one bit offset. Still a big win over strings,
-> > > although a LOT harder to get right by eye.
-> > 
-> > Please read back through the thread and see how 255 different 7 bit codes
-> > complete with lengths can be packed into 8 bits.
-> 
-> ???
->  1 - there are not 255 different 7 bit values, there are 128
->  2 - morse code has a longest value of 5 elements not 7
+Looks fine to me. One thing sticks out though:
 
+> +	/*
+> +	 * tell I/O scheduler that this isn't a regular read/write (ie it
+> +	 * must not attempt merges on this) and that it acts as a soft
+> +	 * barrier
+> +	 */
+> +	rq->flags &= REQ_QUEUED;
 
-The '.' (also called full-stop) is 6 elements long. The ',' is also
-6 elements long. For a correct implimentation, i.e., one that sounds
-correct, you need to encode a 'pause' element into each symbol. This
-is because the pause between Morse characters is sometimes ahead
-of a character and sometimes behind a character (the pause is ahead
-of characters starting with a dot and after characters ending with a
-dot, including characters of all dots -- except for numbers, which
-have pauses after them). In a previously life, I had to develop
-the correct "fist" to pass the Socond Class Radio Telegraph License.
+this can't be right. Either it's a bug for REQ_QUEUED to be set here, or
+it needs to end the tag properly.
 
-This means that it is probably best to use one 8-byte character
-for each Morse-code character.
+> +	rq->flags |= REQ_SPECIAL | REQ_BARRIER;
+> +
+> +	rq->special = data;
+> +
+> +	spin_lock_irqsave(q->queue_lock, flags);
+> +	/* If command is tagged, release the tag */
+> +	if(blk_rq_tagged(rq))
+> +		blk_queue_end_tag(q, rq);
 
-If anybody's interested I have some DOS assembly circa 1987 that
-did this stuff. It ignored the correct "fist", and has spaces after
-each character. It doesn't sound too bad.
+woops, you just possible leaked a tag. I really don't think you should
+mix inserting a special and ending a tag into the same function, makes
+no sense. If a driver wants that it should do:
 
->  3 - Alan was talking about len+val representation, not stop-bit patterns,
->      which is what I guess you mean
+	if (blk_rq_tagged(rq))
+		blk_queue_end_tag(q, rq);
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+	blk_insert_request(q, rq, bla bla);
+
+Also, please use the right spacing, if(bla :-)
+
+So kill any reference to tagging (and REQ_QUEUED)i in
+blk_insert_request, and I'm ok with it.
+
+-- 
+Jens Axboe
 

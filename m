@@ -1,105 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUIIUu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUIIUxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266117AbUIIUu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIIUuJ
+	id S266170AbUIIUxm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIIUum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:50:09 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:8671 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S266136AbUIIUt0 (ORCPT
+	Thu, 9 Sep 2004 16:50:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30924 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266137AbUIIUtb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 16:49:26 -0400
-Message-ID: <4140BFCE.8010701@ericsson.com>
-Date: Thu, 09 Sep 2004 16:40:46 -0400
-From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
-CC: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
-       david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication
- of binaries
-References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <41409378.5060908@ericsson.com> <20040909105520.U1924@build.pdx.osdl.net> <20040909190511.GB28807@escher.cs.wm.edu>
-In-Reply-To: <20040909190511.GB28807@escher.cs.wm.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 16:49:31 -0400
+Date: Thu, 9 Sep 2004 13:48:54 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Roger Luethi <rl@hellgate.ch>, William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040909134854.B1924@build.pdx.osdl.net>
+References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, Sep 09, 2004 at 04:01:06PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Serge E. Hallyn wrote:
-> Quoting Chris Wright (chrisw@osdl.org):
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> Well, it isn't that easy, or at least I don't think it is.  The problem
+> is that there is no way presently to convey the sender's security
+> credentials (beyond the existing uid, cap information), since the LSM
+> patches for adding security fields and hooks for managing skb security
+> fields were rejected.  The best we can do at present is pass along the
+> sender pid, uid, and cap, and the security module can look up the pid if
+> it chooses to get the security field (but is naturally subject to races
+> in that situation).
 > 
->>* Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
+> Most obvious place to hook would be nproc_ps_get_task; we could then
+> perform a check based on the sender's credentials and the target task's
+> credentials, and simply return NULL if permission is not granted for
+> that pair, thus skipping that task as if it didn't exist.  That requires
+> propagating the sender's credentials down to that function.
 > 
-> ...
+> Untested patch below.
 > 
->>>We realized that when a shared library is opened by a binary it can 
->>>still be modified. To solve the problem, we block the write access to 
->>>the shared binary while it is loaded.
->>
->>AFAICT, this means anybody with read access to a file can block all
->>writes.  This doesn't sound great.
-> 
-> 
-> True.
-> 
+> Index: linux-2.6/include/linux/security.h
+> ===================================================================
+> RCS file: /nfshome/pal/CVS/linux-2.6/include/linux/security.h,v
+> retrieving revision 1.37
+> diff -u -p -r1.37 security.h
+> --- linux-2.6/include/linux/security.h	16 Jun 2004 14:49:42 -0000	1.37
+> +++ linux-2.6/include/linux/security.h	9 Sep 2004 19:38:23 -0000
+> @@ -632,6 +632,13 @@ struct swap_info_struct;
+>   * 	security attributes, e.g. for /proc/pid inodes.
+>   *	@p contains the task_struct for the task.
+>   *	@inode contains the inode structure for the inode.
+> + * @task_getstate:
+> + * 	Check permission before getting the state of a task.
+> + *      @pid contains the pid of the requesting process.
+> + *	@p contains the task_struct for the target task.
+> + *      @uid contains the uid of the requesting process.
+> + *      @caps contains the capability set of the requesting process.
+> + *      Return 0 if permission is granted.
 
-I want to narrow down the discussion, I believe that some people could 
-get confused with the mention of "file" here. AFAICT, the above problem 
-only concerns the shared libraries. Digsig applies only to binaries: in 
-digsig_file_mmap() implementing the file_mmap LSM hook, if the file is 
-not executable there is a return and no verification or any other 
-blocking is done.
-
-For executables, there is no meaning to load them on read mode, you 
-should have execute permission. if you then load them for execution 
-IMHO, it makes sense to block the writing on that file.
-
-For shared libraries, you're right. the problem exists, the shared 
-libraries can be loaded being only readable (even though I remember 
-reading in exec.c:sys_uselib() kernel 2.6.8.1 that the shared libraries 
-must be both readable and executable due to "security reasons", but I'm 
-not an expert and definitely readable is enough to load the shared 
-library but I'll be happy to learn more about this.)
-
-> This could be fixed by adding a check at the top of dsi_file_mmap for
-> file->f_dentry->d_inode->i_mode & MAY_EXEC.  Of course then shared
-> libraries which are installed without execute permissions will cause
-> apps to break.  On my quick test, I couldn't run xterm or vi  :)
-> 
-> Note that blocking writes requires that the file be a valid ELF file,
-> as this is all that digsig mediates.  So I'm not sure which we worry
-> about more - the fact that all shared libraries have to be installed
-> with execute permissions (under the proposed solution), or that write
+Why caps?
 
 
-My 2 cents, a quick browsing on my machine (fedora core 1) shows that 
-almost all my shared libraries are installed with both execution and 
-read permissions.  IMHO, I don't believe then that this should be 
-considered as a major issue.
-
-
-> to an ELF file can be prevented by mmap(PROT_EXEC).  Presumably, if
-
-Regards,
-Makan
-
-> you are replacing an ELF file, you will always want to do 
-> "mv foo.so foo.so.del; cp new/foo.so foo.so" anyway.
-> 
-> Thoughts?
-> 
-> thanks,
-> -serge
-> 
-
+thanks,
+-chris
 -- 
-
-Makan Pourzandi, Open Systems Lab
-Ericsson Research, Montreal, Canada
-*This email does not represent or express the opinions of Ericsson Inc.*
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

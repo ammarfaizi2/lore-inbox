@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbTHYEYT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 00:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbTHYEYT
+	id S261423AbTHYE3s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 00:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbTHYE3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 00:24:19 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:42372 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261284AbTHYEYS
+	Mon, 25 Aug 2003 00:29:48 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:44164 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261423AbTHYE3r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 00:24:18 -0400
-Date: Mon, 25 Aug 2003 05:24:14 +0100
+	Mon, 25 Aug 2003 00:29:47 -0400
+Date: Mon, 25 Aug 2003 05:29:33 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030825042414.GC20529@mail.jlokier.co.uk>
-References: <003701c36972$a980e1d0$78ee4ca5@DIAMONDLX60>
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030825042933.GD20529@mail.jlokier.co.uk>
+References: <20030818004313.T3708@schatzie.adilger.int> <Pine.LNX.4.44.0308172352470.20433-100000@dlang.diginsite.com> <bi465n$2f1$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <003701c36972$a980e1d0$78ee4ca5@DIAMONDLX60>
+In-Reply-To: <bi465n$2f1$1@abraham.cs.berkeley.edu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Diamond wrote:
-> For Japanese versions of Windows 95 or 98 or NT4, of course the Japanese
-> keys do produce input.  Of course the Japanese layout driver is involved.  I
-> don't recall if the lower-level keyboard driver has a name that
-> distinguishes it from the US-101 driver, but the binaries are almost
-> certainly different.
+David Wagner wrote:
+> If you see a 64-bit values repeat twice in a row when querying a
+> cryptographic pseudorandom generator, the crypto-PRNG is almost surely
+> broken.
 
-Do you know what the Japanese keys do under Linux?
+True.  However if you generate lots of 64-bit values and see a
+collision between any two, that is much more likely.  See "birthday paradox".
 
-Thanks,
+I know you understand this, David.  Just so everyone else is clear,
+because part of this thread is about locking problems (same result
+within a short time), and part of this thread is about uniqueness
+(collisions between any pair).
+
+Enjoy,
 -- Jamie

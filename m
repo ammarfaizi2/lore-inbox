@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317707AbSGVR2b>; Mon, 22 Jul 2002 13:28:31 -0400
+	id <S317713AbSGVR0A>; Mon, 22 Jul 2002 13:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317709AbSGVR2b>; Mon, 22 Jul 2002 13:28:31 -0400
-Received: from pc-62-30-72-138-ed.blueyonder.co.uk ([62.30.72.138]:27014 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S317707AbSGVR2a>; Mon, 22 Jul 2002 13:28:30 -0400
-Date: Mon, 22 Jul 2002 18:31:32 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: [2.5.26] ext3 from Dec. 2001?
-Message-ID: <20020722183132.E10634@redhat.com>
-References: <20020720151600.GA268@chiara.cavy.de> <3D3B8FBE.D5C11685@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D3B8FBE.D5C11685@zip.com.au>; from akpm@zip.com.au on Sun, Jul 21, 2002 at 09:53:18PM -0700
+	id <S317724AbSGVR0A>; Mon, 22 Jul 2002 13:26:00 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7044 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317713AbSGVR0A>; Mon, 22 Jul 2002 13:26:00 -0400
+Date: Mon, 22 Jul 2002 11:28:46 -0600
+Message-Id: <200207221728.g6MHSkY15219@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 devfs
+In-Reply-To: <3D3BE1DD.3040803@evision.ag>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
+	<3D3BE1DD.3040803@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marcin Dalecki writes:
+> Kill two inlines which are notwhere used and which don't make sense
+> in the case someone is not compiling devfs at all.
 
-On Sun, Jul 21, 2002 at 09:53:18PM -0700, Andrew Morton wrote:
+Rejected. Linus, please don't apply this bogus patch. External patches
+and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
+isn't needed.
 
-> > Just a short question: is there a patch for 2.5.26 to update ext3 to
-> > ext3-0.9.18? There's still ext3-0.9.16 from Dec. 2001 present in 2.5.26.
-> > At ../people/sct on ftp.kernel.org there are only updates for kernel
-> > 2.2 and 2.4.
-> 
-> 2.5 is uptodate wrt the current ext3-for-2.4 development tree.
-> That means that it's more uptodate than 2.4 is...
+Martin, why are you bothering with this kind of false cleanup? These
+inline stubs don't take up any space in the object files, so why
+bother? Also, given that the stubs were carefully added in the first
+place, it suggests that there is a good reason for their presence.
 
-Yes --- I've been holding back on the changes in the ext3 CVS because
-of one nagging bug which I've been hunting for, and which I think I
-just found two weeks ago, the day before I left for a holiday.  (It's
-another possible cause for a "buffer_jdirty()" assert failure in
-commit.c on SMP machines.)
+Why didn't you stop and think it through before firing off a patch, or
+at least ask me if you couldn't see why? This "patch first, think/ask
+questions later" approach is disturbing.
 
-I'll get that checked in shortly.
+				Regards,
 
-> Some recent changes to ext3 have exposed a data=journal bug
-> in 2.5 which is also present in 2.4, but is much harder to hit
-> there.  I'm not sure what Stephen's intentions are on a 2.4
-> upgrade, but I'd be inclined to sit tight until 2.4.20-pre.
-
-I'm just back from holiday so I haven't been able to do much on this
-recently, but I've got a fix mostly coded --- it just doesn't
-actually work particularly well, yet.  :-)
-
-Cheers,
- Stephen
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

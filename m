@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVCVA4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVCVA4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVCVA4f (ORCPT <rfc822;willy@w.ods.org>);
+	id S262254AbVCVA4f (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 21 Mar 2005 19:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVCVAyT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVCVAyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:54:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33956 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262254AbVCVAx0 (ORCPT
+	Mon, 21 Mar 2005 19:54:44 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:17064 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262221AbVCVAxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 19:53:26 -0500
-Date: Tue, 22 Mar 2005 01:53:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
+	Mon, 21 Mar 2005 19:53:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=et8cXpnJ3bdb32geRCnHizh1ODKKSri1UQxwUHJ4rh3LlaZ6YcdEYp8o+iBNMYdUDVfwt5LOp4nVCeVAdnE29tYmESCrU2NFVk51cs5gQCrp2zwO6k8k5UihR9rvNXhgLv+CAf+2FrGG+TyAi1qpGxGYEn/rR++tfoU2Fb25jtQ=
+Message-ID: <9e473391050321165338208c66@mail.gmail.com>
+Date: Mon, 21 Mar 2005 19:53:15 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
-Message-ID: <20050322005313.GA1408@elf.ucw.cz>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <200503212343.31665.rjw@sisk.pl> <20050321160306.2f7221ec.akpm@osdl.org>
+Subject: Re: current linus bk, error mounting root
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <20050321164318.04a5dc82.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321160306.2f7221ec.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <9e47339105030909031486744f@mail.gmail.com>
+	 <20050321154131.30616ed0.akpm@osdl.org>
+	 <9e473391050321155735fc506d@mail.gmail.com>
+	 <20050321161925.76c37a7f.akpm@osdl.org>
+	 <20050322003807.GA10180@kroah.com>
+	 <20050321164318.04a5dc82.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Here is fedora's initrd nash script from my system. I modified it with
+the sleep lines.
 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/
-> > 
-> > I get the following BUG every time I try to suspend my box to disk.
-> 
-> Pavel, that's the BUG() in pci_choose_state().  I did have some
-> reject-fixing to do on that wrt a change in Greg's tree, so maybe there was
-> some incompatible intent in there.
-> 
-> I dunno why pci_choose_state() is saying that it received PCI_D1, when
-> prepare_devices() is passing down PMSG_FREEZE?
+It already is creating the /dev node with 'mkrootdev /dev/root'
+I don't think udev is even running yet. Something else is causing this.
 
-This works it around:
+echo "Loading libata.ko module"
+insmod /lib/libata.ko
+echo "Loading ata_piix.ko module"
+insmod /lib/ata_piix.ko
+echo "Loading raid1.ko module"
+insmod /lib/raid1.ko
+/sbin/udevstart
+raidautorun /dev/md0
+>>>echo Sleep 1
+>>>sleep 1
+echo Creating root device
+mkrootdev /dev/root
+umount /sys
+echo Mounting root filesystem
+mount -o defaults --ro -v -t ext3 /dev/root /sysroot
+mount -t tmpfs --bind /dev /sysroot/dev
+echo Switching to new root
+switchroot /sysroot
+umount /initrd/dev
 
---- clean-mm/drivers/pci/pci.c	2005-03-21 11:39:32.000000000 +0100
-+++ linux-mm/drivers/pci/pci.c	2005-03-22 01:41:48.000000000 +0100
-@@ -376,11 +376,13 @@
- 	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
- 		return PCI_D0;
- 
-+#if 0
- 	if (platform_pci_choose_state) {
- 		ret = platform_pci_choose_state(dev, state);
- 		if (ret >= 0)
- 			state = ret;
- 	}
-+#endif
- 	switch (state) {
- 	case 0: return PCI_D0;
- 	case 3: return PCI_D3hot;
-
-platform_pci_choose_state is very wrong, and it would be nice to just
-revert the patch that introduced it. pm_message_t is going to became a
-structure, and I don't want to have another place to fixup.
-
-Hmm, it looks like I should do switch to the structure *now* so that
-pm_message_t becomes incompatible with int and people can't get it
-wrong...
-
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jon Smirl
+jonsmirl@gmail.com

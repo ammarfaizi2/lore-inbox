@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbTC0S7d>; Thu, 27 Mar 2003 13:59:33 -0500
+	id <S261303AbTC0S46>; Thu, 27 Mar 2003 13:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbTC0S7d>; Thu, 27 Mar 2003 13:59:33 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7173 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261211AbTC0S7a>; Thu, 27 Mar 2003 13:59:30 -0500
-Date: Thu, 27 Mar 2003 11:08:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dan Eble <dane@aiinet.com>
-cc: "David S. Miller" <davem@redhat.com>, <shmulik.hen@intel.com>,
-       <bonding-devel@lists.sourceforge.net>,
-       <bonding-announce@lists.sourceforge.net>, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-       <mingo@redhat.com>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
-In-Reply-To: <Pine.LNX.4.33.0303271315010.30532-100000@dane-linux.aiinet.com>
-Message-ID: <Pine.LNX.4.44.0303271104270.31459-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261305AbTC0S45>; Thu, 27 Mar 2003 13:56:57 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:3575 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S261303AbTC0S45>;
+	Thu, 27 Mar 2003 13:56:57 -0500
+Subject: Re: Kernel Itself Reports Bug, Continuous OOPS's, and Phantom NIC
+	Card
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Voigt <adam@cryptocomm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048787756.1873.25.camel@beowulf.cryptocomm.com>
+References: <1048776183.1873.2.camel@beowulf.cryptocomm.com>
+	 <1048784675.3228.7.camel@dhcp22.swansea.linux.org.uk>
+	 <1048784874.1874.18.camel@beowulf.cryptocomm.com>
+	 <1048786126.3229.18.camel@dhcp22.swansea.linux.org.uk>
+	 <1048787756.1873.25.camel@beowulf.cryptocomm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048792179.3229.28.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 27 Mar 2003 19:09:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-27 at 17:55, Adam Voigt wrote:
+> Same thing, I ran a "find /" and when that didn't crash
+> it, I ran lynx, and tried to download the kernel from
+> kernel.org to try and make it die with all the compiling
+> activity, but just quiting lynx crashed it. Also,
+> I'm pretty sure this doesn't help, but the caps lock
+> and scroll lock keys are blinking in a regular interval.
 
-On Thu, 27 Mar 2003, Dan Eble wrote:
-> 
-> This makes checks like the following (in alloc_skb) asymmetric:
-> 
->     if (in_interrupt() && (gfp_mask & __GFP_WAIT)) {
->         static int count = 0;
->         if (++count < 5) {
->             printk(KERN_ERR "alloc_skb called nonatomically "
->                    "from interrupt %p\n", NET_CALLER(size));
->             BUG();
-> 
-> In a driver I'm writing, this bug was hidden until I switched from using
-> write_lock_irqsave() to write_lock_bh().  Shouldn't this bug also be
-> announced if interrupts are disabled?
-
-Yeah. It should also probably use "in_atomic()" instead of 
-"in_interrupt()", since that also finds people who have marked themselves 
-non-preemptible.
-
-So what the test SHOULD look like is this:
-
-	if (gfp_mask & __GFP_WAIT) {
-		if (in_atomic() || irqs_disabled()) {
-			static int count = 0;
-			...
-		}
-	}
-
-which should catch all the cases we really care about.
-
-		Linus
+At this point I really suspect the hardware, assuming you
+aren't loading junk weird modules and its not a misbuilt
+kernel of somekind.
 

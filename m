@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267919AbTAMOGZ>; Mon, 13 Jan 2003 09:06:25 -0500
+	id <S267881AbTAMOC7>; Mon, 13 Jan 2003 09:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbTAMOGZ>; Mon, 13 Jan 2003 09:06:25 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10136
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267919AbTAMOGY>; Mon, 13 Jan 2003 09:06:24 -0500
-Subject: Re: Linux 2.4.21pre3-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Jean-Daniel Pauget <jd@disjunkt.com>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030112222243.17657C-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030112222243.17657C-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042470092.18624.12.camel@irongate.swansea.linux.org.uk>
+	id <S267909AbTAMOC7>; Mon, 13 Jan 2003 09:02:59 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27533 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267881AbTAMOC7>;
+	Mon, 13 Jan 2003 09:02:59 -0500
+Date: Mon, 13 Jan 2003 14:08:55 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Vadlapudi Madhu <Vadlapudi.Madhu@cse.iitkgp.dhs.org>
+Cc: linux-kernel@vger.kernel.org,
+       "Vadlapudi.Madhu - 01cs6020" <vmadhu@cse.iitkgp.dhs.org>
+Subject: Re: Is linux kernel is available for any AMD processors?
+Message-ID: <20030113140855.GH9031@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Vadlapudi Madhu <Vadlapudi.Madhu@cse.iitkgp.dhs.org>,
+	linux-kernel@vger.kernel.org,
+	"Vadlapudi.Madhu - 01cs6020" <vmadhu@cse.iitkgp.dhs.org>
+References: <Pine.LNX.4.33L2.0301131922180.4477-100000@cpusrv-ibm-5.cse.iitkgp.ernet.in>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 13 Jan 2003 15:01:33 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0301131922180.4477-100000@cpusrv-ibm-5.cse.iitkgp.ernet.in>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-13 at 03:33, Bill Davidsen wrote:
-> There are several possibilities, but I would suspect you have memory which
-> is just marginal, and with some combination of access patterns you trigger
-> a sig 11 problem. I have the same board, with 72 bit ECC capable memory,
-> and I'm running all of the BIOS speed options (section 4.4 of the manual)
-> set at default, rather than tuning for any extra bit of performance.
+On Mon, Jan 13, 2003 at 07:26:43PM +0530, Vadlapudi Madhu wrote:
 
-I'm seeing enough other -ac specific errors to be fairly sure its not just
-hardware in the current -ac tree case. I don't know what the common factor
-is yet - it 'works for me' which makes it hard to pin down
+ > Just i want to know, whether linux kernel is available any of the AMD's
+ > processors. If yes, please direct towards a web page where i can get some
+ > more information.
 
-Guess #1 is reverting mm/shmem.c. Guess #2 is reverting the buffer cache
-changes. Guess #3 is new IDE + highmem and Guess #4 is quota related (are
-people seeing the problem with quota disabled ?)
+All of AMD's CPUs should work fine with the standard kernel.
+They'll boot a generic 'i386' kernel, or you can compile
+specific kernels optimised for Athlon/Duron.
 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

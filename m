@@ -1,101 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266220AbUBQOjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 09:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUBQOjU
+	id S266221AbUBQOxt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 09:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUBQOxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 09:39:20 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266220AbUBQOjS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 09:39:18 -0500
-Date: Tue, 17 Feb 2004 09:39:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Carl Thompson <cet@carlthompson.net>
-cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: hard lock using combination of devices
-In-Reply-To: <20040217061400.z9r4gss0gsockws4@carlthompson.net>
-Message-ID: <Pine.LNX.4.53.0402170927330.912@chaos>
-References: <20040216214111.jxqg4owg44wwwc84@carlthompson.net>
- <200402170854.22973.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040216231401.3ig4kksk4k8g8440@carlthompson.net>
- <200402171149.49985.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040217061400.z9r4gss0gsockws4@carlthompson.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 09:53:49 -0500
+Received: from h80ad2630.async.vt.edu ([128.173.38.48]:58031 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266221AbUBQOxs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 09:53:48 -0500
+Message-Id: <200402171453.i1HErdBd014457@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Martin Waitz <tali@admingilde.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH} 2.6 and grsecurity 
+In-Reply-To: Your message of "Tue, 17 Feb 2004 15:23:33 +0100."
+             <20040217142333.GF27996@admingilde.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200402170134.i1H1YIAW016949@turing-police.cc.vt.edu>
+            <20040217142333.GF27996@admingilde.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_532536562P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 Feb 2004 09:53:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_532536562P
+Content-Type: text/plain; charset=us-ascii
 
-Linux interrupt code does shared interrupts fine.
-There may be a bad driver so you need to find which
-one it is and contact its author. There are still
-entirely too many drivers that loop in the ISR, ...
-so-called "interrupt mitigation"... If you are
-using one such creation, find the loop terminating
-variable and squash it to where it will not loop.
-Magically, everything will start to work and share
-wonderfully.
+On Tue, 17 Feb 2004 15:23:33 +0100, Martin Waitz said:
 
-There is a big difference between maximizing the through-put
-of a device and getting all devices to play nicely together.
-Often device-driver writers think only of their hardware and
-don't bother to think about the consequences of keeping
-the CPU practically forever. For instance, a network card
-will probably always have new packets available on an active
-network. If you loop to get them all, you loop forever.
+> you could #define security_enable_* to 0 when CONFIG_SECURITY_*
+> is disabled. thay way you don't need the ugly #ifdef in the .c file
 
-On Tue, 17 Feb 2004, Carl Thompson wrote:
+Good point - as I mentioned to another person, I was trying to minimize the
+code changes if the feature wasn't selected.
 
-> Quoting vda <vda@port.imtp.ilyichevsk.odessa.ua>:
->
-> > On Tuesday 17 February 2004 09:14, Carl Thompson wrote:
-> >> Quoting vda <vda@port.imtp.ilyichevsk.odessa.ua>:
-> >> > ...
-> >> >
-> >> > Your box share IRQs in a big way :)
-> >>
-> >> Your point?
-> >
-> > While shared interrupts can in theory work right,
-> > lots of hardware and/or drivers do not handle
-> > that.
->
-> First, the two devices in question are not on the same interrupt.  Second, it
-> is very difficult in this day in age to build a system without interrupt
-> sharing.  While I agree that it's better to have as few devices sharing as
-> possible, there are simply too many devices in modern systems and too few
-> interrupts.  Interrupt sharing needs to work on modern hardware and needs to
-> work in Linux.  This notebook is pretty typical in its interrupt distribution
-> and I'm not certain that this is a problem.  In fact, while many devices on
-> this system use IRQ 11 the only one active at the time was the audio
-> controller.  And while IRQ 10 is shared between the CardBus adapters and the
-> video card the problems still occur if I don't run X and video interrupts
-> shouldn't be generated in console mode, right?
->
-> > I think you should try to reconfigure your
-> > system so that devices do not share same IRQ
-> > and see whether that 'fix' the problem.
->
-> There are no options in my notebook's BIOS to reconfigure interrupts or
-> disable
-> devices.
->
-> > BTW, can you show your /proc/interrupts ?
->
-> Attached.
->
-> > --
-> > vda
->
-> Carl Thompson
->
+> on the other hand, why do one need a syscall anyway.
+> only to justify the existence of some ugly lockdown mode?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+For testing and backout - if for some odd reason you discover that it breaks
+code, an 'echo 0 >' is a lot less disruptive than a full reboot.
+
+The other reason is for distribution - if you're building a kernel for a bunch
+of users, some of who disagree with it, you can ship it as the code is, and
+then those who don't like one or two features can 'echo 0 >' onto those sysctls
+and then 'echo 0 >' onto the one to force them read-only.  Again, less hassle
+than rebuilding a kernel with one CONFIG_SECURITY_WHATEVER turned off (and then
+remember to re-rebuild on those machines each time a new kernel gets rolled out
+- you can just leave the sysctl's in your /etc/rc.* and be happy).
 
 
+--==_Exmh_532536562P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAMirycC3lWbTT17ARAvr5AKDH5ibMDbBrifCjIljGjfIaBbmv+ACgyAlV
+kb8GZ8PJ2nr4FhPENVsW/6s=
+=cwIs
+-----END PGP SIGNATURE-----
+
+--==_Exmh_532536562P--

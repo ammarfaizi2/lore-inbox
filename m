@@ -1,111 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbULVCxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbULVDpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbULVCxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 21:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbULVCxH
+	id S261950AbULVDpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 22:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbULVDpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 21:53:07 -0500
-Received: from mailhub.lss.emc.com ([168.159.2.31]:63801 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261927AbULVCwv
+	Tue, 21 Dec 2004 22:45:24 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:5086 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261950AbULVDpL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 21:52:51 -0500
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F550846C104@srgraham.eng.emc.com>
-From: "usvyatsky, ilya" <usvyatsky_ilya@emc.com>
-To: "'Steven Rostedt'" <rostedt@goodmis.org>,
-       "usvyatsky, ilya" <usvyatsky_ilya@emc.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: RE: A (dumb?) waitpid(2) question
-Date: Tue, 21 Dec 2004 21:52:42 -0500
+	Tue, 21 Dec 2004 22:45:11 -0500
+Message-ID: <41C8EDD9.7070007@verizon.net>
+Date: Tue, 21 Dec 2004 22:45:29 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
-X-PMX-Version: 4.6.1.107272, Antispam-Core: 4.6.1.106808, Antispam-Data: 2004.12.21.35
-X-PerlMx-Spam: Gauge=, SPAM=7%, Report='EMC_FROM_0 -0, __TLG_EMC_ENVFROM_0 0, __IMS_MSGID 0, __HAS_MSGID 0, __SANE_MSGID 0, __TO_MALFORMED_2 0, __MIME_VERSION 0, __ANY_IMS_MUA 0, __IMS_MUA 0, __HAS_X_MAILER 0, __CT_TEXT_PLAIN 0, __CT 0, __MIME_TEXT_ONLY 0'
+To: Domen Puncer <domen@coderock.org>
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: lcd: fix memory leak, code cleanup
+References: <20041221015120.29110.98832.48706@localhost.localdomain> <20041221120607.GA30293@nd47.coderock.org>
+In-Reply-To: <20041221120607.GA30293@nd47.coderock.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Tue, 21 Dec 2004 21:45:08 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot, I suspected something of this sort...
-
------Original Message-----
-From: Steven Rostedt [mailto:rostedt@goodmis.org] 
-Sent: Tuesday, December 21, 2004 9:38 PM
-To: usvyatsky, ilya
-Cc: LKML
-Subject: Re: A (dumb?) waitpid(2) question
-
-
-On Tue, 2004-12-21 at 19:26 -0500, usvyatsky, ilya wrote:
-> As dumb as it seems, I am seing a weird behavior on my RH3.0 box 
-> (2.4.21-20.Elsmp kernel).
+Domen Puncer wrote:
+> On 20/12/04 19:50 -0600, James Nelson wrote:
 > 
-> It looks like (contrary to the man page and POSIX .1) waitpid(2) does 
-> not return upon a SIGALRM.
+>>This patch addresses the following issues:
+>>
+>>Fix log-spamming and cryptic error messages, and add KERN_ constants.
+>>Convert some ints to unsigned ints.
+>>Add checks for CAP_SYS_ADMIN for FLASH_Burn and FLASH_Erase ioctls.
+>>Identify use of global variable.
+>>Fix memory leak in FLASH_Burn ioctl.
+>>Fix error return codes in lcd_ioctl().
+>>Move variable "index" in lcd_ioctl() to smaller scope to reduce memory usage.
+>>Convert cli()/sti() to spin_lock_irqsave()/spin_unlock_irqrestore().
+>>Fix legibility issues in FLASH_Burn ioctl.
+>>
 > 
-> I am porting an old piece of Solaris userland code (stripped from all 
-> useful
-> functionality):
-
-I changed your code with the following:
-
-@@ -25,11 +25,15 @@
-     if (child_pid) {
-         /* parent */
-         int status = 0, timeout = 1;
-+       struct sigaction sa;
-+       sa.sa_handler = sig_handler;
-+       sa.sa_flags = SA_NOMASK;
-
-         do {
-             printf("Parent: setting an alarm for %d seconds\n", timeout);
-
--            signal(SIGALRM, sig_handler);
-+           sigaction(SIGALRM, &sa,NULL);
-+//            signal(SIGALRM, sig_handler);
-             alarm(timeout);
-
-             printf("Parent: waiting for a child %d\n", child_pid);
-
-
-And got the following result:
-
-$ ./alarmit
-Child:  sleeping for 6 seconds
-Parent: setting an alarm for 1 seconds
-Parent: waiting for a child 25926
-Alarm!!!
-Parent: wait was interrupted by a signalParent: setting an alarm for 1
-seconds
-Parent: waiting for a child -1
-Alarm!!!
-Parent: wait was interrupted by a signalParent: setting an alarm for 1
-seconds
-Parent: waiting for a child -1
-Alarm!!!
-Parent: wait was interrupted by a signalParent: setting an alarm for 1
-seconds
-Parent: waiting for a child -1
-Alarm!!!
-Parent: wait was interrupted by a signalParent: setting an alarm for 1
-seconds
-Parent: waiting for a child -1
-Alarm!!!
-Parent: wait was interrupted by a signalParent: setting an alarm for 1
-seconds
-Parent: waiting for a child -1
-Child:  exiting
-Parent: child 25926 terminated normally with status 0
-
-
-> Is it a bug or a feature?
-
-I guess it's a feature, and the default signal function must have SA_RESTART
-set.
-
-> Any suggestions would be greatly appreciated...
+> 
+> 
+>>-				cli();
+>>+				spin_lock_irqsave(&lcd_lock, flags);
+>> 				for (index = 0; index < (128); index++) {
+>> 
+>> 					WRITE_FLASH(kFlash_Addr1,
+>>@@ -480,32 +485,30 @@
+>> 						    kFlash_Data2);
+>> 					WRITE_FLASH(kFlash_Addr1,
+>> 						    kFlash_Prog);
+>>-					*((volatile unsigned char *)
+>>-					  burn_addr) =
+>>-		 (volatile unsigned char) rom[index];
+>>-
+>>-					while ((!dqpoll
+>>-						(burn_addr,
+>>-						 (volatile unsigned char)
+>>-						 rom[index]))
+>>-					       && (!timeout(burn_addr))) {
+>>-					}
+>>+					*((volatile unsigned char *)burn_addr) =
+>>+					  (volatile unsigned char) rom[index];
+>>+
+>>+					while ((!dqpoll (burn_addr,
+>>+						(volatile unsigned char)
+>>+						rom[index])) &&
+>>+						(!timeout(burn_addr))) { }
+>> 					burn_addr++;
+>> 				}
+>>-				restore_flags(flags);
+>>-				if (*
+>>-				    ((volatile unsigned char *) (burn_addr
+>>-								 - 1)) ==
+>>-				    (volatile unsigned char) rom[index -
+>>-								 1]) {
+>>+				spin_unlock_irqrestore(&lcd_lock, flags);
+> 
+> 
+> 
+> Although this will work, i think local_irq_{disable,enable} is the right
+> solution (we don't protect any data, just make sure timings are right).
 > 
 
-Use sigaction instead of signal.
+Since the Cobalt systems are single-processor, there's no functional difference 
+between disabling global and local interrupts.
 
+> For making it SMP safe, easiest/sane solution seems semaphore in
+> lcd_dev, which is down_interruptible(), at beginning of read, write
+> and ioctl.
+> 
+> Comments?
+> 
+> 
+> 	Domen
+>
 
--- Steve
+True, but it would requre making struct lcd_display a global variable, and involve 
+reworking just about the whole driver, since it is declared as a local variable in 
+individual ioctl case statements, and others use the variable defined at the top 
+of the ioctl function.  OTOH, it would reduce stack usage...
 
+I was trying to minimize any mucking about with the functional parts of the 
+driver, since I don't have the hardware to test it.
+
+Since ioctls are still protected by the BKL right now (and this thing is pretty 
+much nothing but an ioctl interface), I don't see too much of a problem with this 
+driver.  More complete drivers, however, would definitely benefit from it, and is 
+something I'll keep in mind.
+
+Jim

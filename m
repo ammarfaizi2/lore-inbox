@@ -1,40 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263060AbUK0BZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263061AbUK0BYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbUK0BZN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263052AbUK0BZI
+	id S263061AbUK0BYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbUKZTkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:25:08 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263060AbUKZTkh (ORCPT
+	Fri, 26 Nov 2004 14:40:22 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262460AbUKZT15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:40:37 -0500
-Subject: Re: PATCH (for comment): ide-cd possible race in PIO mode
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041122075802.GL26240@suse.de>
-References: <1100697589.32677.3.camel@localhost.localdomain>
-	 <20041117153706.GH26240@suse.de>  <20041122075802.GL26240@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101137446.2756.3.camel@localhost.localdomain>
+	Fri, 26 Nov 2004 14:27:57 -0500
+Date: Thu, 25 Nov 2004 08:00:15 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Externel SLIT table information thru sysfs
+Message-ID: <20041125140015.GA2750@sgi.com>
+References: <20041124165724.GA14544@sgi.com> <41A53D93.5070005@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 24 Nov 2004 11:35:51 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41A53D93.5070005@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-22 at 07:58, Jens Axboe wrote:
-> > > +		spin_unlock_irqsave(&ide_lock, flags);
-> > >  		return (*handler) (drive);
-> > >  	}
+On Wed, Nov 24, 2004 at 06:04:03PM -0800, Randy.Dunlap wrote:
+> Jack Steiner wrote:
+> >The ACPI SLIT table provides useful information on internode distances.
+> >Here is a patch to externalize the SLIT information. 
+> >
+> >For example:
+> >
+> >        # cd /sys/devices/system
+> >        # find .
+> >        ./node
+> >        ./node/node5
+> >        ./node/node5/distance
+> >        ./node/node5/numastat
+> >        ./node/node5/meminfo
+> >        ./node/node5/cpumap
+> >
+> >        # cat ./node/node0/distance
+> >        10 20 64 42 42 22
+> >
+> >        # cat node/*/distance
+> >        10 20 64 42 42 22
+> >        20 10 42 22 64 84
+> >        64 42 10 20 22 42
+> >        42 22 20 10 42 62
+> >        42 64 22 42 10 20
+> >        22 84 42 62 20 10
 > 
-> btw alan, have you attempted to compile this? It averages 2 errors out
-> of 4 lines :)
+> Apparently I'm easily confused, but node_distance() {near end}
+> seems to evaluate to either 10 or 20 (only), so what are
+> all of these other numbers here?
 
-Guess why it said "for comment". The one that does compile is in current
--ac
-but the fixes are kind of obvious 8)
+On systems that provide the ACPI SLIT table, the distances come from
+the SLIT table.  (See the ACPI spec for the full definition).
+The example above is from the ACPI SLIT table of a 6-node SGI Altix 
+system and the table is provided by the BIOS.
+
+If the BIOS does not provide a SLIT table, the default distance is 10 for
+local & 20 for remote. The value of 10 conforms to the spec for
+local distance, 20 is arbitrary but indicates further than local.
+
+> 
+> And how many nodes are in this example?
+> Maybe 6, numbered 0 thru 5?  Plz correct this guess....
+
+Good guess.
+
+
+
+> 
+> >Index: linux/drivers/base/node.c
+> >===================================================================
+> >--- linux.orig/drivers/base/node.c	2004-11-05 08:34:42.461312000 -0600
+> >+++ linux/drivers/base/node.c	2004-11-05 15:56:23.345662000 -0600
+> >@@ -111,6 +111,24 @@ static ssize_t node_read_numastat(struct
+> > }
+> > static SYSDEV_ATTR(numastat, S_IRUGO, node_read_numastat, NULL);
+> > 
+> >+static ssize_t node_read_distance(struct sys_device * dev, char * buf)
+> >+{
+> >+	int nid = dev->id;
+> >+	int len = 0;
+> >+	int i;
+> >+
+> >+	/* buf currently PAGE_SIZE, need ~4 chars per node */
+> >+	BUILD_BUG_ON(NR_NODES*4 > PAGE_SIZE/2);
+> >+
+> >+	for (i = 0; i < numnodes; i++)
+> >+		len += sprintf(buf + len, "%s%d", i ? " " : "", 
+> >node_distance(nid, i));
+> >+		
+> >+	len += sprintf(buf + len, "\n");
+> >+	return len;
+> >+}
+> >+static SYSDEV_ATTR(distance, S_IRUGO, node_read_distance, NULL);
+> >+
+> >+
+> >Index: linux/include/linux/topology.h
+> >===================================================================
+> >--- linux.orig/include/linux/topology.h	2004-11-05 
+> >08:34:57.492932000 -0600
+> >+++ linux/include/linux/topology.h	2004-11-23 10:03:26.700821978 -0600
+> >@@ -55,7 +55,10 @@ static inline int __next_node_with_cpus(
+> > 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
+> > 
+> > #ifndef node_distance
+> >-#define node_distance(from,to)	((from) != (to))
+> >+/* Conform to ACPI 2.0 SLIT distance definitions */
+> >+#define LOCAL_DISTANCE		10
+> >+#define REMOTE_DISTANCE		20
+> >+#define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : 
+> >REMOTE_DISTANCE)
+> Please add a space after "from,".
+> 
+> > #endif
+> 
+> -- 
+> ~Randy
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
 

@@ -1,78 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315945AbSEGTEg>; Tue, 7 May 2002 15:04:36 -0400
+	id <S315946AbSEGTHe>; Tue, 7 May 2002 15:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSEGTEf>; Tue, 7 May 2002 15:04:35 -0400
-Received: from pD9E23EE2.dip.t-dialin.net ([217.226.62.226]:31131 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315945AbSEGTEf>; Tue, 7 May 2002 15:04:35 -0400
-Date: Tue, 7 May 2002 13:04:34 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: pfn-Functionset out of order for sparc64 in current Bk tree?
-Message-ID: <Pine.LNX.4.44.0205051708420.23089-100000@hawkeye.luckynet.adm>
+	id <S315947AbSEGTHd>; Tue, 7 May 2002 15:07:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:21190 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315946AbSEGTHc>;
+	Tue, 7 May 2002 15:07:32 -0400
+Message-ID: <3CD825E4.6950ED92@vnet.ibm.com>
+Date: Tue, 07 May 2002 14:07:16 -0500
+From: Dave Engebretsen <engebret@vnet.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Memory Barrier Definitions
+X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/07/2002 02:07:18 PM,
+	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/07/2002 02:07:21 PM,
+	Serialize complete at 05/07/2002 02:07:21 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Someone introduced, by Linus' request I remember, pfn_valid() instead of 
-PAGE_INVALID() and such. Now I try to compile on Sparc, and /mm/memory.c 
-is the first file which hits missing macros: pte_pfn, pfn_valid, 
-pfn_to_page nd pfn_pte. I grepped for some declaration and hit only the 
-two in the two-/three-level pagetable of i386. The only other occurrences 
-of pte_pfn in *.[ch] were uses, not declarations. Global grep returned 
-only two more occurrences in the Changeset.
+I have been working through a number of issues that became significant
+on Power4 based systems, and wanted to start some discussion to
+understand which other platforms are impacted in a similar way.  
 
- - pfn_to_page(pfn) is declared as (mem_map + (pfn)) for i386. Can this 
-   apply to Sparc64 as well?
- - pte_pfn(x) is declared as
-   ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
-   in 2-level pgtable,
-   (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
-   in 3-level. I suppose 2-level shouldn't exactly match here, how far 
-   must the 3-level version be changed in order to fit sparc64? A lot?
- - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
-   on Sparc64 either?
- - pfn_pte(page,prot) is defined as
-   __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
-   How far does this go for Sparc64?
+The fundamental issue is that Power4 is weakly consistent and the
+PowerPC architecture definitions for memory reference ordering do not
+necessarily mesh well with the current Linux barrier primitive use. 
+Obviously, we are not the only weakc platform, but I suspect the degree
+and latencies we see push things more than most systems.  What is less
+clear to me is how much PPC memory barrier symantics have in common with
+other systems; presumably there are some which are similar.
 
-The compile error was:
+As a specific example, on PowerPC the following memory barriers are
+defined:
 
-# sparc64-linux-gcc -D__KERNEL__ -I/usr/src/thunder-2.5/include -Wall 
--Wstrict-pr\ototypes -Wno-trigraphs -O2  -fno-strict-aliasing -fno-common 
--m64 -pipe -mno-f\pu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 
--fcall-used-g5 -fcall-used-g7 -W\no-sign-compare -Wa,--undeclared-regs -pg 
--DKBUILD_BASENAME=memory  -c -o mm/m\emory.o mm/memory.c
-mm/memory.c: In function `__free_pte':
-mm/memory.c:80: warning: implicit declaration of function `pte_pfn'
-mm/memory.c:81: warning: implicit declaration of function `pfn_valid'
-mm/memory.c:83: warning: implicit declaration of function `pfn_to_page'
-mm/memory.c:83: warning: assignment makes pointer from integer without a 
-cast
-mm/memory.c: In function `copy_page_range':
-mm/memory.c:289: warning: assignment makes pointer from integer without a 
-cast
-mm/memory.c: In function `zap_pte_range':
-mm/memory.c:369: warning: assignment makes pointer from integer without a 
-cast
-mm/memory.c: In function `follow_page':
-mm/memory.c:490: warning: return makes pointer from integer without a cast
-mm/memory.c: In function `remap_pte_range':
-mm/memory.c:879: invalid type argument of `->'
-mm/memory.c:880: warning: implicit declaration of function `pfn_pte'
-mm/memory.c: In function `do_wp_page':
-mm/memory.c:996: warning: assignment makes pointer from integer without a 
-cast
+eieio: Orders all I/O references & store/store to system memory, but
+seperatly
+lwsync: Orders load/load, store/store, and load/store, only to system
+memory 
+sync: Orders everything
 
-							       Regards,
-								Thunder
---
-if (errno == ENOTAVAIL)
-    fprintf(stderr, "Error: Talking to Microsoft server!\n");
+In terms of cycles, eieio is relatively cheap, lwsync is perhaps 100's,
+while sync is measured in the 1000's.  The key is that only a sync
+orders both system memory and I/O space references and it is very
+expensive, so it should only be used where absolutely necessary, like in
+a driver.
 
+Linux defines (more or less) the following barriers:
+mb, rmb, wmb, smp_mb, smp_wmb, smp_rmb
 
+An example of where these primitives get us into trouble is the use of
+wmb() to order two stores which are only to system memory (where a
+lwsync would do for ppc64) and for a store to system memory followed by
+a store to I/O (many examples in drivers).  Here ppc64 requires a sync. 
+Therefore we must always pay the high price and use a sync for wmb().
+
+A solution was pointed out by Rusty Russell that we should probabily be
+using smp_*mb() for system memory ordering and reserve the *mb() calls
+for when ordering against I/O is also required.  There does seem to be
+some limited cases where this has been done, but in general *mb() are
+used in most parts of the kernel.
+
+Any thoughts if making better use of the smp_* macros would be the right
+approach?
+
+Thanks -
+
+Dave Engebretsen

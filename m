@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCQVZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVCQVbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVCQVZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 16:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCQVZP
+	id S261204AbVCQVbt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 16:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVCQVbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 16:25:15 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:40824 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261193AbVCQVZH (ORCPT
+	Thu, 17 Mar 2005 16:31:49 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61069 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261204AbVCQVbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 16:25:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RFzN51i1ZL3iRVRz4WsLr90/SDoX6FrNFusYI7Icwzmp6YzfbyMeM7s70oosG2OCv9iNJYz7eOjeCTJDIwhK3ku/EyHIYkJVOV2DDh8t0QnjMbsadslmm/GCgHy6VRsfhfveIIfsYbyfBEjEw38aKGxrD3Fja3+ccYhcQoJ/Jko=
-Message-ID: <2cd57c90050317132570147e7c@mail.gmail.com>
-Date: Fri, 18 Mar 2005 05:25:07 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Christian Kujau <evil@g-house.de>
-Subject: Re: oom with 2.6.11
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <4238DD01.9060500@g-house.de>
+	Thu, 17 Mar 2005 16:31:45 -0500
+Date: Thu, 17 Mar 2005 13:31:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robin Holt <holt@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm_dirty_ratio seems a bit large.
+Message-Id: <20050317133148.1122e9c4.akpm@osdl.org>
+In-Reply-To: <20050317205213.GC17353@lnx-holt.americas.sgi.com>
+References: <20050317205213.GC17353@lnx-holt.americas.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <422DC2F1.7020802@g-house.de>
-	 <2cd57c9005031102595dfe78e6@mail.gmail.com>
-	 <4231B4E9.3080005@g-house.de> <42332F9C.7090703@g-house.de>
-	 <4238DD01.9060500@g-house.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Mar 2005 02:27:29 +0100, Christian Kujau <evil@g-house.de> wrote:
-> hello again,
+Robin Holt <holt@sgi.com> wrote:
+>
+> Andrew,
 > 
-> unfortunately i've hit OOM again, this time with "#define DEBUG" enabled
-> in mm/oom_kill.c:
+> We have some fairly large installations that are running into long
+> pauses while running fsync().  One of the issues that was noted is the
+> vm_dirty_ratio, while probably adequate for a desktop type installation,
+> seems excessively large for a larger configuration.  For your reference,
+> the machine that first reported this is running with 384GB of memory.
+> Others that reported the problem range from 256GB to 4TB.  At those sizes,
+> we are talking dirty buffers in the range of 100GB to 1TB.  That seems
+> a bit excessive.
+
+I'd have thought that dirty_background_ratio is the problem here: you want
+pdflush to kick in earlier to start the I/O while permitting the write()ing
+application to keep running.
+
+> Is there any chance of limiting vm_dirty_ratio to something other than
+> a hard-coded 40%?  Maybe add something like the following two lines to
+> the beginning of page_writeback_init().  This would limit us to roughly
+> 2GB of dirty buffers.  I picked that number assuming that nobody would
+> want to affect machines in the 4GB and below range.
 > 
-> http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.3.txt
 > 
-> by "Mar 16 18:32" pppd died again and OOM kicked in 30min later.
-> (there are a *lot* messages of a shell script named "check-route.sh". it's
-> a little script which runs every minute or so to check if my default route
-> is still ok and if ping to the outside world are possible. definitely not
-> a memory hog, but noisy)
+> 	vm_dirty_ratio = min(40, TWO_GB_IN_PAGES / total_pages * 100);
+> 	dirty_background_ratio = vm_dirty_ratio / 4;
 
+All that dirty pagecache allows us to completely elide I/O when overwrites
+are happening, to get better request queue merging, to get better file
+layout if the fs does allocate-on-flush and, probably most importantly, to
+avoid I/O completely for short-lived files.
 
-I do "grep check-route.sh oom_2.6.11.3.txt | wc" and it shows 4365
-lines, which means
-there're 4365 that script processes running, from pid 4260 to12747,
-mostly with pretty low points, 123.  Based on this points, suppose
-each script consumes 100k, that'll be 100k*4k=400M roughly. And your
-box's is merely 256M MemTotal.
+So I'm sure there's someone out there who will say "hey, how come by
+seeky-writing application just got 75% slower?".
 
-The currently oom algorithm fails to find out such kinds of memory hog.
-And the kernel kills other innocent processes because the its points
-is much lower than most others.
+That being said, perhaps reducing the default will help more people than it
+hurts - I simply do not know.  That's why it's tuneable ;)
 
-Check this script and disable it; see what will happen.
+Would it be correct to assume that these applications are simply doing
+large, linear writes?  If so, do they write quickly or at a relatively slow
+rate?  The latter, I assume.
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Which fs are you using?
+
+Other things we can think about are
+
+- Setting the dirty limit on a per-inode basis (non-trivial)
+
+- Adding a new fadvise command to start async writeback of a section of
+  the file (easy).
+
+> 
+> One other issue we have is the vm_dirty_ratio and background_ratio
+> adjustments are a little coarse with these memory sizes.  Since our
+> minimum adjustment is 1%, we are adjusting by 40GB on the largest
+> configuration from above.  The hardware we are shipping today is capable
+> of going to far greater amounts of memory, but we don't have customers
+> demanding that yet.  I would like to plan ahead for that and change
+> vm_dirty_ratio from a straight percent into a millipercent (thousandth
+> of a percent).  Would that type of change be acceptable?
+
+Oh drat.  I think such a change would require a new set of /proc entries.

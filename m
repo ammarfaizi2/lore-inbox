@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290293AbSBKT6l>; Mon, 11 Feb 2002 14:58:41 -0500
+	id <S290284AbSBKT7M>; Mon, 11 Feb 2002 14:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290285AbSBKT6V>; Mon, 11 Feb 2002 14:58:21 -0500
-Received: from speech.linux-speakup.org ([129.100.109.30]:56220 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S290284AbSBKT6P>; Mon, 11 Feb 2002 14:58:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.4 error building vmlinuz
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 11 Feb 2002 14:58:10 -0500
-In-Reply-To: <3C681C1D.9D9819BF@zip.com.au>
-Message-ID: <x7sn87pz8t.fsf_-_@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S290285AbSBKT6x>; Mon, 11 Feb 2002 14:58:53 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:31977 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S290284AbSBKT6d>; Mon, 11 Feb 2002 14:58:33 -0500
+Message-ID: <3C682264.7060707@nyc.rr.com>
+Date: Mon, 11 Feb 2002 14:58:28 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Linux 2.5.4 Sound Driver Problem
+In-Reply-To: <fa.c0t1afv.1f02hrj@ifi.uio.no> <fa.jvah72v.1h34cqd@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks:  I downloaded the 2.5.4 tar ball and applied a one line
-patch by Dave ??? I don't remember his last name.  Most of the kernel
-compiled just fine until I got to the loader stage.  I have tried the
-compile a number of times removing newer features I had included from
-the 2.5.4 configuration.  It continually dies just after the ld
-stage.  Here's the log:
+> Try to do this. Open drivers/sound/Config.in, and find YMFPCI
+> tristate, then delete $CONFIG_SOUND_OSS from that line.
+> Edit .config, and remove CONFIG_SOUND_OSS. Rerun make oldconfig,
+> when prompted for CONFIG_SOUND_OSS, say N. This should work.
 
-ld -m elf_i386 -T /usr/src/linux-2.5.4/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	/usr/src/linux-2.5.4/arch/i386/lib/lib.a /usr/src/linux-2.5.4/lib/lib.a /usr/src/linux-2.5.4/arch/i386/lib/lib.a \
-	 drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
-	net/network.o \
-	--end-group \
-	-o vmlinux
-drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols in discarded section .text.exit'
-drivers/net/net.o(.data+0x174): undefined reference to `local symbols in discarded section .text.exit'
-make: *** [vmlinux] Error 1
+if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
+    bool '      Verbose initialisation' CONFIG_SOUND_TRACEINIT
+    bool '      Persistent DMA buffers' CONFIG_SOUND_DMAP
 
-Once again could someone help the clewless?
-  Kirk
+The YMFPCI option was in the body of the above if statement, so I had
+to move it out of there to be able to enable it without enabling 
+CONFIG_SOUND_OSS.  I hope this is what you meant.
 
--- 
+> 
+> I use monolithic kernels on 2.4, but on 2.5 it is officially
+> discouraged, so I gave up on it.
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+To what granularity?  I use the hardware as a rule of thumb: if the
+the hardware supported is fixed, then I put it in the kernel.
+Should I compile everything as modules?
+
+However, I did hear something about everything being a module in 2.6
+because the kernel will eventually use initramfs or something...
+
+Anyway, this is a different thread.  But I would like to hear your rule 
+of thumb for when you compile things as a module...
+
+
+> I do not see ANYTHING in 2.5.4 Makefiles that depended on
+> CONFIG_SOUND_GAMEPORT. This option only works to restric
+> some configurations choices, but it does not control any
+> compilations. Seems like a deadwood to me. Just kill it too.
+
+I kill it but make oldconfig enables it right back :).
+I'll look through Config.in in a bit.
+

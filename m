@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbTDMEad (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTDMEad (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 00:30:33 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:3985 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263173AbTDMEac (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 00:30:32 -0400
-Date: Sat, 12 Apr 2003 21:42:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Jeremy Hall <jhall@maoz.com>
-Cc: wli@holomorphy.com, jhall@maoz.com, felipe_alfaro@linuxmail.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Joshua Kwan <joshk@triplehelix.org>,
-       Shane Shrybman <shrybman@sympatico.ca>
-Subject: Re: 2.5.67-mm2
-Message-Id: <20030412214214.57a87776.akpm@digeo.com>
-In-Reply-To: <200304130350.h3D3o8pn031108@sith.maoz.com>
-References: <20030413031440.GA14357@holomorphy.com>
-	<200304130350.h3D3o8pn031108@sith.maoz.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Apr 2003 04:42:13.0625 (UTC) FILETIME=[0D87DE90:01C30177]
+	id S263239AbTDMEsu (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTDMEsu (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 00:48:50 -0400
+Received: from asie314yy33z9.bc.hsia.telus.net ([216.232.196.3]:64135 "EHLO
+	saurus.asaurus.invalid") by vger.kernel.org with ESMTP
+	id S263239AbTDMEst (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 00:48:49 -0400
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: netfilter-devel@lists.samba.org, linux-kernel@vger.kernel.org
+Subject: Re: BUG somewhere in NAT mechanism [was: my linux box does not learn from redirects]
+References: <Pine.LNX.4.51.0304121406180.24111@dns.toxicfilms.tv>
+From: Kevin Buhr <buhr@telus.net>
+In-Reply-To: <Pine.LNX.4.51.0304121406180.24111@dns.toxicfilms.tv>
+Date: 12 Apr 2003 22:00:22 -0700
+Message-ID: <8765pj6lg9.fsf@saurus.asaurus.invalid>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
+> 
+> In a nutshell:
+> - iptable_nat, _may_ cause the box to ignore icmp redirects (maybe other
+>   things too)
 
-This should fix it up.
+It looks like the relevant bit of code is:
 
- include/linux/spinlock.h |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+ip_nat_core.c:881 (in 2.4.20)
+        /* Redirects on non-null nats must be dropped, else they'll
+           start talking to each other without our translation, and be
+           confused... --RR */
+        if (hdr->type == ICMP_REDIRECT) {
+                /* Don't care about races here. */
+                if (info->initialized
+                    != ((1 << IP_NAT_MANIP_SRC) | (1 << IP_NAT_MANIP_DST))
+                    || info->num_manips != 0)
+                        return NF_DROP;
+        }
 
-diff -puN include/linux/spinlock.h~lockmeter-fixes include/linux/spinlock.h
---- 25/include/linux/spinlock.h~lockmeter-fixes	2003-04-12 21:35:49.000000000 -0700
-+++ 25-akpm/include/linux/spinlock.h	2003-04-12 21:35:57.000000000 -0700
-@@ -328,20 +328,20 @@ do { \
- 
- #define spin_unlock_irqrestore(lock, flags) \
- do { \
--	spin_unlock(lock); \
-+	_raw_spin_unlock(lock); \
- 	local_irq_restore(flags); \
- 	preempt_enable(); \
- } while (0)
- 
- #define _raw_spin_unlock_irqrestore(lock, flags) \
- do { \
--	spin_unlock(lock); \
-+	_raw_spin_unlock(lock); \
- 	local_irq_restore(flags); \
- } while (0)
- 
- #define spin_unlock_irq(lock) \
- do { \
--	spin_unlock(lock); \
-+	_raw_spin_unlock(lock); \
- 	local_irq_enable(); \
- 	preempt_enable(); \
- } while (0)
-@@ -355,14 +355,14 @@ do { \
- 
- #define read_unlock_irqrestore(lock, flags) \
- do { \
--	read_unlock(lock); \
-+	_raw_read_unlock(lock); \
- 	local_irq_restore(flags); \
- 	preempt_enable(); \
- } while (0)
- 
- #define read_unlock_irq(lock) \
- do { \
--	read_unlock(lock); \
-+	_raw_read_unlock(lock); \
- 	local_irq_enable(); \
- 	preempt_enable(); \
- } while (0)
-@@ -376,14 +376,14 @@ do { \
- 
- #define write_unlock_irqrestore(lock, flags) \
- do { \
--	write_unlock(lock); \
-+	_raw_write_unlock(lock); \
- 	local_irq_restore(flags); \
- 	preempt_enable(); \
- } while (0)
- 
- #define write_unlock_irq(lock) \
- do { \
--	write_unlock(lock); \
-+	_raw_write_unlock(lock); \
- 	local_irq_enable(); \
- 	preempt_enable(); \
- } while (0)
+This looks wrong.  It's true that you don't want to translate the
+redirect and pass it on after NATting, the way you would with a "host
+unreachable" packet.  But if it was originally directed at you, you
+don't just want to drop it, you want to act on it yourself.
 
-_
+In particular, an ICMP redirect originally directed to one of your own
+interfaces whose internal packet belongs to a source NATted connection
+should have the inner packet (which looks like it came from you)
+reverse source NATted (so it looks like it came from the machine you
+NATted it for) but the outer packet left untouched so it can be
+delivered locally to the kernel.
 
+Any thoughts?
+
+-- 
+Kevin <buhr@telus.net>

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbSJVIlj>; Tue, 22 Oct 2002 04:41:39 -0400
+	id <S262291AbSJVIqZ>; Tue, 22 Oct 2002 04:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262291AbSJVIlj>; Tue, 22 Oct 2002 04:41:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40460 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261866AbSJVIli>; Tue, 22 Oct 2002 04:41:38 -0400
-Date: Tue, 22 Oct 2002 09:47:43 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 : move files from drivers/media/* ?
-Message-ID: <20021022094743.A16174@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0210212136030.900-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262298AbSJVIqZ>; Tue, 22 Oct 2002 04:46:25 -0400
+Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:54656 "EHLO
+	defiant.binary-magic.com") by vger.kernel.org with ESMTP
+	id <S262291AbSJVIqY> convert rfc822-to-8bit; Tue, 22 Oct 2002 04:46:24 -0400
+From: Take Vos <Take.Vos@binary-magic.com>
+Organization: Binary Magic
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: USB mouse does not apear in /dev/input
+Date: Tue, 22 Oct 2002 10:46:46 +0200
+User-Agent: KMail/1.4.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210212136030.900-100000@localhost.localdomain>; from fdavis@si.rr.com on Mon, Oct 21, 2002 at 09:45:29PM -0400
+Message-Id: <200210221046.46700.Take.Vos@binary-magic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 09:45:29PM -0400, Frank Davis wrote:
-> Hello all,
->   There are video and radio drivers within
-> drivers/media/video and drivers/media/radio respectively.
-> 
-> Shouldn't those drivers move from drivers/media/video to drivers/video ? 
+Hello,
 
-drivers/video are display drivers.  drivers/media/video are grabber
-drivers.  The two are different.
+I'm just doing my part in getting the new kernel stable
 
-Reasons why drivers/media exists can be found by searching a LKML
-archive.
+kernel:	linux-2.5.43
+hardware:DELL Inspiron 8100
+mouse:	Logitech USB Optical Mouse
+config:
+		CONFIG_INPUT_MOUSEDEV
+		CONFIG_INPUT_EVDEV
+		CONFIG_SERIO
+		CONFIG_SERIO_I8042
+		CONFIG_INPUT_MOUSE
+		CONFIG_MOUSE_PS2
+		CONFIG_USB
+		CONFIG_USB_HID
+		CONFIG_USB_HIDINPUT
+
+/dev/input/mice and /dev/input/mouse0 exist and are used for my internal PS/2 
+mouse.
+
+dmesg shows that USB mouse exists, and also shows insert and removes 
+correctly.
+
+However no /dev/input/mouse1 apears nor do events for this mouse apear on 
+/dev/input/mice.
+
+Thanks,
+	Take
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Take Vos <Take.Vos@binary-magic.com>
+GnuPG: 2A5C110609995A378302A27630C962CCFD54AA85
+http://binary-magic.com/~takev/
 

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTJaKAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 05:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTJaKAs
+	id S263082AbTJaKhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 05:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbTJaKhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 05:00:48 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6661 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263166AbTJaKAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 05:00:46 -0500
-Date: Fri, 31 Oct 2003 10:00:43 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test9 Fix oops in quirk_via_bridge
-Message-ID: <20031031100043.B4556@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Clark <michael@metaparadigm.com>, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-References: <3FA22E6F.8000404@metaparadigm.com> <20031031094946.A4556@flint.arm.linux.org.uk> <3FA2324F.20801@metaparadigm.com>
+	Fri, 31 Oct 2003 05:37:25 -0500
+Received: from unthought.net ([212.97.129.88]:27352 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S263082AbTJaKhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 05:37:24 -0500
+Date: Fri, 31 Oct 2003 11:37:23 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Dave Brondsema <dave@brondsema.net>, linux-kernel@vger.kernel.org
+Subject: Re: uptime reset after about 45 days
+Message-ID: <20031031103723.GE10792@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Maciej Zenczykowski <maze@cela.pl>,
+	Dave Brondsema <dave@brondsema.net>, linux-kernel@vger.kernel.org
+References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com> <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FA2324F.20801@metaparadigm.com>; from michael@metaparadigm.com on Fri, Oct 31, 2003 at 05:58:39PM +0800
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 31, 2003 at 05:58:39PM +0800, Michael Clark wrote:
-> Sure, okay. So just consider my post a bug report then as i'm not
-> sure what the correct fix is (i'll stick with my patch so I can
-> continue to use firewire on my laptop in the meantime).
+On Fri, Oct 31, 2003 at 12:09:25AM +0100, Maciej Zenczykowski wrote:
+...
+> Uptime is stored in jiffies which is 32bit on your arch, which results in 
+> an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
+> (overflow after 470 or so days) now, they're 1000 -> overflows after 45 
+> days.  Doesn't wreck anything except for uptime display - known problem, 
+> not worth the trouble fixing it would cause (64 bit values are 
+> non-atomic, unless MMX/SSE which isn't allowed in kernel) - however there 
+> is (if I'm not mistaken) a patch available wihich fixes this 'problem'.
+> 
+> However since it is only a matter of uptime display...
 
-Your fix looks 99% correct, except for the "__devinitdata" part - if
-you drop this and resubmit the patch, I'm sure gregkh will take it.
+For me it would mean that I got disturbed or woken up by an SMS every 45
+/ (number_of_servers) = (low_number) days, because the monitoring system
+sees that a server suddenly has a 'suspiciously low' uptime.
+
+Fix the monitoring system to detect uptime wraps?
+
+Perhaps.  It would be needed for Windows 95 as well, anyway.
+
+Still, it's pretty darn pathetic to be required to include workarounds
+in *Linux* apps that would otherwise only be needed for '95.
+
+All in my humble oppinion of course.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

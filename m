@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266976AbSKUTXv>; Thu, 21 Nov 2002 14:23:51 -0500
+	id <S266972AbSKUTXw>; Thu, 21 Nov 2002 14:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16612 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266976AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
-Date: Thu, 21 Nov 2002 14:32:31 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: David Zaffiro <davzaffiro@netscape.net>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling x86 with and without frame pointer
-Message-ID: <20021121193231.GE14063@redhat.com>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	David Zaffiro <davzaffiro@netscape.net>,
-	linux-kernel@vger.kernel.org
-References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121050607.GA1554@mark.mielke.cc> <3DDCA7C9.9040501@netscape.net> <20021121192045.GE3636@alpha.home.local>
+	id <S266979AbSKUTXw>; Thu, 21 Nov 2002 14:23:52 -0500
+Received: from ppp-217-133-220-209.dialup.tiscali.it ([217.133.220.209]:17308
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S266972AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
+Subject: Re: [patch] threading enhancements, tid-2.5.48-C0
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211211050380.3577-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0211211050380.3577-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/UMkz16AH9YwFFDMfaNT"
+Organization: 
+Message-Id: <1037907039.1767.129.camel@home.ldb.ods.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021121192045.GE3636@alpha.home.local>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 21 Nov 2002 20:30:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 08:20:45PM +0100, Willy Tarreau wrote:
-> On Thu, Nov 21, 2002 at 10:30:49AM +0100, David Zaffiro wrote:
-> > I use -momit-leaf-frame-pointer for optimization in some own projects, 
-> > instead of the "-fomit-frame-pointer". For me, this results in better 
-> > codesize/speed compared to both "-fomit-frame-pointer" or no option at 
-> > all. Actually gcc-2.95 seems to support this feature as well, but it 
-> > never made it into the 2.95 docs... It makes debugging a lot easier too.
-> > 
-> > So anyone "caring to benchmark", could you please test the 
-> > "-momit-leaf-frame-pointer" option for x86 as well...
-> 
-> Well, I tried on a 2.4.18+patches with gcc 2.95.3. bzImage is :
-> 538481 bytes with -fomit-frame-pointer
-> 538510 bytes with no particular flag
-> 542137 bytes with -momit-leaf-frame-pointer.
 
-These numbers are useless.  Since a change in frame pointer setup changes 
-the code sequences in the text section, it is likely to also change 
-maximum acheived compression.  Therefore, the size of the compressed 
-images can not be compared and result in any useable data, you need to 
-compare the size of the uncompressed images.
+--=-/UMkz16AH9YwFFDMfaNT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+> this method is quite dangerous as the register usage is largely ad-hoc in
+> the x86 lowlevel code. Eg. your %ebx use clashes with that of kernel
+> threads, which also go through ret_from_fork.
+Yes, I realize that it was a bad idea, since bloat in task_struct can be
+avoided by putting clear_tid in an union other temporary data (e.g.
+*link_count), without using arch-specific code (and this is a obviously
+a separate patch).
+
+
+--=-/UMkz16AH9YwFFDMfaNT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA93TRedjkty3ft5+cRAmQ/AKCK7SPP/PGvE/EE9NJKqYSDNaNlEACgrHIk
+6xrtig9bCzO9KL6hPqTWGLs=
+=cBcR
+-----END PGP SIGNATURE-----
+
+--=-/UMkz16AH9YwFFDMfaNT--

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265665AbUATSaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUATSaq
+	id S265657AbUATSwP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUATSwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:30:46 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:14217 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265665AbUATSao
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:30:44 -0500
-Date: Tue, 20 Jan 2004 10:30:20 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm5
-Message-ID: <20040120183020.GD23765@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040120000535.7fb8e683.akpm@osdl.org>
+	Tue, 20 Jan 2004 13:52:15 -0500
+Received: from ns.suse.de ([195.135.220.2]:45239 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265657AbUATSve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:51:34 -0500
+Date: Tue, 20 Jan 2004 19:51:32 +0100
+From: Andi Kleen <ak@suse.de>
+To: Gerd Knorr <kraxel@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] -mm5 has no i2c on amd64
+Message-Id: <20040120195132.1dbaabb8.ak@suse.de>
+In-Reply-To: <20040120183259.GA23706@bytesex.org>
+References: <20040120124626.GA20023@bytesex.org.suse.lists.linux.kernel>
+	<p73n08ihj25.fsf@verdi.suse.de>
+	<20040120183259.GA23706@bytesex.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 12:05:35AM -0800, Andrew Morton wrote:
-> -ext2_new_inode-cleanup.patch
-> -ext2-s_next_generation-fix.patch
-> -ext3-s_next_generation-fix.patch
-> -ext3-journal-mode-fix.patch
+On Tue, 20 Jan 2004 19:32:59 +0100
+Gerd Knorr <kraxel@suse.de> wrote:
 
-What do these patches do?
+> On Tue, Jan 20, 2004 at 01:59:46PM +0100, Andi Kleen wrote:
+> > Gerd Knorr <kraxel@bytesex.org> writes:
+> > > 
+> > > +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
+> > > +source "drivers/i2c/Kconfig"
+> > > +
+> > 
+> > There is no such source in arch/i386/Kconfig.  So it's probably wrong.
+> 
+> i386 includes that indirectly via drivers/Kconfig
+> So should the other archs do that too?
 
-> -nfsd-01-stale-filehandles-fixes.patch
->  Merged
+Yep. Or at least x86-64 should likely.
 
-Yes!
+But it must have worked until recently because I got a report about I2C on x86-64 for 2.6.0.
 
-I tested this against 2.6.1-bk2 on my knfsd server since friday, and it has
-fixed my problems with stale nfs handles.  Without the patch, it wouldn't
-last a whole day before the errors started cropping up.
+-Andi
+
+ 

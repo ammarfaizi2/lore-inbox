@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUENNG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265271AbUENNJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbUENNG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUENNG1
+	id S265271AbUENNJf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265272AbUENNJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:06:27 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13799 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265266AbUENNG0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:06:26 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] H8/300 IDE support update
-Date: Fri, 14 May 2004 15:07:31 +0200
-User-Agent: KMail/1.5.3
-Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <m24qqj9o9j.wl%ysato@users.sourceforge.jp>
-In-Reply-To: <m24qqj9o9j.wl%ysato@users.sourceforge.jp>
+	Fri, 14 May 2004 09:09:35 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:59661 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S265271AbUENNJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 09:09:29 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: mdharm-usb@one-eyed-alien.net
+Subject: VMAX USB-STORAGE - kernel deadlock
+Date: Fri, 14 May 2004 15:09:25 +0200
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200405141507.31492.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405141509.25967.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 of May 2004 14:39, Yoshinori Sato wrote:
-> - IDE support update.
-> - unused memory hole delete.
+Hi,
 
-Yoshinori, this patch doesn't apply to vanilla 2.6.6 / 2.6.6-bk1.
+my friend bought usb flash disk VMAX/USB2.0/0404 version.
+Under WinXP it works, but not under Linux.
+There is 1 vfat filesystem, but linux reports 4 and when I try mount one, 
+kernel goes to deadlock. System reports bad size too.
 
-And once again: please do not use ide_default_{irq,io_base}()
-and ide_init_hwif_ports() in new IDE code.
+Tested 2.4.26, 2.6.6
 
-Regards,
-Bartlomiej
+Here is output:
 
+SCSI subsystem initialized
+Initializing USB Mass Storage driver...
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: VMAX      Model: 128MB             Rev: 2.00
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+USB Mass Storage device found at 2
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+sda: Unit Not Ready, sense:
+Current : sense key Unit Attention
+Additional sense: Not ready to ready change, medium may have changed
+SCSI device sda: 256000 512-byte hdwr sectors (131 MB)
+sda: assuming Write Enabled
+sda: assuming drive cache: write through
+ sda: sda1 sda2 sda3 sda4
+
+Michal

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129859AbRAMOAn>; Sat, 13 Jan 2001 09:00:43 -0500
+	id <S130157AbRAMOFr>; Sat, 13 Jan 2001 09:05:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAMOAY>; Sat, 13 Jan 2001 09:00:24 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:17848 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129859AbRAMOAV>; Sat, 13 Jan 2001 09:00:21 -0500
-To: david+validemail@kalifornia.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
-In-Reply-To: <m366jj20si.fsf@linux.local> <3A604B26.53EC029F@linux.com>
-From: Christoph Rohland <cr@sap.com>
-Date: 13 Jan 2001 15:04:41 +0100
-In-Reply-To: <3A604B26.53EC029F@linux.com>
-Message-ID: <m33denk0p2.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S130150AbRAMOFf>; Sat, 13 Jan 2001 09:05:35 -0500
+Received: from styx.suse.cz ([195.70.145.226]:47605 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130144AbRAMOF2>;
+	Sat, 13 Jan 2001 09:05:28 -0500
+Date: Sat, 13 Jan 2001 14:45:28 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+Message-ID: <20010113144528.D1155@suse.cz>
+In-Reply-To: <20010112212427.A2829@suse.cz> <E14HDv7-0005G6-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14HDv7-0005G6-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 12, 2001 at 11:47:41PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford <david@linux.com> writes:
+On Fri, Jan 12, 2001 at 11:47:41PM +0000, Alan Cox wrote:
 
-> Now...is this shared memory or swap?  If it's swap, why is it
-> different than a swapfile?  If you are intending the shmem be called
-> swapfs, I personally thing that it'll cause a significant amount of
-> confusion.
+> > However - Alan's IDE patch for 2.2 kills autodma on ALL VIA chipsets.
+> > That's because all VIA chipsets starting from vt82c586 to vt82c686b
+> > (UDMA100), share the same PCI ID.
+> 
+> I have no reports of problems with the later stuff
 
-It is a filesystem which lives in RAM and can swap out. SYSV shm and
-shared anonymous maps are still build on top of this (The config
-option only disables the part not needed for this).
+At least the one you sent to me is about 586b. Which is the later stuff.
 
-I am quite open about naming, but "shm" is not appropriate any more
-since the fs does a lot more than shared memory. Solaris calles this
-"tmpfs" but I did not want to 'steal' their name and I also do not
-think that it's a very good name.
+> > Would you prefer to filter just vt82c586 and vt82c586a as the comment in
+> > Alan's code says or simply unconditionally kill autodma on all of VIA
+> > chipsets, as Alan's code does?
+> 
+> I'd take a 2.2 patch to cut down the range too
 
-So any suggestions for a better name?
+I can make one for you, but first I'd like to find out what exactly are
+the problem cases.
 
-Greetings
-                Christoph
-
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,93 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317253AbSHTRjH>; Tue, 20 Aug 2002 13:39:07 -0400
+	id <S315925AbSHTRr7>; Tue, 20 Aug 2002 13:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319211AbSHTRjG>; Tue, 20 Aug 2002 13:39:06 -0400
-Received: from ra.abo.fi ([130.232.213.1]:4532 "EHLO ra.abo.fi")
-	by vger.kernel.org with ESMTP id <S317253AbSHTRjF>;
-	Tue, 20 Aug 2002 13:39:05 -0400
-Date: Tue, 20 Aug 2002 20:43:09 +0300 (EEST)
-From: Marcus Alanen <maalanen@ra.abo.fi>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch, 2.5] vmalloc.c error path fixes
-Message-ID: <Pine.LNX.4.44.0208202022100.16857-100000@tuxedo.abo.fi>
+	id <S315946AbSHTRr7>; Tue, 20 Aug 2002 13:47:59 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:7954 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315925AbSHTRr6>; Tue, 20 Aug 2002 13:47:58 -0400
+Date: Tue, 20 Aug 2002 19:51:33 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg Banks <gnb@alphalink.com.au>
+cc: Peter Samuelson <peter@cadcamlab.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+In-Reply-To: <3D624DB8.1EA1840E@alphalink.com.au>
+Message-ID: <Pine.LNX.4.44.0208201930430.28515-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there are some problems in vmalloc.c.  The two first parts 
-of the diff fix a spinlock being held if an error occurs in 
-map_vm_area, and the last part fixes the error path of __vmalloc.
+Hi,
 
-Perhaps somebody who knows more of the mm could verify this.
+On Wed, 21 Aug 2002, Greg Banks wrote:
 
-Marcus
+> > I have to manually fix things like CONFIG_ALPHA_NONAME, which is first set
+> > by a choice statement and later redefined. My new parser can't deal with
+> > this, because user input is given the highest priority.
+>
+> Well then, there's something we need to look at fixing in the CML1
+> corpus.
 
-===== mm/vmalloc.c 1.18 vs edited =====
---- 1.18/mm/vmalloc.c	Mon Aug  5 22:05:22 2002
-+++ edited/mm/vmalloc.c	Mon Aug 19 00:37:40 2002
-@@ -153,15 +153,20 @@
- 	unsigned long address = VMALLOC_VMADDR(area->addr);
- 	unsigned long end = address + (area->size-PAGE_SIZE);
- 	pgd_t *dir;
-+	int err = 0;
- 
- 	dir = pgd_offset_k(address);
- 	spin_lock(&init_mm.page_table_lock);
- 	do {
- 		pmd_t *pmd = pmd_alloc(&init_mm, dir, address);
--		if (!pmd)
--			return -ENOMEM;
--		if (map_area_pmd(pmd, address, end - address, prot, pages))
--			return -ENOMEM;
-+		if (!pmd) {
-+			err = -ENOMEM;
-+			break;
-+		}
-+		if (map_area_pmd(pmd, address, end - address, prot, pages)) {
-+			err = -ENOMEM;
-+			break;
-+		}
- 
- 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
- 		dir++;
-@@ -169,7 +174,7 @@
- 
- 	spin_unlock(&init_mm.page_table_lock);
- 	flush_cache_all();
--	return 0;
-+	return err;
- }
- 
- 
-@@ -379,14 +384,20 @@
- 
- 	area->nr_pages = nr_pages;
- 	area->pages = pages = kmalloc(array_size, (gfp_mask & ~__GFP_HIGHMEM));
--	if (!area->pages)
-+	if (!area->pages) {
-+		remove_vm_area(area->addr);
-+		kfree(area);
- 		return NULL;
-+	}
- 	memset(area->pages, 0, array_size);
- 
- 	for (i = 0; i < area->nr_pages; i++) {
- 		area->pages[i] = alloc_page(gfp_mask);
--		if (unlikely(!area->pages[i]))
-+		if (unlikely(!area->pages[i])) {
-+			/* Successfully allocated i pages, free them in __vunmap() */
-+			area->nr_pages = i;
- 			goto fail;
-+		}
- 	}
- 	
- 	if (map_vm_area(area, prot, &pages))
+I considered detecting such cases, but it's too much work for something
+that is easy to find and fix manually. The alpha config.in is actually the
+only config file I could find that does something like this.
 
--- 
-Marcus Alanen * Embedded Systems Laboratory * http://www.eslab.cs.abo.fi/
-marcus.alanen@abo.fi
-
+bye, Roman
 

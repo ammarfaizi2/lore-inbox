@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263914AbUDPWpY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbUDPWpX
+	id S263907AbUDPWsv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPWp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:45:23 -0400
-Received: from [62.38.232.71] ([62.38.232.71]:32996 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S263914AbUDPWos (ORCPT
+	Fri, 16 Apr 2004 18:45:58 -0400
+Received: from mail.ccur.com ([208.248.32.212]:22286 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S263916AbUDPWoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:44:48 -0400
-From: "P. Christeas" <p_christ@hol.gr>
-To: rct@frus.com (Bob Tracy)
-Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
-Date: Sat, 17 Apr 2004 01:42:24 +0300
-User-Agent: KMail/1.6.2
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Fri, 16 Apr 2004 18:44:23 -0400
+Date: Fri, 16 Apr 2004 18:44:22 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Linux NICS <linux.nics@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] e1000 fails on 2.4.26+bk with CONFIG_SMP=y
+Message-ID: <20040416224422.GA19095@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404170142.24798.p_christ@hol.gr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<crap>
-Its me!
-I'm the second person in our solar system that has such a card! 
-I do have the New Media *Basics SCSI* card! I remember back in the kernel 2.2 
-days that I had found that code, hacked it and used it.. Since then, I hadn't 
-tried to use it again. Actually, I lost (hd failure) the system together with 
-the patch I had for that code..
-Anyway, I believe that support for such hw is another Linux success story and 
-reserves a sticker at major distros saying "Linux: Supports all hardware; 
-even New Media's SCSI cards!".
-</crap>
+The e1000 driver fails to operate an Intel PRO/1000 MT Quad Port Server
+Adaptor under the latest 2.4.26+bk with CONFIG_SMP=y.  It works fine
+when CONFIG_SMP=n.
 
-I cleanly compiled and run your module. Looks OK. I haven't yet attached any 
-peripheral, though. It's of no use to me, but I will be glad to help you by 
-testing that code (w. devices as well).
-Thanks for resurrecting the dead!
+netstat -i shows packets being transmitted and received with ~1/2 of the
+received packets being errors.
+
+This is a Dell 650 configured with 4 (hyperthreaded) CPUs.  E1000 driver
+version is 5.2.39-k1.
+
+Regards,
+Joe
+
+good (uniproc) netstat -i:
+
+Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+eth1     1500   0      72      0      0      0      10      0      0      0 BMRU
+lo      16436   0      88      0      0      0      88      0      0      0 LRU
+
+bad (smp) netstat -i:
+
+Iface     MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+eth1     1500   0     516    214    214      0       3      0      0      0 BMRU
+lo      16436   0      75      0      0      0      75      0      0      0 LRU

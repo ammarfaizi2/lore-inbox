@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbUAJAiu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 19:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbUAJAiu
+	id S264476AbUAJAqf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 19:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbUAJAqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 19:38:50 -0500
-Received: from mail.gmx.de ([213.165.64.20]:42661 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264534AbUAJAit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 19:38:49 -0500
-X-Authenticated: #20450766
-Date: Sat, 10 Jan 2004 01:38:00 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-In-Reply-To: <20040109180054.GV1882@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0401100024210.676-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 19:46:35 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7636 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264476AbUAJAqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 19:46:33 -0500
+Date: Sat, 10 Jan 2004 01:46:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1-tiny2
+Message-ID: <20040110004625.GB25089@fs.tum.de>
+References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au> <20040106064607.GB18208@waste.org> <3FFA5ED3.6040000@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FFA5ED3.6040000@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Mike Fedyk wrote:
-
-> On Fri, Jan 09, 2004 at 11:08:29AM +0100, Guennadi Liakhovetski wrote:
-> > On Wed, 7 Jan 2004, Mike Fedyk wrote:
+On Tue, Jan 06, 2004 at 06:08:03PM +1100, Nick Piggin wrote:
+> 
+> Matt Mackall wrote:
+> 
+> >On Tue, Jan 06, 2004 at 05:33:58PM +1100, Nick Piggin wrote:
+> >>Have you considered Adrian Bunk's CPU selection rationalisation work?
+> >>
 > >
-> > > Just post a few samples of the lines that differ.  Any files should be sent
-> > > off-list.
+> >Vaguely aware of it.
 > >
-> > Ok, This is the problem:
-> >
-> > 10:38:30.867306 0:40:f4:23:ac:91 0:50:bf:a4:59:71 ip 590: tuxscreen.grange > poirot.grange: icmp: ip reassembly time exceeded [tos 0xc0]
->
-> Find out how many packets are being dropped on your two hosts with 2.4 and
-> 2.6.
+> 
+> Basically, because the types of x86 cpus are only partially ordered,
+> and a the CPU selection somehow tries to follow the rule "this CPU or
+> higher", there ends up being a bit of stuff included which doesn't
+> need to be. Not sure what the savings add up to though...
+>...
 
-So, I've run 2 tcpdumps - on server and on client. Woooo... Looks bad.
+Some savings are possible as a side effect of my patch (the main goal 
+is to make the selection of multiple CPUs more user friendly).
 
-With 2.4 (_on the server_) the client reads about 8K at a time, which is
-sent in 5 fragments 1500 (MTU) bytes each. And that works. Also
-interesting, that fragments are sent in the reverse order.
+I'll send the patch and 2 proof of concept space saving patches as 
+replies to this mail.
 
-With 2.6 (on the server, same client) the client reads about 16K at a
-time, split into 11 fragments, and then packets number 9 and 10 get
-lost... This all with a StrongARM client and a PCMCIA network-card. With a
-PXA-client (400MHz compared to 200MHz SA) and an on-board eth smc91x, it
-gets the first 5 fragments, and then misses every other fragment. Again -
-in both cases I was copying files to RAM. Yes, 2.6 sends fragments in
-direct order.
+cu
+Adrian
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+-- 
 
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

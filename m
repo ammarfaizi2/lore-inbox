@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270682AbTHEUbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 16:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270684AbTHEUbp
+	id S270659AbTHEUgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTHEUgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 16:31:45 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:26338 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270682AbTHEUbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 16:31:44 -0400
-Date: Tue, 5 Aug 2003 20:31:37 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andi Kleen <ak@colin2.muc.de>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export touch_nmi_watchdog
-Message-ID: <20030805203137.E30256@devserv.devel.redhat.com>
-References: <1060114808.5308.9.camel@laptop.fenrus.com> <Pine.LNX.4.44.0308051324070.2587-100000@home.osdl.org>
+	Tue, 5 Aug 2003 16:36:50 -0400
+Received: from codepoet.org ([166.70.99.138]:64657 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S270659AbTHEUgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 16:36:49 -0400
+Date: Tue, 5 Aug 2003 14:36:49 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Mitch@0Bits.COM
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with
+Message-ID: <20030805203649.GA9982@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Mitch@0Bits.COM, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.53.0308052032220.31114@mx.homelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0308051324070.2587-100000@home.osdl.org>; from torvalds@osdl.org on Tue, Aug 05, 2003 at 01:25:09PM -0700
+In-Reply-To: <Pine.LNX.4.53.0308052032220.31114@mx.homelinux.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 01:25:09PM -0700, Linus Torvalds wrote:
+On Tue Aug 05, 2003 at 08:37:38PM +0100, Mitch@0Bits.COM wrote:
 > 
-> On 5 Aug 2003, Arjan van de Ven wrote:
-> > 
-> > having a more generic/portable "trigger_watchdog" function would be
-> > better then, such that ALL watchdogs, and not just the NMI one can hook
-> > into this
-> 
-> Why are we working around broken drivers?
-> 
-> I say:
->  - either fix the driver
-> or
->  - disable the watchdog entirely.
-> 
-> I don't see any point at all to touch_xxx_watchdog() from a driver.
+> Works fine with XFree86 4.3.x, 2.4.22-pre10 and the radeon.o
+> drm module. If you look backwards in your strace file, what is the
+> device that file descriptor 5 belongs to ?
 
-In principle you are soooo right. Just that it sometimes is HARD to fix
-such long delays... I remember working on the qla2x00 driver to fix that ;(
-Ok "it's hard" is no excuse. 
+I have XFree86 4.2.1 (i.e. xfree86-common, xserver-xfree86,
+xlibmesa3-gl, etc) version 4.2.1-9 from Debian unstable installed.
+
+I think you mean file descriptor 4:
+    open("/dev/dri/card0", O_RDWR)          = 4
+
+$ ls -la /dev/dri/card0
+crw-rw-rw-    1 root     root     226,   0 Jul 12 04:21 /dev/dri/card0
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

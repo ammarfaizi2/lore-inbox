@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264498AbSIVT0D>; Sun, 22 Sep 2002 15:26:03 -0400
+	id <S264504AbSIVTs2>; Sun, 22 Sep 2002 15:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264500AbSIVT0C>; Sun, 22 Sep 2002 15:26:02 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:59121 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S264498AbSIVT0B>; Sun, 22 Sep 2002 15:26:01 -0400
-Date: Sun, 22 Sep 2002 21:30:31 +0200
-From: Martin Hermanowski <martin@martin.mh57.net>
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UML error message clone failed/new thread failed
-Message-ID: <20020922193031.GP15310@martin.mh57.net>
-References: <20020922175617.GO15310@martin.mh57.net> <200209221857.g8MIvmh14890@karaya.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
-Content-Disposition: inline
-In-Reply-To: <200209221857.g8MIvmh14890@karaya.com>
-User-Agent: Mutt/1.3.28i
+	id <S264506AbSIVTs2>; Sun, 22 Sep 2002 15:48:28 -0400
+Received: from pD952AEB4.dip.t-dialin.net ([217.82.174.180]:39115 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S264504AbSIVTs1>; Sun, 22 Sep 2002 15:48:27 -0400
+Date: Sun, 22 Sep 2002 13:54:10 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 oopses at boot in ide_toggle_bounce
+In-Reply-To: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0209221349380.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, 21 Sep 2002 Andries.Brouwer@cwi.nl wrote:
+> +               else if (HWIF(drive)->pci_dev)
+>                         addr = HWIF(drive)->pci_dev->dma_mask;
 
-On Sun, Sep 22, 2002 at 02:57:47PM -0400, Jeff Dike wrote:
-> martin@martin.mh57.net said:
->> I had problems with to many processes inside the UML before, but not
->> like this. Processes in the UML timed out (exim pipe delivery) and new
->> ones could not be started, but I cannot see the reason.
->=20
-> Since then, I've fixed some problems with lots of processes inside UML.
+Maybe
 
-That is good to hear. Which version should I use? I prefer Debian
-packages, user-mode-linux 2.4.18.48um-1 from testing was created on 30
-Jul 2002. Were the fixes before that date or should I use a newer
-version? Were are using UML productively, so we need some reliability.
+	else if (HWIF(drive) && HWIF(drive)->pci_dev)
 
-Regards,
-Martin
+You never know ;-)
 
---+JUInw4efm7IfTNU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If drive->hwif is NULL for some insane reason, we'll suck as we did with 
+->pci_dev.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+			Thunder
+-- 
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
 
-iD8DBQE9jhpXV3BRtc7IW1wRAnqOAJ9fW2IRs3DVPLyOMDLAlW5X4hUCQACdGp79
-DZtvKXkaRRbMXdcErY8iLow=
-=3XNq
------END PGP SIGNATURE-----
-
---+JUInw4efm7IfTNU--

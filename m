@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268041AbTB1Raz>; Fri, 28 Feb 2003 12:30:55 -0500
+	id <S268034AbTB1Rvh>; Fri, 28 Feb 2003 12:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268042AbTB1Raz>; Fri, 28 Feb 2003 12:30:55 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:57232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268041AbTB1Ray>;
-	Fri, 28 Feb 2003 12:30:54 -0500
-Date: Fri, 28 Feb 2003 09:36:32 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, cliffw@osdl.org, akpm@zip.com.au,
-       slpratt@austin.ibm.com, levon@movementarian.org, haveblue@us.ibm.com
-Subject: Re: [PATCH] documentation for basic guide to profiling
-Message-Id: <20030228093632.7bf053ed.rddunlap@osdl.org>
-In-Reply-To: <8550000.1046419962@[10.10.2.4]>
-References: <8550000.1046419962@[10.10.2.4]>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268038AbTB1Rvh>; Fri, 28 Feb 2003 12:51:37 -0500
+Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:7690 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S268034AbTB1Rvg>; Fri, 28 Feb 2003 12:51:36 -0500
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <20BF5713E14D5B48AA289F72BD372D680326F888@AUSXMPC122.aus.amer.dell.com>
+From: Gary_Lerhaupt@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
+Date: Fri, 28 Feb 2003 12:01:51 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 12417B9B210772-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003 00:12:42 -0800
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+DKMS is a framework where device driver source can reside outside the kernel
+source tree so that it is very easy to rebuild modules as you upgrade
+kernels. This allows Linux vendors to provide driver drops without having to
+wait for new kernel releases (as a stopgap before the code can make it back
+into the kernel), while also taking out the guesswork for customers
+attempting to recompile modules for new kernels.
 
-| I was trying to write some simple docs on how to do profiling for people 
-| to use for really basic stuff. I got it all wrong, but John's kindly 
-| corrected  it ;-) Andrew asked me to do this as a patch for the 
-| documentation directory ... feedback would be much appreciated 
-| (yes, it's oversimplified - it's meant to be).
-| 
-| diff -urpN -X /home/fletch/.diff.exclude virgin/Documentation/basic_profiling.txt oprofile_doc/Documentation/basic_profiling.txt
-| --- virgin/Documentation/basic_profiling.txt	Wed Dec 31 16:00:00 1969
-| +++ oprofile_doc/Documentation/basic_profiling.txt	Fri Feb 28 00:05:59 2003
-| @@ -0,0 +1,44 @@
-| +These instructions are deliberately very basic. If you want something clever,
-| +go read the real docs ;-) Please don't add more stuff, but feel free to 
-| +correct my mistakes ;-)    (mbligh@aracnet.com)
-| +Thanks to John Levon and Dave Hansen for help writing this.
-| +
-| +<test> is the thing you're trying to measure.
-| +Make sure you have the correct System.map / vmlinux referenced!
-| +IMHO it's easier to use "make install" for linux and hack /sbin/installkernel
-| +to copy config files, system.map, vmlinux to /boot.
-| +
-| +Readprofile
-| +-----------
-| +get readprofile binary fixed for 2.5 / akpm's 2.5 patch from 
-| +ftp://ftp.kernel.org/pub/linux/people/mbligh/tools/readprofile/
-| +add "profile=2" to the kernel command line.
-These:          ^------------v  should be the same value (as you have it).
-                             v
-| +clear		echo 2 > /proc/profile
-man page says to use "readprofile -r".  Doesn't that still work?
+For veteran Linux users it also provides some advantages since a separate
+framework for driver drops will remove kernel releases as a blocking
+mechanism for distributing code. Instead, driver development should speed up
+as this separate module source tree will allow quicker testing cycles
+meaning better tested code can later be pushed back into the kernel at a
+more rapid pace. Its also nice for developers and maintainers as DKMS only
+requires a source tarball in conjunction with a small configuration file in
+order to function correctly.
 
-| +		<test>
-| +dump output	readprofile -m /boot/System.map > catured_profile
-                                                > captured_profile
+The latest DKMS version is available at http://www.lerhaupt.com/dkms/.  It
+is licensed under the GPL. You can also find a sample DKMS enabled QLogic
+RPM to show you how it all works (or, a mocked-up tarball if you don't like
+RPMs). If you use the sample RPM, you'll have to install it with --nodeps as
+it requires the DKMS RPM to be installed (which I haven't provided).
+
+===Using DKMS===
+
+DKMS is one bash executable that supports 7 sub-actions: add, build,
+install, uninstall, remove, status and match.
+
+add: Adds an entry into the DKMS tree for later builds.  It requires that
+source be located in /usr/src/<module>-<module-version>/ as well as the
+location of a properly formatted dkms.conf file (each dkms.conf is module
+specific and is the configuration file that tells DKMS how to build and
+where to install your module).
+
+build: Builds your module but stops short of installing it.  The resultant
+.o files are stored in the DMKS tree.
+
+install: Installs the module in the LOCATION specified in dkms.conf.
+
+uninstall: Uninstalls the module and replaces it with whatever original
+module was found during install (returns your module to the "built" state).
 
 
---
-~Randy
+remove: Uninstalls and expunges all references of your module from the DKMS
+tree.
+
+status: Displays the current state (added, built, installed) of modules
+within the DMKS tree as well as whether any original modules have been saved
+for uninstallation purposes.
+
+match: Allows you to take the configuration of DKMS installed modules for
+one kernel and apply this config to some other kernel.  This is helpful when
+upgrading kernels where you would like to continue using your DKMS modules
+instead of certain kernel modules.
+
+Check out the man page for more details.
+
+Gary Lerhaupt
+Linux Development
+Dell Computer Corporation
+

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314556AbSDTFvd>; Sat, 20 Apr 2002 01:51:33 -0400
+	id <S314562AbSDTFzo>; Sat, 20 Apr 2002 01:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314562AbSDTFvY>; Sat, 20 Apr 2002 01:51:24 -0400
-Received: from pop-khi4.super.net.pk ([203.130.2.4]:42001 "EHLO
-	pop-khi4.super.net.pk") by vger.kernel.org with ESMTP
-	id <S314556AbSDTFvY>; Sat, 20 Apr 2002 01:51:24 -0400
-Message-ID: <3CC1121C.4EEE8B6E@abl.com.pk>
-Date: Sat, 20 Apr 2002 12:00:44 +0500
-From: "Sarosh Ahmed" <sarosh@abl.com.pk>
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S314563AbSDTFzn>; Sat, 20 Apr 2002 01:55:43 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:22683 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S314562AbSDTFzm>;
+	Sat, 20 Apr 2002 01:55:42 -0400
+To: Elias <elias@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Generic HDLC layer] Frame Relay / CIR
+In-Reply-To: <02041611300500.01020@elias.cyclades.com.br>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 18 Apr 2002 23:28:21 +0200
+Message-ID: <m34ri8n1ca.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Io8+ Isa for linux
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
+Hi,
 
-I have to install io8+ ISA cards on linux machines for dumb terminals
-since my organization is shifted on linux and I have to utilize those
-cards on the new scenario.
-Please send me the driver with  detail how to do it esily
+Elias <elias@cyclades.com> writes:
 
-Thanks
-sarosh ahmed
-(System/Network Administrator)
+> 	I'm start to implement CIR feature for the Frame-Relay  of the
+> Generic HDLC 
+> layer.
 
+Ok.
 
-
+BTW: What exactly do you want to implement? Outbound rate limiting on
+congested PVCs? Or *ECN signaling and CIR/EIR enforcing?
+-- 
+Krzysztof Halasa
+Network Administrator

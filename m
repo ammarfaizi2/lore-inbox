@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267085AbTAKFDC>; Sat, 11 Jan 2003 00:03:02 -0500
+	id <S267065AbTAKFAj>; Sat, 11 Jan 2003 00:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbTAKFDB>; Sat, 11 Jan 2003 00:03:01 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24338
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267085AbTAKFC7>; Sat, 11 Jan 2003 00:02:59 -0500
-Date: Fri, 10 Jan 2003 21:09:43 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-Reply-To: <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.10.10301102104140.31168-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267164AbTAKFAi>; Sat, 11 Jan 2003 00:00:38 -0500
+Received: from dp.samba.org ([66.70.73.150]:5848 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267065AbTAKFAc>;
+	Sat, 11 Jan 2003 00:00:32 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org
+Subject: Re: Another idea for simplifying locking in kernel/module.c 
+In-reply-to: Your message of "Fri, 10 Jan 2003 03:16:30 -0800."
+             <200301101116.DAA03752@baldur.yggdrasil.com> 
+Date: Sat, 11 Jan 2003 14:53:23 +1100
+Message-Id: <20030111050918.C06212C2DE@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <200301101116.DAA03752@baldur.yggdrasil.com> you write:
+> I wrote:
+> >On Thu, 09 Jan 2003, Max Krasnyansky wrote:
+> >>We have to be able to call try_module_get() from interrupt context.
+> 
+> >	Where?  Why?  Please show me one or more examples.
+> 
+> 	Come to think of it, I don't think you even have to answer
+> that question.  You should be able to use my try_module_get() from
+> interrupt context.  It never blocks.
 
-Gee, can all of us who have a business add there name to the thread
-subject?  Look at all the advertising Nvidia is getting for free.
-All they have to do is make a half step to the direction of more open
-sourced, and they become the darling winner take all.
+Yes, your try_module_get just gets spurious failures on SMP, as well
+as thrashing the cacheline (why bother with one counter per CPU
+then?).
 
-I positive Larry would love to have his product added.
-Victor could enjoy the extra name caching in hits for it all.
-Last time I checked I was bang 100K+ growth in website hit logs per day.
+I guess I just don't understand your solution?
 
-For all of the rants Nvidia Marketing must be in hog heaven!
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

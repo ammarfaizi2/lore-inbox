@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285032AbRLFHc1>; Thu, 6 Dec 2001 02:32:27 -0500
+	id <S285034AbRLFHd5>; Thu, 6 Dec 2001 02:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285033AbRLFHcR>; Thu, 6 Dec 2001 02:32:17 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:51668 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S285032AbRLFHcG>; Thu, 6 Dec 2001 02:32:06 -0500
-Message-ID: <3C0F1F32.C235F9CC@kegel.com>
-Date: Wed, 05 Dec 2001 23:33:06 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Carlo Wood <carlo@alinoe.com>
-Subject: re: kqueue, kevent - kernel event notification mechanism
+	id <S285035AbRLFHdk>; Thu, 6 Dec 2001 02:33:40 -0500
+Received: from zok.sgi.com ([204.94.215.101]:8585 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S285034AbRLFHdc>;
+	Thu, 6 Dec 2001 02:33:32 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: reese@isn.net (Garst R. Reese),
+        linux-kernel@vger.kernel.org (linux-kernel)
+Subject: Re: small feature request 
+In-Reply-To: Your message of "Thu, 06 Dec 2001 01:58:55 CDT."
+             <200112060658.fB66wtp351314@saturn.cs.uml.edu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Dec 2001 18:33:21 +1100
+Message-ID: <12671.1007624001@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlo Wood <carlo@alinoe.com> wrote:
-> are there any plans to implement the kqueue, kevent system calls
-> in the linux kernel?
-> 
-> There is no substitute for them currently; select() and poll()
-> both suffer from dramatic cpu usage when a daemon is loaded with
-> a few thousand clients.
+On Thu, 6 Dec 2001 01:58:55 -0500 (EST), 
+"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
+>Keith Owens writes:
+>> "Garst R. Reese" <reese@isn.net> wrote:
+>
+>>> Would it possible to put a header on System.map indicating the kernel
+>>> version?
+>>> Sometimes my little brain forgets what kernel System.old is for.
+>>
+>> It is on my list for kbuild 2.5, once I start on the new design for
+>
+>Nooooo!!!!!
+>
+>Don't break stuff by adding headers. There is already a version
+>in the file. It's in decimal, which sucks, but this will find it:
+>
+>grep ' Version_' System.map
+>
+>Adding a random 128-bit ID might be nice, as long as it's done
+>in the same sort of way and is available via /proc. Something
+>like this would do:  kern_128_id_UkZd1JLdOvAsALfFEL1UI
 
-There is already an efficient mechanism - although with a very
-different interface - in the 2.4.x kernel: edge triggered readiness
-notification via realtime signals.  This matches one style of
-kqueue()/kevent() usage.  For those who prefer level-triggered
-readiness notification (more like what poll() gives you),
-I have written a wrapper class that papers over the difference
-efficiently, at the cost of making the app tell my class about
-all the EWOULDBLOCKs it gets.
-See http://www.kegel.com/c10k.html#nb.sigio for details.
-I don't particularly like signals for this, as they're a
-bit heavyweight, and the global signal queue is a bit precious,
-but it does benchmark well, even for thousands of clients.
+Strange, that is exactly what I was think of, adding symbols containing
+information that tie the kernel, modules and System.map together more
+reliably than the current "use some random System.map" method.
 
-(That page also describes kqueue etc. and the experimental
-/dev/poll drivers.)
-- Dan
+Do you want those exclamation marks back so they can be recycled?
+

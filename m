@@ -1,108 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276369AbRL3Qxr>; Sun, 30 Dec 2001 11:53:47 -0500
+	id <S279798AbRL3RAR>; Sun, 30 Dec 2001 12:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279307AbRL3Qxi>; Sun, 30 Dec 2001 11:53:38 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:23446 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S276369AbRL3QxZ>; Sun, 30 Dec 2001 11:53:25 -0500
-Date: Sun, 30 Dec 2001 08:53:19 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: LKML <linux-kernel@vger.kernel.org>
-cc: Ani Joshi <ajoshi@unixbox.com>, Nick Kurshev <nickols_k@mail.ru>
-Subject: radeonfb 0.1.3 (kernel 2.4.18-pre1) report
-Message-ID: <Pine.LNX.4.33.0112300804410.4035-100000@mf1.private>
+	id <S279778AbRL3Q75>; Sun, 30 Dec 2001 11:59:57 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:17147 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S279307AbRL3Q7z>;
+	Sun, 30 Dec 2001 11:59:55 -0500
+Message-ID: <3C2F47F2.BB7BFBDA@gmx.net>
+Date: Sun, 30 Dec 2001 17:59:30 +0100
+From: Mike <maneman@gmx.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Subject: Re: Oops: UMOUNTING in 2.4.17 / Ext2 Partitions destroyed (3x)
+In-Reply-To: <3C2F2948.DB59646A@gmx.net> <3C2F3455.6050209@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierre Rousselet wrote:
 
-Hello,
+> I met something like this with the root fs while testing some
+> 2.4.X-preX. An fsck -f from my rescue floppy was telling me 'clean' but
+> the boot process hung with e2fsck exiting with an error digit.
+>
+> I forced mounting rw the root fs after disabling fsck, re-compile
+> e2fsprogs, re-boot and it was OK.
+>
+> This is only a rescue approach. The disk corruption you met with
+> 2.4.17/ext2 remains to address.
+>
 
-A few comments on radeonfb 0.1.3, as included in kernel 2.4.18-pre1:
+Here's something I can't remember EVER seeing before at bootup:
+"---SNIP---
+Partition check:
+hda: {everything fine here}
+hdb: [PTBL] [1108 255 63] hdb1 hdb2 <hdb5 hdb6 hdb7 hdb8> hdb3
+---SNIP---"
+The PTBL stuff and 1108 255 63 (CHS??) !!! Why?
 
-First, as someone previously noted, radeonfb.c fails to compile in
-2.4.18-pre1.  The following symbols are undefined, apparently because they
-were omitted from radeon.h:
+I tried 'e2fsck -f /dev/hdb3' and it returned:
+"Filesystem has unsupported Read-Only features while trying to open
+/dev/hdb3.
+The SuperBlock could not be read or does not describe a correct ext2
+filesystem.
+....If it /is/ ext2 then the Sb is corrupt, run 'e2fsck -b 8193 <device>'"
 
-TMDS_TRANSMITTER_CNTL
-ICHCSEL
-TMDS_PLLRST
-LVDS_STATE_MASK
+So I do 'e2fsck -b 8193 <device>' and it says: "Bad magic number in SB
+while trying to open /dev/hdb3"
 
-Not knowing what values the first three should be, I just commented out
-the code that uses them.  :-)  Since the last value is a mask applied
-against a 32-bit quantity, I set it to 0xFFFFFFFF.  Then with the patch
-appended below, I was able to get radeonfb.c to compile.
+For /dev/hdb5 it says: "Couldn't /find/ ext2 SB...trying backup
+blocks...Bad magic number in SB while trying to open /dev/hdb5."
 
-Second, it works!  Here are the log messages:
+Any more ideas?? I already heard from Lionel Bouton to hook up the device
+on it's old system but that'll have to wait till after Jan. 2nd.
+TIA,
+-Mike
 
-radeonfb: ref_clk=2700, ref_div=12, xclk=18300 from BIOS
-radeonfb: detected DFP panel size: 1280x1024
-Console: switching to colour frame buffer device 80x25
-radeonfb: ATI Radeon QY VE  DDR SGRAM 32 MB
-radeonfb: DVI port DFP monitor connected
-radeonfb: CRT port no monitor connected
-
-As you can see, my setup is a Radeon VE with a 1280x1024 DFP on the DVI
-port and nothing on the VGA port.  No previous mailine radeonfb.c worked
-on this setup, although Nick Kurshev's radeonfb.c from the MPlayer project
-does work.
-
-Third, I have to do a 'fbset 1280x1024-60' after loading the radeonfb
-driver to get an image--despite having detected a 1280x1024 DFP, the
-driver does not initialize the mode properly.  My DFP goes into power-save
-mode (no image to display) after loading radeonfb.o until I do the fbset.
-
-Lastly, a few minor nits:  changing virtual consoles is quite slow--the
-DFP goes into power-save mode during the transition, even when both
-virtual consoles have the same mode.  Scrolling is very slow as well.  
-Also, using ^R in bash results in redraw errors.
-
-I hope this report is of help.
-
-Thanks, Wayne
-
-
---- linux-2.4.18-pre1/drivers/video/radeonfb.c.orig	Sat Dec 29 20:48:07 2001
-+++ linux-2.4.18-pre1/drivers/video/radeonfb.c	Sat Dec 29 22:35:21 2001
-@@ -76,6 +76,7 @@
- #include <video/fbcon-cfb32.h>
- 
- #include "radeon.h"
-+#define LVDS_STATE_MASK 0xFFFFFFFF
- 
- 
- #define DEBUG	0
-@@ -2280,7 +2281,7 @@
- 	save->lvds_gen_cntl = INREG(LVDS_GEN_CNTL);
- 	save->lvds_pll_cntl = INREG(LVDS_PLL_CNTL);
- 	save->tmds_crc = INREG(TMDS_CRC);
--	save->tmds_transmitter_cntl = INREG(TMDS_TRANSMITTER_CNTL);
-+/*	save->tmds_transmitter_cntl = INREG(TMDS_TRANSMITTER_CNTL); */
- }
- 
- 
-@@ -2557,8 +2558,8 @@
- 		} else {
- 			/* DFP */
- 			newmode.fp_gen_cntl |= (FP_FPON | FP_TMDS_EN);
--			newmode.tmds_transmitter_cntl = (TMDS_RAN_PAT_RST |
--							 ICHCSEL) & ~(TMDS_PLLRST);
-+/*			newmode.tmds_transmitter_cntl = (TMDS_RAN_PAT_RST |
-+							 ICHCSEL) & ~(TMDS_PLLRST); */
- 			newmode.crtc_ext_cntl &= ~CRTC_CRT_ON;
- 		}
- 
-@@ -2647,7 +2648,7 @@
- 		OUTREG(FP_VERT_STRETCH, mode->fp_vert_stretch);
- 		OUTREG(FP_GEN_CNTL, mode->fp_gen_cntl);
- 		OUTREG(TMDS_CRC, mode->tmds_crc);
--		OUTREG(TMDS_TRANSMITTER_CNTL, mode->tmds_transmitter_cntl);
-+/*		OUTREG(TMDS_TRANSMITTER_CNTL, mode->tmds_transmitter_cntl); */
- 
- 		if (primary_mon == MT_LCD) {
- 			unsigned int tmp = INREG(LVDS_GEN_CNTL);
 

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131730AbRC0XFH>; Tue, 27 Mar 2001 18:05:07 -0500
+	id <S131505AbRC0XMr>; Tue, 27 Mar 2001 18:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRC0XE6>; Tue, 27 Mar 2001 18:04:58 -0500
-Received: from 5-026.cwb-adsl.telepar.net.br ([200.193.164.26]:8720 "EHLO
-	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
-	id <S131730AbRC0XEk>; Tue, 27 Mar 2001 18:04:40 -0500
-Date: Tue, 27 Mar 2001 19:57:14 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Richard Jerrell <jerrell@missioncriticallinux.com>
-cc: Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
-In-Reply-To: <Pine.LNX.4.21.0103271807010.1989-200000@jerrell.lowell.mclinux.com>
-Message-ID: <Pine.LNX.4.21.0103271956420.8261-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131708AbRC0XMi>; Tue, 27 Mar 2001 18:12:38 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:30519 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S131694AbRC0XM3>;
+	Tue, 27 Mar 2001 18:12:29 -0500
+Message-ID: <20010328011148.A8265@win.tue.nl>
+Date: Wed, 28 Mar 2001 01:11:48 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Jorge Nerin <comandante@zaralinux.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Win keys not working in console (2.4.x)
+In-Reply-To: <3AC1072E.4080005@zaralinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3AC1072E.4080005@zaralinux.com>; from Jorge Nerin on Tue, Mar 27, 2001 at 11:33:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Mar 2001, Richard Jerrell wrote:
+On Tue, Mar 27, 2001 at 11:33:34PM +0200, Jorge Nerin wrote:
 
-> Oops... I sent out the wrong version of the patch the first time.  
-> This one has comments, promise.  And it has one less bug.  :)
+> Hello, good work with 2.4.x, but I miss one thing. in early 2.3.x the MS 
+> keys, you know, two flags and one "properties" key worked as navigation 
+> keys in the console.
+> 
+> The flags get you to the "left" or "rigth" virtual console, and the 
+> "properties" key put you on the last console you where before.
+> 
+> This was very useful when working in the console, I use the console 
+> sometimes, and I miss these feature.
 
-Looks good to me (at first glance).  Any volunteer to
-stress-test this on an SMP machine ?
+(i) Find out what key codes these keys generate.
+Vaguely I seem to recall that I made these keys produce 125, 126, 127.
+(the test command is "showkey")
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+(ii) Use loadkeys to assign functions to keys.
+For example,
+% loadkeys
+keycode 125 = Incr_Console
+keycode 126 = Decr_Console
+keycode 127 = Last_Console
+^D
+should give you the desired behaviour.
+Perhaps you lost some settings during an upgrade.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+See loadkeys(1) and keytables(5).

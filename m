@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264214AbUDOOwP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 10:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbUDOOwP
+	id S264250AbUDOPC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUDOPC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 10:52:15 -0400
-Received: from pop.gmx.de ([213.165.64.20]:41131 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264257AbUDOOwI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 10:52:08 -0400
-X-Authenticated: #4512188
-Message-ID: <407EA194.20904@gmx.de>
-Date: Thu, 15 Apr 2004 16:52:04 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
+	Thu, 15 Apr 2004 11:02:57 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:65170 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264250AbUDOPC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:02:56 -0400
+Message-ID: <407EA2E5.7080504@nortelnetworks.com>
+Date: Thu, 15 Apr 2004 10:57:41 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Konstantin Sobolev <kos@supportwizard.com>
-CC: Justin Cormack <justin@street-vision.com>,
-       Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: poor sata performance on 2.6
-References: <200404150236.05894.kos@supportwizard.com> <200404151826.54488.kos@supportwizard.com> <1082039593.19568.75.camel@lotte.street-vision.com> <200404151848.05857.kos@supportwizard.com>
-In-Reply-To: <200404151848.05857.kos@supportwizard.com>
+To: arjanv@redhat.com
+CC: Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modules in 2.6 kernel - question for FAQ?
+References: <200404142142.41137.arekm@pld-linux.org>	 <1081993968.17782.112.camel@bach> <20040415044452.GA2215@mars.ravnborg.org>	 <1082004860.17780.143.camel@bach>  <407E9127.8070303@nortelnetworks.com> <1082037381.12255.1.camel@laptop.fenrus.com>
+In-Reply-To: <1082037381.12255.1.camel@laptop.fenrus.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konstantin Sobolev wrote:
-> On Thursday 15 April 2004 18:33, Justin Cormack wrote:
-> 
->>On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
->>
->>>On Thursday 15 April 2004 18:00, Justin Cormack wrote:
->>>
->>>>hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks,
->>>>and Seagate from the same controller. Can you send lspci,
->>>>/proc/interrupts and dmesg...
->>>
->>>Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned off.
->>
->>ah. Make a filesystem on it and mount it and try again. I see you have
->>no partition table and so probably no filesystem. This means the block
->>size is set to default 512byte not 4k which makes disk operations slow.
->>Any filesystem should default to block size of 4k, eg ext2.
-> 
-> 
-> Very interesting!
-> created partition table,
-> kos sata # mkfs.ext2 /dev/sda1
-> [..skipped..]
-> kos mnt # cd /
-> kos / # mkdir wd
-> kos / # mount /dev/sda1 /wd
-> kos / # hdparm -t -a8192 /dev/sda
+Arjan van de Ven wrote:
 
-[snip]
+> I think you misunderstood; even binary only module build stuff needs to
+> use the kernel makefiles, via make -C /path/to/kernel etc, as documented
+> in Documentation/kbuild/modules.txt
 
-> So first time it gave the same loosy 27 MB/s and subsequent tests give pretty 
-> good 68 MB/s! Why?
+I know this, you know this.  There are hardware vendors that still do 
+not know this--or at least aren't doing it.
 
-I once reported that to lkml but got no reaction. siimage.c doesn't show 
-this behaviour.
-
-Prakash
+Chris

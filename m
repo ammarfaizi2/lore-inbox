@@ -1,158 +1,184 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264567AbRFMHsY>; Wed, 13 Jun 2001 03:48:24 -0400
+	id <S261268AbRFMIiW>; Wed, 13 Jun 2001 04:38:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264568AbRFMHsO>; Wed, 13 Jun 2001 03:48:14 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:61189 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S264567AbRFMHsJ>;
-	Wed, 13 Jun 2001 03:48:09 -0400
-Date: Wed, 13 Jun 2001 09:48:13 +0200
-From: sebastien person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: [newbee] Oops
-Message-Id: <20010613094813.6a5fec0e.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261651AbRFMIiL>; Wed, 13 Jun 2001 04:38:11 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:20105 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S261268AbRFMIiD>; Wed, 13 Jun 2001 04:38:03 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch] 2.4.5-ac13 ramfs and tmpfs accounting
+Organisation: SAP LinuxLab
+Date: 13 Jun 2001 10:37:14 +0200
+Message-ID: <m3d7886ait.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alan,
 
-While testing my module I've meet the following Oops
+ramfs accounting does not get notified when a clean page gets dropped
+from the inode.
 
-kernel BUG at slab.c:1095!
-invalid operand: 0000
-CPU:	0
-EIP:	0010:[<c012a4eb>]
-EFLAGS:	00010282
-eax: 0000001b	ebx: c1227570	ecx: c728c000	edx: c02575a4
-esi: c1227570	edi: 00000007	abp: c026fe0c	esp: c026fd84
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c026f000)
-Stack: c020dd1b c020ddbb 00000447 c026fdec c026fddc ffffffff c02b6dd7
-c026fe20
-       0000000a c01ff1b9 c1227570 00000007 0000002a c026fe0c c012a78b
-c1227570
-       00000007 00000286 c02575a4 00000001 00000286 c723b960 000006dc
-c88bb858
-Call Trace: [<c020dd1b>] [<c020ddbb>] [<c01ff1b9>] [<c012a78b>]
-[<c88bb858>] [<c
-011610e>] [<c88bb7f8>]
-       [<c01c29ca>] [<c01bbd2e>] [<c01e4f2d>] [<c01e501c>] [<c01e52ce>]
-[<c88ba6
-de>] [<c016fbae>] [<c01bc26a>]
-       [<c0119c7c>] [<c0119b86>] [<c0119a8b>] [<c010a4bf>] [<c0107240>]
-[<c01072
-40>] [<c01090c4>] [<c0107240>]
-       [<c0107240>] [<c0100018>] [<c0107263>] [<c01072e2>] [<c0105000>]
-[<c01001
-91>]
+Also tmpfs should use the new function to do accurate accounting. Else
+the cached field in -ac will get spurious negative values.
 
-Code: 0f 0b 83 c4 0c 89 7c 24 04 b8 03 00 00 00 83 64 24 04 07 c7
-Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+The following patch fixes both.
 
-That fully block my box. I tried to use ksymoops :
+Greetings
+		Christoph
 
-[root@yprelot /root]# ksymoops -m /root/Oops 
-ksymoops 2.4.0 on i686 2.4.2-2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.2-2/ (default)
-     -m /root/Oops (specified)
+diff -uNr 5-ac13/fs/ramfs/inode.c 5-ac13-a/fs/ramfs/inode.c
+--- 5-ac13/fs/ramfs/inode.c	Tue Jun 12 09:51:39 2001
++++ 5-ac13-a/fs/ramfs/inode.c	Wed Jun 13 09:54:22 2001
+@@ -289,7 +289,7 @@
+ 	return 0;
+ }
+ 
+-static void ramfs_truncatepage(struct page *page)
++static void ramfs_removepage(struct page *page)
+ {
+ 	struct inode *inode = (struct inode *)page->mapping->host;
+ 
+@@ -659,7 +659,7 @@
+ 	writepage:	ramfs_writepage,
+ 	prepare_write:	ramfs_prepare_write,
+ 	commit_write:	ramfs_commit_write,
+-	truncatepage:	ramfs_truncatepage,
++	removepage:	ramfs_removepage,
+ };
+ 
+ static struct file_operations ramfs_file_operations = {
+diff -uNr 5-ac13/include/linux/fs.h 5-ac13-a/include/linux/fs.h
+--- 5-ac13/include/linux/fs.h	Tue Jun 12 17:34:25 2001
++++ 5-ac13-a/include/linux/fs.h	Wed Jun 13 10:23:48 2001
+@@ -368,7 +368,7 @@
+ 	int (*sync_page)(struct page *);
+ 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
+ 	int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
+-	void (*truncatepage)(struct page *); /* called from truncate_complete_page */
++	void (*removepage)(struct page *); /* called when page gets removed from the inode */
+ 	/* Unfortunately this kludge is needed for FIBMAP. Don't use it */
+ 	int (*bmap)(struct address_space *, long);
+ };
+diff -uNr 5-ac13/mm/filemap.c 5-ac13-a/mm/filemap.c
+--- 5-ac13/mm/filemap.c	Tue Jun 12 09:51:45 2001
++++ 5-ac13-a/mm/filemap.c	Wed Jun 13 09:56:43 2001
+@@ -82,6 +82,9 @@
+ {
+ 	struct address_space * mapping = page->mapping;
+ 
++	if (mapping->a_ops->removepage)
++		mapping->a_ops->removepage(page);
++	
+ 	mapping->nrpages--;
+ 	list_del(&page->list);
+ 	page->mapping = NULL;
+@@ -206,9 +209,6 @@
+ 	if (!page->buffers || block_flushpage(page, 0))
+ 		lru_cache_del(page);
+ 
+-	if (page->mapping->a_ops->truncatepage)
+-		page->mapping->a_ops->truncatepage(page);
+-	
+ 	/*
+ 	 * We remove the page from the page cache _after_ we have
+ 	 * destroyed all buffer-cache references to it. Otherwise some
+diff -uNr 5-ac13/mm/shmem.c 5-ac13-a/mm/shmem.c
+--- 5-ac13/mm/shmem.c	Tue Jun 12 09:51:45 2001
++++ 5-ac13-a/mm/shmem.c	Wed Jun 13 09:56:20 2001
+@@ -51,42 +51,16 @@
+ 
+ #define BLOCKS_PER_PAGE (PAGE_SIZE/512)
+ 
+-/*
+- * shmem_recalc_inode - recalculate the size of an inode
+- *
+- * @inode: inode to recalc
+- * @swap:  additional swap pages freed externally
+- *
+- * We have to calculate the free blocks since the mm can drop pages
+- * behind our back
+- *
+- * But we know that normally
+- * inodes->i_blocks/BLOCKS_PER_PAGE == 
+- * 			inode->i_mapping->nrpages + info->swapped
+- *
+- * So the mm freed 
+- * inodes->i_blocks/BLOCKS_PER_PAGE - 
+- * 			(inode->i_mapping->nrpages + info->swapped)
+- *
+- * It has to be called with the spinlock held.
+- *
+- * The swap parameter is a performance hack for truncate.
+- */
+-
+-static void shmem_recalc_inode(struct inode * inode, unsigned long swap)
++static void shmem_removepage(struct page *page)
+ {
+-	unsigned long freed;
++	struct inode *inode = (struct inode *)page->mapping->host;
++	struct shmem_sb_info * sbinfo = SHMEM_SB(inode->i_sb);
+ 
+-	freed = (inode->i_blocks/BLOCKS_PER_PAGE) -
+-		(inode->i_mapping->nrpages + SHMEM_I(inode)->swapped);
+-	if (freed){
+-		struct shmem_sb_info * sbinfo = SHMEM_SB(inode->i_sb);
+-		inode->i_blocks -= freed*BLOCKS_PER_PAGE;
+-		spin_lock (&sbinfo->stat_lock);
+-		sbinfo->free_blocks += freed;
+-		spin_unlock (&sbinfo->stat_lock);
+-		atomic_sub(freed-swap, &shmem_nrpages);
+-	}
++	inode->i_blocks -= BLOCKS_PER_PAGE;
++	spin_lock (&sbinfo->stat_lock);
++	sbinfo->free_blocks++;
++	spin_unlock (&sbinfo->stat_lock);
++	atomic_dec(&shmem_nrpages);
+ }
+ 
+ static swp_entry_t * shmem_swp_entry (struct shmem_inode_info *info, unsigned long index) 
+@@ -166,6 +140,7 @@
+ 	unsigned long freed = 0;
+ 	swp_entry_t **base, **ptr, **last;
+ 	struct shmem_inode_info * info = SHMEM_I(inode);
++	struct shmem_sb_info * sbinfo = SHMEM_SB(inode->i_sb);
+ 
+ 	down(&info->sem);
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+@@ -202,7 +177,9 @@
+ out:
+ 	info->max_index = index;
+ 	info->swapped -= freed;
+-	shmem_recalc_inode(inode, freed);
++	spin_lock(&sbinfo->stat_lock);
++	sbinfo->free_blocks += freed;
++	spin_unlock(&sbinfo->stat_lock);
+ 	spin_unlock (&info->lock);
+ 	up(&info->sem);
+ }
+@@ -257,7 +234,6 @@
+ 	entry = shmem_swp_entry(info, page->index);
+ 	if (IS_ERR(entry))	/* this had been allocted on page allocation */
+ 		BUG();
+-	shmem_recalc_inode(page->mapping->host, 0);
+ 	error = -EAGAIN;
+ 	if (entry->val)
+ 		BUG();
+@@ -1155,7 +1131,8 @@
+ 
+ 
+ static struct address_space_operations shmem_aops = {
+-	writepage: shmem_writepage
++	removepage:	shmem_removepage,
++	writepage:	shmem_writepage,
+ };
+ 
+ static struct file_operations shmem_file_operations = {
 
-Warning (read_system_map): no kernel symbols in System.map, is /root/Oops
-a valid System.map file?
-Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore
-says c882e1a0, /lib/modules/2.4.2-2/kernel/drivers/usb/usbcore.o says
-c882dcc0.  Ignoring /lib/modules/2.4.2-2/kernel/drivers/usb/usbcore.o
-entry
-Reading Oops report from the terminal
-
-[root@yprelot /root]# ksymoops < Oops        
-ksymoops 2.4.0 on i686 2.4.2-2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.2-2/ (default)
-     -m /boot/System.map-2.4.2-2 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Warning (compare_maps): ksyms_base symbol
-__VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring
-ksyms_base entry
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
-says c01af860, System.map says c0153510.  Ignoring ksyms_base entry
-Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore
-says c882e1a0, /lib/modules/2.4.2-2/kernel/drivers/usb/usbcore.o says
-c882dcc0.  Ignoring /lib/modules/2.4.2-2/kernel/drivers/usb/usbcore.o
-entry
-kernel BUG at slab.c:1095!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012a4eb>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 0000001b   ebx: c1227570     ecx: c728c000       edx: c02575a4
-esi: c1227570   edi: 00000007     abp: c026fe0c       esp: c026fd84
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c026f000)
-Stack: c020dd1b c020ddbb 00000447 c026fdec c026fddc ffffffff c02b6dd7
-c026fe20
-       0000000a c01ff1b9 c1227570 00000007 0000002a c026fe0c c012a78b
-c1227570
-       00000007 00000286 c02575a4 00000001 00000286 c723b960 000006dc
-c88bb858
-Call Trace: [<c020dd1b>] [<c020ddbb>] [<c01ff1b9>] [<c012a78b>]
-[<c88bb858>] [<c
-011610e>] [<c88bb7f8>]
-       [<c01c29ca>] [<c01bbd2e>] [<c01e4f2d>] [<c01e501c>] [<c01e52ce>]
-[<c88ba6
-       [<c0119c7c>] [<c0119b86>] [<c0119a8b>] [<c010a4bf>] [<c0107240>]
-[<c01072
-       [<c0107240>] [<c0100018>] [<c0107263>] [<c01072e2>] [<c0105000>]
-[<c01001
-Code: 0f 0b 83 c4 0c 89 7c 24 04 b8 03 00 00 00 83 64 24 04 07 c7
-
->>EIP; c012a4eb <kmem_cache_grow+6b/240>   <=====
-Trace; c020dd1b <error_table+5b43/b698>
-Trace; c020ddbb <error_table+5be3/b698>
-Trace; c01ff1b9 <vsprintf+349/380>
-Trace; c012a78b <kmalloc+6b/a0>
-Trace; c88bb858 <END_OF_CODE+1ba99/????>
-Code;  c012a4eb <kmem_cache_grow+6b/240>
-00000000 <_EIP>:
-Code;  c012a4eb <kmem_cache_grow+6b/240>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012a4ed <kmem_cache_grow+6d/240>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c012a4f0 <kmem_cache_grow+70/240>
-   5:   89 7c 24 04               mov    %edi,0x4(%esp,1)
-Code;  c012a4f4 <kmem_cache_grow+74/240>
-   9:   b8 03 00 00 00            mov    $0x3,%eax
-Code;  c012a4f9 <kmem_cache_grow+79/240>
-   e:   83 64 24 04 07            andl   $0x7,0x4(%esp,1)
-Code;  c012a4fe <kmem_cache_grow+7e/240>
-  13:   c7 00 00 00 00 00         movl   $0x0,(%eax)
-
-Kernel panic: Aiee, killing interrupt handler!
-
-4 warnings issued.  Results may not be reliable.
-
-So I went into slab.c to trying to understand what happen, but I haven't 
-found what was my error .
-
-Is someone could give me advice ?
-
-Thanks
-
-sebastien person

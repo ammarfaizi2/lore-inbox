@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268551AbTGISYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 14:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268552AbTGISYa
+	id S268511AbTGISUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268529AbTGISUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 14:24:30 -0400
-Received: from pat.uio.no ([129.240.130.16]:62180 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S268551AbTGISY2 (ORCPT
+	Wed, 9 Jul 2003 14:20:42 -0400
+Received: from granite.he.net ([216.218.226.66]:9737 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S268511AbTGIST5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 14:24:28 -0400
-MIME-Version: 1.0
+	Wed, 9 Jul 2003 14:19:57 -0400
+Date: Wed, 9 Jul 2003 11:18:49 -0700
+From: Greg KH <greg@kroah.com>
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPC subsystem
+Message-ID: <20030709181849.GA17800@kroah.com>
+References: <D9B4591FDBACD411B01E00508BB33C1B01AF03D2@mesadm.epl.prov-liege.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16140.24595.438954.609504@charged.uio.no>
-Date: Wed, 9 Jul 2003 20:33:55 +0200
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ->direct_IO API change in current 2.4 BK
-In-Reply-To: <Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>
-References: <20030709133109.A23587@infradead.org>
-	<200307091943.13680.m.c.p@wolk-project.de>
-	<Pine.LNX.4.55L.0307091445470.27004@freak.distro.conectiva>
-	<200307091954.12895.m.c.p@wolk-project.de>
-	<Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01AF03D2@mesadm.epl.prov-liege.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+On Wed, Jul 09, 2003 at 12:06:14PM +0200, Frederick, Fabian wrote:
+> Hi,
+> 	I'm trying to port the ipc stuff to work as a subsystem in order to
+> have sysfs outputs (/sysfs/ipc/sem {,shm,msg} ) .
+> 	Output I have is an early oops (which is not reported in /var/log
+> ...)
+> 
+> 	It seems the ipc stuff init begins before kobject stuff or something
+> ?
+> 
+> "EIP is at sysfs_create_dir
 
-     > Ok, right. Well, I dont know why it doesnt happen there. Maybe
-     > not enough testing?
+Can you print the whole call trace?
 
-Probably nobody is applying the XFS patches on those kernel?
+Also, is your kobject initialized to zero before you try to register it?
 
-Cheers,
-  Trond
+thanks,
+
+greg k-h

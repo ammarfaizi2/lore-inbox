@@ -1,34 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157278-27300>; Sat, 30 Jan 1999 18:31:33 -0500
-Received: by vger.rutgers.edu id <157295-27302>; Sat, 30 Jan 1999 18:24:42 -0500
-Received: from snowcrash.cymru.net ([163.164.160.3]:1509 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157293-27302>; Sat, 30 Jan 1999 18:22:05 -0500
-Message-Id: <m106kls-0007U2C@the-village.bc.nu>
-From: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Subject: Re: CMI-8338/Pci SoundPro
-To: linker@z.ml.org (Gregory Maxwell)
-Date: Sun, 31 Jan 1999 00:29:51 +0000 (GMT)
-Cc: linux-kernel@vger.rutgers.edu, alan@redhat.com
-In-Reply-To: <Pine.LNX.3.96.990130172312.2763A-100000@z.ml.org> from "Gregory Maxwell" at Jan 30, 99 05:31:30 pm
-Content-Type: text
+Received: by vger.rutgers.edu via listexpand id <157321-27300>; Sat, 30 Jan 1999 18:53:20 -0500
+Received: by vger.rutgers.edu id <157212-27300>; Sat, 30 Jan 1999 18:53:12 -0500
+Received: from [207.181.251.162] ([207.181.251.162]:2056 "EHLO bitmover.com" ident: "root") by vger.rutgers.edu with ESMTP id <157218-27300>; Sat, 30 Jan 1999 18:52:53 -0500
+Message-Id: <199901310004.QAA01165@bitmover.com>
+To: linux-kernel@vger.rutgers.edu
+From: lm@bitmover.com (Larry McVoy)
+Subject: Re: Page coloring HOWTO [ans] 
+Date: Sat, 30 Jan 1999 16:04:51 -0800
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> Is there currently any work on supporting the CMI8338 PCI sound chip?
+Richard Gooch <rgooch@atnf.csiro.au>:
+: > : >     (a) make sure that each process maps the same virtual addresses to 
+: > : >         different locations in the cache, if possible.
+: > : 
+: > : >     (b) make sure that a contiguous chunk of virtual address space in
+: > : >         one process occupies a contiguous chunk of cache, if possible.
+: 
+: OK, I was reading points (a) and (b) as though they were, in effect,
+: the required specificiations for an algorithm to yield the best
+: pages. Are they just comments on how the particular algorithm you
+: mentioned works?
+: 
+: I'd like to speparate this into two issues. Firstly, requirements on
+: how to lay out physical pages to minimise cache line aliasing.
 
-Not that I know of.
+Huh?  Direct mapped caches are all virtually indexed and physically
+tagged, if I remember correctly.  Regardless, the buckets into which the
+pages are sorted are set up such that if you were to allocate one page
+from each bucket, then all of the pages would land in different chunks
+of the cache by definition.   That's why you hash on physical addresses
+when sorting the pages.
 
-> The page claims that it has legacy SB16 support via on board ISA DMA
-> emulaton (which supposdity works under real dos). I havn't gotten it
-> working under Linux yet, but I only spent about 5 seconds trying so far.
+When looking for a page, you hash on the process' virtual address (plus
+pid offset) because you have to have something, and what else are you
+going to use?  That's the only deterministic thing you have.
 
-The DMA stuff should work. The way the transparent ISA DMA emulation works
-is horribly sick but OS independant. PCI bridges output all bus cycles
-to the PCI bus first. Unclaimed ones go to the ISA bus. This means a PCI
-card can watch ISA DMA being programmed and work out what the user was
-trying to do. It then issues its own PCI DMA operations for the same
-addresses.
+: For the former issue, I'd like to establish whether you are saying
+: that points (a) and (b) provide better pages than the simple "add plus
+: modulus" scheme of generating goal colours?
 
-Alan
+It's not a question of "better", it's a question of "correct".  And you
+don't generate colors for the physical pages except when you put them
+in the buckets.  
 
+I think you are mixing up the virtual addresses and physical addresses in
+your thinking.  Do you a copy of Hennessy and Patterson?  I'm sure they 
+talk about this or provide a pointer to a paper on it.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

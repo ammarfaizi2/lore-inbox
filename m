@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbSJONab>; Tue, 15 Oct 2002 09:30:31 -0400
+	id <S261285AbSJON3f>; Tue, 15 Oct 2002 09:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262641AbSJONab>; Tue, 15 Oct 2002 09:30:31 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:10466 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262621AbSJONa3>; Tue, 15 Oct 2002 09:30:29 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Use of yield() in the kernel
-Date: Tue, 15 Oct 2002 15:36:38 +0200
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
+	id <S262621AbSJON3f>; Tue, 15 Oct 2002 09:29:35 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46280 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261285AbSJON3e>; Tue, 15 Oct 2002 09:29:34 -0400
+Date: Tue, 15 Oct 2002 15:35:23 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux kernel conf 0.9
+In-Reply-To: <3DAB23CB.5B52ECF1@linux-m68k.org>
+Message-ID: <Pine.NEB.4.44.0210151528310.20607-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210151536.39029.baldrick@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The semantics of sched_yield() changed in the 2.5 kernel.
-In the 2.4 series it meant "sleep a little".
-The new 2.5 semantics are correct (move to the end of the
-run queue) but can mean "sleep a lot" under load.
+Hi Roman,
 
-This already bit ext3 transaction batching, c.f. Andrew Morton's
+I do always get the following segfault:
 
->[PATCH] remove the sched_yield from the ext3 fsync path
->
->The changed sched_yield() semantics have made ext3's transaction
->batching terribly slow.
->
->Apparently a schedule() fixes that, although it probably breaks
->transaction batching.
->
->This patch largely fixes my complaints about the new scheduler being
->extremely sluggish to interactive applications.  Evidently those
->applications were calling fsync() and were spending extremely long
->periods in sched_yield().
+<--  snip  -->
 
-Maybe it is worth auditing the kernel source files using yield()?
-[There are only 33 of them, so not too bad - see below].
-A number of them have comments like /* sleep a little */, so the
-authors presumably weren't expecting to get "sleep a lot"...
+$ cd /tmp/
+$ tar xzf lkc-0.9.tar.gz
+$ cd lkc-0.9
+$ make
+...
+$ cd ~/linux/kernel-2.5
+$ tar xzf linux-2.5.42.tar.gz
+$ cd linux-2.5.42
+$ bzcat /tmp/lkc-0.9-2.5.42.diff.bz2 |patch -p1
+...
+$ /tmp/lkc-0.9/lkcc i386
+...
+undefined symbol ARCH_ACORN
+undefined symbol IA64
+undefined symbol BAGET_MIPS
+undefined symbol IA32_EMULATION
+undefined symbol RPXCLASSIC
+undefined symbol IT8172_REVC
+recursive dependency: ISDN_DRV_EICON_DIVAS ISDN_DRV_EICON_OLD (choice(2) detected) ISDN_DRV_EICON_DIVAS
+recursive dependency: AEDSP16_MSS AEDSP16_SBPRO (choice(1) detected) AEDSP16_MSS
+recursive dependency: INPUT_GAMEPORT INPUT_GAMEPORT
+recursive dependency: SCSI_AIC7XXX_OLD SCSI_AIC7XXX (choice(2) detected) SCSI_AIC7XXX_OLD AIC7XXX_BUILD_FIRMWARE
+Segmentation fault
+$
 
-Here is the list of files using yield(), excluding non-i386 arch specific files:
+<--  snip  -->
 
-net/ipv4/tcp_output.c
-net/sched/sch_generic.c
-net/sunrpc/sched.c
-net/unix/af_unix.c
-net/socket.c
-mm/oom_kill.c
-mm/page_alloc.c
-kernel/sched.c (in migration_call)
-kernel/softirq.c
-kernel/suspend.c
-init/do_mounts.c
-fs/jbd/journal.c
-fs/jbd/revoke.c
-fs/nfs/pagelist.c
-fs/reiserfs/journal.c
-fs/ufs/truncate.c
-fs/buffer.c
-fs/exec.c
-fs/locks.c
-fs/super.c
-drivers/cdrom/cdu31a.c
-drivers/cdrom/sonycd535.c
-drivers/ide/ide-disk.c
-drivers/message/i2o/i2o_core.c
-drivers/net/e100/e100_eeprom.c
-drivers/net/e100/e100_main.c
-drivers/net/e100/e100_phy.c
-drivers/net/e100/e100_test.c
-drivers/net/depca.c
-drivers/net/sb1000.c
-drivers/net/sis900.c
-drivers/net/slip.c
-arch/i386/mm/fault.c
+cu
+Adrian
 
-Thoughts?
+-- 
 
-Duncan.
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
+
+

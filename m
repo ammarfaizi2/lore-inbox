@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266691AbUHDFBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUHDFBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbUHDFBg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 01:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266846AbUHDFBf
+	id S266845AbUHDFBz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 01:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266787AbUHDFBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 01:01:35 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:38020 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266691AbUHDFBe (ORCPT
+	Wed, 4 Aug 2004 01:01:55 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15794 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266845AbUHDFBx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 01:01:34 -0400
-Subject: Re: What PM should be and do (Was Re: Solving suspend-level
-	confusion)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <1091595224.1899.99.camel@gaston>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston>
-	 <200408032030.41410.david-b@pacbell.net>
-	 <1091594872.3191.71.camel@laptop.cunninghams>
-	 <1091595224.1899.99.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1091595545.3303.80.camel@laptop.cunninghams>
+	Wed, 4 Aug 2004 01:01:53 -0400
+Date: Wed, 4 Aug 2004 07:01:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd problems
+Message-ID: <20040804050144.GB8139@suse.de>
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de> <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <1091490870.1649.23.camel@localhost.localdomain> <20040803055337.GA23504@suse.de> <20040803161747.GA16293@bliss>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 04 Aug 2004 14:59:06 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040803161747.GA16293@bliss>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2004-08-04 at 14:53, Benjamin Herrenschmidt wrote:
-> > I really want the core PM code to provide:
+On Tue, Aug 03 2004, Zinx Verituse wrote:
+> > > We'd end up with a list of allowed commands for all sorts of operations
+> > > that don't threaten the machine while blocking vendor specific wonders
+> > > and also cases where users can do stuff like firmware erase.
 > > 
-> > - support for telling what class of device a driver is handling (I'm
-> > particularly interested in keeping the keyboard, screen and storage
-> > devices alive while suspending).
+> > Sorry, I think this model is totally bogus and I'd absolutely refuse to
+> > merge any such beast into the block layer sg code.
+> > 
 > 
-> Well, they have to be suspended some way to keep a consistent state in
-> the suspend image, at least until the pages are snapshoted... Unless
-> the driver knows how to deal with an inconsistent state (I'm toying
-> with that for fbdev at least right now)
+> Well, would something like this patch be acceptable?  It just makes
+> SG_IO require write access to the device (cdrecord and cdrdao both
+> open it this way already, so users shouldn't have a problem with it).
+> I probably forgot some stuff, etc.  I'm not terribly familiar with the
+> code in question.
 
-Yes. I'm not trying to give drivers an inconsistent state, just delaying
-suspending some until the last minute....
+Absolutely not. I've already outlined why in my previous mails I don't
+want to see anything like this, and this patch is even worse than
+filtering. Additionally, you risk breaking existing programs.
 
-Suspend 2 algorithm:
-
-1. Prepare image (freeze processes, allocate memory, eat memory etc)
-2. Power down all drivers not used while writing image
-3. Write LRU pages. ('pageset 2')
-4. Quiesce remaining drivers, save CPU state, to atomic copy of
-remaining ram.
-5. Resume quiesced drivers.
-6. Write atomic copy.
-7. Power down used drivers.
-8. Enter S4 if ACPI enabled; otherwise reboot or power down.
-
-Nigel
+-- 
+Jens Axboe
 

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSJDOL0>; Fri, 4 Oct 2002 10:11:26 -0400
+	id <S261809AbSJDOQe>; Fri, 4 Oct 2002 10:16:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261803AbSJDOL0>; Fri, 4 Oct 2002 10:11:26 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:45074 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261799AbSJDOLZ>; Fri, 4 Oct 2002 10:11:25 -0400
-Date: Fri, 4 Oct 2002 15:16:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mark Peloquin <peloquin@us.ibm.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	id <S261810AbSJDOQe>; Fri, 4 Oct 2002 10:16:34 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:28591 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261809AbSJDOQd>; Fri, 4 Oct 2002 10:16:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
+Date: Fri, 4 Oct 2002 08:48:52 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Greg KH <greg@kroah.com>, Mark Peloquin <peloquin@us.ibm.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
        evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 4/4: evms_biosplit.h
-Message-ID: <20021004151656.C30635@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-References: <OF2FC09D0D.E4C956E8-ON85256C47.006ECCC8@pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF2FC09D0D.E4C956E8-ON85256C47.006ECCC8@pok.ibm.com>; from peloquin@us.ibm.com on Thu, Oct 03, 2002 at 03:36:24PM -0500
+References: <OF9EDF8472.CDE2D9D8-ON85256C47.0080772B@pok.ibm.com> <02100319254700.00236@cygnus> <20021004145850.B30064@infradead.org>
+In-Reply-To: <20021004145850.B30064@infradead.org>
+MIME-Version: 1.0
+Message-Id: <02100408485201.02266@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 03:36:24PM -0500, Mark Peloquin wrote:
-> 
-> On 10/03/2002 at 10:05 AM, Christoph Hellwig wrote:
-> 
-> >> +static mempool_t *my_bio_split_pool, *my_bio_pool;
-> >> +static kmem_cache_t *my_bio_split_slab, *my_bio_pool_slab;
-> 
-> > Umm, static variables in header files?
-> 
-> Yupp, that wasn't accidental.
-> 
-> Based on the conclusions mutually agreed on in the OLS
-> BOF on bio splitting, it was decided that each driver
-> having the need to split bios *should* have their own
-> private bio pools to use exclusively for this purpose.
-> Thus any plugin that includes this header gets their
-> own private copies of these variables.
+On Friday 04 October 2002 08:58, Christoph Hellwig wrote:
+> > +/**
+> > + * list_member - tests whether a list member is currently on a list
+> > + * @member:	member to evaulate
+> > + */
+> > +static inline int list_member(struct list_head *member)
+> > +{
+> > +	return ((!member->next || !member->prev) ? 0 : 1);
+>
+> Wouldn't return (member->next && member->prev); be simpler?
 
-Having variables and (non-inline) functions is very bad style and a
-perfect method for the obsfucated C contest.  Just let every module
-that needs bio-splitting declare it's own variables.
+Sure. New patch below with new list_member() function.
+
+> > + */
+> > +#define list_for_each_entry_safe(pos, n, head, member)			\
+> > +	for (pos = list_entry((head)->next, typeof(*pos), member),	\
+> > +		n = list_entry(pos->member.next, typeof(*pos), member);	\
+> > +	     &pos->member != (head);					\
+> > +	     pos = n,							\
+> > +		n = list_entry(pos->member.next, typeof(*pos), member))
+>
+> Identation looks a little strange..
+
+Perhaps. But there are plenty of places in list.h that have some strange
+indenting. If you'd like it another way, please post a patch with your
+preferred version.
+
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
 

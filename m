@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267327AbUITU1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUITU3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267327AbUITU1g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 16:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUITU1g
+	id S264396AbUITU3r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 16:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267330AbUITU1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 16:27:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:26757 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267330AbUITUXm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 16:23:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97           patch)
-Date: Mon, 20 Sep 2004 22:23:11 +0200
-Message-ID: <MPG.1bb958d35c42f5899896f2@news.gmane.org>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se> <20040912011128.031f804a@localhost> <Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net> <20040914175949.6b59a032@sashak.lan> <MPG.1bb164a85e6c9d459896e9@news.gmane.org> <20040915035820.1cdccaa5@localhost> <MPG.1bb4d933f584efee9896f0@news.gmane.org> <20040918142900.06a9ff96@localhost> <MPG.1bb665cd5b40a4ed9896f1@news.gmane.org> <20040918232055.00cb25b0@localhost>
+	Mon, 20 Sep 2004 16:27:40 -0400
+Received: from [205.233.219.253] ([205.233.219.253]:30672 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S267333AbUITUXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 16:23:50 -0400
+Date: Mon, 20 Sep 2004 16:23:49 -0400
+From: Jody McIntyre <lkml@modernduck.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, joq@io.com, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20040920202349.GI4273@conscoop.ottawa.on.ca>
+References: <1094967978.1306.401.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-194-140.29-151.libero.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094967978.1306.401.camel@krustophenia.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sasha Khapyorsky wrote:
-> On Sat, 18 Sep 2004 16:35:32 +0200
-> Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
-> > > parport: PnPBIOS parport detected.
-> > > parport0: PC-style at 0x378 (0x778), irq 7, dma 1 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-> > > parport0: irq 7 in use, resorting to polled operation
-> 
-> I don't know really, but suppose that parport does not accept irq sharing.
+On Sun, Sep 12, 2004 at 01:46:18AM -0400, Lee Revell wrote:
 
-Ok, I'll inquire with the parport people.
+> +	  Answer M to build realtime support as a Linux Security
+> +	  Module.  Answering Y to build realtime capabilities into the
+> +	  kernel makes no sense.
 
-> > I will. Do you have any idea on the "not ready" issue?
-> 
-> This one is more interesting, probably special patch is necessary for conexant codec, let's see.
-> 
-> Please report bug to alsa and attach there output of 'lspci -vv' and tar of '/proc/asound' directory (or send to me).
+Why does this make no sense?
 
-Done. (Has been automatically assigned to you, it seems.)
+I tried answering Y and it oopsed on boot.  I'll try and track down/fix
+what is happening later.
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+Jody

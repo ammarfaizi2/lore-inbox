@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUFWRgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266592AbUFWRic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266591AbUFWRgS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUFWRgS
+	id S266592AbUFWRic (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUFWRic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:36:18 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:58499 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S266591AbUFWRgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:36:17 -0400
-Date: Wed, 23 Jun 2004 13:30:12 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: George Georgalis <george@galis.org>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: SIIMAGE sata fails with 2.6.7
-In-Reply-To: <20040623163505.GA1068@trot.local>
-Message-ID: <Pine.GSO.4.33.0406231327060.25702-100000@sweetums.bluetronic.net>
+	Wed, 23 Jun 2004 13:38:32 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:36356 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266592AbUFWRia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 13:38:30 -0400
+Message-ID: <40D9C48C.4060004@techsource.com>
+Date: Wed, 23 Jun 2004 13:57:32 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcus Hartig <m.f.h@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: status of Preemptible Kernel 2.6.7
+References: <40D9B20A.4070409@web.de>
+In-Reply-To: <40D9B20A.4070409@web.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004, George Georgalis wrote:
->Oooh, guess I needed to mount as a scsi dev now? but I don't see any
->scsi devices available... must I first not mount the hdc partitions?
 
-Don't compile in the SIIMAGE driver.  The IDE drivers are probed before
-SCSI, so it'll assume control of the chip and sata_sil will never get
-a chance.
 
-And you'll need a current bitkeeper snapshot (or -bk# tarball made after
-6/22) to have the sata_sil Seagate drive fix.
+Marcus Hartig wrote:
+> Hello,
+> 
+> how is now the status of the preemptible feature of the kernel 2.6.7. 
+> Should preempt be used for desktop systems (like in the help menu) or 
+> should it not really?
+> 
+> I have made tests with the alsa-latency-test, where it not really 
+> reduces the latency of the kernel and gives a little bit lower 
+> performance of the whole system.
 
---Ricky
 
+I vaguely recall someone recently talking about eliminating preempt by 
+improving low-latency.  See, if everything were ideal, we wouldn't need 
+preempt, because all drivers would yield the CPU at appropriate times. 
+Supposedly, preempt introduces some undesirable overhead.
+
+Perhaps we could turn preempt into some kind of watch-dog.  If a kernel 
+thread doesn't behave, it gets killed.  :)
 

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130208AbRB1PKw>; Wed, 28 Feb 2001 10:10:52 -0500
+	id <S130210AbRB1POm>; Wed, 28 Feb 2001 10:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130210AbRB1PKm>; Wed, 28 Feb 2001 10:10:42 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:22356 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S130208AbRB1PK0>;
-	Wed, 28 Feb 2001 10:10:26 -0500
-Message-ID: <20010228161023.A19929@win.tue.nl>
-Date: Wed, 28 Feb 2001 16:10:23 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Glenn McGrath <bug1@optushome.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: devfs and /proc/ide/hda
-In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>
+	id <S130214AbRB1POc>; Wed, 28 Feb 2001 10:14:32 -0500
+Received: from 2-031.cwb-adsl.telepar.net.br ([200.193.161.31]:30962 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S130211AbRB1POQ>; Wed, 28 Feb 2001 10:14:16 -0500
+Date: Wed, 28 Feb 2001 10:35:14 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Holluby@conectiva.com.br,
+        István <holluby@interware.hu>@conectiva.com.br
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mke2fs /dev/loop0
+Message-ID: <20010228103514.F24856@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Holluby István <holluby@interware
+	.hu>,
+	<linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0102281545120.1836-100000@cica.khb.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>; from Glenn McGrath on Wed, Feb 28, 2001 at 08:52:54PM +1100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <Pine.LNX.4.33.0102281545120.1836-100000@cica.khb.hu>; from isti@interware.hu on Wed, Feb 28, 2001 at 04:07:03PM +0100
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 08:52:54PM +1100, Glenn McGrath wrote:
-
-> Im running kernel 2.4.1, I have entries like /proc/ide/hda,
-> /proc/ide/ide0/hda etc irrespective of wether im using devfs or
-> traditional device names.
+Em Wed, Feb 28, 2001 at 04:07:03PM +0100, Holluby István holluby@interware.hu escreveu:
+> 	Hi!
 > 
-> Is always using traditional device names for /proc/ide intentional, or
-> is it something nobody has gotten around to fixing yet?
+> This command hangs my system. It works for a 100K file, but it hangs my
+> system, if the file is 470M. It does not matter, if the disk is SCSI or
+> ide.
+> 
+> linux 2.4.2
+> glibc-2.2.2
+> gcc-2.95.2.1
+> e2fs-1.19
+> 
+> With kernel 2.2.18, it works fine.
 
-If only humans look at /proc, and they like typing long names,
-then there is no objection against changing /proc.
-As it is, however, quite a few programs look at /proc for
-information about devices. I don't think it would be a good
-idea to "fix" /proc and simultaneously break all these programs.
+FAQ, try 2.4.2-acLATEST (now its ac6)
+ 
+> ===============
+> I also have some problem, with ncpfs. I am not quite sure, because I had to
+> hack the source, to compile it, but the same hack works with 2.2.18.
+> 
+> If you have anything to tell, please mail me. I am not on the list.
+
+I'm interested if this is directly related to IPX, Petr is the guy for
+NCPfs, can you please send us more details about this problem? Hangs? Data
+corruption? what?
+
+- Arnaldo

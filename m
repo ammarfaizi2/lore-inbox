@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUIGSOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268353AbUIGSRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268321AbUIGSOR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUIGSNu
+	id S268353AbUIGSRC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268254AbUIGSOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:13:50 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:25551 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268321AbUIGSMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:12:12 -0400
-Message-ID: <413DF9D2.5060703@namesys.com>
-Date: Tue, 07 Sep 2004 11:11:30 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christer Weinigel <christer@weinigel.se>
-CC: Spam <spam@tnonline.net>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <200409070206.i8726vrG006493@localhost.localdomain>	<413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>	<1183150024.20040907143346@tnonline.net> <m38ybmjiyz.fsf@zoo.weinigel.se>
-In-Reply-To: <m38ybmjiyz.fsf@zoo.weinigel.se>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 14:14:30 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:43789 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268334AbUIGSN6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:13:58 -0400
+Date: Tue, 7 Sep 2004 22:13:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1-mm4
+Message-ID: <20040907201359.GA8297@mars.ravnborg.org>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <544180000.1094575502@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <544180000.1094575502@[10.10.2.4]>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel wrote:
+On Tue, Sep 07, 2004 at 09:45:02AM -0700, Martin J. Bligh wrote:
+> Well, the good news is that it compiles now, and without forcing ACPI on.
+> Yay!
+> 
+> On the downside, it seems to have a new error:
+> 
+> make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
 
->Spam <spam@tnonline.net> writes:
->
->  
->
->>>Additionally, files-as-directores does not solve the problem of 
->>>"cp a b" losing named streams.
->>>
-reiser4 does not support streams, it supports files that can do what 
-streams do. cp -r does not currently lose files.
+Just an information - I will silent this.
+[Hmm, -j 32 on my UP...]
 
+	Sam

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVC2Ots@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVC2PDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVC2Ots (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 09:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVC2Ots
+	id S262249AbVC2PDc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 10:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVC2PDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 09:49:48 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33200 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262304AbVC2Otq (ORCPT
+	Tue, 29 Mar 2005 10:03:32 -0500
+Received: from colin2.muc.de ([193.149.48.15]:24842 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262249AbVC2PD1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 09:49:46 -0500
-Date: Tue, 29 Mar 2005 06:47:05 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
-       johnpol@2ka.mipt.ru, jlan@engr.sgi.com, efocht@hpce.nec.com,
-       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net,
-       dean-list-linux-kernel@arctic.org
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-Message-Id: <20050329064705.2b0692ce.pj@engr.sgi.com>
-In-Reply-To: <1112083503.20919.23.camel@frecb000711.frec.bull.fr>
-References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
-	<20050328134242.4c6f7583.pj@engr.sgi.com>
-	<1112083503.20919.23.camel@frecb000711.frec.bull.fr>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 29 Mar 2005 10:03:27 -0500
+Date: 29 Mar 2005 17:03:25 +0200
+Date: Tue, 29 Mar 2005 17:03:25 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: folkert@vanheusden.com, Andrew Morton <akpm@osdl.org>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050329150325.GA63268@muc.de>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <m1y8cc3mj1.fsf@muc.de> <424324F1.8040707@pobox.com> <20050327171934.GB18506@muc.de> <20050327185500.GP943@vanheusden.com> <20050328152043.GA26121@muc.de> <42490104.8040302@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42490104.8040302@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume wrote:
-> Yes, dean's suggestion helps. The overhead is now around 4%
+On Tue, Mar 29, 2005 at 02:17:24AM -0500, Jeff Garzik wrote:
+> Andi Kleen wrote:
+> >BTW what do you do when the FIPS test fails? I dont see a good fallback
+> >path for this case.
+> 
+> If the FIPS test fails, do the obvious:  don't feed that data to the 
+> kernel (and credit entropy), and possibly stop using the hardware RNG 
 
-More improvement than I expected (and I see a CBUS result further
-down in my inbox).
+This will just cause hangs; basically it is a DOS. 
 
-Does this include a minimal consumer task of the data that writes
-it to disk?
+> under a human has intervened.
+> 
+> This is not rocket science.  The fallback path is "use software", which 
+> is what most users do right now anyway.
 
-> I think that it can be moved in include/linux/connector.h 
+Just that use software does not work on a headless machine sitting
+in a rack with not much disk IO. 
 
-Good.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+-Andi

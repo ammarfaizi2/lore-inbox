@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbULBATZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbULBATy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbULBATZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 19:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbULBAR2
+	id S261513AbULBATy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 19:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULBATo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 19:17:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4523 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261515AbULBAKa (ORCPT
+	Wed, 1 Dec 2004 19:19:44 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:29371 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261513AbULBASv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 19:10:30 -0500
-Date: Wed, 1 Dec 2004 16:10:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
- tests
-In-Reply-To: <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+	Wed, 1 Dec 2004 19:18:51 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.10-rc2-mm4
+Date: Wed, 1 Dec 2004 17:18:42 -0700
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
+References: <20041130095045.090de5ea.akpm@osdl.org> <20041201211036.GQ2650@stusta.de>
+In-Reply-To: <20041201211036.GQ2650@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412011718.42740.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 1 Dec 2004, Christoph Lameter wrote:
->
-> Changes from V11->V12 of this patch:
-> - dump sloppy_rss in favor of list_rss (Linus' proposal)
-> - keep up against current Linus tree (patch is based on 2.6.10-rc2-bk14)
+On Wednesday 01 December 2004 2:10 pm, Adrian Bunk wrote:
+> > add-acpi-based-floppy-controller-enumeration.patch
+> >   Add ACPI-based floppy controller enumeration.
 > 
-> This is a series of patches that increases the scalability of
-> the page fault handler for SMP. Here are some performance results
-> on a machine with 512 processors allocating 32 GB with an increasing
-> number of threads (that are assigned a processor each).
+> As far as I understood the discussion, this patch should be dropped.
 
-Ok, consider me convinced. I don't want to apply this before I get 2.6.10 
-out the door, but I'm happy with it. I assume Andrew has already picked up 
-the previous version.
+As I understand it, Len & Linus have figured out how to fiddle
+with ELCR[1] in such a way that when ACPI disables a PCI link
+device that happens to be on IRQ6, the ELCR polarity doesn't
+get screwed up.  So the floppy driver can still blindly probe
+for its device without getting an interrupt storm.
 
-		Linus
+But the BIOS is still telling the OS that there's no floppy
+controller, and Linux still isn't listening.  In the case of
+floppy, maybe that's OK, because all arches that support floppy
+seem to make it safe to do blind probing.
+
+But in the case of i8042, IDE, and IPMI, I think we definitely
+*should* do either ACPI or PNP-ACPI enumeration.  These devices
+are all optional on ia64, and at least on HP hardware, the only
+reason we configure the box to allow blind probing is so these
+deaf drivers continue to work.
+
+[1] http://linux.bkbits.net:8080/linux-2.5/cset%4041a2c479tEbbKs1AxXHrR-LgHzPXzA

@@ -1,116 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbUKLGRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbUKLGfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbUKLGRq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 01:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUKLGRq
+	id S262457AbUKLGfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 01:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUKLGfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 01:17:46 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:26836 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262459AbUKLGQ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 01:16:28 -0500
-Date: Thu, 11 Nov 2004 22:16:27 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Willy Tarreau <willy@w.ods.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_X86_PM_TIMER is slow
-In-Reply-To: <20041112060413.GF783@alpha.home.local>
-Message-ID: <Pine.LNX.4.61.0411112208180.24919@twinlark.arctic.org>
-References: <Pine.LNX.4.61.0411112143200.1846@twinlark.arctic.org>
- <20041112060413.GF783@alpha.home.local>
+	Fri, 12 Nov 2004 01:35:15 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:11422 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262457AbUKLGfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 01:35:06 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH 0/7] New set of input patches
+Date: Fri, 12 Nov 2004 01:27:01 -0500
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411120127.01473.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004, Willy Tarreau wrote:
+Hi Vojtech,
 
-> On Thu, Nov 11, 2004 at 09:52:27PM -0800, dean gaudet wrote:
-> > when using CONFIG_X86_PM_TIMER i'm finding that gettimeofday() calls take 
-> > 2.8us on a p-m 1.4GHz box... which is an order of magnitude slower than 
-> > TSC-based solutions.
-> > 
-> > on one workload i'm seeing a 7% perf improvement by booting "acpi=off" to 
-> > force it to use tsc instead of the PM timer... (the workload calls 
-> > gettimeofday too frequently, but i can't change that).
-> 
-> I did not test, this might be interesting.
-> In fact, what would be very good would be sort of a new select/poll/epoll
-> syscalls with an additional argument, which would point to a structure
-> that the syscall would fill in return with the time of day. This would
-> greatly reduce the number of calls to gettimeofday() in some programs,
-> and make use of the time that was used by the syscall itself.
-> 
-> For example, if I could call it like this, it would be really cool :
-> 
->    ret = select_absdate(&in, &out, &excp, &date_timeout, &return_date);
+Here is the new set of input patches. Please do
 
-but the overhead isn't the syscall :)  it's the pm timer itself... the 
-program below reads the pm timer the same way the kernel does and you can 
-see it takes 2.5us to read it...
+	bk pull bk://dtor.bkbits.net/input
+	
+It has the tonight's pull from Linus's tree plus the following patches:
 
-# cc -O2 -g -Wall readport.c -o readport
-# grep PM-Timer /var/log/dmesg
-ACPI: PM-Timer IO Port: 0xd808
-# time ./readport 0xd808 1000000
-./readport 0xd808 1000000  2.54s user 0.00s system 100% cpu 2.526 total
+01-i8042-panicblink-cleanup.patch
+	Move panicbkink parameter definition together with the rest of i8042
+        module parameters, add description and entry in kernel-parameters.txt
 
-the gettimeofday overhead is dominated by this i/o...
+02-serio-start-stop.patch
+        Add serio start() and stop() methods to serio structure that are
+        called when serio port is about to be fully registered and when
+        serio port is about to be unregistered. These methods are useful
+        for drivers that share interrupt among several serio ports. In this
+        case interrupt can not be enabled/disabled in open/close methods
+        and it is very hard to determine if interrupt shoudl be ignored or
+        passed on.
 
--dean
+03-i8042-use-start-stop.patch
+        Make use of new serio start/stop methods to safely activate and
+        deactivate ports. Also unify as much as possible port handling
+        between KBD, AUX and MUX ports. Rename i8042_values into i8042_port.
 
-/* readport.c */
+04-serio-suppress-dup-events.patch
+        Do not submit serio event into event queue if there is already one
+        of the same type for the same port in front of it. Also look for
+        duplicat events once event is processed. This should help with
+        disconnected ports generating alot of data and consuming memory for
+        events when kseriod gets behind and prevents constant rescans.
+        This also allows to remove special check for 0xaa in reconnect path
+        of interrupt handler known to cause problems with Toshibas keyboards.
 
-#include <stdint.h>
-#include <sys/io.h>
-#include <stdio.h>
-#include <stdlib.h>
+05-evdev-buffer-size.patch
+	Return -EINVAL from evdev_read when passed buffer is too small.
+        Based on patch by James Lamanna.
 
-uint32_t pmtmr_ioport;
+06-ps2pp-mouse-name.patch
+	Set mouse name to "Mouse" instead of leaving it NULL when using
+        PS2++ protocol and don't have any other information (Wheel, Touchpad)
+        about the mouse.
 
-#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
+07-synaptics-toshiba-rate.patch
+	Toshiba Satellite KBCs have trouble handling data stream coming from
+        Synaptics at full rate (80 pps, 480 byte/sec) which causes keyboards
+        to pause or even get stuck. Use DMI to detect Satellites and limit
+        rate to 40 pps which cures keyboard.  
 
-static inline uint32_t read_pmtmr(void)
-{
-        uint32_t v1=0,v2=0,v3=0;
-        /* It has been reported that because of various broken
-         * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
-         * source is not latched, so you must read it multiple
-         * times to insure a safe value is read.
-         */
-        do {
-                v1 = inl(pmtmr_ioport);
-                v2 = inl(pmtmr_ioport);
-                v3 = inl(pmtmr_ioport);
-        } while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
-                        || (v3 > v1 && v3 < v2));
+Thanks!
 
-        /* mask the output to 24 bits */
-        return v2 & ACPI_PM_MASK;
-}
-
-
-int main(int argc, char **argv)
-{
-	unsigned port;
-	size_t count;
-	size_t i;
-
-	if (argc != 3) {
-		fprintf(stderr, "usage: %s port_num count\n", argv[0]);
-		exit(1);
-	}
-
-	pmtmr_ioport = port = strtoul(argv[1], 0, 0);
-	count = strtoul(argv[2], 0, 0);
-
-	if (iopl(3) != 0) {
-		perror("iopl");
-		exit(1);
-	}
-
-	for (i = 0; i < count; ++i) {
-		read_pmtmr();
-	}
-	return 0;
-}
+-- 
+Dmitry

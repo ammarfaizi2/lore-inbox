@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUJHTNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUJHTIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUJHTNG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 15:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUJHTJM
+	id S262085AbUJHTIy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 15:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270032AbUJHSP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 15:09:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58305 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264377AbUJHTFz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 15:05:55 -0400
-Message-ID: <4166E501.4000708@pobox.com>
-Date: Fri, 08 Oct 2004 15:05:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [patch 2.4.28-pre3] 3c59x: resync with 2.6
-References: <20041008121307.C14378@tuxdriver.com>
-In-Reply-To: <20041008121307.C14378@tuxdriver.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 14:15:29 -0400
+Received: from smtp.mitel.com ([216.191.234.102]:57058 "EHLO smtp.mitel.com")
+	by vger.kernel.org with ESMTP id S270073AbUJHRpL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 13:45:11 -0400
+Date: Fri, 8 Oct 2004 13:45:10 -0400
+From: michael_soulier@mitel.com
+To: linux-kernel@vger.kernel.org
+Cc: john_fodor@mitel.com
+Subject: wait_event and preemption in 2.6
+Message-ID: <20041008174510.GJ30977@e-smith.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, john_fodor@mitel.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
 
->  static struct ethtool_ops vortex_ethtool_ops = {
-> -	.get_drvinfo		= vortex_get_drvinfo,
-> +	.get_drvinfo =		vortex_get_drvinfo,
->  };
+I am sending this on behalf of a coworker who is unfortunate enough to
+be using a crappy email client. We are not subscribed to the mailing
+list, so please include us in your replies. 
 
-reverting good style.
+---quote---
+Dear kernel folks,
 
+I'm writing a device driver for PPC Linux and I'm using wait_event. It
+seems to me that there is a potential race condition in wait_event when
+preemption is turned on (2.6 kernel).
 
->  
-> -static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-> +#ifdef CONFIG_PCI
-> +static int vortex_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
->  {
-> -	struct vortex_private *vp = (struct vortex_private *)dev->priv;
-> +	struct vortex_private *vp = netdev_priv(dev);
->  	long ioaddr = dev->base_addr;
-> -	struct mii_ioctl_data *data = (struct mii_ioctl_data *)&rq->ifr_data;
-> +	struct mii_ioctl_data *data = if_mii(rq);
->  	int phy = vp->phys[0] & 0x1f;
->  	int retval;
->  
->  	switch(cmd) {
->  	case SIOCGMIIPHY:		/* Get address of MII PHY in use. */
-> -	case SIOCDEVPRIVATE:		/* for binary compat, remove in 2.5 */
->  		data->phy_id = phy;
->  
->  	case SIOCGMIIREG:		/* Read MII PHY register. */
-> -	case SIOCDEVPRIVATE+1:		/* for binary compat, remove in 2.5 */
->  		EL3WINDOW(4);
->  		data->val_out = mdio_read(dev, data->phy_id & 0x1f, data->reg_num & 0x1f);
->  		retval = 0;
->  		break;
->  
->  	case SIOCSMIIREG:		/* Write MII PHY register. */
-> -	case SIOCDEVPRIVATE+2:		/* for binary compat, remove in 2.5 */
+The scenario goes something like this: After the waiting process is
+woken up and returns from schedule it goes to the top of the loop and
+prepares to wait again (despite the condition being true). Then it will
+check the condition and break out of the loop. But what if in-kernel
+preemption occurs while it's doing that and another process is
+immediately scheduled to run? Does the process sleep forever? Assume
+that the event (say interrupt) that caused the original wakeup is a one
+shot.
 
-breaks ABI in the middle of a stable series
+I'm probably missing something. I've googled for an answer and asked
+some of my Linux friends but it's not clear. Thanks for any replies.
+Please cc me.
 
+John
+---end---
 
+Thank you,
+Mike
 
-> @@ -144,6 +145,12 @@ struct mii_ioctl_data {
->  };
->  
->  
-> +static inline struct mii_ioctl_data *if_mii(struct ifreq *rq)
-> +{
-> +	return (struct mii_ioctl_data *) &rq->ifr_ifru;
-> +}
-> +
-> +
-
-This should be in include/linux/mii.h like it is in 2.6.x.
-
-	Jeff
-
-
+--
+Michael P. Soulier <michael_soulier@mitel.com>
+6000/6010/60* Development, Mitel Networks Corporation
+"...the word HACK is used as a verb to indicate a massive amount of nerd-like
+effort." -Harley Hahn, A Student's Guide to Unix

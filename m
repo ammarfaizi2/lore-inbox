@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266916AbUG1Nt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUG1OAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266916AbUG1Nt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 09:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266919AbUG1Nt4
+	id S266920AbUG1OAh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUG1OAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 09:49:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22946 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266916AbUG1Ntx (ORCPT
+	Wed, 28 Jul 2004 10:00:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6568 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266920AbUG1OAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 09:49:53 -0400
-Date: Wed, 28 Jul 2004 09:49:10 -0400
+	Wed, 28 Jul 2004 10:00:24 -0400
+Date: Wed, 28 Jul 2004 09:59:41 -0400
 From: Alan Cox <alan@redhat.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: PATCH: Add support for Innovision DM-8401H
-Message-ID: <20040728134910.GA8514@devserv.devel.redhat.com>
+Subject: PATCH: fix some 32bit isms
+Message-ID: <20040728135941.GA17409@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,58 +21,81 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an SII 680 with strange PCI identifiers it appears
-
-Original patch: Alex Hewson
-Verified by: Alan Cox <alan@redhat.com>
-
-OSDL Developer Certificate Of Origin included herein by reference
-
-
---- include/linux/pci_ids.h~	2004-07-28 14:24:18.736251384 +0100
-+++ include/linux/pci_ids.h	2004-07-28 14:24:18.736251384 +0100
-@@ -1634,6 +1634,7 @@
- #define PCI_VENDOR_ID_ITE		0x1283
- #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
- #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
-+#define PCI_DEVICE_ID_ITE_DM8401	0x8212
- #define PCI_DEVICE_ID_ITE_8872		0x8872
- #define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
+Fairly self explanatory. int is not size_t.
  
---- drivers/ide/pci/siimage.c~	2004-07-28 14:23:17.506559712 +0100
-+++ drivers/ide/pci/siimage.c	2004-07-28 14:23:17.507559560 +0100
-@@ -19,6 +19,8 @@
-  *	If you have strange problems with nVidia chipset systems please
-  *	see the SI support documentation and update your system BIOS
-  *	if neccessary
-+ *
-+ *  17/06/2004: Added PCI ID's for Innovision DM-8401H card - mocko@mocko.org.uk
-  */
- 
- #include <linux/config.h>
-@@ -50,6 +52,7 @@
- 		case PCI_DEVICE_ID_SII_1210SA:
- 			return 1;
- 		case PCI_DEVICE_ID_SII_680:
-+		case PCI_DEVICE_ID_ITE_DM8401:
- 			return 0;
+Alan 
+
+OSDL Developer Certificate of Origin 1.0 included herein by reference
+
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/message/fusion/mptbase.c linux-2.6.8-rc2/drivers/message/fusion/mptbase.c
+--- linux.vanilla-2.6.8-rc2/drivers/message/fusion/mptbase.c	2004-07-27 19:22:42.000000000 +0100
++++ linux-2.6.8-rc2/drivers/message/fusion/mptbase.c	2004-07-28 14:27:53.603586584 +0100
+@@ -2417,7 +2417,7 @@
+ 	} else {
+ 		printk(MYIOC_s_ERR_FMT 
+ 		     "Invalid IOC facts reply, msgLength=%d offsetof=%d!\n",
+-		     ioc->name, facts->MsgLength, (offsetof(IOCFactsReply_t,
++		     ioc->name, facts->MsgLength, (int)(offsetof(IOCFactsReply_t,
+ 		     RequestFrameSize)/sizeof(u32)));
+ 		return -66;
  	}
- 	BUG();
-@@ -1108,7 +1111,8 @@
- static ide_pci_device_t siimage_chipsets[] __devinitdata = {
- 	/* 0 */ DECLARE_SII_DEV("SiI680"),
- 	/* 1 */ DECLARE_SII_DEV("SiI3112 Serial ATA"),
--	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
-+	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA"),
-+	/* 3 */ DECLARE_SII_DEV("InnoVISION DM8401H")
- };
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/mtd/inftlmount.c linux-2.6.8-rc2/drivers/mtd/inftlmount.c
+--- linux.vanilla-2.6.8-rc2/drivers/mtd/inftlmount.c	2004-07-27 19:22:43.000000000 +0100
++++ linux-2.6.8-rc2/drivers/mtd/inftlmount.c	2004-07-28 14:31:37.711517000 +0100
+@@ -58,7 +58,7 @@
+ 	u8 buf[SECTORSIZE];
+ 	struct INFTLMediaHeader *mh = &inftl->MediaHdr;
+ 	struct INFTLPartition *ip;
+-	int retlen;
++	size_t retlen;
  
- /**
-@@ -1132,6 +1136,7 @@
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1},
- 	{ PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
- #endif
-+	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_DM8401,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, siimage_pci_tbl);
+ 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: find_boot_record(inftl=0x%x)\n",
+ 		(int)inftl);
+@@ -288,7 +288,7 @@
+ 		inftl->PUtable = kmalloc(inftl->nb_blocks * sizeof(u16), GFP_KERNEL);
+ 		if (!inftl->PUtable) {
+ 			printk(KERN_WARNING "INFTL: allocation of PUtable "
+-				"failed (%d bytes)\n",
++				"failed (%ld bytes)\n",
+ 				inftl->nb_blocks * sizeof(u16));
+ 			return -ENOMEM;
+ 		}
+@@ -297,7 +297,7 @@
+ 		if (!inftl->VUtable) {
+ 			kfree(inftl->PUtable);
+ 			printk(KERN_WARNING "INFTL: allocation of VUtable "
+-				"failed (%d bytes)\n",
++				"failed (%ld bytes)\n",
+ 				inftl->nb_blocks * sizeof(u16));
+ 			return -ENOMEM;
+ 		}
+@@ -348,7 +348,8 @@
+ static int check_free_sectors(struct INFTLrecord *inftl, unsigned int address,
+ 	int len, int check_oob)
+ {
+-	int i, retlen;
++	int i;
++	size_t retlen;
+ 	u8 buf[SECTORSIZE + inftl->mbd.mtd->oobsize];
+ 
+ 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: check_free_sectors(inftl=0x%x,"
+@@ -382,7 +383,7 @@
+  */
+ int INFTL_formatblock(struct INFTLrecord *inftl, int block)
+ {
+-	int retlen;
++	size_t retlen;
+ 	struct inftl_unittail uci;
+ 	struct erase_info *instr = &inftl->instr;
+ 	int physblock;
+@@ -551,7 +552,8 @@
+ 	int chain_length, do_format_chain;
+ 	struct inftl_unithead1 h0;
+ 	struct inftl_unittail h1;
+-	int i, retlen;
++	int i;
++	size_t retlen;
+ 	u8 *ANACtable, ANAC;
+ 
+ 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: INFTL_mount(inftl=0x%x)\n", (int)s);

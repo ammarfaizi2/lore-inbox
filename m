@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVC0RvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVC0Rwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVC0RvA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 12:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVC0RvA
+	id S261235AbVC0Rwa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 12:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVC0Rwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 12:51:00 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:2492 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261233AbVC0Ru4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 12:50:56 -0500
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: Linux 2.4.30-rc2
-References: <20050326004631.GC17637@logos.cnet>
-	<20050326113426.GO30052@alpha.home.local>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 27 Mar 2005 19:50:54 +0200
-In-Reply-To: <20050326113426.GO30052@alpha.home.local> (Willy Tarreau's
- message of "Sat, 26 Mar 2005 12:34:26 +0100")
-Message-ID: <m1u0mx2d1d.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Mar 2005 12:52:30 -0500
+Received: from smtpout.mac.com ([17.250.248.72]:59092 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261235AbVC0RwS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 12:52:18 -0500
+In-Reply-To: <200503271116.10396.Norbert@edusupport.nl>
+References: <200503271116.10396.Norbert@edusupport.nl>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0e8c192ff6198432c8f64bcf6342d7b3@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Proposal for new (meta) filesystem
+Date: Sun, 27 Mar 2005 12:52:08 -0500
+To: Norbert van Nobelen <Norbert@edusupport.nl>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> writes:
+On Mar 27, 2005, at 04:16, Norbert van Nobelen wrote:
+> Any more ideas/comments?
 
-> Marcelo,
->
-> just another one and that's all. Zachary Amsden found an unconditional
-> write to a debug register in the signal delivery path which is only
-> needed when we use a breakpoint. This is a very expensive operation on
-> x86, and doing it conditionnaly enhanced signal delivery speed by 33%
-> for him.
->
-> His patch got merged in 2.6.10, and I've merged it a month ago in my
-> local tree. Could we get it in 2.4.30, please ?
+Write a patch, make it useful, then send it here and we'll take a
+look at it.
 
-I dont think it belongs in 2.4.x. It is not a critical bug fix.
+Cheers,
+Kyle Moffett
 
--Andi
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

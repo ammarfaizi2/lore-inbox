@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269800AbRHDFbN>; Sat, 4 Aug 2001 01:31:13 -0400
+	id <S269802AbRHDFfN>; Sat, 4 Aug 2001 01:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269801AbRHDFbE>; Sat, 4 Aug 2001 01:31:04 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:31762 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269800AbRHDFa4> convert rfc822-to-8bit; Sat, 4 Aug 2001 01:30:56 -0400
-Date: Fri, 3 Aug 2001 22:28:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33.0108040055090.11200-100000@touchme.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.33.0108032216350.1032-100000@penguin.transmeta.com>
+	id <S269803AbRHDFex>; Sat, 4 Aug 2001 01:34:53 -0400
+Received: from www.wen-online.de ([212.223.88.39]:52229 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S269802AbRHDFer>;
+	Sat, 4 Aug 2001 01:34:47 -0400
+Date: Sat, 4 Aug 2001 07:34:24 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Jeremy Linton <jlinton@interactivesi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Free memory starvation in a zone?
+In-Reply-To: <Pine.LNX.4.21.0108031923390.8951-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108040724320.873-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id WAA22722
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Aug 2001, Marcelo Tosatti wrote:
 
-On Sat, 4 Aug 2001, Ben LaHaise wrote:
+> On Fri, 3 Aug 2001, Jeremy Linton wrote:
 >
-> > How about capping the number of requests to something sane, like 128? Then
-> > the natural request allocation (together with the batching that we already
-> > have) should work just dandy.
+> > In kreclaimd() there is a nice loop that looks like
+> >
+> >  for(i = 0; i < MAX_NR_ZONES; i++) {
+> >     zone_t *zone = pgdat->node_zones + i;
+> >     if (!zone->size)
+> >         continue;
+> >
+> >     while (zone->free_pages < zone->pages_low) {
+> >         struct page * page;
+> >         page = reclaim_page(zone);
+> >         if (!page)
+> >             break;
+> >         __free_page(page);
+> >     }
+> > }
+> >
+> > I was playing around with the page age algorithm when i noticed that it
+> > appears that the machine will get into a state where the inner loop _NEVER_
+> > exits the current zone because applications running in that zone are eating
+> > the memory as fast as it is being freed up.
 >
-> This has other drawbacks that are quite serious: namely, the order in
-> which io is submitted to the block layer is not anywhere close to optimal
-> for getting useful amounts of work done.
+> Normal allocations are going to block giving a chance for kreclaimd to run
+> (and remember, the loop and the freeing routines are really fast).
+>
+> Are you sure you're seeing kreclaimd looping too much here ?
+>
+> I've never seen that, and if I did I would get really really
+> concerned: we rely on kreclaimd to avoid atomic allocations from failing
+> in a fragile way.
 
-Now this is true _whatever_ we do.
+Snippet from one of Dirk's logs.
 
-We all agree that we have to cap the thing somewhere, no?
+  PID  PPID USER     PRI  SIZE SWAP  RSS SHARE   D STAT %CPU %MEM   TIME COMMA
+    3     1 root      20     0    0    0     0   0 RW   58.8  0.0   2:41 kswapd
+ 1494  1421 novatest  15 2009M 640M 1.3G 51476  0M R N  40.8 34.5   6:26 ceqsim
+ 1751  1747 root      14  1048    4 1044   824  55 R    28.0  0.0   0:02 top
+    4     1 root      14     0    0    0     0   0 SW   27.1  0.0   1:06 krecla
 
-Which means that we may be cutting off at a point where if we didn't cut
-off, we could have merged better etc. So that problem we have regardless
-of whether we could bhäs submitted to ll_rw_block() or we count requests
-submitted to the actual IO layer.
-
-The advantage off cutting off on a per-request basis is:
-
- - doing contiguous IO is "almost free" on most hardware today. So it's ok
-   to allow a lot more IO if it's contiguous - because the cost of doing
-   one request (even if large) is usually much lower than the cost of
-   doing two (smaller) requests.
-
- - What we really want to do is to have a sliding window of active
-   requests - enough to get reasonable elevator behaviour, and small
-   enough to get reasonable latency. Again, for both of these, the
-   "request" is the right entity - latency comes mostly from seeks (ie
-   between request boundaries), and similarly the elevator obviously works
-   on request boundaries too, not on "bh" boundaries.
-
-Also, I doubt it makes all that much sense to change the number of queue
-entries based on memory size. It probably makes more sense to scale the
-number of requests by disk speed, for example.
-
-[ Although there's almost certainly some amount of correlation - if you
-  have 2GB of RAM, you probably have fast disks too. But not the linear
-  function that we currently have. ]
-
->			  This situation only gets worse
-> as more and more tasks find that they need to clean buffers in order to
-> allocate memory, and start throwing more and more buffers from different
-> tasks into the io queue (think what happens when two tasks are walking
-> the dirty buffer lists locking buffers and then attempting to allocate a
-> request which then delays one of the tasks).
-
-Note that this really is a sitation we've had forever.
-
-There are good reasons to believe that we should do a better job of
-sorting the IO requests at a higher level in _addition_ to the low-level
-elevator. Filesystems should strive to allocate blocks contiguously etc,
-and we should strive to keep (and write out) the dirty lists etc in a
-somewhat cronological order to take advantage of usually contiguous writes
-(and maybe actively sort the dirty queue on writes that are _not_ going to
-have good locality, like swapping).
-
-		Linus
+	-Mike
 

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263205AbRFEETA>; Tue, 5 Jun 2001 00:19:00 -0400
+	id <S263206AbRFEEYA>; Tue, 5 Jun 2001 00:24:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263206AbRFEESu>; Tue, 5 Jun 2001 00:18:50 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:55048 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263205AbRFEESh> convert rfc822-to-8bit; Tue, 5 Jun 2001 00:18:37 -0400
-Message-Id: <200106050410.f554AHU13454@smtp.kolej.mff.cuni.cz>
-Content-Type: text/plain; charset=US-ASCII
-From: Rudo Thomas <rudo@internet.sk>
-To: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: kernel oops when burning CDs
-Date: Tue, 5 Jun 2001 06:19:14 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106042037.f54KbgU08004@smtp.kolej.mff.cuni.cz> <E15728I-00060D-00@the-village.bc.nu> <zobn90cv.wl@frostrubin.open.nm.fujitsu.co.jp>
-In-Reply-To: <zobn90cv.wl@frostrubin.open.nm.fujitsu.co.jp>
-X-I-use: SuSE Linux 7.1
+	id <S263208AbRFEEXu>; Tue, 5 Jun 2001 00:23:50 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:62219 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S263206AbRFEEXe>;
+	Tue, 5 Jun 2001 00:23:34 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15132.24313.192723.285372@argo.ozlabs.ibm.com>
+Date: Tue, 5 Jun 2001 14:24:25 +1000 (EST)
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
+Subject: Re: [PATCH] fs/devfs/base.c
+In-Reply-To: <01060422150505.08443@starship>
+In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
+	<01060422150505.08443@starship>
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I get an ooops and immediate kernel panic when I break (CTRL-C)
-> > > cdrecord. I can reproduce on 2.4.5-ac series, Linus' 2.4.5 is fine.
-> >
-> > ... Also include the hardware details. The -ac tree has a newer version of
-> > the scsi generic code.
->
->   Oops occures in SG driver. This patch fixes the problem.
+Daniel Phillips writes:
 
-Indeed, the patch seems to have solved the problem. Thanks.
+> We'd better know the upper bound of interrupt allocations or we have an 
+> accident waiting to happen.  How much of the kernel stack is reserved 
+> for interrupts?
 
-The hardware used was a HP 9100 through ide-scsi on a VIA MVP3 based MB. This 
-is probably irrelevant, but just in case...
+Since interrupt handlers generally run with other interrupts enabled,
+and only their own interrupt disabled, it seems to me that the bound
+on how much stack space you need to leave for interrupt handlers
+depends on how many different interrupts you have in the system.  On a
+large system there could easily be tens or even hundreds of active
+devices, all with different IRQs.  It would be possible (although
+unlikely) for them to all to interrupt at just the right time to get
+all their handlers stacked, and that could easily overflow the stack.
 
-Rudo Thomas.
+One solution would be to start running interrupt handlers with
+interrupts disabled (__cli) when they are getting close to being too
+deeply nested - it would not be hard to check the stack pointer and if
+there is less than some defined amount of stack space left then we
+don't do the __sti before calling the handler.
 
-ps: Here's what I got to:
-
->>EIP; c01abe88 <sg_cmd_done_bh+1cc/274>   <=====
-Trace; c01a3396 <scsi_old_done+56a/57c>
-Trace; c01a6f28 <idescsi_end_request+1f8/240>
-Trace; c01a6ff3 <idescsi_pc_intr+83/234>
-Trace; c0195a17 <ide_intr+f7/14c>
-Trace; c01a6f70 <idescsi_pc_intr+0/234>
-Trace; c010798c <simd_math_error+54/c8>
-Trace; c0107eee <do_IRQ+6e/b0>
-Trace; 0c019efe Before first symbol
-Code;  c01abe88 <sg_cmd_done_bh+1cc/274>
-00000000 <_EIP>:
-Code;  c01abe88 <sg_cmd_done_bh+1cc/274>   <=====
-   0:   ff 48 10                  decl   0x10(%eax)   <=====
-Code;  c01abe8b <sg_cmd_done_bh+1cf/274>
-   3:   a1 ac f3 22 c0            mov    0xc022f3ac,%eax
-Code;  c01abe90 <sg_cmd_done_bh+1d4/274>
-   8:   80 48 18 08               orb    $0x8,0x18(%eax)
-Code;  c01abe94 <sg_cmd_done_bh+1d8/274>
-   c:   88 54 24 14               mov    %dl,0x14(%esp,1)
-Code;  c01abe98 <sg_cmd_done_bh+1dc/274>
-  10:   8b 02                     mov    (%edx),%eax
-Code;  c01abe9a <sg_cmd_done_bh+1de/274>
-  12:   8b 40 00                  mov    0x0(%eax),%eax
+Paul.

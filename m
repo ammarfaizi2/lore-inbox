@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312354AbSDPLQL>; Tue, 16 Apr 2002 07:16:11 -0400
+	id <S312380AbSDPLVG>; Tue, 16 Apr 2002 07:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312380AbSDPLQK>; Tue, 16 Apr 2002 07:16:10 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:25101 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S312354AbSDPLQJ>;
-	Tue, 16 Apr 2002 07:16:09 -0400
-Date: Tue, 16 Apr 2002 15:20:36 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [PATCH] drivers/net/sis900.c: misiing __devinit
-Message-ID: <20020416112036.GC3418@pazke.ipt>
-Mail-Followup-To: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+	id <S312386AbSDPLVF>; Tue, 16 Apr 2002 07:21:05 -0400
+Received: from loki.Informatik.Uni-Oldenburg.DE ([134.106.9.61]:35593 "EHLO
+	walker.pmhahn.de") by vger.kernel.org with ESMTP id <S312380AbSDPLVF>;
+	Tue, 16 Apr 2002 07:21:05 -0400
+Date: Tue, 16 Apr 2002 13:20:37 +0200
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: hch@infradead.org
+Subject: [BUG] skip_ioapic_setup
+Message-ID: <20020416112037.GA9185@titan.lahn.de>
+In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IuhbYIxU28t+Kd57"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.8 
+User-Agent: Mutt/1.3.28i
+Organization: UUCP-Freunde Lahn e.V.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 16, 2002 at 12:50:13AM -0300, Marcelo Tosatti wrote:
 
---IuhbYIxU28t+Kd57
-Content-Type: multipart/mixed; boundary="Il7n/DHsA0sMLmDu"
-Content-Disposition: inline
+> <hch@infradead.org> (02/04/15 1.407)
+> 	[PATCH] disable APIC when broken mptable is found
+[...]
+> <hch@infradead.org> (02/04/15 1.410)
+> 	[PATCH] allow forcing APIC mode
+
+Linking fails:
+ld -m elf_i386 -T /usr/src/linux-2.4.19/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o init/do_mounts.o --start-group arch/i386/kernel/kernel.o
+arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o kdb/kdb.o
+drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o
+drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
+drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o
+drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o
+drivers/video/video.o drivers/isdn/vmlinux-obj.o net/network.o
+/usr/src/linux-2.4.19/arch/i386/lib/lib.a
+/usr/src/linux-2.4.19/lib/lib.a
+/usr/src/linux-2.4.19/arch/i386/lib/lib.a
+/usr/src/linux-2.4.19/arch/i386/kdb/kdba.o --end-group -o .tmp_vmlinux1
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x686): undefined reference to `skip_ioapic_setup'
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x302a): undefined reference to `skip_ioapic_setup'
 
 
---Il7n/DHsA0sMLmDu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+skip_ioapic_setup is defined in arch/i386/io_apic.c, which is
+conditionally compiled only, if CONFIG_X86_IO_APIC is defined. which is
+only defined for SMP or when CONFIG_X86_UP_IOAPIC is set.
 
+init/main.c:332 and arch/i386/kernel/dmi_scan.c:357 do both use it and
+don't depend on CONFIG_X86_IO_APIC themselves.
 
-This patch adds missing __devinit modifier for read_eeprom() function.=20
-Patch against 2.5.8. Compiles, but untested.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---Il7n/DHsA0sMLmDu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-sis900-devinit
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/net/sis900.c linux/d=
-rivers/net/sis900.c
---- linux.vanilla/drivers/net/sis900.c	Wed Mar 13 21:43:32 2002
-+++ linux/drivers/net/sis900.c	Sun Apr 14 23:52:57 2002
-@@ -656,7 +656,7 @@
-  *	Note that location is in word (16 bits) unit
-  */
-=20
--static u16 read_eeprom(long ioaddr, int location)
-+static u16 __devinit read_eeprom(long ioaddr, int location)
- {
- 	int i;
- 	u16 retval =3D 0;
-
---Il7n/DHsA0sMLmDu--
-
---IuhbYIxU28t+Kd57
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8vAkEBm4rlNOo3YgRAsMbAJwOzQMzpD0e7HnrjBQkj47xaZDmFQCeJ2rN
-IYV22lkwKnD7iF5LKwz62J8=
-=h0Wr
------END PGP SIGNATURE-----
-
---IuhbYIxU28t+Kd57--
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

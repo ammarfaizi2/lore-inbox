@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277723AbRJIFpQ>; Tue, 9 Oct 2001 01:45:16 -0400
+	id <S277724AbRJIF4A>; Tue, 9 Oct 2001 01:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277724AbRJIFpG>; Tue, 9 Oct 2001 01:45:06 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:41434 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277723AbRJIFox>; Tue, 9 Oct 2001 01:44:53 -0400
+	id <S277725AbRJIFzu>; Tue, 9 Oct 2001 01:55:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1675 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277724AbRJIFzm>;
+	Tue, 9 Oct 2001 01:55:42 -0400
+Date: Mon, 08 Oct 2001 22:56:10 -0700 (PDT)
+Message-Id: <20011008.225610.94885115.davem@redhat.com>
+To: Paul.McKenney@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        rth@redhat.com
 Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF2F33BD66.440BE6A1-ON88256AE0.001DFF26@boulder.ibm.com>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Mon, 8 Oct 2001 22:27:44 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 10/08/2001 11:45:18 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OF2F33BD66.440BE6A1-ON88256AE0.001DFF26@boulder.ibm.com>
+In-Reply-To: <OF2F33BD66.440BE6A1-ON88256AE0.001DFF26@boulder.ibm.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
+   Date: Mon, 8 Oct 2001 22:27:44 -0700
+   
+   All other CPUs must observe the preceding stores before the following
+   stores.
+ ...
+   Does this do the trick?
+   
+              membar #StoreStore
+   
+Yes.
 
->    I am particularly interested in comments from people who understand
->    the detailed operation of the SPARC membar instruction and the PARISC
->    SYNC instruction.  My belief is that the membar("#SYNC") and SYNC
->    instructions are sufficient,
->
-> SYNC is sufficient but way too strict.  You don't explicitly say what
-> you need to happen.  If you need all previous stores to finish
-> before all subsequent memory operations then:
->
->          membar #StoreStore | #StoreLoad
->
-> is sufficient.  If you need all previous memory operations to finish
-> before all subsequent stores then:
->
->          membar #StoreStore | #LoadStore
->
-> is what you want.
+   The IPIs and related junk are I believe needed only on Alpha, which has
+   no single memory-barrier instruction that can do wmbdd()'s job.  Given
+   that Alpha seems to be on its way out, this did not seem to me to be
+   too horrible.
+   
+I somehow doubt that you need an IPI to implement the equivalent of
+"membar #StoreStore" on Alpha.  Richard?
 
-I need to segregate the stores executed by the CPU doing the membar.
-All other CPUs must observe the preceding stores before the following
-stores.  Of course, this means that the loads on the observing CPUs
-must be ordered somehow.  I need data dependencies between the loads
-to be sufficient to order the loads.
-
-For example, if a CPU executes the following:
-
-     a = new_value;
-     wmbdd();
-     p = &a;
-
-then i need any other CPU executing:
-
-     d = *p;
-
-to see either the value that "p" pointed to before the "p = &a" assignment,
-or "new_value", -never- the old value of "a".
-
-Does this do the trick?
-
-           membar #StoreStore
-
->    Thoughts?
->
-> I think if you need to perform IPIs and junk like that to make the
-> memory barrier happen correctly, just throw your code away and use a
-> spinlock instead.
-
-The IPIs and related junk are I believe needed only on Alpha, which has
-no single memory-barrier instruction that can do wmbdd()'s job.  Given
-that Alpha seems to be on its way out, this did not seem to me to be
-too horrible.
-
-                                   Thanx, Paul
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

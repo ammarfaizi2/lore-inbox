@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273185AbTG3SKR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 14:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273186AbTG3SKR
+	id S273227AbTG3Sgg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 14:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273228AbTG3Sgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 14:10:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6397 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S273185AbTG3SKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 14:10:13 -0400
-Date: Wed, 30 Jul 2003 20:10:06 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: TSCs are a no-no on i386
-Message-ID: <20030730181006.GB21734@fs.tum.de>
-References: <20030730135623.GA1873@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730135623.GA1873@lug-owl.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jul 2003 14:36:36 -0400
+Received: from dp.samba.org ([66.70.73.150]:31398 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S273227AbTG3Sgf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 14:36:35 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Bas Mevissen <ml@basmevissen.nl>
+Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools don't support gzipped modules. 
+In-reply-to: Your message of "Wed, 30 Jul 2003 12:15:18 +0200."
+             <20030730101518.GL4279@louise.pinerecords.com> 
+Date: Thu, 31 Jul 2003 02:46:23 +1000
+Message-Id: <20030730183635.0B82D2C097@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 03:56:23PM +0200, Jan-Benedict Glaw wrote:
->...
-> Please apply. Worst to say, even Debian seems to start using i486+
-> features (ie. libstdc++5 is SIGILLed on Am386 because there's no
-> "lock" insn available)...
+In message <20030730101518.GL4279@louise.pinerecords.com> you write:
+> > [ml@basmevissen.nl]
+> > 
+> > >The possibility of compressing the modules is interesting, like for
+> > >example in cases of construction of small systems or initrd.
+> > 
+> > In both cases, you might use a compressed file system. Maybe you better 
+> > try to save memory and disk space by compressing less critical stuff 
+> > than kernel modules.
+> 
+> It's a valid feature request nonetheless.
 
-Shouldn't the 486 emulation in the latest 386 kernel images in Debian
-unstable take care of this?
+I agree, but I believe almost anything is a valid feature request.
 
-> MfG, JBG
->...
+I don't want to require zlib, though.  The modutils I have (Debian)
+doesn't support it, either.
 
-cu
-Adrian
+It's fairly trivial patch, which probably is best as an add-on (which
+I think RH do?
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

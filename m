@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270246AbRHHASi>; Tue, 7 Aug 2001 20:18:38 -0400
+	id <S270247AbRHHAYt>; Tue, 7 Aug 2001 20:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270243AbRHHAS2>; Tue, 7 Aug 2001 20:18:28 -0400
-Received: from mail.ureach.com ([63.150.151.36]:58635 "EHLO ureach.com")
-	by vger.kernel.org with ESMTP id <S270242AbRHHASO>;
-	Tue, 7 Aug 2001 20:18:14 -0400
-Date: Tue, 7 Aug 2001 20:18:22 -0400
-Message-Id: <200108080018.UAA13390@www23.ureach.com>
-To: linux-kernel@vger.kernel.org
-From: Kapish K <kapish@ureach.com>
-Reply-to: <kapish@ureach.com>
-Subject: a query related to locks and smp
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-vsuite-type: e
+	id <S270249AbRHHAYi>; Tue, 7 Aug 2001 20:24:38 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:46855 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S270247AbRHHAY3>;
+	Tue, 7 Aug 2001 20:24:29 -0400
+Date: Wed, 8 Aug 2001 02:24:37 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Igmar Palsenberg <maillist@jdimedia.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x VM problems thread
+In-Reply-To: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl>
+Message-ID: <Pine.LNX.4.33.0108080223550.17520-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-      We have been getting a consistent oops on an smp box ( 2
-processors ), and when kdb is turned on, it oopses, but the oops
-message shows only the register information for the faulting
-process a on cpu x. cpu y shows a running process b which at
-that point seems to be in a lock_kernel routine from within
-sys_ioctl. We are unable to exactly figure out the code path for
-the process a, but there are a few other processes in run state
-on cpu a, which are the nfs daemons. A backtrace of those show
-that they are in the schedule routine near, switch_to(). Each
-instance of the nfsd daemons call into another daemon c each,
-each of which call the schedule routine, as part of a sleep
-on/interruptible sleep on routines, based along the same lines
-as the code in sched.c
-I am trying to understand what could possibly going wrong in the
-locking mechanism here, that could be causing the oops. Is there
-any way to debug code specific to such locks, like spinlocks,
-maybe try some kind of configuration parameter setup or
-something? If need be, I can attach portions of the kdb output. 
-Or if there are suggestions as to how to narrow this further,
-that would be helpful.
-Since I am not subscribed on this list, kindly cc to the id.
-TIA
+This kind of code would kill any Unix system, i think, not just linux 2.4
+boxes.
 
-________________________________________________
-Get your own "800" number
-Voicemail, fax, email, and a lot more
-http://www.ureach.com/reg/tag
+On Tue, 7 Aug 2001, Igmar Palsenberg wrote:
+
+>
+> Hi,
+>
+> I've followed the 2.4.x VM thread stuff. Someone mentioned he will
+> wite a test program. Attached program kills all boxen within 1 minute,
+> it's not hard to see what it does.
+>
+> I'm willing to test experimental stuff if needed.
+>
+> 	Regards,
+>
+>
+> 		Igmar
+>
+>
+

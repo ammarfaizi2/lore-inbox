@@ -1,57 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGAMAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbUGAL5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUGAMAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 08:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGAMAb
+	id S264582AbUGAL5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 07:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGAL5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 08:00:31 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:23788 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264767AbUGAMA0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 08:00:26 -0400
-Subject: machine hangs - SLES9/NFS
-From: Shylendra Bhat <shylendra.bhat@hp.com>
-Reply-To: shylendra.bhat@hp.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1088683221.3552.15.camel@nt2624.india.hp.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 01 Jul 2004 17:30:21 +0530
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jul 2004 07:57:54 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:57239 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S264582AbUGAL5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 07:57:50 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF08F42FBC@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
+       "'akpm@osdl.org'" <akpm@osdl.org>, "'Con Kolivas'" <kernel@kolivas.org>,
+       "'Kevin P. Dankwardt'" <k@kcomputing.com>,
+       "'Oliver Neukum'" <oliver@neukum.org>,
+       "'Felipe Alfaro Solana'" <felipe_alfaro@linuxmail.org>,
+       "'Tigran Aivazian'" <tigran@veritas.com>,
+       "'corbet@lwn.net'" <corbet@lwn.net>
+Subject: Linux scheduler (scheduling) questions vs threads 
+Date: Thu, 1 Jul 2004 07:56:02 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Sorry for bothering and annoying everyone on this list again with additional
+questions ...
 
-I am looking answers for the following questions.
+Let assume there is one (and only one) application (user space ) process
+running on the Linux 2.6 - with multiple threads within it, created via
+"clone" (this happens, I presume, for example, if one uses Monta Vista
+library for porting PSOS to Linux).
 
-Is nfs file lock acquired by client, persistent across the nfs server
-reboot?
-I know that this feature was not there in NFSv3. Does NFSv4 supports
-this?
+What scheduling policies those threads (within the same process) will be
+governed by (if any )?
 
-Following is the exercise which I did to test nfs file lock.
+Or is it user's responsibility to arrange threads scheduling via some means
+of inter-process synchronization (such as signals, etc ) ?
 
-I have two machines. One among them is the NFS server running on
-SLES9(kernel 2.6.5-7.79). The other machine mounts the NFS exported
-filesystem.
+Thanks,
+Best Regards,
+Alex Povolotsky
 
-I have written a application which locks the files over this nfs mount.
+-----Original Message-----
+From: Con Kolivas [mailto:kernel@kolivas.org]
+Sent: Tuesday, June 29, 2004 6:53 PM
+To: Povolotsky, Alexander
+Cc: 'linux-kernel@vger.kernel.org'; 'andrebalsa@altern.org'; 'Richard E.
+Gooch'; 'Ingo Molnar'; 'rml@tech9.net'; 'akpm@osdl.org'
+Subject: Re: Linux scheduler (scheduling) questions
 
-After acquiring the lock, I am restarting the nfs service using
-"rcnfsserver restart" command.
 
-After the nfs service restart, the client fails to release the lock and
-is in a hung state. If the mount directory is listed, it shows
+Povolotsky, Alexander writes:
 
-"bash: cd: /export: Stale NFS file handle"
+> I  have "general"  Linux  OS scheduling  questions, especially with
+regards
+> as those apply to the (latest) Linux  2.6  scheduler features (would
+really
+> appreciate if whether/when/while answering those questions listed  below,
+> you could pinpoint differences between Linux 2.6 and Linux 2.4 !): 
+ 
+> 0.  I was told that the Linux kernel could be configured with one of the 3
+> (? ) different scheduling policies - could someone describe       
+>      those to me in details ?
+> 2.  Linux 2.6 (I was told it is the same for Linux 2.4.21-15) has
+priorities
+> 0-99 for RT priorities and 100-139 for normal (SCHED_NORMAL) tasks.
 
-After this behavior of the client, server stops responding. Only way to
-bring back the machine is reboot.
+> I presume that priorities 0-99 are "recommended" (or enforced ?) for
+> Linux kernel "native" tasks ... and "out or reach" for application
+> tasks (unless one dares to merge application into the Linux kernel,
+> masquerading it as a "system level command" - did anyone tried this ? -
+> I presume it is not recommended ...  )  ?
 
-Any help is really appreciated.
+Three different policies are currently supported:
+SCHED_NORMAL (also known as SCHED_OTHER) has a soft priority mechanism 
+over the 'nice' range of -20 to +19 (static priority of 100-139) which 
+decides according to the priority which task goes first, and how much 
+timeslice it gets. This system dynamically alters the priority to allow 
+interactive tasks to go first, and is designed to prevent starvation of 
+lower priority tasks with an expiration policy. 
 
-Thanks & regards
-Shylendra
+SCHED_RR is a fixed real time policy over the static range of 0-99 where a 
+lower number (higher priority) task will repeatedly go ahead of _any_ tasks 
+lower priority than itself. It is called RR because if multiple tasks are at
+
+the same priority it will Round Robin between those tasks. 
+
+SCHED_FIFO is a fixed real time policy the static range of 0-99 where a
+lower number (higher priority) task will repeatedly go ahead of _any_ tasks
+with lower priority than itself. Unlike RR, if a task does not give up the
+cpu it 
+will run indefinitely even if other tasks are the same static priority as 
+itself.
+
+Unprivileged users are not allowed to set SCHED_RR or SCHED_FIFO because of 
+the real risk of these tasks causing starvation.
+
+> 1.   How rescheduling is "induced" in above scheduling policies ?
+>      Does at least one of above mentioned scheduling policies uses "clock
+>      tick" as a scheduling event ?
+
+Preemption is built into this mechanism where any higher priority task will 
+preempt the current running task at any time. SCHED_NORMAL tasks have a 
+timeout policy based on scheduler_tick that allows other tasks of the same 
+priority to run and considers that task for expiration. SCHED_RR tasks have 
+a timeout policy also based on scheduler tick that allows tasks of the same 
+priority to run. SCHED_FIFO tasks never time out.
+
+> Under what priority the OS system calls are executed ?
+
+The kernel threads run at different priorities dependent on what they do. 
+Run 'top -b -n 1' and you'll see a list of different tasks with the name k* 
+that are kernel threads. On SMP systems, the migration thread is SCHED_FIFO 
+priority 0 which means it always goes ahead of everything else. The rest of 
+the kernel threads vary between SCHED_NORMAL 'nice' -20 to +19 (static 
+priority 100-139).
+
+> 3.  Is  priority inversion and its prevention (priority inheritance or
+> priority ceilings) applicable to Linux ) for application/user-space tasks
+(
+> with priorities in the range 100-139) ?
+
+There is no intrinsic mechanism in the kernel to prevent priority inversion.
+
+Generic anti-starvation mechanims minimise the harm that priority inversion 
+can do but there can be a lot of wasted cpu cycles for poorly coded 
+applications. This is more true of 2.6 than 2.4 because the cpu scheduler 
+does far more 'out of order' scheduling where a task can run many many times
+
+dependent on priority before another task will ever run.
+
+Hope this helps,
+Cheers,
+Con
 

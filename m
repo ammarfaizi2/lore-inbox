@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRAIQoi>; Tue, 9 Jan 2001 11:44:38 -0500
+	id <S129383AbRAIQpS>; Tue, 9 Jan 2001 11:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbRAIQo2>; Tue, 9 Jan 2001 11:44:28 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1028 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129383AbRAIQoX>;
-	Tue, 9 Jan 2001 11:44:23 -0500
-Message-ID: <20010109004555.A7021@bug.ucw.cz>
-Date: Tue, 9 Jan 2001 00:45:55 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matthias Juchem <juchem@uni-mannheim.de>,
-        "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug reporting script? (was: removal of redundant line in documentation)
-In-Reply-To: <20010106075402.A3377@foozle.turbogeek.org> <Pine.LNX.4.30.0101061327090.4099-100000@gandalf.math.uni-mannheim.de>
+	id <S129532AbRAIQpJ>; Tue, 9 Jan 2001 11:45:09 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:18963 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129383AbRAIQo7>;
+	Tue, 9 Jan 2001 11:44:59 -0500
+Date: Tue, 9 Jan 2001 17:44:46 +0100
+From: Andi Kleen <ak@suse.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
+        linux-kernel@vger.kernel.org
+Cc: timw@splhi.com
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+Message-ID: <20010109174446.A5602@gruyere.muc.suse.de>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1> <20010109142156.L25659@mea-ext.zmailer.org> <20010109082749.A2971@scutter.internal.splhi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.30.0101061327090.4099-100000@gandalf.math.uni-mannheim.de>; from Matthias Juchem on Sat, Jan 06, 2001 at 01:33:16PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010109082749.A2971@scutter.internal.splhi.com>; from timw@splhi.com on Tue, Jan 09, 2001 at 08:27:49AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jan 09, 2001 at 08:27:49AM -0800, Tim Wright wrote:
+> you are correct in saying that ia32 systems don't have IOMMU hardware, but
+> it's unfortunate that we don't support 64-bit PCI bus master cards, since
+> they're inexpensive and fairly common now. For instance, the Qlogic ISP SCSI
+> cards can do 64-bit addressing, as can many others. Has anybody taken a look
+> at enabling this ?
 
-> > If ver_linux can take off one of those steps, why not include a script
-> > which takes care of ALL the leg work? All of the files it asks the
-> > reporter to include are o+r...
-> 
-> If have started a script that produces the following output. ( some fields
-> need to be filled, but the structure will be like that). If you have additional
-> ideas, please tell me. I'll include some more version numbers from system tools
-> and, maybe, a routine that calls ksymoops.
+Problem is that it needs a driver interface change and cooperation from the
+drivers. 
 
-This is horrible bugreport. Kill "keywords". Putting "modules" into
-keywords i not going to help anyone. Having "4. Kernel version" and
-minuses before actuall version is not helpfull, either.
-
-								Pavel
-
-> 4. Kernel version
-> ----------------------------------------------
-> Linux version 2.4.0 (root@gandalf) (gcc version 2.95.2 19991024 (release)) #6 Sat Jan 6 03:37:57 CET 2001
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbRBLWNo>; Mon, 12 Feb 2001 17:13:44 -0500
+	id <S129351AbRBLWU2>; Mon, 12 Feb 2001 17:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131416AbRBLWNf>; Mon, 12 Feb 2001 17:13:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39173 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131228AbRBLWNQ>; Mon, 12 Feb 2001 17:13:16 -0500
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-To: carlos@fisica.ufpr.br (Carlos Carvalho)
-Date: Mon, 12 Feb 2001 22:11:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <14984.24279.786295.783864@hoggar.fisica.ufpr.br> from "Carlos Carvalho" at Feb 12, 2001 08:08:23 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129555AbRBLWUS>; Mon, 12 Feb 2001 17:20:18 -0500
+Received: from ip110.herrera.iphil.net ([203.176.28.110]:58893 "HELO
+	mail.q-linux.com") by vger.kernel.org with SMTP id <S129351AbRBLWUJ>;
+	Mon, 12 Feb 2001 17:20:09 -0500
+Date: Tue, 13 Feb 2001 06:20:01 +0800
+From: "Michael J. Maravillo" <mike.maravillo@q-linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: LARGE bug with 2.4.1ac10 and loop filesystem
+Message-ID: <20010213062001.B14748@mail.q-linux.com>
+In-Reply-To: <3A8855DB.8EEC1170@interplus.ro> <E14SQze-0008Ds-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SRCN-0008Gj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14SQze-0008Ds-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 12, 2001 at 09:58:43PM +0000
+Organization: Q Linux Solutions, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm... Looks more difficult than I expected. Can we just change the
-> one call to BUG to something sensible on alphas? I'm really eager to
-> run this kernel..
+On Mon, Feb 12, 2001 at 09:58:43PM +0000, Alan Cox wrote:
+> >         Kernel 2.4.1ac9 works OK from that point of view.
+> 
+> That was Im afraid pure luck. Jens is currently sorting out the
+> loop problems and has test patches
 
-The 'something sensible' is what you need to define BUG() to be, so its no
-harder to do it right IMHO
+By any chance, are these loop problems the same ones affecting
+2.4.2-pre2 and -pre3?
 
-I suspect adding 
-
-#define BUG()          __asm__ __volatile__("call_pal 129 # bugchk")
-
-to include/asm-alpha/page.h will do the right thing, since it works on 2.4
-
-
-
+-- 
+ .--.  Michael J. Maravillo                   office://+63.2.894.3592/
+( () ) Q Linux Solutions, Inc.              mobile://+63.917.897.0919/
+ `--\\ A Philippine Open Source Solutions Co.  http://www.q-linux.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

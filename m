@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbTKGWCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTKGV74
+	id S261575AbTKHB15 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 20:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTKHB15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 16:59:56 -0500
-Received: from rdns.74.161.62.64.fre.communitycolo.net ([64.62.161.74]:45453
-	"EHLO thefinalbean.com") by vger.kernel.org with ESMTP
-	id S264620AbTKGUHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 15:07:23 -0500
-Message-ID: <35438.128.107.165.13.1068235628.squirrel@mail.yumbrad.com>
-Date: Fri, 7 Nov 2003 12:07:08 -0800 (PST)
-Subject: CRAMFS
-From: "Bradley Bozarth" <prettygood@cs.stanford.edu>
+	Fri, 7 Nov 2003 20:27:57 -0500
+Received: from web80007.mail.yahoo.com ([66.163.168.137]:25348 "HELO
+	web80007.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261575AbTKHB14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 20:27:56 -0500
+Message-ID: <20031108012755.41882.qmail@web80007.mail.yahoo.com>
+Date: Fri, 7 Nov 2003 17:27:55 -0800 (PST)
+From: Oleg OREL <oleg_orel@yahoo.com>
+Reply-To: oleg_orel@yahoo.com
+Subject: Linux kernel preemption (kernel 2.6 of course)
 To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
+In-Reply-To: <20031108003029.BF9DB5F711@attila.bofh.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Quinlan originally maintained this, now it is orphaned.  His endian
-patch, which implemented the correct behavior according to the docs (which
-basically listed always do little endian as a todo), was dropped.
 
-We have been maintaining this patch on our kernel, but it really should go
-in - I don't want to spend a ton of time like I did last time to have it
-dropped again, however - is anyone thinking of maintaining cramfs?  What
-are the chances of the endian fix going in if I submit it again?  (if even
-the former maintainer had no success).  I would maintain cramfs if desired
-- it hasn't really changed in a long time except in regards to higher
-level fs changes.
+I was browsing linux kernel to undetsnand how kernel preemption does
+work. I was hacking around schedulee_tick and other functions called
+out of timer interrupt and was unable to found any call to schedule()
+or switch_to() to peempt currently running task, instead just mangling
+around current and inactive runqueues.
 
-Thanks,
-Brad
+That leads me to a thought that currently running task wont be
+preempted within time-tick, instead it might happends in the next call
+to preempt_schedule out of spin_lock for instance.
+ 
+
+
+
+=====
+Oleg OREL
+
+TEL: +1 925 244-1127
+CELL: +1 916 337-0608

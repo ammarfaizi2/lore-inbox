@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129694AbRBHIJC>; Thu, 8 Feb 2001 03:09:02 -0500
+	id <S129032AbRBHIMC>; Thu, 8 Feb 2001 03:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130871AbRBHIIm>; Thu, 8 Feb 2001 03:08:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12297 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129694AbRBHIIe>; Thu, 8 Feb 2001 03:08:34 -0500
-Subject: Re: aacraid 2.4.0 kernel
-To: Matt_Domsch@Dell.com
-Date: Thu, 8 Feb 2001 08:09:14 +0000 (GMT)
-Cc: jason@heymax.com, linux-kernel@vger.kernel.org, gandalf@winds.org
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9CA2@ausxmrr501.us.dell.com> from "Matt_Domsch@Dell.com" at Feb 07, 2001 09:03:53 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129257AbRBHILw>; Thu, 8 Feb 2001 03:11:52 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19079 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129032AbRBHILo>;
+	Thu, 8 Feb 2001 03:11:44 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Qm8i-0002om-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <14978.21605.98365.252519@pizda.ninka.net>
+Date: Thu, 8 Feb 2001 00:10:13 -0800 (PST)
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: dentry cache order 7 is broken
+In-Reply-To: <Pine.LNX.4.33.0102072302030.5947-100000@twinlark.arctic.org>
+In-Reply-To: <Pine.LNX.4.33.0102072302030.5947-100000@twinlark.arctic.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> much-improved block layer of 2.4.x throws larger I/Os at the driver.  So,
-> the developers at Adaptec are busy trying to add support to break large
-> requests into smaller chunks, and then gather them back together.
 
-That sounds like it should be doable at the queuing layer. If not the scsi
-queue code or ll_rw_blk wants a bit of tweaking - Jens ?
+dean gaudet writes:
+ > also, for order > 7, was the real intention to use a shift of
+ > (order*2)&31?
 
+No, the whole thing is buggered.  How stupid, my fault.
+It was the 64-bit platform fascist at work :-)
 
+How does this work for you (against 2.4.x)?
+
+--- fs/dcache.c.~1~	Tue Feb  6 23:00:58 2001
++++ fs/dcache.c	Thu Feb  8 00:09:10 2001
+@@ -696,7 +696,8 @@
+ static inline struct list_head * d_hash(struct dentry * parent, unsigned long hash)
+ {
+ 	hash += (unsigned long) parent / L1_CACHE_BYTES;
+-	hash = hash ^ (hash >> D_HASHBITS) ^ (hash >> D_HASHBITS*2);
++	hash = hash ^ (hash >> D_HASHBITS) ^
++		(hash >> (D_HASHBITS+(D_HASHBITS/2)));
+ 	return dentry_hashtable + (hash & D_HASHMASK);
+ }
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

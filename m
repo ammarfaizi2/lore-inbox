@@ -1,117 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbSLBXnA>; Mon, 2 Dec 2002 18:43:00 -0500
+	id <S265373AbSLBXwc>; Mon, 2 Dec 2002 18:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265336AbSLBXnA>; Mon, 2 Dec 2002 18:43:00 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:44050 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265201AbSLBXm5>; Mon, 2 Dec 2002 18:42:57 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1A69@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Jeff Garzik'" <jgarzik@pobox.com>, hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: LM sensors into kernel?
-Date: Mon, 2 Dec 2002 15:50:05 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S265380AbSLBXwc>; Mon, 2 Dec 2002 18:52:32 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:39873 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265373AbSLBXwb> convert rfc822-to-8bit; Mon, 2 Dec 2002 18:52:31 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Exaggerated swap usage
+Date: Tue, 3 Dec 2002 00:59:32 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Andrew Clayton <andrew@sol-1.demon.co.uk>,
+       Javier Marcet <jmarcet@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212030059.32018.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometime back, I had put the sensors support in the 2.4.17 SMP kernel. It
-did not give me any problems and we have been using it successfully. The
-following are some of the details:
+Hi Andrea,
 
-Created a CONFIG_SENSORS entry and an entry for every sensor type
-
-#
-# Hardware sensors support
-#
-CONFIG_SENSORS=y
-# CONFIG_SENSORS_ADM1021 is not set
-# CONFIG_SENSORS_ADM1024 is not set
-# CONFIG_SENSORS_ADM1025 is not set
-# CONFIG_SENSORS_ADM9240 is not set
-# CONFIG_SENSORS_DS1621 is not set
-# CONFIG_SENSORS_FSCPOS is not set
-# CONFIG_SENSORS_GL518SM is not set
-# CONFIG_SENSORS_GL520SM is not set
-# CONFIG_SENSORS_MAXILIFE is not set
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_MTP008 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM80 is not set
-# CONFIG_SENSORS_LM87 is not set
-# CONFIG_SENSORS_SIS5595 is not set
-# CONFIG_SENSORS_THMC50 is not set
-# CONFIG_SENSORS_W83781D is not set
-CONFIG_SENSORS_W83782D=y
-
-And in the Makefile:
-
-DRIVERS-$(CONFIG_SENSORS) += drivers/sensors/sensor.o
-
-Put all the sensor related drivers in drivers/sensors  and created a
-Makefile:
-
-O_TARGET := sensor.o
-
-export-objs     := sensors.o
-
-obj-$(CONFIG_SENSORS)           += sensors.o
-obj-$(CONFIG_SENSORS_ADM1021)   += adm1021.o
-obj-$(CONFIG_SENSORS_ADM1024)   += adm1024.o
-obj-$(CONFIG_SENSORS_ADM1025)   += adm1025.o
-obj-$(CONFIG_SENSORS_ADM9240)   += adm9240.o
-obj-$(CONFIG_SENSORS_BT869)     += bt869.o
-obj-$(CONFIG_SENSORS_DDCMON)    += ddcmon.o
-obj-$(CONFIG_SENSORS_DS1621)    += ds1621.o
-obj-$(CONFIG_SENSORS_EEPROM)    += eeprom.o
-obj-$(CONFIG_SENSORS_FSCPOS)    += fscpos.o
-obj-$(CONFIG_SENSORS_GL518SM)   += gl518sm.o
-obj-$(CONFIG_SENSORS_GL520SM)   += gl520sm.o
-obj-$(CONFIG_SENSORS_IT87)      += it87.o
-obj-$(CONFIG_SENSORS_LM75)      += lm75.o
-obj-$(CONFIG_SENSORS_LM78)      += lm78.o
-obj-$(CONFIG_SENSORS_LM80)      += lm80.o
-obj-$(CONFIG_SENSORS_LM87)      += lm87.o
-obj-$(CONFIG_SENSORS_MAXILIFE)  += maxilife.o
-obj-$(CONFIG_SENSORS_MTP008)    += mtp008.o
-obj-$(CONFIG_SENSORS_SIS5595)   += sis5595.o
-obj-$(CONFIG_SENSORS_THMC50)    += thmc50.o
-obj-$(CONFIG_SENSORS_VIA686A)   += via686a.o
-obj-$(CONFIG_SENSORS_W83781D)   += w83781d.o
-obj-$(CONFIG_SENSORS_W83782D)   += w83782d.o
+> > ok, now it's clear what the problem is. there are inuse-dirty inodes
+> > that triggers a deadlock in the schedule-capable
+> > try_to_sync_unused_inodes of 2.4.20rc2aa1 (that avoided me to backout an
+> > otherwise corrupt lowlatency fix). It can trigger only in UP,
+> > in SMP the other cpu can always run kupdate that will flush all dirty
+> > inodes, so it would lockup one cpu as worse for 2.5 sec, this is
+> > probably why I couldn't reproduce it, I assume all of you reproducing
+> > the deadlock were running on an UP machine (doesn't matter if the kernel
+> Correct (for me anyways). 
+ok, deadlock is gone, instead I have EXT3-fs corruption (non data=journal 
+mode, just ordered) like this:
 
 
+Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1530182
+, count = 1
+Dec  3 00:25:39 codeman kernel: Aborting journal on device ide0(3,9).
+Dec  3 00:25:39 codeman kernel: ext3_free_blocks: aborting transaction: 
+Journal has aborted in __ext3_journal_get_undo_access<2>EXT3
+-fs error (device ide0(3,9)) in ext3_free_blocks: Journal has aborted
+Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_acce
+ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
+aborted
+Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
+ext3_truncate: Journal has aborted
+Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_acce
+ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
+aborted
+Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
+ext3_orphan_del: Journal has aborted
+Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_acce
+ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
+aborted
+Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
+ext3_delete_inode: Journal has aborted
+Dec  3 00:25:39 codeman kernel: ext3_abort called.
+Dec  3 00:25:39 codeman kernel: EXT3-fs abort (device ide0(3,9)): 
+ext3_journal_start: Detected aborted journal
+Dec  3 00:25:39 codeman kernel: Remounting filesystem read-only
+Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
+start_transaction: Journal has aborted
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@pobox.com]
-Sent: Monday, December 02, 2002 2:52 PM
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LM sensors into kernel?
+BTW: UP, non-SMP.
 
-
-Henning P. Schmiedehausen wrote:
-> Bill Davidsen <davidsen@tmr.com> writes:
-> 
-> 
->>Okay, thanks. I was hoping since lm_sensors were proposed before the
->>freeze, relatively stable, and highly useful that they might get in.
-> 
-> 
-> As most of the I2C code is in, I would consider the lm_sensors mainly
-> as "drivers" so they wouldn't be hit by the freeze. 
-
-
-To tangent a bit, I was somewhat disappointed when the I2C kernel 
-merging guy disappeared... :(
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ciao, Marc

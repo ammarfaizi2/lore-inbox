@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTIGNA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 09:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTIGNA6
+	id S263262AbTIGNR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 09:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbTIGNR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 09:00:58 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:42894 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263183AbTIGNAy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 09:00:54 -0400
-Date: Sun, 7 Sep 2003 14:00:17 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 2] Little fixes to previous futex patch
-Message-ID: <20030907130017.GA19977@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0309042224240.5364-100000@localhost.localdomain> <Pine.LNX.4.44.0309070322310.17404-100000@devserv.devel.redhat.com>
+	Sun, 7 Sep 2003 09:17:28 -0400
+Received: from wooledge.org ([209.142.155.49]:16462 "HELO pegasus.wooledge.org")
+	by vger.kernel.org with SMTP id S263262AbTIGNR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 09:17:26 -0400
+Date: Sun, 7 Sep 2003 09:17:14 -0400
+From: Greg Wooledge <greg@wooledge.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: moving a window makes the system 'hang' until button is released
+Message-ID: <20030907131714.GB11333@pegasus.wooledge.org>
+References: <20030906205320.GA21490@pegasus.wooledge.org> <3F5ACA93.6020302@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MW5yreqqjyrRcusr"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309070322310.17404-100000@devserv.devel.redhat.com>
+In-Reply-To: <3F5ACA93.6020302@cyberone.com.au>
 User-Agent: Mutt/1.4.1i
+X-Operating-System: OpenBSD 3.3
+X-www.distributed.net: 95 packets (6131.54 stats units) [5.30 Mnodes/s]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> btw., regarding this fix:
-> 
->   ChangeSet@1.1179.2.5, 2003-09-06 12:28:20-07:00, hugh@veritas.com
->     [PATCH] Fix futex hashing bugs
-> 
-> why dont we do this:
-> 
->                         } else {
->                                 /* Make sure to stop if key1 == key2 */
-> 				if (head1 == head2)
-> 					break;
->                                 list_add_tail(i, head2);
->                                 this->key = key2;
->                                 if (ret - nr_wake >= nr_requeue)
->                                         break;
->                         }
-> 
-> instead of the current:
-> 
->                         } else {
->                                 list_add_tail(i, head2);
->                                 this->key = key2;
->                                 if (ret - nr_wake >= nr_requeue)
->                                         break;
->                                 /* Make sure to stop if key1 == key2 */
->                                 if (head1 == head2 && head1 != next)
->                                         head1 = i;
->                         }
-> 
-> what's the point in requeueing once, and then exiting the loop by changing
-> the loop exit condition variable?
 
-Hugh's patch is clever and subtle.  It doesn't exit the loop; the
-loop continues from "next".
+--MW5yreqqjyrRcusr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What it does is change the end condition so that the loop stops just
-before the first requeued futex.  Let's call that one REQUEUED1.
+Nick Piggin (piggin@cyberone.com.au) wrote:
 
-If are other futexes to requeue, they after inserted after REQUEUED1
-(because head2 wasn't changed), yet the end condition _isn't_ changed
-when this happens, because now head1 != head2.
+> Hi Greg,
+> Can you give my scheduler a try if you have time?
 
-This causes the correct number of futexes to be requeued at the end of
-the wait list.
+After discussion with Paul Cassella and some more experimentation
+on my side, I've concluded that this is not a Linux kernel issue
+at all -- it's a "feature" of fvwm.  Specifically, fvwm grabs the
+entire X server when it's doing a non-opaque move, and xmms only
+keeps playing music until its buffer is drained.  The xmms buffer
+size seems to be dramatically smaller under ALSA, which is why I
+never saw the problem until I moved to 2.6.0-test4 and ALSA.
 
-> You are trying to avoid the lockup but the first one ought to be the
-> most straightforward way to do it.
+I've changed "OpaqueMoveSize" in my .fvwm2rc file to 90, so it will
+only use outline-mode for moving windows which are 90% of the size
+of the screen -- i.e. never, for me.  (Another workaround might be
+to increase xmms's buffer size, but I haven't pursued that side yet.)
 
-Hugh's patch returns the correct retval _and_ requeues the correct
-number of waiters to the end of the queue.  And it does it without
-fancy code.
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D98091 is also
+relevant here.
 
-Remember that the waiter order is visible to userspace - it's used by
-"fair" operations, so it's appropriate that requeuing a futex to
-itself moves nr_requeues waiters to the end of the queue, just like it
-does when it requeues to a different futex.
+--=20
+Greg Wooledge                  |   "Truth belongs to everybody."
+greg@wooledge.org              |    - The Red Hot Chili Peppers
+http://wooledge.org/~greg/     |
 
-If the code to handle that were complicated, I'd vote for dropping it.
-But Hugh's patch does exactly the right thing in a simple way.  Lovely!
+--MW5yreqqjyrRcusr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- Jamie
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (OpenBSD)
+
+iD8DBQE/Wy/akAkqAYpL9t8RAtdEAJ9Wlp0zLntYROXvShRpOhnc7s20AACgop8p
+3u7++g4ExNAMxHMyGp5CBsU=
+=n+Z4
+-----END PGP SIGNATURE-----
+
+--MW5yreqqjyrRcusr--

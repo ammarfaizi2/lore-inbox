@@ -1,167 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVAXIss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVAXI7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVAXIss (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 03:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAXIss
+	id S261153AbVAXI7t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 03:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAXI7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 03:48:48 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:41424 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261472AbVAXIsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 03:48:40 -0500
-Date: Mon, 24 Jan 2005 14:28:05 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG in io_destroy (fs/aio.c:1248)
-Message-ID: <20050124085805.GA4462@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <41F04D73.20800@us.ibm.com>
+	Mon, 24 Jan 2005 03:59:49 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:41871 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261153AbVAXI7e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 03:59:34 -0500
+Date: Mon, 24 Jan 2005 09:59:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+Message-ID: <20050124085902.GA8059@elte.hu>
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F04D73.20800@us.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <87hdl940ph.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Darrick,
 
-As discussed earlier - good catch ! :)
+* Jack O'Quin <joq@io.com> wrote:
 
-But, I'd prefer not to use aio_cancel_all() (its a bit of an overkill,
-especially as we invoke aio_cancel_all() again in io_destroy()).
+>   First, only SCHED_FIFO worked reliably in my tests.  In Con's tests
+>   even that did not work.  My system is probably better tuned for low
+>   latency than his.  Until we can determine why there were so many
+>   xruns, it is premature to declare victory for either scheduler.
+>   Preferably, we should compare them on a well-tuned low-latency
+>   system running your Realtime Preemption kernel.
 
-Having the ioctx start out as dead in ioctx_alloc() before it
-is linked into the ioctx list, or a get_ioctx() before calling
-io_destroy() seem more appropriate options to me.
+i didnt declare victory - the full range of latency fixes is in the -RT
+tree. Merging of relevant bits is an ongoing process - in 2.6.10 you've
+already seen some early results, but it's by no means complete. Nor did
+i declare that nice--20 was suitable for audio priorities.
 
-Regards
-Suparna
+>   Second, the nice(-20) scheduler provides no clear way to support
+>   multiple realtime priorities. [...]
 
-On Thu, Jan 20, 2005 at 04:31:47PM -0800, Darrick J. Wong wrote:
-> Hi all,
-> 
-> [Please cc me on any replies because I'm not subscribed to linux-aio or 
-> linux-kernel.]
-> 
-> I was running a random system call generator against mainline the other 
-> day and got this bug report about AIO in dmesg:
-> 
-> ------------[ cut here ]------------
-> kernel BUG at fs/aio.c:1249!
-> invalid operand: 0000 [#1]
-> PREEMPT SMP
-> Modules linked in: 8250 serial_core isofs zlib_inflate ipt_limit 
-> iptable_mangle ipt_LOG ipt_MASQUERADE iptable_nat ipt_TOS ipt_REJECT 
-> ip_conntrack_irc ip_conntrack_ftp ipt_state ip_conntrack iptable_filter 
-> ip_tables snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd soundcore 
-> snd_page_alloc intel_agp agpgart evdev ehci_hcd uhci_hcd usbcore piix 
-> ext2 ide_generic ide_cd ide_core cdrom
-> CPU:    0
-> EIP:    0060:[<c0170245>]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.10-elm3a74)
-> EIP is at io_destroy+0xb1/0xce
-> eax: ffffffff   ebx: f6b2a300   ecx: 00000000   edx: cfca1000
-> esi: d0da5e80   edi: f6b2a488   ebp: cfca1fa4   esp: cfca1f94
-> ds: 007b   es: 007b   ss: 0068
-> Process io_destroy (pid: 6610, threadinfo=cfca1000 task=f6cdca20)
-> Stack: 00000000 08048008 fffffff2 fffffff2 cfca1fbc c01702fc d0da5e80 
-> 00000010
->        b7fd8c50 bffff3d4 cfca1000 c0102eb3 00000010 08048008 080482fd 
-> b7fd8c50
->        bffff3d4 bffff3e8 000000f5 0000007b 0000007b 000000f5 b7f7c60d 
-> 00000073
-> Call Trace:
->  [<c0103d25>] show_stack+0x7a/0x90
->  [<c0103ea6>] show_registers+0x152/0x1ca
->  [<c01040b7>] die+0x100/0x184
->  [<c01044a8>] do_invalid_op+0xa3/0xad
->  [<c01039cf>] error_code+0x2b/0x30
->  [<c01702fc>] sys_io_setup+0x9a/0xa9
->  [<c0102eb3>] syscall_call+0x7/0xb
-> Code: 1c 8b 06 85 c0 78 24 83 c4 04 5b 5e 5f 5d c3 8b 0a 85 c9 2e 74 b5 
-> 8b 46 10 89 02 eb ae 83 c4 04 89 f0 5b 5e 5f 5d e9 9b ee ff ff <0f> 0b 
-> e1 04 f5 f6 2b c0 eb d2 89 f0 e8 8a ee ff ff eb ab 0f 0b
-> 
-> This is a fairly run-of-the mill P4 box with SCSI disks and a plain 
-> vanilla 2.6.10 kernel on Debian.I 've written a test case that exposes 
-> this bug:
-> 
-> http://submarine.dyndns.org/~djwong/docs/io_destroy.c
-> 
-> The program takes as its only argument the address of a region of read 
-> only memory.  The libc mmap is a pretty good place for this, so you can 
-> run the program thusly:
-> 
-> $ ./io_destroy `cat /proc/$$/maps | grep libc- | grep 'r-' | \
-> awk -F "-" '{print $1}'`
-> 
-> ...and watch the program segfault.  If you can't find an address, 
-> 8048000 seems to work in most cases.
-> 
-> I think I've found the cause of this bug.  Each ioctx structure has a
-> "users" field that acts as a reference counter for the ioctx, and a
-> "dead" flag that seems to indicate that the ioctx isn't associated with
-> any particular list of IO requests.
-> 
-> The problem, then, lies in aio.c:1247.	The io_destroy function checks
-> the (old) value of the dead flag--if it's false (i.e. the ioctx is
-> alive), then the function calls put_ioctx to decrease the reference
-> count on the assumption that the ioctx is no longer associated with any
-> requests.  Later, it calls put_ioctx again, on the assumption that
-> someone called lookup_ioctx to perform some operation at some point.
-> 
-> This BUG is caused by the reference counts being off.  The testcase that
-> I provided looks for a chunk of user memory that's read-only and passes
-> that to the sys_io_setup syscall.  sys_io_setup checks that the pointer
-> is readable, creates the ioctx and then tries to write the ioctx handle
-> back to userland.  This is where the problems start to surface.
-> 
-> Since the pointer points to a non-writable region of memory, the write
-> fails.	The syscall handler then destroys the ioctx.  The dead flag is
-> zero, so io_destroy calls put_ioctx...but wait!  Nobody ever put the
-> ioctx into a request list.  The ioctx is alive but not in a list, yet
-> the io_destroy code assumes that being alive implies being in a request
-> list somewhere.  Hence, calling put_ioctx is bogus; the reference count
-> becomes 0, and the ioctx is freed.  Worse yet, put_ioctx is called again
-> (on a freed pointer!) to clear up the lookup_ioctx that never happened.
->  put_ioctx sees that the reference count has become negative and BUGs.
-> 
-> The patch that I've provided calls aio_cancel_all before calling
-> io_destroy in this failure case.  aio_cancel_all sets ioctx->dead = 1
-> and cancels all requests (there shouldn't be any in this case) in
-> progress.  Since the dead flag is 1, io_destroy calls put_ioctx once to
-> zero the reference count and free the ioctx, and thus the BUG condition
-> doesn't get triggered.	The userland program receives an error code
-> instead of a segfault.
-> 
-> This patch is against 2.6.10; the problem doesn't seem to be fixed in 
-> 2.6.11-rc1.  A simpler version of this fix would simply say "ioctx->dead 
-> = 1;" (or even call "get_ioctx(ioctx);" to inflate the refcounts 
-> artificially), but as I'm not an AIO developer I don't want to be the 
-> one making that call.
-> 
-> --Darrick
-> 
-> -----------------
-> 
-> Signed-off-by: Darrick Wong <djwong@us.ibm.com>
-> 
-> --- linux-2.6.10-a74/fs/aio.c   2004-12-24 13:34:44.000000000 -0800
-> +++ linux-2.6.10/fs/aio.c       2005-01-12 16:09:37.000000000 -0800
-> @@ -1285,6 +1285,7 @@
->                 if (!ret)
->                         return 0;
-> 
-> +               aio_cancel_all(ioctx);
->                 io_destroy(ioctx);
->         }
+why? You could use e.g. nice -20, -19 and -18. (see the patch below that
+implements this.)
 
+>   Third, your prototype denies SCHED_FIFO to privileged threads.  This
+>   is a serious problem, even for testing (though perhaps easy to fix).
 
+this is not a prototype, it's an 'API hack'. The real solution would
+have none of these limitations of course. Just think of this patch as an
+'easy way to use nice--20 without any jackd changes' - any API
+limitation you sense is a fault of this hack, not a fault of the
+concept.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Find below an updated version of the 'API hack', which, instead of
+auto-mapping all RT priorities, extends sched_setscheduler() to allow
+nonzero sched_priority values for SCHED_OTHER, which are interpreted as
+nice values. E.g. to set a thread to nice--20, do this:
 
+	struct sched_param param = { sched_priority: -19 };
+
+	sched_setscheduler(pid, SCHED_OTHER, &param);
+
+(obviously this is not complete because no permission checking is done,
+but this could be combined with an rlimits solution to achieve safety.)
+
+>   Most important, let's not forget that this long discussion started
+>   because ordinary users need access to realtime scheduling.  Con's
+>   scheduler provides a solution for that problem.  Your prototype does
+>   not.
+
+sorry, but that is not how the discussion started. The discussion
+started about an API hack, the RT-LSM way to give ordinary users the
+unfettered access to RT scheduling.
+
+Then, after this approach was vetoed (rightfully IMO, because it has a
+number of disadvantages), did the real discussion start: "how do we give
+low latencies to audio applications (and other, soft-RT alike
+applications), while not allowing them to lock up the system."
+
+I happened to start that angle - until that point everyone was focused
+on the wrong premise of 'how do we give RT privileges to ordinary
+users'. We _dont_ give raw RT scheduling to ordinary users, period. The
+discussion is still about how to give (audio) applications low
+priorities, for which there are a number of solutions:
+
+- SCHED_ISO is a possibility, and has nonzero costs to the scheduler.
+
+- CKRM is another possibility, and has nonzero costs as well, but solves
+  a wider range of problems.
+
+- negative nice levels are the easiest shortterm solution and have zero
+  cost. They have some disadvantages though.
+
+I'm not 'against' SCHED_ISO at all:
+
+  http://lkml.org/lkml/2004/11/2/114
+
+> Being less entangled with SCHED_NORMAL makes me worry less about
+> someone coming along later and messing it up while working on some
+> unrelated problem. [...]
+
+i think the real situation is somewhat the opposite: we much more often
+broke RT scheduling than SCHED_NORMAL scheduling. RT scheduling is
+rarely used, while SCHED_NORMAL (and negative/positive nice levels) are
+used much more often than e.g. SCHED_FIFO or SCHED_RR.
+
+> [...] Right now for example, mounting an encrypted filesystem starts a
+> `loop0' kernel thread at nice -20.
+
+this is not really a problem - there are other kernel subsystems that
+start RT-priority kernel threads. We could easily move such threads to
+the common nice -10 priority level or so.
+
+	Ingo
+
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -2245,10 +2245,10 @@ EXPORT_PER_CPU_SYMBOL(kstat);
+  * if a better static_prio task has expired:
+  */
+ #define EXPIRED_STARVING(rq) \
+-	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
++	((task_nice(current) >= -15) && ((STARVATION_LIMIT && ((rq)->expired_timestamp && \
+ 		(jiffies - (rq)->expired_timestamp >= \
+ 			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
+-			((rq)->curr->static_prio > (rq)->best_expired_prio))
++			((rq)->curr->static_prio > (rq)->best_expired_prio)))
+ 
+ /*
+  * Do the virtual cpu time signal calculations.
+@@ -3328,12 +3328,16 @@ static inline task_t *find_process_by_pi
+ static void __setscheduler(struct task_struct *p, int policy, int prio)
+ {
+ 	BUG_ON(p->array);
++	if (policy == SCHED_NORMAL) {
++		p->policy = SCHED_NORMAL;
++		p->rt_priority = 0;
++		p->static_prio = NICE_TO_PRIO(prio);
++		p->prio = p->static_prio;
++		return;
++	}
+ 	p->policy = policy;
+ 	p->rt_priority = prio;
+-	if (policy != SCHED_NORMAL)
+-		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+-	else
+-		p->prio = p->static_prio;
++	p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ }
+ 
+ /**
+@@ -3361,12 +3365,17 @@ recheck:
+ 	/*
+ 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
+ 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
++	 *
++	 * Hack: allow SCHED_OTHER with nice levels of -20 ... +19
+ 	 */
+-	if (param->sched_priority < 0 ||
+-	    param->sched_priority > MAX_USER_RT_PRIO-1)
+-		return -EINVAL;
+-	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
+-		return -EINVAL;
++	if (policy != SCHED_NORMAL) {
++		if (param->sched_priority < 0 ||
++		    param->sched_priority > MAX_USER_RT_PRIO-1)
++			return -EINVAL;
++	} else {
++		if (param->sched_priority < -20 || param->sched_priority > 19)
++			return -EINVAL;
++	}
+ 
+ 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
+ 	    !capable(CAP_SYS_NICE))

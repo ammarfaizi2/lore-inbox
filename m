@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290032AbSAKRrn>; Fri, 11 Jan 2002 12:47:43 -0500
+	id <S290040AbSAKR4N>; Fri, 11 Jan 2002 12:56:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290036AbSAKRrd>; Fri, 11 Jan 2002 12:47:33 -0500
-Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:43395 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S290032AbSAKRrX>; Fri, 11 Jan 2002 12:47:23 -0500
-Date: Fri, 11 Jan 2002 12:46:26 -0500
-From: Chris Mason <mason@suse.com>
-To: Oleg Drokin <green@namesys.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] [PATCH] corrupted reiserfs may cause kernel to
- panic on lookup() sometimes.
-Message-ID: <147220000.1010771186@tiny>
-In-Reply-To: <20020103101830.A2610@namesys.com>
-In-Reply-To: <20020103101830.A2610@namesys.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S290041AbSAKR4E>; Fri, 11 Jan 2002 12:56:04 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:23680 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S290040AbSAKRz6>; Fri, 11 Jan 2002 12:55:58 -0500
+To: willy tarreau <wtarreau@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <20020111092548.38249.qmail@web20508.mail.yahoo.com>
+From: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>
+Date: 11 Jan 2002 18:55:56 +0100
+In-Reply-To: <20020111092548.38249.qmail@web20508.mail.yahoo.com>
+Message-ID: <m2n0zkn55f.fsf@goliath.csn.tu-chemnitz.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 11 Jan 2002 10:25:48 +0100 (CET), willy tarreau wrote:
 
+>> is it possible to include an emulation for the CMOV*
+> (and
+>> possible other i686 instructions) for processors
+> that dont
 
-On Thursday, January 03, 2002 10:18:30 AM +0300 Oleg Drokin
-<green@namesys.com> wrote:
+> I did something similar to emulate 486 instructions
+> for 386s
+> (bswap, cmpxchg...). You can reuse it if needed. It's 
+> available for 2.2 and 2.4 at this location :
 
-> Hello!
-> 
->     Certain disk corruptions and i/o errors may cause lookup() to panic,
-> which is wrong.     This patch fixes the problem.
->     Please apply.
+> http://www-miaif.lip6.fr/willy/linux-patches/486emulation/
 
-Hmmm, none of the callers of reiserfs_find_entry have been changed to check
-for IO_ERROR.  We should at least change reiserfs_add_entry to check for
-IO_ERROR, so it doesn't try to create a name after getting io error during
-the lookup.
+Thanks! I will have a look into it.
 
--chris
+ron
 
---- linux/fs/reiserfs/namei.c.orig	Tue Dec 25 16:27:27 2001
-+++ linux/fs/reiserfs/namei.c	Tue Dec 25 16:29:13 2001
-@@ -309,9 +309,10 @@
- 
-     while (1) {
- 	retval = search_by_entry_key (dir->i_sb, &key_to_search, path_to_entry, de);
--	if (retval == IO_ERROR)
--	    // FIXME: still has to be dealt with
--	    reiserfs_panic (dir->i_sb, "zam-7001: io error in " __FUNCTION__ "\n");
-+	if (retval == IO_ERROR) {
-+	    reiserfs_warning ("zam-7001: io error in " __FUNCTION__ "\n");
-+	    return IO_ERROR;
-+	}
- 
- 	/* compare names for all entries having given hash value */
- 	retval = linear_search_in_dir_item (&key_to_search, de, name, namelen);
-
+-- 
+/\/\  Dipl.-Inf. Ronald Wahl                /\/\        C S N         /\/\
+\/\/  ronald.wahl@informatik.tu-chemnitz.de \/\/  ------------------  \/\/
+/\/\  http://www.tu-chemnitz.de/~row/       /\/\  network and system  /\/\
+\/\/  GnuPG/PGP key available               \/\/    administration    \/\/

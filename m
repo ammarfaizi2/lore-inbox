@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129639AbRB0RYk>; Tue, 27 Feb 2001 12:24:40 -0500
+	id <S129660AbRB0RaA>; Tue, 27 Feb 2001 12:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbRB0RYa>; Tue, 27 Feb 2001 12:24:30 -0500
-Received: from pucc.Princeton.EDU ([128.112.129.99]:51507 "EHLO
-	pucc.Princeton.EDU") by vger.kernel.org with ESMTP
-	id <S129639AbRB0RYX>; Tue, 27 Feb 2001 12:24:23 -0500
-To: linux-kernel@vger.kernel.org
-From: Neale.Ferguson@softwareAG-usa.com
-Date: Tue, 27 Feb 2001 12:20:08 +0200
-Subject: Jump start Linux on S/390
-Message-Id: <20010227172424Z129639-406+313@vger.kernel.org>
+	id <S129661AbRB0R3v>; Tue, 27 Feb 2001 12:29:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33551 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129660AbRB0R3m>; Tue, 27 Feb 2001 12:29:42 -0500
+Subject: Re: i2o & Promise SuperTrak100
+To: david2@maincube.net (David Priban)
+Date: Tue, 27 Feb 2001 17:32:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <MPBBILLJAONHMANIJOPDIEBIFMAA.david2@maincube.net> from "David Priban" at Feb 27, 2001 12:14:14 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Xnz8-0003rQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a set of hints courtesy of Lionel Dyck that may make life easier
-for thos installing on bare iron or in an LPAR.
+> c029072a
+> Call Trace:
+> [<c01b33fe>] [<c01b349c>] [<c01b308f>] [<c01b4774>]
+> [<c01b47a6>] [<c011b0fe>] [<c011b4bf>] [<c018969d>]
+> [<c0189731>] [<c018918e>] [<c018a12d>] [<c018a19f>]
+> [<c0109f6d>] [<c010a0ce>] [<c0107120>] [<c0107120>]
+> [<c0108e00>] [<c0107120>] [<c0107120>] [<c0100018>]
+> [<c0107143>] [<c01071a9>] [<c0105000>] [<c0100191>]
+> Code:
+> 0f 0b 8d 65 dc 5b 5e 5f 89 ec 5d c3 55 89 e5 83 ec 10 57 56
+> Kernel panic: Aiee, killing interrupt handler !
+> In interrupt handler - not syncing
 
-------------------------------------------------------------------------
+Run it through ksymoops and I might be able to guess what went wrong.
 
-This is a suggested method to Jump Start your Linux on S/390 or zSeries
-experience:
-
-1) Get yourself a copy of Linux for the Intel platform and install it on
-your desktop pc in dual boot mode or get yourself a 2nd pc on which
-to install it. Note this should be the same flavor Linux that you plan to
-use of your S/390.
-2) Create a userid other than root (generally recommended)
-3) Once your pc is booted in Linux download the CD images for
-the distribution that you have selected into a unique directory on your
-system. While still in this directory issue these commands to first create
-the mount points and then to mount the CD images in loopback mode.
-(Thanks for Mark Post for this information)
-a) mkdir /cd1
-b) mkdir /cd2
-c) mkdir /cd3
-d) mount cd1.iso /cd1 -o loop -r
-e) mount cd2.iso /cd2 -o loop -r
-f) mount cd3.iso /cd3 -o loop -r
-4) On your S/390 HMC select IPL from CDROM or Server (thanks
-to Ross Waitman of IBM for this information).
-a) Check to IPL from FTP Server and enter the IP address of your
-      Linux pc.
-b) Use the userid you created to acces these.
-
-Note I havent tried this beyond (4) as I just learned this can be done.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+In theory however i2o is a standard and all i2o works alike. In practice i2o
+is a pseudo standard and nobody seems to interpret the spec the same way, the
+implementations all tend to have bugs and the hardware sometimes does too.
 

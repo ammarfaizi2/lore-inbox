@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319135AbSH2IOJ>; Thu, 29 Aug 2002 04:14:09 -0400
+	id <S319139AbSH2IP5>; Thu, 29 Aug 2002 04:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319139AbSH2IOJ>; Thu, 29 Aug 2002 04:14:09 -0400
-Received: from neckar.ipht-jena.de ([194.94.32.118]:1540 "EHLO
-	diamond.ipht-jena.de") by vger.kernel.org with ESMTP
-	id <S319135AbSH2IOJ>; Thu, 29 Aug 2002 04:14:09 -0400
-Date: Thu, 29 Aug 2002 10:15:33 +0200
-From: Axel Siebenwirth <axel@hh59.org>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why it would be good to have AC interdiff patches
-Message-ID: <20020829081533.GA541@diamond.ipht-jena.de>
-Mail-Followup-To: Gregoire Favre <greg@ulima.unil.ch>,
-	linux-kernel@vger.kernel.org
-References: <20020829074759.GC851@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020829074759.GC851@ulima.unil.ch>
-User-Agent: Mutt/1.4i
-Organization: hh59.org
+	id <S319144AbSH2IP5>; Thu, 29 Aug 2002 04:15:57 -0400
+Received: from elin.scali.no ([62.70.89.10]:1553 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S319139AbSH2IP4>;
+	Thu, 29 Aug 2002 04:15:56 -0400
+Date: Thu, 29 Aug 2002 10:13:06 +0200 (CEST)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: linux-kernel@vger.kernel.org
+Subject: Laptops with SpeedStep technology.
+Message-ID: <Pine.LNX.4.44.0208291004550.1952-100000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gregoire!
+Hi all,
 
-Gregoire Favre schrieb am Thursday, den 29. August 2002:
+Recently I got myself a Dell Inspiron 8200 with a Intel P4 Mobile wich has 
+SpeedStep technology. With power plugged in, this processor runs at 1.6 
+GHz and with battery only, 1.2 GHz. However I've found that the 
+/proc/cpuinfo doesn't show this and I was wondering if there were some 
+patches lying around before I began to look at this on my own.
 
-> 3) The time for compilation would be smaller as you modify less files.
+Regards,
+-- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 
-Somebody wrote me one time that it is always a good thing to make an
-"mrproper" after I have applied a patch to kernel sources.
-
-Is that right?
-
-Thank you,
-Axel

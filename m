@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264862AbSKEO2Y>; Tue, 5 Nov 2002 09:28:24 -0500
+	id <S264860AbSKEO1l>; Tue, 5 Nov 2002 09:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264864AbSKEO2Y>; Tue, 5 Nov 2002 09:28:24 -0500
-Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:58385
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264863AbSKEO2Q>; Tue, 5 Nov 2002 09:28:16 -0500
-Date: Tue, 5 Nov 2002 09:32:00 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][2.5] nolapic boot parameter (resend)
-In-Reply-To: <Pine.GSO.3.96.1021105125943.18101A-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.44.0211050931110.27141-100000@montezuma.mastecende.com>
+	id <S264862AbSKEO1l>; Tue, 5 Nov 2002 09:27:41 -0500
+Received: from mta03ps.bigpond.com ([144.135.25.135]:16337 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264860AbSKEO1k>; Tue, 5 Nov 2002 09:27:40 -0500
+Message-ID: <3DC7D739.70506@snapgear.com>
+Date: Wed, 06 Nov 2002 00:35:37 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Miles Bader <miles@gnu.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.5.46-uc0 (MMU-less fixups)
+References: <3DC77832.6040600@snapgear.com> <buoznsofk1a.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, Maciej W. Rozycki wrote:
+Hi Miles,
 
-> On Mon, 4 Nov 2002, Zwane Mwaikambo wrote:
-> 
-> > This has bugged me for a while, also applies to 2.4.45
-> 
->  It looks reasonable, but you may consider adding a "lapic" option for
-> consistency as well. 
+Miles Bader wrote:
+> Here's a v850 update for 2.5.46-uc0.
 
-Sure i can do that, i just haven't come across a case where i had to force 
-local APIC usage.
+Got it.
 
-	Zwane
--- 
-function.linuxpower.ca
+Thanks
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

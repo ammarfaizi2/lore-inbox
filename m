@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316880AbSF0QaD>; Thu, 27 Jun 2002 12:30:03 -0400
+	id <S316882AbSF0Qe2>; Thu, 27 Jun 2002 12:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSF0QaC>; Thu, 27 Jun 2002 12:30:02 -0400
-Received: from monster.nni.com ([216.107.0.51]:62225 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S316880AbSF0QaB>;
-	Thu, 27 Jun 2002 12:30:01 -0400
-Date: Thu, 27 Jun 2002 12:32:14 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: #kernelnewbies moves
-Message-Id: <20020627123214.27e016f9.arodland@noln.com>
-In-Reply-To: <Pine.LNX.4.44L.0206261923460.27768-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0206261923460.27768-100000@imladris.surriel.com>
-X-Mailer: Sylpheed version 0.7.6claws16 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316883AbSF0Qe1>; Thu, 27 Jun 2002 12:34:27 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:46216 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S316882AbSF0Qe1>;
+	Thu, 27 Jun 2002 12:34:27 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200206271634.UAA16378@sex.inr.ac.ru>
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+To: trond.MYklebust@fys.uio.NO (Trond Myklebust)
+Date: Thu, 27 Jun 2002 20:34:34 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200206271757.39577.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 27, 2 08:15:07 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You realize that if you weren't _forcing_ people not to go to the
-channel on OPN, by making it useless, everyone would go there anyway.
+Hello!
 
-Why?
-Because a #kn that isn't on OPN is no #kn at all.
+Did you not solve this problem using right write_space?
+I remember we have already discussed this and to all that I remember
+come to happy end. :-)
 
-I hope the other one dies a slow, painful death, for the good of
-everyone.
+> Would such a patch be acceptable,
 
+No, of course. :-)
+
+>	       or is there a better way of doing this?
+
+Better way exists. Just use forced sock_wmalloc instead of
+sock_alloc_send_skb on non-blocking send of all the fragments
+but the first.
+
+But I still hope you will start with tuning your write_space
+to send only when ~2*msg_size of space is available.
+
+Alexey

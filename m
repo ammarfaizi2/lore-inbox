@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269905AbRHQIf5>; Fri, 17 Aug 2001 04:35:57 -0400
+	id <S269954AbRHQInR>; Fri, 17 Aug 2001 04:43:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269918AbRHQIfs>; Fri, 17 Aug 2001 04:35:48 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:35295 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S269905AbRHQIfa>; Fri, 17 Aug 2001 04:35:30 -0400
-Date: Fri, 17 Aug 2001 09:35:40 +0100 (BST)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: zippel@linux-m68k.org, aia21@cam.ac.uk, tpepper@vato.org,
-        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-In-Reply-To: <20010816.203732.107941169.davem@redhat.com>
-Message-ID: <Pine.SOL.3.96.1010817085835.17700C-100000@draco.cus.cam.ac.uk>
+	id <S269944AbRHQInH>; Fri, 17 Aug 2001 04:43:07 -0400
+Received: from ns.suse.de ([213.95.15.193]:34572 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S269954AbRHQImy>;
+	Fri, 17 Aug 2001 04:42:54 -0400
+To: linux-kernel@vger.kernel.org
+Cc: ehaase@inf.fu-berlin.de
+Subject: Re: ext2 not NULLing deleted files?
+In-Reply-To: <01081709381000.08800@haneman.suse.lists.linux.kernel>
+From: Andi Kleen <freitag@alancoxonachip.com>
+Date: 17 Aug 2001 10:03:46 +0200
+In-Reply-To: Enver Haase's message of "17 Aug 2001 09:42:44 +0200"
+Message-ID: <oupitfnw1st.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Aug 2001, David S. Miller wrote:
->    From: Roman Zippel <zippel@linux-m68k.org>
->    Date: Fri, 17 Aug 2001 05:23:01 +0200
+Enver Haase <ehaase@inf.fu-berlin.de> writes:
+
+> Hi there,
 > 
->    Please show me a place in the kernel where such code is used and is
->    not dumb.
+> I just recognized there's an "undelete" now for ext2 file systems [a KDE 
+> app].
+
+There have been ext2 undeletes for many years now (and howtos how to do
+it manually even longer), nothing new.
+
 > 
-> Why don't you point out an example yourself?  You seem pretty
-> confident that a comparsion between a signed and unsigned value cannot
-> possible be legitimate.
+> "The Other OS" in its professional version does of course clear the deleted 
+> blocks with 0's for security reasons; I would have bet a thousand bucks Linux 
+> would do so, too [seems I should have read the source code, good thing no-one 
+> wanted to take on the bet :) ].
+> 
+> So how to go about this? With that feature wanted, which fs should one choose 
+> under Linux? Is there a patch for ext2 for that feature? Am I the only one 
+> liking the idea?
 
-If you compare int x with unsigned int y you can get the wrong result in
-the case that the unsigned value has the sign bit set and the signed
-value is negative.
+Old ext2 (before 2.0) supported this with a special attribute bit; but it was 
+removed for good reasons.
+Just NULLing alone is quite useless anyways; just 0ed data can be easily
+recovered in a special laboratory by using old traces of magnetism on the
+surfaces.
+If you care about real data deletion you should probably use an utility
+like wipe which does about 20-30 passes with random data. That is far too
+complex to do in kernel space of course, but you can run it in user space
+as needed. 0ing would just give you a false sense of security.
 
-Example:
-
-$ cat t.c
-#include <stdio.h>
-
-int main(void)
-{
-        int x = -2;
-        unsigned int y = 0x80000000;
-
-        printf("x = %i, y = %u\n", x, y);
-        if (x < y)
-                puts("x < y");
-        else if (x > y)
-                puts("x > y");
-        else
-                puts("x == y");
-        return 0;
-}
-$ gcc -Wall t.c
-$ ./a.out
-x = -2, y = 2147483648
-x > y
-
-This is clearly wrong as -2 is less than 2147483648 and I doubt very much
-that bug would be caught by introducing type casts into the min
-function... It will just put people at ease that everything is now fine
-when in fact it won't be (unless they make the type cast to long long
-which I doubt people would do).
-
-A bug simillar to this was present in NTFS a while ago as a matter of
-fact and was causing massive corruption of run lists... And gcc doesn't
-even emit a warning hence it took quite a lot of work to spot that this
-was the bug. In the end I found it by looking at the generated corrupt
-structures and realizing that there must be a sign bug somewhere and then
-I looked at the function and I saw the light and fixed this properly by
-using the same type of variables rather than playing silly games with
-mixing signed and unsigned values.
-
-If gcc had emitted a warning this bug would never have been possible to
-occur so I am all for generating warnings, not suppressing them
-artificially, at least in this case.
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+-Andi
 

@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVBJJsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVBJJty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVBJJsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 04:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVBJJsv
+	id S262086AbVBJJty (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 04:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVBJJtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 04:48:51 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:63243 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S262083AbVBJJsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 04:48:47 -0500
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
-	crypto_tfm
-From: Fruhwirth Clemens <clemens@endorphin.org>
+	Thu, 10 Feb 2005 04:49:47 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:33296 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S262084AbVBJJth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 04:49:37 -0500
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       michal@logix.cz, davem@davemloft.net, adam@yggdrasil.com
-In-Reply-To: <20050209171943.05e9816e.akpm@osdl.org>
-References: <Xine.LNX.4.44.0502091859540.6222-100000@thoron.boston.redhat.com>
-	 <1107997358.7645.24.camel@ghanima>  <20050209171943.05e9816e.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VnrkfhD6YPIHW2m9I8MQ"
-Date: Thu, 10 Feb 2005 10:48:43 +0100
-Message-Id: <1108028923.14335.44.camel@ghanima>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Subject: Re: 2.6.10 devfs oops without devfs mounted at all
+Date: Thu, 10 Feb 2005 12:49:29 +0300
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, admin@list.net.ru
+References: <200502082013.50959.rathamahata@ehouse.ru> <20050209163624.44557750.akpm@osdl.org>
+In-Reply-To: <20050209163624.44557750.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502101249.30878.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-VnrkfhD6YPIHW2m9I8MQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2005-02-09 at 17:19 -0800, Andrew Morton wrote:
-> Fruhwirth Clemens <clemens@endorphin.org> wrote:
+On Thursday 10 February 2005 03:36, Andrew Morton wrote:
+> "Sergey S. Kostyliov" <rathamahata@ehouse.ru> wrote:
 > >
-> > It must be
-> >  possible to process more than 2 mappings in softirq context.
->=20
-> Adding a few more fixmap slots wouldn't hurt anyone.  But if you want an
-> arbitrarily large number of them then no, we cannot do that.
+> > Here is an oops I've just get on my smp system:
+> > 
+> > Unable to handle kernel NULL pointer dereference at virtual address 0000001c
+> >  printing eip:
+> > c01afe5b
+> > *pde = 00000000
+> > Oops: 0000 [#1]
+> > PREEMPT SMP
+> > Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter
+> > CPU:    2
+> > EIP:    0060:[<c01afe5b>]    Not tainted VLI
+> > EFLAGS: 00010286   (2.6.10)
+> > EIP is at devfsd_close+0x1b/0xc8
+> > eax: f7440a00   ebx: 00000000   ecx: c01afe40   edx: ed395280
+> > esi: 00000000   edi: f7f17800   ebp: f74f96c8   esp: cdc70f84
+> > ds: 007b   es: 007b   ss: 0068
+> > Process megamgr.bin (pid: 12844, threadinfo=cdc70000 task=dd81e520)
+> > Stack: ed395280 ed395280 00000000 f7f17800 c0150c76 ee9e87f8 ed395280 00000000
+> >        f1985c80 cdc70000 c014f50f 00000003 00000003 080caa60 00000000 c01024df
+> >        00000003 080cc700 bfffe4f8 080caa60 00000000 bfffe4fc 00000006 0000007b
+> > Call Trace:
+> >  [<c0150c76>] __fput+0x106/0x120
+> >  [<c014f50f>] filp_close+0x4f/0x80
+> >  [<c01024df>] syscall_call+0x7/0xb
+> 
+> Can you work out what file is being closed?  One way of doing that would be
+> to work out how megamgr.bin is being invoked and to then run it by hand:
+> 
+>  strace -f -o log megamgr.bin <args>
+> 
+> and we can then use the strace output to work out the pathname of the
+> offending file.
 
-What magnitude is "few more"? 2, 10, 100?
+rathamahata@terror rathamahata $ grep 'open(' mg.log
+5255  open("/usr/share/terminfo/l/linux", O_RDONLY) = 3
+5255  open("/dev/megadev0", O_RDONLY)   = 3
+rathamahata@terror rathamahata $ 
 
-> Taking more than one sleeping kmap at a time within the same process is
-> deadlocky, btw.  You can end up with N such tasks all holding one kmap an=
-d
-> waiting for someone else to release one.
->=20
-> Possibly one could arrange for the pages to not be in highmem at all.
+I guess it's /dev/megadev0 (manually created character device)
 
-Is there an easy way to bring pages to lowmem? The cryptoapi is called
-from the backlog of the networking stack, which is assigned in irq
-context first and processed softirq context. There is little opportunity
-to bringt stuff to low mem. And we can't bringt stuff to lowmem on our
-own as well, because (as I guess) this involves a page allocation, which
-would have to be GFP_ATOMIC, which can fail. So we would need fallback
-for the fallback mechanism, and that's still the tiny set of scratch
-buffers.. hairy business..
+rathamahata@terror rathamahata $ ls -la /dev/megadev0
+crw-r--r--  1 root root 253, 0 Feb  8 16:26 /dev/megadev0
+rathamahata@terror rathamahata 
 
-Ok, what about the following plan:
-
-If context =3D=3D softirq, use kmap_atomic until they all used, fall-back t=
-o
-scratch buffers, and printk in some DEBUG mode:"Warning slow, redesign
-your client or raise the number of fixmaps".
-
-If context =3D=3D user, use kmap_atomic until they all used, and fall-back
-to kmap.
-
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-VnrkfhD6YPIHW2m9I8MQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCCy37bjN8iSMYtrsRAts/AJ9819t4f279DGCsIQz0O+5V7IGfCQCcDL4K
-FuXIBfPbIeRevAzaZ8SySNs=
-=5WQ7
------END PGP SIGNATURE-----
-
---=-VnrkfhD6YPIHW2m9I8MQ--
+-- 
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org

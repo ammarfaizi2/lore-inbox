@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271303AbRHTPQj>; Mon, 20 Aug 2001 11:16:39 -0400
+	id <S271295AbRHTPUJ>; Mon, 20 Aug 2001 11:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271295AbRHTPQ3>; Mon, 20 Aug 2001 11:16:29 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:8426 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271294AbRHTPQR>; Mon, 20 Aug 2001 11:16:17 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 20 Aug 2001 08:15:26 -0700
-Message-Id: <200108201515.IAA00409@baldur.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: PATCH: linux-2.4.9/drivers/i2o to new module_{init,exit} interface
-Cc: deepak@plexity.net, linux-kernel@vger.kernel.org
+	id <S271269AbRHTPT7>; Mon, 20 Aug 2001 11:19:59 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:15438 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S271295AbRHTPTt>; Mon, 20 Aug 2001 11:19:49 -0400
+Date: Mon, 20 Aug 2001 18:19:42 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+Message-ID: <20010820181942.A1844@niksula.cs.hut.fi>
+In-Reply-To: <20010820105520.A22087@oisec.net> <E15YmR3-0005mb-00@the-village.bc.nu> <20010820144602.A12334@shuttle.mothership.home.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010820144602.A12334@shuttle.mothership.home.dhs.org>; from stefan.fleiter@gmx.de on Mon, Aug 20, 2001 at 02:46:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  	sti();
->> -#ifdef CONFIG_I2O
->> -	i2o_init();
->> -#endif
->>  #ifdef CONFIG_BLK_DEV_DAC960
->>  	DAC960_Initialize();
+On Mon, Aug 20, 2001 at 02:46:02PM +0200, you [Stefan Fleiter] claimed:
+> Hi Alan!
+>  
+> I have the same problem, but my Adaptec is _not_ onboard.
+> 
+> sf@shuttle:~$ uname -r
+> 2.4.8-ac7
 
->Rejected. The ordering is critical because drivers may have both i2o and
->non i2o interfaces. Also an i2o card may control other pci devices and
->we will need to claim the resources beforehand when we finally support that.
+Same here, with 2.2.18pre19 + Gibbs aic7xxx 6.1.7.
 
-	OK, I can fix this in the ordering of "obj-y += ..."
-declarations in linux/Makefile.  (If you really need i2o
-initialization to occur earlier than do_initcalls(), then that would
-also mean that i2o cannot be a module, right?)
+uname -r
+2.2.18pre19
 
->>  dep_tristate '  I2O Block OSM' CONFIG_I2O_BLOCK $CONFIG_I2O
->> -if [ "$CONFIG_NET" = "y" ]; then
->> +if [ "$CONFIG_NET" != "n" ]; then
+cat /proc/scsi/scsi 
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: SEAGATE  Model: ST118273N        Rev: 6244
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: HP       Model: C5683A           Rev: C005
+  Type:   Sequential-Access                ANSI SCSI revision: 02
 
->NET cannot be modular
+(I reported this to Gibbs some time ago.)
 
-	Oops!  Sorry, I accidentally included part of another
-change I was fiddling with.
+Adaptec AIC-7892 Ultra 160/m SCSI host adapter (Adaptec 29160, not onboard).
+No Intel bios (AMD Duron box).
 
 
->> -#ifdef MODULE
->>  	i = core->install(c);
->> -#else
->> -	i = i2o_install_controller(c);
->> -#endif /* MODULE */
+-- v --
 
->This changes all the module dependancy patterns - yes its right, no its not
->appropriate for a "stable" kernel.
-
-	It changes the dependency pattern to the one that is already
-used when i2o is a module, not to a new dependency pattern.
-
-	If you want, I can send you a new patch that changes
-linux/Makefile to initialize i2o before just before drivers/block,
-thereby reproducing the current initialization order, and, of course,
-I'll also remove the CONFIG_NET patch that I accidentally put in
-before.  Please let me know.
-
-	In any case thanks for looking at my patch and providing the
-feedback.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
+v@iki.fi

@@ -1,41 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130489AbRCILwm>; Fri, 9 Mar 2001 06:52:42 -0500
+	id <S130494AbRCILxc>; Fri, 9 Mar 2001 06:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130492AbRCILwc>; Fri, 9 Mar 2001 06:52:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63250 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130489AbRCILwX>;
-	Fri, 9 Mar 2001 06:52:23 -0500
-Date: Fri, 9 Mar 2001 12:51:48 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Matthias Urlichs <smurf@noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010309125148.E8322@suse.de>
-In-Reply-To: <1epyyz1.etswlv1kmicnqM%smurf@noris.de> <20010309075908.Z8922@noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010309075908.Z8922@noris.de>; from smurf@noris.de on Fri, Mar 09, 2001 at 07:59:08AM +0100
+	id <S130493AbRCILxM>; Fri, 9 Mar 2001 06:53:12 -0500
+Received: from 13dyn199.delft.casema.net ([212.64.76.199]:4101 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S130492AbRCILxG>; Fri, 9 Mar 2001 06:53:06 -0500
+Message-Id: <200103091152.MAA31645@cave.bitwizard.nl>
+Subject: Re: quicksort for linked list
+In-Reply-To: <3AA89624.46DBADD7@idb.hist.no> from Helge Hafting at "Mar 9, 2001
+ 09:36:52 am"
+To: Helge Hafting <helgehaf@idb.hist.no>
+Date: Fri, 9 Mar 2001 12:52:22 +0100 (MET)
+CC: Manoj Sontakke <manojs@sasken.com>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09 2001, Matthias Urlichs wrote:
-> Matthias Urlichs:
-> > On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> > > SCSI certainly lets us do both of these operations independently.  IDE
-> > > has the sync/flush command afaik, but I'm not sure whether the IDE
-> > > tagged command stuff has the equivalent of SCSI's ordered tag bits.
-> > > Andre?
+Helge Hafting wrote:
+> Manoj Sontakke wrote:
 > > 
-> > IDE has no concept of ordered tags...
+> > Hi
+> >         Sorry, these questions do not belog here but i could not find any
+> > better place.
 > > 
-> But most disks these days support IDE-SCSI, and SCSI does have ordered
-> tags, so...
+> > 1. Is quicksort on doubly linked list is implemented anywhere? I need it
+> > for sk_buff queues.
+> 
+> I cannot see how the quicksort algorithm could work on a doubly
+> linked list, as it relies on being able to look
+> up elements directly as in an array.
 
-Any proof to back this up? To my knowledge, only some WDC ATA disks
-can be ATAPI driven.
+It took me a few moments to realize, but quicksort is one algorithm
+that DOES NOT rely on directly accessing array elements.
+
+  qsort (items) 
+  {
+    if (numberof (items) <= 1) return. 
+    pivot = chose_pivot (items)
+    for (all items)
+	if (curitem < pivot) put on the left of pivot
+        else                 put on the right of pivot
+    qsort (items on the left of pivot);
+    qsort (items on the right of pivot);
+  }
+
+All operations are easily done on lists, not only on arrays. Actually,
+the array-implementation has a few thingies to avoid having to move
+the half the array on the scan of one item. With a list that is not an
+issue.
+
+If you know how you chose your pivot, one of the "puts" can be
+nil. (for example, chose the pivot as the leftmost item. All other
+items are already on the right. So "put on the left of pivot" is
+"unlink (curitem), relink_to_the_left (pivot, curitem)", but put on
+the right is "/* nothing to be done */".
+
+Quicksort however is an algorithm that is recursive. This means that
+it can use unbounded amounts of stack -> This is not for the kernel.
+
+Quicksort however is an algorithm that is good for large numbers of
+elements to be sorted: the overhead of a small set of items to sort is
+very large. Is the "normal" case indeed "large sets"?
+
+Quicksort has a very bad "worst case": quadratic sort-time. Are you
+sure this won't happen?
+
+Isn't it easier to do "insertion sort": Keep the lists sorted, and
+insert the item at the right place when you get the new item.
+
+	Roger. 
 
 -- 
-Jens Axboe
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

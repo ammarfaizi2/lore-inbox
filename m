@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267655AbTALXiR>; Sun, 12 Jan 2003 18:38:17 -0500
+	id <S267638AbTALXkV>; Sun, 12 Jan 2003 18:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267658AbTALXiR>; Sun, 12 Jan 2003 18:38:17 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:64174 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S267655AbTALXhJ>; Sun, 12 Jan 2003 18:37:09 -0500
-Message-ID: <33157.62.98.226.220.1042415151.squirrel@webmail.roma2.infn.it>
-Date: Mon, 13 Jan 2003 00:45:51 +0100 (CET)
+	id <S267653AbTALXkU>; Sun, 12 Jan 2003 18:40:20 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:46760 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267638AbTALXkT>; Sun, 12 Jan 2003 18:40:19 -0500
+Date: Sun, 12 Jan 2003 21:48:55 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Rob Wilkens <robw@optonline.net>
+cc: Aaron Lehmann <aaronl@vitelus.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: any chance of 2.6.0-test*?
-From: "Emiliano Gabrielli" <emiliano.gabrielli@roma2.infn.it>
-To: <oliver@neukum.name>
-In-Reply-To: <200301130023.12830.oliver@neukum.name>
+In-Reply-To: <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+Message-ID: <Pine.LNX.4.50L.0301122144380.26759-100000@imladris.surriel.com>
 References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
-        <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
-        <33073.62.98.226.220.1042412722.squirrel@webmail.roma2.infn.it>
-        <200301130023.12830.oliver@neukum.name>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.7)
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org>
+ <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+ <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com>
+ <1042407845.3162.131.camel@RobsPC.RobertWilkens.com> <20030112214937.GM31238@vitelus.com>
+ <1042409239.3162.136.camel@RobsPC.RobertWilkens.com> <20030112221802.GN31238@vitelus.com>
+ <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 12 Jan 2003, Rob Wilkens wrote:
 
-<quote who="Oliver Neukum">
-> Am Montag, 13. Januar 2003 00:05 schrieb Emiliano Gabrielli:
->> <quote who="Rob Wilkens">
->>
->> > On Sun, 2003-01-12 at 17:43, Oliver Neukum wrote:
->> >> It's code that causes added hardship for anybody checking the locking.
->> >
->> > I can certainly see where it would seem "easier" to match "one lock" to "one
->> unlock" if your troubleshooting a locking issue.
->> >
->> > "easier" is the motivation behind using goto.. Laziness.. that's all it is.
->>
->> In italy we say "Non c'è peggior sordo di chi non vuole sentire"
->
-> There's no worse fate than that of those who don't want to listen? (My Italian is
-> bad.)
+> ... jump over the "goto" statement.
 
-It is better than my english :-))
+Umm, an if + goto IS a conditional jump.  A modern compiler
+will simply turn the goto into a conditional jump, meaning
+that the normal code path doesn't do any jumps.
 
->
->> Till to this point the thread was useful to beginners becouse of a lot of smarty
->> coders explained a point that everyone has heard but that rarely knows at deep...
->>
->> but now Let's ignore him ! He is not a beginner he is a lamer!
->
-> Very well. What could be said has been said. But please don't insult him. Time spent
-> explaining is usually well spent. Perhaps somebody learned.
->
+cheers,
 
-I agree .. my apologises .. I use currently the word "lamer" in IRC, but I don't really
-know the true translation.. if it is an insult .. plz adcept my apologises
-
-> OK, maybe  I have a soft spot.
->
-
-:-)
-
-> 	Regards
-> 		Oliver
-
-
+Rik
 -- 
-Emiliano Gabrielli
-
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
-
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

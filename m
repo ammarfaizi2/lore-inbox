@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbTGWKdj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbTGWKdj
+	id S267517AbTGWKgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbTGWKgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:33:39 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:41480 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S266141AbTGWKdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:33:38 -0400
-Date: Wed, 23 Jul 2003 20:47:53 +1000
-To: "David S. Miller" <davem@redhat.com>
+	Wed, 23 Jul 2003 06:36:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7569 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S267517AbTGWKgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:36:43 -0400
+Date: Wed, 23 Jul 2003 03:48:22 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: a.marsman@aYniK.com, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
 Subject: Re: 2.4.22-pre7: are security issues solved?
-Message-ID: <20030723104753.GA2479@gondor.apana.org.au>
-References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain> <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au> <20030723033505.145db6b8.davem@redhat.com>
+Message-Id: <20030723034822.148d8f30.davem@redhat.com>
+In-Reply-To: <20030723103901.GA2425@gondor.apana.org.au>
+References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain>
+	<E19fGMZ-0000Zm-00@gondolin.me.apana.org.au>
+	<20030723033505.145db6b8.davem@redhat.com>
+	<20030723103901.GA2425@gondor.apana.org.au>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030723033505.145db6b8.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:35:05AM -0700, David S. Miller wrote:
+On Wed, 23 Jul 2003 20:39:01 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
+
+> On Wed, Jul 23, 2003 at 03:35:05AM -0700, David S. Miller wrote:
+> > On Wed, 23 Jul 2003 19:56:47 +1000
+> > Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> > If I know your password is 7 characters I have a smaller
+> > space of passwords to search to just brute-force it.
 > 
-> If I know your password is 7 characters I have a smaller
-> space of passwords to search to just brute-force it.
+> Yes but can't you do the same thing with /proc/interrupts or
+> /proc/net/dev? Why are we singling out the serial driver?
 
-It's much smaller if you didn't know that it was at most 7 characters
-long.  However, if you did know the upper bound, or you were just
-brute forcing all passwords starting from 1 character, then the
-difference is relatively minor.  This is because
+With the serial procfs thing, we know exactly that it is
+characters.
 
-n + n^2 + n^3 + n^4 + n^5 + n^6
-
-is much smaller than n^7 where n is something like 62 for a reasonable
-password.
-
-So if your password was broken using this method, then it's probably
-too short anyway.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+With interrupts and network device statistics, we cannot make
+such assumptions making attacks using these facilities much
+less likely to be feasible.

@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTBTUqH>; Thu, 20 Feb 2003 15:46:07 -0500
+	id <S265725AbTBTVJi>; Thu, 20 Feb 2003 16:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbTBTUqH>; Thu, 20 Feb 2003 15:46:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65033 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266987AbTBTUqG>; Thu, 20 Feb 2003 15:46:06 -0500
-Date: Thu, 20 Feb 2003 12:51:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <20030220204250.GC29983@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0302201244001.12336-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265894AbTBTVJi>; Thu, 20 Feb 2003 16:09:38 -0500
+Received: from unthought.net ([212.97.129.24]:14226 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S265725AbTBTVJh>;
+	Thu, 20 Feb 2003 16:09:37 -0500
+Date: Thu, 20 Feb 2003 22:19:42 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Daniel Pittman <daniel@rimspace.net>
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+Message-ID: <20030220211941.GD13216@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Rusty Lynch <rusty@linux.co.intel.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Daniel Pittman <daniel@rimspace.net>
+References: <1045106216.1089.16.camel@vmhack> <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz> <1045260726.1854.7.camel@irongate.swansea.linux.org.uk> <20030214213542.GH23589@atrey.karlin.mff.cuni.cz> <1045264651.13488.40.camel@vmhack> <1045274042.2961.4.camel@irongate.swansea.linux.org.uk> <1045632256.2974.76.camel@vmhack>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1045632256.2974.76.camel@vmhack>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 20 Feb 2003, William Lee Irwin III wrote:
+On Tue, Feb 18, 2003 at 09:24:15PM -0800, Rusty Lynch wrote:
+> My original proposal raised a couple of issues with sysfs that make it
+> difficult to move completely from the current watchdog model documented in 
+> watchdog-api to a completely sysfs based implementation.
 > 
-> You might want to grab aeb's fully non-recursive pathwalking if
-> you really want to cut back the stack to 4KB, as well as fixing
-> whatever stackblasting drivers are about.
+> Specifically, sysfs needs:
+> * persistent file permissions
+> * a way to forward ioctl's or in some way represent a device node in sysfs
 
-The path walking should really not be an issue. Each level of a symlink
-takes something like 64 bytes of stack on x86 (I checked it some time ago,
-maybe it's changed a bit), since the actual recursive part is very shallow
-indeed.
+Something as simple as a watchdog should not need ioctls, IMO.  (Nothing
+should need them, but let's take one battle at a time...)
 
-And since we don't recurse deeper than 5 levels anyway, the symlink 
-recursion ends up not being a real problem compared to a lot of other 
-code (never mind the single functions with hundreds of bytes of stack 
-space: just regular function calls 5 levels deep is quite normal).
+How about using sysfs and specifically - now that we have a collection
+of drivers which are simple enough to not need the mistake that ioctls
+are - making sure that they work as before, using only device files and
+no magic ioctls ?
 
-That fs recursion was not the problem even back in the days when the max
-stack depth was <3kB (4kB allocation, 1kB task_struct). It used to be 8
-levels deep or something, it was changed to 5 not because we ran out on
-x86, but because of those stupid sparc register windows (causing much
-bigger minimum function stack requirements than on x86).
+I shall happily volunteer to delete the 10 lines of code from
+sbc60xxwdt.c to make it compliant to the "no ioctls - equivalent
+functionality" idea  ;)
 
-			Linus
+I know that there is ioctl support in the existing drivers - but I have
+not yet seen a driver which needed it.   "needed" in the sense that
+equivalent functionality could not have been created using dev files
+alone.
 
+Also, the amount of userspace which will break because of missing ioctl
+functionality will be absolutely *minimal*.  There's not a lot of
+watchdog software out there, and porting whatever software uses ioctls
+to use sane interfaces instead, should be doable.  I don't think anyone
+would get terribly upset if this change was made as a 2.4->2.6
+transition thing.
+
+If ioctls are kept in watchdog drivers for 2.6, they can't go away until
+2.8/3.0/whatever.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

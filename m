@@ -1,76 +1,187 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288274AbSATLfy>; Sun, 20 Jan 2002 06:35:54 -0500
+	id <S288280AbSATLjy>; Sun, 20 Jan 2002 06:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288280AbSATLff>; Sun, 20 Jan 2002 06:35:35 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:11023 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288274AbSATLfY>; Sun, 20 Jan 2002 06:35:24 -0500
-Message-ID: <3C4AAA95.8040702@namesys.com>
-Date: Sun, 20 Jan 2002 14:31:33 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S288283AbSATLjp>; Sun, 20 Jan 2002 06:39:45 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:15793 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288280AbSATLjb>;
+	Sun, 20 Jan 2002 06:39:31 -0500
+Date: Sun, 20 Jan 2002 14:36:55 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [sched] [patch] migration-fixes-2.5.3-pre2-A1
+Message-ID: <Pine.LNX.4.33.0201201429120.7972-200000@localhost.localdomain>
 MIME-Version: 1.0
-To: Shawn <spstarr@sh0n.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.40.0201200359520.503-100000@coredump.sh0n.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-338135374-1011533815=:7972"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In version 4 of reiserfs, our plan is to implement writepage such that 
-it does not write the page but instead pressures the reiser4 cache and 
-marks the page as recently accessed.  This is Linus's preferred method 
-of doing that.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Personally, I think that makes writepage the wrong name for that 
-function, but I must admit it gets the job done, and it leaves writepage 
-as the right name for all filesystems that don't manage their own cache, 
-which is most of them.
-
-Hans
-
-Shawn wrote:
-
->I've noticed that XFS's filesystem has a separate pagebuf_daemon to handle
->caching/buffering.
->
->Why not make a kernel page/caching daemon for other filesystems to use
->(kpagebufd) so that each filesystem can use a kernel daemon interface to
->handle buffering and caching.
->
->I found that XFS's buffering/caching significantly reduced I/O load on the
->system (with riel's rmap11b + rml's preempt patches and Andre's IDE
->patch).
->
->But I've not been able to acheive the same speed results with ReiserFS :-(
->
->Just as we have a filesystem (VFS) layer, why not have a buffering/caching
->layer for the filesystems to use inconjunction with the VM?
->
-There is hostility to this from one of the VM maintainers.  He is 
-concerned that separate caches were what they had before and they 
-behaved badly.  I think that they simply coded them wrong the time 
-before.  The time before, the pressure on the subcaches was uneven, with 
-some caches only getting pressure if the other caches couldn't free 
-anything, so of course it behaved badly.
-
->
->
->Comments, suggestions, flames welcome ;)
->
->Shawn.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
+--8323328-338135374-1011533815=:7972
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
+the attached patch solves an SMP task migration bug in the O(1) scheduler.
 
+the bug is triggered all the time on an 8-way CPU i tested, and there are
+some bugreports from dual boxes as well that lock up during bootups.
+
+task migration is a subtle issue. The basic task is to 'send' the
+currently executing task over to another CPU, where it continues
+execution. The current code in 2.5.3-pre2 is broken, as it has a window in
+which it's possible for a ksoftirqd thread to run on two CPUs at once -
+causing a lockup.
+
+my solution is to send the task to the other CPU using the
+smp_migrate_task() lowlevel-SMP method defined by the SMP architecture,
+where it will call back the scheduler via sched_task_migrated(new_task).
+
+it's also possible to move a task from one runqueue to another one without
+using cross-CPU messaging, but this increases the overhead of the
+scheduler hot-path, schedule_tail() needs to check for some sort of
+prev->state == TASK_MIGRATED flag, at least. The patch solves this without
+adding overhead to the hot-path.
+
+the patch is also an optimization: the set_cpus_allowed() function used to
+switch the current idle thread manually, to initiate a reschedule (due to
+locking issues). This 'manual context switching' code is gone now, and
+set_cpus_allowed() calls schedule() directly now. This simplifies
+set_cpus_allowed() greatly, reducing sched.c's line count by 10.
+
+	Ingo
+
+--8323328-338135374-1011533815=:7972
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="migration-fixes-2.5.3-pre2-A1"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201201436550.7972@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="migration-fixes-2.5.3-pre2-A1"
+
+LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIEphbiAyMCAxMToz
+ODo1OSAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIEphbiAy
+MCAxMTozOToxNiAyMDAyDQpAQCAtMTkxLDYgKzE5MSwyMCBAQA0KIH0NCiAN
+CiAvKg0KKyAqIFRoZSBTTVAgbWVzc2FnZSBwYXNzaW5nIGNvZGUgY2FsbHMg
+dGhpcyBmdW5jdGlvbiB3aGVuZXZlcg0KKyAqIHRoZSBuZXcgdGFzayBoYXMg
+YXJyaXZlZCBhdCB0aGUgdGFyZ2V0IENQVS4gV2UgbW92ZSB0aGUNCisgKiBu
+ZXcgdGFzayBpbnRvIHRoZSBsb2NhbCBydW5xdWV1ZS4NCisgKg0KKyAqIFRo
+aXMgZnVuY3Rpb24gbXVzdCBiZSBjYWxsZWQgd2l0aCBpbnRlcnJ1cHRzIGRp
+c2FibGVkLg0KKyAqLw0KK3ZvaWQgc2NoZWRfdGFza19taWdyYXRlZCh0YXNr
+X3QgKm5ld190YXNrKQ0KK3sNCisJd2FpdF90YXNrX2luYWN0aXZlKG5ld190
+YXNrKTsNCisJbmV3X3Rhc2stPmNwdSA9IHNtcF9wcm9jZXNzb3JfaWQoKTsN
+CisJd2FrZV91cF9wcm9jZXNzKG5ld190YXNrKTsNCit9DQorDQorLyoNCiAg
+KiBLaWNrIHRoZSByZW1vdGUgQ1BVIGlmIHRoZSB0YXNrIGlzIHJ1bm5pbmcg
+Y3VycmVudGx5LA0KICAqIHRoaXMgY29kZSBpcyB1c2VkIGJ5IHRoZSBzaWdu
+YWwgY29kZSB0byBzaWduYWwgdGFza3MNCiAgKiB3aGljaCBhcmUgaW4gdXNl
+ci1tb2RlIGFzIHF1aWNrbHkgYXMgcG9zc2libGUuDQpAQCAtNjExLDcgKzYy
+NSw2IEBADQogCWlmIChsaWtlbHkocHJldiAhPSBuZXh0KSkgew0KIAkJcnEt
+Pm5yX3N3aXRjaGVzKys7DQogCQlycS0+Y3VyciA9IG5leHQ7DQotCQluZXh0
+LT5jcHUgPSBwcmV2LT5jcHU7DQogCQljb250ZXh0X3N3aXRjaChwcmV2LCBu
+ZXh0KTsNCiAJCS8qDQogCQkgKiBUaGUgcnVucXVldWUgcG9pbnRlciBtaWdo
+dCBiZSBmcm9tIGFub3RoZXIgQ1BVDQpAQCAtNzc4LDQ3ICs3OTEsMjMgQEAN
+CiAgKi8NCiB2b2lkIHNldF9jcHVzX2FsbG93ZWQodGFza190ICpwLCB1bnNp
+Z25lZCBsb25nIG5ld19tYXNrKQ0KIHsNCi0JcnVucXVldWVfdCAqdGhpc19y
+cSA9IHRoaXNfcnEoKSwgKnRhcmdldF9ycTsNCi0JdW5zaWduZWQgbG9uZyB0
+aGlzX21hc2sgPSAxVUwgPDwgc21wX3Byb2Nlc3Nvcl9pZCgpOw0KLQlpbnQg
+dGFyZ2V0X2NwdTsNCi0NCiAJbmV3X21hc2sgJj0gY3B1X29ubGluZV9tYXA7
+DQogCWlmICghbmV3X21hc2spDQogCQlCVUcoKTsNCisNCiAJcC0+Y3B1c19h
+bGxvd2VkID0gbmV3X21hc2s7DQogCS8qDQogCSAqIENhbiB0aGUgdGFzayBy
+dW4gb24gdGhlIGN1cnJlbnQgQ1BVPyBJZiBub3QgdGhlbg0KIAkgKiBtaWdy
+YXRlIHRoZSBwcm9jZXNzIG9mZiB0byBhIHByb3BlciBDUFUuDQogCSAqLw0K
+LQlpZiAobmV3X21hc2sgJiB0aGlzX21hc2spDQorCWlmIChuZXdfbWFzayAm
+ICgxVUwgPDwgc21wX3Byb2Nlc3Nvcl9pZCgpKSkNCiAJCXJldHVybjsNCi0J
+dGFyZ2V0X2NwdSA9IGZmeih+bmV3X21hc2spOw0KLQl0YXJnZXRfcnEgPSBj
+cHVfcnEodGFyZ2V0X2NwdSk7DQotCWlmICh0YXJnZXRfY3B1IDwgc21wX3By
+b2Nlc3Nvcl9pZCgpKSB7DQotCQlzcGluX2xvY2tfaXJxKCZ0YXJnZXRfcnEt
+PmxvY2spOw0KLQkJc3Bpbl9sb2NrKCZ0aGlzX3JxLT5sb2NrKTsNCi0JfSBl
+bHNlIHsNCi0JCXNwaW5fbG9ja19pcnEoJnRoaXNfcnEtPmxvY2spOw0KLQkJ
+c3Bpbl9sb2NrKCZ0YXJnZXRfcnEtPmxvY2spOw0KLQl9DQotCWRlcXVldWVf
+dGFzayhwLCBwLT5hcnJheSk7DQotCXRoaXNfcnEtPm5yX3J1bm5pbmctLTsN
+Ci0JdGFyZ2V0X3JxLT5ucl9ydW5uaW5nKys7DQotCWVucXVldWVfdGFzayhw
+LCB0YXJnZXRfcnEtPmFjdGl2ZSk7DQotCXRhcmdldF9ycS0+Y3Vyci0+bmVl
+ZF9yZXNjaGVkID0gMTsNCi0Jc3Bpbl91bmxvY2soJnRhcmdldF9ycS0+bG9j
+ayk7DQorI2lmIENPTkZJR19TTVANCisJc21wX21pZ3JhdGVfdGFzayhmZnoo
+fm5ld19tYXNrKSwgY3VycmVudCk7DQogDQotCS8qDQotCSAqIFRoZSBlYXNp
+ZXN0IHNvbHV0aW9uIGlzIHRvIGNvbnRleHQgc3dpdGNoIGludG8NCi0JICog
+dGhlIGlkbGUgdGhyZWFkIC0gd2hpY2ggd2lsbCBwaWNrIHRoZSBiZXN0IHRh
+c2sNCi0JICogYWZ0ZXJ3YXJkczoNCi0JICovDQotCXRoaXNfcnEtPm5yX3N3
+aXRjaGVzKys7DQotCXRoaXNfcnEtPmN1cnIgPSB0aGlzX3JxLT5pZGxlOw0K
+LQl0aGlzX3JxLT5pZGxlLT5uZWVkX3Jlc2NoZWQgPSAxOw0KLQljb250ZXh0
+X3N3aXRjaChjdXJyZW50LCB0aGlzX3JxLT5pZGxlKTsNCi0JYmFycmllcigp
+Ow0KLQlzcGluX3VubG9ja19pcnEoJnRoaXNfcnEoKS0+bG9jayk7DQorCWN1
+cnJlbnQtPnN0YXRlID0gVEFTS19VTklOVEVSUlVQVElCTEU7DQorCXNjaGVk
+dWxlKCk7DQorI2VuZGlmDQogfQ0KIA0KIHZvaWQgc2NoZWR1bGluZ19mdW5j
+dGlvbnNfZW5kX2hlcmUodm9pZCkgeyB9DQotLS0gbGludXgvaW5jbHVkZS9s
+aW51eC9zY2hlZC5oLm9yaWcJU3VuIEphbiAyMCAxMTozODo1OSAyMDAyDQor
+KysgbGludXgvaW5jbHVkZS9saW51eC9zY2hlZC5oCVN1biBKYW4gMjAgMTE6
+Mzk6MTYgMjAwMg0KQEAgLTE0OSw2ICsxNDksOCBAQA0KIGV4dGVybiB2b2lk
+IHVwZGF0ZV9vbmVfcHJvY2VzcyhzdHJ1Y3QgdGFza19zdHJ1Y3QgKnAsIHVu
+c2lnbmVkIGxvbmcgdXNlciwNCiAJCQkgICAgICAgdW5zaWduZWQgbG9uZyBz
+eXN0ZW0sIGludCBjcHUpOw0KIGV4dGVybiB2b2lkIHNjaGVkdWxlcl90aWNr
+KHN0cnVjdCB0YXNrX3N0cnVjdCAqcCk7DQorZXh0ZXJuIHZvaWQgc2NoZWRf
+dGFza19taWdyYXRlZChzdHJ1Y3QgdGFza19zdHJ1Y3QgKnApOw0KK2V4dGVy
+biB2b2lkIHNtcF9taWdyYXRlX3Rhc2soaW50IGNwdSwgdGFza190ICp0YXNr
+KTsNCiANCiAjZGVmaW5lCU1BWF9TQ0hFRFVMRV9USU1FT1VUCUxPTkdfTUFY
+DQogZXh0ZXJuIHNpZ25lZCBsb25nIEZBU1RDQUxMKHNjaGVkdWxlX3RpbWVv
+dXQoc2lnbmVkIGxvbmcgdGltZW91dCkpOw0KLS0tIGxpbnV4L2luY2x1ZGUv
+YXNtLWkzODYvaHdfaXJxLmgub3JpZwlUaHUgTm92IDIyIDIwOjQ2OjE4IDIw
+MDENCisrKyBsaW51eC9pbmNsdWRlL2FzbS1pMzg2L2h3X2lycS5oCVN1biBK
+YW4gMjAgMTE6Mzk6MTYgMjAwMg0KQEAgLTM1LDEzICszNSwxNCBAQA0KICAq
+ICBpbnRvIGEgc2luZ2xlIHZlY3RvciAoQ0FMTF9GVU5DVElPTl9WRUNUT1Ip
+IHRvIHNhdmUgdmVjdG9yIHNwYWNlLg0KICAqICBUTEIsIHJlc2NoZWR1bGUg
+YW5kIGxvY2FsIEFQSUMgdmVjdG9ycyBhcmUgcGVyZm9ybWFuY2UtY3JpdGlj
+YWwuDQogICoNCi0gKiAgVmVjdG9ycyAweGYwLTB4ZmEgYXJlIGZyZWUgKHJl
+c2VydmVkIGZvciBmdXR1cmUgTGludXggdXNlKS4NCisgKiAgVmVjdG9ycyAw
+eGYwLTB4ZjkgYXJlIGZyZWUgKHJlc2VydmVkIGZvciBmdXR1cmUgTGludXgg
+dXNlKS4NCiAgKi8NCiAjZGVmaW5lIFNQVVJJT1VTX0FQSUNfVkVDVE9SCTB4
+ZmYNCiAjZGVmaW5lIEVSUk9SX0FQSUNfVkVDVE9SCTB4ZmUNCiAjZGVmaW5l
+IElOVkFMSURBVEVfVExCX1ZFQ1RPUgkweGZkDQogI2RlZmluZSBSRVNDSEVE
+VUxFX1ZFQ1RPUgkweGZjDQotI2RlZmluZSBDQUxMX0ZVTkNUSU9OX1ZFQ1RP
+UgkweGZiDQorI2RlZmluZSBUQVNLX01JR1JBVElPTl9WRUNUT1IJMHhmYg0K
+KyNkZWZpbmUgQ0FMTF9GVU5DVElPTl9WRUNUT1IJMHhmYQ0KIA0KIC8qDQog
+ICogTG9jYWwgQVBJQyB0aW1lciBJUlEgdmVjdG9yIGlzIG9uIGEgZGlmZmVy
+ZW50IHByaW9yaXR5IGxldmVsLA0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJu
+ZWwvaTgyNTkuYy5vcmlnCVR1ZSBTZXAgMTggMDg6MDM6MDkgMjAwMQ0KKysr
+IGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvaTgyNTkuYwlTdW4gSmFuIDIwIDEx
+OjM5OjE2IDIwMDINCkBAIC03OSw2ICs3OSw3IEBADQogICogdGhyb3VnaCB0
+aGUgSUNDIGJ5IHVzIChJUElzKQ0KICAqLw0KICNpZmRlZiBDT05GSUdfU01Q
+DQorQlVJTERfU01QX0lOVEVSUlVQVCh0YXNrX21pZ3JhdGlvbl9pbnRlcnJ1
+cHQsVEFTS19NSUdSQVRJT05fVkVDVE9SKQ0KIEJVSUxEX1NNUF9JTlRFUlJV
+UFQocmVzY2hlZHVsZV9pbnRlcnJ1cHQsUkVTQ0hFRFVMRV9WRUNUT1IpDQog
+QlVJTERfU01QX0lOVEVSUlVQVChpbnZhbGlkYXRlX2ludGVycnVwdCxJTlZB
+TElEQVRFX1RMQl9WRUNUT1IpDQogQlVJTERfU01QX0lOVEVSUlVQVChjYWxs
+X2Z1bmN0aW9uX2ludGVycnVwdCxDQUxMX0ZVTkNUSU9OX1ZFQ1RPUikNCkBA
+IC00NzIsNiArNDczLDkgQEANCiAJICogSVBJLCBkcml2ZW4gYnkgd2FrZXVw
+Lg0KIAkgKi8NCiAJc2V0X2ludHJfZ2F0ZShSRVNDSEVEVUxFX1ZFQ1RPUiwg
+cmVzY2hlZHVsZV9pbnRlcnJ1cHQpOw0KKw0KKwkvKiBJUEkgZm9yIHRhc2sg
+bWlncmF0aW9uICovDQorCXNldF9pbnRyX2dhdGUoVEFTS19NSUdSQVRJT05f
+VkVDVE9SLCB0YXNrX21pZ3JhdGlvbl9pbnRlcnJ1cHQpOw0KIA0KIAkvKiBJ
+UEkgZm9yIGludmFsaWRhdGlvbiAqLw0KIAlzZXRfaW50cl9nYXRlKElOVkFM
+SURBVEVfVExCX1ZFQ1RPUiwgaW52YWxpZGF0ZV9pbnRlcnJ1cHQpOw0KLS0t
+IGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvc21wLmMub3JpZwlTdW4gSmFuIDIw
+IDExOjM2OjAyIDIwMDINCisrKyBsaW51eC9hcmNoL2kzODYva2VybmVsL3Nt
+cC5jCVN1biBKYW4gMjAgMTE6Mzk6MTYgMjAwMg0KQEAgLTQ4NSw2ICs0ODUs
+MzUgQEANCiAJZG9fZmx1c2hfdGxiX2FsbF9sb2NhbCgpOw0KIH0NCiANCitz
+dGF0aWMgc3BpbmxvY2tfdCBtaWdyYXRpb25fbG9jayA9IFNQSU5fTE9DS19V
+TkxPQ0tFRDsNCitzdGF0aWMgdGFza190ICpuZXdfdGFzazsNCisNCisvKg0K
+KyAqIFRoaXMgZnVuY3Rpb24gc2VuZHMgYSAndGFzayBtaWdyYXRpb24nIElQ
+SSB0byBhbm90aGVyIENQVS4NCisgKiBNdXN0IGJlIGNhbGxlZCBmcm9tIHN5
+c2NhbGwgY29udGV4dHMsIHdpdGggaW50ZXJydXB0cyAqZW5hYmxlZCouDQor
+ICovDQordm9pZCBzbXBfbWlncmF0ZV90YXNrKGludCBjcHUsIHRhc2tfdCAq
+cCkNCit7DQorCS8qDQorCSAqIFRoZSB0YXJnZXQgQ1BVIHdpbGwgdW5sb2Nr
+IHRoZSBtaWdyYXRpb24gc3BpbmxvY2s6DQorCSAqLw0KKwlzcGluX2xvY2so
+Jm1pZ3JhdGlvbl9sb2NrKTsNCisJbmV3X3Rhc2sgPSBwOw0KKwlzZW5kX0lQ
+SV9tYXNrKDEgPDwgY3B1LCBUQVNLX01JR1JBVElPTl9WRUNUT1IpOw0KK30N
+CisNCisvKg0KKyAqIFRhc2sgbWlncmF0aW9uIGNhbGxiYWNrLg0KKyAqLw0K
+K2FzbWxpbmthZ2Ugdm9pZCBzbXBfdGFza19taWdyYXRpb25faW50ZXJydXB0
+KHZvaWQpDQorew0KKwl0YXNrX3QgKnA7DQorDQorCWFja19BUElDX2lycSgp
+Ow0KKwlwID0gbmV3X3Rhc2s7DQorCXNwaW5fdW5sb2NrKCZtaWdyYXRpb25f
+bG9jayk7DQorCXNjaGVkX3Rhc2tfbWlncmF0ZWQocCk7DQorfQ0KIC8qDQog
+ICogdGhpcyBmdW5jdGlvbiBzZW5kcyBhICdyZXNjaGVkdWxlJyBJUEkgdG8g
+YW5vdGhlciBDUFUuDQogICogaXQgZ29lcyBzdHJhaWdodCB0aHJvdWdoIGFu
+ZCB3YXN0ZXMgbm8gdGltZSBzZXJpYWxpemluZw0K
+--8323328-338135374-1011533815=:7972--

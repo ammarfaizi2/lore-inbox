@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130335AbRAVGb4>; Mon, 22 Jan 2001 01:31:56 -0500
+	id <S130510AbRAVGh5>; Mon, 22 Jan 2001 01:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130913AbRAVGbq>; Mon, 22 Jan 2001 01:31:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12555 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130335AbRAVGbh>;
-	Mon, 22 Jan 2001 01:31:37 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101212311.f0LNBvm01377@flint.arm.linux.org.uk>
-Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
-To: johannes@erdfelt.com (Johannes Erdfelt)
-Date: Sun, 21 Jan 2001 23:11:56 +0000 (GMT)
-Cc: manfred@colorfullife.com (Manfred Spraul), linux-kernel@vger.kernel.org
-In-Reply-To: <20010121123730.N9156@sventech.com> from "Johannes Erdfelt" at Jan 21, 2001 12:37:31 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130352AbRAVGhs>; Mon, 22 Jan 2001 01:37:48 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:41734 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130194AbRAVGhg>; Mon, 22 Jan 2001 01:37:36 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Bernd Eckenfels <inka-user@lina.inka.de>
+Date: Mon, 22 Jan 2001 17:37:10 +1100 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14955.54550.722226.199371@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH] - filesystem corruption on soft RAID5 in 2.4.0+
+In-Reply-To: message from Bernd Eckenfels on Monday January 22
+In-Reply-To: <E14KUgh-0000kk-00@sites.inka.de>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday January 22, inka-user@lina.inka.de wrote:
+> In article <14955.19182.663691.194031@notabene.cse.unsw.edu.au> you wrote:
+> > There have been assorted reports of filesystem corruption on raid5 in
+> > 2.4.0, and I have finally got a patch - see below.
+> > I don't know if it addresses everybody's problems, but it fixed a very
+> > really problem that is very reproducable.
+> 
+> Do you know if it is safe with 2.4.0 kernels to swap on degraded soft raids?
+> On the debian-devel list there is a discussion. Currently Debisn Systems to
+> not do swap-on on boot if a raid partition is resyncing.
 
-You may have already found out that there's a problem using
-pci_alloc_consistent and friends in the USB layer which will
-only be obvious on CPUs where they need to do page table remapping
-- that is that pci_alloc_consistent/pci_free_consistent aren't
-guaranteed to be interrupt-safe.
+In 2.2 it was not safe to swap to a RAID array that we being resyched
+or was having a spare reconstructed, but in 2.4 it is perfectly safe.
 
-I'm not sure what the correct way around this is yet, but I do
-know its a major problem. ;(
+It would be entirely appropriate for the init.d script to check for
+version >= 2.3.9pre8 (I think that is when the new resync code went
+it) - or probably just >= 2.4.0, and bypass any fancy checks if that
+is the case.
 
-Maybe we need to do a get_free_pages-type thing with this and
-keep a set amount of consistent area in reserve for atomic
-allocations (as per GFP_ATOMIC)?  Yes, I know its not nice, but
-I don't see any other option at the moment with USB.
+NeilBrown
 
-(yes, I'm hacking the 2.2.18 ohci driver for my own ends to get
-something up and running on one of my machines).
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+
+> 
+> Greetings
+> Bernd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

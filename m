@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272220AbTHNGSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 02:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTHNGSs
+	id S272219AbTHNG17 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 02:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHNG17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 02:18:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:40120 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S272220AbTHNGSl (ORCPT
+	Thu, 14 Aug 2003 02:27:59 -0400
+Received: from holomorphy.com ([66.224.33.161]:41912 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S272219AbTHNG16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 02:18:41 -0400
-Date: Wed, 13 Aug 2003 23:19:53 -0700
+	Thu, 14 Aug 2003 02:27:58 -0400
+Date: Wed, 13 Aug 2003 23:28:30 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]O14int
-Message-ID: <20030814061953.GL32488@holomorphy.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Nufarul Alb <nufarul.alb@home.ro>, linux-kernel@vger.kernel.org
+Subject: Re: multibooting the linux kernel
+Message-ID: <20030814062830.GM32488@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308090149.25688.kernel@kolivas.org> <200308120033.32391.kernel@kolivas.org> <1060615179.13255.133.camel@workshop.saharacpt.lan> <200308121545.52042.kernel@kolivas.org>
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Nufarul Alb <nufarul.alb@home.ro>, linux-kernel@vger.kernel.org
+References: <3F396C04.90608@home.ro> <20030813002944.GJ32488@holomorphy.com> <200308130718.h7D7ISd20208@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308121545.52042.kernel@kolivas.org>
+In-Reply-To: <200308130718.h7D7ISd20208@Port.imtp.ilyichevsk.odessa.ua>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Aug 2003 01:19, Martin Schlemmer wrote:
->> Normal run of things there is many times 1-3 'make -j6s' running.
->> Yes, sure, for on of them you prob should use -j4, but hey its
->> in the head, right =).  No, it is not kernels, it is a variety
+On 13 August 2003 03:29, William Lee Irwin III wrote:
+>> No idea. It might help if someone (this means you) started maintaining
+>> it and sending it in. =)
 
-On Wed, Aug 13, 2003 at 04:48:18PM +1000, Con Kolivas wrote:
-> Actually in benchmarking I've found no increase in speed with more than one 
-> job per cpu but it's up to you of course.
+On Wed, Aug 13, 2003 at 10:18:27AM +0300, Denis Vlasenko wrote:
+> Do we want to stuff every imaginable early userspace stuff into kernel?
+> <sarcasm>
+> I vote for iwconfig and cipe tunnels, because I mount my root filesystem
+> over them!
+> </sarcasm>
 
-I found some strange SMP artifacts that seemed to show a dromedary-like
-throughput curve with respect to tasks, with one peak at 4 tasks/cpu and
-another peak at 16 tasks/cpu on a 16x box (for kernel compiles).
-
-But I don't consider that evidence of anything to do something about.
+I had more in mind the notion that it generally helps to hack on things
+and send things in yourself as opposed to asking for some random piece
+of wildly out-of-date code to get merged.
 
 
 -- wli

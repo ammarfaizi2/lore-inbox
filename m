@@ -1,71 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTEFVGH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 17:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTEFVGH
+	id S261769AbTEFVHE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 17:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEFVHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 17:06:07 -0400
-Received: from starcraft.mweb.co.za ([196.2.45.78]:8635 "EHLO
-	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
-	id S261300AbTEFVGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 17:06:03 -0400
-Date: Tue, 6 May 2003 23:18:22 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: ambx1@neo.rr.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5.69][PNP] Remove deprecated __check_region
-Message-Id: <20030506231822.201511c6.bonganilinux@mweb.co.za>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.Oju_65ZQ).(knN"
+	Tue, 6 May 2003 17:07:03 -0400
+Received: from lakemtao04.cox.net ([68.1.17.241]:57051 "EHLO
+	lakemtao04.cox.net") by vger.kernel.org with ESMTP id S261769AbTEFVGh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 17:06:37 -0400
+Message-ID: <3EB826B8.3030307@cox.net>
+Date: Tue, 06 May 2003 16:18:48 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Riley Williams <Riley@Williams.Name>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-rc1] Zipdrive messages too much
+References: <BKEGKPICNAKILKJKMHCAEENJCKAA.Riley@Williams.Name>
+In-Reply-To: <BKEGKPICNAKILKJKMHCAEENJCKAA.Riley@Williams.Name>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.Oju_65ZQ).(knN
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+The problem is that the zipdrive works perfectly in kernel 2.5.69-bk1 
+without all of these messages. It floods me with these messages in 
+2.4.21-rc1 though. That is why I think something got lost in a patch 
+somewhere.
 
-Hi Adam
+-David
 
-You are listed as the maintainer of the ISAPNP code in the Maintainers file. 
-Could you verify if this patch is fine and forward it to Linus. The patch 
-has been test for compilation.
+Riley Williams wrote:
+> Hi David.
+> 
+> I have a Zip-250 drive that works fine under Linux, but it's the EIDE model,
+> not the parallel-SCSI version you appear to have. As a result, I don't know
+> whether this is relevant, but...
+> 
+> I remember reading somewhere that there was a jumper on the parallel-SCSI
+> zip drives that changed how it works, and I seem to recall that whilst the
+> M$ Windows driver had no problem in either position, the Linux driver only
+> worked in one position as the other was undocumented.
+> 
+> Not sure if that was ever sorted out as I haven't heard about it for
+> years...
+> 
+> Best wishes from Riley.
+> ---
+>  * Nothing as pretty as a smile, nothing as ugly as a frown.
+> 
+> 
+>  >>> Apr 23 11:41:35 aeon kernel: sda : READ CAPACITY failed.
+>  >>> Apr 23 11:41:35 aeon kernel: sda : status = 1, message = 00, host = 0,
+>  >>> driver = 08
+>  >>> Apr 23 11:41:35 aeon kernel: Current sd00:00: sns = 70  2
+>  >>> Apr 23 11:41:35 aeon kernel: ASC=3a ASCQ= 0
+>  >>> Apr 23 11:41:35 aeon kernel: Raw sense data:0x70 0x00 0x02 0x00 0x00
+>  >>> 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff
+>  >>> 0xfe 0x01 0x00 0x00 0x00 0x00
+>  >>> Apr 23 11:41:35 aeon kernel: sda : block size assumed to be 512 bytes,
+>  >>> disk size 1GB.
+>  >>> Apr 23 11:41:35 aeon kernel: sda: Write Protect is off
+>  >>> Apr 23 11:41:35 aeon kernel:  sda: I/O error: dev 08:00, sector 0
+>  >>> Apr 23 11:41:35 aeon kernel:  I/O error: dev 08:00, sector 0
+>  >>> Apr 23 11:41:35 aeon kernel:  unable to read partition table
+>  >>> Apr 23 11:41:35 aeon kernel: Device not ready.  Make sure there is a
+>  >>> disc in the drive.
+> 
+>  > I added more SCSI logging support so the below is better info than the
+>  > above. Sorry. Forgot the logging when I posted this. I knew it looked
+>  > extra weird.
+>  >
+>  > sda : READ CAPACITY failed.
+>  > sda : status = 1, message = 00, host = 0, driver = 08
+>  > Current sd00:00: sense key Not Ready
+>  > Additional sense indicates Medium not present
+>  > sda : block size assumed to be 512 bytes, disk size 1GB.
+>  > sda: Write Protect is off
+>  >   sda: I/O error: dev 08:00, sector 0
+>  >   I/O error: dev 08:00, sector 0
+>  >   unable to read partition table
+>  > Device not ready.  Make sure there is a disc in the drive.
+>  >
+>  > Hope this helps more.
 
-Thanx
-
-	-- Bongani
-
---- linux-2.5/drivers/pnp/resource.c.orig       2003-05-06 22:43:52.000000000 +0200
-+++ linux-2.5/drivers/pnp/resource.c    2003-05-06 22:51:41.000000000 +0200
-@@ -295,7 +295,7 @@
-
-        /* check if the resource is already in use, skip if the device is active because it itself may be in use */
-        if(!dev->active) {
--               if (check_region(*port, length(port,end)))
-+               if (!request_region(*port, length(port,end), "pnp"))
-                        return CONFLICT_TYPE_IN_USE;
-        }
-
-@@ -366,7 +366,7 @@
-
-        /* check if the resource is already in use, skip if the device is active because it itself may be in use */
-        if(!dev->active) {
--               if (__check_region(&iomem_resource, *addr, length(addr,end)))
-+               if (!__request_region(&iomem_resource, *addr, length(addr,end), "pnp"))
-                        return CONFLICT_TYPE_IN_USE;
-        }
-
-
---=.Oju_65ZQ).(knN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+uCan+pvEqv8+FEMRAo44AJ44rgNryrUXiAPHhtecGGNfJ/W7zQCfULIb
-y7++EPUFhLIlrNVIoXQfbxI=
-=fYPn
------END PGP SIGNATURE-----
-
---=.Oju_65ZQ).(knN--

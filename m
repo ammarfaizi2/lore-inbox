@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314292AbSDVRVr>; Mon, 22 Apr 2002 13:21:47 -0400
+	id <S314280AbSDVRUv>; Mon, 22 Apr 2002 13:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314293AbSDVRVq>; Mon, 22 Apr 2002 13:21:46 -0400
-Received: from bitmover.com ([192.132.92.2]:5799 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314292AbSDVRVo>;
-	Mon, 22 Apr 2002 13:21:44 -0400
-Date: Mon, 22 Apr 2002 10:21:43 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, Larry McVoy <lm@bitmover.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422102143.E17613@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Jeff Garzik <garzik@havoc.gtf.org>, Larry McVoy <lm@bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422131011.D6638@havoc.gtf.org> <E16zKy9-0001Hw-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314292AbSDVRUv>; Mon, 22 Apr 2002 13:20:51 -0400
+Received: from otter.mbay.net ([206.55.237.2]:47364 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S314280AbSDVRUt>;
+	Mon, 22 Apr 2002 13:20:49 -0400
+Date: Mon, 22 Apr 2002 10:20:39 -0700 (PDT)
+From: John Alvord <jalvo@mbay.net>
+To: Pavel Machek <pavel@suse.cz>
+cc: davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <20020421180021.A155@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.20.0204221019280.20972-100000@otter.mbay.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 07:17:45PM +0200, Daniel Phillips wrote:
-> On Monday 22 April 2002 19:10, Jeff Garzik wrote:
-> > Do you have a problem with moving other docs out to Websites, which are
-> > describing closed-spec hardware?  Such hardware (and their vendors) are
-> > actively anti-open source, yet we have documents describing those, too.
+On Sun, 21 Apr 2002, Pavel Machek wrote:
+
+> Hi!
 > 
-[response not answering the question deleted]
+> >   Davide> i still have pieces of paper on my desk about tests done on
+> >   Davide> my dual piii where by hacking HZ to 1000 the kernel build
+> >   Davide> time went from an average of 2min:30sec to an average
+> >   Davide> 2min:43sec. that is pretty close to 10%
+> > 
+> > The last time I measured timer tick overhead on ia64 it was well below
+> > 1% of overhead.  I don't really like using kernel builds as a
+> > benchmark, because there are far too many variables for the results to
+> > have any long-term or cross-platform value.  But since it's popular, I
+> > did measure it quickly on a relatively slow (old) Itanium box: with
+> > 100Hz, the kernel compile was about 0.6% faster than with 1024Hz
+> > (2.4.18 UP kernel).
+> 
+> .5% still looks like a lot to me. Good compiler optimization is .5% on 
+> average...
+> 
+> And think what it does with old 386sx.. Maybe time for those "tick on demand"
+> patches?
 
-Daniel, this is yet another example of you not answering the question asked.
-Let's try it again.  Please answer the following question, since you seem
-to have elected yourself to position of license policeman:
+Doesn't IBM have a tickless patch.. useful when demonstrating 10,000
+virtual linux machines on a single system.
 
-There are number of different places in the linux kernel source tree
-where there are docs/code/whatever related to non-open source features
-included in the tree.  Are you advocating a "cleansing" of all of these
-or are you specifically targetting BitKeeper.  If you are only focussed
-on BitKeeper, why?
+john alvord
 
-That's two questions, just answer those, nothing but those.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

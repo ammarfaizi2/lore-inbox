@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUGLQvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266887AbUGLQzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265203AbUGLQvy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 12:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266887AbUGLQvy
+	id S266887AbUGLQzh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 12:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUGLQzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 12:51:54 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:49290 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265203AbUGLQvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 12:51:53 -0400
-Date: Mon, 12 Jul 2004 12:51:52 -0400
-From: Andrew Pimlott <andrew@pimlott.net>
-To: Andreas Schwab <schwab@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Message-ID: <20040712165152.GA6814@pimlott.net>
-Mail-Followup-To: Andrew Pimlott <andrew@pimlott.net>,
-	Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0407080917420.1764@ppc970.osdl.org> <40ED7BE7.7010506@techsource.com> <200407090056.51084.vda@port.imtp.ilyichevsk.odessa.ua> <40F2AB82.40508@techsource.com> <jeisct2oig.fsf@sykes.suse.de>
+	Mon, 12 Jul 2004 12:55:37 -0400
+Received: from main.gmane.org ([80.91.224.249]:43453 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266887AbUGLQzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 12:55:35 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: VESA fb problem with 2.6.7-mm[567]
+Date: Mon, 12 Jul 2004 18:55:02 +0200
+Message-ID: <MPG.1b5cdffbb30a3cf69896d4@news.gmane.org>
+References: <20040711203659.GE2899@charite.de> <Pine.LNX.4.58.0407112245580.8681@alpha.polcom.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <jeisct2oig.fsf@sykes.suse.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: oblomov.dipmat.unict.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 06:12:23PM +0200, Andreas Schwab wrote:
-> If your function needs nine arguments it is not readable by
-> definition. :-)
+Grzegorz Kulewski wrote:
+> On Sun, 11 Jul 2004, Ralf Hildebrandt wrote:
+> 
+> > The nvidia graphics card in one of my laptops cannot be talked into
+> > working with vesafb:
+> 
+> Maybe try vesafb-tng at http://dev.gentoo.org/~spock/ .
+> This is completly rewritten, better and more correct implementation with 
+> maany new features. See docs.
+> 
+> It is working for me with nvidia binary drivers for X and vesafb-tng for 
+> console.
 
-"If you have a procedure with ten parameters, you probably missed some."
-- Alan Perlis
+vesafb-tng doesn't work with my GeForce2 Go on an Inspiron 8200 
+if I set it to use maximu resolution (1600x1200). The screen 
+gets all messed up, as if the video mode wasn't set to match 
+the use of the framebuffer.
 
-Andrew
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

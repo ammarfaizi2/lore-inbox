@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVBMQNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVBMQRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVBMQNV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 11:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBMQNV
+	id S261275AbVBMQRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 11:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVBMQRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 11:13:21 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:63502 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261284AbVBMQNE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 11:13:04 -0500
-Date: Sun, 13 Feb 2005 17:13:24 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Enrico Bartky <DOSProfi@web.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11-rc4
-Message-Id: <20050213171324.47368e77.khali@linux-fr.org>
-In-Reply-To: <420F4F65.2080701@web.de>
-References: <Pine.LNX.4.58.0502121928590.19649@ppc970.osdl.org>
-	<420F4F65.2080701@web.de>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 13 Feb 2005 11:17:12 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:64462 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S261275AbVBMQRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 11:17:09 -0500
+Date: Sun, 13 Feb 2005 11:17:09 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
+       Andries Brouwer <aebr@win.tue.nl>, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i8042 access timings
+Message-ID: <20050213161709.GA22287@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lee Revell <rlrevell@joe-job.com>, Andries Brouwer <aebr@win.tue.nl>,
+	dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com> <20050125194647.GB3494@pclin040.win.tue.nl> <1106685456.10845.40.camel@krustophenia.net> <1106838875.14782.20.camel@localhost.localdomain> <20050127163431.GA31212@ti64.telemetry-investments.com> <20050127163714.GA15327@ucw.cz> <20050213001659.GA7349@ti64.telemetry-investments.com> <20050213082246.GC1535@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050213082246.GC1535@ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Enrico,
+On Sun, Feb 13, 2005 at 09:22:46AM +0100, Vojtech Pavlik wrote:
+> And I suppose it was running just fine without the patch as well?
+ 
+Correct.
 
-> It is possible to include the SIS5595 chip driver to the final
-> release?
+> The question was whether the patch helps, or whether it is not needed.
+ 
+If you look again at the patch I posted, it only borrowed a few lines
+of the patch from Dmitry that started this thread; I eliminated Alan's
+recent udelay(50) addition, reduced the loop delay, and added debug
+printks to the *_wait routines to determine whether the loop is ever taken.
 
-No, sorry. It's not even in -mm yet (in fact it's even not in Greg's
-bk-i2c tree yet). It needs to spend some time (and get some testing) in
--mm before it can go to Linus.
+At least so far, those debugging statements have produced no output.
+I'll use the machine a bit and report back if I trigger anything.
 
-You are still welcome to get the patch [1] and apply it manually to your
-tree if you want support right now. And of course, report to the
-Aurélien and the sensors mailing-list if you hit a problem.
+Regards,
 
-[1] http://lkml.org/lkml/diff/2005/2/6/192/1
-
-Thanks,
--- 
-Jean Delvare
+	Bill Rugolsky

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278327AbRJWV7S>; Tue, 23 Oct 2001 17:59:18 -0400
+	id <S278316AbRJWV4s>; Tue, 23 Oct 2001 17:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278329AbRJWV7I>; Tue, 23 Oct 2001 17:59:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60178 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278327AbRJWV6v>;
-	Tue, 23 Oct 2001 17:58:51 -0400
-Date: Tue, 23 Oct 2001 19:59:08 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Issue with max_threads (and other resources) and highmem
-In-Reply-To: <91510000.1003871155@baldur>
-Message-ID: <Pine.LNX.4.33L.0110231911210.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278317AbRJWV4i>; Tue, 23 Oct 2001 17:56:38 -0400
+Received: from blue.gradwell.net ([195.149.39.10]:38594 "HELO
+	blue.gradwell.net") by vger.kernel.org with SMTP id <S278316AbRJWV41>;
+	Tue, 23 Oct 2001 17:56:27 -0400
+Date: Tue, 23 Oct 2001 22:58:35 +0100
+From: Peter Hamilton <lobsterphoneuk@yahoo.co.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.12: High disk activity + system load causes lockup
+Message-ID: <20011023225835.A3464@hamil.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, Dave McCracken wrote:
-> --On Tuesday, October 23, 2001 18:52:35 -0200 Rik van Riel
-> <riel@conectiva.com.br> wrote:
->
-> > I submitted a patch a while ago to set the number way lower,
-> > which was accepted by Alan and in the -ac kernels. A few months
-> > later Linus followed and changed the limit in his kernels, too.
->
-> Ok, that's what I get for reading the comment and not deciphering the
-> code...
+Regarding:
+  2.4.12: High disk activity + system load causes lockup.
 
-*sigh*  So my updated comment got backed out again ;/
+On Mon, 22 Oct 2001 17:40:47 Marcelo Tosatti wrote:
+> Pete,
+> 
+> Please try to reproduce the problem without the Nvidia driver loaded.
 
-Linus, what do you have against correct documentation ? ;)
+I can confirm that the system locks up reliably without the Nvidia
+driver.  This time I was doing a "mke2fs /dev/hda9" to create a
+1Gb junk partition for testing this very problem :-)  The system
+died when it reached the "Writing superblocks...:" stage.
 
-> But there's still a problem.  The value for mempages is all of physical
-> memory including highmem, so a machine with a sufficient amount of high
-> memory can set max_threads to a value way too high, given that most if not
-> all of the resources it's trying to limit have to come from normal memory
-> and not high memory.
+Back to 2.4.6 at the moment.
 
-Indeed, this needs to be fixed.  A sane upper limit for
-max_threads would be 10000, this also keeps in mind the
-fact that we only have 32000 possible PIDs, some of which
-could be taken by task groups, etc...
+I'm not subscribed to this list, so please Cc: if you want me to
+see replies - thanks.
 
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
+All the best, Pete.
 

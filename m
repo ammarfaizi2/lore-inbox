@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTKXWPC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 17:15:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTKXWPC
+	id S261240AbTKXWM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 17:12:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTKXWM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 17:15:02 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:30644 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261270AbTKXWPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 17:15:00 -0500
-Message-ID: <3FC1DA4B.7080102@namesys.com>
-Date: Mon, 24 Nov 2003 02:15:39 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Reiserfs List <reiserfs-list@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Reiser4: latest snapshot is less stable than before
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 17:12:28 -0500
+Received: from main.gmane.org ([80.91.224.249]:8683 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261240AbTKXWM1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 17:12:27 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: hard links create local DoS vulnerability and security problems
+Date: Mon, 24 Nov 2003 23:12:24 +0100
+Message-ID: <yw1xptfh8lh3.fsf@kth.se>
+References: <fa.hevpbbs.u5q2r6@ifi.uio.no> <fa.l1quqni.v405hu@ifi.uio.no>
+ <3FC27019.7010402@myrealbox.com>
+ <200311242204.hAOM4aZ1000847@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:xmU6on1EAFnVopNW1nJGicc3R2A=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just thought I'd warn any users out there of that.  We are debugging why....
+John Bradford <john@grabjohn.com> writes:
+
+>> Right... but non-privileged users _can't_ delete these extra links, even 
+>> if they notice them from the link count.
+>
+> They can truncate the file to zero length, though, then delete the
+> 'original' link, making all of the other links point to the zero
+> length file.
+
+It could be tricky to find those extra links if the original has been
+deleted, of course.
 
 -- 
-Hans
-
+Måns Rullgård
+mru@kth.se
 

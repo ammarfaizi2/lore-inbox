@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271625AbRHZXYi>; Sun, 26 Aug 2001 19:24:38 -0400
+	id <S271621AbRHZX31>; Sun, 26 Aug 2001 19:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271623AbRHZXYS>; Sun, 26 Aug 2001 19:24:18 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:27369 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S271619AbRHZXYM>; Sun, 26 Aug 2001 19:24:12 -0400
-Date: Mon, 27 Aug 2001 00:24:27 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, pcg@goof.com,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Message-ID: <20010827002427.B6193@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33L.0108261651080.5646-100000@imladris.rielhome.conectiva> <20010826200133Z16190-32385+242@humbolt.nl.linux.org> <20010826233343.A6193@flint.arm.linux.org.uk> <20010826231743Z16325-32383+1526@humbolt.nl.linux.org>
+	id <S271626AbRHZX3R>; Sun, 26 Aug 2001 19:29:17 -0400
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:42503 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271621AbRHZX3E>; Sun, 26 Aug 2001 19:29:04 -0400
+Subject: Re: [PATCH] Updated: Let net devices contribute entropy
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <998616119.9306.32.camel@phantasy>
+In-Reply-To: <998616119.9306.32.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 26 Aug 2001 19:29:15 -0400
+Message-Id: <998868579.783.28.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010826231743Z16325-32383+1526@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Mon, Aug 27, 2001 at 01:24:23AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 01:24:23AM +0200, Daniel Phillips wrote:
-> This is a nice dump format.  One thing that would be very helpful is the page 
-> executable flag, another would be the writable flag.  The 4687 anonymous 
-> pages are the elephant under the rug, but we don't know how they break down 
-> between executable (evictable) and otherwise.
 
-You can't get at that information without doing a complete scan for each
-page table in all tasks, unless you want to dump out the page tables.
-This could done separately of course.
+Updated patch for 2.4.8-ac12 is available at:
+http://tech9.net/rml/linux/patch-rml-2.4.8-ac12-netdev-random-1
+and
+http://tech9.net/rml/linux/patch-rml-2.4.8-ac12-netdev-random-2
+as always, #1 adds the core support and #2 updates all network devices
+to use the new flag.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+2.4.9 patches are still available from the same place.
+
+nothing new, sans the resync, since the previous patch.  i believe all
+architectures and network devices are still supported.
+
+the interested are highly encouraged to read the previous thread for a
+summary of the patch and the resulting discussions.
+ 
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

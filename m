@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267882AbTBRRc6>; Tue, 18 Feb 2003 12:32:58 -0500
+	id <S267916AbTBRRcZ>; Tue, 18 Feb 2003 12:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267874AbTBRRc6>; Tue, 18 Feb 2003 12:32:58 -0500
-Received: from p0021.as-l043.contactel.cz ([194.108.242.21]:33521 "EHLO
-	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
-	id <S267917AbTBRRcf> convert rfc822-to-8bit; Tue, 18 Feb 2003 12:32:35 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: What language has Alan's portaloo changed to?
-References: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
-	<001f01c2d761$1fdea640$0201a8c0@pluto>
-	<20030218171832.GC351@lug-owl.de>
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Tue, 18 Feb 2003 18:45:06 +0100
-In-Reply-To: <20030218171832.GC351@lug-owl.de> (Jan-Benedict Glaw's message
- of "Tue, 18 Feb 2003 18:18:32 +0100")
-Message-ID: <m3k7fxiiu5.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
+	id <S267917AbTBRRcZ>; Tue, 18 Feb 2003 12:32:25 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:45797 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S267916AbTBRRcY>; Tue, 18 Feb 2003 12:32:24 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A18B@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Shawn Starr <shawn.starr@datawire.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Simone Piunno <pioppo@ferrara.linux.it>, Grover@unaropia,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: RE: 2.5.xx ACPI/Sb16 IRQ conflict 
+Date: Tue, 18 Feb 2003 09:42:10 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-   Date: Tue, 18 Feb 2003 18:18:32 +0100
+> From: Shawn Starr [mailto:shawn.starr@datawire.net] 
+> I can confirm this with 2.5.61 and my SB16AWE card. There 
+> seems to be a bug 
+> when PCI interrupts are set by ACPI on a IBM 300PL 6892-N2U.
+> 
+> Also, the IBM BIOS's PnP for OS is enabled.
+> 
+> When the PnP BIOS is disabled and pci=noacpi is NOT used. 
+> There are no 
+> conflicts. When PnP BIOS is enabled and we don't set 
+> pci=noacpi we get 
+> conflicts with IRQs. 
 
-   > Better - you're freely allowed to learn Welsh!
+Hmmm, yes.
 
-I do not speak Walsh, but there are more reasons:
+> >ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 5
 
-- you can choose who will teach Welsh to you
-- you have the *right* to learn Welsh yourself without anyone trying to
-  kill you
+There should have been a previous line about LNKD, listing possible
+interrupts for it -- what did that line say?
 
-I think that Alan's decision to start writing his diary in Welsh can be
-also a lecture for Linus: I hope Alan will change his (bad) decision to use
-Welsh and will come back to English even if writing in Welsh is good for
-him to learn Welsh but his decision hurts others. The same applies to Linus
-and BK.
+Clearly, either we need another IRQ for LNKD or we PnPISA needs to
+assign a different IRQ - some coordination is needed here.
 
-Only big man can change his bad decision.
--- 
-Pavel Janík
-
-I can't make such predictions--my crystal ball is cloudy today.
-                  -- Richard Stallman in emacs-devel
+Regards -- Andy

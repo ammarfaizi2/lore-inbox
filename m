@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272493AbTHEPlf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272500AbTHEPlf
+	id S272542AbTHEPo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272530AbTHEPoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:41:35 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:48598 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272493AbTHEPld
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:41:33 -0400
-Date: Tue, 5 Aug 2003 08:41:31 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BK2CVS problem (fixed)
-Message-ID: <20030805154131.GA20234@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Tue, 5 Aug 2003 11:44:55 -0400
+Received: from pat.uio.no ([129.240.130.16]:28587 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S272542AbTHEPoy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 11:44:54 -0400
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, root@chaos.analogic.com,
+       helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<Pine.LNX.4.53.0308050916140.5994@chaos>
+	<20030805160435.7b151b0e.skraw@ithnet.com>
+	<03080510020503.05972@tabby>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 05 Aug 2003 17:44:06 +0200
+In-Reply-To: <03080510020503.05972@tabby>
+Message-ID: <shsk79s6reh.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several people pointed out problems in the BK2CVS trees.  I spent this
-morning checking things over and there were indeed some out of date files.
-I've fixed those up and put in place validation tools which should ensure
-that this does not happen again.
+>>>>> " " == Jesse Pollard <jesse@cats-chateau.net> writes:
 
-Here's a validation run:
+     > You do have to remember that any NFS export gives IMPLICIT
+     > access to the entire filesystem (it is the device number that
+     > is actually exported). If the attacker can generate
+     > device:inode number, then that file reference can be opened. I
+     > haven't read/seen anything yet that has said different.
 
-+ rm -rf /tmp/cmp-tmp
-+ mkdir -p /tmp/cmp-tmp/cvs
-+ cd /tmp/cmp-tmp/cvs
-+ cvs -Q -d /tmp/linux-2.4-cvs checkout -P .
-+ cd /tmp/linux-2.4
-+ bk export -tplain /tmp/cmp-tmp/bk
-+ cd /tmp/cmp-tmp
-+ diff -r --exclude=CVS --exclude=BitKeeper --exclude=ChangeSet cvs/linux-2.4 bk
-+ test -s DIFFS
-+ rm -rf /tmp/cmp-tmp
-+ mkdir -p /tmp/cmp-tmp/cvs
-+ cd /tmp/cmp-tmp/cvs
-+ cvs -Q -d /tmp/linux-2.5-cvs checkout -P .
-+ cd /tmp/linux-2.5
-+ bk export -tplain /tmp/cmp-tmp/bk
-+ cd /tmp/cmp-tmp
-+ diff -r --exclude=CVS --exclude=BitKeeper --exclude=ChangeSet cvs/linux-2.5 bk
-+ test -s DIFFS
-+ cd /tmp/linux-2.4-cvs
-+ find linux-2.4 -type f -name '*,v'
-+ PID=3553
-+ sort
-+ xargs sum
-+ ssh root@kernel 'cd /home/cvs; find linux-2.4 -type f -name '\''*,v'\'' | xargs sum'
-+ sort +2
-+ wait 3553
-+ diff SUMS SUMS.k
-+ test -s DIFFS
-+ cd /tmp/linux-2.5-cvs
-+ find linux-2.5 -type f -name '*,v'
-+ sort
-+ PID=3594
-+ xargs sum
-+ ssh root@kernel 'cd /home/cvs; find linux-2.5 -type f -name '\''*,v'\'' | xargs sum'
-+ sort +2
-+ wait 3594
-+ diff SUMS SUMS.k
-+ test -s DIFFS
+Not entirely true. The default under Linux is to enable subtree
+checks. This means that knfsd must establish that the file being
+accessed lies within a subtree the head of which is the export point.
+This wreaks havoc with cross-directory renames etc, so a lot of people
+disable it, however it is a slightly safer default...
 
-real    13m8.225s
-user    0m23.742s
-sys     0m18.830s
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Of course if you start playing with the idea of hard linked
+directories then subtree checks are no longer an option as the path
+connecting an export point and the file is no longer guaranteed to be
+unique (and some paths may not even be finite).
+
+Cheers,
+  Trond

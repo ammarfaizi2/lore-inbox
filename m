@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272212AbRIWQur>; Sun, 23 Sep 2001 12:50:47 -0400
+	id <S271825AbRIWQt2>; Sun, 23 Sep 2001 12:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272322AbRIWQuh>; Sun, 23 Sep 2001 12:50:37 -0400
-Received: from maile.telia.com ([194.22.190.16]:24265 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S272212AbRIWQuZ>;
-	Sun, 23 Sep 2001 12:50:25 -0400
-Message-Id: <200109231648.f8NGmmK11359@maile.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-Date: Sun, 23 Sep 2001 18:43:55 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: safemode <safemode@speakeasy.net>,
-        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        george anzinger <george@mvista.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org> <200109230042.f8N0gw129012@mailf.telia.com> <1001214128.873.26.camel@phantasy>
-In-Reply-To: <1001214128.873.26.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S272212AbRIWQtR>; Sun, 23 Sep 2001 12:49:17 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:4366 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271825AbRIWQtD>; Sun, 23 Sep 2001 12:49:03 -0400
+Subject: Re: Preemptible 2.4.10-pre15 compile error
+From: Robert Love <rml@ufl.edu>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010923123812.62399.qmail@web10405.mail.yahoo.com>
+In-Reply-To: <20010923123812.62399.qmail@web10405.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
+Date: 23 Sep 2001 12:49:42 -0400
+Message-Id: <1001263785.863.61.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 September 2001 05.02, Robert Love wrote:
-> On Sat, 2001-09-22 at 20:38, Roger Larsson wrote:
-> > Riels schedule in __alloc_pages probably helps the case with competing
-> > regular processes a lot. Not allowing memory allocators to run their
-> > whole time slot. The result should be a way to prioritize memory allocs
-> > relative your priority. (yield part might be possible/good to remove)
->
-> When did this go in?  I assume its in the 2.4.9-ac series and not
-> 2.4.10?
+On Sun, 2001-09-23 at 08:38, Steve Kieu wrote:
+> Hi,
+> 
+> Exactly, make modules error
 
-2.4.0-test something...
-It was removed when introducing Andreas VM
+Please try the following patch, it should apply cleanly to any
+2.4.10-pre or 2.4.9-ac -- it should fix the compile issue with
+preemption.  Please report back if it is successful so I can merge the
+patch into the preemption patch itself.
 
-/RogerL
+
+diff -urN linux-2.4.9-ac14-preempt/fs/adfs/map.c linux/fs/adfs/map.c
+--- linux-2.4.9-ac14-preempt/fs/adfs/map.c	Sat Sep 22 23:20:09 2001
++++ linux/fs/adfs/map.c	Sun Sep 23 12:46:21 2001
+@@ -12,6 +12,7 @@
+ #include <linux/fs.h>
+ #include <linux/adfs_fs.h>
+ #include <linux/spinlock.h>
++#include <linux/sched.h>
+ 
+ #include "adfs.h"
+ 
+
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVBCI3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVBCIbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVBCI3D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 03:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVBCI3C
+	id S262874AbVBCIbv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 03:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVBCIbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 03:29:02 -0500
-Received: from mail-gateway-0-1.landonet.net ([196.25.111.196]:31127 "EHLO
-	mail-gateway-0-1.landonet.net") by vger.kernel.org with ESMTP
-	id S261329AbVBCI2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 03:28:55 -0500
-Message-ID: <4201E0BF.9040708@lbsd.net>
-Date: Thu, 03 Feb 2005 08:28:47 +0000
-From: Nigel Kukard <nkukard@lbsd.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050106
-X-Accept-Language: en-us, en
+	Thu, 3 Feb 2005 03:31:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262876AbVBCIap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 03:30:45 -0500
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
+       linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+Subject: Re: Touchpad problems with 2.6.11-rc2
+References: <20050123190109.3d082021@localhost.localdomain>
+	<m3acqr895h.fsf@telia.com>
+	<20050201234148.4d5eac55@localhost.localdomain>
+	<20050202102033.GA2420@ucw.cz>
+	<20050202085628.49f809a0@localhost.localdomain>
+	<20050202170727.GA2731@ucw.cz>
+	<20050202095851.27321bcf@localhost.localdomain>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 03 Feb 2005 06:30:14 -0200
+In-Reply-To: <20050202095851.27321bcf@localhost.localdomain>
+Message-ID: <or4qgurqp5.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Vendor kernel tree
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+On Feb  2, 2005, Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-A while ago I saw a post of somone who aims at maintaining a vendors 
-kernel tree for each version released stable. Anyone know where I can 
-find more info on this?
+> On Wed, 2 Feb 2005 18:07:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-Plz reply to me offlist.
+>> With a Synaptics I suppose? You wouldn't like it with an ALPS.
 
-Thanks
--Nigel Kukard
+> No, it's a Dualpoint, and so ALPS.
+
+Err...  That doesn't follow.  My Dell Inspiron 8000 has a Synaptics
+touchpad as part of the Dualpoint pointing devices.
+
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

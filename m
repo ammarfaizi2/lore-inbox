@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbTK1Ugm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 15:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTK1Ugm
+	id S263462AbTK1Uku (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 15:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbTK1Uku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 15:36:42 -0500
-Received: from slimnet.xs4all.nl ([194.109.194.192]:11454 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S263441AbTK1Ugl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 15:36:41 -0500
-Subject: 2.6.0-t11: keyboard problems revisited
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1070051819.11312.16.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 28 Nov 2003 21:36:59 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Nov 2003 15:40:50 -0500
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:62667 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S263462AbTK1Ukt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 15:40:49 -0500
+Date: Fri, 28 Nov 2003 21:38:46 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23-pac1
+Message-ID: <Pine.LNX.4.58.0311282137440.20775@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While booting 2.6.0-t11 into textmode I found out there are still some
-problems with the keyboard code.
+$SUBJECT is at ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.23/
 
-On my laptop with PS/2 keyboard (Japanese layout) I can't use the key
-with the Yen on it (which also has the pipe). All other keys seem to
-work OK.
-
-On my PC with USB keyboard (Logitech iTouch) I can't use the "\" key
-properly so I can't type "ps -ef | grep blabla" which is not very
-helpful is you want to try to investigate problems.
-
-So there seems to be some kind of anti-pipe conspiracy here...;-)
-
-Jurgen
- 
+Changes since 2.4.23-rc5-pac1:
+- Increase version number
 
 
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVCaSrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVCaSwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVCaSrH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:47:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCaSrH
+	id S261630AbVCaSwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCaSwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:47:07 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:5517 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261609AbVCaSq7
+	Thu, 31 Mar 2005 13:52:08 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:62326 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261616AbVCaSv5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:46:59 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: klists and struct device semaphores
-Date: Thu, 31 Mar 2005 10:46:55 -0800
-User-Agent: KMail/1.7.1
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0503311054410.1510-100000@ida.rowland.org> <200503311018.02135.david-b@pacbell.net> <Pine.LNX.4.50.0503311021040.7249-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0503311021040.7249-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 13:51:57 -0500
+Date: Thu, 31 Mar 2005 20:52:26 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <randy.dunlap@verizon.net>
+Cc: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: [RFC/PATCH] network configs: disconnect network options from drivers
+Message-ID: <20050331185226.GA8146@mars.ravnborg.org>
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503311046.55805.david-b@pacbell.net>
+In-Reply-To: <20050330234709.1868eee5.randy.dunlap@verizon.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 March 2005 10:26 am, Patrick Mochel wrote:
+On Wed, Mar 30, 2005 at 11:47:09PM -0800, Randy.Dunlap wrote:
 > 
-> On Thu, 31 Mar 2005, David Brownell wrote:
-> 
-> > On Thursday 31 March 2005 9:59 am, Patrick Mochel wrote:
-> > > On Thu, 31 Mar 2005, Alan Stern wrote:
-> > > > On Wed, 30 Mar 2005, Patrick Mochel wrote:
-> > >
-> > > > > In fact, we probably want to add a counter to every device for all "open
-> > > > > connections" so the device doesn't try to automatically sleep while a
-> > > > > device node is open. Once it reaches 0, we can have it enter a
-> > > > > pre-configured state, which should save us a bit of power for very little
-> > > > > pain.
-> > > >
-> > > > By "open connections", do you mean something more than unsuspended
-> > > > children?
-> > >
-> > > Yes, I mean anything that requires the device be awake and functional.
-> >
-> > So for example a device that's suspended and enabled for wakeup could be
-> > "open" ... which fights against your "doesn't try to sleep" policy.
-> 
-> I don't understand what you mean. Even if a device is suspended, be it
-> automatically after some amount of inactivity or as directed explicitly by
-> a user, we want to be able to open the device and have it work.
-> 
-> Conversely, we only want to automatically suspend the device, or allow the
-> device to be explicitly put to sleep, if the device is not being used.
+> - some Networking options need to be qualified with CONFIG_NET
+You can something along the lines os:
 
-And be able to suspend itself, even if it's open, if it's idle enough and
-can wake itself up automatically.
+menu "Networking options and protocols"
+  
+config NET
+	bool "Networking support"
+	default y
 
-I'm pointing out that device sleep/suspend states are orthogonal to being
-"open".  So I don't see what this counter would do...
+if NET
 
-- Dave
+...
+
+menu "Network device support"
+...
+endmenu
+
+...
+
+endif
+endmenu
+
+Then everything wrapped in between if NET/endif is dependent on NET
+without stating this explicitly.
+You will alos have the menu nice indented.
+
+	Sam

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312529AbSDSR1H>; Fri, 19 Apr 2002 13:27:07 -0400
+	id <S312392AbSDSRaO>; Fri, 19 Apr 2002 13:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312392AbSDSR1G>; Fri, 19 Apr 2002 13:27:06 -0400
-Received: from rgminet1.oracle.com ([148.87.122.30]:17365 "EHLO
-	rgminet1.oracle.com") by vger.kernel.org with ESMTP
-	id <S312601AbSDSR1F>; Fri, 19 Apr 2002 13:27:05 -0400
-Date: Fri, 19 Apr 2002 10:26:56 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Rob Radez <rob@osinvestor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Updated Watchdog Updates
-Message-ID: <20020419172655.GA862@insight.us.oracle.com>
-In-Reply-To: <Pine.LNX.4.33.0204190959500.17511-100000@pita.lan>
+	id <S312558AbSDSRaN>; Fri, 19 Apr 2002 13:30:13 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:2055 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312392AbSDSRaM>;
+	Fri, 19 Apr 2002 13:30:12 -0400
+Date: Fri, 19 Apr 2002 09:28:56 -0700
+From: Greg KH <greg@kroah.com>
+To: mtopper@xarch.tu-graz.ac.at
+Cc: support@suse.de,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: USB-Mouse-Bug in 2.4.16-8 ?
+Message-ID: <20020419162856.GD13046@kroah.com>
+In-Reply-To: <20020416102501.GG17043@suse.de> <Pine.LNX.4.21.0204161234520.5014-100000@xarch.tu-graz.ac.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 22 Mar 2002 14:08:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 10:01:15AM -0400, Rob Radez wrote:
-> I just put up http://osinvestor.com/wd-2.4.19-pre7-7.diff and
-> http://osinvestor.com/wd-2.4.19-pre7-ac1-1.diff
+On Tue, Apr 16, 2002 at 12:39:07PM +0200, mtopper@xarch.tu-graz.ac.at wrote:
+> 
+> Dear Mailing List, 
+> 
+> I've discovered that even if I insmod (or modprobe) the proper USB modules
+> for my 2.4.16 kernel, and if I use the USB mouse afterwards,
+> "lsmod" reveals that the modules seem to be "(0) unused" - despite the USB
+> mouse is in action!
+> 
+> Users of the 2.4.18-kernel affirmed same kernel behaviour.
+> 
+> If I rmmod the USB modules, they subsequently allow to be removed from
+> kernelspace, and the USB mouse cursor , ofcourse , stops instantly -
+> despite he was just in use. 
+> 
+> Is this a bug or a feature? :-)
 
-Rob,
-	Here's an edit on the WDIOC_SETTIMEOUT ioctl:
+This is the way the module was designed, so yes it's a feature :)
 
-WDIOC_SETTIMEOUT:
-	If the watchdog has a configurable timeout, then this is how and
-	where it gets set (other than module load or kernel command line).
-	The passed argument is the new timeout in seconds.  Watchdogs
-	with a granularity that does not allow the new timeout must set
-	the timeout to the next greater allowable timeout.  The watchdog
-	must never fire in less than the passed timeout.  After setting 
-	the new timeout, the ioctl copies the actual timeout in seconds
-        back to userspace.  This allows userspace to know what the
-	timeout really is.
+thanks,
 
-Thanks,
-Joel
-
--- 
-
-Life's Little Instruction Book #306
-
-	"Take a nap on Sunday afternoons."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+greg k-h

@@ -1,95 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314500AbSEUNLc>; Tue, 21 May 2002 09:11:32 -0400
+	id <S314525AbSEUN1t>; Tue, 21 May 2002 09:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314525AbSEUNLK>; Tue, 21 May 2002 09:11:10 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:25613 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S314548AbSEUNKV>; Tue, 21 May 2002 09:10:21 -0400
-Date: Tue, 21 May 2002 14:10:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] buffermem_pages removal (5/5)
-Message-ID: <20020521141015.E15796@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S314551AbSEUN1s>; Tue, 21 May 2002 09:27:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42514 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314525AbSEUN1s>; Tue, 21 May 2002 09:27:48 -0400
+Subject: Re: IO stats in /proc/partitions
+To: dwguest@win.tue.nl (Guest section DW)
+Date: Tue, 21 May 2002 14:11:45 +0100 (BST)
+Cc: davidsen@tmr.com (Bill Davidsen), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        miquels@cistron.nl (Miquel van Smoorenburg),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020521003604.GA400@win.tue.nl> from "Guest section DW" at May 21, 2002 02:36:04 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17A9QX-0007ky-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No more users of buffermem_pages are left, remove it.
-While at it also remove some orphaned externs around it in swap.h
+> >   Changes belong in 2.5, /proc/partitions is the wrong place, but it's
+> > also the place the tools expect. I hope that's not going to change in the
+> > stable kernel.
+> 
+> You misunderstand.
+> Everybody agrees that /proc/partitions is the wrong place.
+> Up to now these statistics have not been part of any official
+> kernel, stable or not.
 
+The 2.4 stable kernel is the minority product here 8)
 
---- 1.102/fs/buffer.c	Mon May 20 15:40:11 2002
-+++ edited/fs/buffer.c	Tue May 21 13:55:53 2002
-@@ -36,9 +36,6 @@
- 
- #define BH_ENTRY(list) list_entry((list), struct buffer_head, b_assoc_buffers)
- 
--/* This is used by some architectures to estimate available memory. */
--atomic_t buffermem_pages = ATOMIC_INIT(0);
--
- /*
-  * Hashed waitqueue_head's for wait_on_buffer()
-  */
-@@ -151,10 +148,6 @@
- static inline void
- __set_page_buffers(struct page *page, struct buffer_head *head)
- {
--	struct inode *inode = page->mapping->host;
--
--	if (inode && S_ISBLK(inode->i_mode))
--		atomic_inc(&buffermem_pages);
- 	if (page_has_buffers(page))
- 		buffer_error();
- 	set_page_buffers(page, head);
-@@ -164,14 +157,6 @@
- static inline void
- __clear_page_buffers(struct page *page)
- {
--	struct address_space *mapping = page->mapping;
--
--	if (mapping) {
--		struct inode *inode = mapping->host;
--
--		if (S_ISBLK(inode->i_mode))
--			atomic_dec(&buffermem_pages);
--	}
- 	clear_page_buffers(page);
- 	page_cache_release(page);
- }
---- 1.43/include/linux/swap.h	Mon May 20 17:07:21 2002
-+++ edited/include/linux/swap.h	Tue May 21 14:35:22 2002
-@@ -102,12 +102,8 @@
- extern unsigned int nr_free_pages(void);
- extern unsigned int nr_free_buffer_pages(void);
- extern unsigned int nr_free_pagecache_pages(void);
--extern unsigned long nr_buffermem_pages(void);
- extern int nr_active_pages;
- extern int nr_inactive_pages;
--extern atomic_t nr_async_pages;
--extern atomic_t buffermem_pages;
--extern spinlock_t pagecache_lock;
- extern void __remove_inode_page(struct page *);
- 
- /* Incomplete types for prototype declarations: */
---- 1.57/mm/page_alloc.c	Sun May  5 18:56:08 2002
-+++ edited/mm/page_alloc.c	Tue May 21 14:27:32 2002
-@@ -569,11 +569,6 @@
- }
- #endif
- 
--unsigned long nr_buffermem_pages(void)
--{
--	return atomic_read(&buffermem_pages);
--}
--
- /*
-  * Accumulate the page_state information across all CPUs.
-  * The result is unavoidably approximate - it can change
+> However, someone wanted to introduce them for the first time
+> in 2.4.19 and put them in /proc/partitions. That is a really bad idea,
+> especially when they will be somewhere else in 2.5.
+
+I agree. Its relatively easy for vendors to keep the stats in /proc/partitions
+for 2.4.x (certainly adding other stuff instead to proc/partitions for 2.4
+is bad). It is better that people are encouraged to use a new 2.5 compatible
+interface over time and for later 2.4.x that vendors ship something with
+both.
+
+Alan

@@ -1,26 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbTBXPui>; Mon, 24 Feb 2003 10:50:38 -0500
+	id <S267200AbTBXPvG>; Mon, 24 Feb 2003 10:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267200AbTBXPui>; Mon, 24 Feb 2003 10:50:38 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:64225 "EHLO
+	id <S267204AbTBXPvG>; Mon, 24 Feb 2003 10:51:06 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:58594 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267196AbTBXPuh>; Mon, 24 Feb 2003 10:50:37 -0500
-Date: Mon, 24 Feb 2003 08:00:45 -0800
+	id <S267200AbTBXPvE>; Mon, 24 Feb 2003 10:51:04 -0500
+Date: Mon, 24 Feb 2003 08:01:14 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <8520000.1046102445@[10.10.2.4]>
-In-Reply-To: <20030224154725.GB5665@work.bitmover.com>
-References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmast
- er.ca> <1510000.1045942974@[10.10.2.4]>
- <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]>
- <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]>
- <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]>
- <20030224065826.GA5665@work.bitmover.com>
- <20030224075142.GA10396@holomorphy.com>
- <20030224154725.GB5665@work.bitmover.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 399] New: some ethernet cards, eg. netgear FA311 does not work
+ if acpi is on with 2.5.62 
+Message-ID: <8600000.1046102474@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -29,26 +20,32 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I never said that I didn't.  I'm just taking issue with the choosen path
-> which has been demonstrated to not work.
-> 
-> "Let's scale Linux by multi threading"
-> 
->     "Err, that really sucked for everyone who has tried it in the past,
-> all     the code paths got long and uniprocessor performance suffered"
-> 
-> "Oh, but we won't do that, that would be bad".
-> 
->     "Great, how about you measure the changes carefully and really show
-> that?"
-> 
-> "We don't need to measure the changes, we know we'll do it right".
+http://bugme.osdl.org/show_bug.cgi?id=399
 
-Most of the threading changes have been things like 1 thread per cpu, which
-would seem to scale up and down rather well to me ... could you illustrate
-by  pointing  to an example of something that's changed in that area which
-you think is bad? Yes, if Linux started 2000 kernel threads on a UP system,
-that would obviously be bad.
+           Summary: some ethernet cards, eg. netgear FA311 does not work if
+                    acpi is on with 2.5.62
+    Kernel Version: 2.5.62
+            Status: NEW
+          Severity: blocking
+             Owner: andrew.grover@intel.com
+         Submitter: snxiao@yahoo.com
 
-M.
+
+Distribution: gentoo linux
+Hardware Environment: Athlon xp,  Abit KX311 motherboard
+Software Environment: gcc 3.2.1
+Problem Description:  netgear FA311 NIC uses natsemi driver. If acpi is on,
+the driver can be load,  however, it does not work with DHCP
+
+Steps to reproduce: On a computer with netgear FA311 ethernet card, use
+kernel 2.5.62 with  "natsemi" and "acpi" compiled in the kernel. reboot,
+the NIC will not work.
+However, when if pass the option "acpi=off" to the kernel when reboot, the
+NIC will work.  
+
+There are some other kernels which also have this problem, for example
+2.5.61.
+
+It seems there are some other ethernet cards  also have trouble with acpi
+for development kernel.
 

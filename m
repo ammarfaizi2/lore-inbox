@@ -1,122 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265651AbUAMVEi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 16:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbUAMVEi
+	id S265617AbUAMVIn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbUAMVIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 16:04:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:641 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265651AbUAMVCL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 16:02:11 -0500
-Date: Tue, 13 Jan 2004 16:04:49 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Pavel Machek <pavel@suse.cz>
-cc: Chuck Campbell <campbell@accelinc.com>, Jamie Lokier <jamie@shareable.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Lennert Buytenhek <buytenh@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-In-Reply-To: <20040113193549.GB294@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.53.0401131525290.9807@chaos>
-References: <20031218231137.GA13652@gnu.org> <1071823624.5223.1.camel@laptop.fenrus.com>
- <20031221103308.GB3438@mail.shareable.org> <20031221165755.GB12866@openzaurus.ucw.cz>
- <20040113153507.GG14044@helium.inexs.com> <20040113193549.GB294@elf.ucw.cz>
+	Tue, 13 Jan 2004 16:08:42 -0500
+Received: from gizmo09ps.bigpond.com ([144.140.71.19]:2968 "HELO
+	gizmo09ps.bigpond.com") by vger.kernel.org with SMTP
+	id S265617AbUAMVIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 16:08:36 -0500
+Mail-Copies-To: never
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Eric Blade <eblade@blackmagik.dynup.net>
+Subject: Re: dmesg gives me request_module fail 2.6.1
+Keywords: net-pf-10
+References: <20040113112123.21902bbf.eblade@blackmagik.dynup.net>
+From: Steve Youngs <sryoungs@bigpond.net.au>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Organization: Linux Users - Fanatics Dept.
+X-URL: <http://users.bigpond.net.au/sryoungs/>
+X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Now-Playing: So Lonely --- [The Police]
+X-Attribution: SY
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>, Eric
+ Blade <eblade@blackmagik.dynup.net>
+Date: Wed, 14 Jan 2004 07:08:25 +1000
+In-Reply-To: <20040113112123.21902bbf.eblade@blackmagik.dynup.net> (Eric
+ Blade's message of "Tue, 13 Jan 2004 11:21:23 -0500")
+Message-ID: <microsoft-free.87fzejpnee.fsf@eicq.dnsalias.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004, Pavel Machek wrote:
+--=-=-=
 
-> Hi!
->
-> > > > I know that equivalent code, which is covered by most if not all of
-> > > > the patents, is sold by some software companies to product developers
-> > > > _in the USA_ without prelicensed patents.  The problem of acquiring
-> > > > suitable patent licenses is left to the purchasers.
-> > > >
-> > > > Rationally I would expect that if someone is able to sell code and
-> > > > leave the problem of patent licensing to the purchaser, then one
-> > > > should be able to _give away_ code and leave the problem of patent
-> > > > licensing to the recipient.
-> > >
-> > > As far as I can see, it is okay to ignore patents *if
-> > > you are doing research*. So you should be able to offer
-> > > it to US people for research purposes.
-> >
-> > According to recently passed legislation, this may no longer be true.  It
-> > remains to be tested, but my understanding is that this "research" shield
-> > is now gone.
->
-> Time to move to Cuba?
->
-> [Well, I thought that explicit reason for patents is "to promote
-> research", and it used to be okay to improve upon someone else's
-> patent. If patents no longer serve that purpose (if you can't improve
-> upon someone elses work, it is worse than he keeping it secret; and
-> patents were made so that people would not keep stuff secret), perhaps
-> its time to ask if they are still constitutional?]
-> 								Pavel
->
+* Eric Blade <eblade@blackmagik.dynup.net> writes:
 
-According to current Patent Law in the United States;
+  > request_module: failed /sbin/modprobe -- net-pf-10. error = 65280
 
-FYI: Read
+net-pf-10 is IPv6, if you don't have that in your kernel, add the
+following to your `/etc/modprobe.conf'...
 
-http://www4.law.cornell.edu/uscode/35/273.html
+  install net-pf-10 /bin/true
 
-You infringe just by smelling like a patent. However, there
-are lots of defenses to infringement: prior art, prior reduction
-to practice, practically anything done in "good faith", i.e., use
-of a process that was not known to be patented. Good faith is
-required to show that infringement was stopped as soon as the
-inventor brought the infringement to the attention of the
-infringer, etc.
+-- 
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|------------------------------<sryoungs@bigpond.net.au>---|
 
-Basically, you do NOT have to check to see if your "process" or
-whatever has been previously invented. You do, however, need to
-stop infringing as soon as such infringement becomes known.
+--=-=-=
+Content-Type: application/pgp-signature
 
-For that reason, it is my opinion (not the opinion of any court,
-or officer of the court) that a search for possible patent
-infringements can only lead to hardship. You might find an
-infringement that was never enforced or is not enforceable,
-forcing you to rewrite stuff that is "common public knowledge".
-Or you might find that everything is original and, therefore have
-a false sense of security (Santa Claus Operations ^M^MSCO^M^M might
-sue you anyway....)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
 
-For patents that have been secured by a company, but made secret
-by the government, you certainly have no way of knowing if an
-invention exists. For instance, it is common knowledge that the
-transistor was invented by Bill Shockley and John Bardeen at
-AT&T in 1948.  However, arming mechanisms for torpedos, used
-in WWII, used transistors. The boards containing them had a
-US Navy Anchor stamp, marked 1945, 3 years before they were
-invented. This was my source of transistors, from Eli Hefferon's
-electronic scrap, as a boy!
-
-Also, when I made a  solid-state rate-gyro as a high school
-Science Fair project, I got a cease and desist order from a
-federal court in New York, because Sperry claimed that what
-I developed was their secret invention... Go figure.
-
-It was many years later that I understood that the "acoustic gyro"
-I made  as a kid used the same principles as the strap-down-laser-gyro
-that Sperry had developed for ICBMs. The government apparently thought
-that my project would make obvious to "the enemy" what was obvious to
-all my class-mates, --hardly an earth shaking invention.
-
-Basically do what original thought, review of published documentation,
-and ordinary care lets you do. Don't waste time worrying about suits
-from the ass^M^Mrectums that exist. If they want to sue, they will.
-If they don't, they won't. They won't let facts get in the way.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+iEYEABECAAYFAkAEXk0ACgkQHSfbS6lLMAODvgCglXXyF6WA8mmk91S3xHmDVgj+
+KhAAmQEfB/s/louZ/yOl8eRvcuClMSaa
+=bbqC
+-----END PGP SIGNATURE-----
+--=-=-=--

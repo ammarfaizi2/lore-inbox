@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbUKRWi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbUKRWe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbUKRWi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 17:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262975AbUKRWiK
+	id S261182AbUKRWe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:34:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUKRWdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 17:38:10 -0500
-Received: from mail.onestepahead.de ([62.96.100.59]:21737 "EHLO
-	mail.onestepahead.de") by vger.kernel.org with ESMTP
-	id S261170AbUKRWgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 17:36:18 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-0
-From: Christian Meder <chris@onestepahead.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-In-Reply-To: <20041118155411.GB12483@elte.hu>
-References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>
-	 <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
-	 <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
-	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <1100732223.3472.10.camel@localhost>
-	 <20041118155411.GB12483@elte.hu>
-Content-Type: text/plain
-Date: Thu, 18 Nov 2004 23:33:59 +0100
-Message-Id: <1100817239.3476.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Nov 2004 17:33:08 -0500
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:42214
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S261182AbUKRWcn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 17:32:43 -0500
+Date: Thu, 18 Nov 2004 17:31:32 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: David Woodhouse <dwmw2@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org
+Subject: Re: [patch] 2.6.10-rc2-mm2: MTD_XIP dependencies
+In-Reply-To: <20041118213232.GG4943@stusta.de>
+Message-ID: <Pine.LNX.4.61.0411181727010.12260@xanadu.home>
+References: <20041118021538.5764d58c.akpm@osdl.org> <20041118154110.GE4943@stusta.de>
+ <1100793112.8191.7315.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.61.0411181132440.12260@xanadu.home> <20041118213232.GG4943@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-18 at 16:54 +0100, Ingo Molnar wrote:
-> * Christian Meder <chris@onestepahead.de> wrote:
-> 
-> > after successfully running the last couple of rt patches on my Dell
-> > Inspiron laptop I thought I'd give it a try on my combined vdr/router
-> > box which is probably more interesting from a rt point of view. This
-> > box is bridging wireless/ADSL and working as a digital vdr using the
-> > kernel DVB-S drivers.
+On Thu, 18 Nov 2004, Adrian Bunk wrote:
+
+> On Thu, Nov 18, 2004 at 11:34:56AM -0500, Nicolas Pitre wrote:
+> > On Thu, 18 Nov 2004, David Woodhouse wrote:
 > > 
-> > I got the appended logging messages with the appended config.  Is
-> > there anything else I should provide for debugging purposes or are the
-> > messages just harmless ?
+> > > On Thu, 2004-11-18 at 16:41 +0100, Adrian Bunk wrote:
+> > > > Let's put the dependencies from the #error into the Kconfig file:
+> > > 
+> > > Looks sane to me. Nico?
+> > 
+> > And why is the current arrangement actually a problem?
 > 
-> the messages mean that i havent converted the bridge code's RCU locking
-> to PREEMPT_RT yet. I've done this in the -V0.7.28-2 patch that i've just
-> uploaded to:
+> If you are able to select an option, it should also compile (and work).
 > 
->         http://redhat.com/~mingo/realtime-preempt/
-> 
-> does bridging work fine with this patch, and if yes, do you get any
-> (other) warning messages?
+> At least on i386, this is usually true for every single option.
 
-I'm running 0.7.29 now on the vdr/router box and bridging is working
-fine and there are no new warning messages.
+Fine.  I thought the #error would encourage people to add the missing 
+bits to that file.  No?  ;-)
 
-Thanks,
+Can we make it conditional on CONFIG_XIP_KERNEL instead?
+It would be less messy IMHO.
 
 
-
-				Christian
-
--- 
-Christian Meder, email: chris@onestepahead.de
-
-The Way-Seeking Mind of a tenzo is actualized 
-by rolling up your sleeves.
-
-                (Eihei Dogen Zenji)
-
+Nicolas

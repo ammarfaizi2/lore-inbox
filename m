@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbUBDMzm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 07:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUBDMzg
+	id S261889AbUBDNAU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 08:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUBDNAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 07:55:36 -0500
-Received: from [204.60.156.3] ([204.60.156.3]:16142 "HELO verizon.net")
-	by vger.kernel.org with SMTP id S261539AbUBDMz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 07:55:29 -0500
-To: <kanoj@vger.kernel.org>
-From: "luke" <butch21dgj@hotmail.com>
-Date: Wed, 04 Feb 2004 12:52:25 GMT
-Message-Id: <1075899145-2238@excite.com>
-Subject: Forget V1AGRA, there's a new game in town!
+	Wed, 4 Feb 2004 08:00:20 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:2714 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261889AbUBDNAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 08:00:16 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Subject: Reserved pages not flagged on Compaq evo?
+Date: Wed, 4 Feb 2004 20:36:13 +0800
+User-Agent: KMail/1.5.4
+Cc: swsusp-devel@lists.sourceforge.net
+References: <87llnyggfm.fsf@larve.net> <200402030614.37454.mhf@linuxmail.org> <20040204114113.GA1110@home.larve.net>
+In-Reply-To: <20040204114113.GA1110@home.larve.net>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200402042024.47784.mhf@linuxmail.org>
 Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Biggest New Drug since V1agra! Many times as powerful.
+A 2.4.24 + swsusp 2.0 user reported a mce at the video base address
+of 0xa0000 when writing the kernel image to disk (thus reading there)
+on a Compaq evo1015v (Athlon XP 2000+)
 
-C1AL1S has been seen all over TV as of late.
+NOMCE eliminates the mce but I am wondering about possible ill effects
+should other reserved pages be invalidly accessed.
+  
+It looks like these pages are not flagged reserved and therfore accessed. 
 
-So why is it so much better than V1agra? Why are so many switching brands?
+No other mce's have ever been reported.
 
--A quicker more stable erection
--More enjoyable sex for both
--Longer sex
--Known to add length to you erection
--Lasts up to 36 hours (not a thrity-six hour erection, but enhancement for thirty-six)
+What is the suggested approach to identify the root cause?
 
-We have it at a discounted savings. Save when you go through our site on all your orders.
-
-See the difference today. 
-
-http://magnum.instrhh.com/s95c/index.php?id=s95
+Michael
 
 
-
-
-
-
-
-
-
-
-
-diana tigrejapan xxxx tarzan racoon happyday lady 
-director sarah1 
-velvet johnson rux advil 
-lulu 

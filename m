@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132883AbRDEM4r>; Thu, 5 Apr 2001 08:56:47 -0400
+	id <S132887AbRDENHA>; Thu, 5 Apr 2001 09:07:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132884AbRDEM4h>; Thu, 5 Apr 2001 08:56:37 -0400
-Received: from pasky.ji.cz ([62.44.12.54]:8177 "EHLO pasky.ji.cz")
-	by vger.kernel.org with ESMTP id <S132883AbRDEM4T>;
-	Thu, 5 Apr 2001 08:56:19 -0400
-Date: Thu, 5 Apr 2001 14:55:20 +0200
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: linux-kernel@vger.kernel.org
-Cc: ben@kalifornia.com
-Subject: Re: bug database braindump from the kernel summit
-Message-ID: <20010405145519.R22180@pasky.ji.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org, ben@kalifornia.com
-In-Reply-To: <Pine.LNX.4.33.0104011640280.25794-100000@dlang.diginsite.com> <3AC7C719.3080403@kalifornia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AC7C719.3080403@kalifornia.com>; from ben@kalifornia.com on Sun, Apr 01, 2001 at 05:26:01PM -0700
+	id <S132888AbRDENGu>; Thu, 5 Apr 2001 09:06:50 -0400
+Received: from mailimailo.univ-rennes1.fr ([129.20.131.1]:19870 "EHLO
+	mailimailo.univ-rennes1.fr") by vger.kernel.org with ESMTP
+	id <S132887AbRDENGk>; Thu, 5 Apr 2001 09:06:40 -0400
+Date: Thu, 5 Apr 2001 16:36:16 +0200 (CEST)
+From: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
+To: mmcclell@bigfoot.com
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: ov511 problem
+In-Reply-To: <20010405133051.A16246@miggy.org>
+Message-ID: <Pine.LNX.4.21.0104051625170.8028-100000@pc-astro.spm.univ-rennes1.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why not have the /proc/config option but instead of being plain text, 
-> make it binary with a userspace app that can interpret it?
-[snip]
-> You'd have
-> 2.4.3-pre3:1101111100000100000000 . . . . .
-> 
-I think this is against UNIX/Linux philosophy... Why we wouldn't just
-providing all the interface through sysctl stuff and abadon all the
-/proc? Cause we want to provide human-readable interface, which could
-be parsed really simply...
 
-We should just mean 'cat' as 'userspace app' primarily i think. At least
-currently we does. Also you have a big problem with forward compatibility
-etc.
+Hi
 
-But anyway i would vote for the .config file somewhere in /boot directory.
-If one have a kernel from some linux distribution, it is propably actually
-obsolete, so it is proximity the bug is actually fixed anyway. And if he
-will get the newest kernel, it should do something like cp .config /boot/config.
+I am trying to get working a Spacec@m 300 (USB) by Trust. I tried this
+under 2.2.18 and 2.4.3. In order to get the camera detected I can use the
+usb-uhci or uhci module (the result is the same). The camera gets detected
+(some OV7610 gets probed - I don't know if this is the correct one) and
+after loading the ov511 module I get the picture of the camera displayed
+with xawt-3.38 (resolution 640x480 - the camera is able to this). 
+The problem I am running into is that the framerate is extremely slow
+(maybe 3 fps), however, from the specifications it should work with 30
+fps. My system is a Pentium II with 300 Mhz. Some Miro TV card with a
+BT848 chip works fine with the bttv driver. 
+Do you have any idea ? 
+If you need more info, just let me know. I am also willing to do some
+tests...
 
--- 
+--
+Thomas
 
-				Peter "Pasky" Baudis
-
-Whoever coded that patch should be taken out and shot, hung, drawn and
-quartered then forced to write COBOL for the rest of their natural
-life.
--- Keith Owens <kaos@ocs.com.au> in linux-kernel
-
-My public PGP key is on: http://pasky.ji.cz/~pasky/pubkey.txt
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS d- s++:++ a--- C+++ UL++++$ P+ L+++ E--- W+ N !o K- w-- !O M-
-!V PS+ !PE Y+ PGP+>++ t+ 5 X(+) R++ tv- b+ DI(+) D+ G e-> h! r% y?
-------END GEEK CODE BLOCK------

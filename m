@@ -1,98 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUIPOB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268079AbUIPOCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268077AbUIPOB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUIPOB5
+	id S268079AbUIPOCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUIPOCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:01:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26282 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268077AbUIPOB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:01:27 -0400
-Date: Thu, 16 Sep 2004 07:01:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Roland Dreier <roland@topspin.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more careful about iospace accesses..
-In-Reply-To: <1095337514.9144.2344.camel@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.58.0409160652460.2333@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> 
- <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> 
- <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>  <52zn3rupw8.fsf@topspin.com>
-  <Pine.LNX.4.58.0409151546400.2333@ppc970.osdl.org>
- <1095337514.9144.2344.camel@imladris.demon.co.uk>
+	Thu, 16 Sep 2004 10:02:12 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:17811 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S268079AbUIPOBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:01:45 -0400
+Date: Thu, 16 Sep 2004 16:01:02 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: [Patch] cpusets: fix race in cpuset_add_file()
+In-Reply-To: <20040916012913.8592.85271.16927@sam.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0409161548040.5423@openx3.frec.bull.fr>
+References: <20040916012913.8592.85271.16927@sam.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 16 Sep 2004, David Woodhouse wrote:
+Hi,
 
-> On Wed, 2004-09-15 at 16:26 -0700, Linus Torvalds wrote:
-> >  - if you want to go outside that bitwise type, you have to convert it 
-> >    properly first. For example, if you want to add a constant to a __le16 
-> >    type, you can do so, but you have to use the proper sequence:
-> > 
-> > 	__le16 sum, a, b;
-> > 
-> > 	sum = a + b;	/* INVALID! "warning: incompatible types for operation (+)" */
-> > 	sum = cpu_to_le16(le16_to_cpu(a) + le16_to_cpu(b));	/* Ok */
-> > 
-> > See? 
-> 
-> Yeah right, that latter case is _so_ much more readable
+This patch fixes a missing down()/up() pair in cpuset_add_file().
 
-It's not about readability.
+Without this patch, sometimes it is possible to have two duplicate 
+dentries for a single file of a cpuset, with one of them being invalid, 
+and thus the file is present but cannot be opened...
 
-It's about the first case being WRONG!
+Something like:
 
-You can't add two values in the wrong byte-order. It's not an operation 
-that makes sense. You _have_ to convert them to CPU byte order first.
+# cd /dev/cpuset/foo
+# ls
+ls: cpus: No such file or directory
 
-I certainly agree that the first version "looks nicer". 
 
-> It's even nicer when it ends up as:
-> 
-> 	sum = cpu_to_le16(le16_to_cpu(a) + le16_to_cpu(b));	/* Ok */
-> 	sum |= c;
-> 	sum = cpu_to_le16(le16_to_cpu(sum) + le16_to_cpu(d));
 
-This is actually the strongest argument _against_ hiding endianness in the 
-compiler, or hiding it behind macros. Make it very explicit, and just make 
-sure there are tools (ie 'sparse') that can tell you when you do something 
-wrong.
+The patch also removes comments that
+1/are now bogus with this fix applied
+2/were not respected anyway
 
-Any programmer who sees the above will go "well that's stupid", and 
-rewrite it as something saner instead. You can certainly rewrite it as
 
-	cpu_sum = le16_to_cpu(a) + le16_to_cpu(b);
-	cpu_sum |= le16_to_cpu(c);
-	cpu_sum += le16_to_cpu(d);
-	sum = cpu_to_le16(d);
 
-which gets rid of the double conversions. 
+Signed-off-by: Simon Derr <simon.derr@bull.net>
 
-But if you hide the endianness in macro's, you'll never see the mess at 
-all, and won't be able to fix it.
+Index: mm4/kernel/cpuset.c
+===================================================================
+--- mm4.orig/kernel/cpuset.c	2004-09-13 09:43:02.000000000 +0200
++++ mm4/kernel/cpuset.c	2004-09-16 15:46:21.847401360 +0200
+@@ -956,13 +956,12 @@ static int cpuset_create_dir(struct cpus
+  	return error;
+  }
 
-> I'd really quite like to see the real compiler know about endianness,
-> too.
+-/* MUST be called with dir->d_inode->i_sem held */
+-
+  static int cpuset_add_file(struct dentry *dir, const struct cftype *cft)
+  {
+  	struct dentry *dentry;
+  	int error;
 
-I would have agreed with you some time ago. Having been bitten by too damn 
-many bompiler bugs I'e become convinced that the compiler doing things 
-behind your back to "help" you just isn't worth it. Not in a kernel, at 
-least. It's much better to build up good typechecking and the 
-infrastructure to help you get the job done.
++	down(&dir->d_inode->i_sem);
+  	dentry = cpuset_get_dentry(dir, cft->name);
+  	if (!IS_ERR(dentry)) {
+  		error = cpuset_create_file(dentry, 0644 | S_IFREG);
+@@ -971,6 +970,7 @@ static int cpuset_add_file(struct dentry
+  		dput(dentry);
+  	} else
+  		error = PTR_ERR(dentry);
++	up(&dir->d_inode->i_sem);
+  	return error;
+  }
 
-Expressions like the above might happen once or twice in a project with
-several million lines of code. It's just not worth compiler infrastructure
-for - that just makes people use it as if it is free, and impossible to
-find the bugs when they _do_ happen. Much better to have a type system 
-that can warn about the bad uses, but that doesn't actually change any of 
-the code generated..
+@@ -1162,7 +1162,6 @@ static struct cftype cft_notify_on_relea
+  	.private = FILE_NOTIFY_ON_RELEASE,
+  };
 
-		Linus
+-/* MUST be called with ->d_inode->i_sem held */
+  static int cpuset_populate_dir(struct dentry *cs_dentry)
+  {
+  	int err;

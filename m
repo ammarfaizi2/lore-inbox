@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263198AbTC1XR6>; Fri, 28 Mar 2003 18:17:58 -0500
+	id <S263207AbTC1XbP>; Fri, 28 Mar 2003 18:31:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263200AbTC1XR6>; Fri, 28 Mar 2003 18:17:58 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17378 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263198AbTC1XR5>; Fri, 28 Mar 2003 18:17:57 -0500
-Date: Fri, 28 Mar 2003 15:25:16 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Mary Edie Meredith <maryedie@osdl.org>
-Cc: lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [OSDL][BENCHMARK] DBT-2  2.5.65/mjb/osdl comparison data
-Message-ID: <20030328152516.A22557@beaverton.ibm.com>
-References: <1048889724.2535.329.camel@ibm-e.pdx.osdl.net>
+	id <S263209AbTC1XbP>; Fri, 28 Mar 2003 18:31:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:17420 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263207AbTC1XbO>;
+	Fri, 28 Mar 2003 18:31:14 -0500
+Date: Fri, 28 Mar 2003 15:41:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andrew Morton <akpm@digeo.com>, davej@codemonkey.org.uk,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com, aeb@cwi.nl
+Subject: Re: NICs trading places ?
+Message-ID: <20030328234114.GA992@kroah.com>
+References: <20030328221037.GB25846@suse.de> <20030328224843.GA11980@win.tue.nl> <20030328150234.7f73d916.akpm@digeo.com> <20030328232022.GA12005@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1048889724.2535.329.camel@ibm-e.pdx.osdl.net>; from maryedie@osdl.org on Fri, Mar 28, 2003 at 02:15:24PM -0800
+In-Reply-To: <20030328232022.GA12005@win.tue.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 02:15:24PM -0800, Mary Edie Meredith wrote:
->                         Score           Score
-> Kernel                  Cached          Non-Cached
-> 2.5.65 base             100 (baseline)  100
-> 2.5.65-mjb2 HZ=100      90.95           99.26
-> 2.5.65-mjb2 HZ=1000     102.38          99.92
-> 2.5.65-osdl1            101.69          99.89
-> 2.5.64-osdl1            104.16          99.67
+On Sat, Mar 29, 2003 at 12:20:22AM +0100, Andries Brouwer wrote:
 > 
-> HZ is defined as 1000 in the base and osdl1 kernels. mjb2 kernel uses
-> Andrew Morton / Dave Hansen patch making HZ a config option of
-> 100 Hz or 1000 Hz).  Also we reversed out the 400-shpte patch.
+> And: ifconfig does not give the card types.
+> So presently one needs both boot messages and ifconfig.
 > 
-> Link to .config, readprofiles, metric info, raw data:
-> 
-> http://www.osdl.org/projects/dbt2dev/results/8way/MJB65/8way_2_5_65.html
+> And: in some situations the system does not boot because of
+> eth numbering mixup, and one never gets the opportunity to
+> ask ifconfig.
 
-Do you have readprofiles of the non-cached runs?
+ifconfig can bind cards to devices based on mac addresses.
+/sbin/hotplug can also be used for this.
 
--- Patrick Mansfield
+I recommend doing this for anyone with more than one nic card in their
+machine.
+
+thanks,
+
+greg k-h

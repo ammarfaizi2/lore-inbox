@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270455AbTGSAuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 20:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270463AbTGSAuQ
+	id S270462AbTGSAqD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 20:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270463AbTGSAqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 20:50:16 -0400
-Received: from rth.ninka.net ([216.101.162.244]:7595 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S270455AbTGSAuO (ORCPT
+	Fri, 18 Jul 2003 20:46:03 -0400
+Received: from zero.aec.at ([193.170.194.10]:19986 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S270462AbTGSAqB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 20:50:14 -0400
-Date: Fri, 18 Jul 2003 18:05:06 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: offtopic crap (was Re: Bitkeeper)
-Message-Id: <20030718180506.35e8c376.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0307190049460.10769-100000@phoenix.infradead.org>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org>
-	<Pine.LNX.4.44.0307190049460.10769-100000@phoenix.infradead.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 18 Jul 2003 20:46:01 -0400
+Date: Sat, 19 Jul 2003 02:57:18 +0200
+From: Andi Kleen <ak@muc.de>
+To: linas@austin.ibm.com
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, linas@linas.org
+Subject: Re: KDB in the mainstream 2.4.x kernels?
+Message-ID: <20030719005718.GA4596@averell>
+References: <aJIn.3mj.15@gated-at.bofh.it> <m3smp3y38y.fsf@averell.firstfloor.org> <20030718193107.B45512@forte.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030718193107.B45512@forte.austin.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jul 2003 00:50:46 +0100 (BST)
-James Simmons <jsimmons@infradead.org> wrote:
+On Fri, Jul 18, 2003 at 07:31:08PM -0500, linas@austin.ibm.com wrote:
+> > One argument i have against it: KDB is incredibly ugly code. 
+> > Before it could be even considered for merging it would need quite a lot 
+> > of cleanup.
+> 
+> What in particular?  I just looked at kdb/kdbmain.c and kdb/kdb_bt.c
+> and it looks fine to me; fairly minimal even.  I don't know about 
+> arch-specific code.  Is there a particular file you're complaining about?
 
-> These threads are getting annoying :-<
+Check the kdbsupport.c code too. 
 
-I agree.  As vger postmaster I think I'll start shitcanning them, but
-unfortunately most of these threads startup while I'm sleeping so it's
-hard for me to get a regexp in place to block the thread.
+All the code together for the i386 backtracer is approaching 1000 LOC and
+it's quite ugly.
 
-So, let me put it this way, if you start a BK flame thread it is _YOU_
-who I will blacklist from posting to vger.kernel.org
+> Dedicating a partition that is unformated, and whose sole purpose
+> in life is to record a dump -- that is a viable option, at least on
+> servers, where high uptime is more important, and storage is cheap.
+
+Typically you don't need a dedicated partition, you can dump on swap.
+netdump does also dump over the network. This may be the safer choice
+when you don't trust your block subsystem after crashes.
+
+-Andi
+

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbTJOMHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 08:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbTJOMHQ
+	id S262980AbTJOMMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 08:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbTJOMMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 08:07:16 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:8467 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262970AbTJOMHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 08:07:15 -0400
-Date: Wed, 15 Oct 2003 22:06:59 +1000
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [SCSI] Set max_phys_segments to sg_tablesize
-Message-ID: <20031015120659.GA23592@gondor.apana.org.au>
-References: <20031015115740.GA23469@gondor.apana.org.au> <20031015120259.GC1077@suse.de>
+	Wed, 15 Oct 2003 08:12:52 -0400
+Received: from gprs151-179.eurotel.cz ([160.218.151.179]:53121 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262980AbTJOMMv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 08:12:51 -0400
+Date: Wed, 15 Oct 2003 14:12:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+Message-ID: <20031015121208.GA692@elf.ucw.cz>
+References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031015120259.GC1077@suse.de>
+In-Reply-To: <20031014045614.22ea9c4b.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 02:02:59PM +0200, Jens Axboe wrote:
+Hi!
+
+> > (c) mem= no longer bounds the highest physical address, but rather
+> > 	the sum of memory in e820 entries post-sanitization. This
+> > 	means a ZONE_NORMAL with about 384KB showed up, with duly
+> > 	perverse heuristic consequences for page_alloc.c
 > 
-> Is sg_tablesize guarenteed to be set? Looks like you need a
+> I don't understand this.  You mean almost all memory was in ZONE_DMA?
+> 
+> "mem=" does not accurately emulate having that much memory.  So a 512M box
+> booted with "mem=256M" has a different amount of memory from a 256M box
+> booted with no "mem=" option.  It would be nice to fix that, but I've never
+> looked into it.
 
-This doesn't hurt of course.
+I do not think this wants to be fixed. It should remain compatible
+with 2.4.X, and if it is not that's a bug [and pretty dangerous & hard
+to debug one -- if you mark something as ram which is not, you get
+real bad data corruption].
 
-However, 2.4's merging code assumed that sg_tablesize is always set.
+									Pavel
 
-Cheers,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

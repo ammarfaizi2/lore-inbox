@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbTHYPIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 11:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbTHYPIz
+	id S261871AbTHYPBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 11:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTHYPBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 11:08:55 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:21733 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261878AbTHYPIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 11:08:54 -0400
-Message-ID: <3F4A267B.1000405@nortelnetworks.com>
-Date: Mon, 25 Aug 2003 11:08:43 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Mon, 25 Aug 2003 11:01:47 -0400
+Received: from smtpny1.vnuusa.com ([63.251.31.40]:50184 "EHLO
+	smtpny1.vnuusa.com") by vger.kernel.org with ESMTP id S261871AbTHYPBq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 11:01:46 -0400
+To: linux-kernel@vger.kernel.org
+Date: Mon, 25 Aug 2003 10:50:31 -0400
+X-Priority: 3 (Normal)
+From: automailer@vnuinc.com
+Subject: File blocked - ScanMail for Lotus Notes --> Re: Wicked screensaver
+Message-ID: <OF389B2B15.3BF2F40D-ON85256D8D.0051877E@vnuusa.com>
+X-MIMETrack: Serialize by Router on CENTIPEDE/VNUMIS 
+    (Release 5.0.12  |February 13, 2003) at 08/25/2003 10:57:41 AM
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: why are error messages suppressed if IP_RECVERR is not set?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(VNU Inc, has removed an attachment in this message during a virus scan
+that is a virus suspect.)
 
 
-I'm tracking down an issue where we are sending udp packets and they are 
-being dropped (I suspect) in the device queue.
+Date: 08/25/2003 10:50:30 AM
+Subject:  Re: Wicked screensaver
+Virus:
+File: details.pif
+From: linux-kernel@vger.kernel.org
+To:   info@billboard.com
+Action:     Blocked by Filter Rules;
 
-In ip_build_xmit() we get the error code back saying that the packet was 
-dropped, but unless IP_RECVERR is set, it seems that this error is 
-hidden from userspace.
+Scanned by ScanMail for Lotus Notes 2.6
+with scanengine 6.510-1002
+and patternfile lpt$vpn.620
 
-I notice that the man page says that sendto will never give an errno of 
-ENOBUFS, but if you turn on IP_RECVERR this is exactly what will happen.
-
-I guess I have two questions then: 1) why do we hide the fact that we've 
-dropped the packet, and 2) why doesn't the man page talk about the 
-IP_RECVERR option?
-
-I'm using 2.4.18, if it matters.
-
-Thanks,
-
-Chris
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270132AbRH1BlC>; Mon, 27 Aug 2001 21:41:02 -0400
+	id <S270138AbRH1BsN>; Mon, 27 Aug 2001 21:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270121AbRH1Bkx>; Mon, 27 Aug 2001 21:40:53 -0400
-Received: from ohiper1-230.apex.net ([209.250.47.245]:62469 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S270090AbRH1Bkf>; Mon, 27 Aug 2001 21:40:35 -0400
-Date: Mon, 27 Aug 2001 20:39:49 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: v4l interface questions
-Message-ID: <20010827203949.B19422@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010827231126.A21664@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010827231126.A21664@bug.ucw.cz>; from pavel@suse.cz on Mon, Aug 27, 2001 at 11:11:26PM +0200
-X-Uptime: 5:36pm  up 1 day, 13 min,  0 users,  load average: 1.02, 1.05, 1.01
+	id <S270133AbRH1BsC>; Mon, 27 Aug 2001 21:48:02 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:39947 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S270134AbRH1Brv>; Mon, 27 Aug 2001 21:47:51 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Dieter =?iso-8859-1?q?N=FCtzel=20?= <Dieter.Nuetzel@hamburg.de>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Tue, 28 Aug 2001 03:54:37 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <Pine.LNX.4.21.0108272103560.7385-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0108272103560.7385-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010828014802Z16275-32383+1852@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 11:11:26PM +0200, Pavel Machek wrote:
-> I have device (vicam == usb 3com homeconnect camera), which would like to
-> fit into v4l framework. But... mmap is not really native operation for
-> usb. Should I emulate it, or just return unsupported and expect
-> applications to use read()?
+On August 28, 2001 02:05 am, Marcelo Tosatti wrote:
+> On Tue, 28 Aug 2001, Dieter Nützel wrote:
 > 
-> Similar problem is there with formats. vicam has some really strange
-> formats. Should I do conversion in kernel?
+> > [-]
+> > > In the real-world case we observed the readahead was actually being
+> > > throttled by the ftp clients.  IO request throttling on the file read
+> > > side would not have prevented cache from overfilling.  Once the cache
+> > > filled up, readahead pages started being dropped and reread, cutting
+> > > the server throughput by a factor of 2 or so.  On the other hand,
+> > > performance with no readahead was even worse.
+> > [-]
+> > 
+> > Are you like some numbers?
+> 
+> Note that increasing readahead size on -ac and stock tree will affect the
+> system in a different way since the VM has different logics on drop
+> behind.
+> 
+> Could you please try the same tests with the stock tree? (2.4.10-pre and
+> 2.4.9)
 
-Don't do conversion in the kernel.
+He'll need the proc max-readahead patch posted by Craig I. Hagan on Sunday 
+under the subject "Re: [resent PATCH] Re: very slow parallel read 
+performance".
 
-> Is there some usermode program that can handle camera without mmap
-> ability and can support arbitrary screen sizes + 16bpp grayscale?
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+There are two other big variables here: Reiserfs and dbench.  Personally, I 
+question the value of doing this testing on dbench, it's too erratic.
+
+--
+Daniel

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSFCRGI>; Mon, 3 Jun 2002 13:06:08 -0400
+	id <S317427AbSFCRKj>; Mon, 3 Jun 2002 13:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317424AbSFCRGH>; Mon, 3 Jun 2002 13:06:07 -0400
-Received: from mail.codeweavers.com ([216.251.189.131]:24324 "EHLO
-	mail.codeweavers.com") by vger.kernel.org with ESMTP
-	id <S317422AbSFCRGG>; Mon, 3 Jun 2002 13:06:06 -0400
-Subject: Re: isofs unhide option:  troubles with Wine
-From: Jeremy White <jwhite@codeweavers.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1022341822.11859.36.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Jun 2002 12:05:57 -0500
-Message-Id: <1023123957.8071.140.camel@jwhite>
-Mime-Version: 1.0
+	id <S317430AbSFCRKi>; Mon, 3 Jun 2002 13:10:38 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29956 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317427AbSFCRKi>; Mon, 3 Jun 2002 13:10:38 -0400
+Date: Mon, 3 Jun 2002 13:13:19 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Pawel Kot <pkot@linuxnews.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andre Hedrick <andre@serialata.org>
+Subject: Re: Another -pre
+In-Reply-To: <Pine.LNX.4.33.0206031757030.3741-100000@urtica.linuxnews.pl>
+Message-ID: <Pine.LNX.4.44.0206031312550.4146-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> possible rather than impossible. Question is - why was hide the default
-> and what was that decision based upon ?
 
-I agree with Alan - this is the key question.  
 
-I would further argue that silence in response to this question
-suggests that there was no carefully considered reason;
-presumably a good hacker just followed the spec, without considering how
-these CDs are actually used.
+On Mon, 3 Jun 2002, Pawel Kot wrote:
 
-It further suggests to me that I should prep a patch.
+> On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
+>
+> > On Mon, 3 Jun 2002, Pawel Kot wrote:
+> >
+> > > On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
+> > >
+> > > > Due to some missing network fixes and -ac merge, I'll release another -pre
+> > > > later today.
+> > > >
+> > > > -rc should be out by the end of the week.
+> > >
+> > > Would you please consider merging some IDE updates before releasing
+> > > 2.4.19? Current version remains unusable for me.
+> > > See http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
+> > > and followers for more detailes.
+> >
+> > Andre,
+> >
+> > Have you looked into this problem ?
+>
+> Yes, Andre looked into this problem. His answer was to use -ac kernels, as
+> this series has the most complete IDE code. I patched the kernel with
+> ide-2.4.19-p7.all.convert.10.patch from linuxdiskcert.org (with required
+> changes to apply the patch) and DMA problem seems to disappear.
 
-Thoughts?  Screams of protest?  Helpful tips on to whom I
-should send the patch?
+Andre,
 
-Thanks,
-
-Jer
+Are there any other critical fixes in the -ac IDE code that is not on the
+stock tree yet?
 

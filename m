@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUJASPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUJASUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUJASPK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUJASNv
+	id S265996AbUJASUi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUJAST3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:13:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:33434 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266069AbUJASMn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:12:43 -0400
-Date: Fri, 01 Oct 2004 11:10:54 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com, kernel-janitors@lists.osdl.org,
-       Judith Lebzelter <judith@osdl.org>, davidm@hpl.hp.com,
-       hannal@us.ibm.com, jbarnes@sgi.com
-Subject: [PATCH 2.6.9-rc2-mm4 pci_bus_cvlink.c] Replace pci_find_device with pci_get_device
-Message-ID: <112570000.1096654254@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 1 Oct 2004 14:19:29 -0400
+Received: from corb.mc.mpls.visi.com ([208.42.156.1]:23717 "EHLO
+	corb.mc.mpls.visi.com") by vger.kernel.org with ESMTP
+	id S265996AbUJASRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 14:17:55 -0400
+Message-ID: <415D9E96.1030207@steinerpoint.com>
+Date: Fri, 01 Oct 2004 13:14:46 -0500
+From: Al Borchers <alborchers@steinerpoint.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: new locking in change_termios breaks USB
+ serial drivers
+References: <415D3408.8070201@steinerpoint.com>	 <1096630567.21871.4.camel@localhost.localdomain>	 <415D84A3.6010105@steinerpoint.com> <1096645773.21958.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As pci_find_device is going away soon I have replaced the call with pci_get_device.
-Judith, could you run these 3 ia64 ones through PLM, please? 
+Alan Cox wrote:
+> In a waiting case the driver will get
+> 
+> 	->chars_in_buffer
+> 		until it returns zero
+> 	->wait_until_sent
+> 	->change_termios
+>
+> which serializes with respect to the one writer. If you have a writer
+> during a termios change by another well tough luck, you lose and I've
+> no intention of changing that behaviour unless someone cites a standard
+> requiring it.
 
-Thanks a lot.
+Right, of course.
 
-Hanna Linder
-IBM Linux Technology Center
+My comments about TCSETAW just muddled the issue.  Scratch those.
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+The problem is that a non-sleeping USB serial set_termios has to
+return before it can be sure the termios settings have taken effect.
+With USB we can send an urb to the device telling it to change termios
+settings, but without waiting for the urb callback we don't know
+that the device has received the command and actually changed the
+settings.
 
----
+So data written immediately following the set_termios, in the same
+process, might possibly be sent out the serial port before the
+termios changes have taken effect.
 
-diff -Nrup linux-2.6.9-rc2-mm4cln/arch/ia64/sn/io/machvec/pci_bus_cvlink.c linux-2.6.9-rc2-mm4patch2/arch/ia64/sn/io/machvec/pci_bus_cvlink.c
---- linux-2.6.9-rc2-mm4cln/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-09-28 14:58:07.000000000 -0700
-+++ linux-2.6.9-rc2-mm4patch2/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-09-30 16:56:57.454516072 -0700
-@@ -904,7 +904,7 @@ sn_pci_init (void)
- 	/*
- 	 * Initialize the device vertex in the pci_dev struct.
- 	 */
--	while ((pci_dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pci_dev)) != NULL) {
-+	while ((pci_dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pci_dev)) != NULL) {
- 		ret = sn_pci_fixup_slot(pci_dev);
- 		if ( ret ) {
- 			printk(KERN_WARNING
+There are several solutions:
+
+* The tty layer could use a semaphore so the USB serial set_termios could
+   sleep until the new termios settings have taken effect before returning.
+
+* The USB serial driver could hold off sending data to the device after a
+   non-sleeping set_termios until it knew the settings had taken effect in
+   the device.
+
+* Maybe in practice this is not a problem--we can just say "set_termios
+   for USB serial devices will change the termios settings as soon as
+   possible, but there is a slight chance data written immediately after
+   set termios might go out under the previous termios settings".
+
+* Or ... other suggestions?
+
+-- Al
 

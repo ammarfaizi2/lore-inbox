@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262478AbTCROw3>; Tue, 18 Mar 2003 09:52:29 -0500
+	id <S262453AbTCRO5S>; Tue, 18 Mar 2003 09:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262479AbTCROw3>; Tue, 18 Mar 2003 09:52:29 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7814 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262478AbTCROw2>; Tue, 18 Mar 2003 09:52:28 -0500
-Date: Tue, 18 Mar 2003 10:05:18 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>
-cc: DervishD <raul@pleyades.net>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: select() stress
-In-Reply-To: <Pine.WNT.4.44.0303180946120.1424-100000@GOLDENEAGLE.gameday2000>
-Message-ID: <Pine.LNX.4.53.0303180958320.27113@chaos>
-References: <Pine.WNT.4.44.0303180946120.1424-100000@GOLDENEAGLE.gameday2000>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262457AbTCRO5R>; Tue, 18 Mar 2003 09:57:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60420 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S262453AbTCRO5J>;
+	Tue, 18 Mar 2003 09:57:09 -0500
+Date: Tue, 18 Mar 2003 09:08:00 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Demand paging - Kernel
+Message-Id: <20030318090800.57118796.reynolds@redhat.com>
+In-Reply-To: <200303172159.h2HLxsQY025585@pincoya.inf.utfsm.cl>
+References: <20030317083547.51a4004f.reynolds@redhat.com>
+	<200303172159.h2HLxsQY025585@pincoya.inf.utfsm.cl>
+Organization: Red Hat GLS
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
+ of all files and data!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003, Sparks, Jamie wrote:
+Uttered Horst von Brand <vonbrand@inf.utfsm.cl>, spoke thus:
 
-> This message uses a character set that is not supported by the Internet
-> Service.  To view the original message content,  open the attached message.
-> If the text doesn't display correctly, save the attachment to disk, and then
-> open it using a viewer that can display the original character set.
-> <<message.txt>>
->
+> Tommy Reynolds <reynolds@redhat.com> said:
+> > Uttered "Breno" <brenosp@brasilsec.com.br>, spoke thus:
+> > > There is a possibility  to do demand paging in kernel space address ?
+> > No.  The entire kernel, and all  of its data structures, are resident in
+> > memory  all of  the time.
+> The cost of doing it right in a monolitic kernel would probably outweigh
+> the gains manyfold, and require massive redesign for Linux. In microkernels
+> it is a lot easier to do (but their performance sucks baby elephants
+> through straws, so they are moot :-)
 
-Please don't use that goddam M$ mailer. I can't see what you
-wrote without saving to a file, etc. Most use 'pine'  or
-something compatible with __text__ !
+Dr. von Brand,
 
-
-Anyway you advised to do something like:
-
-	fd = open("/", O_RDONLY);
-        close(fd);
-
-        fd is now supposed to contain the largest process fd + 1.
-        I don't think this is correct! You can do open thousands
-         of fds, ultimately more than the max fd value. It will
-        eventually wrap.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Thanks for  following up on  this.  You are  right, of course:  with the
+source code and  enough patience anything could be  crafted.  I answered
+in the sense of "is this currently implemented", and it's not ;-)
 

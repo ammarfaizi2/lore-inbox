@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264528AbSIQTdD>; Tue, 17 Sep 2002 15:33:03 -0400
+	id <S264533AbSIQTll>; Tue, 17 Sep 2002 15:41:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264546AbSIQTdD>; Tue, 17 Sep 2002 15:33:03 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:6137 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264528AbSIQTdC>; Tue, 17 Sep 2002 15:33:02 -0400
-Date: Tue, 17 Sep 2002 15:38:02 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-aio@kvack.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: libaio 0.3.92 test release
-Message-ID: <20020917153802.K23555@redhat.com>
-References: <794826DE8867D411BAB8009027AE9EB913D03F15@fmsmsx38.fm.intel.com>
+	id <S264534AbSIQTll>; Tue, 17 Sep 2002 15:41:41 -0400
+Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:47121 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S264533AbSIQTlk>;
+	Tue, 17 Sep 2002 15:41:40 -0400
+Subject: Re: Problems accessing USB Mass Storage
+From: Mark C <gen-lists@blueyonder.co.uk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0209171119430.14033-100000@dragon.pdx.osdl.net>
+References: <Pine.LNX.4.33L2.0209171119430.14033-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 17 Sep 2002 20:46:31 +0100
+Message-Id: <1032291993.1276.12.camel@stimpy.angelnet.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03F15@fmsmsx38.fm.intel.com>; from kenneth.w.chen@intel.com on Tue, Sep 17, 2002 at 12:31:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 12:31:00PM -0700, Chen, Kenneth W wrote:
-> several questions regarding to aio-20020916 release:
-> 
-> In fs/aio.c, it doesn't appear that the API as well as the implementation
-> are sync'ed up with what's in 2.5.x.  And this leads to the following
-> discrepancy compare to what's in 2.5:
+On Tue, 2002-09-17 at 19:22, Randy.Dunlap wrote:
 
-Yeah, I missed a couple and have to add test cases for them to the 
-test suite (those test programs were separate from libaio, and will 
-soon no longer be).  That'll be fixed in today's test release.
+> This is a bit like what we (JE, David Brownell, and I) saw at
+> the USB plugfest in 1999.  We had a camera device that we
+> couldn't mount as a filesystem, but we could dd it.
+> When we did that and studied the dd-ed file, we could see a
+> FAT filesystem beginning after the first <N> blocks (but more than
+> 25 sectors IIRC -- more like after 50-100 KB, or maybe even more).
 
-> Is there another release (hopefully soon) to sync up fs/aio.c with 2.5? or
-> is it going to be never?
+Sorry to sound a bit bewildered, but would be the next best thing for me
+to do on this?, 
+I have also been advised by Jonathan Corbet 
+to use dd to copy your card to disk with an offset of 25
 
-Of course!  Why wouldn't there be?
+looking through the info and man pages for dd, I can find no mention of
+offset at all, the next best thing I could find was the command option
+'skip'
 
-		-ben
+Sorry to sound abit overwhelmed.
+
+Mark
+
+-- 
+---
+To steal ideas from one person is plagiarism;
+to steal from many is research.
+

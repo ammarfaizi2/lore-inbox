@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSIAKtM>; Sun, 1 Sep 2002 06:49:12 -0400
+	id <S316615AbSIAKwW>; Sun, 1 Sep 2002 06:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSIAKtM>; Sun, 1 Sep 2002 06:49:12 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:36105 "EHLO
+	id <S316659AbSIAKwW>; Sun, 1 Sep 2002 06:52:22 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:37897 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316610AbSIAKtL>; Sun, 1 Sep 2002 06:49:11 -0400
-Date: Sun, 1 Sep 2002 12:53:35 +0200
+	id <S316615AbSIAKwV>; Sun, 1 Sep 2002 06:52:21 -0400
+Date: Sun, 1 Sep 2002 12:56:43 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: [PATCH] warnkill trivia 1/2
-Message-ID: <20020901105335.GG32122@louise.pinerecords.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: [PATCH] warnkill trivia 2/2
+Message-ID: <20020901105643.GH32122@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,17 +20,19 @@ X-Uptime: 5 days, 8:49
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.20-pre5: Include a missing prototype.
+2.4.20-pre5: prevent sparc32's atomic_read() from possibly discarding
+const qualifiers from pointers passed as its argument.
 
 
-diff -urN linux-2.4.20-pre5/fs/reiserfs/hashes.c linux-2.4.20-pre5.n/fs/reiserfs/hashes.c
---- linux-2.4.20-pre5/fs/reiserfs/hashes.c	2002-09-01 12:48:09.000000000 +0200
-+++ linux-2.4.20-pre5.n/fs/reiserfs/hashes.c	2002-09-01 12:03:00.000000000 +0200
-@@ -18,6 +18,7 @@
- // r5_hash
- //
+diff -urN linux-2.4.20-pre5/include/asm-sparc/atomic.h linux-2.4.20-pre5.n/include/asm-sparc/atomic.h
+--- linux-2.4.20-pre5/include/asm-sparc/atomic.h	2001-11-08 17:42:19.000000000 +0100
++++ linux-2.4.20-pre5.n/include/asm-sparc/atomic.h	2002-09-01 12:29:36.000000000 +0200
+@@ -35,7 +35,7 @@
  
-+#include <linux/kernel.h>	/* for printk() as called by BUG() */
- #include <asm/types.h>
- #include <asm/page.h>
+ #define ATOMIC_INIT(i)	{ (i << 8) }
+ 
+-static __inline__ int atomic_read(atomic_t *v)
++static __inline__ int atomic_read(const atomic_t *v)
+ {
+ 	int ret = v->counter;
  

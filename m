@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280456AbRJaTzk>; Wed, 31 Oct 2001 14:55:40 -0500
+	id <S280460AbRJaUAa>; Wed, 31 Oct 2001 15:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280455AbRJaTzV>; Wed, 31 Oct 2001 14:55:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11268 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280454AbRJaTzQ>; Wed, 31 Oct 2001 14:55:16 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: pre6 BUG oops
-Date: Wed, 31 Oct 2001 19:53:37 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9rpks1$bk$1@penguin.transmeta.com>
-In-Reply-To: <3BE03401.406B8585@mandrakesoft.com> <20011031.094112.125896630.davem@redhat.com> <9rpfbj$vrn$1@penguin.transmeta.com> <3BE04338.8F0AF9D4@mandrakesoft.com>
-X-Trace: palladium.transmeta.com 1004558148 16363 127.0.0.1 (31 Oct 2001 19:55:48 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 31 Oct 2001 19:55:48 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S280461AbRJaUAU>; Wed, 31 Oct 2001 15:00:20 -0500
+Received: from boreas.isi.edu ([128.9.160.161]:26583 "EHLO boreas.isi.edu")
+	by vger.kernel.org with ESMTP id <S280460AbRJaUAG>;
+	Wed, 31 Oct 2001 15:00:06 -0500
+To: Larry McVoy <lm@bitmover.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Timur Tabi <ttabi@interactivesi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [OT] Module Licensing? 
+In-Reply-To: Your message of "Wed, 31 Oct 2001 09:22:28 PST."
+             <20011031092228.J1506@work.bitmover.com> 
+Date: Wed, 31 Oct 2001 11:55:01 -0800
+Message-ID: <4986.1004558101@ISI.EDU>
+From: Craig Milo Rogers <rogers@ISI.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BE04338.8F0AF9D4@mandrakesoft.com>,
-Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
->Linus Torvalds wrote:
->> Maybe it's just the page count that is buggered, and we free it too
->> early as a result.  Is this the same machine that had interesting
->> trouble before?
+>> Since your program, which happens to consist of one open
+>> source part and one proprietary part, is partly a derived
+>> work from the kernel source (by using kernel header files
+>> and the inline functions in it) your whole work must be
+>> distributed under the GPL.
 >
->yes, a UP alpha running 2.4.14-pre6, that was described in the false oom
->killer report.
+>This is obviously incorrect, that would say that
+>
+>	#include <sys/types.h>
+>
+>means my app is now GPLed.  Good luck enforcing that.
 
-Ok, I think it's the same bug, and that we're just freeing the wrong
-page somehow. 
+	Your compiled object module might be a derived work, hence its
+distribution would be restricted by the terms of the GPL version 2.
+Your source code file would not be a derived work (under certain
+currently widely-held assumptions about interface copyrights), and
+hence could be distributed without restriction by the GPL.
 
-I wonder if the "VALID_PAGE(page)" macro is reliable on alpha? You seem
-to be able to trigger this too easily for it to not being something
-specific to the setup..
+	Usual disclaimer:  I am not a lawyer.
 
-		Linus
+					Craig Milo Rogers

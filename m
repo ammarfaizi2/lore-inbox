@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSA2B3E>; Mon, 28 Jan 2002 20:29:04 -0500
+	id <S288159AbSA2B2y>; Mon, 28 Jan 2002 20:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288158AbSA2B2y>; Mon, 28 Jan 2002 20:28:54 -0500
-Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:28040 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288149AbSA2B2r>;
-	Mon, 28 Jan 2002 20:28:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
-Date: Tue, 29 Jan 2002 02:32:58 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
-In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com> <3C55E9E3.50207@namesys.com> <E16VMUj-0000Dz-00@starship.berlin>
-In-Reply-To: <E16VMUj-0000Dz-00@starship.berlin>
+	id <S288158AbSA2B2o>; Mon, 28 Jan 2002 20:28:44 -0500
+Received: from web20409.mail.yahoo.com ([216.136.226.128]:19722 "HELO
+	web20409.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288149AbSA2B21>; Mon, 28 Jan 2002 20:28:27 -0500
+Message-ID: <20020129012822.90169.qmail@web20409.mail.yahoo.com>
+Date: Mon, 28 Jan 2002 17:28:22 -0800 (PST)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: A modest proposal -- we need a patch penguin
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VN8w-0000Ei-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 01:51 am, Daniel Phillips wrote:
-> You don't worry about that case.  If there's so much pressure that you
-> scan all the way to the hot end of the lru list then you will recover
-> that hot/cold page[1] and all will be well.  Not that the hot/cold page
-                                      "Note"  ^^^
-> will tend to migrate further away from the hot end of the list than a
-> hot/hot page.
+Mr. Landley,
 
--- 
-Daniel
+	WOW!
+
+	I think you have described the problem EXACTLY. Just from what I have
+read on lkml, it would seem that all the stuff that you describe is accurate.
+I think that what you've written is very well written, clearly describes
+what you believe must be done, and shows how having this new job would be
+beneficial.
+
+	BTW, I posted an article on KernelTrap (www.kerneltrap.com).
+
+Thanks,
+
+Brad
+
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+		   tanami_croc@devel.lbsd.net
+
+__________________________________________________
+Do You Yahoo!?
+Great stuff seeking new owners in Yahoo! Auctions! 
+http://auctions.yahoo.com

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292133AbSBTSAF>; Wed, 20 Feb 2002 13:00:05 -0500
+	id <S292142AbSBTSQA>; Wed, 20 Feb 2002 13:16:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292142AbSBTR75>; Wed, 20 Feb 2002 12:59:57 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:3459 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S292133AbSBTR7s> convert rfc822-to-8bit; Wed, 20 Feb 2002 12:59:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Derek Gladding <derek_gladding@altavista.net>
-Reply-To: derek_gladding@altavista.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: jiffies rollover, uptime etc.
-Date: Wed, 20 Feb 2002 09:56:50 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020220172052.GA15228@matchmail.com> <Pine.LNX.4.44L.0202201423170.1413-100000@duckman.distro.conectiva> <20020220173216.GC15228@matchmail.com>
-In-Reply-To: <20020220173216.GC15228@matchmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020220175953Z292133-890+2997@vger.kernel.org>
+	id <S292146AbSBTSPk>; Wed, 20 Feb 2002 13:15:40 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:30731 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292142AbSBTSPf>;
+	Wed, 20 Feb 2002 13:15:35 -0500
+Date: Wed, 20 Feb 2002 10:10:21 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] usb vicam driver fix for 2.5.5
+Message-ID: <20020220181021.GA30724@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 23 Jan 2002 16:08:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 February 2002 09:32 am, Mike Fedyk wrote:
-> On Wed, Feb 20, 2002 at 02:24:42PM -0300, Rik van Riel wrote:
-> > On Wed, 20 Feb 2002, Mike Fedyk wrote:
-> > > On Wed, Feb 20, 2002 at 01:36:02PM +0200, Ville Herva wrote:
-> > > > asm-ia64/param.h:# define HZ    1024
-> > > > asm-x86_64/param.h:#define HZ 100
-> > >
-> > > What's the difference between these two architectures?  Intel
-> > > 64bit processor and AMD's upcoming 64bit processor?
-> >
-> > One is a 64 bit extension to a modern superscalar
-> > architecture which has descended from 8 bit machines
-> > over the ages.
-> >
-> > The other is a 3-issue VLIW follow-up to the 2-issue
-> > VLIW i860.
->
-> Oh, I didn't know that processor was used for more than printers,
-> raid controllers, and similar.
+Hi all,
 
-IIRC, the i960 is the printer/controller arch, the i860 was the
-(alleged) "cray-on-a-chip" number cruncher.
+Here's a small patch for 2.5.5 that enables the USB vicam driver to build
+properly again.
 
-- Derek
+thanks,
+
+greg k-h
+
+
+diff -Nru a/drivers/usb/vicam.c b/drivers/usb/vicam.c
+--- a/drivers/usb/vicam.c	Wed Feb 20 10:10:15 2002
++++ b/drivers/usb/vicam.c	Wed Feb 20 10:10:15 2002
+@@ -40,6 +40,8 @@
+ #include <linux/errno.h>
+ #include <linux/poll.h>
+ #include <linux/init.h>
++#include <linux/mm.h>
++#include <linux/pagemap.h>
+ #include <linux/slab.h>
+ #include <linux/fcntl.h>
+ #include <linux/module.h>

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265322AbSKAQsB>; Fri, 1 Nov 2002 11:48:01 -0500
+	id <S265078AbSKAQxY>; Fri, 1 Nov 2002 11:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbSKAQsA>; Fri, 1 Nov 2002 11:48:00 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1672 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265322AbSKAQsA>; Fri, 1 Nov 2002 11:48:00 -0500
-Subject: Re: serial port & ldisc: need help
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Romain Lievin <rlievin@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021101164811.GA558@free.fr>
-References: <20021101164811.GA558@free.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Nov 2002 17:14:26 +0000
-Message-Id: <1036170866.12551.54.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265254AbSKAQxY>; Fri, 1 Nov 2002 11:53:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:18816 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265078AbSKAQxW>; Fri, 1 Nov 2002 11:53:22 -0500
+Date: Fri, 1 Nov 2002 12:00:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, Pavel Machek <pavel@ucw.cz>,
+       Dave Jones <davej@codemonkey.org.uk>, boissiere@adiglobal.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [STATUS 2.5]  October 30, 2002
+In-Reply-To: <1036169388.12534.48.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.95.1021101115139.1318A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-01 at 16:48, Romain Lievin wrote:
-> Hi,
+On 1 Nov 2002, Alan Cox wrote:
+
+> On Fri, 2002-11-01 at 14:05, Eric W. Biederman wrote:
+> > When you have a correctable ECC error on a page you need to rewrite the
+> > memory to remove the error.  This prevents the correctable error from becoming
+> > an uncorrectable error if another bit goes bad.  Also if you have a
+> > working software memory scrub routine you can be certain multiple
+> > errors from the same address are actually distinct.  As opposed to
+> > multiple reports of the same error.
 > 
-> I need informations about line disciplines (what are they, how to use them)...
+> Note that this area has some extremely "interesting" properties. For one
+> you have to be very careful what operation you use to scrub and its
+> platform specific. On x86 for example you want to do something like lock
+> addl $0, mem. A simple read/write isnt safe because if the memory area
+> is a DMA target your read then write just corrupted data and made the
+> problem worse not better!
 > 
-> Is there anyone who could explain this to me ?
-> Or, is there any doc/book about this subject ?
 
-I've seen no good documentation on this one. The ldisc is basically the
-glue between the serial layer and whatever is above
+The correctable ECC is supposed to be just that (correctable). It's
+supposed to be entirely transparent to the CPU/Software. An additional
+read of the affected error produces the same correction so the CPU
+will never even know. The x86 CPU/Software is only notified on an
+uncorrectable error. I don't know of any SDRAM controller that
+generates an interrupt upon a correctable error. Some store "logging"
+information internally, very difficult to get at on a running system.
 
-So its
+Given that, "scrubbing" RAM seems to be somewhat useless on a
+running system. The next write to the affected area will fix the
+ECC bits, that't what is supposed to clear up the condition.
 
-	/dev/ttyFOO --- [LDISC] --- Serial
-
-or
-
-	/dev/ttyFOO -----}
-        ppp0    ---------}--[LDISC] -- Serial
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
 

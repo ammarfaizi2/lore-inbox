@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263169AbUEWQyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263171AbUEWQ4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbUEWQyh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 12:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUEWQyg
+	id S263171AbUEWQ4y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 12:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUEWQ4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 12:54:36 -0400
-Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:47002 "EHLO
-	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263169AbUEWQye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 12:54:34 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Billy Biggs <vektor@dumbterm.net>
-Subject: Re: tvtime and the Linux 2.6 scheduler
-Date: Mon, 24 May 2004 02:54:19 +1000
-User-Agent: KMail/1.6.1
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040523154859.GC22399@dumbterm.net>
-In-Reply-To: <20040523154859.GC22399@dumbterm.net>
-MIME-Version: 1.0
+	Sun, 23 May 2004 12:56:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27046 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263171AbUEWQ4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 12:56:50 -0400
+Date: Sun, 23 May 2004 18:56:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
+Message-ID: <20040523165634.GS1952@suse.de>
+References: <200405222107.55505.l_allegrucci@despammed.com> <200405231732.15600.l_allegrucci@despammed.com> <20040523154524.GR1952@suse.de> <200405231843.56591.l_allegrucci@despammed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405240254.20171.kernel@kolivas.org>
+In-Reply-To: <200405231843.56591.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sun, May 23 2004, Lorenzo Allegrucci wrote:
+> On Sunday 23 May 2004 17:45, Jens Axboe wrote:
+> > On Sun, May 23 2004, Lorenzo Allegrucci wrote:
+> > > On Sunday 23 May 2004 12:03, Jens Axboe wrote:
+> > > > Here's a rolled up updated version that tries to get async notification
+> > > > of missing barrier support working as well. reiser currently doesn't
+> > > > cope with that correctly (fails mount), ext3 seems to but gets stuck.
+> > > > Andrew has that fixed already, I think :-)
+> > > >
+> > > > Lorenzo, can you test this on top of 2.6.6-mm5?
+> > >
+> > > Problem fixed, but there is some performance regression
+> > >
+> > > ext3 (default)
+> > > untar		read		copy		remove
+> > > 0m53.861s	0m24.942s	1m30.164s	0m20.664s
+> > > 0m7.132s	0m1.191s	0m0.766s	0m0.076s
+> > > 0m5.807s	0m3.345s	0m9.996s	0m1.719s
+> > >
+> > > ext3 (-o barrier=1)
+> > > untar		read		copy		remove
+> > > 0m52.117s	0m28.502s	1m51.153s	0m25.561s
+> > > 0m7.231s	0m1.209s	0m0.738s	0m0.071s
+> > > 0m6.117s	0m3.191s	0m9.347s	0m1.635s
+> >
+> > Not sure what you mean here
+> 
+> Untar, read, copy and remove the OpenOffice tarball, each test
+> run with cold cache (mount/umount cycle).
 
-On Mon, 24 May 2004 01:48 am, Billy Biggs wrote:
->   I am the author of tvtime, a TV application with advanced image
-> processing algorithms.  Some users are complaining about poor
-> performance under Linux 2.6, and I would like more information about how
-> tvtime will be treated by the scheduler.  Here is an example of the
-> intended usage:
->
->   - Program running as root and SCHED_FIFO
+I understand that, I just don't see how you can call it a regression.
+It's a given that barrier will be slower.
 
-snip
+> > but yes of course -o barrier=1 is going to 
+> > be slower than default + write back caching. What you should compare is
+> > without barrier support and hdparm -W0 /dev/hdX, if -o barrier=1 with
+> > caching on is slower then that's a regression :-)
+> 
+> hdparm -W0 /dev/hda
+> 
+> ext3 (-o barrier=0)
+> untar		read		copy		remove
+> 1m55.190s	0m27.633s	2m19.072s	0m21.348s
+> 0m7.081s	0m1.189s	0m0.724s	0m0.083s
+> 0m6.502s	0m3.244s	0m9.715s	0m1.633s
+> 
+> ext3 (-o barrier=1)
+> untar		read		copy		remove
+> 1m55.358s	0m23.831s	2m16.674s	0m21.508s
+> 0m7.153s	0m1.200s	0m0.748s	0m0.087s
+> 0m6.775s	0m3.358s	0m9.985s	0m1.781s
+> 
+> 
+> haparm -W1 /dev/hda
+> 
+> ext3 (-o barrier=0)
+> untar		read		copy		remove
+> 0m55.405s	0m26.230s	1m28.765s	0m20.766s
+> 0m7.195s	0m1.199s	0m0.773s	0m0.081s
+> 0m6.502s	0m3.359s	0m9.672s	0m1.868s
+> 
+> ext3 (-o barrier=1)
+> untar		read		copy		remove
+> 0m52.117s	0m28.502s	1m51.153s	0m25.561s
+> 0m7.231s	0m1.209s	0m0.738s	0m0.071s
+> 0m6.117s	0m3.191s	0m9.347s	0m1.635s
 
->      33 ms : time per NTSC frame
+Your results look a bit over the map, how many runs are your averaging
+for each one?
 
-snip
+-- 
+Jens Axboe
 
-The followup email from someone describing good performance may help us 
-understand what's going on. Your example of poor performance is one when the 
-cpu performance is marginal to get exactly 30 fps processed and on the 
-screen. The cpu overhead in 2.6 is slightly higher than 2.4 so a borderline 
-case may be just pushed over. 
-
-A program running as sched_fifo it will preempt absolutely everything 
-regardless of how it behaves. It sounds like it's giving X less cpu time to 
-draw the frame each time until eventually the processing fails to capture the 
-frame and then X smooths out again. I cant pretend to understand how your 
-application blocks (as you say) between X and tvtime, but does tvtime not try 
-to schedule until X has finished using up cpu or will it just run off the 
-timer and preempt X away? You say changing priorities doesnt help, but I cant 
-tell if you tried this: run the processing sched_normal at lower priority 
-than X.
-
-Con

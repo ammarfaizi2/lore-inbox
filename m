@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319226AbSIKQsP>; Wed, 11 Sep 2002 12:48:15 -0400
+	id <S319227AbSIKQwi>; Wed, 11 Sep 2002 12:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319227AbSIKQsP>; Wed, 11 Sep 2002 12:48:15 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:50651 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S319226AbSIKQsO>;
-	Wed, 11 Sep 2002 12:48:14 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Jens Axboe" <axboe@suse.de>, "Paul Mackerras" <paulus@samba.org>
-Cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] highmem I/O for ide-pmac.c
-Date: Wed, 11 Sep 2002 20:53:15 +0200
-Message-Id: <20020911185315.530@192.168.4.1>
-In-Reply-To: <20020911130209.GL1089@suse.de>
-References: <20020911130209.GL1089@suse.de>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+	id <S319229AbSIKQwi>; Wed, 11 Sep 2002 12:52:38 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:14859 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S319227AbSIKQwh>; Wed, 11 Sep 2002 12:52:37 -0400
+Message-ID: <3D7F75F5.9070404@namesys.com>
+Date: Wed, 11 Sep 2002 20:57:25 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
+       mason <mason@namesys.com>, akpm@digeo.com
+Subject: Re: Performance differences in recent kernels
+References: <Pine.LNX.4.33L2.0209110748010.29148-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->BTW, it would be ok to export that from ide-dma.c instead of duplicating
->it in ide-pmac.
+Randy.Dunlap wrote:
 
-It isn't. ide-pmac doesn't use the sg_table & other DMA related
-fields in HWIF, but it's own copies in the "pmif" which is a
-parallel data structure.
+>On Wed, 11 Sep 2002, Hans Reiser wrote:
+>
+>| AIM is a proprietary benchmark, yes?  If we send you a copy of reiser4
+>| next month, would you be willing to give it a run?
+>
+>No, it's now GPL and available at
+>  http://caldera.com/developers/community/contrib/aim.html
+>
+>  
+>
+Thanks much to caldera for doing this.   I have wanted to try the 
+benchmark for years, but it was too expensive for us.
 
-It sucks, I know, but I have to do that with the current IDE code
-as the common code would make assumption about the format of these
-things and it's right to dispose them in ide_unregister.
+We'll use it for debugging and benchmarking reiser4 also.
 
-Also, Jens is right, Paul, you never call pmac_ide_toggle_bounce()
-to actually enable high IOs. Add that to the ide_dma_on/check: case,
-with an if (drive->using_dma) (as enabling DMA may have failed)
-
-Or just wait for me to finish fixing my 6xx power save on idle
-stuff and I'll send an updated patch to Marcelo along with other
-pmac stuffs. (I'm implementing your suggestion of comparing SRR0
-content in transfer_to_handler, but so far, the comparison never
-seem to match, I'll find that out soon enough though).
-
-Ben.
-
-
-
+Hans
 

@@ -1,77 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbUKDVzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUKDV4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbUKDVzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 16:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUKDVzW
+	id S262453AbUKDV4s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 16:56:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUKDV4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 16:55:22 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:59338 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262449AbUKDVyP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:54:15 -0500
-Subject: [RFC] [PATCH] [0/6] LSM Stacking
-From: Serge Hallyn <serue@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1099609471.2096.10.camel@serge.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Nov 2004 17:04:31 -0600
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 16:56:09 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:55681 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262448AbUKDVx5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 16:53:57 -0500
+Message-ID: <418AA4C7.2030909@trash.net>
+Date: Thu, 04 Nov 2004 22:53:11 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: Herbert Xu <herbert@gondor.apana.org.au>, linux-net@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <418A7B0B.7040803@trash.net>	<E1CPoUT-0000sk-00@gondolin.me.apana.org.au> <20041104130028.099fc130.davem@davemloft.net>
+In-Reply-To: <20041104130028.099fc130.davem@davemloft.net>
+Content-Type: multipart/mixed;
+ boundary="------------040605020504000201090706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following set of patches add support required to stack most
-LSMs.  The most important patch is the first, which provides a
-method for more than one LSM to annotate information to kernel
-objects.  LSM's known to use the LSM fields include selinux, bsdjail,
-seclvl, and digsig.  Without this patch (or something like it),
-none of these modules can be used together.
+This is a multi-part message in MIME format.
+--------------040605020504000201090706
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The rest of the patches add stacking support to the existing LSMs.
-Another set of three patches will be sent containing a stackable
-version of bsdjail.
+David S. Miller wrote:
 
-I have run some performance tests on a Fedora Core Devel system
-under three configurations:
+>You're right... the bug was introduced by my skb_header_pointer() changes.
+>Look at this:
+>
+>	amp = skb_header_pointer(skb, dataoff,
+>				 skb->len - dataoff, amanda_buffer);
+>	BUG_ON(amp == NULL);
+>	data = amp;
+>	data_limit = amp + skb->len - dataoff;
+>	*data_limit = '\0';
+>
+>It should just use the amanda_buffer always.
+>
+Thanks Dave and Herbert, here is the patch in case you haven't fixed it
+already.
 
-1. A 2.6.10-rc1-bk10 system with capabilities and SELinux compiled
-into the kernel as it was in the default Fedora kernel.
-
-2. A 2.6.10-rc1-bk10 system with the stacking patches, and capabilities
-and SELinux compiled into the kernel under the stacker LSM.  Other
-than stacker being compiled in and the size of the LSM void* array
-being set to 4, the exact same .config was used.
-
-3. The same kernel as in (2), but with bsdjail and seclvl also stacked.
-
-On each of these configurations, I ran unixbench twice, and compiled
-a kernel twice (with the same .config, and all files in the cached
-each time).
-
-The kernel compilation results are as follows:
-
-         No stacking (1)           Stacking (2)      More Stacking (3)
-Run 1    real 9m51.647s           real 9m48.045s      real 9m53.292s
-         user 8m28.637s           user 8m29.108s      user 8m33.319s
-          sys 1m13.900s            sys 1m14.993s       sys 1m15.377s
-
-Run 2    real 9m48.154s           real 9m53.369s      real 9m53.292s
-         user 8m28.983s           user 8m29.101s      user 8m34.407s
-          sys 1m13.981s            sys 1m15.307s       sys 1m15.611s
-
-Run 3    real 9m51.105s           real 9m51.840s      real 9m58.840s
-         user 8m28.894s           user 8m29.192s      user 8m33.538s
-          sys 1m14.183s            sys 1m15.345s       sys 1m16.146s
-
-Unixbench summaries are as follows.  (I can send the full output if
-anyone asks)
-
-         No stacking (1)           Stacking (2)      More Stacking (3)
-Run 1         651.5                    647.1                634.3
-Run 2         648.2                    642.8                632.7
-
--serge
+Regards
+Patrick
 
 
+--------------040605020504000201090706
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/04 22:50:11+01:00 kaber@coreworks.de 
+#   [NETFILTER]: Don't use skb_header_pointer in amanda conntrack helper
+#   
+#   Fixes broken packets, noticed by Matthias Andree <matthias.andree@gmx.de>
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+# 
+# net/ipv4/netfilter/ip_conntrack_amanda.c
+#   2004/11/04 22:50:04+01:00 kaber@coreworks.de +5 -7
+#   [NETFILTER]: Don't use skb_header_pointer in amanda conntrack helper
+#   
+#   Fixes broken packets, noticed by Matthias Andree <matthias.andree@gmx.de>
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+# 
+diff -Nru a/net/ipv4/netfilter/ip_conntrack_amanda.c b/net/ipv4/netfilter/ip_conntrack_amanda.c
+--- a/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-04 22:50:37 +01:00
++++ b/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-04 22:50:37 +01:00
+@@ -49,7 +49,7 @@
+ {
+ 	struct ip_conntrack_expect *exp;
+ 	struct ip_ct_amanda_expect *exp_amanda_info;
+-	char *amp, *data, *data_limit, *tmp;
++	char *data, *data_limit, *tmp;
+ 	unsigned int dataoff, i;
+ 	u_int16_t port, len;
+ 
+@@ -70,11 +70,9 @@
+ 	}
+ 
+ 	LOCK_BH(&amanda_buffer_lock);
+-	amp = skb_header_pointer(skb, dataoff,
+-				 skb->len - dataoff, amanda_buffer);
+-	BUG_ON(amp == NULL);
+-	data = amp;
+-	data_limit = amp + skb->len - dataoff;
++	skb_copy_bits(skb, dataoff, amanda_buffer, skb->len - dataoff);
++	data = amanda_buffer;
++	data_limit = amanda_buffer + skb->len - dataoff;
+ 	*data_limit = '\0';
+ 
+ 	/* Search for the CONNECT string */
+@@ -110,7 +108,7 @@
+ 		exp->mask.dst.u.tcp.port = 0xFFFF;
+ 
+ 		exp_amanda_info = &exp->help.exp_amanda_info;
+-		exp_amanda_info->offset = tmp - amp;
++		exp_amanda_info->offset = tmp - amanda_buffer;
+ 		exp_amanda_info->port   = port;
+ 		exp_amanda_info->len    = len;
+ 
+
+--------------040605020504000201090706--

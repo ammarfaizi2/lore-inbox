@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263575AbTJWOmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 10:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTJWOmp
+	id S263574AbTJWOwb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 10:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTJWOwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 10:42:45 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:33944 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263575AbTJWOmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 10:42:44 -0400
-Date: Thu, 23 Oct 2003 07:42:34 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Autoregulate vm swappiness 2.6.0-test8
-Message-ID: <8720000.1066920153@[10.10.2.4]>
-In-Reply-To: <200310232337.50538.kernel@kolivas.org>
-References: <200310232337.50538.kernel@kolivas.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 23 Oct 2003 10:52:31 -0400
+Received: from h24-78-210-69.ss.shawcable.net ([24.78.210.69]:39434 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP id S263574AbTJWOwa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 10:52:30 -0400
+Date: Thu, 23 Oct 2003 08:57:10 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
+Message-ID: <20031023085710.E26723@discworld.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200310221855.15925.theman@josephdwagner.info> <20031023001547.GA18395@redhat.com> <200310221947.45996.theman@josephdwagner.info>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200310221947.45996.theman@josephdwagner.info>; from theman@josephdwagner.info on Wed, Oct 22, 2003 at 07:47:45PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joseph D. Wagner <theman@josephdwagner.info> wrote:
+> So what?  Some other kernel developer -- like a module/driver developer, a 
+> real-time systems developer, a simulations developer, or just some guy 
+> messing around (read: student) -- might really want or even need those 
+> specific optimizations.
 
-> +	 * Autoregulate vm_swappiness to be application pages % -ck.
-> +	 */
-> +	si_meminfo(&i);
-> +	si_swapinfo(&i);
-> +	pg_size = get_page_cache_size() - i.bufferram ;
-> +	vm_swappiness = 100 - (((i.freeram + i.bufferram +
-> +		(pg_size - swapper_space.nrpages)) * 100) /
-> +		(i.totalram ? i.totalram : 1));
-> +
-> +	/*
+And they can.
 
-It seems that you don't need si_swapinfo here, do you? i.freeram,
-i.bufferram, and i.totalram all come from meminfo, as far as I can
-see? Maybe I'm missing a bit ...
+> Isn't this whole free-as-in-freedom software thing about giving developers 
+> and end-users options they wouldn't otherwise have under closed source 
+> alternatives?  In that spirit, shouldn't developers have the option of 
+> optimizing for those specific processors?
 
-M.
+They do have that option.  If they itch, they'll scratch it.
 
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+-----------------------------------------------------------------------

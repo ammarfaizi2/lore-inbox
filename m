@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268386AbTAMXCM>; Mon, 13 Jan 2003 18:02:12 -0500
+	id <S268398AbTAMWzL>; Mon, 13 Jan 2003 17:55:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268383AbTAMXCM>; Mon, 13 Jan 2003 18:02:12 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:50959 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S268371AbTAMXCL>;
-	Mon, 13 Jan 2003 18:02:11 -0500
-Date: Tue, 14 Jan 2003 02:10:41 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
-       perex@suse.cz, ambx1@neo.rr.co
-Subject: Re: 2.5.57 missing isapnp_card_protocol
-In-Reply-To: <20030113224028.GB13531@gtf.org>
-Message-ID: <Pine.BSF.4.05.10301140159310.36033-100000@wildrose.miee.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268399AbTAMWzL>; Mon, 13 Jan 2003 17:55:11 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56838 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268398AbTAMWzK>;
+	Mon, 13 Jan 2003 17:55:10 -0500
+Date: Mon, 13 Jan 2003 15:03:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@suse.cz>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>, Shawn Starr <spstarr@sh0n.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnP update - drivers
+Message-ID: <20030113230359.GA10073@kroah.com>
+References: <Pine.LNX.4.33.0301122025520.611-100000@pnote.perex-int.cz> <20030113173906.GA605@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030113173906.GA605@neo.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Jeff Garzik wrote:
-
-> On Mon, Jan 13, 2003 at 02:09:49PM -0800, Adam J. Richter wrote:
-> > 	Linux-2.5.57 deletes the definition of isapnp_card_protocol
-> > and then adds some references to it.  So, the kernel does not link
-> > if you have enabled ISA PnP support.  I'm not sure whether
-> > isapnp_card_protocol is supposed to be removed or not.
+On Mon, Jan 13, 2003 at 05:39:06PM +0000, Adam Belay wrote:
+> On Sun, Jan 12, 2003 at 08:30:57PM +0100, Jaroslav Kysela wrote:
+> > 	this patch must be applied after PnP patch v0.94. It contains my
+> > small cleanups of PnP code and I tried to rewrite almost all ISA PnP
+> > drivers to new PnP subsystem except sound drivers (ALSA & OSS). Please,
+> > apply to get away compilation problems.
 > 
-> That's the fault of some random driver that hasn't been updated to the
-> new isapnp API yet...
+> Hi Jaroslav,
+> 
+> Next time send pnp related changes to me directly.
 
-Hello.
-It's not right.
-It's wrong changes in drivers/pnp/isapnp/core.c and could be fixed with
-changing of two lines:
-drop 
-	protocol_for_each_card(&isapnp_card_protocol,card)
-and change
-	protocol_for_each_card(&isapnp_card_protocol,card)
-back to 
-	protocol_for_each_card(&isapnp_protocol,card) 
-This changes fix compilation problems, but may be it wrong do it in this
-way.
+And Adam, sorry for taking so long in getting your previous changes you
+sent to me to Linus.  That's my fault, it was in my queue to review when
+Jaroslav sent his patches.  I guess now I'll just wait for this merge
+mess to get cleaned up :(
 
-Best regards.
-	Ruslan.
-
+greg k-h

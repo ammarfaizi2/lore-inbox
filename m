@@ -1,27 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286313AbRLJRHh>; Mon, 10 Dec 2001 12:07:37 -0500
+	id <S286318AbRLJRKh>; Mon, 10 Dec 2001 12:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286323AbRLJRHZ>; Mon, 10 Dec 2001 12:07:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56841 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286324AbRLJRG7>; Mon, 10 Dec 2001 12:06:59 -0500
-Subject: Re: mm question
-To: volodya@mindspring.com
-Date: Mon, 10 Dec 2001 17:16:05 +0000 (GMT)
-Cc: riel@conectiva.com.br (Rik van Riel), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0112101112430.17492-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 11:14:02 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286320AbRLJRK3>; Mon, 10 Dec 2001 12:10:29 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36615 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286318AbRLJRKT>; Mon, 10 Dec 2001 12:10:19 -0500
+Date: Mon, 10 Dec 2001 13:53:50 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
+In-Reply-To: <3C149FF9.407@epfl.ch>
+Message-ID: <Pine.LNX.4.21.0112101348470.25093-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DU29-0002fl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't want to move them - I just want to collect all that are free and
-> then try to free some more. 
 
-How will you free them, you don't know who owns them. 
+Nicolas, 
+
+Who is the maintainer of the driver ?
+
+Try to think from my side: I may have no hardware or time to test all
+patches which come to me.
+
+Please, people, send this kind of driver changes to the people who know
+all hardware specific details.
+
+If there is no maintainer for i810, I'll be glad to apply it on 2.4.18pre
+and wait for reports. Not going to be on 2.4.17, though.
+
+On Mon, 10 Dec 2001, Nicolas Aspert wrote:
+
+> Hello all
+> 
+> 
+> 
+> > 
+> > In many cases that isnt true, and for a lot of the pending patches its
+> > pointless merging them into 2.5 until 2.5 gets into better shape. Going back
+> > over them as you have done is something that does need doing, but not until
+> > the block layer has some semblance of completion about it
+> 
+> Well I just saw the opposite ;-) ... A patch I had submitted a few weeks 
+> ago for Intel 830MP agp support has been intgrated in 2.5.1-pre3, but is 
+> still not in the 2.4 branch... Several users have reported success with 
+> this patch, so unless somebody shows storng opposition, I would suggest 
+> to merge it...
+> Get it here : http://ltswww.epfl.ch/~aspert/patches/patch-agp_i830mp-2.4.16
+> 
+> Best regards
+> -- 
+> Nicolas Aspert      Signal Processing Laboratory (LTS)
+> Swiss Federal Institute of Technology (EPFL)
+> 
+

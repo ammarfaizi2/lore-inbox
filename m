@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263474AbTI2Oo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 10:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTI2Oo7
+	id S263501AbTI2PAo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263506AbTI2PAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 10:44:59 -0400
-Received: from law11-f18.law11.hotmail.com ([64.4.17.18]:11782 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263474AbTI2Oo5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 10:44:57 -0400
-X-Originating-IP: [220.224.20.107]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Can't X be elemenated?
-Date: Mon, 29 Sep 2003 20:14:56 +0530
+	Mon, 29 Sep 2003 11:00:44 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32417 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263501AbTI2PAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:00:43 -0400
+Date: Mon, 29 Sep 2003 17:00:05 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       Jamie Lokier <jamie@shareable.org>
+Subject: Re: [PATCH] check headers for complete includes, etc.
+Message-ID: <20030929150005.GA24375@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de> <20030929145057.GA1002@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
-X-OriginalArrivalTime: 29 Sep 2003 14:44:56.0834 (UTC) FILETIME=[404B6620:01C38698]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030929145057.GA1002@mars.ravnborg.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+On Mon, 29 September 2003 16:50:57 +0200, Sam Ravnborg wrote:
+> On Mon, Sep 29, 2003 at 03:36:24PM +0200, Jörn Engel wrote:
+> > First version of the script.  Seems to work, but it catches a lot,
+> > maybe too much.
+> 
+> What about adding a negative list, so headerfiles that we decide
+> shall not be able to compile stand-alone are filtered away.
+> But new headers are added.
 
-I read your reply to a person worried about the future of linux. It was a
-satisfactory reply; I hope to get a satisfactory reply for this one also.
+Would work.  But I'd prefer to have that information inside the header
+files, under some syntax.
 
-Can't X be elemenated?
+/* attr: indirect header */
 
-I mean to say kernel level support for graphics device drivers and special
-routines for accessing it directly; rest will be done by user space widget
-libraries (or say a kernel space light widget library which can be 
-customized
-by user space libraries).
+Is this acceptable?
 
-Why am I asking this?
+Jörn
 
-1st. X is bloat. Though it's good for server environments. For desktop pcs
-it's too heavy. On my machine (PIII500 with 128MB RAM) I have to choose from
-either to run X or compile 2.6.0-test6.
-
-2nd. It's process based client/server architecture is a bottleneck. It's not
-as interactive as is supposed to be.
-
-3rd. Most important. I can't impress or convince my window(crash)(TM) user
-friends, relatives (who saw X running on my pc) to use Linux.
-
-4th. I want to see desktop being ruled by Linux.
-
-"Present" is in our hands; we are ruling servers.
-You said "Linux, world domination fast".
-If my wish is fulfilled, I am sure, one day, You (Mr. Linus) and I will
-be saying "Linux, world domination completed".
-
-
-		-Kartikey Mahendra Bhatt.
-
-(Sorry for raising this question during feature freeze. But the
-consequences in last few days have forced me to ask this question.)
-
-_________________________________________________________________
-
-
+-- 
+Happiness isn't having what you want, it's wanting what you have.
+-- unknown

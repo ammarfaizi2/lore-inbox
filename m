@@ -1,108 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265359AbUAPKMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 05:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265362AbUAPKMy
+	id S265365AbUAPKRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 05:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUAPKRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 05:12:54 -0500
-Received: from colin2.muc.de ([193.149.48.15]:18963 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265359AbUAPKMr (ORCPT
+	Fri, 16 Jan 2004 05:17:24 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:21451 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265365AbUAPKRW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 05:12:47 -0500
-Date: 16 Jan 2004 11:13:45 +0100
-Date: Fri, 16 Jan 2004 11:13:45 +0100
-From: Andi Kleen <ak@colin2.muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, jh@suse.cz,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add noinline attribute
-Message-ID: <20040116101345.GA96037@colin2.muc.de>
-References: <20040114083114.GA1784@averell> <Pine.LNX.4.58.0401141519260.4500@evo.osdl.org> <20040115074834.GA38796@colin2.muc.de> <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org>
+	Fri, 16 Jan 2004 05:17:22 -0500
+Date: Fri, 16 Jan 2004 15:52:11 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Walt H <waltabbyh@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.1-mm2: BUG in kswapd?
+Message-ID: <20040116102211.GC1276@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <400762F9.5010908@comcast.net> <20040116094037.GA1276@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040116094037.GA1276@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ugh. Can't we just make this be generic code (and that means calling it in
-> the module loading code too..)?
+On Fri, Jan 16, 2004 at 03:10:37PM +0530, Maneesh Soni wrote:
+> 
+[..]
+> Can you elaborate on the recreation scenario a little bit more or if possible
+> run this debug patch on top of -mm3. This should print some info about the 
+> bad dentry.
+> 
 
-Ok, here is a new patch that does the whole thing in generic code and for
-modules too. I didn't bother to change the sort algorithm because the 
-existing one works well enough.
 
--Andi
+Walt,
 
-------------------------------------------------------------------
+Pleae run this debug patch instead of the previous one. Thanks to Andrew
+for suggestion.
 
-Sort exception tables at runtime. This avoids problems with out of
-order sections like __init. Needed for gcc 3.4 or 3.3-hammer with
--funit-at-a-time.
 
-diff -u linux-34/init/main.c-o linux-34/init/main.c
---- linux-34/init/main.c-o	2004-01-09 09:27:20.000000000 +0100
-+++ linux-34/init/main.c	2004-01-16 10:07:00.699618728 +0100
-@@ -289,6 +289,32 @@
- }
- __setup("init=", init_setup);
+ fs/dcache.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff -puN fs/dcache.c~prune_dcache-debug fs/dcache.c
+--- linux-2.6.1-mm3/fs/dcache.c~prune_dcache-debug	2004-01-16 14:36:00.000000000 +0530
++++ linux-2.6.1-mm3-maneesh/fs/dcache.c	2004-01-16 15:41:26.000000000 +0530
+@@ -344,6 +344,12 @@ static inline void prune_one_dentry(stru
+ 	struct dentry * parent;
  
-+extern struct exception_table_entry __start___ex_table[];
-+extern struct exception_table_entry  __stop___ex_table[];
-+
-+/* When an exception handler is in an non standard section (like __init)
-+   the fixup table can end up unordered. Fix that here. */
-+__init void sort_extable(struct exception_table_entry *start,
-+			 struct exception_table_entry *end)
-+{
-+	struct exception_table_entry *e;
-+	int change;
-+
-+	/* The input is near completely presorted, which makes bubble sort the
-+	   best (and simplest) sort algorithm. */
-+	do {
-+		change = 0;
-+		for (e = start+1; e < end; e++) {
-+			if (e->insn < e[-1].insn) {
-+				struct exception_table_entry tmp = e[-1];
-+				e[-1] = e[0];
-+				e[0] = tmp;
-+				change = 1;
-+			}
-+		}
-+	} while (change != 0);
-+}
-+
- extern void setup_arch(char **);
- extern void cpu_idle(void);
- 
-@@ -394,6 +420,7 @@
- 	lock_kernel();
- 	printk(linux_banner);
- 	setup_arch(&command_line);
-+	sort_extable(__start___ex_table, __stop___ex_table);
- 	setup_per_cpu_areas();
- 
- 	/*
-diff -u linux-34/kernel/module.c-o linux-34/kernel/module.c
---- linux-34/kernel/module.c-o	2004-01-09 09:27:20.000000000 +0100
-+++ linux-34/kernel/module.c	2004-01-16 10:06:14.945574400 +0100
-@@ -37,6 +37,9 @@
- #include <asm/pgalloc.h>
- #include <asm/cacheflush.h>
- 
-+extern void sort_extable(const struct exception_table_entry *start,
-+			 const struct exception_table_entry *end);
-+
- #if 0
- #define DEBUGP printk
- #else
-@@ -1614,6 +1617,7 @@
-   	/* Set up exception table */
- 	mod->num_exentries = sechdrs[exindex].sh_size / sizeof(*mod->extable);
- 	mod->extable = (void *)sechdrs[exindex].sh_addr;
-+	sort_extable(mod->extable, mod->extable+mod->num_exentries); 
- 
- 	/* Now do relocations. */
- 	for (i = 1; i < hdr->e_shnum; i++) {
+ 	__d_drop(dentry);
++	if (dentry->d_child.next->prev != &dentry->d_child) {
++		printk("Bad dentry for %s count %d %p %p\n", dentry->d_name.name, atomic_read(&dentry->d_count), dentry->d_child.next, dentry->d_child.prev);
++		if (dentry->d_sb)
++			printk("Super block magic %lx\n", dentry->d_sb->s_magic);
++		BUG();
++	}
+ 	list_del(&dentry->d_child);
+ 	dentry_stat.nr_dentry--;	/* For d_free, below */
+ 	dentry_iput(dentry);
+
+_
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-5044999 Fax: 91-80-5268553
+T/L : 9243696

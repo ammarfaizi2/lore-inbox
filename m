@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317275AbSFGLsv>; Fri, 7 Jun 2002 07:48:51 -0400
+	id <S317268AbSFGMJj>; Fri, 7 Jun 2002 08:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317274AbSFGLsv>; Fri, 7 Jun 2002 07:48:51 -0400
-Received: from h0060083874bc.ne.client2.attbi.com ([24.128.158.52]:63107 "HELO
-	ladyluck.clue4all.net") by vger.kernel.org with SMTP
-	id <S317273AbSFGLsu>; Fri, 7 Jun 2002 07:48:50 -0400
-Date: Fri, 7 Jun 2002 07:48:58 -0400
-From: "Brian J.Conway" <bconway@wpi.edu>
-To: Arjan Filius <iafilius@xs4all.nl>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Promise Ultra100 hang
-Message-Id: <20020607074858.41ea925f.bconway@wpi.edu>
-In-Reply-To: <Pine.LNX.4.44.0206070245570.8609-100000@sjoerd.sjoerdnet>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317276AbSFGMJi>; Fri, 7 Jun 2002 08:09:38 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:60667 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317268AbSFGMJi>; Fri, 7 Jun 2002 08:09:38 -0400
+Subject: Re: CMD-649 support? (in a hurry - please help)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206071240230.18309-100000@sharra.ivimey.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Jun 2002 14:02:19 +0100
+Message-Id: <1023454939.25523.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jun 2002 02:51:44 +0200 (CEST)
-Arjan Filius <iafilius@xs4all.nl> wrote:
+On Fri, 2002-06-07 at 12:42, Ruth Ivimey-Cook wrote:
+> I noticed a while ago that there is a little-advertised 4-cable promise
+> controller available (i.e. 8 disks from one PCI card). It might be the case
+> that the BIOS for this card can cope with one other similar card, to give a
+> max of 16 disks.
 
-> Hello Alan,
-> 
-> 
-> On 6 Jun 2002, Alan Cox wrote:
-> 
-> > On Thu, 2002-06-06 at 19:53, Arjan Filius wrote:
-> > > Hello Brian,
-> > >
-> > > Same issue here, 2.4.18 running fine with my new 160GB maxtor drive
-> > > on a promise udma100 ide controller, 2.4.19-pre9 hangs on partition
-> > > check at boot time.
-> >
-> > Should be ok in pre10-ac2. I'll push Marcelo the change soon
-> 
-> pre10-ac2 runs fine (promise udma100 issue).
-> 
-> Thanks for the reponse.
+Promise also do a 6 channel hardware raid card for IDE - the SX6000, and
+supertrak 100. For lots of disks I would strongly recommend the 3ware
+cards. Just watch who you buy from the prices vary wildly..
 
-I reverted to a fresh 2.4.18 after installing and everything runs fine,
-I'll give 2.4.19-rc1 a try when it's released and rebuild my system in the
-meantime.  Thanks for all the help.
+Alan
 
--b

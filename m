@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVBGJ5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVBGKDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVBGJ5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 04:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVBGJ5Z
+	id S261386AbVBGKDd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 05:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVBGKDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 04:57:25 -0500
-Received: from nabe.tequila.jp ([211.14.136.221]:11499 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S261385AbVBGJ5V (ORCPT
+	Mon, 7 Feb 2005 05:03:33 -0500
+Received: from styx.suse.cz ([82.119.242.94]:48519 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261386AbVBGKDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 04:57:21 -0500
-Message-ID: <42073B72.8010006@tequila.co.jp>
-Date: Mon, 07 Feb 2005 18:57:06 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops in 2.6.8.1
-References: <420739E7.8050707@tequila.co.jp>
-In-Reply-To: <420739E7.8050707@tequila.co.jp>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Feb 2005 05:03:32 -0500
+Date: Mon, 7 Feb 2005 11:04:24 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] input: make some code static
+Message-ID: <20050207100424.GH5685@ucw.cz>
+References: <20050204213955.GE19408@stusta.de> <d120d50005020413563d031866@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005020413563d031866@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 02/07/2005 06:50 PM, Clemens Schwaighofer wrote:
-> hi,
+On Fri, Feb 04, 2005 at 04:56:45PM -0500, Dmitry Torokhov wrote:
+> On Fri, 4 Feb 2005 22:39:55 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch makes some needlessly global code static.
+> > 
 > 
-> today, just 30min ago I found this in my messages file:
+> Hi Adrian,
 > 
-> The box is a Debian/Testing with a self compiled 2.6.8.1
+> I merged your patch into my tree and it is ready for Vojtech to pull from.
+ 
+Yes, it's now in my tree, too.
 
-I forgot one thing:
-
-the CPU is a Xeon with HT enabled and SMP is compiled into the kernel
-(for HT).
-
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCBztxjBz/yQjBxz8RAuSzAKCZiKutel4PLBdRTxmls2EBw4j9yQCaAu8v
-54MXuqpugC5a4u6N9tk28jI=
-=zHY+
------END PGP SIGNATURE-----
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

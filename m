@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265442AbUBPJZh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 04:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265444AbUBPJZh
+	id S265470AbUBPJfR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 04:35:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265471AbUBPJfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 04:25:37 -0500
-Received: from ns.suse.de ([195.135.220.2]:60312 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265442AbUBPJZc (ORCPT
+	Mon, 16 Feb 2004 04:35:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45778 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265470AbUBPJfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 04:25:32 -0500
-Date: Mon, 16 Feb 2004 10:23:50 +0100
-From: Olaf Hering <olh@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel-smp on i386, too many arguments to function `aty128_find_mem_vbios'
-Message-ID: <20040216092350.GA23211@suse.de>
+	Mon, 16 Feb 2004 04:35:09 -0500
+Date: Mon, 16 Feb 2004 10:35:04 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Joe Thornber <thornber@redhat.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: dm core patches
+Message-ID: <20040216093504.GE21409@devserv.devel.redhat.com>
+References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti> <20040212185145.GY21298@marowsky-bree.de> <20040212201340.GB1898@reti> <20040213151213.GR21298@marowsky-bree.de> <20040213153936.GF15736@reti> <1076688539.4441.2.camel@laptop.fenrus.com> <20040216081945.GF20998@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3XA6nns4nE4KvaS/"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+In-Reply-To: <20040216081945.GF20998@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  CC [M]  drivers/video/aty/radeon_base.o
-drivers/video/aty/radeon_base.c: In function `radeon_screen_blank':
-drivers/video/aty/radeon_base.c:945: warning: `val2' might be used uninitialized in this function
-drivers/video/aty/radeon_base.c: In function `radeonfb_setcolreg':
-drivers/video/aty/radeon_base.c:1026: warning: `vclk_cntl' might be used uninitialized in this function
-drivers/video/aty/radeon_base.c: In function `radeonfb_set_par':
-drivers/video/aty/radeon_base.c:1320: warning: `pll_output_freq' might be used uninitialized in this function
-  CC [M]  drivers/video/aty/radeon_pm.o
-  CC [M]  drivers/video/aty/radeon_monitor.o
-drivers/video/aty/radeon_monitor.c: In function `radeon_match_mode':
-drivers/video/aty/radeon_monitor.c:865: warning: passing arg 1 of `fb_validate_mode' discards qualifiers from pointer target type
-  CC [M]  drivers/video/aty/radeon_accel.o
-  CC [M]  drivers/video/aty/radeon_i2c.o
-  LD [M]  drivers/video/aty/atyfb.o
-  CC [M]  drivers/video/aty/aty128fb.o
-drivers/video/aty/aty128fb.c: In function `aty128_probe':
-drivers/video/aty/aty128fb.c:1955: error: too many arguments to function `aty128_find_mem_vbios'
-make[3]: *** [drivers/video/aty/aty128fb.o] Error 1
-make[2]: *** [drivers/video/aty] Error 2
-make[1]: *** [drivers/video] Error 2
-make: *** [drivers] Error 2
+--3XA6nns4nE4KvaS/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-current bk.
+On Mon, Feb 16, 2004 at 09:19:45AM +0100, Lars Marowsky-Bree wrote:
+> On 2004-02-13T17:08:59,
+>    Arjan van de Ven <arjanv@redhat.com> said:
+> 
+> > one thing you can do is provide a way for drivers to wake the userspace
+> > tester early. Say by default it polls every minute, but if the fiber
+> > channel driver gets a LIP UP event it (via a central API) makes the
+> > userspace daemon *now*.
+> 
+> I may be missing something obvious, but a LIP UP should be accompanied
+> with a round of 'device detections' on that link, which already should
+> trigger a few hotplug events, no?
+> 
+> So this seems pretty much solved.
 
--- 
-USB is for mice, FireWire is for men!
+not normaly; there are several reasons the loop can bounce briefly and right
+now the fiber drivers don't notify linux of that every time. Maybe that's
+for the better .... if it's a frequent thing that is short-timed then it
+would be obscene to yank the disks from under the user (and force-umount his
+fs) every few hours..
 
-sUse lINUX ag, nÜRNBERG
+while in multipath you do want to at least stop using the current path if
+there is another path that is not in negotiation...
+
+--3XA6nns4nE4KvaS/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAMI7HxULwo51rQBIRApcTAJwNb3dZB3oPg5zBg/+jMAiU6hWbSQCeOpLo
+nGsCuGsti0McQuZ3w4BXuus=
+=XsR4
+-----END PGP SIGNATURE-----
+
+--3XA6nns4nE4KvaS/--

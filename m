@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315619AbSFJSK0>; Mon, 10 Jun 2002 14:10:26 -0400
+	id <S315611AbSFJSJ5>; Mon, 10 Jun 2002 14:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSFJSKZ>; Mon, 10 Jun 2002 14:10:25 -0400
-Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:32652 "EHLO 
-	ayrnetworks.com") by vger.kernel.org with ESMTP id <S315627AbSFJSKY>;
-	Mon, 10 Jun 2002 14:10:24 -0400
-Date: Mon, 10 Jun 2002 11:07:40 -0700
-From: William Jhun <wjhun@ayrnetworks.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: paulus@samba.org, roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Message-ID: <20020610110740.B30336@ayrnetworks.com>
-In-Reply-To: <52d6v19r9n.fsf@topspin.com> <20020608.222903.122223122.davem@redhat.com> <15619.9534.521209.93822@nanango.paulus.ozlabs.org> <20020609.212705.00004924.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315619AbSFJSJ4>; Mon, 10 Jun 2002 14:09:56 -0400
+Received: from web.lycoris.com ([64.124.185.71]:43718 "EHLO web.lycoris.com")
+	by vger.kernel.org with ESMTP id <S315611AbSFJSJz>;
+	Mon, 10 Jun 2002 14:09:55 -0400
+Message-ID: <3D04EB4F.4030107@cheek.com>
+Date: Mon, 10 Jun 2002 11:09:19 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; Desktop/LX Amethyst) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: procedure for creating new ioctl?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 09:27:05PM -0700, David S. Miller wrote:
->    From: Paul Mackerras <paulus@samba.org>
->    Date: Sun, 9 Jun 2002 19:51:58 +1000 (EST)
-> 
->    This is the problem scenario.  Suppose we are doing DMA to a buffer B
->    and also independently accessing a variable X which is not part of B.
->    Suppose that X and the beginning of B are both in cache line C.
->    
-> I see what the problem is.  Hmmm...
-> 
-> I'm trying to specify this such that knowledge of cachelines and
-> whatnot don't escape the arch specific code, ho hum...  Looks like
-> that isn't possible.
+hi all,
 
-Perhaps provide macros in asm/pci.h that will:
+i'd like to create a new ioctl for use in my kernels [actually i already 
+have 8-)] but want to make sure that i follow any established procedure 
+for creating it before requesting it be included in the kernel. 
+ specifically, is there a way to ensure the ioctl number i use isn't in 
+use by anyone else?  is there a central registry?
 
-- Take a buffer size and add an appropriate amount (one cache line for
-  alignment and the remainder to fill out the last cache line) to be
-  used for kmalloc(), etc, eg:
+so far i've just picked an arbitrary number:
 
-#define DMA_SIZE_ROUNDUP(size) \
-   ((size + 2*SMP_CACHE_BYTES - 1) & ~(SMP_CACHE_BYTES - 1))
+sanfrancisco:/usr/src/linux-2.4.17/include/linux# diff -Naur kd.h{.orig,}
+--- kd.h.orig   Mon Jun 10 11:08:22 2002
++++ kd.h        Thu Jun  6 16:00:33 2002
+@@ -177,4 +177,6 @@
+    don't reuse for the time being */
+ /* note: 0x4B60-0x4B6D, 0x4B70-0x4B72 used above */
 
-- Take a buffer address (as returned from kmalloc() with the modified
-  size from above) and round it up to a cacheline boundary, eg:
++#define KDGETKEYDOWNSTATE      0x4B80  /* read kernel keydown bit */
++
+ #endif /* _LINUX_KD_H */
 
-#define DMA_BUFFER_ALIGN(ptr) \
-   (((unsigned long)ptr + SMP_CACHE_BYTES - 1) & ~(SMP_CACHE_BYTES - 1))
+any tips, pointers appreciated.
 
-These two, in conjunction, would provide a buffer that's aligned on a
-cacheline boundary and ends on a cacheline boundary. Kind of ugly, but
-would be sufficient and would hide the cacheline size specifics.
-Cache-coherent platforms would just returned the original argument.
+joe
 
-Thanks,
-Will
+-- 
+Joseph Cheek, CTO and Founder, Lycoris
+joseph@lycoris.com, www.lycoris.com
+Lycoris Desktop/LX: Familiar.  Powerful.  Open.
++1 425 413-9521 voice, +1 425 671-0504 fax
+
+

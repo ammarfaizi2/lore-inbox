@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263375AbTFDO5C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 10:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTFDO5B
+	id S263380AbTFDPJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 11:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTFDPJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 10:57:01 -0400
-Received: from wmail.atlantic.net ([209.208.0.84]:62135 "HELO
-	wmail.atlantic.net") by vger.kernel.org with SMTP id S263375AbTFDO46
+	Wed, 4 Jun 2003 11:09:43 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:40591 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S263380AbTFDPJm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 10:56:58 -0400
-Message-ID: <3EDE0E85.7090601@techsource.com>
-Date: Wed, 04 Jun 2003 11:21:41 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Wed, 4 Jun 2003 11:09:42 -0400
+Date: Wed, 4 Jun 2003 22:16:25 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] get_current_user() macro in linux/sched.h conflicts with
+ __user defined in compiler.h
+Message-ID: <Pine.SGI.4.10.10306042158520.992312-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "P. Benie" <pjb1008@eng.cam.ac.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Coding standards.  (Was: Re: [PATCH] [2.5] Non-blocking write can
- block)
-References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk> <20030604065336.A7755@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+get_current_user() macro in linux/sched.h conflicts with the
+user space attribute #define __user from compiler.h.
 
-Christoph Hellwig wrote:
-> On Wed, Jun 04, 2003 at 01:58:02AM +0100, P. Benie wrote:
-> 
->>-	if (down_interruptible(&tty->atomic_write)) {
->>-		return -ERESTARTSYS;
->>+	if (file->f_flags & O_NONBLOCK) {
->>+		if (down_trylock(&tty->atomic_write))
->>+			return -EAGAIN;
->>+	}
->>+	else {
-> 
-> 
-> The else should be on the same line as the closing brace, else
-> the patch looks fine.
+I have not found any usage of this macro in all kernel code though.
 
-I am in general agreement with those who feel we should have a common 
-standard for code formatting.  There are particular places where it's 
-VERY important to maximize consistency and readability, such as function 
-headers.
-
-But when do standards turn into nitpicks?
-
-I personally always write else as you suggest, "} else {", but the way 
-the other fellow did it does not in any way hurt readability for me. 
-Yes, it does irritate me sometimes when people put the braces and else 
-on three different lines, but mostly because it reduces the amount of 
-code I can see at one time.  But even then, it doesn't make it any less 
-readable to me.
-
-I can see patches getting rejected because they violate function header 
-standards.  That would make sense to me.  But if the above patch were to 
-be rejected on the basis of the "else", I would be hard pressed to see 
-that as a valid justification.
-
-Perhaps it would be good to have an explanation for the relative 
-importance of placing braces and else on the same line as compared to 
-other formatting standards.
+--- linux-2.5.70/include/linux/sched.h.orig	Tue May 27 08:00:23 2003
++++ linux-2.5.70/include/linux/sched.h	Wed Jun  4 21:58:00 2003
+@@ -289,9 +289,9 @@
+ };
+ 
+ #define get_current_user() ({ 				\
+-	struct user_struct *__user = current->user;	\
+-	atomic_inc(&__user->__count);			\
+-	__user; })
++	struct user_struct *_user_ = current->user;	\
++	atomic_inc(&_user_->__count);			\
++	_user_; })
+ 
+ extern struct user_struct *find_user(uid_t);
 

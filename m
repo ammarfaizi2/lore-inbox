@@ -1,32 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSHRSTG>; Sun, 18 Aug 2002 14:19:06 -0400
+	id <S315483AbSHRSQz>; Sun, 18 Aug 2002 14:16:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSHRSTG>; Sun, 18 Aug 2002 14:19:06 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3574 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315540AbSHRSTF>; Sun, 18 Aug 2002 14:19:05 -0400
-Subject: Re: 2.4.20-pre3 boot hang
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Plail <plail@web.de>
-Cc: linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <87vg6811p6.fsf@plailis.homelinux.net>
-References: <20020818153145.GA3184@df1tlpc.local.here> 
-	<87vg6811p6.fsf@plailis.homelinux.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 Aug 2002 19:22:58 +0100
-Message-Id: <1029694978.16822.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315491AbSHRSQz>; Sun, 18 Aug 2002 14:16:55 -0400
+Received: from zork.zork.net ([66.92.188.166]:60076 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S315483AbSHRSQy>;
+	Sun, 18 Aug 2002 14:16:54 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: cerberus errors on 2.4.19 (ide dma related)
+References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
+	<1029662182.2970.23.camel@psuedomode>
+	<1029694235.520.9.camel@psuedomode>
+From: Sean Neakums <sneakums@zork.net>
+Organization: The Emadonics Institute
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: HATE SPEECH, PROMOTION OF SELF
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 18 Aug 2002 19:20:55 +0100
+In-Reply-To: <1029694235.520.9.camel@psuedomode> (Ed Sweetman's message of
+ "18 Aug 2002 14:10:34 -0400")
+Message-ID: <6un0rkuiyg.fsf@zork.zork.net>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-18 at 19:06, Markus Plail wrote:
-> Apart from that, the latest ac series oopses when I try to mount a CD
-> in a drive driven by ide-scsi emulation. And the IDE performance was
-> quite a bit worse than 2.4.18. Sorry for not being able to make more
-> concrete statements, just wanted to mention it.
+commence  Ed Sweetman quotation:
 
-Oops log, dmesg boot log of 2.4.18 and 2.4.20pre2-ac3 ?
+> It appears i'm completely unable to not use devfs.  Attempting to
+> run the kernel without mounting devfs results in it still being
+> mounted or if not compiled in, locks up during boot.  Attempts to
+> run the kernel and mv /dev does not work, umounting /dev does not
+> work and rm'ing /dev does not work.  I cant create the non-devfs
+> nodes while devfs is mounted and i cant boot the kernel without
+> devfs.  It seems that no uninstall procedure has been made and i've
+> read the documentation that comes with the kernel about devfs and it
+> says nothing about how to move back to the old device nodes from
+> devfs.
+>
+> anyone have any suggestions?
 
+Where does the boot hang?  If it comaplains about not being able to
+open /dev/console or some other device node, it may be that your /dev
+has no nodes in it.  This happened to me when I eradicated devfs (I
+got fed up of fighting with devfsd to get my permission changes to
+stick, and had reshuffled FSes in the meantime) and so I booted from a
+rescue disk, mounted my root FS and recreated the device nodes in
+/mnt/dev.
+
+-- 
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

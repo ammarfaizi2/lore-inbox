@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTFUXrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 19:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTFUXrL
+	id S264516AbTFUXuH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 19:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTFUXuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 19:47:11 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34792 "HELO
+	Sat, 21 Jun 2003 19:50:07 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32232 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264266AbTFUXrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 19:47:02 -0400
-Date: Sun, 22 Jun 2003 02:01:03 +0200
+	id S264516AbTFUXuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 19:50:01 -0400
+Date: Sun, 22 Jun 2003 02:04:03 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [2.5 patch] fix three OSS u16 comparisons
-Message-ID: <20030622000103.GK23337@fs.tum.de>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] seagate cleanup
+Message-ID: <20030622000402.GL23337@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,42 +22,46 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixed three OSS drivers that compared an u16 with 
-0xFFFFFF ...
+The patch below does the following cleanups on 
+drivers/scsi/seagate.{c,h}:
+- remove two unused functions
+- remove a function declaration for a function that is no longer present
+
+I've tested the compilation with 2.5.72-mm2.
 
 cu
 Adrian
 
---- linux-2.5.72-mm2/sound/oss/ymfpci.c.old	2003-06-22 01:19:52.000000000 +0200
-+++ linux-2.5.72-mm2/sound/oss/ymfpci.c	2003-06-22 01:20:12.000000000 +0200
-@@ -2462,7 +2462,7 @@
- 	}
+--- linux-2.5.72-mm2/drivers/scsi/seagate.c.old	2003-06-22 01:07:11.000000000 +0200
++++ linux-2.5.72-mm2/drivers/scsi/seagate.c	2003-06-22 01:07:30.000000000 +0200
+@@ -266,20 +266,6 @@
+ #define WRITE_CONTROL(d) { isa_writeb((d), st0x_cr_sr); }
+ #define WRITE_DATA(d) { isa_writeb((d), st0x_dr); }
  
- 	eid = ymfpci_codec_read(codec, AC97_EXTENDED_ID);
--	if (eid==0xFFFFFF) {
-+	if (eid==0xFFFF) {
- 		printk(KERN_WARNING "ymfpci: no codec attached ?\n");
- 		goto out_kfree;
- 	}
---- linux-2.5.72-mm2/sound/oss/i810_audio.c.old	2003-06-22 01:20:41.000000000 +0200
-+++ linux-2.5.72-mm2/sound/oss/i810_audio.c	2003-06-22 01:21:09.000000000 +0200
-@@ -2922,7 +2922,7 @@
- 		/* Don't attempt to get eid until powerup is complete */
- 		eid = i810_ac97_get(codec, AC97_EXTENDED_ID);
+-static void st0x_setup (char *str, int *ints)
+-{
+-	controller_type = SEAGATE;
+-	base_address = ints[1];
+-	irq = ints[2];
+-}
+-
+-static void tmc8xx_setup (char *str, int *ints)
+-{
+-	controller_type = FD;
+-	base_address = ints[1];
+-	irq = ints[2];
+-}
+-
+ #ifndef OVERRIDE
+ static unsigned int seagate_bases[] = {
+ 	0xc8000, 0xca000, 0xcc000,
+--- linux-2.5.72-mm2/drivers/scsi/seagate.h.old	2003-06-22 01:06:20.000000000 +0200
++++ linux-2.5.72-mm2/drivers/scsi/seagate.h	2003-06-22 01:06:40.000000000 +0200
+@@ -10,7 +10,6 @@
+ #define SEAGATE_H
  
--		if(eid==0xFFFFFF)
-+		if(eid==0xFFFF)
- 		{
- 			printk(KERN_WARNING "i810_audio: no codec attached ?\n");
- 			kfree(codec);
---- linux-2.5.72-mm2/sound/oss/cs46xx.c.old	2003-06-22 01:22:06.000000000 +0200
-+++ linux-2.5.72-mm2/sound/oss/cs46xx.c	2003-06-22 01:23:32.000000000 +0200
-@@ -4269,7 +4269,7 @@
+ static int seagate_st0x_detect(Scsi_Host_Template *);
+-static int seagate_st0x_command(Scsi_Cmnd *);
+ static int seagate_st0x_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
  
- 		eid = cs_ac97_get(codec, AC97_EXTENDED_ID);
- 		
--		if(eid==0xFFFFFF)
-+		if(eid==0xFFFF)
- 		{
- 			printk(KERN_WARNING "cs46xx: codec %d not present\n",num_ac97);
- 			kfree(codec);
+ static int seagate_st0x_abort(Scsi_Cmnd *);

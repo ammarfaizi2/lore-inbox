@@ -1,156 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136814AbRECOEq>; Thu, 3 May 2001 10:04:46 -0400
+	id <S136815AbRECOGr>; Thu, 3 May 2001 10:06:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136817AbRECOEh>; Thu, 3 May 2001 10:04:37 -0400
-Received: from ip165-37.fli-ykh.psinet.ne.jp ([210.129.165.37]:19910 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S136814AbRECOE1>;
-	Thu, 3 May 2001 10:04:27 -0400
-Message-ID: <3AF16566.D682BF38@yk.rim.or.jp>
-Date: Thu, 03 May 2001 23:04:22 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: ja, en
+	id <S136817AbRECOGi>; Thu, 3 May 2001 10:06:38 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:43407 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S136815AbRECOGb>;
+	Thu, 3 May 2001 10:06:31 -0400
+Importance: Normal
+Subject: Re: 2.4.4 sluggish under fork load
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFB42DB9D7.DD800F01-ON85256A41.004CE78D@pok.ibm.com>
+From: "Hubertus Franke" <frankeh@us.ibm.com>
+Date: Thu, 3 May 2001 10:02:41 -0400
+X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
+ 05/03/2001 10:05:58 AM
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J. A. Magallon wrote:
->I'm not so sure it's only a 'rule of thumb'. Do not know the state of
->paging in just released 2.4.4, but in previuos kernel, a page that was
->paged-out, reserves its place in swap even if it is paged-in again, so
->once you have paged-out all your ram at least once, you can't get any
->more memory, even if swap is 'empty'.
 
-I am not sure if I see the behavior of the kernel mentioned above, but
-it seems that once the swap partition is used,
-it may not be released forever : kernel 2.4.x.
+I pointed that out to the folk who proposed this and
+gave him a fix that ensures that the child has at least a value of 2
+higher.
 
-Background:
-I experienced a very strange X server crash (when a certain page
-is access via netscape, and a string is searched successively,
-on the second or the third search, the X server crash.)
-I downloaded the Xfree 86 source file to re-create the problem and
-see where the segmentation error of X server occurs by having a server
-with debug symbols in it, and finally
-traced it to an incorrect pointer value used in the backing store bitblt
-routine.
-However, I can't see the pointer value is an incorrect one at all.
-(Maybe I am not familar enough with mmap and unmap calls invoked
-by malloc() and free().)
-Also, I was a little surprised to see a bug of this nature to remain
-in X server at this stage.
-
-Anyway, suspecting some sort of VM problem on the kernel side,
-I wrote the attached program and run it to see
-the behavior of the system when swap partition was first used.
-(The situation where X server crashes is when the system is
-just about to use Swap in my current config: 256 MB memory
-and 80MB swap).
-
-After running the few invocation of the attached program with
-varying arguments, I noticed that once the swap is used (I view it
-usinx xosview from X or cat /proc/meminfo ).
-the used swap does not seem to get released!?
-
-I thought it was suspicious, but didn't speak up since if this were
-a bug, this would  indeed be a showstopper for many commercial
-application.
-Someone must have realized this and fixed it already, so I thought.
-
->From the current discussion, I notice that this may be indeed
-an unwanted behavior.
-If this is a bug of 2.4.x VM, then I think some installations
-would appreciate it very much.
+Given the child all and the parent nothing is TOTAL BOGUS. The parent
+essentially has to wait for a recalculate.
+This so-called fix has to go in the next release.
 
 
---- memhog.c
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-/*
- * using realloc() will call mremap().
- * using malloc() and free calls mmap, and munmap().
- */
-static usage()
-{
-  fprintf(stderr,"memhog [limit]\nlimit is in MB units Default is 64
-(MB).\n");
-  exit(EXIT_FAILURE);
-}
-
-int main(argc, argv)
-     int argc;
-     char *argv[];
-{
-
-  int i;
-  char *p = NULL;
-
-#define MB (1024 * 1024 )
-  int limit = 64 * MB;
-
-  if (argc == 2)
-    {
-      int t;
-      t = atoi(argv[1]);
-      if(t <= 0)
-        {
-          usage();
-        }
-
-      limit = t * MB;
-
-    }
-  else if (argc >= 3)
-    {
-      usage();
-    }
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 
 
-  i = MB;
 
-  while (i <= limit )
-    {
-      printf("i = %d\n", i);
+"Adam J. Richter" <adam@yggdrasil.com>@vger.kernel.org on 05/01/2001
+12:18:10 AM
 
-#ifdef USE_REALLOC
-      p = realloc(p, i);
-#else
-      p = malloc(i);
-#endif
-
-      if( p == NULL)
-        {
-          printf("malloc returned NULL\n");
-          exit(EXIT_FAILURE);
-        }
-
-      memset(p, 0xA5, i);
-
-      sleep (1);
-
-#ifdef USE_REALLOC
-      /* free(p); */
-#else
-      free(p);
-#endif
-
-      /*     i *= 2; */
-      i += 1 * MB;
-    }
+Sent by:  linux-kernel-owner@vger.kernel.org
 
 
-  exit (EXIT_SUCCESS);
+To:   riel@conectiva.com.br
+cc:   linux-kernel@vger.kernel.org
+Subject:  Re: 2.4.4 sluggish under fork load
 
-}
 
+
+>The fact that 2.4.4 gives the whole timeslice to the child
+>is just bogus to begin with.
+
+        I only did that because I could not find another way
+to make the child run first that worked in practice.  I tried
+other things before that.  Since Peter Osterlund's SCHED_YIELD
+thing works, we no longer have to give all of the CPU to the
+child.  The scheduler time slices are currently enormous, so as
+long as the child gets even one clock tick before the parent runs,
+it should reach the exec() if that is its plan.  1 tick = 10ms = 10
+million cycles on a 1GHz CPU, which should be enough time to encrypt
+my /boot/vmlinux in twofish if it's in RAM.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite
+104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
 

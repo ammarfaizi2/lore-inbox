@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318317AbSGXXsp>; Wed, 24 Jul 2002 19:48:45 -0400
+	id <S318337AbSGXXzd>; Wed, 24 Jul 2002 19:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318318AbSGXXsp>; Wed, 24 Jul 2002 19:48:45 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:42233 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318317AbSGXXso>; Wed, 24 Jul 2002 19:48:44 -0400
-Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020724225826.GF25038@holomorphy.com>
-References: <20020724225826.GF25038@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 Jul 2002 02:05:11 +0100
-Message-Id: <1027559111.6456.34.camel@irongate.swansea.linux.org.uk>
+	id <S318341AbSGXXzd>; Wed, 24 Jul 2002 19:55:33 -0400
+Received: from B50a6.pppool.de ([213.7.80.166]:28420 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S318337AbSGXXzc>; Wed, 24 Jul 2002 19:55:32 -0400
+Subject: Re: Linux-2.5.28
+From: Daniel Egger <degger@fhm.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.33.0207241551450.1423-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.33.0207241551450.1423-100000@penguin.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-I1QPQ1Bc3PnPEKqaA/gU"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 25 Jul 2002 01:31:21 +0200
+Message-Id: <1027553482.11881.5.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-24 at 23:58, William Lee Irwin III wrote:
-> I don't have one of these, and I'm not even sure what it is. But here's
-> a wild guess at a fix.
 
-These must be locked against any other PCI access so it needs to share
-the lock with arch/i386/kernel/pci*.c. The code is also wrong for other
-reasons and there are some fixes in the 2.4.19-ac tree to those
-functions that affect the locking and maybe should be merged too.
+--=-I1QPQ1Bc3PnPEKqaA/gU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What is going on here is that we have to probe the CMD640 PCI either via
-PCI conf1 or PCI conf2. We cannot use the kernel default functions
-because they may trigger a bug in the CMD640 hardware.
+Am Don, 2002-07-25 um 00.52 schrieb Linus Torvalds:
 
-get_cmd640_reg_pci[12] are basically reimplementations of the
-pci_read_config bits for type 1/type 2 PCI configurations. The register
-and lock are thus the same as the core. This lock also needs to match
-the same lock on non x86 platforms so the pci config lock name should be
-unified now before the brown and sticky impacts on the rotating
-propellor blades
+> Actually, that patch _was_ on the mailing list, with lots of discussion.
+
+So IDE-101 equals to the small snippet of code pasted somewhere in the
+evil flamewar?
+=20
+> And since none of the discussion was civil, it didn't get a changelog. Bu=
+t=20
+> you can search it out yourself.
+
+Especially since the IDE code at the moment is not really something I
+would trust uncoditionally a bit more comentary would be adequate IMHO,
+even if it's just a: "Fixed race introduced in IDE-97, see flamewar"...
+
+Perhaps not everyone wanting to use 2.5.x for some development is=20
+eager to disassemble a patch to see whether it might be usable or
+trash the partition even more badly (given that one has the knowledge
+to judge for her-/himself).
+
+--=20
+Servus,
+       Daniel
+
+--=-I1QPQ1Bc3PnPEKqaA/gU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9PzjJchlzsq9KoIYRAq75AJ4jdNJbLK65FpkFsSPoztrkBe4b+QCgv4Ww
+HKmroPSHLQxZh7yeuEuoor4=
+=o4vz
+-----END PGP SIGNATURE-----
+
+--=-I1QPQ1Bc3PnPEKqaA/gU--
 

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278421AbRJMWIH>; Sat, 13 Oct 2001 18:08:07 -0400
+	id <S278429AbRJMWbI>; Sat, 13 Oct 2001 18:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278426AbRJMWH5>; Sat, 13 Oct 2001 18:07:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45891 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S278421AbRJMWHq>; Sat, 13 Oct 2001 18:07:46 -0400
-To: "Pavel Machek" <pavel@suse.cz>
-Cc: "Pavel Machek" <pavel@Elf.ucw.cz>, "Jeremy Elson" <jelson@circlemud.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
-In-Reply-To: <20011002204836.B3026@bug.ucw.cz>
-	<200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
-	<20011005205136.A1272@elf.ucw.cz> <m1n132x4qg.fsf@frodo.biederman.org>
-	<20011008122013.B38@toy.ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Oct 2001 15:57:32 -0600
-In-Reply-To: <20011008122013.B38@toy.ucw.cz>
-Message-ID: <m1wv1zqk37.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S278430AbRJMWbA>; Sat, 13 Oct 2001 18:31:00 -0400
+Received: from a1as13-p76.stg.tli.de ([195.252.191.76]:31665 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S278429AbRJMWau>; Sat, 13 Oct 2001 18:30:50 -0400
+Date: Sun, 14 Oct 2001 00:31:14 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bug in mips/config.in
+Message-ID: <20011014003114.A21528@dea.linux-mips.net>
+In-Reply-To: <20011013001116.G1693@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011013001116.G1693@werewolf.able.es>; from jamagallon@able.es on Sat, Oct 13, 2001 at 12:11:16AM +0200
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pavel Machek" <pavel@suse.cz> writes:
+On Sat, Oct 13, 2001 at 12:11:16AM +0200, J . A . Magallon wrote:
 
-> Hi!
+> Due to a buggy bit I found in i2c, I did a
+> werewolf:/usr/src/linux# grep -r "\"CONFIG" . | fgrep .in
+> ./arch/mips/config.in:      if [ "CONFIG_DECSTATION" = "y" ]; then
 > 
-> > > Yep. And linmodem driver does signal processing, so it is big and
-> > > ugly. And up till now, it had to be in kernel. With your patches, such
-> > > drivers could be userspace (where they belong!). Of course, it would be 
-> > > very good if your interface did not change...
-> > 
-> > I don't see how linmodem drivers apply.  At least not at the low-level
-> > because you actually have to driver the hardware, respond to interrupts
-> > etc.  On some of this I can see a driver split like there is for the video
-> 
-> You don't actually need interrupts -- you *know* when next sample arrives.
-> And port io is completely fine with iopl() ;-).
+> '$' is missing there, isn't it ?
 
-But DMA? You are talking about what amounts to a sound card driver.
-And since in the cases that burn cpu time you have to process raw
-sound samples into modem data, you need to shift a fair amount of
-data. inb and outb just don't have the bandwidth.  So you need a
-kernel side component that drives the hardware to some extent.
+Long fixed.
 
-Additionally you still don't need a FUSD driver for that case.  All
-you need is to have is a ptty.  Because that is what modem drivers
-are now.  And the ptty route has binary and source compatiblity
-to multiple unix platforms.
-
-Eric
+  Ralf

@@ -1,102 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbTENGGU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 02:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTENGGU
+	id S262072AbTENGJH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 02:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTENGJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 02:06:20 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:15885 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S262033AbTENGGM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 02:06:12 -0400
-Date: Wed, 14 May 2003 00:18:57 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ahc_linux_map_seg() compile/style/data corruption fixes
-Message-ID: <498302704.1052893137@aslan.scsiguy.com>
-In-Reply-To: <20030514044934.GC29926@holomorphy.com>
-References: <20030514044934.GC29926@holomorphy.com>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	Wed, 14 May 2003 02:09:07 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:20399 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262072AbTENGI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 02:08:59 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Christopher Hoover <ch@murgatroid.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+References: <20030513213157.A1063@heavens.murgatroid.com>
+	<20030514071446.A2647@infradead.org>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 14 May 2003 15:20:54 +0900
+In-Reply-To: <20030514071446.A2647@infradead.org>
+Message-ID: <buofzniujzt.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ahc_linux_map_seg() has several style and compile-time issues:
+Christoph Hellwig <hch@infradead.org> writes:
+> > Not everyone needs futex support, so it should be optional.  This is
+> > needed for small platforms.
 > 
-> (1) if (sizeof(bus_addr_t) > 4 && ...) linewraps oddly
+> Looks good.  I think you want to disable it unconditionally for !CONFIG_MMU.
 
-See my other email.  Style is a personal issue.  I personally
-think that trying to determine logical groupings by following a
-jagged right column is much harder than following a formatted left
-collumn.  In other words:
+Are futexes unusable without an MMU (I don't know anything about the
+implementation)?
 
-if ((*period == 0)
- || (syncrate->rate == NULL)
- || ((ahc->features & AHC_ULTRA2) != 0
-  && (syncrate->sxfr_u2 == 0)))
+Thanks,
 
-Visually indicates the logical operator grouping, while this:
-
-if ((*period == 0) ||
-    (syncrate->rate == NULL) ||
-    ((ahc->features & AHC_ULTRA2) != 0 &&
-    (syncrate->sxfr_u2 == 0)))
-
-Does not.
-
-The driver is consistent in its use of this style.
-
-> (2) ~0xFFFFFFFF is always 0; the check for being above 4GB never succeeds
-
-Yes.
-
-> (3) 0x100000000 overflows int and hence vanishes, causing a compile error
-> 	on gcc-3.3 and effectively being identical to its replacement here
-
-Actually, it overflows long and causes an error.  It must be promoted
-to ULL.  Yes, this is a C99 thing, but this has been supported by GCC
-for a very long time and much of the kernel already uses it.
-
-> (4) constants describing the upper byte of the length are not used
-
-In this function, no.  They are used elsewhere in the driver.  This
-has been corrected in my patch.
-
-> (5) return is a keyword, not a function
-
-I'm fully aware of this.  You are again complaining about style.
-
-> (6) uint32_t used instead of u32 (contrary to Linux conventions)
-
-uint32_t is portable to any C99 compliant system.  u32 is not.  These
-types were chosen to match those used by the driver core.  The driver
-core must compile on systems other than Linux.
-
-> (7) it's randomly panicking in a driver; at least complain in a comment
-
-It's not random.  The case that it tests should never happen since Linux
-claims that segments that cross a 4GB boundary will never be presented
-to a PCI driver.
-
-> This is basically a compilefix for axel@pearbough.net's compile failure,
-> with some added cleanup. (2) should cause data corruption on x440,
-> NUMA-Q, and ES7000 almost every time this is called, so I guess this
-> qualifies as a runtime bugfix too. Oddly, I'm not seeing any even on
-> 64GB NUMA-Q, so it's probably bouncing due to some other bug.
-
-The driver does not bounce.  The reason you don't see this is because
-Linux is not sending segments that cross a 4GB boundary.
-
-> For the connoisseur, I've attached before/after disassemblies
-> demonstrating that the if () whose failure is caused by (2) is a very,
-> very, very real problem.
-
-This was obvious from code inspection.
-
---
-Justin
-
+-Miles
+-- 
+"I distrust a research person who is always obviously busy on a task."
+   --Robert Frosch, VP, GM Research

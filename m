@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbRFNJ7v>; Thu, 14 Jun 2001 05:59:51 -0400
+	id <S261805AbRFNJ4B>; Thu, 14 Jun 2001 05:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbRFNJ7l>; Thu, 14 Jun 2001 05:59:41 -0400
-Received: from proxy.ATComputing.nl ([195.108.229.1]:51499 "EHLO
-	atcmpg.ATComputing.nl") by vger.kernel.org with ESMTP
-	id <S261840AbRFNJ7f>; Thu, 14 Jun 2001 05:59:35 -0400
-From: Daniel Tuijnman <daniel@ATComputing.nl>
-Message-Id: <200106140958.LAA06999@atcmpg.ATComputing.nl>
-Subject: SMP kernel 2.4.5 reboots spontaneously
+	id <S261840AbRFNJzv>; Thu, 14 Jun 2001 05:55:51 -0400
+Received: from nef.ens.fr ([129.199.96.32]:33042 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id <S261805AbRFNJzi>;
+	Thu, 14 Jun 2001 05:55:38 -0400
+Date: Thu, 14 Jun 2001 11:55:27 +0200
+From: Thomas Pornin <Thomas.Pornin@ens.fr>
 To: linux-kernel@vger.kernel.org
-Date: Thu, 14 Jun 2001 11:58:29 +0200 (MEST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: obsolete code must die
+Message-ID: <20010614115527.A22905@bolet.ens.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> you write:
+> -- Getting rid of old code can help simplify the kernel. This means less
+> chance of bugs.
 
-My machine has an
-- Intel D440LX motherboard (440LX chipset, onboard
-  Adaptec AIC7880U SCSI, onboard EEPRO-100 NIC, onboard Cirrus VGA),
-- 2 Pentium-II, 266 MHz CPUs
-- second EEPRO-100 NIC
-- SCSI HD and CDROM
+Actually, what you suggest is simply getting rid of users. It would
+sure simplify things greatly.
 
-Using the 2.4.2-smp kernel from RedHat 7.1 gives spontaneous reboots,
-the 2.4.5 kernel too, when configured for SMP.
-No crash dump available - applying the lkcd patch didn't help either.
-The machine runs stable with a uni-processor kernel (2.4.2), though.
+Are you nihilist ?
 
-Does anyone have any idea what's going wrong here?
-Reactions please also cc: to my email address.
 
-Greetings,
-Daniel Tuijnman
-
+	--Thomas Pornin

@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbTJSEQW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 00:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTJSEQW
+	id S261965AbTJSEbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 00:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbTJSEbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 00:16:22 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:61590 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261889AbTJSEQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 00:16:21 -0400
-Date: Sat, 18 Oct 2003 21:15:53 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, Pavel Machek <pavel@ucw.cz>,
-       Justin Cormack <justin@street-vision.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Vitaly Fertman <vitaly@namesys.com>, Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: Blockbusting news, results are in
-Message-ID: <20031019041553.GA25372@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Norman Diamond <ndiamond@wta.att.ne.jp>,
-	Hans Reiser <reiser@namesys.com>,
-	Wes Janzen <superchkn@sbcglobal.net>,
-	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-	nikita@namesys.com, Pavel Machek <pavel@ucw.cz>,
-	Justin Cormack <justin@street-vision.com>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Vitaly Fertman <vitaly@namesys.com>,
-	Krzysztof Halasa <khc@pm.waw.pl>
-References: <1c6401c395e7$16630d00$3eee4ca5@DIAMONDLX60>
+	Sun, 19 Oct 2003 00:31:53 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:59407 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S261965AbTJSEbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 00:31:52 -0400
+Date: Sun, 19 Oct 2003 13:33:14 +0900 (JST)
+Message-Id: <20031019.133314.127739603.yoshfuji@linux-ipv6.org>
+To: ameschede@gmx.de
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: IPv6 module broken in 2.6.0-test8
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <3F915007.7040709@gmx.de>
+References: <3F915007.7040709@gmx.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1c6401c395e7$16630d00$3eee4ca5@DIAMONDLX60>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 19, 2003 at 11:16:42AM +0900, Norman Diamond wrote:
-> We need those bad block lists.  They are as necessary as they ever were.
+In article <3F915007.7040709@gmx.de> (at Sat, 18 Oct 2003 16:36:55 +0200), Alwin Meschede <ameschede@gmx.de> says:
 
-I'm not sure why this is a news flash.  When I was at Sun a 2GB drive
-cost us $4000.  I think we sold them for $6000.  You can't buy a 2GB
-drive today nor a 20GB drive.  A 200GB drive costs $160.  That's 100
-times bigger for 25 times less money, or a net increase of price/capacity
-of 2500.  In the same period of time, CPUs have not kept up though they
-are close.
+> the ipv6 module of 2.6.0-test8 is not loadable because of an unknown 
+> symbol __secpath_destroy. I think this is related to the "Clear security 
+> path for tunnel packets" patch by herbert@gondor.apana.org.au
 
-You're suprised that drives are unreliable?  Please.  You are getting
-unbelievable value from those drives and you demanded it.  Price is the
-only way people make purchasing decisions, that's why DEC got out of the
-drive business, then HP did, and then IBM did.  They couldn't afford to
-compete with the cutrate junk that we call drives today.
+Please send me your .config.
+Thanks.
 
-I'm not blaming you, I'm as bad as the next guy, I buy based on price
-as well but I have no illusions that what I am buying is reliable.
-The drives we put into servers here go through a couple weeks of all bit
-patterns being changed and even then we don't depend on them, everything
-is backed up.
-
-I've told you guys over and over that you need to CRC the data in user
-space, we do that in our backup scripts and it tells us when the drives
-are going bad.  So we don't get burned and you wouldn't either if you
-did the same thing.
-
-Drives are amazingly cheap, it's a miracle that they work at all, don't
-be so suprised when they don't.
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

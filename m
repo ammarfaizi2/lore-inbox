@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278604AbRKHWFB>; Thu, 8 Nov 2001 17:05:01 -0500
+	id <S278649AbRKHWEJ>; Thu, 8 Nov 2001 17:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278617AbRKHWEu>; Thu, 8 Nov 2001 17:04:50 -0500
-Received: from a245d15hel.dial.kolumbus.fi ([212.54.8.245]:47364 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S278604AbRKHWEk>; Thu, 8 Nov 2001 17:04:40 -0500
-Message-ID: <3BEB0168.2034F140@kolumbus.fi>
-Date: Fri, 09 Nov 2001 00:04:24 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S278662AbRKHWD7>; Thu, 8 Nov 2001 17:03:59 -0500
+Received: from imsp.terry.uga.edu ([128.192.28.146]:58379 "EHLO
+	ember.terry.uga.edu") by vger.kernel.org with ESMTP
+	id <S278660AbRKHWDu>; Thu, 8 Nov 2001 17:03:50 -0500
+To: linux-kernel@vger.kernel.org (Linux kernel)
+Subject: test SYN cookies (was Re: SYN cookies security bugfix?)
+In-Reply-To: <E161oM3-0007Xm-00@the-village.bc.nu>
+From: Ed L Cashin <ecashin@terry.uga.edu>
+Date: 08 Nov 2001 17:00:30 -0500
+In-Reply-To: <E161oM3-0007Xm-00@the-village.bc.nu>
+Message-ID: <m3y9lgkjnl.fsf@terry.uga.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: Cyrus <cyjamten@ihug.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AMD761Agpgart+Radeon64DDR+kernel+2.4.14...no go...
-In-Reply-To: <20011108113615.F27652@suse.de> <Pine.LNX.4.33.0111081322570.8555-100000@localhost.localdomain> <20011108123808.I27652@suse.de> <3BEA7525.7070807@ihug.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cyrus wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > I received a forwarded message from SuSE regarding a security vulnerability
+> > with respect to randomization of the ISN for SYN cookies - or something to
+> > that effect.  I have not been able to find the patch which addresses this
+> > problem; if anyone can point me towards it, I would be appreciative.
 > 
-> if anyone could have pity on us amd and radeon owners and point us to
-> the right path i would really appreciate it... i don't really want to
-> spend more money to buy some new hardware again just to keep my system
+> Its fixed in 2.2.20, you can grab the 2.2 patch from there
 
-I have similar configuration. Solution is to use latest -ac kernels and CVS
-version on XFree86...
+What is a good way to test SYN cookies?  I can induce a three-second
+delay (on victim host V) before new TCP connections are accepted by
+sending a burst of 2000 SYN packets (from attacker A), where V is
+running a 2.2.14 or 2.2.17 kernel.  During the three seconds ICMP echo
+requests from A to V are being answered.
 
-A7M266, RADEON DDR VE
-
-
- - Jussi Laako
+Turning on SYN cookies after /proc is mounted does not affect the
+three-second pause, though, so I figure that either the pause is not
+on account of a full half-open connection queue or SYN cookies are not
+working.
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+--Ed Cashin                   PGP public key:
+  ecashin@terry.uga.edu       http://www.terry.uga.edu/~ecashin/pgp/
+

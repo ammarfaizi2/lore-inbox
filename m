@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316192AbSFPL45>; Sun, 16 Jun 2002 07:56:57 -0400
+	id <S316199AbSFPMhl>; Sun, 16 Jun 2002 08:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316195AbSFPL44>; Sun, 16 Jun 2002 07:56:56 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:42645 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316192AbSFPL4z>;
-	Sun, 16 Jun 2002 07:56:55 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S316204AbSFPMhk>; Sun, 16 Jun 2002 08:37:40 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:30955 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316199AbSFPMhj>; Sun, 16 Jun 2002 08:37:39 -0400
+Date: Sun, 16 Jun 2002 14:37:36 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Ghozlane Toumi <gtoumi@laposte.net>,
+        James Simmons <jsimmons@linux-fbdev.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] fix .text.exit compile error in sstfb.c
+Message-ID: <Pine.NEB.4.44.0206161434070.11043-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15628.18921.395095.652968@argo.ozlabs.ibm.com>
-Date: Sun, 16 Jun 2002 18:18:49 +1000 (EST)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: Cardbus
-In-Reply-To: <Pine.LNX.4.44.0206151453360.3479-100000@home.transmeta.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Hi,
 
-> It has nothing to do with "buggy" PCI-PCI bridges, and everything to do
-> with the fact that a lot of bridges seem to extend on the official PCI
-> bridge interface in various ways. In particular, it seems to be fairly
-> common to have the _real_ bridging information in the chip-specific range
-> (PCI config area 0x40+) instead of in the official "2 mem resources, 2 IO
-> resources" place.
+I got the following error at the final linking stage of 2.4.19-pre10
+(updated to ChangeSet 1.546 from Marcelo's BK repository):
 
-OK, that makes sense.  (The "buggy" wasn't intended as any kind of
-put-down, it was just what I had been told.)
+<--  snip  -->
 
-What ends up in the official places?  Zeroes, maybe?
+...
+drivers/video/video.o: In function `sstfb_remove':
+drivers/video/video.o(.text+0x6255c): undefined reference to `local
+symbols in discarded section .text.exit'
 
-Can we discriminate between these bridges, and bridges which use the
-official places but where the firmware has closed an aperture?  I
-really would like the code not to assume the bridge is transparent in
-the latter case.
+<--  snip  -->
 
-Paul.
+
+The problem is that sstfb_remove is __devexit and calls sst_shutdown which
+is __exit. This causes the error above when CONFIG_HOTPLUG is set.
+
+I suggest the following fix:
+
+
+--- drivers/video/sstfb.c.old	Sun Jun 16 14:22:03 2002
++++ drivers/video/sstfb.c	Sun Jun 16 14:23:56 2002
+@@ -1694,7 +1694,7 @@
+ 	return 1;
+ }
+
+-static void  __exit sst_shutdown(struct sstfb_info *sst_info)
++static void  __devexit sst_shutdown(struct sstfb_info *sst_info)
+ {
+ 	struct pci_dev * sst_dev = sst_info->dev;
+ 	struct pll_timing gfx_timings;
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

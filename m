@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVAFQWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVAFQ0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbVAFQWY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVAFQWY
+	id S262897AbVAFQ0U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVAFQ0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:22:24 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51128 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262896AbVAFQVs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:21:48 -0500
-Date: Thu, 6 Jan 2005 10:18:38 -0600
+	Thu, 6 Jan 2005 11:26:20 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:53152 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262897AbVAFQZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 11:25:57 -0500
+Date: Thu, 6 Jan 2005 10:22:49 -0600
 From: Jake Moilanen <moilanen@austin.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE 2/4][RFC] Genetic Algorithm Library
-Message-ID: <20050106101838.067732c7@localhost>
+Subject: [ANNOUNCE 3/4][RFC] Genetic Algorithm Library
+Message-ID: <20050106102249.66ef21d8@localhost>
 In-Reply-To: <20050106100844.53a762a0@localhost>
 References: <20050106100844.53a762a0@localhost>
 Organization: LTC
@@ -24,160 +24,237 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the base patch for the io-schedulers.  
+This is the hooked anticipatory IO scheduler.  
 
-It contains the fitness routine, disk_calc_fitness(), that could use a
-rework. 
+Here is an example of the hooked scheduler.  It should optimally tweak
+the tunables for the current workload.
+
+If nothing else, hopefully the genetic-lib will help scheduler writers
+find the optimal tunable settings.
 
 Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
 
 ---
 
 
-diff -puN drivers/block/genhd.c~genetic-io-sched drivers/block/genhd.c
---- linux-2.6.9/drivers/block/genhd.c~genetic-io-sched	Wed Jan  5 15:45:57 2005
-+++ linux-2.6.9-moilanen/drivers/block/genhd.c	Wed Jan  5 15:45:57 2005
-@@ -32,6 +32,8 @@ static struct blk_major_name {
- 
- static spinlock_t major_names_lock = SPIN_LOCK_UNLOCKED;
- 
-+LIST_HEAD(gendisks);
+diff -puN drivers/block/Kconfig.iosched~genetic-as-sched drivers/block/Kconfig.iosched
+--- linux-2.6.9/drivers/block/Kconfig.iosched~genetic-as-sched	Wed Jan  5 15:46:07 2005
++++ linux-2.6.9-moilanen/drivers/block/Kconfig.iosched	Wed Jan  5 15:46:07 2005
+@@ -34,3 +34,12 @@ config IOSCHED_CFQ
+ 	  The CFQ I/O scheduler tries to distribute bandwidth equally
+ 	  among all processes in the system. It should provide a fair
+ 	  working environment, suitable for desktop systems.
 +
- /* index in the above - for now: assume no multimajor ranges */
- static inline int major_to_index(int major)
- {
-@@ -556,6 +558,7 @@ struct gendisk *alloc_disk(int minors)
- 		kobj_set_kset_s(disk,block_subsys);
- 		kobject_init(&disk->kobj);
- 		rand_initialize_disk(disk);
-+		list_add_tail(&disk->gendisks, &gendisks);
- 	}
- 	return disk;
- }
-diff -puN drivers/block/ll_rw_blk.c~genetic-io-sched drivers/block/ll_rw_blk.c
---- linux-2.6.9/drivers/block/ll_rw_blk.c~genetic-io-sched	Wed Jan  5 15:45:57 2005
-+++ linux-2.6.9-moilanen/drivers/block/ll_rw_blk.c	Wed Jan  5 15:45:57 2005
-@@ -28,6 +28,7 @@
- #include <linux/slab.h>
- #include <linux/swap.h>
- #include <linux/writeback.h>
++config GENETIC_IOSCHED_AS
++       bool "Genetic Anticipatory I/O scheduler (EXPERIMENTAL)" 
++       depends on IOSCHED_AS && GENETIC_LIB && EXPERIMENTAL
++       default n
++       ---help---
++       This will use a genetic algorithm to tweak the tunables of the
++       anticipatory scheduler autonomically and will adapt tunables
++       depending on the present workload.  
+diff -puN drivers/block/as-iosched.c~genetic-as-sched drivers/block/as-iosched.c
+--- linux-2.6.9/drivers/block/as-iosched.c~genetic-as-sched	Wed Jan  5 15:46:07 2005
++++ linux-2.6.9-moilanen/drivers/block/as-iosched.c	Wed Jan  5 15:46:07 2005
+@@ -20,6 +20,8 @@
+ #include <linux/hash.h>
+ #include <linux/rbtree.h>
+ #include <linux/interrupt.h>
 +#include <linux/genetic.h>
++#include <linux/random.h>
  
- /*
-  * for max sense size
-@@ -2115,6 +2116,81 @@ static inline void add_request(request_q
- 	__elv_add_request(q, req, ELEVATOR_INSERT_SORT, 0);
- }
-  
-+#ifdef CONFIG_GENETIC_IOSCHED_AS
-+extern struct list_head gendisks;
+ #define REQ_SYNC	1
+ #define REQ_ASYNC	0
+@@ -67,6 +69,8 @@
+  */
+ #define MAX_THINKTIME (HZ/50UL)
+ 
++unsigned long max_thinktime = MAX_THINKTIME;
 +
-+void disk_stats_snapshot(void)
-+{
-+	struct list_head * d;
-+	struct gendisk *disk;
-+    
-+	list_for_each(d, &gendisks) {
-+	    disk = list_entry(d, struct gendisk, gendisks);
-+
-+	    disk_round_stats(disk);
-+
-+	    disk->reads_snap = disk_stat_read(disk, reads);
-+	    disk->writes_snap = disk_stat_read(disk, writes);
-+	    disk->read_sectors_snap = disk_stat_read(disk, read_sectors);
-+	    disk->write_sectors_snap = disk_stat_read(disk, write_sectors);
-+	    disk->time_in_queue_snap = disk_stat_read(disk, time_in_queue);
-+	}
-+}
-+
-+/* XXX is this the best method to calc fitness */
-+unsigned long disk_calc_fitness(void)
-+{
-+	struct list_head * d;
-+	struct gendisk *disk;
-+	unsigned long reads, writes, time_in_queue;
-+	unsigned long read_sectors, write_sectors;
-+	unsigned long disk_fitness;
-+	unsigned long total_fitness = 0;
-+    
-+	list_for_each(d, &gendisks) {
-+	    disk = list_entry(d, struct gendisk, gendisks);
-+
-+	    disk_round_stats(disk);
-+	    
-+	    reads = disk_stat_read(disk, reads) - disk->reads_snap;
-+	    writes = disk_stat_read(disk, writes) - disk->writes_snap;
-+
-+	    read_sectors = disk_stat_read(disk, read_sectors) - disk->read_sectors_snap;
-+	    write_sectors = disk_stat_read(disk, write_sectors) - disk->write_sectors_snap;
-+
-+	    time_in_queue = disk_stat_read(disk, time_in_queue)	- disk->time_in_queue_snap;
-+
-+	    /* Various attempts at collecting good fitness */
-+#if 0
-+	    if (time_in_queue)
-+		disk_fitness = ((reads + writes) 2 * HZ) / time_in_queue;
-+	    else
-+		disk_fitness = 0;
-+
-+#endif
-+
-+#if 1
-+	    if (time_in_queue)
-+		disk_fitness = ((read_sectors + write_sectors) * 2 * HZ) / time_in_queue;
-+	    else
-+		disk_fitness = 0;
-+#endif
-+
-+#if 0
-+	    disk_fitness = reads + writes;
-+#endif
-+
-+#if 0
-+	    disk_fitness = read_sectors + write_sectors;
-+#endif
-+	    
-+	    total_fitness += disk_fitness;
-+	}
-+
-+	return total_fitness;
-+}
-+#endif
-+
- /*
-  * disk_round_stats()	- Round off the performance stats on a struct
-  * disk_stats.
-@@ -2137,7 +2213,6 @@ void disk_round_stats(struct gendisk *di
- 	disk_stat_add(disk, time_in_queue, 
- 			disk->in_flight * (now - disk->stamp));
- 	disk->stamp = now;
--
- 	if (disk->in_flight)
- 		disk_stat_add(disk, io_ticks, (now - disk->stamp_idle));
- 	disk->stamp_idle = now;
-diff -puN include/linux/genhd.h~genetic-io-sched include/linux/genhd.h
---- linux-2.6.9/include/linux/genhd.h~genetic-io-sched	Wed Jan  5 15:45:57 2005
-+++ linux-2.6.9-moilanen/include/linux/genhd.h	Wed Jan  5 15:45:57 2005
-@@ -120,11 +120,20 @@ struct gendisk {
- 	atomic_t sync_io;		/* RAID */
- 	unsigned long stamp, stamp_idle;
- 	int in_flight;
-+	struct list_head gendisks;
- #ifdef	CONFIG_SMP
- 	struct disk_stats *dkstats;
- #else
- 	struct disk_stats dkstats;
- #endif
-+#ifdef CONFIG_GENETIC_LIB
-+	unsigned reads_snap;
-+	unsigned writes_snap;
-+	unsigned read_sectors_snap;
-+	unsigned write_sectors_snap;
-+	unsigned time_in_queue_snap;
-+#endif	
-+
+ /* Bits in as_io_context.state */
+ enum as_io_states {
+ 	AS_TASK_RUNNING=0,	/* Process has not exitted */
+@@ -83,6 +87,47 @@ enum anticipation_status {
+ 				 * or timed out */
  };
  
- /* 
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++
++static void as_create_child(genetic_child_t * child);
++static void as_set_child_genes(void * in_genes);
++static void as_calc_fitness(genetic_child_t * child);
++
++struct genetic_ops as_genetic_ops = {
++    .create_child = as_create_child,
++    .set_child_genes = as_set_child_genes,
++    .calc_fitness = as_calc_fitness,
++    .combine_genes = genetic_generic_combine_genes,
++    .mutate_child = genetic_generic_mutate_child,
++};
++
++#define AS_NUM_GENES 6
++#define AS_NUM_CHILDREN 8
++
++struct as_genes {
++    unsigned long read_expire;
++    unsigned long write_expire;
++    unsigned long read_batch_expire;
++    unsigned long write_batch_expire;
++    unsigned long antic_expire;
++    unsigned long max_thinktime;
++};
++
++gene_param_t as_gene_param[AS_NUM_GENES] = {
++	{ HZ/16, 3*HZ/16, default_read_expire, 0},	/* read_expire */
++	{ HZ/8, 3*HZ/8, default_write_expire, 0},    	/* write_expire */
++	{ HZ/16, 3*HZ/16, default_write_batch_expire, 0},/* write_batch_expire */
++	{ HZ/4, 3*HZ/4, default_read_batch_expire, 0},	/* read_batch_expire */
++	{ HZ/300, HZ/100, default_antic_expire, 0},	/* default_antic_expire */
++	{ HZ/100, 3*HZ/100, MAX_THINKTIME, 0}
++};
++
++extern void disk_stats_snapshot(void);
++extern unsigned long disk_calc_fitness(void);
++
++LIST_HEAD(as_data_list);
++#endif
++
+ struct as_data {
+ 	/*
+ 	 * run time data
+@@ -132,6 +177,9 @@ struct as_data {
+ 	unsigned long fifo_expire[2];
+ 	unsigned long batch_expire[2];
+ 	unsigned long antic_expire;
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++        struct list_head data_list;
++#endif
+ };
+ 
+ #define list_entry_fifo(ptr)	list_entry((ptr), struct as_rq, fifo)
+@@ -869,7 +917,7 @@ static void as_update_iohist(struct as_d
+ 			if (test_bit(AS_TASK_IORUNNING, &aic->state)
+ 							&& in_flight == 0) {
+ 				thinktime = jiffies - aic->last_end_request;
+-				thinktime = min(thinktime, MAX_THINKTIME-1);
++				thinktime = min(thinktime, max_thinktime-1);
+ 			} else
+ 				thinktime = 0;
+ 			as_update_thinktime(ad, aic, thinktime);
+@@ -1854,6 +1902,11 @@ static void as_exit(request_queue_t *q, 
+ 
+ 	mempool_destroy(ad->arq_pool);
+ 	put_io_context(ad->io_context);
++
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++	list_del(&ad->data_list);
++#endif
++
+ 	kfree(ad->hash);
+ 	kfree(ad);
+ }
+@@ -1916,6 +1969,10 @@ static int as_init(request_queue_t *q, e
+ 	if (ad->write_batch_count < 2)
+ 		ad->write_batch_count = 2;
+ 
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++	list_add_tail(&ad->data_list, &as_data_list);
++#endif
++
+ 	return 0;
+ }
+ 
+@@ -2072,12 +2129,20 @@ static struct kobj_type as_ktype = {
+ 
+ static int __init as_slab_setup(void)
+ {
++	int rc;
++    
+ 	arq_pool = kmem_cache_create("as_arq", sizeof(struct as_rq),
+ 				     0, 0, NULL, NULL);
+ 
+ 	if (!arq_pool)
+ 		panic("as: can't init slab pool\n");
+ 
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++	rc = genetic_init(0, &as_genetic_ops, AS_NUM_CHILDREN, 2 * HZ, "as-ioscheduler");
++	if (rc)
++	    panic("as: failed to init genetic lib");
++#endif	
++
+ 	return 0;
+ }
+ 
+@@ -2106,3 +2171,70 @@ elevator_t iosched_as = {
+ };
+ 
+ EXPORT_SYMBOL(iosched_as);
++
++#ifdef CONFIG_GENETIC_IOSCHED_AS
++
++/* need to create the genes for the child */
++static void as_create_child(genetic_child_t * child)
++{
++    int i;
++    static int child_num = 0;
++    unsigned long range;
++    int range_incr;
++    unsigned long * genes;
++
++    BUG_ON(!child);
++
++    child->genes = (void *)kmalloc(sizeof(struct as_genes), GFP_KERNEL);
++    if (!child->genes) 
++	panic("as_create_child: error mallocing space");
++
++    child->gene_param = as_gene_param;
++
++    genes = (unsigned long *)child->genes;
++
++    for (i = 0; i < AS_NUM_GENES; i++) {
++	    range = child->gene_param[i].max - child->gene_param[i].min + 1;
++	    range_incr = range / AS_NUM_CHILDREN;
++	    if (range_incr)
++		    genes[i] = child->gene_param[i].min +
++			    (range_incr * child_num);
++	    else
++		    genes[i] = child->gene_param[i].min +
++			    (child_num / (AS_NUM_CHILDREN / range));
++    }
++
++    child->num_genes = AS_NUM_GENES;
++
++    child_num++;
++}
++
++static void as_set_child_genes(void * in_genes)
++{
++    struct as_genes * genes = (struct as_genes *)in_genes;
++    struct list_head * d;
++    struct as_data * ad;
++    
++    list_for_each(d, &as_data_list) {
++	ad = list_entry(d, struct as_data, data_list);
++	ad->fifo_expire[REQ_SYNC] = genes->read_expire;
++	ad->fifo_expire[REQ_ASYNC] = genes->write_expire;
++	ad->antic_expire = genes->antic_expire;
++	ad->batch_expire[REQ_SYNC] = genes->read_batch_expire;
++	ad->batch_expire[REQ_ASYNC] = genes->write_batch_expire;
++    }
++    max_thinktime = genes->max_thinktime;
++
++    /* Set a mark for the start of this child to help calculate
++       fitness */
++    disk_stats_snapshot();
++}
++
++static void as_calc_fitness(genetic_child_t * child)
++{
++	child->fitness = disk_calc_fitness();
++}
++
++#endif
++
++
 
 _

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbTBJUua>; Mon, 10 Feb 2003 15:50:30 -0500
+	id <S265096AbTBJUx7>; Mon, 10 Feb 2003 15:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265096AbTBJUua>; Mon, 10 Feb 2003 15:50:30 -0500
-Received: from mail.buerotec.de ([217.89.50.162]:2821 "EHLO mail.buerotec.de")
-	by vger.kernel.org with ESMTP id <S262446AbTBJUu3>;
-	Mon, 10 Feb 2003 15:50:29 -0500
-Date: Mon, 10 Feb 2003 21:57:52 +0100
-From: Kay Sievers <lkml@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.60 defconfig+CONFIG_MODVERSIONS=y -> syntax error
-Message-ID: <20030210205752.GB16226@vrfy.org>
-References: <20030210203702.GA16226@vrfy.org> <Pine.LNX.4.44.0302101448280.3320-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302101448280.3320-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
+	id <S265099AbTBJUx7>; Mon, 10 Feb 2003 15:53:59 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:35916 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S265096AbTBJUx6>; Mon, 10 Feb 2003 15:53:58 -0500
+Date: Mon, 10 Feb 2003 23:04:42 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x end of tape handling error
+In-Reply-To: <20030210182254.2913.qmail@scrye.com>
+Message-ID: <Pine.LNX.4.52.0302102249480.804@kai.makisara.local>
+References: <20030210182254.2913.qmail@scrye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 02:49:36PM -0600, Kai Germaschewski wrote:
-> On Mon, 10 Feb 2003, Kay Sievers wrote:
-> >   ld:arch/i386/kernel/.tmp_time.ver:1: syntax error
-> 
-> Interesting. Thanks for testing CONFIG_MODVERSIONS. I cannot reproduce it
-> here, unfortunately (not even with the same .config). What does
-> arch/i386/kernel/.tmp_time.ver look like?
+This discussion should really be moved to linux-scsi...
 
-pim:/usr/src/linux-2.5.60# cat arch/i386/kernel/.tmp_time.ver
-__crc_i = 0x_lock ;     ac2d2492
-pim:/usr/src/linux-2.5.60# 
+On Mon, 10 Feb 2003, Kevin Fenzi wrote:
 
-pim:/usr/src/linux-2.5.60# gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.2/specs
-Configured with: ../src/configure -v
---enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr
---mandir=/usr/share/man --infodir=/usr/share/info
---with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared
---with-system-zlib --enable-nls --without-included-gettext
---disable-__cxa_atexit --enable-java-gc=boehm --enable-objc-gc
-i386-linux
-Thread model: posix
-gcc version 3.2.2
+> Greetings.
+>
+> I have had reported from a client that they are having problems with
+> backups that span more than one tape. Instead of getting an EOT error
+> or EOM, they are getting an I/O error wich requires the driver to be
+> unloaded and reloaded before the tape will work again.
+>
+What messages have they seen in the system log? Some messages should be
+after this kind of error. It is difficult to see where the problem is
+without any details. There have not been any significant changes in EOM
+handling in st between the 2.4 kernels.
 
-pim:/usr/src/linux-2.5.60# ld -v
-GNU ld version 2.13.90.0.18 20030121 Debian GNU/Linux
+> http://www.linuxtapecert.org/ Says that the redhat 2.4.9-34 kernel is
+> the last one that had proper EOT handling. Indeed, if they use the
+> 2.4.9-34 kernel, the tape works properly. Thats not a very good
+> solution however.
+>
+> Is this fixed in the latest 2.4.21-pres? How about in 2.5.x?
+>
+Don't know. EOM handling has worked with my test system (HP DDS drives
+connected to a SYM53c896) with both 2.4 and 2.5 kernels. I just reran the
+eom tests with 2.4.20 and 2.5.60 without problems.
 
-Kay
-
+	Kai

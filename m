@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131346AbRDGUKi>; Sat, 7 Apr 2001 16:10:38 -0400
+	id <S131347AbRDGUU5>; Sat, 7 Apr 2001 16:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131347AbRDGUK1>; Sat, 7 Apr 2001 16:10:27 -0400
-Received: from [195.55.70.99] ([195.55.70.99]:1798 "EHLO mozart")
-	by vger.kernel.org with ESMTP id <S131346AbRDGUKN>;
-	Sat, 7 Apr 2001 16:10:13 -0400
-Message-Id: <m14lysQ-001PHqC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        nigel@nrg.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: Your message of "Fri, 06 Apr 2001 18:25:36 MST."
-             <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain> 
-Date: Sun, 08 Apr 2001 05:59:49 +1000
+	id <S131626AbRDGUUr>; Sat, 7 Apr 2001 16:20:47 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:18697 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131347AbRDGUU3>; Sat, 7 Apr 2001 16:20:29 -0400
+Message-ID: <3ACF76B7.44F6279@t-online.de>
+Date: Sat, 07 Apr 2001 22:21:11 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain> you write:
-> > Priority inversion is not handled in Linux kernel ATM BTW, there
-> > are already situations where a realtime task can cause a deadlock
-> > with some lower priority system thread (I believe there is at least
-> > one case of this known with realtime ntpd on 2.4)
+Jeff Garzik wrote:
 > 
-> I see your point here, but need to think about it.  One question:
-> isn't it the case that the alternative to using synchronize_kernel()
-> is to protect the read side with explicit locks, which will themselves
-> suppress preemption?  If so, why not just suppress preemption on the read
-> side in preemptible kernels, and thus gain the simpler implementation
-> of synchronize_kernel()?  You are not losing any preemption latency
-> compared to a kernel that uses traditional locks, in fact, you should
-> improve latency a bit since the lock operations are more expensive than
-> are simple increments and decrements.  As usual, what am I missing
-> here?  ;-)
+> Tim Waugh wrote:
+> > It would allow support for new multi-IO cards to generally be the
+> > addition of about two lines to two files (which is currently how it's
+> > done), rather than having separate mutant hybrid monstrosity drivers
+> > for each card (IMHO)..
+> 
+> ;-)
+> 
+> My point of view is that hacking the kernel so that two device drivers
+> can pretend they are not driving the same hardware is silly.  With such
+> hardware there are always inter-dependencies, and you can either hack
+> special case code into two or more drivers, or create one central
+> control point from which knowledge is dispatched.  Like I mentioned in a
 
-Already preempted tasks.
+My point of view is making it easy for the average user.
+This is the same as making it easy for maintainers of hardware drivers !
 
-> Another approach would be to define a "really low" priority that noone
-> other than synchronize_kernel() was allowed to use.  Then the UP
-> implementation of synchronize_kernel() could drop its priority to
-> this level, yield the CPU, and know that all preempted tasks must
-> have obtained and voluntarily yielded the CPU before synchronize_kernel()
-> gets it back again.
+More module interdependencies == More complicated == More clueless users
 
-Or "never", because I'm running RC5 etc. 8(.
+Many users will be surprised if they must load another module (e.g."pci_multiio")
+to get their parallel and serial ports working.
 
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Thus _must not_ happen in the stable release.
+
+Regards, Gunther

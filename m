@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVAHQty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVAHQvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVAHQty (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 11:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVAHQty
+	id S261213AbVAHQvO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVAHQvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 11:49:54 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:9924 "EHLO
+	Sat, 8 Jan 2005 11:51:14 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:13764 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261212AbVAHQtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 11:49:52 -0500
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+	id S261213AbVAHQuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 11:50:08 -0500
+Subject: Re: [PATCH] 2.6.9 Use skb_padto() in drivers/net/8390.c]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, mingo@elte.hu,
-       viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
-       arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jtk@us.ibm.com, wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, torvalds@osdl.org
-In-Reply-To: <20050107145801.64d55cd3.akpm@osdl.org>
-References: <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050106210408.GM1292@us.ibm.com>
-	 <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050106152621.395f935e.akpm@osdl.org>
-	 <20050106234123.GA27869@infradead.org>
-	 <20050106162928.650e9d71.akpm@osdl.org>
-	 <20050107002624.GA29006@infradead.org> <20050107090014.GA24946@elte.hu>
-	 <20050107091542.GA5295@infradead.org>
-	 <20050107140034.46aec534.akpm@osdl.org>
-	 <20050107221905.GA17567@infradead.org>
-	 <20050107145801.64d55cd3.akpm@osdl.org>
+To: Paul Gortmaker <penguin@muskoka.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <41DF9AC1.2010609@muskoka.com>
+References: <41DED9FA.7080106@pobox.com>  <41DF9AC1.2010609@muskoka.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105196324.10519.0.camel@localhost.localdomain>
+Message-Id: <1105197689.10505.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 08 Jan 2005 15:45:04 +0000
+Date: Sat, 08 Jan 2005 15:45:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-07 at 22:58, Andrew Morton wrote:
-> You still have not demonstrated any benefit to any party from not delaying
-> the removal of these two exports.
+On Sad, 2005-01-08 at 08:33, Paul Gortmaker wrote:
+> Is it possible that skb_padto has since got its act together?   Reason I
+> ask is that I just dusted off a crusty 386dx40 (doesn't get much older
 
-Trivial one: it saves memory 8)
+Could be - kmalloc has probably improved but the skbuffs have got far
+more complex
+
+> than that) with a wd8013.  As a basic test, I did ttcp Tx tests with small
+> packets and they came out to all intents and purposes, identical.   Kernel 
+> was 2.6.10, with stack vs skb_padto, each size test ran 3 times, even tested
+> packets bigger than ETH_ZLEN as a (hopefully) invariant.  I've attached the
+> edited down results below.
+
+What are you testing ? I don't see the relationship between network
+throughput and efficiency on this device.
+
+Drop it on a pentium or late 486 and use the tsc to compare the two code
+paths. One is much much more efficienct.
 

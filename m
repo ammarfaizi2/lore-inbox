@@ -1,60 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319441AbSIGSXq>; Sat, 7 Sep 2002 14:23:46 -0400
+	id <S319500AbSIGS3H>; Sat, 7 Sep 2002 14:29:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319500AbSIGSXq>; Sat, 7 Sep 2002 14:23:46 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:63899 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S319441AbSIGSXp>; Sat, 7 Sep 2002 14:23:45 -0400
-Date: Sat, 7 Sep 2002 19:27:36 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Daniel Phillips <phillips@arcor.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about pseudo filesystems
-Message-ID: <20020907192736.A22492@kushida.apsleyroad.org>
-References: <E17neGi-0006Sv-00@starship> <Pine.GSO.4.21.0209070858380.21690-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S319503AbSIGS3H>; Sat, 7 Sep 2002 14:29:07 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36105
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319500AbSIGS3G>; Sat, 7 Sep 2002 14:29:06 -0400
+Date: Sat, 7 Sep 2002 11:32:42 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jurriaan <thunder7@xs4all.nl>
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: Lite-On cdwriter detected as 12x instead of 40x
+In-Reply-To: <20020907175735.GA884@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.10.10209071127430.16589-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0209070858380.21690-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Sep 07, 2002 at 09:36:26AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> If your rules are "it's pinned as long as there are opened files created
-> by foo()" - very well, there are two variants.  The basic idea is the same
-> - have sum of ->mnt_count for all vfsmounts of our type bumped whenever we
-> call foo() and drop whenever final fput() is done on a file created by foo().
 
-Thanks -- that's what I implemented, except I used a semaphore instead
-of a spinlock.
+First, does it make it go any faster by changing the caps value?
+If so how are you detecting such performance changes?
 
-I wanted to check that it's safe to call `mntput' from `->release()',
-which seems like quite a dubious thing to depend on.  But if you say it
-is safe, that's cool.
+Given the value discovered is what is reported.
+You may need to issue a mode/capablities page change.
+You need to as Jens Axboe about this, he is more updated than me.
 
-> > It's a good example of why the module interface is stupidly wrong, and
-> > __exit needs to be called by the module unloader, returning 0 if it's
-> > ok to unload.  Then your __exit can whatever condition it's interested
-> > in and, if all is well, do the kern_umount.
+On Sat, 7 Sep 2002, Jurriaan wrote:
+
+> I have a LITE-ON LTR-40125W cdwriter, which can write at 40x.
+> The kernel sees it as 12x. This happens in 2.4.19ac4 up to
+> 2.4.20pre4ac2, I didn't test later kernels due to the instable IDE
+> situation. It has the latest firmware (WS05) - I'm not sure if bothering
+> the manufacturer about this is worth it.
 > 
-> BS.  Instead of playing silly buggers with "oh, we will start exiting
-> and maybe we'll bail out, let's just hope we won't find that we want
-> to do that after we'd destroyed something" you need to decide what kind
-> of rules you really want for the module lifetime.  The rest is trivial.
-> Again, variant (a) (which is absolutely straightforward - add one line
-> in foo(), modify one line in foo(), delete one line in init) is enough
-> to give the desired rules.  Optimizing it if needed is not too hard -
-> see (b) for one possible variant...
+> If I don't pass the drive on to ide-scsi, and patch 
+> drivers/ide/ide-cd.c with this small patch,
+> 
+> +	/* brain-dead LiteOn model reports itself as 12x */
+> +	if ((cap != NULL) && (strcmp (drive->id->model, "LITE-ON LTR-40125W") == 0))
+> +	  cap->maxspeed = htons(40 * 176);
+> 
+> all is well, and the kernel reports 40x.
+> 
+> But I can't find out where to put this for the ide-scsi part.
+> All the probing routines in drivers/scsi/ide-cd.c seem to access some
+> sort of atapi-buffer that already exists. I can tweak it to display 40x
+> in the bootup-messages by changing the idescsi_transform_pc? functions
+> in drivers/scsi/ide-cd.c:
+> 
+> +	                if (strcmp (drive->id->model, "LITE-ON LTR-40125W") == 0)
+> +			{
+> +				int n = scsi_buf[3] + 4;
+> +                   	        scsi_buf[n+8] = scsi_buf[n+14] = (u8) ((40 * 176) >> 8);
+> +                   	        scsi_buf[n+9] = scsi_buf[n+15] = (u8) ((40 * 176) & 0xff);
+> +				printk("ide-scsi.c: LITE-ON tweak activated\n");
+> +			}
+> 
+> but that doesn't fool cdrdao nor cdrecord - they still think the drive
+> is 12x.
+> 
+> Can anyone help me by pointing out where I should tweak the kernel to
+> get correct results when using ide-scsi with my drive?
+> 
+> Thanks,
+> Jurriaan
+> -- 
+> Remember, Unix on some machines is nUxi.
+> GNU/Linux 2.4.19-ac4 SMP/ReiserFS 2x1402 bogomips load av: 0.39 0.28 0.11
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Unfortunately, your suggestion, which I ended up implementing, is not
-safe from race conditions.
+Andre Hedrick
+LAD Storage Consulting Group
 
-The problem comes during the call to `->release()'.  If that's really
-the last reference to the module, than as soon as I call `mntput' the
-module might be unloaded.  In practice this doesn't happen, but if there
-were a long scheduling delay... (see CONFIG_PREEMPT), it could.
-
--- Jamie

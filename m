@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVAMI7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVAMJGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVAMI7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 03:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVAMI7I
+	id S261312AbVAMJGt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 04:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVAMJGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 03:59:08 -0500
-Received: from mail.enyo.de ([212.9.189.167]:11396 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261200AbVAMI7C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 03:59:02 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	<Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	<20050112185133.GA10687@kroah.com>
-	<Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	<20050112161227.GF32024@logos.cnet>
-	<Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	<20050112205350.GM24518@redhat.com>
-	<Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-	<20050113032506.GB1212@redhat.com>
-	<20050113035331.GC9176@beowulf.thanes.org>
-	<20050113053807.GE4378@ip68-4-98-123.oc.oc.cox.net>
-Date: Thu, 13 Jan 2005 09:59:00 +0100
-In-Reply-To: <20050113053807.GE4378@ip68-4-98-123.oc.oc.cox.net> (Barry
-	K. Nathan's message of "Wed, 12 Jan 2005 21:38:07 -0800")
-Message-ID: <878y6xr9gr.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 04:06:49 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:34182 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261312AbVAMJGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 04:06:47 -0500
+To: pavel@ucw.cz
+CC: kinema@gmail.com, fuse-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-reply-to: <20050112205651.GI1408@elf.ucw.cz> (message from Pavel Machek on
+	Wed, 12 Jan 2005 21:56:51 +0100)
+Subject: Re: [fuse-devel] Merging?
+References: <loom.20041231T155940-548@post.gmane.org> <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu> <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu> <20050112194408.GB1464@openzaurus.ucw.cz> <E1CopDd-0002dh-00@localhost> <20050112205651.GI1408@elf.ucw.cz>
+Message-Id: <E1Cp0vz-0002fZ-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 13 Jan 2005 10:06:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Barry K. Nathan:
+> Does Debian carry kernel patched with FUSE patches by default?
 
-> On Thu, Jan 13, 2005 at 04:53:31AM +0100, Marek Habersack wrote:
->> archived mail message or a webpage with the patch. Hoping he'll find the
->> fixes in the vendor kernels, he goes to download source packages from SuSe,
->> RedHat or Trustix, Debian, Ubuntu, whatever and discovers that it is as easy
->> to find the patch there as it is to fish it out of the vanilla kernel patch
->> for the new version. Frustrating, isn't it? Not to mention that he might
->
-> http://linux.bkbits.net is your friend.
->
-> Each patch (including security fixes) in the mainline kernels (2.4 and
-> 2.6) appears there as an individual, clickable link with a description
-> (e.g. "1.1551  Paul Starzetz: sys_uselib() race vulnerability
-> (CAN-2004-1235)").
+No.
 
-This is the exception.  Usually, changelogs are cryptic, often
-deliberately so.  Do you still remember Alan's DMCA protest
-changelogs?
+> 								Pavel
+> PS: IIRC and not speaking for suse: I think suse was seriously
+> thinking about using FUSE by default. It did not work well enough back
+> then. Not sure who exactly was working on it...
+
+Well, they never talked with me about it.
+
+Thanks,
+Miklos

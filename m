@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUKFMGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbUKFMHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUKFMGW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 07:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUKFMGW
+	id S261373AbUKFMHf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 07:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUKFMHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 07:06:22 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:54920 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261378AbUKFMGK (ORCPT
+	Sat, 6 Nov 2004 07:07:34 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:36874 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261373AbUKFMHW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 07:06:10 -0500
-Date: Sat, 6 Nov 2004 13:05:25 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Amit Shah <amitshah@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
-Message-ID: <20041106120525.GA15363@elte.hu>
-References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu> <200411061414.11719.amitshah@gmx.net>
+	Sat, 6 Nov 2004 07:07:22 -0500
+Date: Sat, 6 Nov 2004 13:07:16 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Adam Heath <doogie@debian.org>,
+       Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+Message-ID: <20041106120716.GA9144@pclin040.win.tue.nl>
+References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411061414.11719.amitshah@gmx.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+# > > There are probably people even using linux-1.2.
+# > 
+# > # uname -a
+# > Linux knuth 1.2.11 #27 Sun Jul 30 03:39:01 MET DST 1995 i486
+# > 
+# > (486 DX/2, 66MHz, 8 MB)
+# > 
+# > -rw-r--r--   1 root     root       281572 Jul 30  1995 zImage-1.2.11
+# > -rw-r--r--   1 root     root       277476 Apr  1  1995 zImage-1.2.2
+# 
+# Ok, you da man. What do you use it for? Or is it just lying around for 
+# nostalgic reasons?
 
-* Amit Shah <amitshah@gmx.net> wrote:
+One strength is the fact that it boots in a couple of seconds, while
+my current 2.6.9 with vendor boot scripts takes minutes.
+Another strength is the weight - exactly 2 kg.
+I write letters, papers, lecture notes and stuff.
+It feels faster than modern machines.
+Only need X, TeX, emacs and rsh, rcp.
 
-> I had left the machine running overnight; I got a few BUGs and some
-> spinlock hold counts.
-> 
-> The message mentioned above about the e1000 xmit frame also keeps
-> appearing, but does not result in hangs.
-> 
-> I've uploaded the /var/log/messages file to
-> 
->  http://amitshah.nav.to/kernel/messages-rt-0.7.13.txt
-> 
-> Please take a look.
+>> to remind us how large the kernel is getting? :)
 
-found the bug(s), the e1000 driver disabled interrupts on
-PREEMPT_REALTIME too, and the debug-message printout had a bug as well.
-Found a similar problem in the tg3 driver too. Could you check out
--V0.7.15 that i've just uploaded to:
+> Yeah, I know. Damn, it's scary.
+> The kernel does do more these days than it did in '95. But 6 times more?
 
-   http://redhat.com/~mingo/realtime-preempt/
+I recall the times where 4K was enough for a multiuser OS that provided
+each user its own virtual machine (and could run itself under itself).
+Small is beautiful. Six times? Today for me is
 
-does this work any better? [you'll still get the e100 message but that
-is harmless.]
+-rw-r--r--  1 aeb users 3161708 2004-11-06 01:19 /boot/bzImage-2.6.9test
 
-	Ingo
+Probably I select more filesystems than you do.
+
+Andries

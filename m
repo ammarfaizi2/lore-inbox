@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130572AbRCEAVz>; Sun, 4 Mar 2001 19:21:55 -0500
+	id <S130552AbRCEAlT>; Sun, 4 Mar 2001 19:41:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbRCEAVq>; Sun, 4 Mar 2001 19:21:46 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:21114 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S130552AbRCEAVg>; Sun, 4 Mar 2001 19:21:36 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2-pre1 mkdep and symlinked $TOPDIR 
-In-Reply-To: Your message of "Sun, 04 Mar 2001 16:24:57 +1100."
-             <3AA1D1A9.3A35557A@uow.edu.au> 
+	id <S130570AbRCEAlJ>; Sun, 4 Mar 2001 19:41:09 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:18959 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S130552AbRCEAlC>; Sun, 4 Mar 2001 19:41:02 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Mon, 5 Mar 2001 11:38:08 +1100
+To: Jonathan Lahr <lahr@sequent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel lock contention and scalability
+Message-ID: <20010305113807.A3917@linuxcare.com>
+In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Mar 2001 11:21:21 +1100
-Message-ID: <32558.983751681@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com>; from lahr@sequent.com on Thu, Feb 15, 2001 at 10:46:56AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Mar 2001 16:24:57 +1100, 
-Andrew Morton <andrewm@uow.edu.au> wrote:
->I do builds in /usr/src/linux, which is a symlink
->to /usr/src/linux-akpm.  The recent `mkdep' changes
->have broken this practice most horridly.  When searching
->.hdepend, `make' doesn't recognise that nested headers
->have changed. This is because .hdepend has things like
->
->/usr/src/linux/include/asm/byteorder.h: \
->   /usr/src/linux-akpm/include/asm/types.h \
+ 
+Hi,
 
-I do not see this problem in 2.4.3-pre2.
+> To discover possible locking limitations to scalability, I have collected 
+> locking statistics on a 2-way, 4-way, and 8-way performing as networked
+> database servers.  I patched the [48]-way kernels with Kravetz's multiqueue 
+> patch in the hope that mitigating runqueue_lock contention might better 
+> reveal other lock contention.
 
-# ls -l linux 
-lrwxrwxrwx   1 kaos     ocs            10 Mar  5 10:47 linux -> 2.4.3-pre2
-# cd linux
-# make dep
-make dep
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/mkdep scripts/mkdep.c
-make[1]: Entering directory `/usr/src/2.4.3-pre2/arch/i386/boot'
-make[1]: Nothing to be done for `dep'.
-make[1]: Leaving directory `/usr/src/2.4.3-pre2/arch/i386/boot'
-scripts/mkdep -- init/*.c > .depend
-scripts/mkdep -- `find /usr/src/2.4.3-pre2/include/asm /usr/src/2.4.3-pre2/include/linux /usr/src/2.4.3-pre2/include/scsi /usr/src/2.4.3-pre2/include/net -name SCCS -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
+...
 
-The find command is given the real pathname, not the symlink so the
-.hdepend and .depend files all contain the real paths.  Your problem is
-probably this line in the top level Makefile.
+>       24.38%  23.93%    15us(   218us)   4.3us(   111us)     744475     566289     178186      0  runqueue_lock
+>       23.15%  38.78%    28us(   218us)   6.2us(   108us)     376292     230381     145911      0    schedule+0xe0
 
-TOPDIR	:= $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
+Tridge and I tried out the postgresql benchmark you used here and this
+contention is due to a bug in postgres. From a quick strace, we found
+the threads do a load of select(0, NULL, NULL, NULL, {0,0}). Basically all
+threads are pounding on schedule().
 
-TOPDIR must be getting set to the symlink name instead of the real
-pathname.  Can you confirm what TOPDIR is being set to and why?  This
-may be a shell problem.
+Our guess is that the app has some form of userspace synchronisation
+(semaphores/spinlocks). I'd argue that the app needs to be fixed not the
+kernel, or a more valid test case is put forwards. :)
 
-TOPDIR	:= $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
-dummy	:= $(shell echo PWD="$$PWD" pwd=$(shell pwd) TOPDIR=$(TOPDIR) >&2)
+PS: I just looked at the postgresql source and the spinlocks (s_lock() etc)
+are in a tight loop doing select(0, NULL, NULL, NULL, {0,0}). In samba
+we have userspace spinlocks, but they cover small amounts of code and
+offer an advantage over ipc semaphores. When you have to synchronise
+large sections of code ipc semaphores are reasonably fast on linux and
+would be a better fit.
 
+Cheers,
+Anton

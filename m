@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267543AbUBSUUd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 15:20:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267547AbUBSUUd
+	id S267552AbUBSUZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUBSUZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 15:20:33 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:40640 "EHLO
-	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S267543AbUBSUU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 15:20:29 -0500
-Date: Thu, 19 Feb 2004 21:20:02 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Andi Kleen <ak@suse.de>
-Cc: Jakub Jelinek <jakub@redhat.com>, tony@atomide.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel x86-64 support patch breaks amd64
-Message-ID: <20040219212002.GC382@zaniah>
-References: <20040219183448.GB8960@atomide.com> <20040220171337.10cd1ae8.ak@suse.de> <20040219193606.GC31589@devserv.devel.redhat.com> <20040220174454.77ec7086.ak@suse.de>
+	Thu, 19 Feb 2004 15:25:18 -0500
+Received: from linux-bt.org ([217.160.111.169]:46553 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S267552AbUBSUZN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 15:25:13 -0500
+Subject: Re: Bluez oops in 2.6.3-rc4
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Andreas Mikkelborg <andreas.mikkelborg@hjemme.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040219162234.6fee88fc.andreas.mikkelborg@hjemme.no>
+References: <20040219162234.6fee88fc.andreas.mikkelborg@hjemme.no>
+Content-Type: text/plain
+Message-Id: <1077222291.2767.30.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040220174454.77ec7086.ak@suse.de>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 19 Feb 2004 21:24:51 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004 at 17:44 +0000, Andi Kleen wrote:
+Hi Andreas,
 
-> > > +#ifdef CONFIG_SMP_
-> > 
-> > 		    ^ Isn't this a typo?
-> 
-> Indeed. Thanks for catching it.
-> 
-> It probably doesn't hurt because I don't know of any module that uses cpu_sibling_map[].
-> I think I just copied the export from i386. Maybe it would be best to just remove it completely.
+> The oops occured when I started obexserver and tried to transfer a file from my mobile phone.
+> The first files went ok, but then it oopsed, now it seems I can't recreate it.
 
-Andrew added it a few hours ago, oprofile use it.
+have you seen this with any previous kernel versions? Is it
+reproduceable?
 
-regards,
-Phil
+Regards
+
+Marcel
+
+

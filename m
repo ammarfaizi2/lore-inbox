@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbRBTMPQ>; Tue, 20 Feb 2001 07:15:16 -0500
+	id <S129461AbRBTMZK>; Tue, 20 Feb 2001 07:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129461AbRBTMPH>; Tue, 20 Feb 2001 07:15:07 -0500
-Received: from mail.inf.elte.hu ([157.181.161.6]:31909 "HELO mail.inf.elte.hu")
-	by vger.kernel.org with SMTP id <S129464AbRBTMOy>;
-	Tue, 20 Feb 2001 07:14:54 -0500
-Date: Tue, 20 Feb 2001 13:14:46 +0100 (CET)
-From: BERECZ Szabolcs <szabi@inf.elte.hu>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new setprocuid syscall
-In-Reply-To: <20010219230106.A23699@cadcamlab.org>
-Message-ID: <Pine.A41.4.31.0102201250290.127214-100000@pandora.inf.elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129549AbRBTMZA>; Tue, 20 Feb 2001 07:25:00 -0500
+Received: from mail2.aracnet.com ([216.99.193.35]:11781 "EHLO
+	mail2.aracnet.com") by vger.kernel.org with ESMTP
+	id <S129461AbRBTMYq>; Tue, 20 Feb 2001 07:24:46 -0500
+Date: Tue, 20 Feb 2001 04:24:33 -0800
+From: Kevin Turner <acapnotic@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.1] system goes glacial, Reiser on /usr doesn't sync
+Message-ID: <20010220042433.A11831@troglodyte.menefee>
+Reply-To: He-Who-Is-Not-Subscribed-to-LKML 
+	  <acapnotic@users.sourceforge.net>
+Mail-Followup-To: Kevin Turner <acapnotic@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010220021609.B11523@troglodyte.menefee> <3A92560D.2040304@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3A92560D.2040304@blue-labs.org>; from david@blue-labs.org on Tue, Feb 20, 2001 at 03:33:33AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 20, 2001 at 03:33:33AM -0800, David wrote:
+> Wild shot in the dark....I'd lay odds that you had about 6-7 Megs free 
+> in your buffers/cache line, yes?
 
-On Mon, 19 Feb 2001, Peter Samuelson wrote:
+David!  You're psychic!
 
-> [BERECZ Szabolcs]
-> > +       p = find_task_by_pid(pid);
-> > +       p->fsuid = p->euid = p->suid = p->uid = uid;
-> Race -- you need to make sure the task_struct doesn't disappear out
-> from under you.
 
-Yes, but we need a write_lock, not a read_lock.
-
-> Anyway, why not use the interface 'chown uid /proc/pid'?  No new
-> syscall, no arch-dependent part, no user-space tool, etc.
-
-We need a userspace tool, because we must check if the user, who want to
-change the uid, knows the other user's passwd.
-Or what if user1 want to change user2's process to user3 uid?
-
-Bye,
-Szabolcs
+SysRq: Show Memory
+Mem-info:
+Free pages:         712kB (     0kB HighMem)
+( Active: 1779, inactive_dirty: 1507, inactive_clean: 0, free: 178 (192 384 576) )
+0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB = 512kB)
+0*4kB 1*8kB 0*16kB 0*32kB 1*64kB 1*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB = 200kB)
+= 0kB)
+Swap cache: add 73994, delete 73947, find 19040/117035
+Free swap:       206664kB
+12288 pages of RAM
+0 pages of HIGHMEM
+653 reserved pages
+4740 pages shared
+47 pages swap cached
+0 pages in page table cache
+Buffer memory:     6028kB
 

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbTL2K7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 05:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTL2K7Z
+	id S263137AbTL2LGa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 06:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTL2LG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 05:59:25 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:20732 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262913AbTL2K7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 05:59:24 -0500
-Date: Mon, 29 Dec 2003 02:59:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
-Message-ID: <20031229105918.GH1882@matchmail.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312272046400.2274@home.osdl.org> <20031228163952.GQ22443@holomorphy.com> <20031229003631.GE1882@matchmail.com> <20031229025507.GT22443@holomorphy.com> <Pine.LNX.4.58.0312282000390.11299@home.osdl.org> <20031229065240.GU22443@holomorphy.com> <Pine.LNX.4.58.0312290112450.11299@home.osdl.org> <20031229092203.GL27687@holomorphy.com> <Pine.LNX.4.58.0312290129510.11299@home.osdl.org> <20031229102319.GW22443@holomorphy.com>
+	Mon, 29 Dec 2003 06:06:29 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:30435
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263137AbTL2LG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 06:06:28 -0500
+Date: Mon, 29 Dec 2003 03:06:25 -0800
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-mm2
+Message-ID: <20031229110625.GB27802@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20031229013223.75c531ed.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
 Content-Disposition: inline
-In-Reply-To: <20031229102319.GW22443@holomorphy.com>
+In-Reply-To: <20031229013223.75c531ed.akpm@osdl.org>
 User-Agent: Mutt/1.5.4i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 02:23:19AM -0800, William Lee Irwin III wrote:
-> bits are sprinkled around, along with a few more involved changes because
-> a large number of distributed changes are required to handle oddities
-> that occur when PAGE_SIZE changes from 4KB. The more involved changes
-> are often for things such as the only reason it uses PAGE_SIZE is
-> really that it just expects 4KB and says PAGE_SIZE, or that it wants
-> some fixed (even across compiles) size and needs updating for more
-> general PAGE_SIZE numbers, or sometimes that it expects PAGE_SIZE to be
-> what a pte maps when this is now represented by MMUPAGE_SIZE.
 
-Any chance some of these changes are self contained, and could be split out
-and possibly merged into -mm?
+--wq9mPyueHGvFACwf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Dec 29, 2003 at 01:32:23AM -0800, Andrew Morton wrote:
+> . A couple of patches here should fix the CDROM-related problems which
+>   some people saw in 2.6.0-mm1.
+
+Note to people who have been following the "Can't eject previously
+mounted CD" thread: -mm2 fixes everything for me.
+
+--=20
+Joshua Kwan
+
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQIVAwUBP/AKsKOILr94RG8mAQJV7BAA35lGgZZuLDBrExKRI8qa8KYLqWgHA5gS
+U9XAQ4nfKNer6i8wEON0NHRf8RR23tGVNFeGEZREs+Wc7VdM4fQmFfpT9WR52nyS
+wYzNLi4BMa6odaBQUTc4wFWpat8O/VBbA/W19KJlrxx6Sz9pvcqs5BaKcN4o9JXa
+suxhVF/lMeAX6gDZqZI5H11QC56ST8aIFjU+xcX+4vRyo8ZcWg9jvFMTtTWNy781
+hd/tMVQy/Vvf/hr30JW/c2BjOYnOICRHMkj0xzbHpunx5RjtJxprKZNOCySccfgS
+cetHFbpRIJyCNiEqG7dizr7zhl+lxN+HOlODn/HKpMJl+RryiFZYwaBwgOcFccpD
+XqAwJsD4/TtGIhvsS283TATPE0lxTTUiUqXe8774TxKVT0B5bmb3YKcxH9G/S4X2
+Jz9c0Z/aZNv6l2ospzmvfYdNpKq9chr03oEcWudLY3sAJ4bgXGRfl+qPeIPODZGP
+15HmMmUpkGre+ooZYME9TBszuJsB5AWdnui5aOfuu4qOt8kJ2Ltag6Rub8UKtLzw
+B1zpYuBLEqfthT7tDvI1JWS7WvoTzIQoG9wrCsmohdKNmeHeWpyFpaxznY087XZc
+hERHKKSxX7X/SlZFQfp3bfsGMEqgt9NXo8JBQLxD/8begKm8aDl/a5/X3jFtDW9U
+oHKz9EkCdgM=
+=l64L
+-----END PGP SIGNATURE-----
+
+--wq9mPyueHGvFACwf--

@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283010AbRK1Dnk>; Tue, 27 Nov 2001 22:43:40 -0500
+	id <S283012AbRK1DpK>; Tue, 27 Nov 2001 22:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281870AbRK1Dnb>; Tue, 27 Nov 2001 22:43:31 -0500
-Received: from web20202.mail.yahoo.com ([216.136.226.57]:31574 "HELO
-	web20202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S283010AbRK1DnV>; Tue, 27 Nov 2001 22:43:21 -0500
-Message-ID: <20011128034320.95590.qmail@web20202.mail.yahoo.com>
-Date: Tue, 27 Nov 2001 19:43:20 -0800 (PST)
-From: GoodNews <postspisok1@yahoo.com>
-To: shnizdur@yahoo.co.uk
+	id <S281870AbRK1Dov>; Tue, 27 Nov 2001 22:44:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28946 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283011AbRK1Do3>; Tue, 27 Nov 2001 22:44:29 -0500
+Date: Tue, 27 Nov 2001 19:38:48 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>,
+        <jmerkey@timpanogas.org>
+Subject: Re: Block I/O Enchancements, 2.5.1-pre2
+In-Reply-To: <3C044CB1.62F5650F@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0111271933100.1195-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Дорогой друг!
-Извини, что отбираю твое время на чтение данного
-послания,так как мы все 
-устали от бесконечных рекламных рассылок и всяческого
-мусора,но я надеюсь, 
-что несколько минут затраченного времени смогут
-окупиться, если ты решишься 
-изменить свой взгляд на окружающую тебя
-действительность.
 
+On Tue, 27 Nov 2001, Jeff Garzik wrote:
+>
+> Oh yeah, I meant to ask: do we get 64-bit inode numbers and 64-bit block
+> numbers on x86 sometime in 2.5?
 
-Предлагается в корне изменить свою жизнь! И для этого
-предназначена программа, 
-реально действующая, с реальными возможностями
-заработать деньги, затратив на 
-это не очень большие усилия. 
-Этот метод заработка денег на самом деле ДЕЙСТВУЕТ НА
-100%, КОГДА УГОДНО, 
-ГДЕ УГОДНО. Вы сможете заработать более 1.000.000
-рублей в последующие 90 дней. 
-Это не цепное письмо, а отличная легальная возможность
-заработать деньги. 
+Well, the 64-bit sector number skeleton is already there in pre2..
 
-Не пожалейте времени, ознакомьтесь с предлагаемой
-программой, и успех и 
-благополучие посетят Ваш дом!
+We will probably _not_ get 64-bit page index numbers, though. I don't want
+to make the page structure bigger/slower for very little gain. So the page
+cache is probably going to be limited to about 44 bits (45+ if people
+start doing large pages, which is probably worth it). So there would still
+be partition/file limits on the order of 16-64 TB in the next few years.
 
-Данное письмо придет к Вам на этот адрес один
-единственный раз, больше я Вас 
-не побеспокою. Но если у Вас имеются и другие адреса,
-не обижайтесь, если это 
-послание придет и на них,программа не может отследить 
-хозяина ящика, только
-факт существования адреса.
+(In a longer timeframe, assuming RAM keeps getting cheaper and cheaper,
+and 64-bit computing starts hppening on PC's, a few years down the line we
+can re-visit this - that particular transition is not going to be too
+painful).
 
-Если Вас это заинтересовало и Вы желаете больше узнать
-о работе предлагаемой 
-программы, Вы можете отправить данное сообщение
-обратно с пометкой
-"More", что бы я выслала Вам подробное описание работы
-системы по Вашему
-желанию, а не занимать Ваше время и не тратить Ваши
-деньги на получение
-вложенного документа.
+And yes, I realize that you can already build big arrays and use LVM etc
+to make them be more than 16TB. I just do not think it's a problem yet,
+and I'd rather cater to "normal" people than to peopel who can't bother
+to partition their data at all.
 
-Возвращенные без данной пометки письма будут, как Вы
-правильно догадываетесь, 
-удалятся без прочтения.
+		Linus
 
-Но если Вы хотите поругаться и выпустить пар, то
-пожалуйста :-)
-Надеюсь, Вам станет легче :-)
-
-Еще раз извините, что отнимаю Ваше время.
-Успехов вам и всяческих благ!
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1

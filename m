@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVAHLH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVAHLNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVAHLH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 06:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVAHHeH
+	id S261873AbVAHLNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 06:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVAHLML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 02:34:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2182 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261904AbVAHFsg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:36 -0500
-Subject: Re: [PATCH] I2C patches for 2.6.10
-In-Reply-To: <11051627741477@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:39:35 -0800
-Message-Id: <11051627753704@kroah.com>
+	Sat, 8 Jan 2005 06:12:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41997 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261852AbVAHLKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 06:10:05 -0500
+Date: Sat, 8 Jan 2005 11:09:57 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Al Viro <viro@ftp.uk.linux.org>,
+       Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MMC block removable flag
+Message-ID: <20050108110957.D7065@flint.arm.linux.org.uk>
+Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	Al Viro <viro@ftp.uk.linux.org>, Jens Axboe <axboe@suse.de>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <41D3646F.5050408@drzeus.cx> <20041230095448.A9500@flint.arm.linux.org.uk> <41D4253D.8070006@drzeus.cx> <20050107123947.B23665@flint.arm.linux.org.uk> <20050107140035.GA5920@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050107140035.GA5920@pclin040.win.tue.nl>; from aebr@win.tue.nl on Fri, Jan 07, 2005 at 03:00:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.439.55, 2005/01/07 11:16:13-08:00, rddunlap@osdl.org
+On Fri, Jan 07, 2005 at 03:00:35PM +0100, Andries Brouwer wrote:
+> On Fri, Jan 07, 2005 at 12:39:47PM +0000, Russell King wrote:
+> > Can anyone comment on the purpose of this (GENHD_FL_REMOVABLE) flag?
+> > Al?  Jens?
+> 
+> GENHD_FL_REMOVABLE is set by a number of drivers (floppy, CDROM, ...).
+> It is used in two places:
+> (1) to fill the file /sys/block/*/removable
+> (2) in genhd to suppress listing a nonpartitioned removable device
+> in /proc/partitions.
+> 
+> In other words, it is for user space only, precisely as Pierre Ossman said.
 
-[PATCH] i2c-ali1563: fix init & exit section usage
+Your point 2 isn't user space though.
 
-Fix init & exit section usages, beginning with this diagnostic
-from reference_discarded.pl (make buildcheck):
-Error: ./drivers/i2c/busses/i2c-ali1563.o .data refers to 00000278 R_386_32          .exit.text
+Also, it's buggy.  Consider a SCSI PCMCIA card with SCSI disks attached.
+When you eject that card, your SCSI disks disappear, yet they aren't
+marked as removable.  If user space is relying on /sys/block/*/removable
+to tell it if things may go away, then user space is buggy.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Maybe it's for devices which may be present (eg, floppy driver), but
+which have removable media (eg, floppy disk), rather than removable
+devices?
 
-
- drivers/i2c/busses/i2c-ali1563.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/drivers/i2c/busses/i2c-ali1563.c b/drivers/i2c/busses/i2c-ali1563.c
---- a/drivers/i2c/busses/i2c-ali1563.c	2005-01-07 14:53:24 -08:00
-+++ b/drivers/i2c/busses/i2c-ali1563.c	2005-01-07 14:53:24 -08:00
-@@ -306,7 +306,7 @@
- 	pci_write_config_word(dev,ALI1563_SMBBA,ctrl);
- }
- 
--static int __init ali1563_setup(struct pci_dev * dev)
-+static int __devinit ali1563_setup(struct pci_dev * dev)
- {
- 	u16 ctrl;
- 
-@@ -362,7 +362,7 @@
- 	.algo	= &ali1563_algorithm,
- };
- 
--static int __init ali1563_probe(struct pci_dev * dev,
-+static int __devinit ali1563_probe(struct pci_dev * dev,
- 				const struct pci_device_id * id_table)
- {
- 	int error;
-@@ -378,7 +378,7 @@
- 	return error;
- }
- 
--static void __exit ali1563_remove(struct pci_dev * dev)
-+static void __devexit ali1563_remove(struct pci_dev * dev)
- {
- 	i2c_del_adapter(&ali1563_adapter);
- 	ali1563_shutdown(dev);
-@@ -395,7 +395,7 @@
-  	.name		= "ali1563_i2c",
- 	.id_table	= ali1563_id_table,
-  	.probe		= ali1563_probe,
--	.remove		= ali1563_remove,
-+	.remove		= __devexit_p(ali1563_remove),
- };
- 
- static int __init ali1563_init(void)
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

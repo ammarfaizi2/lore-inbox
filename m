@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274196AbRIXWEH>; Mon, 24 Sep 2001 18:04:07 -0400
+	id <S274192AbRIXWIs>; Mon, 24 Sep 2001 18:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274192AbRIXWD5>; Mon, 24 Sep 2001 18:03:57 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:39686 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274186AbRIXWDw>;
-	Mon, 24 Sep 2001 18:03:52 -0400
-Message-ID: <XFMail.20010924150804.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274193AbRIXWIh>; Mon, 24 Sep 2001 18:08:37 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:10368 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S274192AbRIXWI0>;
+	Mon, 24 Sep 2001 18:08:26 -0400
+Message-ID: <3BAFB034.1EDAB34F@randomlogic.com>
+Date: Mon, 24 Sep 2001 15:14:12 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Reply-To: pallen@akamai.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <20010924225616.D9688@kushida.jlokier.co.uk>
-Date: Mon, 24 Sep 2001 15:08:04 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Dan Kegel <dank@kegel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Gordon Oliver <gordo@pincoya.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [Oops] Real G2 Beta7
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can anyone give me some insight on this?
 
-On 24-Sep-2001 Jamie Lokier wrote:
-> Davide Libenzi wrote:
->> > You could even keep the memory for the queued signal / event inside
-> the file structure.
->> 
->> By keeping the event structure inside the file* require you to collect
->> these events ( read memory moves ) at peek time.
->> With /dev/epoll the event is directly dropped inside the mmaped area.
+Kernel 2.2.5-15smp, Red Hat, Network Engines P7000 Blade (Dual PII 500MHz)
+
+Thanks,
+
+PGA
+
+
+"Allen, Paul" wrote:
 > 
-> Well, memory move consists of 2 words: (a) file descriptor; (b) poll
-> state/edge flags.
+> >  -----Original Message-----
+> > From:         Chaiyakul, Annie
+> > Sent: Monday, September 24, 2001 2:14 PM
+> > To:   Allen, Paul
+> > Subject:      can you do some research on this error
+> >
+> > Sep 16 04:22:01 g2beta7 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000018
+> > Sep 16 04:22:01 g2beta7 kernel: current->tss.cr3 = 186c6000, %cr3 = 186c6000
+> > Sep 16 04:22:01 g2beta7 kernel: *pde = 00000000
+> > Sep 16 04:22:01 g2beta7 kernel: Oops: 0000
+> > Sep 16 04:22:01 g2beta7 kernel: CPU:    0
+> > Sep 16 04:22:01 g2beta7 kernel: EIP: 0010:[do_generic_file_read+355/1540]
+> > Sep 16 04:22:01 g2beta7 kernel: EFLAGS: 00010202
+> > Sep 16 04:22:01 g2beta7 kernel: eax: 00000e44   ebx: 00000000   ecx: c0258644   edx: 00000010
+> > Sep 16 04:22:01 g2beta7 kernel: esi: c5ebfba0   edi: 00000000   ebp: 00000000   esp: d90f7f3c
+> > Sep 16 04:22:01 g2beta7 kernel: ds: 0018   es: 0018   ss: 0018
+> > Sep 16 04:22:01 g2beta7 kernel: Process gawk (pid: 17749, process nr: 177, stackpage=d90f7000)
+> > Sep 16 04:22:01 g2beta7 kernel: Stack: 00000000 d90f6000 c0258644 00000000 00000000 d9c95f00 c660ce40 00000000
+> > Sep 16 04:22:01 g2beta7 kernel:        d90f6000 00000001 00000000 c5ebfba0 c011f66b d9c95f00 d9c95f14 d90f7f8c
+> > Sep 16 04:22:01 g2beta7 kernel:        c011f5b8 d9c95f00 ffffffea 00000000 00000000 00001000 080b2900 00000000
+> > Sep 16 04:22:01 g2beta7 kernel: Call Trace: [generic_file_read+99/124] [file_read_actor+0/80] [sys_read+194/232] [system_call+52/56]
+> > Sep 16 04:22:01 g2beta7 kernel: Code: 39 72 08 75 f0 39 5a 0c 75 eb f0 ff 42 14 b8 02 00 00 00 f0
+> > Sep 16 04:22:02 g2beta7 kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000001c
+> > Sep 16 04:22:02 g2beta7 kernel: current->tss.cr3 = 182df000, %cr3 = 182df000
+> > Sep 16 04:22:02 g2beta7 kernel: *pde = 00000000
+> > Sep 16 04:22:02 g2beta7 kernel: Oops: 0000
+> > Sep 16 04:22:02 g2beta7 kernel: CPU:    1
+> > Sep 16 04:22:02 g2beta7 kernel: EIP:    0010:[try_to_read_ahead+123/292]
+> > Sep 16 04:22:02 g2beta7 kernel: EFLAGS: 00010206
+> > Sep 16 04:22:02 g2beta7 kernel: eax: 00000e44   ebx: 00000000   ecx: c0258644   edx: 00000014
+> > Sep 16 04:22:02 g2beta7 kernel: esi: c4aea330   edi: ca866000   ebp: 00001000   esp: c8f37f18
+> > Sep 16 04:22:02 g2beta7 kernel: ds: 0018   es: 0018   ss: 0018
+> > Sep 16 04:22:02 g2beta7 kernel: Process gawk (pid: 17762, process nr: 177, stackpage=c8f37000)
+> > Sep 16 04:22:02 g2beta7 kernel: Stack: c040e018 00001000 c0258644 c011f2ae d7c568c0 00001000 00000000 00001000
+> > Sep 16 04:22:02 g2beta7 kernel:        080ad4c8 00000000 c8f36000 c0258640 00001000 00000000 00003000 0001f000
+> > Sep 16 04:22:02 g2beta7 kernel:        00000000 00000001 00000001 00000000 c4aea330 c011f66b d7c568c0 d7c568d4
+> >
 
-2-words * number-of-ready-fds == pretty-high-cache-drain
-
-
-> That will be completely swamped by the system calls and so on needed to
-> processes each of the file descriptors.  I.e. no scalability problem here.
-
-The other issue is that by keeping infos in file* you'll have to scan each fd
-to report the ready ones, that will make the method to fall back in O(n).
-Anyway there's a pretty good patch ( http://www.luban.org/GPL/gpl.html ),
-that has been tested here :
-
-http://www.xmailserver.org/linux-patches/nio-improve.html
-
-that implement the signal-per-fd mechanism and it achieves a very good scalability too.
-
-
-
-
-
-- Davide
-
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

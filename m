@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVCVIFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVCVIGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVCVIFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 03:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVCVIFr
+	id S262543AbVCVIGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 03:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVCVIGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 03:05:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55716 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262531AbVCVIFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 03:05:40 -0500
-Subject: Re: mmap/munmap bug
-From: Arjan van de Ven <arjan@infradead.org>
-To: Gleb Natapov <gleb@minantech.com>
-Cc: Hayim Shaul <hayim@post.tau.ac.il>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050322075658.GA32445@minantech.com>
-References: <Pine.LNX.4.61.0503211731430.9160@nova.cs.tau.ac.il>
-	 <1111430042.6952.70.camel@laptopd505.fenrus.org>
-	 <20050322075658.GA32445@minantech.com>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 09:05:33 +0100
-Message-Id: <1111478733.7096.36.camel@laptopd505.fenrus.org>
+	Tue, 22 Mar 2005 03:06:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:22518 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262543AbVCVIG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 03:06:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=lGBmNZtEtYGZxE0ezohNGnFzQovSbj/i/FI8Ww9ZZsVob2pzHYWKUWvtrfvbvcsezjzYCKHESMNNC9NAqnuO3zvTpAct/QUB/KLAJjl+ENu/45VdXTD4ETo6der7gOOU5ENnkuJxpIBMMM1PbysFe4no3re1yz38zWlbnTw2yg8=
+Message-ID: <aec7e5c3050322000677d5f22f@mail.gmail.com>
+Date: Tue, 22 Mar 2005 09:06:29 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Johannes Stezenbach <js@linuxtv.org>, Magnus Damm <damm@opensource.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dvb_frontend: MODULE_PARM_DESC
+In-Reply-To: <20050322025104.GA18067@linuxtv.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20050321154226.19053.36781.35540@clementine.local>
+	 <20050322025104.GA18067@linuxtv.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 09:56 +0200, Gleb Natapov wrote:
-> On Mon, Mar 21, 2005 at 07:34:02PM +0100, Arjan van de Ven wrote:
-> > On Mon, 2005-03-21 at 17:32 +0200, Hayim Shaul wrote:
-> > > Hi all,
-> > > 
-> > > I have an unexplained bug with mmap/munmap on 2.6.X.
-> > > 
-> > > I'm writing a kernel module that gives super-fast access to the network.
-> > > It does so by doing mmap thus avoiding the memcpy to/from user.
-> > 
-> > well... you are aware the network stack already supports generic zero
-> > copy networking, right ?
-> > 
-> Does it support zero copy not only for send but also for receive? Can we
-> receive packets directly to userspace buffers?
+On Tue, 22 Mar 2005 03:51:04 +0100, Johannes Stezenbach <js@linuxtv.org> wrote:
+> On Mon, Mar 21, 2005 at 05:10:27PM +0100, Magnus Damm wrote:
+> > Remove "dvb_"-prefix from parameters. Without the patch all parameters except
+> > the declaration of parameter "frontend_debug" have a "dvb_"-prefix.
+> 
+> Why is that dvb_ prefix a problem?
 
-that it can't currently, but without some major protocol stack rework
-that's not going to be easy. If you want to help do that work,
-excellent! Be sure to contact the people on net-dev mailinglist since
-they are the ones having looked at this previously.
+It is no biggie and probably not worth breaking users' configuration
+like you said, but most drivers do not have their KBUILD_MODNAME
+included in the parameter names.
 
+Setting parameters that have KBUILD_MODNAME as prefix from the kernel
+commandline is then done by KBUILD_MODNAME.KBUILD_MODNAME_xxx and that
+is plain ugly - especially when a list of parameters are generated
+from the source.
+Some bad citizens IMO:
 
+dvb.dvb_shutdown_timeout, asus.asus_gid, arlan.arlan_entry_debug
 
+> > Error detected with section2text.rb, see autoparam patch.
+> 
+> Please only fix errors and do not rename other parameters. We shouldn't
+> break users' modprobe.conf option settings.
+
+Ok, just fixing errors: frontend_debug should be renamed to
+dvb_frontend_debug or the parameter description should at least match
+the parameter...
+ 
+Thanks,
+
+/ magnus

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284942AbRLFC3T>; Wed, 5 Dec 2001 21:29:19 -0500
+	id <S284943AbRLFCaA>; Wed, 5 Dec 2001 21:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284943AbRLFC27>; Wed, 5 Dec 2001 21:28:59 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:43791 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284942AbRLFC2y>; Wed, 5 Dec 2001 21:28:54 -0500
-Date: Wed, 5 Dec 2001 18:39:55 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] cpus_allowed/launch_policy patch, 2.4.16
-In-Reply-To: <3C0ED52E.B15F0ED7@us.ibm.com>
-Message-ID: <Pine.LNX.4.40.0112051836310.1644-100000@blue1.dev.mcafeelabs.com>
+	id <S284944AbRLFC3u>; Wed, 5 Dec 2001 21:29:50 -0500
+Received: from host33.216.26.140.xodiax.com ([216.26.140.33]:53509 "EHLO
+	www.52media.com") by vger.kernel.org with ESMTP id <S284943AbRLFC3d>;
+	Wed, 5 Dec 2001 21:29:33 -0500
+Date: Wed, 5 Dec 2001 20:27:47 -0600 (CST)
+From: Erik Elmore <lk@bigsexymo.com>
+To: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: NVIDIA kernel module
+In-Reply-To: <1007594981.2916.7.camel@eleusis>
+Message-ID: <Pine.LNX.4.33.0112052026500.28290-100000@erik.bigsexymo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001, Matthew Dobson wrote:
+> > Have I lost my mind?
+> > 
+> > I've always thought that NVIDIA's linux kernel support was incredibly 
+> > closed source, but I swear I just saw a download link for the kernel 
+> > module sources at http://www.nvidia.com/view.asp?PAGE=linux
+> > 
+> > was I mistaken or is this something new?
+> 
+> The former.
 
-> pid_t enforce_launch_policy_fork() {
->         pid_t pp = fork();
->         if (pp == 0) {
->                 set_affinity(getpid(), get_affinity());
->                 ...
->         }
->         return pp;
-> }
->
-> but, as soon as one of them exec()'s their no longer going to be using your
-> functions.
+heh, the part about me bing mistaken or the part about me losing my mind?
 
-That's the point, cpus_allowed is automatically inherited by the child in
-kernel/fork.c
-So once you spawn a child with the proposed function, all its dinasty (
-if it's not explicitly changed ) will have the same cpu affinity.
+Erik
 
-
-
-
-- Davide
 
 

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271747AbTHMKqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 06:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271746AbTHMKqY
+	id S271807AbTHMLGl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTHMLGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 06:46:24 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:24328 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S271743AbTHMKqW (ORCPT
+	Wed, 13 Aug 2003 07:06:41 -0400
+Received: from colin2.muc.de ([193.149.48.15]:17928 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S271807AbTHMLGj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 06:46:22 -0400
-Date: Wed, 13 Aug 2003 12:46:19 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030813104619.GA7421@win.tue.nl>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org> <20030812213549.GA2158@kroah.com> <20030813002450.GA8712@beaverton.ibm.com>
+	Wed, 13 Aug 2003 07:06:39 -0400
+Date: 13 Aug 2003 13:06:36 +0200
+Date: Wed, 13 Aug 2003 13:06:36 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
+       Zwane Mwaikambo <zwane@holomorphy.com>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+Message-ID: <20030813110636.GB26019@colin2.muc.de>
+References: <20030813045638.GA9713@middle.of.nowhere> <20030813014746.412660ae.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030813002450.GA8712@beaverton.ibm.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030813014746.412660ae.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 05:24:50PM -0700, Mike Anderson wrote:
-
-> > > Well, this same problem could show upb in any other driver.  Could
-> > > you instead send a patch to Pat that the driver model never calls
-> > > the shutdown method for a driver that hasn't finished ->probe?
-> > 
-> > I think it already will not do that due to taking the bus->subsys.rwsem
-> > before calling either probe() or remove().
+> But if a prefetch of zero oopses then we should be oopsing in there all the
+> time.
 > 
-> Is the shutdown being called directly? The shutdown call is protected by
-> a different rwsem. Depending on the call graph setting dev->driver on
-> return of probe may provide a solution.
 
-Yes, that is precisely what I had considered doing.
+If it's an Opteron then it's a known errata (#91 iirc). Update your BIOS in 
+this case.
 
-> I have not looked at all probe
-> routines to understand if this would cause any bad side effects.
-> 
-> Andries,
-> 	Can you send the oops output?
+The x86-64 kernel port also has a workaround for this (adding exception
+handling to the prefetches)
 
-top of stack was reported as (process reboot):
-
-sd_shutdown + 0x22/0x110 NULL deref (namely, sdkp)
-i8042_notify_sys
-device_shutdown
-sys_reboot
-do_clock_nanosleep
+-Andi
 

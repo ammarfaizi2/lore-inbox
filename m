@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264990AbRFZPH4>; Tue, 26 Jun 2001 11:07:56 -0400
+	id <S264971AbRFZPOQ>; Tue, 26 Jun 2001 11:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264973AbRFZPHr>; Tue, 26 Jun 2001 11:07:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30215 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264971AbRFZPHb>; Tue, 26 Jun 2001 11:07:31 -0400
-Subject: Re: AMD thunderbird oops
-To: adeucher@UU.NET (Alex Deucher)
-Date: Tue, 26 Jun 2001 16:07:09 +0100 (BST)
-Cc: joeja@mindspring.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3B389702.47C03532@uu.net> from "Alex Deucher" at Jun 26, 2001 10:06:58 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264993AbRFZPOG>; Tue, 26 Jun 2001 11:14:06 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:35464 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S264971AbRFZPNz>; Tue, 26 Jun 2001 11:13:55 -0400
+Date: Tue, 26 Jun 2001 08:15:31 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Jocelyn Mayer <jma@netgem.com>
+cc: <landley@webofficenow.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <3B37FFBA.8000201@netgem.com>
+Message-ID: <Pine.LNX.4.33.0106260804540.2823-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15EuQn-0003eT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get oopses too when I use kernels compiled for athlon on my redhat
-> 7.1, athlon 850 system.  runs rock solid when I compile for i686.  I
-> assumed the athlon optimizations in the kernel were broken, or gcc's
-> athlon optimization was, as I seem to recall some discussion of this a
-> while back on the LKML.
+On Tue, 26 Jun 2001, Jocelyn Mayer wrote:
 
-Most IWILL K266 people report this. Those who swapped them for other boards
-mostly report the problem then going away. Yes it could be a bug we trigger
-that by chance the IWILL boards show up more than others but I'm sceptical
+you get DR-DOS = Digital Research DOS, then you get Novell DOS, then
+you get Caldera OpenDOS, currently opendos is owned by lineo
 
-Alan
+> I think I remember that DR-DOS was the name that Caldera
+> gave to the Digital Research OS, previously known as GEMDOS,
+
+--------------------------------------------------------------------------
+Joel Jaeggli				       joelja@darkwing.uoregon.edu
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
 

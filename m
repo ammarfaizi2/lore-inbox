@@ -1,104 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVAWTz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVAWUDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVAWTz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 14:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVAWTzz
+	id S261347AbVAWUDe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 15:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVAWUDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 14:55:55 -0500
-Received: from home-21008.b.astral.ro ([193.231.183.45]:53892 "EHLO
-	sevenrains.ro") by vger.kernel.org with ESMTP id S261346AbVAWTzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 14:55:42 -0500
-Subject: vt_def_color.patch
-From: "Corcalciuc V. Horia" <rain@sevenrains.ro>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0bEnnV+Yi9CyayZNFJt6"
-Date: Sun, 23 Jan 2005 21:55:11 +0200
-Message-Id: <1106510111.4842.17.camel@Maia.ro>
+	Sun, 23 Jan 2005 15:03:34 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13839 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261347AbVAWUD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 15:03:26 -0500
+Date: Sun, 23 Jan 2005 20:03:15 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050123200315.A25351@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+	alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
+References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen> <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org> <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050123023248.263daca9.akpm@osdl.org>; from akpm@osdl.org on Sun, Jan 23, 2005 at 02:32:48AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 23, 2005 at 02:32:48AM -0800, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > But I'm still stuck with all of my ram gone after a
+> >  600MB fillmem, half of it is just in swap.
+> 
+> Well.  Half of it has gone so far ;)
+> 
+> > 
+> >  Attaching meminfo and sysrq-m after fillmem.
+> 
+> (I meant a really big fillmem: a couple of 2GB ones.  Not to worry.)
+> 
+> It's not in slab and the pagecache and anonymous memory stuff seems to be
+> working OK.  So it has to be something else, which does a bare
+> __alloc_pages().  Low-level block stuff, networking, arch code, perhaps.
+> 
+> I don't think I've ever really seen code to diagnose this.
+> 
+> A simplistic approach would be to add eight or so ulongs into struct page,
+> populate them with builtin_return_address(0...7) at allocation time, then
+> modify sysrq-m to walk mem_map[] printing it all out for pages which have
+> page_count() > 0.  That'd find the culprit.
 
---=-0bEnnV+Yi9CyayZNFJt6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think I may be seeing something odd here, maybe a possible memory leak.
+The only problem I have is wondering whether I'm actually comparing like
+with like.  Maybe some networking people can provide a hint?
 
-Hello,
-	I've written a small patch meant to modfity the default vt color on 2.6
-kernels. If usefull please aply :)
+Below is gathered from 2.6.11-rc1.
 
---- linux-2.6.9/drivers/char/Kconfig    2004-10-19 00:53:07.000000000
-+0300
-+++ linux-update/drivers/char/Kconfig   2004-11-19 00:05:10.000000000
-+0200
-@@ -57,6 +57,35 @@
-=20
-          If unsure, say Y.
-=20
-+config VT_COLOR
-+       bool "Change default VT color."
-+        depends on VT
-+        default n
-+        ---help---
-+          This option will allow you to change the default color of
-your VT
-+          terminal.
-+
-+          If you say Y here, the next option will let you choose the
-hex
-+          value. For more information see the help included for the
-option
-+          below.
-+
-+          This option should be safe. If unsure, say N.
-+
-+config VT_COLOR_NEW
-+       hex "Choose default VT color"
-+       depends on VT_COLOR
-+       default 0x07
-+        ---help---
-+          Choose default VT foreground color. Setting this option will
-let
-+          you select the default color of your VT terminal.
-+
-+          Tested options:
-+            0x03 - cyan
-+            0x05 - purple
-+            0x07 - white (default)
-+            0x09 - blue
-+            0x0A - green
-+
- config HW_CONSOLE
-        bool
-        depends on VT && !S390 && !USERMODE
---- linux-2.6.9/drivers/char/vt.c       2004-10-19 00:55:06.000000000
-+0300
-+++ linux-update/drivers/char/vt.c      2004-11-18 23:48:44.000000000
-+0200
-@@ -2555,7 +2555,7 @@
-                vc_cons[currcons].d->vc_palette[k++] =3D default_grn[j] ;
-                vc_cons[currcons].d->vc_palette[k++] =3D default_blu[j] ;
-        }
--       def_color       =3D 0x07;   /* white */
-+       def_color       =3D CONFIG_VT_COLOR_NEW;   /* new */
-        ulcolor         =3D 0x0f;   /* bold white */
-        halfcolor       =3D 0x08;   /* grey */
-        init_waitqueue_head(&vt_cons[currcons]->paste_wait);
+bash-2.05a# head -n2 /proc/slabinfo
+slabinfo - version: 2.1
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+115
+ip_dst_cache         759    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+117
+ip_dst_cache         770    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+133
+ip_dst_cache         775    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+18
+ip_dst_cache         664    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+20
+ip_dst_cache         664    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+22
+ip_dst_cache         673    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+23
+ip_dst_cache         670    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+24
+ip_dst_cache         675    885    256   15    1
+bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
+24
+ip_dst_cache         669    885    256   15    1
 
+I'm fairly positive when I rebooted the machine a couple of days ago,
+ip_dst_cache was significantly smaller for the same number of lines in
+/proc/net/rt_cache.
 
---=-0bEnnV+Yi9CyayZNFJt6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB9AEf+QhAJmAfs2cRAnqjAKCy3gtjCdRSKIz8L1qzZgCUd6bOjgCgn1ON
-APTosww8Pv6ykTFOqUB6C7k=
-=rgkZ
------END PGP SIGNATURE-----
-
---=-0bEnnV+Yi9CyayZNFJt6--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

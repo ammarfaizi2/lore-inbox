@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290508AbSAYIOb>; Fri, 25 Jan 2002 03:14:31 -0500
+	id <S290600AbSAYIb5>; Fri, 25 Jan 2002 03:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290599AbSAYIOV>; Fri, 25 Jan 2002 03:14:21 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:17672 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S290508AbSAYIOT>; Fri, 25 Jan 2002 03:14:19 -0500
-Message-ID: <3C511249.2DFE6CCF@zip.com.au>
-Date: Fri, 25 Jan 2002 00:07:37 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S290601AbSAYIbw>; Fri, 25 Jan 2002 03:31:52 -0500
+Received: from [202.87.41.13] ([202.87.41.13]:25271 "HELO postfix.baazee.com")
+	by vger.kernel.org with SMTP id <S290600AbSAYIbg>;
+	Fri, 25 Jan 2002 03:31:36 -0500
+Message-ID: <018401c1a57a$e8102590$3c00a8c0@baazee.com>
+Reply-To: "Anish Srivastava" <anishs@vsnl.com>
+From: "Anish Srivastava" <anishs@vsnl.com>
+To: "Andrew Morton" <akpm@zip.com.au>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        "Andrea Arcangeli" <andrea@suse.de>,
+        "Rik van Riel" <riel@conectiva.com.br>, <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <008301c1a4c1$a79f8fa0$3c00a8c0@baazee.com> <3C5076C1.DDEE200B@zip.com.au>
+Subject: Re: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+Date: Fri, 25 Jan 2002 14:02:58 +0530
 MIME-Version: 1.0
-To: Giacomo Catenazzi <cate@debian.org>
-CC: Sam Ravnborg <sam@ravnborg.org>, Anuradha Ratnaweera <anuradha@gnu.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] kernelconf-0.1.2
-In-Reply-To: <fa.fntpj9v.103mb83@ifi.uio.no> <fa.h5to74v.132gv1k@ifi.uio.no> <3C511163.7030500@debian.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo Catenazzi wrote:
+> The fact that the current stable version of the Linux kernel
+> can only achieve an eight-hour uptime on this class of machine
+> is a fairly serious problem, don't we all agree?
 > 
-> Sam Ravnborg wrote:
+> We need a fix for 2.4.18.
 > 
-> > On Thu, Jan 24, 2002 at 12:45:48PM +0600, Anuradha Ratnaweera wrote:
-> >
-> >>Here we go again...
-> >>
-> >>Version 0.1.2 is an RFC.  Don't use it unless you are really adventurous.
-> >>The size of the tarball has grown by a factor of 6, mostly due to the
-> >>symbol files.
-> >>
-> >
-> > Hi Anuradha.
-> > I have not looked into the SRC, but IIRC you mentioned an interest in LEX/YACC for CML2.
-> > Take a look at:
-> > http://www.alphalink.com.au/~gnb/cml2
-> >
-> > This is an incomplete implementation of a CML2 parser + semantic analysis in C utilising a bison parser.
-> 
-> Hmm. This is the 3rd C cml2 implementation I have heard. (+ non CML2 based Kernelconfig).
-> 
-> People, don't waste the time! Please merge the projects (They will be only one).
-> 
+> Did you test the -aa patches?
+ 
+No, I havent tried the aa patches. I belive the aa patches are to be 
+integrated in the 2.4.18 official stable release.
 
-I took the time to download and look at Anuradha's work yesterday.
-It seems nice, sensible and sane.  I suspect it would have saved
-Linus many hours work.
+Since I am quite happy with the performance of my machine with 
+the rmap patch......I will leave it as it is. Though, for your information 
+I will be checking out the aa patches on my backup machine 
+which is also of the same class. I will let you guys know the 
+performance with the aa patches incorporated as soon as
+I set it up on the other machine.
 
--
+Regards,
+Anish
+
+

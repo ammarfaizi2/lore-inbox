@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263097AbVCXPun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVCXPul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263097AbVCXPun (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbVCXPr2
+	id S262805AbVCXPul (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbVCXPsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:47:28 -0500
-Received: from users.linvision.com ([62.58.92.114]:52105 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262847AbVCXPnY (ORCPT
+	Thu, 24 Mar 2005 10:48:11 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:1938 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S262805AbVCXPqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:43:24 -0500
-Date: Thu, 24 Mar 2005 16:43:17 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: govind raj <agovinda04@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel crash problem and Madwifi
-Message-ID: <20050324154317.GK7016@harddisk-recovery.com>
-References: <BAY10-F346FCB94AAE3D59115210D6400@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY10-F346FCB94AAE3D59115210D6400@phx.gbl>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Thu, 24 Mar 2005 10:46:53 -0500
+Message-ID: <4242E0E2.4050407@is-teledata.com>
+Date: Thu, 24 Mar 2005 16:46:42 +0100
+From: Lutz Vieweg <lutz.vieweg@is-teledata.com>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: select() not returning though pipe became readable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 08:35:49PM +0530, govind raj wrote:
-> kernel version:2.4.29
-> board :net4521
-> wireless card : Atheros-5212
-> diriver  madwifi-cvs-current.tar.bz2(v 1.30 2005/02/22)
+Hi everyone,
 
-According to the FAQ at http://www.mattfoster.clara.co.uk/madwifi-1.htm#2 ,
-Madwifi is based on a binary-only module.
+I'm currently investigating the following problem, which seems to indicate
+a misbehaviour of the kernel:
 
-> I built the customized image  from 2.4.29 and  booted from this image
+A server software we implemented is sporadically "hanging" in a select()
+call since we upgraded from kernel 2.4 to (currently) 2.6.9 (we have to wait
+for 2.6.12 before we can upgrade again due to the shared-mem-not-dumped-into-
+core-files problem addressed there).
 
-[...]
+What's suspicious is that whenever we attach with gdb to such a hanging process,
+we can see that a pipe, whose file-descriptor is definitely included in the
+fd_set "readfds" (and "n" is also high enough) has a byte in it available for
+reading - and just leaving gdb again is enough to let the server continue just
+fine.
 
-> Unable to handle kernel paging request at virtual address e49aac30
-> printing eip:
-> c4878019
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c4878019>]    Tainted: P
+We are using that pipe, which is known only to the same one process, to cause
+select() to return immediately if a signal (SIGUSR1) had been delivered to the
+process (by another process), there's a signal handler installed that does
+nothing but a (non-blocking) write of 1 byte to the writing end of the pipe.
 
-Yes, tainted by a proprietary licensed module. Sorry, lkml is not able
-to help you with binary-only modules. Ask whoever supplied your driver
-for support.
+This mechanism worked fine before kernel 2.6, and it is still working in 99.99% of
+the cases, but under heavy load, every few hours, we'll see the hanging select()
+as mentioned above.
 
-> EFLAGS: 00010246
-> eax: 0804ab74   ebx: c3d76000   ecx: 00000000   edx: 00000000
-> esi: c3d76000   edi: c3d76348   ebp: c3d76000   esp: c3c09ed0
-> ds: 0018   es: 0018   ss: 0018
-> Process ifconfig (pid: 116, stackpage=c3c09000)
-> Stack: 0804ab74 c3d7615c 00000000 c3c54000 0804ab74 c3d76000 00000000 
-> 00001043
->      00000000 c01a5484 c3d76000 c3d76000 00001002 c01a66c1 c3d76000 
-> c3c09f54
->      c3c09f59 c3c2b144 bffffa10 c01dd219 c3d76000 00001043 00000000 
-> 00000000
-> Call Trace:    [<c01a5484>] [<c01a66c1>] [<c01dd219>] [<c019eeca>] 
-> [<c014163e>]
-> [<c0106dc3>]
+I noticed a recent thread at lkml about poll() and pipes, but that seems to address a
+different issue, where there are more events reported than occured, what we
+see is quite the opposite, we want select() to return on that pipe becoming readable...
 
-Next time run the oops through ksymoops. Undecoded oopses are almost
-useless.
+Any ideas?
+Any hints on what to do to investigate the problem further?
+
+Regards,
+
+Lutz Vieweg
 
 
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129936AbQKUTw7>; Tue, 21 Nov 2000 14:52:59 -0500
+	id <S131008AbQKUT4e>; Tue, 21 Nov 2000 14:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131008AbQKUTwk>; Tue, 21 Nov 2000 14:52:40 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:29740 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129977AbQKUTwa>; Tue, 21 Nov 2000 14:52:30 -0500
-Message-Id: <200011211922.LAA17238@albion.engr.sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Call for Papers - 2001 FREENIX Annual Technical Conference
-Date: Tue, 21 Nov 2000 11:22:17 -0800
-From: Simon Patience <sp@albion.engr.sgi.com>
+	id <S131123AbQKUT4Y>; Tue, 21 Nov 2000 14:56:24 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:9740 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S131008AbQKUT4R>; Tue, 21 Nov 2000 14:56:17 -0500
+Date: Tue, 21 Nov 2000 14:26:17 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Oleg Drokin <green@ixcelerator.com>, linux-kernel@vger.kernel.org
+Subject: Re: hardcoded HZ in hub.c
+Message-ID: <20001121142616.L7764@sventech.com>
+In-Reply-To: <20001121095626.F3431@valinux.com> <Pine.LNX.4.30.0011211912490.22252-100000@imladris.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <Pine.LNX.4.30.0011211912490.22252-100000@imladris.demon.co.uk>; from David Woodhouse on Tue, Nov 21, 2000 at 07:13:14PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 21, 2000, David Woodhouse <dwmw2@infradead.org> wrote:
+> On Tue, 21 Nov 2000, Johannes Erdfelt wrote:
+> 
+> > That that possible? usb_hub_events can block for a long time. That is why
+> > the kernel thread was needed. I'm not familiar with schedule_task enough
+> > to know if it can be used.
+> 
+> Ah. How long? At first glance, it didn't look to me as if it would sleep
+> for long at all.
 
-	CALL FOR PAPERS- 2001 FREENIX annual conference, Boston, MA.
-	<http://www.usenix.org/events/usenix01/cfp/cfp.pdf>
+Multiple seconds in the worst case.
 
-NOTE: Summary submission deadline is Monday, November 27.
+JE
 
-FREENIX is a special track within the USENIX Annual Technical
-Conference.  USENIX encourages the exchange of information and
-technologies between the commercial UNIX products and the free software
-world as well as among the various free operating system alternatives.
-
-FREENIX is the showcase for the latest developments and interesting
-software applications in a form that is being freely distributed. The
-FREENIX forum include APACHE, FreeBSD, GNOME, GNU, KDE, Linux, NetBSD,
-OpenBSD, Samba and more. The FREENIX track attempts to cover the full
-range of software that is freely distributable in source code form and
-provides pointers to where the code can be found on the internet.
-
-We are looking for talks which advance the state of the art of freely
-distributable software or otherwise provide useful information to those
-faced with deploying (and selling) free software in the field.
-
-Areas of interest include, but are not limited to:
-
-	* Operating System design
-	* Network design and implementation
-	* Filesystem design
-	* Highly available systems
-	* Highly scalable systems
-	* Graphical user interface tools
-	* Desktop metaphors
-	* File and print systems
-	* System management tools
-	* Securtity
-	* Large scale system management
-	* Interesting deployments of free software 
-	* How free software is bveing developed and managed today
-
-Interesting applications of freely redistributable software  might
-include:  robotics and automation, clustering, wearable computers,
-embedded systems, high-speed networking, studio graphics, and audio
-processing.
-
-Cash prizes will be awarded for the best paper and the best paper by a
-student.
-
-For instructions on how to submit a paper, please see the instructions
-at the URL above.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbTAQXES>; Fri, 17 Jan 2003 18:04:18 -0500
+	id <S261732AbTAQXFb>; Fri, 17 Jan 2003 18:05:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbTAQXES>; Fri, 17 Jan 2003 18:04:18 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:31494 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S261645AbTAQXER>;
-	Fri, 17 Jan 2003 18:04:17 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301172312.h0HNCuHO002622@darkstar.example.net>
-Subject: [ANNOUNCE] Kernel Bug Database 2.0
-To: linux-kernel@vger.kernel.org
-Date: Fri, 17 Jan 2003 23:12:56 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261742AbTAQXFb>; Fri, 17 Jan 2003 18:05:31 -0500
+Received: from holomorphy.com ([66.224.33.161]:28568 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261732AbTAQXFa>;
+	Fri, 17 Jan 2003 18:05:30 -0500
+Date: Fri, 17 Jan 2003 15:14:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: MAX_IO_APICS #ifdef'd wrongly
+Message-ID: <20030117231417.GT919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, akpm@zip.com.au,
+	linux-kernel@vger.kernel.org
+References: <20030117090031.GD940@holomorphy.com> <224570000.1042818820@titus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <224570000.1042818820@titus>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been working on it all day, and I've finally got version 2.0
-ready and working, and put it on-line:
+On Fri, Jan 17, 2003 at 07:53:41AM -0800, Martin J. Bligh wrote:
+> Summit needs this too, so it should really be CONFIG_NUMA at least.
+> Ideally this would go into subarch if we can move it cleanly (hint, hint ;-))
+> But other than that, yes ... I'll merge it.
+> Thanks,
 
-http://grabjohn.com/kernelbugdatabase
+I shot for the one liner that fixed the case I could test. Shoving it
+into subarch is cleaner, but needs more code movement and changes the
+prior semantics. The prior semantics were broken for larger Summit
+configurations, hmm. Maybe _all_ the array sizes should go into some
+kind of subarch analogue of param.h, e.g. mach_param.h
 
-I've added a major new concept in this version - bug reports and
-confirmed bugs, (I.E. bugs which are being actively investigated by
-somebody with administrative access to the Kernel Bug Database), are
-now separate things.
+The only one I can think of that doesn't fly is NR_IRQS; once there
+are more interrupt sources than FIRST_SYSTEM_VECTOR - FIRST_DEVICE_VECTOR
+the whole of arch/i386/ appears to explode.
 
-In other words, anybody can submit a bug report, but only designated
-people can collect those reports together into a confirmed bug.  A bug
-report can be related to several confirmed bugs.  Confirmed bugs can
-be read and commented on by all users.
+Someone somewhere should probably take notice of that.
 
-Thanks to Fergal Daly for submitting this idea, and I'd also like to
-point out that I read more or less the same idea in this email by
-Larry McVoy, where Jens mentions the idea of sorting a queue of new
-bugs into the real database.
 
-http://www.cs.helsinki.fi/linux/linux-kernel/2001-13/0084.html
-
-Hopefully this system also makes Alan's idea of keeping all bug
-reports for data mining, (also mentioned above), more practical.
-
-I haven't written any documentation for it yet, but hopefully it's
-fairly self-explanatory anyway.
-
-I've added a single confirmed bug, which relates to two vaguely
-related bug reports, (missing help text, and a missing comment), but
-anybody who wants administrative access to add and modify confirmed
-bugs, just drop me an E-Mail.
-
-As always, any feedback on this would be much appreciated.
-
-John.
+Bill

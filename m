@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293627AbSCUJGD>; Thu, 21 Mar 2002 04:06:03 -0500
+	id <S293646AbSCUJKp>; Thu, 21 Mar 2002 04:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293626AbSCUJFw>; Thu, 21 Mar 2002 04:05:52 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:18569 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S293619AbSCUJFu> convert rfc822-to-8bit; Thu, 21 Mar 2002 04:05:50 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <flygong@yahoo.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Thu, 21 Mar 2002 01:05:47 -0800
-In-Reply-To: <20020321051219.9811.qmail@web14510.mail.yahoo.com>
-Subject: Re: The network performance of linux
-Mime-Version: 1.0
+	id <S293668AbSCUJKg>; Thu, 21 Mar 2002 04:10:36 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:45258 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S293659AbSCUJK0>; Thu, 21 Mar 2002 04:10:26 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Axel Kittenberger <Axel.Kittenberger@maxxio.at>
+Subject: Re: Patch, forward release() return values to the close() call
+Date: Thu, 21 Mar 2002 10:10:22 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <200203210747.IAA25949@merlin.gams.co.at> <3C99997C.6030202@mandrakesoft.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-ID: <20020321090548.AAA17336@shell.webmaster.com@whenever>
+Message-ID: <16nyaE-1ala7MC@fmrl01.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 21 March 2002 09:27, Jeff Garzik wrote:
+> Whoops, my apologies.  The patch looks ok to me.
+>
+> I read your text closely and the patch not close enough.  As I said, it
+> is indeed wrong for a device driver to fail f_op->release(), "fail"
+> being defined as leaving fd state lying around, assuming that the system
+> will fail the fput().
+>
+> But your patch merely propagates a return value, not change behavior,
+> which seems sane to me.
 
-On Wed, 20 Mar 2002 21:12:19 -0800 (PST), Bergs wrote:
+Hi,
 
->I work on a linux 2.2.14 kernel to test the network
->throughput of a linux  box used as a firewall.
+close() does not directly map to release().
+If you want your device to return error
+information reliably, you need to implement flush().
 
->I find that when the IP packet length is 512B,the
->throughput is the highest 71%. IP packet length is
->smaller than 512B or bigger than 512B,the throughput
->is the lower.
-
->I don't know why this ? Can I have some solutions
->to improve the throughput of linux box ?
-
-	I don't understand what you're measuring. Are you using TCP or UDP? If UDP, 
-what exactly are you measuring? If TCP, how are you changing the packet size?
-
+	Regards
+		Oliver

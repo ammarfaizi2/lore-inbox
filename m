@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312354AbSDJKGx>; Wed, 10 Apr 2002 06:06:53 -0400
+	id <S312316AbSDJKFt>; Wed, 10 Apr 2002 06:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312370AbSDJKGw>; Wed, 10 Apr 2002 06:06:52 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:48145 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312354AbSDJKGv>; Wed, 10 Apr 2002 06:06:51 -0400
-Message-ID: <3CB40036.7010504@evision-ventures.com>
-Date: Wed, 10 Apr 2002 11:04:54 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][CFT] IDE TCQ #2
-In-Reply-To: <20020409124417.GK25984@suse.de> <3CB3FDF7.6010505@evision-ventures.com> <20020410095829.GG2485@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S312354AbSDJKFs>; Wed, 10 Apr 2002 06:05:48 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:16395 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S312316AbSDJKFr>;
+	Wed, 10 Apr 2002 06:05:47 -0400
+Date: Wed, 10 Apr 2002 19:05:50 +0900 (JST)
+Message-Id: <20020410.190550.83626375.taka@valinux.co.jp>
+To: nfs@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] zerocopy NFS updated
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Apr 10 2002, Martin Dalecki wrote:
-> 
->>Jens Axboe wrote:
->>
->>>Hi,
->>>
->>>Version 2 is ready. Changes since last time:
->>
->>Hi,
->>
->>OK I have managed to merge this with the 2.5.8-pre2 + ide-29b at home.
->>However since we have now apparently already a -pre3 I will have
->>to at least redo the patches against it. If this takes more
->>then the time needed for a cup of coffe I will have unfortuntely to
->>do it today afternoon.
-> 
-> 
-> I'm already running 2.5.8-pre3 (which appears to include ide-29b,
-> right?) + ide-tcq here, so you should probably not waste any effort on
-> that :-)
+Hi
 
-Well than I will have to basically redo all the
-stuff I did in between... like for example nuking the
-number of parameters to ata_taskfile()... :-(.
+I add a new patch for zerocopy NFS.
+va03-knfsd-zerocopy-sendpage-2.5.7-test1.patch makes knfsd to skip
+csum_partial_copy_generic() which copies data into a sk_buff.
+This feature works on when you use NFS over TCP only at this moment.
+I'd like to implement sendpage for UDP, but it doesn't work yet.
 
-> I'll post an updated patch later today.
+But I wonder about sendpage. I guess HW IP checksum for outgoing
+pages might be miscalculated as VFS can update them anytime.
+New feature like COW pagecache should be added to VM and they 
+should be duplicated in this case.
 
-Fine.
+Is there anyone who could advise me about this.
 
 
+Following patches patches are against linux 2.5.7
+
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va01-knfsd-zerocopy-vfsread-2.5.7.patch
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va02-kmap-multplepages-2.5.7.patch
+
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va03-knfsd-zerocopy-sendpage-2.5.7-test1.patch
+
+
+Andrew,  Could you try it again?
+
+
+Regards,
+Hirokazu Takahashi

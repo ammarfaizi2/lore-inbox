@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277226AbRJDVQE>; Thu, 4 Oct 2001 17:16:04 -0400
+	id <S277232AbRJDVTo>; Thu, 4 Oct 2001 17:19:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277232AbRJDVPz>; Thu, 4 Oct 2001 17:15:55 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:5135 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S277226AbRJDVPi>; Thu, 4 Oct 2001 17:15:38 -0400
-Date: Thu, 4 Oct 2001 17:16:02 -0400 (EDT)
-From: Ion Badulescu <ion@cs.columbia.edu>
-X-X-Sender: <ion@guppy.limebrokerage.com>
-To: jamal <hadi@cyberus.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.GSO.4.30.0110041456000.10825-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.33.0110041715380.7266-100000@guppy.limebrokerage.com>
+	id <S277234AbRJDVTe>; Thu, 4 Oct 2001 17:19:34 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10768 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277232AbRJDVT1>; Thu, 4 Oct 2001 17:19:27 -0400
+Subject: Re: [POT] Which journalised filesystem ?
+To: andre.dahlqvist@telia.com (=?iso-8859-1?Q?Andr=E9?= Dahlqvist)
+Date: Thu, 4 Oct 2001 22:25:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011003173448.C2337@telia.com> from "=?iso-8859-1?Q?Andr=E9?= Dahlqvist" at Oct 03, 2001 05:34:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pFzU-0004H7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Oct 2001, jamal wrote:
+> > Alan mentioned this was something to do with the IBM hard disk
+> > having strange write-cache properties that confuse ext3.
+> 
+> Which IBM harddrive(s) does this? How can one check if it does?
 
-> I could write a small HOWTO at least for HWFLOWCONTROL since that doesnt
-> need anything fancy.
+Its not specifically IBM, there are two sets of things to watch out for
 
-That'd be very nice.
+-	Cache flush as a nop/unimplemented. This is legal in all but the
+	most recent ATA specification. The spec has been tightened so that
+	problem will go in time
 
-Thanks,
-Ion
+-	Some IBM laptop drives appeared to fail to write back the cache on
+	machine shutdown/suspend etc. The exact rights/wrongs/details on
+	that one haven't been pinned down because the folks concerned
+	swapped a couple of drives for different ones, saw the problem
+	vanish and being a large organisation had the supplier replace the
+	other fifty odd. 
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Alan

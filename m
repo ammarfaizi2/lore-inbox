@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289715AbSAJVro>; Thu, 10 Jan 2002 16:47:44 -0500
+	id <S289824AbSAJVuY>; Thu, 10 Jan 2002 16:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289712AbSAJVre>; Thu, 10 Jan 2002 16:47:34 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25293 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289706AbSAJVrT>;
-	Thu, 10 Jan 2002 16:47:19 -0500
-Date: Fri, 11 Jan 2002 00:44:43 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Mike Kravetz <kravetz@us.ibm.com>, Anton Blanchard <anton@samba.org>,
-        george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <1010692888.5338.319.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0201110036420.10579-100000@localhost.localdomain>
+	id <S289716AbSAJVtX>; Thu, 10 Jan 2002 16:49:23 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:31141 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289706AbSAJVsu>; Thu, 10 Jan 2002 16:48:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "ChristianK."@t-online.de (Christian Koenig)
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Briging doesn't compile without TCP/IP Networking
+Date: Thu, 10 Jan 2002 22:50:45 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16On3u-1zr9mqC@fwd05.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 10 Jan 2002, Robert Love wrote:
+I accidently destroyed the Kernel of my self made bridge (old 486 / 4 PCI 
+nics).
+When i tried to compile an new one (2.4.17) I've got a compile error in
+include/net/tcp_ecn.h
 
-> Along the same lines as the above, note this code snippet from
-> try_to_wake_up:
+Is this patch suitable or could you tell me why unix sokets
+and others need tcp.h ? 
 
-> 		if (0 && !rt_task(p) && synchronous && (smp_processor_id() < p->cpu)) {
+MfG, Christian Koenig.
 
-> +		if (!rt_task(p) && synchronous && (smp_processor_id() > p->cpu)) {
+diff -Nurb linux-2.4.17.orig/include/net/tcp_ecn.h 
+linux-2.4.17/include/net/tcp_ecn.h
+--- linux-2.4.17.orig/include/net/tcp_ecn.h	Sat Nov  3 02:43:26 2001
++++ linux-2.4.17/include/net/tcp_ecn.h	Thu Jan 10 22:28:26 2002
+@@ -44,6 +44,8 @@
+ 		th->ece = 1;
+ }
 
-you are right - but i have removed it completely from my current tree.
++#ifdef CONFIG_INET
++
+ static __inline__ void
+ TCP_ECN_send(struct sock *sk, struct tcp_opt *tp, struct sk_buff *skb, int 
+tcp_header_len)
+ {
+@@ -64,6 +66,8 @@
+ 			skb->h.th->ece = 1;
+ 	}
+ }
++
++#endif //CONFIG_INET
 
-the reason is that i think, unless seeing some hard proof to the contrary,
-it's not a good idea to balance from wakeups. Wakeups are high-frequency
-and lightweight in nature, and despite all the idle-balancing magic we
-tried in 2.4 (i wrote most of that code), there were important cases where
-it failed.
-
-so the current stategy i'd like us to try is to do 'high frequency idle
-rebalancing' and 'slow frequency fairness rebalancing'. No rebalancing in
-wakeup, at all. This makes wakeups simpler, faster and more scalable. (We
-can also do slow rebalancing in some other, strategic places where we know
-that it's the right time to push a process context to another CPU.)
-
-	Ingo
+ /* Input functions */
 

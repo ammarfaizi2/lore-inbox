@@ -1,66 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbTJUBwj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 21:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJUBwj
+	id S262802AbTJUB4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 21:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJUB4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 21:52:39 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:59576 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262583AbTJUBwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 21:52:38 -0400
-Date: Mon, 20 Oct 2003 21:46:02 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: marcelo.tosatti@cyclades.com.br, linux1394-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: patch for 2.4.22 sbp2 hang when loaded with devices already connected
-Message-ID: <20031021014602.GD866@phunnypharm.org>
-References: <ord6csra7h.fsf@free.redhat.lsd.ic.unicamp.br> <orbrsba0eg.fsf@free.redhat.lsd.ic.unicamp.br> <20031021010610.GB866@phunnypharm.org> <or1xt79xr3.fsf@free.redhat.lsd.ic.unicamp.br>
+	Mon, 20 Oct 2003 21:56:19 -0400
+Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:33420 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262802AbTJUB4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 21:56:15 -0400
+Subject: Re: K 2.6 test6 strange signal behaviour
+From: Ken Foskey <foskey@optushome.com.au>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20031020132805.5e5a59f1.akpm@osdl.org>
+References: <1066654886.5930.57.camel@gandalf.foskey.org>
+	 <20031020132805.5e5a59f1.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1066701370.1079.13.camel@gandalf.foskey.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <or1xt79xr3.fsf@free.redhat.lsd.ic.unicamp.br>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 21 Oct 2003 11:56:10 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 11:37:36PM -0200, Alexandre Oliva wrote:
-> On Oct 20, 2003, Ben Collins <bcollins@debian.org> wrote:
+On Tue, 2003-10-21 at 06:28, Andrew Morton wrote:
+> Ken Foskey <foskey@optushome.com.au> wrote:
+> >
+> > I have a problem with signals.
 > 
-> > Please let me send the patch to Marcelo. I have to get this into our
-> > repo, and merge things around back to Marcelo, else it makes things
-> > harder later.
-> 
-> Sure, do however you prefer.  Sorry that I wasn't aware of the
-> procedure, and this ws the first patch I've ever submitted for the
-> kernel, woohoo! :-)
-> 
-> I just asked around where patches for 2.4 were supposed to be sent,
-> and got Marcelo's e-mail.  Then I noticed another firewire-related
-> patch mentioned in the same bug report in Red Hat's bugzilla, saw it
-> had been posted to these two mailing lists, and thought I'd do that as
-> well.
-> 
-> Thanks again, your help was extremely useful in nailing the problem
-> down.
+> You should be using sigsetjmp(), not setjmp().
 
-No problem. Generally, Marcelo is the right place for 2.4, but sometimes
-it's better to filter things through the subsystem maintainer if at all
-possible. For something trivial, I wouldn't have bothered asking to
-redirect through me, but for something like this I want to make sure we
-get on the same page, and that I test it out a little bit more (I hadn't
-even tested this patch myself yet :)
+No difference.  Note that this is K 2.6 specific, it "works" in K 2.4.
 
-Definitely thanks again for the help. This is the second bug recently
-that I could not reproduce and it takes feedback and effort like you
-gave me in order to track things down.
+I am reading on sigaction now, I will recode with SA_RESTART tonight.  
+I think this is not the solution because I am explicitly setting the
+signal handler before every call.  I think this simply leaves the signal
+handler active ie old BSD style.
 
-FYI, I checked, and this is a non-issue with our current 2.6 code (not
-sure it's pushed to Linus yet) because we removed several points of
-problems like this.
+I also received this comment:
+
+> Unblock the signal handler before you raise the signal again.
+
+I think this means sigprocmask with UNBLOCK.  "Should" this be
+required.  After reading and Andrews comments I added a reset and
+siglongjmp here is my current handler:
+
+static void SignalHdl( int sig )
+{
+  bSignal = 1;
+  
+  fprintf( stderr, "Signal %d caught\n", sig );
+  signal( sig, SIG_DFL );  /* reset handler back */
+  siglongjmp( check_env, sig );  /* return to code */
+}
+
+I do have a work around, I am pursuing this because the signal handler
+is behaving differently in K 2.6 than K 2.4.  The error may be mine
+however it may also be a bug with the kernel.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Thanks
+KenF
+OpenOffice.org developer
+
+Current code:
+
+#include <stdio.h>
+#include <signal.h>
+#include <setjmp.h>
+
+/*************************************************************************
+|*	Typdeclarations for memory access test functions
+*************************************************************************/
+typedef int (*TestFunc)( void* );
+
+/*************************************************************************
+*************************************************************************/
+static sigjmp_buf check_env;
+static int bSignal;
+static void SignalHdl( int sig )
+{
+  bSignal = 1;
+  
+  fprintf( stderr, "Signal %d caught\n", sig );
+  signal( sig, SIG_DFL );
+  siglongjmp( check_env, sig );
+}
+
+/*************************************************************************
+*************************************************************************/
+void check( TestFunc func, void* p )
+{
+  int result;
+
+  fprintf( stderr, "Setting Jump\n" );
+  if ( !sigsetjmp( check_env, 0 ) )
+  {
+	signal( SIGSEGV,	SignalHdl );
+	signal( SIGBUS,		SignalHdl );
+    fprintf( stderr, "Running \n" );
+	result = func( p );
+    fprintf( stderr, "Finished \n" );
+	signal( SIGSEGV,	SIG_DFL );
+	signal( SIGBUS,		SIG_DFL );
+  }
+  fprintf( stderr, "After jump \n" );
+}
+
+/*************************************************************************
+*************************************************************************/
+static int GetAtAddress( void* p )
+{
+  return *((char*)p);
+}
+
+/*************************************************************************
+*************************************************************************/
+static int SetAtAddress( void* p )
+{
+  return *((char*)p)	= 0;
+}
+
+/*************************************************************************
+*************************************************************************/
+void CheckGetAccess( void* p )
+{
+  check( (TestFunc)GetAtAddress, p );
+}
+/*************************************************************************
+*************************************************************************/
+void CheckSetAccess( void* p )
+{
+  check( (TestFunc)SetAtAddress, p );
+}
+
+/*************************************************************************
+*************************************************************************/
+int main( int argc, char* argv[] )
+{
+  {
+	char* p = NULL;
+	fprintf( stderr, "Getting from NULL\n" );
+    CheckGetAccess( p );
+	fprintf( stderr, "Setting to NULL\n" );
+    CheckSetAccess( p );
+	fprintf( stderr, "After Setting to NULL\n" );
+  }
+
+  exit( 0 );
+}
+
+

@@ -1,267 +1,166 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbTIUMBl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 08:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbTIUMBl
+	id S262375AbTIUMT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 08:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbTIUMT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 08:01:41 -0400
-Received: from [61.95.227.64] ([61.95.227.64]:29853 "EHLO gateway.gsecone.com")
-	by vger.kernel.org with ESMTP id S262387AbTIUMBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 08:01:35 -0400
-Subject: [PATCH 2.6.0-test5][NETROM] timer code cleanup
-From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
-To: netdev@oss.sgi.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Global Security One
-Message-Id: <1064145739.4349.28.camel@lima.royalchallenge.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 21 Sep 2003 17:32:19 +0530
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 08:19:56 -0400
+Received: from mta03bw.bigpond.com ([144.135.24.147]:39110 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP id S262375AbTIUMTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 08:19:51 -0400
+Date: Sun, 21 Sep 2003 22:17:51 +1000
+From: Ben Peddell <killer.lightspeed@bigpond.com>
+Subject: Re: Problem with PIO with ide-scsi in Kernel 2.4.22
+To: lkml <linux-kernel@vger.kernel.org>
+Message-id: <3F6D96EF.90502@bigpond.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+References: <fa.clonccb.r5kr2d@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiles fine. Untested.
+Ben Peddell wrote:
+> I've had a problem with the ide-scsi (ATAPI SCSI emulation) module with 
+> Linux 2.4.22.
+> 
+> When I disable DMA and read the CD-ROM, it reads a random amount up to 
+> about 1MB, and then has a timeout.
+> This never happened with linux-2.4.19-16mdk. I have even tried feeding 
+> the old settings into the configurator, but without success.
+> Here, I've set the log level to 9:
+> 
 
-1. move timer initialization into nr_init_timers so that we can use mod_timer
-2. remove skb queue purge in af_netrom as its already done by nr_clear_queues
-3. Use del_timer_sync in nr_loopback_clear
+I just had the problem again (didn't freeze the machine this time - I 
+was in X).
+I tried to list the contents of a CD-ROM, and the program was frozen, 
+not accepting any signals. So, I hdparm'ed the CD-ROM drive, and found 
+that DMA had been disabled.
+So, I re-enabled DMA, but shortly thereafter, something disabled DMA again.
+hdc: DMA disabled
+I had to kill ls, and finally was able to re-enable DMA without it being 
+disabled again.
 
-
-
- af_netrom.c   |   18 +++-------------
- nr_loopback.c |   31 +++++++----------------------
- nr_timer.c    |   62 ++++++++++++++++++++++++++--------------------------------
- 3 files changed, 40 insertions(+), 71 deletions(-)
-
-
-diff -urN linux-2.6.0-test5/net/netrom/af_netrom.c linux-2.6.0-test5-nvk/net/netrom/af_netrom.c
---- linux-2.6.0-test5/net/netrom/af_netrom.c	2003-09-09 11:12:08.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/netrom/af_netrom.c	2003-09-21 16:36:12.000000000 +0530
-@@ -62,6 +62,7 @@
- static spinlock_t nr_list_lock = SPIN_LOCK_UNLOCKED;
- 
- static struct proto_ops nr_proto_ops;
-+void nr_init_timers(struct sock *sk);
- 
- static struct sock *nr_alloc_sock(void)
- {
-@@ -279,17 +280,12 @@
- 
- 		kfree_skb(skb);
- 	}
--	while ((skb = skb_dequeue(&sk->sk_write_queue)) != NULL) {
--		kfree_skb(skb);
--	}
- 
- 	if (atomic_read(&sk->sk_wmem_alloc) ||
- 	    atomic_read(&sk->sk_rmem_alloc)) {
- 		/* Defer: outstanding buffers */
--		init_timer(&sk->sk_timer);
--		sk->sk_timer.expires  = jiffies + 2 * HZ;
- 		sk->sk_timer.function = nr_destroy_timer;
--		sk->sk_timer.data     = (unsigned long)sk;
-+		sk->sk_timer.expires  = jiffies + 2 * HZ;
- 		add_timer(&sk->sk_timer);
- 	} else
- 		sock_put(sk);
-@@ -442,10 +438,7 @@
- 	skb_queue_head_init(&nr->reseq_queue);
- 	skb_queue_head_init(&nr->frag_queue);
- 
--	init_timer(&nr->t1timer);
--	init_timer(&nr->t2timer);
--	init_timer(&nr->t4timer);
--	init_timer(&nr->idletimer);
-+	nr_init_timers(sk);
- 
- 	nr->t1     = sysctl_netrom_transport_timeout;
- 	nr->t2     = sysctl_netrom_transport_acknowledge_delay;
-@@ -491,10 +484,7 @@
- 	skb_queue_head_init(&nr->reseq_queue);
- 	skb_queue_head_init(&nr->frag_queue);
- 
--	init_timer(&nr->t1timer);
--	init_timer(&nr->t2timer);
--	init_timer(&nr->t4timer);
--	init_timer(&nr->idletimer);
-+	nr_init_timers(sk);
- 
- 	onr = nr_sk(osk);
- 
-diff -urN linux-2.6.0-test5/net/netrom/nr_loopback.c linux-2.6.0-test5-nvk/net/netrom/nr_loopback.c
---- linux-2.6.0-test5/net/netrom/nr_loopback.c	2003-09-09 11:12:08.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/netrom/nr_loopback.c	2003-09-21 13:36:05.000000000 +0530
-@@ -14,19 +14,17 @@
- #include <net/netrom.h>
- #include <linux/init.h>
- 
--static struct sk_buff_head loopback_queue;
--static struct timer_list loopback_timer;
-+static void nr_loopback_timer(unsigned long);
- 
--static void nr_set_loopback_timer(void);
-+static struct sk_buff_head loopback_queue;
-+static struct timer_list loopback_timer = TIMER_INITIALIZER(nr_loopback_timer, 0, 0);
- 
--void nr_loopback_init(void)
-+void __init nr_loopback_init(void)
- {
- 	skb_queue_head_init(&loopback_queue);
--
--	init_timer(&loopback_timer);
- }
- 
--static int nr_loopback_running(void)
-+static inline int nr_loopback_running(void)
- {
- 	return timer_pending(&loopback_timer);
- }
-@@ -42,26 +40,13 @@
- 		skb_queue_tail(&loopback_queue, skbn);
- 
- 		if (!nr_loopback_running())
--			nr_set_loopback_timer();
-+			mod_timer(&loopback_timer, jiffies + 10);
- 	}
- 
- 	kfree_skb(skb);
- 	return 1;
- }
- 
--static void nr_loopback_timer(unsigned long);
--
--static void nr_set_loopback_timer(void)
--{
--	del_timer(&loopback_timer);
--
--	loopback_timer.data     = 0;
--	loopback_timer.function = &nr_loopback_timer;
--	loopback_timer.expires  = jiffies + 10;
--
--	add_timer(&loopback_timer);
--}
--
- static void nr_loopback_timer(unsigned long param)
- {
- 	struct sk_buff *skb;
-@@ -80,12 +65,12 @@
- 			dev_put(dev);
- 
- 		if (!skb_queue_empty(&loopback_queue) && !nr_loopback_running())
--			nr_set_loopback_timer();
-+			mod_timer(&loopback_timer, jiffies + 10);
- 	}
- }
- 
- void __exit nr_loopback_clear(void)
- {
--	del_timer(&loopback_timer);
-+	del_timer_sync(&loopback_timer);
- 	skb_queue_purge(&loopback_queue);
- }
-diff -urN linux-2.6.0-test5/net/netrom/nr_timer.c linux-2.6.0-test5-nvk/net/netrom/nr_timer.c
---- linux-2.6.0-test5/net/netrom/nr_timer.c	2003-09-09 11:12:08.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/netrom/nr_timer.c	2003-09-21 15:23:46.000000000 +0530
-@@ -36,69 +36,63 @@
- static void nr_t4timer_expiry(unsigned long);
- static void nr_idletimer_expiry(unsigned long);
- 
--void nr_start_t1timer(struct sock *sk)
-+void nr_init_timers(struct sock *sk)
- {
- 	nr_cb *nr = nr_sk(sk);
- 
--	del_timer(&nr->t1timer);
--
-+	init_timer(&nr->t1timer);
- 	nr->t1timer.data     = (unsigned long)sk;
- 	nr->t1timer.function = &nr_t1timer_expiry;
--	nr->t1timer.expires  = jiffies + nr->t1;
-+	
-+	init_timer(&nr->t2timer);
-+	nr->t2timer.data     = (unsigned long)sk;
-+	nr->t2timer.function = &nr_t2timer_expiry;
-+
-+	init_timer(&nr->t4timer);
-+	nr->t4timer.data     = (unsigned long)sk;
-+	nr->t4timer.function = &nr_t4timer_expiry;
-+
-+	init_timer(&nr->idletimer);
-+	nr->idletimer.data     = (unsigned long)sk;
-+	nr->idletimer.function = &nr_idletimer_expiry;
- 
--	add_timer(&nr->t1timer);
-+	/* initialized by sock_init_data */
-+	sk->sk_timer.data     = (unsigned long)sk;
-+	sk->sk_timer.function = &nr_heartbeat_expiry;
- }
- 
--void nr_start_t2timer(struct sock *sk)
-+void nr_start_t1timer(struct sock *sk)
- {
- 	nr_cb *nr = nr_sk(sk);
- 
--	del_timer(&nr->t2timer);
-+	mod_timer(&nr->t1timer, jiffies + nr->t1);
-+}
- 
--	nr->t2timer.data     = (unsigned long)sk;
--	nr->t2timer.function = &nr_t2timer_expiry;
--	nr->t2timer.expires  = jiffies + nr->t2;
-+void nr_start_t2timer(struct sock *sk)
-+{
-+	nr_cb *nr = nr_sk(sk);
- 
--	add_timer(&nr->t2timer);
-+	mod_timer(&nr->t2timer, jiffies + nr->t2);
- }
- 
- void nr_start_t4timer(struct sock *sk)
- {
- 	nr_cb *nr = nr_sk(sk);
- 
--	del_timer(&nr->t4timer);
--
--	nr->t4timer.data     = (unsigned long)sk;
--	nr->t4timer.function = &nr_t4timer_expiry;
--	nr->t4timer.expires  = jiffies + nr->t4;
--
--	add_timer(&nr->t4timer);
-+	mod_timer(&nr->t4timer, jiffies + nr->t4);
- }
- 
- void nr_start_idletimer(struct sock *sk)
- {
- 	nr_cb *nr = nr_sk(sk);
- 
--	del_timer(&nr->idletimer);
--
--	if (nr->idle > 0) {
--		nr->idletimer.data     = (unsigned long)sk;
--		nr->idletimer.function = &nr_idletimer_expiry;
--		nr->idletimer.expires  = jiffies + nr->idle;
--
--		add_timer(&nr->idletimer);
--	}
-+	if (nr->idle > 0)
-+		mod_timer(&nr->idletimer, jiffies + nr->idle);
- }
- 
- void nr_start_heartbeat(struct sock *sk)
- {
--	del_timer(&sk->sk_timer);
--
--	sk->sk_timer.data     = (unsigned long)sk;
--	sk->sk_timer.function = &nr_heartbeat_expiry;
--	sk->sk_timer.expires  = jiffies + 5 * HZ;
--
--	add_timer(&sk->sk_timer);
-+	mod_timer(&sk->sk_timer, jiffies + 5 * HZ);
- }
- 
- void nr_stop_t1timer(struct sock *sk)
-
+cdrom: open failed.
+cdrom: open failed.
+cdrom: open failed.
+cdrom: open failed.
+cdrom: open failed.
+cdrom: open failed.
+cdrom: open failed.
+scsi : aborting command due to timeout : pid 119, scsi0, channel 0, id 
+0, lun 0 Read TOC 00 00 00 00 00 00 00 0c 00
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdc: ATAPI reset complete
+scsi : aborting command due to timeout : pid 120, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 120) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 120) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+scsi : aborting command due to timeout : pid 121, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 121) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 121) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+scsi : aborting command due to timeout : pid 122, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 122) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 122) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+sr0: CDROM (ioctl) error, command: Read TOC 00 00 00 00 00 00 00 0c 00
+sr00:00: old sense key None
+Non-extended sense class 0 code 0x0
+scsi : aborting command due to timeout : pid 124, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+scsi : aborting command due to timeout : pid 125, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 125) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 125) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+hdc: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdc: set_drive_speed_status: error=0xb4
+scsi : aborting command due to timeout : pid 126, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 126) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 126) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: lost interrupt
+scsi : aborting command due to timeout : pid 129, scsi0, channel 0, id 
+0, lun 0 Read TOC 00 00 00 00 00 00 00 0c 40
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdc: ATAPI reset complete
+hdc: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdc: set_drive_speed_status: error=0xb4
+scsi : aborting command due to timeout : pid 130, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 130) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 130) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: lost interrupt
+sr0: CDROM (ioctl) error, command: Read TOC 00 00 00 00 00 00 00 0c 40
+sr00:00: old sense key None
+Non-extended sense class 0 code 0x0
+scsi : aborting command due to timeout : pid 134, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: ATAPI reset complete
+hdc: irq timeout: status=0xc0 { Busy }
+scsi0 channel 0 : resetting for second half of retries.
+SCSI bus is being reset for host 0 channel 0.
+hdc: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdc: set_drive_speed_status: error=0xb4
+scsi : aborting command due to timeout : pid 135, scsi0, channel 0, id 
+0, lun 0 Request Sense 00 00 00 40 00
+SCSI host 0 abort (pid 135) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 135) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
+hdc: lost interrupt
+sr0: CDROM (ioctl) error, command: Read TOC 00 00 00 00 00 00 00 0c 00
+sr00:00: old sense key None
+Non-extended sense class 0 code 0x0
+scsi : aborting command due to timeout : pid 137, scsi0, channel 0, id 
+0, lun 0 Read Capacity 00 00 00 00 00 00 00 00 00
+hdc: irq timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdc: ATAPI reset complete
 

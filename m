@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUIMBxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUIMCCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUIMBxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 21:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUIMBxQ
+	id S264915AbUIMCCi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 22:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUIMCCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 21:53:16 -0400
-Received: from dhcp160178161.columbus.rr.com ([24.160.178.161]:10256 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S264903AbUIMBxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 21:53:14 -0400
-Date: Sun, 12 Sep 2004 21:52:59 -0400
-To: adaplas@pol.net
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-Message-ID: <20040913015259.GA2784@samarkand.rivenstone.net>
-Mail-Followup-To: adaplas@pol.net,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Andrew Morton <akpm@osdl.org>
-References: <1094783022.2667.106.camel@gaston> <200409110504.09812.adaplas@hotpop.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
-In-Reply-To: <200409110504.09812.adaplas@hotpop.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: jhf@rivenstone.net (Joseph Fannin)
+	Sun, 12 Sep 2004 22:02:37 -0400
+Received: from web51602.mail.yahoo.com ([206.190.38.207]:27247 "HELO
+	web51602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264915AbUIMCCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 22:02:35 -0400
+Message-ID: <20040913020235.21673.qmail@web51602.mail.yahoo.com>
+Date: Sun, 12 Sep 2004 19:02:35 -0700 (PDT)
+From: ngo giang <ngohoanggiang1981dh@yahoo.com>
+Subject: Can not reboot when build kernel 
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, 
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I want to build kernel to support DiffServ service in
+Traffic Control.
+ 
+I did as following 
+......
+make rmproper
+make xconfig
+make dep
+make clean
+make bzImage
+make modules
+make modules_install
+cp arch/i386/boot/bzImage /boot/bzImage-2.4.26
+cp System.map /boot/System.map-2.4.26
 
-On Sat, Sep 11, 2004 at 05:04:09AM +0800, Antonino A. Daplas wrote:
+and in grub.conf I typed :
 
-> Hi Ben,
->=20
-> How about this patch?  This brings back the old way of setting up the
-> drivers, supports:
->=20
-> video=3Dxxxfb:off
-> video=3Dofonly
->=20
-> Your patch that brings offb to the very last of the Makefile is needed.
+title kernel 2.4.26
+kernel /boot/vmlinuz-xxx
 
-    Applying these two patches to 2.6.9-rc1-mm4 makes the framebuffer
-console on my Powermac work again.  This box has an ATI RAGE chip on
-the motherboard I don't often use, so being able to do video=3Datyfb:off
-lets me keep the driver around -- thanks!
+when I reboot I received a error as follow:
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+Booting "kernel 2.4.26"
+kernel /boot/vmlinuz-2.4.26
+Error 15 : File not found 
 
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.
+Can any one help me !
+Thanks you very much for help !
 
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBRP17Wv4KsgKfSVgRAiBvAJ9PZsqswnU2qZcSswuFTCtP34xVdgCbBDy7
-R3KHXHIXTVgwLj6JgcRtWzI=
-=vn3H
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

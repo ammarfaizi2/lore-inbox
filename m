@@ -1,71 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSEHIGS>; Wed, 8 May 2002 04:06:18 -0400
+	id <S311839AbSEHIOz>; Wed, 8 May 2002 04:14:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311884AbSEHIGR>; Wed, 8 May 2002 04:06:17 -0400
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:6357 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S311871AbSEHIGQ>; Wed, 8 May 2002 04:06:16 -0400
-Message-ID: <3CD8DE44.3090700@notnowlewis.co.uk>
-Date: Wed, 08 May 2002 09:13:56 +0100
-From: mikeH <mikeH@notnowlewis.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomasz Rola <rtomek@cis.com.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lost interrupt
-In-Reply-To: <Pine.LNX.3.96.1020508042330.2702K-100000@pioneer>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S311884AbSEHIOy>; Wed, 8 May 2002 04:14:54 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:53000 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S311839AbSEHIOy>; Wed, 8 May 2002 04:14:54 -0400
+Date: Wed, 8 May 2002 09:14:42 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Patrick Mochel <mochel@osdl.org>,
+        Thunder from the hill <thunder@ngforever.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020508091442.A16868@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0205071245370.4189-100000@hawkeye.luckynet.adm> <Pine.LNX.4.33.0205071238000.6307-100000@segfault.osdl.org> <200205072203.g47M3o002102@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Rola wrote:
+On Tue, May 07, 2002 at 04:03:50PM -0600, Richard Gooch wrote:
+> But it's not actually broken, now that the locking is fixed.
 
->hdparm -u0 /dev/hdX  for every X in existing disks you have problems with.
->  
->
->
->hdparm -d0a0u0 /dev/ide/host0/bus0/target0/lun0/disc (or /dev/hda).
->
->bye
->T.
->
->  
->
-Thanks, I tried that but to no avail :(
+Really?  What about the case of the missing BKL for device opens that
+you haven't really commented on?
 
-To expand on the problem :
+Seems like devfs _still_ has locking problems.
 
-I have a creative DVD 5x drive and some unbranded CD-RW drive. The 
-problem occurs on both when I try to rip audio.
-
-I know for a fact they both have the capability to rip audio nicely, I 
-have seen them do it under a 2.2.X kernel, but now I'm running 2.4.18 (I 
-need 2.4 for my nvidia card)
-
-However, hdparm returns this (on both drives, no matter what 
-slave/master dma/irq combo I use)...
-
- HDIO_GET_MULTCOUNT failed: Invalid argument
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- HDIO_GET_NOWERR failed: Invalid argument
- readonly     =  1 (on)
- readahead    =  0 (off)
- HDIO_GETGEO failed: Invalid argument
- busstate     =  1 (on)
- HDIO_GET_ACOUSTIC failed: Invalid argument
-
-See the worrying "HDIO_GET_ACOUSTIC failed: Invalid argument" ?
-
-I'm not sure who is maintaining that part of the kernel though.
-
-Thanks for any help,
-
-mikeH
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

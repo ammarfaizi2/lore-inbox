@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292594AbSBZBOy>; Mon, 25 Feb 2002 20:14:54 -0500
+	id <S292599AbSBZBQd>; Mon, 25 Feb 2002 20:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292595AbSBZBOn>; Mon, 25 Feb 2002 20:14:43 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:51983
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S292593AbSBZBOb> convert rfc822-to-8bit; Mon, 25 Feb 2002 20:14:31 -0500
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
-	tree
-From: Shawn Starr <spstarr@sh0n.net>
-To: Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202260135.18913.Dieter.Nuetzel@hamburg.de>
-In-Reply-To: <200202260135.18913.Dieter.Nuetzel@hamburg.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 25 Feb 2002 20:15:48 -0500
-Message-Id: <1014686150.18834.2.camel@coredump>
+	id <S292593AbSBZBQU>; Mon, 25 Feb 2002 20:16:20 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25587
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S292599AbSBZBPh>; Mon, 25 Feb 2002 20:15:37 -0500
+Date: Mon, 25 Feb 2002 17:16:19 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-ac1
+Message-ID: <20020226011619.GB4393@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16fUo9-0006mD-00@the-village.bc.nu> <20020226005856.GD11786@merlin.emma.line.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020226005856.GD11786@merlin.emma.line.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
-on this P200 w/ 64MB ram.
+On Tue, Feb 26, 2002 at 01:58:56AM +0100, Matthias Andree wrote:
+> On Mon, 25 Feb 2002, Alan Cox wrote:
+> 
+> > Linux 2.4.18-ac1
+> > o	Merge with 2.4.18 proper
+> 
+> What's the state on ATA drives beyond 128 GB (GB == 2^30) or the IDE
+> patch by Andre Hedrick? Do you have plans to merge that stuff, now that
+> the IDE patch advocacy has calmed down again?
 
-Sorry :-)
+It's already in there...
 
-> Mon, 2002-02-25 at 19:35, Dieter Nützel wrote:
-> Without them we do _NOT_ calm the flamewar against Linux's 2.4 VM.
-> Second, it is time for the outstanding ReiserFS patches.
-> If we are somewhat risky we put Ingo's GREAT O(1)-scheduler in, too.
-> Preemption is than another story.
-> 
-> Thank you for any feedback in advance.
-> This not intended as a flamewar start.
-> 
-> -Dieter
-> -- 
-> Dieter Nützel
-> Graduate Student, Computer Science
-> 
-> University of Hamburg
-> Department of Computer Science
-> @home: Dieter.Nuetzel@hamburg.de
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Linux 2.4.18pre3-ac2                                
+                                
+o       Re-merge the IDE patches               (Andre Hedrick and co)
 
-
+Mike

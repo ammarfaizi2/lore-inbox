@@ -1,66 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbTJNHJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 03:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTJNHJu
+	id S262106AbTJNHE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 03:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTJNHE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 03:09:50 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:7699 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262224AbTJNHJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 03:09:36 -0400
-Date: Tue, 14 Oct 2003 00:09:33 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS patch for updating ctimes of renamed files
-Message-ID: <20031014070932.GQ15809@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu> <20031012071447.GJ8724@pegasys.ws> <3F8A3CE0.4060705@namesys.com> <20031013032431.1ed40c25.akpm@osdl.org> <3F8B93F7.2020805@namesys.com> <20031013232527.3cf5701f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031013232527.3cf5701f.akpm@osdl.org>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Vulnerable email reader detected!
+	Tue, 14 Oct 2003 03:04:29 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:46261 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262106AbTJNHEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 03:04:25 -0400
+Message-ID: <3F8BA037.9000705@sbcglobal.net>
+Date: Tue, 14 Oct 2003 02:05:27 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5) Gecko/20031008
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Norman Diamond <ndiamond@wta.att.ne.jp>, John Bradford <john@grabjohn.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens
+ to them?
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl>
+In-Reply-To: <20031014064925.GA12342@bitwizard.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 11:25:27PM -0700, Andrew Morton wrote:
-> Hans Reiser <reiser@namesys.com> wrote:
-> >
-> > do you think schultz's arguments about why it is wrong are correct?  
-> > They seem well thought out to me.
-> 
-> Well given that you've renamed the file, you do want the backup program to
-> pick up the "new" file.  But it'd be a pretty lame backup program which was
-> fooled by a missing ctime update.
-> 
-> Yes, John has a point but we're not going to go and change all the other
-> filesystems (are we?).
 
-I don't know who John is but i sure hope we are not going to
-go changing how working filesystems function.  It may be
-technically correct to not update ctime but that doesn't
-mean that it is incorrect to update it either.  It all
-depends on the filesystem.  They aren't all the same.  We
-have some that don't support symlinks or hardlinks or that
-have or lack other features.
 
-<OT>
-There are change detections through timestamp (mtime) i am
-concerned about.  As an rsync maintainer i worry about be
-extended attributes or ACLs changing with no modifiable
-timestamps being updated.  And, by the way, because you
-cannot set ctime it doesn't qualify.  Then there is jfs
-which i found did not update mtime when directories change
-unless the block count changes, but that might have been
-fixed already.
-</OT>
+Rogier Wolff wrote:
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+>On Mon, Oct 13, 2003 at 07:24:00PM +0900, Norman Diamond wrote:
+>  
+>
+>>John Bradford replied to me:
+>>
+>>    
+>>
+>>>>How can I tell Linux to read every sector in the partition?  Oh, I might
+>>>>know this one,
+>>>>  dd if=/dev/hda8 of=/dev/null
+>>>>I want to make sure that the drive is now using a non-defective
+>>>>replacement sector.
+>>>>        
+>>>>
+>>>A read won't necessarily do that.  You might have to write to a
+>>>defective sector to force re-allocation.
+>>>      
+>>>
+>>I agree, we are not sure if a read will do that.  That is the reason why two
+>>of my preceding questions were:
+>>    
+>>
+>
+>I've seen a disk (which now failed and will be replaced 3 hours from now)
+>remap defective sectors without reporting any errors to the OS. 
+>The SMART "remapped sector count" just went up, but no errors in the
+>logs. So apparently, the disk noticed something and remapped teh sector
+>without anybody noticing. 
+>  
+>
+Can't you pretty much get the drive to check itself using smartctl, such 
+as running:
+     smartctl -o on -s on -S on /dev/hde &> /dev/null
+in an init script?  Also, I think if you just happen to write to a bad 
+sector the drive will remap it without a warning (unless it doesn't have 
+any remapping sectors left), but if you read from it then to get the 
+drive to "notice" it, you have to write back to that sector.  Or run the 
+drive test which should find it and correct it.
 
-		Remember Cernan and Schmitt
+>  
+>
+>>   How can I find out which file contains the bad sector?  I would like to
+>>   try to recreate the file from a source of good data.
+>>    
+>>
+>
+>Try: 
+>	tar cf - / | dd of=/dev/null
+>
+>(note some people will try to abbreviate that to 
+>	tar cf /dev/null / 
+>but that won't work: Tar will recognise that it's writing to /dev/null
+>and skip reading the files! That's a bug in tar in my book. )
+>
+>  
+>
+>>   How can I tell Linux to mark the sector as bad, knowing the LBA sector
+>>   number?
+>>    
+>>
+>
+>man tune2fs .
+>
+>You have to do the math on the LBA sector numbers (subtract the
+>partition start, divide by two). 
+>
+>Also, you can use the "badblocks" program. 
+>  
+>
+I think he's using reiserfs on the partition, which ASFAIK doesn't 
+support marking bad sectors without some work.  I tend to agree with 
+namesys when they suggest just getting a new drive if it has used up all 
+of its extra sectors.  In my experience (admittedly limited), any drive 
+which runs out of extra sectors starts to go bad in a hurry.
+
+-Wes-
+
+>			Roger. 
+>  
+>
+

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261767AbSJCRr5>; Thu, 3 Oct 2002 13:47:57 -0400
+	id <S261756AbSJCRJy>; Thu, 3 Oct 2002 13:09:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261770AbSJCRr5>; Thu, 3 Oct 2002 13:47:57 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:61665 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261767AbSJCRr4>; Thu, 3 Oct 2002 13:47:56 -0400
-Subject: Re: [PATCH] linux-2.5.40_timer-changes_A3 (1/3 - infrastructure)
-From: john stultz <johnstul@us.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       george anzinger <george@mvista.com>
-In-Reply-To: <Pine.LNX.4.44.0210030922210.27710-100000@cherise.pdx.osdl.net>
-References: <Pine.LNX.4.44.0210030922210.27710-100000@cherise.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 03 Oct 2002 10:48:22 -0700
-Message-Id: <1033667302.28783.152.camel@cog>
+	id <S261758AbSJCRJy>; Thu, 3 Oct 2002 13:09:54 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:16644 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261756AbSJCRJw>; Thu, 3 Oct 2002 13:09:52 -0400
+Date: Thu, 3 Oct 2002 21:15:18 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 2.5.40] PCI: probing read-only BARs
+Message-ID: <20021003211518.A1039@jurassic.park.msu.ru>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 09:28, Patrick Mochel wrote:
-> 
-> > 	Inspired by suggestions from Alan, this collection of patches tries to
-> > clean up time.c by breaking out the PIT and TSC specific parts into
-> > their own files. Additionally the patch creates an abstract interface to
-> > use these existing time soruces, as well as make it easier to add future
-> > time sources. 
-> 
-> I would suggest taking it one small step farther and putting everything in 
-> their own subdirectory. Like arch/i386/kernel/timer/, at least for now. IF 
-> we ever get an arch/i386/driver/ subdir, it's simple enough to move the 
-> dir. One way or another, it unclutters the directory while achieving the 
-> same cleanup.
+Some pci devices may have base address registers locked with non-zero values.
+Examples:
+- AGP aperture BAR of AMD-7xx host bridges: if the AGP window disabled,
+  this BAR is read-only and read as 0x00000008;
+- BAR0-4 of ALi IDE controllers can be non-zero and read-only.
+Obviously, we can't calculate correct size of the respective region in
+this case (for AMD AGP window we'll get 4 GB resource - ouch).
+So I think that we should ignore r/o BARs (let the device specific
+fixups deal with them if needed).
+Patch appended (note that extra write(0)/read-back pair is required,
+as the BAR might be programmed with all 1s).
 
-That sounds good. I'll do so before I resubmit. 
+Ivan.
 
-Thanks for the feedback!
--john
-
+--- 2.5.40/drivers/pci/probe.c	Sat Sep 28 01:49:10 2002
++++ linux/drivers/pci/probe.c	Thu Oct  3 13:26:41 2002
+@@ -46,7 +46,7 @@ static u32 pci_size(u32 base, unsigned l
+ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
+ {
+ 	unsigned int pos, reg, next;
+-	u32 l, sz;
++	u32 l, l0, sz;
+ 	struct resource *res;
+ 
+ 	for(pos=0; pos<howmany; pos = next) {
+@@ -55,10 +55,12 @@ static void pci_read_bases(struct pci_de
+ 		res->name = dev->name;
+ 		reg = PCI_BASE_ADDRESS_0 + (pos << 2);
+ 		pci_read_config_dword(dev, reg, &l);
++		pci_write_config_dword(dev, reg, 0);
++		pci_read_config_dword(dev, reg, &l0);
+ 		pci_write_config_dword(dev, reg, ~0);
+ 		pci_read_config_dword(dev, reg, &sz);
+ 		pci_write_config_dword(dev, reg, l);
+-		if (!sz || sz == 0xffffffff)
++		if (!sz || sz == 0xffffffff || sz == l0)
+ 			continue;
+ 		if (l == 0xffffffff)
+ 			l = 0;

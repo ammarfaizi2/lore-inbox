@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313661AbSDJTkh>; Wed, 10 Apr 2002 15:40:37 -0400
+	id <S313657AbSDJToH>; Wed, 10 Apr 2002 15:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313673AbSDJTkg>; Wed, 10 Apr 2002 15:40:36 -0400
-Received: from matav-4.matav.hu ([145.236.252.35]:2072 "EHLO
-	Forman.fw.matav.hu") by vger.kernel.org with ESMTP
-	id <S313661AbSDJTke>; Wed, 10 Apr 2002 15:40:34 -0400
-Date: Wed, 10 Apr 2002 21:37:43 +0200 (CEST)
-From: Narancs v1 <narancs@narancs.tii.matav.hu>
-X-X-Sender: narancs@helka
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre6,too re: ide-scsi hanging on modprobe, 2.4.18-ac1 (fwd)
-Message-ID: <Pine.LNX.4.44.0204102136340.6563-100000@helka>
+	id <S313673AbSDJToG>; Wed, 10 Apr 2002 15:44:06 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:46544 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313657AbSDJToF>; Wed, 10 Apr 2002 15:44:05 -0400
+Message-ID: <3CB495D9.B444018B@us.ibm.com>
+Date: Wed, 10 Apr 2002 12:43:21 -0700
+From: Larry Kessler <kessler@us.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: Event logging vs enhancing printk
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-so it does with the latest stable-pre
+Francois-Xavier Kowalski wrote:
 
-bad hardware?
+> I am currently working in the Telecom area (signalling), on systems that
+> usually process several tenths of thousands of telephone calls per
+> second, during years. So I am the kind of guy interrested in having
+> enhancements to the Linux logging sub-systems
 
-now, ide-cd can't mount it neither saying bad superblock.
+You did not say what Linux distribution(s) you "favor", but MontaVista
+has announced that Event Logging, Linux Trace Toolkit, and some other
+features you probably want will be included in their Carrier Grade
+Edition, Version 2.1.  
 
--------------------------
-Narancs v1
-IT Security Administrator
-Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
-
-
----------- Forwarded message ----------
-Date: Wed, 10 Apr 2002 20:16:57 +0200 (CEST)
-From: Narancs v1 <narancs@narancs.tii.matav.hu>
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi hanging on modprobe, 2.4.18-ac1
-
-Hi!
-
-everything is working fine with this kernel, but this
-
-modprobe ide-scsi
-
-hdd: ATAPI reset complete
-ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
-scsi : aborting command due to timeout : pid 221340, scsi1, channel 0, id
-0, lun 0 Inquiry 00 00 00 ff 00
-SCSI host 1 abort (pid 221340) timed out - resetting
-SCSI bus is being reset for host 1 channel 0.
-hdd: ATAPI reset complete
-ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
-hdd: ATAPI reset complete
-
-forever it does.
-
-is it because of AC's stuff?
-
-which version is recommended for daily use?
-
-thanks
-
--------------------------
-Narancs v1
-IT Security Administrator
-Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
-
-
-
+See http://www.mvista.com/dswp/MVLCGE.pdf for details.

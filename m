@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbTGJN62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbTGJN62
+	id S266345AbTGJOFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 10:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269278AbTGJOFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:58:28 -0400
-Received: from marco.bezeqint.net ([192.115.106.37]:11702 "EHLO
-	marco.bezeqint.net") by vger.kernel.org with ESMTP id S266344AbTGJN61
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:58:27 -0400
-Date: Thu, 10 Jul 2003 17:13:06 +0300
-From: gigag@bezeqint.net
-Subject: Re: Known problems for 3.5/0.5 virtual space split???
-To: linux-kernel@vger.kernel.org
-Cc: mbligh@aracnet.com
-X-Mailer: Webmail Mirapoint Direct 3.3.3-GR
+	Thu, 10 Jul 2003 10:05:39 -0400
+Received: from pop.gmx.net ([213.165.64.20]:59373 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266345AbTGJOFi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 10:05:38 -0400
+Message-ID: <3F0D761E.2050702@gmx.net>
+Date: Thu, 10 Jul 2003 16:20:14 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Message-Id: <326f09b6.a1426ae1.817ca00@mas3.bezeqint.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Oleg Drokin <green@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Also, if you can try 2.5-mjb tree, that should have a forward port of
->the same concept ... does it work there?
-Yes, it worked with 2.5.70 kernel with the proper mjb patch. I had 
-to change root=LABEL=/ token to root=/dev/sda2 one in order to 
-make the system boot from SCSI disk. Also, I compiled AIC7XXX 
-drivers statically into the kernel.
+Having read the whole thread, I came up with a few ideas.
 
-I tried to do the same trick for 2.4.21 kernel, but it seemed not to 
-help. I didn't play with it for too long though. I indend to experiment 
-with 2.4.21 kernel in about a week after I finish with 2.5.70, which 
-is currently working for me.
+The following patches in -pre3 could perhaps have to do something with
+your problems:
+  o (resend) collected semaphore fixes and semtimedop
+  o Fix potential IO hangs and increase interactiveness during heavy IO
+  o fix false sharing of mm info
+  o fix up semops and return, allow timedop
+  o mremap VM_LOCKED move_vma
+  o remove io_apic_modify - this doesnt work on some APICs
+  o small setup-pci cleanups
 
-Thanks a lot for the help
-Giga
+Since your hangs are not even traceable with SysRq, please try to boot
+with nmi_watchdog=1 and if that doesn't work (dmesg will complain)
+nmi_watchdog=2. About 15 seconds after the hang your box should print a
+backtrace.
+
+As a last resort you could mount the fs from UML.
+
+I suggest you try the nmi_watchdog thing first.
+
+
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262813AbSKRQDB>; Mon, 18 Nov 2002 11:03:01 -0500
+	id <S262806AbSKRQCC>; Mon, 18 Nov 2002 11:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbSKRQDB>; Mon, 18 Nov 2002 11:03:01 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:37307
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262813AbSKRQDA>; Mon, 18 Nov 2002 11:03:00 -0500
-Date: Mon, 18 Nov 2002 11:12:15 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Taral <taral@taral.net>
-cc: alsa-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: Re: Oops when removing snd-timer
-In-Reply-To: <20021118152748.GA8143@hatchling.taral.net>
-Message-ID: <Pine.LNX.4.44.0211181110000.1538-100000@montezuma.mastecende.com>
+	id <S262813AbSKRQCC>; Mon, 18 Nov 2002 11:02:02 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:19472 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S262806AbSKRQCC>;
+	Mon, 18 Nov 2002 11:02:02 -0500
+Message-ID: <3DD91164.6030007@domdv.de>
+Date: Mon, 18 Nov 2002 17:12:20 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Vergoz Michael <mvergoz@sysdoor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <3DD8AD5D.9010803@pobox.com> <3DD8CC44.9060104@domdv.de> <3DD90D88.9020205@pobox.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Taral wrote:
+Jeff Garzik wrote:
+> That's not going to be fixed by Michael's patch...  Any IOAPIC-related 
+> problems cannot be fixed at the driver level, but must be fixed by a 
+> BIOS update (or possibly an IOAPIC code fix).  Sometimes vendors do not 
+> bother do even wire the IOAPIC when it is a uniprocessor board :(
 
-> On Mon, Nov 18, 2002 at 04:07:17AM -0500, Zwane Mwaikambo wrote:
-> > Looks like you loaded ens137x.c and then that driver got unloaded leaving 
-> > the callback still valid, then the core timer code decided to walk off a 
-> > cliff using that pointer.
-> 
-> I don't have ens137x.c compiled, much less loaded. What makes you think
-> this?
-
-It was a guess, i presumed you were using one of the ac97 cards. Anyway 
-it's irrelevant right now. You could of course make your problem report 
-more descriptive wrt to what you loaded/unloaded, which order etc, so that 
-reproducing and walking through the code paths is easier.
-
-	Zwane
+I just wanted to point exactly in that (IO-APIC) direction as a common 
+source for trouble.
 -- 
-function.linuxpower.ca
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 

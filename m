@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263194AbUCMVnE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 16:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbUCMVnE
+	id S263193AbUCMVn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 16:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUCMVn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 16:43:04 -0500
-Received: from bender.bawue.de ([193.7.176.20]:57044 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S263194AbUCMVnC (ORCPT
+	Sat, 13 Mar 2004 16:43:58 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:7572 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S263193AbUCMVn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 16:43:02 -0500
-From: Joerg Sommrey <jo@sommrey.de>
-Date: Sat, 13 Mar 2004 22:42:55 +0100
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: NMI watchdog in 2.6.3-mm4/2.6.4-mm1
-Message-ID: <20040313214255.GA4205@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 13 Mar 2004 16:43:56 -0500
+Message-ID: <40538091.9050707@zytor.com>
+Date: Sat, 13 Mar 2004 13:43:45 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386 very early memory detection cleanup patch breaks the build
+References: <1079198139.2512.19.camel@mulgrave>
+In-Reply-To: <1079198139.2512.19.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+James Bottomley wrote:
+> The attached should fix it again.
 
-in my box (Tyan Tiger MPX / 2x AMD Athlon) the NMI watchdog never worked
-on any kernel that I tried (2.4.x, 2.6.x). I always found:
-| activating NMI Watchdog ... done.
-| testing NMI watchdog ... CPU#0: NMI appears to be stuck!
+Could you perhaps describe which architecture this is a problem on, and 
+what its entry condition looks like?
 
-But there is one exception: 2.6.3-mm4 shows:
-| activating NMI Watchdog ... done.
-| testing NMI watchdog ... OK.
+> This tampering with the trampoline was extraneous to the actual patch. 
+> The rule should be that if you don't understand what something is doing,
+> don't try to fix it.
 
-[2.6.3-mm4 was the only -mmX kernel I tried so far.]
+I removed it because I removed the VISWS dependency, thus making it 
+redundant.  What you seem to be saying is that the dependency should 
+have been on SMP not X86_SMP; if that's the issue then please make it so.
 
-With 2.6.4-mm1 the NMI watchdog is again not functional in my box. Any
-ideas?
+I think you just needed to apply your own rule to the above statement.
 
--jo
+> In this case CONFIG_X86_TRAMPOLINE is needed for the subarch's that
+> provide their own SMP code but still use the standard trampoline.  I
+> always thought the visws used the trampoline even in UP boot, but if it
+> doesn't, just take out the X86_VISWS dependency.
 
--- 
--rw-r--r--    1 jo       users          80 2004-03-13 21:46 /home/jo/.signature
+It doesn't anymore.  The only reason it did was because of stupid 
+partitioning between head.S and trampoline.S, which the patch cleans up.
+
+	-hpa

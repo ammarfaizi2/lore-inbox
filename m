@@ -1,100 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289880AbSCGB25>; Wed, 6 Mar 2002 20:28:57 -0500
+	id <S289621AbSCGB2P>; Wed, 6 Mar 2002 20:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289815AbSCGB2q>; Wed, 6 Mar 2002 20:28:46 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:20772 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S289762AbSCGB2e>;
-	Wed, 6 Mar 2002 20:28:34 -0500
-Date: Thu, 7 Mar 2002 01:32:47 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: <tigran@einstein.homenet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: chroot_fs_refs and pivot_root question
-In-Reply-To: <Pine.LNX.4.33.0203070024410.3387-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.33.0203070131550.1091-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289571AbSCGB2F>; Wed, 6 Mar 2002 20:28:05 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:59329 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S289366AbSCGB1v> convert rfc822-to-8bit; Wed, 6 Mar 2002 20:27:51 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <bernstein.46@osu.edu>, Mike Fedyk <mfedyk@matchmail.com>,
+        Colin Walters <walters@debian.org>
+CC: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
+X-Mailer: PocoMail 2.51 (1003) - Registered Version
+Date: Wed, 6 Mar 2002 17:27:46 -0800
+In-Reply-To: <002f01c1c49e$874c3580$1900a8c0@sirius>
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020307012747.AAA20283@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just for the record (and for the curious) -- the solution to this problem
-is to re-exec /sbin/init. I wonder if this sort of scenario is what Al
-Viro had in mind when he added the re-exec code to init in 1998...
 
-On Thu, 7 Mar 2002, Tigran Aivazian wrote:
+On Tue, 5 Mar 2002 18:36:08 -0500, Michael Bernstein wrote:
 
-> On Thu, 7 Mar 2002, Tigran Aivazian wrote:
->
-> > Amazing that nobody knew the answer but I think I understand now the
-> > reason, the /proc/1/cwd and /proc/1/root point to "/" and the comment
-> > above sys_pivot_root says:
-> >
-> >  * Note:
-> >  *  - we don't move root/cwd if they are not at the root (reason: if
-> > something
-> >  *    cared enough to change them, it's probably wrong to force them
-> > elsewhere)
-> >
-> > So, that is why the /sbin/init wasn't moved, because it's root/cwd were at
->                                  ~~~~~~
->
-> I often say "yes" instead of "no" (and other way around) :)
->
-> It obviously _was_ moved and the problem is that it's executable's mapping
-> and the libc/ld mappings are keeping /sysroot busy...
->
-> > /initrd so when it got pivoted to / (and / put to /sysroot) the init was
-> > left alone. Well, either the above policy is wrong or I need to figure out
-> > a way to convince init to move peacebly where I want it to... :)
-> >
-> > On Wed, 6 Mar 2002, Tigran Aivazian wrote:
-> >
-> > > Hello,
-> > >
-> > > Looking at (2.4.9's) sys_pivot_root() implementation I can see that it
-> > > moves all the processes' root/pwd references from the old root to the new
-> > > one.
-> > >
-> > > However, somehow /sbin/init managed to survive the move and is keeping the
-> > > filesystem busy:
-> > >
-> > > # lsof /sysroot
-> > > COMMAND PID     USER  FD   TYPE DEVICE    SIZE  NODE NAME
-> > > init      1        0 txt    REG  22,65   28220 11217 /sysroot/sbin/init
-> > > init      1        0 mem    REG  22,65  468849 10376
-> > > /sysroot/lib/ld-2.2.2.so
-> > > init      1        0 mem    REG  22,65 5636080 10370
-> > > /sysroot/lib/i686/libc-2.2.2.so
-> > >
-> > > # cat /proc/1/maps
-> > > 08048000-0804f000 r-xp 00000000 16:41 11217      /sysroot/sbin/init
-> > > 0804f000-08050000 rw-p 00006000 16:41 11217      /sysroot/sbin/init
-> > > 08050000-08054000 rwxp 00000000 00:00 0
-> > > 15556000-1556c000 r-xp 00000000 16:41 10376      /sysroot/lib/ld-2.2.2.so
-> > > 1556c000-1556d000 rw-p 00015000 16:41 10376      /sysroot/lib/ld-2.2.2.so
-> > > 1556d000-1556e000 rw-p 00000000 00:00 0
-> > > 15573000-15699000 r-xp 00000000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
-> > > 15699000-1569f000 rw-p 00125000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
-> > > 1569f000-156a3000 rw-p 00000000 00:00 0
-> > > 3fffe000-40000000 rwxp fffff000 00:00 0
-> > >
-> > > Any clues why and how to force it to exec a binary on the new root (or
-> > > get rid of it in any other way)?
-> > >
-> > > Regards,
-> > > Tigran
-> > >
-> > >
-> > >
-> > >
-> >
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>However, when a whole movement based
+>on the idea of creating non-proprietary software decides to utilize
+>proprietary software in order to better create free software, I feel that
+>there is some hypocrisy going on.
+
+	What?! It's really this simple, you use the best tool for the job. Why can't 
+we advocate the tools that really do work best. Why do we have to be a 
+movement based upon an inflexible ideology? (Or are you just mocking the free 
+software movement by spitting your stereotype at it?)
+
+	There would be no hypocrisy whatsoever in using BitKeeper if it was honestly 
+believed to be the best tool for the job taking the licensing restrictions 
+into account. There would also be no hypocrisy in not using it if it was felt 
+that the licensing restrictions were too onerous.
+
+	DS
+
 

@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVA1AQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVA1AUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVA1AQh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 19:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVA1APS
+	id S261344AbVA1AUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVA1AU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 19:15:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3346 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261335AbVA1AOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 19:14:42 -0500
-Date: Fri, 28 Jan 2005 00:14:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       greg@kroah.com, akpm@osdl.org
-Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100, xircom_tulip_cb, iph5526
-Message-ID: <20050128001430.C22695@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	greg@kroah.com, akpm@osdl.org
-References: <41F952F4.7040804@pobox.com> <20050127225725.F3036@flint.arm.linux.org.uk> <20050127153114.72be03e2.davem@davemloft.net>
-Mime-Version: 1.0
+	Thu, 27 Jan 2005 19:20:29 -0500
+Received: from khc.piap.pl ([195.187.100.11]:27652 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S261344AbVA1ARD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:17:03 -0500
+To: Zan Lynx <zlynx@acm.org>
+Cc: Jesse Pollard <jesse@cats-chateau.net>, Bill Davidsen <davidsen@tmr.com>,
+       linux-os <linux-os@analogic.com>,
+       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
+       Linus Torvalds <torvalds@osdl.org>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <Pine.LNX.3.96.1050126143205.24013A-100000@gatekeeper.tmr.com>
+	<05012710374600.20895@tabby> <1106846314.15927.6.camel@localhost>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 28 Jan 2005 01:15:45 +0100
+In-Reply-To: <1106846314.15927.6.camel@localhost> (Zan Lynx's message of
+ "Thu, 27 Jan 2005 10:18:34 -0700")
+Message-ID: <m3oefal87i.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050127153114.72be03e2.davem@davemloft.net>; from davem@davemloft.net on Thu, Jan 27, 2005 at 03:31:14PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 03:31:14PM -0800, David S. Miller wrote:
-> Therefore the only missing sync would be of the new RX descriptor
-> when linking things in like that, ie. at the end of e100_rx_alloc_skb()
-> if rx->prev->skb is non-NULL.
+Zan Lynx <zlynx@acm.org> writes:
 
-And that is inherently unsafe, since the chip may be modifying the RFD
-while the CPU is accessing it.  Adding extra sync calls does not fix
-it because as far as I can see, there's nothing to tell the chip "don't
-write to this RFD because any changes the CPU is making right now will
-overwrite the chips own changes."
+> In the reality I'm familiar with, the defense contractor's secure
+> projects building had one entrance, guarded by security guards who were
+> not cheap $10/hr guys, with strict instructions.  No computers or
+> computer media were allowed to leave the building except with written
+> authorization of a corporate officer.
 
-The fact of the matter is that eepro100.c works on ARM, e100.c doesn't.
-There's a message from me back on 30th June 2004 at about 10:30 BST on
-this very list which generated almost no interest from anyone...
-
+Wow, nice. How do they check for, say, Compact Flashes or, for example,
+even smaller XD-picture cards?
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Krzysztof Halasa

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264513AbRFOUW3>; Fri, 15 Jun 2001 16:22:29 -0400
+	id <S264516AbRFOUYt>; Fri, 15 Jun 2001 16:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264516AbRFOUWT>; Fri, 15 Jun 2001 16:22:19 -0400
-Received: from devco.net ([196.15.188.2]:42882 "EHLO rinoa")
-	by vger.kernel.org with ESMTP id <S264514AbRFOUWP>;
-	Fri, 15 Jun 2001 16:22:15 -0400
-Date: Fri, 15 Jun 2001 22:22:14 +0200
-From: Leon Breedt <ljb@devco.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+	id <S264517AbRFOUYj>; Fri, 15 Jun 2001 16:24:39 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:47019 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264516AbRFOUYX>;
+	Fri, 15 Jun 2001 16:24:23 -0400
+Message-ID: <3B2A6EED.86A318F3@mandrakesoft.com>
+Date: Fri, 15 Jun 2001 16:24:13 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ddstreet@us.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] nonblinking VGA block cursor
-Message-ID: <20010615222214.A3772@rinoa.prv.dev.itouchnet.net>
-In-Reply-To: <20010615162249.A1328@rinoa.rinoa> <200106151921.f5FJLsc03635@saturn.cs.uml.edu>
-Mime-Version: 1.0
+Subject: Re: ps2 keyboard filter hook
+In-Reply-To: <Pine.LNX.4.10.10106151345510.25518-200000@ddstreet.raleigh.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200106151921.f5FJLsc03635@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Fri, Jun 15, 2001 at 03:21:54PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 15, 2001 at 03:21:54PM -0400, Albert D. Cahalan wrote:
+ddstreet@us.ibm.com wrote:
+> In order to use these keyboards, a the standard PS/2 driver needs to behave a
+> bit differently; thus attached is a modifcation to the PS/2 driver which allows
+> other drivers to register with the PS/2 driver as 'filters'.  There is a
+> arbitrary max number of 'filters' set to 1, which is a compile-time define.
+> The registered drivers are called (in order of registration) for every scancode,
+> and they may change or consume the scancode (or allow it to pass).  Also the
+> 'filters' are given a function to send an variable-sized buffer to the keyboard
+> output port; this function is synchronized using a semaphore which also
+> coordinates with pckbd_leds().
 
-> Non-blinking cursors are just wrong. You need to patch your brain.
-> You really fucked up, because now apps can't restore your cursor
-> to proper behavior as defined by IBM.
-I don't want them to, because I prefer non-blinking. It feels more
-solid, kind of like driving a tank instead of a little dune buggy ;)
-
-> The blinking cursor is implemented in your video hardware.
-> IBM knew what was right for you. 
-Uh, said hardware lets you disable the blinking. Maybe in a slightly
-non-standard way, who cares?
-
-> Of course FreeBSD has a block cursor. It was easy to program,
-> and it seems nice to the pot-smoking hippies out in Berkeley.
-> FreeBSD doesn't define standards. FreeBSD breaks standards.
-> (zombie creation, "ps -ef", partition tables, pty allocation...)
-It's all about choice, man. I want the choice to have certain
-behaviour if I wish.
+Didn't we just conclude a discussion here on linux-kernel, which said
+that patches which simply add hooks allowing proprietary extensions are
+not accepted into the kernel?
 
 -- 
-lj breedt
-coder
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbULMR6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbULMSAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbULMR6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 12:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbULMR6g
+	id S261300AbULMSAG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 13:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULMSAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 12:58:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42183 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261299AbULMR6A (ORCPT
+	Mon, 13 Dec 2004 13:00:06 -0500
+Received: from hera.kernel.org ([209.128.68.125]:61643 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261300AbULMSAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 12:58:00 -0500
-Date: Mon, 13 Dec 2004 18:57:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Time sliced cfq with basic io priorities
-Message-ID: <20041213175721.GA2721@suse.de>
-References: <20041213125046.GG3033@suse.de> <20041213130926.GH3033@suse.de>
+	Mon, 13 Dec 2004 13:00:01 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: sk98lin patch 7.09 hiccups on 2.6.10-rc3
+Date: Mon, 13 Dec 2004 09:59:00 -0800
+Organization: Open Source Development Lab
+Message-ID: <20041213095900.1c10209d@dxpl.pdx.osdl.net>
+References: <41BBCDD9.5080603@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041213130926.GH3033@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1102960740 11334 172.20.1.103 (13 Dec 2004 17:59:00 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 13 Dec 2004 17:59:00 +0000 (UTC)
+X-Newsreader: Sylpheed version 0.9.10claws (GTK+ 1.2.10; x86_64-suse-linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13 2004, Jens Axboe wrote:
-> On Mon, Dec 13 2004, Jens Axboe wrote:
-> > 2.6.10-rc2-mm4 patch:
-> 
-> So 2.6.10-rc3-mm1 is out I notice, here's a patch for that:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-10-2.6.10-rc3-mm1.gz
-> 
-> And an updated ionice.c attached, the syscall numbers changed.
+Your expectation is faulty. An out of tree vendor patch needs
+to be kept up to date with the evolving kernel, not the other
+way around.
 
-Posted -11 for -mm and -BK as well. Changes:
-
-- Preemption fairness fixes
-
-- Enable preemption
-
-For 2.6.10-rc3-mm1:
-
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-11-2.6.10-rc3-mm1.gz
-
-For 2.6-BK:
-
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-11.gz
-
-Note that the syscall numbers are different yet again, I will
-consolidate these on next release. For now, find your sys_ioprio_set/get
-numbers from include/asm-<your arch/unistd.h and change ionice for your
-arch appropriately (if in doubt, just mail me).
-
--- 
-Jens Axboe
-
+Also, the only major improvement in the vendor patch is support for
+the Yukon2 hardware, but the code is so macroized that it will
+never be accepted in it's current form.

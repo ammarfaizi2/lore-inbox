@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbTCORVG>; Sat, 15 Mar 2003 12:21:06 -0500
+	id <S261358AbTCORZY>; Sat, 15 Mar 2003 12:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261358AbTCORVG>; Sat, 15 Mar 2003 12:21:06 -0500
-Received: from B52b2.pppool.de ([213.7.82.178]:50057 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261354AbTCORVF>; Sat, 15 Mar 2003 12:21:05 -0500
-Subject: Re: 2.5.64-ac3: Crash in ide_init_queue
-From: Daniel Egger <degger@fhm.edu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030315163137.GR791@suse.de>
-References: <1047676410.7452.34.camel@sonja> <20030314212510.GE791@suse.de>
-	 <1047741940.10690.1.camel@sonja> <1047742416.10689.3.camel@sonja>
-	 <20030315163137.GR791@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/FDBNc6PRgqC0A7VzcyM"
-Organization: 
-Message-Id: <1047749489.10690.25.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 15 Mar 2003 18:31:30 +0100
+	id <S261359AbTCORZY>; Sat, 15 Mar 2003 12:25:24 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:16652 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261358AbTCORZX>; Sat, 15 Mar 2003 12:25:23 -0500
+Message-ID: <3E736505.2000106@aitel.hist.no>
+Date: Sat, 15 Mar 2003 18:38:13 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.64-mm7 - dies on smp with raid
+References: <20030315011758.7098b006.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mm7 crashed where mm2 works.
+The machine is a dual celeron with two scsi disks with
+some raid-1 & raid-0 partitions.
 
---=-/FDBNc6PRgqC0A7VzcyM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+deadline or anicipatory scheduler does not make a difference.
+It dies anyway, attempting to kill init.
 
-Am Sam, 2003-03-15 um 17.31 schrieb Jens Axboe:
+Here's what I managed to  write down before the 30 second reboot
+kicked in:
 
-> Please double check, TCQ is the only way that ide_init_queue() would end
-> up with NULL EIP.
+EIP is at md_wakeup_thread
 
-Yep this was a nobrainer of mine. As stated in a followup mail, this
-problem went away and a different IDE problem stepped up.
+stack:
+do_md_run
+autorun_array
+autorun_devices
+autostart_arrays
+md_ioctl
+dentry_open
+kmem_cache_free
+blkdev_ioctl
+sys_ioctl
+init
+init
 
---=20
-Servus,
-       Daniel
+This happened during the boot process. The kernel is compiled
+with gcc 2.95.4 from debian testing. The machine uses devfs
 
-
---=-/FDBNc6PRgqC0A7VzcyM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+c2Nxchlzsq9KoIYRAr7+AJ4rd7UhgGpUDIEUpiHVBjjSMGDjZQCgvK8B
-CkgqMn1oOp/UNJ0HO2Ar+18=
-=iNf0
------END PGP SIGNATURE-----
-
---=-/FDBNc6PRgqC0A7VzcyM--
+Helge Hafting
 

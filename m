@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137184AbRAHMQs>; Mon, 8 Jan 2001 07:16:48 -0500
+	id <S143371AbRAHMS2>; Mon, 8 Jan 2001 07:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143437AbRAHMQi>; Mon, 8 Jan 2001 07:16:38 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:52435 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S137184AbRAHMQ0>;
-	Mon, 8 Jan 2001 07:16:26 -0500
-Date: Mon, 8 Jan 2001 07:16:25 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <E14Fb7L-0004Q2-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0101080711470.4061-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S143437AbRAHMSS>; Mon, 8 Jan 2001 07:18:18 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:4737 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S143371AbRAHMR7>; Mon, 8 Jan 2001 07:17:59 -0500
+Date: Mon, 8 Jan 2001 14:17:02 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] cramfs is ro only, so honour this in inode->mode
+Message-ID: <20010108141702.I10035@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
+hi all,
 
+cramfs is a read-only fs. So we should honour that in inode->mode
+to avoid confusion of programs.
 
-On Mon, 8 Jan 2001, Alan Cox wrote:
+My isofs shows this too, so I think I'm right deleting the write
+permissions in the inode. May be we should change it in
+mkcramfs (too).
 
-> > > I put it into generic_file_write. That covers most fs's it seems. The jffs 
-> > > guys are going to switch to generic_file_write soon and the other fs's 
-> > > that dont are wacko ones I dont care about ;)
-> > 
-> > Alan, we have to deal with get_block() failures anyway. -ENOSPC, -EDQUOT,
-> > not to mention plain and simple -EIO. -EFBIG handling is not different.
-> 
-> EFBIG is very different in several ways. To start with the get_block code
-> doesnt have enough information to correctly implement the SUS specification
-> rules.
+I don't know what POSIX says about RO fs, but I can't find any
+real sense in having W permissions for an RO fs.
 
-Umm... Details, please? Are you talking about 2^32 or about fs layout limits?
-The former may very well belong to VFS - no arguments here. The latter...
-And yes, fs layout limits are visible - for ext2 they can be as low as 2^24
-blocks.
+The patch:
+--- linux-2.4.0/fs/cramfs/inode.c.orig  Fri Dec 29 23:07:57 2000
++++ linux-2.4.0/fs/cramfs/inode.c       Mon Jan  8 13:04:37 2001
+@@ -37,7 +37,7 @@
+        struct inode * inode = new_inode(sb);
 
+        if (inode) {
+-               inode->i_mode = cramfs_inode->mode;
++               inode->i_mode = cramfs_inode->mode & ~ S_IWUGO;
+                inode->i_uid = cramfs_inode->uid;
+                inode->i_size = cramfs_inode->size;
+                inode->i_gid = cramfs_inode->gid;
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

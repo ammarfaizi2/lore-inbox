@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbUBYNGI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 08:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbUBYNGI
+	id S261314AbUBYNSX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 08:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbUBYNSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 08:06:08 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:26837 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261312AbUBYNF7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 08:05:59 -0500
-Date: Wed, 25 Feb 2004 11:01:17 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Mika =?ISO-8859-1?Q?=20Bostr=F6m?= <bostik@lut.fi>
+	Wed, 25 Feb 2004 08:18:23 -0500
+Received: from holomorphy.com ([199.26.172.102]:64520 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261314AbUBYNSV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 08:18:21 -0500
+Date: Wed, 25 Feb 2004 05:18:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Another case of lockup using combination of devices (sound+net)
-In-Reply-To: <20040224172310.GA6083@odin.lnet.lut.fi>
-Message-ID: <Pine.LNX.4.58L.0402251052210.21511@logos.cnet>
-References: <20040224172310.GA6083@odin.lnet.lut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Subject: Re: PRD_ENTRIES is 256
+Message-ID: <20040225131817.GK693@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-kernel@vger.kernel.org
+References: <20040225095317.GJ693@holomorphy.com> <200402251411.13945.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402251411.13945.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 25 of February 2004 10:53, William Lee Irwin III wrote:
+>> PRD_ENTRIES is specified to be precisely 256; on platforms where
+>> PAGE_SIZE varies from 4KB the calculation in the current expression
+>> defining it is inaccurate, which may cause crashes. This patch changes
+>> it to the constant literal 256.
+
+On Wed, Feb 25, 2004 at 02:11:13PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> Ok, thanks.  However I cannot find 256 entries limit in any ATA document
+> and from looking at the code 512 entries shouldn't be a problem (?).
+> --bart
+
+The numbers I'm fishing out of things say that the PRD table can't
+exceed 64KB in size as it can't cross a 64KB boundary and its length
+is specified as a 16-bit byte count, so some other method of sizing
+the thing may be in order. I do recall something went wrong at the
+time I ran into this. If I turn up where I thought the number 256 came
+from I'll cite it.
 
 
-On Tue, 24 Feb 2004, Mika   Boström wrote:
-
->   I hope this bug report has all the required bits in it, I haven't done
-> this before. I tried to follow the instructions and included some
-> additional information usually seen here (.config, dmesg). On with the
-> bug report...
->
->
-> [1.] Complete hang when using sound and network simultaneously (2.6.x)
->
-> [2.] I noticed that another person has had similar problems:
-> http://marc.theaimsgroup.com/?t=107699689400003&r=1&w=2
-> While listening to music (xmms, ALSA output) I have had complete
-> lockups. There is no indication of a problem, and nothing ever gets
-> written to logs. When the system locks up, even keyboard goes
-> unresponsive: capslock, numlock, scroll-lock don't flash lights, magic
-> key does not register. Before the posting above I couldn't find any
-> reason, but my latest lockup happened while listening to music pulling
-> data in at a rate of about 6.5 MB/s. The transfer had lasted for perhaps
-> 10 seconds before system hung.
->
-> This has occurred with all the 2.6 kernels I have tried: 2.6.0-test8,
-> 2.6.1, and now 2.6.3. Looking at the thread above I took notice that I
-> had previously had an enormous amount of interrupt errors (~120k/day).
-> Disabling IO-APIC from kernel configuration apparently solved that, now
-> they occur approximately 1 error/day. No difference there, the lockup
-> still takes place. ACPI has never been enabled. Sound card is C-Media
-> 8738 based Trust, NIC is a 3com 905B. ATI's proprietary kernel module
-> has not been loaded at any of these instances. (It broke all kinds of
-> things on its own.)
-
-Radeon and the 3com are sharing interrupt 11.
-
-That can cause problems. Try changing the interrupt of one of the cards.
-
+-- wli

@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269793AbRHDEpG>; Sat, 4 Aug 2001 00:45:06 -0400
+	id <S269794AbRHDEq4>; Sat, 4 Aug 2001 00:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269794AbRHDEo4>; Sat, 4 Aug 2001 00:44:56 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:20873 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S269793AbRHDEom>;
-	Sat, 4 Aug 2001 00:44:42 -0400
-Message-ID: <3B6B7F83.CC07CBE8@randomlogic.com>
-Date: Fri, 03 Aug 2001 21:52:19 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S269796AbRHDEqq>; Sat, 4 Aug 2001 00:46:46 -0400
+Received: from wolf.ericsson.net.nz ([203.97.68.250]:12440 "EHLO
+	wolf.ericsson.net.nz") by vger.kernel.org with ESMTP
+	id <S269794AbRHDEqe>; Sat, 4 Aug 2001 00:46:34 -0400
+Date: Sat, 4 Aug 2001 16:46:40 +1200 (NZST)
+From: <kern@wolf.ericsson.net.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops pcnet32 ethernet driver on Compaq Deskpro 5100
+Message-ID: <Pine.LNX.4.33.0108041641480.14017-100000@wolf.ericsson.net.nz>
 MIME-Version: 1.0
-To: Josh Wyatt <jdwyatt@Bellsouth.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: Re: Kernel 2.4.7 Source Code Documentation
-In-Reply-To: <3B6A2CC8.7D17F96F@randomlogic.com> <3B6B6934.262D382A@randomlogic.com> <3B6B6DD9.B9BBE83D@randomlogic.com> <3B6B6EEB.EAE86@Bellsouth.net> <3B6B74EA.4648AAF2@randomlogic.com> <3B6B76AA.A4526246@Bellsouth.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Wyatt wrote:
-> 
-> "Paul G. Allen" wrote:
-> >
-> > Josh Wyatt wrote:
-> > >
-> > > Hi Paul,
-> > > I have a personal colo on a T1 here in Raleigh, NC, and I'd be happy to
-> > > mirror for you.
-> > > 1GB is no problem...
-> > > What should I do?  Do you need an account on the box?
-> >
-> > You can D/L the tarball from:
-> >
-> > http://www.randomlogic.com/files/linux-2.4.7_html.tar.gz
-> >
-> > and then untar it into whatever directory you want the web server to serve it up from. This will create a directory tree whose root is linux-2.4.7_html.
-> >
-> > If you want to give me an account, that's fine too, but I don't need it.
-> >
-> > Thanks,
-> >
-> > PGA
-> 
-> Cool.  Info is currently at:
-> http://joshua.raleigh.nc.us/docs/linux-2.4.7_html/
-> 
+hey -
 
-Great. I'll change the link on the Random Logic main web site and add that URL as a mirror.
+I am getting the following oops when I try to insert the pcnet32 ethernet
+driver on an older Compaq 5100 (Pentium 100 with onboard ethernet
+controller) and rh7.1
 
-PGA
+When the machine boots the module loads Ok, I only get this error when I
+rmmod pcnet32 and then modprobe to reinsert it.
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+The ethernet card will not work - ifconfig will not show it although
+ifconfig eth0 will show the interface.
+
+any pointers about how I might get this onboard interface to work or am I
+better advised to buy a pci ethernet card?
+
+cheers
+Mark
+
+
+[root@pup /etc]# modprobe pcnet32
+Note: /etc/modules.conf is more recent than /lib/modules/2.4.2-2/modules.dep
+Unable to handle kernel paging request at virtual address c3833e20
+ printing eip:
+c019ee7d
+pgd entry c1702c38: 00000000010ee063
+pmd entry c1702c38: 00000000010ee063
+pte entry c10ee0cc: 0000000000000000
+... pte not present!
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c019ee7d>]
+EFLAGS: 00010246
+eax: c3833e20   ebx: c3824000   ecx: 00000040   edx: c0258164
+esi: c3826e20   edi: 00000000   ebp: 00000060   esp: c16fff08
+ds: 0018   es: 0018   ss: 0018
+Process modprobe (pid: 666, stackpage=c16ff000)
+Stack: c3824000 00000000 00000000 c3826124 c3826e20 c3824000 00000000 00000000
+       00000060 c0116ff7 00000000 c1662000 00002e60 c1663000 00000060 ffffffea
+       00000007 c232c800 00000060 c0256ce0 c3824060 00002fd0 00000000 00000000
+Call Trace: [<c3824000>] [<c3826124>] [<c3826e20>] [<c3824000>] [<c0116ff7>] [<c3824060>] [<c0108fb3>]
+
+Code: 89 30 8b 1d c8 60 26 c0 81 fb c8 60 26 c0 74 23 8d 76 00 53
+Segmentation fault
+pcnet32                12240   1  (initializing)
+
+

@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265300AbUFOFvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUFOFzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265300AbUFOFvV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 01:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUFOFvV
+	id S265301AbUFOFzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 01:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265302AbUFOFzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 01:51:21 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62732 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265300AbUFOFvS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 01:51:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Eric Gillespie <viking@flying-brick.caverock.net.nz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: gcc3.3.2, kernel-2.6.6, and Mandrake 10.0 compiling problem.
-Date: Tue, 15 Jun 2004 08:43:17 +0300
-X-Mailer: KMail [version 1.4]
-References: <Pine.LNX.4.21.0406151623590.9232-100000@brick.flying-brick.vpn>
-In-Reply-To: <Pine.LNX.4.21.0406151623590.9232-100000@brick.flying-brick.vpn>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406150843.17378.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 15 Jun 2004 01:55:20 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:51410 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S265301AbUFOFzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 01:55:14 -0400
+Date: Mon, 14 Jun 2004 22:55:07 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] stat nlink resolution fix
+Message-ID: <20040615055507.GA9847@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 June 2004 07:35, Eric Gillespie wrote:
-> Got a small problem, folks.  I've got a Mandrake 10.0 system (upgraded in
-> bits and bobs, but that's not really relevant), with gcc-3.3.2,
-> binutils-2.14.90.0.7 and a plain (linux.org) kernel tree patched from 2.6.0
-> to 2.6.6. No -mm, no -ac, nothing except base.
->
-> The system's a K6-2 @533 MHz, 192Mb memory (and 308 Mb swap). Plenty of
-> hard disk space available.
->
-> I was trying to compile the tree (make V=1) and got the following output.
-> ----- start output -----
-> ... other make lines omitted ...
-> make -f scripts/Makefile.build obj=fs/nls
->   gcc -Wp,-MD,fs/nls/.tmp_nls_base.o.d -nostdinc -iwithprefix include
->   -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs
->   -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
->   -fno-unit-at-a-time -march=k6 -Iinclude/asm-i386/mach-default -O2
->   -DKBUILD_BASENAME=nls_base -KBUILD_MODNAME=nls_base -c
->   -o fs/nls/.tmp_nls_base.o  fs/nls/nls_base.c
-> fs/nls/nls_base.c: In function `char2uni':
-> fs/nls/nls_base.c:465: internal compiler error: Segmentation fault
-> Please submit a full bug report,
-> with preprocessed source if appropriate.
-> See <URL:https://qa.mandrakesoft.com/> for instructions.
->
-> ----- end output -----
+(As already discussed)
 
-Does this happen randomly, not in the same place each time?
-If yes, this usually happens with flakey hardware.
-I had this problem just yesterday. My box survives memtest86
-and cpuburn, yet gcc segfaults within minute or two.
-Relaxing DDR timing (Trcd: 2->3) eliminated segvs.
+Linus,
 
-OTOH, note that there exist K6's with nasty bug:
-in some very rare circumstances (you have to have more than 32MB or RAM,
-you must modify data lying exactly N*32MB away from your current
-instruction pointer, etc...) CPU erroneously execute an instruction
-twice. As you can imagine, that will make your computer very unhappy.
+Some filesystems can get overflows when their link-count exceeds
+65534.  This patch increases the kernels internal resolution for this
+and also has a check for the old-system call paths to return and error
+(-EOVERFLOW) as required (as suggested by Al Viro).
 
-Google for this bug.
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
 
-> Fine, I said. I eliminated all the obvious aspects, such as CPU
-> overheating, bad memory, etc. This particular item happened consistently,
-> and happened no matter what the load on the machine, nor what time of the
-> day. Other programs seem to compile fine on it (i.e. ne2k-pci-diag.c, once
-> I turned all the multi-line strings into one single string with embedded
-> newlines).
--- 
-vda
+diff -Nru a/fs/stat.c b/fs/stat.c
+--- a/fs/stat.c	2004-06-14 17:40:21 -07:00
++++ b/fs/stat.c	2004-06-14 17:40:21 -07:00
+@@ -131,6 +131,8 @@
+ 	tmp.st_ino = stat->ino;
+ 	tmp.st_mode = stat->mode;
+ 	tmp.st_nlink = stat->nlink;
++	if (tmp.st_nlink != stat->nlink)
++		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, stat->uid);
+ 	SET_GID(tmp.st_gid, stat->gid);
+ 	tmp.st_rdev = old_encode_dev(stat->rdev);
+@@ -199,6 +201,8 @@
+ 	tmp.st_ino = stat->ino;
+ 	tmp.st_mode = stat->mode;
+ 	tmp.st_nlink = stat->nlink;
++	if (tmp.st_nlink != stat->nlink)
++		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, stat->uid);
+ 	SET_GID(tmp.st_gid, stat->gid);
+ #if BITS_PER_LONG == 32
+diff -Nru a/include/linux/stat.h b/include/linux/stat.h
+--- a/include/linux/stat.h	2004-06-14 17:40:21 -07:00
++++ b/include/linux/stat.h	2004-06-14 17:40:21 -07:00
+@@ -60,7 +60,7 @@
+ 	unsigned long	ino;
+ 	dev_t		dev;
+ 	umode_t		mode;
+-	nlink_t		nlink;
++	unsigned int	nlink;
+ 	uid_t		uid;
+ 	gid_t		gid;
+ 	dev_t		rdev;

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314038AbSDQNP6>; Wed, 17 Apr 2002 09:15:58 -0400
+	id <S314049AbSDQNkp>; Wed, 17 Apr 2002 09:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314043AbSDQNP5>; Wed, 17 Apr 2002 09:15:57 -0400
-Received: from gandalf.physik.uni-konstanz.de ([134.34.144.69]:1554 "HELO
-	gandalf.physik.uni-konstanz.de") by vger.kernel.org with SMTP
-	id <S314038AbSDQNP4>; Wed, 17 Apr 2002 09:15:56 -0400
-Date: Wed, 17 Apr 2002 15:15:55 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: Rob Radez <rob@osinvestor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Watchdog Updates
-Message-ID: <20020417151555.B31398@gandalf.physik.uni-konstanz.de>
-In-Reply-To: <Pine.LNX.4.33.0204161320110.17511-100000@pita.lan>
+	id <S314052AbSDQNkp>; Wed, 17 Apr 2002 09:40:45 -0400
+Received: from jalon.able.es ([212.97.163.2]:53638 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S314049AbSDQNko>;
+	Wed, 17 Apr 2002 09:40:44 -0400
+Date: Wed, 17 Apr 2002 15:40:04 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
+Message-ID: <20020417134004.GA2025@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.10.10204161720260.10691-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 01:49:24PM -0400, Rob Radez wrote:
-> Hah, like I'm going to attach two >100k patches to a mail going to l-k.
-> It's that time of day again, and instead of just one patch, I have two.
-> Not only that, but I only just now noticed the indydog driver, so that's
-> got some updates in here too.  Plus, the patches this time include the
-> meaning of life, the universe, and everything.  I've changed the format
-> of the patch slightly this time, in hopes of getting it applied sometime
-> soon.  So, I've put up two patches.
-[..snip..] 
-+indydog.c -- Hardware Watchdog Device for SGI IP22
-+
-+	Timeout value unknown.
-+	Support KEEPALIVEPING.
-+	GETSTATUS and GETBOOTSTATUS return 0.
 
-IP22 machines have a hardwired 1 minute timeout.
- -- Guido
+On 2002.04.17 Andre Hedrick wrote:
+>There is a micro bug in 3a, look for 4 to arrive.
+>
+>regards
+>
+[...]
+>> 
+>> - ide update -3a (very shrinked wrt original, the big ppc part has gone
+>>   in mainline)
+
+Can it be related to my system getting hung on boot trying to do
+an hdparm ?
+I had not the time to dig more, just disabled it and booted fine (I had
+some work to get done...)
+
+TIA
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686

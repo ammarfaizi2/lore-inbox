@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbTGIR6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268502AbTGIR6Y
+	id S265367AbTGISAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266088AbTGISAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:58:24 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:11457 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S268486AbTGIR5V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:57:21 -0400
-Subject: Re: Compile failure 2.4.22-pre3-ac1
-From: Steven Cole <elenstev@mesatop.com>
-To: Midian <midian@ihme.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <1057772247.3757.9.camel@midux>
-References: <20030709124915.3d98054b.ak@suse.de>
-	 <1057750022.6255.41.camel@dhcp22.swansea.linux.org.uk>
-	 <20030709134109.65efa245.ak@suse.de>
-	 <1057769607.6262.63.camel@dhcp22.swansea.linux.org.uk>
-	 <20030709185823.1f243367.ak@suse.de>
-	 <1057770255.6255.70.camel@dhcp22.swansea.linux.org.uk>
-	 <1057772247.3757.9.camel@midux>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057774256.8754.46.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 09 Jul 2003 12:10:56 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jul 2003 14:00:25 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52195 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265367AbTGISAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 14:00:16 -0400
+Date: Wed, 9 Jul 2003 15:08:10 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Andrea Arcangeli <andrea@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ->direct_IO API change in current 2.4 BK
+In-Reply-To: <200307091954.12895.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>
+References: <20030709133109.A23587@infradead.org> <200307091943.13680.m.c.p@wolk-project.de>
+ <Pine.LNX.4.55L.0307091445470.27004@freak.distro.conectiva>
+ <200307091954.12895.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-09 at 11:37, Midian wrote:
-> Hello Alan,
-> I've tryed to compile 2.4.22-pre3-ac1, but every time I get this error:
-> 
-> arch/i386/kernel/kernel.o(.text.init+0x7803): In function
-> `setup_ioapic_ids_from_mpc':
-> : undefined reference to `xapic_support'
-> arch/i386/kernel/kernel.o(.text.init+0x7a16): In function
-> `setup_ioapic_ids_from_mpc':
-> : undefined reference to `xapic_support'
-> make: *** [vmlinux] Error 1
-> 
-> I've tryed to search for patches from the mailing list with no luck, is
-> there some patches for this?
-> 
-> Regards
 
-I posted this workaround here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105760102522650&w=2
 
-but as Adrian Bunk pointed out in a response, the problem is that
-"changes to arch/i386/kernel/mpparse.c got lost at the update of -ac to -pre3".
+On Wed, 9 Jul 2003, Marc-Christian Petersen wrote:
 
-If you want to be slightly more adventurous than using my
-workaround patch, you could copy the mpparse.c file from 2.4.21-ac4.
-That was compile tested but not run tested.
+> On Wednesday 09 July 2003 19:46, Marcelo Tosatti wrote:
+>
+> Hi Marcelo,
+>
+> > > > > > I just got a nice XFS oops due to the direct_IO API change in
+> > > > > > 2.4.  Guys, this is a STABLE series and APIs are supposed to be
+> > > > > > exactly that, _STABLE_.  If you really think O_DIRECT on NFS is soo
+> > > > > > important please add a ->direct_IO2 for NFS like the reiserfs
+> > > > > > read_inode2 hack.
+> > >
+> > > I wonder why -aa and -wolk don't have these problems with O_DIRECT vs.
+> > > XFS.
+> > Do they have the NFS DIRECT IO patch?
+> Yes. If not, my sentence would be superflous ;)
 
-Steven
+Ok, right. Well, I dont know why it doesnt happen there. Maybe not enough
+testing?
+
+Anyway, I'm going to revert the NFS DIRECT IO patch because, as Christoph
+mentioned, breaks the API.
+
+I except another solution from Trond (maybe ->direct_IO2).
 

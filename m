@@ -1,106 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUCPSEb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 13:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUCPSEb
+	id S261161AbUCPSHD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 13:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUCPSHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 13:04:31 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:22672 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261179AbUCPSE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 13:04:27 -0500
-Date: Tue, 16 Mar 2004 19:04:13 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unionfs
-Message-ID: <20040316180413.GA22482@wohnheim.fh-wedel.de>
-References: <40563A2B.4040800@nortelnetworks.com> <200403161604.i2GG4Vcl004724@eeyore.valparaiso.cl> <20040316173146.GB27046@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040316173146.GB27046@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+	Tue, 16 Mar 2004 13:07:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19157 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261161AbUCPSGr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 13:06:47 -0500
+Message-ID: <40574227.8020302@pobox.com>
+Date: Tue, 16 Mar 2004 13:06:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Netdev <netdev@oss.sgi.com>, Tim Hockin <thockin@sun.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, ralf@linux-mips.org,
+       sjhill@realitydiluted.com
+Subject: [PATCH] fix natsemi PCI mapping
+Content-Type: multipart/mixed;
+ boundary="------------030201040708020304090607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 March 2004 18:31:47 +0100, Jörn Engel wrote:
-> On Tue, 16 March 2004 12:04:30 -0400, Horst von Brand wrote:
-> > 
-> > What happens if I mount the live 2.6.4 kernel source over a CD containing
-> > 2.5.30? What happens to identical files, files that moved, changed files,
-> > deleted files? Pray tell, how does the kernel find out which is which?
-> 
-> What happens if I write to /dev/hda while having my rootfs /dev/hda1?
-> Bad things, damn right.  But why would anyone do that?
-
-There is really no point to this discussion, as it looks like a big
-misunderstanding.  Maybe you object less if you see the design:
-
-Variant 1 (just a single filesystem):
-
-- Introduce a new variant of links, which I call COW.
-- COWs can only link to hidden inodes.
-- Hidden inodes cannot be accessed directly.
-- COWs look like regular files to userspace.
-- Read access to COWs goes to the hidden inode.
-- Write access to COWs copies the hidden inode before writing to it.
-- Copying file1 to file2 does four things:
-  - Create a new hidden inode.
-  - Move data from file1 to hidden inode.
-  - Turn file1 into COW and link to hidden inode.
-  - Create COW for file2 and link to hidden inode.
-
-There are some more special cases, but this is basically it.  So let's
-use the stuff a little:
-
-$ cp -cr dir1 dir2
-
-Behaves similar to 'cp -lr', but creates COWs instead of hard links.
-Can take a few seconds to create the directories, but not minutes.
-
-$ vi dir2/bunch*of*files
-
-Writing to those files makes a real copy for each.  dir1/* remains
-unaffected, no matter how careless you are.  We've made it foolproof,
-so the universe has to create greater fools again, right?
-
-$ rm -rf dir2
-
-Scraps one of the copies along with all modifications.  dir1/* remains
-unaffected gain.
-
-$ cp -cr /fs1/dir1 /fs2/dir2
-
-Fails, since links between different filesystems don't work.
+This is a multi-part message in MIME format.
+--------------030201040708020304090607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Variant 2 (across multiple filesystems now):
+Somebody wanna review and/or test?
 
-- COWs contain a filesystem identifier as well.
-- Accessing COWs linking to unavaillable filesystems returns -E...
-Alternatively:
-- Mounting such an fs fails, unless all links work.
+Changes:
+* Define RX_OFFSET constant (value==2) for uses related to SKB 
+allocation and skb_reserve() calls
 
-Usage is as above.
+* RX skb's are always allocated maximally-sized, since we don't know the 
+size of an RX packet in advance.  This means that we always alloc and 
+map RX skbs based on "np->rx_buf_sz + RX_OFFSET".  natsemi got this 
+really wrong in refill_rx(), where it mapped skb->len just after 
+dev_alloc_skb(), which was very incorrect.
 
-$ mkfs /dev/fs2
-$ mount /dev/fs2 /fs2
-$ cp -cr /fs1 /fs2
-
-Creates an identical copy of one filesystem on another one.  fs2 has
-to support COWs and fs2 has to be RO or support COWs.  A rw-fs mounted
-ro means trouble, as you know.
+* call skb_reserve() in refill_rx(), our main skb allocation function, 
+just after dev_alloc_skb() returns successfully
 
 
-Maybe I'm just stupid and missed some important detail, but this
-design looks like it can solve a bunch of problems.  Do you still
-think, it is useless?
 
-Jörn
+--------------030201040708020304090607
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
--- 
-The cheapest, fastest and most reliable components of a computer
-system are those that aren't there.
--- Gordon Bell, DEC labratories
+===== drivers/net/natsemi.c 1.58 vs edited =====
+--- 1.58/drivers/net/natsemi.c	Sun Mar 14 01:54:58 2004
++++ edited/drivers/net/natsemi.c	Tue Mar 16 13:02:04 2004
+@@ -175,6 +175,8 @@
+ #define DRV_VERSION	"1.07+LK1.0.17"
+ #define DRV_RELDATE	"Sep 27, 2002"
+ 
++#define RX_OFFSET	2
++
+ /* Updated to recommendations in pci-skeleton v2.03. */
+ 
+ /* The user-configurable values.
+@@ -1467,13 +1469,16 @@
+ 		struct sk_buff *skb;
+ 		int entry = np->dirty_rx % RX_RING_SIZE;
+ 		if (np->rx_skbuff[entry] == NULL) {
+-			skb = dev_alloc_skb(np->rx_buf_sz);
++			unsigned int buflen = np->rx_buf_sz + RX_OFFSET;
++			skb = dev_alloc_skb(buflen);
+ 			np->rx_skbuff[entry] = skb;
+ 			if (skb == NULL)
+ 				break; /* Better luck next round. */
+ 			skb->dev = dev; /* Mark as being used by this device. */
++			/* 16 byte align the IP header */
++			skb_reserve(skb, RX_OFFSET);
+ 			np->rx_dma[entry] = pci_map_single(np->pci_dev,
+-				skb->data, skb->len, PCI_DMA_FROMDEVICE);
++				skb->tail, buflen, PCI_DMA_FROMDEVICE);
+ 			np->rx_ring[entry].addr = cpu_to_le32(np->rx_dma[entry]);
+ 		}
+ 		np->rx_ring[entry].cmd_status = cpu_to_le32(np->rx_buf_sz);
+@@ -1543,6 +1548,7 @@
+ static void drain_ring(struct net_device *dev)
+ {
+ 	struct netdev_private *np = dev->priv;
++	unsigned int buflen = np->rx_buf_sz + RX_OFFSET;
+ 	int i;
+ 
+ 	/* Free all the skbuffs in the Rx queue. */
+@@ -1551,7 +1557,7 @@
+ 		np->rx_ring[i].addr = 0xBADF00D0; /* An invalid address. */
+ 		if (np->rx_skbuff[i]) {
+ 			pci_unmap_single(np->pci_dev,
+-				np->rx_dma[i], np->rx_skbuff[i]->len,
++				np->rx_dma[i], buflen,
+ 				PCI_DMA_FROMDEVICE);
+ 			dev_kfree_skb(np->rx_skbuff[i]);
+ 		}
+@@ -1747,6 +1753,7 @@
+ 	int entry = np->cur_rx % RX_RING_SIZE;
+ 	int boguscnt = np->dirty_rx + RX_RING_SIZE - np->cur_rx;
+ 	s32 desc_status = le32_to_cpu(np->rx_head_desc->cmd_status);
++	unsigned int buflen = np->rx_buf_sz + RX_OFFSET;
+ 
+ 	/* If the driver owns the next entry it's a new packet. Send it up. */
+ 	while (desc_status < 0) { /* e.g. & DescOwn */
+@@ -1785,13 +1792,13 @@
+ 			/* Check if the packet is long enough to accept
+ 			 * without copying to a minimally-sized skbuff. */
+ 			if (pkt_len < rx_copybreak
+-			    && (skb = dev_alloc_skb(pkt_len + 2)) != NULL) {
++			    && (skb = dev_alloc_skb(pkt_len + RX_OFFSET)) != NULL) {
+ 				skb->dev = dev;
+ 				/* 16 byte align the IP header */
+-				skb_reserve(skb, 2);
++				skb_reserve(skb, RX_OFFSET);
+ 				pci_dma_sync_single_for_cpu(np->pci_dev,
+ 					np->rx_dma[entry],
+-					np->rx_skbuff[entry]->len,
++					buflen,
+ 					PCI_DMA_FROMDEVICE);
+ #if HAS_IP_COPYSUM
+ 				eth_copy_and_sum(skb,
+@@ -1803,12 +1810,11 @@
+ #endif
+ 				pci_dma_sync_single_for_device(np->pci_dev,
+ 					np->rx_dma[entry],
+-					np->rx_skbuff[entry]->len,
++					buflen,
+ 					PCI_DMA_FROMDEVICE);
+ 			} else {
+ 				pci_unmap_single(np->pci_dev, np->rx_dma[entry],
+-					np->rx_skbuff[entry]->len,
+-					PCI_DMA_FROMDEVICE);
++					buflen, PCI_DMA_FROMDEVICE);
+ 				skb_put(skb = np->rx_skbuff[entry], pkt_len);
+ 				np->rx_skbuff[entry] = NULL;
+ 			}
+
+--------------030201040708020304090607--
+

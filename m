@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262093AbREPVh6>; Wed, 16 May 2001 17:37:58 -0400
+	id <S261301AbREPVkI>; Wed, 16 May 2001 17:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262097AbREPVht>; Wed, 16 May 2001 17:37:49 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55823 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262093AbREPVhd>; Wed, 16 May 2001 17:37:33 -0400
-Message-ID: <3B02F2EC.F189923@transmeta.com>
-Date: Wed, 16 May 2001 14:36:44 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
+	id <S262099AbREPVj6>; Wed, 16 May 2001 17:39:58 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:36093 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261301AbREPVjn>; Wed, 16 May 2001 17:39:43 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105162136.f4GLat2L015085@webber.adilger.int>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <20010516120452.A16609@munchkin.spectacle-pond.org>
+ "from Michael Meissner at May 16, 2001 12:04:52 pm"
+To: Michael Meissner <meissner@spectacle-pond.org>
+Date: Wed, 16 May 2001 15:36:55 -0600 (MDT)
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Jonathan Lundell <jlundell@pobox.com>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-		<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
-		<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
-		<3B02D6AB.E381D317@transmeta.com>
-		<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
-		<3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> >
-> > Because you are now, once again, tying two things that are
-> > completely and utterly unrelated: device classification and device
-> > name.  It breaks every time someone comes out with a new device
-> > which is "kind of like an old device, but not really," like
-> > CD-writers (which was kind-of-like WORM, kind-of-like CD-ROM) and
-> > DVD (kind-of-like CD)...
+Michael Meissner writes:
+> On Tue, May 15, 2001 at 01:18:09PM -0700, Linus Torvalds wrote:
+> > This is what we have now. Network devices are called "eth0..N", and nobody
+> > is complaining about the fact that the numbering is basically random. It
+> > is _repeatable_ as long as you don't change your hardware setup, and the
+> > numbering has effectively _nothing_ to do with "location".
 > 
-> But all devices which export a CD-ROM interface will do so. So the
-> device node that is associated with the CD-ROM driver will export
-> CD-ROM semantics, and the trailing name will be "/cd".
-> 
-> Other interfaces a device exports, such as a CD-RW, appear as a
-> different device node ("generic" for SCSI, because we have no CD-RW
-> classification at this point).
-> 
-> My scheme works already, and works reliably. Nothing had to be done to
-> support the CD-ROM interface to CD-RW and DVD devices.
-> 
+> Well yes and no.  The numbers are currently repeatable for a given kernel,
+> but I know I and others were bitten by the 2.2. to 2.4 transition, where
+> the kernel used a different algorithm for the order in which it detected
+> scsi and network adapters (ie, in my machine with 3 scsi adapters, Linux 2.2
+> always picked the Adaptec scsi adapter builtin into my motherboard as the
+> first adapter, but 2.4 decided to pick my TekRam 390F adapter).
 
-It's still completely braindamaged: (a) these interfaces aren't
-disjoint.  They refer to the same device, and will interfere with each
-other; (b) it is highly undesirable to tie the naming to the interfaces
-in this way.  It further restricts the namespaces you can export, for one
-thing.
+With a proper user-space solution for device naming, you wouldn't care what
+order the kernel enumerated devices in.  You want the kernel to list all of
+the devices (in any order), and then user-space is in charge of creating
+(or maintaining) a semi-permanent ID to device mapping regardless of what
+the major/minor number or physical device location is.
 
-	-hpa
+> As lots of people have been saying, you need to know which physical slot to
+> plut the wire connecting eth0, eth1, etc. into.  Similarly for serial ports,
+> if I have 3 or 4 (or 127 :-) USB serial devices, I really don't want to have
+> to change my cabling each time I boot or change OSes (since I doubt my UPS
+> will be happy if I give it the commands destined for the X10 controller or
+> my remote boards).
 
+If you keep a "static" database (in userspace) of device name -> physical
+device mappings, then you are safe as long as either:
+a) There is some way to identify a device which has moved (H/W serial number,
+   LVM/fs UUID/label, unique make/model, etc).
+b) You can get some physical location information about the device (i.e.
+   I/O port address, bus/slot information, etc).
+
+Linux currently always assumes that (b) implies the order of enumerating
+devices is fixed, even when it isn't always true (hence problems with
+SCSI addressing, ethernet cards, etc).  We _should_ be using (a) as much
+as it is possible.  If both (a) and (b) are not true (e.g. two USB mice
+(no serial number) and you change your USB layout) then there isn't much
+that software can do without user intervention.
+
+At least if there is a simple mapping table maintained in user space(*),
+it is easy to switch the identities of devices to whatever they want with
+little effort, rather than having to re-do all of their other config files.
+
+Note that despite the presence of (b), we should NOT use this information
+as part of the device name, since we want to be able to keep the same
+device name (possibly with a _small_ bit of user intervention) even if
+the device moves around.
+
+Cheers, Andreas
+
+(*) Something like a simple lookup table with name=value pairs (very e.g.):
+
+ide-serial:a1e2a40a5e03=disk0
+scsi-serial:xj23as88d=disk1
+mdraid-uuid:3b02f06c-2c33-5905-c247-1f806535505c=disk7
+isa-ioport:03f8=ttyS0
+isa-ioport:02f8=ttyS1
+isa-ioport:02e8=ttyS3
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

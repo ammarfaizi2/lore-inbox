@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263212AbREMR75>; Sun, 13 May 2001 13:59:57 -0400
+	id <S263217AbREMSHj>; Sun, 13 May 2001 14:07:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263214AbREMR7h>; Sun, 13 May 2001 13:59:37 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:57605 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S263212AbREMR7a>;
-	Sun, 13 May 2001 13:59:30 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200105131759.VAA27768@ms2.inr.ac.ru>
-Subject: Re: IPv6: the same address can be added multiple times
-To: pekkas@netcore.FI (Pekka Savola)
-Date: Sun, 13 May 2001 21:59:07 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105031202080.13012-100000@netcore.fi> from "Pekka Savola" at May 3, 1 01:15:01 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S263218AbREMSHT>; Sun, 13 May 2001 14:07:19 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:13060 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S263217AbREMSHL>;
+	Sun, 13 May 2001 14:07:11 -0400
+Date: Sun, 13 May 2001 11:07:07 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
+Message-ID: <20010513110707.A11055@lucon.org>
+In-Reply-To: <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m13da9ky7s.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, May 13, 2001 at 10:31:03AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, May 13, 2001 at 10:31:03AM -0600, Eric W. Biederman wrote:
+> "H . J . Lu" <hjl@lucon.org> writes:
+> 
+> > On Fri, May 11, 2001 at 04:28:05PM -0700, David S. Miller wrote:
+> > > 
+> > > H . J . Lu writes:
+> > >  > 2.4.4-ac8 disables IP auto config by default even if CONFIG_IP_PNP is
+> > >  > defined.  Here is a patch.
+> > > 
+> > > It doesn't make any sense to enable this unless parameters are
+> > > given to the kernel via the kernel command line or from firmware
+> > > settings.
+> > 
+> > >From Configure.help:
+> > 
+> > IP: kernel level autoconfiguration
+> > CONFIG_IP_PNP
+> >   This enables automatic configuration of IP addresses of devices and
+> >   of the routing table during kernel boot, based on either information
+> >   supplied on the kernel command line or by BOOTP or RARP protocols.
+> >   You need to say Y only for diskless machines requiring network 
+> >   access to boot (in which case you want to say Y to "Root file system
+> >   on NFS" as well), because all other machines configure the network 
+> >   in their startup scripts.
+> > 
+> > It works fine for 2.4.4. However, in 2.4.4-ac8, even if I select
+> > CONFIG_IP_PNP, I have to pass ip=xxxx to kernel, in addition to
+> > nfsroot=x.x.x.x:/foo/bar. With 2.4.4, I can just pass
+> > nfsroot=x.x.x.x:/foo/bar to kernel.
+> 
+> O.k. Configure.help needs to be updated. "ip=on" or "ip=bootp" or
+> "ip=dhcp" work fine.  I wonder if I forgot to forward port the docs?
 
-> It appears you can add _exactly_ same IPv6 address on an interface many
-> times:
+It doesn't make any senses. When I specify CONFIG_IP_PNP and
+BOOTP/DHCP, I want a kernel with IP config using BOOTP/DHCP. I would
+expect IP config is turned for BOOTP/DHCP by default. You can turn
+it off by passing "ip=off" to kernel. Did I miss something?
 
-Yes. BTW, look here:
+> 
+> This same situation exists for 2.2.18 & 2.2.19 as well.
+> 
+> The only way to get long term stability out of this is to write
+> a user space client, you can put in a ramdisk.  One of these days...
 
-kuznet@dust:~ # ip -6 a ls sit0
-7: sit0@NONE: <NOARP,UP> mtu 1480 qdisc noqueue
-    inet6 ::127.0.0.1/96 scope host
-    inet6 ::193.233.7.100/96 scope global
-    inet6 ::193.233.7.100/96 scope global
-
-I have two equal addresses inherited from one IPv4 address
-on two interfaces. Nothing illegal.
+It doesn't work with diskless machines which don't support ramdisk
+during boot.
 
 
-
-> FWIW, KAME stack adds the address only once(, but BSD ifconfig(8)
-> doesn't show errors when you try to do it again; just doesn't add the
-> second one).
-
-8)
-
-> It looks like a check or two in kernel is missing, or is there some
-> reasoning to this behaviour?
-
-Well, it is one of well defined approaches (unlike KAME's one).
-Alternative is to implement full set of options NLM_F_* like used
-in IPv4 routing to block undefined cases. In IPv6 flags are hardwired
-to NLM_F_CREATE|NLM_F_APPEND both for addresses and routes.
-
-Alexey
+H.J.

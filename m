@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265591AbTHGQNF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 12:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270237AbTHGQNE
+	id S270248AbTHGQkU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 12:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbTHGQkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 12:13:04 -0400
-Received: from flintstone.ichilton.net ([212.13.198.46]:8462 "EHLO
-	flintstone.ichilton.net") by vger.kernel.org with ESMTP
-	id S265591AbTHGQJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 12:09:42 -0400
-Date: Thu, 7 Aug 2003 17:09:38 +0100
-From: Ian Chilton <ian@ichilton.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: DMA problem with 2.4.21 and 2.4.22-rc1
-Message-ID: <20030807160938.GC31296@roadrunner.ichilton.net>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 7 Aug 2003 12:40:17 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:15687 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S270384AbTHGQic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 12:38:32 -0400
+Date: Thu, 7 Aug 2003 12:41:08 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp64-178.boston.redhat.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root solved by patch to 2.4.22-pre7
+In-Reply-To: <1060271448.3123.75.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0308071223370.894-100000@dhcp64-178.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-[Please cc me in on any replies]
 
 
-I am having problems getting a box into DMA mode with 2.4.21 and
-2.4.22-rc1:
+On 7 Aug 2003, Alan Cox wrote:
 
-[root@baloo:~]# hdparm -d1 /dev/hda
+> On Iau, 2003-08-07 at 16:26, Jason Baron wrote:
+> > it clearly makes a difference.
+> > 
+> > the unshare_files change causes init to no longer share the same fd table
+> > with the other kernel threads. thus, when init closes or opens fds it does
+> 
+> Ah yes.. because of do_basic_setup. Having /sbin/init sharing with
+> kernel threads doesn't actually strike me as too clever anyway although
+> none of them should be using fd stuff.
+> 
+> In which case I guess we should call unshare_files directly before we
+> open /dev/console in init/main.c.
+> 
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
-
-
-Relevent dmesg stuff:
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-hda: C/H/S=19158/16/255 from BIOS ignored
-hda: WDC WD400JB-00ENA0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 78165360 sectors (40021 MB) w/8192KiB Cache, CHS=77545/16/63
-
-
-Any ideas?
-
-
-Thanks!
-
---ian
+ok, but what if we re-exec init a couple of times? 
 

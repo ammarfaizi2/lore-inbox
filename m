@@ -1,126 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTLQP4h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 10:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTLQP4h
+	id S264444AbTLQPyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 10:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTLQPyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 10:56:37 -0500
-Received: from mailgate.wolfson.co.uk ([194.217.161.2]:9176 "EHLO
-	wolfsonmicro.com") by vger.kernel.org with ESMTP id S264449AbTLQP4d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 10:56:33 -0500
-Subject: Re: [PATCH 2.4] Wolfson AC97 touch screen driver - Input
-	Event	interface
-From: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <3FE076A2.9050406@pobox.com>
-References: <1071672291.23686.2634.camel@cearnarfon>
-	 <3FE076A2.9050406@pobox.com>
-Content-Type: text/plain
-Message-Id: <1071676584.23686.2731.camel@cearnarfon>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 17 Dec 2003 15:56:24 +0000
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Dec 2003 10:54:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22148 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264444AbTLQPyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 10:54:43 -0500
+Date: Wed, 17 Dec 2003 07:54:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: PCI Express support for 2.4 kernel
+In-Reply-To: <Pine.GSO.4.58.0312171105200.24864@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58.0312170753400.8541@home.osdl.org>
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> 
+ <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>  <3FDDACA9.1050600@intel.com>
+ <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
+ <Pine.LNX.4.58.0312151154480.1631@home.osdl.org> <3FDEDC77.9010203@intel.com>
+ <Pine.LNX.4.58.0312160844110.1599@home.osdl.org> <3FDFF81F.7040309@intel.com>
+ <Pine.LNX.4.58.0312162240040.8541@home.osdl.org>
+ <Pine.GSO.4.58.0312171105200.24864@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-17 at 15:30, Jeff Garzik wrote:
 
-> > +/*
-> > + * Pen down detection
-> > + * 
-> > + * Pen down detection can either be via an interrupt (preferred) or
-> > + * by polling the PDEN bit. This is an option because some systems may
-> > + * not support the pen down interrupt.
-> > + *
-> > + * Set pen_int to 1 to enable interrupt driven pen down detection.
-> > + */
-> > +MODULE_PARM(pen_int,"i");
-> > +MODULE_PARM_DESC(pen_int, "Set pen down interrupt");
-> > +static int pen_int = 0;	
+
+On Wed, 17 Dec 2003, Geert Uytterhoeven wrote:
 > 
-> I wouldn't call this "detection"  ;-)
-> 
-> This module option is awful for users.  How do users know what to do? 
-> (rhetorical question...)   IMO this should be selected automatically on 
-> a per-chipset basis.  I'm sure there is _some_ way to notice 
-> programmatically, for instance selected by chipset or selecting by 
-> sending a test interrupt.
-> 
-> XScale PDA users just aren't going to know this kind of information off 
-> the top of their heads...
-> 
-> 
+> For the record: PCI Express is _not_ PCI-X.
 
-Yeah, your right. I was aiming this configuration option at developers.
-Currently the driver can either poll the pen down status (expensive, but
-platform agnostic) or it could be interrupted (if supported on the
-platform) when the pen up / down status changed.
+Ok, but "PCI Express" is too damn long to write, so we'll have to have 
+_some_ sane name for it without typing for half an hour.
 
-I'll make this automatically be determined at build time. 
-
-> >  /*
-> >   * ADC sample delay times in uS
-> >   */
-> >  static const int delay_table[16] = {
-> > -	21,		// 1 AC97 Link frames
-> > -	42,		// 2
-> > -	84,		// 4
-> > -	167,		// 8
-> > -	333,		// 16
-> > -	667,		// 32
-> > -	1000,		// 48
-> > -	1333,		// 64
-> > -	2000,		// 96
-> > -	2667,		// 128
-> > -	3333,		// 160
-> > -	4000,		// 192
-> > -	4667,		// 224
-> > -	5333,		// 256
-> > -	6000,		// 288
-> > -	0 		// No delay, switch matrix always on
-> > +	21,// 1 AC97 Link frames
-> > +	42,// 2
-> > +	84,// 4
-> > +	167,// 8
-> > +	333,// 16
-> > +	667,// 32
-> > +	1000,// 48
-> > +	1333,// 64
-> > +	2000,// 96
-> > +	2667,// 128
-> > +	3333,// 160
-> > +	4000,// 192
-> > +	4667,// 224
-> > +	5333,// 256
-> > +	6000,// 288
-> > +	0 // No delay, switch matrix always on
-> >  };
-> 
-> is this a mistake?  You just made the code more difficult to read.
-
-Yep, I seem to have some unintentional whitespace/tab changes.
-
-
-> > +// Todo
-> > +static void wm97xx_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> > +{
-> > +	info("int recv");
-> > +}
-> 
-> hmmmm.
-> 
-> This change doesn't seem terribly appropriate for the 2.4.x stable series...
-> 
-> 
-
-Work in progress. Will remove for 2.4.x
-
-I'll address the remaining issues create another patch.
-
-Liam
-
+		Linus "retard on a keyboard" Torvalds

@@ -1,81 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSHaBZB>; Fri, 30 Aug 2002 21:25:01 -0400
+	id <S315690AbSHaBgc>; Fri, 30 Aug 2002 21:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315746AbSHaBZA>; Fri, 30 Aug 2002 21:25:00 -0400
-Received: from pat.uio.no ([129.240.130.16]:39386 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315540AbSHaBY6>;
-	Fri, 30 Aug 2002 21:24:58 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315717AbSHaBgc>; Fri, 30 Aug 2002 21:36:32 -0400
+Received: from [210.78.155.203] ([210.78.155.203]:260 "EHLO discovery")
+	by vger.kernel.org with ESMTP id <S315690AbSHaBgb>;
+	Fri, 30 Aug 2002 21:36:31 -0400
+Date: Sat, 31 Aug 2002 03:07:48 +0800
+From: Hu Gang <hugang@soulinfo.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: software suspend in 2.5.32 test reporter.
+Message-Id: <20020831030748.43ab8094.hugang@soulinfo.com>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.7.8claws9 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15728.7151.27079.551845@charged.uio.no>
-Date: Sat, 31 Aug 2002 03:29:19 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dave McCracken <dmccr@us.ibm.com>
-Subject: Re: [PATCH] Introduce BSD-style user credential [3/3]
-In-Reply-To: <Pine.LNX.4.44.0208301741430.5561-100000@home.transmeta.com>
-References: <15728.3233.550886.99549@charged.uio.no>
-	<Pine.LNX.4.44.0208301741430.5561-100000@home.transmeta.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+Dear Pavel Machek:
 
-     > On Sat, 31 Aug 2002, Trond Myklebust wrote:
-    >>
-    >> task-> ucred is not the unit for implementing shared creds
-    >> between threads.
+2.5.32 without CONFIG_PM , it work fine in my machine.
+2.5.32 with CONFIG_PM, Oops in add_timer.
+       
+Here is Oops , it is hardcopy from CRT.
+c0119cd5
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c0119cd5>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: cf902ec4 ebx: cf902ec4 ecx: 00000012 edx: 00000000
+esi: cf902ec4 edi: cf902d60 ebp: 00003000 esp: cd647e64
+Stack: 0000300c d1864121 cf902ec4 cff79c00
+Call Trace: [<d1864121>] [<d18630c0>] [<c016eda3>] [<c106ee69>] [<c016ee86>]
+Code: 89 5a 04 89 13 89 43 04 89 18 51 9d eb 14 51 9d 8b 44 24 04
 
-     > Fair enough, but some solution to this has to be found. I do
-     > not want to apply something that simply cannot work sanely, and
-     > I want to have at least a _plan_ on the table.
 
-The plan is pretty rough at the moment, and not all of the code has
-been written yet. Basically, it boils down to:
+>>EIP; c0119cd5 <add_timer+a5/cc>   <=====
 
-  Add the COW structure 'vfs_cred'
+>>eax; cf902ec4 <_end+f66ca38/11574bd4>
+>>ebx; cf902ec4 <_end+f66ca38/11574bd4>
+>>esi; cf902ec4 <_end+f66ca38/11574bd4>
+>>edi; cf902d60 <_end+f66c8d4/11574bd4>
+>>esp; cd647e64 <_end+d3b19d8/11574bd4>
 
-  Make VFS changes to replace all instances of
-  current->fsuid/fsgid/ngroups/groups with a single 'vfs_cred' that
-  never can be changed by CLONE_CRED after we call down into the VFS.
-  This means that we have to actually invent mechanisms for passing
-  those creds down to address_space_operations, inode_operations.
+Trace; d1864121 <END_OF_CODE+213de/????>
+Trace; d18630c0 <END_OF_CODE+2037d/????>
+Trace; c016eda3 <pci_pm_resume_device+1b/20>
+Trace; c106ee69 <_end+dd89dd/11574bd4>
+Trace; c016ee86 <pci_pm_resume_bus+3a/4c>
 
-  Add the more volatile 'pcred' a.k.a. 'task_cred' (see below), which
-  forms the necessary basis for CLONE_CRED tasks.
+Code;  c0119cd5 <add_timer+a5/cc>
+00000000 <_EIP>:
+Code;  c0119cd5 <add_timer+a5/cc>   <=====
+   0:   89 5a 04                  mov    %ebx,0x4(%edx)   <=====
+Code;  c0119cd8 <add_timer+a8/cc>
+   3:   89 13                     mov    %edx,(%ebx)
+Code;  c0119cda <add_timer+aa/cc>
+   5:   89 43 04                  mov    %eax,0x4(%ebx)
+Code;  c0119cdd <add_timer+ad/cc>
+   8:   89 18                     mov    %ebx,(%eax)
+Code;  c0119cdf <add_timer+af/cc>
+   a:   51                        push   %ecx
+Code;  c0119ce0 <add_timer+b0/cc>
+   b:   9d                        popf   
+Code;  c0119ce1 <add_timer+b1/cc>
+   c:   eb 14                     jmp    22 <_EIP+0x22> c0119cf7 <add_timer+c7/cc>
+Code;  c0119ce3 <add_timer+b3/cc>
+   e:   51                        push   %ecx
+Code;  c0119ce4 <add_timer+b4/cc>
+   f:   9d                        popf   
+Code;  c0119ce5 <add_timer+b5/cc>
+  10:   8b 44 24 04               mov    0x4(%esp,1),%eax
 
-  Audit 'task_cred' to ensure that CLONE_CRED won't introduce new
-  security holes. Things like capabilities, which can sometimes
-  override 'standard credentials', will for instance need to be looked
-  into.
 
-  .... end of process -> add CLONE_CRED flag to 'clone()'
 
-     > This really ties in with the patches Dave has done (which are
-     > equivalent to your "pcred"), and I'd like to see them work
-     > together in practice.
-
-Dave and I have already been discussing this on l-k, and we appear now
-to be in agreement on general procedure. Dave has said that he'd like
-to contribute once we get vfs_cred well established. I'm hoping he'll
-help out on the latter too ;-)
-
-     > (I would suggest calling the FS credentials "struct vfs_cred",
-     > while the regular user credentials might just be "struct cred".
-     > Other suggestions?)
-
-I'm fine about 'vfs'cred', but how about 'struct task_cred' instead
-for the second? That ties them directly in to the task_struct, and
-avoids people mistaking for 'ucred'. Since the distinction between COW
-and non-COW is pretty profound, it might be useful in order to help
-emphasize to which category they belong...
-
-Cheers,
-   Trond
+-- 
+		--- Hu Gang

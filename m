@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281284AbRKMAe3>; Mon, 12 Nov 2001 19:34:29 -0500
+	id <S281288AbRKMAkK>; Mon, 12 Nov 2001 19:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281297AbRKMAeT>; Mon, 12 Nov 2001 19:34:19 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:12804 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S281284AbRKMAeK>;
-	Mon, 12 Nov 2001 19:34:10 -0500
-Message-Id: <5.1.0.14.0.20011113112416.00a1e570@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 13 Nov 2001 11:34:05 +1100
-To: Linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: mysterious power off problem 2.4.10-2.4.14 on laptop
-Cc: L A Walsh <law@sgi.com>
-In-Reply-To: <3BF039D9.D75809F2@sgi.com>
-In-Reply-To: <Pine.LNX.4.33.0111122227140.24454-100000@morpheus.streamgroup.co.uk>
+	id <S281297AbRKMAj7>; Mon, 12 Nov 2001 19:39:59 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:38369 "EHLO
+	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
+	id <S281288AbRKMAju>; Mon, 12 Nov 2001 19:39:50 -0500
+Date: Tue, 13 Nov 2001 11:38:43 +1100
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Meadors <clubneon@hereintown.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: PnPBIOS (was: Re: 32-bit UID quotas?)
+Message-ID: <20011113113842.K991@zip.com.au>
+In-Reply-To: <Pine.LNX.4.40.0111120823210.88-100000@rc.priv.hereintown.net> <E163HJU-0005sY-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E163HJU-0005sY-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:06 PM 12/11/01 -0800, L A Walsh wrote:
->don't know if I am comfortable moving to it yet -- and even so, why should
->APM mysteriously break when it has been working great since the early
->2.4 series and fairly well since 2.2 (X was a problem on my hardware at one
->point).
->
->         I'd prefer not to try an unknown, where if I have a problem, I
->don't know if it is my hardware, a misconfiguration on my part, or the
->Experimental Hardware.  That would likely take more time than simply
->staying with APM -- a known 'working configuration', and finding what
->changed in 2.4.10 (and remains in 2.4.14) that lead to the new problems.
+On Mon, Nov 12, 2001 at 01:39:48PM +0000, Alan Cox wrote:
+> > I saw that ext3 is going into 2.4.15 by the testing/ChangeLog.  There are
+> > also lots of Alan Cox merging, but no specific mention of whether or not
+> > the 32-bit UID quota patch has gone in, or is going in.
+> > 
+> > The ext3 and 32-bit UID quotas were the only two patches I was really
+> > relying on the -ac releases for.
+> 
+> 32bit uid quota is a harder one. Its probably something to be tackled after
+> 2.4.15. There are a few other things like that which are lower priority 
+> because they are tricky, or because (eg the kiovec stuff) they are simply
+> performance boosts and can be done after we see 2.4.15 is solid
+> 
+> Other bits like the via timer fix are under further research
 
-There was mention recently about some changes to APM to fix some "broken" 
-behavior regarding the way it set/reset values. Some of these were cases 
-where APM seemed to blindly set values instead of leaving them as is. I 
-don't remember just how long ago, but you might try looking over the archives.
+Is PnPBIOS one of these? I'm wondering when(if) it'll make it in as I'd
+like to get my linux operating environment as close to the windows one
+due to the laptop turning off when sound modules have been loaded (after
+a while). This seems to have almost vanished in my upgrade from 2.2.19
+to 2.4.xacy but it still happens occasionally.
 
-If this is the case, then it's possible that the APM code was checking 
-status, and then blindly setting things to suit that status instead of what 
-was read. Makes sense, but potentially broken. If the BIOS is broken and 
-doesn't set these values correctly, then this could produce the symptoms 
-you describe. Check for a BIOS upgrade anyway - usually a good manufacturer 
-will have some sort of changelog with the BIOS, so if there is a new 
-version, you might find APM was broken and fixed.
+ATM I have the BIOS set for WinME (bah) and with PnPBIOS my sound card is
+given the correct IRQ instead of 0.
 
-It's also possible that this never made it into those kernels, and they've 
-been using the broken behavior since 2.4.10 which is causing your problems. 
-I'd also suggest checking out the latest of the 2.4.14pre* kernels. My 
-memory of the list (I may be wrong) makes me think the discussion was quite 
-recent.
-
-Good luck.
-
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
-
+-- 
+CaT        "As you can expect it's really affecting my sex life. I can't help
+           it. Each time my wife initiates sex, these ejaculating hippos keep
+           floating through my mind."
+                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens

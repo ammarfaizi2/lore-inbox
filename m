@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264418AbTKMUfq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 15:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTKMUfq
+	id S264412AbTKMUtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 15:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTKMUtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 15:35:46 -0500
-Received: from pat.uio.no ([129.240.130.16]:8843 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264418AbTKMUfp (ORCPT
+	Thu, 13 Nov 2003 15:49:20 -0500
+Received: from mail3.bluewin.ch ([195.186.1.75]:34452 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264412AbTKMUtU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 15:35:45 -0500
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Martin.Knoblauch@mscsoftware.com, root@chaos.analogic.com,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs_statfs: statfs error = 116
-References: <OF8497F0B5.C94E6443-ONC1256DDD.0051048E-C1256DDD.0051C1A9@mscsoftware.com>
-	<03111314262500.15082@tabby>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Nov 2003 15:34:55 -0500
-In-Reply-To: <03111314262500.15082@tabby>
-Message-ID: <shsislof1n4.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Thu, 13 Nov 2003 15:49:20 -0500
+Date: Thu, 13 Nov 2003 21:49:09 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: xkernel@o2.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with DFE-530TX
+Message-ID: <20031113204909.GA5074@k3.hellgate.ch>
+Mail-Followup-To: xkernel@o2.pl, linux-kernel@vger.kernel.org
+References: <20031113180649.5D48DD0BCC@rekin.go2.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <20031113180649.5D48DD0BCC@rekin.go2.pl>
+X-Operating-System: Linux 2.6.0-test9 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jesse Pollard <jesse@cats-chateau.net> writes:
+On Thu, 13 Nov 2003 19:06:49 +0100, xkernel@o2.pl wrote:
+> I have a problem with VIA-RHINE driver using two D-LINK DFE-530TX cards.
+> Problem occurs when I'v got compiled in kernel driver with enabled option
+> "use MMIO". Kernel recognizes both cards assigns eth0, eth1 but when I
+> try to set IP on eth1 it errors with message "device or resource busy".
 
-     > ESTALE should occur whenever the client looses connection to
-     > the server, or thinks it has lost connection.
+Does the MMIO setting matter? Also, does disabling APIC and ACPI help?
 
-No it should not.
-
-Cheers,
-  Trond
+Roger

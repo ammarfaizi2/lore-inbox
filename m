@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272963AbTHKTdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272997AbTHKSyf
+	id S274897AbTHKTh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273345AbTHKTfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:54:35 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:24082 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S272989AbTHKSxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:53:22 -0400
-Date: Mon, 11 Aug 2003 14:41:32 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: davidm@hpl.hp.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH][2.6] WARN_ON_STACK_VAR aka fighting variable lifetime
- bugs
-In-Reply-To: <16183.58300.408086.272654@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.53.0308111440080.26153@montezuma.mastecende.com>
-References: <Pine.LNX.4.53.0308091430410.32166@montezuma.mastecende.com>
- <16183.58300.408086.272654@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Aug 2003 15:35:38 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:36055 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S273403AbTHKTel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:34:41 -0400
+Date: Mon, 11 Aug 2003 21:34:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Johannes Stezenbach <js@convergence.de>,
+       Gerd Knorr <kraxel@bytesex.org>,
+       Flameeyes <dgp85@users.sourceforge.net>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811193401.GA8957@ucw.cz>
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz> <20030811191709.GN2627@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030811191709.GN2627@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, David Mosberger wrote:
+On Mon, Aug 11, 2003 at 09:17:10PM +0200, Pavel Machek wrote:
 
-> >>>>> On Sat, 9 Aug 2003 15:29:41 -0400 (EDT), Zwane Mwaikambo <zwane@arm.linux.org.uk> said:
+> > > > > We can drop /dev/lirc*, and use input events with received codes, but I
+> > > > > think that lircd is still needed to translate them into userland
+> > > > > commands...
+> > > > 
+> > > > That translation isn't done by lircd, but by the lirc_client library.
+> > > > This is no reason for keeping lircd as event dispatcher, the input layer
+> > > > would do equally well (with liblirc_client picking up events from
+> > > > /dev/input/event<x> instead of lircd).
+> > > 
+> > > IMHO there's one problem:
+> > > 
+> > > If a remote control has e.g. a "1" key this doesn't mean that a user
+> > > wants a "1" to be written into your editor while editing source code.
+> > > The "1" key on a remote control simply has a differnt _meaning_ than
+> > > the "1" key on your keyboard -- depending of course on what the user
+> > > thinks this key should mean.
+> > 
+> > That's what BTN_1 is for. ;)
 > 
->   Zwane> --- linux-2.6.0-test2-irq/include/asm-ia64/bug.h	30 Jul 2003 00:06:30 -0000	1.1.1.1
->   Zwane> +++ linux-2.6.0-test2-irq/include/asm-ia64/bug.h	9 Aug 2003 19:14:09 -0000
->   Zwane> +#define WARN_ON_STACK_VAR(ptr) do { \
->   Zwane> +	unsigned long __ti = (unsigned long)current_thread_info(); \
->   Zwane> +	WARN_ON((__ti & (unsigned long)(ptr)) == __ti); \
->   Zwane> +} while (0)
-> 
-> Note that on ia64 we don't use bit-masking to calculate the
-> task-pointer.  Instead, thread-info follows the task structure.  This
-> is done such that the task-structure, thread-info, and kernel stack
-> can be mapped by a single (pinned) TLB entry.
-> 
-> The correct check for a variable being on the stack of the current
-> task would be something like this:
-> 
-> 	((unsigned long)(ptr) - (unsigned long) current) < IA64_STK_OFFSET
-> 
-> (IA64_STK_OFFSET is declared by <asm/ptrace.h>).
+> Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
 
-Ah thanks =) i've modified my patch accordingly.
+No, that'd be BTN_LEFT.
 
-	Zwane
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264323AbTKZUJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTKZUJd
+	id S264291AbTKZUCF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbTKZUCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:09:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16607 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264323AbTKZUJZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:09:25 -0500
-To: torvalds@osdl.org
-Cc: pavel@suse.cz, axboe@suse.de, bug-binutils@gnu.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io
- priorities (fwd)]
-References: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
-From: Nick Clifton <nickc@redhat.com>
-Date: Wed, 26 Nov 2003 20:06:00 +0000
-In-Reply-To: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org> (Linus
- Torvalds's message of "Fri, 21 Nov 2003 15:05:23 -0800 (PST)")
-Message-ID: <m3ptfehp3r.fsf@redhat.com>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 26 Nov 2003 15:02:05 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:18305 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264291AbTKZUCC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 15:02:02 -0500
+Date: Wed, 26 Nov 2003 20:01:53 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Fire Engine??
+Message-ID: <20031126200153.GG14383@mail.shareable.org>
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031126113040.3b774360.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+David S. Miller wrote:
+> > - Doing gettimeofday on each incoming packet is just dumb, especially
+> > when you have gettimeofday backed with a slow southbridge timer.
+> > This shows quite badly on many profile logs.
+> > I still think right solution for that would be to only take time stamps
+> > when there is any user for it (= no timestamps in 99% of all systems) 
+> 
+> Andi, I know this is a problem, but for the millionth time your idea
+> does not work because we don't know if the user asked for the timestamp
+> until we are deep within the recvmsg() processing, which is long after
+> the packet has arrived.
 
-> You can trivially see if with a simple assembly file like
->
-> 	start:
-> 		.long 1,2,3,a
-> 	a=(.-start)/4
->
-> where 2.13.90 as shipped by SuSE will get it right (and generate a
-> list of 1,2,3,4), while 2.14.90 from Fedora core will generate
-> 1,2,3,16.
+Do the timestamps need to be precise and accurately reflect the
+arrival time in the irq handler?  Or, for TCP timestamps, would it be
+good enough to use the time when the protocol handlers are run, and
+only read the hardware clock once for a bunch of received packets?  Or
+even use jiffies?
 
-It appears that the 2.14.90.0.6 release of binutils used with the
-Fedora code needs the patch below applied.  This patch has been
-committed to the 2_14 branch and the mainline binutils sources.
+Apart from TCP, precise timestamps are only used for packet capture,
+and it's easy to keep track globally of whether anyone has packet
+sockets open.
 
-Cheers
-        Nick Clifton
-        Binutils Maintainer
-
------------------------------------------------------------------------
-gas/ChangeLog
-2003-04-30  Alan Modra  <amodra@bigpond.net.au>
-
-	* app.c (do_scrub_chars): Revert 2003-04-23 and 2003-04-22 changes.
-
-Index: gas/app.c
-===================================================================
-RCS file: /repositories/repositories/sourceware/src/gas/app.c,v
-retrieving revision 1.23
-diff -c -3 -p -r1.23 app.c
-*** gas/app.c	23 Apr 2003 17:51:41 -0000	1.23
---- gas/app.c	26 Nov 2003 20:02:32 -0000
-*************** do_scrub_chars (get, tostart, tolen)
-*** 1294,1300 ****
-  	    }
-  	  else if (state == 1)
-  	    {
-- 	      if (IS_SYMBOL_COMPONENT (ch))
-  		state = 2;	/* Ditto.  */
-  	    }
-  	  else if (state == 9)
---- 1294,1299 ----
-
+-- Jamie

@@ -1,24 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUDYLo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbUDYMEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUDYLo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 07:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUDYLo1
+	id S261615AbUDYMEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 08:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDYMEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 07:44:27 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:53975 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261530AbUDYLo1 (ORCPT
+	Sun, 25 Apr 2004 08:04:13 -0400
+Received: from tan7.ncr.com ([192.127.94.7]:44405 "EHLO ncrhub2.NCR.COM")
+	by vger.kernel.org with ESMTP id S261615AbUDYMEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 07:44:27 -0400
-From: aupechemignon@bluewin.ch
-Subject: Re: letter
-To: linux-kernel@vger.kernel.org
-Date: Sun, 25 Apr 2004 11:44:26 +0000
-Message-ID: <4057CCD4032E87EC@mssbzhh-int.msg.bluewin.ch>
-In-Reply-To: <4055A54C00E4DA5F@mx3.bluewin.ch>
-Content-Type: text/plain; charset=ISO-8859-1
-MIME-Version: 1.0
+	Sun, 25 Apr 2004 08:04:11 -0400
+Date: Sun, 25 Apr 2004 08:04:11 -0400 (EDT)
+From: Mail Delivery Subsystem <MAILER-DAEMON@ncrhub2.NCR.COM>
+Message-Id: <200404251204.i3PC4BKZ008507@ncrhub2.NCR.COM>
+To: <linux-kernel@vger.kernel.org>
+Subject: Returned mail: see transcript for details
+Auto-Submitted: auto-generated (failure)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The original message was received at Sun, 25 Apr 2004 08:04:10 -0400 (EDT)
+from localhost [127.0.0.1]
 
-coucou
+   ----- The following addresses had permanent fatal errors -----
+<james.bottomley@columbiasc.ncr.com>
+
+   ----- Transcript of session follows -----
+No directory entries found similar to 'james.bottomley@columbiasc.ncr.com'
+Please check the address and try again.
+550 5.1.1 <james.bottomley@columbiasc.ncr.com>... User unknown
+
+   ----- Message header follows -----
+
+Return-Path: <linux-kernel@vger.kernel.org>
+Received: from ncrgw1.NCR.COM (localhost [127.0.0.1])
+	by ncrhub2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3PC49KZ008496
+	for <james.bottomley@columbiasc.ncr.com>; Sun, 25 Apr 2004 08:04:10 -0400 (EDT)
+Received: from columbiasc.ncr.com ([219.82.108.52])
+	by ncrgw1.NCR.COM (8.12.10/8.12.10) with ESMTP id i3PC45ea022726
+	for <james.bottomley@columbiasc.ncr.com>; Sun, 25 Apr 2004 08:04:07 -0400 (EDT)
+Message-Id: <200404251204.i3PC45ea022726@ncrgw1.NCR.COM>
+From: linux-kernel@vger.kernel.org
+To: james.bottomley@columbiasc.ncr.com
+Subject: fake?
+Date: Sun, 25 Apr 2004 20:04:02 +0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0012_000042F4.00001FB9"
+X-Priority: 3
+X-MSMail-Priority: Normal
+
+   ----- Message body suppressed -----
+

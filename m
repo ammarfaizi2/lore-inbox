@@ -1,60 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263876AbUD0HJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUD0HpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbUD0HJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 03:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbUD0HJR
+	id S263827AbUD0HpH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 03:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbUD0HpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 03:09:17 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:49158 "EHLO MailBox.iNES.RO")
-	by vger.kernel.org with ESMTP id S263888AbUD0HJL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 03:09:11 -0400
-Subject: Re: User space programs on swsusp
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: rajsekar@peacock.iitm.ernet.in
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <y49ad0yng3b.fsf@sahana.cs.iitm.ernet.in>
-References: <y49ad0yng3b.fsf@sahana.cs.iitm.ernet.in>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-84IkWT61HsBvDv9anKuo"
-Organization: iNES Group
-Message-Id: <1083049629.1553.1.camel@localhost.localdomain>
+	Tue, 27 Apr 2004 03:45:07 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:19337 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S263827AbUD0Ho7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 03:44:59 -0400
+Date: Tue, 27 Apr 2004 01:44:55 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, mc@stanford.edu,
+       Madanlal S Musuvathi <madan@stanford.edu>,
+       "David L. Dill" <dill@cs.stanford.edu>
+Subject: Re: [Ext2-devel] [CHECKER] warnings in fs/ext3/namei.c (2.4.19) where disk read errors get ignored, causing non-empty dir to be deleted
+Message-ID: <20040427074455.GD30529@schnapps.adilger.int>
+Mail-Followup-To: Junfeng Yang <yjf@stanford.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net, mc@stanford.edu,
+	Madanlal S Musuvathi <madan@stanford.edu>,
+	"David L. Dill" <dill@cs.stanford.edu>
+References: <Pine.GSO.4.44.0404262339360.7250-100000@elaine24.Stanford.EDU>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Tue, 27 Apr 2004 10:07:09 +0300
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0404262339360.7250-100000@elaine24.Stanford.EDU>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Apr 26, 2004  23:41 -0700, Junfeng Yang wrote:
+> We checked EXT3 filesystem on 2.4.19 recently and found 2 cases that look
+> like bugs.  For both of the cases, disk read errors are ignored, which
+> appears to cause a non-empty directory to be wrongly deleted or a dir to
+> contain more than one entries with identical names.
+> 
+> I'm not sure if they are real bugs or not, so your confirmations
+> /clarifications are appericated.
 
---=-84IkWT61HsBvDv9anKuo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I don't consider this a bug, but rather a conscious decision on the part of
+the developers.  If you are trying to delete a directory and it has read
+errors, then it is better to let the unlink succeed than to refuse to unlink
+the directory.
 
-On Tue, 2004-04-27 at 10:59 +0530, rajsekar@peacock.iitm.ernet.in wrote:
-> Is there a way to run some user space program / script after resuming fro=
-m
-> software suspend ?
+> ----------------------------------------------------------------------------
+> [BUG] A non-empty dir may be deleted because ext3_read errors are ignored
+> by ext3_find_entry.  empty_dir is called whenenver ext3_rmdir tries to
+> remove a directory.
+> 
+> 
+> static int empty_dir (struct inode * inode)
+> {
+> 			bh = ext3_bread (NULL, inode,
+> 				offset >> EXT3_BLOCK_SIZE_BITS(sb), 0, &err);
+> 			if (!bh) {
+> #if 0
+> 				ext3_error (sb, "empty_dir",
+> 				"directory #%lu contains a hole at offset %lu",
+> 					inode->i_ino, offset);
+> #endif
+> 				offset += sb->s_blocksize;
+> ERROR --->			continue;
+> 			}
+> 			de = (struct ext3_dir_entry_2 *) bh->b_data;
+> 		}
 
+What is more of a bug is a few lines down.  The error return from
+ext3_check_dir_entry() causes the rest of the directory to be skipped and
+"1" returned instead of skipping that block/page and continuing to check
+the rest of the directory.  With this if there is a read error anywhere
+in the directory it is possible to rmdir the directory without actually
+deleting entries that are returned by ls.
 
-Call suspend from an script.
-Anything after this call will execute at resume.
+> ----------------------------------------------------------------------------
+> [BUG] A dir may end up containing more than one entries with identical
+> names because because disk read errors are ignored by ext3_find_entry.
+> ext3_find_entry is called by lots of other ext3 functions (ext3_add_entry,
+> ext3_unlink, ext3_rename)
+> 
+> static struct buffer_head * ext3_find_entry (struct dentry *dentry,
+> 					struct ext3_dir_entry_2 ** res_dir)
+> {
+> .....
+> 		if ((bh = bh_use[ra_ptr++]) == NULL)
+> 			goto next;
+> 		wait_on_buffer(bh);
+> 		if (!buffer_uptodate(bh)) {
+> 			/* read error, skip block & hope for the best */
+> 			brelse(bh);
+> ERROR --->		goto next;
+> 		}
 
+Again a conscious decision.  If a name is potentially inaccessible because
+of an IO error it is better to allow the creation of a potentially duplicate
+name than refuse creation of any new entries in the directory.  It's a matter
+of allowing the filesystem to be used as well as possible in the face of
+failures vs. just giving up and refusing to do anything.
 
---=20
-Cioby
-
-
---=-84IkWT61HsBvDv9anKuo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAjgacQisRnSkd59cRAt1lAJ96TkXFoFvPs+N3nUBeoZ9vsWGVAACeM6yM
-cW9h/0pS8w5s7Ax4Zd/BWWE=
-=5hk6
------END PGP SIGNATURE-----
-
---=-84IkWT61HsBvDv9anKuo--
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

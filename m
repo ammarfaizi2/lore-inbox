@@ -1,45 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271368AbUJVPa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271359AbUJVPcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271368AbUJVPa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 11:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271370AbUJVPa5
+	id S271359AbUJVPcO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 11:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271363AbUJVPcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 11:30:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30896 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S271368AbUJVPaH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 11:30:07 -0400
-Date: Fri, 22 Oct 2004 11:30:18 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <yanmin.zhang@intel.com>
-Subject: Re: 2.6.9-mm1
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0410221121060.31747-100000@dhcp83-105.boston.redhat.com>
+	Fri, 22 Oct 2004 11:32:14 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50805 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S271359AbUJVPcB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 11:32:01 -0400
+Message-ID: <41792C36.4070301@users.sourceforge.net>
+Date: Fri, 22 Oct 2004 17:50:14 +0200
+From: =?ISO-8859-15?Q?Kristian_S=F8rensen?= <ipqw@users.sourceforge.net>
+Organization: The Umbrella Team
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+Cc: Kasper Sandberg <lkml@metanurb.dk>,
+       =?ISO-8859-15?Q?Kristian_S=F8re?= =?ISO-8859-15?Q?nsen?= 
+	<ks@cs.aau.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>, umbrella@cs.aau.dk
+Subject: Re: Gigantic memory leak in linux-2.6.[789]!
+References: <200410221613.35913.ks@cs.aau.dk> <1098455535.12574.1.camel@localhost> <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 22 Oct 2004, Andrew Morton wrote:
-
+Richard B. Johnson wrote:
+> On Fri, 22 Oct 2004, Kasper Sandberg wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
+>> On Fri, 2004-10-22 at 16:13 +0200, Kristian Sørensen wrote:
+>>
+>>> Hi all!
+>>>
+>>> After some more testing after the previous post of the OOPS in
+>>> generic_delete_inode, we have now found a gigantic memory leak in 
+>>> Linux 2.6.
+>>> [789]. The scenario is the same:
+>>>
+>>> File system: EXT3
+>>> Unpack and delete linux-2.6.8.1.tar.bz2 with this Bash while loop:
+>>>
+>>> let "i = 0"
+>>> while [ "$i" -lt 10 ]; do
+>>>    tar jxf linux-2.6.8.1.tar.bz2;
+>>>    rm -fr linux-2.6.8.1;
+>>>    let "i = i + 1"
+>>> done
+>>>
+>>> When the loop has completed, the system use 124 MB memory more _each_ 
+>>> time....
+>>> so it is pretty easy to make a denial-of-service attack :-(
 > 
-> - Lots of new patches.
 > 
-> - Status of as-yet-unmerged things:
+> 
+> Do something like this with your favorite kernel version.....
+> 
+> while true ; do tar -xzf linux-2.6.9.tar.gz ; rm -rf linux-2.6.9 ; 
+> vmstat ; done
+> 
+> You can watch this for as long as you want. If there is no other
+> activity, the values reported by vmstat remain, on the average, stable.
+> If you throw in a `sync` command, the values rapidly converge to
+> little memory usage as the disk-data gets flused to disk.
+The problem is, that the free memory reported by vmstat is decresing by 
+124mb for each 10-iterations....
 
-Can you merge Zhang Yanmin's patch to fix hugetlb pages? The flexmap
-changes prevent hugetlb pages from being allocated now for the default
-process layout. link to original patch:
-
-http://marc.theaimsgroup.com/?l=linux-scsi&m=109814866401322&w=2
-
-thanks,
-
--Jason   
+The allocated memory does not get freed even if the system has been left 
+alone for three hours!
 
 
+Cheers, Kristian.
+
+-- 
+Kristian Sørensen
+- The Umbrella Project
+   http://umbrella.sourceforge.net
+
+E-mail: ipqw@users.sf.net, Phone: +45 29723816

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264487AbTLVTaU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 14:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTLVTaU
+	id S264506AbTLVTfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 14:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTLVTfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 14:30:20 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:205 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264487AbTLVTaP convert rfc822-to-8bit (ORCPT
+	Mon, 22 Dec 2003 14:35:24 -0500
+Received: from hostmaster.org ([80.110.173.103]:12672 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S264506AbTLVTfQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 14:30:15 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: minor e1000 bug
-Date: Mon, 22 Dec 2003 11:30:09 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD75@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: minor e1000 bug
-Thread-Index: AcPIoCuk7afa+el2Qo+vFvElPWMdJwAIcDoQ
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Ethan Weinstein" <lists@stinkfoot.org>
-Cc: "Hans-Peter Jansen" <hpj@urpla.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Dec 2003 19:30:09.0970 (UTC) FILETIME=[0337B920:01C3C8C2]
+	Mon, 22 Dec 2003 14:35:16 -0500
+Subject: Re: 2.6.0 lockup with de4x5/de2104x driver
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072119837.1383.11.camel@hostmaster.org>
+References: <1072119837.1383.11.camel@hostmaster.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fKIaeDfLGypioJNaB2H+"
+Message-Id: <1072121704.1435.3.camel@hostmaster.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 22 Dec 2003 20:35:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This modification appears to somewhat remedy the problem, however, 
-> bandwidth measurement seems to be much more accurate with many other 
-> cards.  By what method does, say, the 3c59x card export its 
-> statistics 
-> to /proc/net/dev that makes it easier to measure?
 
-e100 and e1000 both query h/w for stats on a timer (2 seconds) and cache
-the results.  A call into the driver's get_stats function just returns
-these cached values.  With e100, there is a problem in that issuing the
-command to dump stats doesn't return right away, so rather than blocking
-in the driver by waiting for the command to complete, the driver just
-reads the results of the dump command 2 seconds prior, and then reissues
-a new dump command.  So e100 stats are delayed by ~2 seconds.
+--=-fKIaeDfLGypioJNaB2H+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-3c59x (and others) query the h/w for stats in the driver's get_stats
-function directly.  This gives up-to-date stats.  We could do this with
-e1000, but it'll take a little bit of surgery because there is some
-other code in the driver that is dependent on stats collected over 2
-second period.  Nothing that can't be fixed.
+Some more testing revealed that the de4x5 driver of the 2.6.0 kernel
+seems to be working with SMP disabled. Unfortunately this required a new
+kernel build instead of simply passing the nosmp parameter.
 
--scott
+Regards
+Tom
+
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+       mail pgp-key-request@hostmaster.org
+
+History has shown that the people who make history do not learn from it.
+
+--=-fKIaeDfLGypioJNaB2H+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQEVAwUAP+dHY2D1OYqW/8uJAQJEkQf/RC6F00semjFDCuTb7YHD1zpwihlvWJGi
+X35NtdGR26rmARq+WF31sD34uwYG3DQeWZlc1dZHUihGqv1vOBlAYudk9D2r6ie6
+juxPnMMVtDJqCoBx+aQ7KcrfGogDKBPN6hm2VLtu3nIktW4xXB7kqjqZWvzM9Fna
++xR1UAbJBS82N8bsZwAXxF6IqszaU0qE/lXEF1mjeqqu68TinzQAuflA2PLJ8BQd
+cISaX8a46SY8iChfsjQhOrVJjlOvCRCH+kNG3t1j3VJl9/Uky02Z9XnpURwdO15y
+a9LkFyjpvY8JWmhHrMD9eokcOiFVyj2ODqwNx/SwnCgjOliBHy5Wkg==
+=dsiL
+-----END PGP SIGNATURE-----
+
+--=-fKIaeDfLGypioJNaB2H+--
+

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317287AbSFLBAt>; Tue, 11 Jun 2002 21:00:49 -0400
+	id <S317289AbSFLBIJ>; Tue, 11 Jun 2002 21:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317289AbSFLBAs>; Tue, 11 Jun 2002 21:00:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1547 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317287AbSFLBAs>;
-	Tue, 11 Jun 2002 21:00:48 -0400
-Message-ID: <3D069C69.1090003@mandrakesoft.com>
-Date: Tue, 11 Jun 2002 20:57:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Robert PipCA <robertpipca@yahoo.com>, vortex@scyld.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [vortex] Re: MTU discovery
-In-Reply-To: <Pine.LNX.4.33.0206111523050.1688-100000@presario>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317293AbSFLBIJ>; Tue, 11 Jun 2002 21:08:09 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:21923 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317289AbSFLBII>; Tue, 11 Jun 2002 21:08:08 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: george anzinger <george@mvista.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, dent@cosy.sbg.ac.at,
+        adilger@clusterfs.com, da-x@gmx.net, patch@luckynet.dynu.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup 
+In-Reply-To: Your message of "Tue, 11 Jun 2002 07:52:56 MST."
+             <3D060EC8.321A0D66@mvista.com> 
+Date: Wed, 12 Jun 2002 11:10:38 +1000
+Message-Id: <E17Hwek-0002Y8-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Donald Becker wrote:
-> A 16 bit register.. 64KB packets.  There are various issues with using
-> large packet sizes.  There is no driver that has been verified with
-> jumbo frames.  I have been throwing driver versions at Rishi Srivatsavai
-> <rishis at CLEMSON.EDU> trying to sort out the issues.  You might notice
-> the changes in 0.99W, although they don't handle the FIFO limit issues.
+In message <3D060EC8.321A0D66@mvista.com> you write:
+> On wonders if it might be useful to split header files into
+> say for example, list_d.h and list_i.h with the declarations
+> in the "_d.h" and inlines in the "_i.h".  Then we could move
+> the "_i.h" includes to the end of the include list.  Yeah, I
+> know, too many includes in includes to work.  
 
+The only really sane way to implement "CONFIG_SMALL_NO_INLINES" that I
+can think of is to have headers do
 
-With the VLAN stuff that suddenly appeared, I did some large packet 
-testing...  I would typically cap the MTU limit at just under the FIFO 
-size, since it often requires special handling doing frames > FIFO size.
+#include <linux/inline.h>
 
-I do not look forward to re-verifying the 2.4 tulip driver across all 
-those chipsets, to make sure my large packet code [which is not yet in 
-the kernel] works. :)
+inline_me int function(int x) { return x++; }
 
-	Jeff
+Then inline.h contain:
 
+#include <linux/config.h>
+#ifdef CONFIG_SMALL_NO_INLINES
+#define inline_me
+#else
+#define inline_me static inline
+#endif
 
+And if do a final compile of a file "inlines.c" like so if
+CONFIG_SMALL_NO_INLINES is set:
 
+#include <linux/config.h>
+#undef CONFIG_SMALL_NO_INLINES
+
+/* Instantiate one of each inline for real: auto-generated list */
+
+#include <linux/header1.h>
+#include <linux/header2.h>
+#include <linux/header3.h>
+#include <linux/header4.h>
+
+Expect an implementation in... um... well, someone else perhaps?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

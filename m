@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbUBDTgR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbUBDTgQ
+	id S263898AbUBDTcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUBDTcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:36:16 -0500
-Received: from cs24243203-239.austin.rr.com ([24.243.203.239]:14603 "EHLO
-	raptor.int.mccr.org") by vger.kernel.org with ESMTP id S263996AbUBDTgN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:36:13 -0500
-Date: Wed, 04 Feb 2004 13:35:54 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: root@chaos.analogic.com
-cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-Message-ID: <361730000.1075923354@[10.1.1.5]>
-In-Reply-To: <Pine.LNX.4.53.0402041402310.2722@chaos>
-References: <20040204185446.91810.qmail@web9705.mail.yahoo.com>
- <Pine.LNX.4.53.0402041402310.2722@chaos>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 14:32:17 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:18643 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263898AbUBDTcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:32:12 -0500
+Date: Wed, 4 Feb 2004 20:31:54 +0100
+From: "Juergen E. Fischer" <fischer@linux-buechse.de>
+To: david.ronis@mcgill.ca
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Problem with module-init-tools-3.0-pre3
+Message-ID: <20040204193154.GA29661@linux-buechse.de>
+Mail-Followup-To: david.ronis@mcgill.ca, linux-kernel@vger.kernel.org,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
 Content-Disposition: inline
+In-Reply-To: <16417.14736.420280.796948@ronispc.chem.mcgill.ca>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:8b0c050ff9179508392b54e1b921775e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Wednesday, February 04, 2004 14:07:52 -0500 "Richard B. Johnson"
-<root@chaos.analogic.com> wrote:
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> If this is an Intel x86 machine, it is impossible for pages
-> to get fragmented in the first place. The hardware allows any
-> page, from anywhere in memory, to be concatenated into linear
-> virtual address space. Even the kernel address space is virtual.
-> The only time you need physically-adjacent pages is if you
-> are doing DMA that is more than a page-length at a time. The
-> kernel keeps a bunch of those pages around for just that
-> purpose.
-> 
-> So, if you are making a "memory defragmenter", it is a CPU time-sink.
+Hi David,
 
-Um, wrong answer.  When you ask for more than one page from the buddy
-allocator  (order greater than 0) it always returns physically contiguous
-pages.
+On Wed, Feb 04, 2004 at 13:27:28 -0500, David Ronis wrote:
+> I just built 2.6.2 and tried the scsi driver install/remove problem I
+> wrote about earlier (if, I manually remove the sg and aha152x modules
+> with modprobe, I get an oops the next time they are used).  The
+> problem is still present.
 
-Also, one of the near-term goals in VM is to be able to allocate and free
-large pages from the main memory pools, which requires that something like
-order 9 or 10 allocations (based on the architecture) succeed.
+With or without the patch?  It wasn't applied in 2.6.2.
 
-Dave McCracken
 
+J=FCrgen
+
+--=20
+Phase 1: Where do you want to go today?
+Phase 2: This is where you want to go today.
+Phase 3: You're not going anywhere today.
+  -- seen on /.
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAIUiqc/GhTF5ESHURAqNpAKCZV3WTgw0guyHAetPdpiWQSYT5BQCeMoZ4
+ix/4W10ZQvbCHvxj4g2oBxQ=
+=J5CV
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

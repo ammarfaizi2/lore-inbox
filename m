@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272378AbTGaEjU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 00:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272380AbTGaEjU
+	id S271330AbTGaEat (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 00:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272373AbTGaEat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 00:39:20 -0400
-Received: from mail.kroah.org ([65.200.24.183]:38084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272378AbTGaEjT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 00:39:19 -0400
-Date: Wed, 30 Jul 2003 21:11:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Grant Miner <mine0057@mrs.umn.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Zio! compactflash doesn't work
-Message-ID: <20030731041103.GA7668@kroah.com>
-References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030731011450.GA2772@win.tue.nl>
-User-Agent: Mutt/1.4.1i
+	Thu, 31 Jul 2003 00:30:49 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:26524 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S271330AbTGaEas
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 00:30:48 -0400
+Message-ID: <Pine.LNX.4.44.0307311003080.16619-100000@localhost.localdomain>
+From: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+To: linux-net@vger.kernel.org
+Subject: Avoiding re-ordering in netif_rx()
+Date: Thu, 31 Jul 2003 10:11:56 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 03:14:50AM +0200, Andries Brouwer wrote:
-> On Wed, Jul 30, 2003 at 04:17:53PM -0700, Greg KH wrote:
-> > On Tue, Jul 29, 2003 at 05:07:05PM -0500, Grant Miner wrote:
-> > > I have a Microtech CompactFlash ZiO! USB
-> > > P:  Vendor=04e6 ProdID=1010 Rev= 0.05
-> > > S:  Manufacturer=SHUTTLE
-> > > S:  Product=SCM Micro USBAT-02
-> > > 
-> > > but it does not show up in /dev; this is in 2.6.0-pre1.  (It never 
-> > > worked in 2.4 either.)  config is attached.  Any ideas?
-> > 
-> > Linux doesn't currently support this device, sorry.
-> 
-> Hmm. I think I recall seeing people happily using that.
-> Do I misremember?
-> 
-> Google gives
->   http://www.scm-pc-card.de/service/linux/zio-cf.html
-> and
->   http://usbat2.sourceforge.net/
+I am modifying linux kernel 2.4.18 to add support for our TCP offload 
+card. The problem is:
+The packets that I get from the card are fully TCP processed and
+in-order. 
+Now I feed these packets to netif_rx(). marking a flag in the skbuff
+which 
+says that the full TCP/IP processing is done on this packet and the
+higher 
+layers can just bypass the packet protocol  processing. On an SMP m/c 
+different consequtive in-order packets received from the card can be 
+queued to different per-cpu queues and it might so happen that the later
 
-In looking at the kernel source, I don't see support for this device.  I
-do see support for others like it, but with different product ids.
-Perhaps Grant can play with the settings in
-drivers/usb/storage/unusual_devs.h to try to tweak things to work for
-his device.
+received packet is added to the socket receive queue first ( bcos the 
+softirq on the later CPU got a chance to execute first). This
+maliciously 
+reorders the data.
 
-Sorry for not stating this originally, it has been a long day :)
+My question is, what is an elegant way of avoiding this. I have a couple
 
-greg k-h
+of choices, but I want to know what people think. f.e one way is to
+queue 
+these packets to a single queue and not a per-cpu queue. In this case 
+order will be honoured.
+
+brilliant suggestions are very welcome !!
+
+Thanx
+tomar
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-net" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

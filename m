@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAAJBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVAAJNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVAAJBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 04:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVAAJBQ
+	id S262202AbVAAJNp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 04:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVAAJNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 04:01:16 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:30415 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S262201AbVAAJBL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 04:01:11 -0500
-Date: Sat, 1 Jan 2005 11:01:10 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org, pmarques@grupopie.com
-Subject: Re: sh: inconsistent kallsyms data
-Message-ID: <20050101090110.GA22697@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-	sam@ravnborg.org, pmarques@grupopie.com
-References: <20041231172549.GA18211@linux-sh.org> <7184.1104551959@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-In-Reply-To: <7184.1104551959@ocs3.ocs.com.au>
-User-Agent: Mutt/1.5.6i
+	Sat, 1 Jan 2005 04:13:45 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:64436 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262202AbVAAJNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 04:13:43 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5isms
+References: <20041231230624.GA29411@andromeda> <41D60C35.9000503@yahoo.com.au>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 01 Jan 2005 10:13:41 +0100
+In-Reply-To: <41D60C35.9000503@yahoo.com.au> (Nick Piggin's message of "Sat,
+ 01 Jan 2005 13:34:29 +1100")
+Message-ID: <m1acrt7bqy.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Justin Pryzby wrote:
+>> Hi all, I have more 2.5isms for the list.  ./fs/binfmt_elf.c:
+>>   #ifdef CONFIG_X86_HT
+>>                   /*
+>>                    * In some cases (e.g. Hyper-Threading), we want to avoid L1
+>>                    * evictions by the processes running on the same package. One
+>>                    * thing we can do is to shuffle the initial stack for them.
+>>                    *
+>>                    * The conditionals here are unneeded, but kept in to make the
+>>                    * code behaviour the same as pre change unless we have
+>>                    * hyperthreaded processors. This should be cleaned up
+>>                    * before 2.6
+>>                    */
+>>                   if (smp_num_siblings > 1)
+>>                           STACK_ALLOC(p, ((current->pid % 64) << 7));
+>>   #endif
+>>
+>
+> Can we just kill it? Or do it unconditionally? Or maybe better yet, wrap
+> it properly in arch code?
 
-On Sat, Jan 01, 2005 at 02:59:19PM +1100, Keith Owens wrote:
-> This corner case only occurs with CONFIG_KALLSYMS_ALL=3Dn.  That is the
-> only time that we drop symbols outside the ranges _stext ... _etext and
-> _sinittext ... _einittext.  For CONFIG_KALLSYMS_ALL=3Dn, we want the
-> _etext and _einittext labels, but not any other symbols that have the
-> same numeric value as _etext or _einittext.
->=20
-> Paul, please test this patch.  Build with CONFIG_KALLSYMS_ALL=3Dn and
-> CONFIG_KALLSYMS_EXTRA_PASS=3Dn.
->=20
-Works fine for me, thanks.
+You can't kill it without ruining performance on older HT CPUs.
+I would just keep it, it fixes the problem perhaps with a small amount of 
+code. A more generalized #ifdef may be a good idea (NEED_STACK_RANDOM)
+may be a good idea, but it is not really a pressing need. Enabling 
+it unconditionally may be an option, although it will make it harder
+to repeat test runs on non hyperthreaded CPUs.
 
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-Andi
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB1mbW1K+teJFxZ9wRAj2sAJ9w8j5lInlXyL5izKbH/36OKpn24QCeNFia
-cmy5dQnS51BbgwNqRNJZA0k=
-=h57v
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--

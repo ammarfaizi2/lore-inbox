@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUD3QcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUD3QlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265086AbUD3QcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 12:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUD3QcL
+	id S265107AbUD3QlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 12:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbUD3QlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 12:32:11 -0400
-Received: from canalmusic.webnext.com ([213.161.194.17]:59399 "HELO
-	www.canalmusic.com") by vger.kernel.org with SMTP id S265086AbUD3QcI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 12:32:08 -0400
-Message-ID: <40927F6F.9020907@canalmusic.com>
-Date: Fri, 30 Apr 2004 18:31:43 +0200
-From: Gilles May <gilles@canalmusic.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet> <40927417.6040100@nortelnetworks.com> <DE44B86D-9AC0-11D8-B83D-000A95BCAC26@linuxant.com>
-In-Reply-To: <DE44B86D-9AC0-11D8-B83D-000A95BCAC26@linuxant.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 12:41:20 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:5895 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265107AbUD3QlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 12:41:19 -0400
+Date: Fri, 30 Apr 2004 17:41:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [RFC] Revised CKRM release
+Message-ID: <20040430174117.A13372@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Shailabh Nagar <nagar@watson.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ckrm-tech <ckrm-tech@lists.sourceforge.net>
+References: <4090BBF1.6080801@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4090BBF1.6080801@watson.ibm.com>; from nagar@watson.ibm.com on Thu, Apr 29, 2004 at 04:25:21AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Boucher wrote:
+> The basic concepts and motivation of CKRM remain the same as described
+> in the overview at http://ckrm.sf.net. Privileged users can define
+> classes consisting of groups of kernel objects (currently tasks and
+> sockets) and specify shares for these classes. Resource controllers,
+> which are independent of each other, can regulate and monitor the
+> resources consumed by classes e.g the CPU controller will control the
+> CPU time received by a class etc. Optional classification engines,
+> implemented as kernel modules, can assist in the automatic
+> classification of the kernel objects (tasks/sockets currently) into
+> classes.
 
->
-> Chris,
->
-> people should, before insulting us publicly or make unsubstantiated 
-> claims that we "lie" or engage in "illegal" actions, perhaps consult a 
-> lawyer, and simultaneously use the opportunity to enquire about the 
-> meaning of "slander".
+I'd still love to see practical problems this thing is solving.  It's
+a few thousand lines of code, not written to linux style guidelines,
+sometimes particularly obsfucated with callbacks all over the place.
 
-Oh please, I don't think the people here deserve being threatened by you..
-
-Take care, Gilles
-
--- 
-If you don't live for something you'll die for nothing!
-
-
+I'd hate to see this in the kernel unless there's a very strong need
+for it and no way to solve it at a nicer layer of abstraction, e.g.
+userland virtual machines ala uml/umlinux.
 

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUIMQRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUIMQUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268734AbUIMQRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 12:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIMQN3
+	id S267165AbUIMQUx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 12:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbUIMQTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 12:13:29 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:55505 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267165AbUIMQLj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 12:11:39 -0400
-Date: Mon, 13 Sep 2004 09:11:21 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, colpatch@us.ibm.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm5
-Message-ID: <732210000.1095091880@[10.10.2.4]>
-In-Reply-To: <20040913081841.6689d34c.pj@sgi.com>
-References: <20040913015003.5406abae.akpm@osdl.org><650660000.1095088173@[10.10.2.4]> <20040913081841.6689d34c.pj@sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 13 Sep 2004 12:19:48 -0400
+Received: from mailgate2.Cadence.COM ([158.140.2.31]:19943 "EHLO
+	mailgate2.Cadence.COM") by vger.kernel.org with ESMTP
+	id S267648AbUIMQTW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 12:19:22 -0400
+Message-Id: <6.1.2.0.2.20040913092535.0d1d5aa0@mailhub>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
+Date: Mon, 13 Sep 2004 09:28:40 -0700
+To: linux-kernel@vger.kernel.org
+From: Mitch Sako <msako@cadence.com>
+Subject: autofs4 /net /proc/mounts problem
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Paul Jackson <pj@sgi.com> wrote (on Monday, September 13, 2004 08:18:41 -0700):
+I’m seeing the following situation occur with 2.4.23 up through 2.4.27 and 
+autofs 4.1.3 using /net access with a generic /etc/auto.net.  I tried 
+'nonstrict' and 'nosymlink' in /etc/auto.net but that resulted in the 
+mounts not working.
 
-> Martin wrote:
->> The NUMA one is either cpusets-big-numa-cpu-and-memory-placement.patch
->> or create-nodemask_t.patch by the looks of it
-> 
-> The numa one, with the following errors:
-> 
->   mm/mempolicy.c: In function `get_zonemask':
->   mm/mempolicy.c:419: error: `maxnode' undeclared (first use in this function)
-> 
-> is due to fix-abi-in-set_mempolicy.patch.
-> 
-> See my fix on lkml:
-> 
->   Subject: [PATCH] undo more numa maxnode confusions
->   Date: Mon, 13 Sep 2004 05:58:48 -0700
+NFS Server foo has virtual nested exports:
+/ on /dev/sda1
+/bar on /dev/sdb1 (for example)
 
-That worked - thanks.
+cd /net/foo/bar mounts both / and /bar which it finds from ‘showmount –e’
 
-The others seem only to be warnings, and are allegedly no worse than before,
-so maybe it'll work now ;-)
+df shows foo:/ and foo:/bar mounted
 
-M.
+/proc/mounts shows both, also.
+
+I’m guessing what’s happening next is autofs4 tries to umount foo:/ before 
+foo:/bar which yields a busy condition for foo:/, even though it’s not 
+because foo:/bar is mounted above foo:/ on the client.
+
+/proc/mounts starts filling up with foo:/bar entries at this point and 
+fills up the mount table.
+
+If I bring down the automount process, manually go through and umount all 
+of the foo:/bar entries in /proc/mounts, clean up anything in /etc/mtab and 
+then restart the automounter, everything seems to be OK.  Obviously, this 
+is not acceptable.
+
+Any ideas?
+
+  
+
 

@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263225AbRE2GcR>; Tue, 29 May 2001 02:32:17 -0400
+	id <S263228AbRE2Gp7>; Tue, 29 May 2001 02:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbRE2Gb5>; Tue, 29 May 2001 02:31:57 -0400
-Received: from kathy-geddis.astound.net ([24.219.123.215]:4868 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263225AbRE2Gbu>; Tue, 29 May 2001 02:31:50 -0400
-Date: Mon, 28 May 2001 23:32:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Part II of Lameness...
-Message-ID: <Pine.LNX.4.10.10105282325560.889-100000@master.linux-ide.org>
+	id <S263229AbRE2Gpt>; Tue, 29 May 2001 02:45:49 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:22965 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S263228AbRE2Gpi>; Tue, 29 May 2001 02:45:38 -0400
+From: Nivedita Singhvi <nivedita@sequent.com>
+Message-Id: <200105290645.XAA29714@eng4.sequent.com>
+Subject: Re: Abysmal RECV network performance
+To: jw2357@hotmail.com
+Date: Mon, 28 May 2001 23:45:28 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Can someone please help me troubleshoot this problem - 
+> I am getting abysmal (see numbers below) network performance 
+> on my system, but the poor performance seems limited to receiving 
+> data. Transmission is OK. 
 
-athy:/src/DiskPerf-1.0.4 # ./DiskPerf /dev/hda
-Device: IBM-DTLA-307075 Serial Number: YSDYSFA5874
-LBA 0 DMA Read Test                      = 45.73 MB/Sec (5.47 Seconds)
-Outer Diameter Sequential DMA Read Test  = 35.85 MB/Sec (6.97 Seconds)
-Inner Diameter Sequential DMA Read Test  = 17.62 MB/Sec (14.19 Seconds)
+[ snip ]
 
-Sorry I do not have the other boxes configured with a kernel to accept
-this test callout.
+> What kind of performance should I be seeing with a P-90 
+> on a 100Mbps connection? I was expecting something in the 
+> range of 40-70 Mbps - certainly not 1-2 Mbps. 
+> 
+> What can I do to track this problem down? Has anyone else 
+> had problems like this? 
 
-However I do have systems that rip at 63 MB/Sec and if you adjust for
-CR3's between kernel to user-space it comes out to about 93 MB/Sec.
+While we didnt use 2.2 kernels at all, we did similar tests
+on 2.4.0 through 2.4.4 kernels, on UP and SMP. I've used
+a similar machine (PII 333MHz) as well as faster (866MHz) 
+machines, and got pretty nifty (> 90Mbs) throughput on 
+netperf tests (tcp stream, no disk I/O) over a 100Mb full
+duplex link.  (not sure if there are any P-90 issues).
 
-There is nothing LAME or LACKING about that performance!
+Throughput does drop with small MTU, very small packet sizes,
+small socket buffer sizes, but only at extremes, for the most
+part throughput was well over 70Mbs. (this is true for single
+connections, you dont mention how many connections you were
+scaling to, if any).
 
-Regards,
+However, we did run into serious performance problems with
+the Netgear FA311/2 (tulip). Found that the link lost
+connectivity because of card lockups and transmit timeout 
+failures - and some of these were silent. However, I moved 
+to the 3C905C (3c59x driver) which behaved like a champ, and 
+we didnt see the problems any more, so have stuck to that card.  
+This was back in the 2.4.0 time frame, and there have many 
+patches since then to various drivers, so not sure if the
+problem(s) have been resolved or not (likely to have been,
+extensively reported). Both your cards might actually be
+underperforming..
 
-Andre Hedrick
-Linux ATA Development
+Are you seeing any errors reported in /var/log/messages?
+Are you monitoring your connection via tcpdump, for example?
+You might sometimes see long gaps in transmission...Are
+there any abnormal numbers in /proc/net/ stats? I dont remember
+seeing that high frame errors, although there were a few. 
+
+HW checksumming for the kind of test you are doing (tcp, mostly
+fast path) will not buy you any real performance gain, the
+checksum is actually consumed by the user-kernel copy routine.
+
+You can also run the tests on a profiling kernel and compare
+results... 
+
+Nivedita
+
+---
+Nivedita Singhvi                        (503) 578-4580
+Linux Technology Center                 nivedita@us.ibm.com
+IBM Beaverton, OR                       nivedita@sequent.com
 
 

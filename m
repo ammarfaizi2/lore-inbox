@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286519AbSABBUP>; Tue, 1 Jan 2002 20:20:15 -0500
+	id <S286615AbSABB1V>; Tue, 1 Jan 2002 20:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286517AbSABBUC>; Tue, 1 Jan 2002 20:20:02 -0500
-Received: from mail.actcom.co.il ([192.114.47.13]:53926 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S286491AbSABBTu>; Tue, 1 Jan 2002 20:19:50 -0500
-Message-Id: <200201020119.g021JoK32730@lmail.actcom.co.il>
-Content-Type: text/plain; charset=US-ASCII
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: linux-kernel@vger.kernel.org
-Subject: SCSI host numbers?
-Date: Wed, 2 Jan 2002 03:19:45 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S286529AbSABB1G>; Tue, 1 Jan 2002 20:27:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40710 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286502AbSABBZK>; Tue, 1 Jan 2002 20:25:10 -0500
+Message-ID: <3C326162.8080108@zytor.com>
+Date: Tue, 01 Jan 2002 17:24:50 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <0GPA00BK988OBK@mtaout45-01.icomcast.net> <Pine.LNX.4.10.10201011521190.6558-100000@master.linux-ide.org> <a0tlji$e5m$1@cesium.transmeta.com> <20020101201950.A11644@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Benjamin LaHaise wrote:
 
-Under some scenarios Linux assigns the same
-host_no to more than one scsi device.
+> On Tue, Jan 01, 2002 at 04:52:02PM -0800, H. Peter Anvin wrote:
+> 
+>>I was trying to figure out what certain peoples issue with this was,
+>>and the answer I got back was concern about buggy hardware (both host
+>>side and target side) breaking the documented model.  I am personally
+>>in no position to evaluate the veracity of that claim; perhaps you
+>>could comment on how to deal with broken hardware in your model.
+>>
+> 
+> And how can we tell if a previous implementation was buggy or if it was 
+> actually hardware that was buggy?
+> 
 
-Can someone tell me what is the intended behavior?
 
-The problem is that a newly registered device gets
-its host_no from max_scsi_host. max_scsi_host is
-decremented when a device driver is unregistered
-(see drivers/scsi/host.c) allowing a second new
-host to reuse the same host_no.
-A device that was already in use (but the module
-was unloaded and reloaded gets its old host_no that
-was kept in scsi_host_no_list. host_id's in scsi_host_no_list
-can also be reserved at boot time (though I never tried that).
+There are plenty of known hardware bugs, this is probably a better base 
+for discussion...
 
-This rarely happens except when there are two or more
-dynamic scsi hosts (I had i with ide-scsi and usb-storage).
+	-hpa
 
-I could mount devices even when they were on conflicting
-host numbers (/dev/sda on usb-storage and /dev/scd0
-on ide-scsi). I could access only one of the devices
-via the generic-scsi interface (/dev/sgX). I do not know
-what other things can get broken if scsi host get conflicting
-host id.
 
-This was tried on linux-2.4.9 (RedHat). I looked at newer
-kernels but did not see an obvious fix.
-
-Similar bug reported also to redhat. See:
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55876
-
-Thanks,
--- Itai

@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbULBVJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbULBVOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbULBVJl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 16:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbULBVIE
+	id S261778AbULBVOr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 16:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbULBVMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 16:08:04 -0500
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:49575 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S261769AbULBVEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 16:04:50 -0500
-Date: Thu, 2 Dec 2004 21:56:03 +0100
-From: Guido Guenther <agx@sigxcpu.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: hugang@soulinfo.com, linux-kernel@vger.kernel.org
-Subject: Re: software suspend patch [1/6]
-Message-ID: <20041202205603.GA8030@bogon.ms20.nix>
-References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com> <20041128162558.GF28881@hugang.soulinfo.com> <20041128171106.GD1214@elf.ucw.cz>
+	Thu, 2 Dec 2004 16:12:42 -0500
+Received: from mail.gmx.de ([213.165.64.20]:38312 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261778AbULBVKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 16:10:35 -0500
+X-Authenticated: #4399952
+Date: Thu, 2 Dec 2004 22:12:51 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041202221251.5b1c4255@mango.fruits.de>
+In-Reply-To: <20041202184421.229cf5d5@mango.fruits.de>
+References: <20041201213023.GA23470@elte.hu>
+	<32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+	<20041201220916.GA24992@elte.hu>
+	<20041201234355.0dac74cf@mango.fruits.de>
+	<20041202084040.GC7585@elte.hu>
+	<20041202132218.02ea2c48@mango.fruits.de>
+	<20041202122931.GA25357@elte.hu>
+	<20041202140612.4c07bca8@mango.fruits.de>
+	<20041202131002.GA30503@elte.hu>
+	<20041202144037.5c9da188@mango.fruits.de>
+	<20041202134934.GA32216@elte.hu>
+	<20041202184421.229cf5d5@mango.fruits.de>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041128171106.GD1214@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28, 2004 at 06:11:06PM +0100, Pavel Machek wrote:
-> Hi!
+On Thu, 2 Dec 2004 18:44:21 +0100
+Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> this simple patch adds the gettimeofday calls around the calling of the
+> process callback:
 > 
-> > >  device-tree.diff 
-> > >    base from suspend2 with a little changed.
-> > > 
-> > >  core.diff
-> > >   1: redefine struct pbe for using _no_ continuous as pagedir.
-> > >   2: make shrink memory as little as possible.
-> > >   3: using a bitmap speed up collide check in page relocating.
-> > >   4: pagecache saving ready.
-> > > 
-> > >  i386.diff
-> > >  ppc.diff
-> > >   i386 and powerpc suspend update.
-> > > 
-> > >  pagecachs_addon.diff
-> > >   if enable page caches saving, must using it, it making saving
-> > >   pagecaches safe. idea from suspend2.
-> > > 
-> > >   ppcfix.diff
-> > >   fix compile error. 
-> > >   $ gcc -v
-> > >    .... 
-> > >    gcc version 2.95.4 20011002 (Debian prerelease)
-> > > 
-> > > I'm using 2.6.9-ck3 With above patch, swsusp1 works prefect in my 
-> > > PowerPC and x86 PC with Highmem and prepempt option enabled.
-> > > 
-> > > I hope the core.diff@1,@2,@3 i386.diff ppc.diff will merge into 
-> > > mainline kernel ASAP, :). from I view point device-tree.diff is 
-> > > very usefuly when using pagecache saving and pagecachs_addon.diff
-> > > that's really hack for making pagecache saving safe.
-> > > 
-> > 
-> > --- 2.6.9-lzf/arch/ppc/syslib/open_pic.c	2004-11-26 12:32:58.000000000 +0800
-> > +++ 2.6.9/arch/ppc/syslib/open_pic.c	2004-11-28 23:16:58.000000000 +0800
-> > @@ -776,7 +776,8 @@ static void openpic_mapirq(u_int irq, cp
-> >  	if (ISR[irq] == 0)
-> >  		return;
-> >  	if (!cpus_empty(keepmask)) {
-> > -		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
-> > +		cpumask_t irqdest;
-> > +		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
-> >  		cpus_and(irqdest, irqdest, keepmask);
-> >  		cpus_or(physmask, physmask, irqdest);
-> >  	}
-Doesn't the former mean initialize irqdest.bits as a whole to zero and
-.bits[0] to openpic_read(...), while the later only sets
-iqdest.bits[0] to openpic_read(...)?
-I think this is wrong.
-Cheers,
- -- Guido
+
+[snip]
+
+> 
+> The results i see are rather interesting though. Even with a noop jack
+> client (which does nothing but return 0 in the process callback) i get a
+> syslog report everytime i start the client. Client source attached.
+> 
+
+[snip]
+
+> 
+> The atomicity check operates on a per task (thread) basis right?
+> 
+> Flo
+> 
+
+Well, my error. gettimeofday(1,0) != gettimeofday(0,1) :)
+
+flo
+
+-- 
+Palimm Palimm!
+Sounds/Ware:
+http://affenbande.org/~tapas/

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbTCOQSI>; Sat, 15 Mar 2003 11:18:08 -0500
+	id <S261488AbTCOQYo>; Sat, 15 Mar 2003 11:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261472AbTCOQSI>; Sat, 15 Mar 2003 11:18:08 -0500
-Received: from 67.231.118.64.mia-ftl.netrox.net ([64.118.231.67]:60328 "EHLO
-	smtp.netrox.net") by vger.kernel.org with ESMTP id <S261330AbTCOQSH>;
-	Sat, 15 Mar 2003 11:18:07 -0500
-Subject: Re: [PATCH] remove BKL from ext2's readdir
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <20030315023614.3e28e67b.akpm@digeo.com>
-References: <m3vfyluedb.fsf@lexa.home.net>
-	 <20030315023614.3e28e67b.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047745867.946.1.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 15 Mar 2003 11:31:08 -0500
+	id <S261490AbTCOQYn>; Sat, 15 Mar 2003 11:24:43 -0500
+Received: from host-132.c8b96c.mrconcursos.com.br ([200.185.108.132]:23457
+	"EHLO maisbrasil.com.br") by vger.kernel.org with ESMTP
+	id <S261488AbTCOQYn>; Sat, 15 Mar 2003 11:24:43 -0500
+Message-ID: <004201c2eb10$1b743580$94dea7c8@bsb.virtua.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: "Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Demand paging - Kernel
+Date: Sat, 15 Mar 2003 13:29:52 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+X-XTmail: http://www.verdesmares.com davi@verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-15 at 05:36, Andrew Morton wrote:
+Hi
 
-> > I took a look at readdir() in 2.5.64's ext2 and found it serialized by BKL.
-> 
-> Yes, I had this in -mm for ages, seem to have lost it.  Also removal of BKL
-> from lseek().
+There is a possibility  to do demand paging in kernel space address ?
 
-I moved lseek() from the BKL to the i_sem in early 2.5.
 
-	Robert Love
+thanks
+
+
 

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316897AbSFQLHg>; Mon, 17 Jun 2002 07:07:36 -0400
+	id <S316902AbSFQLOh>; Mon, 17 Jun 2002 07:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316898AbSFQLHf>; Mon, 17 Jun 2002 07:07:35 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:21376 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S316897AbSFQLHf>;
-	Mon, 17 Jun 2002 07:07:35 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 17 Jun 2002 13:07:04 +0200 (MEST)
-Message-Id: <UTC200206171107.g5HB74t13348.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, dwmw2@infradead.org
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S316899AbSFQLOg>; Mon, 17 Jun 2002 07:14:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28171 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316898AbSFQLOf>;
+	Mon, 17 Jun 2002 07:14:35 -0400
+Date: Mon, 17 Jun 2002 12:14:36 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: willy@debian.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] Remove SCSI_BH
+Message-ID: <20020617121436.R9435@parcelfarce.linux.theplanet.co.uk>
+References: <20020616192253.Q9435@parcelfarce.linux.theplanet.co.uk> <20020616.222201.105585133.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020616.222201.105585133.davem@redhat.com>; from davem@redhat.com on Sun, Jun 16, 2002 at 10:22:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: David Woodhouse <dwmw2@infradead.org>
+On Sun, Jun 16, 2002 at 10:22:01PM -0700, David S. Miller wrote:
+>    From: Matthew Wilcox <willy@debian.org>
+>    Date: Sun, 16 Jun 2002 19:22:53 +0100
+>    
+>    Hi, Linus.  This patch switches SCSI from a bottom half to a tasklet.
+>    It's been reviewed, tested & approved by Andrew Morton, James Bottomley &
+>    Doug Gilbert.  Please apply.
+> 
+> I always wanted to make this a per-cpu SOFTIRQ, there is no reason
+> it can't be and it's important enough to deserve to be one.
 
-    +int jffs2_prepare_follow_link(struct dentry *dentry, struct nameidata *nd,
-    +                  const char **llink, struct page **ppage)
+I agree that it probably should become a softirq.  However, in its current
+state, I'm not sure it would gain any advantage from becoming a softirq.
+I think it would take someone with far more understanding of the SCSI
+layer than I have to do this work properly.  My current motivation is to
+eradicate bottom halves rather than to improve scsi.
 
-    +    nd->flags |= LOOKUP_KFREE_NEEDED;
+If someone's maintaining a TODO list for the scsi subsystem, please include:
 
-    Urgh. Don't do that on my behalf - we'll just switch to using 
-    page_follow_link, which to be honest I thought we'd already done -- 
-    there were definitely patches for it floating around.
+ * Convert scsi_bottom_half_handler to a softirq.
 
-Good. I think it would be worthwhile to find and submit such patches.
-Not just for this attempt of mine, but it is generally a good idea
-to keep things as uniform as possible.
+as one of the entries.
 
-I think these two ugly bits, and the entire nd argument of
-prepare_follow_link can be eliminated, but apart from jffs2
-that also requires a little work in proc.
-
-Andries
+-- 
+Revolutions do not require corporate support.

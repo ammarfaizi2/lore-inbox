@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267024AbTBLLsF>; Wed, 12 Feb 2003 06:48:05 -0500
+	id <S267034AbTBLLqU>; Wed, 12 Feb 2003 06:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbTBLLsF>; Wed, 12 Feb 2003 06:48:05 -0500
-Received: from [212.122.164.10] ([212.122.164.10]:6016 "EHLO pechkin.minfin.bg")
-	by vger.kernel.org with ESMTP id <S267024AbTBLLsB>;
-	Wed, 12 Feb 2003 06:48:01 -0500
-Reply-To: <larry@minfin.bg>
-From: "Kostadin Karaivanov" <larry@minfin.bg>
-To: <linux-kernel@vger.kernel.org>
-Subject: Strange TCP with 2.5.60 
-Date: Wed, 12 Feb 2003 13:52:27 +0200
-Message-ID: <000801c2d28d$376df550$1504a8c0@larry2>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	id <S267035AbTBLLqU>; Wed, 12 Feb 2003 06:46:20 -0500
+Received: from mario.gams.at ([194.42.96.10]:29546 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S267034AbTBLLqU> convert rfc822-to-8bit;
+	Wed, 12 Feb 2003 06:46:20 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: raghu@sunlux-india.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SHARING LINUX FILES ON WINDOWS MACHINE 
+References: <NPECLGLNJBOPLFMJIKIPEEAHCAAA.raghu@sunlux-india.com> 
+In-reply-to: Your message of "Wed, 12 Feb 2003 17:19:08 +0530."
+             <NPECLGLNJBOPLFMJIKIPEEAHCAAA.raghu@sunlux-india.com> 
+X-url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 12 Feb 2003 12:56:03 +0100
+Message-ID: <8233.1045050963@frodo.gams.co.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to use traceroute i get folowing error:
+"Raghu" <raghu@sunlux-india.com> wrote:
+>I am a software engineer working for Sunlux technologies.I wanted details
+>regarding sharing Linux files on a windows machine.
 
-root@larry:~# uname -a
-Linux larry 2.5.60 #20 Tue Feb 11 17:38:42 EET 2003 i686 unknown
-root@larry:~# traceroute www.kernel.org
-traceroute: findsaddr: Can't find interface
+Ever tried Google?
 
-Networking works....... but command route can't give me the status of
-default route:
+>I want to see the Linux machine on the windows network and thereby access
+>the same.Is it possible?
 
-root@larry:~# route -n
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use
-Iface
-192.168.0.0     0.0.0.0         255.255.240.0   U     0      0        0 eth0
-127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
-root@larry:~# ip route list
-192.168.0.0/20 dev eth0  proto kernel  scope link  src 192.168.1.12
-127.0.0.0/8 dev lo  scope link
-default via 192.168.1.1 dev eth0  metric 1
-root@larry:~#
+Yes. The tool in question is named "samba". And it has nothing to do 
+with the kernel.
 
-The version of traceroute is 1.4a12
-The version of route is net-tools 1.60 / route 1.98 (2001-04-15)
+	Bernd
+-- 
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
 
-iptables doesn't work as expected too.....
-
-root@larry:~# iptables -A INPUT -i lo -j ACCEPT
-root@larry:~# iptables -L -n
-Chain INPUT (policy ACCEPT)
-target     prot opt source               destination
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
-
-Chain FORWARD (policy ACCEPT)
-target     prot opt source               destination
-
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
-
-everything works fine with 2.5.59 and 2.4.20
-
-I can provide any additional information if needed
-
-
-
-Kostadin Karaivanov
-Senior System Administrator @ Ministry Of Finance
-tel: +359 2 98592062
-larry@minfin.bg
 

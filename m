@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbTGQB1X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 21:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbTGQB1X
+	id S271302AbTGQBfR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 21:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271320AbTGQBfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 21:27:23 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:63492 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S267491AbTGQB1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 21:27:22 -0400
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 sound drivers?
-References: <20030716225826.GP2412@rdlg.net>
-	<20030716231029.GG1821@matchmail.com> <20030716233045.GR2412@rdlg.net>
-	<3F15E3C9.4030401@blue-labs.org> <20030717000804.GT2412@rdlg.net>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20030717000804.GT2412@rdlg.net>
-Date: 16 Jul 2003 21:42:02 -0400
-Message-ID: <m365m2gc9h.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Wed, 16 Jul 2003 21:35:17 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:24082 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271302AbTGQBfH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 21:35:07 -0400
+Date: Wed, 16 Jul 2003 18:49:52 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Is there any german linux kernel?
+Message-ID: <20030717014952.GF28849@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <01a201c34bda$eb5b78a0$0200a8c0@marvin>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01a201c34bda$eb5b78a0$0200a8c0@marvin>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Robert" == Robert L Harris <Robert.L.Harris@rdlg.net> writes:
+On Wed, Jul 16, 2003 at 10:43:31PM +0200, Gueven Bay wrote:
+> Hi guys,
+> 
+>  Excuse me for this off-topic but I am on the search for a translated kernel
+> source tree (at least the Documentation tree) into German.
+> 
+>  Can you give me an(some) address(es)? (I already googled for it but found
+> nothing.)
 
-Robert> No go, it looks like it's playing but nothing to the speakers.
+You could try guevenbay@tharidium.de but i don't recommend
+anyone else doing so.
 
-Alsa boots up muted.  Use alsamixer(1) (it is a curses app) to set
-your prefered volumes.  Then as root run 'alsactl store' to store
-said volumes.  Each boot running 'alsactl restore' will reset them.
+Documentation in languages other than English is dependant
+on someone stepping forward and not only translating but also
+committing to update the translation with every update of
+the original.  Failure to keep the translation up-to-date is
+worse than no translation.  I suppose you could ask SuSE but
+they discourage even doing your own kernel build so i can't
+see them dedicating the resources.
 
--JimC
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

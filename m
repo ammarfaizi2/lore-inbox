@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319091AbSHTPhK>; Tue, 20 Aug 2002 11:37:10 -0400
+	id <S319160AbSHTPmu>; Tue, 20 Aug 2002 11:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319160AbSHTPhK>; Tue, 20 Aug 2002 11:37:10 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:47355 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319091AbSHTPhJ>; Tue, 20 Aug 2002 11:37:09 -0400
-Subject: Re: IDE-TNG what to do ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Jones <little.jones.family@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2CEAF5A2-B451-11D6-A001-00050291EC35@ntlworld.com>
-References: <2CEAF5A2-B451-11D6-A001-00050291EC35@ntlworld.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 16:41:52 +0100
-Message-Id: <1029858112.22983.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319166AbSHTPmu>; Tue, 20 Aug 2002 11:42:50 -0400
+Received: from pD9E23620.dip.t-dialin.net ([217.226.54.32]:13959 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319160AbSHTPmt>; Tue, 20 Aug 2002 11:42:49 -0400
+Date: Tue, 20 Aug 2002 09:45:48 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Daniel Phillips <phillips@arcor.de>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Generic list push/pop
+In-Reply-To: <E17hAxg-00011z-00@starship>
+Message-ID: <Pine.LNX.4.44.0208200937460.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-20 at 16:26, John Jones wrote:
-> IDE-TNG should ONLY deal with Serial ATA and ONLY chipset support not 
-> PCI based implementations and should be a config option (keep it simple 
-> as possible).
+Hi,
 
-SATA bridges attach to any IDE device and any IDE controller. SATA still
-uses PIO. SATA still has to deal with all the other legacy crap.
+On Tue, 20 Aug 2002, Daniel Phillips wrote:
+> > +#define slist_add_front(_new, _head)   \
+> > +do {                                   \
+> > +       _new->next = _head;             \
+> > +       _head = _new->next;             \
+> > +} while (0)
+> 
+> The second line is equivalent to _head = _head.
 
-The view that new IDE somehow gets rid of the old cruft is alas not born
-out by the reality. 
+I see. Is there something we'll need to do? Or is it just for the day?
 
-In terms of what works. As far as I can tell right now all the PCI stuff
-works in the current -ac cleanup code. There is a weird ide-scsi report
-and one person whose drives have run off somewhere and hidden. Other
-than that its working as well - and in some cases better.
+> > +#define slist_add(_new, _head)         \
+> > +do {                                   \
+> > +       _new->next = _head->next;       \
+> > +       _head->next = _new;             \
+> > +} while (0)
+> 
+> I don't see the point of this.  Why doesn't the caller just push_list onto
+> head->next?
 
-The 2.5 side is about getting the new request queue/bio logic right
-which is something I've not looked into
+Because we still want to keep up the old list? If _head->next was NULL, no 
+matter, we've added. If not, we've just inserted.
 
-Alan
+> #define push_list(list, node) do { \
+> 	typeof(list) *_LIST_ = &(list), _NODE_ = (node); \
+> 	_NODE_->next = *_LIST_; \
+> 	*_LIST_ = _NODE_; } while (0)
+> 
+> #define pop_list(list) ({ \
+> 	typeof(list) *_LIST_ = &(list), _NODE_ = *_LIST_; \
+> 	*_LIST_ = (*_LIST_)->next; \
+> 	_NODE_; })
+
+I'd rather call them push_slist, pop_slist (or as above). Think of the 
+millions of innocent people mixing lists and lists...
+
+> On the third hand, if somebody does that they probably need bad things
+> to happen to them.
+
+This is perfect evolution. You end up having better code-checking, and a 
+third hand.
+
+>   - How do we know gcc will successfully optimize these things to the
+>     same code you'd get if you simply wrote the two required assignments
+>     out in full?  The local variables should disappear early in constant 
+>     expression evaluation, but do they always?
+
+We shall have a look at the assembler output.
+
+>   - We assume the link field is named 'next'.
+
+Must be forced then. Is it really that bad?
+
+>   - They are ugly (but I don't care.  If you need to feast your eyes on
+>     ugly, look at any pgtable.h)
+
+We shall comment on them to reduce uglyness.
+
+Summary:
+ - We shall do it
+ - We shall force it
+ - We shall consider using slist names.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

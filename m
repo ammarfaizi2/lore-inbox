@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263294AbREWWZp>; Wed, 23 May 2001 18:25:45 -0400
+	id <S263299AbREWWbf>; Wed, 23 May 2001 18:31:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263295AbREWWZZ>; Wed, 23 May 2001 18:25:25 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:53528 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263294AbREWWZP>; Wed, 23 May 2001 18:25:15 -0400
-Date: Thu, 24 May 2001 00:24:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: DVD blockdevice buffers
-Message-ID: <20010524002452.B764@athlon.random>
-In-Reply-To: <20010524000933.A764@athlon.random> <Pine.GSO.4.21.0105231812210.20269-100000@weyl.math.psu.edu>
+	id <S263298AbREWWbZ>; Wed, 23 May 2001 18:31:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34829 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263296AbREWWbJ>;
+	Wed, 23 May 2001 18:31:09 -0400
+Date: Thu, 24 May 2001 00:31:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Loopback, unable to release
+Message-ID: <20010524003146.C12470@suse.de>
+In-Reply-To: <3B0BD750.4010306@lycosmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0105231812210.20269-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, May 23, 2001 at 06:13:13PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <3B0BD750.4010306@lycosmail.com>; from ajschrotenboer@lycosmail.com on Wed, May 23, 2001 at 11:29:20AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 23, 2001 at 06:13:13PM -0400, Alexander Viro wrote:
-> Uh-oh... After you solved what?
+On Wed, May 23 2001, Adam Schrotenboer wrote:
+> Using 2.4.4-ac3 (as well as in 2.4.3*) I have found it impossible to 
+> unmap a loopback
+> 
+> strace losetup -d /dev/loop0 (relevant portion)
+> 
+> open("/dev/loop0", O_RDONLY)            = 3
+> ioctl(3, LOOP_CLR_FD, 0)                = -1 EBUSY (Device or resource busy)
+> open("/usr/share/locale/en_US/LC_MESSAGES/libc.mo", O_RDONLY) = -1 
+> ENOENT (No such file or directory)
+> open("/usr/share/locale/en/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT 
+> (No such file or directory)
+> write(2, "ioctl: LOOP_CLR_FD: Device or re"..., 44ioctl: LOOP_CLR_FD: 
+> Device or resource busy) = 44
+> _exit(1)                                = ?
+> 
+> also I have loop.o as module, and use count never decreases, in fact 
+> right now it is at 294.
 
-The superblock is pinned by the kernel in buffercache while you fsck a
-ro mounted ext2, so I must somehow uptodate this superblock in the
-buffercache before collecting away the pagecache containing more recent
-info from fsck. It's all done lazily, I just thought not to break the
-assumption that an idling buffercache will never become not uptodate
-under you anytime because it seems not too painful to implement compared
-to changing the fs, it puts the check in a slow path and it doesn't
-break the API with the buffercache (so I don't need to change all the fs
-to check if the superblock is still uptodate before marking it dirty).
+Uhm weird. Are you talking about module use count or loop reference
+count?
 
-Andrea
+-- 
+Jens Axboe
+

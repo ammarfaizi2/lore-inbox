@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282106AbRKWLVm>; Fri, 23 Nov 2001 06:21:42 -0500
+	id <S282122AbRKWLYv>; Fri, 23 Nov 2001 06:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282111AbRKWLVc>; Fri, 23 Nov 2001 06:21:32 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:18048 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S282106AbRKWLVS>;
-	Fri, 23 Nov 2001 06:21:18 -0500
-Message-Id: <200111231121.fANBLEi00909@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
+	id <S282121AbRKWLYl>; Fri, 23 Nov 2001 06:24:41 -0500
+Received: from mail.mbi-berlin.de ([194.95.11.12]:12008 "EHLO
+	mail.mbi-berlin.de") by vger.kernel.org with ESMTP
+	id <S282127AbRKWLY2>; Fri, 23 Nov 2001 06:24:28 -0500
+Date: Fri, 23 Nov 2001 12:24:27 +0100
+From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.15: fix for i810_audio problems under KDE
-Date: Fri, 23 Nov 2001 13:21:14 +0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: 2.4.15-greased-turkey ???
+Message-ID: <20011123122427.A1441@bart>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E167C3O-00028a-00@lttit>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <E167C3O-00028a-00@lttit>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: http://www.informatik.hu-berlin.de/~rosenfel/public_key.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i810_audio doesn't work under KDE for 2.4.15 (realy already for a rather 
-long time). I'm only getting garbled sound unless i810_audio.c is patched. 
-Perhaps the reason is use of non blocked output by artsd.
 
-Included patch reverts one change between 2.4.6-ac1 and 2.4.6-ac2 and 
-also includes patch from Tobias Diedrich 
-( http://www.cs.helsinki.fi/linux/linux-kernel/2001-44/1023.html ).
-As far as I have tested it fixes all problems I have met with i810_audio.
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andris
+Tim Tassonis wrote:
 
---- i810_audio.c~1	Tue Nov 20 11:23:24 2001
-+++ i810_audio.c	Tue Nov 20 13:08:05 2001
-@@ -1405,10 +1405,9 @@
- 		if (dmabuf->count < 0) {
- 			dmabuf->count = 0;
- 		}
--		cnt = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
--		// this is to make the copy_from_user simpler below
--		if(cnt > (dmabuf->dmasize - swptr))
--			cnt = dmabuf->dmasize - swptr;
-+		cnt = dmabuf->dmasize - swptr;
-+		if(cnt > (dmabuf->dmasize - dmabuf->count))
-+			cnt = dmabuf->dmasize - dmabuf->count;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 
- #ifdef DEBUG2
-@@ -1419,16 +1418,13 @@
- 		if (cnt <= 0) {
- 			unsigned long tmo;
- 			// There is data waiting to be played
-+			i810_update_lvi(state,0);
- 			if(!dmabuf->enable && dmabuf->count) {
- 				/* force the starting incase SETTRIGGER has been used */
- 				/* to stop it, otherwise this is a deadlock situation */
- 				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
- 				start_dac(state);
- 			}
--			// Update the LVI pointer in case we have already
--			// written data in this syscall and are just waiting
--			// on the tail bit of data
--			i810_update_lvi(state,0);
- 			if (file->f_flags & O_NONBLOCK) {
- 				if (!ret) ret = -EAGAIN;
- 				goto ret;
-@@ -1860,7 +1856,7 @@
- 		if(dmabuf->mapped)
- 			abinfo.bytes = dmabuf->count;
- 		else
--			abinfo.bytes = dmabuf->dmasize - dmabuf->count;
-+			abinfo.bytes = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
- 		abinfo.fragments = abinfo.bytes / dmabuf->userfragsize;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- #ifdef DEBUG
+> #define UTS_RELEASE "2.4.15-greased-turkey"
+>=20
+> What's this all about??
 
+A Thanksgiving joke?
 
+Viktor
+--=20
+Viktor Rosenfeld
+WWW: http://www.informatik.hu-berlin.de/~rosenfel/
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7/jHrkWI06CMxQ0ARAthjAJ9SUMagOCp30D8ivUCb4e9KBKsjxQCfWFwk
+WAp5jbkod2DHK7nzrdFtjdk=
+=oGl4
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--

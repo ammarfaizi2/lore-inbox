@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318602AbSHAAQC>; Wed, 31 Jul 2002 20:16:02 -0400
+	id <S318558AbSHAAdn>; Wed, 31 Jul 2002 20:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318611AbSHAAQC>; Wed, 31 Jul 2002 20:16:02 -0400
-Received: from ns.suse.de ([213.95.15.193]:41745 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318602AbSHAAQB>;
-	Wed, 31 Jul 2002 20:16:01 -0400
-Date: Thu, 1 Aug 2002 02:19:27 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-Message-ID: <20020801021927.M10436@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	David Luyer <david_luyer@pacific.net.au>,
-	linux-kernel@vger.kernel.org
-References: <200207311914.g6VJEG5308283@saturn.cs.uml.edu> <1028162237.13008.26.camel@irongate.swansea.linux.org.uk> <20020801014925.L10436@suse.de> <1028165457.13346.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318563AbSHAAdn>; Wed, 31 Jul 2002 20:33:43 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:48050 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318558AbSHAAdm>; Wed, 31 Jul 2002 20:33:42 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Bill Davidsen <davidsen@tmr.com>
+Date: Thu, 1 Aug 2002 10:34:23 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1028165457.13346.1.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 01, 2002 at 02:30:57AM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15688.33295.630127.361498@notabene.cse.unsw.edu.au>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] The List, pass #2
+In-Reply-To: message from Bill Davidsen on Wednesday July 31
+References: <3D3761A9.23960.8EB1A2@localhost>
+	<Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 02:30:57AM +0100, Alan Cox wrote:
- > sysconf is implemented in glibc. Right now this is done by poking around
- > in /proc/cpuinfo.
+On Wednesday July 31, davidsen@tmr.com wrote:
+> 
+> >   o Add support for NFS v4
+> 
+> Sorry to repeat, this seems to be a feature which will be in many if not
+> most other systems before any possible release date for 2.8. Is it really
+> that far out? (that's a status request, not a statement)
+> 
 
-Gotcha, that's what I feared.
+Well, given that the protocol specification isn't 100% finalised, it's
+not clear that pushing for inclusion now is entirely sensible.  We
+don't want people to be using an NFSv4 on Linux that is incompatible
+in some subtle way with other vendors.
 
- > The kernel doesn't export the data very nicely. With
- > 2.5 and Rusty's hot swappable processors we need to export the data even
- > more explicitly.
+Also, I suspect that NFSv4 will be fairly localised in the changes it
+makes and could well go in to 2.6.10 of whatever (afterall, reiserfs
+went in at 2.4.2).
 
-driverfs objects perhaps ? Or something more lightweight ?
+There are some changes that NFSv4 would like to make that affect
+common code, such as making open(,O_EXCL) work for a networked
+filesystem, but we can live without that (as we do with NFSv3), but
+hopefully that functionality will get in before halloween anyway. 
 
-        Dave.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+My understanding is that the CITI team will be funneling some of their
+NFSv4 code though the maintainers (Trond and myself) to at least get
+some of the code into 2.5.  This will likely not include support for
+all the fancy state and locking, but will support the well established
+aspects of the protocol and will allow minimal operability.  This will
+also mean there is a clear base in the mainline kernel for other bits
+to be added as appropriate.
+Obviously we will clarify the license before forwarding to Linus.
+
+I'm particularly keen to get the crypto authentication stuff in and I
+will be looking into that RealSoonNow.
+
+NeilBrown

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132415AbRAIX4J>; Tue, 9 Jan 2001 18:56:09 -0500
+	id <S129933AbRAJABA>; Tue, 9 Jan 2001 19:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132117AbRAIX4A>; Tue, 9 Jan 2001 18:56:00 -0500
-Received: from typhoon.mail.pipex.net ([158.43.128.27]:61101 "HELO
-	typhoon.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S132415AbRAIXzr>; Tue, 9 Jan 2001 18:55:47 -0500
-From: Chris Rankin <rankinc@zip.com.au>
-Message-Id: <200101092346.f09Nkp212258@wittsend.ukgateway.net>
-Subject: Set ownership correctly for MPU401 synth operations
-To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Date: Tue, 9 Jan 2001 23:46:50 +0000 (GMT)
-Reply-To: rankinc@zip.com.au
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.12249.979084010--%"
+	id <S130397AbRAJAAu>; Tue, 9 Jan 2001 19:00:50 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20528 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129933AbRAJAAj>; Tue, 9 Jan 2001 19:00:39 -0500
+Date: Wed, 10 Jan 2001 01:00:53 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010110010053.M29904@athlon.random>
+In-Reply-To: <20010109205420.H29904@athlon.random> <Pine.LNX.4.30.0101092108240.8236-100000@e2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0101092108240.8236-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 09:10:24PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 09, 2001 at 09:10:24PM +0100, Ingo Molnar wrote:
+> 
+> On Tue, 9 Jan 2001, Andrea Arcangeli wrote:
+> 
+> > BTW, I noticed what is left in blk-13B seems to be my work (Jens's
+> > fixes for merging when the I/O queue is full are just been integrated
+> > in test1x).  [...]
+> 
+> it was Jens' [i think those were implemented by Jens entirely]
+> batch-freeing changes that made the most difference. (we did
 
---%--multipart-mixed-boundary-1.12249.979084010--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Confirm, the bach-freeing was Jens's work.
 
-Hi,
-
-This patch makes the mpu401_synth_operations structure respect
-attach_mpu401()'s "owner" parameter. This should prevent more sound
-module from being accidentally unloaded.
-
-Cheers,
-Chris
-
---%--multipart-mixed-boundary-1.12249.979084010--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII text
-Content-Disposition: attachment; filename="mpu401-3.diff"
-
---- linux-vanilla/drivers/sound/mpu401.c	Fri Jan  5 23:14:08 2001
-+++ linux-2.4.0-ac3/drivers/sound/mpu401.c	Tue Jan  9 23:41:43 2001
-@@ -1030,6 +1030,8 @@
- 			(char *) &mpu401_synth_proto,
- 			 sizeof(struct synth_operations));
- 	}
-+	if (owner)
-+		mpu401_synth_operations[m]->owner = owner;
- 
- 	memcpy((char *) &mpu401_midi_operations[m],
- 	       (char *) &mpu401_midi_proto,
-
---%--multipart-mixed-boundary-1.12249.979084010--%--
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

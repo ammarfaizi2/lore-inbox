@@ -1,70 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVAXTCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVAXTDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVAXTCF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVAXTAi
+	id S261569AbVAXTDu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVAXTCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:00:38 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:62155 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261569AbVAXTAU (ORCPT
+	Mon, 24 Jan 2005 14:02:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4276 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261569AbVAXTBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:00:20 -0500
-Date: Mon, 24 Jan 2005 22:23:02 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050124222302.6f962097@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050124184111.GA9335@middle.of.nowhere>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124175449.GK3515@stusta.de>
-	<20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-	<20050124184111.GA9335@middle.of.nowhere>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 24 Jan 2005 14:01:01 -0500
+Date: Mon, 24 Jan 2005 11:00:59 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jirka Kosina <jikos@jikos.cz>
+Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
+Message-ID: <20050124110059.W469@build.pdx.osdl.net>
+References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>; from jikos@jikos.cz on Mon, Jan 24, 2005 at 07:25:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 19:41:11 +0100
-Jurriaan <thunder7@xs4all.nl> wrote:
+* Jirka Kosina (jikos@jikos.cz) wrote:
+> there has been (for quite some time) a bug in function driver_unregister() 
+> - the lock/unlock sequence is protecting nothing and the actual 
+> bus_remove_driver() is called outside critical section.
 
-> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> Date: Mon, Jan 24, 2005 at 09:43:36PM +0300
-> > On Mon, 24 Jan 2005 18:54:49 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > It seems noone who reviewed the SuperIO patches noticed that there are 
-> > > now two modules "scx200" in the kernel...
-> > 
-> > They are almost mutually exlusive(SuperIO contains more advanced), 
-> > so I do not see any problem here.
-> > Only one of them can be loaded in a time.
-> > 
-> > So what does exactly bother you?
-> > 
-> lsmod in bugreports giving unspecific results, for example.
+Re-read the comment.  It's intentionally done that way.
 
-If you load scx200 from superio subsystem, then obviously you can not
-use old i2c/acb modules which require old scx200.
-And vice versa.
-
-One needs to load exactly what he wants.
-
-> Kind regards,
-> Jurriaan
-> -- 
-> "So you believe."
-> Jewel ATerafin shrugged. "I have more than belief, but I don't have a
-> pressing need to convince you of anything."
-> 	Michelle West - Sea of Sorrows.
-> Debian (Unstable) GNU/Linux 2.6.10-mm1 2x6078 bogomips load 0.52
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318903AbSH1S74>; Wed, 28 Aug 2002 14:59:56 -0400
+	id <S318349AbSH1TKZ>; Wed, 28 Aug 2002 15:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318905AbSH1S74>; Wed, 28 Aug 2002 14:59:56 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:25335 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318903AbSH1S7z>; Wed, 28 Aug 2002 14:59:55 -0400
-Date: Wed, 28 Aug 2002 11:58:07 -0700 (PDT)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: David Gibson <david@gibson.dropbear.id.au>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <trivial@rustcorp.com.au>
-Subject: Re: [TRIVIAL] Compile fix for magic sysrq and !CONFIG_VT
-In-Reply-To: <20020827020855.GW18818@zax>
-Message-ID: <Pine.LNX.4.33.0208281153290.1459-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318905AbSH1TKZ>; Wed, 28 Aug 2002 15:10:25 -0400
+Received: from quechua.inka.de ([212.227.14.2]:11862 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S318349AbSH1TKY>;
+	Wed, 28 Aug 2002 15:10:24 -0400
+From: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <20020827160722.GA13412@alcove.wittsend.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17k8H8-0003Le-00@sites.inka.de>
+Date: Wed, 28 Aug 2002 21:14:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20020827160722.GA13412@alcove.wittsend.com> you wrote:
+>        It's ignoring something because it's assuming the user knows
+> what he's doing and not wanting it to do that?  Does not compute.  
 
-> Linus, please apply.  This fixes compilation of the magic sysrq code
-> when compiled without CONFIG_VT.
+well, it was not my idea, and i dont think I fully understand all that Scope
+stuff in IPv6, but I wanted to say:
 
-Ug. I have had this fix for awhile in the console BK tree. That and
-several other ones. I'm merging my tree with 2.5.32 right now and I will
-push it to linus as soon as I'm done tetsing.
+The kernel is asuming, that a gateway (ie forward=1) is administrated by a
+experienced admin, who knows how to set up all those special V6 prefixes,
+but wants to defend internet from admins who do not know.
 
+for a single hoomed host a default route does no harm, compared to a gateway
+with wrong site or lionk local scope prefix routes.
 
-> diff -urN /home/dgibson/kernel/linuxppc-2.5/drivers/char/sysrq.c linux-bluefish/drivers/char/sysrq.c
-> --- /home/dgibson/kernel/linuxppc-2.5/drivers/char/sysrq.c	2002-07-16 09:13:58.000000000 +1000
-> +++ linux-bluefish/drivers/char/sysrq.c	2002-08-02 16:36:30.000000000 +1000
-> @@ -76,7 +76,7 @@
->  };
->  #endif
->
-> -
-> +#ifdef CONFIG_VT
->  /* unraw sysrq handler */
->  static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
->  			       struct tty_struct *tty)
-> @@ -91,7 +91,7 @@
->  	help_msg:	"unRaw",
->  	action_msg:	"Keyboard mode set to XLATE",
->  };
-> -
-> +#endif /* CONFIG_VT */
->
->  /* reboot sysrq handler */
->  static void sysrq_handle_reboot(int key, struct pt_regs *pt_regs,
-> @@ -371,7 +371,11 @@
->  		 as 'Off' at init time */
->  /* p */	&sysrq_showregs_op,
->  /* q */	NULL,
-> +#ifdef CONFIG_VT
->  /* r */	&sysrq_unraw_op,
-> +#else
-> +/* r */ NULL,
-> +#endif
->  /* s */	&sysrq_sync_op,
->  /* t */	&sysrq_showstate_op,
->  /* u */	&sysrq_mountro_op,
->
->
-> --
-> David Gibson			| For every complex problem there is a
-> david@gibson.dropbear.id.au	| solution which is simple, neat and
-> 				| wrong.
-> http://www.ozlabs.org/people/dgibson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Did you mean 2000::/3 (first two bits zero, next bit 1)?  That would
+> also cover both the 6bone and production allocations under a slightly
+> tighter mask.  The /2 would cover :: through 3fff: but the /3
+> would cover 2000: through 3fff:.  Any reaon why we should care about
+> the ::/3 band (:: through 1fff:)?
 
+yes, because it does not maks the link and site local prefix starting with
+FE and FF (like fe80::/10)
+
+>        Does that imply ipv6 only or does that include ipv4 on those
+> tcp6 listens? 
+
+well, depends on the kernel we are talking about. I plan to have tcp,tcp46
+and tcp6 (of course udp and icmp, too) entries, like BSD has.
+
+>        I'm not sure I like the tcp6, since it's not tcp that's
+> changed, just the ip layer underneath it.  I assume you would also
+> have udp6 as well?
+
+yes
+
+>        Hmmm...  Just be careful not to break too many scripts.  Freenet6
+> has a template script with their tsp package that, I think, tries to do
+> some parsing on that stuff.  That script is also broken due to the
+> default route sillyness, and I'm going to let them know to change their
+> route add from ::/0 to a route add for something between ::/1 and 2000::/3
+> (season to taste) to get the default routes working properly.
+
+tspc works fine for me, but you are right breaking scripts is a bit ugly.
+Well on the other hand, it wil lalso unbreak some bsd scripts :)
+
+Greetings
+Bernd

@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268896AbRHFRZ6>; Mon, 6 Aug 2001 13:25:58 -0400
+	id <S268906AbRHFR3S>; Mon, 6 Aug 2001 13:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268906AbRHFRZt>; Mon, 6 Aug 2001 13:25:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16132 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268896AbRHFRZj>; Mon, 6 Aug 2001 13:25:39 -0400
+	id <S268910AbRHFR3I>; Mon, 6 Aug 2001 13:29:08 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:12037 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268906AbRHFR2y>; Mon, 6 Aug 2001 13:28:54 -0400
+Date: Mon, 6 Aug 2001 10:27:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "David S. Miller" <davem@redhat.com>, Chris Wedgwood <cw@f00f.org>,
+        David Luyer <david_luyer@pacific.net.au>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: /proc/<n>/maps growing...
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 6 Aug 2001 18:26:52 +0100 (BST)
-Cc: jakub@redhat.com (Jakub Jelinek), andrea@suse.de (Andrea Arcangeli),
-        david_luyer@pacific.net.au (David Luyer), linux-kernel@vger.kernel.org,
-        davem@redhat.com (David S. Miller)
-In-Reply-To: <Pine.LNX.4.33.0108061015450.8972-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 06, 2001 10:17:02 AM
-X-Mailer: ELM [version 2.5 PL5]
+In-Reply-To: <20010806152919.H20837@athlon.random>
+Message-ID: <Pine.LNX.4.33.0108061020430.8972-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15To9U-0001PL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Even worse, it means people not using -ac kernels cannot malloc a lot of
-> > memory but by recompiling the kernel.
-> 
-> Hey guys. Let's calm down a bit, and look at the problem.
-> 
-> Why the hell is glibc doing something so stupid in the first place? Yes,
-> we can work around it, but it sounds like the glibc apporoach is slow and
-> stupid even if we _did_ work around it. Mind explaining what the logic of
-> "fixing" the kernel is?
 
-Its two problems
+On Mon, 6 Aug 2001, Andrea Arcangeli wrote:
+>
+> On Mon, Aug 06, 2001 at 06:06:14AM -0700, David S. Miller wrote:
+> > I wouldn't classify it as a horrible hack... but.
+>
+> The part I find worse is that we just walk the tree two times.
 
-1.	mprotect not doing the right resource checks
-2.	mprotect not doing the simple merges
+Try it without doing it - the code grows quite nasty without completely
+getting rid of "insert_vm_struct()".
 
-The resource one is a kernel problem. I am curious why only specific apps
-trip the second case
+Which I considered, but decided that 2.4.x is not the time to do so.
+
+> I believe the best way is to allocate always the new vma, and to hide
+> the merging into the lowlevel of a new insert_vm_struct (with a special
+> function ala merge_segments that we can share with mprotect like in 2.2).
+
+Oh, and THAT is going to speed things up?
+
+Hint: the merging actually happens at a fairly high percentage for the
+common cases. We win more by walking the tree twice and avoiding the
+unnecessary allocation/free.
+
+Now, if you _really_ want to do this right, you can:
+ - hold the write lock on the semaphore. Nobody is going to change the
+   list.
+
+ - walk the table just once, remembering what the previous entry was.
+
+   NOTE! You ahve to do this _anyway_, as part of checking the "do I need
+   to unmap anything?" Right now we just call "do_munmap()", but done
+   right we would walk the tree _once_, noticing whether we need to unmap
+   or not, and keep track of what the previous one was.
+
+ - just expand the previous entry when you notice that it's doable.
+
+ - allocate and insert a new entry if needed.
+
+However, this absolutely means getting rid of "insert_vm_struct()", and
+moving a large portion of it into the caller.
+
+It also means doing the same for "do_munmap()".
+
+Try it. I'd love to see the code. I didn't want to do it myself.
+
+And remember: optimize for _well_written applications. Not for stupid
+glibc code that can be fixed.
+
+		Linus
+

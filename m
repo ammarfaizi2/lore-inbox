@@ -1,54 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267948AbTBVXAq>; Sat, 22 Feb 2003 18:00:46 -0500
+	id <S267944AbTBVW4r>; Sat, 22 Feb 2003 17:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTBVXAq>; Sat, 22 Feb 2003 18:00:46 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:22926 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267948AbTBVXAo>; Sat, 22 Feb 2003 18:00:44 -0500
-Date: Sat, 22 Feb 2003 15:10:48 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <1370000.1045955447@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca>
-References: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267948AbTBVW4r>; Sat, 22 Feb 2003 17:56:47 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:39080 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id <S267944AbTBVW4p> convert rfc822-to-8bit;
+	Sat, 22 Feb 2003 17:56:45 -0500
+Reply-To: <camber@yakko.cs.wmich.edu>
+From: "Edward Killips" <camber@yakko.cs.wmich.edu>
+To: "Toplica Tanaskovic" <toptan@EUnet.yu>,
+       "Dave Jones" <davej@codemonkey.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: AGP backport from 2.5 to 2.4.21-pre4
+Date: Sat, 22 Feb 2003 18:07:46 -0500
+Message-ID: <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <200302220716.54218.toptan@EUnet.yu>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, so now you've slid from talking about PCs to 2-way to 4-way ...
->> perhaps because your original arguement was fatally flawed.
-> 
-> oh, come on.  the issue is whether memory is fast and flat.
-> most "scalability" efforts are mainly trying to code around the fact
-> that any ccNUMA (and most 4-ways) is going to be slow/bumpy.
+ 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Scalability is not just NUMA machines by any stretch of the imagination.
-It's 2x, 4x, 8x SMP as well.
+The apeture is now set correctly. The ATI 4.2.0-2.5.1 drivers don't work but I 
+think that is a dri problem. Everything works fine with the vesa drivers using XFree86 4.2.99.
 
-> it is reasonable to worry that optimizations for imbalanced machines
-> will hurt "normal" ones.  is it worth hurting uni by 5% to give
-> a 50% speedup to IBM's 32-way?  I think not, simply because 
-> low-end machines are more important to Linux.
+- -Edward Killips
 
-We would never try to propose such a change, and never have. 
-Name a scalability change that's hurt the performance of UP by 5%.
-There isn't one.
+- -----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Toplica
+Tanaskovic
+Sent: Saturday, February 22, 2003 1:21 AM
+To: Dave Jones
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
 
-> ccNUMA worst-case latencies are not much different from decent 
-> cluster (message-passing) latencies.  getting an app to work on a cluster
-> is a matter of programming will.
 
-It's a matter of repeatedly reimplementing a bunch of stuff in userspace,
-instead of doing things in kernel space once, properly, with all the
-machine specific knowledge that's needed. It's *so* much easier to
-program over a single OS image.
+Dana petak 21. februar 2003. 14:40 napisali ste:
 
-M.
+>
+> Yes. via-kt400.c was unnecessary (well, it was useful as a standalone
+> whilst I was developing it) , which was why it was later merged into
+> via-agp.c in 2.5.60. There were also a bunch of other fixes merged
+> there, so if you based your backport on an earlier version, I suggest
+> you grab those changes.
+>
+	Done, also fixed warnings from previous patch, and what is most important 
+fixed page locking, no more segmantation faults when unloading drm module.
+
+All test for previous patch passed for this one too, except i've now tested it 
+with GA-7VRX (KT333) too.
+
+BTW code is backported from 2.5.62.
+
+- -- 
+Pozdrav,
+Tanaskovic Toplica
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 8.0
+
+iQA/AwUBPlgCwXg7wzlNS3haEQIa+wCgghCr47gdTARzeQ60vLYypWZQPuMAn2S0
+Wndxm6BEpA0t8o23iL6SaLz8
+=sQHD
+-----END PGP SIGNATURE-----
 

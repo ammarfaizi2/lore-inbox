@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSHOUvw>; Thu, 15 Aug 2002 16:51:52 -0400
+	id <S317415AbSHOVA4>; Thu, 15 Aug 2002 17:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317462AbSHOUvw>; Thu, 15 Aug 2002 16:51:52 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:45842 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317427AbSHOUvv>; Thu, 15 Aug 2002 16:51:51 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208152054.g7FKsif02357@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.20-pre2-ac3
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Thu, 15 Aug 2002 16:54:44 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), kai.germaschewski@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.44.0208152235040.1351-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Aug 15, 2002 10:49:26 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S317462AbSHOVA4>; Thu, 15 Aug 2002 17:00:56 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:22946
+	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S317415AbSHOVAz>; Thu, 15 Aug 2002 17:00:55 -0400
+Date: Thu, 15 Aug 2002 14:04:49 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: henrique <henrique@cyclades.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with random.c and PPC
+Message-ID: <20020815210449.GA26993@opus.bloom.county>
+References: <200208151514.51462.henrique@cyclades.com> <20020815182556.GV9642@clusterfs.com> <20020815190336.GN22974@opus.bloom.county> <20020815195933.GW9642@clusterfs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020815195933.GW9642@clusterfs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Linux 2.4.20-pre2-ac2
-> >...
-> > o	Tweak isdn to try and fix gcc 2.95 compile 	(Kai Germaschewski)
-> >...
+On Thu, Aug 15, 2002 at 01:59:33PM -0600, Andreas Dilger wrote:
+> On Aug 15, 2002  12:03 -0700, Tom Rini wrote:
+> > On Thu, Aug 15, 2002 at 12:25:56PM -0600, Andreas Dilger wrote:
+> > > Maybe the PPC keyboard/mouse drivers do not add randomness?
+> > 
+> > Well, how is this set for the i386 ones?  I grepped around and I didn't
+> > really see anything, so I'm sort-of confused.
 > 
-> Compilation of 2.4.20-pre2-ac3 fails:
+> I think it is something like "add_mouse_entropy" and "add_keyboard_entropy"
+> or similar.  If you look at the random.c sources you can find the actual
+> function names and work backwards from there.
 
-Ok fixed the ifdef way to handle the old cpp problems then
+Ah, thanks.  In that case, no.  It doesn't look like the input-layer USB
+keyboards contribute to entropy (but mice do), and I don't think the ADB
+ones do.  I'll take a crack at adding this to keyboards monday maybe.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

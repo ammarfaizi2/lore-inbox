@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262886AbSJGFvL>; Mon, 7 Oct 2002 01:51:11 -0400
+	id <S262892AbSJGGAu>; Mon, 7 Oct 2002 02:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262889AbSJGFvL>; Mon, 7 Oct 2002 01:51:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12160 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262886AbSJGFvK>;
-	Mon, 7 Oct 2002 01:51:10 -0400
-Date: Mon, 7 Oct 2002 07:56:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jure Repinc <jlp@holodeck1.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Support for Mount Rainier / Packet Writing
-Message-ID: <20021007055637.GD1738@suse.de>
-References: <3DA09C34.4070709@holodeck1.com>
+	id <S262893AbSJGGAu>; Mon, 7 Oct 2002 02:00:50 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:62727 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262892AbSJGGAt>; Mon, 7 Oct 2002 02:00:49 -0400
+Date: Mon, 7 Oct 2002 03:06:20 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Gigi Duru <giduru@yahoo.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021007060619.GH1201@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Rik van Riel <riel@conectiva.com.br>, Gigi Duru <giduru@yahoo.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+References: <20021007053805.95762.qmail@web13204.mail.yahoo.com> <Pine.LNX.4.44L.0210070241480.22735-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DA09C34.4070709@holodeck1.com>
+In-Reply-To: <Pine.LNX.4.44L.0210070241480.22735-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06 2002, Jure Repinc wrote:
-> Hi all.
-> 
-> Now that feature freeze is just around the corner I would like to ask 
-> you if we will get support for packet writing in the 2.6/3.0 kernel. It 
-> would be especialy nice to have support for Mount Rainier which enables 
-> easy use of CD-RWs and that would help people (especially newbies) that 
-> use CD-RWs a lot.
-> 
-> There are some patches from Jens Axboe that are available here:
-> http://w1.894.telia.com/~u89404340/patches/packet/2.5/
+Em Mon, Oct 07, 2002 at 02:42:20AM -0300, Rik van Riel escreveu:
+> On Sun, 6 Oct 2002, Gigi Duru wrote:
+> > --- Mark Hahn <hahn@physics.mcmaster.ca> wrote:
+ 
+> > > have you actually tried?
 
-These are for CD-RW transparent writing, not cd-mrw.
+> > didn't need to. already told you what size the bare bones 2.5 is, and I
+> > doubt it will get any smaller. au contraire...
 
-> Are patches these OK for this or would support have to be completely 
-> rewriten?
+> Are you, or are you not willing to help improve 2.5 to
+> satisfy your goals ?
 
-I had patches for 2.4 that enable mt rainier support in ide-cd and sr,
-they need to be polished a bit and submitted. I don't view the feature
-freeze as a big problem here, it's just minor additions to the cd-rom
-driver so...
+Frankly, talking like he is talking it seems that he is baiting somebody else
+to do the work, nevermind, I'll try in the next days to do some work on that,
+I expect that he reports the results here, at least 8)
 
--- 
-Jens Axboe
-
+- Arnaldo

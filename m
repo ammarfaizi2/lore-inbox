@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266338AbUFRR45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUFRSH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266338AbUFRR45 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 13:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUFRR45
+	id S265900AbUFRSH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 14:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUFRSH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 13:56:57 -0400
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:23169 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S266338AbUFRR4z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 13:56:55 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-Subject: Re: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
-Date: Fri, 18 Jun 2004 18:46:22 +0100
-User-Agent: KMail/1.6
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200406181611.37890.andrew@walrond.org> <200406181721.47968.andrew@walrond.org> <40D31EA6.5030207@ThinRope.net>
-In-Reply-To: <40D31EA6.5030207@ThinRope.net>
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 14:07:28 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:53176 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S265900AbUFRSHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:07:24 -0400
+Date: Fri, 18 Jun 2004 11:07:21 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Ian Molton <spyro@f2s.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040618110721.B3851@home.com>
+References: <20040618175902.778e616a.spyro@f2s.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406181846.22150.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "cenedra.walrond.org", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Friday 18 Jun 2004 17:56, Kalin KOZHUHAROV wrote: >
-	> However, isn't that supposed to be filed with iptables
-	(@netfilter.org)? > My original mail was addressed to
-	netfilter@lists.netfilter.org, and cc'ed to lkml [...] 
-	Content analysis details:   (0.0 points, 7.5 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040618175902.778e616a.spyro@f2s.com>; from spyro@f2s.com on Fri, Jun 18, 2004 at 05:59:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 Jun 2004 17:56, Kalin KOZHUHAROV wrote:
->
-> However, isn't that supposed to be filed with iptables (@netfilter.org)?
->
+On Fri, Jun 18, 2004 at 05:59:02PM +0100, Ian Molton wrote:
+> I have a System On Chip device which, among other functions, contains an
+> OHCI controller and 32K of SRAM.
+> 
+> heres the catch:- The OHCI controller has a different address space than
+> the host bus, and worse, can *only* DMA data from its internal SRAM.
+> 
+> The architecture is not broken, merely unusual.
+> 
+> This causes the following problems:
+> 
+> 1) The DMA API provides no methods to set up a mapping between the host
+>    memory map and the devices view of the space
+>         example:
+>            the OHCI controller above would see its 32K of SRAM as
+>            mapped from 0x10000 - 0x1ffff and not 0xXXX10000 - 0xXXX1ffff
+>            which is the address the CPU sees.
+> 2) The DMA API assumes the device can access SDRAM
+>         example:
+>            the OHCI controller base is mapped at 0x10000000 on my platform.
+>            this is NOT is SDRAM, its in IO space.
 
-My original mail was addressed to netfilter@lists.netfilter.org, and cc'ed to 
-lkml
+Can't you just implement an arch-specific allocator for your 32KB
+SRAM, then implement the DMA API streaming and dma_alloc/free APIs
+on top of that?  Since this architecture is obviously not designed
+for performance, it doesn't seem to be a big deal to have the streaming
+APIs copy to/from the kmalloced (or whatever) buffer to/from the SRAM
+allocated memory and then have those APIs return the proper dma_addr_t
+for the embedded OHCI's address space view of the SRAM. Same thing
+goes for implementing dma_alloc/free (used by dma_pool*). I don't
+have the knowledge of USB subsystem buffer usage to know how quickly
+that little 32KB of SRAM is going to run out. But at a DMA API level,
+this seems doable, albeit with the greater possibility of negative
+retvals from these calls.
 
+-Matt

@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbSL3Ti0>; Mon, 30 Dec 2002 14:38:26 -0500
+	id <S265773AbSL3Tgo>; Mon, 30 Dec 2002 14:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSL3Ti0>; Mon, 30 Dec 2002 14:38:26 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:23569 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S265786AbSL3TiZ>;
-	Mon, 30 Dec 2002 14:38:25 -0500
-Date: Mon, 30 Dec 2002 20:46:45 +0100
-From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Promise 20376 support
-Message-ID: <20021230204645.B20688@joshua.mesa.nl>
-Reply-To: marcel@mesa.nl
-Mime-Version: 1.0
+	id <S265777AbSL3Tgn>; Mon, 30 Dec 2002 14:36:43 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:56326 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265773AbSL3Tgn>;
+	Mon, 30 Dec 2002 14:36:43 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212301944.gBUJitEc003084@darkstar.example.net>
+Subject: Re: my observations about 2.4.21-pre2
+To: rpjday@mindspring.com (Robert P. J. Day)
+Date: Mon, 30 Dec 2002 19:44:55 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0212301304150.25855-100000@dell> from "Robert P. J. Day" at Dec 30, 2002 01:18:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Under Parallel port support, there are duplicated entries for
+>   "Support for PCMCIA management for PC-style ports", with the
+>   first entry being grayed out, although i'm sure many folks
+>   have already noticed this.
 
-I've got this Asus A7V8X motherboard that contains a promise 20376
-sata-ide (raid) controller. In the latest kernel sources (2.4 and 2.5) 
-I don't see any mention of this chip yet. Also a google search does
-not reveal much about linux support. 
-Is there already any work in progress for it?
+A patch to fix this was posted to LKML about 3 months ago.
 
--Marcel
--- 
-     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
-    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
-    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
-__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
- They couldn't think of a number,           Linux user 1148  --  counter.li.org
-    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com
+John.

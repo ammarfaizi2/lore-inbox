@@ -1,86 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbUKEUhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUKEUin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbUKEUhD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbUKEUhD
+	id S261211AbUKEUin (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUKEUim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:37:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30620 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261209AbUKEUgw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:36:52 -0500
-Date: Fri, 5 Nov 2004 20:36:51 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: SUPPORT <support@4bridgeworks.com>
-Cc: "'Matthew Wilcox'" <matthew@wil.cx>, Thomas Babut <thomas@babut.net>,
-       linux-kernel@vger.kernel.org, Linux SCSI <linux-scsi@vger.kernel.org>,
-       groudier@free.fr
-Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
-Message-ID: <20041105203651.GA24690@parcelfarce.linux.theplanet.co.uk>
-References: <C18BA5DDB58DD511BD0700C0DF0DD4501EEC6A@NTSERVER4>
+	Fri, 5 Nov 2004 15:38:42 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:22440 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261211AbUKEUiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 15:38:14 -0500
+Date: Fri, 5 Nov 2004 12:32:56 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, rml@novell.com,
+       linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+       acpi-devel@lists.sourceforge.net, rusty@rustycorp.com.au
+Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Message-ID: <20041105123254.A17224@unix-os.sc.intel.com>
+References: <20041105201012.GA24063@vrfy.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <C18BA5DDB58DD511BD0700C0DF0DD4501EEC6A@NTSERVER4>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041105201012.GA24063@vrfy.org>; from kay.sievers@vrfy.org on Fri, Nov 05, 2004 at 12:10:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 04:25:03PM -0000, SUPPORT wrote:
-> I've been seeing problems with various tape drives and PPR. And a SCSI 3 SE
-> disk is interesting as well! SE and PPR don't get on too well;)
+On Fri, Nov 05, 2004 at 12:10:12PM -0800, Kay Sievers wrote:
+> 
+>    On Fri, Nov 05, 2004 at 10:05:13AM -0800, Greg KH wrote:
+>    >  >  The  following  error (compin from Linus' tree) is caused by the
+>    fact that
+>    > > hotplug_path is no longer EXPORT_SYMBOL'ed:
+>    > >
+>    > >
+>    > > <--  snip  -->
+>    > >
+>    >  >  if  [  -r  System.map  ];  then  /sbin/depmod  -ae -F System.map
+>    2.6.10-rc1-mm3; fi
+> 
+>    I've  found  it.  This  wants  to introduce a new direct /sbin/hotplug
+>    call,
+>    with "add" and "remove" events, without sysfs support.
+> 
+>    It  should  use  class  support  or kobject_hotplug() instead.  Nobody
+>    should
+>    fake hotplug events anymore, cause every other notification transport
+>    will not get called (currently uevent over netlink).
+> 
 
-... yes ...
+we were discussing this exact thing recently.. we maybe able to clean this up.. here is why
+we are doing this manual thingy...
 
-I think we should *never* attempt PPR on a SE bus, even when the drive
-supports it.  We've seen bugs in Seagate drive firmware because of this,
-so let's stop doing it.
-
-How does this patch (whitespace damaged, apply by hand) make people feel?
-
---- linux-2.6/drivers/scsi/sym53c8xx_2/sym_hipd.c       2004-11-02 12:59:53.0000
-00000 -0700
-+++ sym2-2.6/drivers/scsi/sym53c8xx_2/sym_hipd.c        2004-11-05 13:20:18.0000
-00000 -0700
-@@ -1455,7 +1455,7 @@
-                st->options &= ~PPR_OPT_DT;
-        }
- 
--       if (!(np->features & FE_ULTRA3))
-+       if (np->scsi_mode != SMODE_LVD || !(np->features & FE_ULTRA3))
-                st->options &= ~PPR_OPT_DT;
- 
-        if (st->options & PPR_OPT_DT) {
+When we support physical component hotplug, we want to create the sysfs entries, but that doesnt
+mean the component (i.e CPU or memory) is hotplugged. The reason is for node level hotplug
+there are sequencing requirements, memory needs to be brought up first before cpu, and also
+the error handling/policy requirments which we want the user space to handle it and not from 
+kernel side.
 
 
-> Matthew - I have attached some bits of SCSI analyser traces which I hope may
-> be useful. An IBM SCSI 3 SE disk and a couple of LTO tape drives - IBM and
-> HP. The HP causes severe problems as modprobe hangs without the fix. I have
-> also seen drives that do unexpected disconnects if they get sent PPR.
+the sequence is when physical arrival of cpu is seen, we will just create a sysfs entry 
+which will also send an add event (which really is just cpu arrival, and sysfs created). 
 
-Thanks, those are interesting.  It's good to see that we really are
-spitting PPR out onto the wire when we shouldn't be.
+In our model the event is just consumed by the script cpu.agent, which would in turn decide and 
+bring the cpu up by 
 
-> I have been toying with the idea of disabling PPR capability if PPR is
-> rejected - forcing sdev->ppr=0 in the driver when it determines PPR has been
-> rejected - but I'm not sure that's right. There are drives which reject
-> negotiation - legacy sync and wide at least - while they are initialising
-> but will then accept it later on.
+#echo 1> /sys/devices/system/cpu/cpu#/online
 
-I think disabling PPR on an SE bus should be a better fix than that.
+what apps really would care about is the ONLINE (which doesnt exist) event itself, and the 
+OFFLINE. The ADD/REMOVE only indicate sysfs entries appear and disappear.
 
-> Question - where does the full source for the sym53c8xx_2 driver live these
-> days now that Gerard no long maintains it?
+I dont know if adding ONLINE/OFFLINE is the right thing, or use the CHANGE notification 
+to inform. 
 
-My primary development for this driver lives in the parisc-linux CVS.
-I publish patches on an irregular basis.  If this patch fixes a
-significant number of problems (and it seems it might), I'll do a
-2.1.18n release.
+This is an area that needs more though which is slightly different from how other devices are being handled.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Greg-kh/Rusty .. any suggestions
+
+
+Cheers,
+Ashok Raj
+- Linux OS & Technology Team

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbTAIJe3>; Thu, 9 Jan 2003 04:34:29 -0500
+	id <S262500AbTAIJmD>; Thu, 9 Jan 2003 04:42:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262500AbTAIJe3>; Thu, 9 Jan 2003 04:34:29 -0500
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:59004 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S262492AbTAIJe1>; Thu, 9 Jan 2003 04:34:27 -0500
-Date: Thu, 9 Jan 2003 10:43:08 +0100 (CET)
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Andrew McGregor <andrew@indranet.co.nz>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ipv6 stack seems to forget to send ACKs
-In-Reply-To: <20030109093836.GG22951@wiggy.net>
-Message-ID: <Pine.LNX.4.51.0301091041390.20149@trider-g7.ext.fabbione.net>
-References: <20030108130850.GQ22951@wiggy.net>
- <Pine.LNX.4.51.0301081849550.564@diapolon.int.fabbione.net>
- <78180000.1042055993@localhost.localdomain> <20030108224339.GO22951@wiggy.net>
- <Pine.LNX.4.51.0301090822001.19862@trider-g7.ext.fabbione.net>
- <20030109093836.GG22951@wiggy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264657AbTAIJlp>; Thu, 9 Jan 2003 04:41:45 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:35800 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S262500AbTAIJko>; Thu, 9 Jan 2003 04:40:44 -0500
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH]  Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20030109094923.46A933745@mcspd15.ucom.lsi.nec.co.jp>
+Date: Thu,  9 Jan 2003 18:49:23 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Wichert Akkerman wrote:
+Since these are just symbols in the module object, they need symbol name
+munging to find the symbol from the parameter name.
 
-> Previously Fabio Massimo Di Nitto wrote:
-> > Is the WinXP client located in the same place where you are?
->
-> Yes. (Well, not my place but a friend who had both linux and XP did
-> that test).
->
-> Wichert.
->
->
+[I guess using the stack is bad in general, but parameter names should be
+very short, and hey if they're obsolete, it seems pointless to spend
+much effort.]
 
-hmmmm strange because now I have forced the route to ipv6.lkml.org via
-another ISP (bypassing xs26.net) and it is more than 3 hours that xmms is
-streaming without interruptions.
-
-Fabio
-
+diff -ruN -X../cludes linux-2.5.55-moo.orig/kernel/module.c linux-2.5.55-moo/kernel/module.c
+--- linux-2.5.55-moo.orig/kernel/module.c	2003-01-09 13:44:25.000000000 +0900
++++ linux-2.5.55-moo/kernel/module.c	2003-01-09 14:07:36.000000000 +0900
+@@ -685,13 +685,18 @@
+ 		       num, obsparm[i].name, obsparm[i].type);
+ 
+ 	for (i = 0; i < num; i++) {
++		char sym_name[strlen (obsparm[i].name) + 2];
++
++		strcpy (sym_name, MODULE_SYMBOL_PREFIX);
++		strcat (sym_name, obsparm[i].name);
++
+ 		kp[i].name = obsparm[i].name;
+ 		kp[i].perm = 000;
+ 		kp[i].set = set_obsolete;
+ 		kp[i].get = NULL;
+ 		obsparm[i].addr
+ 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
+-						    obsparm[i].name);
++						    sym_name);
+ 		if (!obsparm[i].addr) {
+ 			printk("%s: falsely claims to have parameter %s\n",
+ 			       name, obsparm[i].name);

@@ -1,536 +1,584 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTKLM2D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 07:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTKLM1c
+	id S262098AbTKLMkp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 07:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTKLMkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 07:27:32 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:32926 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261925AbTKLM0w (ORCPT
+	Wed, 12 Nov 2003 07:40:45 -0500
+Received: from quechua.inka.de ([193.197.184.2]:17828 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262098AbTKLMkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 07:26:52 -0500
-Date: Wed, 12 Nov 2003 17:55:29 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@osdl.org>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [RFC 2/5] sysfs-dir.patch
-Message-ID: <20031112122529.GF14580@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20031112122344.GD14580@in.ibm.com> <20031112122503.GE14580@in.ibm.com>
+	Wed, 12 Nov 2003 07:40:20 -0500
+Subject: Re: ide cdrom sg like access / rpcmgr ?
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031112113604.GG21141@suse.de>
+References: <1068494681.808.11.camel@simulacron>
+	 <20031112113604.GG21141@suse.de>
+Content-Type: text/plain
+Organization: small linux home
+Message-Id: <1068640776.10684.2.camel@simulacron>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031112122503.GE14580@in.ibm.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 12 Nov 2003 13:39:36 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-11-12 at 12:36, Jens Axboe wrote:
+> Post the code and I'll show you how to do it. Generally, you should just
+> use SG_IO or CDROM_SEND_PACKET for this.
+
+thanks, the code is at
+http://www.ilovedvd.co.nz/downloads/unix-linux/rpcmgr11.c
+
+Andreas
+
+/*
+rpcmgr, a DVD RPC (Region Playback Control) tool.
+Copyright (C) 2000  Dag Lem <rpcmgr@nimrod.no>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
+USA.
+*/
+
+/*
+This program uses SCSI commands to report and modify the RPC2 settings
+of DVD drives.
+
+USE THIS PROGRAM AT YOUR OWN RISK! I have tested it with an LG
+DRN8080B and a Pioneer DVD-303 and believe it to be safe, but I could
+be wrong. This program might cause your particular DVD drive to be
+permanently region locked, it might cause your DVD drive to blow up,
+it might set your house on fire, whatever; I take zero responsibility.
+
+What is RPC? RPC stands for Region Playback Control. RPC divides the
+world into eight regions and potentially denies you the right to play
+back DVD discs from all but one of these regions. RPC comes in two
+flavors; software control (RPC Phase I / RPC1) and hardware control
+(RPC Phase II / RPC2). RPC1 is enforced by the DVD player software,
+while RPC2 is enforced by both the software and by the DVD drive
+itself.
+
+With RPC2 drives you are allowed to change the region five times,
+after which the drive region is permanently set. The drive vendor may
+reset the user region counter thus unlocking the permanent state,
+however this is also normally limited to five times.
+
+There are several methods of bypassing RPC. RPC1 can by bypassed by
+patching the DVD playback software or by intercepting the
+communication between the software and the DVD drive, always telling
+the software that the disc in the drive is coded with one specific
+region. It has been reported that RPC2 in some cases can be bypassed
+by interception as well, however as one might guess this does not
+always work since RPC2 is really a hardware enforcement of RPC. To
+bypass RPC2, the most common measure is to upgrade the drive with
+microcode (or firmware) that does not enforce RPC2. In some cases the
+existing microcode allows the user to disable RPC2 compliance, in
+these cases a microcode upgrade is not necessary. Finally, it can be
+noted that the region mask in RPC is a bit mask with one bit for each
+region. On some drives it is possible to specify that playback is
+allowed for all regions while still complying to RPC2. In this case it
+is important to use DVD playback software that does not enforce a
+setting of only one region. OMS for Linux works fine, whereas
+e.g. WinDVD for Windows will set a new region, thus decrementing the
+user region counter and possibly permanently setting the region.
+
+This program was originally developed for LG DRD8080B and DRN8080B
+drives. The options --disable, --reset-user, and --reset-vendor invoke
+special commands for these drives. The nifty thing about these
+commands is that they allow you to set new regions at your hearts
+desire, or even temporarily disable RPC2 compliance. The upshot of
+this is that you may now play any DVD from your DVD collection on your
+laptop, just as you do on your region free home DVD player.
+
+As of version 1.1 of this program, the COMPAQ DRD8080B and DRN8080B
+are recognized as LG drives, thanks to Arzeno Fabrice. Also, options
+--disable and --enable should work for HITACHI GD-3000, HITACHI
+GD-5000, and COMPAQ GD-5000 drives. A big thanks to XVI for reverse
+engineering and Hunter for Windows source on behalf of Unix/Linux
+users owning one of these drives. Hunter has also provided MMC-2
+documentation - thank you. One note of caution for the GD-x000 drives:
+Disable RPC2 and leave it at that, rumour has it that only a limited
+amount of RPC2 status changes (32?) are allowed for these drives, and
+you wouldn't want to lock your drive in RPC2 now, would you?
+
+For ATAPI drives like the LG drives mentioned above, you need a SCSI
+emulation layer in the kernel. In Linux, the kernel must be configured
+with "SCSI emulation support"; see "IDE, ATA and ATAPI Block devices"
+in 'make xconfig' (CONFIG_BLK_DEV_IDESCSI=y). It goes without saying
+that you also need support for SCSI, generic SCSI, and SCSI CD-ROM
+devices. Finally, you need to put a line of the form append="hdx=scsi"
+in /etc/lilo.conf (e.g. append="hdc=scsi") and run lilo.
+
+For interested readers, the LG SCSI commands in this program were
+determined by running the LG utility RpcMan.exe under Wine. RpcMan
+uses the ASPI SCSI layer in Windows, which also acts as a SCSI
+emulation layer for ATAPI devices. By monitoring the data passing
+through the ASPI layer, it is fairly simple to determine the SCSI
+commands used in this program. This technique has earlier been
+suggested by Henning Meier-Geinitz <hmg@gmx.de> in the SANE project as
+a means of determining SCSI commands for undocumented scanners.
+Running 'wine --debugmsg +aspi RpcMan.exe 2> debug.txt' almost does
+the trick, the only thing missing is a printout of the SCSI data
+buffer in addition to the SCSI command buffer; this needs to be added
+to the file winaspi32.c in Wine first. If you have a DRN8080B you also
+need to binary patch RpcMan.exe, modifying the string "DVD-ROM
+DRD8080B" to "DVD-ROM DRN8080B". This last piece of information might,
+by the way, be of interest to Windows users with LG DRN8080B
+drives. Valid passwords for RPC2 init are R2D2, R8021314, R8124618,
+and RPB08143.
+
+Finally, I have a few interesting suggestions for the adventurous. I
+have not tried these things myself, and if your DVD drive should
+somehow be destroyed, don't tell me I didn't warn you. Anyway, I would
+like to hear from you if you do try these things.
+
+- Try the --disable, --reset-user, and --reset-vendor commands on
+other drive models, especially LG drives. You will need to disable the
+drive model check in this program to do this.
+
+- For LG DRx8080B owners: If you take a closer look at the --disable,
+--reset-user, and --reset-vendor commands you will notice that the
+only difference between these functions lies in the second byte and in
+the second last byte in the command/data buffer.
+         second  second last
+reset:   0x00    0x81
+init:    0x10    0x80
+disable: 0x00    0x02
+
+What happens if you try e.g. the following?:
+reset:   0x00    0x80/0x82
+init:    0x10    0x81/0x82
+disable: 0x00 0x00/0x01 (tested, 0x00 is valid but does nothing)
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <scsi/scsi.h>
+#include <scsi/sg.h>
 
 
-o This is the main part of the sysfs backing store patch set. It provides the
-  lookup routine, and open, release, readdir, lseek routines for sysfs 
-  directories. As we don't create sysfs entires in sysfs_create_xxxx() calls, 
-  we create the dentries  when we actually look for them in sysfs_lookup and 
-  We parse the kobject hierachy for the required object and if found and not
-  already created we go ahead and create the sysfs entry for it.
+#define PROG "rpcmgr"
+
+/* SCSI Multimedia Commands - 2 (MMC-2) */
+#ifndef REPORT_KEY
+#define REPORT_KEY 0xa4
+#define SEND_KEY 0xa3
+#define READ_DVD_STRUCTURE 0xad
+#endif
+
+#define HITACHI_RPC2 0xe7
+
+/* SCSI buffers */
+#define SG_SIZE sizeof(struct sg_header)
+char buf_msg[SG_SIZE + 200];
+char buf_reply[SG_SIZE + 200];
+struct sg_header* sg_msg = (struct sg_header*)buf_msg;
+struct sg_header* sg_reply = (struct sg_header*)buf_reply;
+unsigned char* msg = buf_msg + SG_SIZE;
+unsigned char* reply = buf_reply + SG_SIZE;
+
+typedef enum { RPC2_ENABLE, RPC2_DISABLE, RPC2_RESET_USER,
+RPC2_RESET_VENDOR } rpc2_command_t;
+typedef void (*rpc2_function_t)(int fd, rpc2_command_t command);
+
+void rpc2_hitachi(int fd, rpc2_command_t command);
+void rpc2_lg(int fd, rpc2_command_t command);
+
+/* List of drives that respond to special RPC2 commands */
+struct drive_model {
+  char* vendor;
+  char* product;
+  rpc2_function_t rpc2_function;
+}
+rpcmgr_drives[] = {
+  { "COMPAQ  ", "DVD-ROM DRD8080B", rpc2_lg },
+  { "COMPAQ  ", "DVD-ROM DRN8080B", rpc2_lg },
+  { "COMPAQ  ", "DVD-ROM GD-5000 ", rpc2_hitachi },
+  { "HITACHI ", "DVD-ROM GD-3000 ", rpc2_hitachi },
+  { "HITACHI ", "DVD-ROM GD-5000 ", rpc2_hitachi },
+  { "LG      ", "DVD-ROM DRD8080B", rpc2_lg },
+  { "LG      ", "DVD-ROM DRN8080B", rpc2_lg }
+};
 
 
- fs/sysfs/dir.c |  396 +++++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 341 insertions(+), 55 deletions(-)
+/* Display program usage and exit */
+void usage(FILE* fd)
+{
+  fprintf(fd, "Usage: %s option [sg device]\n"
+	  "Options:\n"
+	  "  -d, --disable       disable RPC2\n"
+	  "                      warning: limited number of changes for
+GD-x000!\n"
+	  "                               only lasts until next boot for
+DRx-8080B!\n"
+          "                      COMPAQ  DRD8080B, DRN8080B, GD-5000\n"
+          "                      HITACHI GD-3000,  GD-5000\n"
+	  "                      LG      DRD8080B, DRN8080B\n"
+	  "  -e, --enable        enable RPC2\n"
+	  "                      warning: limited number of changes for
+GD-x000!\n"
+          "                      COMPAQ  DRD8080B, DRN8080B, GD-5000\n"
+          "                      HITACHI GD-3000,  GD-5000\n"
+	  "  -h, --help          display this help and exit\n"
+	  "  -i, --dvdinfo       display DVD encryption and region info\n"
+	  "  -r, --region=R|all  set RPC2 region R or attempt to set all
+regions at once\n"
+	  "                      warning: decreases RPC2 user counter!\n"
+	  "  -s, --status        display RPC status\n"
+	  "  -u, --reset-user    reset RPC2 user counter\n"
+	  "                      warning: decreases RPC2 vendor counter!\n"
+          "                      COMPAQ  DRD8080B, DRN8080B\n"
+	  "                      LG      DRD8080B, DRN8080B\n"
+	  "  -v, --reset-vendor  reset RPC2 vendor counter\n"
+          "                      COMPAQ  DRD8080B, DRN8080B\n"
+	  "                      LG      DRD8080B, DRN8080B\n"
+	  "  -V, --version       print version information and exit\n", PROG);
+  exit(1);
+}
 
-diff -puN fs/sysfs/dir.c~sysfs-dir fs/sysfs/dir.c
---- linux-2.6.0-test9/fs/sysfs/dir.c~sysfs-dir	2003-11-12 16:20:20.000000000 +0530
-+++ linux-2.6.0-test9-maneesh/fs/sysfs/dir.c	2003-11-12 16:20:20.000000000 +0530
-@@ -10,84 +10,205 @@
- #include <linux/kobject.h>
- #include "sysfs.h"
- 
-+struct inode_operations sysfs_dir_inode_operations = {
-+	.lookup		= sysfs_lookup,
-+};
-+
-+struct file_operations sysfs_dir_operations = {
-+	.open		= sysfs_dir_open,
-+	.release	= sysfs_dir_close,
-+	.llseek		= sysfs_dir_lseek,
-+	.read		= generic_read_dir,
-+	.readdir	= sysfs_readdir,
-+};
-+
-+static void sysfs_d_iput(struct dentry *dentry, struct inode *inode)
-+{
-+	struct sysfs_dirent * sd = dentry->d_fsdata;
-+
-+	sd->s_dentry = NULL;
-+	iput(inode);
-+}
-+
-+static struct dentry_operations sysfs_dops = {
-+	.d_iput		= sysfs_d_iput,
-+};
-+
-+char * sysfs_get_name(struct sysfs_dirent *sd)
-+{
-+	struct kobject * k;
-+	struct attribute * a;
-+	struct bin_attribute * bin_attr;
-+	struct attribute_group * grp;
-+        char ** link_names;
-+                                                                                
-+	if (!sd || !sd->s_element) {
-+		return NULL;
-+	}
-+
-+	switch(sd->s_type) {
-+		case SYSFS_KOBJECT:	
-+				k = (struct kobject *) sd->s_element;
-+				return kobject_name(k);
-+
-+		case SYSFS_KOBJ_ATTR:
-+				a = (struct attribute *) sd->s_element;
-+				return a->name;
-+
-+		case SYSFS_KOBJ_ATTR_GROUP:
-+				grp = (struct attribute_group *) sd->s_element;
-+				return grp->name;
-+
-+                case SYSFS_KOBJ_BIN_ATTR:
-+                                bin_attr = (struct bin_attribute *) sd->s_element;
-+                                return bin_attr->attr.name;
-+		case SYSFS_KOBJ_LINK:
-+                                link_names = sd->s_element;
-+                                return link_names[0];
-+		default:
-+				return "/";
-+
-+	}
-+}
-+
- static int init_dir(struct inode * inode)
- {
--	inode->i_op = &simple_dir_inode_operations;
--	inode->i_fop = &simple_dir_operations;
-+	inode->i_op = &sysfs_dir_inode_operations;
-+	inode->i_fop = &sysfs_dir_operations;
- 
--	/* directory inodes start off with i_nlink == 2 (for "." entry) */
--	inode->i_nlink++;
- 	return 0;
- }
- 
--
--static int create_dir(struct kobject * k, struct dentry * p,
--		      const char * n, struct dentry ** d)
-+static int create_dir(struct sysfs_dirent * sd, struct dentry * dentry)
- {
- 	int error;
-+       
-+	error = sysfs_create(dentry, S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
-+				 init_dir);
-+	if (!error) {
-+		dentry->d_inode->i_nlink += sysfs_get_link_count(sd);
-+		return 0;
-+	}
-+	dput(dentry);
- 
--	down(&p->d_inode->i_sem);
--	*d = sysfs_get_dentry(p,n);
--	if (!IS_ERR(*d)) {
--		error = sysfs_create(*d,
--					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
--					 init_dir);
--		if (!error) {
--			(*d)->d_fsdata = k;
--			p->d_inode->i_nlink++;
--		}
--		dput(*d);
--	} else
--		error = PTR_ERR(*d);
--	up(&p->d_inode->i_sem);
- 	return error;
- }
- 
-+static  int create_attr_file(struct sysfs_dirent * sd, struct dentry * dentry)
-+{
-+	const struct attribute * attr = NULL;
-+	struct bin_attribute * bin_attr = NULL;
-+	int (* init) (struct inode *) = NULL;
-+	int err = 0;
-+
-+	if (sd->s_type == SYSFS_KOBJ_ATTR) {
-+		attr = sd->s_element;
-+		init = sysfs_init_file;
-+	} else {
-+		bin_attr = sd->s_element;
-+		attr = &bin_attr->attr;
-+	}
-+	
-+	err = sysfs_create(dentry, (attr->mode & S_IALLUGO) | S_IFREG, init);
-+	if (err)
-+		return err;
-+
-+	if (sd->s_type == SYSFS_KOBJ_BIN_ATTR) {
-+		dentry->d_inode->i_size = bin_attr->size;
-+		dentry->d_inode->i_fop = &bin_fops;
-+	}
- 
--int sysfs_create_subdir(struct kobject * k, const char * n, struct dentry ** d)
-+	return 0;
-+}
-+
-+static int sysfs_create_dirent(struct sysfs_dirent * sd, struct dentry * dentry)
- {
--	return create_dir(k,k->dentry,n,d);
-+	int err = 0;
-+        char ** link_names;
-+
-+	switch(sd->s_type) {
-+		case SYSFS_KOBJ_ATTR:
-+		case SYSFS_KOBJ_BIN_ATTR:
-+			err = create_attr_file(sd, dentry);
-+			break;
-+                case SYSFS_KOBJ_LINK:
-+                        link_names = sd->s_element;
-+                        err = sysfs_symlink(dentry->d_parent->d_inode, dentry,
-+                                       link_names[1]);
-+                        break;
-+		default:
-+			err = create_dir(sd, dentry);
-+	}
-+	if (!err) {
-+		dentry->d_fsdata = sd;
-+		dentry->d_op = &sysfs_dops;
-+		sd->s_dentry = dentry;
-+	}
-+
-+	return err;
-+}
-+
-+struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
-+{
-+	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd;
-+	char * name;
-+	int err = -ENOENT;
-+
-+	down_read(&parent_sd->s_rwsem);
-+	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
-+		if (!sd->s_element)
-+			continue;
-+		name = sysfs_get_name(sd);
-+		if (strcmp(name, dentry->d_name.name))
-+			continue;
-+		err = sysfs_create_dirent(sd, dentry);
-+		break;
-+	}
-+	up_read(&parent_sd->s_rwsem);
-+
-+	if (err == -ENOENT) {
-+		d_add(dentry, NULL);
-+		err = 0;
-+	}
-+
-+	return ERR_PTR(err);
- }
- 
- /**
-  *	sysfs_create_dir - create a directory for an object.
-- *	@parent:	parent parent object.
-  *	@kobj:		object we're creating directory for. 
-  */
--
- int sysfs_create_dir(struct kobject * kobj)
- {
--	struct dentry * dentry = NULL;
--	struct dentry * parent;
--	int error = 0;
-+	struct sysfs_dirent * sd; 
-+	struct sysfs_dirent * parent_sd;
- 
- 	if (!kobj)
- 		return -EINVAL;
- 
--	if (kobj->parent)
--		parent = kobj->parent->dentry;
--	else if (sysfs_mount && sysfs_mount->mnt_sb)
--		parent = sysfs_mount->mnt_sb->s_root;
-+	if (kobj->parent) 
-+		parent_sd = kobj->parent->s_dirent;
- 	else
--		return -EFAULT;
-+		parent_sd = &sysfs_root;
- 
--	error = create_dir(kobj,parent,kobject_name(kobj),&dentry);
--	if (!error)
--		kobj->dentry = dentry;
--	return error;
--}
-+	sd = sysfs_alloc_dirent(parent_sd, kobj, SYSFS_KOBJECT);
-+	if (IS_ERR(sd))
-+		return PTR_ERR(sd);
-+	kobj->s_dirent = sd;
- 
-+	return 0;
-+}
- 
- static void remove_dir(struct dentry * d)
- {
- 	struct dentry * parent = dget(d->d_parent);
-+
- 	down(&parent->d_inode->i_sem);
--	d_delete(d);
-+	d_drop(d);
- 	simple_rmdir(parent->d_inode,d);
--
- 	pr_debug(" o %s removing done (%d)\n",d->d_name.name,
- 		 atomic_read(&d->d_count));
--
- 	up(&parent->d_inode->i_sem);
- 	dput(parent);
- }
-@@ -110,10 +231,15 @@ void sysfs_remove_subdir(struct dentry *
- void sysfs_remove_dir(struct kobject * kobj)
- {
- 	struct list_head * node;
--	struct dentry * dentry = dget(kobj->dentry);
-+	struct dentry * dentry = kobj->s_dirent->s_dentry;
-+	struct sysfs_dirent * parent_sd;
- 
- 	if (!dentry)
--		return;
-+		goto exit;
-+		
-+	spin_lock(&dcache_lock);
-+	dentry = dget_locked(dentry);
-+	spin_unlock(&dcache_lock);
- 
- 	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
- 	down(&dentry->d_inode->i_sem);
-@@ -124,7 +250,7 @@ void sysfs_remove_dir(struct kobject * k
- 		struct dentry * d = list_entry(node,struct dentry,d_child);
- 		list_del_init(node);
- 
--		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
-+		pr_debug(" o %s (%d):",d->d_name.name,atomic_read(&d->d_count));
- 		if (d->d_inode) {
- 			d = dget_locked(d);
- 			pr_debug("removing");
-@@ -132,10 +258,9 @@ void sysfs_remove_dir(struct kobject * k
- 			/**
- 			 * Unlink and unhash.
- 			 */
-+			__d_drop(d);
- 			spin_unlock(&dcache_lock);
--			d_delete(d);
- 			simple_unlink(dentry->d_inode,d);
--			dput(d);
- 			spin_lock(&dcache_lock);
- 		}
- 		pr_debug(" done\n");
-@@ -146,10 +271,15 @@ void sysfs_remove_dir(struct kobject * k
- 	up(&dentry->d_inode->i_sem);
- 
- 	remove_dir(dentry);
--	/**
--	 * Drop reference from dget() on entrance.
--	 */
- 	dput(dentry);
-+
-+exit:
-+	sysfs_free_children(kobj->s_dirent);
-+	if (kobj->parent)
-+		parent_sd = kobj->parent->s_dirent;
-+	else
-+		parent_sd = &sysfs_root;
-+	sysfs_free_dirent(parent_sd, kobject_name(kobj));
- }
- 
- void sysfs_rename_dir(struct kobject * kobj, const char *new_name)
-@@ -162,14 +292,170 @@ void sysfs_rename_dir(struct kobject * k
- 	if (!kobj->parent)
- 		return;
- 
--	parent = kobj->parent->dentry;
-+	parent = kobj->parent->s_dirent->s_dentry;
-+	if (parent) {
-+		spin_lock(&dcache_lock);
-+		dget_locked(parent);
-+		spin_unlock(&dcache_lock);
-+
-+		down(&parent->d_inode->i_sem);
-+		new_dentry = sysfs_get_dentry(parent, new_name);
-+		if (!IS_ERR(new_dentry))
-+			d_move(kobj->s_dirent->s_dentry, new_dentry);
-+		up(&parent->d_inode->i_sem);	
-+		dput(parent);
-+	}
-+	kobject_set_name(kobj,new_name);
-+}
- 
--	down(&parent->d_inode->i_sem);
-+int sysfs_dir_close(struct inode *inode, struct file *filp)
-+{
-+	struct dentry * dentry = filp->f_dentry;
-+	struct sysfs_dirent * sd = dentry->d_fsdata;
-+	struct sysfs_dirent * cursor = filp->private_data;
-+	
-+	down_write(&sd->s_rwsem);
-+	list_del(&cursor->s_sibling);
-+	kfree(cursor);
-+	up_write(&sd->s_rwsem);
-+	
-+	return 0;
-+}
- 
--	new_dentry = sysfs_get_dentry(parent, new_name);
--	d_move(kobj->dentry, new_dentry);
--	kobject_set_name(kobj,new_name);
--	up(&parent->d_inode->i_sem);	
-+int sysfs_dir_open(struct inode *inode, struct file *filp)
-+{
-+	struct dentry * parent = filp->f_dentry;
-+	struct sysfs_dirent * parent_sd = parent->d_fsdata;
-+	struct sysfs_dirent * cursor;
-+
-+	down(&inode->i_sem);
-+	cursor = sysfs_alloc_dirent(parent_sd, NULL, 0);
-+	up(&inode->i_sem);
-+	if (IS_ERR(cursor))
-+		return PTR_ERR(cursor);
-+	filp->private_data = cursor;
-+	return 0;
-+}
-+
-+loff_t sysfs_dir_lseek(struct file *file, loff_t offset, int origin)
-+{
-+	struct dentry * dentry = file->f_dentry;
-+
-+	down(&dentry->d_inode->i_sem);
-+	switch (origin) {
-+		case 1:
-+			offset += file->f_pos;
-+		case 0:
-+			if (offset >= 0)
-+				break;
-+		default:
-+			up(&dentry->d_inode->i_sem);
-+			return -EINVAL;
-+	}
-+	if (offset != file->f_pos) {
-+		file->f_pos = offset;
-+		if (file->f_pos >= 2) {
-+			struct list_head *p;
-+			struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-+			struct sysfs_dirent * cursor = file->private_data;
-+			loff_t n = file->f_pos - 2;
-+
-+			down_write(&parent_sd->s_rwsem);
-+			p = parent_sd->s_children.next;
-+			while (n && p != &parent_sd->s_children) {
-+				struct sysfs_dirent * next_sd;
-+				struct dentry *next;
-+				char * name;
-+				next_sd = list_entry(p, struct sysfs_dirent, s_sibling);
-+				if (!next_sd->s_element)
-+					continue;
-+				name = sysfs_get_name(next_sd);
-+				up_write(&parent_sd->s_rwsem);
-+				next = sysfs_get_dentry(dentry, name);
-+				down_write(&parent_sd->s_rwsem);
-+				if (IS_ERR(next))
-+					break;
-+				if (!d_unhashed(next) && next->d_inode)
-+					n--;
-+				p = p->next;
-+				dput(next);
-+			}
-+			list_del(&cursor->s_sibling);
-+			list_add_tail(&cursor->s_sibling, p);
-+			up_write(&parent_sd->s_rwsem);
-+		}
-+	}
-+	up(&dentry->d_inode->i_sem);
-+	return offset;
-+	return 0;
-+}
-+
-+/* Relationship between i_mode and the DT_xxx types */
-+static inline unsigned char dt_type(struct inode *inode)
-+{
-+	return (inode->i_mode >> 12) & 15;
-+}
-+
-+int sysfs_readdir(struct file * filp, void * dirent, filldir_t filldir)
-+{
-+	struct dentry *dentry = filp->f_dentry;
-+	struct sysfs_dirent *sd = dentry->d_fsdata;
-+	struct sysfs_dirent *cursor = filp->private_data;
-+	struct list_head *p, *q = &cursor->s_sibling;
-+	ino_t ino;
-+	int i = filp->f_pos;
-+	int err = 0;
-+
-+	switch (i) {
-+		case 0:
-+			ino = dentry->d_inode->i_ino;
-+			if (filldir(dirent, ".", 1, i, ino, DT_DIR) < 0)
-+				break;
-+			filp->f_pos++;
-+			i++;
-+			/* fallthrough */
-+		case 1:
-+			ino = parent_ino(dentry);
-+			if (filldir(dirent, "..", 2, i, ino, DT_DIR) < 0)
-+				break;
-+			filp->f_pos++;
-+			i++;
-+			/* fallthrough */
-+		default:
-+			down_write(&sd->s_rwsem);
-+			if (filp->f_pos == 2) {
-+				list_del(q);
-+				list_add(q, &sd->s_children);
-+			}
-+			for (p = q->next; p != &sd->s_children; p = p->next) {
-+				struct sysfs_dirent *next_sd;
-+				struct dentry * next;
-+				char * name;
-+
-+				next_sd = list_entry(p, struct sysfs_dirent, 
-+						   s_sibling);
-+				if (!next_sd->s_element)
-+					continue;
-+				name = sysfs_get_name(next_sd);
-+				up_write(&sd->s_rwsem);
-+				next = sysfs_get_dentry(dentry, name);
-+				down_write(&sd->s_rwsem);
-+				if (IS_ERR(next))
-+					break;
-+				if (!next || !next->d_inode)
-+					continue;
-+				err = filldir(dirent, next->d_name.name, next->d_name.len, filp->f_pos, next->d_inode->i_ino, dt_type(next->d_inode));
-+				dput(next);
-+				if (err < 0) 
-+					break;
-+				list_del(q);
-+				list_add(q, p);
-+				p = q;
-+				filp->f_pos++;
-+			}
-+			up_write(&sd->s_rwsem);
-+	}
-+	return 0;
- }
- 
- EXPORT_SYMBOL(sysfs_create_dir);
+/* Output version information and exit */
+void version()
+{
+  fprintf(stdout, PROG " version 1.1\n"
+	  "Copyright (C) 2000 Dag Lem.\n"
+	  "This is free software; see the source for copying conditions.  There
+is NO\n"
+	  "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.\n");
+  exit(0);
+}
 
-_
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+/* Create printable string of regions from region mask */
+const char* region(char mask)
+{
+  static char text[20] = " not set";
+  int bits = ~mask;
+
+  if (bits) {
+    int i;
+    int end = 0;
+    for (i = 0; i < 8; i++) {
+      if (bits & 0x01) {
+	end += sprintf(text + end, " %d", i + 1);
+      }
+      bits >>= 1;
+    }
+  }
+
+  return text;
+}
+
+/* Send SCSI command to drive and retrieve reply */
+void sgio(int fd, const unsigned char* cmd, int cmdlen, int replylen)
+{
+  int pack_len = SG_SIZE + cmdlen;
+  int reply_len = SG_SIZE + replylen;
+
+  memset(buf_msg, 0, pack_len);
+  sg_msg->reply_len = reply_len;
+  memcpy(msg, cmd, cmdlen);
+
+  memset(buf_reply, 0, reply_len);
+
+  if (write(fd, buf_msg, pack_len) != pack_len) {
+    perror("sg write");
+    exit(1);
+  }
+
+  if (read(fd, buf_reply, reply_len) != reply_len) {
+    perror("sg read");
+    exit(1);
+  }
+}
+
+/* Drive model check */
+void check_device(int fd)
+{
+  int replylen = 96;
+
+  unsigned char cmd[] = { INQUIRY, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  cmd[4] = replylen;
+
+  sgio(fd, cmd, sizeof(cmd), replylen);
+
+  if (sg_reply->driver_status != 0x00) {
+    fprintf(stderr, "Unable to read drive info\n");
+    exit(1);
+  }
+
+  fprintf(stdout, "Vendor: %.8s Model: %.16s Rev: %.4s\n",
+	  reply + 8, reply + 16, reply + 32);
+
+  if (reply[0] != TYPE_ROM) {
+    fprintf(stderr, "Not a DVD-ROM device\n");
+    exit(1);
+  }
+}
+
+/* DVD encryption and region info */
+void dvdinfo(int fd)
+{
+  unsigned char cmd[] = { READ_DVD_STRUCTURE, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00 };
+
+  sgio(fd, cmd, sizeof(cmd), 8);
+
+  if (sg_reply->driver_status != 0x00) {
+    fprintf(stderr, "Unable to read DVD structure, insert disc and wait
+for drive to finish\n");
+    exit(1);
+  }
+
+  fprintf(stdout, "CSS: %s, region mask:%s\n", reply[4] ? "enabled" :
+"disabled", region(reply[5]));
+}
+
+/* RPC status */
+void status(int fd)
+{
+  char* type_code[] = { "not set", "set", "last chance", "permanent" };
+
+  unsigned char cmd[] = { REPORT_KEY, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x08, 0x08, 0x00 };
+
+  sgio(fd, cmd, sizeof(cmd), 8);
+
+  if (sg_reply->driver_status != 0x00 || reply[6] == 0x00) {
+    fprintf(stdout, "RPC1\n");
+  }
+  else {
+    fprintf(stdout, "RPC2: region mask:%s, user: %d, vendor: %d, status:
+%s\n", region(reply[5]), reply[4] & 0x07, (reply[4] >> 3) & 0x07,
+type_code[reply[4] >> 6]);
+  }
+}    
+
+/* RPC2 set region */
+void set_region(int fd, unsigned char rmask)
+{
+  unsigned char cmd[] = { SEND_KEY, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x08, 0x06, 0x00,
+		              0x00, 0x06, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 };
+
+  cmd[12 + 4] = rmask;
+
+  sgio(fd, cmd, sizeof(cmd), 0);
+
+  if (sg_reply->driver_status != 0x00) {
+    fprintf(stderr, "Unable to set region, insert disc with requested
+region and wait for drive to finish\n");
+    exit(1);
+  }
+}
+
+
+/* Execute special RPC2 command */
+void rpc2_execute(int fd, rpc2_command_t command)
+{
+  int i;
+  for (i = 0; i < sizeof(rpcmgr_drives)/sizeof(struct drive_model); i++)
+{
+    if (strncmp(reply + 8, rpcmgr_drives[i].vendor, 8) == 0
+	&& strncmp(reply + 16, rpcmgr_drives[i].product, 16) == 0)
+      {
+	rpcmgr_drives[i].rpc2_function(fd, command);
+	return;
+      }
+  }
+
+  fprintf(stderr, "There are no known special RPC2 commands for this
+drive model\n");
+  exit(1);
+}
+
+
+/* HITACHI RPC2 */
+void rpc2_hitachi(int fd, rpc2_command_t command)
+{
+  unsigned char cmd[] = { HITACHI_RPC2, 'H', 'I', 'T', 'R', 'P', 'C',
+'2', 0x02, 0x00, 0x00, 0x00 };
+
+  /* Can only execute RPC2_ENABLE and RPC2_DISABLE */
+  switch (command) {
+  case RPC2_ENABLE:
+    cmd[9] = 0x02;
+    break;
+  case RPC2_DISABLE:
+    cmd[9] = 0x01;
+    break;
+  default:
+    fprintf(stderr, "HITACHI RPC2: invalid command\n");
+    exit(1);
+  }
+
+  sgio(fd, cmd, sizeof(cmd), 0);
+
+  if (sg_reply->driver_status != 0x00) {
+    fprintf(stderr, "HITACHI RPC2: command failed\n");
+    exit(1);
+  }
+}
+
+
+/* LG RPC2 */
+void rpc2_lg(int fd, rpc2_command_t command)
+{
+  int cmdlen = 12;
+  unsigned char cmd[] = { MODE_SELECT_10, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+			            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x21,
+0x02, 0x00, 0x00 };
+
+  /* Can execute everything except RPC2_ENABLE */
+  switch (command) {
+  case RPC2_DISABLE:
+    cmd[1] = 0x00;
+    cmd[12 + 10] = 0x02;
+    break;
+  case RPC2_RESET_USER:
+    cmd[1] = 0x00;
+    cmd[12 + 10] = 0x81;
+    break;
+  case RPC2_RESET_VENDOR:
+    cmd[1] = 0x10;
+    cmd[12 + 10] = 0x80;
+    break;
+  default:
+    fprintf(stderr, "LG RPC2: invalid command\n");
+    exit(1);
+  }
+
+  ioctl(fd, SG_NEXT_CMD_LEN, &cmdlen);
+  sgio(fd, cmd, sizeof(cmd), 0);
+
+  if (sg_reply->driver_status != 0x00) {
+    fprintf(stderr, "LG RPC2: command failed\n");
+    exit(1);
+  }
+}
+
+	
+
+/* Progam entry */
+int main(int argc, char** argv)
+{
+  struct option longopts[] =
+    {
+      { "disable",      no_argument,       NULL, 'd' },
+      { "enable",       no_argument,       NULL, 'e' },
+      { "help",         no_argument,       NULL, 'h' },
+      { "dvdinfo",      no_argument,       NULL, 'i' },
+      { "region",       required_argument, NULL, 'r' },
+      { "status",       no_argument,       NULL, 's' },
+      { "reset-user",   no_argument,       NULL, 'u' },
+      { "reset-vendor", no_argument,       NULL, 'v' },
+      { "version",      no_argument,       NULL, 'V' },
+      { NULL,           no_argument,       NULL, 0   }
+    };
+
+  int val;
+  int flag = 0;
+  char* region_str;
+  unsigned char rmask;
+  int fd;
+
+  while ((val = getopt_long(argc, argv, "+dehir:suvV", longopts, NULL))
+!= -1)
+  {
+    if (flag) {
+      usage(stderr);
+    }
+
+    switch (val) {
+    case '?':
+    case ':':
+      usage(stderr);
+    case 'h':
+      usage(stdout);
+    case 'V':
+      version();
+    }
+
+    flag = val;
+    region_str = optarg;
+  }
+
+  if (!flag || optind + 1 != argc) {
+    usage(stderr);
+  }
+
+  fd = open(argv[optind], O_RDWR);
+  if (fd == -1) {
+    perror("sg open");
+    exit(1);
+  }
+
+  check_device(fd);
+
+  switch (flag) {
+  case 'd':
+    rpc2_execute(fd, RPC2_DISABLE);
+    status(fd);
+    break;
+  case 'e':
+    rpc2_execute(fd, RPC2_ENABLE);
+    status(fd);
+    break;
+  case 'i':
+    dvdinfo(fd);
+    break;
+  case 'r':
+    if (strcmp(region_str, "all") == 0) {
+      set_region(fd, 0x00);
+    }
+    else {
+      rmask = atoi(region_str);
+      if (rmask < 1 || rmask > 8) {
+	fprintf(stderr, "Invalid region: %d\n", rmask);
+	exit(1);
+      }
+      set_region(fd, ~(1 << (rmask - 1)));
+    }
+    status(fd);
+    break;
+  case 's':
+    status(fd);
+    break;
+  case 'u':
+    rpc2_execute(fd, RPC2_RESET_USER);
+    status(fd);
+    break;
+  case 'v':
+    rpc2_execute(fd, RPC2_RESET_VENDOR);
+    status(fd);
+    break;
+  }
+
+  close(fd);
+
+  exit(0);
+}
+
+

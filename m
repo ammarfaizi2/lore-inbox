@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292061AbSBOJ2A>; Fri, 15 Feb 2002 04:28:00 -0500
+	id <S292058AbSBOJ1q>; Fri, 15 Feb 2002 04:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292062AbSBOJ1r>; Fri, 15 Feb 2002 04:27:47 -0500
-Received: from copper.ftech.net ([212.32.16.118]:47881 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S292061AbSBOJ1a>;
-	Fri, 15 Feb 2002 04:27:30 -0500
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E4214@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Including the FarSync X.21 driver in the 2.2.x Kernel 
-Date: Fri, 15 Feb 2002 09:22:30 -0000
+	id <S292062AbSBOJ1b>; Fri, 15 Feb 2002 04:27:31 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54033 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S292058AbSBOJ1W>; Fri, 15 Feb 2002 04:27:22 -0500
+Message-Id: <200202150925.g1F9Pgt26045@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Thomas Capricelli <tcaprice@logatique.fr>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: lk maintainers
+Date: Fri, 15 Feb 2002 11:25:43 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200202140937.g1E9bvt21686@Port.imtp.ilyichevsk.odessa.ua> <200202150700.g1F70Lt25488@Port.imtp.ilyichevsk.odessa.ua> <20020215090942.254CD23CBB@persephone.dmz.logatique.fr>
+In-Reply-To: <20020215090942.254CD23CBB@persephone.dmz.logatique.fr>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-	please find a patch against the 2.2.19 Kernel that includes support
-for the FarSync X.21 driver.  This driver will allow syncppp over a
-X21/V35/V24 line interface.  The driver is already included in the 2.4.x
-Kernel.  As the patch is quite large it is downloadable from
- 
-http://www.farsite.co.uk/custsupp/download/FarSync_X21_Linux/farsync_2.2_pat
-ch
+On 15 February 2002 07:11, Thomas Capricelli wrote:
+> On Friday 15 February 2002 12:00, Denis Vlasenko wrote:
+> > On 14 February 2002 18:35, Hans-Joachim Baader wrote:
+> > > >This document is mailed to lkml regularly and will be modified
+> > > >whenever new victim wishes to be listed in it or someone can
+> > > >no longer devote his time to maintainer work.
+> > >
+> > > A permanent URL for this thing would be nice...
+> >
+> > I can find a place for it, but would it reach intended audience faster?
+> > I doubt it.
+>
+> 	Having it online doesn't prevent you from posting is to lkml from times to
+> times.
+> 	web -> reference
+> 	posting -> to remind people they should check it
 
-As this is the first patch I have submitted, please let me know if there is
-any problems with the presentation.  When do you anticipate a release of
-2.2.20?  Will this patch be included in that release?
-
-Regards
-
-Kevin Curtis
-Linux Development
-FarSite Communications Ltd
-kevin.curtis@farsite.co.uk
-tel:   +44 1256 330461
-fax:  +44 1256 331145
-
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: 18 January 2002 09:58
-To: kevin.curtis@farsite.co.uk
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: Is the 2.2.x Kernel still being developed
-
-
-> 	If this is possible, do I just mail a patch to you for it's
-> inclusion?
-
-Yep
-
-> 	Will the module automatically be carried forward into the next
-> stable version (2.6.x)?
-
-2.6 or whatever it becomes will be from 2.5 which in turn starts from a 2.4
-copy as of 2.4.14 (with the later changes merged in). Your driver is thus
-already in the 2.5 development tree. The only thing you probably want to do
-as 2.6 approaches is to ensure its still up to date, test it and submit
-any fixes
+I'm not against the idea in principle, will do it. Later.
+--
+vda

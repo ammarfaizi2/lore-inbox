@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVBROgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVBROfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVBROgT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 09:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVBROgT
+	id S261375AbVBROfm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 09:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVBROfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 09:36:19 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23950 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261208AbVBROgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 09:36:08 -0500
-Date: Fri, 18 Feb 2005 15:36:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Philip R Auld <pauld@egenera.com>
+	Fri, 18 Feb 2005 09:35:41 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:48282 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261208AbVBROfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 09:35:25 -0500
+Date: Fri, 18 Feb 2005 15:35:17 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jamey Hicks <jamey.hicks@hp.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: bio refcount problem
-Message-ID: <20050218143603.GA16511@suse.de>
-References: <20050218125414.GA14362@vienna.egenera.com> <20050218135931.GG4056@suse.de> <20050218142607.GB14362@vienna.egenera.com>
+Subject: Re: gpio api
+Message-ID: <20050218143517.GA5307@wohnheim.fh-wedel.de>
+References: <4215F1A0.1030805@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050218142607.GB14362@vienna.egenera.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4215F1A0.1030805@hp.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18 2005, Philip R Auld wrote:
-> Hi,
+On Fri, 18 February 2005 08:46:08 -0500, Jamey Hicks wrote:
 > 
-> Rumor has it that on Fri, Feb 18, 2005 at 02:59:32PM +0100 Jens Axboe said:
-> > On Fri, Feb 18 2005, Philip R Auld wrote:
+> GPIO Client Driver API
 > 
-> ...
-> > > Or make all users of submit_bio take and release and extra reference
-> > > like submit_bh.
-> > 
-> > The queue lock is still held at that point, so the driver hasn't had a
-> > chance to process the request yet.
+> The first two calls are analogous to request_irq/free_irq, so that
+> driver can ensure that they have exclusive access to a GPIO and can
+> specify asynchronous or synchronous access.  I have run into problems
+> due to out-of-date or misconfigured drivers that would be prevented by
+> the use of these calls.
 > 
-> Interesting. This is not a theoretical problem though. I've got traces of 
-> the oops showing the bio getting freed before the bio_sync(bio) test. 
-> When you say driver here what level do you mean? scsi_request_fn at 
-> least drops the queue lock. 
+>   #define GPIOF_SYNC      (1 << 0)
+>   #define GPIOF_ASYNC     (1 << 1)
+>   #define GPIOF_SYSFS     (1 << 2)
+>   #define GPIOF_VALID     (1 << 3)
+> 
+>   int request_gpio(int gpio_num, const char *name,
+>       void (*callback)(int gpionum, void *devid), int flags, void *devid);
+>   void free_gpio(int gpio_num, void *devid);
+> 
+> It is a BUG to supply a NULL callback if GPIO is successfully
+> requested with GPIOF_ASYNCH set.  [Alternatively, split into sync and
+> async calls and consider it a BUG to use the synchronous calls on a
+> GPIO requested with GPIOF_ASYNC set.]
 
-But it must be holding the lock to retrieve the request in question, so
-there should be no opening for a completion race there.
+Don't split the interface.  BUG_ON((flags&GPIOF_ASYNC) && !callback)
+might be a good idea, but most likely there are valid reasons for NULL
+callbacks as well.
 
-> What if it's merged instead of added directly? That could also get to
-> the same place.
+Also, it's not unusual to request several pins at one.  If the
+requester can simply provide a bitmask, the calling code is *much*
+simpler.
 
-Same deal - if the request is already seen by the driver, merging is not
-allowed. If not, then the same rules apply.
+>    int set_gpio_mode(int gpionum, int modeflags);
+>    int set_gpio_value(int gpionum, int value);
+>    int get_gpio_value(int gpionum);
 
-> The end_io callback _is_ getting called before __make_request 
-> does its "if(bio_sync(bio))" test. 
+These functions either lack a struct gpiochip argument or could be
+omitted completely.
 
-Sounds strange, it sounds like a driver issue. If you have time, please
-do poke some more at this. I'll try to be responsive, but I'm busy with
-other things atm. Are you using a vanilla kernel?
+> GPIO Provider API
+> 
+>    struct gpiochip {
+>       int (*set)(struct gpiochip *chip, void *context, int value);
+>       int (*get)(struct gpiochip *chip void *context);
+>       int (*mode)(struct gpiochip *chip, void *context, int modeflags);
+>    };
+
+A private structure is surely needed, no?
+
+
+Overall, I like the idea.  Having a standard interface for gpio
+drivers makes life somewhat easier when writing a driver, and a *lot*
+easier when using one.  With every driver having their own custom
+interface, some *will* end up broken and unusable.
+
+Jörn
 
 -- 
-Jens Axboe
-
+He that composes himself is wiser than he that composes a book.
+-- B. Franklin

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVC2Kwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVC2K47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262332AbVC2Kwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVC2KwS
+	id S262354AbVC2K47 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVC2K4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:52:18 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:35547 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262332AbVC2Kvp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:51:45 -0500
-Date: Tue, 29 Mar 2005 12:46:22 +0200 (CEST)
-To: akpm@osdl.org
-Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use)
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <xyDqcv4K.1112093182.7253990.khali@localhost>
-In-Reply-To: <20050328222348.4c05e85c.akpm@osdl.org>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Adrian Bunk" <bunk@stusta.de>, "LKML" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 29 Mar 2005 05:56:46 -0500
+Received: from albireo.ucw.cz ([84.242.65.67]:52866 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S262354AbVC2KxP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 05:53:15 -0500
+Date: Tue, 29 Mar 2005 12:53:10 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, johnpol@2ka.mipt.ru,
+       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050329105310.GA10647@ucw.cz>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com> <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda> <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda> <42439839.7060702@pobox.com> <20050329101816.GA6496@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050329101816.GA6496@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Hi Andrew, all,
+> We trust hardware, anyway. Like your disk *could* accidentaly turn on
+> setuid bit on /bin/bash, and we do not insist on userspace
+> disk-validator.
 
-> >  Think about it. If the pointer could be NULL, then it's unlikely that
-> >  the bug would have gone unnoticed so far (unless the code is very
-> >  recent). Coverity found 3 such bugs in one i2c driver [1], and the
-> >  correct solution was to NOT check for NULL because it just couldn't
-> >  happen.
->
-> No, there is a third case: the pointer can be NULL, but the compiler
-> happened to move the dereference down to after the check.
+But there is a very important difference: the most likely (both in theory
+and practice) failure of a disk is clearly visible, while failures of HW RNG's
+are likely to be silent (the data are just less random than they should be).
 
-Wow. Great point. I completely missed that possibility. In fact I didn't
-know that the compiler could possibly alter the order of the
-instructions. For one thing, I thought it was simply not allowed to. For
-another, I didn't know that it had been made so aware that it could
-actually figure out how to do this kind of things. What a mess. Let's
-just hope that the gcc folks know their business :)
-
-I'll try to remember this next time I debug something. Do not assume
-that instructions are run in the order seen in the source. Irk.
-
-> If the optimiser is later changed, or if someone tries to compile the code
-> with -O0, it will oops.
-
-Interesting. Then wouldn't it be worth attempting such compilations at
-times, and see if we get additional oops? Doesn't gcc have a flag to
-specifically forbid this family of optimizations?
-
-Thanks,
---
-Jean Delvare
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Top ten reasons to procrastinate: 1.

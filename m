@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289737AbSA2QXS>; Tue, 29 Jan 2002 11:23:18 -0500
+	id <S289741AbSA2QZs>; Tue, 29 Jan 2002 11:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289741AbSA2QW6>; Tue, 29 Jan 2002 11:22:58 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:65492 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S289737AbSA2QW5>;
-	Tue, 29 Jan 2002 11:22:57 -0500
-Date: Tue, 29 Jan 2002 17:22:47 +0100 (CET)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE - 2.4.x ide backport for 2.2.21pre2 kernel
-In-Reply-To: <Pine.LNX.4.33.0201291654480.17318-100000@dark.pcgames.pl>
-Message-ID: <Pine.LNX.4.33.0201291721410.17414-100000@dark.pcgames.pl>
+	id <S289749AbSA2QZj>; Tue, 29 Jan 2002 11:25:39 -0500
+Received: from mx04.nexgo.de ([151.189.8.80]:11023 "EHLO mx04.nexgo.de")
+	by vger.kernel.org with ESMTP id <S289741AbSA2QZ0>;
+	Tue, 29 Jan 2002 11:25:26 -0500
+Message-ID: <3C56CCED.6040801@arcor.de>
+Date: Tue, 29 Jan 2002 17:25:17 +0100
+From: Hartmut Holz <hartmut.holz@arcor.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: rmap12a slower than rmap11c (mpeg/VCD)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh! :)
 
-This is location of patches:
-http://www.ans.pl/ide
+if I play mpeg/VCD with rmap12a, I recognize that rmap12a is slower than rmap11c.
+(PII 450 MHz - SMP, Matrox G450 - PCI). I think  there's nothing to measure.
+GTV shows with both patches about 25 fps. But what I see on the screen is different
 
-and:
-http://www.ans.pl/ide/testing (testing and rc version)
+Regards
 
-Best regards,
-
-			Krzysztof Oledzki
+Hartmut
 
 

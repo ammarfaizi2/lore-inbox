@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290649AbSARKKh>; Fri, 18 Jan 2002 05:10:37 -0500
+	id <S290653AbSARKN1>; Fri, 18 Jan 2002 05:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290652AbSARKKT>; Fri, 18 Jan 2002 05:10:19 -0500
-Received: from web8103.in.yahoo.com ([203.199.70.30]:45069 "HELO
-	web8103.in.yahoo.com") by vger.kernel.org with SMTP
-	id <S290649AbSARKJ7>; Fri, 18 Jan 2002 05:09:59 -0500
-Message-ID: <20020118100949.77780.qmail@web8103.in.yahoo.com>
-Date: Fri, 18 Jan 2002 10:09:49 +0000 (GMT)
-From: =?iso-8859-1?q?b=20mani=20manoharan?= <kernelrnd@yahoo.co.in>
-Subject: Tapping IP pacjkets
-To: linux-kernel@vger.kernel.org
+	id <S290654AbSARKNW>; Fri, 18 Jan 2002 05:13:22 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:22792 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S290653AbSARKNJ>; Fri, 18 Jan 2002 05:13:09 -0500
+Message-ID: <3C47F528.3C39E31@aitel.hist.no>
+Date: Fri, 18 Jan 2002 11:12:56 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-pre11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: DEVFS broken?
+In-Reply-To: <20020117171229.GA1084@the-penguin.otak.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ALL
+Lawrence Walton wrote:
+> 
+> I am not sure how to debug this but it apears that
+> in 2.5.3-pre1 and in 2.5.2-dj1 DEVFS is not working.
+> It started by terminals hanging and not being able to
+> shutdown.
+> I went to /dev/ and did a ls, it compleatly hangs that
+> terminal and I cannot kill ls.
+> I have the devfsd version from debian 1.3.21 .
 
-I have to tap IP packets at IP level and transmit to a
-physical device
-Does linux provide any method to do this.
-In this case how is the device get initialised ?
+I run into that inability to shutdown occationally.
+There is an easy fix though:
 
-As i'am not subscribed to the list
-Thanks in advance
-prac den
+kill -SIGUSR1 1
+This is the documented way of dealing with a
+remounted /dev.  shutdown, init, telinit
+work normally after that.  Unless there
+are other errors of course.
 
-________________________________________________________________________
-Looking for a job?  Visit Yahoo! India Careers
-      Visit http://in.careers.yahoo.com
+Helge Hafting

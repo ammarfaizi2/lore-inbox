@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129689AbRBBS0B>; Fri, 2 Feb 2001 13:26:01 -0500
+	id <S129750AbRBBS0A>; Fri, 2 Feb 2001 13:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129976AbRBBSZu>; Fri, 2 Feb 2001 13:25:50 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:31562 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129689AbRBBSZh>; Fri, 2 Feb 2001 13:25:37 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200102021825.f12IPCu20705@devserv.devel.redhat.com>
-Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 2 Feb 2001 13:25:12 -0500 (EST)
-Cc: mason@suse.com (Chris Mason), alan@redhat.com (Alan Cox),
-        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-In-Reply-To: <3A7AEFBF.2FBA5822@namesys.com> from "Hans Reiser" at Feb 02, 2001 08:34:55 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129689AbRBBSZv>; Fri, 2 Feb 2001 13:25:51 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:6855 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129750AbRBBSZm>; Fri, 2 Feb 2001 13:25:42 -0500
+Date: Fri, 2 Feb 2001 19:20:34 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ingo Molnar <mingo@redhat.com>
+cc: Manfred <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: mpparse.c question
+In-Reply-To: <Pine.LNX.4.32.0102021243440.1529-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.3.96.1010202191456.28509R-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, did Linus say no?  If not, let's ask him with a patch.  Quite simply,
-> neither we nor the users should be burdened with this, and the patch removes
-> the burden.
+On Fri, 2 Feb 2001, Ingo Molnar wrote:
 
-Since egcs-1.1.2 and gcc 2.95 miscompile the kernel strstr code dont forget
-to stop those being used as well. Oh look you'll need CVS gcc to build the
-kernel... ah but wait that misbuilds DAC960.c...
+> (hm, dont we have an assert in there to catch ISA IRQs bound to the second
+> IO-APIC?) In any case, it would be a very surprising move if anyone added
+> a second IO-APIC for the sake of *ISA* devices. This would be truly
+> backwards.
 
-Oh look nothing compiles the kernel.
+ It's just the matter of the order I/O APICs are listed in the MP table. 
+I think it's only the limited number of multiple-I/O APIC systems
+available so far that prevented from a reverse listing to happen.  Given
+recent developments which lead to more such systems (e.g. using the
+infamous ServerWorks chipset which embeds two I/O APICs internally), it's
+only the matter of time until this happens, I'm afraid. 
 
-Congratulations 8)
+ No need to hurry, though -- we might fix the problem once (if) it
+appears. 
 
-Alan
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

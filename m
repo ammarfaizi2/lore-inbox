@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262617AbSI0Tra>; Fri, 27 Sep 2002 15:47:30 -0400
+	id <S262601AbSI0Tja>; Fri, 27 Sep 2002 15:39:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262616AbSI0Tr3>; Fri, 27 Sep 2002 15:47:29 -0400
-Received: from packet.digeo.com ([12.110.80.53]:54662 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262612AbSI0Tqz>;
-	Fri, 27 Sep 2002 15:46:55 -0400
-Message-ID: <3D94B6EF.58434CC1@digeo.com>
-Date: Fri, 27 Sep 2002 12:52:15 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <3D9372D3.3000908@colorfullife.com> <3D937E87.D387F358@digeo.com> <200209262041.11227.tomlins@cam.org> <3D949468.4010202@colorfullife.com> <3D94A2D4.55721A8A@digeo.com> <3D94B3B4.6090409@colorfullife.com>
+	id <S262598AbSI0Tj0>; Fri, 27 Sep 2002 15:39:26 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:3854 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262600AbSI0TjT>;
+	Fri, 27 Sep 2002 15:39:19 -0400
+Date: Fri, 27 Sep 2002 12:42:58 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] More USB changes for 2.5.38
+Message-ID: <20020927194258.GF12909@kroah.com>
+References: <20020927193723.GA12909@kroah.com> <20020927193855.GB12909@kroah.com> <20020927194025.GC12909@kroah.com> <20020927194054.GD12909@kroah.com> <20020927194240.GE12909@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2002 19:52:08.0193 (UTC) FILETIME=[5CA35710:01C2665F]
+Content-Disposition: inline
+In-Reply-To: <20020927194240.GE12909@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> Andrew Morton wrote:
-> >
-> >>* After flushing a batch back into the lists, the number of free objects
-> >>in the lists is calculated. If freeable pages exist and the number
-> >>exceeds a target, then the freeable pages above the target are returned
-> >>to the page buddy.
-> >
-> >
-> > Probably OK for now.  But slab should _not_ hold onto an unused,
-> > cache-warm page.  Because do_anonymous_page() may want one.
-> >
-> If the per-cpu caches are enabled on UP, too, then this is a moot point:
-> by the time a batch is freed from the per-cpu array, it will be cache cold.
-
-Well yes, it's all smoke, mirrors and wishful thinking.  All we can
-do is to apply local knowledge of typical behaviour in deciding whether
-a page is likely to be usefully reused.
-
-> And btw, why do you think a page is cache-warm when the last object on a
->   page is freed? If the last 32-byte kmalloc is released on a page, 40xx
-> bytes are probably cache-cold.
-
-L2 caches are hundreds of K, and a single P4 cacheline is 1/32nd of
-a page.  Things are tending in that direction.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.611.1.4 -> 1.611.1.5
+#	drivers/usb/storage/sddr55.c	1.4     -> 1.5    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/26	tim@physik3.uni-rostock.de	1.611.1.5
+# [PATCH] fix compares of jiffies
+# 
+# on rechecking the current stable kernel code, I found some places where jiffies
+# were compared in a way that seems to break when they wrap. For these,
+# I made up patches to use the macros "time_before()" or "time_after()"
+# that are supposed to handle wraparound correctly.
+# --------------------------------------------
+#
+diff -Nru a/drivers/usb/storage/sddr55.c b/drivers/usb/storage/sddr55.c
+--- a/drivers/usb/storage/sddr55.c	Fri Sep 27 12:30:17 2002
++++ b/drivers/usb/storage/sddr55.c	Fri Sep 27 12:30:17 2002
+@@ -788,7 +788,7 @@
+ 	/* only check card status if the map isn't allocated, ie no card seen yet
+ 	 * or if it's been over half a second since we last accessed it
+ 	 */
+-	if (info->lba_to_pba == NULL || jiffies > (info->last_access + HZ/2)) {
++	if (info->lba_to_pba == NULL || time_after(jiffies, info->last_access + HZ/2)) {
  
-> Back to your first problem: You've mentioned excess hits on the
-> cache_chain_semaphore. Which app did you use for stress testing?
-
-I think it was dd-to-six-disks.
-
-> Could you run a stress test with the applied patch?
-
-Shall try to.
-
-> I've tried dbench 50, with 128 MB RAM, on uniprocessor, with 2.4:
-> 
-> There were 9100 calls to kmem_cache_reap, and in 90% of the calls, no
-> freeable memory was found. Alltogether, only 1300 pages were freed from
-> the slabs.
-> 
-> Are there just too many calls to kmem_cache_reap()? Perhaps we should
-> try to optimize the "nothing freeable exists" logic?
-
-It certainly sounds like it.  Some sort of counter which is accessed
-outside locks would be appropriate.  Test that before deciding to
-take the lock.
+ 		/* check to see if a card is fitted */
+ 		result = sddr55_status (us);
